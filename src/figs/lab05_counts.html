@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">범주별 빈도 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for col in [&quot;low_f&quot;, &quot;smoke_f&quot;, &quot;ht_f&quot;, &quot;ptl_f&quot;, &quot;race_f&quot;]:
+    print(col, df[col].value_counts(sort=False).to_dict())
+print(&quot;LBW 비율:&quot;, round(df[&quot;low&quot;].mean(), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>low_f {&#x27;LBW&#x27;: 59<span class="mk">1</span>, &#x27;Not LBW&#x27;: 130}
+smoke_f {&#x27;Smoker&#x27;: 74, &#x27;Nonsmoker&#x27;: 115}
+ht_f {&#x27;HT&#x27;: 12<span class="mk">2</span>, &#x27;No HT&#x27;: 177}
+ptl_f {&#x27;Preterm&#x27;: 30<span class="mk">3</span>, &#x27;None&#x27;: 159}
+race_f {&#x27;White&#x27;: 96, &#x27;Black&#x27;: 26, &#x27;Other&#x27;: 67}
+LBW 비율: 0.312<span class="mk">4</span></pre></div></div>

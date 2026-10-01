@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">분산분석표 (statsmodels)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+model = smf.ols(&quot;bwt ~ race_f&quot;, data=df).fit()
+table = sm.stats.anova_lm(model)
+table</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>df</th>
+      <th>sum_sq</th>
+      <th>mean_sq</th>
+      <th>F</th>
+      <th>PR(&gt;F)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>race_f</th>
+      <td>2.0<span class="mk">1</span></td>
+      <td>5.015725e+06<span class="mk">2</span></td>
+      <td>2.507863e+06<span class="mk">3</span></td>
+      <td>4.912513<span class="mk">4</span></td>
+      <td>0.008336<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>Residual</th>
+      <td>186.0<span class="mk">6</span></td>
+      <td>9.495393e+07</td>
+      <td>5.105050e+05<span class="mk">7</span></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

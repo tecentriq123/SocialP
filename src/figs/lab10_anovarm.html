@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">반복측정 분산분석 (AnovaRM)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.anova import AnovaRM
+
+aov = AnovaRM(sleep, depvar=&quot;Reaction&quot;, subject=&quot;Subject&quot;,
+              within=[&quot;Days&quot;]).fit()
+print(aov)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Anova
+===================================
+     F Value Num DF  Den DF  Pr &gt; F
+-----------------------------------
+Days 18.7027<span class="mk">1</span> 9.0000<span class="mk">2</span> 153.0000<span class="mk">3</span> 0.0000<span class="mk">4</span>
+===================================</pre></div></div>

@@ -1,0 +1,58 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">발생률비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = gee_ex.conf_int()                 # 로그 척도의 95% CI
+rr = pd.DataFrame({&quot;RR&quot;: np.exp(gee_ex.params),
+                   &quot;2.5%&quot;: np.exp(ci[0]),
+                   &quot;97.5%&quot;: np.exp(ci[1])})
+rr.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>RR</th>
+      <th>2.5%</th>
+      <th>97.5%</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>0.089</td>
+      <td>0.011</td>
+      <td>0.699</td>
+    </tr>
+    <tr>
+      <th>trt[T.progabide]</th>
+      <td>0.989</td>
+      <td>0.679</td>
+      <td>1.442</td>
+    </tr>
+    <tr>
+      <th>C(period)[T.2]</th>
+      <td>0.934</td>
+      <td>0.754</td>
+      <td>1.156</td>
+    </tr>
+    <tr>
+      <th>C(period)[T.3]</th>
+      <td>0.943</td>
+      <td>0.695</td>
+      <td>1.280</td>
+    </tr>
+    <tr>
+      <th>C(period)[T.4]</th>
+      <td>0.816</td>
+      <td>0.673</td>
+      <td>0.990</td>
+    </tr>
+    <tr>
+      <th>np.log(base / 4)</th>
+      <td>3.425</td>
+      <td>2.523</td>
+      <td>4.650</td>
+    </tr>
+    <tr>
+      <th>np.log(age)</th>
+      <td>1.839</td>
+      <td>1.042</td>
+      <td>3.246</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

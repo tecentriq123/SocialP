@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">부호순위를 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">nz = d[d != 0]                   # 차이가 0인 쌍은 제외
+rk = stats.rankdata(nz.abs())    # |d|에 순위 (동점은 평균순위)
+print(pd.DataFrame({&quot;d&quot;: nz, &quot;rank&quot;: rk}).T)
+w_plus = rk[nz &gt; 0].sum()        # 늘어난 쪽의 순위합
+w_minus = rk[nz &lt; 0].sum()       # 줄어든 쪽의 순위합
+print(&quot;n =&quot;, len(nz), &quot; W+ =&quot;, w_plus, &quot; W- =&quot;, w_minus)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ID     1    2    3    4    6    7    8    9    10
+d     1.2  2.4  1.3  1.3  1.0  1.8  0.8  4.6  1.4
+rank  3.0  8.0  4.5<span class="mk">1</span>  4.5  2.0  7.0  1.0  9.0  6.0
+n = 9<span class="mk">2</span>  W+ = 45.0<span class="mk">3</span>  W- = 0.0<span class="mk">4</span></pre></div></div>

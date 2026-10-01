@@ -1,0 +1,659 @@
+<p class="lead">9장의 로지스틱 회귀를 두 가지 목적으로 직접 해 봅니다. 앞부분(가–다 절)은 저체중아 출산의 위험인자를 찾는 원인 모형으로, statsmodels로 다변수 로지스틱 회귀를 적합해 <code>summary()</code>와 오즈비를 읽고 모형을 점검합니다. 뒷부분(라 절)은 유방 종괴가 악성인지 예측하는 예측모형으로, scikit-learn으로 학습한 뒤 ROC 곡선, 혼동행렬, 교정 곡선으로 성능을 평가합니다. 이론은 <a href="#ch09">9장</a>, 노트북 사용법은 <a href="#lab00">실습 0</a>을 참고하세요.</p>
+
+<dl class="glance">
+  <div><dt>관련 이론</dt><dd><a href="#ch09-s1">9장 가 절 로지스틱 회귀분석</a> (계수와 오즈비, 다변수 모형, 모형의 가정과 점검, 사건 수 대비 변수 수, 결과가 흔할 때의 오즈비, 원인 모형과 예측모형, 판별과 교정)</dd></div>
+  <div><dt>데이터</dt><dd>① <b>birthwt</b>: 1986년 미국 매사추세츠주 Baystate Medical Center의 출생아 189명과 산모 자료. 저체중아(2,500 g 미만) 출산과 산모 특성의 관계를 보는 로지스틱 회귀 교과서의 대표 예제입니다<cite data-ref="hosmer2013"></cite>. ② <b>위스콘신 진단 유방암 자료</b>(scikit-learn <code>load_breast_cancer</code>): 유방 종괴 569건, 세침흡인 검체 영상에서 계산한 세포핵 특징 30개와 악성·양성 진단.</dd></div>
+  <div><dt>사용 패키지</dt><dd>pandas, numpy, statsmodels(<code>smf.logit</code>, <code>smf.glm</code>), scipy, matplotlib, scikit-learn(<code>train_test_split</code>, <code>StandardScaler</code>, <code>LogisticRegression</code>, <code>roc_curve</code>, <code>roc_auc_score</code>, <code>confusion_matrix</code>, <code>calibration_curve</code>, <code>brier_score_loss</code>)</dd></div>
+  <div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00-s2">실습 0 나 절</a>). 설치할 패키지는 없습니다. birthwt는 인터넷에서 CSV 파일을 읽어 오므로 인터넷 연결이 필요합니다.</dd></div>
+</dl>
+
+<p>셀은 하나의 노트북에서 위에서부터 순서대로 실행합니다(<kbd>Shift</kbd> + <kbd>Enter</kbd>). 뒤의 셀이 앞 셀에서 만든 <code>bw</code>, <code>logit_m</code>, <code>p_test</code> 같은 변수를 쓰기 때문입니다. 아래 출력은 statsmodels 0.15, scikit-learn 1.8, SciPy 1.17, pandas 3.0, NumPy 2.4에서 실제로 실행한 결과이며, 버전에 따라 소수 끝자리, 표시 형식, 경고 문구가 조금 다를 수 있습니다.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab09-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>birthwt는 R의 MASS 패키지에 들어 있는 자료입니다. 파이썬에서는 <b>Rdatasets</b>라는 공개 저장소에서 CSV 파일로 받아옵니다. Rdatasets는 R 패키지들에 들어 있는 연습용 자료 2,000여 개를 CSV 파일로 모아 둔 사이트로, 주소가 <code>…/csv/패키지이름/자료이름.csv</code> 형식이라 <code>pd.read_csv()</code>에 주소를 넣기만 하면 됩니다. 인터넷에서 파일을 내려받는 것이므로 인터넷 연결이 필요합니다.</p>
+
+<h3>자료 불러오기</h3>
+<!--FIG:lab09_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import pandas as pd
+import numpy as np</code><span>표 자료를 다루는 pandas와 수치 계산용 NumPy를 불러옵니다. 오즈비를 구할 때 <code>np.exp</code>를 씁니다.</span></li>
+<li><code>url = "https://vincentarelbundock.github.io/…/birthwt.csv"</code><span>파일 주소를 문자열로 <code>url</code>에 담습니다. 한 글자라도 틀리면 <code>HTTPError: 404</code>가 납니다.</span></li>
+<li><code>bw = pd.read_csv(url)</code><span>주소의 CSV 파일을 내려받아 DataFrame으로 만들고 <code>bw</code>(birth weight)라는 이름을 붙입니다. 내 컴퓨터의 파일이라면 주소 대신 <code>"C:/data/birthwt.csv"</code>처럼 파일 경로를 넣습니다(<a href="#lab00-s5">실습 0 마 절</a>).</span></li>
+<li><code>print(bw.shape)
+bw.head()</code><span>행·열 수를 출력하고 앞 5행을 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(189, 11).</b> 출생아(와 그 산모) 189명, 열 11개입니다.</span></li>
+<li><span class="mk">2</span><span><b>rownames.</b> R 자료의 행 이름을 Rdatasets가 CSV로 옮기면서 붙인 열입니다. 분석 변수가 아니므로 쓰지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>bwt 2523.</b> 출생체중(g)입니다. 첫 번째 아기는 2,523 g이라 low = 0(저체중아 아님)입니다. 결과변수 <code>low</code>는 이 bwt로 만든 변수입니다.</span></li>
+</ol>
+
+<p>변수의 정의는 Rdatasets 사이트에서 자료 이름 옆의 'DOC' 링크를 누르면 나오는 설명서에 있습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>변수</th><th>설명서의 정의</th><th>이 실습에서의 사용</th></tr></thead>
+<tbody>
+<tr><td><code>low</code></td><td>출생체중 2.5 kg 미만이면 1</td><td>결과변수(사건 = 1)</td></tr>
+<tr><td><code>age</code></td><td>산모 나이(세)</td><td>연속형</td></tr>
+<tr><td><code>lwt</code></td><td>마지막 월경 시점의 산모 체중(파운드)</td><td>연속형. 1 lb = 0.454 kg</td></tr>
+<tr><td><code>race</code></td><td>1 = white, 2 = black, 3 = other</td><td>범주형(기준범주 white)</td></tr>
+<tr><td><code>smoke</code></td><td>임신 중 흡연 여부</td><td>이분형(1 = 흡연)</td></tr>
+<tr><td><code>ptl</code></td><td>이전 조산 횟수</td><td>있음(1회 이상)/없음으로 바꿔 <code>ptd</code>로 사용</td></tr>
+<tr><td><code>ht</code></td><td>고혈압 병력</td><td>이분형</td></tr>
+<tr><td><code>ui</code></td><td>자궁 과민성(uterine irritability)</td><td>이분형</td></tr>
+<tr><td><code>ftv</code></td><td>임신 첫 3개월의 진료 횟수</td><td>이 모형에는 쓰지 않음</td></tr>
+<tr><td><code>bwt</code></td><td>출생체중(g)</td><td>결과의 정의 확인에만 사용</td></tr>
+</tbody></table></div>
+<p>인종 변수는 원자료의 분류를 그대로 쓴 것입니다. 인종에 따른 차이는 생물학적 차이라기보다 자료에 없는 사회경제적 요인이나 의료 접근성의 차이를 반영할 가능성이 크므로, 계수를 인종 자체의 효과로 해석하지 않습니다.</p>
+
+<h3>결과변수와 설명변수 코딩</h3>
+<p>로지스틱 회귀의 결과변수는 사건이 1, 사건이 아닌 경우가 0이어야 합니다. 범주형 설명변수는 기준범주를 분명히 정해 둡니다(<a href="#ch09-s1">9장 가 절</a>의 '범주가 셋 이상인 설명변수', 8장 사 절).</p>
+<!--FIG:lab09_coding-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>bw["low"].value_counts()</code><span>결과변수에 0과 1이 몇 명씩인지 셉니다. 사건 수가 표본크기의 핵심입니다.</span></li>
+<li><code>(bw["bwt"] &lt; 2500).equals(bw["low"] == 1)</code><span><code>bw["bwt"] &lt; 2500</code>은 189개의 True/False입니다. 이것이 "low가 1인가"와 모든 행에서 같은지 <code>equals</code>로 확인합니다. 설명서의 정의(2.5 kg 미만)와 자료가 맞는지 보는 것입니다.</span></li>
+<li><code>bw["race"].map({1: "white", 2: "black", 3: "other"})</code><span><code>map</code>은 사전(dict)에 따라 값을 바꿉니다. 숫자 코드 1, 2, 3이 이름으로 바뀌어 출력에서 알아보기 쉬워집니다.</span></li>
+<li><code>pd.Categorical(…, categories=["white", "black", "other"])</code><span>범주형 자료형으로 바꾸면서 범주의 순서를 직접 정합니다. 회귀모형은 첫 번째 범주(white)를 기준범주로 씁니다. 순서를 지정하지 않으면 알파벳순(black이 기준)이 되므로, 버전과 상관없이 같은 결과를 얻으려면 이렇게 명시합니다.</span></li>
+<li><code>bw["ptd"] = (bw["ptl"] &gt; 0).astype(int)</code><span>이전 조산이 1회 이상이면 True, 아니면 False를 만든 뒤 <code>astype(int)</code>로 1/0으로 바꿔 새 열 <code>ptd</code>에 저장합니다.</span></li>
+<li><code>pd.crosstab(bw["ptl"], bw["low"], margins=True)</code><span>ptl(행)과 low(열)의 교차표입니다. <code>margins=True</code>는 합계(All) 행과 열을 붙입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>low: 0이 130명, 1이 59명.</b> 저체중아가 59명(31.2%)입니다. 사건이 드물지 않은(10%를 넘는) 결과라는 점은 나 절의 오즈비 해석에서 중요합니다.</span></li>
+<li><span class="mk">2</span><span><b>True.</b> 모든 행에서 low = 1과 bwt &lt; 2,500 g이 일치합니다.</span></li>
+</ol>
+<p>교차표에서 이전 조산이 2회인 산모는 5명, 3회인 산모는 1명뿐이고, 3회인 1명은 저체중아를 낳지 않았습니다. ptl을 네 범주 그대로 모형에 넣으면 이 칸 때문에 추정이 불가능해집니다(다 절의 분리). 그래서 교과서 예제처럼 "이전 조산 있음/없음"(<code>ptd</code>)으로 합쳐 씁니다. 범주를 합치는 기준은 이렇게 자료를 보기 전에 임상적으로 정하는 것이 원칙입니다.</p>
+
+<h3>사건 수와 EPV</h3>
+<p>로지스틱 회귀에서 정보의 양을 정하는 것은 전체 인원보다 사건 수(사건 유무 중 적은 쪽)입니다. 추정할 계수 하나당 사건 수, 즉 EPV<span class="en">(events per variable)</span>를 모형을 적합하기 전에 계산합니다(<a href="#ch09-s1">9장 가 절</a>의 '표본크기와 사건 수 대비 변수 수').</p>
+<!--FIG:lab09_epv-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>int(bw["low"].sum())</code><span>0/1 변수를 모두 더하면 1의 개수, 즉 사건 수가 됩니다. <code>int()</code>는 결과를 보통 정수로 바꿔 출력을 깔끔하게 합니다.</span></li>
+<li><code>(bw["low"] == 0).sum()</code><span>"low가 0인가"의 True/False를 더하면 True의 개수가 됩니다.</span></li>
+<li><code>k = 8</code><span>절편을 뺀 추정 계수의 수를 직접 셉니다. 범주가 셋인 race는 가변수 2개이므로 계수 2개로 셉니다.</span></li>
+<li><code>min(n_event, n_non) / k</code><span>사건과 비사건 중 적은 쪽을 계수 수로 나눕니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사건 59, 비사건 130.</b> 적은 쪽인 59가 EPV 계산에 들어갑니다.</span></li>
+<li><span class="mk">2</span><span><b>사건 비율 0.312.</b> 31.2%로 흔한 결과입니다.</span></li>
+<li><span class="mk">3</span><span><b>EPV = 7.4.</b> 흔히 쓰는 경험칙 10보다 작습니다. 교란 보정이 목적이면 5–9에서도 대체로 괜찮다는 연구가 있지만<cite data-ref="vittinghoff2007"></cite>, 계수가 다소 불안정하고 신뢰구간이 넓을 것이라고 예상하고 읽습니다. 다 절에서 스플라인 항을 추가하면 계수가 3개 늘어 EPV는 5.4로 더 낮아집니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 결과 정의와 분석 방법</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">The outcome was <span class="mk">1</span> <span class="hl">low birth weight, defined as a birth weight of less than 2500 g</span>. We used multivariable logistic regression to estimate odds ratios (ORs) and 95% confidence intervals (CIs) for maternal characteristics, including age, weight at the last menstrual period, race (<span class="mk">2</span> <span class="hl">White as the reference category</span>), smoking during pregnancy, <span class="mk">3</span> <span class="hl">history of preterm labor (any vs none)</span>, history of hypertension, and uterine irritability. With 59 events and 8 model coefficients, <span class="mk">4</span> <span class="hl">the number of events per variable was 7.4</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>결과의 정의.</b> 절단값과 부등호(미만인지 이하인지)까지 적습니다. 위에서 <code>equals</code>로 확인한 정의입니다. 모든 출생아의 결과가 관찰되었으므로 로지스틱 회귀가 적절합니다. 추적 기간이 사람마다 다르다면 Cox 모형(11장)을 고려합니다.</span></li>
+<li><span class="mk">2</span><span><b>기준범주.</b> <code>pd.Categorical</code>에서 첫 범주로 지정한 white입니다. 기준범주가 없으면 Table의 인종 오즈비를 읽을 수 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>변수를 바꾼 방법.</b> 원래 횟수(0–3회)였던 변수를 있음/없음으로 바꿨다는 사실과 그 이유(드문 범주)를 적습니다.</span></li>
+<li><span class="mk">4</span><span><b>EPV 7.4.</b> 59 ÷ 8. 경험칙 10보다 작다는 점을 숨기지 않고 적고, 필요하면 Discussion의 한계에서 다룹니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Rdatasets의 CSV는 <code>pd.read_csv("…/csv/패키지/자료.csv")</code>로 바로 읽습니다(인터넷 필요). 첫 열 rownames는 분석 변수가 아닙니다.</li>
+<li>결과변수는 사건 = 1, 비사건 = 0으로 코딩하고 정의(bwt &lt; 2500)와 일치하는지 확인합니다.</li>
+<li>범주형 변수는 <code>pd.Categorical(…, categories=[…])</code>로 기준범주(첫 범주)를 명시합니다. 사람이 몇 명뿐인 범주는 자료를 보기 전에 정한 기준으로 합칩니다.</li>
+<li>모형 적합 전에 사건 수와 EPV(59 ÷ 8 = 7.4)를 계산해 결과의 안정성을 가늠합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab09-s2">
+<h2><span class="sec-no">나.</span>다변수 로지스틱 회귀</h2>
+
+<p>교과서 예제와 같은 일곱 변수로 다변수 로지스틱 회귀를 적합합니다. statsmodels의 <code>smf.logit</code>은 6장의 <code>smf.ols</code>와 공식 쓰는 법이 같고, 계수를 최대우도추정으로 구합니다(<a href="#ch09-s1">9장 가 절</a>의 '추정과 검정', 8장 마 절).</p>
+
+<h3>모형 적합과 summary() 읽기</h3>
+<!--FIG:lab09_logit-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import statsmodels.formula.api as smf</code><span>공식 방식 모형 함수를 불러옵니다.</span></li>
+<li><code>f = "low ~ age + lwt + C(race) + smoke + ptd + ht + ui"</code><span>모형 공식을 문자열로 <code>f</code>에 담아 둡니다. 뒤에서 같은 공식을 여러 번 쓰기 때문입니다. <code>C(race)</code>는 race를 범주형으로 다뤄 기준범주(white) 외의 두 범주에 가변수를 하나씩 만듭니다. <code>C()</code> 없이 숫자 1, 2, 3을 그대로 넣으면 "범주가 한 단계 올라갈 때마다 로그 오즈가 같은 만큼 변한다"는 엉뚱한 모형이 됩니다.</span></li>
+<li><code>logit_m = smf.logit(f, data=bw).fit()</code><span>로지스틱 회귀 모형을 정의하고(<code>smf.logit</code>) 최대우도추정으로 계수를 구합니다(<code>.fit()</code>). 반복 계산의 진행 상황이 먼저 출력됩니다. 이 메시지를 숨기려면 <code>.fit(disp=0)</code>으로 씁니다.</span></li>
+<li><code>print(logit_m.summary())</code><span>결과 요약표를 출력합니다.</span></li>
+</ol>
+<h4>출력 읽기 · 반복 계산 메시지와 위쪽 블록</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Optimization terminated successfully, Current function value 0.520724.</b> 최대우도추정의 반복 계산이 정상적으로 끝났다는 뜻입니다. function value는 로그 우도에 −1을 곱해 표본 수로 나눈 값입니다(98.417 ÷ 189 = 0.5207).</span></li>
+<li><span class="mk">2</span><span><b>Iterations 6.</b> Newton–Raphson 방법으로 6번 반복해 답을 찾았습니다. 로지스틱 회귀에서는 9장에서 말한 GLM의 IRLS(Fisher scoring, 8장 마 절)와 같은 계산입니다. 보통 4–8회입니다. 수십 번 반복하고도 끝나지 않으면 분리를 의심합니다(다 절).</span></li>
+<li><span class="mk">3</span><span><b>Dep. Variable: low, No. Observations: 189.</b> 결과변수와 분석에 들어간 인원입니다. 결측이 있는 행은 빠지므로 전체 인원과 같은지 확인합니다.</span></li>
+<li><span class="mk">4</span><span><b>Df Residuals 180.</b> 189 − 9(절편 포함 계수 9개)입니다.</span></li>
+<li><span class="mk">5</span><span><b>Df Model 8.</b> 절편을 뺀 계수의 수로, 가 절에서 EPV 계산에 쓴 k = 8과 같습니다.</span></li>
+<li><span class="mk">6</span><span><b>Pseudo R-squ. 0.1612.</b> McFadden의 유사 결정계수 1 − (−98.417)/(−117.34)입니다. "결과 변동의 16%를 설명한다"는 뜻이 아니며, 0/1 결과에서는 좋은 모형도 낮게 나옵니다. 모형의 좋고 나쁨을 이 숫자로 판단하지 않습니다(9장 '유사 결정계수와 Brier 점수').</span></li>
+<li><span class="mk">7</span><span><b>Log-Likelihood −98.417.</b> 추정한 계수에서의 로그 우도입니다. 이탈도(deviance)는 이 값의 −2배인 196.83입니다.</span></li>
+<li><span class="mk">8</span><span><b>converged: True.</b> 반복 계산이 수렴했다는 표시입니다. False이면 결과를 믿지 말고 원인(분리, 변수 척도 문제)을 찾아야 합니다.</span></li>
+<li><span class="mk">9</span><span><b>LL-Null −117.34.</b> 설명변수 없이 절편만 있는 모형의 로그 우도입니다. 59/189 = 31.2%를 모든 산모에게 똑같이 예측하는 모형입니다.</span></li>
+<li><span class="mk">10</span><span><b>LLR p-value 8.064e-06.</b> 모형 전체의 우도비 검정입니다. 2 × (−98.417 − (−117.34)) = 37.84를 자유도 8의 카이제곱 분포와 비교했습니다. "8개 계수가 모두 0"이라는 귀무가설을 기각한다는 뜻일 뿐, 모형이 좋다는 뜻은 아닙니다(9장 '여러 계수를 함께 검정하기').</span></li>
+</ol>
+<h4>출력 읽기 · 계수 블록</h4>
+<ol class="marks">
+<li><span class="mk">11</span><span><b>열 이름.</b> coef는 계수(로그 오즈비), std err는 그 표준오차, z는 coef ÷ std err인 Wald 검정 통계량, P&gt;|z|는 그 양측 p-value, [0.025, 0.975]는 계수의 95% 신뢰구간(coef ± 1.96 × std err)입니다. 선형회귀의 t 대신 표준정규분포를 쓰므로 이름이 z입니다. 모든 열이 <em>로그 오즈비</em> 척도라서, 신뢰구간은 1이 아니라 0을 포함하는지로 판단합니다.</span></li>
+<li><span class="mk">12</span><span><b>Intercept 0.6369.</b> 모든 설명변수가 0인 산모(0세, 체중 0 lb, white, 비흡연 …)의 로그 오즈입니다. 존재할 수 없는 산모라 해석하지 않습니다. 나이와 체중을 중심화하면 해석 가능한 값이 됩니다(9장 '숫자로 따라가기').</span></li>
+<li><span class="mk">13</span><span><b>C(race)[T.black] 1.2127.</b> 행 이름은 "race를 범주형으로 다뤘을 때 기준범주(white) 대비(T) black"이라는 뜻입니다. 다른 변수가 같을 때 black 산모와 white 산모의 로그 오즈 차이이고, e<sup>1.2127</sup> = 3.36이 오즈비입니다.</span></li>
+<li><span class="mk">14</span><span><b>smoke: coef 0.8464, std err 0.408, z 2.074.</b> 다른 변수가 같을 때 흡연 산모의 저체중아 출산 로그 오즈가 0.8464 높고, 오즈비는 e<sup>0.8464</sup> = 2.33입니다. 계수가 양수면 오즈비 &gt; 1, 음수면 &lt; 1입니다. z = 0.8464 ÷ 0.408 = 2.074이고, z²(4.30)이 SAS 출력의 Wald Chi-Square입니다(9장 '추정과 검정').</span></li>
+<li><span class="mk">15</span><span><b>smoke: P&gt;|z| 0.038, 95% CI 0.047–1.646.</b> Wald 검정의 양측 p-value와 로그 오즈비의 신뢰구간(0.8464 ± 1.96 × 0.408)입니다. 구간이 0을 포함하지 않으므로 P &lt; 0.05와 같은 결론입니다. 오즈비의 신뢰구간은 양 끝에 지수를 취해 e<sup>0.047</sup>–e<sup>1.646</sup> = 1.05–5.19로 얻습니다(다음 셀).</span></li>
+</ol>
+
+<h3>오즈비 표 만들기</h3>
+<p>summary()의 계수는 로그 오즈비라서 논문에 쓰려면 지수를 취해 오즈비로 바꿉니다(<a href="#ch09-s1">9장 가 절</a>의 '계수의 해석과 오즈비').</p>
+<!--FIG:lab09_or-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ci = logit_m.conf_int()</code><span>계수의 95% 신뢰구간을 DataFrame으로 돌려줍니다. 행은 계수 이름, 열 이름은 0(하한)과 1(상한)입니다. 값은 로그 오즈비 척도입니다. statsmodels의 이 구간은 Wald 방법(β ± 1.96 × SE)입니다. R의 <code>confint()</code>가 주는 프로파일 우도 구간과는 끝자리가 조금 다를 수 있습니다(9장 'Wald 방법과 우도비 방법').</span></li>
+<li><code>np.exp(logit_m.params)</code><span><code>params</code>(계수 9개가 든 Series)의 값 하나하나에 e<sup>x</sup>를 계산합니다. 로그 오즈비가 오즈비로 바뀝니다.</span></li>
+<li><code>np.exp(ci[0])
+np.exp(ci[1])</code><span>하한 열과 상한 열에 각각 지수를 취합니다. 신뢰구간은 로그 척도에서 구한 뒤 양 끝을 변환해야 합니다.</span></li>
+<li><code>pd.DataFrame({"OR": …, "lower": …, "upper": …, "P": …})</code><span>사전의 키가 열 이름, 값이 열 내용인 표를 만듭니다. 네 Series의 행 이름(계수 이름)이 같아서 행끼리 자동으로 맞춰집니다.</span></li>
+<li><code>or_tab.drop("Intercept").round(3)</code><span>해석할 의미가 없는 절편 행을 빼고 소수 셋째 자리로 반올림합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>smoke OR 2.331.</b> 나이, 체중, 인종, 이전 조산, 고혈압, 자궁 과민성이 같은 산모끼리 비교했을 때, 흡연 산모의 저체중아 출산 오즈가 비흡연 산모의 2.33배입니다. "위험이 2.33배"가 아닙니다(아래 흔한 오해 상자).</span></li>
+<li><span class="mk">2</span><span><b>lower 1.048</b></span></li>
+<li><span class="mk">3</span><span><b>upper 5.187.</b> 오즈비의 95% 신뢰구간 1.05–5.19입니다. 하한이 1에 가까워 관련의 크기가 매우 불확실합니다. 점추정값 2.33에서 하한까지(×1/2.22)와 상한까지(×2.22)가 곱셈으로 대칭인 것은 로그 척도에서 대칭으로 구했기 때문입니다.</span></li>
+<li><span class="mk">4</span><span><b>lwt OR 0.985.</b> 체중 1 lb당 오즈비입니다. 1 lb(0.45 kg)는 너무 작은 단위라 1에 가까워 보일 뿐이며, 크기는 다음 셀처럼 10 lb 단위로 바꿔 읽습니다.</span></li>
+<li><span class="mk">5</span><span><b>black OR 3.363 (1.184–9.549).</b> 기준범주 white와 비교한 값입니다. other는 2.235(0.928–5.382)입니다. 두 가변수 모두 white와의 비교일 뿐이며, 인종 변수 전체가 관련 있는지는 가변수 두 개를 함께 빼는 우도비 검정(자유도 2)으로 봅니다.</span></li>
+</ol>
+<p>ht의 오즈비는 6.29인데 신뢰구간이 1.58–24.95로 매우 넓습니다. 고혈압 병력이 있는 산모가 12명(저체중아 7명)뿐이기 때문입니다. 넓은 신뢰구간은 "효과가 매우 크다"보다 "자료가 적어 크기를 알기 어렵다"로 읽습니다.</p>
+
+<h3>임상적으로 의미 있는 단위의 오즈비</h3>
+<!--FIG:lab09_unit-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def or_per(m, var, c):</code><span>모형 <code>m</code>, 변수 이름 <code>var</code>, 단위 <code>c</code>를 받아 c 단위당 오즈비와 95% 신뢰구간을 돌려주는 함수입니다. c 단위당 오즈비는 e<sup>cβ</sup>입니다(9장).</span></li>
+<li><code>lo, hi = m.conf_int().loc[var]</code><span><code>conf_int()</code> 표에서 그 변수의 행을 골라 하한과 상한 두 값을 각각 <code>lo</code>, <code>hi</code>에 담습니다.</span></li>
+<li><code>np.round(np.exp([c * est, c * lo, c * hi]), 3)</code><span>계수와 신뢰구간 양 끝에 모두 c를 곱한 뒤 지수를 취합니다. 결과는 [오즈비, 하한, 상한] 세 값입니다.</span></li>
+<li><code>crude_lwt = smf.logit("low ~ lwt", data=bw).fit(disp=0)</code><span>비교를 위해 lwt 하나만 넣은 보정 전 모형을 적합합니다. 나이도 같은 방식입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>10 lb당 보정 OR 0.861.</b> 다른 변수가 같을 때 산모 체중이 10 lb(약 4.5 kg) 많을수록 저체중아 출산 오즈가 14% 낮습니다. 1 lb당 0.985를 10번 곱한 값(0.985¹⁰ = 0.861)과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>95% CI 0.750–0.989.</b> 1 lb당 신뢰구간 끝값을 10제곱한 것과 같습니다. 상한이 1에 가깝습니다.</span></li>
+<li><span class="mk">3</span><span><b>10 lb당 보정 전 OR 0.869 (0.770–0.981).</b> 다음 셀의 보정 전후 비교에서는 1 lb당 값(0.99)이라 차이가 보이지 않는데, 단위를 키우면 비교하기 쉬워집니다.</span></li>
+<li><span class="mk">4</span><span><b>나이 5세당 보정 OR 0.828 (0.572–1.199).</b> 신뢰구간이 1을 넓게 포함해, 다른 변수를 보정한 뒤 나이와 저체중아의 관련은 불분명합니다. "관련이 없다"는 증거가 아니라 "자료로 결론을 내릴 수 없다"는 뜻입니다(1장 나 절). 보정 전은 0.774(0.569–1.054)입니다.</span></li>
+</ol>
+
+<h3>보정 전후 오즈비 비교</h3>
+<p>위험인자 연구의 표는 보통 변수 하나씩 넣은 보정 전(crude) 오즈비와 다변수 모형의 보정(adjusted) 오즈비를 나란히 보여 줍니다(<a href="#ch09-s1">9장 가 절</a> Table 2).</p>
+<!--FIG:lab09_crude-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def or_ci(m):</code><span>적합된 모형을 받아 계수마다 "OR (하한 to 상한)" 문자열을 만들어 돌려주는 함수입니다.</span></li>
+<li><code>np.exp(m.params).map(f2) + " (" + ci[0].map(f2) + " to " + ci[1].map(f2) + ")"</code><span>오즈비, 하한, 상한을 각각 소수 둘째 자리 문자열로 바꿔 이어 붙입니다.</span></li>
+<li><code>smf.logit(f"low ~ {t}", data=bw).fit(disp=0)</code><span>f-문자열로 <code>"low ~ age"</code>, <code>"low ~ lwt"</code> …를 차례로 만들어 변수 하나짜리 모형을 적합합니다. <code>disp=0</code>은 반복 계산 메시지를 끕니다.</span></li>
+<li><code>pd.concat([…for t in terms])</code><span>일곱 개 모형의 결과(절편 행 제외)를 위아래로 이어 붙입니다.</span></li>
+<li><code>adj = or_ci(logit_m)[crude.index]</code><span>보정 모형의 결과를 보정 전 결과와 같은 행 순서로 다시 배열합니다. 대괄호 안에 행 이름 목록을 넣으면 그 순서로 골라집니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>smoke crude 2.02 (1.08–3.78).</b> 흡연 여부 하나만 넣은 모형이며, 2×2 표의 오즈비와 같습니다(9장 '2×2 표는 가장 단순한 로지스틱 회귀').</span></li>
+<li><span class="mk">2</span><span><b>smoke adjusted 2.33 (1.05–5.19).</b> 보정 후 오히려 1에서 멀어졌습니다. 보정 변수의 분포가 흡연군과 비흡연군에서 달라서 생긴 변화일 수 있고, 오즈비의 비붕괴성 때문에 교란이 없어도 결과의 강한 예측인자를 보정하면 오즈비가 1에서 멀어지기도 합니다(9장 심화 상자). 보정 전후의 변화를 모두 교란으로 해석하지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>ptd crude 4.32 → adjusted 3.39.</b> 이전 조산과 함께 움직이는 다른 위험인자(흡연 등)의 몫이 빠지며 줄었습니다.</span></li>
+<li><span class="mk">4</span><span><b>black crude 2.33 (0.94–5.77) → adjusted 3.36 (1.18–9.55).</b> 보정 전에는 신뢰구간이 1을 포함했지만 보정 후에는 포함하지 않습니다. 단변수 분석의 P 값으로 다변수 모형에 넣을 변수를 고르면 이런 변수를 빠뜨릴 수 있습니다(9장 Methods 상자 ②, 8장 아 절).</span></li>
+</ol>
+
+<h3>예측 확률 계산</h3>
+<p>오즈비는 모든 산모에게 같지만, 확률로 바꾼 절대위험의 차이는 산모의 다른 특성에 따라 달라집니다(<a href="#ch09-s1">9장 가 절</a>의 '같은 오즈비, 다른 절대위험'). 특성이 다른 두 산모에게서 흡연 여부만 바꿔 예측 확률을 구해 봅니다.</p>
+<!--FIG:lab09_predict-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>new = pd.DataFrame({"age": [25, 25, 20, 20], …})</code><span>예시 산모 4명의 자료를 만듭니다. 0–1행은 25세·120 lb·white·위험요인 없음 산모의 비흡연/흡연, 2–3행은 20세·100 lb·black·이전 조산과 자궁 과민성이 있는 산모의 비흡연/흡연입니다. 공식에 쓴 변수가 모두 같은 이름으로 있어야 하고, race는 모형을 만들 때의 범주 이름(white, black, other) 중 하나여야 합니다.</span></li>
+<li><code>logit_m.predict(new)</code><span>각 행의 로짓(β₀ + β₁x₁ + …)을 계산한 뒤 1/(1 + e<sup>−로짓</sup>)으로 확률로 바꿔 돌려줍니다. 결과는 0–1 사이의 확률 4개입니다.</span></li>
+<li><code>new["p_low"] = ….round(3)</code><span>예측 확률을 새 열로 붙여 한 표에서 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>위험요인이 없는 비흡연 산모 0.109.</b> 저체중아 출산 확률 10.9%입니다.</span></li>
+<li><span class="mk">2</span><span><b>같은 산모가 흡연 0.223.</b> 위험차 +11.3%p, 위험의 비 2.03입니다(반올림 전 확률로 계산).</span></li>
+<li><span class="mk">3</span><span><b>위험요인이 많은 비흡연 산모 0.823.</b> 기저위험이 이미 82.3%로 높습니다.</span></li>
+<li><span class="mk">4</span><span><b>같은 산모가 흡연 0.916.</b> 위험차 +9.3%p, 위험의 비 1.11입니다. 두 산모 모두 오즈비는 정확히 2.33이지만(반올림 전 확률로 (0.9155/0.0845) ÷ (0.8230/0.1770) = 2.33), 위험의 비는 2.03과 1.11로 크게 다릅니다. 기저위험이 높을수록 오즈비와 위험의 비가 벌어집니다.</span></li>
+</ol>
+
+<h3>흔한 결과에서 오즈비와 상대위험도</h3>
+<!--FIG:lab09_orrr-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>tab = pd.crosstab(bw["smoke"], bw["low"])</code><span>행이 smoke(0, 1), 열이 low(0, 1)인 2×2 표입니다.</span></li>
+<li><code>risk = tab[1] / tab.sum(axis=1)</code><span><code>tab[1]</code>은 low = 1 열(행별 사건 수), <code>tab.sum(axis=1)</code>은 행 합계입니다. 나누면 흡연 여부별 저체중아 비율(위험)이 됩니다.</span></li>
+<li><code>odds = tab[1] / tab[0]</code><span>사건 수 ÷ 비사건 수 = 오즈입니다.</span></li>
+<li><code>risk[1] / risk[0]
+odds[1] / odds[0]</code><span>흡연군(1) 대 비흡연군(0)의 위험의 비(상대위험도)와 오즈비입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>위험 0.252(비흡연) 대 0.405(흡연).</b> 29/115와 30/74입니다.</span></li>
+<li><span class="mk">2</span><span><b>RR = 1.61.</b> 흡연 산모의 저체중아 출산 위험이 1.61배입니다.</span></li>
+<li><span class="mk">3</span><span><b>OR = 2.02.</b> 같은 자료의 오즈비는 2.02로 상대위험도보다 1에서 더 멉니다. 사건 비율이 31%로 흔해서 두 지표의 차이가 큽니다(5장 가 절, 8장 나 절).</span></li>
+</ol>
+
+<h3>보정 상대위험도: 모형 기반 표준화</h3>
+<p>보정한 상대위험도와 위험차가 필요하면, 로지스틱 모형으로 "모든 산모가 흡연했다면"과 "모든 산모가 비흡연이었다면"의 예측 확률을 각각 구해 평균 냅니다(<a href="#ch09-s1">9장 가 절</a>의 모형 기반 표준화).</p>
+<!--FIG:lab09_std-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>bw.assign(smoke=1)</code><span>smoke 열만 모두 1로 바꾼 복사본을 만듭니다(원본 <code>bw</code>는 그대로). 나머지 변수는 각 산모의 실제 값입니다.</span></li>
+<li><code>logit_m.predict(…).mean()</code><span>189명 각각의 예측 확률을 구해 평균 냅니다. 이것이 표준화 위험입니다.</span></li>
+<li><code>r1 / r0
+r1 - r0</code><span>표준화 위험의 비(보정 상대위험도)와 차(보정 위험차)입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>모두 흡연했다면 40.4%</b></span></li>
+<li><span class="mk">2</span><span><b>모두 비흡연이었다면 25.2%.</b> 이 189명의 공변량 분포를 그대로 두고 흡연만 바꾼 결과입니다.</span></li>
+<li><span class="mk">3</span><span><b>보정 RR = 1.60.</b> 보정 오즈비 2.33보다 1에 훨씬 가깝습니다. 결과가 흔할 때 보정 오즈비를 "위험이 2.33배"로 쓰면 크게 부풀리게 됩니다.</span></li>
+<li><span class="mk">4</span><span><b>보정 RD = 0.152.</b> 15.2%p입니다. 신뢰구간은 부트스트랩이나 델타 방법으로 따로 구해야 합니다(9장). 표준화 결과가 의미를 가지려면 로지스틱 모형이 잘 지정되어 있어야 합니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 오즈비를 상대위험도처럼 읽기</p>
+<ul>
+<li><span class="wrong">흡연의 보정 오즈비가 2.33이므로 흡연 산모는 저체중아 출산 위험이 2.33배 높다.</span> 오즈가 2.33배입니다. 이 자료처럼 사건이 31%로 흔하면 보정 상대위험도는 1.60 정도로 훨씬 작습니다. 논문에는 "higher odds"로 쓰고, 필요하면 표준화 위험이나 수정 포아송 회귀의 상대위험도를 함께 보고합니다(9장).</li>
+<li><span class="wrong">오즈비가 같으면 흡연이 모든 산모에게 같은 만큼의 위험을 더한다.</span> 위의 두 예시 산모처럼 오즈비는 같아도 위험차(11.3%p 대 9.3%p)와 위험의 비(2.03 대 1.11)는 기저위험에 따라 다릅니다.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">이런 오류가 나면 · 결과변수 코딩</p>
+<p>statsmodels의 로지스틱 회귀는 결과변수가 0과 1 사이의 값이어야 합니다. SPSS 자료처럼 1 = 예, 2 = 아니오로 코딩된 결과를 그대로 넣으면 아래 오류가 납니다. <code>bw["event"] = (bw["low12"] == 2).astype(int)</code>처럼 사건 = 1, 비사건 = 0인 변수를 새로 만들어 씁니다.</p>
+<!--FIG:lab09_err-->
+<p>오류가 나지 않는 더 위험한 경우도 있습니다. 결과를 거꾸로(정상 체중 = 1, 저체중 = 0) 코딩하면 모형은 문제없이 적합되지만 모든 오즈비가 역수(흡연 2.33 → 0.43)로 나옵니다. 적합 전에 <code>value_counts()</code>와 정의 확인(가 절)을 반드시 거칩니다.</p>
+</div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 보정 오즈비 표와 결과 문장</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Of the 189 infants, <span class="mk">1</span> <span class="hl">59 (31.2%)</span> had low birth weight. After adjustment, maternal smoking during pregnancy was associated with <span class="mk">2</span> <span class="hl">higher odds</span> of low birth weight (<span class="mk">3</span> <span class="hl">adjusted OR, 2.33; 95% CI, 1.05 to 5.19</span>); because the outcome was common, the <span class="mk">4</span> <span class="hl">standardized risks were 40.4% and 25.2%</span> for smokers and nonsmokers, respectively (adjusted risk ratio, 1.60).</p>
+<div class="tbl-wrap"><table class="jt" style="min-width:560px">
+<caption><b>Table 2.</b> Maternal characteristics associated with low birth weight (N = 189)</caption>
+<thead><tr><th>Variable</th><th class="r">Crude OR (95% CI)</th><th class="r">Adjusted OR (95% CI)<sup>a</sup></th></tr></thead>
+<tbody>
+<tr><td>Age, per 5 years</td><td class="r">0.77 (0.57 to 1.05)</td><td class="r">0.83 (0.57 to 1.20)</td></tr>
+<tr><td><span class="mk">5</span> Weight at last menstrual period, per 10 lb</td><td class="r">0.87 (0.77 to 0.98)</td><td class="r">0.86 (0.75 to 0.99)</td></tr>
+<tr><td>Race</td><td class="r"></td><td class="r"></td></tr>
+<tr><td class="ind">White</td><td class="r">1 (reference)</td><td class="r">1 (reference)</td></tr>
+<tr><td class="ind">Black</td><td class="r">2.33 (0.94 to 5.77)</td><td class="r">3.36 (1.18 to 9.55)</td></tr>
+<tr><td class="ind">Other</td><td class="r">1.89 (0.96 to 3.74)</td><td class="r">2.23 (0.93 to 5.38)</td></tr>
+<tr class="hi"><td>Smoking during pregnancy</td><td class="r">2.02 (1.08 to 3.78)</td><td class="r">2.33 (1.05 to 5.19)</td></tr>
+<tr><td>History of preterm labor</td><td class="r">4.32 (1.92 to 9.73)</td><td class="r">3.39 (1.37 to 8.41)</td></tr>
+<tr><td>History of hypertension</td><td class="r">3.37 (1.02 to 11.09)</td><td class="r"><span class="mk">6</span> 6.29 (1.58 to 24.95)</td></tr>
+<tr><td>Uterine irritability</td><td class="r">2.58 (1.14 to 5.83)</td><td class="r">2.04 (0.82 to 5.05)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">OR, odds ratio; CI, confidence interval (Wald). <sup>a</sup> <span class="mk">7</span> Adjusted for all variables in the table (multivariable logistic regression; 59 events, 8 coefficients).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사건 수와 비율.</b> 가 절의 59/189입니다. 오즈비를 읽기 전에 결과가 흔한지 확인하게 해 줍니다.</span></li>
+<li><span class="mk">2</span><span><b>"higher odds".</b> 오즈비를 "risk"로 쓰지 않았습니다.</span></li>
+<li><span class="mk">3</span><span><b>보정 오즈비 2.33 (1.05–5.19).</b> 오즈비 표 셀의 smoke 행입니다. 하한이 1에 가까워 효과 크기가 불확실하다는 점을 Discussion에서 다룹니다.</span></li>
+<li><span class="mk">4</span><span><b>표준화 위험.</b> 결과가 흔하므로 절대위험과 상대위험도를 함께 보여 주었습니다. 이 값에도 신뢰구간(부트스트랩)을 붙이는 것이 좋습니다.</span></li>
+<li><span class="mk">5</span><span><b>단위를 바꾼 행.</b> 표의 나이(5세당)와 체중(10 lb당)은 <code>or_per()</code> 셀의 출력입니다. 보정 전 값도 같은 단위로 바꿔야 비교할 수 있습니다. 행마다 단위가 다르면 행 이름으로 반드시 알립니다.</span></li>
+<li><span class="mk">6</span><span><b>매우 넓은 신뢰구간.</b> 고혈압 병력 산모 12명에 근거한 추정입니다. 다 절에서 산모 한 명을 빼면 이 오즈비가 9.74로 바뀝니다.</span></li>
+<li><span class="mk">7</span><span><b>모형 정보.</b> 보정 변수, 사건 수, 계수 수(EPV 7.4)를 각주에 적습니다. 이 표의 공변량 오즈비는 서로를 보정한 값이라, 흡연 외의 변수들을 각각의 인과 효과로 해석하지 않습니다(Table 2 오류, 9장 주의 상자).</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>smf.logit("y ~ x1 + C(범주형) + …", data=df).fit()</code>으로 적합하고 <code>print(model.summary())</code>로 봅니다. converged, 반복 횟수, 관측 수를 먼저 확인합니다.</li>
+<li>coef는 로그 오즈비입니다. 오즈비와 신뢰구간은 <code>np.exp(params)</code>, <code>np.exp(conf_int())</code>로 구하고(Wald 구간), c 단위당 오즈비는 e<sup>cβ</sup>입니다.</li>
+<li>보정 전후 오즈비를 나란히 제시하되, 변화를 모두 교란으로 해석하지 않습니다(비붕괴성).</li>
+<li><code>predict(new)</code>는 확률을 돌려줍니다. 같은 오즈비라도 기저위험에 따라 위험차와 위험의 비가 다릅니다.</li>
+<li>결과가 흔하면(이 자료 31%) 오즈비(2.33)는 상대위험도(1.60)보다 1에서 멀리 있습니다. 모형 기반 표준화로 보정 위험, 상대위험도, 위험차를 구할 수 있습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab09-s3">
+<h2><span class="sec-no">다.</span>모형 점검</h2>
+
+<p>로지스틱 모형의 결과를 믿으려면 연속형 변수와 로그 오즈의 관계가 직선인지, 몇몇 관측값이 결과를 좌우하지 않는지, 분리 때문에 추정이 무너지지 않았는지를 확인합니다(<a href="#ch09-s1">9장 가 절</a>의 '모형의 가정과 점검').</p>
+
+<h3>연속형 변수의 로짓 선형성</h3>
+<p>모형에 lwt를 직선으로 넣은 것은 "체중이 10 lb 많을 때마다 로그 오즈가 같은 양만큼 낮아진다"는 가정입니다. lwt를 곡선을 허용하는 스플라인<span class="en">(spline)</span>으로 바꾼 모형과 우도비 검정으로 비교합니다. 9장은 제한 삼차 스플라인을 예로 들었는데, 여기서는 statsmodels 공식에서 바로 쓸 수 있는 B-스플라인<span class="en">(B-spline)</span>을 씁니다. 원리는 같습니다. 자료 범위를 매듭(knot)으로 나눠 구간마다 부드럽게 이어지는 3차 곡선을 맞춥니다.</p>
+<!--FIG:lab09_spline-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from scipy import stats</code><span>카이제곱 분포의 p-value를 계산하려고 불러옵니다.</span></li>
+<li><code>"… + bs(lwt, df=4) + …"</code><span><code>bs()</code>는 statsmodels 공식이 쓰는 patsy 패키지의 B-스플라인 함수입니다. lwt 한 열 대신 곡선을 만드는 4개의 열(자유도 4)이 모형에 들어갑니다. 3차 곡선에 자유도 4이면 매듭은 lwt의 중앙값(121 lb) 하나입니다.</span></li>
+<li><code>lr = 2 * (spline_m.llf - logit_m.llf)</code><span><code>llf</code>는 적합된 모형의 로그 우도입니다. 두 모형의 로그 우도 차이의 2배가 우도비 통계량입니다(8장 마 절).</span></li>
+<li><code>ddf = spline_m.df_model - logit_m.df_model</code><span>늘어난 계수 수(4 − 1 = 3)가 우도비 검정의 자유도입니다.</span></li>
+<li><code>stats.chi2.sf(lr, ddf)</code><span>자유도 ddf인 카이제곱 분포에서 lr보다 클 확률, 즉 p-value입니다. <code>sf</code>는 생존함수(1 − 누적분포함수)입니다.</span></li>
+<li><code>logit_m.aic
+spline_m.aic</code><span>두 모형의 AIC입니다. 작을수록 좋습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>LR = 1.99, 자유도 3, P = 0.574.</b> 곡선을 허용해도 적합이 의미 있게 좋아지지 않았습니다. 직선 가정을 기각할 근거가 없습니다. 다만 사건 59건의 작은 자료라 비선형성을 찾아낼 검정력도 크지 않다는 점을 기억합니다.</span></li>
+<li><span class="mk">2</span><span><b>AIC 직선 214.8</b></span></li>
+<li><span class="mk">3</span><span><b>AIC 스플라인 218.8.</b> 계수 3개를 더 쓰는 만큼의 이득이 없어 직선 모형의 AIC가 더 작습니다. 두 기준 모두 직선 모형을 지지합니다.</span></li>
+</ol>
+
+<h3>곡선으로 확인하기</h3>
+<!--FIG:lab09_spline_plot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pd.DataFrame({"lwt": np.arange(85, 251, 5)})</code><span>85부터 250까지 5 간격의 체중 34개로 표를 만듭니다. <code>np.arange(시작, 끝, 간격)</code>에서 끝 값(251)은 포함되지 않습니다.</span></li>
+<li><code>.assign(age=23, race="white", smoke=0, ptd=0, ht=0, ui=0)</code><span>나머지 변수를 기준 산모의 값(나이 중앙값 23세, white, 위험요인 없음)으로 고정한 열을 붙입니다. 체중만 바뀌는 가상의 산모 34명입니다.</span></li>
+<li><code>def log_odds(m):</code><span>모형의 예측 확률 p를 ln[p/(1 − p)]로 바꿔 로그 오즈를 돌려주는 함수입니다. 선형성 가정은 확률이 아니라 로그 오즈 척도에 대한 것이므로 로그 오즈로 그립니다.</span></li>
+<li><code>plt.plot(grid["lwt"], log_odds(logit_m), …)</code><span>직선 모형의 로그 오즈를 실선으로, 스플라인 모형은 <code>"--"</code>(점선)으로 그립니다.</span></li>
+<li><code>plt.plot(bw["lwt"], np.full(len(bw), -8), "|", color="gray")</code><span>그림 아래쪽(y = −8)에 실제 산모 189명의 체중 위치를 세로 눈금으로 찍습니다. 곡선의 어느 부분이 자료가 많은 곳인지 보여 줍니다.</span></li>
+</ol>
+<h4>그림 읽기</h4>
+<p>실선(직선 모형)은 체중이 늘수록 일정한 기울기(1 lb당 −0.0149)로 내려갑니다. 점선(스플라인)은 자료가 몰린 100–200 lb에서는 실선 근처를 오르내리지만, 200 lb 이상에서 급하게 떨어집니다. 아래 눈금을 보면 200 lb를 넘는 산모는 6명뿐이고, 이 6명은 모두 저체중아를 낳지 않았습니다. 스플라인의 급한 꺾임은 이 몇 명에 맞춘 모양일 가능성이 크고, 위의 우도비 검정(P = 0.574)도 곡선이 필요하다는 근거를 주지 않습니다. 자료가 드문 양 끝의 곡선 모양은 신뢰대 없이 해석하지 않습니다.</p>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<ul>
+<li><code>bs(lwt, df=4)</code>를 자연 삼차 스플라인(제한 삼차 스플라인과 같은 성질) <code>cr(lwt, df=4, constraints="center")</code>로 바꿔 우도비 검정을 다시 해 보세요. P 값은 달라지지만 직선 가정을 기각하지 않는다는 결론은 같습니다.</li>
+<li>같은 방법으로 <code>age</code>의 선형성을 확인해 보세요. <code>f_sp</code>에서 <code>age</code>를 <code>bs(age, df=4)</code>로, <code>bs(lwt, df=4)</code>를 <code>lwt</code>로 바꿉니다.</li>
+</ul></div>
+
+<h3>영향력이 큰 관측값</h3>
+<p>산모 한 명을 뺐을 때 모형이 얼마나 달라지는지를 봅니다. statsmodels에서는 로지스틱 회귀를 일반화 선형모형(GLM, 8장 라 절)으로 적합하면 영향력 지표를 한꺼번에 얻을 수 있습니다. 이 실습 환경(statsmodels 0.15)에서는 <code>smf.logit</code> 결과에도 <code>get_influence()</code>가 있지만, 이전 버전에는 없을 수 있어 오래 쓰여 온 GLM 방식을 씁니다.</p>
+<!--FIG:lab09_infl-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>smf.glm(f, data=bw, family=sm.families.Binomial()).fit()</code><span>같은 공식을 GLM으로 적합합니다. <code>family=sm.families.Binomial()</code>은 이항분포이고, 연결함수는 기본값인 로짓입니다. 즉 같은 로지스틱 회귀입니다.</span></li>
+<li><code>np.allclose(glm_m.params, logit_m.params)</code><span>두 방법의 계수가 (계산 오차 범위에서) 모두 같은지 확인합니다.</span></li>
+<li><code>glm_m.get_influence().summary_frame()</code><span>산모마다(189행) 영향력 지표를 계산한 표입니다. 열에는 계수별 dfbeta(<code>dfb_…</code>: 그 산모를 뺐을 때 각 계수의 변화, 표준오차 단위), <code>cooks_d</code>, <code>standard_resid</code>, <code>hat_diag</code> 등이 있습니다.</span></li>
+<li><code>infl[cols].sort_values("cooks_d", ascending=False).head(5)</code><span>세 열만 골라 Cook의 거리가 큰 순서로 정렬해 위 5명을 봅니다.</span></li>
+<li><code>top.join(bw[[…]]).round(3)</code><span>행 번호가 같은 산모의 원래 자료를 옆에 붙여, 어떤 산모인지 함께 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>same coefficients: True.</b> <code>smf.logit</code>과 이항 GLM은 같은 모형입니다.</span></li>
+<li><span class="mk">2</span><span><b>12번 행, Cook의 거리 0.048.</b> Cook의 거리<span class="en">(Cook's distance)</span>는 그 산모를 뺐을 때 계수 전체가 얼마나 움직이는지를 한 숫자로 요약합니다. 이 산모는 22세, 95 lb, 고혈압 병력이 있어 모형이 높은 위험을 예측했는데 저체중아를 낳지 않았습니다(low = 0, 표준화 잔차 −1.79). 가장 큰 잔차(3.25)를 가진 182번 산모는 공변량 조합이 흔해 지렛대 값(hat_diag 0.027)이 작아서 Cook의 거리는 0.032에 그칩니다. 영향력은 "결과가 예측과 얼마나 다른가(잔차)"와 "공변량 조합이 얼마나 드문가(지렛대 값)"가 함께 클 때 커집니다.</span></li>
+</ol>
+<!--FIG:lab09_cook-->
+<p>Cook의 거리를 산모 순서대로 그린 그림입니다(<code>plt.stem</code>은 각 값을 막대 끝의 점으로 그립니다). 모든 값이 0.05 미만입니다. 점검 대상을 고르는 기준으로 흔히 쓰는 4/n = 0.021을 넘는 산모가 여럿 있지만, 전체 모형을 좌우한다고 보는 1에 가까운 값은 없습니다. 그림 오른쪽(130번 이후)의 값이 전반적으로 큰 것은 이 CSV 파일이 저체중아 산모(low = 1)를 뒤쪽에 모아 두었기 때문입니다. 사건이 적은 쪽의 관측값 하나하나가 추정에 더 큰 몫을 합니다.</p>
+
+<h3>영향력이 큰 산모를 빼고 다시 적합</h3>
+<p>영향력 지표는 삭제 기준이 아니라 점검 대상의 목록입니다. 가장 영향력이 큰 산모를 빼고 다시 적합해 결론이 바뀌는지 확인하는 민감도 분석을 해 봅니다.</p>
+<!--FIG:lab09_sens-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>bw.drop(index=top.index[0])</code><span><code>top.index[0]</code>은 Cook의 거리가 가장 큰 산모의 행 번호(12)입니다. 그 행을 뺀 188명 자료로 같은 모형을 적합합니다. 원본 <code>bw</code>는 바뀌지 않습니다.</span></li>
+<li><code>pd.DataFrame({"OR all (n=189)": …, "OR without 1": …})</code><span>두 모형의 오즈비를 나란히 놓습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>ht 6.29 → 9.74.</b> 다른 오즈비는 거의 그대로인데 고혈압 병력의 오즈비만 크게 움직였습니다. 이 산모가 고혈압 병력이 있는데 저체중아를 낳지 않은 5명 중 한 명이라, 12명뿐인 고혈압 산모 칸의 비율이 크게 바뀌기 때문입니다. 적은 수에 근거한 추정은 이렇게 불안정합니다. 입력 오류가 아니라면 이 산모를 빼지 않고 원래 결과를 보고하되, 신뢰구간이 넓다는 점과 민감도 분석 결과를 함께 적습니다.</span></li>
+</ol>
+
+<h3>분리</h3>
+<p>가 절의 교차표에서 이전 조산 3회인 산모는 1명이었고 저체중아를 낳지 않았습니다. ptl을 네 범주 그대로 넣으면 이 범주의 오즈비는 0으로 갈수록 우도가 계속 커져 최대우도추정값이 존재하지 않습니다. 한 범주에서 사건이 모두 있거나 모두 없는 이런 상황을 준완전 분리<span class="en">(quasi-complete separation)</span>라고 합니다(<a href="#ch09-s1">9장 가 절</a>의 '완전 분리와 준완전 분리').</p>
+<!--FIG:lab09_sep-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>"… + C(ptl) + …"</code><span>ptl(0, 1, 2, 3)을 범주형으로 넣어 기준범주(0) 외에 가변수 3개를 만듭니다.</span></li>
+<li><code>print(sep_m.summary().tables[1])</code><span>summary()는 표 여러 개로 되어 있고, <code>tables[1]</code>은 그중 두 번째인 계수 표입니다. 계수 표만 짧게 봅니다.</span></li>
+<li><code>sep_m.mle_retvals["converged"]</code><span><code>mle_retvals</code>는 반복 계산의 결과 정보를 담은 사전입니다. <code>"converged"</code> 항목이 수렴 여부입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Maximum number of iterations has been exceeded, Iterations 35.</b> 기본 반복 횟수(35회)를 다 쓰고도 답을 찾지 못했습니다. 아래의 <code>ConvergenceWarning</code>도 같은 내용입니다. 경고 문구와 형태는 버전에 따라 다를 수 있고, 모든 환자가 완벽히 갈리는 완전 분리에서는 버전에 따라 오류(<code>PerfectSeparationError</code>)로 멈추기도 합니다.</span></li>
+<li><span class="mk">2</span><span><b>C(ptl)[T.1] 1.5773 (SE 0.526).</b> 사람 수가 충분한 범주의 계수는 정상적인 크기입니다.</span></li>
+<li><span class="mk">3</span><span><b>C(ptl)[T.3] −20.65, std err 3e+04, P 0.999.</b> 계수 −20.6은 오즈비 e<sup>−20.6</sup> ≈ 10<sup>−9</sup>, 표준오차 30,000은 다른 계수의 수만 배입니다. 추정값이 음의 무한대로 가다가 반복이 멈춘 흔적이고, 그 결과 P = 0.999가 되어 "관련 없음"처럼 보입니다. 이 숫자는 어떤 의미로도 해석할 수 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>converged: False.</b> 수렴하지 않은 모형입니다. 이 결과는 보고하지 않습니다.</span></li>
+</ol>
+<p>대처 방법은 가 절처럼 드문 범주를 임상적으로 의미 있게 합치거나(<code>ptd</code>), 추정값이 무한대로 가지 않게 우도에 벌점을 주는 Firth 방법을 쓰는 것입니다(9장). statsmodels에는 Firth 로지스틱 회귀가 기본으로 들어 있지 않아 별도의 패키지가 필요합니다. 수렴 경고가 없더라도 계수와 표준오차가 비정상적으로 크면 교차표에서 0인 칸을 먼저 찾습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 모형 점검 문장</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">The linearity of maternal weight on the log-odds scale was assessed by comparing the model with a model including <span class="mk">1</span> <span class="hl">a cubic B-spline with 4 degrees of freedom</span> (<span class="mk">2</span> <span class="hl">likelihood ratio test, P = .57</span>). Influential observations were examined using <span class="mk">3</span> <span class="hl">Cook's distance</span>; <span class="mk">4</span> <span class="hl">excluding the most influential observation</span> changed the OR for history of hypertension from 6.29 to 9.74 but did not materially change the other estimates. Because only one woman had three previous preterm labors, <span class="mk">5</span> <span class="hl">preterm labor history was categorized as any vs none</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>무엇과 비교했는지.</b> 스플라인의 종류와 자유도(또는 매듭 수)를 적어야 재현할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>P = .57.</b> 우도비 검정 P 0.574입니다. 직선 가정이 "맞다"는 증명은 아니고, 이 자료로는 곡선이 필요하다는 근거가 없다는 뜻입니다.</span></li>
+<li><span class="mk">3</span><span><b>영향력 지표.</b> 어떤 지표를 봤는지 적습니다.</span></li>
+<li><span class="mk">4</span><span><b>민감도 분석의 결과.</b> 결론이 흔들리는 추정값(고혈압 병력)이 있다면 숨기지 않고 적습니다. 주 결과(흡연)는 2.33에서 2.26으로 거의 변하지 않았습니다.</span></li>
+<li><span class="mk">5</span><span><b>범주를 합친 이유.</b> 분리를 피하려고 범주를 합쳤다는 사실을 밝힙니다. 결과를 보고 여러 방법으로 합쳐 본 뒤 유리한 것을 고르면 안 됩니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>연속형 변수의 로짓 선형성은 <code>bs(x, df=4)</code> 같은 스플라인 모형과 우도비 검정(2 × 로그 우도 차이, 자유도 = 늘어난 계수 수), AIC로 확인합니다. 곡선은 로그 오즈 척도로 그리고, 자료가 드문 양 끝은 과대해석하지 않습니다.</li>
+<li><code>smf.glm(…, family=sm.families.Binomial())</code>은 <code>smf.logit</code>과 같은 모형이며, <code>get_influence().summary_frame()</code>으로 Cook의 거리, 표준화 잔차, 지렛대 값을 얻습니다.</li>
+<li>영향력이 큰 관측값은 삭제하지 말고 원자료를 확인한 뒤 민감도 분석으로 결론이 유지되는지 봅니다. 적은 수에 근거한 추정(고혈압 12명)은 한 명에도 크게 흔들립니다.</li>
+<li>converged: False, 비정상적으로 큰 계수·표준오차, P ≈ 1은 분리의 신호입니다. 드문 범주를 미리 정한 기준으로 합치거나 Firth 방법을 씁니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab09-s4">
+<h2><span class="sec-no">라.</span>예측모형과 성능 평가</h2>
+
+<p>지금까지는 흡연 같은 위험인자와 결과의 관련을 추정하는 원인 모형이었습니다. 이번에는 "이 환자의 종괴가 악성일 확률은 얼마인가"를 계산하는 예측모형을 만듭니다. 같은 로지스틱 회귀라도 목적이 다르면 좋은 모형의 기준이 달라집니다. 계수의 신뢰구간보다 판별(AUC)과 교정, 그리고 모형을 만들 때 쓰지 않은 환자에서의 성능이 핵심입니다(<a href="#ch09-s1">9장 가 절</a>의 '원인 모형과 예측모형'). 예측모형에는 scikit-learn(<code>sklearn</code>)이 편리합니다.</p>
+<p>위스콘신 진단 유방암 자료는 유방 종괴의 세침흡인 검체를 디지털 영상으로 찍고, 영상 속 세포핵의 반지름, 질감, 둘레, 면적, 매끄러움 등 10가지 특징마다 평균, 표준오차, 최댓값(worst, 가장 큰 세 값의 평균)을 계산한 30개 변수와 악성·양성 진단으로 이루어져 있습니다. scikit-learn에 들어 있어 인터넷 없이 불러올 수 있습니다.</p>
+
+<h3>자료 불러오기와 결과 코딩</h3>
+<!--FIG:lab09_bc-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>bc = load_breast_cancer(as_frame=True)</code><span>자료 꾸러미를 불러옵니다. <code>bc.data</code>는 설명변수 30개의 DataFrame, <code>bc.target</code>은 진단(0 또는 1)의 Series, <code>bc.target_names</code>는 0과 1의 이름입니다.</span></li>
+<li><code>X = bc.data</code><span>설명변수 표를 <code>X</code>라고 부릅니다. scikit-learn에서는 설명변수를 대문자 X, 결과를 소문자 y로 쓰는 관례가 있습니다.</span></li>
+<li><code>print(bc.target_names)</code><span>target 값 0, 1이 각각 무엇인지 보여 줍니다. 순서대로 0번, 1번의 이름입니다.</span></li>
+<li><code>y = (bc.target == 0).astype(int)</code><span>원래 코딩에서 0이 악성입니다. "target이 0인가"를 True/False로 만든 뒤 1/0으로 바꾸면, <b>악성 = 1, 양성 = 0</b>인 새 결과변수가 됩니다. 관심 사건(악성)을 1로 두어야 민감도, ROC 곡선, 예측 확률을 "악성"에 대해 읽을 수 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(569, 30).</b> 종괴 569건, 설명변수 30개입니다.</span></li>
+<li><span class="mk">2</span><span><b>['malignant' 'benign'].</b> 0번이 malignant(악성), 1번이 benign(양성)입니다. 이 자료의 원래 코딩에서는 <b>1이 양성</b>이라는 점이 함정입니다.</span></li>
+<li><span class="mk">3</span><span><b>1(양성) 357건, 0(악성) 212건.</b></span></li>
+<li><span class="mk">4</span><span><b>바꾼 뒤 y = 1(악성) 212건, 37.3%.</b> 코딩을 바꾼 결과가 원래 0의 개수(212)와 같은지 확인했습니다.</span></li>
+</ol>
+
+<h3>훈련 자료와 시험 자료로 나누기</h3>
+<p>모형을 만든 자료로 성능을 재면 실제보다 좋게 나옵니다(9장의 낙관도). 여기서는 가장 단순한 방법으로 자료의 70%로 모형을 만들고(훈련 자료), 나머지 30%로 성능을 잽니다(시험 자료).</p>
+<!--FIG:lab09_split-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from sklearn.model_selection import train_test_split</code><span>자료를 무작위로 나누는 함수를 불러옵니다.</span></li>
+<li><code>X_train, X_test, y_train, y_test = train_test_split(X, y, …)</code><span>X와 y를 같은 행끼리 짝을 유지한 채 나눠 네 개를 돌려줍니다. 돌려주는 순서(X 훈련, X 시험, y 훈련, y 시험)대로 왼쪽 이름에 담깁니다.</span></li>
+<li><code>test_size=0.3</code><span>30%를 시험 자료로 씁니다.</span></li>
+<li><code>stratify=y</code><span>층화 추출입니다. 훈련 자료와 시험 자료의 악성 비율이 전체(37.3%)와 같도록 나눕니다. 사건 비율이 낮은 자료일수록 중요합니다.</span></li>
+<li><code>random_state=42</code><span>무작위로 섞는 순서를 고정하는 시드입니다. 같은 숫자를 쓰면 누가 몇 번 실행해도 같은 환자들이 시험 자료로 뽑혀 결과가 재현됩니다. 숫자 자체(42)에는 의미가 없습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(398, 30) (171, 30).</b> 훈련 398건, 시험 171건입니다. 열(설명변수 30개)은 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>악성 비율 0.372, 0.374.</b> 층화 덕분에 두 자료의 비율이 거의 같습니다. 훈련 자료의 악성은 148건이라 설명변수 30개에 대한 EPV는 약 4.9로 작습니다. 아래 모형은 벌점을 주어 과적합을 줄입니다.</span></li>
+</ol>
+
+<h3>표준화와 로지스틱 회귀 학습</h3>
+<!--FIG:lab09_fit-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>StandardScaler()</code><span>각 설명변수에서 평균을 빼고 표준편차로 나눠(표준화) 평균 0, 표준편차 1로 바꿉니다. 면적(수백–수천)과 매끄러움(0.05–0.16)처럼 단위가 다른 변수들을 같은 척도로 맞춥니다. 아래의 벌점이 계수 크기에 따라 매겨지므로, 척도가 다르면 변수마다 벌점이 불공평해집니다. 반복 계산의 수렴도 빨라집니다.</span></li>
+<li><code>LogisticRegression(max_iter=1000)</code><span>scikit-learn의 로지스틱 회귀입니다. <b>기본값으로 L2 벌점(ridge)이 들어가 있습니다.</b> 우도를 최대화하되 계수 제곱합이 클수록 벌점을 주어 계수를 0 쪽으로 줄입니다. 벌점의 세기는 <code>C</code>(기본값 1.0)로 정하며, C가 작을수록 벌점이 강해집니다(C는 벌점 세기의 역수). <code>max_iter</code>는 반복 계산의 최대 횟수로, 기본값 100에서 수렴 경고가 나는 경우가 있어 넉넉히 늘렸습니다. scikit-learn 1.8부터 벌점 종류를 <code>penalty</code> 대신 <code>l1_ratio</code> 인자로 정하도록 바뀌는 중이지만, 기본값을 그대로 쓰면 어느 버전에서든 L2 벌점, C = 1.0입니다.</span></li>
+<li><code>make_pipeline(StandardScaler(), LogisticRegression(…))</code><span>두 단계를 하나로 묶은 파이프라인<span class="en">(pipeline)</span>입니다. 학습할 때는 훈련 자료의 평균과 표준편차로 표준화한 뒤 로지스틱 회귀를 적합하고, 예측할 때는 새 자료를 <em>훈련 자료의 평균과 표준편차로</em> 표준화한 뒤 예측합니다. 시험 자료의 정보가 모형 만들기에 새어 들어가지 않게 해 줍니다.</span></li>
+<li><code>clf.fit(X_train, y_train)</code><span>훈련 자료로만 학습합니다. <code>clf</code>는 분류기(classifier)의 줄임말로 흔히 쓰는 이름입니다.</span></li>
+<li><code>print(clf.classes_)</code><span>모형이 학습한 결과 범주의 목록입니다. 다음 셀의 <code>predict_proba</code> 결과에서 열의 순서가 이 목록의 순서를 따릅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>[0 1].</b> 범주는 크기 순으로 정렬되어 0(양성), 1(악성) 순서입니다.</span></li>
+</ol>
+
+<div class="callout note"><p class="ct">참고 · statsmodels와 scikit-learn의 로지스틱 회귀</p>
+<p>두 패키지 모두 로지스틱 회귀를 적합하지만 목적이 다릅니다. statsmodels(<code>smf.logit</code>)는 벌점 없는 최대우도추정으로 계수, 표준오차, 신뢰구간, p-value를 주므로 오즈비를 보고하는 원인 모형(나 절)에 씁니다. scikit-learn(<code>LogisticRegression</code>)은 기본값으로 L2 벌점을 주어 계수를 0 쪽으로 줄이고, 표준오차와 p-value를 주지 않으며, 대신 자료 나누기와 성능 평가 도구가 잘 갖춰져 있어 예측모형에 씁니다. 따라서 scikit-learn의 계수에 지수를 취한 값을 논문의 "보정 오즈비"로 보고하면 안 됩니다. 이 절의 마지막 셀에서 두 패키지의 계수를 직접 비교합니다. 참고로 이 자료의 설명변수 30개를 모두 statsmodels로 적합하면, 악성과 양성이 변수 조합으로 완벽하게 갈리는 완전 분리 때문에 수렴하지 않거나 오류로 멈춥니다(다 절). 벌점은 이런 자료에서도 계수가 무한대로 가지 않게 해 줍니다.</p></div>
+
+<h3>predict_proba 결과 살펴보기</h3>
+<p>예측모형의 출력은 환자별 예측 확률입니다. scikit-learn에서는 <code>predict_proba</code>로 얻는데, 돌려주는 값의 모양과 열의 뜻을 정확히 알아야 합니다.</p>
+<!--FIG:lab09_proba-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>proba = clf.predict_proba(X_test)</code><span>시험 자료 171명 각각에 대해 <em>모든 범주의 확률</em>을 계산합니다. 파이프라인이 X_test를 훈련 자료 기준으로 표준화한 뒤 계산합니다. 돌려주는 값은 NumPy 2차원 배열(행렬)입니다.</span></li>
+<li><code>print(type(proba), proba.shape)</code><span>자료형과 모양을 확인합니다. 모양 (171, 2)는 171행 × 2열입니다. <b>행</b>은 X_test의 환자 한 명씩(X_test와 같은 순서), <b>열</b>은 범주 하나씩입니다. 열의 순서는 <code>clf.classes_</code>의 순서 [0, 1]과 같아서, 0번 열은 P(y = 0) = 양성일 확률, 1번 열은 P(y = 1) = 악성일 확률입니다.</span></li>
+<li><code>proba[:5].round(3)</code><span><code>[:5]</code>는 앞의 5행(0–4번 행)을 고릅니다. 5명 각각의 두 확률이 한 줄씩 보입니다.</span></li>
+<li><code>p_test = proba[:, 1]</code><span>NumPy 배열의 대괄호는 <code>[행, 열]</code> 순서입니다. 행 자리의 <code>:</code>는 "모든 행", 열 자리의 <code>1</code>은 "1번 열"입니다. 파이썬은 0부터 세므로 1번 열은 두 번째 열, 즉 classes_[1] = 1(악성)의 확률입니다. 결과는 171개 값이 든 1차원 배열로, 시험 자료 환자별 악성 확률입니다. ROC 곡선, AUC, 교정 곡선에는 모두 이 "사건(y = 1)의 확률"을 넣습니다.</span></li>
+<li><code>proba[:5].sum(axis=1)</code><span><code>axis=1</code>은 가로 방향(열끼리) 합입니다. 두 범주의 확률을 더하면 환자마다 1이 되는지 확인합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>numpy.ndarray, (171, 2).</b> DataFrame이 아닌 NumPy 배열이라 열 이름이 없습니다. 그래서 열의 뜻은 <code>classes_</code>로 확인해야 합니다.</span></li>
+<li><span class="mk">2</span><span><b>첫 환자 [0.887 0.113].</b> 양성일 확률 0.887, 악성일 확률 0.113입니다.</span></li>
+<li><span class="mk">3</span><span><b>p_test의 앞 5개 [0.113 0.002 0. 0.003 0.019].</b> 위 표의 두 번째 열만 뽑은 것입니다. 0.은 0.0005보다 작은 확률을 셋째 자리로 반올림해 보인 것입니다.</span></li>
+<li><span class="mk">4</span><span><b>행 합 1.</b> 각 환자의 두 확률의 합은 1입니다. 그래서 이분형 결과에서는 한 열만 있으면 충분합니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">주의 · [:, 1]이 언제나 "관심 사건"의 확률은 아닙니다</p>
+<p><code>[:, 1]</code>은 "classes_에서 두 번째 범주의 확률"일 뿐입니다. 이 자료의 원래 코딩(0 = 악성, 1 = 양성)을 그대로 썼다면 <code>[:, 1]</code>은 <b>양성</b>일 확률이 됩니다. 이 상태로 AUC를 계산하면 결과와 확률이 함께 뒤집혀 같은 값이 나오지만, 민감도와 특이도의 뜻은 서로 바뀌고 교정 곡선은 양성에 대한 것이 됩니다. 결과가 "yes"/"no" 같은 문자열이면 classes_는 알파벳순(['no', 'yes'])으로 정렬됩니다. 코드를 쓰기 전에 <code>target_names</code>와 <code>classes_</code>를 확인하고, 관심 사건을 1로 코딩하는 습관을 들입니다.</p></div>
+
+<h3>ROC 곡선과 AUC</h3>
+<p>판별<span class="en">(discrimination)</span>은 악성과 양성을 순위로 얼마나 잘 구별하는지입니다. ROC 곡선은 임계값을 1에서 0까지 내리면서 민감도와 1 − 특이도를 이은 곡선이고, 그 아래 면적(AUC)이 C 통계량입니다. AUC는 "악성 환자 한 명과 양성 환자 한 명을 무작위로 뽑았을 때 악성 환자의 예측 확률이 더 높을 확률"입니다(<a href="#ch09-s1">9장 가 절</a>의 '예측모형의 판별', 14장 나 절).</p>
+<!--FIG:lab09_roc-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>roc_auc_score(y_test, p_test)</code><span>실제 결과(0/1)와 사건의 예측 확률을 이 순서로 넣습니다. 확률 대신 0/1 예측값을 넣으면 임계값 하나의 점만으로 계산해 AUC가 달라지므로, 반드시 확률을 넣습니다.</span></li>
+<li><code>fpr, tpr, thr = roc_curve(y_test, p_test)</code><span>가능한 임계값(<code>thr</code>)마다 위양성률(<code>fpr</code> = 1 − 특이도)과 진양성률(<code>tpr</code> = 민감도)을 계산해 세 배열로 돌려줍니다.</span></li>
+<li><code>plt.plot(fpr, tpr, …)
+plt.plot([0, 1], [0, 1], "--", …)</code><span>ROC 곡선과, 예측이 전혀 도움이 되지 않는 경우(AUC 0.5)의 대각선을 그립니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>AUC = 0.9975.</b> 악성-양성 한 쌍을 뽑으면 99.75%의 쌍에서 악성 쪽의 예측 확률이 더 높습니다. 곡선이 왼쪽 위 모서리에 거의 붙어 있습니다. 영상에서 계산한 세포핵 특징은 진단과 직접 연결된 정보라 이렇게 높게 나오며, 청구자료로 만든 입원 예측모형의 0.6–0.7대(9장)와 비교할 수 있는 숫자가 아닙니다. AUC는 정확도가 아닙니다(아래).</span></li>
+</ol>
+
+<h3>AUC의 신뢰구간</h3>
+<p>scikit-learn은 AUC의 신뢰구간을 주지 않습니다. 시험 자료를 복원추출로 다시 뽑아 AUC를 반복 계산하는 부트스트랩<span class="en">(bootstrap)</span>으로 구합니다.</p>
+<!--FIG:lab09_boot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>rng = np.random.default_rng(2026)</code><span>난수 생성기를 시드 2026으로 만듭니다. 시드를 고정해야 같은 결과가 재현됩니다.</span></li>
+<li><code>yt, aucs = y_test.to_numpy(), []</code><span>y_test를 NumPy 배열로 바꾸고(행 번호로 뽑기 쉽게), AUC를 모을 빈 리스트를 만듭니다.</span></li>
+<li><code>for _ in range(1000):</code><span>아래 들여쓴 줄을 1,000번 반복합니다. 반복 번호는 쓰지 않으므로 이름을 <code>_</code>로 둡니다.</span></li>
+<li><code>i = rng.integers(0, len(yt), len(yt))</code><span>0–170 사이의 정수를 171개 뽑습니다. 같은 번호가 여러 번 뽑힐 수 있는 복원추출입니다.</span></li>
+<li><code>if yt[i].min() == yt[i].max(): continue</code><span>뽑힌 환자가 모두 악성이거나 모두 양성이면 AUC를 계산할 수 없으므로 건너뜁니다.</span></li>
+<li><code>np.percentile(aucs, [2.5, 97.5])</code><span>1,000개 AUC의 2.5번째와 97.5번째 백분위수가 95% 신뢰구간입니다(백분위수 방법).</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1000.</b> 건너뛴 경우 없이 1,000번 모두 계산되었습니다.</span></li>
+<li><span class="mk">2</span><span><b>95% CI 0.992–1.000.</b> 시험 자료 171명을 다시 뽑는 데서 오는 불확실성만 반영한 구간입니다. 모형을 다시 만드는 과정의 불확실성까지 반영하려면 전체 자료로 부트스트랩 내부 검증을 합니다(9장 '내부 검증과 외부 검증').</span></li>
+</ol>
+
+<h3>혼동행렬</h3>
+<p>예측 확률이 임계값 이상이면 '악성'으로 분류하면 진단검사처럼 2×2 표를 만들 수 있습니다. 이 표를 혼동행렬<span class="en">(confusion matrix)</span>이라고 부릅니다.</p>
+<!--FIG:lab09_cm-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pred05 = (p_test &gt;= 0.5).astype(int)</code><span>악성 확률이 0.5 이상이면 1(악성), 아니면 0(양성)으로 분류한 171개 값입니다. <code>clf.predict(X_test)</code>도 임계값 0.5로 분류한 결과를 줍니다.</span></li>
+<li><code>confusion_matrix(y_test, pred05)</code><span>(실제, 예측) 순서로 넣습니다. 행이 실제 범주(0, 1 순서), 열이 예측 범주(0, 1 순서)인 2 × 2 배열을 돌려줍니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>첫 행 [106, 1]: 실제 양성 107명.</b> 106명을 양성으로 맞게 분류(참음성, TN), 1명을 악성으로 잘못 분류(위양성, FP)했습니다.</span></li>
+<li><span class="mk">2</span><span><b>둘째 행 [4, 60]: 실제 악성 64명.</b> 4명을 양성으로 놓쳤고(위음성, FN), 60명을 악성으로 맞게 분류했습니다(참양성, TP). 이 배치(행 = 실제, 열 = 예측, 0이 먼저)는 논문의 2×2 표(보통 양성·사건이 위, 왼쪽)와 순서가 반대일 수 있으니 주의합니다.</span></li>
+</ol>
+
+<h3>임계값별 민감도, 특이도, 정확도</h3>
+<!--FIG:lab09_thr-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>tn, fp, fn, tp = confusion_matrix(y_test, pred).ravel()</code><span><code>ravel()</code>은 2 × 2 배열을 한 줄로 펼칩니다. [[TN, FP], [FN, TP]]가 [TN, FP, FN, TP] 순서가 되어 네 이름에 차례로 담깁니다.</span></li>
+<li><code>tp / (tp + fn)
+tn / (tn + fp)
+(tp + tn) / len(pred)</code><span>민감도(실제 악성 중 악성으로 분류된 비율), 특이도(실제 양성 중 양성으로 분류된 비율), 정확도(전체 중 맞게 분류된 비율)입니다.</span></li>
+<li><code>pd.DataFrame([classify(t) for t in [0.5, 0.2]])</code><span>임계값 0.5와 0.2에 대해 함수가 돌려준 사전 두 개를 행으로 쌓아 표를 만듭니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>임계값 0.5의 민감도 0.938.</b> 60/64. 악성 64명 중 4명을 놓칩니다.</span></li>
+<li><span class="mk">2</span><span><b>특이도 0.991.</b> 106/107.</span></li>
+<li><span class="mk">3</span><span><b>정확도 0.971.</b> (60 + 106)/171.</span></li>
+<li><span class="mk">4</span><span><b>임계값 0.2의 민감도 0.984.</b> 63/64로 놓치는 악성이 1명으로 줄고, 대신 위양성이 1명에서 3명으로 늘어 특이도가 0.972가 됩니다. 암을 놓치는 손해가 불필요한 추가 검사의 손해보다 크다면 낮은 임계값을 택합니다. 임계값은 통계가 아니라 쓰임새가 정하며, 0.5가 기본값일 이유는 없습니다(9장 '임계값과 분류표').</span></li>
+</ol>
+
+<h3>교정 곡선</h3>
+<p>교정<span class="en">(calibration)</span>은 예측 확률이 실제 비율과 맞는지입니다. 예측 확률 순으로 환자를 몇 개 군으로 나눠 군마다 평균 예측 확률과 실제 악성 비율을 비교합니다(<a href="#ch09-s1">9장 가 절</a>의 '예측모형의 교정').</p>
+<!--FIG:lab09_calib-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>calibration_curve(y_test, p_test, n_bins=5, strategy="quantile")</code><span>예측 확률 순으로 환자를 5개 군으로 나눕니다. <code>strategy="quantile"</code>은 군마다 환자 수가 같도록(약 34명씩) 나누는 방법이고, 기본값 <code>"uniform"</code>은 확률 구간을 0–0.2, 0.2–0.4 …처럼 같은 폭으로 나눕니다. 돌려주는 값은 (군별 실제 비율, 군별 평균 예측 확률) 순서이니 이름을 바꿔 담지 않도록 주의합니다.</span></li>
+<li><code>plt.plot(prob_pred, prob_true, "o-", …)</code><span>가로축에 평균 예측 확률, 세로축에 실제 비율을 찍고 선으로 잇습니다. 점선 대각선은 완벽한 교정입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>군별 평균 예측 확률 0, 0.002, 0.034, 0.768, 1.</b></span></li>
+<li><span class="mk">2</span><span><b>군별 실제 악성 비율 0, 0, 0.029, 0.853, 1.</b> 아래 세 군과 맨 위 군은 대각선 위에 있고, 네 번째 군은 평균 예측 76.8%에 실제 85.3%로 약간 과소예측입니다. 군마다 34명 정도라 실제 비율의 불확실성이 커서(±12%p 안팎) 이 차이를 과대해석하지 않습니다.</span></li>
+</ol>
+<p>이 자료에서는 교정 곡선의 점이 0과 1 근처에 몰려 있습니다. 다음 셀의 히스토그램처럼 예측 확률 대부분이 0 또는 1에 가까워서, 중간 확률 영역을 평가할 환자가 거의 없기 때문입니다. 예측 확률이 넓게 퍼지는 입원 예측모형 같은 자료(9장 그림 9-7)에서 교정 곡선이 훨씬 많은 정보를 줍니다.</p>
+
+<h3>Brier 점수와 예측 확률의 분포</h3>
+<!--FIG:lab09_brier-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>brier_score_loss(y_test, p_test)</code><span>(예측 확률 − 실제 0/1)²의 평균인 Brier 점수입니다. 0에 가까울수록 좋습니다. 판별과 교정을 함께 반영합니다.</span></li>
+<li><code>np.full(len(y_test), y_train.mean())</code><span>모든 환자에게 훈련 자료의 악성 비율(0.372)을 똑같이 예측하는 "정보 없는 모형"입니다. Brier 점수는 사건 비율에 따라 크기가 달라지므로 이런 기준값과 비교해 읽습니다.</span></li>
+<li><code>plt.hist(p_test, bins=20)</code><span>예측 확률 171개의 히스토그램을 20개 구간으로 그립니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Brier 0.0187.</b></span></li>
+<li><span class="mk">2</span><span><b>기준 모형 0.2342.</b> 모형의 Brier 점수가 기준의 8% 수준으로 작습니다. 히스토그램에서 대부분의 환자가 0 근처(양성 쪽)나 1 근처(악성 쪽)에 있고 중간은 드뭅니다.</span></li>
+</ol>
+
+<h3>AUC와 정확도는 다른 것을 잽니다</h3>
+<p>모든 예측 확률을 절반으로 줄이면 환자들의 순서는 그대로이고 확률의 크기만 틀려집니다. 이때 각 지표가 어떻게 변하는지 봅니다.</p>
+<!--FIG:lab09_aucacc-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>p_half = p_test / 2</code><span>171개 확률을 모두 절반으로 만듭니다. 예측이 체계적으로 과소한 가상의 모형입니다.</span></li>
+<li><code>acc = lambda p: ((p &gt;= 0.5).astype(int) == y_test).mean()</code><span>임계값 0.5로 분류해 실제와 같은 비율(정확도)을 계산하는 한 줄 함수입니다. True/False의 평균은 True의 비율입니다.</span></li>
+<li><code>(y_test == 0).mean()</code><span>모두를 양성으로 분류할 때의 정확도, 즉 양성의 비율입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>AUC 0.9975 → 0.9975.</b> 순서가 같으므로 AUC는 전혀 변하지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>Brier 0.0187 → 0.1134.</b> 확률의 크기가 틀려져 크게 나빠졌습니다. 교정이 무너진 것입니다.</span></li>
+<li><span class="mk">3</span><span><b>정확도 0.971 → 0.632.</b> 확률이 절반이 되자 0.5를 넘는 환자가 거의 없어져 대부분을 양성으로 분류했습니다.</span></li>
+<li><span class="mk">4</span><span><b>모두 양성으로 분류할 때의 정확도 0.626.</b> 모형 없이도 62.6%는 맞힙니다. 정확도만 보면 이 기준보다 나은지부터 따져야 합니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해 · AUC는 정확도가 아닙니다</p>
+<ul>
+<li><span class="wrong">AUC가 0.9975이므로 이 모형은 환자의 99.75%를 맞게 분류한다.</span> AUC는 악성-양성 한 쌍의 <b>순서</b>를 맞게 매길 확률입니다. 임계값을 정하지 않으므로 몇 명을 맞게 분류하는지는 알려 주지 않습니다. 실제 정확도는 임계값 0.5에서 97.1%, 0.2에서 97.7%였고, 확률을 절반으로 줄인 모형은 AUC가 같은데도 63.2%였습니다.</li>
+<li><span class="wrong">정확도가 높으면 좋은 모형이다.</span> 모두 양성으로 분류해도 62.6%입니다. 사건이 드문 결과일수록 쓸모없는 모형의 정확도가 높게 나옵니다(9장 흔한 오해 상자). 정확도는 임계값과 사건 비율에 따라 변하는 값이라 민감도, 특이도와 함께 봅니다.</li>
+<li><span class="wrong">AUC가 높으면 예측 확률도 믿을 수 있다.</span> 확률을 절반으로 줄여도 AUC는 그대로였습니다. 예측 확률의 크기가 맞는지는 교정 곡선과 Brier 점수로 따로 평가합니다.</li>
+</ul></div>
+
+<h3>statsmodels와 scikit-learn의 계수 비교</h3>
+<p>벌점이 계수에 어떤 영향을 주는지 설명변수 3개짜리 작은 모형으로 확인합니다.</p>
+<!--FIG:lab09_smsk-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>Z = StandardScaler().fit_transform(X_train[cols3])</code><span>훈련 자료의 세 변수를 표준화한 배열(398 × 3)입니다. <code>fit_transform</code>은 평균·표준편차를 계산(fit)하고 바로 변환(transform)합니다.</span></li>
+<li><code>sm.Logit(y_train.to_numpy(), sm.add_constant(Z)).fit(disp=0)</code><span>공식 없이 배열로 statsmodels 로지스틱 회귀를 적합합니다. 배열 방식은 절편을 자동으로 넣지 않으므로 <code>sm.add_constant</code>로 1로 된 절편 열을 앞에 붙입니다. 결과의 <code>params</code>는 [절편, 계수 3개] 순서라 <code>params[1:]</code>로 절편을 뺍니다.</span></li>
+<li><code>LogisticRegression().fit(Z, y_train)</code><span>scikit-learn 기본값(L2 벌점, C = 1)으로 적합합니다. 계수는 <code>coef_</code>(1 × 3 배열)에 있어 <code>coef_[0]</code>으로 꺼냅니다.</span></li>
+<li><code>LogisticRegression(C=1e6)</code><span>C를 100만으로 키우면 벌점이 사실상 사라집니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>statsmodels 5.047.</b> 벌점 없는 최대우도추정값입니다. 다른 두 변수가 같을 때 mean radius가 1 표준편차 크면 악성의 로그 오즈가 5.05 높습니다.</span></li>
+<li><span class="mk">2</span><span><b>scikit-learn 기본값 3.704.</b> 같은 자료인데 L2 벌점 때문에 계수가 0 쪽으로 약 27% 줄었습니다. 다른 두 계수도 같은 방향으로 줄었습니다. C를 아주 크게 한 오른쪽 열은 statsmodels와 거의 같습니다. 벌점은 예측 성능에는 도움이 될 수 있지만, 줄어든 계수로 만든 오즈비는 "보정 오즈비"가 아닙니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 예측모형의 성능</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">The data were randomly split, <span class="mk">1</span> <span class="hl">stratified by diagnosis, into a development set (n = 398; 148 malignant) and a test set (n = 171; 64 malignant)</span>. A logistic regression model with <span class="mk">2</span> <span class="hl">L2 penalization (C = 1.0) on standardized predictors</span> showed excellent discrimination in the test set (<span class="mk">3</span> <span class="hl">AUC, 0.998; 95% bootstrap CI, 0.992 to 1.000</span>). At a predicted probability threshold of 0.5, <span class="mk">4</span> <span class="hl">sensitivity was 93.8% (60/64) and specificity was 99.1% (106/107)</span>; lowering the threshold to 0.2 increased sensitivity to 98.4% (63/64) with a specificity of 97.2% (104/107). The <span class="mk">5</span> <span class="hl">Brier score was 0.019</span> (0.234 for a model assigning the development-set prevalence to all patients).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>자료를 나눈 방법.</b> 비율(70:30), 층화 여부, 각 자료의 사건 수를 적습니다. 무작위 분할은 가장 단순한 방법이고, 표본이 크지 않으면 전체 자료로 모형을 만들고 부트스트랩으로 낙관도를 보정하는 내부 검증이 더 권장됩니다(9장). 다른 기관의 자료로 한 외부 검증은 따로 필요합니다.</span></li>
+<li><span class="mk">2</span><span><b>모형의 구체적인 설정.</b> 벌점의 종류와 세기, 표준화 여부를 적어야 다른 연구자가 재현할 수 있습니다. 예측모형 보고 지침 TRIPOD는 전체 모형 식(절편과 계수)도 보고하도록 요구합니다<cite data-ref="collins2015"></cite>.</span></li>
+<li><span class="mk">3</span><span><b>AUC와 신뢰구간.</b> <code>roc_auc_score</code>의 0.9975와 부트스트랩 구간입니다. 신뢰구간 계산 방법(여기서는 시험 자료의 부트스트랩 1,000회)을 Methods에 적습니다.</span></li>
+<li><span class="mk">4</span><span><b>임계값을 밝힌 민감도·특이도.</b> 임계값에 따라 달라지므로 임계값과 분자/분모를 함께 적습니다. 정확도만 보고하지 않습니다.</span></li>
+<li><span class="mk">5</span><span><b>Brier 점수와 기준값.</b> Brier 점수는 사건 비율에 따라 크기가 달라서 기준 모형의 값과 함께 보여 줍니다. 실제 논문에서는 교정 곡선 그림(또는 교정 절편·기울기)도 함께 제시합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>load_breast_cancer</code>의 원래 코딩은 0 = 악성, 1 = 양성입니다. <code>target_names</code>로 확인하고 관심 사건(악성)을 1로 바꿔 씁니다.</li>
+<li><code>train_test_split(…, stratify=y, random_state=…)</code>로 사건 비율을 유지하며 재현 가능하게 나누고, <code>make_pipeline(StandardScaler(), LogisticRegression())</code>으로 훈련 자료 기준의 표준화와 학습을 묶습니다. scikit-learn은 기본값으로 L2 벌점(C = 1.0)을 주며 표준오차와 p-value를 주지 않습니다.</li>
+<li><code>predict_proba(X_test)</code>는 (환자 수 × 범주 수) 배열이고 열의 순서는 <code>classes_</code>를 따릅니다. <code>[:, 1]</code>은 모든 행의 classes_[1] 확률, 여기서는 악성 확률입니다.</li>
+<li>판별은 <code>roc_curve</code>, <code>roc_auc_score</code>(확률을 넣음)로, 분류 성능은 임계값을 정한 <code>confusion_matrix</code>의 민감도·특이도로, 교정은 <code>calibration_curve</code>와 <code>brier_score_loss</code>로 평가합니다.</li>
+<li>AUC는 순위의 정확도이지 분류 정확도가 아닙니다. 확률을 절반으로 줄여도 AUC는 그대로이지만 정확도와 Brier 점수는 크게 나빠집니다.</li>
+</ul></div>
+</section>

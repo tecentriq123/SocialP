@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 34</span><span class="cell-t">경고(warning)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">log_ptl = np.log(df[&quot;ptl&quot;])   # ptl: 이전 조산 횟수 (0이 많음)
+print(log_ptl.head())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>0   -inf<span class="mk">1</span>
+1   -inf
+2   -inf
+3   -inf
+4   -inf
+Name: ptl, dtype: float64</pre><pre class="warn-out">RuntimeWarning: divide by zero encountered in log</pre></div></div>

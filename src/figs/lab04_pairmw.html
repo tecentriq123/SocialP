@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">쌍별 Mann-Whitney 검정과 Holm 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.multitest import multipletests
+
+groups = {&quot;White&quot;: white, &quot;Black&quot;: black, &quot;Other&quot;: other}
+pairs = [(&quot;White&quot;, &quot;Black&quot;), (&quot;White&quot;, &quot;Other&quot;),
+         (&quot;Black&quot;, &quot;Other&quot;)]
+p_mw, sup = [], []
+for a, b in pairs:
+    r = stats.mannwhitneyu(groups[b], groups[a])
+    p_mw.append(r.pvalue)
+    sup.append(r.statistic / (len(groups[a]) * len(groups[b])))
+p_mw_holm = multipletests(p_mw, method=&quot;holm&quot;)[1]
+print(&quot;P(b &gt; a):&quot;, np.round(sup, 3))
+print(&quot;p:&quot;, np.round(p_mw, 4), &quot; Holm:&quot;, np.round(p_mw_holm, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>P(b &gt; a): [0.346 0.394 0.541]<span class="mk">1</span>
+p: [0.0165 0.021  0.5461]<span class="mk">2</span>  Holm: [0.0495 0.0495 0.5461]<span class="mk">3</span></pre></div></div>

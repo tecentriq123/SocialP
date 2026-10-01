@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">ICC와 표준오차 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tau2 = m1.cov_re.iloc[0, 0]     # 참가자 간 분산 (Group Var)
+sigma2 = m1.scale               # 참가자 내 분산 (Scale)
+print(&quot;ICC:&quot;, round(tau2 / (tau2 + sigma2), 3))
+
+ols = smf.ols(&quot;Reaction ~ Days&quot;, data=sleep).fit()
+print(&quot;OLS의 Days SE      :&quot;, round(ols.bse[&quot;Days&quot;], 3))
+print(&quot;무작위 절편 Days SE:&quot;, round(m1.bse_fe[&quot;Days&quot;], 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ICC: 0.589<span class="mk">1</span>
+OLS의 Days SE      : 1.238<span class="mk">2</span>
+무작위 절편 Days SE: 0.804<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">차이 d에 대한 일표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d = wide[&quot;d&quot;]
+one = stats.ttest_1samp(d, popmean=0)
+print(f&quot;one-sample: t = {one.statistic:.3f}, p = {one.pvalue:.4f}&quot;)
+
+se = d.std() / np.sqrt(len(d))       # 차이의 표준오차
+print(f&quot;mean = {d.mean():.2f}, SD = {d.std():.3f}, &quot;
+      f&quot;SE = {se:.3f}, t = {d.mean() / se:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>one-sample: t = 4.062, p = 0.0028<span class="mk">1</span>
+mean = 1.58, SD = 1.230<span class="mk">2</span>, SE = 0.389<span class="mk">3</span>, t = 4.062</pre></div></div>

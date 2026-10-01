@@ -1,0 +1,564 @@
+<p class="lead">8장의 신뢰구간, 효과 지표, 일반화 선형모형과 우도비 검정, 교란과 층화, 가변수와 다변수 분석을 birthwt 자료 하나로 이어서 실습합니다. 질문은 처음부터 끝까지 하나입니다. "임신 중 흡연은 저체중아 출생과 관련이 있는가, 그리고 인종을 고려하면 그 관련이 어떻게 달라지는가." 이론은 <a href="#ch08">8장</a>을, 교차표 기초는 <a href="#lab05">실습 5</a>를 함께 보세요.</p>
+
+<dl class="glance">
+  <div><dt>관련 이론</dt><dd><a href="#ch08">8장</a> 가 절(95% 신뢰구간), 나 절(상대위험도와 교차비), 라 절(일반화 선형모형), 마 절(우도), 바 절(교란변수와 교호작용), 사 절(가변수의 설정), 아 절(단변수 분석과 다변수 분석)</dd></div>
+  <div><dt>데이터</dt><dd><b>birthwt</b> (R MASS 패키지): 1986년 미국 Baystate Medical Center의 출생아 189명과 산모의 특성 10개 변수. 변수 설명은 <a href="#lab05-s1">실습 5 가 절</a>에 있습니다.</dd></div>
+  <div><dt>사용 패키지</dt><dd>pandas, numpy, scipy, statsmodels (<code>proportion_confint</code>, <code>Table2x2</code>, <code>StratifiedTable</code>, <code>smf.glm</code>, <code>smf.logit</code>), matplotlib</dd></div>
+  <div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00">실습 0</a> 참고). 따로 설치할 패키지는 없습니다. 셀은 위에서부터 순서대로 실행하세요. 뒤의 셀이 앞에서 만든 변수를 씁니다.</dd></div>
+</dl>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab08-s1">
+<h2><span class="sec-no">가.</span>신뢰구간과 효과크기</h2>
+
+<p>대부분의 95% 신뢰구간은 "추정값 ± 임계값 × SE"의 모양이고, 비(ratio)의 구간은 로그 척도에서 만듭니다(<a href="#ch08-s1">8장 가 절</a>). 이 절에서는 비율, 평균, 2×2 표의 효과 지표에 대해 신뢰구간을 구하고, 공식 대신 자료를 다시 뽑아 구간을 만드는 부트스트랩과 비교합니다.</p>
+
+<h3>데이터 불러오기와 변수 만들기</h3>
+<p>실습 5와 같은 자료를 불러오고, 뒤의 회귀모형에 쓸 변수 세 개를 미리 만듭니다.</p>
+<!--FIG:lab08_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>df = pd.read_csv(url)</code><span>Rdatasets 사이트에서 birthwt를 읽어 데이터프레임 <code>df</code>에 담습니다(인터넷 필요, <a href="#lab00-s5">실습 0 마 절</a>).</span></li>
+<li><code>df["ptl_any"] = (df["ptl"] &gt; 0).astype(int)</code><span>이전 조산 횟수가 1회 이상이면 1, 아니면 0인 열입니다.</span></li>
+<li><code>df["lwt_kg"] = df["lwt"] * 0.4536</code><span>마지막 월경 시점의 산모 체중 <code>lwt</code>는 파운드 단위라 1 lb = 0.4536 kg을 곱해 kg으로 바꿉니다. 임신 전 체중에 해당합니다.</span></li>
+<li><code>df["race_f"] = pd.Categorical(…, categories=[…])</code><span>인종에 이름표를 붙이고 White, Black, Other 순서를 고정합니다. 층화 분석의 출력 순서를 정하는 데 씁니다. 회귀모형에는 숫자 열 <code>race</code>를 씁니다(라 절).</span></li>
+<li><code>df[[…]].head(3)</code><span>대괄호 두 겹으로 여러 열을 골라 앞의 3행만 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>189행, 14열.</b> 원래 11열에 새로 만든 3열이 더해졌습니다.</span></li>
+<li><span class="mk">2</span><span><b>첫 산모의 체중 82.6 kg</b>(182 lb × 0.4536). 단위를 바꾼 변수는 이렇게 한두 명의 값으로 검산해 둡니다.</span></li>
+</ol>
+
+<div class="callout note"><p class="ct">참고 · 이 자료를 코호트처럼 다룹니다</p>
+<p>이 실습은 189명을 하나의 코호트처럼 보고 위험, 상대위험도, 위험차를 계산합니다. 저체중아 비율 31%는 일반 출생아보다 훨씬 높고 대상 선정 방법이 자료 문서에 자세히 나와 있지 않으므로, 결과는 "이 표본 안에서의 값"으로 읽습니다. 결과에 따라 대상을 모은 자료라면 오즈비만 해석할 수 있습니다(<a href="#lab05-s2">실습 5 나 절</a>의 참고 상자, <a href="#ch08-s2">8장 나 절</a>).</p></div>
+
+<h3>비율의 95% 신뢰구간</h3>
+<p>비율의 구간을 만드는 방법은 여럿입니다. 교과서의 기본 공식(Wald 구간)은 표본이 작거나 비율이 0이나 1에 가까우면 실제 포함 확률이 95%보다 낮아지므로 Wilson 구간(또는 Jeffreys 구간)이 권장됩니다<cite data-ref="brown2001"></cite>. 정확(Clopper–Pearson) 구간도 흔히 쓰이지만 실제 포함 확률이 95%보다 높은 보수적인 구간입니다. 전체 저체중아 비율(59/189)과 고혈압 병력 산모의 저체중아 비율(7/12)로 세 방법을 비교합니다.</p>
+<!--FIG:lab08_propci-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from statsmodels.stats.proportion import proportion_confint</code><span>비율의 신뢰구간 함수를 불러옵니다.</span></li>
+<li><code>rows = []</code><span>결과를 한 줄씩 모을 빈 목록입니다. 마지막에 표로 바꿉니다.</span></li>
+<li><code>for count, n in [(59, 189), (7, 12)]:</code><span>(사건 수, 인원) 두 쌍을 차례로 꺼냅니다.</span></li>
+<li><code>for method in ["normal", "wilson", "beta"]:</code><span>안쪽 반복문으로 세 방법을 돌립니다. <code>"normal"</code>은 Wald 구간 \(p \pm 1.96\sqrt{p(1-p)/n}\), <code>"wilson"</code>은 Wilson 점수 구간, <code>"beta"</code>는 이항분포에서 직접 구하는 Clopper–Pearson 정확 구간입니다.</span></li>
+<li><code>proportion_confint(count, n, method=method)</code><span>(하한, 상한)을 돌려줍니다. 신뢰수준은 기본값 95%(<code>alpha=0.05</code>)입니다.</span></li>
+<li><code>rows.append([…])</code><span>자료 이름, 방법, 점추정값, 하한, 상한을 한 줄로 목록에 덧붙입니다.</span></li>
+<li><code>pd.DataFrame(rows, columns=cols).round(3)</code><span>목록을 6행 5열의 표로 바꾸고 소수 셋째 자리로 반올림합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>189명: Wald 구간 0.246–0.378.</b> 점추정값 0.312를 중심으로 좌우 대칭입니다.</span></li>
+<li><span class="mk">2</span><span><b>189명: Wilson 구간 0.250–0.381.</b> 표본이 이 정도로 크면 세 방법의 차이가 소수 셋째 자리에서만 납니다.</span></li>
+<li><span class="mk">3</span><span><b>12명: Wald 구간 0.304–</b><span class="mk">4</span><b>0.862.</b> 0.583 ± 0.279로 대칭이지만, 작은 표본에서는 이 대칭 공식이 부정확합니다.</span></li>
+<li><span class="mk">5</span><span><b>12명: Wilson 상한 0.807.</b> Wald 상한보다 0.055 낮고, 구간 전체가 0.5 쪽으로 당겨져 비대칭입니다.</span></li>
+<li><span class="mk">6</span><span><b>12명: 정확 구간 하한 0.277</b>(0.277–0.848). 세 방법 중 가장 넓습니다. 정확 구간은 포함 확률이 95% 이상이 되도록 만들어 보수적입니다(<a href="#ch05-s2">5장 나 절</a>의 정확검정과 같은 성질). 논문에는 어느 방법을 썼는지 밝힙니다.</span></li>
+</ol>
+
+<h3>평균의 95% 신뢰구간</h3>
+<p>출생체중 평균의 구간을 공식대로 계산합니다. 표준편차를 표본에서 추정하므로 1.96 대신 자유도 n − 1인 t 분포의 임계값을 씁니다(<a href="#ch08-s1">8장 가 절</a>).</p>
+<!--FIG:lab08_meanci-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>bwt = df["bwt"]</code><span>출생체중(g) 열을 꺼냅니다. 189개 값의 Series입니다.</span></li>
+<li><code>mean, sd = bwt.mean(), bwt.std()</code><span>평균과 표준편차를 한 줄에 구합니다. pandas의 <code>std()</code>는 기본으로 n − 1로 나눈 표본 표준편차입니다(numpy의 <code>np.std</code>는 기본이 n이라 다릅니다).</span></li>
+<li><code>se = sd / np.sqrt(n)</code><span>평균의 표준오차 SD/√n입니다.</span></li>
+<li><code>stats.t.ppf(0.975, n - 1)</code><span>자유도 188인 t 분포에서 아래쪽 확률이 0.975인 점, 즉 양쪽에 2.5%씩 남기는 임계값입니다. <code>ppf</code>는 누적확률을 넣으면 값을 돌려주는 함수(분위수 함수)입니다.</span></li>
+<li><code>mean - t_crit * se
+mean + t_crit * se</code><span>추정값 ± 임계값 × SE입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>평균 출생체중 2,944.6 g</b>, 표준편차 729.2 g.</span></li>
+<li><span class="mk">2</span><span><b>SE = 729.2 ÷ √189 = 53.04 g.</b></span></li>
+<li><span class="mk">3</span><span><b>t 임계값 1.973.</b> 자유도가 188로 커서 1.96과 거의 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>95% CI 2,840.0–3,049.2 g.</b> <code>stats.ttest_1samp(bwt, 0).confidence_interval()</code>로도 같은 구간이 나옵니다. 이 구간은 <b>평균</b>의 불확실성입니다. 아기 95%의 체중 범위는 평균 ± 1.96 × SD, 약 1,515–4,374 g으로 훨씬 넓습니다(<a href="#ch08-s1">8장 가 절</a>의 흔한 오해).</span></li>
+</ol>
+
+<h3>흡연과 저체중아의 2×2 표</h3>
+<p>이제 이 실습의 주 질문인 흡연과 저체중아의 관련입니다. 실습 5에서는 이름표를 붙인 범주형 변수로 순서를 정했는데, 여기서는 숫자 열 그대로 교차표를 만든 뒤 <code>.loc</code>로 행과 열의 순서를 바꾸는 방법을 씁니다.</p>
+<!--FIG:lab08_tab-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pd.crosstab(df["smoke"], df["low"])</code><span>행 = 흡연(0, 1), 열 = 저체중아(0, 1)의 교차표입니다. pandas는 0을 먼저 놓습니다.</span></li>
+<li><code>.loc[[1, 0], [1, 0]]</code><span>행을 1, 0 순서로, 열도 1, 0 순서로 다시 꺼냅니다. 그러면 첫 행이 흡연(노출), 첫 열이 저체중아(사건)가 되어 <code>Table2x2</code>가 기대하는 모양이 됩니다.</span></li>
+<li><code>(a, b), (c, d) = tab.to_numpy()</code><span>네 칸을 a = 30, b = 44, c = 29, d = 86으로 풀어 담습니다.</span></li>
+<li><code>p1, p0 = a / (a + b), c / (c + d)</code><span>흡연군과 비흡연군의 위험입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>흡연군의 위험 0.405</b>와 <span class="mk">2</span> <b>비흡연군 0.252.</b> 표의 행 이름 1, 0과 열 이름 1, 0으로 순서가 바뀐 것을 확인합니다.</span></li>
+</ol>
+
+<h3>위험차, 상대위험도, 오즈비, NNH</h3>
+<p>같은 2×2 표에서 네 가지 지표와 신뢰구간을 한 번에 구합니다(<a href="#ch08-s2">8장 나 절</a>). 흡연은 해로운 노출이므로 치료필요수(NNT) 대신 <b>NNH</b><span class="en">(number needed to harm)</span>, 즉 "몇 명이 노출되면 1명에게 사건이 더 생기는가"로 씁니다. 8장의 NNTH와 같은 개념입니다.</p>
+<!--FIG:lab08_effects-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def show(name, est, ci):</code><span>이름, 추정값, (하한, 상한)을 받아 한 줄로 출력하는 작은 함수입니다. 같은 모양의 print를 네 번 쓰지 않으려고 만들었습니다. <code>{name:3s}</code>는 이름을 3칸에, <code>{est:6.3f}</code>는 숫자를 6칸 폭에 소수 셋째 자리로 맞춥니다.</span></li>
+<li><code>t22 = Table2x2(tab.to_numpy())</code><span>2×2 배열로 상대위험도와 오즈비를 계산할 객체를 만듭니다. 데이터프레임을 그대로 넣으면 틀린 값이 나오므로 <code>.to_numpy()</code>를 씁니다(<a href="#lab05-s2">실습 5 나 절</a>의 주의 상자).</span></li>
+<li><code>confint_proportions_2indep(…, compare="diff", method="wald")</code><span>위험차의 Wald 신뢰구간 (하한, 상한)입니다.</span></li>
+<li><code>t22.riskratio_confint()
+t22.oddsratio_confint()</code><span>로그 척도에서 만든 95% 신뢰구간입니다.</span></li>
+<li><code>1 / (p1 - p0)
+(1 / rd_ci[1], 1 / rd_ci[0])</code><span>NNH는 위험차의 역수이고, 구간은 위험차 구간의 양 끝을 뒤집어 구합니다. 큰 위험차가 작은 NNH가 되므로 상한과 하한의 자리가 바뀝니다<cite data-ref="altman1998nnt"></cite>.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>위험차 0.153 (0.016–0.290).</b> 흡연 산모 100명당 저체중아가 15명 더 많습니다.</span></li>
+<li><span class="mk">2</span><span><b>상대위험도 1.608 (1.058–2.443).</b> 구간이 로그 척도에서 대칭이라 √(1.058 × 2.443) = 1.608로 점추정값과 맞습니다.</span></li>
+<li><span class="mk">3</span><span><b>오즈비 2.022 (1.081–3.783).</b> 결과가 흔해 상대위험도보다 1에서 멉니다.</span></li>
+<li><span class="mk">4</span><span><b>NNH 6.5.</b> 1 ÷ 0.153입니다. "흡연 산모 6.5명마다 저체중아가 1명 더 생긴다"로 읽습니다. 정수로 올려 7명으로 쓰기도 하지만, 아래 논문 문장처럼 소수 한 자리로 적어도 됩니다.</span></li>
+<li><span class="mk">5</span><span><b>NNH의 구간 3.4–62.2.</b> 위험차 구간의 양 끝 1 ÷ 0.290과 1 ÷ 0.016입니다. 위험차 하한이 0에 가까워 NNH 상한이 매우 큽니다. 위험차 구간이 0을 포함했다면 NNH 구간은 무한대를 지나게 됩니다(<a href="#ch08-s2">8장 나 절</a>의 참고 상자). 또 NNH를 "흡연 때문에"로 읽으려면 교란이 없어야 하는데, 다 절에서 보듯 이 비교에는 교란이 있습니다.</span></li>
+</ol>
+
+<h3>부트스트랩 신뢰구간</h3>
+<p><b>부트스트랩</b><span class="en">(bootstrap)</span>은 가지고 있는 표본을 모집단 삼아, 189명 중에서 복원추출로 189명을 다시 뽑는 일을 수천 번 반복하고, 매번 계산한 추정값의 흩어짐으로 신뢰구간을 만드는 방법입니다. SE 공식이 없는 통계량(중앙값의 차이, 표준화 위험, 비용의 차이 등)에도 쓸 수 있어 약물경제학 연구에서 자주 봅니다(<a href="#ch08-s4">8장 라 절</a>). 공식이 있는 상대위험도로 먼저 해 보고 로그 척도 구간과 비교합니다.</p>
+<!--FIG:lab08_boot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>rng = np.random.default_rng(2026)</code><span>numpy의 난수 생성기를 만듭니다. 괄호 안의 숫자가 <b>시드</b>(seed)로, 같은 시드면 몇 번을 실행해도 같은 난수가 나와 결과를 재현할 수 있습니다.</span></li>
+<li><code>y = df["low"].to_numpy()
+x = df["smoke"].to_numpy()</code><span>반복 계산을 빠르게 하려고 두 열을 numpy 배열로 꺼냅니다.</span></li>
+<li><code>for _ in range(2000):</code><span>2,000번 반복합니다. 반복 번호를 쓰지 않으므로 변수 이름을 밑줄 <code>_</code>로 두었습니다.</span></li>
+<li><code>i = rng.integers(0, len(y), size=len(y))</code><span>0부터 188 사이의 정수 189개를 무작위로 뽑습니다(끝값 189는 포함하지 않음). 같은 번호가 여러 번 나올 수 있으므로 복원추출입니다. 어떤 산모는 두세 번, 어떤 산모는 한 번도 뽑히지 않습니다.</span></li>
+<li><code>yb, xb = y[i], x[i]</code><span>뽑힌 번호의 저체중아 여부와 흡연 여부를 가져와 새 표본을 만듭니다. 한 사람의 두 값은 항상 함께 뽑힙니다.</span></li>
+<li><code>yb[xb == 1].mean() / yb[xb == 0].mean()</code><span>새 표본에서 흡연군 위험 ÷ 비흡연군 위험, 즉 상대위험도를 계산해 목록에 덧붙입니다.</span></li>
+<li><code>np.percentile(boot_rr, [2.5, 97.5])</code><span>2,000개 상대위험도의 2.5번째와 97.5번째 백분위수입니다. 이것이 <b>백분위수 부트스트랩 구간</b>입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>부트스트랩 상대위험도의 중앙값 1.612</b>로 표본의 1.608과 거의 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>95% CI 1.059–2.500.</b> 로그 척도 공식의 1.058–2.443과 하한은 거의 같고 상한은 조금 높습니다. 상대위험도의 분포가 오른쪽으로 긴 꼬리를 가지기 때문이며(아래 그래프), 로그 척도에서 구간을 만드는 이유도 이 비대칭입니다. 시드를 1, 2, 3으로 바꾸면 하한이 1.04–1.07, 상한이 2.49–2.54 사이에서 조금씩 달라집니다. 반복 횟수를 늘리면 이 흔들림이 줄어듭니다.</span></li>
+</ol>
+<!--FIG:lab08_bootplot-->
+<p>가로축은 부트스트랩 표본마다 계산한 상대위험도, 세로축은 그 값이 나온 횟수입니다. 점선은 백분위수 구간의 양 끝, 주황 선은 원래 표본의 상대위험도입니다. <code>plt.hist(…, bins=40)</code>은 값의 범위를 40칸으로 나눈 히스토그램입니다.</p>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>반복문 안의 상대위험도 계산을 <code>yb[xb == 1].mean() - yb[xb == 0].mean()</code>로 바꾸면 위험차의 부트스트랩 구간이 나옵니다. 공식으로 구한 0.016–0.290과 비교해 보세요. 반복 횟수를 <code>range(10000)</code>으로 늘리면 시드를 바꿨을 때 구간이 덜 흔들리는지도 확인할 수 있습니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 기술 통계와 보정 전 효과</b><span>birthwt 실습 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Of the 189 infants, 59 had low birth weight (<span class="mk">1</span> <span class="hl">31.2%; 95% CI, 25.0–38.1, Wilson method</span>), and the <span class="mk">2</span> <span class="hl">mean birth weight was 2,944.6 g (95% CI, 2,840.0–3,049.2)</span>. Low birth weight occurred in 40.5% of infants of smokers and 25.2% of infants of nonsmokers (<span class="mk">3</span> <span class="hl">risk difference, 15.3 percentage points [95% CI, 1.6–29.0]; risk ratio, 1.61 [95% CI, 1.06–2.44]</span>), corresponding to a <span class="mk">4</span> <span class="hl">number needed to harm of 6.5 (95% CI, 3.4–62.2)</span>. A <span class="mk">5</span> <span class="hl">nonparametric bootstrap with 2,000 resamples</span> gave a similar percentile 95% CI for the risk ratio (1.06–2.50).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>비율의 구간은 방법을 밝힙니다.</b> Wilson 구간 0.250–0.381을 백분율로 옮겼습니다. 표본이 크면 방법에 따른 차이가 작지만, 12명 같은 작은 군에서는 Wald 구간(0.304–0.862)과 Wilson 구간(0.320–0.807)이 꽤 다릅니다.</span></li>
+<li><span class="mk">2</span><span><b>평균의 신뢰구간과 표준편차를 구분합니다.</b> 표에서 흔히 쓰는 "mean (SD)"는 2,944.6 (729.2)이고, 이 문장의 괄호는 평균의 95% CI입니다. 둘을 헷갈리지 않도록 무엇인지 적습니다.</span></li>
+<li><span class="mk">3</span><span><b>절대적 지표와 상대적 지표를 함께.</b> 같은 결과를 차(15.3%p)와 비(1.61)로 보여 줍니다(<a href="#ch08-s2">8장 나 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>NNH는 보정하지 않은 값입니다.</b> 관찰자료의 보정 전 위험차에서 나온 NNH를 "흡연을 막으면 6.5명당 1명의 저체중아를 막는다"는 인과적 주장으로 쓰면 안 됩니다. 다 절에서 보듯 인종에 의한 교란이 있습니다.</span></li>
+<li><span class="mk">5</span><span><b>부트스트랩은 반복 횟수와 구간 종류를 밝힙니다.</b> 백분위수 구간 외에 BCa 구간 등 여러 방법이 있습니다. 재현할 수 있도록 시드를 분석 코드에 남깁니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>비율의 구간은 <code>proportion_confint(사건, 인원, method=…)</code>로 구하며, 작은 표본에서는 Wald(<code>"normal"</code>)보다 Wilson(<code>"wilson"</code>)이나 정확 구간(<code>"beta"</code>)을 씁니다.</li>
+<li>평균의 구간은 평균 ± t<sub>n−1</sub> × SD/√n이고 <code>stats.t.ppf(0.975, n - 1)</code>로 임계값을 구합니다. 이 구간은 개인 값의 범위가 아닙니다.</li>
+<li>2×2 표에서 위험차(<code>confint_proportions_2indep</code>), 상대위험도·오즈비(<code>Table2x2</code>), NNH(위험차의 역수)를 함께 구합니다.</li>
+<li>부트스트랩은 복원추출을 반복해 추정값의 분포를 만들고 백분위수로 구간을 구합니다. 시드(<code>np.random.default_rng(2026)</code>)를 고정해 재현성을 확보합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab08-s2">
+<h2><span class="sec-no">나.</span>일반화 선형모형과 우도비 검정</h2>
+
+<p>2×2 표의 효과 지표는 모두 일반화 선형모형(GLM)의 특수한 경우입니다. 이항분포에 로짓 연결함수를 쓰면 오즈비, 로그 연결함수를 쓰면 상대위험도가 나옵니다(<a href="#ch08-s4">8장 라 절</a>). 이 절에서는 statsmodels의 <code>smf.glm</code>으로 같은 자료에 연결함수를 바꿔 가며 적합하고, 로그우도로 우도비 검정을 직접 계산합니다(<a href="#ch08-s5">8장 마 절</a>).</p>
+
+<h3>로지스틱 회귀를 GLM으로 적합하기</h3>
+<!--FIG:lab08_glm-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import statsmodels.api as sm</code><span>statsmodels의 주요 기능을 <code>sm</code>으로 불러옵니다. 분포 가족(<code>sm.families</code>)이 여기에 있습니다.</span></li>
+<li><code>import statsmodels.formula.api as smf</code><span>R처럼 <b>formula</b>(식)로 모형을 적는 인터페이스입니다. <code>"결과 ~ 설명변수1 + 설명변수2"</code> 형태로 쓰고, 절편은 자동으로 들어갑니다.</span></li>
+<li><code>fam = sm.families</code><span>자주 쓸 이름을 짧게 줄여 둔 것입니다.</span></li>
+<li><code>smf.glm("low ~ smoke", data=df, family=fam.Binomial())</code><span>결과 <code>low</code>(0/1)를 흡연으로 설명하는 GLM을 정의합니다. <code>family</code>가 분포를 정하고, 이항분포의 기본 연결함수는 로짓이라 로지스틱 회귀가 됩니다. 이 줄은 모형을 정의만 합니다.</span></li>
+<li><code>.fit()</code><span>최대우도추정으로 계수를 구합니다. GLM은 반복가중최소제곱법(IRLS)이라는 반복 계산을 씁니다.</span></li>
+<li><code>print(m_logit.summary())</code><span>결과 요약표입니다. 출력의 날짜·시간 줄과 일부 항목의 모양은 버전에 따라 조금 다를 수 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Model Family: Binomial</b>과 <span class="mk">2</span> <b>Link Function: Logit.</b> 분포와 연결함수를 확인합니다. 논문 Methods의 "logistic regression"이 이 조합입니다.</span></li>
+<li><span class="mk">3</span><span><b>Log-Likelihood −114.90.</b> 이 모형에서 관측된 자료가 나올 확률의 로그입니다. 모형 비교(아래 우도비 검정)에 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>Deviance 229.80.</b> 0/1 자료에서는 −2 × 로그우도와 같습니다(<a href="#ch08-s5">8장 마 절</a>).</span></li>
+<li><span class="mk">5</span><span><b>smoke 계수 0.7041, SE 0.320, z = 2.203, P = 0.028.</b> 계수는 로그 오즈 척도의 값이라 그대로는 "몇 배"로 읽을 수 없습니다. z = 0.7041 ÷ 0.320이고 P는 Wald 검정입니다. SE 0.320은 2×2 표의 \(\sqrt{1/a + 1/b + 1/c + 1/d}\)와 같습니다. 오른쪽 두 열은 로그 척도의 95% CI입니다.</span></li>
+</ol>
+
+<h3>계수를 오즈비로 바꾸기</h3>
+<!--FIG:lab08_glmor-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>np.exp(m_logit.conf_int())</code><span><code>conf_int()</code>는 계수의 95% CI를 (하한, 상한) 두 열의 표로 돌려주고, <code>np.exp</code>가 모든 칸을 e의 거듭제곱으로 바꿉니다. 로그 척도에서 만든 구간의 양 끝을 각각 되돌리는 것입니다(<a href="#ch08-s3">8장 다 절</a>).</span></li>
+<li><code>or_tab.columns = ["2.5%", "97.5%"]</code><span>열 이름을 알아보기 쉽게 바꿉니다.</span></li>
+<li><code>or_tab.insert(0, "OR", np.exp(m_logit.params))</code><span>맨 앞(0번 위치)에 계수를 지수화한 OR 열을 끼워 넣습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>흡연의 OR 2.022 (1.081–3.783)</b>로 가 절의 <code>Table2x2</code> 결과와 소수 셋째 자리까지 같습니다. 설명변수가 이분형 하나뿐인 로지스틱 회귀는 2×2 표의 오즈비와 똑같습니다.</span></li>
+<li><span class="mk">2</span><span><b>절편의 exp 값 0.337</b>은 smoke = 0인 사람, 즉 비흡연군의 오즈 29/86 = 0.337입니다. 설명변수가 0인 값이 실제로 의미가 있을 때만 절편을 이렇게 읽을 수 있습니다.</span></li>
+</ol>
+
+<h3>연결함수와 분포가 다른 네 모형</h3>
+<p>같은 식 <code>low ~ smoke</code>에 분포와 연결함수만 바꿔 네 모형을 적합합니다. 상대위험도를 주는 모형은 로그-이항 모형과 수정 포아송 회귀입니다. 수정 포아송 회귀는 0/1 결과에 포아송 분포를 '작업용'으로 가정해 로그 연결로 상대위험도를 구하고, 틀린 분포 가정 때문에 부풀려진 표준오차를 <b>강건 표준오차</b><span class="en">(robust, sandwich standard error)</span>로 바로잡습니다<cite data-ref="zou2004"></cite>.</p>
+<!--FIG:lab08_fits-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>fits = { "logit": …, … }</code><span>이름을 키로, 적합한 결과를 값으로 담는 사전입니다. 네 모형을 한곳에 모아 두면 다음 셀에서 반복문으로 비교할 수 있습니다.</span></li>
+<li><code>smf.glm(f, df, family=…)</code><span>두 번째 자리의 <code>df</code>는 <code>data=df</code>와 같습니다.</span></li>
+<li><code>fam.Binomial(fam.links.Log())</code><span>이항분포에 로그 연결함수를 지정한 로그-이항 모형입니다. e<sup>β</sup>가 상대위험도가 됩니다.</span></li>
+<li><code>fam.Poisson()</code><span>포아송 분포(기본 연결함수는 로그)입니다. 세 번째 모형은 모형 기반 표준오차를 그대로 씁니다.</span></li>
+<li><code>.fit(cov_type="HC0")</code><span>같은 포아송 모형을 강건(샌드위치) 표준오차로 적합합니다. HC0은 가장 기본적인 샌드위치 추정량으로, Zou가 제안한 수정 포아송 회귀와 같은 원리의 분산 추정입니다. 계수는 바뀌지 않고 표준오차와 신뢰구간만 바뀝니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>DomainWarning은 오류가 아닙니다.</b> "로그 연결은 이항분포의 범위를 지키지 않는다"는 경고로, 로그 연결을 쓰면 예측 확률이 1을 넘을 수 있다는 뜻입니다(<a href="#ch08-s4">8장 라 절</a>). 흡연 하나만 넣은 이 모형은 문제없이 추정되지만, 이 경고가 뒤의 수렴 문제를 예고합니다.</span></li>
+</ol>
+
+<h3>흡연의 효과를 네 모형으로 비교</h3>
+<!--FIG:lab08_linkcomp-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>for name, r in fits.items():</code><span>사전에서 (이름, 결과)를 하나씩 꺼냅니다.</span></li>
+<li><code>np.exp(r.conf_int().loc["smoke"])</code><span>smoke 행의 (하한, 상한)을 지수화해 <code>lo, hi</code>에 풀어 담습니다.</span></li>
+<li><code>r.params["smoke"]
+r.bse["smoke"]</code><span>계수와 그 표준오차입니다. <code>bse</code>는 모든 계수의 표준오차를 담은 Series입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>로짓 연결: exp(b) = 2.022 = OR.</b></span></li>
+<li><span class="mk">2</span><span><b>로그-이항 모형: exp(b) = 1.608 = RR</b>, 구간 1.058–2.443으로 <code>Table2x2</code>의 상대위험도와 같습니다. 연결함수가 지표를 정합니다.</span></li>
+<li><span class="mk">3</span><span><b>포아송 모형의 모형 기반 SE 0.260.</b> 추정값은 1.608로 같지만 SE가 커서 구간 0.965–2.678이 1을 포함합니다. 포아송 분포는 분산을 평균 μ로 가정하는데, 0/1 자료의 실제 분산 μ(1 − μ)는 그보다 작기 때문입니다.</span></li>
+<li><span class="mk">4</span><span><b>강건 SE를 쓰면 0.214</b>로 줄어 로그-이항 모형과 같은 구간이 됩니다. 수정 포아송 회귀를 보고할 때 "robust" 또는 "sandwich"라는 말이 없다면 구간이 필요 이상으로 넓을 수 있습니다(<a href="#ch08-s4">8장 라 절</a>).</span></li>
+</ol>
+
+<h3>로그우도, 이탈도, AIC</h3>
+<p>우도비 검정에는 비교할 두 모형의 로그우도가 필요합니다. 절편만 있는 모형(모든 산모의 저체중아 확률이 같다고 보는 모형)을 하나 더 적합합니다.</p>
+<!--FIG:lab08_llf-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>smf.glm("low ~ 1", …)</code><span>설명변수 없이 절편(1)만 있는 모형입니다.</span></li>
+<li><code>r.llf
+r.deviance
+r.df_model
+r.aic</code><span>결과 객체의 속성으로 로그우도, 이탈도, 설명변수 계수의 개수(절편 제외), AIC를 꺼냅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>절편만 있는 모형의 로그우도 −117.336</b>, <span class="mk">2</span> <b>이탈도 234.672</b> = −2 × (−117.336).</span></li>
+<li><span class="mk">3</span><span><b>흡연을 넣은 모형 −114.902</b>, <span class="mk">4</span> <b>이탈도 229.805.</b> 변수를 넣으면 로그우도는 커지고(0에 가까워지고) 이탈도는 줄어듭니다.</span></li>
+<li><span class="mk">5</span><span><b>AIC 233.805</b> = 229.805 + 2 × 2. 추정한 모수가 절편과 흡연 계수 2개이므로 벌점 4를 더했습니다. 절편만 있는 모형의 AIC(236.672)보다 작습니다.</span></li>
+</ol>
+
+<h3>우도비 검정을 직접 계산하기</h3>
+<p>두 모형이 내포 관계(흡연 모형이 절편 모형을 포함)이므로, 로그우도 차이의 2배는 귀무가설(흡연 계수 = 0) 아래에서 자유도 1인 카이제곱 분포를 따릅니다(<a href="#ch08-s5">8장 마 절</a>). 같은 가설을 Wald 검정과 점수 검정으로도 확인합니다.</p>
+<!--FIG:lab08_lrt-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>lr = 2 * (m_logit.llf - m0.llf)</code><span>우도비 χ² = 2 × (큰 모형의 로그우도 − 작은 모형의 로그우도) = 이탈도의 차이 234.672 − 229.805입니다.</span></li>
+<li><code>stats.chi2.sf(lr, 1)</code><span>자유도 1(추가한 계수 1개)인 카이제곱 분포에서 lr 이상이 나올 확률입니다.</span></li>
+<li><code>m_logit.tvalues["smoke"]</code><span>요약표의 z 값(2.203)입니다. GLM에서도 속성 이름은 <code>tvalues</code>입니다. z²이 Wald χ²입니다.</span></li>
+<li><code>stats.chi2_contingency(tab, correction=False)</code><span>2×2 표의 Pearson 카이제곱 검정은 로지스틱 회귀의 점수 검정과 같습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>우도비 χ² = 4.867, P = 0.0274.</b></span></li>
+<li><span class="mk">2</span><span><b>Wald χ² = 2.203² = 4.852, P = 0.0276.</b></span></li>
+<li><span class="mk">3</span><span><b>점수 χ² = 4.924, P = 0.0265</b>로 실습 5의 카이제곱 검정과 같은 값입니다. 로그우도 곡선의 서로 다른 부분을 쓰는 세 검정이 이 정도 표본에서는 거의 같은 답을 줍니다. 표본이 작거나 효과가 매우 크면 서로 어긋나며, 그때는 우도비 검정이 가장 믿을 만합니다(<a href="#ch08-s5">8장 마 절</a>).</span></li>
+</ol>
+
+<h3>보정 모형에서 로그-이항 모형이 실패할 때</h3>
+<p>흡연 하나만 넣은 모형은 네 가지 모두 잘 추정되었습니다. 이제 교란변수 후보(인종, 나이, 임신 전 체중, 이전 조산, 고혈압 병력; 변수 선택의 근거는 라 절)를 함께 넣은 보정 모형으로 상대위험도를 구해 봅니다.</p>
+<!--FIG:lab08_lbfail-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>f_adj = "low ~ smoke + C(race) + age + lwt_kg + ptl_any + ht"</code><span>보정 모형의 식입니다. <code>C(race)</code>는 인종을 범주형으로 넣으라는 표시로, 가변수 두 개가 만들어집니다(라 절).</span></li>
+<li><code>lb.converged</code><span>반복 계산이 멈춤 기준을 만족했는지(True/False)입니다.</span></li>
+<li><code>lb.llf
+lb.fittedvalues.max()</code><span>로그우도와, 모든 산모의 예측 확률 중 가장 큰 값입니다. 확률이므로 1을 넘으면 안 됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>converged: True</b>인데도 <span class="mk">2</span> <b>로그우도가 nan</b>(계산 불가)이고 <span class="mk">3</span> <b>가장 큰 예측 확률이 9 × 10⁷⁴</b>입니다. 반복 계산 도중 예측 확률이 1을 넘는 곳으로 가 버려 결과가 무의미해졌습니다. <code>converged</code>는 "계산이 멈췄다"는 뜻일 뿐 "답이 맞다"는 뜻이 아닙니다.</span></li>
+<li><span class="mk">4</span><span><b>SingularMatrixWarning, RuntimeWarning.</b> 계산 도중 행렬이 특이(singular)해져 풀 수 없었고, 음수의 로그를 구하려 했다는(1 − p에서 p가 1을 넘음) 경고입니다. 이런 경고가 나오면 계수표를 해석하지 않습니다. statsmodels 버전에 따라 <code>converged</code> 값, 경고의 종류, 숫자가 다를 수 있지만, 확인할 것은 같습니다: 로그우도가 유한한가, 예측 확률이 0과 1 사이인가, 계수와 SE가 비정상적으로 크지 않은가.</span></li>
+</ol>
+<p>로그-이항 모형의 수렴 실패는 흔합니다(<a href="#ch08-s4">8장 라 절</a>). 포아송 모형의 계수를 시작값으로 주는 방법(<code>.fit(start_params=…)</code>)도 있지만, 이 자료에서는 그렇게 해도 일부 산모의 예측 확률이 1에 닿는 경계에서 멈춰 표준오차를 믿기 어렵습니다. 그래서 흔히 쓰는 대안인 수정 포아송 회귀로 넘어갑니다.</p>
+
+<h3>수정 포아송 회귀로 보정 상대위험도 구하기</h3>
+<!--FIG:lab08_modpois-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>mp = smf.glm(f_adj, df, family=fam.Poisson()).fit(cov_type="HC0")</code><span>같은 공변량의 수정 포아송 회귀입니다.</span></li>
+<li><code>ml = smf.glm(f_adj, df, family=fam.Binomial()).fit()</code><span>비교를 위한 같은 공변량의 로지스틱 회귀입니다.</span></li>
+<li><code>f"{name:22s}: …"</code><span>이름을 22칸에 맞춰 두 줄의 숫자를 정렬합니다.</span></li>
+<li><code>mp.fittedvalues.max()</code><span>수정 포아송 모형의 가장 큰 예측 '확률'입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정 상대위험도 1.73 (1.14–2.64).</b> 다른 변수가 같을 때 흡연 산모의 저체중아 위험이 1.73배라는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>같은 공변량의 보정 오즈비 2.36</b>(1.07–5.22). 결과가 흔해 상대위험도보다 1에서 훨씬 멉니다. "위험이 2.36배"라고 쓰면 과장입니다.</span></li>
+<li><span class="mk">3</span><span><b>예측 확률의 최댓값 1.297.</b> 수정 포아송 회귀도 예측값이 1을 넘는 것을 막지 못합니다. 상대위험도 추정에는 큰 문제가 되지 않는 경우가 많지만, 이 모형의 예측값을 개인의 위험으로 쓰면 안 됩니다. 이 모형은 사건 59건에 계수 7개로 작은 편이라(라 절) 결과를 과신하지 않습니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 상대위험도 추정 방법과 결과</b><span>birthwt 실습 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Because low birth weight was common (31.2%), we estimated risk ratios rather than odds ratios. <span class="mk">1</span> <span class="hl">Log-binomial regression failed to converge for the adjusted model</span>; we therefore used <span class="mk">2</span> <span class="hl">Poisson regression with robust (sandwich) variance estimation</span>. ... Maternal smoking was associated with low birth weight (<span class="mk">3</span> <span class="hl">crude risk ratio, 1.61; 95% CI, 1.06–2.44; likelihood ratio test, P = 0.027</span>). After adjustment for race, age, prepregnancy weight, previous preterm labor, and history of hypertension, the <span class="mk">4</span> <span class="hl">risk ratio was 1.73 (95% CI, 1.14–2.64)</span>; the corresponding <span class="mk">5</span> <span class="hl">adjusted odds ratio from logistic regression was 2.36 (95% CI, 1.07–5.22)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>수렴 실패를 숨기지 않습니다.</b> 처음 계획한 방법이 실패했다면 그 사실과 대안을 적습니다. 위에서 본 것처럼 <code>converged</code> 값만 보고 "수렴했다"고 판단하면 안 됩니다.</span></li>
+<li><span class="mk">2</span><span><b>수정 포아송 회귀.</b> "robust" 또는 "sandwich"라는 말로 강건 표준오차를 썼음을 밝힙니다. 모형 기반 SE를 썼다면 구간이 불필요하게 넓습니다(흡연만 넣은 모형에서 0.965–2.678 대 1.058–2.443).</span></li>
+<li><span class="mk">3</span><span><b>보정 전 상대위험도와 우도비 검정.</b> 우도비 χ² = 4.867에서 나온 P입니다. Wald 검정(0.028)이나 카이제곱 검정(0.026)과 거의 같습니다. 어떤 검정의 P인지 밝히면 독자가 확인할 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>보정 상대위험도 1.73.</b> 보정 후 값이 보정 전(1.61)보다 커졌습니다. 보정으로 연관이 커지는 이유는 다 절의 교란 분석에서 봅니다.</span></li>
+<li><span class="mk">5</span><span><b>같은 공변량의 오즈비를 함께 제시.</b> 2.36과 1.73의 차이는 방법이 아니라 지표의 차이입니다(<a href="#ch08-s2">8장 나 절</a>). 로지스틱 회귀만 보고한 논문을 읽을 때 이 정도 차이가 날 수 있음을 기억해 둡니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>smf.glm("결과 ~ 설명변수", data, family=…)</code>에서 분포와 연결함수를 정합니다. 이항분포 + 로짓 → OR, 이항분포 + 로그(<code>fam.Binomial(fam.links.Log())</code>) → RR, 포아송 + 강건 SE(<code>.fit(cov_type="HC0")</code>) → RR.</li>
+<li>계수와 신뢰구간은 <code>np.exp(res.params)</code>, <code>np.exp(res.conf_int())</code>로 비 척도로 바꿉니다.</li>
+<li><code>res.llf</code>, <code>res.deviance</code>, <code>res.aic</code>로 우도 관련 값을 꺼내고, 내포된 두 모형의 우도비 검정은 <code>2 * (llf1 - llf0)</code>와 <code>stats.chi2.sf(값, 자유도)</code>로 직접 계산합니다.</li>
+<li>로그-이항 모형은 보정 모형에서 자주 실패합니다. <code>converged</code>만 믿지 말고 로그우도, 예측 확률의 범위, 경고를 확인한 뒤 수정 포아송 회귀를 씁니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab08-s3">
+<h2><span class="sec-no">다.</span>교란과 층화 분석</h2>
+
+<p>인종은 흡연 여부와도, 저체중아 출생과도 관련이 있을 수 있습니다. 그렇다면 흡연과 저체중아의 보정 전 비교에는 인종의 차이가 섞입니다. 교란변수의 조건을 자료로 확인하고, 인종별로 층을 나눠 비교한 뒤 Mantel–Haenszel 방법으로 합칩니다(<a href="#ch08-s6">8장 바 절</a>).</p>
+
+<h3>인종은 교란변수의 조건을 갖추었나</h3>
+<p>교란변수의 세 조건은 ① 노출과 관련이 있고, ② 노출이 없는 사람들 사이에서도 결과의 위험인자이며, ③ 노출의 결과로 생긴 변수가 아니라는 것입니다. 인종은 흡연으로 바뀌지 않으므로 ③은 자명합니다. ①과 ②를 인종별 요약으로 확인합니다.</p>
+<!--FIG:lab08_confcheck-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>g = df.groupby("race_f", observed=True)</code><span>인종별로 묶은 객체입니다. 아직 계산은 하지 않고, 뒤에 <code>.size()</code>, <code>.mean()</code> 등을 붙이면 인종별로 계산합니다.</span></li>
+<li><code>g_non = df[df["smoke"] == 0].groupby(…)</code><span>비흡연 산모만 골라 인종별로 묶습니다. 조건 ②(노출이 없는 사람에서의 위험)를 보기 위해서입니다.</span></li>
+<li><code>pd.DataFrame({ "n": g.size(), … })</code><span>인종별 인원, 흡연율, 전체 저체중아 비율, 비흡연군의 저체중아 비율을 열로 모은 표를 만듭니다. 0/1 변수의 평균에 100을 곱하면 %입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>백인 산모의 흡연율 54.2%</b>, 흑인 38.5%, <span class="mk">2</span> <b>기타 17.9%.</b> 인종이 노출과 관련이 있습니다(조건 ①).</span></li>
+<li><span class="mk">3</span><span><b>그런데 저체중아 비율은 백인이 24.0%로 가장 낮습니다.</b></span></li>
+<li><span class="mk">4</span><span><b>비흡연 산모만 보면 백인 9.1%</b>, 흑인 31.2%, <span class="mk">5</span> <b>기타 36.4%.</b> 흡연과 관계없이 인종에 따라 저체중아 위험이 다릅니다(조건 ②). 흡연을 많이 하는 집단(백인)이 원래 위험이 낮은 집단이므로, 보정하지 않은 비교는 흡연의 연관을 <b>작게</b> 보이게 할 것으로 예상할 수 있습니다. 이런 방향의 교란을 음의 교란이라고 합니다(<a href="#ch08-s8">8장 아 절</a>).</span></li>
+</ol>
+
+<h3>인종별 2×2 표와 층별 오즈비</h3>
+<!--FIG:lab08_strata-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>tables = []</code><span>인종별 2×2 표를 모을 목록입니다. 다음 셀의 <code>StratifiedTable</code>에 넘깁니다.</span></li>
+<li><code>for race, sub in df.groupby("race_f", observed=True):</code><span><code>groupby</code>로 묶은 객체를 반복문에 넣으면 (범주 이름, 그 범주에 속한 행만 담은 데이터프레임)을 차례로 꺼냅니다. <code>sub</code>는 백인 96명, 흑인 26명, 기타 67명의 데이터프레임이 됩니다.</span></li>
+<li><code>pd.crosstab(sub["smoke"], sub["low"]).loc[[1, 0], [1, 0]]</code><span>그 층의 2×2 표를 가 절과 같은 순서(흡연 먼저, 저체중아 먼저)로 만듭니다. 어떤 층에 흡연자나 저체중아가 한 명도 없으면 해당 행·열이 없어 <code>KeyError</code>가 나므로, 작은 층이 있는 자료에서는 주의합니다.</span></li>
+<li><code>tables.append(t.to_numpy())</code><span>숫자 배열로 바꿔 목록에 담습니다.</span></li>
+<li><code>t.to_numpy().tolist()</code><span>배열을 파이썬 목록으로 바꿔 [[a, b], [c, d]] 모양으로 출력합니다. 앞의 <code>{race:5}</code>는 층 이름을 5칸 폭에 맞춰 적으라는 형식입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>백인 산모의 표 [[19, 33], [4, 40]].</b> 흡연 52명 중 19명, 비흡연 44명 중 4명이 저체중아를 낳았습니다.</span></li>
+<li><span class="mk">2</span><span><b>백인 OR 5.76 (1.78–18.60)</b>, <span class="mk">3</span> <b>흑인 3.30 (0.63–17.16)</b>, <span class="mk">4</span> <b>기타 1.25 (0.35–4.46).</b> 세 층의 OR이 모두 보정 전 OR 2.02보다 크거나 비슷하고, 층마다 인원이 적어 구간이 매우 넓습니다.</span></li>
+</ol>
+
+<h3>Mantel–Haenszel 통합 오즈비와 두 가지 검정</h3>
+<p>층별 결과를 층의 크기에 따라 가중해 하나의 공통 오즈비로 합칩니다. 8장 바 절의 공식 \(OR_{MH} = \sum a_i d_i / N_i \,\big/\, \sum b_i c_i / N_i\)에 넣으면 (19 × 40/96 + 6 × 11/26 + 5 × 35/67) ÷ (33 × 4/96 + 4 × 5/26 + 7 × 20/67) = 13.07 ÷ 4.23 = 3.09입니다<cite data-ref="mantel1959"></cite>.</p>
+<!--FIG:lab08_mh-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from statsmodels.stats.contingency_tables import StratifiedTable</code><span>층화된 2×2 표를 다루는 클래스입니다.</span></li>
+<li><code>StratifiedTable(tables)</code><span>2×2 배열의 목록(또는 2×2×층 수 배열)을 받습니다. 각 표는 가 절과 같은 방향(첫 행 노출, 첫 열 사건)이어야 합니다.</span></li>
+<li><code>print(st.summary())</code><span>통합 추정값과 두 가지 검정을 요약합니다. 값을 하나씩 꺼내려면 <code>st.oddsratio_pooled</code>, <code>st.oddsratio_pooled_confint()</code>, <code>st.riskratio_pooled</code>, <code>st.test_null_odds()</code>, <code>st.test_equal_odds()</code>를 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Mantel–Haenszel 통합 오즈비 3.086 (1.491–6.390).</b> 위의 손계산과 같습니다. 인종을 보정한 흡연의 오즈비입니다.</span></li>
+<li><span class="mk">2</span><span><b>Mantel–Haenszel 통합 상대위험도 2.151.</b> statsmodels는 이 값의 신뢰구간을 주지 않습니다. 보정 전 상대위험도 1.61보다 커졌습니다.</span></li>
+<li><span class="mk">3</span><span><b>Test of OR=1: 9.413, P = 0.002.</b> 공통 오즈비가 1인지 보는 Cochran–Mantel–Haenszel 검정입니다(<code>st.test_null_odds()</code>, 기본값은 연속성 보정 없음). 인종을 고려해도 흡연과 저체중아의 관련이 뚜렷하다는 뜻입니다.</span></li>
+<li><span class="mk">4</span><span><b>Test constant OR: 3.126, P = 0.210.</b> 세 층의 오즈비가 같은지 보는 Breslow–Day 동질성 검정입니다(<code>st.test_equal_odds()</code>, 자유도 = 층 수 − 1 = 2). 8장 바 절의 Woolf 검정과 같은 가설을 봅니다. 5.76과 1.25는 꽤 달라 보이지만 층마다 인원이 적어 차이를 우연과 구분할 수 없습니다. "인종에 따라 흡연의 효과가 같다"는 증거가 아니라, 효과수정을 판단할 정보가 부족하다는 뜻입니다.</span></li>
+</ol>
+
+<h3>보정 전과 보정 후 비교</h3>
+<p>같은 보정을 로지스틱 회귀로도 해 봅니다. 층화와 회귀모형은 같은 일을 다른 방식으로 합니다.</p>
+<!--FIG:lab08_crudeadj-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>smf.logit("low ~ smoke + C(race)", df).fit(disp=0)</code><span><code>smf.logit</code>은 로지스틱 회귀 전용 함수로, <code>smf.glm(…, family=Binomial())</code>과 같은 추정값을 줍니다. <code>disp=0</code>은 반복 계산 과정의 메시지를 출력하지 말라는 뜻입니다.</span></li>
+<li><code>b_lo, b_hi = m_race.conf_int().loc["smoke"]</code><span>흡연 계수의 로그 척도 구간을 두 변수에 풀어 담습니다.</span></li>
+<li><code>[… , *t22.oddsratio_confint()]</code><span>별표(<code>*</code>)는 (하한, 상한) 묶음을 풀어 목록 안에 두 값으로 넣으라는 뜻입니다. 결과적으로 한 행이 [이름, OR, 하한, 상한]이 됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정 전 OR 2.02.</b></span></li>
+<li><span class="mk">2</span><span><b>Mantel–Haenszel OR 3.09</b>, <span class="mk">3</span> <b>로지스틱 회귀 OR 3.05.</b> 두 보정 방법이 거의 같은 값을 줍니다. 인종을 보정하자 흡연의 오즈비가 2.02에서 약 3으로 커졌습니다. 흡연을 많이 하는 백인 산모의 기저위험이 낮아서 보정 전 비교가 흡연의 연관을 가리고 있었던 것입니다(음의 교란). 오즈비는 교란이 없어도 보정하면 값이 바뀔 수 있는 지표(비붕괴성, <a href="#ch08-s6">8장 바 절</a>의 심화 상자)이지만, 그런 성질이 없는 상대위험도도 1.61에서 2.15(Mantel–Haenszel)로 커졌으므로 이 변화의 주된 원인은 교란입니다.</span></li>
+</ol>
+
+<h3>그래프로 확인하기</h3>
+<!--FIG:lab08_forest-->
+<p>포레스트 플롯입니다. 가로축은 흡연의 오즈비(로그 눈금), 네모는 점추정값, 가로 막대는 95% 신뢰구간, 점선은 OR = 1입니다. 세 층의 구간이 넓게 겹치고, 보정 전(Crude)의 추정값이 층별 값들보다 왼쪽(1에 가까운 쪽)에 치우친 것이 음의 교란의 모습입니다.</p>
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>t_all = [Table2x2(t) for t in tables] + [t22]</code><span>대괄호 안에 <code>for</code>를 쓴 <b>리스트 컴프리헨션</b>으로 층별 <code>Table2x2</code> 세 개를 만들고, 보정 전 표를 덧붙입니다.</span></li>
+<li><code>err = np.array([[e - l, h - e] for …]).T</code><span><code>errorbar</code>는 막대의 길이를 "점추정값에서 왼쪽으로 얼마, 오른쪽으로 얼마"로 받으므로 (OR − 하한, 상한 − OR)을 계산해 2행 짜리 배열로 바꿉니다(<code>.T</code>는 행과 열 뒤집기).</span></li>
+<li><code>plt.xscale("log")</code><span>가로축을 로그 눈금으로 바꿉니다. OR 0.5와 2가 1에서 같은 거리에 놓입니다(<a href="#ch08-s3">8장 다 절</a>). 다음 줄의 <code>plt.xticks</code>로 눈금 숫자를 보기 좋게 지정했습니다.</span></li>
+</ol>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p><code>st.test_null_odds(correction=True)</code>로 연속성 보정을 한 CMH 검정(χ² = 8.38, P = 0.004)을, <code>st.test_equal_odds(adjust=True)</code>로 Tarone 보정을 한 Breslow–Day 검정(χ² = 3.13, P = 0.21)을 구해 보세요. 결론은 같습니다. <code>df.groupby("race_f", observed=True)</code>를 <code>df.groupby("ht")</code>로 바꾸면 고혈압 병력으로 층화할 수 있는데, 고혈압 층이 12명뿐이라 칸에 0이 생기는지 먼저 확인합니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 층화 분석</b><span>birthwt 실습 결과</span></div>
+<div class="paper-b">
+<p class="excerpt"><span class="mk">1</span> <span class="hl">Race was associated with both maternal smoking (54.2%, 38.5%, and 17.9% among White, Black, and other mothers) and low birth weight among nonsmokers (9.1%, 31.2%, and 36.4%)</span>. The race-specific odds ratios for smoking were <span class="mk">2</span> <span class="hl">5.76 (95% CI, 1.78–18.60), 3.30 (0.63–17.16), and 1.25 (0.35–4.46)</span>, respectively (<span class="mk">3</span> <span class="hl">Breslow–Day test for homogeneity, P = 0.21</span>). The <span class="mk">4</span> <span class="hl">Mantel–Haenszel odds ratio adjusted for race was 3.09 (95% CI, 1.49–6.39; Cochran–Mantel–Haenszel test, P = 0.002)</span>, larger than the <span class="mk">5</span> <span class="hl">crude odds ratio of 2.02 (95% CI, 1.08–3.78)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>교란을 주장하는 근거.</b> 인종이 노출(흡연)과 관련되고, 노출이 없는 사람에서도 결과(저체중아)와 관련된다는 두 조건을 숫자로 보여 줍니다. 보정할 변수를 고른 이유를 독자가 확인할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>층별 결과는 구간과 함께.</b> 흑인 층은 26명뿐이라 구간이 0.63–17.16입니다. 층별 점추정값만 나열하면 "백인에게서만 효과가 크다"는 식의 과잉 해석을 부르기 쉽습니다.</span></li>
+<li><span class="mk">3</span><span><b>동질성 검정 P = 0.21.</b> 공통 오즈비로 합쳐도 되는지 판단하는 근거로 씁니다. 다만 층이 작아 검정력이 낮으므로 "효과수정이 없다"는 증거로 쓰지 않습니다. 효과수정이 연구 질문이라면 교호작용 항을 넣은 모형과 P for interaction을 따로 보고합니다(<a href="#ch08-s6">8장 바 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>보정 추정값과 그 검정.</b> Mantel–Haenszel 오즈비 3.086과 Cochran–Mantel–Haenszel χ² = 9.41(자유도 1)의 P입니다. 인종 하나만 보정한 값이므로 다른 교란변수는 라 절의 다변수 모형에서 보정합니다.</span></li>
+<li><span class="mk">5</span><span><b>보정 전보다 커진 이유를 설명합니다.</b> 흡연율이 가장 높은 백인 산모의 기저위험이 가장 낮았기 때문입니다(음의 교란). 보정하면 연관이 항상 약해진다고 생각하기 쉽지만 교란의 방향에 따라 커지기도 합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>교란변수 후보는 "노출과 관련", "노출이 없는 사람에서도 결과와 관련", "노출의 결과가 아님"을 자료와 지식으로 확인합니다. <code>groupby</code>로 층별 노출률과 비노출군의 결과 비율을 보면 됩니다.</li>
+<li>층별 2×2 표의 목록을 <code>StratifiedTable</code>에 넣으면 Mantel–Haenszel 통합 오즈비(<code>oddsratio_pooled</code>, <code>oddsratio_pooled_confint()</code>), CMH 검정(<code>test_null_odds()</code>), Breslow–Day 동질성 검정(<code>test_equal_odds()</code>)을 얻습니다.</li>
+<li>층화(3.09)와 로지스틱 회귀(3.05)는 같은 보정을 합니다. 변수가 많아지면 층이 너무 잘게 나뉘므로 회귀모형을 씁니다.</li>
+<li>보정 후 연관이 커질 수도 있습니다(음의 교란). 동질성 검정의 "유의하지 않음"은 층이 작을 때 효과수정이 없다는 증거가 아닙니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab08-s4">
+<h2><span class="sec-no">라.</span>가변수와 다변수 분석</h2>
+
+<p>인종처럼 범주가 셋 이상인 변수는 가변수로 모형에 넣습니다(<a href="#ch08-s7">8장 사 절</a>). 이 절에서는 숫자 코드를 그대로 넣었을 때 무엇이 잘못되는지, 기준범주를 바꾸면 무엇이 달라지는지, 범주형 변수 전체의 P를 어떻게 구하는지 보고, 마지막으로 단변수·다변수 오즈비를 나란히 놓은 결과표를 만듭니다(<a href="#ch08-s8">8장 아 절</a>).</p>
+
+<h3>인종을 숫자 그대로 넣으면</h3>
+<p><code>race</code> 열은 1, 2, 3이라는 숫자로 저장되어 있어서 formula에 그대로 쓰면 statsmodels가 연속형 변수로 취급합니다. 오류 메시지 없이 계산되므로 알아차리기 어렵습니다.</p>
+<!--FIG:lab08_numrace-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>smf.logit("low ~ smoke + race", df)</code><span>인종을 숫자 1, 2, 3 그대로 넣은 모형입니다.</span></li>
+<li><code>C(race, Treatment(reference=1))</code><span><code>C()</code>는 괄호 안의 변수를 범주형으로 다루라는 표시이고, <code>Treatment(reference=1)</code>은 기준범주 코딩(treatment coding)을 쓰되 값이 1인 범주(백인)를 기준범주로 하라는 뜻입니다. 기본값도 가장 작은 값(1)이 기준이라 <code>C(race)</code>와 결과가 같지만, 기준을 명시해 두면 코드를 읽는 사람이 헷갈리지 않습니다.</span></li>
+<li><code>print(m_num.params.round(3), "\n")</code><span>계수를 출력하고 한 줄을 띄웁니다(<code>"\n"</code>은 줄바꿈 문자).</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>숫자로 넣은 race의 계수 0.559.</b> "race가 1 늘 때마다 로그 오즈가 0.559 증가"라는 뜻이라, 모형은 흑인(2)이 백인(1)보다 0.559, 기타(3)는 백인보다 정확히 두 배인 1.118 높다고 가정합니다. 인종 번호에는 크기나 간격의 의미가 없으므로 이 계수는 해석할 수 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>가변수로 넣으면 흑인 1.084</b>, <span class="mk">3</span> <b>기타 1.109</b>(모두 백인 대비 로그 오즈). 실제로는 흑인과 기타가 비슷하고 둘 다 백인보다 높습니다. 숫자 코딩은 이 모양을 "흑인은 중간"이라는 틀에 억지로 맞춘 것입니다. 명목변수는 반드시 가변수로 넣습니다(<a href="#ch08-s7">8장 사 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>로그우도: 숫자 코딩 −110.670</b>, <span class="mk">5</span> <b>가변수 −109.987.</b> 가변수 모형이 자료를 더 잘 설명합니다. 이 자료에서는 흡연 계수(1.117 대 1.116)가 거의 같았지만, 항상 그렇지는 않습니다.</span></li>
+</ol>
+
+<h3>기준범주 바꾸기</h3>
+<!--FIG:lab08_ref3-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>C(race, Treatment(reference=3))</code><span>기준범주를 '기타'(3)로 바꿉니다. 인종이 문자열 이름표인 변수라면 <code>Treatment(reference="White")</code>처럼 이름을 적습니다.</span></li>
+<li><code>np.exp(m_ref3.params)</code><span>계수를 바로 오즈비로 바꿔 출력합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>[T.1] 0.330: 백인 대 기타의 OR.</b> 기준이 백인이었을 때의 '기타 대 백인' OR e<sup>1.109</sup> = 3.03의 역수(1 ÷ 3.03)입니다.</span></li>
+<li><span class="mk">2</span><span><b>[T.2] 0.976: 흑인 대 기타의 OR.</b> 앞 모형의 두 계수 차이 e<sup>1.084 − 1.109</sup>와 같습니다. 기준범주를 바꿔도 새로 얻는 정보는 "다른 쌍의 비교와 그 구간"뿐입니다.</span></li>
+<li><span class="mk">3</span><span><b>흡연의 OR 3.053</b>과 <span class="mk">4</span> <b>로그우도 −109.987</b>은 기준범주와 관계없이 그대로입니다. 모형 자체는 같고 가변수의 뜻만 바뀌었습니다(<a href="#ch08-s7">8장 사 절</a>).</span></li>
+</ol>
+
+<h3>인종 전체의 P: 결합 검정</h3>
+<p>"인종이 저체중아와 관련 있는가"에는 가변수 하나하나의 P가 아니라, 두 가변수의 계수가 모두 0이라는 가설을 한꺼번에 검정해 답합니다. Wald 결합 검정과 우도비 검정 두 가지로 구합니다.</p>
+<!--FIG:lab08_joint-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>m_cat.wald_test_terms()</code><span>formula의 항(term)마다 그 항에 속한 계수들이 모두 0인지 Wald 검정을 합니다. 가변수 2개로 된 인종 항은 자유도 2로 한 번에 검정됩니다. SAS의 "Type 3 Analysis of Effects"와 같은 역할입니다. statsmodels 0.14에서는 이 함수가 향후 출력 형식이 바뀐다는 FutureWarning을 함께 낼 수 있고 숫자가 대괄호 안에 표시되기도 하지만 값은 같습니다.</span></li>
+<li><code>m_smoke = smf.logit("low ~ smoke", df)</code><span>인종을 뺀 작은 모형입니다.</span></li>
+<li><code>lr = 2 * (m_cat.llf - m_smoke.llf)
+stats.chi2.sf(lr, 2)</code><span>인종 가변수 2개를 넣은 효과의 우도비 검정입니다. 추가한 계수가 2개이므로 자유도 2입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>인종의 Wald 결합 검정 χ² = 9.11</b>(자유도 2, P = 0.0105). 표의 <code>P&gt;chi2</code> 열의 1.049933e-02는 1.05 × 10⁻², 즉 0.0105입니다. 같은 표의 smoke 행 9.136은 흡연 계수의 z²입니다.</span></li>
+<li><span class="mk">2</span><span><b>우도비 검정 χ² = 9.83, P = 0.0073.</b> Wald 검정과 비슷한 결론입니다. 이 P는 기준범주를 무엇으로 바꾸든 같습니다. 논문 표의 범주형 변수 옆에 있는 "overall P"가 이 값입니다.</span></li>
+</ol>
+
+<h3>단변수 오즈비: 변수마다 따로 적합</h3>
+<p>이제 다변수 모형입니다. 연구 질문은 "흡연과 저체중아의 연관"이라는 원인 추정이므로, 보정할 변수는 결과와의 P 값이 아니라 사전 지식으로 정합니다(<a href="#ch08-s8">8장 아 절</a>). 흡연보다 먼저 정해져 있고 흡연과 저체중아 모두에 영향을 줄 수 있는 산모의 특성으로 인종, 나이, 임신 전 체중, 이전 조산 경험, 고혈압 병력을 골랐습니다. 자궁 과민성(<code>ui</code>)은 측정 시점이 자료 문서에 나와 있지 않아 흡연보다 앞선 특성인지 판단할 수 없으므로 넣지 않았습니다. 먼저 변수 하나씩만 넣은 단변수 모형을 적합합니다.</p>
+<!--FIG:lab08_uni-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def or_ci(model):</code><span>적합한 모형을 받아 OR과 95% CI 표를 돌려주는 함수입니다. 단변수 모형 6개와 다변수 모형 1개에 똑같이 씁니다.</span></li>
+<li><code>t.drop(index="Intercept")</code><span>절편 행을 뺍니다. 결과표에는 보고하지 않는 값입니다.</span></li>
+<li><code>terms = [ … ]</code><span>모형에 넣을 항의 목록입니다. 인종은 <code>"C(race)"</code>로 가변수가 됩니다.</span></li>
+<li><code>f"low ~ {t}"</code><span>f-문자열로 "low ~ smoke", "low ~ C(race)", …를 차례로 만듭니다.</span></li>
+<li><code>pd.concat([ … for t in terms])</code><span>리스트 컴프리헨션으로 모형 6개를 적합해 각각의 OR 표를 만든 뒤, <code>pd.concat</code>으로 위아래로 이어 붙여 한 표로 만듭니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>흡연의 단변수 OR 2.02</b>는 2×2 표의 오즈비와 같습니다. 행마다 다른 모형에서 나온 값이라 서로 보정되지 않았습니다.</span></li>
+<li><span class="mk">2</span><span><b>임신 전 체중 1 kg당 OR 0.97.</b> 단위가 작아서 1에 가까워 보입니다. 연속형 변수의 OR은 단위에 따라 달라지므로(<a href="#ch08-s3">8장 다 절</a>) 논문 표에는 단위를 반드시 적습니다.</span></li>
+</ol>
+
+<h3>Table 2 만들기</h3>
+<!--FIG:lab08_table2-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>"low ~ " + " + ".join(terms)</code><span>목록의 항들을 " + "로 이어 붙여 "low ~ smoke + C(race) + age + lwt_kg + ptl_any + ht"라는 식을 만듭니다.</span></li>
+<li><code>or_ci(full).loc[uni.index]</code><span>다변수 모형의 OR 표를 단변수 표와 같은 행 순서로 다시 꺼냅니다. statsmodels(patsy)는 범주형 항을 식의 앞쪽으로 옮겨 정렬하므로 순서를 맞춰 줘야 두 열이 같은 변수끼리 나란히 놓입니다.</span></li>
+<li><code>fmt = lambda t: [ … for r in t.itertuples()]</code><span><code>lambda</code>는 한 줄짜리 이름 없는 함수입니다. 표의 각 행(<code>itertuples()</code>가 행마다 <code>r.OR</code>, <code>r.lo</code>, <code>r.hi</code>로 꺼내 줌)을 "2.02 (1.08-3.78)" 같은 글자로 바꾼 목록을 돌려줍니다.</span></li>
+<li><code>pd.DataFrame({열 이름: 목록, …}, index=uni.index)</code><span>두 목록을 두 열로 하는 결과표를 만듭니다.</span></li>
+<li><code>full.nobs
+len(full.params) - 1</code><span>분석에 쓰인 인원과 절편을 뺀 계수의 수입니다. 사건 수 대비 변수 수(EPV)를 확인하려는 것입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사건 59건</b>, <span class="mk">2</span> <b>계수 7개</b>(인종 가변수 2개 포함). EPV = 59 ÷ 7 = 8.4로, 흔히 인용되는 기준(10 이상)에 못 미칩니다. 계수가 불안정하고 구간이 넓어질 수 있으므로 결과를 과신하지 않고, 모형을 더 키우지 않습니다(<a href="#ch08-s8">8장 아 절</a>, 9장).</span></li>
+<li><span class="mk">3</span><span><b>흡연: 단변수 OR 2.02</b>에서 <span class="mk">4</span> <b>다변수 OR 2.36 (1.07–5.22)</b>으로 커졌습니다. 인종만 보정했을 때(3.05)보다는 작습니다. 나이, 체중, 조산 경험, 고혈압 병력을 함께 보정하면서 일부가 다시 줄어든 것입니다. 이 연구의 주 결과는 이 2.36이며, 결과가 흔하므로 나 절의 보정 상대위험도 1.73을 함께 보고하는 편이 좋습니다.</span></li>
+</ol>
+
+<h3>다변수 모형의 변수별 결합 검정</h3>
+<!--FIG:lab08_fullwald-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>다변수 모형에서 인종 전체의 Wald χ² = 5.99</b>(자유도 2), <span class="mk">2</span> <b>P = 0.050.</b> 흡연만 넣은 모형(P = 0.0105)보다 약해졌습니다. 논문 표에 인종의 "overall P"를 적는다면 이 값을 씁니다.</span></li>
+<li><span class="mk">3</span><span><b>흡연의 P = 0.034.</b> 한 계수짜리 항은 Wald 결합 검정이 계수표의 Wald 검정과 같습니다.</span></li>
+</ol>
+
+<h3>행 이름을 논문용으로 바꾸기</h3>
+<!--FIG:lab08_table2b-->
+<p><code>table2.index = [ … ]</code>에 행 수(7개)와 같은 개수의 이름을 순서대로 넣습니다. 개수가 다르면 <code>ValueError: Length mismatch</code> 오류가 납니다. 이 표를 <code>table2.to_csv("table2.csv")</code>로 저장하면 엑셀이나 한글에서 열어 논문 표로 다듬을 수 있습니다(Colab에서는 왼쪽 파일 창에서 내려받습니다).</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 표의 모든 오즈비를 같은 무게로 읽기</p>
+<p><span class="wrong">다변수 모형에서 고혈압 병력의 OR이 5.70이므로 고혈압 병력은 저체중아 위험을 가장 크게 높이는 원인이다.</span> 이 모형은 흡연의 연관을 추정하려고 공변량을 고른 모형입니다. 고혈압 병력의 5.70은 흡연을 포함한 다른 변수를 보정한 값이라, 고혈압 병력 자체의 효과를 추정하는 데 필요한 교란변수가 맞게 들어갔는지 알 수 없습니다. 공변량의 계수를 노출의 효과처럼 해석하는 것을 <b>Table 2 오류</b>라고 합니다<cite data-ref="westreich2013"></cite>. 고혈압 병력의 효과가 궁금하면 그것을 노출로 두고 교란변수를 다시 골라야 합니다(<a href="#ch08-s8">8장 아 절</a>). 또 "위험을 높인다"는 오즈비가 아닌 상대위험도에 쓰는 표현입니다.</p></div>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>임신 전 체중의 OR을 10 kg당으로 바꿔 보세요. 로그 척도에서 계수에 10을 곱한 뒤 지수화합니다: <code>np.exp(10 * full.params["lwt_kg"])</code>, 구간은 <code>np.exp(10 * full.conf_int().loc["lwt_kg"])</code>. 결과는 0.71 (0.52–0.96)입니다. 1 kg당 OR의 구간 상한이 반올림 때문에 "1.00"으로 보였지만, 10 kg당으로 보면 구간이 1을 포함하지 않는다는 것이 분명해집니다. 단위를 임상적으로 의미 있게 고르는 이유입니다(<a href="#ch08-s3">8장 다 절</a>).</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 단변수·다변수 결과표</b><span>birthwt 실습 결과</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Maternal smoking and low birth weight: univariable and multivariable logistic regression (n = 189; 59 events)</caption>
+<thead><tr><th>Variable</th><th class="r"><span class="mk">1</span> Univariable OR<br>(95% CI)</th><th class="r"><span class="mk">2</span> Multivariable OR<br>(95% CI)<sup>a</sup></th></tr></thead>
+<tbody>
+<tr><td>Smoking during pregnancy</td><td class="r">2.02 (1.08–3.78)</td><td class="r"><span class="mk">3</span> 2.36 (1.07–5.22)</td></tr>
+<tr><td><span class="mk">4</span> Race</td><td class="r"></td><td class="r">P = 0.050<sup>b</sup></td></tr>
+<tr><td class="ind">White</td><td class="r">1 (Reference)</td><td class="r">1 (Reference)</td></tr>
+<tr><td class="ind">Black</td><td class="r">2.33 (0.94–5.77)</td><td class="r">3.22 (1.13–9.14)</td></tr>
+<tr><td class="ind">Other</td><td class="r">1.89 (0.96–3.74)</td><td class="r">2.26 (0.95–5.38)</td></tr>
+<tr><td>Age, per year</td><td class="r">0.95 (0.89–1.01)</td><td class="r">0.96 (0.89–1.03)</td></tr>
+<tr><td>Prepregnancy weight, per kg</td><td class="r">0.97 (0.94–1.00)</td><td class="r">0.97 (0.94–1.00)</td></tr>
+<tr><td>Previous preterm labor</td><td class="r">4.32 (1.92–9.73)</td><td class="r">3.80 (1.55–9.31)</td></tr>
+<tr><td>History of hypertension</td><td class="r">3.37 (1.02–11.09)</td><td class="r"><span class="mk">5</span> 5.70 (1.44–22.61)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">OR, odds ratio; CI, confidence interval. <sup>a</sup> Adjusted for all variables in the table; <span class="mk">6</span> covariates were selected a priori as maternal characteristics preceding smoking during pregnancy. <sup>b</sup> Overall P value for race (Wald test, 2 df).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Univariable OR: 변수마다 따로 적합한 모형.</b> 행끼리 서로 보정되지 않았습니다. 흡연의 2.02는 2×2 표의 오즈비와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>Multivariable OR: 표의 모든 변수를 한 모형에 넣은 값.</b> 각 OR은 "표의 다른 변수가 모두 같을 때"의 비교입니다. 각주 a에 보정 변수와 고른 근거를 적었습니다.</span></li>
+<li><span class="mk">3</span><span><b>주 결과: 흡연의 보정 OR 2.36.</b> 보정 전 2.02보다 커졌는데, 다 절에서 본 인종의 음의 교란 때문입니다. 저체중아가 흔하므로 본문에는 보정 상대위험도(1.73; 95% CI, 1.14–2.64, 나 절)를 함께 씁니다. 사건 59건에 계수 7개(EPV 8.4)라 구간이 넓다는 점도 한계로 밝힙니다.</span></li>
+<li><span class="mk">4</span><span><b>범주형 변수는 기준범주와 전체 P를 함께.</b> "Reference" 행으로 무엇과 비교했는지 보여 주고, 인종 전체의 관련은 결합 검정의 P(0.050)로 판단합니다. Black의 구간이 1을 포함하지 않는다고 "흑인 산모의 위험이 유의하게 높다"만 쓰는 것은 기준범주에 따라 바뀌는 비교 하나만 고른 것입니다(<a href="#ch08-s7">8장 사 절</a>).</span></li>
+<li><span class="mk">5</span><span><b>공변량의 OR은 부차적인 값입니다.</b> 고혈압 병력의 5.70을 원인의 크기로 읽지 않습니다(위 흔한 오해). 고혈압 병력 산모가 12명뿐이라 구간도 1.44–22.61로 매우 넓습니다. 원인 추정 연구라면 표 제목과 본문을 노출(흡연) 중심으로 쓰고, 공변량의 OR은 싣지 않는 것도 한 방법입니다.</span></li>
+<li><span class="mk">6</span><span><b>변수 선택의 근거.</b> 단변수 P 값으로 고르지 않았다는 것을 밝힙니다. 이 표의 나이는 단변수 분석에서 유의하지 않았지만(구간 0.89–1.01) 교란변수 후보라서 모형에 넣었습니다. 단변수 P &lt; 0.2 같은 기준으로 고르면 중요한 교란변수를 빠뜨릴 수 있습니다(<a href="#ch08-s8">8장 아 절</a>)<cite data-ref="sun1996"></cite>.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>숫자로 코딩된 명목변수는 <code>C(race)</code>처럼 범주형으로 지정해야 가변수가 됩니다. 그대로 넣으면 오류 없이 "번호가 1 늘 때"라는 의미 없는 계수가 나옵니다.</li>
+<li>기준범주는 <code>C(race, Treatment(reference=값))</code>으로 정합니다. 기준을 바꾸면 가변수의 계수만 바뀌고 다른 변수의 계수와 로그우도는 그대로입니다.</li>
+<li>범주형 변수 전체의 P는 <code>res.wald_test_terms()</code>의 Wald 결합 검정이나 변수를 뺀 모형과의 우도비 검정으로 구합니다.</li>
+<li>단변수 표는 변수마다 모형을 따로 적합해 <code>pd.concat</code>으로, 다변수 표는 한 모형에서 만들고 행 순서를 맞춰 나란히 놓습니다. 사건 수 대비 계수 수(EPV)를 함께 확인합니다.</li>
+<li>원인 추정 모형에서 노출 외 공변량의 OR은 노출의 OR과 같은 의미가 아닙니다(Table 2 오류).</li>
+</ul></div>
+</section>

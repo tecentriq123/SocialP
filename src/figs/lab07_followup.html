@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">중앙 추적기간 (역 Kaplan-Meier)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import median_survival_times, qth_survival_times
+
+print(&quot;전체 time의 중앙값:&quot;, round(lung[&quot;months&quot;].median(), 1))
+alive = lung[&quot;event&quot;] == 0
+print(&quot;생존자 time의 중앙값:&quot;, round(lung.loc[alive, &quot;months&quot;].median(), 1))
+
+# 역 Kaplan-Meier: 중도절단(1 - event)을 &#x27;사건&#x27;으로 놓는다
+fu = KaplanMeierFitter().fit(lung[&quot;months&quot;], 1 - lung[&quot;event&quot;])
+print(&quot;역 KM 중앙 추적기간:&quot;, round(fu.median_survival_time_, 1))
+print(qth_survival_times([0.75, 0.25], fu.survival_function_))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>전체 time의 중앙값: 8.4<span class="mk">1</span>
+생존자 time의 중앙값: 9.3<span class="mk">2</span>
+역 KM 중앙 추적기간: 19.3<span class="mk">3</span>
+      KM_estimate
+0.75     9.889117<span class="mk">4</span>
+0.25    31.704312<span class="mk">5</span></pre></div></div>

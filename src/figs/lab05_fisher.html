@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">Fisher의 정확한 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fe = stats.fisher_exact(obs_h)
+print(&quot;statistic:&quot;, fe.statistic)
+print(&quot;pvalue   :&quot;, fe.pvalue)
+chi_u = stats.chi2_contingency(obs_h, correction=False)
+chi_y = stats.chi2_contingency(obs_h)
+print(f&quot;Pearson p = {chi_u.pvalue:.4f}, Yates p = {chi_y.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>statistic: 3.3653846153846154<span class="mk">1</span>
+pvalue   : 0.05161187156764768<span class="mk">2</span>
+Pearson p = 0.0362<span class="mk">3</span>, Yates p = 0.0763<span class="mk">4</span></pre></div></div>

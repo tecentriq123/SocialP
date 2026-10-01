@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">p-value 계산 방식 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = stats.wilcoxon(d, alternative=&quot;greater&quot;)
+print(f&quot;greater: statistic = {g.statistic}, p = {g.pvalue:.5f}&quot;)
+a = stats.wilcoxon(d, method=&quot;asymptotic&quot;)
+print(f&quot;asymptotic: z = {a.zstatistic:.3f}, p = {a.pvalue:.4f}&quot;)
+ac = stats.wilcoxon(d, method=&quot;asymptotic&quot;, correction=True)
+print(f&quot;asymptotic + correction: p = {ac.pvalue:.4f}&quot;)
+pr = stats.wilcoxon(d, zero_method=&quot;pratt&quot;, method=&quot;asymptotic&quot;)
+print(f&quot;pratt (asymptotic): p = {pr.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>greater: statistic = 45.0<span class="mk">1</span>, p = 0.00195<span class="mk">2</span>
+asymptotic: z = -2.668<span class="mk">3</span>, p = 0.0076<span class="mk">4</span>
+asymptotic + correction: p = 0.0091<span class="mk">5</span>
+pratt (asymptotic): p = 0.0058<span class="mk">6</span></pre></div></div>

@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">위험비와 누적위험의 비(상대위험도)는 다르다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pts = pd.DataFrame([df.median()] * 2)       # 중앙값 환자 두 명
+pts[&quot;dpca&quot;] = 0
+pts[&quot;edema&quot;] = [0.0, 1.0]                   # 부종 없음 / 이뇨제에도 부종
+S = cph.predict_survival_function(pts, times=[1, 5, 10])
+risk = 1 - S                                # 누적 사망위험
+risk.columns = [&quot;no edema&quot;, &quot;edema 1.0&quot;]
+risk[&quot;risk ratio&quot;] = risk[&quot;edema 1.0&quot;] / risk[&quot;no edema&quot;]
+print(&quot;HR (edema 1.0):&quot;, round(np.exp(b[&quot;C(edema)[T.1.0]&quot;]), 2))
+risk.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>HR (edema 1.0): 2.58<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>no edema</th>
+      <th>edema 1.0</th>
+      <th>risk ratio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.0</th>
+      <td>0.017</td>
+      <td>0.043</td>
+      <td>2.548</td>
+    </tr>
+    <tr>
+      <th>5.0</th>
+      <td>0.150<span class="mk">2</span></td>
+      <td>0.342<span class="mk">3</span></td>
+      <td>2.285<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>10.0</th>
+      <td>0.460</td>
+      <td>0.796</td>
+      <td>1.731<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

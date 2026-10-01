@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">코딩 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">first = cgd.groupby(&quot;id&quot;).first()      # 환자마다 첫 행 하나
+print(first[&quot;treat&quot;].value_counts())
+print(cgd[&quot;status&quot;].value_counts())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>treat
+placebo    65<span class="mk">1</span>
+rIFN-g     63
+Name: count, dtype: int64
+status
+0    127
+1     76<span class="mk">2</span>
+Name: count, dtype: int64</pre></div></div>

@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">보정 모형에서 로그-이항 모형이 실패할 때</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f_adj = &quot;low ~ smoke + C(race) + age + lwt_kg + ptl_any + ht&quot;
+lb = smf.glm(f_adj, df, family=fam.Binomial(fam.links.Log())).fit()
+print(&quot;converged     :&quot;, lb.converged)
+print(&quot;log-likelihood:&quot;, lb.llf)
+print(&quot;max fitted p  :&quot;, lb.fittedvalues.max())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>converged     : True<span class="mk">1</span>
+log-likelihood: nan<span class="mk">2</span>
+max fitted p  : 9.042727519127283e+74<span class="mk">3</span></pre><pre class="warn-out">DomainWarning: The Log link function does not respect the domain of the Binomial family.</pre><pre class="warn-out">SingularMatrixWarning<span class="mk">4</span>: The design matrix is rank-deficient. The model parameters are not uniquely determined.</pre><pre class="warn-out">RuntimeWarning: invalid value encountered in log</pre></div></div>

@@ -1,0 +1,29 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">다변수 로지스틱 회귀 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+
+f = &quot;low ~ age + lwt + C(race) + smoke + ptd + ht + ui&quot;
+logit_m = smf.logit(f, data=bw).fit()     # 최대우도추정
+print(logit_m.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Optimization terminated successfully.                                                <span class="mk">1</span>
+         Current function value: 0.520724
+         Iterations 6                                                                <span class="mk">2</span>
+                           Logit Regression Results                           
+==============================================================================
+Dep. Variable:                    low   No. Observations:                  189       <span class="mk">3</span>
+Model:                          Logit   Df Residuals:                      180       <span class="mk">4</span>
+Method:                           MLE   Df Model:                            8       <span class="mk">5</span>
+Date:                Wed, 30 Sep 2026   Pseudo R-squ.:                  0.1612       <span class="mk">6</span>
+Time:                        02:24:55   Log-Likelihood:                -98.417       <span class="mk">7</span>
+converged:                       True   LL-Null:                       -117.34       <span class="mk">8</span><span class="mk">9</span>
+Covariance Type:            nonrobust   LLR p-value:                 8.064e-06       <span class="mk">10</span>
+====================================================================================
+                       coef    std err          z      P&gt;|z|      [0.025      0.975]  <span class="mk">11</span>
+------------------------------------------------------------------------------------
+Intercept            0.6369      1.230      0.518      0.605      -1.774       3.048  <span class="mk">12</span>
+C(race)[T.black]     1.2127      0.532      2.277      0.023       0.169       2.256  <span class="mk">13</span>
+C(race)[T.other]     0.8041      0.448      1.793      0.073      -0.075       1.683
+age                 -0.0377      0.038     -0.998      0.318      -0.112       0.036
+lwt                 -0.0149      0.007     -2.118      0.034      -0.029      -0.001
+smoke                0.8464      0.408      2.074      0.038       0.047       1.646  <span class="mk">14</span><span class="mk">15</span>
+ptd                  1.2218      0.463      2.639      0.008       0.314       2.129
+ht                   1.8387      0.703      2.615      0.009       0.460       3.217
+ui                   0.7111      0.463      1.536      0.125      -0.197       1.619
+====================================================================================</pre></div></div>

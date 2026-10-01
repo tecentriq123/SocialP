@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">O, E, V를 직접 계산해 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for t in np.sort(lung.loc[lung[&quot;event&quot;] == 1, &quot;months&quot;].unique()):
+    r = lung[lung[&quot;months&quot;] &gt;= t]             # t 직전 위험집합
+    dead = (r[&quot;months&quot;] == t) &amp; (r[&quot;event&quot;] == 1)
+    male = r[&quot;sex&quot;] == 1
+    rows.append({&quot;n&quot;: len(r), &quot;nA&quot;: male.sum(),
+                 &quot;d&quot;: dead.sum(), &quot;dA&quot;: (dead &amp; male).sum()})
+tab = pd.DataFrame(rows)
+E = (tab[&quot;d&quot;] * tab[&quot;nA&quot;] / tab[&quot;n&quot;]).sum()
+V = (tab[&quot;d&quot;] * (tab[&quot;nA&quot;] / tab[&quot;n&quot;]) * (1 - tab[&quot;nA&quot;] / tab[&quot;n&quot;])
+     * (tab[&quot;n&quot;] - tab[&quot;d&quot;]) / (tab[&quot;n&quot;] - 1).clip(lower=1)).sum()
+O = tab[&quot;dA&quot;].sum()
+print(f&quot;남성 O = {O}, E = {E:.2f}, O-E = {O - E:.2f}, V = {V:.2f}&quot;)
+print(f&quot;chi2 = {(O - E)**2 / V:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>남성 O = 112<span class="mk">1</span>, E = 91.58<span class="mk">2</span>, O-E = 20.42, V = 40.37<span class="mk">3</span>
+chi2 = 10.33<span class="mk">4</span></pre></div></div>

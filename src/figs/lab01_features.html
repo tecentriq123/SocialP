@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">설명변수 30개의 구성</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">features = bc.feature_names.tolist()   # 설명변수 30개의 이름
+print(len(features))
+print(features[:10])    # 0–9번: mean 계열
+print(features[10:13])  # 10–19번: error 계열 (앞의 3개만)
+print(features[20:23])  # 20–29번: worst 계열 (앞의 3개만)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>30<span class="mk">1</span>
+[&#x27;mean radius&#x27;, &#x27;mean texture&#x27;, &#x27;mean perimeter&#x27;, &#x27;mean area&#x27;, &#x27;mean smoothness&#x27;, &#x27;mean compactness&#x27;, &#x27;mean concavity&#x27;, &#x27;mean concave points&#x27;, &#x27;mean symmetry&#x27;, &#x27;mean fractal dimension&#x27;]
+[&#x27;radius error&#x27;<span class="mk">2</span>, &#x27;texture error&#x27;, &#x27;perimeter error&#x27;]
+[&#x27;worst radius&#x27;<span class="mk">3</span>, &#x27;worst texture&#x27;, &#x27;worst perimeter&#x27;]</pre></div></div>

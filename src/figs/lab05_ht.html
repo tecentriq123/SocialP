@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">고혈압 병력과 저체중아: 기대빈도 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs_h = pd.crosstab(df[&quot;ht_f&quot;], df[&quot;low_f&quot;])
+print(obs_h)
+exp_h = stats.chi2_contingency(obs_h).expected_freq
+print(exp_h.round(2))
+print(&quot;기대빈도 5 미만인 칸:&quot;, (exp_h &lt; 5).sum(), &quot;/ 4&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>low_f  LBW  Not LBW
+ht_f               
+HT       7        5
+No HT   52      125
+[[  3.75<span class="mk">1</span>   8.25]
+ [ 55.25 121.75]]
+기대빈도 5 미만인 칸: 1 / 4<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">Mantel–Haenszel 통합 오즈비와 두 가지 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.contingency_tables import StratifiedTable
+
+st = StratifiedTable(tables)   # 2×2 표 3개의 목록
+print(st.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                   Estimate   LCB    UCB 
+-----------------------------------------
+Pooled odds           3.086   1.491 6.390<span class="mk">1</span>
+Pooled log odds       1.127   0.399 1.855
+Pooled risk ratio     2.151<span class="mk">2</span>              
+                                         
+                 Statistic P-value     
+---------------------------------------
+Test of OR=1         9.413   0.002<span class="mk">3</span>     
+Test constant OR     3.126   0.210<span class="mk">4</span>     
+                        
+------------------------
+Number of tables   3    
+Min n             26    
+Max n             96    
+Avg n             63    
+Total n          189    
+------------------------</pre></div></div>

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">입력 오류 한 건이 상관계수에 주는 영향</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">bad = df.copy()               # 원본은 그대로 두고 복사본을 만듦
+bad.loc[0, &quot;bmi&quot;] = 321       # 32.1을 소수점 없이 입력한 오류 가정
+r_bad = stats.pearsonr(bad[&quot;bmi&quot;], bad[&quot;target&quot;]).statistic
+rho_bad = stats.spearmanr(bad[&quot;bmi&quot;], bad[&quot;target&quot;]).statistic
+print(f&quot;Pearson r    : {res.statistic:.3f} -&gt; {r_bad:.3f}&quot;)
+print(f&quot;Spearman rho : {rho.statistic:.3f} -&gt; {rho_bad:.3f}&quot;)
+print(&quot;bmi max      :&quot;, bad[&quot;bmi&quot;].max())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Pearson r    : 0.586 -&gt; 0.176<span class="mk">1</span>
+Spearman rho : 0.561 -&gt; 0.561<span class="mk">2</span>
+bmi max      : 321.0<span class="mk">3</span></pre></div></div>

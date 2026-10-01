@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">기울기 검정 = 상관 검정 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(model.pvalues)                     # 계수별 정확한 p-value
+print(&quot;Pearson p :&quot;, res.pvalue)
+print(&quot;t^2 =&quot;, round(model.tvalues[&quot;bmi&quot;] ** 2, 2),
+      &quot;  F =&quot;, round(model.fvalue, 2))
+print(&quot;r^2 =&quot;, round(res.statistic ** 2, 4),
+      &quot;  R2 =&quot;, round(model.rsquared, 4))
+print(model.conf_int().round(3))         # 계수의 95% 신뢰구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Intercept    1.751618e-10
+bmi          3.466006e-42<span class="mk">1</span>
+dtype: float64
+Pearson p : 3.4660064451669974e-42<span class="mk">2</span>
+t^2 = 230.65   F = 230.65<span class="mk">3</span>
+r^2 = 0.3439   R2 = 0.3439<span class="mk">4</span>
+                 0       1
+Intercept -153.187 -82.359
+bmi          8.909  11.557</pre></div></div>

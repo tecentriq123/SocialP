@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">부호검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">n_pos = int((d &gt; 0).sum())      # drug2에서 더 잔 환자
+n_neg = int((d &lt; 0).sum())      # drug1에서 더 잔 환자
+print(&quot;+:&quot;, n_pos, &quot; -:&quot;, n_neg, &quot; 0:&quot;, int((d == 0).sum()))
+print(stats.binomtest(n_pos, n_pos + n_neg, p=0.5))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>+: 9<span class="mk">1</span>  -: 0  0: 1
+BinomTestResult(k=9, n=9, alternative=&#x27;two-sided&#x27;, statistic=1.0, pvalue=0.00390625<span class="mk">2</span>)</pre></div></div>

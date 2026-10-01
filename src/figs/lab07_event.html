@@ -1,0 +1,33 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">status 확인과 사건 변수 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(lung[&quot;status&quot;].value_counts())
+
+# 사건(사망) = 1, 중도절단 = 0 으로 새 열을 만듦
+lung[&quot;event&quot;] = (lung[&quot;status&quot;] == 2).astype(int)
+pd.crosstab(lung[&quot;status&quot;], lung[&quot;event&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>status
+2    165<span class="mk">1</span>
+1     63<span class="mk">2</span>
+Name: count, dtype: int64</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>event</th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+    <tr>
+      <th>status</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>63</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>165<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

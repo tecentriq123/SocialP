@@ -1,0 +1,39 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">우도비 검정, REML과 ML</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lr = 2 * (m2.llf - m1.llf)        # 두 모형 모두 REML로 적합
+print(&quot;LR 통계량:&quot;, round(lr, 2))
+print(&quot;p (자유도 2):&quot;, stats.chi2.sf(lr, df=2))
+
+m2_ml = smf.mixedlm(&quot;Reaction ~ Days&quot;, data=sleep,
+                    groups=sleep[&quot;Subject&quot;],
+                    re_formula=&quot;~Days&quot;).fit(reml=False)
+vc = pd.DataFrame(
+    {&quot;REML&quot;: [m2.cov_re.iloc[0, 0], m2.cov_re.iloc[1, 1], m2.scale],
+     &quot;ML&quot;: [m2_ml.cov_re.iloc[0, 0], m2_ml.cov_re.iloc[1, 1],
+            m2_ml.scale]},
+    index=[&quot;intercept var&quot;, &quot;slope var&quot;, &quot;residual var&quot;])
+vc.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>LR 통계량: 42.84<span class="mk">1</span>
+p (자유도 2): 4.990041428530465e-10</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>REML</th>
+      <th>ML</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>intercept var</th>
+      <td>612.1</td>
+      <td>565.5</td>
+    </tr>
+    <tr>
+      <th>slope var</th>
+      <td>35.1</td>
+      <td>32.7</td>
+    </tr>
+    <tr>
+      <th>residual var</th>
+      <td>654.9</td>
+      <td>654.9</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

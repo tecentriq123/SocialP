@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">연결함수와 분포가 다른 네 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = &quot;low ~ smoke&quot;
+fits = {
+    &quot;logit&quot;: smf.glm(f, df, family=fam.Binomial()).fit(),
+    &quot;log-binomial&quot;: smf.glm(
+        f, df, family=fam.Binomial(fam.links.Log())).fit(),
+    &quot;Poisson&quot;: smf.glm(f, df, family=fam.Poisson()).fit(),
+    &quot;Poisson robust&quot;: smf.glm(
+        f, df, family=fam.Poisson()).fit(cov_type=&quot;HC0&quot;),
+}</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre class="warn-out">DomainWarning<span class="mk">1</span>: The Log link function does not respect the domain of the Binomial family.</pre></div></div>

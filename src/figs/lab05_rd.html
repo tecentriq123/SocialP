@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">위험차와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.proportion import confint_proportions_2indep
+
+(a, b), (c, d) = obs.to_numpy()     # 네 칸의 빈도
+p1, p0 = a / (a + b), c / (c + d)   # 흡연군, 비흡연군의 위험
+lo, hi = confint_proportions_2indep(a, a + b, c, c + d,
+                                    compare=&quot;diff&quot;, method=&quot;wald&quot;)
+print(f&quot;p1 = {p1:.3f}, p0 = {p0:.3f}&quot;)
+print(f&quot;RD = {p1 - p0:.3f} (95% CI {lo:.3f} to {hi:.3f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>p1 = 0.405, p0 = 0.252
+RD = 0.153<span class="mk">1</span> (95% CI 0.016 to 0.290<span class="mk">2</span>)</pre></div></div>

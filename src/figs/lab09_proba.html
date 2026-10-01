@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">predict_proba 결과 살펴보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">proba = clf.predict_proba(X_test)    # 시험 자료 171명의 확률
+print(type(proba), proba.shape)
+print(proba[:5].round(3))            # 앞 5명, 두 열
+p_test = proba[:, 1]                 # 모든 행, 1번 열 = P(y = 1)
+print(p_test[:5].round(3))
+print(proba[:5].sum(axis=1))         # 각 행의 합은 1</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;class &#x27;numpy.ndarray&#x27;&gt; (171, 2)<span class="mk">1</span>
+[[0.887 0.113]<span class="mk">2</span>
+ [0.998 0.002]
+ [1.    0.   ]
+ [0.997 0.003]
+ [0.981 0.019]]
+[0.113 0.002 0.    0.003 0.019]<span class="mk">3</span>
+[1. 1. 1. 1. 1.]<span class="mk">4</span></pre></div></div>

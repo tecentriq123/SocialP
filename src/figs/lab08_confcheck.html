@@ -1,0 +1,48 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">인종은 교란변수의 조건을 갖추었나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = df.groupby(&quot;race_f&quot;, observed=True)
+g_non = df[df[&quot;smoke&quot;] == 0].groupby(&quot;race_f&quot;, observed=True)
+pd.DataFrame({
+    &quot;n&quot;: g.size(),
+    &quot;smoker %&quot;: g[&quot;smoke&quot;].mean() * 100,
+    &quot;LBW % (all)&quot;: g[&quot;low&quot;].mean() * 100,
+    &quot;LBW % (nonsmokers)&quot;: g_non[&quot;low&quot;].mean() * 100,
+}).round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>smoker %</th>
+      <th>LBW % (all)</th>
+      <th>LBW % (nonsmokers)</th>
+    </tr>
+    <tr>
+      <th>race_f</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>White</th>
+      <td>96</td>
+      <td>54.2<span class="mk">1</span></td>
+      <td>24.0<span class="mk">3</span></td>
+      <td>9.1<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>Black</th>
+      <td>26</td>
+      <td>38.5</td>
+      <td>42.3</td>
+      <td>31.2</td>
+    </tr>
+    <tr>
+      <th>Other</th>
+      <td>67</td>
+      <td>17.9<span class="mk">2</span></td>
+      <td>37.3</td>
+      <td>36.4<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

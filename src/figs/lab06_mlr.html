@@ -1,0 +1,33 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">다중회귀 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_adj = smf.ols(&quot;target ~ bmi + age + C(sex) + bp + s5&quot;,
+                    data=df).fit()
+print(model_adj.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                 target   R-squared:                       0.487  <span class="mk">1</span>
+Model:                            OLS   Adj. R-squared:                  0.481  <span class="mk">2</span>
+Method:                 Least Squares   F-statistic:                     82.85  <span class="mk">3</span>
+Date:                Wed, 30 Sep 2026   Prob (F-statistic):           4.90e-61
+Time:                        02:24:40   Log-Likelihood:                -2399.6
+No. Observations:                 442   AIC:                             4811.
+Df Residuals:                     436   BIC:                             4836.
+Df Model:                           5                                           <span class="mk">4</span>
+Covariance Type:            nonrobust                                         
+===============================================================================
+                  coef    std err          t      P&gt;|t|      [0.025      0.975]
+-------------------------------------------------------------------------------
+Intercept    -341.0570     25.962    -13.137      0.000    -392.084    -290.030
+C(sex)[T.2]   -12.7252      5.490     -2.318      0.021     -23.516      -1.935  <span class="mk">5</span>
+bmi             6.4521      0.694      9.294      0.000       5.088       7.817  <span class="mk">6</span>
+age            -0.1322      0.218     -0.607      0.544      -0.560       0.296  <span class="mk">7</span>
+bp              1.0399      0.226      4.597      0.000       0.595       1.484
+s5             51.0543      5.938      8.598      0.000      39.384      62.725  <span class="mk">8</span>
+==============================================================================
+Omnibus:                        4.772   Durbin-Watson:                   1.984
+Prob(Omnibus):                  0.092   Jarque-Bera (JB):                3.949
+Skew:                           0.138   Prob(JB):                        0.139
+Kurtosis:                       2.628   Cond. No.                     1.10e+03
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+[2] The condition number is large, 1.1e+03. This might indicate that there are  <span class="mk">9</span>
+strong multicollinearity or other numerical problems.</pre></div></div>

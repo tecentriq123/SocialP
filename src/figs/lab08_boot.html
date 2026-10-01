@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(2026)   # 시드를 고정해 같은 결과 재현
+y = df[&quot;low&quot;].to_numpy()
+x = df[&quot;smoke&quot;].to_numpy()
+boot_rr = []
+for _ in range(2000):
+    i = rng.integers(0, len(y), size=len(y))   # 189명 복원추출
+    yb, xb = y[i], x[i]
+    boot_rr.append(yb[xb == 1].mean() / yb[xb == 0].mean())
+boot_rr = np.array(boot_rr)
+lo, hi = np.percentile(boot_rr, [2.5, 97.5])
+print(f&quot;bootstrap RR: median {np.median(boot_rr):.3f}, &quot;
+      f&quot;95% CI {lo:.3f} to {hi:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bootstrap RR: median 1.612<span class="mk">1</span>, 95% CI 1.059 to 2.500<span class="mk">2</span></pre></div></div>

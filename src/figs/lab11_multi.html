@@ -1,0 +1,40 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">다변수 Cox 모형 (formula 사용)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cph = CoxPHFitter()
+cph.fit(df, duration_col=&quot;years&quot;, event_col=&quot;death&quot;,
+        formula=&quot;dpca + age10 + female + log2_bili + albumin&quot;
+                &quot; + C(edema) + protime&quot;)
+cph.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations&gt;
+             duration col = &#x27;years&#x27;
+                event col = &#x27;death&#x27;
+      baseline estimation = breslow
+   number of observations = 312
+number of events observed = 125
+   partial log-likelihood = -539.175
+         time fit was run = 2026-09-29 23:54:14 UTC
+
+---
+                  coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%
+covariate                                                                                                         
+dpca            -0.065     0.938<span class="mk">1</span>     0.194          -0.444           0.315               0.642               1.370
+age10            0.314     1.369<span class="mk">2</span>     0.092           0.133           0.495               1.143               1.641
+female          -0.353     0.703     0.255          -0.852           0.147               0.427               1.158
+log2_bili        0.611     1.842<span class="mk">3</span>     0.069           0.476           0.746               1.609               2.108
+albumin         -0.989     0.372<span class="mk">4</span>     0.239          -1.457          -0.521               0.233               0.594
+C(edema)[T.0.5]<span class="mk">5</span>  0.198     1.218     0.285          -0.361           0.756               0.697               2.130
+C(edema)[T.1.0]  0.949     2.582<span class="mk">6</span>     0.309           0.342           1.555               1.408               4.734
+protime          0.250     1.284     0.086           0.081           0.419               1.084               1.520
+
+                 cmp to      z       p  -log2(p)
+covariate                                       
+dpca              0.000 -0.333   0.739     0.437
+age10             0.000  3.404   0.001    10.555
+female            0.000 -1.384   0.166     2.588
+log2_bili         0.000  8.861 &lt;0.0005<span class="mk">7</span>    60.126
+albumin           0.000 -4.140 &lt;0.0005    14.813
+C(edema)[T.0.5]   0.000  0.693   0.488     1.035
+C(edema)[T.1.0]   0.000  3.067   0.002     8.853
+protime           0.000  2.900   0.004     8.066
+---
+Concordance = 0.846<span class="mk">8</span>
+Partial AIC = 1094.350<span class="mk">9</span>
+log-likelihood ratio test = 201.583 on 8 df<span class="mk">10</span>
+-log2(p) of ll-ratio test = 127.988</pre></div></div>

@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">기준범주 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_ref3 = smf.logit(&quot;low ~ smoke + C(race, Treatment(reference=3))&quot;,
+                   df).fit(disp=0)
+print(np.exp(m_ref3.params).round(3), &quot;\n&quot;)
+print(f&quot;llf = {m_ref3.llf:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Intercept                               0.481
+C(race, Treatment(reference=3))[T.1]    0.330<span class="mk">1</span>
+C(race, Treatment(reference=3))[T.2]    0.976<span class="mk">2</span>
+smoke                                   3.053<span class="mk">3</span>
+dtype: float64 
+
+llf = -109.987<span class="mk">4</span></pre></div></div>

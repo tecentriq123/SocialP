@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">순열검정으로 확인하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(2026)      # 난수 시드 고정
+y = df[&quot;bwt&quot;].to_numpy()
+lab = df[&quot;lwt3&quot;].to_numpy()
+B = 10000
+J_perm = np.empty(B)
+for r in range(B):
+    s = rng.permutation(lab)           # 군 이름표를 무작위로 섞음
+    J_perm[r] = jt_J([y[s == k] for k in order])
+extreme = np.abs(J_perm - EJ) &gt;= abs(J - EJ)   # 관측값만큼 극단적
+print(&quot;extreme:&quot;, extreme.sum(), &quot;of&quot;, B)
+print(f&quot;permutation p = {(extreme.sum() + 1) / (B + 1):.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>extreme: 4 of 10000<span class="mk">1</span>
+permutation p = 0.0005<span class="mk">2</span></pre></div></div>

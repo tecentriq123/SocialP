@@ -1,0 +1,110 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">PBC 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+url = (&quot;https://vincentarelbundock.github.io/Rdatasets/&quot;
+       &quot;csv/survival/pbc.csv&quot;)
+pbc = pd.read_csv(url)
+print(pbc.shape)
+pbc.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(418, 21)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rownames</th>
+      <th>id</th>
+      <th>time</th>
+      <th>status<span class="mk">2</span></th>
+      <th>trt<span class="mk">3</span></th>
+      <th>age</th>
+      <th>sex</th>
+      <th>ascites</th>
+      <th>hepato</th>
+      <th>spiders</th>
+      <th>edema<span class="mk">4</span></th>
+      <th>bili</th>
+      <th>chol</th>
+      <th>albumin</th>
+      <th>copper</th>
+      <th>alk.phos</th>
+      <th>ast</th>
+      <th>trig</th>
+      <th>platelet</th>
+      <th>protime</th>
+      <th>stage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>400</td>
+      <td>2</td>
+      <td>1.0</td>
+      <td>58.765229</td>
+      <td>f</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>14.5</td>
+      <td>261.0</td>
+      <td>2.60</td>
+      <td>156.0</td>
+      <td>1718.0</td>
+      <td>137.95</td>
+      <td>172.0</td>
+      <td>190.0</td>
+      <td>12.2</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>2</td>
+      <td>4500</td>
+      <td>0</td>
+      <td>1.0</td>
+      <td>56.446270</td>
+      <td>f</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.1</td>
+      <td>302.0</td>
+      <td>4.14</td>
+      <td>54.0</td>
+      <td>7394.8</td>
+      <td>113.52</td>
+      <td>88.0</td>
+      <td>221.0</td>
+      <td>10.6</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3</td>
+      <td>1012</td>
+      <td>2</td>
+      <td>1.0</td>
+      <td>70.072553</td>
+      <td>m</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>1.4</td>
+      <td>176.0</td>
+      <td>3.48</td>
+      <td>210.0</td>
+      <td>516.0</td>
+      <td>96.10</td>
+      <td>55.0</td>
+      <td>151.0</td>
+      <td>12.0</td>
+      <td>4.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

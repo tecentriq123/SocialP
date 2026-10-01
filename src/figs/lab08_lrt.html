@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">우도비 검정을 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lr = 2 * (m_logit.llf - m0.llf)
+print(f&quot;LR    chi2 = {lr:.3f}, P = {stats.chi2.sf(lr, 1):.4f}&quot;)
+z = m_logit.tvalues[&quot;smoke&quot;]
+print(f&quot;Wald  chi2 = {z**2:.3f}, P = {m_logit.pvalues[&#x27;smoke&#x27;]:.4f}&quot;)
+sc = stats.chi2_contingency(tab, correction=False)
+print(f&quot;Score chi2 = {sc.statistic:.3f}, P = {sc.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>LR    chi2 = 4.867<span class="mk">1</span>, P = 0.0274
+Wald  chi2 = 4.852<span class="mk">2</span>, P = 0.0276
+Score chi2 = 4.924<span class="mk">3</span>, P = 0.0265</pre></div></div>

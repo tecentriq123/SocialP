@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">데이터 불러오기와 군 이름표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import pandas as pd
+import numpy as np
+from scipy import stats
+
+url = (&quot;https://vincentarelbundock.github.io/Rdatasets/&quot;
+       &quot;csv/MASS/birthwt.csv&quot;)
+df = pd.read_csv(url)
+df[&quot;race_f&quot;] = pd.Categorical(
+    df[&quot;race&quot;].map({1: &quot;White&quot;, 2: &quot;Black&quot;, 3: &quot;Other&quot;}),
+    categories=[&quot;White&quot;, &quot;Black&quot;, &quot;Other&quot;])
+df[&quot;race_f&quot;].value_counts(sort=False)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+    </tr>
+    <tr>
+      <th>race_f</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>White</th>
+      <td>96<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>Black</th>
+      <td>26<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>Other</th>
+      <td>67<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

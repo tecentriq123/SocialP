@@ -1,0 +1,45 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">어머니 체중 삼분위 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 사전 가설: 어머니 체중(lwt)이 무거울수록 출생체중이 크다
+df[&quot;lwt3&quot;] = pd.qcut(df[&quot;lwt&quot;], q=3, labels=[&quot;T1&quot;, &quot;T2&quot;, &quot;T3&quot;])
+df.groupby(&quot;lwt3&quot;, observed=True).agg(
+    n=(&quot;bwt&quot;, &quot;size&quot;), lwt_min=(&quot;lwt&quot;, &quot;min&quot;),
+    lwt_max=(&quot;lwt&quot;, &quot;max&quot;), bwt_median=(&quot;bwt&quot;, &quot;median&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>lwt_min</th>
+      <th>lwt_max</th>
+      <th>bwt_median</th>
+    </tr>
+    <tr>
+      <th>lwt3</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>T1</th>
+      <td>67</td>
+      <td>80</td>
+      <td>115<span class="mk">1</span></td>
+      <td>2722.0<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>T2</th>
+      <td>60</td>
+      <td>116</td>
+      <td>132</td>
+      <td>2962.5</td>
+    </tr>
+    <tr>
+      <th>T3</th>
+      <td>62</td>
+      <td>133</td>
+      <td>250</td>
+      <td>3288.5<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">유방암 자료 불러오기와 결과 코딩</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.datasets import load_breast_cancer
+
+bc = load_breast_cancer(as_frame=True)
+X = bc.data                          # 설명변수 30개 (DataFrame)
+print(X.shape)
+print(bc.target_names)               # target 0, 1의 이름
+print(bc.target.value_counts())
+y = (bc.target == 0).astype(int)     # 악성 = 1, 양성 = 0 으로 바꿈
+print(&quot;malignant (y = 1):&quot;, y.sum(), &quot; proportion:&quot;, round(y.mean(), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(569, 30)<span class="mk">1</span>
+[&#x27;malignant&#x27; &#x27;benign&#x27;]<span class="mk">2</span>
+target
+1    357<span class="mk">3</span>
+0    212
+Name: count, dtype: int64
+malignant (y = 1): 212<span class="mk">4</span>  proportion: 0.373</pre></div></div>

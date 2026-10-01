@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">순서대로 커지지 않는 경우</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;ftv3&quot;] = pd.cut(df[&quot;ftv&quot;], bins=[-1, 0, 1, 99],
+                    labels=[&quot;0&quot;, &quot;1&quot;, &quot;2+&quot;])
+visits = [df.loc[df[&quot;ftv3&quot;] == k, &quot;bwt&quot;] for k in [&quot;0&quot;, &quot;1&quot;, &quot;2+&quot;]]
+g3 = df.groupby(&quot;ftv3&quot;, observed=True)[&quot;bwt&quot;]
+print(g3.agg([&quot;count&quot;, &quot;median&quot;]))
+J, EJ, z, p = jt_test(visits)
+print(f&quot;JT: z = {z:.2f}, p = {p:.3f}&quot;)
+print(f&quot;KW: p = {stats.kruskal(*visits).pvalue:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      count  median
+ftv3               
+0       100  2921.0
+1        47  3033.0<span class="mk">1</span>
+2+       42  2977.0
+JT: z = 1.05, p = 0.292<span class="mk">2</span>
+KW: p = 0.269<span class="mk">3</span></pre></div></div>

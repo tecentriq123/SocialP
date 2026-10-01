@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">무작위 절편 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+
+m1 = smf.mixedlm(&quot;Reaction ~ Days&quot;, data=sleep,
+                 groups=sleep[&quot;Subject&quot;]).fit()
+print(m1.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         Mixed Linear Model Regression Results
+========================================================
+Model:             MixedLM Dependent Variable: Reaction 
+No. Observations:  180     Method:             REML<span class="mk">1</span>     
+No. Groups:        18<span class="mk">2</span>      Scale:              960.4568<span class="mk">3</span> 
+Min. group size:   10      Log-Likelihood:     -893.2325<span class="mk">4</span>
+Max. group size:   10      Converged:          Yes<span class="mk">5</span>      
+Mean group size:   10.0                                 
+--------------------------------------------------------
+           Coef.   Std.Err.   z    P&gt;|z|  [0.025  0.975]
+--------------------------------------------------------
+Intercept  251.405    9.747 25.794 0.000 232.302 270.508
+Days        10.467    0.804 13.015 0.000   8.891  12.044<span class="mk">6</span>
+Group Var 1378.176   17.156                             <span class="mk">7</span>
+========================================================</pre></div></div>

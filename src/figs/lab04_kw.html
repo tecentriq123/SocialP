@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">Kruskal-Wallis 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">kw = stats.kruskal(white, black, other)
+print(f&quot;H = {kw.statistic:.3f}, p = {kw.pvalue:.4f}&quot;)
+
+df[&quot;rank&quot;] = df[&quot;bwt&quot;].rank()      # 189명 전체에서 매긴 순위
+print(df.groupby(&quot;race_f&quot;, observed=True)[&quot;rank&quot;].mean().round(1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>H = 8.520<span class="mk">1</span>, p = 0.0141<span class="mk">2</span>
+race_f
+White    106.1<span class="mk">3</span>
+Black     77.5<span class="mk">4</span>
+Other     85.8
+Name: rank, dtype: float64</pre></div></div>

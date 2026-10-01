@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">군별 요약통계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">summary = (df.groupby(&quot;smoke_f&quot;, observed=True)[&quot;bwt&quot;]
+             .agg([&quot;count&quot;, &quot;mean&quot;, &quot;std&quot;, &quot;median&quot;]))
+summary.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>median</th>
+    </tr>
+    <tr>
+      <th>smoke_f</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Nonsmoker</th>
+      <td>115</td>
+      <td>3055.7<span class="mk">1</span></td>
+      <td>752.7<span class="mk">2</span></td>
+      <td>3100.0</td>
+    </tr>
+    <tr>
+      <th>Smoker</th>
+      <td>74</td>
+      <td>2771.9<span class="mk">3</span></td>
+      <td>659.6</td>
+      <td>2775.5</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,413 @@
+<p class="lead">4장의 세 군 이상 비교를 <a href="#lab02">실습 2</a>의 birthwt 자료로 해 봅니다. 어머니의 인종 분류에 따른 세 군의 출생체중을 분산분석, Welch 분산분석, Tukey 사후분석, Kruskal-Wallis 검정으로 비교하고, 어머니 체중 삼분위라는 순서 있는 세 군에는 Jonckheere-Terpstra 검정을 함수로 직접 만들어 적용합니다. 이 검정은 scipy에 없고 statsmodels에는 최신 버전(0.15)에서야 추가되었기 때문입니다(<a href="#ch04">4장</a>).</p>
+
+<dl class="glance">
+  <div><dt>관련 이론</dt><dd><a href="#ch04-s2">4장 나 절 사후분석</a>, <a href="#ch04-s3">다 절 일원배치 분산분석</a>, <a href="#ch04-s4">라 절 Kruskal-Wallis test</a>, <a href="#ch04-s5">마 절 Jonckheere-Terpstra test</a></dd></div>
+  <div><dt>데이터</dt><dd>birthwt (R의 MASS 패키지, 실습 2와 같은 자료). 1986년 Baystate Medical Center 출생아 189명<cite data-ref="hosmer1989"></cite>. 결과변수 <code>bwt</code>(출생체중, g), 군 <code>race</code>(1 = white, 2 = black, 3 = other), 순서 있는 군은 <code>lwt</code>(어머니 체중)의 삼분위. 변수 설명은 <a href="#lab02-s1">실습 2 가 절</a>의 표를 보세요.</dd></div>
+  <div><dt>사용 패키지</dt><dd>pandas, numpy, scipy.stats, statsmodels, matplotlib, seaborn</dd></div>
+  <div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). statsmodels는 Colab에 설치되어 있습니다. 새 노트북에서 셀 1부터 순서대로 실행하세요. 셀 18(순열검정)은 몇 초에서 수십 초 걸리고, 셀 17은 statsmodels 0.15 이상에서만 실행됩니다.</dd></div>
+</dl>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab04-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>이 실습의 첫 질문은 "어머니의 인종 분류에 따라 출생체중이 다른가"입니다. <code>race</code>는 1986년 미국 자료에 기록된 분류(White, Black, Other)입니다. 인종은 생물학적 특성보다 사회경제적 여건, 의료 이용, 생활습관 같은 여러 요인과 얽힌 사회적 범주이므로, 여기서 보는 군 차이는 '인종의 효과'가 아니라 보정하지 않은 집단 간 차이로만 읽습니다. 이 실습에서는 크기가 다른 세 군을 비교하는 예제로 씁니다.</p>
+
+<h3>데이터 불러오기와 군 이름표</h3>
+<!--FIG:lab04_load-->
+<ol class="lines">
+<li><code>url = …
+df = pd.read_csv(url)</code><span>실습 2와 같은 birthwt 자료를 읽습니다.</span></li>
+<li><code>df["race"].map({1: "White", 2: "Black", 3: "Other"})</code><span>1, 2, 3 코드를 이름으로 바꿉니다. 그래프에 쓰이므로 영어로 씁니다.</span></li>
+<li><code>pd.Categorical(…, categories=["White", "Black", "Other"])</code><span>범주 순서를 원자료 코드 순서로 고정합니다. 이 순서가 표와 그림의 순서, 그리고 회귀모형의 기준범주(첫 번째 범주 White)를 정합니다.</span></li>
+<li><code>df["race_f"].value_counts(sort=False)</code><span>범주 순서대로 인원을 셉니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>White 96명.</b></span></li>
+<li><span class="mk">2</span><span><b>Black 26명.</b></span></li>
+<li><span class="mk">3</span><span><b>Other 67명.</b> 세 군의 크기가 26명부터 96명까지 크게 다릅니다. 군 크기가 다르면 사후분석은 Tukey-Kramer 방식이 되고(4장 나 절), 군별 분산까지 다를 때는 일반 분산분석의 1종 오류가 흔들립니다(4장 다 절). 그래서 아래에서 군별 SD를 꼭 확인합니다.</span></li>
+</ol>
+
+<h3>군별 요약통계</h3>
+<!--FIG:lab04_summary-->
+<ol class="lines">
+<li><code>g = df.groupby("race_f", observed=True)["bwt"]</code><span>군별로 묶은 출생체중을 <code>g</code>라는 이름으로 저장해 둡니다. 여러 번 다시 쓸 수 있습니다.</span></li>
+<li><code>g.agg(["count", "mean", "std", "median"]).round(1)</code><span>군별 인원, 평균, SD, 중앙값입니다(<a href="#lab02-s1">실습 2 가 절</a>과 같은 방법).</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>White 평균 3,102.7 g.</b> 세 군 중 가장 큽니다.</span></li>
+<li><span class="mk">2</span><span><b>Black 평균 2,719.7 g.</b> 가장 작고, 가장 작은 군(26명)입니다. Other는 2,805.3 g으로 Black과 비슷합니다.</span></li>
+<li><span class="mk">3</span><span><b>Black SD 638.7 g.</b> 세 군의 SD는 638.7–727.9 g으로, 가장 큰 SD와 가장 작은 SD의 비가 727.9 ÷ 638.7 = 1.14입니다. 군 크기는 다르지만 흩어짐은 비슷합니다.</span></li>
+</ol>
+
+<h3>상자그림과 개별 점</h3>
+<!--FIG:lab04_plot-->
+<p>코드는 <a href="#lab02-s1">실습 2 가 절</a>의 그림과 같고, 가로축 변수를 <code>race_f</code>로 바꾸고 2,500 g 점선을 뺐습니다. "Maternal race"는 어머니의 인종 분류입니다. <b>그림 읽기.</b> White 군의 상자가 위쪽에 있고 Black과 Other는 비슷한 높이입니다. 세 군 모두 한쪽으로 심하게 치우치지 않았고, 흩어진 정도도 비슷합니다. 개인 값은 세 군이 크게 겹칩니다.</p>
+
+<h3>군별 흡연 비율</h3>
+<p>군 비교를 해석하기 전에, 결과에 영향을 주는 다른 변수가 군마다 다른지 봅니다. 실습 2에서 흡연군의 출생체중이 낮았으므로 흡연 비율을 확인합니다.</p>
+<!--FIG:lab04_smoke-->
+<ol class="lines">
+<li><code>pd.crosstab(df["race_f"], df["smoke"], normalize="index")</code><span>인종 × 흡연 교차표를 만들고, <code>normalize="index"</code>로 각 행(군) 안의 비율로 바꿉니다. 행마다 합이 1입니다. 열 0은 비흡연, 1은 흡연입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>White 군의 흡연 비율 54%.</b></span></li>
+<li><span class="mk">2</span><span><b>Other 군의 흡연 비율 18%.</b> 흡연이 가장 많은 White 군의 출생체중이 가장 컸습니다. 인종 분류와 흡연(그리고 이 자료에 없는 여러 사회경제적 요인)이 서로 얽혀 있으므로, 이 실습의 단순 비교는 여러 요인이 섞인 결과입니다. 이런 변수를 함께 고려하는 방법은 교란(<a href="#ch08-s6">8장 바 절</a>)과 다중회귀분석(<a href="#ch06-s4">6장 라 절</a>)에서 다룹니다.</span></li>
+</ol>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>세 군의 크기(96, 26, 67명)와 SD(639–728 g)를 먼저 확인합니다. 군 크기와 분산이 함께 다를 때 일반 분산분석이 흔들립니다.</li>
+<li>군 비교 전에 결과에 영향을 주는 다른 변수(흡연)가 군마다 다른지 교차표로 봅니다. 보정하지 않은 군 비교는 인과 효과가 아닙니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab04-s2">
+<h2><span class="sec-no">나.</span>분산분석과 사후분석</h2>
+
+<p>귀무가설은 "세 군의 평균 출생체중이 모두 같다"이고, 대립가설은 "적어도 한 군의 평균이 다르다"입니다(<a href="#ch04-s1">4장 가 절</a>). 먼저 전체 검정으로 분산분석을 하고, 어느 쌍이 다른지는 Tukey 사후분석으로 봅니다. scipy로 F와 p를 빠르게 구한 뒤, statsmodels로 4장 다 절의 분산분석표를 만듭니다.</p>
+
+<h3>일원배치 분산분석 (scipy)</h3>
+<!--FIG:lab04_foneway-->
+<ol class="lines">
+<li><code>white = df.loc[df["race_f"] == "White", "bwt"]</code><span>군마다 출생체중만 꺼내 세 개의 Series를 만듭니다(96, 26, 67개).</span></li>
+<li><code>stats.f_oneway(white, black, other)</code><span>일원배치 분산분석입니다. 군마다 따로 된 값 묶음을 쉼표로 나열해 넣습니다. 군이 넷이면 네 개를 넣습니다.</span></li>
+<li><code>print(f"F = {res.statistic:.3f}, p = {res.pvalue:.4f}")</code><span>결과 객체의 <code>statistic</code>이 F, <code>pvalue</code>가 p입니다. <code>f_oneway</code>는 자유도를 알려 주지 않으므로 직접 셉니다. 군간 k − 1 = 2, 군내 N − k = 189 − 3 = 186입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>F = 4.913.</b> 군 평균 사이의 흩어짐이 군 안의 흩어짐으로 기대되는 수준의 약 4.9배입니다. 귀무가설이 참이면 1 근처입니다(4장 다 절).</span></li>
+<li><span class="mk">2</span><span><b>p = 0.0083.</b> 세 평균이 모두 같다면 이 정도 이상의 차이가 우연히 나올 확률이 0.8%입니다. "적어도 한 군은 다르다"는 뜻이고, 어느 군인지는 알려 주지 않습니다.</span></li>
+</ol>
+
+<h3>분산분석표 (statsmodels)</h3>
+<p>분산분석은 군을 가변수로 넣은 선형회귀와 같습니다(4장 다 절 '회귀분석과의 관계'). statsmodels는 회귀모형을 적합한 뒤 그 모형에서 분산분석표를 뽑는 방식으로 계산합니다.</p>
+<!--FIG:lab04_anova-->
+<ol class="lines">
+<li><code>import statsmodels.api as sm
+import statsmodels.formula.api as smf</code><span>statsmodels의 기본 모듈(<code>sm</code>)과, 모형을 "결과 ~ 설명변수" 형태의 식(formula)으로 쓰게 해 주는 모듈(<code>smf</code>)입니다.</span></li>
+<li><code>smf.ols("bwt ~ race_f", data=df)</code><span>"bwt를 race_f로 설명하는 선형회귀(OLS)"를 정의합니다. <code>race_f</code>가 범주형이므로 statsmodels가 자동으로 가변수를 만들고, 첫 범주(White)를 기준범주로 씁니다.</span></li>
+<li><code>.fit()</code><span>모형을 자료에 적합해 계수를 추정합니다.</span></li>
+<li><code>sm.stats.anova_lm(model)</code><span>적합한 모형에서 분산분석표를 만듭니다. 행 <code>race_f</code>는 군간 변동, <code>Residual</code>은 군내 변동(잔차)입니다.</span></li>
+</ol>
+<p><b>지수 표기 읽기.</b> <code>5.015725e+06</code>은 5.015725 × 10⁶ = 5,015,725입니다. pandas는 값이 크면 이런 표기로 보여 줍니다. <code>e+07</code>은 × 10⁷, <code>e+05</code>는 × 10⁵입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>df = 2.</b> 군간 자유도 = 군 수 − 1.</span></li>
+<li><span class="mk">2</span><span><b>sum_sq = 5,015,725.</b> 군간 제곱합 SS<sub>B</sub>입니다. 각 군 평균이 전체 평균에서 떨어진 거리의 제곱에 군 인원을 곱해 더한 값입니다(4장 다 절 '제곱합 나누기').</span></li>
+<li><span class="mk">3</span><span><b>mean_sq = 2,507,863.</b> 군간 평균제곱 MS<sub>B</sub> = SS<sub>B</sub> ÷ 2입니다.</span></li>
+<li><span class="mk">4</span><span><b>F = 4.912513.</b> MS<sub>B</sub> ÷ MS<sub>W</sub> = 2,507,863 ÷ 510,505입니다. scipy의 F와 같습니다.</span></li>
+<li><span class="mk">5</span><span><b>PR(&gt;F) = 0.008336.</b> F(2, 186) 분포에서 4.91보다 오른쪽의 넓이, 즉 p-value입니다.</span></li>
+<li><span class="mk">6</span><span><b>Residual의 df = 186.</b> 분석된 인원 − 군 수 = 189 − 3입니다. 결측 없이 189명이 모두 분석되었다는 확인이기도 합니다. 잔차 행의 F와 PR(&gt;F)는 해당 값이 없어서 NaN으로 표시됩니다.</span></li>
+<li><span class="mk">7</span><span><b>Residual의 mean_sq = 510,505.</b> 군내 평균제곱 MS<sub>W</sub>로, 세 군의 분산을 합친 합동분산입니다. 제곱근 714.5 g이 세 군 공통의 SD 추정값이며 Tukey 계산에 쓰입니다. 전체 제곱합 행은 표에 없으므로 필요하면 두 행의 sum_sq를 더합니다.</span></li>
+</ol>
+
+<h3>효과크기 η²와 ω²</h3>
+<!--FIG:lab04_eta-->
+<ol class="lines">
+<li><code>table.loc["race_f", "sum_sq"]</code><span>분산분석표에서 행 이름 <code>race_f</code>, 열 이름 <code>sum_sq</code>인 칸의 값을 꺼냅니다.</span></li>
+<li><code>eta2 = ss_b / (ss_b + ss_w)</code><span>η² = SS<sub>B</sub> ÷ SS<sub>T</sub>입니다(4장 다 절).</span></li>
+<li><code>omega2 = (ss_b - 2 * ms_w) / (ss_b + ss_w + ms_w)</code><span>ω² = (SS<sub>B</sub> − (k − 1)MS<sub>W</sub>) ÷ (SS<sub>T</sub> + MS<sub>W</sub>)입니다. 2는 k − 1입니다.</span></li>
+<li><code>f"{ss_b:,.0f}"</code><span><code>,</code>는 세 자리마다 쉼표를 넣고, <code>.0f</code>는 소수점 없이 보여 달라는 형식입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>SS<sub>B</sub> = 5,015,725, SS<sub>W</sub> = 94,953,931.</b> 둘을 더한 99,969,656이 전체 제곱합입니다.</span></li>
+<li><span class="mk">2</span><span><b>η² = 0.050.</b> 출생체중의 개인 간 차이 중 5.0%가 인종 분류로 설명되고, 95%는 같은 군 안의 개인차라는 뜻입니다. 군 차이가 유의해도(p = 0.008) 개인의 출생체중을 예측하는 데는 거의 도움이 되지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>ω² = 0.040.</b> 표본 η²의 과대추정을 보정한 값으로 η²보다 조금 작습니다.</span></li>
+<li><span class="mk">4</span><span><b>합동 SD 714.5 g.</b> √MS<sub>W</sub>입니다.</span></li>
+</ol>
+
+<h3>등분산 확인과 Welch 분산분석</h3>
+<p>군별 분산이 다를 때 쓰는 Welch 분산분석은 statsmodels의 <code>anova_oneway</code> 함수로 할 수 있습니다(statsmodels 0.12 이상). 분산이 비슷할 때도 손해가 거의 없어 기본으로 쓰자는 의견도 있습니다(4장 다 절).</p>
+<!--FIG:lab04_welch-->
+<ol class="lines">
+<li><code>from statsmodels.stats.oneway import anova_oneway</code><span>함수를 가져옵니다.</span></li>
+<li><code>stats.levene(white, black, other)</code><span>세 군의 Levene 검정입니다. scipy 기본값은 중앙값 기준(Brown–Forsythe 변형)입니다.</span></li>
+<li><code>anova_oneway(df["bwt"], df["race_f"], use_var="unequal")</code><span>첫 인자는 모든 사람의 결과값, 둘째 인자는 각 사람의 군입니다(<code>f_oneway</code>와 넣는 방식이 다릅니다). <code>use_var="unequal"</code>이 Welch 분산분석이고, <code>"equal"</code>로 바꾸면 일반 분산분석(F = 4.913)이 됩니다.</span></li>
+<li><code>welch.statistic
+welch.df_num
+welch.df_denom
+welch.pvalue</code><span>F, 분자 자유도, 분모 자유도, p-value입니다. 결과 객체 전체를 <code>print</code>하면 정보가 너무 길어서 필요한 값만 꺼냈습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Levene p = 0.627.</b> 분산이 다르다는 증거가 없고, SD 비도 1.14로 작습니다.</span></li>
+<li><span class="mk">2</span><span><b>Welch F = 5.060.</b></span></li>
+<li><span class="mk">3</span><span><b>분모 자유도 72.4.</b> 186보다 작은 소수입니다. 군별 분산을 따로 추정하는 대가로 근사한 자유도이며, Welch 방법을 썼다는 표시입니다. 논문에는 F(2, 72.4)로 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>p = 0.0088.</b> 일반 분산분석(0.0083)과 거의 같습니다. 군 크기는 다르지만 분산이 비슷하기 때문입니다.</span></li>
+</ol>
+
+<h3>Tukey HSD 사후분석</h3>
+<!--FIG:lab04_tukey-->
+<ol class="lines">
+<li><code>from statsmodels.stats.multicomp import pairwise_tukeyhsd</code><span>Tukey HSD 함수를 가져옵니다.</span></li>
+<li><code>pairwise_tukeyhsd(df["bwt"], df["race_f"], alpha=0.05)</code><span>모든 쌍을 비교합니다. 첫 인자는 결과값, 둘째 인자는 군입니다. <code>alpha=0.05</code>는 가족단위 오류율(FWER)을 5%로 묶는다는 뜻입니다. 군 크기가 다르면 자동으로 Tukey-Kramer 방식으로 계산합니다.</span></li>
+<li><code>print(tukey)</code><span>결과 요약표를 출력합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>FWER=0.05.</b> 세 비교 전체에서 1종 오류가 하나라도 생길 확률을 5%로 통제한다는 뜻입니다. 아래 신뢰구간은 세 구간이 동시에 참값을 포함할 확률이 95%인 동시 신뢰구간입니다(4장 나 절).</span></li>
+<li><span class="mk">2</span><span><b>meandiff = group2 평균 − group1 평균.</b> statsmodels는 군 이름을 알파벳순(Black, Other, White)으로 정렬해 쌍을 만듭니다. 그래서 "Black White 383.0"은 White − Black = 383.0 g입니다. 우리가 정한 범주 순서와 다르므로 부호의 방향을 꼭 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>Other − Black = 85.6 g, p-adj = 0.862.</b> 신뢰구간 −304.5 ~ 475.6이 0을 포함하고, <code>reject</code>가 False입니다. 유의한 차이가 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>White − Black = 383.0 g, p-adj = 0.043.</b> 신뢰구간 9.8 ~ 756.2 g은 0을 포함하지 않아 유의합니다(<code>reject</code> True). 다만 하한이 9.8 g으로 0에 매우 가까워 차이의 크기는 매우 불확실합니다. Black 군이 26명뿐이라 구간이 넓습니다.</span></li>
+<li><span class="mk">5</span><span><b>White − Other = 297.4 g, p-adj = 0.026.</b> 신뢰구간 28.7 ~ 566.2 g. p-adj는 이미 보정된 값이므로 여기에 다시 3을 곱하지 않습니다. 4장 나 절의 위첨자 문자로 나타내면 White<sup>a</sup>, Black<sup>b</sup>, Other<sup>b</sup>입니다.</span></li>
+</ol>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<ul>
+<li>scipy에도 Tukey HSD가 있습니다. <code>print(stats.tukey_hsd(white, black, other))</code>를 실행하면 같은 p-value(0.043, 0.026, 0.862)가 나옵니다. 군 이름 대신 넣은 순서대로 0, 1, 2 번호가 붙고, 모든 쌍이 양방향(0 − 1과 1 − 0)으로 나오므로 번호가 어느 군인지 기억해 두고 읽습니다.</li>
+<li><code>print(model.params)</code>로 회귀계수를 보세요. Intercept 3102.7은 기준범주 White의 평균이고, <code>race_f[T.Black]</code> −383.0과 <code>race_f[T.Other]</code> −297.4는 White와의 평균 차이입니다. 분산분석이 가변수 회귀와 같다는 것을 확인할 수 있습니다(<a href="#ch08-s7">8장 사 절</a>). 단, 회귀계수의 p-value는 다중비교 보정을 하지 않은 값입니다.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 분산분석과 사후분석의 Results 문장</b><span>birthwt 자료의 실제 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Mean birth weight differed by maternal race (<span class="mk">1</span> <span class="hl">White, 3,103 ± 728 g [n = 96]; Black, 2,720 ± 639 g [n = 26]; other, 2,805 ± 722 g [n = 67]</span>; <span class="mk">2</span> <span class="hl">one-way ANOVA, F(2, 186) = 4.91, P = .008</span>; <span class="mk">3</span> <span class="hl">η² = 0.05</span>), and the result was similar with <span class="mk">4</span> <span class="hl">Welch's ANOVA (F(2, 72.4) = 5.06, P = .009)</span>. In Tukey–Kramer comparisons, infants of White mothers weighed more than those of Black mothers (<span class="mk">5</span> <span class="hl">mean difference, 383 g; 95% CI, 10 to 756; P = .043</span>) and of mothers of other races (297 g; 95% CI, 29 to 566; P = .026), whereas <span class="mk">6</span> <span class="hl">the difference between Black and other races was not significant (86 g; 95% CI, −304 to 476; P = .86)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>군별 평균 ± SD와 인원.</b> 요약통계 셀의 값을 정수로 반올림했습니다.</span></li>
+<li><span class="mk">2</span><span><b>F(2, 186) = 4.91, P = .008.</b> 괄호 안 자유도로 3개 군, 189명이 분석되었음을 역산할 수 있습니다(2 + 1 = 3, 186 + 3 = 189). 전체 검정이므로 어느 쌍이 다른지는 다음 문장이 알려 줍니다.</span></li>
+<li><span class="mk">3</span><span><b>η² = 0.05.</b> 인종 분류가 출생체중 변동의 5%를 설명합니다.</span></li>
+<li><span class="mk">4</span><span><b>Welch 분산분석.</b> 군 크기가 크게 달라 등분산 가정에 기대지 않는 결과를 함께 보고했습니다. 소수 자유도 72.4가 Welch의 표시입니다.</span></li>
+<li><span class="mk">5</span><span><b>Tukey 보정 차이와 동시 신뢰구간.</b> 요약표의 meandiff 383.0264와 lower 9.8166, upper 756.2363을 정수로 옮겼습니다. 방향(White − Black)은 문장에서 "White mothers weighed more"로 밝혔습니다.</span></li>
+<li><span class="mk">6</span><span><b>유의하지 않은 쌍도 신뢰구간과 함께.</b> −304 ~ 476 g은 의미 있는 차이를 배제하지 못하는 넓은 구간입니다. "두 군이 같다"가 아니라 "차이를 입증하지 못했다"로 읽습니다.</span></li>
+</ol>
+<p>이 결과는 보정하지 않은 비교입니다. 가 절에서 본 것처럼 흡연 비율이 군마다 크게 달랐고, 사회경제적 요인은 자료에 없습니다. 논문의 Discussion에서는 이 차이를 인종 자체의 영향으로 해석하지 않고, 측정되지 않은 요인을 포함한 여러 요인의 결과일 수 있다고 씁니다.</p>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>stats.f_oneway(군1, 군2, 군3)</code>은 F와 p만 주고, statsmodels의 <code>anova_lm(smf.ols("y ~ 군", data).fit())</code>은 SS, df, MS, F, p가 있는 분산분석표를 줍니다.</li>
+<li>η² = SS<sub>B</sub> ÷ SS<sub>T</sub>는 분산분석표에서 직접 계산합니다.</li>
+<li>Welch 분산분석은 <code>anova_oneway(y, 군, use_var="unequal")</code>로 하며, 소수 분모 자유도가 표시입니다.</li>
+<li><code>pairwise_tukeyhsd</code>는 군 이름을 알파벳순으로 정렬하고 meandiff = group2 − group1입니다. p-adj와 신뢰구간은 이미 보정된 값입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab04-s3">
+<h2><span class="sec-no">다.</span>Kruskal-Wallis 검정</h2>
+
+<p>Kruskal-Wallis 검정은 세 군을 합쳐 순위를 매기고, 군별 평균 순위가 전체 평균 순위에서 얼마나 떨어져 있는지(H)를 봅니다(<a href="#ch04-s4">4장 라 절</a>). 이 자료는 분포가 대칭에 가까워 분산분석이 적절하지만, 같은 자료로 순위 기반 방법과 그 사후분석을 해 봅니다.</p>
+
+<h3>Kruskal-Wallis 검정</h3>
+<!--FIG:lab04_kw-->
+<ol class="lines">
+<li><code>stats.kruskal(white, black, other)</code><span>Kruskal-Wallis 검정입니다. 넣는 방식은 <code>f_oneway</code>와 같습니다. 동점 보정이 자동으로 적용되고, p-value는 자유도 k − 1 = 2인 카이제곱 분포로 구합니다. 자유도는 출력되지 않습니다.</span></li>
+<li><code>df["rank"] = df["bwt"].rank()</code><span>189명 전체에서 출생체중의 순위를 매겨 새 열로 저장합니다. 같은 값은 평균 순위를 받습니다. 군을 무시하고 전체에서 매긴다는 점이 중요합니다.</span></li>
+<li><code>df.groupby(…)["rank"].mean()</code><span>군별 평균 순위입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>H = 8.520.</b> 논문이나 다른 프로그램에서는 같은 값을 χ²(2) = 8.52로 쓰기도 합니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.0141.</b> "세 군의 분포가 모두 같다"를 기각합니다. 분산분석(0.0083)과 같은 결론입니다.</span></li>
+<li><span class="mk">3</span><span><b>White 평균 순위 106.1.</b> 전체 평균 순위는 (189 + 1) ÷ 2 = 95입니다. White 군 아기들이 순위의 위쪽에 몰려 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>Black 평균 순위 77.5.</b> 가장 아래쪽입니다. Other는 85.8입니다. H는 이 세 평균 순위가 95에서 떨어진 정도를 요약한 값입니다(4장 라 절의 식).</span></li>
+</ol>
+
+<h3>쌍별 Mann-Whitney 검정과 Holm 보정</h3>
+<p>어느 쌍이 다른지 보는 첫 번째 방법은 세 쌍 각각에 Mann-Whitney 검정(<a href="#lab02-s3">실습 2 다 절</a>)을 하고 Holm 방법으로 보정하는 것입니다<cite data-ref="holm1979"></cite>. 보정 방법 자체는 <a href="#lab01-s4">실습 1 라 절</a>을 참고하세요.</p>
+<!--FIG:lab04_pairmw-->
+<ol class="lines">
+<li><code>groups = {"White": white, …}</code><span>군 이름으로 값 묶음을 찾을 수 있게 딕셔너리로 모아 둡니다. <code>groups["Black"]</code>은 <code>black</code>과 같습니다.</span></li>
+<li><code>pairs = [("White", "Black"), …]</code><span>비교할 세 쌍의 목록입니다. 괄호로 묶은 두 이름이 한 쌍입니다.</span></li>
+<li><code>p_mw, sup = [], []</code><span>결과를 모을 빈 목록 두 개를 만듭니다.</span></li>
+<li><code>for a, b in pairs:</code><span>세 쌍을 차례로 꺼내 첫 이름을 <code>a</code>, 둘째 이름을 <code>b</code>에 넣고 아래 들여 쓴 세 줄을 반복합니다.</span></li>
+<li><code>r = stats.mannwhitneyu(groups[b], groups[a])</code><span>b를 첫 번째 인자로 넣었으므로 statistic은 "b 군 값이 더 큰 쌍의 수"입니다.</span></li>
+<li><code>p_mw.append(r.pvalue)
+sup.append(r.statistic / (len(groups[a]) * len(groups[b])))</code><span>p-value와 우월 확률 P(b &gt; a) = U ÷ (n<sub>a</sub>n<sub>b</sub>)를 목록 끝에 붙입니다.</span></li>
+<li><code>multipletests(p_mw, method="holm")[1]</code><span>statsmodels의 다중비교 보정 함수입니다. 결과 네 가지(기각 여부, 보정된 p, 보정된 유의수준 두 가지) 중 두 번째(위치 1)인 보정된 p를 꺼냅니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>우월 확률 0.346, 0.394, 0.541.</b> 순서대로 P(Black &gt; White), P(Other &gt; White), P(Other &gt; Black)입니다. 예를 들어 Black 군과 White 군에서 아기를 한 명씩 뽑으면 Black 군 아기가 더 무거울 확률이 35%입니다. 0.5에서 멀수록 차이가 큽니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 전 p: 0.0165, 0.0210, 0.5461.</b></span></li>
+<li><span class="mk">3</span><span><b>Holm 보정 p: 0.0495, 0.0495, 0.5461.</b> 가장 작은 0.0165에 3을 곱해 0.0495, 두 번째 0.0210에 2를 곱하면 0.0419인데 앞 단계보다 작아질 수 없으므로 0.0495, 세 번째는 1을 곱해 0.5461입니다. White와 다른 두 군의 차이가 0.05 바로 아래에서 유의합니다.</span></li>
+</ol>
+
+<h3>Dunn 검정 직접 계산하기</h3>
+<p>4장이 Kruskal-Wallis 뒤의 사후분석으로 소개한 Dunn 검정<cite data-ref="dunn1964"></cite>은 scipy와 statsmodels에 함수가 없습니다(scikit-posthocs라는 별도 패키지의 <code>posthoc_dunn</code>에 있다고 알려져 있으나 이 페이지에서는 실행해 확인하지 않았습니다). 4장 라 절의 식이 간단하므로 직접 계산합니다.</p>
+<!--FIG:lab04_dunn-->
+<ol class="lines">
+<li><code>t = df["bwt"].value_counts()</code><span>출생체중 값마다 몇 명이 그 값을 가졌는지 셉니다. 2 이상인 값이 동점 묶음입니다.</span></li>
+<li><code>tie = (t**3 - t).sum() / (12 * (N - 1))</code><span>동점 보정 항 Σ(t³ − t) ÷ 12(N − 1)입니다. 동점이 없는 값은 t = 1이라 0을 더합니다.</span></li>
+<li><code>mean_rank = …["rank"].mean()
+n = df["race_f"].value_counts()</code><span>앞에서 189명 전체로 매긴 순위의 군별 평균과 군별 인원입니다. <code>mean_rank["White"]</code>, <code>n["White"]</code>처럼 군 이름으로 꺼낼 수 있습니다.</span></li>
+<li><code>se = np.sqrt((N * (N + 1) / 12 - tie) * (1 / n[a] + 1 / n[b]))</code><span>두 군 평균 순위 차이의 표준오차입니다. N(N + 1)/12는 순위 1–N의 분산입니다(4장 라 절 Dunn 식).</span></li>
+<li><code>z = (mean_rank[a] - mean_rank[b]) / se</code><span>평균 순위 차이 ÷ 표준오차입니다.</span></li>
+<li><code>2 * stats.norm.sf(abs(z))</code><span><code>norm.sf</code>는 표준정규분포에서 그 값보다 오른쪽 넓이(1 − 누적확률)입니다. 2를 곱해 양측 p를 구합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정 전 p: 0.0179, 0.0197, 0.5096.</b> 쌍별 Mann-Whitney(0.0165, 0.0210, 0.5461)와 비슷하지만 같지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>Holm 보정 p: 0.0537, 0.0537, 0.5096.</b> 이번에는 세 쌍 모두 0.05를 넘습니다.</span></li>
+</ol>
+
+<h4>두 방법은 무엇이 다른가</h4>
+<ul>
+<li><b>Dunn 검정</b>은 Kruskal-Wallis 검정과 같은 순위, 즉 세 군 189명 전체에서 매긴 순위를 쓰고, 표준오차도 189명 순위 전체의 분산으로 계산합니다. 전체 검정과 사후분석이 같은 기준 위에 있습니다.</li>
+<li><b>쌍별 Mann-Whitney 검정</b>은 비교하는 두 군만 떼어 순위를 다시 매깁니다. White–Black 비교에는 Other 군 67명이 전혀 쓰이지 않습니다. 두 군만의 질문("이 두 군 중 어느 쪽 값이 큰 경향이 있나")에 답하므로 해석은 직관적이지만, 전체 검정과 쓰는 정보가 다릅니다.</li>
+</ul>
+<p>이 자료에서는 두 방법의 보정된 p가 0.0495와 0.0537로 0.05의 양쪽에 갈렸습니다. 결론이 0.05 근처에서 방법 선택에 따라 뒤집힌다면 어느 쪽이든 증거가 약하다고 읽는 것이 정확합니다(4장 라 절 참고 상자). 그리고 두 방법을 모두 해 본 뒤 유의하게 나온 쪽을 보고하면 그 자체가 다중비교가 됩니다. 사후분석 방법은 분석계획에 미리 정해 두고, 효과의 크기(위의 우월 확률 0.35, 0.39)를 함께 보고합니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 전체 검정은 유의하고 사후분석은 경계선일 때</b><span>birthwt 자료의 실제 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Birth weight differed across the three groups (<span class="mk">1</span> <span class="hl">Kruskal–Wallis H = 8.52, df = 2, P = .014</span>). In prespecified post hoc comparisons using <span class="mk">2</span> <span class="hl">Dunn's test with Holm adjustment</span>, the differences between White and Black mothers and between White mothers and mothers of other races <span class="mk">3</span> <span class="hl">did not reach statistical significance (adjusted P = .054 for both)</span>, nor did the difference between Black mothers and mothers of other races (adjusted P = .51); the <span class="mk">4</span> <span class="hl">probability that an infant of a Black mother weighed more than an infant of a White mother was 0.35</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>전체 검정.</b> H와 자유도, P입니다. "세 군의 분포가 모두 같다"를 기각할 뿐 어느 쌍이 다른지는 말하지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>미리 정한 사후분석 방법.</b> 4장 가 절 Methods 예시처럼 Kruskal-Wallis 뒤에는 Dunn 검정을 쓴다고 정해 두었다면, 결과가 0.054로 나와도 그대로 보고합니다. 쌍별 Mann-Whitney로 바꾸면 0.0495가 되지만, 결과를 본 뒤 방법을 바꾸는 것은 허용되지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>전체 검정은 유의한데 유의한 쌍이 없는 경우.</b> 4장 나 절에서 본 상황이 실제 자료에서 나타났습니다. 모순이 아니라 "적어도 한 군은 다르지만 어느 쌍인지는 특정할 수 없다"는 뜻입니다. 이 자료에서는 White 한 군이 나머지 두 군보다 높은 형태의 차이로 보입니다.</span></li>
+<li><span class="mk">4</span><span><b>효과크기.</b> 순위 기반 검정은 평균 차이를 주지 않으므로 우월 확률로 차이의 크기와 방향을 보여 줍니다. P 값이 0.05를 넘었어도 효과의 크기 정보는 독자에게 필요합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>stats.kruskal(군1, 군2, 군3)</code>은 동점 보정된 H와 카이제곱 근사 p를 줍니다. 자유도는 군 수 − 1입니다.</li>
+<li>쌍별 Mann-Whitney + Holm은 <code>mannwhitneyu</code>를 쌍마다 실행하고 <code>multipletests(p, method="holm")</code>로 보정합니다.</li>
+<li>Dunn 검정은 전체 순위와 전체 순위 분산을 쓰고, 쌍별 Mann-Whitney는 두 군만으로 순위를 다시 매깁니다. 두 방법의 p는 다를 수 있으므로 방법을 미리 정합니다.</li>
+<li>전체 검정이 유의해도 사후분석에서 유의한 쌍이 없을 수 있습니다. 그대로 보고하고 효과크기를 함께 제시합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab04-s4">
+<h2><span class="sec-no">라.</span>Jonckheere-Terpstra 검정</h2>
+
+<p>군에 자연스러운 순서가 있고 연구가설이 "순서대로 커진다"일 때는 Jonckheere-Terpstra 검정이 Kruskal-Wallis 검정보다 강력합니다(<a href="#ch04-s5">4장 마 절</a>)<cite data-ref="jonckheere1954"></cite>. 인종 분류에는 순서가 없으므로, 여기서는 어머니 체중(<code>lwt</code>, 마지막 월경 시점, 파운드)을 삼분위로 나눈 세 군을 씁니다.</p>
+<p>이 검정에서 가장 중요한 것은 <b>순서와 방향을 자료를 보기 전에 정하는 것</b>입니다. 이 실습의 가설은 "임신 전 어머니 체중이 무거울수록 출생체중이 크다"이고, 순서는 T1(가벼움) &lt; T2 &lt; T3(무거움), 방향은 증가입니다. 어머니 체중이 태아 성장과 관련 있다는 사전 지식에 근거한 가설이며, 코드 첫 줄에 주석으로 기록해 둡니다. 결과를 보고 순서를 바꾸거나 평균이 작은 군부터 늘어놓으면 경향이 없어도 쉽게 유의해집니다(4장 마 절 주의 상자).</p>
+<p>scipy에는 이 검정의 함수가 없습니다. statsmodels는 0.15.0에서 <code>jonckheere_terpstra</code> 함수가 추가되었고 0.14 이하에는 없으므로, 쓰는 환경의 버전에 따라 이 함수를 쓸 수 없을 수 있습니다. 그래서 어느 환경에서나 돌아가는 짧은 함수를 직접 만들고, 그 결과를 statsmodels 0.15의 함수와 비교합니다. 원리는 4장 마 절 그대로입니다. 순서상 앞 군과 뒤 군의 모든 짝에서 뒤 군 값이 더 큰 짝의 수(Mann-Whitney U)를 세어 더한 것이 J입니다.</p>
+
+<h3>어머니 체중 삼분위 만들기</h3>
+<!--FIG:lab04_tertile-->
+<ol class="lines">
+<li><code># 사전 가설: …</code><span>실행되지 않는 주석입니다. 가설과 방향을 코드에 남겨 두면 분석 기록이 됩니다.</span></li>
+<li><code>pd.qcut(df["lwt"], q=3, labels=["T1", "T2", "T3"])</code><span><code>qcut</code>은 값의 분위수로 구간을 나눕니다. <code>q=3</code>이면 33.3%와 66.7% 분위수를 경계로 세 군(삼분위)이 됩니다. 경계값은 자료에서 계산됩니다.</span></li>
+<li><code>.agg(n=("bwt", "size"), lwt_min=("lwt", "min"), …)</code><span>"새 열 이름 = (원래 열, 계산)" 형식으로 여러 요약을 이름 붙여 한 번에 구합니다. <code>size</code>는 행 수입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>T1의 상한 115 lb(약 52 kg).</b> T2는 116–132 lb(약 53–60 kg), T3는 133 lb 이상입니다. 경계값에 같은 체중이 여러 명 있어 세 군의 인원이 67, 60, 62명으로 정확히 같지는 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>T1의 출생체중 중앙값 2,722 g.</b></span></li>
+<li><span class="mk">3</span><span><b>T3의 중앙값 3,288.5 g.</b> 중앙값이 2,722 → 2,962.5 → 3,288.5 g으로 가설의 순서대로 늘어납니다. 이것이 우연인지 검정합니다.</span></li>
+</ol>
+
+<h3>J 통계량 계산 함수</h3>
+<!--FIG:lab04_jtJ-->
+<ol class="lines">
+<li><code>def jt_J(groups):</code><span><code>jt_J</code>라는 함수를 정의합니다. <code>groups</code>에는 가설의 순서대로 놓인 군별 값 묶음의 목록이 들어옵니다. 함수 안의 내용은 들여 씁니다.</span></li>
+<li><code>"""J = …"""</code><span>함수 설명(docstring)입니다. 실행에는 영향이 없습니다.</span></li>
+<li><code>for i in range(len(groups)):
+for j in range(i + 1, len(groups)):</code><span>i는 앞 군, j는 뒤 군의 위치입니다. <code>range(i + 1, …)</code>로 j가 항상 i보다 뒤이므로 (T1, T2), (T1, T3), (T2, T3)의 세 쌍만 돕니다. 파이썬은 위치를 0부터 셉니다.</span></li>
+<li><code>a = np.asarray(groups[i])[:, None]
+b = np.asarray(groups[j])[None, :]</code><span>앞 군을 세로 막대, 뒤 군을 가로 막대 모양으로 바꿉니다. <a href="#lab02-s3">실습 2 다 절</a>에서 U를 직접 셀 때와 같은 방법입니다.</span></li>
+<li><code>J += (b &gt; a).sum() + 0.5 * (b == a).sum()</code><span>뒤 군 값이 더 큰 짝은 1개, 같은 짝은 0.5개로 세어 J에 더합니다. <code>+=</code>는 "기존 값에 더해서 다시 저장"입니다.</span></li>
+<li><code>return J</code><span>계산한 J를 함수 밖으로 돌려줍니다.</span></li>
+<li><code>tert = [df.loc[df["lwt3"] == k, "bwt"] for k in order]</code><span><code>order</code>의 T1, T2, T3를 차례로 k에 넣으면서 그 군의 출생체중을 꺼내 목록으로 만듭니다(리스트 컴프리헨션). 결과는 Series 세 개의 목록이고, 목록의 순서가 곧 가설의 순서입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>J = 7,356.</b> 가능한 짝은 67 × 60 + 67 × 62 + 60 × 62 = 11,894개이고, 경향이 없다면 J는 그 절반인 5,947 근처여야 합니다. 관측값은 이보다 1,409 큽니다.</span></li>
+</ol>
+
+<h3>J는 Mann-Whitney U의 합</h3>
+<p>함수가 맞게 계산했는지 scipy의 Mann-Whitney U로 확인합니다.</p>
+<!--FIG:lab04_jtU-->
+<ol class="lines">
+<li><code>stats.mannwhitneyu(tert[1], tert[0]).statistic</code><span>뒤 군(T2)을 첫 번째 인자로 넣었으므로 "T2 값이 T1 값보다 큰 짝의 수"입니다(<a href="#lab02-s3">실습 2 다 절</a>). <code>tert[0]</code>이 T1, <code>tert[1]</code>이 T2, <code>tert[2]</code>가 T3입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>2,434.5 + 2,831.5 + 2,090.0 = 7,356.</b> 함수의 J와 같습니다. 각 U를 짝의 수로 나누면 인접하거나 떨어진 두 군 사이의 우월 확률이 됩니다. P(T2 &gt; T1) = 2,434.5 ÷ 4,020 = 0.61, P(T3 &gt; T1) = 2,831.5 ÷ 4,154 = 0.68, P(T3 &gt; T2) = 2,090 ÷ 3,720 = 0.56입니다.</span></li>
+</ol>
+
+<h3>정규근사로 p-value 구하기</h3>
+<p>귀무가설 아래 J의 평균과 분산을 구해 z로 표준화합니다. 동점이 없을 때의 분산은 4장 마 절의 식이고, 이 자료처럼 동점이 있으면 보정한 분산을 씁니다. 아래 함수의 분산 식(<code>v1 + v2 + v3</code>)은 동점이 없으면 4장 마 절의 식과 같아집니다.</p>
+<!--FIG:lab04_jttest-->
+<ol class="lines">
+<li><code>J = jt_J(groups)</code><span>앞에서 만든 함수로 J를 구합니다.</span></li>
+<li><code>n = np.array([len(x) for x in groups])
+N = n.sum()</code><span>군별 인원 [67, 60, 62]와 전체 인원 189입니다.</span></li>
+<li><code>allv = np.concatenate(…)
+t = np.unique(allv, return_counts=True)[1]</code><span>세 군의 값을 한 줄로 이어 붙인 뒤, 서로 다른 값마다 몇 번 나왔는지 셉니다. 이것이 동점 묶음의 크기 t입니다.</span></li>
+<li><code>EJ = (N**2 - (n**2).sum()) / 4</code><span>귀무가설 아래 J의 평균 E(J) = (N² − Σn<sub>i</sub>²)/4, 즉 가능한 짝 수의 절반입니다(4장 마 절).</span></li>
+<li><code>v1
+v2
+v3</code><span>동점 보정 분산의 세 부분입니다. 동점이 없으면(모든 t = 1) <code>v2</code>와 <code>v3</code>는 0이 되고 <code>v1</code>은 4장 마 절의 [N²(2N + 3) − Σn<sub>i</sub>²(2n<sub>i</sub> + 3)]/72와 같은 값이 됩니다.</span></li>
+<li><code>z = (J - EJ) / np.sqrt(v1 + v2 + v3)</code><span>관측된 J가 기댓값에서 표준편차 몇 개만큼 떨어졌는지입니다.</span></li>
+<li><code>return J, EJ, z, 2 * stats.norm.sf(abs(z))</code><span>네 값을 한 번에 돌려주고, 바깥에서 <code>J, EJ, z, p = jt_test(tert)</code>로 네 이름에 나눠 받습니다. p는 양측입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>J = 7,356.</b></span></li>
+<li><span class="mk">2</span><span><b>E(J) = 5,947.</b> (189² − (67² + 60² + 62²)) ÷ 4 = (35,721 − 11,933) ÷ 4입니다.</span></li>
+<li><span class="mk">3</span><span><b>z = 3.44.</b></span></li>
+<li><span class="mk">4</span><span><b>양측 p = 0.0006.</b> 삼분위 순서대로 출생체중이 커지는 경향이 있다고 판단합니다. 증가 방향을 미리 정했다면 단측 p(0.0003)를 쓸 수도 있지만, 4장 마 절의 표처럼 양측을 보고하는 것이 일반적입니다.</span></li>
+</ol>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>직접 만든 함수는 답을 아는 예제로 검증해야 합니다. 4장 마 절의 작은 예제를 넣어 보세요: <code>jt_test([[58, 63, 67, 69, 73], [62, 68, 71, 77, 82], [70, 74, 79, 81, 86]])</code>. 4장 본문과 같은 J = 60, z = 2.38, p = 0.017이 나오면 함수가 맞게 만들어진 것입니다.</p></div>
+
+<h3>statsmodels 0.15의 함수와 비교</h3>
+<p>statsmodels 0.15 이상이 설치되어 있다면 같은 검정을 함수 하나로 할 수 있습니다. 직접 만든 함수의 결과와 같은지 확인합니다.</p>
+<!--FIG:lab04_jtsm-->
+<ol class="lines">
+<li><code>import statsmodels
+print("statsmodels", statsmodels.__version__)</code><span>설치된 statsmodels 버전을 확인합니다. 0.15보다 낮으면 다음 줄에서 <code>ImportError: cannot import name 'jonckheere_terpstra'</code>가 납니다. 그때는 이 셀을 건너뛰고 직접 만든 <code>jt_test</code>를 쓰면 됩니다.</span></li>
+<li><code>from statsmodels.stats.nonparametric import jonckheere_terpstra</code><span>함수를 가져옵니다.</span></li>
+<li><code>jonckheere_terpstra(tert, alternative="two-sided")</code><span>가설의 순서대로 놓인 군 목록을 넣습니다. <b>기본값은 <code>alternative="larger"</code>(뒤 군이 커지는 방향의 단측검정)</b>이므로, 양측 p를 원하면 반드시 <code>"two-sided"</code>를 적습니다. 적지 않으면 p가 절반(0.0003)으로 나옵니다.</span></li>
+<li><code>res_sm.statistic</code>, <code>res_sm.zstat</code>, <code>res_sm.pvalue</code><span>J, z, p입니다. 결과 객체에는 귀무가설 아래 평균(<code>mean_null</code>)과 분산(<code>var_null</code>)도 들어 있습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>statsmodels 0.15.0.</b> 이 페이지의 출력을 만든 버전입니다.</span></li>
+<li><span class="mk">2</span><span><b>J = 7,356, z = 3.44, p = 0.0006.</b> 직접 만든 함수와 소수점 끝까지 같습니다(<code>res_sm.var_null</code> = 167,532.55도 우리 함수의 <code>v1 + v2 + v3</code>와 같습니다). 같은 값이 나오므로 두 방법 중 어느 쪽을 써도 됩니다.</span></li>
+</ol>
+
+<h3>순열검정으로 확인하기</h3>
+<p>정규근사가 맞는지 순열검정<span class="en">(permutation test)</span>으로 확인합니다. 귀무가설이 참이면 어떤 아기가 어느 삼분위에 속하는지는 출생체중과 무관하므로, 군 이름표를 무작위로 섞어도 J의 분포는 같아야 합니다. 이름표를 1만 번 섞어 J를 계산하고, 관측값만큼 극단적인 경우의 비율을 구합니다.</p>
+<!--FIG:lab04_jtperm-->
+<ol class="lines">
+<li><code>rng = np.random.default_rng(2026)</code><span>난수 생성기를 만들고 시드(2026)를 고정합니다. 시드가 같으면 몇 번을 실행해도 같은 난수가 나와 결과를 재현할 수 있습니다.</span></li>
+<li><code>y = df["bwt"].to_numpy()
+lab = df["lwt3"].to_numpy()</code><span>출생체중과 삼분위 이름표를 numpy 배열로 꺼냅니다.</span></li>
+<li><code>J_perm = np.empty(B)</code><span>1만 개의 J를 저장할 빈 배열을 미리 만듭니다.</span></li>
+<li><code>s = rng.permutation(lab)</code><span>이름표 189개의 순서를 무작위로 섞은 새 배열입니다. 각 군의 인원(67, 60, 62)은 그대로 유지됩니다.</span></li>
+<li><code>J_perm[r] = jt_J([y[s == k] for k in order])</code><span>섞인 이름표로 군을 다시 나눠 J를 계산하고 r번째 칸에 저장합니다.</span></li>
+<li><code>np.abs(J_perm - EJ) &gt;= abs(J - EJ)</code><span>기댓값에서 떨어진 거리가 관측값 이상인지(양측)를 1만 개 각각에 대해 True/False로 구합니다.</span></li>
+<li><code>(extreme.sum() + 1) / (B + 1)</code><span>관측 자료 자체도 가능한 배정의 하나로 세어 분자와 분모에 1을 더합니다. 이렇게 하면 p가 정확히 0으로 나오지 않습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1만 번 중 4번.</b> 이름표를 무작위로 섞었을 때 관측된 J(7,356)만큼 기댓값에서 멀어진 경우가 4번뿐이었습니다.</span></li>
+<li><span class="mk">2</span><span><b>순열 p = 0.0005.</b> 정규근사의 0.0006과 거의 같습니다. 표본이 크면 정규근사가 잘 맞습니다. 시드를 바꾸면 이 값이 조금 달라지는데, 1만 번 섞은 추정값이라 생기는 오차입니다.</span></li>
+</ol>
+
+<h3>같은 삼분위에 Kruskal-Wallis 검정</h3>
+<!--FIG:lab04_jtkw-->
+<ol class="lines">
+<li><code>stats.kruskal(*tert)</code><span><code>*</code>는 목록의 원소를 풀어서 따로따로 넣으라는 뜻입니다. <code>stats.kruskal(tert[0], tert[1], tert[2])</code>와 같습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>H = 12.37.</b></span></li>
+<li><span class="mk">2</span><span><b>p = 0.0021.</b> Kruskal-Wallis도 유의하지만 순서를 쓰는 Jonckheere-Terpstra(0.0006)보다 p가 큽니다. 세 군이 가설의 순서대로 늘어서 있어 증거가 한 방향으로 모이기 때문입니다(4장 마 절). Kruskal-Wallis는 T1, T2, T3의 이름표를 서로 바꿔도 결과가 같습니다.</span></li>
+</ol>
+
+<h3>순서대로 커지지 않는 경우</h3>
+<p>같은 함수를 다른 순서형 군에도 적용해 봅니다. 임신 첫 3개월의 의사 방문 횟수(<code>ftv</code>)를 0회, 1회, 2회 이상으로 나누고, "방문이 많을수록 출생체중이 크다"를 미리 정한 가설로 삼았다고 합시다.</p>
+<!--FIG:lab04_ftv-->
+<ol class="lines">
+<li><code>pd.cut(df["ftv"], bins=[-1, 0, 1, 99], labels=["0", "1", "2+"])</code><span><code>cut</code>은 경계값을 직접 정해 구간을 나눕니다. 구간은 (−1, 0], (0, 1], (1, 99]이므로 0회, 1회, 2회 이상이 됩니다. 99는 충분히 큰 상한입니다(최댓값 6회).</span></li>
+<li><code>jt_test(visits)
+stats.kruskal(*visits)</code><span>같은 두 검정을 적용합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1회 방문군의 중앙값 3,033 g이 가장 큽니다.</b> 0회 2,921 g, 2회 이상 2,977 g으로, 가운데 군이 가장 높은 봉우리 모양입니다.</span></li>
+<li><span class="mk">2</span><span><b>Jonckheere-Terpstra p = 0.292.</b> 0회 → 1회의 증가와 1회 → 2회 이상의 감소가 서로 상쇄되어 단조 경향을 찾지 못합니다. 4장 마 절의 검정력 그림에서 본 '가운데 군만 높은 경우'입니다.</span></li>
+<li><span class="mk">3</span><span><b>Kruskal-Wallis p = 0.269.</b> 이 자료에서는 순서를 무시한 검정도 유의하지 않습니다. 이 결과를 보고 군 순서를 0회 &lt; 2회 이상 &lt; 1회로 바꿔 다시 검정하는 것은 순서를 자료에 맞춰 고르는 것이므로 허용되지 않습니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · P for trend의 Methods와 Results 문장</b><span>birthwt 자료의 실제 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Maternal weight at the last menstrual period was categorized into tertiles (≤115, 116–132, and ≥133 lb). <span class="mk">1</span> <span class="hl">The ordering of the tertiles and an increasing trend in birth weight were specified before analysis</span>, and the trend was assessed using the <span class="mk">2</span> <span class="hl">Jonckheere–Terpstra test (normal approximation with correction for ties; two-sided)</span>. … Median birth weight increased across tertiles of maternal weight (<span class="mk">3</span> <span class="hl">2,722, 2,962.5, and 3,288.5 g</span>; <span class="mk">4</span> <span class="hl">J = 7,356, z = 3.44, P for trend &lt; .001</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>순서와 방향을 미리 정했다는 문장.</b> 4장 마 절에서 강조한 것처럼 이 문장이 있어야 P for trend를 믿을 수 있습니다. 코드의 첫 줄 주석이 이 문장의 근거 기록입니다.</span></li>
+<li><span class="mk">2</span><span><b>검정 방법과 p 계산 방식.</b> 직접 구현한 함수를 썼다면 계산 방식(동점 보정 정규근사, 양측)을 적고 함수 코드를 보충자료로 공개하는 것이 좋습니다. statsmodels 0.15의 함수를 썼다면 버전과 <code>alternative</code> 설정을 적습니다. 순열검정 결과(p = 0.0005)를 확인용으로 덧붙일 수도 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>삼분위별 중앙값.</b> 순위 기반 검정과 짝을 이루는 요약입니다. 경계값(115, 132 lb)은 자료에서 계산한 삼분위수이므로 다른 연구와 비교할 때는 경계를 확인합니다.</span></li>
+<li><span class="mk">4</span><span><b>J, z, P for trend.</b> p = 0.0006을 학술지 형식으로 "&lt; .001"이라고 썼습니다. "체중 삼분위가 높을수록 출생체중이 큰 경향"으로 읽고, "모든 인접 단계에서 유의하게 증가"로 읽지 않습니다(P(T3 &gt; T2) = 0.56). 또한 보정하지 않은 결과이므로 어머니 체중과 관련된 다른 요인(흡연, 인종 분류, 나이 등)의 영향이 섞여 있을 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Jonckheere-Terpstra 통계량 J는 순서상 앞 군과 뒤 군의 모든 쌍에 대한 Mann-Whitney U의 합입니다. scipy에는 함수가 없고 statsmodels는 0.15부터 있으므로, 짧은 함수로 구현하고 답을 아는 예제(4장 마 절)로 검증합니다.</li>
+<li>p-value는 E(J) = (N² − Σn<sub>i</sub>²)/4와 동점 보정 분산으로 만든 z에서 구하며, 시드를 고정한 순열검정으로 확인할 수 있습니다.</li>
+<li>순서와 방향은 자료를 보기 전에 정하고 코드와 Methods에 기록합니다. 결과를 본 뒤 순서를 바꾸면 안 됩니다.</li>
+<li>가운데 군이 가장 높은 봉우리 모양의 차이는 Jonckheere-Terpstra 검정이 거의 잡아내지 못합니다.</li>
+</ul></div>
+</section>

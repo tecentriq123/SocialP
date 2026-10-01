@@ -1,0 +1,37 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">작업상관과 표준오차 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">gee_in = smf.gee(form, groups=&quot;subject&quot;, data=epil,
+                 family=sm.families.Poisson(),
+                 cov_struct=sm.cov_struct.Independence()).fit()
+glm = smf.glm(form, data=epil, family=sm.families.Poisson()).fit()
+print(&quot;GLM Pearson chi2/df:&quot;, round(glm.pearson_chi2 / glm.df_resid, 2))
+
+t = &quot;trt[T.progabide]&quot;
+fits = {&quot;Poisson GLM&quot;: glm, &quot;GEE independence&quot;: gee_in,
+        &quot;GEE exchangeable&quot;: gee_ex}
+pd.DataFrame({&quot;coef&quot;: [f.params[t] for f in fits.values()],
+              &quot;SE&quot;: [f.bse[t] for f in fits.values()]},
+             index=fits.keys()).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>GLM Pearson chi2/df: 4.76<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coef</th>
+      <th>SE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Poisson GLM</th>
+      <td>-0.0176</td>
+      <td>0.0482</td>
+    </tr>
+    <tr>
+      <th>GEE independence</th>
+      <td>-0.0176</td>
+      <td>0.1905</td>
+    </tr>
+    <tr>
+      <th>GEE exchangeable</th>
+      <td>-0.0107</td>
+      <td>0.1921</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

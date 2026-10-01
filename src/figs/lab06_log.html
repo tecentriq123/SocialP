@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">로그 변환한 결과변수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_log = smf.ols(&quot;np.log(target) ~ bmi + age + C(sex) + bp + s5&quot;,
+                    data=df).fit()
+pct = (np.exp(model_log.params) - 1) * 100          # % 차이
+pct_ci = (np.exp(model_log.conf_int()) - 1) * 100   # CI 양 끝 변환
+out = pd.concat([model_log.params, pct, pct_ci], axis=1)
+out.columns = [&quot;beta (log)&quot;, &quot;% diff&quot;, &quot;lower %&quot;, &quot;upper %&quot;]
+out.drop(&quot;Intercept&quot;).round({&quot;beta (log)&quot;: 4, &quot;% diff&quot;: 1,
+                             &quot;lower %&quot;: 1, &quot;upper %&quot;: 1})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>beta (log)</th>
+      <th>% diff</th>
+      <th>lower %</th>
+      <th>upper %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(sex)[T.2]</th>
+      <td>-0.0909</td>
+      <td>-8.7<span class="mk">4</span></td>
+      <td>-15.8</td>
+      <td>-1.0</td>
+    </tr>
+    <tr>
+      <th>bmi</th>
+      <td>0.0409<span class="mk">1</span></td>
+      <td>4.2<span class="mk">2</span></td>
+      <td>3.1<span class="mk">3</span></td>
+      <td>5.2</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>-0.0003</td>
+      <td>-0.0</td>
+      <td>-0.4</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <th>bp</th>
+      <td>0.0065</td>
+      <td>0.7</td>
+      <td>0.3</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>s5</th>
+      <td>0.3990</td>
+      <td>49.0</td>
+      <td>36.5</td>
+      <td>62.7</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

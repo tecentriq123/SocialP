@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">흔한 결과에서 오즈비와 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = pd.crosstab(bw[&quot;smoke&quot;], bw[&quot;low&quot;])   # 행 smoke, 열 low
+risk = tab[1] / tab.sum(axis=1)             # 저체중아 비율(위험)
+odds = tab[1] / tab[0]                      # 오즈
+print(tab)
+print(&quot;risk:&quot;, risk.round(3).tolist())
+print(&quot;RR =&quot;, round(risk[1] / risk[0], 2),
+      &quot;  OR =&quot;, round(odds[1] / odds[0], 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>low     0   1
+smoke        
+0      86  29
+1      44  30
+risk: [0.252, 0.405]<span class="mk">1</span>
+RR = 1.61<span class="mk">2</span>   OR = 2.02<span class="mk">3</span></pre></div></div>

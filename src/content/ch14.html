@@ -1,0 +1,1129 @@
+<p class="lead">사회약학·약물역학 논문에서 자주 만나지만 앞 장에서 따로 다루지 않은 방법들을 모았습니다. 각 절은 깊이 들어가기보다 "이 방법이 무엇을 하는지, 내 연구에서는 언제 쓰는지, 논문에서는 어떻게 보고되는지"를 직관적으로 설명하는 데 집중합니다. 설명을 모두 마친 뒤 논문 예시를 읽고, 수식은 절 끝에 간단히만 붙였습니다.</p>
+
+<section class="sec" id="ch14-s1">
+<h2><span class="sec-no">가.</span>McNemar 검정</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">같은 사람을 두 번 관찰한 예/아니오 결과에서, 상태가 바뀐 사람만 모아 "좋아진 쪽"과 "나빠진 쪽"의 인원이 비슷한지 보는 검정입니다.</p>
+<ul>
+<li><b>비유.</b> 학생 120명이 보충수업 전후로 같은 시험을 보고 합격 여부를 적었다고 합시다. 두 번 다 합격한 학생과 두 번 다 떨어진 학생은 보충수업에 대해 알려 주는 것이 없습니다. 판단의 근거는 "불합격 → 합격"으로 바뀐 학생과 "합격 → 불합격"으로 바뀐 학생의 수 차이뿐입니다.</li>
+<li><b>논문에서는.</b> "adherence increased from 45.0% to 60.0% (McNemar test, P = .002)"처럼 나옵니다. "순응률이 15%p 올랐고, 순응으로 바뀐 사람(25명)이 비순응으로 바뀐 사람(7명)보다 많은 것은 우연으로 보기 어렵다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 같은 사람을 두 번 센 자료를 일반 카이제곱 검정(5장 가 절)에 넣으면 안 됩니다. 한 사람이 표에 두 번 들어가 관측의 독립이 깨지기 때문입니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>같은 대상에서 두 번 얻은 이분형 결과(상담 전후의 순응 여부, 같은 환자에게 두 검사를 모두 시행한 양성 여부)나 1:1로 짝지은 쌍의 이분형 자료(짝지은 환자-대조군 연구의 노출 여부)</dd></div>
+  <div><dt>핵심 질문</dt><dd>상태가 바뀐 쌍 가운데 한 방향(비순응 → 순응)이 반대 방향(순응 → 비순응)보다 많은가? 같은 뜻으로, 두 시점(두 조건)의 비율이 같은가?</dd></div>
+  <div><dt>가정·조건</dt><dd>쌍과 쌍은 서로 독립. 결과는 두 범주. 상태가 바뀐 쌍이 적으면 정확(이항) 검정을 씀</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>짝지은 2×2 표(또는 바뀐 방향별 인원), 두 비율, 비율 차이와 95% CI, McNemar P. 짝지은 환자-대조군 연구는 짝을 고려한 오즈비와 95% CI</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>지역 약국 약사가 고혈압 환자 120명에게 복약 상담을 하고, 상담 전 6개월과 상담 후 6개월의 조제 기록으로 환자마다 순응 여부(PDC 80% 이상)를 판정했다고 합시다. 5장 가 절의 흔한 오해 상자에서 예로 든 바로 그 설계입니다. 이 120명의 자료로 McNemar 검정이 하는 일을 단계별로 보고<cite data-ref="mcnemar1947"></cite>, 5장의 카이제곱 검정을 잘못 적용하면 어떻게 되는지 비교합니다.</p>
+<div class="flow">
+<div><div><b>짝지은 표 만들기</b><p>환자마다 (상담 전, 상담 후) 상태의 쌍을 세어 네 칸에 넣습니다. 둘 다 순응 47명, 순응 → 비순응 7명, 비순응 → 순응 25명, 둘 다 비순응 41명.</p></div></div>
+<div><div><b>바뀐 쌍만 남기기</b><p>b = 25명(좋아짐), c = 7명(나빠짐), 합 32명. 나머지 88명은 검정에서 제쳐 둡니다.</p></div></div>
+<div><div><b>동전 던지기와 비교</b><p>효과가 없다면 32명 각자의 변화 방향은 동전 던지기와 같습니다. 32번 던져 한쪽이 7번 이하 나올 확률은 0.00105이고, 양측 P = 0.0021입니다.</p></div></div>
+<div><div><b>크기 보고</b><p>순응률 차이 (25 − 7) ÷ 120 = 15.0%p, 95% CI 6.2–23.8%p.</p></div></div>
+</div>
+
+<p>이 표를 "상담 전 120명"과 "상담 후 120명"이라는 서로 다른 두 군처럼 5장의 카이제곱 검정에 넣으면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>분석 방법</th><th>표에 들어간 관측</th><th class="r">통계량</th><th class="r">p</th></tr></thead>
+<tbody>
+<tr class="hi"><td>McNemar 검정 (올바름)</td><td>120명, 짝 유지</td><td class="r">정확 검정 (χ² = 10.13)</td><td class="r">0.002 (0.0015)</td></tr>
+<tr><td>일반 카이제곱 검정 (잘못됨)</td><td>240건, 같은 사람을 두 번 셈</td><td class="r">χ² = 5.41</td><td class="r">0.020</td></tr>
+</tbody></table></div>
+<p>이 자료에서는 잘못된 분석의 p가 오히려 큽니다. 상담 전에 순응하던 사람은 대체로 상담 후에도 순응하는 것처럼 같은 사람의 두 값은 함께 움직이는데, 일반 카이제곱 검정은 이 연관을 무시하고 서로 다른 240명처럼 계산하기 때문입니다. 3장 가 절에서 대응 자료를 독립표본 t 검정으로 분석했을 때 p가 0.002에서 0.099로 커진 것과 같은 현상입니다. 여기서는 결론이 우연히 같았지만, 관측의 독립이라는 가정을 어긴 계산이므로 틀린 분석입니다.</p>
+
+<h4>짝지은 환자-대조군 연구</h4>
+<p>같은 원리가 1:1로 짝지은 환자-대조군 연구에도 쓰입니다. 9장의 예에서 저나트륨혈증 환자 250명마다 나이·성별·입원 날짜를 맞춘 대조군을 1명씩 뽑았고, 짝 단위로 세니 환자만 티아지드에 노출된 짝이 50쌍, 대조군만 노출된 짝이 25쌍이었습니다. 노출이 엇갈린 이 75쌍만 정보를 가지며, McNemar χ² = (50 − 25)² ÷ 75 = 8.33, P = 0.004입니다. 짝을 고려한 오즈비<span class="en">(odds ratio, OR; 교차비)</span>는 50 ÷ 25 = 2.00(95% CI 1.24–3.23)으로 조건부 로지스틱 회귀(9장)의 결과와 같습니다. 환자-대조군 연구는 위험 자체를 구할 수 없어 오즈비로 보고합니다. 사건이 드물면 오즈비가 상대위험도<span class="en">(relative risk, risk ratio, RR)</span>에 가까워지지만(대조군을 뽑는 방식에 따라 오즈비가 추정하는 값이 달라집니다), 그 조건을 확인하지 않고 "티아지드 사용자의 위험이 2배"라고 바꿔 말하지 않습니다(8장 나 절).</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 짝지은 이분형 자료</p>
+<ul>
+<li><span class="wrong">상담 전후 순응률을 카이제곱 검정으로 비교했다.</span> 같은 환자가 표에 두 번 들어갑니다. 짝지은 표를 만들어 McNemar 검정을 씁니다.</li>
+<li><span class="wrong">전후 모두 순응한 환자가 많을수록 McNemar 검정의 검정력이 커진다.</span> 검정 통계량은 바뀐 쌍(b, c)만으로 계산됩니다. 검정력을 정하는 것은 바뀐 쌍의 수와 두 방향의 불균형입니다.</li>
+<li><span class="wrong">짝지은 환자-대조군 자료를 짝을 풀어 보통의 로지스틱 회귀로 분석해도 결과는 같다.</span> 9장의 예에서 짝을 무시한 오즈비는 1.67로, 짝을 고려한 2.00과 다릅니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p>
+<ul>
+<li><strong>고르는 기준</strong>: 같은 사람(또는 짝)의 이분형 결과 두 개를 비교하면 McNemar 검정, 서로 다른 사람들로 이루어진 군이면 카이제곱·Fisher 검정(5장)입니다. 세 시점 이상의 이분형 결과는 Cochran's Q 검정<span class="en">(Cochran's Q test)</span>, 범주가 셋 이상인 전후 비교는 Stuart–Maxwell 검정처럼 확장된 방법을 씁니다.</li>
+<li><strong>같은 환자에게 두 검사를 모두 했다면</strong>: 두 검사의 민감도 비교도 짝지은 자료입니다. 환자군 안에서 두 검사의 양성 여부로 짝지은 표를 만들어 McNemar 검정을 합니다(진단검사 정확도는 나 절).</li>
+<li><strong>교란과 보정</strong>: McNemar 검정은 보정하지 않은 비교입니다. 짝지은 환자-대조군 연구에서 교란변수를 더 보정하려면 조건부 로지스틱 회귀(9장), 한 사람을 여러 번 관측한 이분형 결과에 공변량을 넣으려면 일반화 추정 방정식(10장 라 절)을 씁니다. 전후 비교에서 "상담 효과"를 주장하려면 같은 기간을 지낸 대조군과의 비교(이중차분법, 14장 사 절)가 필요합니다.</li>
+<li><strong>보고할 것</strong>: 짝지은 2×2 표(또는 바뀐 방향별 인원), 두 비율, 비율 차이와 95% CI, 정확 검정인지 근사인지.</li>
+<li><strong>파이썬</strong>: statsmodels의 <code>mcnemar()</code>(<code>statsmodels.stats.contingency_tables</code>)에 짝지은 2×2 표를 넣습니다. 기본값이 정확 검정(<code>exact=True</code>)이고, <code>exact=False</code>로 바꾸면 카이제곱 근사(기본은 연속성 보정)를 줍니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 계산한 복약 상담 전후 자료가 논문에서는 어떻게 보고되는지 확인합니다. 같은 환자의 전후 상태는 이런 짝지은 표와 한 문장으로 보고됩니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 짝지은 2×2 표와 Results 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Adherence status before and after pharmacist counseling (n = 120)</caption>
+<thead><tr><th><span class="mk">1</span> Before counseling</th><th class="r">After: adherent</th><th class="r">After: nonadherent</th><th class="r">Total</th></tr></thead>
+<tbody>
+<tr><td>Adherent</td><td class="r"><span class="mk">2</span> 47</td><td class="r"><span class="mk">3</span> 7</td><td class="r">54</td></tr>
+<tr><td>Nonadherent</td><td class="r">25</td><td class="r">41</td><td class="r">66</td></tr>
+<tr><td>Total</td><td class="r">72</td><td class="r">48</td><td class="r">120</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Adherence was defined as a proportion of days covered (PDC) of 80% or more in each 6-month period.</p>
+<p class="excerpt">The proportion of adherent patients increased from 45.0% before to 60.0% after counseling (<span class="mk">4</span> <span class="hl">difference, 15.0 percentage points; 95% CI, 6.2 to 23.8</span>; <span class="mk">5</span> <span class="hl">exact McNemar test, P = .002</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>짝지은 표에는 120명이 한 번씩만 들어갑니다.</b> 행은 상담 전, 열은 상담 후의 상태이고 한 환자는 네 칸 중 한 칸에만 들어갑니다. 전후 순응률은 가장자리 합계에서 읽습니다. 상담 전 54/120 = 45.0%(행 합계), 상담 후 72/120 = 60.0%(열 합계)입니다. 5장처럼 "상담 전 120명 + 상담 후 120명 = 240명"으로 그린 표에서는 누가 누구인지의 정보가 사라져 McNemar 검정을 할 수 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>변하지 않은 88명.</b> 전후 모두 순응한 47명과 전후 모두 비순응인 41명은 상담 전후의 차이에 대해 아무 정보도 주지 않으므로 검정 통계량에 들어가지 않습니다. 다만 비율 차이의 분모(120명)에는 들어갑니다.</span></li>
+<li><span class="mk">3</span><span><b>상태가 바뀐 32명이 판단의 근거입니다.</b> 이런 쌍을 불일치 쌍<span class="en">(discordant pairs)</span>이라고 합니다. 순응 → 비순응 7명(이 칸)과 비순응 → 순응 25명(아래 줄 첫 칸)입니다. 상담이 아무 영향이 없다면 바뀐 32명은 두 방향으로 반반(16명씩) 나뉠 것으로 기대합니다. 25 대 7은 그 기대에서 꽤 벗어나 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>짝을 고려한 비율 차이.</b> 60.0 − 45.0 = 15.0%p이고, (25 − 7) ÷ 120 = 0.150과 같습니다. 두 비율의 차이는 결국 바뀐 사람 수의 차이에서 나온다는 뜻입니다. 신뢰구간도 짝을 고려한 표준오차(0.0451)로 계산했습니다('수식으로 보기'). 서로 다른 두 군의 비율 공식(5장)으로 계산하면 표준오차가 0.0637로 커져 구간이 2.5–27.5%p로 넓어집니다.</span></li>
+<li><span class="mk">5</span><span><b>정확 McNemar 검정.</b> 바뀐 32명 중 한쪽이 7명 이하일 이항확률(동전 32번을 던져 앞면이 7번 이하)을 두 배 한 값이 0.0021입니다. 카이제곱 근사를 쓰면 χ² = 10.13, P = 0.0015(연속성 보정 시 9.03, P = 0.0027)로 결론이 같습니다. 이 P는 "이 환자들의 순응이 상담 전후에 달라졌다"까지만 말해 줍니다. 대조군이 없으므로 상담 때문인지, 시간 경과나 다른 변화 때문인지는 구분하지 못합니다(3장 가 절).</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \chi^2_{\text{McNemar}} = \frac{(b - c)^2}{b + c} = \frac{(25 - 7)^2}{32} = 10.13, \qquad df = 1 \]
+<p>b와 c는 상태가 바뀐 두 방향의 인원이고, 효과가 없다면 둘 다 (b + c)/2 = 16이 기대됩니다. P = 0.0015. 연속성 보정은 분자를 (|b − c| − 1)² = 289로 바꿔 9.03(P = 0.0027)입니다. 정확 검정은 c가 이항분포 Bin(32, 0.5)를 따른다고 보고 P(c ≤ 7) × 2 = 0.0021을 계산합니다.</p></div>
+<div class="eq">\[ \hat p_{\text{후}} - \hat p_{\text{전}} = \frac{b - c}{n}, \qquad SE = \frac{1}{n}\sqrt{(b + c) - \frac{(b - c)^2}{n}} \]
+<p>예제: 18 ÷ 120 = 0.150, SE = √(32 − 2.7) ÷ 120 = 0.0451, 95% CI 0.150 ± 1.96 × 0.0451 = 0.062–0.238. 짝지은 환자-대조군 연구의 오즈비는 b/c이고 log 오즈비의 SE는 √(1/b + 1/c)입니다. 9장 예: √(1/50 + 1/25) = 0.245, exp(ln 2.00 ± 1.96 × 0.245) = 1.24–3.23.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>McNemar 검정은 같은 사람(또는 짝)의 이분형 결과에서 상태가 바뀐 쌍 b와 c만으로 두 비율이 같은지 봅니다.</li>
+<li>전후 상태가 같은 쌍은 검정 통계량에 들어가지 않으며, 바뀐 쌍이 적으면 정확 이항 검정을 씁니다.</li>
+<li>짝지은 자료를 일반 카이제곱 검정으로 분석하면 관측의 독립을 어긴 틀린 계산이 됩니다.</li>
+<li>1:1 짝지은 환자-대조군 연구의 오즈비는 b/c이며, 교란변수를 더 보정하려면 조건부 로지스틱 회귀(9장)를 씁니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s2">
+<h2><span class="sec-no">나.</span>진단검사 정확도와 ROC 곡선</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">검사나 점수가 병이 있는 사람과 없는 사람을 얼마나 잘 가르는지 보는 지표들입니다. 기준값 하나에서는 민감도·특이도·예측도로, 모든 기준값을 한꺼번에 볼 때는 ROC 곡선과 그 아래 넓이(AUC)로 요약합니다.</p>
+<ul>
+<li><b>비유.</b> 공항 금속탐지기의 감도를 올리면 위험물을 더 많이 잡지만(민감도 상승) 벨트 버클에도 울립니다(특이도 하락). 감도 다이얼을 끝에서 끝까지 돌리며 "잡아낸 비율"과 "헛울린 비율"을 이은 선이 ROC 곡선입니다.</li>
+<li><b>논문에서는.</b> "sensitivity 63.3%, specificity 75.7%, AUC 0.76 (95% CI 0.68–0.83)"처럼 나옵니다. "비순응 환자의 63%를 양성으로 잡아내고 순응 환자의 76%를 음성으로 걸러 낸다. 비순응 환자 한 명과 순응 환자 한 명을 뽑으면 76%의 확률로 비순응 환자의 점수가 더 높다(점수가 같으면 반씩 나눠 셈)"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> AUC 0.76은 "76%를 맞게 분류한다"는 뜻이 아닙니다. 그리고 양성예측도는 검사의 고정된 성질이 아니라 유병률에 따라 크게 바뀝니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>새 검사·설문·점수, 또는 청구자료의 조작적 정의가 참값을 얼마나 잘 맞히는지 평가할 때. 예측모형의 판별력을 볼 때(9장)</dd></div>
+  <div><dt>핵심 질문</dt><dd>기준값을 정하면 환자와 비환자를 각각 몇 %나 맞게 가르는가(민감도·특이도)? 양성 판정을 받은 사람 중 진짜 환자는 몇 %인가(양성예측도)? 기준값과 관계없이 두 군의 점수를 얼마나 잘 줄 세우는가(AUC)?</dd></div>
+  <div><dt>가정·조건</dt><dd>참값을 정하는 기준검사<span class="en">(reference standard)</span>가 정확하고 모든 대상자에게 똑같이 적용됨. 대상자가 검사를 실제로 쓸 집단을 대표함. 기준값은 자료를 보기 전에 정함</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>2×2 표, 민감도·특이도(95% CI), 유병률과 양성·음성예측도, AUC(95% CI), 기준값을 정한 방법. 진단정확도 연구의 보고 지침은 STARD</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>약사가 외래 환자 200명에게 8문항 설문(0–8점, 높을수록 비순응 가능성이 큼)을 하고, 같은 환자의 조제 기록으로 계산한 PDC가 80% 미만이면 '비순응'으로 보는 참값과 비교해 설문의 선별 성능을 평가한다고 합시다(가상의 연구). 200명 중 60명(30.0%)이 참값 기준으로 비순응입니다. ≥5점을 양성으로 정하면 200명은 네 칸으로 나뉩니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th class="r">비순응 (참값)</th><th class="r">순응 (참값)</th><th class="r">합계</th></tr></thead>
+<tbody>
+<tr><td>설문 양성 (≥5점)</td><td class="r">38 (참양성)</td><td class="r">34 (위양성)</td><td class="r">72</td></tr>
+<tr><td>설문 음성 (≤4점)</td><td class="r">22 (위음성)</td><td class="r">106 (참음성)</td><td class="r">128</td></tr>
+<tr><td>합계</td><td class="r">60</td><td class="r">140</td><td class="r">200</td></tr>
+</tbody></table></div>
+<p>민감도<span class="en">(sensitivity)</span>와 특이도<span class="en">(specificity)</span>는 <strong>세로(참값)</strong>로 나눕니다: 비순응 60명 중 양성 38명 = 63.3%, 순응 140명 중 음성 106명 = 75.7%. 양성예측도<span class="en">(positive predictive value, PPV)</span>와 음성예측도<span class="en">(negative predictive value, NPV)</span>는 <strong>가로(검사 결과)</strong>로 나눕니다: 양성 72명 중 실제 비순응 38명 = 52.8%, 음성 128명 중 실제 순응 106명 = 82.8%. 환자 앞에서 쓸모 있는 질문은 "양성이 나왔는데 정말 비순응인가"이므로 예측도가 더 직접적이지만, 예측도는 집단의 유병률에 따라 달라집니다. 같은 설문(민감도 63.3%, 특이도 75.7%)을 비순응 비율이 다른 곳에서 1만 명에게 쓴다고 해 봅시다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>비순응 비율</th><th class="r">참양성</th><th class="r">위양성</th><th class="r">양성예측도</th><th class="r">음성예측도</th></tr></thead>
+<tbody>
+<tr><td>30% (이 연구)</td><td class="r">1,900</td><td class="r">1,700</td><td class="r">52.8%</td><td class="r">82.8%</td></tr>
+<tr><td>10%</td><td class="r">633</td><td class="r">2,186</td><td class="r">22.5%</td><td class="r">94.9%</td></tr>
+<tr class="hi"><td>2%</td><td class="r">127</td><td class="r">2,380</td><td class="r">5.1%</td><td class="r">99.0%</td></tr>
+</tbody></table></div>
+<p>유병률이 낮아지면 비환자가 워낙 많아서, 특이도가 같아도 위양성이 참양성을 압도합니다. 드문 질환의 선별검사나 청구자료로 드문 이상반응을 찾는 알고리즘의 양성예측도가 낮게 나오는 이유입니다. 민감도와 특이도는 비교적 다른 집단으로 옮겨 쓸 수 있지만, 예측도는 그 집단의 값입니다.</p>
+
+<h4>기준값을 바꾸면: ROC 곡선</h4>
+<p>기준값을 낮추면 더 많은 사람이 양성이 되어 민감도는 오르고 특이도는 내려갑니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>양성 기준</th><th class="r">민감도</th><th class="r">특이도</th><th class="r">1 − 특이도</th><th class="r">정확도</th></tr></thead>
+<tbody>
+<tr><td>≥3점</td><td class="r">88.3%</td><td class="r">44.3%</td><td class="r">55.7%</td><td class="r">57.5%</td></tr>
+<tr><td>≥4점</td><td class="r">78.3%</td><td class="r">60.0%</td><td class="r">40.0%</td><td class="r">65.5%</td></tr>
+<tr class="hi"><td>≥5점</td><td class="r">63.3%</td><td class="r">75.7%</td><td class="r">24.3%</td><td class="r">72.0%</td></tr>
+<tr><td>≥6점</td><td class="r">45.0%</td><td class="r">86.4%</td><td class="r">13.6%</td><td class="r">74.0%</td></tr>
+<tr><td>≥7점</td><td class="r">25.0%</td><td class="r">93.6%</td><td class="r">6.4%</td><td class="r">73.0%</td></tr>
+</tbody></table></div>
+<p>기준값을 고를 때 흔히 보는 민감도 + 특이도 − 1을 Youden 지수라고 하며, 이 자료에서는 ≥5점(0.633 + 0.757 − 1 = 0.390)에서 가장 큽니다. 가능한 모든 기준값에서 (1 − 특이도, 민감도)를 점으로 찍어 이은 것이 <strong>ROC 곡선</strong><span class="en">(receiver operating characteristic curve)</span>이고, 그 아래 넓이가 <strong>AUC</strong><span class="en">(area under the curve)</span>입니다<cite data-ref="altman1994roc"></cite>. 왼쪽 위 모서리(민감도 100%, 특이도 100%)에 가까울수록 좋은 검사이고, 대각선은 동전 던지기(AUC 0.5)입니다.</p>
+<!--FIG:ch14_b_roc-->
+<p>AUC에는 넓이보다 쉬운 해석이 있습니다. 비순응 환자 한 명과 순응 환자 한 명을 무작위로 뽑았을 때 <strong>비순응 환자의 점수가 더 높을 확률</strong>입니다. 가능한 60 × 140 = 8,400쌍 중 비순응 환자의 점수가 더 높은 쌍이 5,919쌍, 같은 쌍이 849쌍이므로 (5,919 + 849 ÷ 2) ÷ 8,400 = 0.755입니다. 두 군의 순위를 비교하는 Mann-Whitney 검정의 통계량 U = 6,343.5를 60 × 140으로 나눈 값과 같습니다(2장 나 절)<cite data-ref="hanley1982"></cite>.</p>
+
+<h4>두 AUC의 비교</h4>
+<p>같은 환자들에게 두 검사를 모두 했거나, 같은 환자들로 두 예측모형의 C 통계량(로지스틱 모형의 AUC, 9장)을 구했다면 두 AUC는 서로 연관되어 있습니다. 이 연관을 고려해 두 AUC의 차이를 검정하는 표준적인 방법이 DeLong 검정입니다<cite data-ref="delong1988"></cite>. 서로 다른 환자 집단의 AUC라면 독립된 두 값으로 비교합니다. 다만 기존 예측모형에 새 변수 하나를 더한 모형(중첩 모형)과 원래 모형을 비교할 때는 DeLong 검정이 적절하지 않다는 지적이 있어, 새 변수의 기여는 모형 안의 계수 검정이나 우도비 검정(8장 마 절)으로 판단하고 AUC 변화는 크기로만 보고하는 것이 권장됩니다. 예측모형의 교정과 외부 검증은 9장에서 다뤘습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · AUC와 예측도</p>
+<ul>
+<li><span class="wrong">AUC가 0.76이므로 이 설문은 환자의 76%를 맞게 분류한다.</span> AUC는 기준값을 정하지 않고 두 군을 얼마나 잘 줄 세우는지(순위)를 보는 값입니다. 실제 정확도는 기준값에 따라 달라져 위 표에서는 57.5%(≥3점)에서 74.0%(≥6점)까지이고, 모든 환자를 "순응"으로 판정하는 쓸모없는 규칙의 정확도도 70.0%(140/200)입니다. 정확도는 유병률에 끌려가므로 드문 결과에서는 쓸모없는 검사도 정확도가 높게 나옵니다.</li>
+<li><span class="wrong">양성예측도 52.8%는 이 설문의 성질이므로 다른 약국에서도 같다.</span> 비순응 비율이 10%인 곳에서는 22.5%, 2%인 곳에서는 5.1%입니다.</li>
+<li><span class="wrong">AUC가 높으면 예측 확률도 정확하다.</span> AUC는 순위만 봅니다. 모든 예측 확률을 절반으로 줄여도 AUC는 그대로이므로, 예측모형은 예측 확률이 실제 비율과 맞는지(교정)를 따로 확인합니다(9장).</li>
+<li><span class="wrong">같은 자료에서 Youden 지수가 가장 큰 기준값을 골랐으니 그 민감도와 특이도를 새 환자에게도 기대할 수 있다.</span> 자료에 맞춰 고른 기준은 새 자료에서 성능이 떨어지기 쉬우므로 외부 자료로 검증합니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p>
+<ul>
+<li><strong>청구자료 조작적 정의의 타당도</strong>: "상병코드 + 처방"으로 정의한 환자가 실제 환자인지 의무기록과 대조하는 연구는 정의에 해당한 사람만 확인하는 경우가 많아 양성예측도만 계산됩니다. 민감도와 특이도까지 얻으려면 정의에 해당하지 않은 사람도 표본으로 뽑아 확인해야 합니다.</li>
+<li><strong>설계의 함정</strong>: 검사 양성자에게만 기준검사(확진검사)를 하면 민감도가 부풀려지는 검증 편향<span class="en">(verification bias)</span>이 생깁니다. 확진된 중증 환자와 건강한 자원자를 비교하면 실제 쓰임새보다 정확도가 높게 나옵니다(스펙트럼 편향<span class="en">(spectrum bias)</span>).</li>
+<li><strong>예측모형에서</strong>: C 통계량이 곧 AUC입니다. 판별(AUC)만으로 모형을 평가하지 말고 교정과 외부 검증을 함께 보고합니다(9장). 교란 보정을 목적으로 한 원인 모형에서는 AUC가 모형의 좋고 나쁨을 말해 주지 않습니다.</li>
+<li><strong>보고할 것</strong>: 2×2 표, 유병률, 민감도·특이도·예측도와 각각의 95% CI, AUC(95% CI)와 계산 방법, 기준값을 정한 방법.</li>
+<li><strong>파이썬</strong>: scikit-learn의 <code>roc_curve()</code>가 곡선의 점(1 − 특이도, 민감도, 기준값)을, <code>roc_auc_score()</code>가 AUC를 줍니다. AUC의 신뢰구간과 두 AUC의 DeLong 비교는 scikit-learn에 없어 직접 구현하거나 부트스트랩으로 구합니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>이 설문 연구를 논문으로 쓴다면 Results에는 지금까지 계산한 값들이 다음과 같은 문장으로 들어갑니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 진단정확도 연구의 Results 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><span class="mk">1</span> <span class="hl">Of the 200 patients, 60 (30.0%) were nonadherent (PDC &lt; 80%) according to pharmacy refill records</span>, the reference standard. The questionnaire score discriminated nonadherent from adherent patients with an <span class="mk">2</span> <span class="hl">AUC of 0.76 (95% CI, 0.68 to 0.83)</span>. At the <span class="mk">3</span> <span class="hl">prespecified cutoff of 5 or more</span>, <span class="mk">4</span> <span class="hl">sensitivity was 63.3% (38/60) and specificity was 75.7% (106/140)</span>; the <span class="mk">5</span> <span class="hl">positive predictive value was 52.8% (38/72) and the negative predictive value was 82.8% (106/128)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>유병률과 참값.</b> 이 연구 집단에서 비순응의 비율(유병률)은 30%입니다. 뒤의 예측도는 이 30%에 묶인 값입니다(5번). 참값이 무엇인지도 확인합니다. 여기서는 조제 기록이므로 약을 받아 가고 먹지 않은 환자는 '순응'으로 분류됩니다. 기준검사가 틀리면 모든 정확도 지표가 함께 흔들립니다.</span></li>
+<li><span class="mk">2</span><span><b>AUC와 신뢰구간.</b> 비순응 60명과 순응 140명으로 만들 수 있는 8,400쌍 가운데 비순응 환자의 점수가 더 높은 쌍의 비율입니다(점수가 같으면 반 쌍으로 셈). (5,919 + 849 ÷ 2) ÷ 8,400 = 0.755입니다. 0.5면 동전 던지기, 1이면 완벽한 줄 세우기입니다. "76%를 맞게 분류한다"는 뜻이 아닙니다(위 흔한 오해 상자). 신뢰구간은 DeLong 방법으로 구했습니다<cite data-ref="delong1988"></cite>.</span></li>
+<li><span class="mk">3</span><span><b>미리 정한 기준값.</b> "prespecified"는 자료를 보기 전에 기준을 정했다는 뜻입니다. 같은 자료에서 민감도 + 특이도가 가장 큰 기준(Youden 지수)을 골라 그 성능을 보고하면, 새 환자에게 쓸 때보다 좋게 나오기 쉽습니다. 이 자료에서는 ≥5점이 Youden 지수(0.633 + 0.757 − 1 = 0.390)도 가장 큽니다.</span></li>
+<li><span class="mk">4</span><span><b>민감도와 특이도는 참값 기준으로 나눕니다.</b> 민감도<span class="en">(sensitivity)</span> = 비순응 60명 중 설문 양성(≥5점) 38명 = 63.3%, 특이도<span class="en">(specificity)</span> = 순응 140명 중 설문 음성 106명 = 75.7%입니다<cite data-ref="altman1994sens"></cite>. 60명으로 구한 민감도는 불확실성이 커서 95% CI가 49.9–75.4%(정확 구간)입니다. 신뢰구간 없이 점 추정만 보고한 논문은 조심해서 읽습니다.</span></li>
+<li><span class="mk">5</span><span><b>예측도는 검사 결과 기준으로 나눕니다.</b> 양성예측도<span class="en">(positive predictive value, PPV)</span> = 설문 양성 72명 중 실제 비순응 38명 = 52.8%, 음성예측도<span class="en">(negative predictive value, NPV)</span> = 설문 음성 128명 중 실제 순응 106명 = 82.8%입니다. "설문에서 비순응 의심이 나온 환자의 절반 정도만 실제로 비순응"이라는 뜻이며, 비순응 비율이 다른 약국에서는 이 값이 달라집니다(위 '숫자로 따라가기'의 유병률별 표)<cite data-ref="altman1994ppv"></cite>.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ PPV = \frac{\text{민감도} \times \text{유병률}}{\text{민감도} \times \text{유병률} + (1 - \text{특이도}) \times (1 - \text{유병률})} \]
+<p>분자는 참양성, 분모는 전체 양성의 비율입니다. 유병률 10%: 0.633 × 0.10 ÷ (0.633 × 0.10 + 0.2429 × 0.90) = 0.0633 ÷ (0.0633 + 0.2186) = 0.225. 민감도와 특이도가 같아도 유병률이 줄면 분모의 위양성 항이 커져 PPV가 떨어집니다.</p></div>
+<div class="eq">\[ AUC = \frac{(\text{환자 점수} > \text{비환자 점수인 쌍의 수}) + \tfrac{1}{2}(\text{같은 쌍의 수})}{n_1 \times n_0} = \frac{U}{n_1 n_0} \]
+<p>예제: (5,919 + 0.5 × 849) ÷ (60 × 140) = 6,343.5 ÷ 8,400 = 0.755. U는 Mann-Whitney 통계량입니다. 정수 점수의 ROC 곡선 점들을 직선으로 이어 사다리꼴 넓이를 더해도 같은 값이 나옵니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>민감도·특이도는 참값 기준(환자 중 몇 %, 비환자 중 몇 %)으로, 예측도는 검사 결과 기준(양성 중 몇 %)으로 계산하며, 예측도는 유병률에 따라 크게 바뀝니다.</li>
+<li>ROC 곡선은 기준값을 바꿔 가며 (1 − 특이도, 민감도)를 이은 선이고, AUC는 환자 한 명과 비환자 한 명을 뽑았을 때 환자의 점수가 더 높을 확률입니다(동점은 절반으로 셈, Mann-Whitney와 같은 값).</li>
+<li>AUC는 정확도가 아니며, 예측 확률이 맞는지(교정)도 알려 주지 않습니다.</li>
+<li>같은 환자에서 구한 두 AUC는 DeLong 방법으로 비교하되, 중첩된 예측모형에서는 새 변수의 계수 검정을 우선합니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s3">
+<h2><span class="sec-no">다.</span>성향점수 방법</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">환자의 여러 기저특성을 "이 환자가 약물 A를 처방받을 확률"이라는 점수 하나(<strong>성향점수</strong><span class="en">(propensity score)</span>)로 요약하고, 이 점수가 비슷한 환자끼리 비교하는 방법입니다. 점수가 비슷하면 점수에 들어간 기저특성도 두 군에서 비슷해집니다.</p>
+<ul>
+<li><b>왜 필요한가.</b> 청구자료에서 약물 A를 받은 환자는 대개 이유가 있어서 받았습니다. 의사가 더 아픈 환자에게 A를 처방했다면 A군의 입원이 많은 것은 약 때문이 아닐 수 있습니다(적응증에 의한 교란<span class="en">(confounding by indication)</span>, 8장 바 절). 나이·심부전·신기능·과거 입원 등 수십 개 변수를 한꺼번에 맞추기는 어렵지만, "A를 받을 확률이 40%였던 환자"끼리는 짝지을 수 있습니다.</li>
+<li><b>비유.</b> 무작위배정 임상시험에서는 동전이 치료를 정하므로 모든 환자의 성향점수가 50%입니다. 성향점수가 같은 환자끼리 모으면, 적어도 점수에 넣은 특성에 대해서는 그 안에서 치료가 동전으로 정해진 것처럼 볼 수 있습니다.</li>
+<li><b>논문에서는.</b> "After 1:1 propensity score matching, all covariates had SMD &lt; 0.1 … RR 0.91 (95% CI 0.80–1.03)"처럼 나옵니다. "측정한 기저특성을 맞춘 뒤 A군의 1년 입원 위험은 B군보다 9% 낮았지만, 신뢰구간이 1을 포함해 차이가 없을 가능성도 배제하지 못한다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 성향점수는 측정한 변수만 맞춥니다. 청구자료에 없는 흡연·허약·중증도의 차이는 그대로 남으므로, 매칭했다고 편향이 모두 사라지지 않습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>관찰연구(청구자료 코호트 등)에서 두 치료군의 기저특성이 달라 교란이 의심될 때. 특히 교란변수는 많은데 사건 수가 적어 회귀모형에 모두 넣기 어려울 때</dd></div>
+  <div><dt>핵심 질문</dt><dd>측정한 기저특성이 비슷한 환자끼리 비교해도 두 치료의 결과가 다른가?</dd></div>
+  <div><dt>가정·조건</dt><dd>치료와 결과 모두에 영향을 주는 교란변수가 모두 측정됨(측정하지 않은 교란이 없음). 두 군의 성향점수가 겹침(누구나 어느 쪽 치료든 받을 가능성이 있음). 공변량은 치료 시작 이전 값. 적용한 뒤 균형이 실제로 맞았는지 확인</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>성향점수 모형에 넣은 변수, 적용 방법(1:1 매칭과 caliper, 또는 IPTW와 가중치 범위), 적용 전후 SMD(표 또는 Love plot), 매칭된 인원, 보정 전후 효과 추정값(RR·HR 등)과 95% CI</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>성향점수가 교란을 어떻게 없애는지 교란변수가 하나(심부전 여부)뿐인 작은 예로 봅니다. 약물 A는 심부전 환자에게 더 자주 처방되고, 심부전 환자는 원래 입원 위험이 높습니다. 이 가상 자료는 심부전이 있든 없든 A의 상대위험도가 정확히 0.80(입원 20% 감소)이 되도록 만들었습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>층</th><th>군</th><th class="r">인원</th><th class="r">1년 입원 (위험)</th><th class="r">성향점수</th><th class="r">가중치</th><th class="r">가중 인원</th><th class="r">가중 입원 (위험)</th></tr></thead>
+<tbody>
+<tr><td>심부전 있음</td><td>A</td><td class="r">150</td><td class="r">36 (24.0%)</td><td class="r">0.75</td><td class="r">1.33</td><td class="r">200</td><td class="r">48</td></tr>
+<tr><td></td><td>B</td><td class="r">50</td><td class="r">15 (30.0%)</td><td class="r">0.75</td><td class="r">4</td><td class="r">200</td><td class="r">60</td></tr>
+<tr><td>심부전 없음</td><td>A</td><td class="r">100</td><td class="r">8 (8.0%)</td><td class="r">0.20</td><td class="r">5</td><td class="r">500</td><td class="r">40</td></tr>
+<tr><td></td><td>B</td><td class="r">400</td><td class="r">40 (10.0%)</td><td class="r">0.20</td><td class="r">1.25</td><td class="r">500</td><td class="r">50</td></tr>
+<tr class="hi"><td>합계</td><td>A</td><td class="r">250</td><td class="r">44 (17.6%)</td><td></td><td></td><td class="r">700</td><td class="r">88 (12.6%)</td></tr>
+<tr class="hi"><td></td><td>B</td><td class="r">450</td><td class="r">55 (12.2%)</td><td></td><td></td><td class="r">700</td><td class="r">110 (15.7%)</td></tr>
+</tbody></table></div>
+<div class="flow">
+<div><div><b>보정 전 비교</b><p>A 44/250 = 17.6%, B 55/450 = 12.2%, RR = 1.44. A 사용자의 60%(150/250)가 심부전인데 B 사용자는 11%(50/450)뿐이라 A가 해로운 것처럼 보입니다.</p></div></div>
+<div><div><b>성향점수 구하기</b><p>교란변수가 심부전 하나이므로 성향점수는 층 안에서 A를 받은 비율입니다. 심부전 있음 150/200 = 0.75, 없음 100/500 = 0.20. 변수가 여러 개면 로지스틱 회귀로 추정합니다.</p></div></div>
+<div><div><b>가중치 주기</b><p>각 환자에게 "자기가 실제로 받은 치료를 받을 확률"의 역수를 가중치로 줍니다. A 환자는 1 ÷ 성향점수, B 환자는 1 ÷ (1 − 성향점수)입니다. 심부전 있음: A 1 ÷ 0.75 = 1.33, B 1 ÷ 0.25 = 4. 심부전 없음: A 1 ÷ 0.20 = 5, B 1 ÷ 0.80 = 1.25. 심부전 환자 중 드물게 B를 받은 50명은 가중치 4로 200명 몫을 합니다.</p></div></div>
+<div><div><b>가상 인구에서 비교</b><p>가중 후 두 군은 모두 700명(심부전 200명 + 없음 500명)으로 심부전 비율이 같아졌습니다. A 88/700 = 12.6%, B 110/700 = 15.7%, RR = 0.80. 보정 전의 1.44가 참값 0.80으로 돌아왔습니다.</p></div></div>
+</div>
+<p>이것이 <strong>역확률 가중</strong><span class="en">(inverse probability of treatment weighting, IPTW)</span>이고, "코호트 전체가 A를 받았다면 12.6%, 모두 B를 받았다면 15.7%"를 비교하는 셈이라 전체 집단에서의 평균 효과(ATE, average treatment effect)를 추정합니다. B군에만 성향점수 ÷ (1 − 성향점수)를 가중치로 주면(심부전 있음 3, 없음 0.25) B군이 A 사용자와 같은 구성(심부전 150명, 없음 100명)이 되어 A를 실제로 받은 사람들에서의 효과(ATT, average treatment effect in the treated)를 추정합니다. 이때 B군의 위험은 55/250 = 22.0%로 RR은 똑같이 0.80이지만, 위험차는 −4.4%p로 ATE의 −3.1%p와 다릅니다. 같은 약이라도 "누구에서의 효과인가"에 따라 절대 효과의 크기가 달라질 수 있습니다.</p>
+
+<h4>성향점수를 쓰는 네 가지 방법</h4>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>방법</th><th>하는 일</th><th>주로 추정하는 효과</th><th>주의할 점</th></tr></thead>
+<tbody>
+<tr><td>매칭<span class="en">(matching)</span></td><td>A 환자마다 성향점수가 비슷한 B 환자를 짝지어, 짝지은 환자만 비교</td><td>ATT</td><td>짝을 못 찾은 환자가 빠져 대상 집단이 달라짐</td></tr>
+<tr><td>역확률 가중<span class="en">(IPTW)</span></td><td>받은 치료 확률의 역수로 가중해 두 군의 구성을 전체 코호트와 같게 만듦</td><td>ATE (가중치를 바꾸면 ATT)</td><td>성향점수가 0이나 1에 가까운 환자의 가중치가 극단적으로 커짐</td></tr>
+<tr><td>층화<span class="en">(stratification)</span></td><td>성향점수 5분위 등으로 층을 나눠 층마다 비교한 뒤 합침</td><td>ATE</td><td>층이 굵으면 층 안에 불균형이 남음</td></tr>
+<tr><td>공변량 보정<span class="en">(covariate adjustment)</span></td><td>결과 회귀모형에 치료와 성향점수를 함께 넣음</td><td>조건부 효과</td><td>성향점수와 결과의 관계를 맞게 지정해야 하고, 균형을 눈으로 확인하기 어려움</td></tr>
+</tbody></table></div>
+<p>논문에서는 매칭과 IPTW가 흔히 쓰입니다<cite data-ref="austin2011ps"></cite>. 이제 변수가 여러 개인 가상의 청구자료 코호트로 넘어갑니다. 같은 질환에 쓰는 약물 A(4,053명) 또는 약물 B(5,947명)를 새로 시작한 환자 1만 명의 1년 안 입원 위험을 비교하는 연구이고, 공변량은 모두 첫 처방일 이전 1년의 자료로 정의했습니다(신규 사용자 설계, 7장 가 절). A 사용 여부를 결과로, 7개 기저특성(나이, 성별, 심부전, 만성콩팥병, 과거 1년 입원, 복용 약물 계열 수, 상급종합병원 처방)을 설명변수로 넣은 로지스틱 회귀(9장)로 성향점수를 구했고, 그 분포가 그림 14-2입니다.</p>
+<!--FIG:ch14_c_psdist-->
+<p><strong>겹침과 양성성.</strong> 성향점수 방법은 비교할 상대가 있어야 작동합니다. 모든 환자가 두 치료 중 어느 것이든 받을 가능성이 있어야 한다는 조건을 양성성<span class="en">(positivity)</span>이라고 합니다. 예를 들어 투석 환자에게 A가 금기라면 투석 환자의 성향점수는 0이고 비교할 A 사용자가 없으므로, 이런 환자는 설계 단계에서 대상에서 뺍니다. 이 코호트는 성향점수 범위가 A군 0.15–0.93, B군 0.13–0.90으로 대부분 겹칩니다. IPTW에서는 가중치의 범위를 함께 보고합니다. 이 코호트의 안정화 가중치(각 군의 가중치에 그 치료를 받은 전체 비율을 곱해 평균이 1 근처가 되게 한 것)는 0.43–5.70이었습니다.</p>
+<p><strong>균형 확인.</strong> 두 군의 공변량 균형은 <strong>표준화 평균차</strong><span class="en">(standardized mean difference, SMD)</span>로 봅니다. 두 군의 평균(이분형이면 비율) 차이를 표준편차로 나눈 값으로(1장 가 절), 인원수와 관계없이 차이의 크기를 보여 줍니다. 이 코호트에서 매칭 전 A군은 B군보다 나이가 많고(SMD 0.35) 심부전(14.8% 대 6.0%, SMD 0.29)과 만성콩팥병, 과거 입원이 많아 0.1을 넘는 변수가 6개였습니다. 성향점수를 적용한 뒤 공변량마다 SMD를 다시 계산해 모두 0.1 미만인지 봅니다. 적용 전후 SMD를 한 그림에 그린 것을 Love plot이라고 합니다. 균형이 맞지 않으면 성향점수 모형을 고치고(연속형 변수의 비선형 항이나 교호작용 추가) 다시 확인합니다. 이 과정은 결과변수를 보지 않고 진행합니다.</p>
+<!--FIG:ch14_c_love-->
+
+<div class="callout warn"><p class="ct">흔한 오해 · 성향점수 방법</p>
+<ul>
+<li><span class="wrong">성향점수 매칭으로 두 군이 무작위배정처럼 비교 가능해졌으므로 편향이 모두 제거되었다.</span> 성향점수는 모형에 넣은 변수만 맞춥니다. 위 가상 코호트는 청구자료에 없는 '허약'이 약 선택과 입원 모두에 영향을 주도록 만들었습니다. 그림 14-3에서 측정한 7개 변수는 매칭 후 모두 균형이 맞았지만 허약은 SMD 0.40에서 0.34로 거의 그대로입니다. 그 결과 이 코호트의 매칭 RR 0.91과 IPTW RR 0.95(이 절 끝 '논문에서 읽어 보기'의 결과)는 이 자료를 만들 때 정한 참값 0.80보다 1 쪽으로 치우쳤습니다. 허약까지 넣은 IPTW(실제 연구에서는 불가능)는 0.81(95% CI 0.72–0.92)입니다. 무작위배정은 측정하지 않은 특성까지 평균적으로 맞추지만 성향점수는 그렇지 못합니다. 성향점수는 다변수 회귀와 같은 가정(측정하지 않은 교란이 없음)에 기대는 방법이며, 교란을 보정하는 능력이 회귀보다 근본적으로 강한 것도 아닙니다.</li>
+<li><span class="wrong">매칭 후 Table 1의 모든 P 값이 0.05보다 커서 균형이 확인되었다.</span> P 값은 표본크기에 좌우됩니다. 매칭으로 인원이 줄면 같은 불균형도 P가 커지고, 수만 명 자료에서는 무시할 만한 차이도 P &lt; 0.05가 됩니다. 균형은 SMD로 봅니다(1장 가 절)<cite data-ref="austin2009smd"></cite>.</li>
+<li><span class="wrong">치료 시작 후에 측정된 변수(추적 중 순응도, 치료 후 검사 수치)도 성향점수 모형에 넣으면 더 잘 보정된다.</span> 치료의 영향을 받은 변수를 맞추면 치료 효과의 일부를 지우거나 새 편향을 만듭니다(매개변수·충돌변수, 8장 바 절). 성향점수 모형에는 치료 시작 이전(기저 시점)의 변수만 넣습니다.</li>
+<li><span class="wrong">성향점수 모형의 C 통계량이 높을수록 좋은 모형이다.</span> 목표는 예측이 아니라 균형입니다. C 통계량이 아주 높다면 두 군이 거의 겹치지 않아 비교할 환자가 적다는 신호일 수 있습니다. 치료 선택에만 관련되고 결과와 무관한 변수를 넣으면 C 통계량은 올라가지만 추정은 불안정해집니다<cite data-ref="brookhart2006"></cite>.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p>
+<ul>
+<li><strong>설계가 먼저</strong>: 같은 적응증의 다른 약과 비교하는 활성 비교군 신규 사용자 설계로 비교 가능한 두 군을 먼저 만들고<cite data-ref="lund2015"></cite>, 그다음 성향점수를 적용합니다. 성향점수는 설계의 잘못(예: 불멸시간 편향, 14장 마 절)을 고쳐 주지 못합니다.</li>
+<li><strong>변수 고르기</strong>: 치료 시작 이전에 측정한 교란변수와 결과의 위험인자를 넣고, 치료에만 관련된 변수와 치료 이후 변수는 넣지 않습니다. 인과 도표와 사전 지식으로 고르며(8장 바 절), 단변수 P 값으로 고르지 않습니다.</li>
+<li><strong>균형·겹침 확인</strong>: 적용 전후 SMD(모두 0.1 미만), 두 군의 성향점수 분포, 매칭된 인원 또는 가중치 범위를 확인한 다음에 결과를 분석합니다.</li>
+<li><strong>결과 분석과 신뢰구간</strong>: 매칭·가중 뒤의 결과 모형은 결과 유형에 맞게 고릅니다. 이분형은 상대위험도·위험차, 생존 결과는 가중 Kaplan-Meier 곡선과 가중 Cox 모형(11장), 발생 건수는 포아송·음이항 회귀(12장), 반복측정은 GEE(10장 라 절)입니다. 짝이나 가중치 때문에 보통의 표준오차는 맞지 않으므로 강건(샌드위치) 분산이나 부트스트랩으로 신뢰구간을 구합니다<cite data-ref="austin2015iptw"></cite>. 가중 Kaplan-Meier 곡선의 신뢰구간도 Greenwood 공식 대신 부트스트랩을 씁니다.</li>
+<li><strong>셋 이상의 군</strong>: 다항 로지스틱 회귀로 각 치료를 받을 확률을 구해 가중치를 만드는 방법(일반화 성향점수)을 씁니다.</li>
+<li><strong>보고할 것</strong>: 성향점수 모형의 변수, 매칭 방법(비율, caliper, 복원 여부) 또는 가중치 종류(ATE·ATT, 안정화 여부)와 범위, 적용 전후 SMD, 매칭된 인원, 보정 전후 추정값과 95% CI, 측정하지 않은 교란이 결론을 뒤집으려면 얼마나 강해야 하는지 보는 민감도 분석.</li>
+<li><strong>파이썬</strong>: 성향점수는 statsmodels의 <code>Logit</code>이나 scikit-learn의 <code>LogisticRegression</code>으로 추정합니다(scikit-learn은 기본으로 계수를 조금 줄이는 규제<span class="en">(penalty)</span>를 걸기 때문에, 오즈비를 보고할 목적이라면 statsmodels를 쓰세요). 매칭은 기본 패키지에 없어 직접 구현하거나 별도 패키지를 씁니다. 가중 Cox 모형은 lifelines의 <code>CoxPHFitter().fit(..., weights_col="w", robust=True)</code>, 가중 Kaplan-Meier는 <code>KaplanMeierFitter().fit(..., weights=w)</code>입니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위의 약물 A·B 코호트(1만 명)를 성향점수 매칭으로 분석한 결과가 논문에서는 어떻게 보이는지 확인합니다. 성향점수 연구의 Table 1은 매칭 전과 후를 나란히 보여 줍니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 매칭 전후의 Table 1과 Results 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 1.</b> Baseline characteristics before and after propensity score matching</caption>
+<thead>
+<tr><th></th><th class="c" colspan="3">Before matching</th><th class="c" colspan="3">After matching</th></tr>
+<tr><th>Characteristic</th><th class="r">Drug A<br>n = 4,053</th><th class="r">Drug B<br>n = 5,947</th><th class="r">SMD</th><th class="r"><span class="mk">2</span> Drug A<br>n = 3,516</th><th class="r">Drug B<br>n = 3,516</th><th class="r">SMD</th></tr>
+</thead>
+<tbody>
+<tr><td>Age, y, mean (SD)</td><td class="r">67.9 (10.1)</td><td class="r">64.5 (9.5)</td><td class="r"><span class="mk">1</span> 0.35</td><td class="r">66.6 (9.7)</td><td class="r">66.6 (9.3)</td><td class="r"><span class="mk">3</span> 0.00</td></tr>
+<tr><td>Female</td><td class="r">1,874 (46.2)</td><td class="r">2,874 (48.3)</td><td class="r">0.04</td><td class="r">1,636 (46.5)</td><td class="r">1,625 (46.2)</td><td class="r">0.01</td></tr>
+<tr><td>Heart failure</td><td class="r">601 (14.8)</td><td class="r">357 (6.0)</td><td class="r">0.29</td><td class="r">318 (9.0)</td><td class="r">328 (9.3)</td><td class="r">0.01</td></tr>
+<tr><td>Chronic kidney disease</td><td class="r">798 (19.7)</td><td class="r">657 (11.0)</td><td class="r">0.24</td><td class="r">547 (15.6)</td><td class="r">560 (15.9)</td><td class="r">0.01</td></tr>
+<tr><td>Hospitalization in prior year</td><td class="r">947 (23.4)</td><td class="r">915 (15.4)</td><td class="r">0.20</td><td class="r">698 (19.9)</td><td class="r">702 (20.0)</td><td class="r">0.00</td></tr>
+<tr><td>No. of drug classes, mean (SD)</td><td class="r">6.4 (2.8)</td><td class="r">5.6 (2.5)</td><td class="r">0.33</td><td class="r">6.0 (2.5)</td><td class="r">6.0 (2.5)</td><td class="r">0.01</td></tr>
+<tr><td>Prescribed at tertiary hospital</td><td class="r">1,249 (30.8)</td><td class="r">1,241 (20.9)</td><td class="r">0.23</td><td class="r">982 (27.9)</td><td class="r">953 (27.1)</td><td class="r">0.02</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are n (%) unless otherwise indicated. SMD, absolute standardized mean difference. <span class="mk">4</span> Propensity scores were estimated with logistic regression including all characteristics listed; patients were matched 1:1 by nearest-neighbor matching without replacement within a caliper of 0.2 SD of the logit of the propensity score.</p>
+<p class="excerpt">Before matching, 1-year hospitalization occurred in 13.4% of drug A users and 10.1% of drug B users (<span class="mk">5</span> <span class="hl">crude RR, 1.33; 95% CI, 1.19 to 1.48</span>). In the matched cohort, the risks were 10.9% and 12.0%, respectively (<span class="mk">6</span> <span class="hl">RR, 0.91; 95% CI, 0.80 to 1.03</span>). <span class="mk">7</span> <span class="hl">Inverse probability of treatment weighting yielded similar results (RR, 0.95; 95% CI, 0.85 to 1.07)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>매칭 전의 불균형.</b> A군이 더 나이 들었고(67.9세 대 64.5세) 심부전(14.8% 대 6.0%), 만성콩팥병, 과거 입원이 많습니다. 표준화 평균차<span class="en">(standardized mean difference, SMD)</span> 0.35는 두 군의 평균 차이가 표준편차의 0.35배라는 뜻이고(1장 가 절), 0.1을 넘는 변수가 6개입니다. 의사가 더 아픈 환자에게 A를 처방한, 적응증에 의한 교란의 전형적인 모습입니다.</span></li>
+<li><span class="mk">2</span><span><b>매칭된 인원.</b> A 사용자 4,053명 중 3,516명(86.8%)만 짝을 찾았습니다. 성향점수가 아주 높은 A 사용자는 비슷한 B 사용자가 적어 짝을 못 찾고 빠지기 쉽습니다. 따라서 이 결과는 "짝을 찾은 A 사용자와 비슷한 환자"에서의 비교이며, 가장 아픈 A 사용자는 덜 대표됩니다. 매칭된 B군 3,516명은 B 사용자 5,947명 중 A 사용자와 닮은 일부입니다.</span></li>
+<li><span class="mk">3</span><span><b>매칭 후의 균형.</b> 모든 변수의 SMD가 0.02 이하로 떨어졌습니다. 흔히 0.1 미만이면 균형이 맞았다고 봅니다<cite data-ref="austin2009smd"></cite>. 이 표에 P 값이 없는 것은 의도된 것입니다. 매칭 후 표에서 P 값으로 균형을 판단하지 않습니다(위 흔한 오해 상자). 또 이 표는 표에 있는 변수의 균형만 보여 줍니다. 측정하지 않은 변수가 맞았는지는 알 수 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>성향점수의 추정과 매칭 방법.</b> 약물 A 사용 여부(1/0)를 결과로, 표의 7개 기저특성을 설명변수로 넣은 로지스틱 회귀(9장)로 각 환자가 A를 받을 확률을 계산했습니다<cite data-ref="rosenbaum1983"></cite>. caliper는 성향점수가 이 이상 차이 나면 짝으로 인정하지 않는 한계로, 로짓 성향점수 표준편차의 0.2배가 흔히 쓰입니다<cite data-ref="austin2011cal"></cite>. "without replacement"는 B 환자 한 명을 한 번만 짝으로 쓴다는 뜻입니다.</span></li>
+<li><span class="mk">5</span><span><b>보정 전 상대위험도.</b> 13.4% ÷ 10.1% = 1.33입니다. A가 입원을 33% 늘리는 것처럼 보이지만, 1번의 불균형을 보면 A군이 원래 입원 위험이 높은 환자였기 때문일 수 있습니다.</span></li>
+<li><span class="mk">6</span><span><b>매칭 후 상대위험도.</b> 10.9% ÷ 12.0% = 0.91로 방향이 뒤집혔습니다. 신뢰구간 0.80–1.03은 1을 포함하므로 "차이가 없다"는 증명도, "A가 낫다"는 증명도 아닙니다. 신뢰구간은 짝을 고려한 강건 분산으로 구했습니다. 이 값은 1년 누적 위험의 비인 상대위험도<span class="en">(relative risk, risk ratio, RR)</span>이며, 위험비<span class="en">(hazard ratio, HR)</span>나 오즈비와 구별해 읽습니다.</span></li>
+<li><span class="mk">7</span><span><b>다른 방법으로 확인.</b> 매칭 대신 모든 환자를 성향점수로 만든 가중치로 보정한 결과입니다(역확률 가중, 위 '숫자로 따라가기'). 매칭은 주로 A 사용자와 비슷한 환자에서의 효과를, 역확률 가중은 코호트 전체에서의 효과를 추정하므로 두 값이 조금 다를 수 있습니다. 방법을 바꿔도 결론이 크게 달라지지 않는지 보는 민감도 분석입니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ e(x) = P(A = 1 \mid X = x), \qquad w = \frac{A}{e(x)} + \frac{1 - A}{1 - e(x)} \]
+<p>성향점수 e(x)는 기저특성 x를 가진 환자가 치료 A를 받을 확률이고, 보통 로지스틱 회귀로 추정합니다. w는 ATE를 위한 IPTW 가중치로, A = 1인 환자는 1/e(x), A = 0인 환자는 1/(1 − e(x))를 받습니다. 예제: 심부전 없는 B 환자는 1 ÷ (1 − 0.20) = 1.25. ATT 가중치는 A 환자에 1, B 환자에 e(x)/(1 − e(x))(예제: 심부전 있음 0.75 ÷ 0.25 = 3)입니다.</p></div>
+<div class="eq">\[ SMD = \frac{\bar x_A - \bar x_B}{\sqrt{(s_A^2 + s_B^2)/2}}, \qquad \text{이분형: } s^2 = p(1 - p) \]
+<p>예제(매칭 전 심부전): (0.148 − 0.060) ÷ √[(0.148 × 0.852 + 0.060 × 0.940) ÷ 2] = 0.088 ÷ 0.302 = 0.29. 매칭이나 가중 후에는 매칭된 환자(또는 가중 평균과 가중 분산)로 같은 식을 다시 계산합니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>성향점수는 기저 공변량이 주어졌을 때 치료를 받을 확률이며, 여러 교란변수를 점수 하나로 요약해 두 군을 비슷하게 맞춥니다.</li>
+<li>매칭(주로 ATT), 역확률 가중(ATE), 층화, 공변량 보정의 네 방법이 있고, 적용 후 SMD 0.1 미만으로 균형을, 성향점수 분포로 겹침을 확인합니다.</li>
+<li>매칭 후 Table 1의 P 값으로 균형을 판단하지 않고, 치료 이후에 측정된 변수는 모형에 넣지 않습니다. 신뢰구간은 짝과 가중치를 고려해 구합니다.</li>
+<li>성향점수는 측정한 교란변수만 맞춥니다. 측정하지 않은 교란은 남으므로, 매칭 후에도 편향이 모두 사라졌다고 볼 수 없습니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s4">
+<h2><span class="sec-no">라.</span>경쟁위험 분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">관심 있는 사건(예: 투석 시작)보다 다른 사건(예: 사망)이 먼저 일어나 관심 사건을 영영 막아 버릴 수 있을 때, 그 사실을 반영해 사건이 일어날 확률과 치료의 효과를 추정하는 방법입니다.</p>
+<ul>
+<li><b>왜 필요한가.</b> 대학원생 100명이 졸업하기까지 걸린 시간을 추적하는데 20명이 중간에 취업해 그만뒀다고 합시다. 이들을 "잠시 연락이 끊긴 사람(중도절단)"으로 처리하면, 계산은 이들도 남은 학생과 같은 속도로 결국 졸업할 것이라고 가정합니다. 그만둔 사람은 졸업할 수 없으므로 '졸업한 비율'이 부풀려집니다. 투석을 시작하기 전에 사망한 환자도 같습니다.</li>
+<li><b>논문에서는.</b> "5-year cumulative incidence of dialysis 30.2% vs 24.5%; cause-specific HR 1.02; subdistribution HR 1.25"처럼 나옵니다. "5년 안에 실제로 투석을 시작한 환자의 비율은 A군이 더 높지만, 살아 있는 환자가 투석으로 넘어가는 속도는 두 군이 비슷하다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 경쟁 사건이 흔하면 1 − Kaplan-Meier는 사건 비율을 과대추정합니다. 그리고 원인별 위험비와 하위분포 위험비는 서로 다른 질문에 답하므로, 어느 쪽인지 확인하고 읽습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>사망이 흔한 집단(고령자, 만성콩팥병, 암 환자)에서 사망이 아닌 사건(투석, 골절, 심부전 입원, 재발)을 보거나, 원인별 사망(암 특이 사망)을 볼 때</dd></div>
+  <div><dt>핵심 질문</dt><dd>t년까지 실제로 사건을 겪는 비율은 얼마인가(누적발생함수)? 노출이 사건의 속도를 바꾸는가(원인별 위험비), 사건을 겪는 사람의 비율을 바꾸는가(하위분포 위험비)?</dd></div>
+  <div><dt>가정·조건</dt><dd>경쟁 사건의 발생 여부와 날짜를 알 수 있어야 함(사망자료 연계). 경쟁 사건이 아닌 중도절단은 사건과 무관(비정보적). 회귀모형을 쓰면 각 모형의 비례위험 가정</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>사건 종류별 인원, 누적발생함수 곡선과 특정 시점의 누적발생률(95% CI), 원인별 위험비와 필요하면 하위분포 위험비(95% CI). 경쟁 사건에 대한 결과도 함께</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>이 절에서는 75세 이상 만성콩팥병(CKD) 4기 환자 가운데 약물 A(1,380명) 또는 약물 B(2,120명, 같은 적응증의 비교약)를 처음 시작한 3,500명을 최대 5년 추적해 투석 시작을 비교한 가상의 청구자료 연구를 예로 씁니다. 이 집단에서는 투석을 시작하기 전에 사망하는 환자가 많습니다. 설명을 단순하게 하려고 교란변수 보정은 하지 않은 숫자입니다. 먼저 계산 원리를 CKD 환자 10명으로 따라가 봅니다. 모두 최대 5년 추적했고, 환자 8은 4.0년에 자격을 잃어 추적이 끊겼으며(중도절단), 환자 10은 5년 동안 아무 사건이 없었습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>환자</th><th class="r">1</th><th class="r">2</th><th class="r">3</th><th class="r">4</th><th class="r">5</th><th class="r">6</th><th class="r">7</th><th class="r">8</th><th class="r">9</th><th class="r">10</th></tr></thead>
+<tbody>
+<tr><td>시점(년)</td><td class="r">0.8</td><td class="r">1.2</td><td class="r">1.5</td><td class="r">2.0</td><td class="r">2.6</td><td class="r">3.1</td><td class="r">3.5</td><td class="r">4.0</td><td class="r">4.4</td><td class="r">5.0</td></tr>
+<tr><td>결과</td><td class="r">투석</td><td class="r">사망</td><td class="r">사망</td><td class="r">투석</td><td class="r">사망</td><td class="r">투석</td><td class="r">사망</td><td class="r">절단</td><td class="r">투석</td><td class="r">절단</td></tr>
+</tbody></table></div>
+<div class="flow">
+<div><div><b>1 − Kaplan-Meier (사망을 중도절단으로)</b><p>투석이 일어날 때마다 그때 남아 있는 사람 중 투석하지 않은 비율을 곱해 나갑니다. 0.8년 10명 중 1명: 0.9. 2.0년 남은 7명 중 1명: 0.9 × 6/7 = 0.771. 3.1년 5명 중 1명: × 4/5 = 0.617. 4.4년 2명 중 1명: × 1/2 = 0.309. 1 − 0.309 = <strong>69.1%</strong>.</p></div></div>
+<div><div><b>누적발생함수 (사망을 경쟁 사건으로)</b><p>투석이 일어날 때마다 "그 직전까지 아무 사건 없이 남아 있을 확률 × 그 시점에 투석한 비율"을 더합니다. 0.8년: 1.0 × 1/10 = 0.10. 2.0년: 그 사이 두 명이 사망해 사건 없이 남아 있을 확률이 0.7로 줄어 있으므로 0.7 × 1/7 = 0.10. 3.1년: 0.5 × 1/5 = 0.10. 4.4년: 0.3 × 1/2 = 0.15. 합계 <strong>45.0%</strong>.</p></div></div>
+<div><div><b>검산</b><p>같은 방식으로 사망의 누적발생함수는 40.0%, 5년까지 아무 사건 없이 남은 확률은 15.0%입니다. 45.0 + 40.0 + 15.0 = 100%로 딱 맞습니다. 1 − Kaplan-Meier의 69.1%에 사망 40.0%를 더하면 100%를 넘으므로 말이 되지 않습니다.</p></div></div>
+</div>
+<p>차이는 4.4년의 마지막 계단에서 가장 크게 벌어집니다. Kaplan-Meier는 앞서 사망한 네 명을 '어딘가에서 아직 투석을 기다리는 사람'으로 취급하고, 그들의 몫을 남은 두 명의 경험으로 채웁니다. 그래서 남은 두 명 중 한 명의 투석이, 사망자 몫까지 포함해 '아직 투석하지 않은' 것으로 남아 있던 61.7% 전체의 절반이 투석한 것처럼 계산됩니다. <strong>누적발생함수</strong><span class="en">(cumulative incidence function, CIF)</span>는 사망한 사람의 몫을 사망 쪽에 남겨 두고 투석 쪽으로 옮기지 않습니다. 이렇게 경쟁 사건을 반영해 누적발생함수를 구하는 방법을 Aalen–Johansen 추정량이라고 하며, 경쟁 사건이 전혀 없으면 1 − Kaplan-Meier와 같아집니다. 한편 투석 환자를 그냥 세면 4/10 = 40%인데 누적발생함수가 45%인 것은, 4.0년에 추적이 끊긴 환자 8이 그 뒤에 투석했을 가능성을 공정하게 나눠 반영했기 때문입니다.</p>
+<!--FIG:ch14_d_cr-->
+<p>앞에서 소개한 3,500명 코호트에서도 같은 일이 일어납니다. 그림 14-4(가)에서 B군의 1 − Kaplan-Meier는 시간이 갈수록 누적발생함수와 벌어져 5년에 39.2% 대 24.5%가 됩니다. 5년 누적발생률은 A군 30.2%, B군 24.5%입니다. (나)는 바로 아래에서 설명할 두 가지 위험비가 왜 다른지 보여 줍니다. 두 군의 투석 속도는 비슷하지만(원인별 위험비 1.02) A군은 사망이 적어(점선) 투석을 맞을 때까지 살아 있는 환자가 많고, 그래서 투석한 환자의 비율(실선)이 더 높습니다.</p>
+
+<h3>두 가지 위험비</h3>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th>원인별 위험비</th><th>하위분포 위험비 (Fine–Gray)</th></tr></thead>
+<tbody>
+<tr><td>경쟁 사건(사망)을 겪은 사람</td><td>그 시점에 위험집합에서 빠짐 (중도절단처럼)</td><td>'투석은 영영 하지 않을 사람'으로 위험집합에 남겨 둠</td></tr>
+<tr><td>답하는 질문</td><td>살아 있고 투석하지 않은 사람에서 투석으로 넘어가는 속도가 다른가?</td><td>투석까지 가는 사람의 비율(누적발생함수)이 다른가?</td></tr>
+<tr><td>알맞은 목적</td><td>원인·기전, 약물이 사건 발생 속도에 주는 영향</td><td>예후, 절대위험, 자원 계획</td></tr>
+<tr class="hi"><td>이 예의 값</td><td class="r">1.02 (0.89–1.16)</td><td class="r">1.25 (1.10–1.43)</td></tr>
+</tbody></table></div>
+<p><strong>원인별 위험비</strong><span class="en">(cause-specific hazard ratio)</span>는 보통의 Cox 모형(11장)에서 경쟁 사건을 중도절단으로 두기만 하면 구해집니다. 이것은 틀린 분석이 아닙니다. 원인별 위험률을 추정하는 올바른 방법이고, 틀리는 것은 그 결과로 만든 1 − Kaplan-Meier를 '사건이 일어날 확률'로 읽는 부분입니다<cite data-ref="austin2016cr"></cite>. Fine–Gray 모형의 <strong>하위분포 위험비</strong><span class="en">(subdistribution hazard ratio)</span>는 이미 사망한 사람도 위험집합에 남겨 두므로 '살아 있는 사람에서의 속도'로 읽을 수 없습니다. 이 예에서 A군의 투석 전 사망 속도는 B군의 약 절반(사망의 원인별 위험비 0.55)이어서, 투석 속도는 비슷해도(1.02) 투석까지 가는 환자의 비율은 A군이 높게 나옵니다(1.25). 효과의 크기는 위험비 숫자보다 누적발생함수 곡선과 특정 시점의 누적발생률(30.2% 대 24.5%)로 함께 전달하는 것이 안전합니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 경쟁위험이 있는 자료를 읽을 때</p>
+<ul>
+<li><span class="wrong">사망을 중도절단으로 처리한 Kaplan-Meier 곡선에서 B군의 5년 투석률은 39.2%이다.</span> 실제로 5년 안에 투석한 비율의 추정값은 누적발생함수의 24.5%입니다.</li>
+<li><span class="wrong">하위분포 위험비가 1.25이므로 약물 A는 신기능 악화를 앞당긴다.</span> 투석으로 넘어가는 속도(원인별 위험비 1.02)는 비슷하고, A군이 오래 살아 투석까지 가는 사람이 많을 뿐입니다.</li>
+<li><span class="wrong">원인별 위험비 1.02는 5년 동안 투석할 위험이 두 군에서 같다는 뜻이다.</span> 위험비는 누적위험의 비(상대위험도)가 아닙니다. 실제 5년 누적발생률은 30.2% 대 24.5%로 다릅니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p>
+<ul>
+<li><strong>언제 고려하나</strong>: 결과가 사망이 아닌 사건(투석, 골절, 심부전 입원, 출혈 입원)이고 추적 중 사망이 적지 않을 때, 또는 원인별 사망을 볼 때입니다. 경쟁 사건이 드물면 1 − Kaplan-Meier와 누적발생함수의 차이도 작습니다.</li>
+<li><strong>고르는 기준</strong>: 약물이 사건을 일으키는지(원인) 묻는다면 원인별 위험비를 주 분석으로 하고, 절대위험은 누적발생함수로 보여 줍니다. 환자가 실제로 사건을 겪을 확률(예후)을 묻는다면 누적발생함수와 Fine–Gray 모형을 씁니다. 어느 쪽이든 관심 사건과 경쟁 사건의 결과를 함께 보고합니다.</li>
+<li><strong>교란과 보정</strong>: 두 모형 모두 교란변수를 공변량으로 넣거나 성향점수 가중치(14장 다 절)를 적용해 보정합니다. 경쟁위험 분석은 교란을 해결해 주는 방법이 아닙니다. 공변량은 치료 시작 전에 측정한 값을 씁니다.</li>
+<li><strong>자료원</strong>: HIRA 청구자료에는 병원 밖 사망이 기록되지 않으므로, 사망자료가 연계되지 않으면 경쟁 사건을 알 수 없습니다. 사망 원인이 필요하면(암 특이 사망 등) 사망원인 자료의 연계 여부를 확인합니다.</li>
+<li><strong>보고할 것</strong>: 사건 종류별 인원, 두 사건의 누적발생함수 곡선, 특정 시점의 누적발생률(95% CI), 원인별 위험비(와 하위분포 위험비), 사용한 방법.</li>
+<li><strong>파이썬</strong>: 누적발생함수는 lifelines의 <code>AalenJohansenFitter</code>(<code>event_of_interest</code>로 사건 종류 지정, 같은 시각의 사건이 있으면 시각을 아주 조금 흔들어 계산함)로, 원인별 위험비는 경쟁 사건을 0(중도절단)으로 바꾼 자료를 <code>CoxPHFitter</code>에 넣어 구합니다. 이 사이트에서 쓰는 lifelines 0.30과 statsmodels 0.15에는 Fine–Gray 모형 함수가 없어 직접 구현해야 합니다(이 절의 하위분포 위험비 1.25도 직접 구현해 계산했습니다).</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위의 CKD 4기 코호트(3,500명)를 경쟁위험 분석으로 보고한다면 Methods 문장과 결과표는 다음과 같습니다. 교란변수 보정은 하지 않은 숫자입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 경쟁위험 분석의 Methods 문장과 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Death before dialysis was treated as a <span class="mk">1</span> <span class="hl">competing event; the cumulative incidence of dialysis was estimated with the Aalen–Johansen estimator</span>, and we fitted cause-specific Cox models and Fine–Gray subdistribution hazard models.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Dialysis initiation and death before dialysis by treatment group</caption>
+<thead><tr><th>Outcome</th><th class="r">Drug A (n = 1,380)</th><th class="r">Drug B (n = 2,120)</th><th class="r">HR, A vs B (95% CI)</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4">Dialysis initiation</td></tr>
+<tr><td class="ind">Events, n</td><td class="r">396</td><td class="r">496</td><td class="r"></td></tr>
+<tr><td class="ind">5-year cumulative incidence, % (95% CI)</td><td class="r"><span class="mk">2</span> 30.2 (27.7–32.7)</td><td class="r">24.5 (22.7–26.5)</td><td class="r"></td></tr>
+<tr><td class="ind">Cause-specific HR</td><td class="r"></td><td class="r"></td><td class="r"><span class="mk">3</span> 1.02 (0.89–1.16)</td></tr>
+<tr><td class="ind">Subdistribution HR</td><td class="r"></td><td class="r"></td><td class="r"><span class="mk">4</span> 1.25 (1.10–1.43)</td></tr>
+<tr class="grp"><td colspan="4">Death before dialysis</td></tr>
+<tr><td class="ind">Events, n</td><td class="r">463</td><td class="r">1,088</td><td class="r"></td></tr>
+<tr><td class="ind">5-year cumulative incidence, %</td><td class="r">35.2</td><td class="r">53.0</td><td class="r"></td></tr>
+<tr><td class="ind">Cause-specific HR</td><td class="r"></td><td class="r"></td><td class="r"><span class="mk">5</span> 0.55 (0.49–0.61)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">HR, hazard ratio. Cause-specific HRs are from Cox models in which the competing event was treated as censoring; the subdistribution HR is from a Fine–Gray model.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사망을 경쟁 사건으로 다뤘다는 문장.</b> 투석 전 사망을 '나중에 투석할 수도 있는 사람의 중도절단'이 아니라 '투석을 영영 막는 사건'으로 처리했다는 뜻입니다. Aalen–Johansen 추정량은 이 사실을 반영해 사건별 <strong>누적발생함수</strong><span class="en">(cumulative incidence function, CIF)</span>를 구하는 방법으로, 경쟁 사건이 전혀 없으면 1 − Kaplan-Meier와 같아집니다. 이 문장 없이 Kaplan-Meier로 '5년 투석률'을 보고한 논문이라면 과대추정을 의심합니다.</span></li>
+<li><span class="mk">2</span><span><b>5년 누적발생률 30.2% 대 24.5%.</b> "5년 안에 실제로 투석을 시작한 환자의 비율"로 읽는 절대위험입니다. 중도절단이 있어 단순 비율(A군 396/1,380 = 28.7%)과는 조금 다릅니다. 같은 자료를 사망을 중도절단한 1 − Kaplan-Meier로 계산하면 A군 39.0%, B군 39.2%가 나와 실제보다 1.3–1.6배 부풀려집니다(그림 14-4).</span></li>
+<li><span class="mk">3</span><span><b>원인별 위험비 1.02.</b> <strong>원인별 위험비</strong><span class="en">(cause-specific hazard ratio)</span>는 "아직 살아 있고 투석도 하지 않은 환자들 사이에서, 지금 투석으로 넘어가는 속도"의 비입니다. 1에 가깝고 신뢰구간이 1을 포함하므로, 약물 A가 신기능이 나빠지는 속도 자체를 바꾼다는 근거는 없습니다. "이 약이 신장에 해로운가" 같은 원인(기전)의 질문에 맞는 지표입니다.</span></li>
+<li><span class="mk">4</span><span><b>하위분포 위험비 1.25.</b> Fine–Gray 모형의 <strong>하위분포 위험비</strong><span class="en">(subdistribution hazard ratio)</span>는 누적발생함수와 직접 연결되며, 1보다 크면 "그 군에서 투석까지 가는 환자의 비율이 더 높다"는 뜻입니다<cite data-ref="fine1999"></cite>. 약물 A가 신장을 더 빨리 망가뜨린다는 뜻이 아닙니다. 5번처럼 A군 환자가 덜 사망해 투석에 이를 때까지 살아 있는 사람이 많았기 때문입니다. 누적발생률의 비(30.2 ÷ 24.5 = 1.23)와 비슷하지만 같은 양이 아니므로 "5년 투석 위험이 1.25배"로 읽지 않습니다. "몇 명이 실제로 투석을 하게 되나"를 묻는 예후·자원 계획의 질문에 맞습니다.</span></li>
+<li><span class="mk">5</span><span><b>경쟁 사건의 원인별 위험비 0.55.</b> 약물 A군의 투석 전 사망 속도가 B군의 약 절반입니다. 3번과 4번이 다르게 나온 이유가 여기 있습니다. 노출이 경쟁 사건에 영향을 주면 두 위험비가 크게 달라지므로, 관심 사건과 경쟁 사건 양쪽의 원인별 위험비와 누적발생함수를 모두 보고하도록 권고됩니다<cite data-ref="latouche2013"></cite>.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \text{CIF}_k(t) = \sum_{t_j \le t} \hat{S}(t_j^-)\,\frac{d_{kj}}{n_j} \]
+<p>\(\hat{S}(t_j^-)\)는 모든 사건을 사건으로 본 Kaplan-Meier(어느 사건도 없이 남아 있을 확률)의 직전 값, \(d_{kj}\)는 그 시점의 k번째 종류 사건 수, \(n_j\)는 위험집합의 인원입니다. 예제의 투석: 1.0 × 1/10 + 0.7 × 1/7 + 0.5 × 1/5 + 0.3 × 1/2 = 0.45.</p></div>
+<div class="eq">\[ 1 - \hat{S}_{KM,k}(t) = 1 - \prod_{t_j \le t}\left(1 - \frac{d_{kj}}{n_j}\right) \]
+<p>경쟁 사건을 중도절단으로 둔 1 − Kaplan-Meier는 \(\hat{S}(t_j^-)\) 대신 '투석만 없었을 확률'을 쓰므로, 사망한 사람도 여전히 투석할 수 있는 것처럼 계산됩니다. 예제: 1 − 0.9 × 6/7 × 4/5 × 1/2 = 0.691. 누적발생함수는 모든 사건 종류의 합과 무사건 확률이 1이 되지만(0.45 + 0.40 + 0.15 = 1), 1 − Kaplan-Meier는 그렇지 않습니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>사망처럼 관심 사건을 막는 경쟁 사건이 흔하면 1 − Kaplan-Meier는 사건 비율을 과대추정합니다(예제 69.1% 대 45.0%). 누적발생함수(Aalen–Johansen)를 씁니다.</li>
+<li>원인별 위험비는 "살아 있고 사건이 없는 사람에서의 사건 속도"(원인 질문), 하위분포 위험비는 "실제로 사건을 겪는 사람의 비율"(예후 질문)에 대응합니다.</li>
+<li>노출이 경쟁 사건에도 영향을 주면 두 위험비가 크게 다를 수 있습니다(1.02 대 1.25). 관심 사건과 경쟁 사건의 결과를 모두 보고합니다.</li>
+<li>두 위험비 모두 "t년 위험이 몇 배"라는 상대위험도가 아닙니다. 절대위험은 누적발생함수로 읽습니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s5">
+<h2><span class="sec-no">마.</span>시간의존 변수와 불멸시간 편향</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">추적을 시작한 뒤에 일어난 일(예: 약을 처방받았는지)로 환자를 처음부터 한 군에 넣으면, 그 군은 그 일이 일어나기 전까지 사망할 수 없었던 '불멸의 시간'을 공짜로 얻어, 효과 없는 약도 효과가 있어 보이게 됩니다.</p>
+<ul>
+<li><b>비유.</b> "큰 상을 받은 사람이 받지 못한 사람보다 오래 산다"는 비교를 생각해 봅시다. 상은 대개 나이가 든 뒤에 받으므로, 수상자가 되려면 그때까지 살아 있어야 합니다. 수상자 집단은 출발부터 '그 나이까지 산 사람'만 모인 셈입니다. 추적 중에 약을 처방받은 사람을 처음부터 사용군으로 두는 것도 같습니다.</li>
+<li><b>논문에서는.</b> "patients who filled at least one prescription during follow-up were classified as users ... HR 0.37"처럼 믿기 어려울 만큼 큰 효과로 나타납니다. 이런 문장을 보면 "사용군은 추적 시작부터 첫 처방까지 사망할 수 없었다"를 먼저 의심합니다.</li>
+<li><b>기억할 한 가지.</b> 대상자가 되는 시점, 노출이 정해지는 시점, 추적이 시작되는 시점(time zero)이 같은지 확인합니다. 설계의 문제이므로 교란변수를 더 보정하거나 성향점수를 써도 고쳐지지 않습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 생기나</dt><dd>추적 시작 뒤의 처방, 처방 횟수, 순응도(PDC), 치료 반응으로 군을 나누거나, 추적 뒤의 조건(1년 이상 생존 등)으로 대상자를 고를 때</dd></div>
+  <div><dt>핵심 질문</dt><dd>노출군으로 분류되려면 추적 시작 뒤 일정 기간 살아 있어야 했는가? 그 기간이 노출군의 추적 시간으로 들어갔는가?</dd></div>
+  <div><dt>해결 방법</dt><dd>time zero를 맞춘 설계(신규 사용자 설계, 목표시험 모방), 노출을 <strong>시간의존 변수</strong><span class="en">(time-dependent/time-varying covariate)</span>로 분석(처방 전은 비노출, 후는 노출), 랜드마크 분석</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>time zero와 노출 판정 시점의 정의, 설계 도식, 시간의존 Cox 모형의 위험비(95% CI) 또는 랜드마크 시점과 그 시점의 대상자 수</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>편향이 어디서 오는지 단순한 숫자로 봅니다. 퇴원 환자 1,000명에서 약물 X는 효과가 없고 사망률은 누구나 100인년당 20명입니다. 6개월째 살아 있는 900명 가운데 400명이 약물 X를 시작합니다. 계산을 쉽게 하려고 모두 6개월째에 시작한다고 두었고, 인년은 어림한 값입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>기간</th><th>누구</th><th class="r">인년</th><th class="r">사망</th></tr></thead>
+<tbody>
+<tr><td>0–6개월</td><td>나중에 약물 X를 시작할 400명</td><td class="r">200</td><td class="r">0</td></tr>
+<tr><td>0–6개월</td><td>나머지 600명 (이 기간 사망자 100명 포함)</td><td class="r">300</td><td class="r">100</td></tr>
+<tr><td>6–12개월</td><td>약물 X를 시작한 400명</td><td class="r">200</td><td class="r">40</td></tr>
+<tr><td>6–12개월</td><td>시작하지 않은 500명</td><td class="r">250</td><td class="r">50</td></tr>
+</tbody></table></div>
+<p>같은 자료를 네 가지로 분석하면 다음과 같습니다(사망률은 100인년당).</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>분석</th><th class="r">사용군(노출) 사망률</th><th class="r">비사용군(비노출) 사망률</th><th class="r">발생률비</th></tr></thead>
+<tbody>
+<tr><td>추적 중 사용하면 처음부터 사용군</td><td class="r">40 ÷ (200 + 200) = 10.0</td><td class="r">(100 + 50) ÷ (300 + 250) = 27.3</td><td class="r">0.37</td></tr>
+<tr><td>사용군에서 불멸시간만 뺌</td><td class="r">40 ÷ 200 = 20.0</td><td class="r">150 ÷ 550 = 27.3</td><td class="r">0.73</td></tr>
+<tr class="hi"><td>시간의존 노출</td><td class="r">40 ÷ 200 = 20.0</td><td class="r">(100 + 50) ÷ (500 + 250) = 20.0</td><td class="r">1.00</td></tr>
+<tr class="hi"><td>6개월 랜드마크</td><td class="r">40 ÷ 200 = 20.0</td><td class="r">50 ÷ 250 = 20.0</td><td class="r">1.00</td></tr>
+</tbody></table></div>
+<p>첫 번째 분석은 두 방향으로 동시에 틀립니다. 사용군에는 사망이 있을 수 없는 200인년, 즉 <strong>불멸시간</strong><span class="en">(immortal time)</span>이 더해져 사망률이 절반으로 낮아지고, 비사용군에는 "약을 시작할 기회도 없이 일찍 사망한 100명"이 몰려 사망률이 높아집니다. 그 결과 효과 없는 약의 <strong>발생률비</strong><span class="en">(incidence rate ratio, IRR)</span>가 0.37이 됩니다. 사용군에서 불멸시간을 빼기만 하는 두 번째 분석도 0.73으로 여전히 치우칩니다. 그 200인년은 버릴 시간이 아니라 '아직 약을 쓰지 않은 시간'이므로 비노출 쪽으로 옮겨야 합니다<cite data-ref="levesque2010"></cite>. 세 번째와 네 번째 분석이 그렇게 해서 참값 1.00을 되찾습니다.</p>
+<!--FIG:ch14_e_immortal-->
+
+<h3>바로잡는 방법</h3>
+<ul>
+<li><strong>시간의존 노출</strong>: 한 환자의 추적을 첫 처방일에서 나눠, 그 전은 비노출 행, 그 뒤는 노출 행으로 만드는 (시작, 끝] 형식 자료로 Cox 모형을 적합합니다(11장 심화). 사망이 일어날 때마다 "그 시점에 약을 쓰고 있던 사람"과 "쓰지 않던 사람"을 비교하게 됩니다. 앞의 표에서 발생률비 1.00을 준 방법입니다.</li>
+<li><strong>랜드마크 분석</strong>: 미리 정한 시점(예: 3개월)을 새 time zero로 두고, 그때 살아 있는 사람만 그 시점까지의 노출로 나눠 비교합니다(7장 나 절)<cite data-ref="anderson1983"></cite>. 간단하지만 랜드마크 이전 사망자가 빠지고, 이후에 약을 시작한 사람은 비사용군에 남습니다.</li>
+<li><strong>time zero를 맞춘 설계</strong>: 가장 근본적인 해결은 설계 단계에 있습니다. 무작위배정 임상시험이라면 퇴원하는 날 약을 줄지 정하고 그날부터 추적하므로 불멸시간이 생길 수 없습니다. <strong>목표시험 모방</strong><span class="en">(target trial emulation)</span>은 관찰연구에서도 적격성 판정, 치료 전략 배정, 추적 시작을 같은 날로 맞추도록 설계하는 틀입니다<cite data-ref="hernan2016"></cite>. 예를 들어 약물 X를 처음 처방받은 날을 time zero로 하는 환자와, 같은 적응증의 약물 Y를 처음 처방받은 날을 time zero로 하는 환자를 비교하는 활성 비교군 신규 사용자 설계(7장 가 절)<cite data-ref="ray2003"></cite>에서는 불멸시간이 생기지 않습니다. "퇴원 후 3개월 안에 시작하는 전략 대 시작하지 않는 전략"처럼 시작 시점에 유예기간이 있는 질문은 복제-중도절단-가중<span class="en">(clone–censor–weight)</span> 같은 방법이 필요하며, 여기서는 이름만 소개합니다.</li>
+</ul>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 불멸시간 편향</p>
+<ul>
+<li><span class="wrong">추적 중에 약을 시작한 사람을 사용군으로 두었더니 사망률이 100인년당 10.0으로 비사용군 27.3보다 낮으므로 약물 X가 사망을 줄인다.</span> 사용군은 첫 처방까지 사망할 수 없었고, 일찍 사망한 환자는 모두 비사용군에 들어갔습니다.</li>
+<li><span class="wrong">나이와 동반질환을 더 보정하거나 성향점수로 짝지으면 불멸시간 편향도 줄어든다.</span> 불멸시간 편향은 교란이 아니라 추적 시간을 잘못 배정한 설계의 문제입니다. 성향점수는 측정한 교란변수의 차이를 맞출 뿐이고 그것도 모든 편향을 없애 주지 않습니다(14장 다 절). 이 편향에는 아무 효과가 없습니다.</li>
+<li><span class="wrong">추적 1년 동안의 PDC가 80% 이상인 군과 미만인 군의 사망을 퇴원일부터 비교하면 순응의 효과를 알 수 있다.</span> 1년 동안 약을 꾸준히 타려면 1년 가까이 살아 있어야 하므로 불멸시간이 생기고, 사망 직전 입원으로 처방이 끊기는 역인과도 섞입니다(5장 다 절). 순응도를 잰 기간이 끝난 시점을 랜드마크로 두고 그 뒤의 결과를 봅니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p>
+<ul>
+<li><strong>점검 질문</strong>: time zero는 언제인가? 노출은 언제 정해지는가? 대상자 선정이나 군 분류에 time zero 이후의 정보("처방 2회 이상", "추적 중 사용", "1년 이상 생존자만", 추적 기간의 순응도, 치료 반응)를 쓰지 않았는가?</li>
+<li><strong>설계가 먼저</strong>: 가능하면 활성 비교군 신규 사용자 설계로 첫 처방일을 time zero로 둡니다(7장 가 절). 이 설계에서는 분석 방법을 바꾸지 않아도 불멸시간이 생기지 않습니다.</li>
+<li><strong>교란과 보정</strong>: 시간의존 노출 분석에서도 교란 보정은 따로 필요합니다. 공변량은 time zero 이전 값을 쓰고, 추적 중에 바뀌면서 앞선 치료의 영향도 받는 교란변수(예: 추적 중 eGFR)가 있으면 시간의존 Cox 모형에 넣는 것만으로는 부족하고 한계구조모형 같은 방법이 필요합니다(11장 심화).</li>
+<li><strong>보고할 것</strong>: 설계 도식(세척 기간, 공변량 측정 기간, 노출 판정 시점, time zero, 추적 종료), 불멸시간을 어떻게 처리했는지, 랜드마크를 썼다면 그 시점과 제외된 인원, 민감도 분석.</li>
+<li><strong>파이썬</strong>: lifelines의 <code>CoxTimeVaryingFitter</code>에 (시작, 끝] 형식 자료를 넣습니다. 이 형식은 <code>lifelines.utils</code>의 <code>to_long_format()</code>과 <code>add_covariate_to_timeline()</code>으로 만들 수 있습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 숫자로 본 불멸시간 편향이 논문의 Methods와 Results 문장에서는 어떻게 드러나는지 봅니다. 급성 심근경색으로 입원했다 퇴원한 65세 이상 환자 6,000명을 청구자료로 1년 추적해, 퇴원 후 약물 X 사용과 사망의 관계를 본 가상의 연구입니다. 이 가상 자료에서 약물 X는 사망에 <strong>아무 영향이 없도록</strong> 만들었습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 불멸시간 편향이 있는 코호트 연구</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><span class="mk">1</span> <span class="hl">Patients who filled at least one prescription for drug X during the year after discharge were classified as users</span> (n = 2,734), and all others as non-users (n = 3,266). <span class="mk">2</span> <span class="hl">Follow-up started on the day of discharge</span> and ended at death or 1 year.</p>
+<p class="excerpt">One-year mortality was 11.7% among users and 28.0% among non-users. <span class="mk">3</span> <span class="hl">Drug X use was associated with a 63% lower risk of death (HR, 0.37; 95% CI, 0.32–0.42)</span>. <span class="mk">4</span> <span class="hl">When drug X use was modeled as a time-varying exposure, the HR was 1.03 (95% CI, 0.90–1.18)</span>, and <span class="mk">5</span> <span class="hl">in a landmark analysis at 3 months after discharge it was 0.94 (95% CI, 0.78–1.14)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>추적 기간 중의 정보로 군을 나눈 문장.</b> "퇴원 후 1년 안에 언제든" 처방을 받으면 사용군입니다. 사용군이 되려면 첫 처방일까지 살아 있어야 하므로, 퇴원일부터 첫 처방일까지는 사용군 환자가 사망할 수 없는 <strong>불멸시간</strong><span class="en">(immortal time)</span>입니다. 이 자료에서 첫 처방까지는 중앙값 4.5개월이 걸렸고, 사용군 추적 시간 2,613인년 가운데 1,142인년(44%)이 처방 전의 불멸시간이었습니다.</span></li>
+<li><span class="mk">2</span><span><b>추적은 퇴원일에 시작.</b> time zero(퇴원일)와 노출이 정해지는 시점(첫 처방일)이 어긋나 있습니다. 1번과 2번이 함께 나오면 불멸시간 편향의 전형적인 구조입니다<cite data-ref="suissa2008"></cite>.</span></li>
+<li><span class="mk">3</span><span><b>HR 0.37, "63% lower risk".</b> 효과 없는 약이 사망을 크게 줄이는 것처럼 나왔습니다. 문장에는 문제가 두 가지 있습니다. 첫째는 불멸시간 편향이고, 둘째는 위험비를 "위험이 63% 낮다"로 읽은 표현입니다. 위험비는 순간 사망 속도의 비이지 1년 사망 위험의 비가 아닙니다(11장). 단순 사망률 11.7% 대 28.0%도 같은 편향을 그대로 안고 있습니다. 관찰연구에서 이렇게 큰 효과가 나오면 설계부터 의심합니다.</span></li>
+<li><span class="mk">4</span><span><b>시간의존 노출로 다시 분석.</b> 환자마다 첫 처방 전 기간은 비노출, 처방 후 기간은 노출로 나눠 센 Cox 모형입니다. 위험비 1.03으로, 참값(효과 없음)에 가깝게 돌아왔습니다.</span></li>
+<li><span class="mk">5</span><span><b>3개월 랜드마크 분석.</b> 퇴원 후 3개월에 살아 있던 5,583명만 대상으로, 그때까지 처방받은 934명과 나머지를 3개월 시점부터 비교했습니다. 3개월 전에 사망한 환자는 빠지므로 "3개월 생존자"에 대한 답이고, 3개월 뒤에 약을 시작한 환자는 비사용군에 남아 노출 분류가 조금 흐려집니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \text{IRR}_{\text{잘못}} = \frac{40/(200+200)}{(100+50)/(300+250)} = \frac{0.100}{0.273} = 0.37, \qquad \text{IRR}_{\text{시간의존}} = \frac{40/200}{(100+50)/(500+250)} = \frac{0.20}{0.20} = 1.00 \]
+<p>분모의 인년에서 불멸시간 200인년이 어느 군에 들어가느냐만 바뀌었습니다. 발생률 = 사건 수 ÷ 인년입니다(12장).</p></div>
+<div class="eq">\[ h_i(t) = h_0(t)\,\exp\{\beta X_i(t)\}, \qquad X_i(t) = \begin{cases} 0 & t \lt \text{첫 처방일} \\ 1 & t \ge \text{첫 처방일} \end{cases} \]
+<p>시간의존 Cox 모형에서는 노출 X가 시간 t의 함수입니다. 각 사망 시점의 위험집합에서 그 시점의 X 값으로 비교하므로, 처방 전 기간은 자동으로 비노출로 계산됩니다. 위 논문 상자의 exp(β) = 1.03이 이 모형의 위험비입니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>추적 시작 뒤의 사건(처방, 순응, 치료 반응)으로 군을 나누면, 그 사건 전까지의 기간이 불멸시간이 되어 노출군이 부당하게 유리해집니다.</li>
+<li>예제에서 효과 없는 약의 발생률비가 0.37로 나왔고, 불멸시간을 비노출로 옮기면 1.00이 됩니다. 불멸시간을 빼기만 하면 0.73으로 여전히 치우칩니다.</li>
+<li>해결은 time zero를 맞춘 설계(신규 사용자 설계, 목표시험 모방)가 먼저이고, 분석에서는 시간의존 노출이나 랜드마크 분석을 씁니다.</li>
+<li>설계의 편향이므로 보정 변수를 늘리거나 성향점수를 써도 없어지지 않습니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s6">
+<h2><span class="sec-no">바.</span>메타분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">같은 질문을 다룬 여러 연구의 결과를 하나로 합쳐, 더 정밀한 전체 추정값을 얻고 연구마다 결과가 얼마나 다른지 보는 방법입니다.</p>
+<ul>
+<li><b>비유.</b> 여러 여론조사를 합쳐 지지율을 추정할 때 1,000명을 조사한 결과를 100명을 조사한 결과보다 더 믿는 것과 같습니다. <strong>메타분석</strong><span class="en">(meta-analysis)</span>은 각 연구의 결과를 그 정밀도에 비례해 가중평균합니다.</li>
+<li><b>논문에서는.</b> "MD −0.45% (95% CI −0.70 to −0.20; I² = 78%)"처럼 나옵니다. "약사 중재가 HbA1c를 평균 0.45%p 더 낮추는 것으로 추정되지만, 연구마다 효과 크기가 많이 달라 이 평균을 모든 환경에 그대로 적용하기는 어렵다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 메타분석은 합치는 연구보다 나을 수 없습니다. 편향된 연구를 합치면 편향도 함께 정밀해지고, 결과가 좋은 연구만 출판되었다면 합친 값도 부풀려집니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>체계적 문헌고찰에서 같은 질문(대상, 중재, 비교, 결과)을 다룬 연구의 결과(평균 차이, 상대위험도·오즈비·위험비의 로그값)를 합칠 때</dd></div>
+  <div><dt>핵심 질문</dt><dd>합친 효과는 얼마인가(95% CI)? 연구마다 효과가 얼마나 다른가(I², τ²)? 작은 연구와 큰 연구의 결과가 체계적으로 다른가(출판 비뚤림)?</dd></div>
+  <div><dt>가정·조건</dt><dd>연구들이 합칠 만큼 비슷한 질문을 다룸. 연구마다 효과 추정값과 표준오차가 있음. 고정효과 모형은 공통의 참값 하나를, 무작위효과 모형은 연구마다 다른 참값들의 분포를 가정</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>포레스트 플롯, 합친 추정값(95% CI)과 모형, 이질성(Q 검정 P, I², τ²), 가능하면 예측구간, 연구가 10개 이상이면 깔때기 그림과 Egger 검정, PRISMA 흐름도</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>2형 당뇨병 환자에서 약사 주도 중재와 통상 관리를 비교한 무작위배정 임상시험 6개(1,320명)를 합치는 가상의 체계적 문헌고찰로 따라가 봅니다. 결과는 6개월 HbA1c 변화량의 평균 차이(중재 − 통상 관리)입니다. 여섯 연구의 결과와 두 모형의 가중치는 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>연구</th><th class="r">중재군 n</th><th class="r">대조군 n</th><th class="r">평균 차이 (%p)</th><th class="r">표준오차</th><th class="r">고정효과 가중치</th><th class="r">무작위효과 가중치</th></tr></thead>
+<tbody>
+<tr><td>Study A</td><td class="r">45</td><td class="r">44</td><td class="r">−0.60</td><td class="r">0.244</td><td class="r">5.2%</td><td class="r">12.6%</td></tr>
+<tr><td>Study B</td><td class="r">120</td><td class="r">118</td><td class="r">−0.30</td><td class="r">0.130</td><td class="r">18.5%</td><td class="r">18.6%</td></tr>
+<tr><td>Study C</td><td class="r">60</td><td class="r">58</td><td class="r">−1.10</td><td class="r">0.230</td><td class="r">5.9%</td><td class="r">13.2%</td></tr>
+<tr><td>Study D</td><td class="r">210</td><td class="r">205</td><td class="r">−0.20</td><td class="r">0.088</td><td class="r">39.9%</td><td class="r">20.7%</td></tr>
+<tr><td>Study E</td><td class="r">80</td><td class="r">82</td><td class="r">−0.70</td><td class="r">0.181</td><td class="r">9.5%</td><td class="r">15.8%</td></tr>
+<tr><td>Study F</td><td class="r">150</td><td class="r">148</td><td class="r">−0.10</td><td class="r">0.122</td><td class="r">21.0%</td><td class="r">19.0%</td></tr>
+<tr class="hi"><td>합친 값</td><td class="r" colspan="3"></td><td class="r"></td><td class="r">−0.32 (−0.43 ~ −0.21)</td><td class="r">−0.45 (−0.70 ~ −0.20)</td></tr>
+</tbody></table></div>
+<div class="flow">
+<div><div><b>연구마다 효과와 표준오차</b><p>Study A: 중재군 변화 −0.9 ± 1.1, 대조군 −0.3 ± 1.2 → 평균 차이 −0.60, 표준오차 √(1.1²/45 + 1.2²/44) = 0.244 (2장 가 절의 두 군 평균 차이와 같은 계산).</p></div></div>
+<div><div><b>정밀도로 가중치 주기</b><p><strong>역분산 가중치</strong><span class="en">(inverse-variance weight)</span> = 1 ÷ 표준오차². Study A는 1 ÷ 0.244² = 16.8, 415명의 Study D는 128.1로 7.6배 무겁습니다.</p></div></div>
+<div><div><b>고정효과 모형으로 합치기</b><p>가중평균 = −102.4 ÷ 321.1 = −0.32, 표준오차 = 1 ÷ √321.1 = 0.056 → 95% CI −0.43 ~ −0.21.</p></div></div>
+<div><div><b>이질성 재기</b><p>연구마다 결과가 우연 이상으로 다른 정도를 <strong>이질성</strong><span class="en">(heterogeneity)</span>이라고 합니다. 각 연구가 합친 값에서 떨어진 정도를 가중해 더한 Q = 22.3. 우연만 있다면 Q는 자유도(연구 수 − 1 = 5) 근처여야 합니다. I² = (22.3 − 5) ÷ 22.3 = 78%로, 결과의 흩어짐 가운데 78%가 우연으로 설명되지 않는다는 뜻입니다. 연구 간 분산 τ² = 0.072이고, 그 제곱근 τ = 0.27%p가 연구별 참효과의 표준편차입니다.</p></div></div>
+<div><div><b>무작위효과 모형으로 합치기</b><p>가중치 = 1 ÷ (표준오차² + τ²). 모든 연구에 같은 τ²가 더해지므로 가중치가 고르게 됩니다(Study A 7.6, Study D 12.5, 1.6배). 가중평균 −0.45, 표준오차 0.129 → 95% CI −0.70 ~ −0.20.</p></div></div>
+</div>
+<!--FIG:ch14_f_forest-->
+<p><strong>포레스트 플롯</strong><span class="en">(forest plot)</span>은 한 줄이 한 연구입니다. 사각형이 그 연구의 추정값, 사각형의 크기가 가중치, 가로선이 95% 신뢰구간이고, 세로선(0)이 '차이 없음'입니다. 맨 아래 마름모가 합친 값입니다. 이 그림에서는 Study C(−1.10)와 Study F(−0.10)의 신뢰구간이 겹치지 않을 만큼 결과가 흩어져 있고, 그것이 I² = 78%로 요약됩니다.</p>
+<p>두 모형의 차이를 말로 풀면 이렇습니다. <strong>고정효과 모형</strong><span class="en">(fixed-effect model)</span>은 "모든 연구가 같은 하나의 참값을 추정하고, 결과가 다른 것은 표본오차 때문"이라고 봅니다. 그래서 큰 연구가 결과를 주도합니다. <strong>무작위효과 모형</strong><span class="en">(random-effects model)</span>은 "대상 환자, 중재의 강도, 통상 관리의 수준이 달라 연구마다 참값이 조금씩 다르고, 우리는 그 참값들의 평균을 추정한다"고 봅니다<cite data-ref="dersimonian1986"></cite>. 연구 간 차이만큼 불확실성이 더해져 신뢰구간이 넓어지고, 작은 연구도 상대적으로 무게를 더 얻습니다. 신뢰구간(−0.70 ~ −0.20)은 '효과들의 평균'에 대한 불확실성이고, 여기에 연구 간 차이(τ²)까지 더해 새로운 연구(새로운 환경)에서 기대되는 참효과의 범위를 나타낸 것이 <strong>예측구간</strong><span class="en">(prediction interval)</span>입니다. 이 예에서는 −1.28 ~ 0.38로 0을 넘습니다. 무작위효과 추정값이 −0.32에서 −0.45로 커진 것은 작은 연구들(A, C, E)의 효과가 더 컸기 때문입니다. 작은 연구일수록 효과가 크게 나오는 이런 경향은 출판 비뚤림의 신호일 수 있습니다.</p>
+<!--FIG:ch14_f_funnel-->
+<p><strong>출판 비뚤림</strong><span class="en">(publication bias)</span>은 효과가 크고 유의한 연구가 더 잘 출판되어 문헌에 모인 연구가 한쪽으로 치우치는 현상입니다. 큰 연구는 결과와 관계없이 출판되는 경향이 있으므로 비뚤림은 주로 작은 연구에서 생깁니다. <strong>깔때기 그림</strong><span class="en">(funnel plot)</span>에서 아래쪽(작은 연구)의 한쪽이 비어 있으면 이를 의심하고, 비대칭을 회귀로 검정하는 것이 Egger 검정입니다<cite data-ref="egger1997"></cite>. 다만 비대칭은 작은 연구가 더 고위험 환자를 모았다거나 질이 낮은 것처럼 다른 이유로도 생기므로, 출판 비뚤림의 증거로 단정하지는 않습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 메타분석 결과를 읽을 때</p>
+<ul>
+<li><span class="wrong">I² = 78%이므로 연구 사이에서 효과가 78% 차이 난다.</span> I²는 흩어짐 가운데 이질성이 차지하는 비율입니다. 효과 차이의 크기는 τ(0.27%p)와 예측구간으로 봅니다.</li>
+<li><span class="wrong">이질성 검정의 P가 0.12이므로 이질성이 없고, 고정효과 모형을 쓰면 된다.</span> 연구가 적으면 Q 검정의 검정력이 낮습니다. 모형은 검정 결과가 아니라 연구들이 같은 참값을 추정한다고 볼 수 있는지로 미리 정합니다.</li>
+<li><span class="wrong">무작위효과 모형을 썼으므로 이질성 문제는 해결되었다.</span> 무작위효과 모형은 이질성을 신뢰구간에 반영할 뿐 설명하지 않습니다. 원인은 하위군 분석이나 메타회귀로 탐색합니다.</li>
+<li><span class="wrong">오즈비를 보고한 연구와 상대위험도를 보고한 연구를 한 분석에 함께 넣는다.</span> 결과가 흔하면 오즈비는 상대위험도보다 1에서 더 멀어지므로(5장 가 절, 8장 나 절) 두 척도를 섞으면 안 됩니다. 위험비도 따로 합칩니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p>
+<ul>
+<li><strong>절차</strong>: 프로토콜을 미리 정해 등록하고(예: PROSPERO), 검색·선정 과정을 PRISMA 흐름도로 보고하며, 포함한 연구마다 비뚤림 위험을 평가합니다. 통계적 합치기는 그 마지막 단계입니다.</li>
+<li><strong>효과 척도</strong>: 같은 단위면 평균 차이, 다른 척도(서로 다른 삶의 질 설문)면 표준화 평균 차이(2장 가 절의 Cohen's d)를 씁니다. 상대위험도·오즈비·위험비는 로그를 취해 합친 뒤 다시 지수로 되돌립니다. 논문에 HR 0.82 (95% CI 0.70–0.96)만 있으면 log HR = −0.198, 표준오차 = (ln 0.96 − ln 0.70) ÷ (2 × 1.96) = 0.081로 복원합니다.</li>
+<li><strong>관찰연구를 합칠 때(교란과 보정)</strong>: 각 연구의 보정된 추정값을 합칩니다. 합친다고 교란이 없어지지 않으며, 같은 방향의 편향(예: 불멸시간 편향, 마 절)을 가진 연구들을 합치면 편향된 값이 더 좁은 신뢰구간으로 나올 뿐입니다. 무작위배정 연구와 관찰연구는 나눠서 제시하는 경우가 많습니다.</li>
+<li><strong>보고할 것</strong>: 포함한 연구 수와 인원, 효과 척도, 모형과 τ² 추정 방법(예: DerSimonian–Laird), 합친 값과 95% CI, I², τ², 예측구간, 민감도 분석(한 연구씩 빼기, 대체한 SD의 가정 바꾸기).</li>
+<li><strong>파이썬</strong>: statsmodels의 <code>combine_effects()</code>(<code>statsmodels.stats.meta_analysis</code>)에 효과 추정값과 분산(표준오차²)을 넣습니다. <code>method_re="chi2"</code>가 DerSimonian–Laird 방법이며(기본값 <code>"iterated"</code>는 Paule–Mandel 방법), 이 예의 숫자와 같은 결과를 줍니다. 표준화 평균 차이는 같은 모듈의 <code>effectsize_smd()</code>로 구합니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 합친 여섯 시험의 결과를 체계적 문헌고찰 논문의 Results 문단으로 쓰면 다음과 같습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 메타분석의 Results 문단</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><span class="mk">1</span> <span class="hl">Six randomized trials (1,320 participants)</span> were included. Pharmacist-led interventions reduced HbA1c compared with usual care (<span class="mk">2</span> <span class="hl">mean difference, −0.45 percentage points; 95% CI, −0.70 to −0.20; random-effects model</span>), <span class="mk">3</span> <span class="hl">with substantial heterogeneity (I² = 78%; τ² = 0.072; P for heterogeneity &lt; .001)</span>. <span class="mk">4</span> <span class="hl">The 95% prediction interval ranged from −1.28 to 0.38</span>. <span class="mk">5</span> <span class="hl">For two trials that did not report the SD of the change from baseline, we imputed it assuming a correlation of 0.5 between baseline and follow-up values</span>. <span class="mk">6</span> <span class="hl">Publication bias was not formally assessed because fewer than 10 trials were included</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>연구 6개, 참여자 1,320명.</b> 1,320명을 한 연구처럼 모아 다시 분석한 것이 아니라, 각 연구 안에서 무작위배정으로 얻은 비교 결과(효과 추정값)만 모아 합친 것입니다. 연구 사이에서 환자를 섞지 않으므로 무작위배정의 장점이 유지됩니다.</span></li>
+<li><span class="mk">2</span><span><b>합친 평균 차이 −0.45%p.</b> HbA1c 자체가 %이므로 차이는 %p로 읽습니다. <strong>무작위효과 모형</strong><span class="en">(random-effects model)</span>의 결과이고, 같은 자료에 <strong>고정효과 모형</strong><span class="en">(fixed-effect model)</span>을 쓰면 −0.32(−0.43 ~ −0.21)가 됩니다. 두 모형의 차이와 값이 달라진 이유는 위 '숫자로 따라가기'에서 보았습니다.</span></li>
+<li><span class="mk">3</span><span><b>이질성 지표.</b> <strong>이질성</strong><span class="en">(heterogeneity)</span>은 연구마다 결과가 우연 이상으로 다른 정도입니다. I² = 78%는 "연구 결과의 흩어짐 가운데 78%가 우연(표본오차)으로 설명되지 않는다"는 비율이며, 효과 차이의 크기가 아닙니다. 대략 25%, 50%, 75%를 낮음, 중간, 높음의 기준으로 봅니다<cite data-ref="higgins2003"></cite>. 효과가 연구마다 실제로 얼마나 다른지는 τ = √0.072 = 0.27%p(연구별 참효과의 표준편차)로 읽습니다. Q 검정의 P는 연구 수가 적으면 검정력이 낮아서, P &gt; 0.05라고 이질성이 없다는 뜻은 아닙니다.</span></li>
+<li><span class="mk">4</span><span><b>95% 예측구간 −1.28 ~ 0.38.</b> 새로운 연구(새로운 환경)에서 기대되는 참효과의 범위입니다. 신뢰구간(−0.70 ~ −0.20)은 '효과들의 평균'이 어디쯤인지에 대한 불확실성이고, 예측구간은 여기에 연구 간 차이(τ²)까지 더한 것입니다. 0을 넘어서므로, 어떤 환경에서는 중재 효과가 거의 없을 수도 있다는 뜻입니다.</span></li>
+<li><span class="mk">5</span><span><b>변화량 SD를 대체한 문장.</b> 3장 가 절에서 본 것처럼 변화량의 SD는 시점별 SD만으로 계산할 수 없고 전후 상관을 알아야 합니다. 보고되지 않았으면 신뢰구간이나 P에서 역산하거나, 이 문장처럼 상관을 가정합니다. 예: 기저 SD 1.3, 6개월 SD 1.4, 상관 0.5를 가정하면 변화량 SD = √(1.3² + 1.4² − 2 × 0.5 × 1.3 × 1.4) = 1.35. 가정한 상관을 바꿔도 결론이 같은지 민감도 분석을 합니다.</span></li>
+<li><span class="mk">6</span><span><b>출판 비뚤림을 평가하지 않은 이유.</b> 깔때기 그림과 Egger 검정은 연구가 적으면 비뚤림을 찾아낼 힘(검정력)이 약하므로<cite data-ref="egger1997"></cite>, 보통 연구 10개 이상일 때 시행합니다. 평가하지 않았다는 것이 비뚤림이 없다는 뜻은 아닙니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \hat{\theta}_{FE} = \frac{\sum w_i y_i}{\sum w_i}, \qquad w_i = \frac{1}{SE_i^2}, \qquad SE(\hat{\theta}_{FE}) = \frac{1}{\sqrt{\sum w_i}} \]
+<p>\(y_i\)는 i번째 연구의 효과 추정값입니다. 예제: Σw = 321.1, Σwy = −102.4 → −0.319, SE = 1 ÷ √321.1 = 0.056.</p></div>
+<div class="eq">\[ Q = \sum w_i (y_i - \hat{\theta}_{FE})^2, \quad I^2 = \frac{Q - (k-1)}{Q}, \quad \tau^2 = \frac{Q - (k-1)}{\sum w_i - \sum w_i^2 / \sum w_i}, \quad w_i^{*} = \frac{1}{SE_i^2 + \tau^2} \]
+<p>k는 연구 수이고, 음수가 나오면 0으로 둡니다<cite data-ref="higgins2002"></cite>. 예제: I² = (22.33 − 5) ÷ 22.33 = 0.78, τ² = 17.33 ÷ (321.1 − 26,050 ÷ 321.1) = 17.33 ÷ 240.0 = 0.072, 무작위효과 추정값 = Σw*y ÷ Σw* = −27.02 ÷ 60.31 = −0.448. 95% 예측구간은 −0.448 ± t<sub>k−2</sub> × √(τ² + SE²) = −0.448 ± 2.776 × √(0.0722 + 0.0166) = −1.28 ~ 0.38입니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>메타분석은 각 연구의 효과를 역분산(정밀도)으로 가중평균합니다. 큰 연구일수록 무게가 큽니다.</li>
+<li>고정효과 모형은 공통의 참값 하나를, 무작위효과 모형은 연구마다 다른 참값들의 평균을 추정하며 신뢰구간이 더 넓습니다.</li>
+<li>I²는 흩어짐 중 이질성의 비율이고, 효과 차이의 실제 크기는 τ와 예측구간으로 봅니다.</li>
+<li>합친 연구가 편향되었거나 결과가 좋은 연구만 출판되었다면 합친 값도 편향됩니다. 관찰연구를 합쳐도 교란은 없어지지 않습니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s7">
+<h2><span class="sec-no">사.</span>중단시계열분석과 이중차분법</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">정책이나 안전성 경고 같은 '사건' 전의 흐름으로 "그 사건이 없었다면 어땠을지"를 추정하고, 실제 값과의 차이를 효과로 보는 방법입니다. 중단시계열분석은 한 집단의 긴 시계열을, 이중차분법은 정책을 받은 집단과 받지 않은 집단의 전후 변화를 씁니다.</p>
+<ul>
+<li><b>비유.</b> 체중이 매달 0.5 kg씩 늘던 사람이 운동을 시작한 뒤 반년 동안 체중이 그대로라면, 운동의 효과는 0 kg이 아니라 "늘었을 3 kg"입니다. 전후 평균만 비교하면 원래의 흐름을 무시하게 됩니다.</li>
+<li><b>논문에서는.</b> "level change −4.12 per 1,000 (95% CI −5.24 to −3.00); trend change −0.20 per month"처럼 나옵니다. "경고 직후 처방률이 1,000명당 4.1명 뚝 떨어졌고, 그 뒤로는 원래의 감소 추세보다 매달 0.2명씩 더 줄어드는 쪽으로 기울기가 바뀌었다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 같은 시점에 다른 일(다른 정책, 코드 변경, 언론 보도)이 있었다면 그 효과와 구분할 수 없습니다. 시간상 맞아떨어지는 것만으로 인과를 단정하지 않으며, 비교 집단이 있으면 결론이 훨씬 단단해집니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>급여기준 변경, 약가 인하, 안전성 서한, DUR 도입처럼 특정 시점에 집단 전체에 적용되어 개인 단위 무작위배정이 불가능한 정책·중재를 평가할 때</dd></div>
+  <div><dt>핵심 질문</dt><dd>중재 직후 수준이 바뀌었나(수준 변화)? 추세의 기울기가 바뀌었나(기울기 변화)? 정책을 받은 집단의 변화가 받지 않은 집단의 변화보다 큰가(이중차분)?</dd></div>
+  <div><dt>가정·조건</dt><dd>중단시계열: 중재가 없었다면 이전 추세가 이어졌을 것, 같은 시점의 다른 변화가 없을 것, 자기상관·계절성 처리. 이중차분: 평행 추세(중재가 없었다면 두 집단의 변화가 같았을 것)</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>분절회귀 계수(기저 수준, 기존 추세, 수준 변화, 기울기 변화)와 95% CI, 특정 시점의 절대·상대 변화, 자기상관 처리 방법, 관측값과 반사실을 함께 그린 그림. 이중차분 추정값(95% CI)과 사전 추세 그림</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<h4>중단시계열분석</h4>
+<p><strong>중단시계열분석</strong><span class="en">(interrupted time series, ITS)</span>은 같은 집단을 일정한 간격으로 여러 번 잰 값(시계열)이 중재 시점에서 '끊겼는지' 봅니다. 가장 흔한 분석인 <strong>분절회귀</strong><span class="en">(segmented regression)</span>는 중재 전과 후에 각각 직선을 맞춥니다<cite data-ref="wagner2002"></cite>. 예로 65세 이상 환자에게 약물 X를 쓸 때 주의하라는 안전성 서한(아래에서는 '경고')이 2021년 1월에 배포되었다고 합시다(가상). 청구자료로 2019년 1월부터 2022년 12월까지 48개월 동안 65세 이상 환자 1,000명당 월별 약물 X 처방률을 구해 분절회귀로 분석합니다.</p>
+<!--FIG:ch14_g_its-->
+<ol>
+<li>경고 전 24개월에 맞춘 직선(기울기 −0.10)을 경고 후로 연장합니다. 이것이 "경고가 없었다면"의 추정, 즉 <strong>반사실</strong><span class="en">(counterfactual)</span>입니다.</li>
+<li>경고 후 24개월에 맞춘 직선은 시작점이 4.1 낮고(수준 변화), 기울기가 −0.30입니다(기존 −0.10 + 변화 −0.20).</li>
+<li>두 선의 간격이 효과입니다. 12개월째 적합값은 42.3, 반사실은 48.8로 차이는 −6.5명(−13.4%)이며, 간격은 시간이 갈수록 벌어집니다.</li>
+</ol>
+<h4>이중차분법</h4>
+<p>이번에는 2023년 1월부터 일부 지역에서만 고령자 다제약물 관리 시범사업을 시행했다고 합시다(가상). 결과는 65세 이상 외래환자 가운데 벤조디아제핀을 장기 처방받은 환자의 비율(%)이고, 시행 전후 각 4개 분기의 평균입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th class="r">시행 전</th><th class="r">시행 후</th><th class="r">변화 (후 − 전)</th></tr></thead>
+<tbody>
+<tr><td>시범 지역</td><td class="r">18.4</td><td class="r">13.2</td><td class="r">−5.2</td></tr>
+<tr><td>비교 지역</td><td class="r">16.2</td><td class="r">15.0</td><td class="r">−1.2</td></tr>
+<tr class="hi"><td>차이 (시범 − 비교)</td><td class="r">2.2</td><td class="r">−1.8</td><td class="r">−4.0</td></tr>
+</tbody></table></div>
+<p>같은 표에서 세 가지 비교를 할 수 있습니다.</p>
+<ul>
+<li><strong>시범 지역의 전후 비교(−5.2%p)</strong>: 비교 지역에서도 1.2%p 줄었으므로, 사업과 무관하게 전국에서 진행된 감소가 섞여 있습니다.</li>
+<li><strong>시행 후 두 지역 비교(−1.8%p)</strong>: 시범 지역은 원래 2.2%p 높았으므로, 원래의 차이를 무시한 비교입니다.</li>
+<li><strong>이중차분(−4.0%p)</strong>: (13.2 − 18.4) − (15.0 − 16.2) = −5.2 − (−1.2) = −4.0. 시범 지역의 변화에서 '어차피 일어났을 변화'인 비교 지역의 변화를 뺍니다<cite data-ref="dimick2014"></cite>.</li>
+</ul>
+<!--FIG:ch14_g_did-->
+<p><strong>이중차분법</strong><span class="en">(difference-in-differences, DID)</span>의 핵심 가정은 <strong>평행 추세</strong><span class="en">(parallel trends)</span>, 즉 사업이 없었다면 두 지역의 변화가 같았으리라는 것입니다. 두 지역의 수준은 달라도 됩니다(2.2%p). 사업 후의 반사실은 관측할 수 없으므로 가정을 직접 증명할 수는 없고, 그림 14-9처럼 시행 전 여러 시점에서 두 선의 기울기가 같았는지(이 예에서는 둘 다 분기당 약 −0.3%p)를 보여 뒷받침합니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 정책 효과를 읽을 때</p>
+<ul>
+<li><span class="wrong">경고 후 24개월의 평균 처방률이 경고 전보다 유의하게 낮으므로(51.0 → 42.1), 경고가 처방률을 8.9 낮췄다.</span> 이미 진행 중이던 감소가 섞여 있습니다. 기존 추세를 연장한 반사실과 비교해야 합니다.</li>
+<li><span class="wrong">기울기 변화 −0.20은 경고 후 처방률이 매달 0.20씩 줄었다는 뜻이다.</span> 기울기의 '변화'입니다. 경고 후 기울기는 −0.30/월입니다.</li>
+<li><span class="wrong">처방률이 정확히 경고 시점에 꺾였으므로 경고 때문에 줄었다.</span> 시간상의 일치는 인과의 증거가 아닙니다. 같은 달의 다른 정책, 급여 코드 변경, 언론 보도를 확인하고, 경고의 영향을 받지 않은 비교 시계열로 뒷받침합니다.</li>
+<li><span class="wrong">이중차분법은 두 집단의 처방률 수준이 비슷해야 쓸 수 있다.</span> 수준은 달라도 되고, 추세가 평행해야 합니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p>
+<ul>
+<li><strong>사회약학에서의 쓰임</strong>: HIRA·NHIS 청구자료로 월별·분기별 처방률, 사용량, 1인당 약제비, 부적절 처방 비율을 만들어 약가 인하, 급여기준 변경, 안전성 서한, DUR 도입 같은 정책을 평가하는 연구에 흔히 씁니다. 분모(대상자 수, 방문 수)의 정의가 기간 내내 같아야 합니다.</li>
+<li><strong>설계 점검(중단시계열)</strong>: 앞뒤로 충분한 시점이 필요합니다(월별 자료라면 각각 12개 이상이 흔히 권장됩니다). 계절성은 월 가변수 등으로 다루고, 시행 직후 적응 기간이 있으면 그 몇 달을 따로 두거나 뺍니다. 같은 시기의 다른 정책과 코드 변경을 확인하고, 가능하면 비교 시계열을 추가합니다<cite data-ref="bernal2017"></cite>. 건수 자료는 포아송·음이항 분절회귀(12장)로 분석할 수도 있습니다.</li>
+<li><strong>교란과 보정</strong>: 집단 수준의 분석이므로 기간에 따라 환자 구성(나이, 중증도)이 바뀌면 그것이 교란이 됩니다. 연령 표준화율을 쓰거나 구성 변수를 모형에 넣습니다. 이중차분법에서는 두 집단의 구성이 시행 전후로 다르게 바뀌지 않았는지 확인하고, 필요하면 개인 수준 자료로 공변량을 보정한 회귀를 씁니다.</li>
+<li><strong>표준오차</strong>: 월별 처방률처럼 이웃한 시점의 값끼리 비슷한 경향을 <strong>자기상관</strong><span class="en">(autocorrelation)</span>이라고 하며, 이를 무시하면 보통의 최소제곱 표준오차가 너무 작게 나올 수 있습니다. 중단시계열은 자기상관을 확인하고(Durbin–Watson 통계량, 2에 가까우면 자기상관 없음; 잔차의 자기상관 그림) 이를 반영한 Newey–West 표준오차나 ARIMA를 씁니다. 이중차분법은 같은 의료기관·지역의 관측값끼리 비슷하므로 그 단위로 군집 강건 표준오차를 씁니다. 집단마다 시행 시점이 다르면(순차 도입) 흔히 쓰는 이원 고정효과 회귀가 치우칠 수 있어 이를 보완한 방법들이 제안되어 있습니다.</li>
+<li><strong>보고할 것</strong>: 모형식, 시간 단위와 시점 수, 자기상관·계절성 처리, 계수와 95% CI, 특정 시점의 절대·상대 효과, 관측값·적합선·반사실을 함께 그린 그림. 이중차분이면 사전 추세 그림과 군집 단위.</li>
+<li><strong>파이썬</strong>: 분절회귀는 statsmodels의 <code>OLS</code>에 시간, 중재 후 여부, 중재 후 시간 세 변수를 넣고 <code>fit(cov_type="HAC", cov_kwds={"maxlags": 3})</code>로 Newey–West 표준오차를 구합니다. Durbin–Watson은 <code>statsmodels.stats.stattools.durbin_watson()</code>입니다. 이중차분은 <code>smf.ols("y ~ treat * post", data=df).fit(cov_type="cluster", cov_kwds={"groups": df["기관"]})</code>처럼 교호작용 항의 계수를 봅니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위의 안전성 서한 예를 분절회귀로 분석한 결과가 논문의 표로는 다음과 같이 보고됩니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 분절회귀 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Segmented regression analysis of the monthly prescribing rate of drug X per 1,000 patients aged ≥65 years, January 2019 to December 2022</caption>
+<thead><tr><th>Parameter</th><th class="r">Estimate</th><th class="r">95% CI</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>Baseline level<sup>a</sup></td><td class="r">52.25</td><td class="r">51.07 to 53.42</td><td class="r">&lt;.001</td></tr>
+<tr><td><span class="mk">1</span> Pre-warning trend, per month</td><td class="r">−0.10</td><td class="r">−0.17 to −0.02</td><td class="r">.015</td></tr>
+<tr><td><span class="mk">2</span> Level change after warning</td><td class="r">−4.12</td><td class="r">−5.24 to −3.00</td><td class="r">&lt;.001</td></tr>
+<tr><td><span class="mk">3</span> Trend change after warning, per month</td><td class="r">−0.20</td><td class="r">−0.30 to −0.10</td><td class="r">&lt;.001</td></tr>
+<tr><td><span class="mk">4</span> Absolute change at 12 months<sup>b</sup></td><td class="r">−6.54</td><td class="r">−8.33 to −4.74</td><td class="r"></td></tr>
+<tr><td class="ind">Relative change at 12 months</td><td class="r">−13.4%</td><td class="r"></td><td class="r"></td></tr>
+</tbody></table></div>
+<p class="jt-foot"><sup>a</sup> Intercept (model-estimated rate at time 0). <sup>b</sup> Model-predicted rate minus the counterfactual rate (pre-warning trend extended) 12 months after the warning. <span class="mk">5</span> Standard errors were estimated with the Newey–West method (lag 3) to account for autocorrelation.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기존 추세 −0.10/월.</b> 경고가 나오기 전에도 처방률은 매달 1,000명당 0.1명씩 줄고 있었습니다. 경고 전 24개월 평균(51.0)과 후 24개월 평균(42.1)을 단순 비교한 −8.9에는 이 기존 감소분(약 −2.3)이 섞여 있어 효과를 과대평가합니다. 분절회귀는 이 추세를 연장한 선을 "경고가 없었다면"의 기준으로 씁니다.</span></li>
+<li><span class="mk">2</span><span><b>수준 변화 −4.12.</b> 경고 직후, 기존 추세로 예상되는 값보다 처방률이 1,000명당 4.1명 낮아졌다는 뜻입니다. 경고에 즉시 반응한 부분입니다.</span></li>
+<li><span class="mk">3</span><span><b>기울기 변화 −0.20/월.</b> 기울기가 −0.20이 된 것이 아니라 기존 기울기에 −0.20이 <strong>더해진</strong> 것입니다. 경고 후 기울기는 −0.10 + (−0.20) = −0.30/월입니다. 효과가 시간이 갈수록 커지는 부분입니다.</span></li>
+<li><span class="mk">4</span><span><b>12개월 뒤의 절대·상대 변화.</b> 수준 변화와 기울기 변화를 합친 효과입니다. −4.12 + 12 × (−0.20) = −6.5(반올림 전 값으로 −6.54). 같은 시점의 반사실 값 48.8에 비하면 −13.4%입니다. 계수 네 개보다 이 요약이 정책의 효과를 전달하기 쉬워 함께 보고하는 경우가 많습니다.</span></li>
+<li><span class="mk">5</span><span><b>자기상관 보정.</b> 월별 처방률은 이웃한 달끼리 비슷한 경향(<strong>자기상관</strong><span class="en">(autocorrelation)</span>)이 있어, 보통의 최소제곱 표준오차는 너무 작게 나올 수 있습니다. Newey–West 표준오차는 이를 반영한 표준오차입니다. 이 자료의 Durbin–Watson 통계량은 1.38로 2(자기상관 없음)보다 작아 약한 양의 자기상관이 있습니다. ARIMA 같은 시계열 모형을 쓰기도 합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ Y_t = \beta_0 + \beta_1\,\text{time}_t + \beta_2\,\text{post}_t + \beta_3\,\text{time after}_t + \varepsilon_t \]
+<p>time은 1–48(월), post는 경고 전 0·후 1, time after는 경고 전 0이고 경고 후 1, 2, 3, …입니다. β<sub>1</sub>은 기존 추세, β<sub>2</sub>는 수준 변화, β<sub>3</sub>은 기울기 변화입니다. 경고 k개월 뒤의 효과는 β<sub>2</sub> + β<sub>3</sub>k입니다. 예제(k = 12, time = 36): −4.117 + 12 × (−0.2015) = −6.54. 반사실 = β<sub>0</sub> + β<sub>1</sub> × 36 = 52.25 − 0.0959 × 36 = 48.80, 상대 변화 = −6.54 ÷ 48.80 = −13.4%.</p></div>
+<div class="eq">\[ \text{DID} = (\bar{Y}_{T,\text{후}} - \bar{Y}_{T,\text{전}}) - (\bar{Y}_{C,\text{후}} - \bar{Y}_{C,\text{전}}), \qquad Y = \beta_0 + \beta_1\,\text{treat} + \beta_2\,\text{post} + \beta_3\,(\text{treat} \times \text{post}) \]
+<p>T는 시범 지역, C는 비교 지역입니다. 회귀식에서 β<sub>0</sub> = 16.2(비교 지역 시행 전), β<sub>1</sub> = 2.2(시행 전 두 지역 차이), β<sub>2</sub> = −1.2(비교 지역의 변화), β<sub>3</sub> = −4.0이 이중차분 추정값입니다. 결과가 이분형이라 로지스틱 회귀를 쓰면 교호작용 계수는 오즈비 척도의 값이므로 %p 차이로 바로 읽을 수 없습니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>중단시계열분석은 중재 전 추세를 연장한 반사실과 비교해 수준 변화와 기울기 변화를 추정합니다. 전후 평균 비교는 기존 추세를 효과로 착각합니다(예제 −8.9 대 12개월 효과 −6.5).</li>
+<li>기울기 변화는 기울기의 '차이'이며, 중재 후 기울기는 기존 추세에 기울기 변화를 더한 값입니다.</li>
+<li>이중차분법은 비교 집단의 변화를 빼서 공통의 시간 변화를 제거하며, 핵심 가정은 평행 추세입니다.</li>
+<li>같은 시점의 다른 변화는 두 방법 모두 구분하지 못하므로, 시간상의 일치를 인과로 단정하지 않습니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s8">
+<h2><span class="sec-no">아.</span>의료비용 자료의 분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">의료비는 0원인 사람이 많고 소수의 고액 환자가 긴 꼬리를 만드는 자료입니다. 그래도 예산과 비용효과 분석에 필요한 값은 1인당 산술평균이므로, 평균을 지키면서 이 모양을 다룰 수 있는 방법을 고릅니다.</p>
+<ul>
+<li><b>왜 평균인가.</b> 식당의 한 달 매출은 "손님 1인당 평균 결제액 × 손님 수"입니다. 결제액의 중앙값에 손님 수를 곱해서는 매출이 나오지 않습니다. 보험자나 병원이 알고 싶은 총비용도 "1인당 평균 비용 × 환자 수"로만 계산됩니다(1장 바 절).</li>
+<li><b>논문에서는.</b> "mean difference −75.9 (95% CI −143.3 to −8.3), bootstrap"(단위 만원)처럼 나옵니다. "중재군 환자 1명당 1년 입원비가 평균 약 76만원 적었고, 실제 절감액은 약 8만원에서 143만원 사이로 추정된다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 비용이 치우쳤다고 중앙값 비교나 Mann-Whitney 검정으로 바꾸면 "1인당 얼마"라는 질문에 답하지 못합니다. 아래 예처럼 두 군의 중앙값이 모두 0원일 수도 있습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>두 군의 1인당 의료비·약제비·입원비를 비교하거나, 공변량을 보정해 비용 차이를 추정할 때</dd></div>
+  <div><dt>핵심 질문</dt><dd>1인당 산술평균 비용이 군 사이에 원(₩) 단위로 얼마나 다른가</dd></div>
+  <div><dt>가정·조건</dt><dd>평균 비교(t 검정, 부트스트랩)는 표본이 충분하면 분포 가정이 거의 필요 없음. 감마 GLM은 비용이 양수이고 평균이 클수록 흩어짐도 크다고 가정. 0원이 많으면 이단계 모형</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>군별 평균(SD)과 중앙값(IQR), 0원 환자 비율, 평균 차이와 95% CI(구한 방법), 비용 비, 비용 기준 연도와 분석 관점</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>65세 이상 다제약물 복용 환자 1,000명을 약사 주도 약물검토 중재군과 통상관리군에 500명씩 무작위배정하고, 12개월 동안의 입원 진료비(건강보험 청구 기준, 단위 만원)를 비교한 시험이 있다고 합시다. 1인당 평균은 중재군 208.3만원(SD 501.4), 통상관리군 284.2만원(SD 617.7)이고, 중앙값은 두 군 모두 0원입니다. 이 자료의 모양과 평균 차이를 그림과 계산으로 살펴봅니다.</p>
+<!--FIG:ch14_h_cost-->
+<div class="flow">
+<div><div><b>모양 보기</b><p>통상관리군 500명 중 301명(60.2%)이 0원입니다. 입원한 199명만 보면 중앙값 439.4만원, 평균 714.2만원이고, 비용이 가장 큰 10%(50명)가 군 전체 비용의 63%를 차지합니다. 중재군도 같은 모양입니다(0원 68.8%, 상위 10%가 68%).</p></div></div>
+<div><div><b>평균과 그 차이</b><p>208.3 − 284.2 = −75.9만원. 신뢰구간은 <strong>부트스트랩</strong><span class="en">(bootstrap)</span>으로 구합니다. 각 군에서 환자 500명을 복원추출(한 사람이 여러 번 뽑힐 수 있게)해 평균 차이를 다시 계산하는 일을 2,000번 반복하고, 그 값들의 가운데 95% 범위를 쓰는 방법으로 정규분포 가정이 필요 없습니다. 부트스트랩 95% CI −143.3 ~ −8.3, Welch t 검정 95% CI −145.7 ~ −6.1로 거의 같습니다.</p></div></div>
+<div><div><b>두 부분으로 나누기</b><p><strong>이단계 모형</strong><span class="en">(two-part model)</span>은 비용을 "입원했는가"와 "입원했다면 얼마가 들었는가"로 나눠 봅니다. 1인당 평균 = 입원 확률 × 입원자의 평균입니다. 통상관리 0.398 × 714.2 = 284.2, 중재 0.312 × 667.8 = 208.3.</p></div></div>
+<div><div><b>차이가 어디서 왔나</b><p>입원 확률이 줄어든 몫: (0.312 − 0.398) × 714.2 = −61.4만원. 입원자의 비용이 줄어든 몫: 0.312 × (667.8 − 714.2) = −14.5만원. 합계 −75.9만원 가운데 약 81%가 입원 감소에서 왔습니다.</p></div></div>
+</div>
+<p>로그 변환은 이 자료에 쓰기 어렵습니다. 0원에는 로그를 취할 수 없어 흔히 "비용 + 1"에 로그를 취하는데, 이렇게 적합한 선형회귀의 e<sup>β</sup>는 0.59이고, 1 대신 100을 더하면 0.85가 됩니다. 더하는 상수를 무엇으로 정하느냐에 따라 답이 바뀌고, 어느 쪽도 산술평균의 비(0.73)가 아닙니다. 0이 없는 자료에서도 로그-OLS의 e<sup>β</sup>는 기하평균의 비이고 원래 단위로 되돌리려면 재변환 보정(smearing)이 필요합니다(8장 라 절)<cite data-ref="manning2001"></cite>.</p>
+
+<h3>방법 고르기</h3>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>방법</th><th>추정하는 것</th><th>이럴 때</th><th>주의</th></tr></thead>
+<tbody>
+<tr class="hi"><td>평균 비교(t 검정) + 부트스트랩 CI</td><td>산술평균 차이(원)</td><td>무작위배정 시험, 표본이 충분할 때</td><td>공변량을 보정하지 못함</td></tr>
+<tr><td>감마 GLM, 로그 연결 (8장 라 절)</td><td>산술평균의 비. 재활용 예측으로 금액 차이</td><td>관찰연구에서 교란변수를 보정할 때</td><td>0원은 넣을 수 없음. 분산 구조가 맞는지 확인(modified Park test)</td></tr>
+<tr><td>이단계 모형</td><td>사용 확률 × 사용자의 평균</td><td>0원이 많을 때</td><td>두 부분의 예측을 곱해 금액을 구하고 CI는 부트스트랩</td></tr>
+<tr><td>로그 변환 뒤 선형회귀</td><td>기하평균의 비</td><td>비용의 주 분석으로는 권하지 않음</td><td>0원 처리 불가, 재변환 문제</td></tr>
+<tr><td>Mann-Whitney 검정</td><td>한 군 값이 더 클 확률(순위)</td><td>평균이 질문이 아닐 때</td><td>평균 비용 차이에 답하지 못함</td></tr>
+</tbody></table></div>
+<p>감마 분포가 자료에 맞는지는 modified Park test로 확인합니다. 원래 척도의 잔차 제곱을 예측값에 로그 연결 GLM으로 회귀해 분산이 평균의 몇 제곱에 비례하는지 보는 방법으로, 그 계수가 2 근처이면 감마 분포의 가정(분산 ∝ 평균²)과 맞습니다<cite data-ref="manning2001"></cite>. 여러 방법 중 어느 것이 자료에 맞는지는 표본을 나눠 예측 오차를 비교하는 식으로 정하기도 합니다<cite data-ref="mihaylova2011"></cite><cite data-ref="deb2018"></cite>. 무작위배정 시험의 주 분석은 평균 차이와 부트스트랩 신뢰구간이면 충분한 경우가 많습니다<cite data-ref="thompson2000cost"></cite>.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 비용 자료</p>
+<ul>
+<li><span class="wrong">비용이 정규분포가 아니므로 Mann-Whitney 검정으로 두 군의 비용을 비교했다.</span> 이 예의 Mann-Whitney P = 0.005는 주로 "중재군에 입원한 사람이 적다"를 반영합니다. 1인당 평균 비용이 얼마나 다른지는 말해 주지 않습니다.</li>
+<li><span class="wrong">log(비용 + 1)로 회귀한 e<sup>β</sup>가 0.59이므로 평균 비용이 41% 줄었다.</span> 이 값은 더한 상수에 좌우되는 기하평균 쪽의 비입니다. 산술평균의 비는 0.73입니다.</li>
+<li><span class="wrong">두 군의 중앙값이 같으므로 비용 차이가 없다.</span> 0원이 절반을 넘으면 중앙값은 차이를 볼 수 없습니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 무작위배정 시험이면 평균 차이와 부트스트랩 신뢰구간을 주 분석으로 둡니다. 0원이 많으면 이단계 모형으로 "사용 여부"와 "사용자의 비용"을 나눠 봅니다.</li>
+<li><strong>교란과 보정</strong>: 청구자료로 두 약 사용자의 비용을 비교하는 관찰연구라면 나이, 동반질환, 기저 시점의 의료이용을 넣은 감마 GLM(0원이 많으면 이단계 모형)을 쓰고, 재활용 예측으로 1인당 금액 차이를 구합니다(8장 라 절). 성향점수 가중치를 준 뒤 비용을 비교하기도 합니다(14장 다 절). 측정되지 않은 교란은 어떤 비용 모형으로도 보정되지 않습니다.</li>
+<li><strong>비용 자료의 함정</strong>: 추적 중 사망이나 자격 상실로 관측 기간이 사람마다 다르면 단순 합계가 왜곡됩니다. 관측 기간을 맞추거나 이를 고려한 방법을 검토합니다. 여러 해의 비용은 같은 기준 연도로 물가를 맞추고, 1년이 넘는 비용은 할인합니다. 보험자 부담만인지 본인부담을 포함하는지 등 분석 관점을 밝힙니다.</li>
+<li><strong>보고할 것</strong>: 군별 평균(SD)과 중앙값(IQR), 0원 비율, 평균 차이(원)와 95% CI 및 구한 방법, 비용 비, 모형의 분포와 연결함수, 비용 기준 연도와 관점. 파이썬에서는 statsmodels의 <code>sm.GLM</code>(<code>family=sm.families.Gamma(sm.families.links.Log())</code>)과 scipy의 <code>stats.bootstrap</code>을 씁니다.</li>
+<li><strong>다음 단계</strong>: 비용 차이와 효과 차이를 묶는 점증적 비용효과비<span class="en">(incremental cost-effectiveness ratio, ICER)</span>와 그 불확실성 분석은 경제성 평가의 영역으로, 이 장의 범위를 넘습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위의 약물검토 시험의 비용 분석을 논문으로 보고하면 Methods 문장과 결과표는 다음과 같습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 비용 분석의 Methods와 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Because costs were right-skewed with many zero values, we compared <span class="mk">1</span> <span class="hl">mean costs per patient</span> and obtained 95% CIs by <span class="mk">2</span> <span class="hl">nonparametric bootstrapping (2,000 replicates)</span>. To examine where the difference arose, we fitted a <span class="mk">3</span> <span class="hl">two-part model</span>: logistic regression for any hospitalization and a gamma GLM with log link for costs among hospitalized patients.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Hospitalization costs per patient over 12 months (10,000 KRW)</caption>
+<thead><tr><th></th><th class="r">Medication review<br>(n = 500)</th><th class="r">Usual care<br>(n = 500)</th><th class="r">Difference or ratio<br>(95% CI)</th></tr></thead>
+<tbody>
+<tr><td>Any hospitalization, n (%)</td><td class="r">156 (31.2)</td><td class="r">199 (39.8)</td><td class="r"><span class="mk">4</span> OR 0.69 (0.53 to 0.89)</td></tr>
+<tr><td>Cost, median (IQR)</td><td class="r"><span class="mk">5</span> 0 (0–193.3)</td><td class="r">0 (0–312.7)</td><td class="r"></td></tr>
+<tr><td>Cost, mean (SD)</td><td class="r">208.3 (501.4)</td><td class="r">284.2 (617.7)</td><td class="r"><span class="mk">6</span> −75.9 (−143.3 to −8.3)<sup>a</sup></td></tr>
+<tr><td class="ind">Cost ratio</td><td class="r"></td><td class="r">Reference</td><td class="r">0.73 (0.56 to 0.97)<sup>a</sup></td></tr>
+<tr><td>Cost among hospitalized patients, mean (SD)</td><td class="r">667.8 (707.4)</td><td class="r">714.2 (808.0)</td><td class="r"><span class="mk">7</span> Ratio 0.93 (0.74 to 1.18)<sup>b</sup></td></tr>
+</tbody></table></div>
+<p class="jt-foot"><sup>a</sup> Percentile bootstrap CI. <sup>b</sup> Gamma GLM with log link. IQR, interquartile range; OR, odds ratio.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>치우친 자료인데 평균을 비교합니다.</b> 총비용은 평균 × 환자 수로만 계산되기 때문입니다. 중재군 총비용은 208.3만원 × 500명 ≈ 10억 4천만원, 통상관리군은 284.2만원 × 500명 ≈ 14억 2천만원입니다. 중앙값(0원) × 500명으로는 0원이 됩니다.</span></li>
+<li><span class="mk">2</span><span><b>부트스트랩 신뢰구간.</b> 각 군에서 환자 500명을 복원추출(한 사람이 여러 번 뽑힐 수 있게)해 평균 차이를 다시 계산하는 일을 2,000번 반복하고, 그 값들의 가운데 95% 범위를 신뢰구간으로 씁니다. 정규분포 가정이 필요 없습니다. 같은 자료의 Welch t 검정 신뢰구간(−145.7 to −6.1, P = 0.033)과 거의 같으므로, 군당 500명에서는 중심극한정리에 기댄 t 검정도 잘 맞았다는 확인이 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>이단계 모형</b><span class="en">(two-part model)</span>. 비용을 "입원했는가"와 "입원했다면 얼마가 들었는가"로 나눠 따로 모형화하고, 평균 비용 = 입원 확률 × 입원자의 평균 비용으로 다시 합칩니다. 0원이 많은 자료에서 차이가 어디서 오는지 보여 줍니다.</span></li>
+<li><span class="mk">4</span><span><b>오즈비 0.69는 "입원이 31% 줄었다"가 아닙니다.</b> 입원 비율의 비(상대위험도)는 31.2 ÷ 39.8 = 0.78, 즉 22% 감소입니다. 입원이 30–40%로 흔한 결과라 오즈비가 상대위험도보다 1에서 더 멀어졌습니다(8장 나 절).</span></li>
+<li><span class="mk">5</span><span><b>중앙값이 두 군 모두 0원.</b> 절반 넘게 입원하지 않았기 때문입니다. 중앙값으로는 두 군의 차이가 전혀 드러나지 않습니다. 평균(208.3)보다 SD(501.4)가 훨씬 큰 것도 강한 오른쪽 치우침의 신호입니다(1장 바 절).</span></li>
+<li><span class="mk">6</span><span><b>1인당 평균 차이 −75.9만원과 비용 비 0.73.</b> 208.3 − 284.2 = −75.9, 208.3 ÷ 284.2 = 0.73입니다. 중재 대상 1,000명이면 약 7억 6천만원을 줄인다는 뜻이며, 구간 상한(−8.3만원)이 0에 가까워 절감 규모의 불확실성이 크다는 점도 함께 읽습니다. 비용 비는 산술평균의 비입니다.</span></li>
+<li><span class="mk">7</span><span><b>입원한 환자의 평균 비용은 거의 같습니다.</b> 비 0.93에 신뢰구간이 1을 넓게 포함합니다. 절감은 주로 "입원한 사람 수가 줄어든 것"에서 왔다는 뜻입니다. 다만 입원 여부는 배정 뒤에 정해지므로, 입원한 사람끼리의 비교는 무작위배정이 보장하는 비교가 아닙니다. 이 비는 설명용으로 읽습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ E[\text{비용}] = P(\text{비용} > 0) \times E[\text{비용} \mid \text{비용} > 0] \]
+<p>이단계 모형의 뼈대입니다. 통상관리군 0.398 × 714.2 = 284.2만원, 중재군 0.312 × 667.8 = 208.3만원. 첫 부분은 로지스틱 회귀(9장), 둘째 부분은 감마 GLM으로 추정하고, 공변량이 있으면 환자마다 두 예측값을 곱해 평균합니다.</p></div>
+<div class="eq">\[ \Delta = \underbrace{(p_I - p_C)\, m_C}_{\text{입원 감소}} + \underbrace{p_I\,(m_I - m_C)}_{\text{입원자 비용 감소}} = -61.4 + (-14.5) = -75.9 \]
+<p>p는 입원 확률, m은 입원자의 평균 비용입니다. 평균 차이를 두 몫으로 나눈 것이며, 순서를 바꿔 나누면 두 몫의 크기가 조금 달라집니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>의료비는 0원이 많고 오른쪽 꼬리가 긴 자료지만, 예산과 경제성 평가에 필요한 것은 1인당 산술평균입니다. 중앙값과 Mann-Whitney 검정은 이 질문에 답하지 못합니다.</li>
+<li>무작위배정 시험에서는 평균 차이와 부트스트랩 신뢰구간이 기본이고, 교란 보정이 필요한 관찰연구에서는 감마 GLM(로그 연결)과 재활용 예측을 씁니다.</li>
+<li>0원이 많으면 이단계 모형으로 "사용 확률 × 사용자의 평균"으로 나눠 보면 차이가 어디서 왔는지 보입니다.</li>
+<li>로그 변환 회귀의 e<sup>β</sup>는 산술평균의 비가 아닙니다. 특히 log(비용 + 상수)는 상수에 따라 답이 달라집니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s9">
+<h2><span class="sec-no">자.</span>결측자료와 다중대체</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">값이 빠진 이유에 따라 남은 사람만 분석해도 되는지가 달라집니다. 다중대체<span class="en">(multiple imputation)</span>는 빠진 값을 그럴듯한 값으로 여러 번 채워 각각 분석한 뒤, 채울 때 생긴 불확실성까지 반영해 결과를 하나로 합치는 방법입니다.</p>
+<ul>
+<li><b>비유.</b> 10장 나 절의 기말시험 결시생을 떠올려 봅니다. 버스 고장으로 못 온 학생은 완전 무작위 결측<span class="en">(missing completely at random, MCAR)</span>, 중간고사 성적이 낮았던 학생이 더 많이 결시한 경우는 무작위 결측<span class="en">(missing at random, MAR)</span>, 망칠 것 같아 결시한 경우는 비무작위 결측<span class="en">(missing not at random, MNAR)</span>입니다. 다중대체는 두 번째 경우에 "중간고사 성적이 비슷한 다른 학생들의 기말 점수"를 참고해 결시생의 점수를 여러 번 추정해 보는 것입니다.</li>
+<li><b>논문에서는.</b> "Missing data were handled by multiple imputation (30 imputations) and results were combined using Rubin's rules"처럼 나옵니다. "빠진 값을 30가지로 채워 30번 분석하고, 정해진 규칙으로 하나로 합쳤다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 다중대체는 대체모형에 넣은 정보만큼만 결측을 바로잡습니다. 결측을 설명하는 변수가 빠지면 완전사례 분석처럼 치우칠 수 있고, 관측하지 못한 값 자체 때문에 생긴 결측은 어떤 방법으로도 자료만으로 해결되지 않습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>결과변수나 공변량에 결측이 있어 완전사례 분석이 인원을 많이 잃거나 편향될 수 있을 때(임상시험의 탈락, 건강검진 연계 자료의 BMI·흡연, 전자의무기록의 검사값)</dd></div>
+  <div><dt>핵심 질문</dt><dd>결측이 왜 생겼는가, 그 이유를 설명하는 정보가 자료에 있는가</dd></div>
+  <div><dt>가정·조건</dt><dd>무작위 결측(MAR). 대체모형에 분석모형의 모든 변수(결과변수 포함)와 결측을 예측하는 보조변수를 넣음</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>변수별 결측 비율, 결측 가정, 대체모형의 변수, 대체 횟수, 결합 방법(Rubin의 규칙), 완전사례 분석 등 민감도 분석</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>고혈압 환자 300명을 약사 주도 혈압관리 프로그램과 통상치료에 150명씩 무작위배정하고 12개월 수축기혈압(SBP)을 비교한 가상의 시험으로 따라가 봅니다. 12개월 SBP는 77명(중재군 30명, 통상치료군 47명)에서 측정되지 못했습니다. 기저 SBP와 3개월 SBP는 모두에게 있고, 3개월 혈압이 높던 사람이 더 많이 탈락했습니다. 모의자료라서 탈락한 77명의 실제 12개월 혈압도 알고 있습니다. 먼저 남은 사람만 보면 왜 치우치는지 확인합니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>12개월 SBP 평균 (mmHg)</th><th class="r">측정된 사람</th><th class="r">탈락자(실제 값)</th><th class="r">전체(참값)</th></tr></thead>
+<tbody>
+<tr><td>중재군</td><td class="r">143.5 (120명)</td><td class="r">157.2 (30명)</td><td class="r">146.2</td></tr>
+<tr><td>통상치료군</td><td class="r">146.4 (103명)</td><td class="r">159.5 (47명)</td><td class="r">150.5</td></tr>
+<tr class="hi"><td>군간 차이</td><td class="r">−2.9</td><td class="r"></td><td class="r">−4.3</td></tr>
+</tbody></table></div>
+<p>혈압이 높은 사람이 빠지면 남은 사람의 평균은 실제보다 좋아 보입니다. 통상치료군에서 더 많이 빠졌으므로 통상치료군이 더 많이 좋아 보이고(146.4 대 150.5), 군간 차이가 작아집니다. 기저 SBP를 보정한 ANCOVA로 비교해도 같은 방향입니다. 이제 결측 처리 방법만 바꿔 같은 자료를 분석합니다.</p>
+<!--FIG:ch14_i_mi-->
+<ul>
+<li><strong>완전사례 분석</strong><span class="en">(complete-case analysis)</span> −4.57: 결측 없는 자료의 −5.32보다 작습니다.</li>
+<li><strong>군별 평균으로 채우기</strong> −3.43: 더 치우쳤고, 채운 77개 값을 실제 관측처럼 취급해 표준오차(0.95)가 완전사례 분석(1.09)보다 작게 나옵니다. 모르는 값을 아는 척한 만큼 신뢰구간이 부당하게 좁아집니다.</li>
+<li><strong>다중대체, 3개월 SBP 없이</strong> −4.50: 결측을 설명하는 정보가 대체모형에 없으면 완전사례 분석과 거의 같습니다.</li>
+<li><strong>다중대체, 3개월 SBP 포함</strong> −5.22: 결측 없는 자료의 값에 가깝습니다. 3개월 SBP처럼 분석모형(기저 SBP를 보정한 ANCOVA)에는 없지만 결측을 설명해 대체모형에 넣는 변수를 <strong>보조변수</strong><span class="en">(auxiliary variable)</span>라고 합니다.</li>
+</ul>
+<p>두 다중대체는 모두 빈칸을 30번 채워 30개의 대체 자료를 만들고 각각 분석해 합친 결과입니다(합치는 방법은 아래 'Rubin의 규칙으로 합치기').</p>
+<p>한 벌의 자료는 우연일 수 있어 같은 설계로 300번 반복했습니다. 평균 추정값은 결측 없는 자료 −5.24, 완전사례 −4.56, 평균 대체 −3.33, 보조변수 없는 다중대체 −4.56, 보조변수를 넣은 다중대체 −5.23이었습니다. 평균 대체는 보고된 표준오차가 평균 0.97인데 실제 추정값의 흩어짐(SD)은 1.36이었습니다.</p>
+
+<h4>Rubin의 규칙으로 합치기</h4>
+<p>여러 대체 자료의 결과를 하나로 합치는 표준 방법이 <strong>Rubin의 규칙</strong><span class="en">(Rubin's rules)</span>입니다. 계산을 보이기 위해 보조변수를 넣은 다중대체의 30개 대체 자료 중 앞의 5개만 써 봅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>대체 자료</th><th class="r">1</th><th class="r">2</th><th class="r">3</th><th class="r">4</th><th class="r">5</th><th class="r">결합</th></tr></thead>
+<tbody>
+<tr><td>군간 차이 (mmHg)</td><td class="r">−4.71</td><td class="r">−4.91</td><td class="r">−4.23</td><td class="r">−5.88</td><td class="r">−5.19</td><td class="r">평균 −4.98</td></tr>
+<tr><td>SE²</td><td class="r">0.871</td><td class="r">0.908</td><td class="r">0.986</td><td class="r">0.934</td><td class="r">0.866</td><td class="r">평균 0.913</td></tr>
+</tbody></table></div>
+<div class="flow">
+<div><div><b>추정값</b><p>다섯 값의 평균 −4.98 mmHg.</p></div></div>
+<div><div><b>분석 안의 불확실성</b><p>각 분석의 SE²의 평균 0.913. 대체 자료 하나를 실제 자료처럼 분석했을 때의 불확실성입니다.</p></div></div>
+<div><div><b>분석 사이의 불확실성</b><p>다섯 추정값 자체의 분산 0.376(반올림 전 값). 빈칸을 어떻게 채우느냐에 따라 결과가 흔들리는 정도이며, 모르는 값이 있다는 사실이 여기에 담깁니다.</p></div></div>
+<div><div><b>합친 표준오차</b><p>0.913 + (1 + 1/5) × 0.376 = 1.364, √1.364 = 1.17. 95% CI는 −4.98 ± 2.03 × 1.17 = −7.35 ~ −2.62입니다(2.03은 Rubin의 자유도 약 37의 t 값, 반올림 전 값으로 계산).</p></div></div>
+</div>
+<p>분석 사이의 분산을 빼고 0.913만 쓰면 신뢰구간이 −6.86 ~ −3.11로 좁아집니다. 대체 자료 하나만 만들어 분석하는 것(단일 대체)이 불확실성을 과소평가하는 이유입니다. 5개만 쓴 결과(−4.98)는 30개를 쓴 결과(−5.22)와 조금 다른데, 대체 횟수가 적으면 이런 흔들림이 남기 때문에 요즘은 더 많이 대체합니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 결측 처리</p>
+<ul>
+<li><span class="wrong">빠진 값을 평균으로 채우면 인원을 잃지 않으니 가장 안전하다.</span> 추정값이 치우칠 수 있고, 채운 값을 실제 관측처럼 다뤄 신뢰구간이 부당하게 좁아집니다. 마지막 관측값 대입(LOCF, 10장 나 절)도 단일 대체의 한 형태입니다.</li>
+<li><span class="wrong">다중대체를 했으므로 결측 문제는 해결되었다.</span> 결측을 설명하는 변수가 대체모형에 없으면 다중대체도 완전사례 분석처럼 치우칩니다(예제 −4.50). 비무작위 결측은 어떤 대체모형으로도 자료만으로 바로잡을 수 없습니다.</li>
+<li><span class="wrong">공변량을 대체할 때 결과변수를 대체모형에 넣으면 결과를 미리 보는 것이므로 빼야 한다.</span> 결과변수를 빼면 대체된 공변량과 결과의 관련성이 0 쪽으로 약해집니다. 대체모형에는 결과변수를 반드시 넣습니다<cite data-ref="sterne2009"></cite>.</li>
+<li><span class="wrong">결과변수만 결측이니 다중대체를 하면 완전사례 분석보다 좋아진다.</span> 분석모형과 같은 변수만으로 결과를 대체하면 완전사례 분석과 거의 같은 답이 나옵니다(300번 반복 평균 둘 다 −4.56). 보조변수가 있을 때 이득이 생깁니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>먼저 할 일</strong>: 변수별 결측 비율과 결측 양상을 표로 정리하고, 결측이 있는 사람과 없는 사람의 특성을 비교합니다(10장 나 절). 결측이 적고 결측 여부가 결과와 관련 없어 보이면 완전사례 분석도 큰 문제가 없지만, 그 판단 근거를 적습니다.</li>
+<li><strong>고르는 기준</strong>: 반복측정 연속형 결과의 탈락은 혼합모형(MMRM, 10장 다 절)이 대체 없이 MAR 아래에서 모든 관측값을 씁니다. 공변량 결측(건강검진 연계 자료의 BMI·흡연, 검사값)에는 다중대체가 흔히 쓰입니다. 생존분석이라면 대체모형에 사건 여부와 누적위험률 추정값을 결과 정보로 넣습니다.</li>
+<li><strong>교란과 보정</strong>: 결측이 있는 교란변수를 '미상' 범주로 따로 넣거나 결측 지시변수를 쓰는 방식은 편리하지만 관찰연구에서 편향을 만들 수 있습니다. 성향점수 분석(14장 다 절)이라면 대체 자료마다 성향점수와 효과를 추정한 뒤 Rubin의 규칙으로 합칩니다. 결측 처리는 측정되지 않은 교란을 보정해 주지 않습니다.</li>
+<li><strong>민감도 분석</strong>: 완전사례 분석과 함께, 탈락자의 값이 MAR 예측보다 일정 폭 나쁘다고 놓는 분석(delta 조정, 티핑 포인트 분석)이나 탈락자에게 대조군의 경과를 적용하는 참조 기반 대체를 덧붙입니다(10장 다 절)<cite data-ref="little2012"></cite>. 비열등성 시험에서는 두 군에 같은 값을 채우는 방식이 차이를 0 쪽으로 줄여 결론을 유리하게 만들 수 있습니다(13장).</li>
+<li><strong>보고할 것</strong>: 변수별 결측 수, 가정(MAR), 대체모형의 변수와 방법, 대체 횟수, 결합 방법, 완전사례 분석과 민감도 분석 결과<cite data-ref="sterne2009"></cite>. 파이썬에서는 statsmodels의 <code>MICE</code>(<code>statsmodels.imputation.mice</code>)가 대체와 결합을 함께 해 줍니다. scikit-learn의 <code>IterativeImputer</code>(먼저 <code>from sklearn.experimental import enable_iterative_imputer</code>를 실행해야 불러올 수 있음)는 한 번에 대체 자료 하나를 만들 뿐이므로, <code>sample_posterior=True</code>로 두고 <code>random_state</code>를 바꿔 가며 여러 번 만든 뒤 Rubin의 규칙은 직접 적용해야 합니다. 기본 설정(<code>sample_posterior=False</code>)은 매번 같은 예측값으로 채워 대체 사이의 흔들림이 0이 됩니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위의 혈압관리 시험에서 결측을 다중대체로 처리했다면 논문의 Methods와 Results에는 이렇게 적힙니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 결측 처리의 Methods와 Results</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Twelve-month SBP was <span class="mk">1</span> <span class="hl">missing for 77 of 300 participants (25.7%; 20.0% intervention, 31.3% usual care)</span>. Participants with missing data <span class="mk">2</span> <span class="hl">had higher SBP at 3 months</span> than those with complete data. Assuming data were <span class="mk">3</span> <span class="hl">missing at random</span>, we performed <span class="mk">4</span> <span class="hl">multiple imputation with 30 imputed datasets; the imputation model included treatment group, baseline SBP, and 3-month SBP</span>. In each dataset the treatment effect was estimated by ANCOVA adjusted for baseline SBP, and estimates were <span class="mk">5</span> <span class="hl">combined using Rubin's rules</span>.</p>
+<p class="excerpt">The adjusted mean difference in 12-month SBP was <span class="mk">6</span> <span class="hl">−5.2 mmHg (95% CI, −7.3 to −3.1)</span>; in the <span class="mk">7</span> <span class="hl">complete-case analysis (n = 223), −4.6 mmHg (95% CI, −6.7 to −2.4)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>결측 비율을 군별로.</b> 통상치료군에서 결측이 더 많습니다(47명 대 30명). 결측이 군마다 다르게 생기면 완전사례 분석이 치우칠 위험이 커집니다.</span></li>
+<li><span class="mk">2</span><span><b>결측이 생긴 이유의 단서.</b> 탈락자의 3개월 SBP 평균은 중재군 158.9 대 142.5, 통상치료군 160.1 대 143.3 mmHg로, 혈압이 잘 조절되지 않던 사람이 더 많이 빠졌습니다. 탈락이 이미 관측된 3개월 혈압과 관련 있다는 뜻입니다. 탈락이 3개월 혈압으로 설명된다면(MAR, 3번) 3개월 혈압이 결측을 바로잡는 열쇠가 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>무작위 결측(MAR) 가정.</b> "배정군과 기저·3개월 혈압이 같은 사람끼리는 탈락 여부가 12개월 혈압과 무관하다"는 가정입니다. 이름과 달리 결측이 아무렇게나 생겼다는 뜻이 아닙니다. 자료로 확인할 수 없는 가정이므로 논문에는 다른 가정의 민감도 분석이 함께 있어야 합니다.</span></li>
+<li><span class="mk">4</span><span><b>무엇을 넣어 몇 번 채웠나.</b> 대체모형에 분석모형에는 없는 3개월 SBP(보조변수<span class="en">(auxiliary variable)</span>)를 넣은 것이 핵심입니다. 대체 횟수는 결측이 있는 사람의 비율(%) 이상이 흔히 권장되어, 25.7%면 30번이면 충분합니다<cite data-ref="white2011"></cite>.</span></li>
+<li><span class="mk">5</span><span><b>Rubin의 규칙</b><span class="en">(Rubin's rules)</span>. 30개 추정값의 평균을 결과로 쓰고, 표준오차에는 "각 분석 안의 불확실성"과 "채울 때마다 결과가 달라지는 정도"를 함께 넣습니다<cite data-ref="rubin1987"></cite>(위 'Rubin의 규칙으로 합치기').</span></li>
+<li><span class="mk">6</span><span><b>주 분석 결과.</b> 중재군의 12개월 SBP가 5.2 mmHg 낮았습니다. 300명 모두가 분석에 들어갔습니다.</span></li>
+<li><span class="mk">7</span><span><b>완전사례 분석.</b> 12개월 혈압이 있는 223명만 쓴 결과로, 효과가 더 작게 나왔습니다. 두 결과가 다르다는 것은 결측을 어떻게 다루느냐가 결과를 바꾼다는 신호입니다. 방향과 결론이 같다고 해서 "결측은 문제가 아니었다"로 끝내지 말고 어느 쪽이 더 그럴듯한 가정 위에 있는지 봅니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \bar{Q} = \frac{1}{m}\sum_{j=1}^{m} \hat{Q}_j, \qquad T = \bar{W} + \left(1 + \frac{1}{m}\right) B \]
+<p>\(\hat{Q}_j\)는 j번째 대체 자료의 추정값, \(\bar{W}\)는 각 분석 SE²의 평균, B는 추정값들의 분산, √T가 결합한 표준오차입니다. 예제(m = 5): T = 0.913 + 1.2 × 0.376 = 1.364, SE = 1.17. (1 + 1/m)의 1/m은 대체 횟수가 유한해서 생기는 추가 불확실성입니다. 신뢰구간의 t 값에 쓰는 자유도도 B가 클수록 작아지도록 따로 계산합니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>결측의 처리 방법은 결측이 생긴 이유(MCAR, MAR, MNAR)에 따라 정해집니다. 결측이 관측된 정보와 관련 있으면 완전사례 분석은 치우칠 수 있습니다.</li>
+<li>다중대체는 빈칸을 여러 번 채워 각각 분석하고, Rubin의 규칙으로 추정값은 평균하고 분산에는 대체 사이의 흔들림을 더합니다.</li>
+<li>대체모형에는 결과변수와 결측을 설명하는 보조변수를 넣어야 합니다. 평균으로 한 번 채우는 단일 대체는 추정값을 치우치게 하고 신뢰구간을 부당하게 좁힙니다.</li>
+<li>MAR은 자료로 확인할 수 없으므로 완전사례 분석과 MNAR 가정의 민감도 분석을 함께 보고합니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s10">
+<h2><span class="sec-no">차.</span>표본크기와 검정력</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">표본크기 계산은 "찾고 싶은 크기의 효과가 실제로 있을 때, 그것을 놓치지 않을 만큼 대상자(생존분석이면 사건)를 모으는가"를 연구 전에 확인하는 일입니다.</p>
+<ul>
+<li><b>비유.</b> 어두운 방에서 물건을 찾는다고 합시다. 물건(효과)이 작을수록, 방이 어지러울수록(변동이 클수록), 놓치면 안 되는 정도(검정력)가 높을수록 더 밝은 조명(더 많은 대상자)이 필요합니다.</li>
+<li><b>논문에서는.</b> "170 patients per group would provide 80% power to detect a difference of 15 percentage points"처럼 나옵니다. "실제 차이가 15%p라면 이 연구가 그 차이를 유의하게 잡아낼 확률이 80%가 되도록 설계했다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 표본크기는 결과를 보기 전에 정합니다. 결과가 나온 뒤 관측된 효과로 계산한 '사후 검정력'<span class="en">(post hoc power, observed power)</span>은 p-value를 다른 말로 바꾼 것일 뿐 새 정보를 주지 않습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>임상시험과 전향적 연구의 계획서, 연구비 신청서. 청구자료처럼 인원이 정해진 연구에서는 "이 인원으로 어느 크기의 효과까지 검출할 수 있는가"를 계산</dd></div>
+  <div><dt>핵심 질문</dt><dd>목표한 효과를 원하는 검정력으로 검출하려면 몇 명(생존분석이면 몇 건의 사건)이 필요한가</dd></div>
+  <div><dt>네 가지 재료</dt><dd>유의수준 α(보통 양측 0.05), 검정력 1 − β(80% 또는 90%), 검출하려는 효과 크기(임상적으로 의미 있는 최소 차이), 변동(연속형은 SD, 이분형은 대조군 비율, 생존은 사건 확률)</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>1차 결과변수, 가정한 값과 그 근거, α와 검정력, 계산 방법, 탈락 보정, 최종 모집 인원</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<h4>두 평균</h4>
+<p>1장 나 절의 혈압 예(SD 7 mmHg, 검출할 차이 4 mmHg, 양측 α 0.05, 검정력 80%)는 군당 49명이었습니다(표준화 효과크기 d = 4 ÷ 7 = 0.57을 넣어 t 분포로 계산하는 statsmodels <code>TTestIndPower</code>로는 49.05 → 50명). 재료를 하나씩 바꾸면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>바꾼 재료</th><th class="r">군당 인원</th><th>이유</th></tr></thead>
+<tbody>
+<tr class="hi"><td>기본 (SD 7, 차이 4, 검정력 80%)</td><td class="r">49</td><td></td></tr>
+<tr><td>SD 8</td><td class="r">63</td><td>인원은 SD²에 비례: 48.1 × (8/7)²</td></tr>
+<tr><td>차이 3</td><td class="r">86</td><td>인원은 차이²에 반비례: 48.1 × (4/3)²</td></tr>
+<tr><td>차이 2 (절반)</td><td class="r">193</td><td>차이가 절반이면 약 4배</td></tr>
+<tr><td>검정력 90%</td><td class="r">65</td><td>z 값이 0.842에서 1.282로 커짐</td></tr>
+</tbody></table></div>
+
+<h4>두 비율</h4>
+<p>약사의 복약상담 프로그램이 12개월 순응률을 높이는지 보는 무작위배정 시험을 계획한다고 합시다. 1차 결과변수는 PDC 80% 이상인 환자의 비율입니다. 예비연구를 근거로 통상관리군의 비율을 50%로 가정하고, 임상적으로 의미 있는 최소 차이를 15%p(65%)로 잡아 양측 α 0.05, 검정력 80%로 계산하면 군당 170명이 필요합니다. 검출하려는 차이를 줄이면 인원이 빠르게 늘어납니다.</p>
+<!--FIG:ch14_j_ss-->
+
+<h4>생존시간</h4>
+<p>생존분석의 검정력은 환자 수가 아니라 <strong>사건 수</strong>로 정해집니다. 1:1 배정, 양측 α 0.05, 검정력 80%에서 위험비 0.75를 검출하려면 사건이 380건 필요합니다(Schoenfeld 공식, 11장)<cite data-ref="schoenfeld1983"></cite>. 위험비 0.80이면 631건, 검정력 90%면 508건입니다. 환자 수는 사건 수를 사건이 생길 확률로 나눠 구합니다. 대조군의 3년 사건 확률을 30%로 가정하면 중재군은 1 − 0.70<sup>0.75</sup> = 23.5%, 두 군 평균 26.7%이므로 380 ÷ 0.2674 ≈ 1,422명(군당 711명)이 3년간 추적되어야 합니다. 실제 사건 확률이 가정의 절반이면 인원이나 추적 기간을 크게 늘려야 하므로, 생존 연구는 중간에 사건 수를 확인하며 진행합니다.</p>
+
+<h4>설계에 따른 보정</h4>
+<ul>
+<li><strong>탈락</strong>: 필요 인원 ÷ (1 − 탈락률).</li>
+<li><strong>군집 설계</strong>: 약국 단위로 배정하면 설계효과 1 + (약국당 환자 수 − 1) × ICC를 곱합니다. 약국당 12.5명, ICC 0.05(10장 다 절)면 1.575배, 즉 군당 170명이 268명이 됩니다.</li>
+<li><strong>비열등성 시험</strong>: 한계와 실제 차이를 넣는 공식을 따로 씁니다(13장).</li>
+</ul>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 검정력</p>
+<ul>
+<li><span class="wrong">결과가 유의하지 않아 사후 검정력을 계산해 보니 25%였으므로 표본이 부족했던 것이다.</span> 관측된 효과로 계산한 검정력은 p-value로 정해집니다. p = 0.05면 50%, p = 0.20이면 25%, p = 0.50이면 10%로, p-value를 다시 쓴 것에 불과합니다<cite data-ref="hoenig2001"></cite>. 결과 해석에는 신뢰구간을 봅니다.</li>
+<li><span class="wrong">표본크기를 계산해 충분한 검정력을 갖췄으므로, 유의하지 않은 결과는 효과가 없다는 뜻이다.</span> 계획한 크기(15%p)보다 작은 효과는 여전히 놓칠 수 있습니다. 신뢰구간이 임상적으로 의미 있는 효과를 포함하는지 확인합니다<cite data-ref="altman1995absence"></cite>.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>가정값의 근거</strong>: SD, 대조군 비율, 사건 확률은 선행연구, 예비연구, 청구자료의 기술통계에서 가져오고 출처를 적습니다. 불확실하면 여러 값으로 계산한 표를 계획서에 넣습니다.</li>
+<li><strong>인원이 정해진 연구</strong>: 청구자료 코호트는 "몇 명이 필요한가" 대신 "이 인원과 사건 수로 어느 크기의 효과까지 검출할 수 있는가(최소 검출 효과)"나 예상 신뢰구간의 폭을 제시합니다. 사건 210건이면 위험비 0.70은 검정력 73%, 0.80은 37%로 검출됩니다(11장).</li>
+<li><strong>교란과 보정</strong>: 관찰연구에서 매칭으로 인원이 빠지거나 성향점수 가중치가 극단적이면 실제로 쓰이는 정보가 계산보다 줄어듭니다(14장 다 절). 다변수 모형에 넣을 변수 수도 사건 수에 맞춰야 합니다(9장, 11장). 계산한 인원보다 넉넉히 잡습니다.</li>
+<li><strong>보고할 것</strong>: 1차 결과변수, 가정한 값과 근거, α(양측·단측), 검정력, 효과 크기, 계산 방법, 탈락 보정, 최종 인원. 파이썬에서는 statsmodels의 <code>TTestIndPower</code>, <code>NormalIndPower</code>와 <code>proportion_effectsize</code>를 씁니다. 사건 수는 위 공식으로 직접 계산해도 됩니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위의 복약상담 시험(50% 대 65%, 군당 170명)의 계산은 Methods에 다음과 같은 표본크기 문단으로 적힙니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 표본크기 문단</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Based on our pilot data, we assumed that <span class="mk">1</span> <span class="hl">50% of patients in the usual care group</span> would achieve a PDC of 80% or higher, and considered <span class="mk">2</span> <span class="hl">an absolute increase of 15 percentage points (to 65%)</span> to be clinically meaningful. <span class="mk">3</span> <span class="hl">With a two-sided α of 0.05 and 80% power</span>, <span class="mk">4</span> <span class="hl">170 patients per group</span> were required for a two-sample comparison of proportions. <span class="mk">5</span> <span class="hl">Allowing for 15% loss to follow-up, we planned to enroll 200 patients per group</span> (400 in total).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>대조군 비율의 가정.</b> 이분형 결과에서는 이 값이 '변동' 역할을 합니다. 비율의 분산 p(1 − p)는 50%에서 가장 크므로 50% 가정은 보수적인 편입니다. 근거(선행연구, 예비연구)를 밝혀야 하며, 실제 비율이 다르면 검정력도 달라집니다.</span></li>
+<li><span class="mk">2</span><span><b>검출하려는 효과.</b> 절대 차이 15%p(상대적으로는 65 ÷ 50 = 1.3배)입니다. 임상적으로 의미 있는 최소 차이여야 하고, 인원을 줄이려고 크게 잡으면 안 됩니다. 실제 차이가 10%p라면 군당 170명의 검정력은 46%에 불과합니다.</span></li>
+<li><span class="mk">3</span><span><b>α와 검정력.</b> 검정력 80%는 실제 차이가 15%p일 때 5번 중 1번은 "유의하지 않음"으로 놓친다는 뜻입니다(1장 나 절). 90%로 올리면 군당 227명이 필요합니다.</span></li>
+<li><span class="mk">4</span><span><b>군당 170명.</b> 공식으로 169.3이 나와 올림했습니다('수식으로 보기'). statsmodels의 <code>NormalIndPower</code>(Cohen의 h 사용)로는 169.1, 연속성 보정 공식으로는 183명이 나오는 등 도구와 공식에 따라 조금 다르므로 어떤 방법을 썼는지 적습니다.</span></li>
+<li><span class="mk">5</span><span><b>탈락 보정은 나눗셈으로.</b> 170 ÷ 0.85 = 200입니다. 170 × 1.15 = 196명을 모으면 15%가 빠진 뒤 166.6명만 남습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ n_{\text{군당}} = \frac{\left[\,z_{1-\alpha/2}\sqrt{2\bar{p}(1-\bar{p})} + z_{1-\beta}\sqrt{p_1(1-p_1) + p_2(1-p_2)}\,\right]^2}{(p_1 - p_2)^2} \]
+<p>\(\bar{p}\)는 두 비율의 평균입니다. 예제: \(\bar{p}\) = 0.575, [1.96 × 0.6991 + 0.842 × 0.6910]² ÷ 0.15² = 1.952² ÷ 0.0225 = 169.3 → 170명. 분모가 차이의 제곱이라 차이가 절반이면 인원이 약 4배가 됩니다.</p></div>
+<div class="eq">\[ N_{\text{환자}} = \frac{D}{P(\text{사건})}, \qquad N_{\text{모집}} = \frac{N}{1 - \text{탈락률}} \]
+<p>D는 필요한 사건 수(11장의 Schoenfeld 공식)입니다. 예제: 380 ÷ 0.2674 ≈ 1,422명. 두 비율 예제의 탈락 보정: 170 ÷ 0.85 = 200명.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>표본크기는 α, 검정력, 검출하려는 효과 크기, 변동(SD·대조군 비율·사건 확률)의 네 재료로 정해지며, 인원은 대략 효과 크기의 제곱에 반비례합니다.</li>
+<li>생존분석의 검정력은 사건 수가 정하므로 필요한 사건 수를 먼저 구하고 사건 확률로 환자 수를 역산합니다.</li>
+<li>탈락은 1 − 탈락률로 나누고, 군집 설계는 설계효과를 곱합니다. 계산 근거를 Methods에 모두 적습니다.</li>
+<li>관측된 효과로 계산한 사후 검정력은 의미가 없습니다. 결과는 신뢰구간으로 해석합니다.</li>
+</ul></div>
+</section>
+
+<section class="sec" id="ch14-s11">
+<h2><span class="sec-no">카.</span>일치도 분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">일치도 분석은 두 측정 방법(또는 두 평가자)이 "같은 값을 내는가"를 봅니다. 함께 오르내리는지를 보는 상관분석과는 다른 질문입니다.</p>
+<ul>
+<li><b>비유.</b> 늘 2 kg 더 나오게 재는 체중계는 정확한 체중계와 눈금이 완벽하게 함께 움직이지만(상관계수 1) 한 번도 같은 값을 보여 주지 않습니다(6장 가 절).</li>
+<li><b>논문에서는.</b> "mean difference 3.6 mmHg (95% limits of agreement −9.4 to 16.6)"처럼 나옵니다. "새 기기는 평균 3.6 mmHg 높게 재고, 한 사람에서는 기준보다 9 mmHg 낮게부터 17 mmHg 높게까지 잴 수 있다"라고 읽습니다. 범주형 판정이면 "κ = 0.32"처럼 Cohen의 κ<span class="en">(kappa)</span>가 나옵니다.</li>
+<li><b>기억할 한 가지.</b> 상관계수가 높다(r = 0.92)는 것은 일치의 증거가 아닙니다. 일치 한계가 임상적으로 허용할 만큼 좁은지를 봅니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>새 측정기기나 간이 검사를 기준 방법과 비교할 때, 두 평가자(예: 약사 두 명)의 판정 일치, 자기보고 순응도와 약국 재조제 기록(PDC)의 비교, 같은 측정의 재현성</dd></div>
+  <div><dt>핵심 질문</dt><dd>연속형: 두 측정의 차이가 평균 얼마이고(치우침) 한 사람에서 어느 범위까지 벌어지는가(일치 한계). 범주형: 우연히 일치할 몫을 빼고 얼마나 일치하는가(κ)</dd></div>
+  <div><dt>가정·조건</dt><dd>Bland–Altman은 차이가 대략 정규분포이고 측정값의 크기에 따라 차이가 변하지 않을 것. κ는 두 평가가 같은 범주를 쓰며, 범주의 비율(유병률)에 영향을 받음</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>평균 차이(95% CI)와 95% 일치 한계, Bland–Altman 그림. κ(95% CI)와 관측 일치율, 2×2 표. ICC는 유형과 95% CI</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<h4>Bland–Altman 방법</h4>
+<p>약국에서 쓸 새 손목형 자동 혈압계를 기준 혈압계와 비교하려고 50명의 수축기혈압을 두 기기로 쟀다고 합시다(가상의 연구). 두 기기의 평균은 손목 139.9 mmHg, 기준 136.3 mmHg이고, 두 측정값의 상관계수는 r = 0.92입니다.</p>
+<div class="flow">
+<div><div><b>사람마다 차이와 평균</b><p>50명 각각에서 차이(손목 − 기준)와 두 측정의 평균을 구합니다.</p></div></div>
+<div><div><b>치우침</b><p>차이의 평균이 <strong>치우침</strong><span class="en">(bias)</span>입니다. 3.62 mmHg, 95% CI 1.73 ~ 5.51로, 손목 혈압계가 체계적으로 높게 잽니다.</p></div></div>
+<div><div><b>흩어짐</b><p>차이의 SD 6.64 mmHg.</p></div></div>
+<div><div><b>일치 한계</b><p><strong>95% 일치 한계</strong><span class="en">(limits of agreement)</span>는 대상자 95%의 차이가 들어올 것으로 추정되는 범위입니다. 3.62 ± 1.96 × 6.64 = 3.62 ± 13.01 → −9.39 ~ 16.63 mmHg. 50쌍 중 3쌍(6%)이 이 범위 밖에 있어 기대(약 5%)와 비슷합니다.</p></div></div>
+</div>
+<!--FIG:ch14_k_ba-->
+<p>그림 14-13 가처럼 산점도에서는 점이 한 직선 근처에 모여 있어 잘 맞는 것처럼 보이지만, 나의 Bland–Altman 그림에서는 차이의 크기와 방향이 바로 보입니다<cite data-ref="bland1986"></cite>.</p>
+
+<h4>범주형 판정의 일치: Cohen의 κ</h4>
+<p>고혈압 환자 200명에서 자기보고 순응("거의 빠뜨리지 않는다")과 약국 재조제 기록의 PDC 80% 이상을 비교했다고 합시다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th class="r">PDC ≥ 80%</th><th class="r">PDC &lt; 80%</th><th class="r">계</th></tr></thead>
+<tbody>
+<tr><td>자기보고 순응</td><td class="r">110</td><td class="r">50</td><td class="r">160</td></tr>
+<tr><td>자기보고 비순응</td><td class="r">10</td><td class="r">30</td><td class="r">40</td></tr>
+<tr class="hi"><td>계</td><td class="r">120</td><td class="r">80</td><td class="r">200</td></tr>
+</tbody></table></div>
+<div class="flow">
+<div><div><b>관측 일치율</b><p>(110 + 30) ÷ 200 = 0.70. 70%가 같은 판정입니다.</p></div></div>
+<div><div><b>우연히 일치할 비율</b><p>두 판정이 서로 무관해도 둘 다 "순응"일 확률은 0.80 × 0.60 = 0.48(96명), 둘 다 "비순응"일 확률은 0.20 × 0.40 = 0.08(16명)입니다. 합계 0.56. 대부분이 순응으로 판정되는 자료라 아무렇게나 판정해도 56%는 일치합니다.</p></div></div>
+<div><div><b>우연을 뺀 일치</b><p>κ = (0.70 − 0.56) ÷ (1 − 0.56) = 0.14 ÷ 0.44 = 0.32 (95% CI 0.19 ~ 0.44). 우연을 넘어 가능한 일치 가운데 32%만 이뤘다는 뜻입니다<cite data-ref="cohen1960"></cite>.</p></div></div>
+<div><div><b>불일치의 방향</b><p>불일치 칸이 50 대 10으로 한쪽에 몰려 있습니다. 자기보고가 순응을 체계적으로 높게 평가합니다. κ는 방향을 알려 주지 않으므로 표를 함께 보고, 방향의 검정은 McNemar 검정(가 절, 정확 P &lt; 0.001)으로 합니다.</p></div></div>
+</div>
+<p>κ를 0.21–0.40 "fair", 0.41–0.60 "moderate"처럼 부르는 기준표<cite data-ref="landis1977"></cite>가 흔히 인용되지만 임의로 정한 구분입니다. 또 κ는 범주의 비율에 좌우되어, 관측 일치율이 똑같이 90%여도 한 범주가 90%를 차지하는 표에서는 κ = 0.44, 두 범주가 반반인 표에서는 κ = 0.80이 됩니다<cite data-ref="feinstein1990"></cite>. 그래서 κ와 함께 관측 일치율과 2×2 표를 보고합니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 일치도</p>
+<ul>
+<li><span class="wrong">r = 0.92이므로 새 혈압계는 기준 혈압계와 잘 일치한다.</span> r은 함께 움직이는 정도이며 치우침을 전혀 반영하지 않고, 대상자 범위가 넓을수록 커집니다.</li>
+<li><span class="wrong">두 기기 평균의 차이가 유의하지 않으므로 두 기기는 서로 바꿔 쓸 수 있다.</span> 평균이 같아도 개인에서의 차이는 클 수 있습니다. 판단은 일치 한계의 폭으로 합니다.</li>
+<li><span class="wrong">자기보고와 PDC의 일치율이 70%이므로 자기보고를 믿을 만하다.</span> 우연히 일치할 비율이 56%인 자료입니다. κ는 0.32이고 불일치가 한 방향으로 몰려 있습니다.</li>
+</ul></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 연속형 두 방법은 Bland–Altman 방법(보조로, 치우침까지 불일치로 세는 '절대 일치' 유형의 급내상관계수 ICC, 10장 다 절), 범주형 두 평가자는 Cohen의 κ(순서형 범주는 가중 κ, 평가자가 셋 이상이면 Fleiss의 κ), 같은 측정의 재현성은 ICC를 씁니다. 한쪽이 참값으로 인정되는 기준이라면(예: 청구자료의 진단 정의를 의무기록 검토와 비교) 일치도보다 민감도·양성예측도로 평가합니다(나 절).</li>
+<li><strong>설계</strong>: 허용할 차이를 분석 전에 정하고, 대상자의 측정 범위가 실제 사용 범위를 대표하게 하며, 두 측정을 짧은 간격으로 하되 순서를 바꿔 가며 서로의 값을 모르게 잽니다. 50명 정도면 일치 한계 자체의 불확실성도 크므로 한계의 신뢰구간을 함께 봅니다.</li>
+<li><strong>교란과 보정</strong>: 일치도 연구는 원인과 결과를 묻지 않으므로 교란변수 보정의 대상이 아닙니다. 대신 측정 조건(측정 순서, 간격, 측정자의 눈가림)이 결과를 좌우하므로 이것을 통제하고 밝힙니다.</li>
+<li><strong>보고할 것</strong>: 평균 차이(95% CI), 95% 일치 한계, Bland–Altman 그림, 차이와 측정 수준의 관계. 범주형은 2×2 표, 관측 일치율, κ(95% CI). ICC는 모형과 유형. 파이썬에서는 statsmodels의 <code>cohens_kappa</code>(<code>statsmodels.stats.inter_rater</code>)와 <code>sm.graphics.mean_diff_plot</code>(Bland–Altman 그림), scikit-learn의 <code>cohen_kappa_score</code>를 씁니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위의 손목 혈압계 비교(50명)를 논문의 Results 문단으로 쓰면 다음과 같습니다. 첫 문장의 상관계수와 뒤의 일치도 지표를 나란히 비교해 읽어 봅니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 두 측정 방법의 일치도</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Systolic blood pressure measured with the wrist device was <span class="mk">1</span> <span class="hl">strongly correlated with the reference device (r = 0.92)</span>. The <span class="mk">2</span> <span class="hl">mean difference (wrist − reference) was 3.6 mmHg (95% CI, 1.7 to 5.5)</span>, and the <span class="mk">3</span> <span class="hl">95% limits of agreement were −9.4 to 16.6 mmHg</span> (Figure 2). <span class="mk">4</span> <span class="hl">The difference did not vary with the level of blood pressure</span> (slope 0.08, P = .18). The <span class="mk">5</span> <span class="hl">intraclass correlation coefficient (two-way random effects, absolute agreement) was 0.90</span>, and <span class="mk">6</span> <span class="hl">46% of paired readings differed by 5 mmHg or less</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>상관은 "함께 움직임"입니다.</b> 이 연구 대상자의 혈압이 기준 혈압계로 99–169 mmHg까지 넓게 퍼져 있어 r이 높게 나왔습니다. 평균 혈압이 130–150 mmHg인 26명만 보면 차이의 SD는 6.4로 전체(6.6)와 거의 같은데 r은 0.58로 떨어집니다. 기기의 성능은 그대로인데 대상자의 범위만으로 r이 바뀝니다.</span></li>
+<li><span class="mk">2</span><span><b>평균 차이 = 치우침</b><span class="en">(bias)</span>. 두 기기 평균 139.9 − 136.3 = 3.6 mmHg이고 신뢰구간이 0을 포함하지 않으므로 손목 혈압계가 체계적으로 높게 잽니다(대응표본 t 검정, 3장 가 절). 일정한 치우침은 3.6을 빼서 보정할 수 있지만, 사람마다 들쭉날쭉한 차이는 남습니다.</span></li>
+<li><span class="mk">3</span><span><b>95% 일치 한계</b><span class="en">(limits of agreement)</span>. 3.6 ± 1.96 × 6.6(차이의 SD)으로, 대상자 95%의 차이가 이 범위에 들어온다고 추정합니다. 기준 혈압계로 135 mmHg인 사람이 손목 혈압계로는 약 126–152 mmHg로 나올 수 있어 고혈압 분류가 바뀔 수 있습니다. 허용할 수 있는 폭인지는 통계가 아니라 임상적 기준으로 미리 정합니다.</span></li>
+<li><span class="mk">4</span><span><b>차이가 혈압 수준에 따라 변하는가.</b> 차이를 두 측정의 평균에 회귀한 기울기입니다. 혈압이 높을수록 차이가 커진다면 한 쌍의 일치 한계로 요약하면 안 되고, 로그 변환이나 수준별 한계를 씁니다<cite data-ref="bland1999"></cite>.</span></li>
+<li><span class="mk">5</span><span><b>ICC는 유형을 확인합니다.</b> 급내상관계수<span class="en">(intraclass correlation coefficient, ICC)</span>는 전체 흩어짐 가운데 사람 사이의 차이가 차지하는 비율입니다(10장 다 절). "절대 일치" 유형은 치우침을 불일치로 세고, "일관성" 유형은 무시합니다. 이 자료에서 일관성 ICC는 0.92, 절대 일치 ICC는 0.90입니다. 손목 혈압계가 지금보다 7 mmHg 더 높게 잰다고 바꿔 계산하면 r과 일관성 ICC는 그대로이고 절대 일치 ICC만 0.76으로 떨어집니다. ICC도 r처럼 대상자 범위가 넓으면 커집니다<cite data-ref="koo2016"></cite>.</span></li>
+<li><span class="mk">6</span><span><b>임상적으로 읽기 쉬운 요약.</b> 50쌍 중 23쌍(46%)만 5 mmHg 이내로 같았습니다. r = 0.92라는 첫 문장과 인상이 크게 다릅니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \text{95\% 일치 한계} = \bar{d} \pm 1.96\, s_d = 3.62 \pm 1.96 \times 6.64 = -9.39 \sim 16.63 \]
+<p>\(\bar{d}\)는 차이의 평균, \(s_d\)는 차이의 SD입니다. 치우침의 신뢰구간은 \(\bar{d} \pm t \times s_d/\sqrt{n}\) = 3.62 ± 2.01 × 0.94로, 대응표본 t 검정의 신뢰구간과 같습니다.</p></div>
+<div class="eq">\[ \kappa = \frac{p_o - p_e}{1 - p_e} = \frac{0.70 - 0.56}{1 - 0.56} = 0.32 \]
+<p>\(p_o\)는 관측 일치율, \(p_e\)는 두 판정이 서로 무관할 때 기대되는 일치율(행 비율 × 열 비율의 합)입니다. 완전히 일치하면 1, 우연 수준이면 0, 우연보다 못하면 음수입니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>상관은 "함께 움직이는가", 일치도는 "같은 값을 내는가"를 봅니다. 높은 r은 일치의 증거가 아닙니다.</li>
+<li>연속형 두 방법은 Bland–Altman 방법으로 치우침(평균 차이)과 95% 일치 한계를 구하고, 그 폭을 미리 정한 임상적 기준과 비교합니다.</li>
+<li>범주형 판정은 우연히 일치할 몫을 뺀 Cohen의 κ로 보되, 범주 비율에 좌우되므로 관측 일치율과 2×2 표를 함께 보고, 불일치의 방향은 표로 확인합니다.</li>
+<li>ICC는 유형(절대 일치, 일관성)에 따라 치우침을 반영하는지가 다르므로 어떤 유형인지 확인합니다.</li>
+</ul></div>
+</section>

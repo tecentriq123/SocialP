@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">결측값 확인과 분석용 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">na = d.isna().sum()
+print(na[na &gt; 0])
+print(&quot;dropna() 전체 적용:&quot;, len(d.dropna()), &quot;명&quot;)
+
+cols = [&quot;years&quot;, &quot;death&quot;, &quot;dpca&quot;, &quot;age10&quot;, &quot;female&quot;,
+        &quot;bili&quot;, &quot;albumin&quot;, &quot;edema&quot;, &quot;protime&quot;]
+df = d[cols].dropna().reset_index(drop=True)
+print(&quot;분석에 쓸 열만 dropna:&quot;, len(df), &quot;명&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>chol        28<span class="mk">1</span>
+copper       2
+trig        30
+platelet     4
+dtype: int64
+dropna() 전체 적용: 276<span class="mk">2</span> 명
+분석에 쓸 열만 dropna: 312<span class="mk">3</span> 명</pre></div></div>

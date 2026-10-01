@@ -1,0 +1,32 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">30개 변수의 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mal = df[df[&quot;diagnosis&quot;] == &quot;malignant&quot;]
+ben = df[df[&quot;diagnosis&quot;] == &quot;benign&quot;]
+res = stats.ttest_ind(mal[features], ben[features], equal_var=False)
+tt = pd.DataFrame({&quot;t&quot;: res.statistic, &quot;p&quot;: res.pvalue},
+                  index=features)
+print((tt[&quot;p&quot;] &lt; 0.05).sum(), &quot;of&quot;, len(tt), &quot;features: p &lt; 0.05&quot;)
+tt.sort_values(&quot;p&quot;).head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>26 of 30<span class="mk">1</span> features: p &lt; 0.05</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>t</th>
+      <th>p</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>worst concave points</th>
+      <td>29.117659</td>
+      <td>1.061454e-96</td>
+    </tr>
+    <tr>
+      <th>worst perimeter</th>
+      <td>25.332210</td>
+      <td>1.032730e-72</td>
+    </tr>
+    <tr>
+      <th>mean concave points</th>
+      <td>24.844810</td>
+      <td>3.127316e-71</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

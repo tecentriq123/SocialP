@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">기간별 위험비 (시간과의 교호작용)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxTimeVaryingFitter
+
+ctv = CoxTimeVaryingFitter()
+ctv.fit(long, id_col=&quot;id&quot;, event_col=&quot;event&quot;,
+        start_col=&quot;start&quot;, stop_col=&quot;stop&quot;,
+        formula=&quot;dpca + age10 + female + log2_bili + albumin&quot;
+                &quot; + C(edema) + protime + protime_late&quot;)
+b2 = ctv.params_
+print(&quot;protime HR, 0-3년 :&quot;, round(np.exp(b2[&quot;protime&quot;]), 2))
+print(&quot;protime HR, 3년 후:&quot;,
+      round(np.exp(b2[&quot;protime&quot;] + b2[&quot;protime_late&quot;]), 2))
+p_int = ctv.summary.loc[&quot;protime_late&quot;, &quot;p&quot;]
+print(&quot;교호작용 P        :&quot;, round(p_int, 4))
+print(&quot;dpca HR           :&quot;, round(np.exp(b2[&quot;dpca&quot;]), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>protime HR, 0-3년 : 1.57<span class="mk">1</span>
+protime HR, 3년 후: 1.06<span class="mk">2</span>
+교호작용 P        : 0.0234<span class="mk">3</span>
+dpca HR           : 0.913<span class="mk">4</span></pre></div></div>

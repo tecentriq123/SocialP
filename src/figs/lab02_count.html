@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">U를 직접 세어 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">s = smoker.to_numpy()[:, None]      # 74행 1열
+ns = nonsmoker.to_numpy()[None, :]  # 1행 115열
+greater = (s &gt; ns).sum()            # 흡연군 쪽이 더 무거운 쌍
+ties = (s == ns).sum()              # 체중이 같은 쌍
+print(greater, ties, greater + 0.5 * ties)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3241 39 3260.5<span class="mk">1</span></pre></div></div>

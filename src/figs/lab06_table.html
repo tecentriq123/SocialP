@@ -1,0 +1,61 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">논문용 결과표 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def tidy(m):
+    ci = m.conf_int()
+    f2 = &quot;{:.2f}&quot;.format
+    est = (m.params.map(f2) + &quot; (&quot; + ci[0].map(f2) + &quot; to &quot;
+           + ci[1].map(f2) + &quot;)&quot;)
+    p = m.pvalues.map(lambda x: &quot;&lt;0.001&quot; if x &lt; 0.001 else f&quot;{x:.3f}&quot;)
+    return pd.DataFrame({&quot;beta (95% CI)&quot;: est, &quot;P&quot;: p})
+
+terms = [&quot;bmi&quot;, &quot;age&quot;, &quot;C(sex)&quot;, &quot;bp&quot;, &quot;s5&quot;]
+crude = pd.concat([tidy(smf.ols(f&quot;target ~ {t}&quot;, data=df).fit())
+                   .drop(&quot;Intercept&quot;) for t in terms])
+table = crude.join(tidy(model_adj), lsuffix=&quot; crude&quot;,
+                   rsuffix=&quot; adjusted&quot;)
+table</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>beta (95% CI) crude</th>
+      <th>P crude</th>
+      <th>beta (95% CI) adjusted</th>
+      <th>P adjusted</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>bmi</th>
+      <td>10.23 (8.91 to 11.56)<span class="mk">1</span></td>
+      <td>&lt;0.001</td>
+      <td>6.45 (5.09 to 7.82)<span class="mk">2</span></td>
+      <td>&lt;0.001</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>1.10 (0.56 to 1.65)<span class="mk">3</span></td>
+      <td>&lt;0.001</td>
+      <td>-0.13 (-0.56 to 0.30)</td>
+      <td>0.544</td>
+    </tr>
+    <tr>
+      <th>C(sex)[T.2]<span class="mk">4</span></th>
+      <td>6.65 (-7.80 to 21.09)</td>
+      <td>0.366</td>
+      <td>-12.73 (-23.52 to -1.93)</td>
+      <td>0.021</td>
+    </tr>
+    <tr>
+      <th>bp</th>
+      <td>2.46 (1.99 to 2.93)</td>
+      <td>&lt;0.001</td>
+      <td>1.04 (0.60 to 1.48)</td>
+      <td>&lt;0.001</td>
+    </tr>
+    <tr>
+      <th>s5</th>
+      <td>83.51 (72.11 to 94.91)</td>
+      <td>&lt;0.001</td>
+      <td>51.05 (39.38 to 62.73)</td>
+      <td>&lt;0.001</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">음주량별 오즈비와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ref = alc.iloc[0]            # 기준범주: 0-39 g/day
+for g, row in alc.iloc[1:].iterrows():
+    t = Table2x2(np.array([[row[&quot;ncases&quot;], row[&quot;ncontrols&quot;]],
+                           [ref[&quot;ncases&quot;], ref[&quot;ncontrols&quot;]]]))
+    lo, hi = t.oddsratio_confint()
+    print(f&quot;{g:&gt;6}: OR {t.oddsratio:5.2f} ({lo:.2f} to {hi:.2f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> 40-79: OR  3.57 (2.26 to 5.62)<span class="mk">1</span>
+80-119: OR  7.80 (4.68 to 13.02)
+  120+: OR 27.23 (14.44 to 51.34)<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">사건 부호화를 잘못하면 (오류 없이 틀린 결과)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import KaplanMeierFitter
+
+wrong = KaplanMeierFitter().fit(lung[&quot;time&quot;], lung[&quot;status&quot;])
+right = KaplanMeierFitter().fit(lung[&quot;time&quot;], lung[&quot;event&quot;])
+print(&quot;status 그대로:&quot;, wrong.event_table[&quot;observed&quot;].sum(),
+      &quot;건, 중앙값&quot;, wrong.median_survival_time_, &quot;일&quot;)
+print(&quot;event 사용  :&quot;, right.event_table[&quot;observed&quot;].sum(),
+      &quot;건, 중앙값&quot;, right.median_survival_time_, &quot;일&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>status 그대로: 228 건<span class="mk">1</span>, 중앙값 252.0<span class="mk">2</span> 일
+event 사용  : 165 건<span class="mk">3</span>, 중앙값 310.0<span class="mk">4</span> 일</pre></div></div>

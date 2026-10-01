@@ -1,0 +1,41 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">성별 요약표 (논문 표 형식)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for name, k in km_sex.items():
+    med = k.median_survival_time_
+    lo, hi = median_survival_times(k.confidence_interval_).iloc[0]
+    s12 = k.survival_function_at_times(12).iloc[0] * 100
+    l12, h12 = k.confidence_interval_.loc[:12].iloc[-1] * 100
+    rows.append({&quot;group&quot;: name,
+                 &quot;n&quot;: k.event_table[&quot;at_risk&quot;].iloc[0],
+                 &quot;deaths&quot;: k.event_table[&quot;observed&quot;].sum(),
+                 &quot;median (95% CI)&quot;: f&quot;{med:.1f} ({lo:.1f}-{hi:.1f})&quot;,
+                 &quot;1-yr % (95% CI)&quot;: f&quot;{s12:.1f} ({l12:.1f}-{h12:.1f})&quot;})
+pd.DataFrame(rows)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>group</th>
+      <th>n</th>
+      <th>deaths</th>
+      <th>median (95% CI)</th>
+      <th>1-yr % (95% CI)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Male</td>
+      <td>138</td>
+      <td>112</td>
+      <td>8.9 (6.9-10.1)<span class="mk">1</span></td>
+      <td>33.6 (25.3-42.1)<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Female</td>
+      <td>90</td>
+      <td>53</td>
+      <td>14.0 (11.3-17.2)<span class="mk">2</span></td>
+      <td>52.6 (40.4-63.5)</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

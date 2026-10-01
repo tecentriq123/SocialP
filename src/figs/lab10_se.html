@@ -1,0 +1,32 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">Days 계수의 표준오차 네 가지</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ols_cl = smf.ols(&quot;Reaction ~ Days&quot;, data=sleep).fit(
+    cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: sleep[&quot;Subject&quot;]})
+se = pd.Series({&quot;OLS (independent)&quot;: ols.bse[&quot;Days&quot;],
+                &quot;OLS + cluster-robust&quot;: ols_cl.bse[&quot;Days&quot;],
+                &quot;random intercept&quot;: m1.bse_fe[&quot;Days&quot;],
+                &quot;random intercept + slope&quot;: m2.bse_fe[&quot;Days&quot;]})
+se.round(3).to_frame(&quot;SE of Days&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>SE of Days</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>OLS (independent)</th>
+      <td>1.238</td>
+    </tr>
+    <tr>
+      <th>OLS + cluster-robust</th>
+      <td>1.550</td>
+    </tr>
+    <tr>
+      <th>random intercept</th>
+      <td>0.804</td>
+    </tr>
+    <tr>
+      <th>random intercept + slope</th>
+      <td>1.546</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

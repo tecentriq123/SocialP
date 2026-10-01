@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">lwt의 로짓 선형성: 스플라인과 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+
+f_sp = &quot;low ~ age + bs(lwt, df=4) + C(race) + smoke + ptd + ht + ui&quot;
+spline_m = smf.logit(f_sp, data=bw).fit(disp=0)
+lr = 2 * (spline_m.llf - logit_m.llf)              # 우도비 통계량
+ddf = spline_m.df_model - logit_m.df_model         # 늘어난 계수 수
+p = stats.chi2.sf(lr, ddf)                         # p-value
+print(f&quot;LR = {lr:.2f}, df = {ddf:.0f}, P = {p:.3f}&quot;)
+print(&quot;AIC linear:&quot;, round(logit_m.aic, 1),
+      &quot; spline:&quot;, round(spline_m.aic, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>LR = 1.99, df = 3, P = 0.574<span class="mk">1</span>
+AIC linear: 214.8<span class="mk">2</span>  spline: 218.8<span class="mk">3</span></pre></div></div>

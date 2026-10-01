@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">상관이 표준오차를 줄이는 원리</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">s1, s2 = wide[&quot;drug1&quot;].std(), wide[&quot;drug2&quot;].std()
+sd_paired = np.sqrt(s1**2 + s2**2 - 2 * r * s1 * s2)
+sd_indep = np.sqrt(s1**2 + s2**2)            # r = 0으로 본 경우
+print(f&quot;SD1 = {s1:.3f}, SD2 = {s2:.3f}, r = {r:.3f}&quot;)
+print(f&quot;SD of d: paired {sd_paired:.3f}, &quot;
+      f&quot;if r = 0 {sd_indep:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>SD1 = 1.789<span class="mk">1</span>, SD2 = 2.002, r = 0.795
+SD of d: paired 1.230<span class="mk">2</span>, if r = 0 2.685<span class="mk">3</span></pre></div></div>

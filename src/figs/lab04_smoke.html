@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">군별 흡연 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pd.crosstab(df[&quot;race_f&quot;], df[&quot;smoke&quot;], normalize=&quot;index&quot;).round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>smoke</th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+    <tr>
+      <th>race_f</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>White</th>
+      <td>0.46</td>
+      <td>0.54<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>Black</th>
+      <td>0.62</td>
+      <td>0.38</td>
+    </tr>
+    <tr>
+      <th>Other</th>
+      <td>0.82</td>
+      <td>0.18<span class="mk">2</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

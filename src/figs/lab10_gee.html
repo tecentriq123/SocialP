@@ -1,0 +1,32 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">GEE (포아송, 교환가능 작업상관)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+
+form = &quot;y ~ trt + np.log(base / 4) + np.log(age) + C(period)&quot;
+gee_ex = smf.gee(form, groups=&quot;subject&quot;, data=epil,
+                 family=sm.families.Poisson(),
+                 cov_struct=sm.cov_struct.Exchangeable()).fit()
+print(gee_ex.summary())
+print(gee_ex.model.cov_struct.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                               GEE Regression Results                              
+===================================================================================
+Dep. Variable:                           y   No. Observations:                  236
+Model:                                 GEE   No. clusters:                       59<span class="mk">1</span>
+Method:                        Generalized   Min. cluster size:                   4
+                      Estimating Equations   Max. cluster size:                   4
+Family:                            Poisson   Mean cluster size:                 4.0
+Dependence structure:         Exchangeable<span class="mk">2</span>   Num. iterations:                     5
+Date:                     Wed, 30 Sep 2026   Scale:                           1.000<span class="mk">3</span>
+Covariance type:                    robust<span class="mk">4</span>   Time:                         08:54:18
+====================================================================================
+                       coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------------
+Intercept           -2.4165      1.051     -2.300      0.021      -4.476      -0.358
+trt[T.progabide]    -0.0107      0.192     -0.055      0.956      -0.387       0.366<span class="mk">5</span>
+C(period)[T.2]      -0.0686      0.109     -0.629      0.530      -0.282       0.145
+C(period)[T.3]      -0.0585      0.156     -0.375      0.707      -0.364       0.247
+C(period)[T.4]      -0.2030      0.099     -2.057      0.040      -0.396      -0.010<span class="mk">6</span>
+np.log(base / 4)     1.2311      0.156      7.894      0.000       0.925       1.537<span class="mk">7</span>
+np.log(age)          0.6092      0.290      2.101      0.036       0.041       1.178
+==============================================================================
+Skew:                          3.4618   Kurtosis:                      22.4238
+Centered skew:                 2.6436   Centered kurtosis:             22.6649
+==============================================================================
+The correlation between two observations in the same cluster is 0.400<span class="mk">8</span></pre></div></div>

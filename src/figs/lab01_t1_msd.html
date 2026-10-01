@@ -1,0 +1,58 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">군별 평균과 표준편차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t1_vars = [&quot;mean radius&quot;, &quot;mean texture&quot;, &quot;mean smoothness&quot;,
+           &quot;mean area&quot;, &quot;area error&quot;]
+g = df.groupby(&quot;diagnosis&quot;, observed=True)[t1_vars]
+m = g.mean().T     # 행: 변수, 열: benign / malignant
+s = g.std().T      # 표준편차 (n - 1로 나눔)
+pd.concat({&quot;mean&quot;: m, &quot;sd&quot;: s}, axis=1).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="2" halign="left">mean</th>
+      <th colspan="2" halign="left">sd</th>
+    </tr>
+    <tr>
+      <th>diagnosis</th>
+      <th>benign</th>
+      <th>malignant</th>
+      <th>benign</th>
+      <th>malignant</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean radius</th>
+      <td>12.147<span class="mk">1</span></td>
+      <td>17.463</td>
+      <td>1.781<span class="mk">2</span></td>
+      <td>3.204</td>
+    </tr>
+    <tr>
+      <th>mean texture</th>
+      <td>17.915</td>
+      <td>21.605</td>
+      <td>3.995</td>
+      <td>3.779</td>
+    </tr>
+    <tr>
+      <th>mean smoothness</th>
+      <td>0.092</td>
+      <td>0.103</td>
+      <td>0.013</td>
+      <td>0.013</td>
+    </tr>
+    <tr>
+      <th>mean area</th>
+      <td>462.790</td>
+      <td>978.376</td>
+      <td>134.287</td>
+      <td>367.938</td>
+    </tr>
+    <tr>
+      <th>area error</th>
+      <td>21.135</td>
+      <td>72.672</td>
+      <td>8.843</td>
+      <td>61.355</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

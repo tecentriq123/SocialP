@@ -1,0 +1,52 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">군별 발생률과 정확 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+
+rt = pt.groupby(&quot;treat&quot;, observed=True).agg(
+    patients=(&quot;id&quot;, &quot;size&quot;),
+    events=(&quot;n_inf&quot;, &quot;sum&quot;),
+    py=(&quot;py&quot;, &quot;sum&quot;))
+d, T = rt[&quot;events&quot;], rt[&quot;py&quot;]
+rt[&quot;rate&quot;] = d / T * 100                          # 100인년당
+rt[&quot;lower&quot;] = stats.chi2.ppf(0.025, 2 * d) / 2 / T * 100
+rt[&quot;upper&quot;] = stats.chi2.ppf(0.975, 2 * d + 2) / 2 / T * 100
+rt.round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>patients</th>
+      <th>events</th>
+      <th>py</th>
+      <th>rate</th>
+      <th>lower</th>
+      <th>upper</th>
+    </tr>
+    <tr>
+      <th>treat</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>placebo</th>
+      <td>65</td>
+      <td>56</td>
+      <td>50.72</td>
+      <td>110.42<span class="mk">1</span></td>
+      <td>83.41<span class="mk">2</span></td>
+      <td>143.39</td>
+    </tr>
+    <tr>
+      <th>rIFN-g</th>
+      <td>63</td>
+      <td>20</td>
+      <td>51.89</td>
+      <td>38.54<span class="mk">3</span></td>
+      <td>23.54</td>
+      <td>59.53</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

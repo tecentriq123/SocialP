@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">비열등성 검정 (단측)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">margin = 0.4
+ni = stats.ttest_ind(new - margin, ref, equal_var=False,
+                     alternative=&quot;less&quot;)
+print(ni)
+se = np.sqrt(new.var(ddof=1) / new.size + ref.var(ddof=1) / ref.size)
+print(f&quot;SE = {se:.4f}, (d - margin) / SE = {(d - margin) / se:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>TtestResult(statistic=np.float64(-2.41<span class="mk">1</span>3678866833918), pvalue=np.float64(0.0081<span class="mk">2</span>41687080523074), df=np.float64(365.5051608185273))
+SE = 0.1058<span class="mk">3</span>, (d - margin) / SE = -2.414</pre></div></div>

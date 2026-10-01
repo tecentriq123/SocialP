@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">인종을 숫자 그대로 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_num = smf.logit(&quot;low ~ smoke + race&quot;, df).fit(disp=0)
+m_cat = smf.logit(&quot;low ~ smoke + C(race, Treatment(reference=1))&quot;,
+                  df).fit(disp=0)
+print(m_num.params.round(3), &quot;\n&quot;)
+print(m_cat.params.round(3), &quot;\n&quot;)
+print(f&quot;llf: numeric race {m_num.llf:.3f}, dummies {m_cat.llf:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Intercept   -2.325
+smoke        1.117
+race         0.559<span class="mk">1</span>
+dtype: float64 
+
+Intercept                              -1.841
+C(race, Treatment(reference=1))[T.2]    1.084<span class="mk">2</span>
+C(race, Treatment(reference=1))[T.3]    1.109<span class="mk">3</span>
+smoke                                   1.116
+dtype: float64 
+
+llf: numeric race -110.670<span class="mk">4</span>, dummies -109.987<span class="mk">5</span></pre></div></div>

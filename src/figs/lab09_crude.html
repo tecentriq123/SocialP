@@ -1,0 +1,62 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">보정 전후 오즈비 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_ci(m):
+    ci = np.exp(m.conf_int())
+    f2 = &quot;{:.2f}&quot;.format
+    return (np.exp(m.params).map(f2) + &quot; (&quot; + ci[0].map(f2)
+            + &quot; to &quot; + ci[1].map(f2) + &quot;)&quot;)
+
+terms = [&quot;age&quot;, &quot;lwt&quot;, &quot;C(race)&quot;, &quot;smoke&quot;, &quot;ptd&quot;, &quot;ht&quot;, &quot;ui&quot;]
+crude = pd.concat([or_ci(smf.logit(f&quot;low ~ {t}&quot;, data=bw).fit(disp=0))
+                   .drop(&quot;Intercept&quot;) for t in terms])
+adj = or_ci(logit_m)[crude.index]         # 같은 순서로 맞춤
+pd.DataFrame({&quot;crude OR (95% CI)&quot;: crude,
+              &quot;adjusted OR (95% CI)&quot;: adj})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>crude OR (95% CI)</th>
+      <th>adjusted OR (95% CI)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>age</th>
+      <td>0.95 (0.89 to 1.01)</td>
+      <td>0.96 (0.89 to 1.04)</td>
+    </tr>
+    <tr>
+      <th>lwt</th>
+      <td>0.99 (0.97 to 1.00)</td>
+      <td>0.99 (0.97 to 1.00)</td>
+    </tr>
+    <tr>
+      <th>C(race)[T.black]</th>
+      <td>2.33 (0.94 to 5.77)<span class="mk">4</span></td>
+      <td>3.36 (1.18 to 9.55)</td>
+    </tr>
+    <tr>
+      <th>C(race)[T.other]</th>
+      <td>1.89 (0.96 to 3.74)</td>
+      <td>2.23 (0.93 to 5.38)</td>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <td>2.02 (1.08 to 3.78)<span class="mk">1</span></td>
+      <td>2.33 (1.05 to 5.19)<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>ptd</th>
+      <td>4.32 (1.92 to 9.73)<span class="mk">3</span></td>
+      <td>3.39 (1.37 to 8.41)</td>
+    </tr>
+    <tr>
+      <th>ht</th>
+      <td>3.37 (1.02 to 11.09)</td>
+      <td>6.29 (1.58 to 24.95)</td>
+    </tr>
+    <tr>
+      <th>ui</th>
+      <td>2.58 (1.14 to 5.83)</td>
+      <td>2.04 (0.82 to 5.05)</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

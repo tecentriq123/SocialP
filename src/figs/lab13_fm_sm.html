@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">statsmodels의 score(Farrington–Manning) 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.proportion import test_proportions_2indep
+
+fm = test_proportions_2indep(186, 224, 190, 224, value=-0.10,
+                             method=&quot;score&quot;, compare=&quot;diff&quot;,
+                             alternative=&quot;larger&quot;, correction=False)
+print(f&quot;z = {fm.statistic:.3f}, one-sided P = {fm.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>z = 2.309<span class="mk">1</span>, one-sided P = 0.0105<span class="mk">2</span></pre></div></div>

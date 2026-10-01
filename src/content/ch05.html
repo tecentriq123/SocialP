@@ -1,0 +1,671 @@
+<p class="lead">결과가 입원 여부나 이상반응 발생 여부처럼 범주형이면 평균 대신 비율을 비교합니다. 이 장에서는 관측빈도와 기대빈도를 비교하는 카이제곱 검정, 표본이 작을 때 확률을 직접 계산하는 Fisher의 정확한 검정, 순서가 있는 범주에서 한 방향의 추세를 보는 선형 대 선형 결합을 다룹니다. 같은 표에서 위험차·상대위험도·오즈비를 계산하는 방법과, 논문 표의 n (%)와 P 값을 읽는 방법도 함께 봅니다.</p>
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch00-s5">0장 마 절</a>의 표준오차, <a href="#ch00-s6">0장 바 절</a>의 효과크기·신뢰구간·p값, <a href="#ch01-s1">1장 가 절</a>의 범주형 자료, <a href="#ch01-s2">1장 나 절</a>의 귀무가설과 p-value</dd>
+<dt>먼저 읽을 부분</dt><dd>절마다 '쉽게 말하면', '숫자로 따라가기', 흔한 오해 상자, '논문에서 읽어 보기', 정리. 가 절에서는 '카이제곱 검정이 알려 주는 것과 알려 주지 않는 것'(RR·OR·위험차)과 '가정과 확인 방법'(기대빈도 기준)을 꼭 읽습니다.</dd>
+<dt>나중에 읽을 부분</dt><dd>'심화' 표시가 붙은 소제목(두 비율의 z 검정과의 관계, 수식으로 보기, Cochran–Armitage 추세 검정과의 관계), '심화' 상자(신뢰구간 직접 계산, 조건부 최대우도 추정값, 여백을 고정한다는 가정 등), 나 절의 파이썬 출력 상자, '실제 논문으로 읽어 보기'</dd>
+<dt>이 장을 마치면</dt><dd>① 표의 기대빈도를 구해 카이제곱 검정과 Fisher의 정확한 검정 중 하나를 고를 수 있다. ② 2×2 표에서 위험차·상대위험도·오즈비를 계산하고, OR을 "위험이 몇 배"로 읽지 않는다. ③ 추세 검정(P for trend)이 무엇을 묻고 무엇을 묻지 않는지 말할 수 있다. ④ 같은 사람의 전후 비교에는 이 장의 검정이 아니라 McNemar 검정을 써야 한다는 것을 구분한다.</dd>
+</dl></div>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ch05-s1">
+<h2><span class="sec-no">가.</span>카이제곱 검정</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">표의 각 칸에서 "두 변수가 아무 관련이 없다면 있어야 할 사람 수"와 실제 사람 수를 비교해, 그 어긋남이 우연으로 설명되는지 보는 검정입니다.</p>
+<ul>
+<li><b>비유.</b> 약물 A군이 전체 환자의 40%라면, 약과 입원이 무관할 때 입원한 150명 중 40%(60명)가 A군이어야 합니다. 실제로는 48명(32%)뿐이라면 입원이 A군에 덜 몰린 것입니다. 카이제곱 검정은 이런 '기대와 실제의 어긋남'을 모든 칸에서 모아 숫자 하나(χ²)로 만들고, 그 숫자가 우연으로 나올 만한 크기인지 따집니다.</li>
+<li><b>논문에서는.</b> 표에 "48 (12.0) vs 102 (17.0), P = 0.030"처럼 군별 n (%)와 P 값이 나오고, 각주에 "χ² test"라고 적힙니다. "A군은 12%, B군은 17%가 입원했고, 이 정도 차이가 우연만으로 생겼다고 보기는 어렵다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> P 값은 "차이가 있다"까지만 말합니다. 얼마나 다른지는 상대위험도 같은 효과 지표로 따로 봅니다. 또 관찰연구의 두 군은 원래 다른 환자들이므로 이 비교만으로 "약 때문"이라고 말할 수 없습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>두 범주형 변수의 관련성을 볼 때. 예: 약물(A/B)과 1년 내 입원(예/아니오), 약물 계열(3개)과 저혈당 발생 여부. 서로 다른 사람들로 이루어진 독립된 군을 비교합니다.</dd></div>
+  <div><dt>귀무가설</dt><dd>두 변수는 서로 독립이다. 즉 모든 군에서 사건 비율이 같다.</dd></div>
+  <div><dt>가정</dt><dd>한 사람은 표의 한 칸에만 한 번 들어감(관측의 독립). 기대빈도가 충분히 큼(5 미만인 칸이 20% 이하, 1 미만인 칸 없음).</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>표에 군별 n (%)와 P 값. 본문에서는 χ²(1) = 4.71, P = .030처럼 통계량과 자유도를 함께 쓰기도 합니다.</dd></div>
+</dl>
+
+<h3>개념</h3>
+<p>두 범주형 변수의 빈도를 행과 열로 엇갈려 정리한 표를 <strong>교차표</strong><span class="en">(contingency table, cross-tabulation)</span>라고 합니다. 행 2개, 열 2개인 표가 2×2 표입니다. <strong>카이제곱 검정</strong><span class="en">(chi-square test, χ² test)</span>은 교차표의 각 칸에 실제로 관측된 빈도가 "두 변수가 아무 관련이 없을 때 기대되는 빈도"와 얼마나 다른지를 하나의 통계량으로 요약합니다. Pearson이 1900년에 제안해서 Pearson 카이제곱 검정이라고도 부릅니다<cite data-ref="pearson1900"></cite>.</p>
+<p>동전을 100번 던져 앞면이 70번 나왔다면 "공정한 동전이라면 50번쯤 나와야 하는데 20번이나 많다"고 생각합니다. 카이제곱 검정도 같은 순서로 생각합니다. ① 귀무가설(두 변수가 관련이 없음)이 참이라면 각 칸에 몇 명이 있어야 하는지, 즉 <strong>기대빈도</strong><span class="en">(expected frequency)</span>를 계산합니다. ② 실제 <strong>관측빈도</strong><span class="en">(observed frequency)</span>와 기대빈도의 차이를 모든 칸에서 모아 하나의 숫자로 만듭니다. ③ 이 숫자가 우연으로 보기 어려울 만큼 크면 두 변수가 관련이 있다고 판단합니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>건강보험 청구자료에서 같은 적응증으로 약물 A를 새로 시작한 환자 400명과 약물 B를 새로 시작한 환자 600명을 찾아(신규 사용자 설계), 1년 안의 입원·응급실 방문 등을 비교한 연구가 있다고 합시다. 1년 안에 입원한 환자는 A군 48명, B군 102명입니다. 이 결과를 교차표로 옮깁니다. 모든 환자를 1년간 끝까지 관찰할 수 있었다고 가정합니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
+<thead><tr><th></th><th class="r">입원</th><th class="r">입원 안 함</th><th class="r">합계</th><th class="r">입원 비율</th></tr></thead>
+<tbody>
+<tr><td>약물 A</td><td class="r">48</td><td class="r">352</td><td class="r">400</td><td class="r">12.0%</td></tr>
+<tr><td>약물 B</td><td class="r">102</td><td class="r">498</td><td class="r">600</td><td class="r">17.0%</td></tr>
+<tr><td>합계</td><td class="r">150</td><td class="r">850</td><td class="r">1,000</td><td class="r">15.0%</td></tr>
+</tbody></table></div>
+
+<h4>1단계: 기대빈도 구하기</h4>
+<p>약물 종류와 입원이 관련이 없다면 어느 약을 쓰든 입원 비율은 전체 입원 비율 15.0%(150/1,000)와 같아야 합니다. 그러면 약물 A군 400명 중에서는 400 × 0.15 = 60명이 입원해야 합니다. 이 계산을 모든 칸에 적용하면 규칙은 하나입니다. <strong>기대빈도 = 행 합계 × 열 합계 ÷ 전체 인원</strong>.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
+<thead><tr><th>기대빈도</th><th class="r">입원</th><th class="r">입원 안 함</th><th class="r">합계</th></tr></thead>
+<tbody>
+<tr><td>약물 A</td><td class="r">400 × 150 / 1,000 = 60</td><td class="r">400 × 850 / 1,000 = 340</td><td class="r">400</td></tr>
+<tr><td>약물 B</td><td class="r">600 × 150 / 1,000 = 90</td><td class="r">600 × 850 / 1,000 = 510</td><td class="r">600</td></tr>
+<tr><td>합계</td><td class="r">150</td><td class="r">850</td><td class="r">1,000</td></tr>
+</tbody></table></div>
+<p>기대빈도의 행 합계와 열 합계는 관측빈도와 똑같습니다. 그래서 2×2 표에서는 관측값과 기대값의 차이(O − E)가 네 칸에서 −12, +12, +12, −12로 크기가 모두 같고 부호만 번갈아 나옵니다. 한 칸이 정해지면 나머지 세 칸이 결정된다는 자유도 1의 의미(1장 라 절)가 여기서도 보입니다.</p>
+
+<h4>2단계: 칸마다 어긋남을 계산해 더하기</h4>
+<p>칸마다 (관측 − 기대)²을 기대빈도로 나눈 값을 구하고, 네 칸을 모두 더한 것이 χ² 통계량입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
+<thead><tr><th>칸</th><th class="r">관측 O</th><th class="r">기대 E</th><th class="r">O − E</th><th class="r">(O − E)² ÷ E</th></tr></thead>
+<tbody>
+<tr><td>약물 A · 입원</td><td class="r">48</td><td class="r">60</td><td class="r">−12</td><td class="r">2.400</td></tr>
+<tr><td>약물 B · 입원</td><td class="r">102</td><td class="r">90</td><td class="r">+12</td><td class="r">1.600</td></tr>
+<tr><td>약물 A · 입원 안 함</td><td class="r">352</td><td class="r">340</td><td class="r">+12</td><td class="r">0.424</td></tr>
+<tr><td>약물 B · 입원 안 함</td><td class="r">498</td><td class="r">510</td><td class="r">−12</td><td class="r">0.282</td></tr>
+<tr class="hi"><td>합계</td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r">χ² = 4.706 ≈ 4.71</td></tr>
+</tbody></table></div>
+<p>차이를 제곱하는 이유는 양수와 음수가 서로 상쇄되지 않게 하기 위해서입니다. 기대빈도로 나누는 이유는 같은 12명의 차이라도 기대가 60명일 때와 510명일 때 의미가 다르기 때문입니다. 60명 중 12명은 20%의 차이지만 510명 중 12명은 2% 남짓입니다. 그래서 사건이 드문 쪽 칸(입원)이 통계량의 대부분을 차지합니다.</p>
+<!--FIG:ch05_obs_exp-->
+
+<h4>3단계: 자유도와 p-value</h4>
+<p>자유도는 (행 수 − 1) × (열 수 − 1) = 1입니다. 자유도 1인 카이제곱 분포에서 4.71 이상이 나올 확률이 p = 0.030입니다(유의수준 5%의 임계값은 3.84). 약물 종류와 1년 내 입원 사이에 관련이 있다고 판단합니다. 카이제곱 분포의 오른쪽 꼬리만 보지만, 차이를 제곱했기 때문에 A군이 많은 쪽과 적은 쪽을 모두 포함한 양측검정입니다. 이 통계량이 왜 카이제곱 분포를 따르는지는 '수식으로 보기'에 있습니다.</p>
+
+<h3>카이제곱 검정이 알려 주는 것과 알려 주지 않는 것</h3>
+<p>p = 0.030이 알려 주는 것은 "약물과 입원이 무관하다고 보기는 어렵다"는 것뿐입니다. 어느 약에서 입원이 적은지(방향), 얼마나 적은지(크기)는 알려 주지 않습니다. 통계량이 차이를 제곱해 더하므로 A군 입원이 기대보다 12명 적든 12명 많든 χ²는 똑같이 4.71입니다. 효과의 방향과 크기는 같은 표에서 따로 계산합니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>효과 지표</th><th>계산 (A 대 B)</th><th class="r">값 (95% CI)</th><th>읽는 법</th></tr></thead>
+<tbody>
+<tr><td><strong>위험차</strong><span class="en">(risk difference, RD)</span></td><td>0.12 − 0.17</td><td class="r">−5.0%p (−9.4 ~ −0.6)</td><td>A군이 100명당 5명 덜 입원</td></tr>
+<tr><td><strong>상대위험도</strong><span class="en">(risk ratio, relative risk, RR)</span></td><td>0.12 ÷ 0.17</td><td class="r">0.71 (0.51 ~ 0.97)</td><td>A군의 입원 위험이 B군의 0.71배 (29% 낮음)</td></tr>
+<tr><td><strong>오즈비</strong><span class="en">(odds ratio, OR)</span></td><td>(48/352) ÷ (102/498)</td><td class="r">0.67 (0.46 ~ 0.96)</td><td>A군의 입원 오즈가 B군의 0.67배</td></tr>
+</tbody></table></div>
+<p>세 지표 모두 신뢰구간이 '차이 없음'(RD는 0, RR과 OR은 1)을 포함하지 않아 카이제곱 검정과 같은 결론입니다. 위험차의 역수 1/0.05 = 20은 "B 대신 A를 쓰면 20명당 1명꼴로 입원이 줄어든다"는 뜻으로, 교란이 없다는 전제에서 <strong>치료필요수</strong><span class="en">(number needed to treat, NNT)</span>에 해당합니다. 상대위험도와 오즈비의 신뢰구간은 로그 척도에서 계산하는데, 그 원리는 8장 가·나 절에서 다룹니다. 표의 네 숫자로 직접 계산하는 방법은 아래 상자에 있습니다.</p>
+
+<div class="callout deep"><p class="ct">심화 · 세 지표의 신뢰구간 직접 계산하기</p>
+<p>세 지표는 각자의 표준오차 식이 있습니다("SE = SD/√n"은 표본평균에만 쓰는 식입니다). <b>위험차</b>는 두 비율의 분산을 더해 SE = √(0.12 × 0.88 ÷ 400 + 0.17 × 0.83 ÷ 600) = 0.0223이고, −0.050 ± 1.96 × 0.0223 = −0.094 ~ −0.006입니다. <b>상대위험도</b>와 <b>오즈비</b>는 비(ratio)의 분포가 한쪽으로 치우쳐 있어 로그를 씌워 계산한 뒤 지수로 되돌립니다. SE(ln RR) = √(1/48 − 1/400 + 1/102 − 1/600) = 0.163이고 ln 0.706 = −0.348이므로 exp(−0.348 ± 1.96 × 0.163) = 0.51 ~ 0.97입니다. 오즈비는 네 칸의 역수를 더하는 Woolf 식으로 SE(ln OR) = √(1/48 + 1/352 + 1/102 + 1/498) = 0.188, exp(ln 0.666 ± 1.96 × 0.188) = 0.46 ~ 0.96입니다. 위 표의 구간이 이 값들입니다.</p></div>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">약물 A·B 표의 RD, RR, OR과 95% CI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+from scipy import stats
+
+# 위험차(RD): 두 비율의 분산을 더해 SE를 구한다
+p1, n1, p2, n2 = 48/400, 400, 102/600, 600
+rd = p1 - p2
+se = np.sqrt(p1*(1 - p1)/n1 + p2*(1 - p2)/n2)
+print(&quot;RD&quot;, round(rd, 3), round(rd - 1.96*se, 3), round(rd + 1.96*se, 3))
+
+# 상대위험도(RR): (A군 사건 수, A군 인원, B군 사건 수, B군 인원) 순서
+rr = stats.contingency.relative_risk(48, 400, 102, 600)
+ci = rr.confidence_interval()
+print(&quot;RR&quot;, round(rr.relative_risk, 3), round(ci.low, 2), round(ci.high, 2))
+
+# 오즈비(OR): kind=&quot;sample&quot;은 표본 오즈비와 Woolf 구간
+orr = stats.contingency.odds_ratio([[48, 352], [102, 498]], kind=&quot;sample&quot;)
+ci = orr.confidence_interval()
+print(&quot;OR&quot;, round(orr.statistic, 3), round(ci.low, 2), round(ci.high, 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RD -0.05 -0.094 -0.006
+RR 0.706 0.51 0.97
+OR 0.666 0.46 0.96</pre></div></div>
+<p><code>odds_ratio()</code>를 <code>kind</code> 없이 실행하면 기본값인 조건부 최대우도 추정값 0.666과 정확 신뢰구간 0.45–0.98이 나옵니다. 계산 방법이 다를 뿐 둘 다 맞는 값이며, 차이는 나 절 '프로그램이 출력하는 오즈비'에서 설명합니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 오즈비를 상대위험도처럼 읽기</p>
+<p><span class="wrong">OR = 0.67이므로 약물 A군의 입원 위험이 B군보다 33% 낮다.</span> 위험(risk)은 "사건이 생긴 사람 ÷ 전체", 오즈(odds)는 "사건이 생긴 사람 ÷ 생기지 않은 사람"입니다. A군의 입원 위험은 48/400 = 0.120, 입원 오즈는 48/352 = 0.136입니다. "위험이 몇 % 낮다"는 RR로만 말할 수 있고, 이 자료의 RR은 0.71(29% 낮음)입니다.</p>
+<p>사건이 드물면(대략 10% 이하) 오즈와 위험이 비슷해서 OR과 RR도 비슷합니다. OR은 RR보다 항상 1에서 조금 더 멀리 있고, 사건이 흔할수록 그 차이가 커집니다. 사회약학 연구에서 흔한 결과변수인 복약 비순응(PDC &lt; 80%)으로 예를 들면, 비순응 비율이 60%인 군과 40%인 군의 RR은 1.50이지만 OR은 (0.6/0.4) ÷ (0.4/0.6) = 2.25입니다. OR 2.25를 "비순응 위험이 2.25배"라고 쓰면 실제 1.5배를 크게 부풀리게 됩니다.</p></div>
+<!--FIG:ch05_or_rr-->
+<p>대조군(비교군)의 위험을 알면 OR을 RR로 되돌려 볼 수 있습니다<cite data-ref="zhang1998"></cite>. 비순응 예의 OR 2.25에 대조군 위험 40%를 넣으면 RR 1.50으로, 약물 A·B 자료의 OR 0.67에 B군 위험 17%를 넣으면 RR 0.71로 돌아옵니다(식은 '수식으로 보기'). 보정하지 않은 2×2 표의 OR에는 정확히 맞습니다.</p>
+<p>다만 여러 변수를 보정한 로지스틱 회귀의 OR에 이 공식을 적용하면 RR과 그 신뢰구간이 부정확해질 수 있다는 비판이 있습니다. 결과가 흔한 코호트 연구에서 보정된 RR이 필요하면 처음부터 RR을 추정하는 모형(로그-이항 모형, 수정 포아송 회귀 등)을 씁니다(8장 라 절, 12장). 로지스틱 회귀가 왜 OR을 주는지, 환자-대조군 연구에서는 왜 OR만 구할 수 있는지는 8장 나 절에서 자세히 다룹니다.</p>
+
+<h3>세 군 이상의 비교</h3>
+<p>행이나 열의 범주가 셋 이상인 r×c 표도 계산 방법은 같습니다. 제2형 당뇨병 환자 중 메트포르민에 두 번째 약을 새로 추가한 환자를 약물 계열별로 300명씩 모아, 1년 안에 저혈당으로 응급실을 방문하거나 입원한 비율을 비교했습니다. 괄호 안은 기대빈도입니다(예: 300 × 60 / 900 = 20).</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th>추가한 약물 계열</th><th class="r">저혈당</th><th class="r">저혈당 없음</th><th class="r">합계</th><th class="r">저혈당 비율</th></tr></thead>
+<tbody>
+<tr><td>SGLT2 억제제</td><td class="r">12 (20)</td><td class="r">288 (280)</td><td class="r">300</td><td class="r">4.0%</td></tr>
+<tr><td>DPP-4 억제제</td><td class="r">15 (20)</td><td class="r">285 (280)</td><td class="r">300</td><td class="r">5.0%</td></tr>
+<tr><td>설포닐우레아</td><td class="r">33 (20)</td><td class="r">267 (280)</td><td class="r">300</td><td class="r">11.0%</td></tr>
+<tr><td>합계</td><td class="r">60</td><td class="r">840</td><td class="r">900</td><td class="r">6.7%</td></tr>
+</tbody></table></div>
+<p>여섯 칸에서 (O − E)² ÷ E를 구하면 저혈당 열이 3.20, 1.25, 8.45, 저혈당 없음 열이 0.23, 0.09, 0.60이고, 모두 더하면 χ² = 13.82입니다. 자유도 (3 − 1) × (2 − 1) = 2에서 p = 0.001입니다.</p>
+<p>이 p-value는 분산분석의 F 검정(4장)처럼 "세 군의 비율이 모두 같지는 않다"는 것만 알려 주는 <strong>전체 검정</strong><span class="en">(omnibus test)</span>입니다. 어느 군이 차이를 만들었는지 찾는 방법은 두 가지입니다.</p>
+
+<h4>수정 표준화 잔차</h4>
+<p>각 칸의 관측-기대 차이를 그 표준오차로 나눠 z 값처럼 만든 것이 <strong>수정 표준화 잔차</strong><span class="en">(adjusted standardized residual)</span>입니다. 귀무가설 아래에서 대략 표준정규분포를 따르므로, 절댓값이 1.96보다 크면 그 칸에 기대보다 뚜렷하게 많이(양수) 또는 적게(음수) 관측되었다고 봅니다. 설포닐우레아·저혈당 칸은 기대(20명)보다 13명 많았고 이 차이의 표준오차가 3.53명이므로, 잔차는 13 ÷ 3.53 = 3.69입니다(식은 '수식으로 보기'). 여기서 표준오차는 귀무가설이 맞을 때 이 칸의 인원이 우연만으로 기대값 20명 주변에서 흔들리는 폭입니다(<a href="#ch00-s5">0장 마 절</a>). 칸의 인원이 다른 칸과 상관없이 흔들린다면 이 폭은 √(기대빈도) = √20 = 4.47명이지만, 행·열 합계가 고정되어 있어 흔들릴 여지가 줄기 때문에 3.53명이 됩니다.</p>
+<!--FIG:ch05_resid-->
+<p>설포닐우레아군의 저혈당 칸(+3.69)은 기대보다 크게 많고, SGLT2 억제제군(−2.27)은 기대보다 적으며, DPP-4 억제제군(−1.42)은 기대와 뚜렷하게 다르지 않습니다. 다만 세 군의 잔차를 동시에 보므로 다중비교(1장 다 절)를 고려해 기준을 Bonferroni 방식의 2.39(양측 α = 0.05/3)로 올리면 설포닐우레아 칸만 기준을 넘습니다. 결과가 두 범주인 표에서는 같은 행의 두 칸 잔차가 크기는 같고 부호만 반대이므로('저혈당 없음' 칸은 +2.27, +1.42, −3.69) 한 열만 보면 됩니다.</p>
+
+<h4>두 군씩 짝지은 비교</h4>
+<p>두 군씩 2×2 표를 만들어 카이제곱 검정을 세 번 하고 p-value를 Bonferroni 방법으로 보정(× 3)합니다. SGLT2 억제제 대 DPP-4 억제제는 p = 0.55(보정 1.00), SGLT2 억제제 대 설포닐우레아는 p = 0.001(보정 0.003), DPP-4 억제제 대 설포닐우레아는 p = 0.007(보정 0.020)입니다. 결론은 잔차와 같습니다. 설포닐우레아군만 나머지 두 군과 다릅니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 세 군 비교 표의 위첨자 문자</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>국내 학술지에서 특히 자주 보이는 형식입니다. 전체 P 값 하나와, 군별 값 옆의 위첨자 문자로 사후 비교 결과를 함께 보여 줍니다.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Hypoglycemia within 1 year by add-on drug class</caption>
+<thead><tr><th></th><th class="r">SGLT2 inhibitor<br>(n = 300)</th><th class="r">DPP-4 inhibitor<br>(n = 300)</th><th class="r">Sulfonylurea<br>(n = 300)</th><th class="r">P value</th></tr></thead>
+<tbody>
+<tr><td>Hypoglycemia, n (%)</td><td class="r">12 (4.0)<sup>a</sup></td><td class="r">15 (5.0)<sup>a</sup></td><td class="r"><span class="mk">2</span> 33 (11.0)<sup>b</sup></td><td class="r"><span class="mk">1</span> 0.001</td></tr>
+<tr><td>Adjusted standardized residual</td><td class="r">−2.3</td><td class="r">−1.4</td><td class="r"><span class="mk">3</span> 3.7</td><td class="r"></td></tr>
+</tbody></table></div>
+<p class="jt-foot">SGLT2, sodium–glucose cotransporter 2; DPP-4, dipeptidyl peptidase-4. P value from the χ² test with 2 degrees of freedom. <sup>a,b</sup> Groups with different superscript letters differed significantly in pairwise χ² tests with Bonferroni correction (adjusted P &lt; 0.05).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>세 군 전체를 한 번에 비교한 χ² = 13.82, 자유도 2의 p-value입니다(정확히는 0.000997).</b> "세 군 중 적어도 한 군의 비율이 다르다"까지만 말해 줍니다. 이 값만 보고 "세 약의 저혈당 위험이 모두 다르다"고 쓰면 틀립니다.</span></li>
+<li><span class="mk">2</span><span><b>위첨자 문자는 사후 비교의 요약입니다.</b> 같은 문자를 공유하는 군끼리는 유의한 차이가 없고, 문자가 다르면 차이가 있다는 뜻입니다. SGLT2 억제제와 DPP-4 억제제는 둘 다 a(보정 p = 1.00), 설포닐우레아는 b로 나머지 두 군과 모두 다릅니다(보정 p = 0.003, 0.020). 어떤 사후 비교 방법과 보정을 썼는지는 각주에서 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>수정 표준화 잔차는 차이가 어느 칸에서 왔는지 보여 줍니다.</b> 설포닐우레아 +3.7은 기대(20명)보다 13명 많이 관측된 것이 표준오차의 3.7배라는 뜻입니다. SGLT2 억제제 −2.3은 1.96은 넘지만 세 군을 함께 볼 때의 Bonferroni 기준 2.39는 넘지 못합니다. 잔차는 각 군을 '세 군을 합친 비율'과 비교하고, 위첨자 문자는 두 군끼리 비교하므로 두 결과가 늘 같은 말을 하지는 않습니다. 이 표에서는 둘 다 설포닐우레아를 차이의 출처로 가리킵니다. 잔차 행을 싣는 논문은 많지 않지만, SPSS 교차분석의 셀 표시 옵션에서 '수정된 표준화'(adjusted standardized) 잔차를 선택하면 얻을 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>가정과 확인 방법</h3>
+<ol>
+<li><strong>관측의 독립</strong>: 한 사람은 표의 한 칸에만 한 번 들어가야 합니다. 같은 환자의 처방 여러 건을 각각 한 건으로 세거나(처방 단위 분석), 약사 중재 전후의 순응 여부처럼 같은 환자를 치료 전과 후에 두 번 세면 이 가정이 깨집니다(아래 '흔한 오해'의 짝지은 표 예). 짝지은 자료는 McNemar 검정(14장 가 절), 한 사람에게서 여러 번 관측한 자료는 일반화 추정 방정식(10장 라 절) 같은 방법을 씁니다.</li>
+<li><strong>충분한 기대빈도</strong>: 카이제곱 분포 근사는 기대빈도가 클 때 정확합니다. 흔히 쓰는 기준은 Cochran의 제안에서 나온 것으로, <strong>기대빈도가 5 미만인 칸이 전체의 20%를 넘지 않고 1 미만인 칸이 없어야</strong> 합니다<cite data-ref="cochran1954"></cite>. 2×2 표는 칸이 4개라 한 칸만 5 미만이어도 25%가 되므로, 사실상 "기대빈도 5 미만인 칸이 하나라도 있으면 Fisher의 정확한 검정(나 절)"이 됩니다.</li>
+</ol>
+<p>기준은 <strong>관측빈도가 아니라 기대빈도</strong>입니다. 관측빈도가 3인 칸이 있어도 그 칸의 기대빈도가 5 이상이면 카이제곱 검정을 쓸 수 있습니다. 약물 A·B 자료에서 가장 작은 기대빈도는 60이므로 근사에 문제가 없습니다.</p>
+
+<div class="callout tip"><p class="ct">사회약학 연구에서는</p>
+<p>청구자료로 두 약의 결과를 비교할 때 카이제곱 검정은 결과 표의 보정하지 않은(crude) 비교에 씁니다. 기저특성 표(Table 1)의 범주형 변수에도 χ² 검정의 P를 싣는 논문이 많지만, P는 차이의 크기가 아니라 표본 수에도 좌우되므로 두 군이 얼마나 다른지를 말해 주지 못합니다. 예를 들어 군당 10,000명에서 여성 비율 50% 대 52%는 P = 0.005이지만, 두 비율의 차이를 표준편차 단위로 나타낸 표준화 평균차(SMD)는 0.04로 흔히 쓰는 불균형 기준 0.1에 한참 못 미칩니다. 그래서 대규모 관찰연구는 범주형 변수도 SMD로 균형을 봅니다(<a href="#ch01-s1">1장 가 절</a>). 또 '1년 내 입원' 같은 비율은 모든 환자를 1년 동안 끝까지 관찰했다는 전제에서만 의미가 있습니다. 중간에 사망하거나 자격을 잃어 추적이 끊긴 환자가 많다면 비율 대신 Kaplan-Meier 생존분석(7장)이나 발생률(12장)을 씁니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 결과가 범주형(예/아니오 등)이고 서로 다른 사람들로 이루어진 군을 비교할 때 씁니다. 2×2 표에서 기대빈도 5 미만인 칸이 있으면 Fisher 검정(나 절), 범주에 순서가 있고 한 방향의 경향을 보려면 추세 검정(다 절), 같은 사람의 전후 비교이면 McNemar 검정(14장 가 절)입니다.</li>
+<li><strong>교란과 보정</strong>: 카이제곱 검정은 두 변수만 보는 <strong>보정하지 않은(crude) 비교</strong>입니다. 청구자료의 약물 A군과 B군은 나이, 동반질환, 처방 의사의 선택이 다르므로 12% 대 17%의 차이에는 약의 효과와 환자 차이가 섞여 있습니다. 교란변수를 함께 고려하려면 ① 나이대처럼 교란변수의 층마다 2×2 표를 만들어 합치는 Mantel–Haenszel 방법(8장 바 절), ② 약물군과 교란변수를 함께 넣은 로지스틱 회귀로 보정 오즈비를 구하는 방법(9장), ③ 성향점수로 두 군의 기저특성을 비슷하게 맞춘 뒤 비교하는 방법(14장 다 절)을 씁니다. 추적이 끊기는 환자가 많으면 Cox 회귀(11장)입니다. 어느 방법이든 측정하지 않은 교란변수(청구자료에 없는 흡연, 질병 중증도 등)는 보정하지 못합니다.</li>
+<li><strong>가중치가 있는 조사 자료</strong>: 국민건강영양조사나 한국의료패널처럼 가중치·층·집락이 있는 <strong>복합표본</strong><span class="en">(complex survey sample)</span> 자료를 <code>chi2_contingency()</code>에 그대로 넣으면 단순무작위표본처럼 계산되어 p가 틀립니다. 설계를 반영한 Rao–Scott 보정 χ²를 씁니다(SAS <code>PROC SURVEYFREQ</code>, R <code>survey::svychisq()</code>).</li>
+<li><strong>보고할 것</strong>: 군별 n (%)(분모 포함), 검정 이름과 선택 기준(기대빈도), P 값과 함께 효과 지표(RD, RR 또는 OR)와 95% CI. 관찰연구라면 보정한 추정값을 함께 제시하고 결론은 그쪽을 기준으로 씁니다.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 카이제곱 검정을 잘못 쓰는 세 가지 경우</p>
+<ul>
+<li><span class="wrong">같은 환자의 약사 상담 전후 복약순응 비율을 카이제곱 검정으로 비교한다.</span> 같은 환자 120명이 상담 전과 후에 한 번씩, 표에 두 번 들어가므로 관측의 독립이 깨집니다. 전후가 짝을 이룬 자료는 한 사람이 한 칸에만 들어가는 짝지은 표로 정리합니다.
+<div class="tbl-wrap"><table class="tbl" style="max-width:28rem">
+<thead><tr><th>상담 전 \ 상담 후</th><th class="r">순응</th><th class="r">비순응</th><th class="r">합계</th></tr></thead>
+<tbody>
+<tr><td>순응</td><td class="r">47</td><td class="r">7</td><td class="r">54</td></tr>
+<tr><td>비순응</td><td class="r">25</td><td class="r">41</td><td class="r">66</td></tr>
+</tbody></table></div>
+판단의 근거는 상태가 바뀐 사람(비순응 → 순응 25명, 순응 → 비순응 7명)뿐이고, 이 둘을 비교하는 McNemar 검정의 양측 P = 0.002입니다(<a href="#ch14-s1">14장 가 절</a>). 상담 전 120명과 상담 후 120명을 서로 다른 240명처럼 카이제곱 검정에 넣으면 χ² = 5.41, P = 0.020이 나오지만 가정을 어긴 틀린 계산입니다.</li>
+<li><span class="wrong">빈도 대신 백분율을 표에 넣어 검정한다.</span> 12%와 17%를 [12, 88 / 17, 83] 표로 넣으면 χ² = 1.01, p = 0.32가 나옵니다. 프로그램은 이 숫자를 사람 수로 읽으므로 전체 200명인 연구처럼 계산합니다. 실제 인원(400명, 600명)으로 계산한 χ² = 4.71, p = 0.030과 결론이 반대입니다. 반대로 한 군이 100명보다 적은 연구에서 백분율을 넣으면 유의성이 부풀려집니다. 카이제곱 검정에는 반드시 실제 빈도를 넣습니다.</li>
+<li><span class="wrong">p-value가 작을수록 관련성이 강하다.</span> 입원 비율이 똑같이 12% 대 17%라도 인원이 10배(4,000명, 6,000명)면 χ² = 47.1, p = 6.9 × 10⁻¹²가 됩니다. 상대위험도는 0.71로 그대로입니다. 관련성의 크기는 RD, RR, OR과 그 신뢰구간으로 판단합니다. 사회과학에서 쓰는 φ 계수(이 예에서 \(\sqrt{\chi^2/N} = 0.07\))나 Cramér's V도 크기 지표이지만, 의학 연구에서는 해석이 쉬운 RD, RR, OR을 주로 씁니다.</li>
+</ul></div>
+
+<h3>두 비율의 z 검정과의 관계 <span class="lv deep">심화</span></h3>
+<p>두 군의 비율 차이를 표준오차로 나눈 z 검정도 자주 쓰입니다. 귀무가설 아래에서는 두 군의 비율이 같다고 보므로 표준오차는 합친 비율 15%로 계산하고, z = (0.12 − 0.17) ÷ 0.0230 = −2.17입니다(식은 '수식으로 보기'). z² = (−2.17)² = 4.71로 카이제곱 통계량과 정확히 같고, 양측 p-value도 0.030으로 같습니다(1장 마 절의 z² = χ²₁). 두 방법은 같은 검정을 다르게 표현한 것이고, z 검정은 부호가 있어 방향을 바로 보여 준다는 점만 다릅니다. 파이썬에서는 statsmodels의 <code>proportions_ztest()</code>가 z = −2.17을, scipy의 <code>chi2_contingency(..., correction=False)</code>가 χ² = 4.71을 주며, 두 p-value는 모두 0.030입니다.</p>
+
+<h3>연속성 보정</h3>
+<p>관측빈도는 48, 49, 50처럼 정수로만 변하므로 χ² 통계량도 띄엄띄엄한 값만 가집니다. 이것을 매끄러운 카이제곱 분포로 근사하면 표본이 작을 때 p-value가 실제보다 작게 나올 수 있습니다. Yates는 각 칸의 |O − E|에서 0.5를 빼서 이 차이를 줄이자고 제안했습니다<cite data-ref="yates1934"></cite>. 이것이 <strong>연속성 보정</strong><span class="en">(continuity correction, Yates' correction)</span>입니다. 약물 A·B 자료에서는 12 대신 11.5로 계산해 χ² = 4.32, p = 0.038이 됩니다.</p>
+<p>보정하면 통계량은 항상 작아지고 p-value는 커집니다. Yates 보정 p-value는 Fisher의 정확한 검정(나 절)에서 단측 p를 두 배 한 값(이 예에서 0.036)에 가까워지도록 만든 것인데, 정확검정 자체가 보수적이어서 보정된 검정은 실제 1종 오류율이 5%보다 한참 낮은 경우가 많습니다. 그래서 요즘은 보정하지 않은 Pearson χ²를 쓰고, 기대빈도가 작을 때는 Fisher 검정으로 바꾸는 방식이 더 널리 권장됩니다<cite data-ref="campbell2007"></cite>.</p>
+<p>분석하거나 논문을 읽을 때 주의할 점은 프로그램마다 기본값이 다르다는 것입니다. 파이썬 scipy의 <code>chi2_contingency()</code>는 자유도가 1인 표(2×2 표)에서 <strong>기본으로 Yates 보정을 적용</strong>하고(<code>correction=True</code>), SPSS는 보정하지 않은 값과 보정한 값을 두 줄로 나란히 출력합니다. 같은 자료로 계산한 p-value가 논문마다 0.030과 0.038로 다르게 보고되는 이유가 대부분 이것입니다. 표본이 크면 두 값의 차이는 무시할 만합니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>통계 프로그램 출력에서는 이렇게 보입니다 · SPSS 교차분석의 카이제곱 검정표</b><span>가상의 예시 (SPSS 형식)</span></div>
+<div class="paper-b">
+<p>약물 A·B 자료를 SPSS의 교차분석(Analyze → Descriptive Statistics → Crosstabs)에서 '카이제곱'을 선택해 분석하면 아래 표가 나옵니다. 한 표에 검정이 다섯 가지나 있어 처음에는 무엇을 봐야 할지 헷갈립니다.</p>
+<pre class="out">Chi-Square Tests
+                                      Asymptotic
+                                      Significance  Exact Sig.  Exact Sig.
+                             Value  df  (2-sided)    (2-sided)   (1-sided)
+Pearson Chi-Square           4.706<sup>a</sup>  1     .030                         <span class="mk">1</span>
+Continuity Correction<sup>b</sup>       4.322   1     .038                         <span class="mk">2</span>
+Likelihood Ratio             4.815   1     .028                         <span class="mk">3</span>
+Fisher's Exact Test                               .030        .018      <span class="mk">4</span>
+Linear-by-Linear Association 4.701   1     .030                         <span class="mk">5</span>
+N of Valid Cases             1000
+a. 0 cells (0.0%) have expected count less than 5.                      <span class="mk">6</span>
+   The minimum expected count is 60.00.
+b. Computed only for a 2x2 table</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Pearson Chi-Square: 본문에서 손으로 계산한 χ² = 4.71입니다.</b> 기대빈도가 충분할 때 보고하는 기본값입니다. SPSS는 p를 소수점 셋째 자리까지 보여 주므로 ".000"이 나오면 논문에는 "P = 0.000"이 아니라 "P &lt; 0.001"로 씁니다.</span></li>
+<li><span class="mk">2</span><span><b>Continuity Correction: Yates 보정 χ² = 4.32입니다.</b> 각주 b대로 2×2 표에서만 출력됩니다. 파이썬 scipy의 <code>chi2_contingency()</code>를 기본값(<code>correction=True</code>)으로 실행했을 때 나오는 값(χ² = 4.32, p = 0.038)과 같으므로, 같은 자료를 분석한 논문끼리 p가 0.030과 0.038로 다르면 이 차이를 먼저 의심합니다.</span></li>
+<li><span class="mk">3</span><span><b>Likelihood Ratio: 우도비 카이제곱</b><span class="en">(G², likelihood ratio χ²)</span>입니다. 기대빈도와 관측빈도의 차이를 \(G^2 = 2\sum O \ln(O/E)\)로 잽니다. 표본이 크면 Pearson 값과 거의 같습니다(4.82 대 4.71). 우도의 개념은 8장 마 절에서 다룹니다. 단순 교차표 비교에서는 거의 보고하지 않습니다. 파이썬에서는 <code>stats.chi2_contingency(t, correction=False, lambda_="log-likelihood")</code>로 같은 값 4.815를 얻습니다(<code>t</code>는 [[48, 352], [102, 498]]). <code>correction=False</code>를 빼면 2×2 표에서 Yates 보정이 먼저 적용되어 4.42가 나옵니다.</span></li>
+<li><span class="mk">4</span><span><b>Fisher's Exact Test: 정확검정의 양측 p = .030, 단측 p = .018입니다.</b> 근사가 아니라 확률을 직접 계산하므로 'Asymptotic' 열은 비어 있습니다. 표본이 크면 Pearson 검정과 거의 같은 p를 줍니다. 계산 원리는 나 절에서 다룹니다.</span></li>
+<li><span class="mk">5</span><span><b>Linear-by-Linear Association: 2×2 표에서는 새로운 정보가 없는 행입니다.</b> 4.706 × 999/1,000 = 4.701로 Pearson 값에 (N − 1)/N을 곱한 것과 같습니다. 이 행이 의미를 갖는 경우는 다 절에서 설명합니다.</span></li>
+<li><span class="mk">6</span><span><b>기대빈도 규칙을 확인하는 각주입니다.</b> 이 줄에 "1 cells (25.0%) have expected count less than 5"처럼 나오면 Pearson 대신 Fisher's Exact Test 행을 보고합니다. 이 자료는 최소 기대빈도가 60이므로 Pearson 행을 보고하면 됩니다.</span></li>
+</ol>
+</div></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>지금까지 손으로 계산한 약물 A·B 연구의 결과가 논문에서는 어떻게 보고되는지 확인합니다. 입원 외에 응급실 방문, 고칼륨혈증, 사망까지 비교했다면 보통 이런 Methods 문장과 표로 보고됩니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods 문장과 결과 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Categorical variables are <span class="mk">1</span> <span class="hl">presented as numbers and percentages</span> and were compared using the χ² test or Fisher's exact test, <span class="mk">2</span> <span class="hl">as appropriate</span>.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Outcomes within 1 year after treatment initiation among new users of drug A and drug B</caption>
+<thead><tr><th>Outcome</th><th class="r">Drug A<br>(n = 400)</th><th class="r">Drug B<br>(n = 600)</th><th class="r"><span class="mk">6</span> P value</th></tr></thead>
+<tbody>
+<tr><td>All-cause hospitalization</td><td class="r">48 (12.0)</td><td class="r">102 (17.0)</td><td class="r"><span class="mk">3</span> 0.030</td></tr>
+<tr><td>Emergency department visit</td><td class="r">64 (16.0)</td><td class="r">111 (18.5)</td><td class="r"><span class="mk">4</span> 0.31</td></tr>
+<tr><td>Hyperkalemia requiring hospitalization</td><td class="r">2 (0.5)</td><td class="r">9 (1.5)</td><td class="r"><span class="mk">5</span> 0.22<sup>a</sup></td></tr>
+<tr><td>All-cause death</td><td class="r">3 (0.8)</td><td class="r">6 (1.0)</td><td class="r">0.75<sup>a</sup></td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are n (%). P values were calculated using the χ² test unless otherwise indicated.<br><sup>a</sup> Fisher's exact test (expected cell count &lt; 5).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>n (%)의 분모는 각 열의 인원입니다.</b> 48 ÷ 400 = 12.0%, 102 ÷ 600 = 17.0%. 사망 3명은 3 ÷ 400 = 0.75%라서 소수 첫째 자리로 반올림해 0.8로 적었습니다. 퍼센트만 보지 말고 분자를 함께 봐야, 사건이 한두 명만 달라도 퍼센트가 크게 흔들리는 행을 알아볼 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>"as appropriate"는 행마다 검정을 골랐다는 뜻입니다.</b> 기준은 대개 기대빈도이며(5 미만인 칸이 있으면 Fisher), 어느 행에 어떤 검정을 썼는지는 표 각주에서 확인합니다. 좋은 논문은 "Fisher's exact test was used when any expected cell count was less than 5"처럼 기준을 명시합니다.</span></li>
+<li><span class="mk">3</span><span><b>위 '숫자로 따라가기'에서 손으로 계산한 χ² = 4.71, 자유도 1의 p-value입니다.</b> 표에는 효과의 크기가 없지만 n (%)만으로 직접 계산할 수 있습니다(신뢰구간은 위 '세 지표의 신뢰구간 직접 계산하기' 상자, p 값은 <a href="#ch01-s5">1장 마 절 검산 도구</a>). RR = 12.0 ÷ 17.0 = 0.71(95% CI 0.51–0.97), RD = −5.0%p. 결과 표에 P 값만 있다면 이렇게 크기를 구해 보는 습관을 들이세요.</span></li>
+<li><span class="mk">4</span><span><b>P = 0.31은 "두 약의 응급실 방문이 같다"는 뜻이 아닙니다.</b> RR = 16.0 ÷ 18.5 = 0.86이고 95% CI는 0.65–1.14입니다. A군이 35% 적을 수도, 14% 많을 수도 있다는 뜻이며, 자료만으로는 어느 쪽인지 판단할 근거가 부족하다는 것입니다(1장 나 절).</span></li>
+<li><span class="mk">5</span><span><b>사건이 드물어 Fisher 검정으로 바꾼 행입니다.</b> 고칼륨혈증은 모두 11건이므로 A군의 기대빈도는 400 × 11 / 1,000 = 4.4로 5 미만입니다. 같은 행에 카이제곱 검정을 쓰면 p = 0.14, Fisher 검정은 0.22입니다. RR은 0.33이지만 95% CI가 0.07–1.53으로 매우 넓어, 드문 결과에서는 어느 검정을 쓰든 결론을 내리기 어렵습니다.</span></li>
+<li><span class="mk">6</span><span><b>보정하지 않은(crude) 비교의 P 값입니다.</b> 청구자료의 신규 사용자 두 군은 나이, 동반질환, 처방 의사의 선택 등이 다르므로 이 차이가 약 때문이라고 말할 수 없습니다. 이런 표 옆에는 보통 교란을 보정한 상대위험도·오즈비나 위험비(HR)가 함께 제시되고, 결론은 그쪽을 기준으로 읽습니다(8장 바 절, 9장, 11장, 14장 다 절).</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기 <span class="lv deep">심화</span></h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ E = \frac{\text{행 합계} \times \text{열 합계}}{N}, \qquad E_{\text{A, 입원}} = \frac{400 \times 150}{1000} = 60 \]</div>
+<div class="eq">\[ \chi^2 = \sum \frac{(O-E)^2}{E} = \frac{(48-60)^2}{60} + \frac{(102-90)^2}{90} + \frac{(352-340)^2}{340} + \frac{(498-510)^2}{510} = 2.40 + 1.60 + 0.42 + 0.28 = 4.71 \]
+<p>O는 관측빈도, E는 기대빈도입니다. 합은 표의 모든 칸에 대해 구합니다. 세 군 표도 같은 식으로 여섯 칸을 더해 13.82를 얻습니다.</p></div>
+<p>이 통계량이 카이제곱 분포를 따르는 이유를 직관적으로 보면 이렇습니다. 서로 독립인 z 값(표준정규분포를 따르는 값) k개를 제곱해 더하면 자유도 k인 카이제곱 분포가 됩니다(<a href="#ch01-s5">1장 마 절</a>). 각 칸의 (O − E)/√E는 기대빈도가 충분히 크면 평균 0인 정규분포에 가깝지만, 표준정규분포는 아닙니다. 행·열 합계가 고정되어 있어 분산이 1이 아니라 (1 − 행 비율)(1 − 열 비율)로 1보다 작고, 칸끼리 서로 독립도 아닙니다. 약물 A·B 표에서 이 분산은 A·입원 0.51, B·입원 0.34, A·입원 안 함 0.09, B·입원 안 함 0.06이고, 모두 더하면 1.00으로 자유도와 같습니다. 줄어든 분산과 칸 사이의 얽힘이 여백을 고정해 잃은 정보만큼이어서, 네 칸의 제곱합은 독립인 z 값 하나를 제곱한 것과 같은 분포, 즉 자유도 1인 카이제곱 분포를 따릅니다. 2×2 표에는 칸이 넷 있지만 서로 독립인 정보는 하나뿐이라는 말이 이 뜻입니다.</p>
+<p>그래서 (O − E)/√E를 칸별 z 값으로 읽으면 크기를 작게 잡게 됩니다. 세 군 표의 설포닐우레아·저혈당 칸은 13 ÷ √20 = 2.91이지만, 분산 (1 − 300/900)(1 − 60/900) = 0.622를 반영하면 13 ÷ √(20 × 0.622) = 13 ÷ 3.53 = 3.69입니다. 이렇게 바로잡은 것이 수정 표준화 잔차이며, 식은 아래에 있습니다.</p>
+<p>대조군 위험 p₀를 이용해 OR을 RR로 바꾸는 식은 다음과 같습니다.</p>
+<div class="eq">\[ RR = \frac{OR}{1 - p_0 + p_0 \times OR}, \qquad \text{비순응 예: } \frac{2.25}{1 - 0.40 + 0.40 \times 2.25} = \frac{2.25}{1.50} = 1.50 \]</div>
+<p>두 비율의 z 검정과 연속성 보정은 다음과 같습니다.</p>
+<div class="eq">\[ z = \frac{p_1 - p_2}{\sqrt{\bar{p}(1-\bar{p})\left(\frac{1}{n_1}+\frac{1}{n_2}\right)}} = \frac{0.12 - 0.17}{\sqrt{0.15 \times 0.85 \times \left(\frac{1}{400}+\frac{1}{600}\right)}} = \frac{-0.05}{0.0230} = -2.17 \]</div>
+<div class="eq">\[ \chi^2_{\text{Yates}} = \sum \frac{(|O-E| - 0.5)^2}{E} = 11.5^2 \times \left(\frac{1}{60}+\frac{1}{90}+\frac{1}{340}+\frac{1}{510}\right) = 4.32, \quad p = 0.038 \]</div>
+<p>수정 표준화 잔차는 다음과 같습니다.</p>
+<div class="eq">\[ \text{수정 표준화 잔차} = \frac{O - E}{\sqrt{E\,(1 - \text{행 비율})(1 - \text{열 비율})}}, \qquad \text{설포닐우레아·저혈당: } \frac{33 - 20}{\sqrt{20 \times \left(1 - \frac{300}{900}\right)\left(1 - \frac{60}{900}\right)}} = \frac{13}{3.53} = 3.69 \]
+<p>행 비율은 그 행의 합계 ÷ N(300/900), 열 비율은 그 열의 합계 ÷ N(60/900)입니다.</p></div>
+
+<div class="callout deep"><p class="ct">심화 · 자유도를 바로잡은 Fisher</p>
+<p>Pearson은 처음에 교차표의 자유도를 "칸의 수 − 1"로 계산했습니다. 이 방식이면 2×2 표의 자유도는 3이 되어 p-value가 지나치게 커집니다. Fisher는 1922년에 기대빈도를 계산할 때 행 합계와 열 합계를 자료에서 추정해 쓰므로 그만큼 자유도가 줄어, (행 수 − 1) × (열 수 − 1)이 되어야 한다는 것을 보였습니다<cite data-ref="fisher1922"></cite>. "자유도 = 관측값의 수 − 추정한 모수의 수"라는 1장 라 절의 원리가 그대로 적용된 예입니다.</p></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab05">실습 5</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>카이제곱 검정은 "관련이 없다면 기대되는 빈도(행 합계 × 열 합계 ÷ N)"와 관측빈도의 어긋남을 모든 칸에서 모은 것이며, 자유도는 (행 수 − 1) × (열 수 − 1)입니다.</li>
+<li>검정은 관련성의 존재만 알려 줍니다. 방향과 크기는 같은 표에서 RD, RR, OR과 신뢰구간으로 제시합니다.</li>
+<li>OR은 위험의 비가 아닙니다. 사건이 흔할수록 OR은 RR보다 1에서 멀어지므로 "위험이 몇 배"라는 표현은 RR에만 씁니다.</li>
+<li>카이제곱 검정은 보정하지 않은 비교입니다. 관찰연구에서 교란을 보정하려면 Mantel–Haenszel 방법(8장 바 절), 로지스틱 회귀(9장), 성향점수(14장 다 절)로 넘어갑니다.</li>
+<li>기대빈도(관측빈도가 아님)가 5 미만인 칸이 20%를 넘으면 Fisher 검정을 고려합니다. scipy의 <code>chi2_contingency()</code>는 2×2 표에서 Yates 보정이 기본값입니다(<code>correction=True</code>).</li>
+<li>세 군 이상에서 유의하면 수정 표준화 잔차나 보정한 짝 비교로 차이의 출처를 찾습니다. 짝지은 자료에는 McNemar 검정을 씁니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>논문 표에 "Severe hypoglycemia, n (%): Drug C (n = 200) 3 (1.5), Drug D (n = 300) 13 (4.3)"이라는 줄이 있습니다. 네 칸의 기대빈도를 구하고, 카이제곱 검정과 Fisher의 정확한 검정 중 무엇을 쓸지 정하세요.</p>
+<details><summary>답과 풀이</summary><div><p>사건은 모두 16명, 전체는 500명입니다. 기대빈도는 C군·사건 200 × 16 ÷ 500 = 6.4, D군·사건 300 × 16 ÷ 500 = 9.6, 사건 없음 칸은 193.6과 290.4로 모두 5 이상입니다. 따라서 Pearson 카이제곱 검정을 쓸 수 있고, χ² = 3.11(자유도 1), P = 0.078입니다. C군의 관측빈도 3이 5 미만이라 Fisher 검정을 골라야 한다고 생각하기 쉽지만, 기준은 관측빈도가 아니라 기대빈도입니다. 참고로 Fisher 검정으로 계산해도 p = 0.12로 결론(뚜렷한 차이 없음)은 같습니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>약사 중재군 120명 중 36명(30%), 대조군 120명 중 60명(50%)이 1년 뒤 비순응(PDC &lt; 80%)이었습니다. 논문에 "OR = 0.43이므로 중재군의 비순응 위험이 대조군보다 57% 낮았다"라고 적혀 있습니다. 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>오즈비 (36/84) ÷ (60/60) = 0.43은 맞게 계산했지만, "위험이 몇 % 낮다"는 상대위험도로만 말할 수 있습니다. RR = 0.30 ÷ 0.50 = 0.60이므로 중재군의 비순응 위험은 40% 낮습니다. 비순응이 30–50%로 흔한 결과라서 OR이 RR보다 1에서 훨씬 멀리 있고, 57%는 효과를 크게 부풀린 표현입니다. 대조군 위험 0.50을 넣은 변환식 0.43 ÷ (1 − 0.50 + 0.50 × 0.43) = 0.60으로도 확인됩니다. 고친 문장: "중재군의 비순응 위험은 대조군의 0.60배(40% 낮음)였다(OR 0.43)."</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>약물 A와 B의 1년 내 입원을 비교하려고 합니다. 다음 세 자료에 <code>chi2_contingency()</code>를 그대로 써도 되는지, 먼저 무엇을 확인해야 하는지 답하세요. (가) 청구자료의 A 신규 사용자 400명과 B 신규 사용자 600명, 환자당 한 줄. (나) 같은 청구자료를 처방 건 단위로 세어 A 1,200건, B 1,500건으로 만든 표. (다) 국민건강영양조사 참여자 중 A·B 복용자를 가중치를 곱한 추정 인구수로 만든 표.</p>
+<details><summary>답과 풀이</summary><div><p>먼저 확인할 것은 표의 한 칸에 한 사람이 한 번만 들어가는지(관측 단위)와 표본을 어떻게 뽑았는지입니다. (가)는 서로 다른 사람들로 이루어진 두 군이므로 기대빈도만 확인하면 카이제곱 검정을 씁니다. (나)는 한 환자의 처방 여러 건이 표에 여러 번 들어가 관측의 독립이 깨집니다. 환자 단위로 다시 세거나, 한 사람의 여러 관측을 고려하는 일반화 추정 방정식(10장 라 절) 같은 방법을 씁니다. (다)는 가중치를 곱한 인구수를 넣으면 수백만 명을 조사한 것처럼 계산되어 p가 터무니없이 작아지고, 가중치 없이 넣어도 층·집락 구조를 무시하게 됩니다. 설계를 반영한 Rao–Scott 보정 χ²를 씁니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ch05-s2">
+<h2><span class="sec-no">나.</span>Fisher의 정확한 검정</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">표가 작을 때, 근사 없이 "약이 결과와 무관하다면 지금처럼 한쪽으로 치우친 표가 나올 확률"을 경우의 수로 직접 세어 p-value를 구하는 방법입니다.</p>
+<ul>
+<li><b>왜 필요한가.</b> 카이제곱 검정의 p-value는 기대빈도가 클 때 잘 맞는 근사값입니다. 드문 이상반응이나 수십 명 규모의 연구처럼 기대빈도가 5 미만인 칸이 생기면 근사가 부정확해지므로, 가능한 모든 표의 확률을 직접 계산합니다.</li>
+<li><b>비유.</b> '간독성' 카드 7장이 섞인 카드 29장을 잘 섞어 15장(X군)과 14장(Y군)으로 나눠 줄 때, X군 쪽에 간독성 카드가 1장 이하로 들어가는 것처럼 우연히 이만큼 한쪽으로 쏠릴 확률을 경우의 수로 직접 세는 것과 같습니다.</li>
+<li><b>논문에서는.</b> "1 of 15 (6.7%) vs 6 of 14 (42.9%), P = 0.035, Fisher's exact test"처럼 나옵니다. "X군은 15명 중 1명, Y군은 14명 중 6명에게 간독성이 생겼고, 약과 무관하다면 이만큼 또는 더 치우친 표가 나올 확률은 3.5% 정도"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 작은 표본에서 "유의하지 않음"은 대개 "사건이 너무 적어 판단할 수 없음"입니다. 분자·분모와 신뢰구간을 함께 봅니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>2×2 표에서 기대빈도가 5 미만인 칸이 있을 때. 원리상 표본 크기와 관계없이 쓸 수 있습니다.</dd></div>
+  <div><dt>귀무가설</dt><dd>두 변수는 독립이다(오즈비 = 1).</dd></div>
+  <div><dt>가정</dt><dd>관측의 독립. 행·열 합계를 고정된 값으로 보고 계산합니다(조건부 검정). 분포 근사는 필요 없습니다.</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>표 각주의 "Fisher's exact test"와 P 값. 함께 보고하는 오즈비가 표본 오즈비인지 조건부 최대우도 추정값인지는 프로그램마다 다릅니다(아래 '프로그램이 출력하는 오즈비').</dd></div>
+</dl>
+
+<h3>개념</h3>
+<p>카이제곱 검정의 p-value는 근사값입니다. 기대빈도가 작으면 이 근사가 나빠지므로, 근사 없이 확률을 직접 계산하는 방법이 필요합니다. <strong>Fisher의 정확한 검정</strong><span class="en">(Fisher's exact test)</span>은 2×2 표의 행 합계와 열 합계를 고정했을 때 나올 수 있는 모든 표의 확률을 직접 계산합니다<cite data-ref="fisher1935"></cite>. 같은 시기에 Irwin도 독립적으로 제안해 Fisher–Irwin 검정이라고도 합니다. 드문 약물 이상반응, 환자 수십 명 규모의 초기 임상시험, 희귀질환이나 단일기관 종양 코호트의 하위군 분석에서 자주 보입니다.</p>
+<p>이 절에서는 다음 예를 씁니다. 진행성 신세포암 환자 29명을 표적치료제 X(15명)와 Y(14명)로 무작위배정하고, 치료 12주 안에 생긴 3등급 이상 이상반응을 비교한 소규모 시험이 있다고 합시다. 3등급 이상 간독성은 X군 15명 중 1명, Y군 14명 중 6명, 모두 7명에게 생겼습니다.</p>
+<p>카드 29장 중 7장에 '간독성'이라고 적혀 있다고 합시다. 카드를 잘 섞어 15장은 약물 X군에, 14장은 약물 Y군에 나눠 줍니다. 약물이 간독성과 아무 관련이 없다면(귀무가설), 실제 연구에서 일어난 일은 이 카드 나누기와 같습니다. 간독성이 생길 7명은 어느 약을 받든 정해져 있고, 그 7명이 어느 군에 배정되었는지만 우연입니다. 그렇다면 "X군이 간독성 카드를 1장 이하로 받을 확률"은 경우의 수를 세어 정확히 계산할 수 있습니다. 이 확률 분포가 <strong>초기하분포</strong><span class="en">(hypergeometric distribution)</span>입니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>이 시험의 간독성 결과를 2×2 표로 옮깁니다. 괄호 안은 기대빈도입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
+<thead><tr><th></th><th class="r">간독성 있음</th><th class="r">없음</th><th class="r">합계</th></tr></thead>
+<tbody>
+<tr><td>약물 X</td><td class="r">1 (3.62)</td><td class="r">14 (11.38)</td><td class="r">15</td></tr>
+<tr><td>약물 Y</td><td class="r">6 (3.38)</td><td class="r">8 (10.62)</td><td class="r">14</td></tr>
+<tr><td>합계</td><td class="r">7</td><td class="r">22</td><td class="r">29</td></tr>
+</tbody></table></div>
+<p>기대빈도가 5 미만인 칸이 4칸 중 2칸(50%)이므로 카이제곱 근사를 믿기 어렵습니다.</p>
+
+<h4>1단계: 관측된 표의 확률</h4>
+<p>여백(행·열 합계)이 고정되면 왼쪽 위 칸 a 하나만 정해도 표 전체가 정해집니다(자유도 1). 간독성 환자 7명 중 a명이 X군에 있을 확률은 "29명 중 7명을 고르는 모든 방법" 가운데 "X군 15명 중 a명, Y군 14명 중 7 − a명을 고르는 방법"이 차지하는 비율입니다. 29명 중 7명을 고르는 방법은 1,560,780가지이고, X군에서 1명(15가지)과 Y군에서 6명(3,003가지)을 고르는 방법은 15 × 3,003 = 45,045가지입니다. 따라서 관측된 표(a = 1)의 확률은 45,045 ÷ 1,560,780 = 0.0289입니다(식은 '수식으로 보기').</p>
+
+<h4>2단계: 가능한 모든 표 나열하기</h4>
+<p>여백이 같은 표는 a = 0부터 7까지 8개뿐입니다. 각 표의 확률을 같은 방법으로 구하면 합이 1이 됩니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th class="r">a</th><th class="r">X군 간독성</th><th class="r">Y군 간독성</th><th class="r">그 표의 확률</th><th>관측된 표보다 확률이 같거나 작은가</th></tr></thead>
+<tbody>
+<tr class="hi"><td class="r">0</td><td class="r">0/15</td><td class="r">7/14</td><td class="r">0.0022</td><td>예</td></tr>
+<tr class="hi"><td class="r">1</td><td class="r">1/15</td><td class="r">6/14</td><td class="r">0.0289</td><td>예 (관측된 표)</td></tr>
+<tr><td class="r">2</td><td class="r">2/15</td><td class="r">5/14</td><td class="r">0.1347</td><td></td></tr>
+<tr><td class="r">3</td><td class="r">3/15</td><td class="r">4/14</td><td class="r">0.2918</td><td></td></tr>
+<tr><td class="r">4</td><td class="r">4/15</td><td class="r">3/14</td><td class="r">0.3183</td><td>가장 흔한 표 (기대 3.62에 가장 가까움)</td></tr>
+<tr><td class="r">5</td><td class="r">5/15</td><td class="r">2/14</td><td class="r">0.1751</td><td></td></tr>
+<tr><td class="r">6</td><td class="r">6/15</td><td class="r">1/14</td><td class="r">0.0449</td><td>아니오 (0.0449 &gt; 0.0289)</td></tr>
+<tr class="hi"><td class="r">7</td><td class="r">7/15</td><td class="r">0/14</td><td class="r">0.0041</td><td>예</td></tr>
+<tr><td></td><td></td><td class="r">합계</td><td class="r">1.0000</td><td></td></tr>
+</tbody></table></div>
+<!--FIG:ch05_fisher-->
+
+<h4>3단계: 양측 p-value</h4>
+<p>"관측된 표만큼 또는 그보다 더 극단적인 표"를 확률로 정의해, 관측된 표(0.0289)보다 확률이 같거나 작은 표의 확률을 모두 더합니다. p = 0.0022 + 0.0289 + 0.0041 = 0.0352입니다. 반대쪽 꼬리의 a = 6인 표(0.0449)는 관측된 표보다 확률이 크므로 더하지 않습니다. 파이썬 scipy의 <code>fisher_exact()</code>, SAS 등 대부분의 통계 프로그램이 이 규칙으로 양측 p를 계산합니다.</p>
+<p>양측 p를 정하는 방법이 하나만 있는 것은 아닙니다. 단측 p(X군 간독성이 1명 이하일 확률 = 0.0022 + 0.0289 = 0.0311)를 두 배 하면 0.062가 되어 결론이 달라집니다. 분포가 좌우 대칭이 아니어서 생기는 차이입니다. 논문의 Fisher 검정 p가 0.05 근처라면 이런 정의 차이로도 결론이 바뀔 수 있다는 점을 기억해 두세요.</p>
+<p>같은 표에 카이제곱 검정을 적용하면 χ² = 5.18, p = 0.023이고(scipy의 <code>chi2_contingency()</code>는 기대빈도가 작아도 경고 없이 이 값을 돌려주므로, 결과의 <code>expected_freq</code>로 기대빈도를 직접 확인해야 합니다), Yates 보정을 하면 χ² = 3.39, p = 0.066입니다. 기대빈도가 작은 표에서는 방법에 따라 p가 0.023, 0.035, 0.066으로 크게 달라지므로, 어떤 검정을 쓸지 분석 계획 단계에서 미리 정해야 합니다.</p>
+
+<h3>정확검정이 보수적인 이유</h3>
+<p>'정확'하다는 말은 근사 없이 확률을 계산한다는 뜻이지, 1종 오류율이 정확히 5%라는 뜻은 아닙니다. 이 여백에서 가능한 표는 8개뿐이므로 가능한 p-value도 8개뿐이고, 이 중 0.05 이하인 것은 a = 0, 1, 7인 표(p = 0.0022, 0.0352, 0.0063)입니다. 귀무가설이 참일 때 이 세 표 중 하나가 나올 확률은 0.0022 + 0.0289 + 0.0041 = 0.035입니다. 명목 유의수준은 5%이지만 실제 1종 오류율은 3.5%입니다. 자료가 띄엄띄엄해서 5%를 정확히 채우지 못하고 항상 그 아래에 머물기 때문에 <strong>보수적</strong><span class="en">(conservative)</span>이라고 하며, 그만큼 검정력을 손해 봅니다.</p>
+
+<div class="callout deep"><p class="ct">심화 · 보수성을 줄이는 방법</p>
+<p>보수성을 줄이는 방법으로 <strong>mid-p</strong><span class="en">(중간 p-value)</span>가 있습니다. 관측된 표의 확률은 절반만 더하는 방식으로, 이 예에서는 0.0352 − 0.0289/2 = 0.021입니다. 역학 분야 일부에서 쓰이지만 임상 논문에서는 드뭅니다. Campbell은 여러 검정의 1종 오류율을 폭넓게 비교한 뒤, 모든 칸의 기대빈도가 1 이상이면 Pearson χ²에 (N − 1)/N을 곱한 'N − 1' 카이제곱 검정을, 그렇지 않으면 Fisher 검정을 쓰자고 제안했습니다<cite data-ref="campbell2007"></cite>. 이 예에 적용하면 5.18 × 28/29 = 5.00, p = 0.025입니다. 그래도 실제 논문에서는 "기대빈도 5 미만이면 Fisher"가 가장 흔한 관행이며, 심사자가 받아들이기 쉬운 선택이기도 합니다.</p></div>
+
+<div class="callout deep"><p class="ct">심화 · 여백을 고정한다는 가정</p>
+<p>Fisher 검정은 행 합계와 열 합계를 모두 고정된 값으로 보고 계산합니다(<strong>조건부 검정</strong>, conditional test). 무작위배정 시험에서 군별 인원(행 합계)은 설계로 정해지지만 간독성 환자 수(열 합계)는 결과로 정해지는 값이므로, 엄밀히 말하면 고정되어 있지 않습니다. 그래도 조건부로 계산한 p-value는 1종 오류율이 α를 넘지 않는 타당한 검정입니다. 대가는 앞에서 본 보수성입니다. 행 합계만 고정하는 무조건부 정확검정(unconditional exact test, Barnard 검정 등)은 검정력이 조금 더 높지만 계산이 복잡하고 논문에서는 드뭅니다.</p></div>
+
+<div class="callout tip"><p class="ct">사회약학 연구에서는</p>
+<p>약물감시 자료의 드문 이상반응, 희귀질환 약물의 소규모 실사용 자료, 단일기관 종양 코호트의 하위군 분석에서는 기대빈도 5 미만인 칸이 흔합니다. 이런 분석에서 "Fisher 검정 결과 유의한 차이가 없었다"는 문장은 대부분 "사건이 너무 적어 판단할 수 없었다"는 뜻입니다. 사건 수와 신뢰구간을 함께 보고하고, 필요한 표본수를 계산해 보는 것(14장 차 절)이 결과를 정직하게 해석하는 방법입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 2×2 표에서 기대빈도가 5 미만인 칸이 하나라도 있으면 Fisher 검정을 씁니다. 표본이 커도 쓸 수 있으므로, 이상반응 표처럼 한 표 안의 검정을 통일하려고 모든 행에 Fisher 검정을 써도 됩니다. 어떤 검정을 쓸지는 결과를 보기 전에 분석 계획에서 정합니다.</li>
+<li><strong>교란과 보정</strong>: Fisher 검정도 두 변수만 보는 보정하지 않은 비교입니다. 무작위배정 시험이라면 배정이 교란을 대부분 막아 주지만, 단일기관 코호트나 희귀질환 실사용 자료 같은 관찰자료에서는 두 군의 기저특성 차이가 결과에 그대로 섞입니다. 교란변수가 한두 개이면 그 층별로 표를 나눠 합치는 Mantel–Haenszel 방법(8장 바 절)을 씁니다. 사건이 적으면 로지스틱 회귀(9장)에 넣을 수 있는 변수 수가 제한되므로(9장의 사건 수 대비 모수 수), 여러 교란변수를 노출 모형 하나로 요약하는 성향점수(14장 다 절)나 작은 표본의 치우침을 줄이는 Firth 방법(9장)을 고려합니다. 사건 수 자체가 적다는 한계는 어떤 보정으로도 해결되지 않습니다.</li>
+<li><strong>보고할 것</strong>: 군별 사건 수와 인원(분자와 분모), 검정 이름, 효과 지표(RR 또는 OR)와 정확 신뢰구간. 오즈비를 보고한다면 표본 오즈비인지 조건부 최대우도 추정값인지 밝힙니다.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · Fisher의 정확한 검정</p>
+<ul>
+<li><span class="wrong">Fisher 검정은 표본이 작을 때만 쓸 수 있다.</span> 어떤 크기의 표에도 타당합니다. 예전에는 표본이 크면 계산량이 많아서 카이제곱 근사를 썼을 뿐이고, 지금은 2×2 표라면 즉시 계산됩니다. 표본이 크면 카이제곱 검정과 거의 같은 p를 줍니다(가 절 예: 0.030 대 0.030).</li>
+<li><span class="wrong">관측빈도가 5 미만인 칸이 있으니 Fisher 검정을 써야 한다.</span> 기준은 기대빈도입니다(가 절).</li>
+<li><span class="wrong">Fisher 검정은 2×2 표에만 쓸 수 있다.</span> r×c 표로 확장한 방법(Freeman–Halton 확장)이 있어, 기대빈도가 작은 세 군 비교 표에도 쓸 수 있습니다(프로그램 세부는 아래 심화 상자).</li>
+</ul></div>
+
+<div class="callout deep"><p class="ct">심화 · scipy로 r×c 표의 Fisher 검정 하기</p>
+<p>scipy의 <code>fisher_exact()</code>는 1.15 버전부터 r×c 표를 받습니다. 이때는 기본으로 무작위로 만든 표 9,999개를 이용하는 몬테카를로 방식으로 p를 근사하므로 실행할 때마다 p가 조금씩 달라지고, 오즈비 대신 관측된 표의 확률을 statistic으로 돌려줍니다(scipy 1.17 기준, 버전에 따라 다를 수 있음). 논문에 쓸 때는 몬테카를로 반복 횟수와 난수 시드를 함께 밝힙니다.</p></div>
+
+<h3>프로그램이 출력하는 오즈비</h3>
+<p>Fisher 검정을 하는 함수는 p-value와 함께 오즈비를 출력하는 경우가 많은데, 같은 표라도 어떤 오즈비를 출력하는지는 함수마다 다릅니다. 간독성 표로 보면 실무에서 기억할 것은 다음 두 가지입니다.</p>
+<ul>
+<li><strong>표본 오즈비</strong><span class="en">(sample odds ratio, cross-product ratio)</span>: (1 × 8) ÷ (14 × 6) = 0.095. 표에서 바로 계산한 값으로, 파이썬 scipy의 <code>fisher_exact()</code>가 p-value와 함께 돌려주는 오즈비가 이것입니다.</li>
+<li><strong>조건부 최대우도 추정값</strong><span class="en">(conditional maximum likelihood estimate)</span>: 0.103. scipy의 <code>scipy.stats.contingency.odds_ratio()</code> 기본값(<code>kind="conditional"</code>)과 R의 <code>fisher.test()</code>가 출력하는 오즈비이며, 정확 신뢰구간이 함께 나옵니다.</li>
+</ul>
+<p>둘 다 맞는 값이고 추정 방법이 다를 뿐입니다. 표본이 크면 두 값은 거의 같고(가 절의 약물 A·B 자료에서는 0.6658과 0.6660), 차이는 표본이 작을 때 생깁니다. 논문에 보고된 오즈비를 표의 숫자로 검산했는데 조금 다르다면 조건부 추정값일 가능성을 먼저 떠올려 보세요. 반대로 직접 분석할 때는 어느 함수의 오즈비를 썼는지 Methods에 밝혀 두는 것이 좋습니다.</p>
+
+<div class="callout deep"><p class="ct">심화 · 조건부 최대우도 추정값의 원리</p>
+<p>귀무가설(OR = 1)에서 a는 위의 초기하분포를 따르지만, 실제 오즈비가 1이 아니면 a의 분포가 오즈비만큼 한쪽으로 기울어집니다(비중심 초기하분포, noncentral hypergeometric distribution). 여백을 고정한 상태에서 기울어진 분포의 평균이 관측값 a = 1과 같아지도록 오즈비를 고른 값이 조건부 최대우도 추정값입니다(우도는 8장 마 절). 같은 분포로 계산하므로 정확 신뢰구간도 함께 얻습니다. 한 칸이 0이면 표본 오즈비는 0이나 무한대가 되어 신뢰구간을 구할 수 없지만, 조건부 추정의 정확 신뢰구간은 한쪽 끝이 유한합니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · scipy의 fisher_exact()와 odds_ratio() <span class="lv deep">심화</span></b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>간독성 표를 scipy로 분석한 출력입니다(scipy 1.17). 함수 위치와 출력 형식은 scipy 버전에 따라 조금 다를 수 있습니다.</p>
+<p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
+<pre class="out"><span class="cm"># from scipy.stats import fisher_exact
+# from scipy.stats.contingency import odds_ratio
+# tabF = [[1, 14], [6, 8]]   ← 행: 약물 X, Y / 열: 간독성 있음, 없음
+# res = fisher_exact(tabF)
+# print(res.pvalue)</span>
+0.03518240879560221     <span class="mk">1</span>
+<span class="cm"># print(res.statistic)</span>
+0.09523809523809523     <span class="mk">2</span>
+<span class="cm"># orc = odds_ratio(tabF)     ← 기본값 kind="conditional"
+# print(orc.statistic)</span>
+0.10332200045046147     <span class="mk">3</span>
+<span class="cm"># print(orc.confidence_interval(confidence_level=0.95))</span>
+ConfidenceInterval(low=0.0019360366480282352, high=1.0823275952521914)   <span class="mk">4</span></pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>양측 p-value = 0.0352입니다.</b> 그림 5-4의 주황 막대 세 개(a = 0, 1, 7)의 확률을 더한 값입니다. <code>fisher_exact()</code>의 기본값은 양측검정(<code>alternative="two-sided"</code>)이고, 귀무가설 "두 변수는 독립이다"를 오즈비로 표현하면 "오즈비 = 1"입니다. <code>alternative="less"</code>로 바꾸면 단측 p 0.0311이 나옵니다.</span></li>
+<li><span class="mk">2</span><span><b>fisher_exact()의 statistic은 표본 오즈비 0.095입니다.</b> (1 × 8) ÷ (14 × 6) = 0.0952로 표에서 바로 계산한 값이며, 신뢰구간은 함께 주지 않습니다. 이름이 statistic이라 검정통계량처럼 보이지만 2×2 표에서는 오즈비입니다.</span></li>
+<li><span class="mk">3</span><span><b>odds_ratio()의 기본 출력은 조건부 최대우도 추정값 0.103입니다.</b> 위 심화 상자의 설명처럼, 여백을 고정한 분포에서 평균이 관측값 a = 1이 되는 오즈비입니다. 같은 표인데 ②와 ③이 다른 것은 계산 오류가 아니라 추정 방법이 다르기 때문입니다. R의 <code>fisher.test()</code>로 분석한 논문에는 이 0.103이 보고됩니다.</span></li>
+<li><span class="mk">4</span><span><b>p &lt; 0.05인데 신뢰구간(0.0019–1.08)이 1을 포함합니다.</b> 모순처럼 보이지만 두 값을 만드는 규칙이 다르기 때문입니다. p-value는 '확률이 같거나 작은 표를 모두 더하는' 규칙을 쓰고, 이 정확 신뢰구간은 양쪽 꼬리에 2.5%씩 따로 배정하는 규칙(단측 검정 두 개를 뒤집은 것)을 씁니다. 이 자료의 단측 p는 0.031로 0.025보다 크므로, 신뢰구간의 위쪽 끝이 1을 조금 넘습니다. 정확검정에서는 이런 불일치가 드물지 않으니, 논문에서 보면 계산 오류로 단정하지 말고 두 값을 함께 보고하면 됩니다. 구간이 0.002부터 1.08까지 걸쳐 있어, 표본이 이만큼 작으면 오즈비의 크기는 거의 알 수 없다는 것도 함께 읽어야 합니다.</span></li>
+</ol>
+</div></div>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">간독성 표의 Fisher 검정과 두 가지 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy.stats import fisher_exact
+from scipy.stats.contingency import odds_ratio
+
+tabF = [[1, 14], [6, 8]]   # 행: 약물 X, Y / 열: 간독성 있음, 없음
+
+res = fisher_exact(tabF)                         # 양측 p와 표본 오즈비
+print(round(res.pvalue, 4), round(res.statistic, 4))
+print(round(fisher_exact(tabF, alternative=&quot;less&quot;).pvalue, 4))   # 단측 p
+
+orc = odds_ratio(tabF)                           # 조건부 최대우도 추정값
+ci = orc.confidence_interval(confidence_level=0.95)
+print(round(orc.statistic, 4), round(ci.low, 4), round(ci.high, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>0.0352 0.0952
+0.0311
+0.1033 0.0019 1.0823</pre></div></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 계산한 간독성 결과를 포함해, 이 시험의 3등급 이상 이상반응은 논문에 보통 이렇게 보고됩니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 소규모 시험의 이상반응 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Grade 3 or higher hepatotoxicity occurred in <span class="mk">1</span> <span class="hl">1 of 15 patients (6.7%)</span> in the drug X group and in 6 of 14 patients (42.9%) in the drug Y group (<span class="mk">2</span> <span class="hl">P = 0.035</span>, Fisher's exact test).</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Grade 3 or higher adverse events</caption>
+<thead><tr><th>Adverse event</th><th class="r">Drug X<br>(n = 15)</th><th class="r">Drug Y<br>(n = 14)</th><th class="r"><span class="mk">6</span> P value</th></tr></thead>
+<tbody>
+<tr><td>Any grade ≥3 adverse event</td><td class="r">6 (40.0)</td><td class="r">10 (71.4)</td><td class="r"><span class="mk">3</span> 0.14</td></tr>
+<tr><td>Hepatotoxicity</td><td class="r">1 (6.7)</td><td class="r">6 (42.9)</td><td class="r">0.035</td></tr>
+<tr><td>Hypertension</td><td class="r">3 (20.0)</td><td class="r">4 (28.6)</td><td class="r"><span class="mk">4</span> 0.68</td></tr>
+<tr><td>Hand–foot skin reaction</td><td class="r">2 (13.3)</td><td class="r">1 (7.1)</td><td class="r"><span class="mk">5</span> 1.00</td></tr>
+<tr><td>Diarrhea</td><td class="r">1 (6.7)</td><td class="r">2 (14.3)</td><td class="r">0.60</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are n (%). P values were calculated with Fisher's exact test.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>작은 표본에서는 한 명이 6.7%p입니다.</b> X군에서 간독성이 한 명만 더 생겼어도 13.3%가 됩니다. 비율의 정확 95% 신뢰구간(Clopper–Pearson 구간, 정규근사 대신 이항분포에서 직접 구한 구간)을 구해 보면 X군 6.7%는 0.2–31.9%, Y군 42.9%는 17.7–71.1%로 매우 넓습니다. 이런 표에서는 퍼센트보다 분자와 분모를 먼저 읽습니다.</span></li>
+<li><span class="mk">2</span><span><b>위 '숫자로 따라가기'에서 계산한 양측 p = 0.0022 + 0.0289 + 0.0041 = 0.0352입니다.</b> 기대빈도가 3.38과 3.62인 칸이 있어 카이제곱 검정(p = 0.023) 대신 Fisher 검정을 썼습니다. 저자가 검정 이름을 문장 안에 밝혀 두었으므로 어떤 p인지 분명합니다.</span></li>
+<li><span class="mk">3</span><span><b>기대빈도가 충분한 행에도 Fisher 검정을 썼습니다.</b> 이 행은 최소 기대빈도가 6.28이라 카이제곱 검정도 가능하고, 그렇게 하면 p = 0.089입니다. 표 전체를 한 가지 검정으로 통일하는 것은 흔하고 타당한 선택입니다. Fisher 검정은 표본이 커도 쓸 수 있기 때문입니다.</span></li>
+<li><span class="mk">4</span><span><b>P = 0.68은 두 약의 고혈압 위험이 같다는 증거가 아닙니다.</b> RR = 20.0 ÷ 28.6 = 0.70이지만 95% CI가 0.19–2.59입니다. 29명 규모의 시험은 흔하지 않은 이상반응의 차이를 찾을 검정력이 거의 없습니다(1장 나 절).</span></li>
+<li><span class="mk">5</span><span><b>P = 1.00은 두 군이 똑같다는 뜻이 아닙니다.</b> 관측된 표(X군 2명, Y군 1명)가 여백이 같은 표들 중 확률이 가장 높은 표(0.402)여서, "확률이 같거나 작은 표"에 모든 표가 포함되었다는 뜻입니다. 사건이 3건뿐이라 어떤 결과가 나와도 유의하기 어려운 행입니다.</span></li>
+<li><span class="mk">6</span><span><b>이상반응 표의 P 값은 탐색적으로 읽습니다.</b> 이상반응 종류마다 따로 검정했으므로 다중비교 문제가 있고(1장 다 절), 연구가 이상반응 차이를 찾도록 설계된 것도 아닙니다. 간독성의 P = 0.035도 확증된 결과가 아니라 더 큰 연구에서 확인해야 할 신호로 해석합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기 <span class="lv deep">심화</span></h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ P(a) = \frac{\binom{15}{a}\binom{14}{7-a}}{\binom{29}{7}}, \qquad P(1) = \frac{15 \times 3{,}003}{1{,}560{,}780} = \frac{45{,}045}{1{,}560{,}780} = 0.0289 \]
+<p>\(\binom{n}{k}\)는 n명 중 k명을 고르는 조합의 수입니다. 예: \(\binom{15}{1} = 15\), \(\binom{14}{6} = 3{,}003\), \(\binom{29}{7} = 1{,}560{,}780\). a = 0부터 7까지 이 식으로 구한 값이 '2단계'의 표입니다.</p></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab05">실습 5</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Fisher의 정확한 검정은 여백을 고정했을 때 가능한 모든 표의 확률을 초기하분포로 계산하고, 관측된 표보다 확률이 같거나 작은 표의 확률을 더해 양측 p를 구합니다.</li>
+<li>근사가 필요 없어 기대빈도가 작을 때 쓰지만, 자료가 이산적이라 실제 1종 오류율이 α보다 낮은 보수적인 검정입니다.</li>
+<li>양측 p의 정의(확률 합산 대 단측 p의 두 배)와 신뢰구간의 계산 규칙이 달라서, p &lt; 0.05인데 신뢰구간이 1을 포함할 수 있습니다.</li>
+<li>scipy의 <code>fisher_exact()</code>는 표본 오즈비를, <code>contingency.odds_ratio()</code>의 기본값은 조건부 최대우도 추정값을 주므로, 작은 표본에서는 두 오즈비가 조금 다릅니다. 논문의 오즈비가 어느 쪽인지도 확인합니다.</li>
+<li>작은 표본의 '유의하지 않음'은 대부분 검정력 부족입니다. 분자·분모와 신뢰구간을 함께 보고, 관찰자료라면 보정하지 않은 비교라는 점을 밝힙니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>희귀질환 약 X군 5명 중 0명, Y군 5명 중 3명에게 이상반응이 생겼습니다. 여백(각 군 5명, 사건 3건)을 고정했을 때 X군 사건 수 a = 0, 1, 2, 3인 표의 확률을 구하고, Fisher 검정의 양측 p를 구하세요.</p>
+<details><summary>답과 풀이</summary><div><p>10명 중 사건 3건이 생길 사람을 고르는 방법은 C(10, 3) = 120가지입니다. a = 0인 표는 X군에서 0명, Y군에서 3명을 고르는 C(5, 0) × C(5, 3) = 10가지라 10/120 = 0.083이고, 같은 방법으로 a = 1은 50/120 = 0.417, a = 2는 0.417, a = 3은 0.083입니다. 관측된 표(a = 0)보다 확률이 같거나 작은 표는 a = 0과 a = 3이므로 양측 p = 0.083 + 0.083 = 0.167입니다. 사건 3건이 모두 한 군에 몰린 가장 극단적인 표조차 p = 0.17이라, 이 크기의 연구는 어떤 결과가 나와도 p &lt; 0.05가 될 수 없습니다. 여기서 "유의하지 않음"은 차이가 없다는 뜻이 아니라 판단할 정보가 부족하다는 뜻입니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>각 군 50명, 사건 1명 대 7명인 표를 SPSS로 분석했더니 p가 Pearson Chi-Square .027, Continuity Correction .065, Fisher's Exact Test 양측 .059·단측 .030으로 나왔고, 각주에 "2 cells (50.0%) have expected count less than 5. The minimum expected count is 4.00."이 있습니다. 논문에는 어느 값을 보고해야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>Fisher's Exact Test의 양측 p = 0.059를 보고합니다. 각주대로 기대빈도(50 × 8 ÷ 100 = 4.0)가 5 미만인 칸이 네 칸 중 두 칸이라 Pearson 근사를 믿기 어렵기 때문입니다. Pearson의 .027이나 단측 .030을 골라 "유의한 차이"라고 쓰는 것은 결과를 보고 검정을 고르는 일이 됩니다. 단측 검정은 분석 전에 한 방향만 보겠다고 정하고 그 근거를 밝힌 경우에만 씁니다. 보고 예: "1/50 (2.0%) vs 7/50 (14.0%), P = 0.059, Fisher's exact test".</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"간독성은 E군 12명 중 0명, F군 13명 중 3명(23.1%)에서 생겼고 Fisher 검정 P = 0.22였으므로, 두 약의 간독성 위험은 차이가 없었다." 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>기대빈도가 1.44와 1.56이라 Fisher 검정을 고른 것은 맞지만, P = 0.22는 차이가 없다는 증거가 아닙니다. 사건이 3건뿐이라 판단할 정보가 부족하다는 뜻입니다. 비율의 정확 95% 신뢰구간(Clopper–Pearson)을 구하면 E군 0/12는 0–26.5%, F군 3/13은 5.0–53.8%로, E군의 실제 위험이 26%일 수도 있을 만큼 불확실합니다. 고친 문장: "간독성은 E군 0/12, F군 3/13(23.1%)에서 발생했으나(P = 0.22, Fisher's exact test), 사건 수가 적어 두 약의 차이를 판단하기 어렵다."</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ch05-s3">
+<h2><span class="sec-no">다.</span>선형 대 선형 결합</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">순서가 있는 범주(예: 순응도 낮음 → 중간 → 높음)를 따라 사건 비율이 한 방향으로 꾸준히 변하는지만 묻는 검정입니다. 보정하지 않은 교차표의 "P for trend"는 대개 이 검정입니다.</p>
+<ul>
+<li><b>왜 필요한가.</b> 보통의 카이제곱 검정은 범주의 순서를 무시합니다. PDC 범주를 '&lt; 40%, ≥ 80%, 40–79%'처럼 뒤섞어 적어도 결과가 같습니다. 추세 검정은 범주에 1, 2, 3 점수를 매겨 "단계가 올라갈수록 줄어드는가(늘어나는가)"라는 한 가지 질문에 집중하므로, 실제로 한 방향의 경향이 있을 때 더 잘 찾아냅니다.</li>
+<li><b>논문에서는.</b> 범주별 입원 비율 15.0%, 12.0%, 8.0% 아래에 "P for trend = 0.004"가 붙습니다. "순응도 범주가 높아질수록 입원 비율이 꾸준히 낮아지는 경향이 있고, 우연으로 보기 어렵다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 유의한 추세는 인접한 두 범주가 서로 다르다는 뜻도, "순응하면 입원이 줄어든다"는 인과도 아닙니다. 약을 잘 먹는 사람은 다른 건강행동도 좋은 경향이 있습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>한쪽 또는 양쪽 변수의 범주에 순서가 있고, 순서를 따라 비율이 한 방향으로 변하는지(추세) 보고 싶을 때. 예: PDC 범주별 입원 비율, 용량 단계별 이상반응 비율.</dd></div>
+  <div><dt>귀무가설</dt><dd>범주 점수와 결과 사이에 선형 관련성이 없다(결과가 있는 사람과 없는 사람의 평균 점수가 같다).</dd></div>
+  <div><dt>가정</dt><dd>범주에 매긴 점수(예: 1, 2, 3)가 순서와 간격을 적절히 나타냄. 관측의 독립.</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>표 마지막 줄이나 열의 "P for trend". SPSS 출력의 "Linear-by-Linear Association", SAS 출력의 "Mantel-Haenszel Chi-Square".</dd></div>
+</dl>
+
+<h3>개념</h3>
+<p>노출이나 결과의 범주에 순서가 있는 경우가 많습니다. 약물 순응도를 PDC<span class="en">(proportion of days covered)</span> &lt; 40%, 40–79%, ≥ 80%로 나누거나, 나이를 세 구간으로, 용량을 저·중·고로 나누는 경우입니다. 그런데 Pearson 카이제곱 검정은 행의 순서를 뒤섞어도 값이 똑같습니다. 순서 정보를 전혀 쓰지 않는다는 뜻입니다. <strong>선형 대 선형 결합</strong><span class="en">(linear-by-linear association)</span> 검정은 범주에 1, 2, 3 같은 점수를 매겨 "순서를 따라 비율이 한 방향으로 변하는가"라는 좁은 질문을 검정합니다. Mantel이 층화 자료로 확장한 형태로 널리 알려져 <strong>Mantel–Haenszel 추세 검정</strong><span class="en">(Mantel–Haenszel test for trend)</span>이라고도 부르고<cite data-ref="mantel1963"></cite>, 결과가 이분형인 표에서는 Cochran–Armitage 추세 검정과 사실상 같습니다<cite data-ref="armitage1955"></cite>.</p>
+<p>질문을 좁히면 같은 자료로도 차이를 더 쉽게 찾을 수 있습니다. Pearson χ²는 "세 범주 중 어디든 다른 곳이 있는가"를 묻기 때문에, 가운데만 높은 모양, 한쪽 끝만 다른 모양 등 모든 가능성에 검정력을 나눠 씁니다. 추세 검정은 "순응도가 높아질수록 입원이 줄어드는가(또는 늘어나는가)"라는 한 가지 가능성에 검정력을 모읍니다. 그래서 실제 패턴이 한 방향이면 더 강력하고, 그렇지 않은 패턴은 놓칩니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>고혈압 약을 새로 시작한 환자 1,000명의 첫 1년 순응도(PDC)를 세 범주로 나누고, 그다음 1년 동안의 심혈관 질환 입원을 비교한 청구자료 연구가 있다고 합시다. 환자마다 PDC 범주에 점수 1, 2, 3을 매겼습니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th>PDC 범주 (점수)</th><th class="r">환자 수</th><th class="r">입원</th><th class="r">입원 비율</th><th class="r">기대 입원 수</th></tr></thead>
+<tbody>
+<tr><td>&lt; 40% (1)</td><td class="r">200</td><td class="r">30</td><td class="r">15.0%</td><td class="r">21.2</td></tr>
+<tr><td>40–79% (2)</td><td class="r">300</td><td class="r">36</td><td class="r">12.0%</td><td class="r">31.8</td></tr>
+<tr><td>≥ 80% (3)</td><td class="r">500</td><td class="r">40</td><td class="r">8.0%</td><td class="r">53.0</td></tr>
+<tr><td>합계</td><td class="r">1,000</td><td class="r">106</td><td class="r">10.6%</td><td class="r"></td></tr>
+</tbody></table></div>
+
+<h4>1단계: Pearson 카이제곱 검정 (자유도 2)</h4>
+<p>가 절과 같은 방법으로 계산하면 χ² = 8.27, 자유도 2, p = 0.016입니다. 이 값은 세 범주의 순서를 어떻게 바꿔 적어도 똑같습니다.</p>
+
+<h4>2단계: 입원한 사람과 입원하지 않은 사람의 평균 점수 비교</h4>
+<p>추세 검정의 질문을 뒤집어 보면 "입원한 사람들은 입원하지 않은 사람들보다 낮은 PDC 범주에 몰려 있는가"가 됩니다. 환자마다 PDC 범주 점수(1, 2, 3)를 붙이면 입원한 106명의 평균 점수는 2.09, 입원하지 않은 894명의 평균 점수는 2.32로, 차이는 −0.230입니다. 이 차이가 신호입니다.</p>
+<p>잡음은 이 차이의 표준오차입니다(<a href="#ch00-s5">0장 마 절</a>). 귀무가설(추세 없음) 아래에서는 두 군의 점수 분포가 같다고 보므로, 점수의 표준편차는 1,000명 전체에서 한 번에 구합니다(0.781). 표준오차 = 0.781 × √(1/106 + 1/894) ≈ 0.080이고(반올림하지 않은 SD 0.7814로는 0.0803), z는 약 −2.87입니다.</p>
+
+<h4>3단계: 추세 통계량 M²</h4>
+<p>이 z를 제곱한 값이 추세 통계량 M²입니다. 반올림하지 않은 값으로 계산하면 z = −2.866, M² = z² = 8.21입니다. 귀무가설 아래에서 M²는 자유도 1인 카이제곱 분포를 따르므로(z² = χ²₁, <a href="#ch01-s5">1장 마 절</a>)<cite data-ref="agresti2013"></cite> p = 0.004입니다. 신호(평균 점수 차이)가 클수록, 인원이 많아 잡음이 작을수록 M²가 커집니다.</p>
+<p>방향은 z의 부호로 읽습니다. 여기서는 음수이므로 순응도가 높을수록 입원이 줄어드는 방향입니다. 비율로 바꿔 말하면, 범주 점수에 맞춘 직선의 기울기가 −3.6%p로, 범주가 한 단계 올라갈 때마다 입원 비율이 평균 3.6%p씩 낮아집니다.</p>
+<p>통계 프로그램 설명서와 논문에서는 같은 값을 M² = (N − 1)r²로 적습니다. r은 점수와 입원 여부(입원 1, 입원 안 함 0)의 Pearson 상관계수(<a href="#ch06-s1">6장 가 절</a>)이고, 이 자료에서 r = −0.091이며 999 × (−0.09067)² = 8.21로 같은 값입니다. 두 식이 같은 이유는 '수식으로 보기'에 있습니다.</p>
+
+<h4>두 검정의 비교</h4>
+<p>Pearson χ²(8.27)는 직선 추세로 설명되는 부분(자유도 1)과 직선에서 벗어난 부분(자유도 1)으로 정확히 나눌 수 있습니다<cite data-ref="armitage1955"></cite>. 이 자료에서는 추세 부분이 8.22(M²와 사실상 같은 값), 벗어난 부분이 0.05(p = 0.82)로 차이의 거의 전부가 직선 추세입니다. 같은 크기의 신호를 Pearson 검정은 자유도 2개에 나눠 담고 추세 검정은 자유도 1개에 담습니다. 자유도 1의 임계값(3.84)이 자유도 2의 임계값(5.99)보다 낮으므로 같은 신호로 더 작은 p를 얻습니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:42rem">
+<thead><tr><th>자료</th><th class="r">Pearson χ² (자유도 2)</th><th class="r">p</th><th class="r">M² (자유도 1)</th><th class="r">p</th></tr></thead>
+<tbody>
+<tr><td>위 자료 1,000명</td><td class="r">8.27</td><td class="r">0.016</td><td class="r">8.21</td><td class="r">0.004</td></tr>
+<tr class="hi"><td>비율은 같고 인원만 절반 (100, 150, 250명)</td><td class="r">4.14</td><td class="r">0.13</td><td class="r">4.10</td><td class="r">0.043</td></tr>
+</tbody></table></div>
+<p>비율은 그대로 두고 인원만 절반으로 줄이면 Pearson 검정은 유의하지 않지만(p = 0.13) 추세 검정은 여전히 유의합니다(p = 0.043). 한 방향의 패턴이 실제로 있을 때 추세 검정이 더 강력하다는 것을 보여 줍니다.</p>
+<!--FIG:ch05_trend-->
+<p>그림 5-5 오른쪽처럼 가운데 범주가 가장 높은 모양이면 사정이 반대입니다. 비율이 8.0%, 15.0%, 9.0%인 자료는 Pearson χ² = 8.91(p = 0.012)로 범주 사이에 차이가 있지만, 직선 추세는 거의 없어 M² = 0.14(p = 0.71)입니다. 따라서 추세 검정의 "유의하지 않음"은 "범주 간 차이가 없음"이 아니라 "한 방향의 추세가 뚜렷하지 않음"으로 읽어야 합니다.</p>
+
+<h3>점수를 어떻게 매기나</h3>
+<p>M²는 범주에 매긴 점수에 따라 달라집니다. 1, 2, 3처럼 간격이 같은 점수는 "범주 사이의 간격이 같다"는 가정을 담고 있습니다. PDC 범주의 대략적인 중간값(20, 60, 90)을 점수로 쓰면 첫 번째와 두 번째 범주 사이 간격(40)이 두 번째와 세 번째 사이(30)보다 커지고, M² = 8.05(p = 0.005)가 됩니다. 이 자료에서는 차이가 작지만, 범주 폭이 크게 다르거나 비율이 한쪽 끝에서만 크게 변하면 결론이 달라질 수 있습니다. 점수는 자료를 보기 전에 정하고 무엇을 썼는지 논문에 밝혀야 합니다. 여러 점수를 시도해 가장 유의한 것을 고르는 것은 다중비교 문제입니다(1장 다 절).</p>
+
+<div class="callout tip"><p class="ct">사회약학 연구에서는</p>
+<p>순응도 범주와 임상 결과의 추세는 사회약학 논문에서 매우 흔한 분석입니다. 그런데 약을 꾸준히 먹는 환자는 운동, 식이, 검진 등 다른 건강행동도 좋은 경향이 있어서, 효과가 없는 위약에서도 '순응할수록 결과가 좋은' 추세가 관찰될 수 있습니다. 이를 <strong>건강한 순응자 효과</strong><span class="en">(healthy adherer effect)</span>라고 합니다. 또 순응도를 측정하는 기간과 결과를 보는 기간이 겹치면 입원 기간 동안 약을 받지 못해 PDC가 낮아지는 역인과가 생기고, 기간을 잘못 나누면 불멸시간 편향이 생깁니다(14장 마 절). 추세 검정의 p-value보다 설계가 이런 문제를 어떻게 다뤘는지를 먼저 봐야 합니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 노출(또는 결과)의 범주에 자연스러운 순서가 있고, "순서를 따라 한 방향으로 변하는가"를 보겠다고 분석 전에 정했을 때 씁니다. 모양 자체(가운데만 높은지 등)가 궁금하면 범주별 비율과 Pearson χ²를 함께 봅니다. 결과가 연속형이면 Jonckheere-Terpstra 검정(4장 마 절)이나 회귀를 씁니다.</li>
+<li><strong>교란과 보정</strong>: 이 검정도 보정하지 않은 추세입니다. 순응도 범주 사이에는 나이, 동반질환, 건강행동이 다르므로, 보정한 추세를 보려면 범주 점수(1, 2, 3 또는 범주 중간값)를 연속형 변수로 넣고 교란변수를 함께 넣은 로지스틱 회귀(9장)나 Cox 회귀(11장)에서 그 계수를 검정합니다. 교란변수가 한두 개이면 층별로 추세를 구해 합치는 Mantel의 방법도 쓸 수 있습니다(층화의 원리는 8장 바 절). 건강한 순응자 효과처럼 청구자료에서 측정되지 않는 차이는 보정으로 없앨 수 없으므로, 위 '사회약학 연구에서는'처럼 설계 단계에서 대응합니다.</li>
+<li><strong>보고할 것</strong>: 범주별 인원과 사건 수(%), 기준범주 대비 RR(또는 OR)과 95% CI, P for trend와 검정 방법, 범주에 매긴 점수.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · P for trend</p>
+<ul>
+<li><span class="wrong">P for trend가 유의하므로 인접한 범주끼리도 모두 차이가 있다.</span> 추세 검정은 전체의 기울기를 봅니다. 이 절의 자료에서 40–79%와 ≥ 80%의 차이(RR = 12.0 ÷ 8.0 = 1.50, 95% CI 0.98–2.30)는 따로 보면 유의하지 않습니다.</li>
+<li><span class="wrong">P for trend가 유의하므로 관계는 직선이다.</span> 추세 검정은 직선 성분이 있는지만 봅니다. 한쪽으로 휘어진 곡선이나 한 범주에서만 크게 변하는 모양도 유의하게 나올 수 있습니다. 모양을 보려면 범주별 비율을 그림으로 확인하고, 직선에서 벗어난 부분(Pearson χ² − 추세 χ²)도 함께 봅니다.</li>
+<li><span class="wrong">P for trend가 유의하면 용량-반응 관계가 증명된 것이다.</span> 용량-반응 관계는 인과성을 지지하는 근거 중 하나일 뿐이며, 교란이 있어도 추세는 얼마든지 생깁니다.</li>
+</ul></div>
+
+<h3>Cochran–Armitage 추세 검정과의 관계 <span class="lv deep">심화</span></h3>
+<p>결과가 이분형이고 노출이 순서형인 2×k 표에서는 <strong>Cochran–Armitage 추세 검정</strong><span class="en">(Cochran–Armitage test for trend)</span>이 가장 널리 쓰입니다<cite data-ref="cochran1954"></cite><cite data-ref="armitage1955"></cite>. 범주 점수에 따라 비율이 직선적으로 변하는지를 가중 회귀로 검정하는 방법이며, 통계량은 M²와 거의 같습니다. (N − 1) 대신 N을 곱한다는 차이뿐이라(8.22 대 8.21) 실제로는 같은 검정으로 보면 됩니다. 파이썬에서는 statsmodels의 교차표 객체(<code>statsmodels.stats.contingency_tables.Table</code>)에 있는 <code>test_ordinal_association()</code>이 선형 대 선형 결합 검정을 하며, 출력의 z를 제곱하면 M² = 8.21(p = 0.004)입니다. 또 이 검정은 점수를 연속형 설명변수로 넣은 로지스틱 회귀에서 기울기가 0인지를 보는 점수 검정(score test)과 같습니다(9장)<cite data-ref="agresti2013"></cite>.</p>
+<p>Mantel은 이 추세 검정을 층화된 자료로 확장해, 예를 들어 성별이나 연령군별로 추세를 구한 뒤 합치는 방법을 제시했습니다<cite data-ref="mantel1963"></cite>. 이름이 비슷해 헷갈리는 것이 하나 있습니다. SAS PROC FREQ는 (N − 1)r²를 'Mantel-Haenszel Chi-Square'라는 이름으로 출력하는데, 여러 층의 2×2 표에서 공통 오즈비를 구하는 Cochran–Mantel–Haenszel 방법(8장 바 절)과는 다른 검정입니다.</p>
+
+<h3>SPSS의 'Linear-by-Linear Association' 행</h3>
+<p>SPSS 교차분석에서 카이제곱 검정을 선택하면, 변수가 숫자형인 한 표의 종류와 관계없이 'Linear-by-Linear Association' 행이 함께 출력됩니다. 이 값이 바로 M² = (N − 1)r²이고, 점수로는 변수에 입력된 <strong>숫자 코드</strong>를 그대로 씁니다. 따라서 다음 경우에는 이 행을 보고하지 않습니다.</p>
+<ul>
+<li><strong>순서가 없는 명목변수</strong>: 가 절의 약물 계열을 1 = SGLT2 억제제, 2 = DPP-4 억제제, 3 = 설포닐우레아로 코딩했다면 이 번호는 임의이므로 M²도 의미가 없습니다. 코드 순서만 바꿔도 값이 달라집니다.</li>
+<li><strong>2×2 표</strong>: 두 변수 모두 범주가 둘이면 M² = (N − 1)/N × Pearson χ²로 새로운 정보가 없습니다(가 절 SPSS 출력의 4.701).</li>
+<li><strong>코드 순서가 실제 순서와 다를 때</strong>: 순서형 변수라도 1 = 40–79%, 2 = &lt; 40%, 3 = ≥ 80%처럼 코드가 순서대로 매겨져 있지 않으면 결과가 틀립니다. 순서를 완전히 거꾸로 매긴 경우(1 = ≥ 80%, …)는 r의 부호만 바뀌어 M²는 같습니다.</li>
+</ul>
+<p>순서형 노출이 있고 추세를 보겠다고 미리 계획했을 때만 이 행을 보고합니다. Pearson 결과가 유의하지 않자 이 행으로 바꿔 보고하는 것은 적절하지 않습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>통계 프로그램 출력에서는 이렇게 보입니다 · 순서형 3×2 표의 SPSS 출력</b><span>가상의 예시 (SPSS 형식)</span></div>
+<div class="paper-b">
+<p>PDC 범주를 1, 2, 3으로 코딩하고 입원 여부와 교차분석한 결과입니다.</p>
+<pre class="out">Chi-Square Tests
+                                        Asymptotic
+                                        Significance
+                               Value  df  (2-sided)
+Pearson Chi-Square             8.273<sup>a</sup>  2     .016      <span class="mk">1</span>
+Likelihood Ratio               8.132   2     .017      <span class="mk">2</span>
+Linear-by-Linear Association   8.213   1     .004      <span class="mk">3</span>
+N of Valid Cases               1000
+a. 0 cells (0.0%) have expected count less than 5.
+   The minimum expected count is 21.20.                <span class="mk">4</span></pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>세 범주 중 어디든 차이가 있는지 보는 전체 검정입니다(자유도 2).</b> 순서 정보를 쓰지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>같은 질문을 우도비로 검정한 값입니다.</b> Pearson 값과 비슷하며 보통 보고하지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>M² = (N − 1)r² = 8.21, 자유도 1입니다.</b> 변수 코드 1, 2, 3을 점수로 썼으므로 본문의 계산과 같습니다. 추세를 보겠다고 미리 계획했다면 이 p = .004를 "P for trend"로 보고합니다. 코드가 순서를 반영하지 않는 명목변수였다면 이 행은 무시합니다.</span></li>
+<li><span class="mk">4</span><span><b>최소 기대빈도가 21.20</b>(&lt; 40% 범주의 기대 입원 수)으로 근사에 문제가 없습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout deep"><p class="ct">심화 · 다른 장의 추세 분석과 연결</p>
+<p>순서가 있는 군에서 결과가 연속형이면 Jonckheere-Terpstra 검정(4장 마 절)을, 결과가 이분형이면 이 절의 Cochran–Armitage 검정을 씁니다. 두 변수가 모두 순서형 범주인 r×c 표(예: 순응도 3범주 × 증상 정도 3단계)에는 선형 대 선형 결합 검정을 그대로 쓸 수 있습니다. 여러 변수를 보정한 회귀모형 논문에서 표 맨 아래에 있는 "P for trend"는 대개 각 범주의 중간값(또는 1, 2, 3 같은 점수)을 연속형 변수로 모형에 넣고 그 계수를 검정한 값입니다(9장, 11장). 원리는 이 절과 같고, 교란변수를 보정했다는 점만 다릅니다.</p></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 계산한 PDC 범주별 입원 자료를 논문에서는 보통 다음과 같이 보고합니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · P for trend가 있는 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Adherence was measured as the proportion of days covered (PDC) during the first year after treatment initiation and <span class="mk">1</span> <span class="hl">categorized as &lt;40%, 40%–79%, and ≥80%</span>. Cardiovascular hospitalization was assessed during the subsequent year. The linear trend in hospitalization across PDC categories was tested using the <span class="mk">2</span> <span class="hl">Cochran–Armitage test</span>.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 4.</b> Cardiovascular hospitalization in the second year by first-year adherence</caption>
+<thead><tr><th>PDC category</th><th class="r">Patients, n</th><th class="r">Hospitalized, n (%)</th><th class="r">Crude RR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>&lt;40%</td><td class="r">200</td><td class="r">30 (15.0)</td><td class="r"><span class="mk">3</span> 1.88 (1.20–2.92)</td></tr>
+<tr><td>40%–79%</td><td class="r">300</td><td class="r">36 (12.0)</td><td class="r"><span class="mk">4</span> 1.50 (0.98–2.30)</td></tr>
+<tr><td>≥80%</td><td class="r">500</td><td class="r">40 (8.0)</td><td class="r">1.00 (reference)</td></tr>
+<tr><td><span class="mk">5</span> P for trend</td><td class="r"></td><td class="r"></td><td class="r">0.004</td></tr>
+</tbody></table></div>
+<p class="jt-foot">PDC, proportion of days covered; RR, risk ratio; CI, confidence interval. <span class="mk">6</span> P for trend was obtained with the Cochran–Armitage test using scores of 1, 2, and 3 for the ordered categories.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>연속형인 PDC를 세 범주로 나눈 문장입니다.</b> 80%는 순응 여부를 가르는 관례적 기준입니다. 범주화는 정보 손실이 있으므로(1장 가 절) 기준을 분석 전에 정했는지 확인합니다. 순응도(첫해)와 입원(다음 해)을 서로 다른 기간에 측정해, 입원 때문에 약을 못 먹은 기간이 순응도에 섞이는 문제를 피한 설계입니다.</span></li>
+<li><span class="mk">2</span><span><b>Cochran–Armitage 검정 = 결과가 이분형인 표의 추세 검정입니다.</b> 위 '숫자로 따라가기'와 'Cochran–Armitage 추세 검정과의 관계'에서 본 추세 통계량(8.22, 자유도 1)에 해당합니다. SPSS로 분석했다면 같은 내용을 "linear-by-linear association test"라고 썼을 것입니다.</span></li>
+<li><span class="mk">3</span><span><b>기준군(≥80%) 대비 상대위험도입니다.</b> 15.0 ÷ 8.0 = 1.88. PDC &lt; 40%인 환자의 다음 해 입원 위험이 순응 환자의 1.88배라는 뜻입니다. 결과가 입원 비율 10% 안팎이라 이 자리에 OR이 있었다면 조금 더 큰 값(2.03)이 되었을 것입니다(가 절).</span></li>
+<li><span class="mk">4</span><span><b>이 범주만 보면 신뢰구간이 1을 포함합니다(0.98–2.30).</b> 그런데 P for trend는 0.004입니다. 모순이 아닙니다. 범주별 상대위험도는 두 범주씩 따로 비교한 것이고, 추세 검정은 세 범주 1,000명 전체의 정보를 자유도 1개로 모아 "한 방향으로 줄어드는가"를 봅니다. 중간 범주의 RR 1.50이 양 끝 범주 사이(1.00과 1.88)에 자리 잡은 것이 추세를 지지합니다.</span></li>
+<li><span class="mk">5</span><span><b>P for trend = 0.004는 순응도 범주가 높아질수록 입원 비율이 일정하게 낮아지는 경향이 우연으로 보기 어렵다는 뜻입니다.</b> 인접한 두 범주 사이의 차이가 각각 유의하다는 뜻도, 관계가 정확히 직선이라는 뜻도 아닙니다. 보정하지 않은 결과이므로 "순응하면 입원이 줄어든다"는 인과적 결론도 아닙니다(위 '사회약학 연구에서는' 참고).</span></li>
+<li><span class="mk">6</span><span><b>점수를 밝힌 각주입니다.</b> 1, 2, 3은 범주 간격이 같다는 가정입니다. 중간값(20, 60, 90)을 썼다면 p = 0.005였을 것입니다. 기준군을 &lt; 40%로 바꾸면 상대위험도는 1.00(기준), 0.80, 0.53으로 뒤집히지만 P for trend는 그대로입니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기 <span class="lv deep">심화</span></h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<p>2단계의 z는 다음과 같습니다. \(\bar{x}_1\)과 \(\bar{x}_0\)은 입원한 사람과 입원하지 않은 사람의 평균 점수, s는 1,000명 전체 점수의 표준편차(n − 1로 나눈 값)입니다.</p>
+<div class="eq">\[ z = \frac{\bar{x}_1 - \bar{x}_0}{s\sqrt{\frac{1}{n_1}+\frac{1}{n_0}}} = \frac{2.094 - 2.324}{0.781 \times \sqrt{\frac{1}{106}+\frac{1}{894}}} = -2.87 \]</div>
+<p>입원 여부가 0과 1뿐이면, 점수와 입원 여부의 Pearson 상관계수 r은 두 결과군의 평균 점수 차이를 표준편차 단위로 나타낸 값에 비례합니다. 그래서 z² = (N − 1)r²가 정확히 성립하고, 프로그램 설명서와 교과서는 추세 통계량을 보통 이 형태로 씁니다.</p>
+<div class="eq">\[ M^2 = (N-1)\,r^2 = 999 \times (-0.09067)^2 = 8.21, \qquad \text{자유도 } 1, \; p = 0.004 \]
+<p>N은 전체 인원, r은 범주 점수와 결과(입원 1, 입원 안 함 0) 사이의 Pearson 상관계수입니다.</p></div>
+<div class="eq">\[ \chi^2_{\text{CA}} = N\,r^2 = 1000 \times (-0.09067)^2 = 8.22, \qquad \underbrace{8.27}_{\text{Pearson, 자유도 2}} = \underbrace{8.22}_{\text{추세, 자유도 1}} + \underbrace{0.05}_{\text{직선에서 벗어난 부분, 자유도 1}} \]
+<p>Cochran–Armitage 통계량은 (N − 1) 대신 N을 곱합니다. Pearson χ²는 추세 부분과 나머지 부분의 합으로 정확히 나뉩니다.</p></div>
+<p>같은 추세를 가중 직선의 기울기로 보아도 됩니다. 범주 점수에 맞춘 직선의 기울기 b = −0.0357(범주 한 단계당 −3.6%p)을 귀무가설 아래의 표준오차 √(p̄(1 − p̄) ÷ Σnᵢ(xᵢ − x̄)²) = √(0.106 × 0.894 ÷ 610) = 0.01246으로 나누면 −2.87이고, 제곱하면 Cochran–Armitage 통계량 8.22입니다. 신호(기울기)를 잡음(표준오차)으로 나눈다는 틀은 2단계와 같습니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">평균 점수 차이와 상관계수로 구한 M²</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+from scipy import stats
+
+# 환자 1,000명을 한 줄씩 만든다: 점수 x(1, 2, 3)와 입원 여부 y(1, 0)
+x = np.repeat([1, 2, 3, 1, 2, 3], [30, 36, 40, 170, 264, 460])
+y = np.repeat([1, 1, 1, 0, 0, 0], [30, 36, 40, 170, 264, 460])
+
+# 신호 ÷ 잡음: 두 결과군의 평균 점수 차이 ÷ 그 표준오차
+d = x[y == 1].mean() - x[y == 0].mean()
+se = x.std(ddof=1) * np.sqrt(1/106 + 1/894)
+z = d / se
+print(round(d, 4), round(se, 4), round(z, 3), round(z**2, 3))
+
+# 상관계수로 쓴 같은 값: M2 = (N - 1) * r^2
+r = np.corrcoef(x, y)[0, 1]
+M2 = (len(x) - 1) * r**2
+print(round(r, 5), round(M2, 3), round(stats.chi2.sf(M2, df=1), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>-0.23 0.0803 -2.866 8.213
+-0.09067 8.213 0.0042</pre></div></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab05">실습 5</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>선형 대 선형 결합 검정은 순서 범주에 점수를 매기고, 결과가 있는 사람과 없는 사람의 평균 점수 차이를 표준오차로 나눈 z의 제곱 M²(자유도 1)로 한 방향의 추세를 검정합니다. 같은 값을 점수와 결과의 상관계수로 M² = (N − 1)r²라고 씁니다.</li>
+<li>패턴이 한 방향이면 Pearson χ²(자유도 r − 1)보다 검정력이 높고, 가운데만 높거나 낮은 패턴은 놓칩니다.</li>
+<li>결과가 이분형인 표에서는 Cochran–Armitage 추세 검정(N r²)과 사실상 같으며, 논문에는 "P for trend"로 보고됩니다.</li>
+<li>점수 선택에 따라 결과가 달라질 수 있으므로 미리 정하고 밝힙니다. SPSS의 Linear-by-Linear 행은 변수 코드를 점수로 쓰므로 명목변수나 2×2 표에서는 보고하지 않습니다.</li>
+<li>유의한 추세는 인접 범주 간 차이, 직선 관계, 인과적 용량-반응을 뜻하지 않습니다. 교란을 보정한 추세는 점수를 연속형 변수로 넣은 회귀모형(9장, 11장)으로 구합니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>이 절의 PDC 자료(200, 300, 500명 중 입원 30, 36, 40명)를 SPSS에서 1 = 40–79%, 2 = &lt; 40%, 3 = ≥ 80%로 코딩한 채 교차분석했습니다. Pearson Chi-Square와 Linear-by-Linear Association 값은 본문과 같을까요? '수식으로 보기'의 '직접 실행' 셀에서 점수를 바꿔 확인해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>Pearson χ²는 8.27(p = 0.016)로 그대로입니다. 행의 순서나 이름표를 바꿔도 칸의 빈도는 같기 때문입니다. Linear-by-Linear Association은 변수 코드를 점수로 쓰므로 &lt; 40%에 2, 40–79%에 1, ≥ 80%에 3을 준 셈이 되어 M² = 4.10(p = 0.043)으로 바뀝니다. 셀에서는 <code>np.repeat([2, 1, 3, 2, 1, 3], …)</code>처럼 점수만 바꾸면 됩니다. 순서를 완전히 거꾸로(1 = ≥ 80%) 매겼다면 r의 부호만 바뀌고 M² = 8.21로 같습니다. SPSS의 이 행을 보고하기 전에 코드가 실제 순서대로인지 먼저 확인해야 하는 이유입니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>PDC &lt; 40%, 40–79%, ≥ 80%인 환자 200, 300, 500명의 입원 비율이 10.0%, 16.0%, 10.0%였고, Pearson χ²(2) = 7.26, P = 0.026, P for trend = 0.50이었습니다. 논문에 "P for trend = 0.50이므로 PDC 범주에 따라 입원 비율은 다르지 않았다"라고 적혀 있습니다. 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>추세 검정은 "순서를 따라 한 방향으로 변하는가"만 묻습니다. 가운데 범주만 높은 이 자료는 한 방향의 추세가 거의 없어 P for trend가 크지만, 세 범주 중 어디든 다른 곳이 있는지 보는 Pearson χ²는 P = 0.026으로 범주 사이의 차이를 보여 줍니다. 따라서 "다르지 않았다"는 틀린 해석입니다. 고친 문장: "입원 비율은 PDC 40–79% 범주에서 가장 높았고(16.0% 대 10.0%, 10.0%; P = 0.026), 순응도에 따른 한 방향의 추세는 뚜렷하지 않았다(P for trend = 0.50)." 어느 검정을 주 결과로 볼지는 자료를 보기 전에 정해야 합니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>모두 '1년 내 입원'을 비교하는 연구입니다. 각각 어떤 검정을 쓰고, 그 전에 무엇을 먼저 구분해야 하나? (가) 약물 A 신규 사용자 400명과 약물 B 신규 사용자 600명. (나) 약사 상담을 받은 환자 120명의 상담 전 1년과 후 1년. (다) PDC &lt; 40%, 40–79%, ≥ 80% 세 범주에서 순응도가 높을수록 입원이 줄어드는지. (라) 희귀질환 약 두 군 각 15명, 입원 2명 대 6명.</p>
+<details><summary>답과 풀이</summary><div><p>먼저 ① 같은 사람을 두 번 보았는지(짝), ② 범주에 순서가 있고 한 방향의 추세를 묻는지, ③ 기대빈도가 5 미만인 칸이 있는지를 이 순서로 구분합니다. (가)는 서로 다른 사람들로 이루어진 두 군이고 기대빈도가 충분하므로 카이제곱 검정(가 절)과 RR·위험차입니다. (나)는 같은 환자를 두 번 본 짝지은 자료라 McNemar 검정(<a href="#ch14-s1">14장 가 절</a>)입니다. (다)는 순서 범주의 한 방향 변화를 묻는 질문이므로 선형 대 선형 결합(Cochran–Armitage) 추세 검정이고, 분석 전에 점수를 정해 둡니다. (라)는 입원 8명을 두 군에 나누면 기대빈도가 15 × 8 ÷ 30 = 4.0으로 5 미만이므로 Fisher의 정확한 검정(나 절)입니다.</p></div></details></li>
+</ol></div>
+</section>

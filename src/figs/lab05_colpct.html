@@ -1,0 +1,37 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">환자군과 대조군의 음주 분포</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cc = alc[[&quot;ncases&quot;, &quot;ncontrols&quot;]]   # 환자 수, 대조군 수 두 열만
+(cc / cc.sum() * 100).round(1)       # 열 백분율</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ncases</th>
+      <th>ncontrols</th>
+    </tr>
+    <tr>
+      <th>alcgp</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0-39g/day</th>
+      <td>14.5<span class="mk">1</span></td>
+      <td>49.8<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>40-79</th>
+      <td>37.5</td>
+      <td>36.1</td>
+    </tr>
+    <tr>
+      <th>80-119</th>
+      <td>25.5</td>
+      <td>11.2</td>
+    </tr>
+    <tr>
+      <th>120+</th>
+      <td>22.5</td>
+      <td>2.8</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">조발생률비와 Wald 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">irr = rt.loc[&quot;rIFN-g&quot;, &quot;rate&quot;] / rt.loc[&quot;placebo&quot;, &quot;rate&quot;]
+se = np.sqrt(1 / d[&quot;rIFN-g&quot;] + 1 / d[&quot;placebo&quot;])  # log IRR의 SE
+lo = np.exp(np.log(irr) - 1.96 * se)
+hi = np.exp(np.log(irr) + 1.96 * se)
+print(f&quot;IRR = {irr:.3f}  95% CI {lo:.3f} to {hi:.3f}&quot;)
+print(f&quot;SE(log IRR) = {se:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>IRR = 0.349<span class="mk">1</span>  95% CI 0.209 to 0.582<span class="mk">2</span>
+SE(log IRR) = 0.260<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,1298 @@
+<p class="lead">Part 2의 로지스틱 회귀, 혼합모형, Cox 모형, 포아송 회귀, 비열등성 검정은 모두 이 장의 여덟 가지 개념 위에 서 있습니다. 신뢰구간과 효과 지표(상대위험도·오즈비)를 읽는 법, 회귀계수를 '몇 배'로 바꾸는 법, 일반화 선형모형과 우도의 구조를 차례로 보고, 관찰연구에서 가장 중요한 교란과 보정(바·아 절)을 다룹니다. 나 절부터 아 절까지는 가상의 퇴원 환자 코호트 하나를 계속 사용해 개념들이 어떻게 이어지는지 보여 줍니다.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ch08-s1">
+<h2><span class="sec-no">가.</span>95% 신뢰구간</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">신뢰구간은 이번 연구에서 얻은 추정값 하나에 "참값은 대략 이 범위 어딘가에 있을 것"이라는 폭을 붙여 준 것입니다.</p>
+<ul>
+<li><b>왜 필요한가.</b> 같은 연구를 다시 하면 다른 환자가 뽑혀 다른 값이 나옵니다. 여론조사 결과에 "오차범위 ±3%p"가 붙는 것처럼, 추정값이 표본에 따라 얼마나 흔들릴 수 있는지를 함께 보여 주어야 그 숫자를 얼마나 믿을지 판단할 수 있습니다.</li>
+<li><b>논문에서는.</b> "mean difference in HbA1c, −0.42% (95% CI, −0.71 to −0.13)"처럼 나옵니다. "중재군의 HbA1c가 평균 0.42%p 더 떨어졌고, 실제 차이는 0.13%p에서 0.71%p 사이일 것으로 보인다. 구간에 0이 없으므로 P &lt; 0.05이다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 구간이 '효과 없음'(차이는 0, 비는 1)을 포함해도 "효과가 없다"는 뜻이 아닙니다. 구간이 넓으면 "판단할 수 없다"일 뿐입니다. 구간의 양 끝이 임상적으로 무엇을 뜻하는지 읽는 습관이 가장 중요합니다.</li>
+</ul>
+</div>
+
+<p>1장 나 절에서 "신약군과 위약군의 수축기혈압 감소량 차이 4.3 mmHg, 95% CI 0.6–8.0"이라는 결과를 보았습니다. 4.3은 이번 표본에서 얻은 <strong>점추정값</strong><span class="en">(point estimate)</span> 하나이고, <strong>신뢰구간</strong><span class="en">(confidence interval, CI)</span>은 그 값이 표본에 따라 얼마나 흔들리는지를 반영한 범위입니다. p-value가 "효과가 0인가"라는 질문 하나에 답한다면, 신뢰구간은 효과의 크기와 불확실성을 함께 보여 줍니다<cite data-ref="gardner1986"></cite>. Part 2의 모든 회귀모형 결과가 "추정값 (95% CI)" 형태로 보고되므로, 이 절이 나머지 장을 읽는 기본 도구가 됩니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>대부분의 95% 신뢰구간은 같은 방식으로 만듭니다. <strong>추정값 ± 임계값 × 표준오차</strong>입니다. 표준오차<span class="en">(standard error, SE)</span>는 추정값이 표본마다 흔들리는 정도(1장 마 절)이고, 임계값은 95%를 맞추기 위해 곱하는 수로 표본이 크면 1.96입니다. 그래서 대략 "추정값 ± 2 × SE"로 기억해도 됩니다.</p>
+<p>약사의 복약상담을 받은 제2형 당뇨병 환자 25명의 HbA1c가 3개월 동안 평균 0.62%p 떨어졌고, 변화량의 표준편차가 0.80이었다고 합시다(가상의 예시).</p>
+<div class="flow">
+<div><div><b>표준오차</b><p>0.80 ÷ √25 = 0.80 ÷ 5 = 0.160. 환자 한 명 한 명의 흩어짐(SD 0.80)이 25명의 평균에서는 이만큼으로 줄어듭니다.</p></div></div>
+<div><div><b>임계값</b><p>표본이 작고 표준편차도 표본에서 추정했으므로 1.96 대신 조금 더 큰 t 분포의 값 2.064(자유도 24)를 씁니다(1장 라 절).</p></div></div>
+<div><div><b>반폭</b><p>2.064 × 0.160 = 0.33</p></div></div>
+<div><div><b>95% 신뢰구간</b><p>−0.62 ± 0.33 → −0.95 to −0.29. "평균 감소가 0.3%p 정도로 작을 수도, 1%p 가까이로 클 수도 있다"는 뜻입니다.</p></div></div>
+</div>
+<p>같은 평균과 표준편차가 더 큰 표본에서 나왔다면 구간은 이렇게 좁아집니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th class="r">n</th><th class="r">SE</th><th class="r">임계값 t</th><th class="r">반폭 (t × SE)</th><th class="r">95% CI</th></tr></thead>
+<tbody>
+<tr><td class="r">25</td><td class="r">0.160</td><td class="r">2.064</td><td class="r">0.33</td><td class="r">−0.95 to −0.29</td></tr>
+<tr><td class="r">100</td><td class="r">0.080</td><td class="r">1.984</td><td class="r">0.16</td><td class="r">−0.78 to −0.46</td></tr>
+<tr><td class="r">400</td><td class="r">0.040</td><td class="r">1.966</td><td class="r">0.08</td><td class="r">−0.70 to −0.54</td></tr>
+</tbody></table></div>
+<p>표본을 4배로 늘려야 구간 폭이 절반이 됩니다. 표준오차가 √n에 반비례하기 때문입니다. n이 작을 때 t 값을 쓰는 이유는 표준편차 자체도 표본에서 추정한 불확실한 값이기 때문입니다. 컴퓨터로 n = 10인 표본을 20만 번 뽑아 보면 t 임계값(2.262)으로 만든 구간은 참값을 95.0% 포함했지만, 1.96을 쓴 구간은 91.8%만 포함했습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 신뢰구간은 환자 값의 범위가 아닙니다</p>
+<p><span class="wrong">95% CI −0.95 to −0.29이므로 환자의 95%는 HbA1c가 0.29–0.95%p 떨어진다.</span> 신뢰구간은 <strong>평균</strong>이라는 추정값의 불확실성을 나타냅니다. 개별 환자의 95%가 들어가는 범위는 평균 ± 1.96 × SD = −0.62 ± 1.57, 즉 −2.19에서 +0.95까지로 훨씬 넓고, 이 범위에는 HbA1c가 오히려 올라간 값도 들어 있습니다. SD와 SE를 구분하는 것(1장 마 절)과 같은 문제입니다.</p></div>
+
+<h3>"95%"는 무엇의 확률인가</h3>
+<p>그물 던지기로 생각하면 쉽습니다. 참값은 물속에 가만히 있는 물고기이고, 신뢰구간은 연구할 때마다 던지는 그물입니다. 움직이는 것은 물고기가 아니라 그물입니다. "95%"는 <strong>같은 방법으로 구간을 반복해서 만들면 그중 95%가 참값을 포함한다</strong>는, 그물 던지는 방법의 성공률입니다. 아래 그림은 참값을 아는 모의 모집단에서 25명씩 20번 표본을 뽑아 구간을 만든 결과입니다.</p>
+<!--FIG:ch08_sim20-->
+<div class="widget" data-widget="ch08_ci"></div>
+<p>그러면 이미 계산된 구간 하나, 예를 들어 −0.95 to −0.29에 대해서는 무엇이라고 말할 수 있을까요. 엄밀히는 "참값이 이 구간 안에 있을 확률이 95%"라고 말할 수 없습니다. 이 그물은 물고기를 잡았거나 못 잡았거나 둘 중 하나이고, 우리는 어느 쪽인지 모를 뿐입니다. 실제로 쓸 만한 해석은 다음 두 가지입니다<cite data-ref="greenland2016"></cite>.</p>
+<ul>
+<li>"이 구간은 95%의 확률로 참값을 포함하는 방법으로 만든 구간이다."</li>
+<li>"구간 안의 값들은 이 자료와 잘 들어맞는(compatible) 효과의 크기이고, 구간 밖의 값은 5% 수준에서 자료와 맞지 않는다."</li>
+</ul>
+<p>논문을 읽을 때는 표현의 엄밀함보다 <strong>구간의 양 끝이 임상적으로 무엇을 뜻하는지</strong> 읽는 것이 더 중요하며, 두 번째 해석이 그 읽기에 바로 쓰입니다.</p>
+
+<h3>평균, 비율, 차이, 비의 신뢰구간</h3>
+<p>추정하는 양에 따라 표준오차를 구하는 방법과 구간을 만드는 척도가 다릅니다. 각 표준오차의 식은 '수식으로 보기'에 모았습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>추정하는 양</th><th>구간을 만드는 방법</th><th>예 (가상의 예시)</th></tr></thead>
+<tbody>
+<tr><td>평균</td><td>평균 ± t 임계값 × SE</td><td>HbA1c 변화 −0.62 (−0.95 to −0.29)</td></tr>
+<tr><td>비율 (Wald)</td><td>비율 ± 1.96 × SE</td><td>이상반응 7/50 = 0.14 (0.044 to 0.236)</td></tr>
+<tr><td>비율 (Wilson, 정확)</td><td>식이 복잡하므로 프로그램으로 계산</td><td>Wilson 0.070 to 0.262, Clopper–Pearson 0.058 to 0.267</td></tr>
+<tr><td>두 비율의 차이 (위험차)</td><td>차이 ± 1.96 × SE</td><td>5장 약물 A·B: −5.0%p (−9.4 to −0.6)</td></tr>
+<tr><td>비 (상대위험도, 오즈비, 위험비)</td><td>로그 척도에서 ± 1.96 × SE로 구간을 만든 뒤 지수함수로 되돌림</td><td>5장 약물 A·B: RR 0.71 (0.51 to 0.97)</td></tr>
+</tbody></table></div>
+<p>비율의 Wald 구간은 n이 작거나 비율이 0이나 1에 가까울 때 실제 포함 확률이 95%보다 낮고, 하한이 0 아래로 내려가기도 합니다. 그래서 작은 표본의 비율에는 Wilson 구간(또는 Jeffreys 구간)이 권장됩니다<cite data-ref="brown2001"></cite>. 정확(Clopper–Pearson) 구간도 흔히 쓰이지만 포함 확률이 95%보다 높은 보수적인 구간입니다. 50명 중 7명 예에서 세 구간의 하한이 0.044, 0.070, 0.058로 차이가 나는 것이 이 때문입니다.</p>
+
+<h4>비의 신뢰구간은 로그 척도에서 만듭니다</h4>
+<p>상대위험도는 0에서 무한대까지의 값을 가지고, 1이 '차이 없음'입니다. 0.5(절반)와 2(두 배)는 1에서 같은 크기만큼 떨어진 효과인데, 일반 눈금에서는 0.5가 1에 더 가까워 보입니다. 로그를 취하면 이 둘이 1(로그로는 0)에서 같은 거리에 놓이므로(다 절), 비의 신뢰구간은 로그 척도에서 만듭니다. 5장 가 절의 약물 A·B 자료(입원 48/400 대 102/600)로 따라가 봅니다.</p>
+<div class="flow">
+<div><div><b>로그로 바꾸기</b><p>RR = (48/400) ÷ (102/600) = 0.706, ln 0.706 = −0.348</p></div></div>
+<div><div><b>로그 척도의 표준오차</b><p>네 칸의 사건 수와 인원으로 구하면 0.163입니다(식은 '수식으로 보기').</p></div></div>
+<div><div><b>로그 척도의 구간</b><p>−0.348 ± 1.96 × 0.163 = −0.667 to −0.029</p></div></div>
+<div><div><b>되돌리기</b><p>양 끝을 각각 지수함수로 바꿉니다: e<sup>−0.667</sup> = 0.51, e<sup>−0.029</sup> = 0.97 → RR 0.71 (0.51 to 0.97)</p></div></div>
+</div>
+<!--FIG:ch08_logci-->
+<p>되돌린 구간은 점추정값 0.71을 중심으로 비대칭입니다(아래로 0.19, 위로 0.27). 대신 점추정값은 양 끝의 기하평균과 같습니다: √(0.513 × 0.971) = 0.706. 논문의 비와 신뢰구간이 이 관계에 맞는지 확인하면 오타나 잘못 옮긴 숫자를 찾아낼 수 있습니다.</p>
+
+<h3>신뢰구간과 p-value의 관계</h3>
+<p>같은 방법으로 계산했다면 <strong>95% 신뢰구간이 '효과 없음' 값을 포함하지 않는 것과 양측 p &lt; 0.05는 같은 결론</strong>입니다. '효과 없음' 값은 차이(평균 차이, 위험차)에서는 0, 비(RR, OR, HR)에서는 1입니다. 그래서 신뢰구간만 보고된 논문에서도 p-value를 대략 역산할 수 있습니다<cite data-ref="altman2011p"></cite>. RR 0.71 (0.51 to 0.97)이라면 다음과 같습니다.</p>
+<ol>
+<li>로그 척도에서 구간의 폭을 3.92(= 2 × 1.96)로 나누면 표준오차입니다: (ln 0.97 − ln 0.51) ÷ 3.92 = 0.164.</li>
+<li>로그로 바꾼 추정값을 표준오차로 나누면 z입니다: ln 0.71 ÷ 0.164 = −2.09.</li>
+<li>|z| = 2.09에 해당하는 양측 P ≈ 0.037입니다.</li>
+</ol>
+<p>차이(평균 차이, 위험차)라면 로그를 취하지 않고 (상한 − 하한) ÷ 3.92가 표준오차이고, z = 추정값 ÷ 표준오차입니다. 반올림하기 전의 값으로 계산한 Wald 검정의 P는 0.032이고, 5장의 카이제곱 검정은 P = 0.030이었습니다. 역산한 값이 조금 다른 것은 소수 둘째 자리까지 반올림된 숫자로 계산했기 때문이며, 검정 방법(Wald, 카이제곱)에 따라서도 조금씩 차이가 납니다. 결론(0.05보다 작음)은 같습니다.</p>
+
+<div class="callout warn"><p class="ct">주의 · 두 군의 신뢰구간이 겹쳐도 차이는 유의할 수 있습니다</p>
+<p>두 군의 평균이 10과 13이고 각 SE가 1이면, 각 군의 95% CI는 8.04–11.96과 11.04–14.96으로 겹칩니다. 그러나 차이 3의 SE는 √(1² + 1²) = 1.41이므로 차이의 95% CI는 0.23–5.77, P = 0.034입니다. 두 구간이 겹치는지로 판단하면 차이를 놓치기 쉽습니다. 차이가 궁금하면 <strong>차이의 신뢰구간</strong>을 봐야 합니다<cite data-ref="schenker2001"></cite><cite data-ref="cumming2005"></cite>. (반대로 독립된 두 군의 95% CI가 전혀 겹치지 않으면 차이는 유의합니다.)</p></div>
+
+<h3>효과 없음과 임상적으로 중요한 차이</h3>
+<p>신뢰구간은 '효과 없음'(0 또는 1)뿐 아니라 <strong>최소 임상적 중요 차이</strong><span class="en">(minimal clinically important difference, MCID)</span>와 함께 읽을 때 가장 많은 정보를 줍니다. 수축기혈압에서 5 mmHg를 임상적으로 의미 있는 최소 차이로 정했다고 가정하고, 다섯 가지 결과를 비교해 봅니다.</p>
+<!--FIG:ch08_mcid-->
+<ul>
+<li><strong>A</strong>: 구간 전체가 5 mmHg 위에 있습니다. 효과가 있고, 그 크기도 임상적으로 중요하다고 결론 내릴 수 있습니다.</li>
+<li><strong>B</strong>: 유의하지만 하한 0.6 mmHg는 사소한 효과입니다. "효과는 있을 가능성이 크지만 중요한 크기인지는 불확실하다"로 읽습니다(1장 나 절의 예).</li>
+<li><strong>C</strong>: 구간이 좁고 전체가 0과 5 사이에 있습니다. 표본이 매우 큰 연구에서 흔한 모습으로, 통계적으로는 확실하지만 임상적으로는 사소한 차이입니다.</li>
+<li><strong>D</strong>: 유의하지 않지만 구간이 −2부터 8까지 넓어 중요한 효과도 배제하지 못합니다. "효과 없음"이 아니라 "판단할 수 없음"입니다<cite data-ref="altman1995absence"></cite>. 검정력이 부족한 소규모 연구의 전형적인 결과입니다.</li>
+<li><strong>E</strong>: 유의하지 않고 구간이 좁아 5 mmHg 이상의 효과를 배제합니다. 이것이 "의미 있는 효과가 없다"에 가까운 근거이며, 이 논리를 공식화한 것이 동등성·비열등성 검정입니다(13장).</li>
+</ul>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · "유의한 연관이 없었다"는 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>청구자료 코호트 연구의 Results와 Discussion에서 흔히 보는 문장입니다.</p>
+<p class="excerpt">During a median follow-up of 2.1 years, use of drug X was not significantly associated with hip fracture (adjusted HR, <span class="mk">1</span> <span class="hl">1.18; 95% CI, 0.89–1.56</span>; <span class="mk">2</span> <span class="hl">P = 0.25</span>). ... In conclusion, <span class="mk">3</span> <span class="hl">drug X does not increase the risk of hip fracture</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>구간이 말해 주는 범위.</b> 위험비(hazard ratio, HR)는 11장에서 다루는 순간 발생 위험률의 비이며, 신뢰구간은 상대위험도와 같은 방식(로그 척도)으로 만듭니다. 0.89–1.56은 "위험률이 11% 낮을 수도, 56% 높을 수도 있다"는 뜻입니다. 기하평균 검산: √(0.89 × 1.56) = 1.18로 점추정값과 맞습니다.</span></li>
+<li><span class="mk">2</span><span><b>P 값 검산.</b> SE = (ln 1.56 − ln 0.89) ÷ 3.92 = 0.143, z = ln 1.18 ÷ 0.143 = 1.16이므로 P = 0.25로 보고된 값과 맞습니다.</span></li>
+<li><span class="mk">3</span><span><b>결론 문장이 결과보다 강합니다.</b> 신뢰구간 상한 1.56은 임상적으로 중요한 위험 증가입니다. 이 자료가 보여 주는 것은 "위험 증가를 확인하지 못했다"이지 "위험을 높이지 않는다"가 아닙니다<cite data-ref="altman1995absence"></cite>. 위험 증가를 배제한다고 말하려면 구간의 상한이 임상적으로 무시할 만한 값(예: 1.10) 아래에 있어야 합니다. 이런 과장은 Abstract의 결론에서 특히 흔하므로 결론과 신뢰구간을 나란히 놓고 읽는 습관이 필요합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 평균은 t 분포 기반 구간, 비율은 표본이 작거나 비율이 0·1에 가까우면 Wilson 또는 정확 구간을 씁니다. 비(RR, OR, HR, IRR)는 로그 척도 구간이며 통계 프로그램이 자동으로 이렇게 계산합니다. 결론은 p-value보다 구간의 양 끝과 미리 정한 최소 임상적 중요 차이를 기준으로 내립니다.</li>
+<li><strong>교란과 보정</strong>: 신뢰구간은 <strong>우연에 의한 흔들림만</strong> 반영합니다. 청구자료로 수만 명을 분석하면 구간이 아주 좁아지지만, 교란이나 측정 오류가 있으면 좁은 구간이 틀린 값을 정밀하게 가리킬 뿐입니다. 관찰연구에서는 먼저 교란변수를 보정한 추정값을 구하고(바·아 절, 다변수 회귀 9·11·12장, 성향점수 14장 다 절) 그 구간을 보고합니다. 측정하지 않은 교란으로 생기는 편향은 구간에 담기지 않으므로 Discussion에서 따로 다룹니다.</li>
+<li><strong>보고할 것</strong>: 주요 결과마다 점추정값과 95% CI(단위와 척도 포함), 분석 인원, 이분형 결과는 비와 차이를 함께. 구간 계산 방법(Wald, Wilson, 부트스트랩 등)이 결과에 영향을 줄 수 있으면 Methods에 적습니다.</li>
+</ul></div>
+
+<div class="callout note"><p class="ct">참고 · 90%, 99% 신뢰구간</p>
+<p>신뢰수준을 바꾸면 임계값이 바뀝니다. 대표본에서 90%는 1.645, 95%는 1.960, 99%는 2.576입니다. 99% CI는 95% CI보다 약 1.3배(2.576/1.960) 넓습니다. 생물학적 동등성 평가는 90% 신뢰구간을 쓰는데, 한쪽 방향만 보는 단측 5% 검정 두 개를 결합한 것과 같기 때문입니다(13장).</p></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>지금까지 본 신뢰구간 읽는 법을 임상시험의 결과표에 적용해 봅니다. 제2형 당뇨병 환자 240명을 약사 주도 중재군과 통상진료군에 120명씩 무작위배정한 시험이 있다고 합시다. 6개월 결과표에는 결과변수의 종류마다 다른 효과 지표와 신뢰구간이 나옵니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 무작위배정 임상시험의 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Outcomes at 6 months in the pharmacist-led intervention trial</caption>
+<thead><tr><th>Outcome</th><th class="r">Intervention<br>(n = 120)</th><th class="r">Usual care<br>(n = 120)</th><th class="r">Effect estimate (95% CI)</th><th class="r"><span class="mk">5</span> P value</th></tr></thead>
+<tbody>
+<tr><td>Change in HbA1c, %, mean (SD)</td><td class="r">−0.95 (1.10)</td><td class="r">−0.53 (1.15)</td><td class="r"><span class="mk">1</span> MD −0.42 (−0.71 to −0.13)</td><td class="r">0.004</td></tr>
+<tr><td>HbA1c &lt; 7.0%, n (%)</td><td class="r">46 (38.3)</td><td class="r">33 (27.5)</td><td class="r"><span class="mk">2</span> RR 1.39 (0.96 to 2.02)</td><td class="r">0.07</td></tr>
+<tr><td class="ind"></td><td class="r"></td><td class="r"></td><td class="r"><span class="mk">3</span> RD 10.8 (−1.0 to 22.6)</td><td class="r"></td></tr>
+<tr><td>Hypoglycemia, n (%)</td><td class="r">9 (7.5)</td><td class="r">11 (9.2)</td><td class="r"><span class="mk">4</span> RR 0.82 (0.35 to 1.90)</td><td class="r">0.64</td></tr>
+</tbody></table></div>
+<p class="jt-foot">MD, mean difference; RR, risk ratio; RD, risk difference (percentage points). P values from the t test (HbA1c) and the χ² test (binary outcomes).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>평균 차이와 그 신뢰구간.</b> −0.95 − (−0.53) = −0.42%p입니다. 이 차이의 표준오차 0.145에 임계값 1.970(자유도 238인 t 분포)을 곱한 0.29를 앞뒤로 빼고 더하면 −0.71 to −0.13이 됩니다(원리는 위 '숫자로 따라가기'). 차이의 표준오차는 두 군 평균의 표준오차를 각각 제곱해 더한 뒤 제곱근을 취한 값으로, 위 '주의' 상자에서 차이의 SE를 구한 방법과 같습니다(식은 아래 '수식으로 보기'). 구간이 0을 포함하지 않으므로 P &lt; 0.05와 같은 결론입니다. 음수 구간에 "to"를 쓰는 것은 빼기 기호와 범위 기호가 헷갈리지 않게 하려는 것입니다.</span></li>
+<li><span class="mk">2</span><span><b>상대위험도 1.39, 구간이 1을 포함.</b> 38.3% ÷ 27.5% = 1.39입니다. 구간 0.96–2.02는 "목표 도달 확률이 4% 낮을 수도, 두 배일 수도 있다"는 뜻이라 자료만으로는 방향을 확정할 수 없습니다. P = 0.07을 "효과 없음"으로 읽으면 안 됩니다. 점추정값은 중재에 유리한 쪽이고, 더 큰 시험이 필요하다는 신호로 읽는 편이 정확합니다(위 그림 8-3의 D).</span></li>
+<li><span class="mk">3</span><span><b>같은 결과의 위험차.</b> 38.3 − 27.5 = 10.8%p이고 구간이 0을 포함합니다. 상대위험도 구간이 1을 포함하면 위험차 구간도 0을 포함하는 것이 보통입니다. 두 지표는 같은 자료를 비(ratio)와 차(difference)로 나타낸 것이며, 둘 다 제시하는 것이 권장됩니다(나 절).</span></li>
+<li><span class="mk">4</span><span><b>사건이 적으면 구간이 매우 넓습니다.</b> 저혈당은 9건 대 11건뿐이어서 RR 0.82의 구간이 0.35–1.90입니다. "중재가 저혈당을 늘리지 않았다"고 결론 내리기에는 저혈당 위험이 거의 두 배인 경우도 배제하지 못합니다. 안전성 결과는 사건 수가 적어 이런 경우가 흔합니다.</span></li>
+<li><span class="mk">5</span><span><b>P 값과 신뢰구간은 짝을 이룹니다.</b> 신뢰구간에서 역산하면(위 '신뢰구간과 p-value의 관계') HbA1c는 z = 0.42 ÷ 0.145 ≈ 2.9로 P ≈ 0.004, 목표 도달은 로그 척도에서 P ≈ 0.08로 표의 값(χ² 검정 0.074)과 거의 같습니다. 이 표처럼 결과변수가 여럿이면 1차 결과변수가 무엇인지, 다중성 처리를 했는지도 Methods에서 확인합니다(1장 다 절).</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \text{95\% CI} = \text{추정값} \pm \text{임계값} \times SE \]
+<p>임계값은 표본이 크면 표준정규분포의 1.96이고, 평균처럼 표준편차를 표본에서 추정할 때는 자유도 n − 1인 t 분포의 값을 씁니다.</p></div>
+<p>추정하는 양별 표준오차와 구간은 다음과 같습니다.</p>
+<div class="eq">\[ \text{평균: } \bar{x} \pm t_{n-1} \times \frac{s}{\sqrt{n}}, \qquad \text{비율(Wald): } p \pm 1.96\sqrt{\frac{p(1-p)}{n}}, \qquad \text{위험차: } (p_1 - p_0) \pm 1.96\sqrt{\frac{p_1(1-p_1)}{n_1} + \frac{p_0(1-p_0)}{n_0}} \]
+<p>예제: SE = 0.80/√25 = 0.160, t<sub>24, 0.975</sub> = 2.064, −0.62 ± 2.064 × 0.160 = −0.95 to −0.29.</p></div>
+<p>두 군의 평균 차이는 합동표준편차로 표준오차를 구합니다. 위 결과표의 HbA1c라면 다음과 같습니다.</p>
+<div class="eq">\[ s_p = \sqrt{\frac{119 \times 1.10^2 + 119 \times 1.15^2}{238}} = 1.125, \qquad SE = 1.125 \times \sqrt{\frac{1}{120} + \frac{1}{120}} = 0.145 \]
+<p>−0.42 ± 1.970 × 0.145 = −0.42 ± 0.29 → −0.71 to −0.13.</p></div>
+<p>상대위험도의 로그 척도 표준오차는 네 칸의 수로 구합니다(a, c는 두 군의 사건 수, n₁, n₀는 두 군의 인원).</p>
+<div class="eq">\[ SE_{\ln RR} = \sqrt{\frac{1}{a} - \frac{1}{n_1} + \frac{1}{c} - \frac{1}{n_0}} = \sqrt{\frac{1}{48} - \frac{1}{400} + \frac{1}{102} - \frac{1}{600}} = 0.163 \]
+\[ -0.348 \pm 1.96 \times 0.163 = -0.667 \text{ to } -0.029 \;\;\xrightarrow{\;e^{x}\;}\;\; 0.51 \text{ to } 0.97 \]</div>
+<p>신뢰구간에서 p-value를 역산하는 식입니다.</p>
+<div class="eq">\[ SE = \frac{\ln(\text{상한}) - \ln(\text{하한})}{2 \times 1.96}, \qquad z = \frac{\ln(\text{추정값})}{SE}, \qquad \text{예: } SE = \frac{\ln 0.97 - \ln 0.51}{3.92} = 0.164, \; z = \frac{\ln 0.71}{0.164} = -2.09, \; P \approx 0.037 \]</div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>신뢰구간은 "추정값 ± 임계값 × SE"로, 참값으로 그럴듯한 범위를 보여 줍니다. 표본이 4배가 되면 폭이 약 절반이 됩니다.</li>
+<li>"95%"는 구간을 만드는 방법이 참값을 포함하는 비율입니다. 구간 안의 값은 자료와 잘 맞는 효과의 크기로 읽습니다.</li>
+<li>비(RR, OR, HR)의 구간은 로그 척도에서 만들어 비대칭이며, 점추정값은 양 끝의 기하평균입니다.</li>
+<li>구간이 0(차이) 또는 1(비)을 포함하지 않으면 p &lt; 0.05이고, 구간에서 p-value를 역산할 수 있습니다.</li>
+<li>구간을 '효과 없음'과 '임상적으로 중요한 차이' 두 기준선과 함께 읽으면 "유의하지 않음"이 "판단 불가"인지 "효과 없음에 가까움"인지 구분할 수 있습니다.</li>
+<li>신뢰구간은 우연에 의한 오차만 반영합니다. 교란에 의한 편향은 구간이 좁아도 남아 있을 수 있습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ch08-s2">
+<h2><span class="sec-no">나.</span>상대위험도와 교차비</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">상대위험도는 "위험이 몇 배인가", 오즈비(교차비)는 "오즈가 몇 배인가"입니다. 사건이 드물면 두 값이 비슷하지만, 사건이 흔하면 오즈비가 효과를 더 크게 보이게 합니다.</p>
+<ul>
+<li><b>위험과 오즈.</b> 100명 중 15명이 재입원했다면 위험은 15 ÷ 100 = 0.15이고, 오즈는 "재입원한 사람 ÷ 재입원하지 않은 사람" = 15 ÷ 85 = 0.176입니다. "이길 가능성 3 대 1"처럼 일어나는 경우와 일어나지 않는 경우를 맞대어 말하는 방식이 오즈입니다.</li>
+<li><b>논문에서는.</b> "RR 0.63 (95% CI 0.45–0.88)"은 "재입원 위험이 0.63배, 즉 37% 낮다", "adjusted OR 1.47 (95% CI 1.10–1.96)"은 "보정한 변수(나이, 동반질환 등)가 같을 때 재입원 <em>오즈</em>가 1.47배"로 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 오즈비를 "위험이 ~배"로 읽지 마세요. 재입원처럼 흔한 사건에서는 OR 1.47이 실제 위험 증가(약 1.36배)보다 크게 보입니다. 그리고 "몇 배"라는 상대적 크기는 "100명당 몇 명"이라는 절대적 크기와 함께 읽어야 합니다.</li>
+</ul>
+</div>
+
+<p>5장 가 절에서 2×2 표로 위험차, 상대위험도, 오즈비를 계산하고 "오즈비를 상대위험도처럼 읽으면 안 된다"는 것을 보았습니다. 이 절에서는 두 지표가 왜 다르고 언제 비슷해지는지, 연구 설계가 쓸 수 있는 지표를 어떻게 정하는지, 상대적 지표와 절대적 지표를 어떻게 함께 읽는지 다룹니다. 목차의 '교차비'는 <strong>오즈비</strong><span class="en">(odds ratio, OR; 교차비)</span>의 다른 이름입니다. 2×2 표에서 대각선끼리 곱해 나누는(ad/bc) 모양 때문에 교차비라고 부르며, 이 사이트에서는 오즈비로 통일합니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>65세 이상 퇴원 환자 600명을 약사 주도 약물 검토군과 통상관리군에 300명씩 무작위배정하고 퇴원 후 90일의 결과를 비교한 시험이 있다고 합시다(가상의 예시). 90일 안에 재입원한 환자는 약물 검토군 45명(15.0%), 통상관리군 72명(24.0%)이었습니다. 이 결과를 2×2 표로 풀어 봅니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:42rem">
+<thead><tr><th></th><th class="r">재입원 있음</th><th class="r">재입원 없음</th><th class="r">합계</th><th class="r">위험 (risk)</th><th class="r">오즈 (odds)</th></tr></thead>
+<tbody>
+<tr><td>약물 검토군 (노출)</td><td class="r">a = 45</td><td class="r">b = 255</td><td class="r">300</td><td class="r">45/300 = 0.150</td><td class="r">45/255 = 0.176</td></tr>
+<tr><td>통상관리군 (비노출)</td><td class="r">c = 72</td><td class="r">d = 228</td><td class="r">300</td><td class="r">72/300 = 0.240</td><td class="r">72/228 = 0.316</td></tr>
+</tbody></table></div>
+<p><strong>위험</strong><span class="en">(risk)</span>은 "사건이 생긴 사람 ÷ 전체", <strong>오즈</strong><span class="en">(odds)</span>는 "사건이 생긴 사람 ÷ 생기지 않은 사람"입니다. 위험 0.15는 100명 중 15명, 오즈 0.176은 "재입원하지 않은 사람 1명당 재입원한 사람 0.176명"입니다. 이 두 줄에서 네 가지 지표가 나옵니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>지표</th><th>계산</th><th class="r">값 (95% CI)</th><th>읽는 법</th></tr></thead>
+<tbody>
+<tr><td><strong>위험차</strong><span class="en">(risk difference, RD)</span></td><td>0.150 − 0.240</td><td class="r">−9.0%p (−15.3 to −2.7)</td><td>100명당 9명 덜 재입원</td></tr>
+<tr><td><strong>상대위험도</strong><span class="en">(relative risk, risk ratio, RR)</span></td><td>0.150 ÷ 0.240</td><td class="r">0.625 (0.446 to 0.875)</td><td>재입원 위험이 0.625배, 즉 37.5% 낮음</td></tr>
+<tr><td><strong>오즈비</strong><span class="en">(odds ratio, OR; 교차비)</span></td><td>0.176 ÷ 0.316 = (45 × 228)/(255 × 72)</td><td class="r">0.559 (0.370 to 0.845)</td><td>재입원 오즈가 0.559배</td></tr>
+<tr><td><strong>치료필요수</strong><span class="en">(number needed to treat, NNT)</span></td><td>1 ÷ 0.090</td><td class="r">11.1 (6.5 to 37.0)</td><td>11명을 약물 검토하면 1명의 재입원을 막음</td></tr>
+</tbody></table></div>
+<p>1 − RR = 0.375를 <strong>상대위험 감소</strong><span class="en">(relative risk reduction, RRR)</span>라고 합니다. RR과 OR의 신뢰구간은 가 절처럼 로그 척도에서 계산하고(식은 '수식으로 보기'), NNT의 신뢰구간은 위험차 구간의 양 끝을 뒤집어 구합니다<cite data-ref="altman1998nnt"></cite>. NNT를 정수로 보고할 때는 소수점 이하를 올려 12명으로 쓰는 경우가 많고, 논문 표에는 11.1처럼 소수로 적기도 합니다.</p>
+
+<h3>오즈비는 왜 상대위험도보다 1에서 멀리 있나</h3>
+<p>RR 0.625와 OR 0.559는 같은 자료에서 나왔는데 OR이 1에서 더 멉니다. 두 지표는 보정 인수 하나로 정확히 이어집니다. <strong>OR = RR × (비노출군에서 사건이 없는 비율 ÷ 노출군에서 사건이 없는 비율)</strong>이고, 이 시험에서는 0.625 × (0.76 ÷ 0.85) = 0.625 × 0.894 = 0.559입니다.</p>
+<p>사건이 드물면 두 군 모두 "사건이 없는 비율"이 1에 가까워 보정 인수가 1이 되고, OR ≈ RR입니다. 이것이 <strong>희귀질환 가정</strong><span class="en">(rare disease assumption)</span>입니다. 사건이 흔할수록 보정 인수가 1에서 멀어져, RR이 1보다 작으면 OR은 더 작게, 1보다 크면 더 크게 나옵니다. 어느 방향이든 OR은 RR보다 1에서 멀리 있고, 효과가 과장되어 보입니다. 대략 사건이 10% 미만이면 두 값의 차이가 작다고 봅니다.</p>
+
+<h3>이 장에서 계속 쓸 퇴원 환자 코호트</h3>
+<p>이 절부터 아 절까지 같은 가상 자료를 씁니다. 건강보험 청구자료에서 내과 병동을 퇴원한 65세 이상 환자 1,500명을 뽑아, 퇴원 시 처방 약물이 10개 이상인 <strong>다제약물</strong><span class="en">(polypharmacy)</span>과 퇴원 후 30일 내 재입원의 관련을 봅니다. 공변량은 퇴원 시점의 나이, 성별, Charlson 동반질환지수(CCI: 0, 1–2, 3–4, ≥5), 의료급여 수급 여부입니다. 평균 나이는 76.4세(SD 6.8), 여성 56.3%, 의료급여 16.3%, 다제약물 40.2%(603명)였고 260명(17.3%)이 30일 안에 재입원했습니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th></th><th class="r">재입원</th><th class="r">전체</th><th class="r">위험</th></tr></thead>
+<tbody>
+<tr><td>다제약물 (≥10개)</td><td class="r">141</td><td class="r">603</td><td class="r">23.4%</td></tr>
+<tr><td>10개 미만</td><td class="r">119</td><td class="r">897</td><td class="r">13.3%</td></tr>
+<tr class="hi"><td colspan="4">보정 전 RR 1.76 (1.41–2.20), OR 2.00 (1.52–2.61), RD 10.1%p (6.1–14.2)</td></tr>
+</tbody></table></div>
+<p>재입원이 17%나 되는 흔한 사건이므로 OR 2.00과 RR 1.76이 꽤 다릅니다. OR만 보고 "다제약물 환자는 재입원 위험이 두 배"라고 쓰면 실제(1.76배)를 부풀리게 됩니다. 이 차이는 보정한 모형에서도 그대로 이어집니다(다·라 절). 또 이 값들은 아직 <strong>보정 전</strong>입니다. 다제약물 환자는 나이가 많고 동반질환도 많을 것이므로, 이 차이가 약 때문인지는 바 절과 아 절에서 따집니다. 대조군의 위험에 따라 같은 상대위험도가 어떤 오즈비로 나타나는지는 그림 8-4의 가 패널에 있습니다.</p>
+<!--FIG:ch08_baseline-->
+
+<h3>상대적 지표와 절대적 지표</h3>
+<p>RR·OR·RRR은 <strong>상대적 지표</strong>, 위험차와 NNT는 <strong>절대적 지표</strong>입니다. 같은 상대적 효과라도 기저위험에 따라 의미가 전혀 다릅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>상황</th><th class="r">대조군 위험</th><th class="r">치료군 위험</th><th class="r">RR (RRR)</th><th class="r">위험차</th><th class="r">NNT</th><th class="r">OR</th></tr></thead>
+<tbody>
+<tr><td>기저위험이 낮은 집단</td><td class="r">2%</td><td class="r">1%</td><td class="r">0.50 (50%)</td><td class="r">−1%p</td><td class="r">100</td><td class="r">0.49</td></tr>
+<tr><td>기저위험이 높은 집단</td><td class="r">40%</td><td class="r">20%</td><td class="r">0.50 (50%)</td><td class="r">−20%p</td><td class="r">5</td><td class="r">0.38</td></tr>
+</tbody></table></div>
+<p>"위험을 50% 줄인다"는 같은 문장이 한쪽에서는 100명을 치료해 1명, 다른 쪽에서는 5명을 치료해 1명의 사건을 막는다는 뜻입니다. 그림 8-4의 나 패널도 같은 이야기입니다. 상대적 지표는 기저위험이 다른 집단 사이에서 비교적 일정한 경우가 많아 메타분석과 회귀모형에서 편리하고, 절대적 지표는 치료 결정, 예산영향, 정책 판단에 직접 쓰입니다. 그래서 CONSORT 지침은 이분형 결과에 대해 두 가지를 함께 보고하도록 권고합니다<cite data-ref="moher2010consort"></cite>. 제약회사 홍보물이 상대위험 감소만 강조하고 기저위험을 밝히지 않는다면 절대위험 감소를 직접 계산해 봐야 합니다.</p>
+
+<div class="callout note"><p class="ct">참고 · 신뢰구간이 0을 포함하는 위험차의 NNT</p>
+<p>같은 약물 검토 시험에서 응급실 방문은 20.0% 대 25.0%로 위험차 −5.0%p(−11.7 to 1.7)였습니다. NNT는 1/0.05 = 20이지만, 구간의 한쪽 끝은 이득(−11.7%p → 8.6명)이고 다른 쪽 끝은 해(+1.7%p → 59.9명)입니다. 위험차 구간이 0을 지나므로 NNT 구간은 무한대를 지나게 되어, 보통 "NNTB 20 (NNTB 8.6 to ∞ to NNTH 59.9)"처럼 씁니다. NNTB<span class="en">(number needed to treat to benefit)</span>는 1명이 이득을 보는 데 필요한 치료 인원, NNTH<span class="en">(number needed to treat to harm)</span>는 1명이 해를 입는 데 필요한 인원입니다<cite data-ref="altman1998nnt"></cite>. "NNT 20 (8.6 to −59.9)"처럼 쓰면 읽기 어렵고 오해를 부릅니다.</p></div>
+
+<h3>연구 설계가 지표를 정합니다</h3>
+<p>코호트 연구와 무작위배정 임상시험은 노출군과 비노출군을 따라가며 사건을 세므로 위험을 직접 구할 수 있고, RD·RR·OR을 모두 계산할 수 있습니다. <strong>환자-대조군 연구</strong><span class="en">(case-control study)</span>는 반대로 결과(사건)를 기준으로 대상을 뽑습니다. 사건이 생긴 환자를 모두 모으고, 사건이 없는 사람 중 일부를 대조군으로 뽑은 뒤 과거의 노출을 비교합니다. 이때 환자와 대조군의 비율은 연구자가 정하므로 표에서 계산한 '위험'은 의미가 없습니다.</p>
+<p>숫자로 확인해 보겠습니다. 어떤 약물 노출자 1만 명 중 100명(1.0%), 비노출자 4만 명 중 200명(0.5%)에게 사건이 생기는 모집단이 있습니다. 모집단의 RR은 2.00, OR은 (100/9,900)/(200/39,800) = 2.01입니다. 이 모집단에서 환자 300명을 모두 모으고, 사건이 없는 4만 9,700명(노출률 19.9%)에서 대조군을 몇 명 뽑느냐를 바꿔 봅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>대조군 수 (환자:대조군)</th><th class="r">노출 대조군</th><th class="r">비노출 대조군</th><th class="r">표에서 계산한 'RR'</th><th class="r">OR</th></tr></thead>
+<tbody>
+<tr><td>300명 (1:1)</td><td class="r">60</td><td class="r">240</td><td class="r">(100/160) ÷ (200/440) = 1.38</td><td class="r">(100 × 240)/(200 × 60) = 2.00</td></tr>
+<tr><td>600명 (1:2)</td><td class="r">120</td><td class="r">480</td><td class="r">1.55</td><td class="r">2.00</td></tr>
+<tr><td>1,200명 (1:4)</td><td class="r">239</td><td class="r">961</td><td class="r">1.71</td><td class="r">2.01</td></tr>
+<tr class="hi"><td>모집단 전체 (참값)</td><td class="r">9,900</td><td class="r">39,800</td><td class="r">2.00</td><td class="r">2.01</td></tr>
+</tbody></table></div>
+<p>표에서 계산한 'RR'은 대조군을 몇 명 뽑았는지에 따라 1.38에서 1.71로 바뀌므로 아무 의미가 없습니다. OR은 대조군 수와 관계없이 모집단의 OR(2.01)과 같습니다(1:1과 1:2에서 2.00인 것은 대조군 인원을 정수로 반올림했기 때문입니다). 대조군을 두 배로 뽑으면 노출 대조군과 비노출 대조군이 똑같이 두 배가 되는데, OR 계산에서 이 두 숫자는 분자와 분모에 한 번씩 들어가므로 두 배가 약분되어 사라집니다(식은 '수식으로 보기'). 그리고 이 예처럼 사건이 드물면 모집단의 OR이 RR과 거의 같으므로, 환자-대조군 연구의 OR을 RR의 근삿값으로 읽을 수 있습니다<cite data-ref="cornfield1951"></cite>.</p>
+
+<div class="callout deep"><p class="ct">심화 · 환자-대조군 연구의 오즈비는 정확히 무엇을 추정하나</p>
+<p>대조군을 뽑는 방식에 따라 달라집니다<cite data-ref="vandenbroucke2012"></cite>. 추적이 끝난 뒤 사건이 없었던 사람에서 대조군을 뽑으면(위 표의 방식) OR은 사건이 드물 때 RR에 가깝습니다. 청구자료의 <strong>코호트 내 환자-대조군 연구</strong><span class="en">(nested case-control study)</span>에서 흔히 쓰는 <strong>위험집합 표본추출</strong><span class="en">(risk-set sampling, incidence density sampling)</span>, 즉 환자가 사건을 겪은 시점에 아직 사건이 없던 사람들 중에서 대조군을 뽑는 방식에서는 OR이 희귀질환 가정 없이도 발생률의 비(위험비에 해당)를 추정합니다. 이런 설계에서 대조군은 나중에 환자가 될 수도 있습니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 코호트 내 환자-대조군 연구의 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>청구자료 코호트에서 고관절 골절 환자 1,200명마다 같은 나이·성별이면서 그 시점까지 골절이 없던 대조군 4명을 위험집합 표본추출로 뽑아, 벤조디아제핀 사용을 비교한 연구의 표입니다.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Benzodiazepine use among cases of hip fracture and matched controls</caption>
+<thead><tr><th><span class="mk">3</span> Benzodiazepine use</th><th class="r"><span class="mk">1</span> Cases<br>(n = 1,200)</th><th class="r">Controls<br>(n = 4,800)</th><th class="r"><span class="mk">2</span> Crude OR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>Nonuse</td><td class="r">870 (72.5)</td><td class="r">3,620 (75.4)</td><td class="r">1 (Reference)</td></tr>
+<tr><td>Current use (≤30 days)</td><td class="r">180 (15.0)</td><td class="r">520 (10.8)</td><td class="r">1.44 (1.20 to 1.73)</td></tr>
+<tr><td>Recent use (31–180 days)</td><td class="r">60 (5.0)</td><td class="r">260 (5.4)</td><td class="r">0.96 (0.72 to 1.28)</td></tr>
+<tr><td>Past use (&gt;180 days)</td><td class="r">90 (7.5)</td><td class="r">400 (8.3)</td><td class="r">0.94 (0.74 to 1.19)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are n (%). <span class="mk">4</span> Controls were selected by risk-set sampling and matched on age, sex, and calendar time.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>열의 퍼센트는 노출의 분포입니다.</b> 환자 중 15.0%, 대조군 중 10.8%가 현재 사용자였다는 뜻이지 "현재 사용자의 15%가 골절됐다"는 뜻이 아닙니다. 행 방향으로 180/(180 + 520) = 25.7%를 계산해 '위험'이라고 부르면 안 됩니다. 이 값은 대조군을 1:4로 뽑았기 때문에 생긴 숫자이고, 1:2로 뽑았다면 전혀 다른 값이 나옵니다.</span></li>
+<li><span class="mk">2</span><span><b>OR의 계산.</b> 현재 사용: (180 × 3,620)/(520 × 870) = 1.44. SE = √(1/180 + 1/520 + 1/870 + 1/3,620) = 0.094이고 1.44 × e<sup>±1.96 × 0.094</sup> = 1.20–1.73입니다. 위험집합 표본추출을 썼으므로 이 OR은 골절 발생률의 비에 대한 추정값으로 읽습니다(위 심화 상자).</span></li>
+<li><span class="mk">3</span><span><b>노출을 시기별로 나눈 이유.</b> 현재 사용자에게서만 OR이 높고 과거 사용자에게서는 1에 가깝다면, 약물의 급성 효과(진정, 낙상)와 맞는 양상입니다. 모든 범주가 같은 기준범주(Nonuse)와 비교된다는 점도 확인합니다(사 절).</span></li>
+<li><span class="mk">4</span><span><b>짝지은 설계는 짝을 고려해 분석합니다.</b> 이 표의 crude OR은 짝짓기를 무시한 보정 전 값이라 치우칠 수 있습니다. 논문의 본 결과는 짝을 층으로 쓰는 조건부 로지스틱 회귀(9장)로 다른 교란변수까지 보정한 adjusted OR이어야 하며, 보통 이 표의 오른쪽 열에 함께 제시됩니다.</span></li>
+</ol>
+</div></div>
+
+<h3>로지스틱 회귀가 오즈비를 주는 이유</h3>
+<p>RR이 더 직관적인데도 회귀모형에서 OR이 널리 쓰이는 데는 이유가 있습니다. 확률은 0과 1 사이에 갇혀 있어서 "확률 = 절편 + 기울기 × x"처럼 직선으로 모형을 만들면 예측값이 0 아래나 1 위로 벗어납니다. 로지스틱 회귀는 확률 대신 <strong>로그 오즈</strong><span class="en">(log odds, logit)</span>, 즉 오즈에 자연로그를 취한 값을 직선으로 모형화합니다. 로그 오즈는 −∞에서 +∞까지 움직일 수 있어 어떤 계수에서도 확률이 0과 1 사이에 머뭅니다. 그리고 두 군의 로그 오즈 차이가 곧 계수 β이므로, 계수를 지수함수로 바꾸면 자연스럽게 OR이 나옵니다(OR = e<sup>β</sup>, 다 절). 또 하나의 장점은 위에서 본 것처럼 OR이 환자-대조군 연구에서도 그대로 추정된다는 점입니다. 환자-대조군 자료에 로지스틱 회귀를 적용해도 기울기(OR)는 올바르게 추정되고 절편만 달라집니다<cite data-ref="prentice1979"></cite>.</p>
+
+<h3>위험비와 발생률비는 또 다른 지표입니다</h3>
+<p>Part 2에서는 비(ratio) 형태의 지표가 두 가지 더 나옵니다. 이름이 비슷하지만 비교하는 대상이 다릅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>지표</th><th>비교하는 것</th><th>주로 쓰는 설계·모형</th><th>읽을 때 주의</th></tr></thead>
+<tbody>
+<tr><td>상대위험도 (RR)</td><td>정해진 기간의 누적 위험</td><td>임상시험, 코호트. 로그-이항·수정 포아송 모형(라 절)</td><td>기간(90일, 1년)을 함께 봐야 함</td></tr>
+<tr><td>오즈비 (OR)</td><td>오즈</td><td>환자-대조군 연구, 로지스틱 회귀(9장)</td><td>사건이 흔하면 RR보다 1에서 멀리 있음</td></tr>
+<tr><td><strong>위험비</strong><span class="en">(hazard ratio, HR)</span></td><td>어느 시점에 아직 사건이 없는 사람의 순간 발생 위험률(hazard)</td><td>Cox 비례위험모형(11장)</td><td>누적 위험의 비가 아님. HR 0.73이 "사망 위험 27% 감소"는 아님(7장 다 절)</td></tr>
+<tr><td><strong>발생률비</strong><span class="en">(incidence rate ratio, IRR)</span></td><td>인년당 발생률</td><td>포아송·음이항 회귀(12장)</td><td>반복 사건과 서로 다른 추적기간을 반영</td></tr>
+</tbody></table></div>
+<p>예를 들어 두 군의 응급실 방문이 400인년 동안 120건, 450인년 동안 90건이었다면 발생률은 인년당 0.30과 0.20이고 IRR = 1.50입니다. 신뢰구간은 역시 로그 척도에서 SE = √(1/120 + 1/90) = 0.139로 계산해 1.14–1.97입니다. 네 지표 모두 1이 '차이 없음'이고 로그 척도에서 신뢰구간을 만든다는 공통점이 있지만, 서로 바꿔 읽을 수는 없습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 비(ratio)를 읽을 때의 세 가지 실수</p>
+<ul>
+<li><span class="wrong">보정 OR 1.47이므로 다제약물 환자의 재입원 위험이 47% 높다.</span> 47% 높은 것은 오즈입니다. 재입원이 17%로 흔한 이 코호트에서 보정 RR은 약 1.36입니다(바로 아래 초록 상자).</li>
+<li><span class="wrong">HR 0.73이므로 3년 사망 위험이 27% 낮다.</span> 위험비는 순간 위험률의 비이고, 누적 사망 위험의 비는 기저 생존율에 따라 달라집니다(7장 다 절, 11장).</li>
+<li><span class="wrong">상대위험 감소 40%이므로 효과가 크다.</span> 기저위험이 1%라면 절대위험 감소는 0.4%p, NNT는 250입니다. 상대적 효과는 절대적 효과와 함께 읽습니다.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 초록의 aOR, RR, RD</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>퇴원 환자 코호트 연구의 초록입니다. 한 문단에 세 가지 효과 지표가 나옵니다. 모형의 세부 내용은 다 절과 라 절에서 다루므로, 여기서는 지표를 어떻게 읽는지에 집중합니다.</p>
+<p class="excerpt">Among 1,500 older adults discharged from medical wards, <span class="mk">1</span> <span class="hl">260 (17.3%) were readmitted within 30 days</span>. Polypharmacy (≥10 drugs at discharge) was associated with readmission (<span class="mk">2</span> <span class="hl">adjusted odds ratio [aOR], 1.47; 95% CI, 1.10–1.96</span>). In modified Poisson regression, the <span class="mk">3</span> <span class="hl">adjusted risk ratio was 1.36 (95% CI, 1.08–1.72)</span>, and the <span class="mk">4</span> <span class="hl">standardized 30-day readmission risks from the logistic model were 20.2% and 14.9%</span> in patients with and without polypharmacy (<span class="hl">adjusted risk difference, 5.3 percentage points; 95% CI, 1.3–9.4</span>). <span class="mk">5</span> <span class="hl">Polypharmacy was associated with</span> a higher risk of early readmission.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>먼저 기저위험을 봅니다.</b> 17.3%는 '드문 사건'이 아닙니다. 이 숫자를 보는 순간 "OR은 RR보다 1에서 꽤 멀리 있겠다"고 예상할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>aOR 1.47: 오즈가 47% 높다.</b> 나이, 성별, CCI, 의료급여를 보정한 로지스틱 회귀의 e<sup>β</sup>입니다(다 절). "나이, 성별, 동반질환, 의료급여가 같은 환자끼리 비교했을 때 다제약물 환자의 재입원 오즈가 1.47배"라는 뜻이며, "재입원 위험이 47% 높다"로 옮기면 틀립니다. 보정하지 않은 OR은 2.00이었으므로 보정으로 상당히 줄었다는 것도 알 수 있습니다(바 절).</span></li>
+<li><span class="mk">3</span><span><b>aRR 1.36: 위험이 36% 높다.</b> 같은 공변량으로 RR을 직접 추정하는 수정 포아송 회귀(라 절)의 결과입니다. aOR 1.47보다 1에 가깝습니다. 대조군 위험 13.3%와 Zhang–Yu 공식<cite data-ref="zhang1998"></cite>으로 aOR을 바꾸면 1.47 ÷ (1 − 0.133 + 0.133 × 1.47) = 1.38로 비슷하지만, 보정 모형에서는 근삿값이고 신뢰구간이 정확하지 않다는 지적이 있어<cite data-ref="mcnutt2003"></cite> 이처럼 RR을 직접 추정하는 편이 낫습니다.</span></li>
+<li><span class="mk">4</span><span><b>표준화 위험과 위험차.</b> 로지스틱 모형으로 1,500명 모두를 다제약물로 놓고 예측한 위험의 평균(20.2%)과 모두를 다제약물이 아닌 것으로 놓고 예측한 위험의 평균(14.9%)입니다. 두 값의 차이 5.3%p가 보정 위험차이고, 비 20.24 ÷ 14.94 = 1.35(반올림 전 값으로 계산)가 표준화 RR입니다. 수정 포아송 회귀의 aRR 1.36과는 다른 모형에서 나온 값이라 조금 다릅니다. 신뢰구간은 부트스트랩으로 구했습니다. 1/0.053 ≈ 19이므로 "공변량이 같다면 다제약물 환자 19명당 1명꼴로 재입원이 더 많다"는 절대적 크기로 옮길 수 있습니다(인과 해석의 한계는 5번).</span></li>
+<li><span class="mk">5</span><span><b>"associated with"는 인과를 뜻하지 않습니다.</b> 관찰연구이므로 측정되지 않은 교란(허약, 질병 중증도)이 남을 수 있습니다(바 절). 세 지표가 모두 같은 방향을 가리키므로 결과의 방향은 일관되지만, "약을 줄이면 재입원이 5.3%p 줄어든다"는 인과적 주장은 이 자료만으로 할 수 없습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 코호트·임상시험처럼 위험을 직접 구할 수 있으면 RR과 위험차를 함께 보고합니다. 결과가 흔하면(대략 10% 이상) 로지스틱 회귀의 OR만 제시하지 말고 보정 RR(수정 포아송·로그-이항, 라 절)이나 표준화한 위험차를 함께 추정합니다. 환자-대조군 연구는 OR, 추적기간이 사람마다 다르고 사건 시점이 중요하면 HR(11장), 반복 사건과 인년 자료는 IRR(12장)을 씁니다.</li>
+<li><strong>교란과 보정</strong>: 관찰연구에서 2×2 표의 RR·OR은 보정 전(crude) 값이라 노출 말고 두 군의 다른 차이까지 섞여 있습니다. 교란변수가 한두 개면 층화(Mantel–Haenszel, 바 절), 여러 개면 다변수 회귀(9·11·12장)나 성향점수(14장 다 절)로 보정합니다. 짝지은 환자-대조군 연구는 짝을 고려한 조건부 로지스틱 회귀(9장)를 씁니다. 어떤 방법으로 보정해도 청구자료에 없는 정보(허약, 흡연, 검사 수치)로 생기는 교란은 남습니다.</li>
+<li><strong>보고할 것</strong>: 군별 n/N (%), 비(RR 또는 OR)와 위험차, 각각의 95% CI, 추적 기간(90일, 1년), 보정 여부와 보정 변수. NNT를 쓰면 구간도 함께 쓰고, 구간이 0을 지나면 NNTB/NNTH로 표기합니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>'숫자로 따라가기'에서 풀어 본 약물 검토 시험이 논문에서는 어떻게 보고되는지 봅니다. 재입원 외에 응급실 방문과 약물 이상반응도 함께 실었고, 결과표의 효과 지표는 모두 각 행의 n (%)만으로 다시 계산할 수 있습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 2×2 표에서 나온 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Outcomes within 90 days after discharge</caption>
+<thead><tr><th>Outcome</th><th class="r">Medication review<br>(n = 300)</th><th class="r">Usual care<br>(n = 300)</th><th class="r"><span class="mk">1</span> Risk ratio<br>(95% CI)</th><th class="r"><span class="mk">2</span> Risk difference, %<br>(95% CI)</th></tr></thead>
+<tbody>
+<tr><td>Readmission</td><td class="r">45 (15.0)</td><td class="r">72 (24.0)</td><td class="r">0.63 (0.45 to 0.88)</td><td class="r">−9.0 (−15.3 to −2.7)</td></tr>
+<tr><td>Emergency department visit</td><td class="r">60 (20.0)</td><td class="r">75 (25.0)</td><td class="r">0.80 (0.59 to 1.08)</td><td class="r">−5.0 (−11.7 to 1.7)</td></tr>
+<tr><td>Adverse drug event</td><td class="r">18 (6.0)</td><td class="r">30 (10.0)</td><td class="r"><span class="mk">5</span> 0.60 (0.34 to 1.05)</td><td class="r">−4.0 (−8.3 to 0.3)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are n (%). Number needed to treat (95% CI): <span class="mk">3</span> readmission, 11.1 (6.5 to 37.0); <span class="mk">4</span> emergency department visit, NNTB 20 (NNTB 8.6 to ∞ to NNTH 59.9); adverse drug event, NNTB 25 (NNTB 12.0 to ∞ to NNTH 303). NNTB, number needed to treat to benefit; NNTH, number needed to treat to harm.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>상대위험도.</b> 15.0 ÷ 24.0 = 0.625를 소수 둘째 자리로 반올림해 0.63입니다. 무작위배정이 제대로 되었다면 교란을 걱정하지 않고 RR을 해석할 수 있습니다: 90일 재입원 위험이 37.5% 낮습니다. 이 표에 OR을 쓰지 않은 것은 좋은 선택입니다. 같은 행의 OR은 0.56으로, 사건이 흔한 결과에서는 효과를 더 크게 보이게 합니다.</span></li>
+<li><span class="mk">2</span><span><b>위험차는 %p 단위입니다.</b> 15.0 − 24.0 = −9.0입니다. 열 제목의 "%"는 퍼센트포인트를 뜻합니다. RR 0.63과 RD −9.0%p는 같은 결과를 다르게 표현한 것입니다. −9.0%p는 대조군 위험이 24% 정도인 집단에서 기대할 수 있는 절대 효과이고, 기저위험이 낮은 집단이라면 같은 RR에서도 절대 효과가 작아집니다.</span></li>
+<li><span class="mk">3</span><span><b>NNT = 1 ÷ 0.090 = 11.1.</b> 치료필요수(NNT)는 "몇 명을 약물 검토해야 재입원 1명을 막는가"입니다. 구간은 위험차 구간의 양 끝을 뒤집은 1 ÷ 0.153 = 6.5와 1 ÷ 0.027 = 37.0입니다. 구간이 넓다는 점도 함께 봅니다: 6명만 검토해도 1명을 막을 수도, 37명을 검토해야 1명을 막을 수도 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>구간이 무한대를 지나는 NNT.</b> 위험차 구간(−11.7 to 1.7)이 0을 포함하므로 NNT 구간이 이득 쪽 8.6명에서 무한대를 거쳐 해 쪽 59.9명까지 이어집니다(위 '상대적 지표와 절대적 지표'의 참고 상자). "NNT 20"만 인용하면 불확실성이 사라져 버립니다.</span></li>
+<li><span class="mk">5</span><span><b>RR 0.60, 구간 0.34–1.05.</b> 상대위험 감소가 40%로 커 보이지만 구간이 1을 포함합니다. 사건이 18건과 30건뿐이라 정밀도가 낮습니다. 이런 2차 결과는 가설을 만드는 결과로 읽습니다(1장 다 절).</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ OR = RR \times \frac{1 - p_0}{1 - p_1} = 0.625 \times \frac{1 - 0.24}{1 - 0.15} = 0.625 \times 0.894 = 0.559 \]
+<p>\(p_1\), \(p_0\)는 노출군과 비노출군의 위험입니다. 두 위험이 모두 작으면 분수가 1에 가까워 OR ≈ RR입니다.</p></div>
+<p>2×2 표(a, b: 노출군의 사건·비사건, c, d: 비노출군의 사건·비사건)에서 로그 척도의 표준오차는 다음과 같습니다.</p>
+<div class="eq">\[ SE_{\ln RR} = \sqrt{\frac{1}{a} - \frac{1}{a+b} + \frac{1}{c} - \frac{1}{c+d}} = \sqrt{\frac{1}{45} - \frac{1}{300} + \frac{1}{72} - \frac{1}{300}} = 0.172, \qquad SE_{\ln OR} = \sqrt{\frac{1}{a} + \frac{1}{b} + \frac{1}{c} + \frac{1}{d}} = 0.211 \]</div>
+<p>오즈비가 환자-대조군 연구에서도 그대로 추정되는 이유는 다음 등식입니다. 환자군의 노출 오즈 ÷ 대조군의 노출 오즈와, 노출군의 사건 오즈 ÷ 비노출군의 사건 오즈가 같은 값입니다. 대조군을 k배로 뽑으면 b와 d가 모두 k배가 되어 약분됩니다.</p>
+<div class="eq">\[ \frac{a/c}{b/d} = \frac{a/b}{c/d} = \frac{ad}{bc} \]</div>
+<p>로지스틱 회귀는 로그 오즈를 직선으로 모형화하므로, 두 군의 로그 오즈 차이가 계수 β₁이고 그 지수함수가 OR입니다.</p>
+<div class="eq">\[ \ln\frac{p}{1-p} = \beta_0 + \beta_1 x \quad\Rightarrow\quad \ln(\text{오즈}_{x=1}) - \ln(\text{오즈}_{x=0}) = \beta_1 \quad\Rightarrow\quad OR = e^{\beta_1} \]</div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>상대위험도는 위험의 비, 오즈비(교차비)는 오즈의 비입니다. 사건이 흔할수록 오즈비가 1에서 더 멀어져 효과를 과장해 보입니다.</li>
+<li>로지스틱 회귀는 로그 오즈를 직선으로 모형화하므로 계수를 지수함수로 바꾸면 OR이 됩니다.</li>
+<li>(누적 표본추출의) 환자-대조군 연구에서는 위험을 구할 수 없고 OR만 추정됩니다. OR은 대조군을 뽑는 비율과 무관합니다. 위험집합 표본추출처럼 대조군을 뽑는 방식에 따라 발생률비를 추정하는 설계도 있습니다.</li>
+<li>상대적 지표(RR, RRR)와 절대적 지표(위험차, NNT)를 함께 봐야 효과의 실제 크기를 알 수 있습니다.</li>
+<li>위험비(HR)와 발생률비(IRR)는 각각 순간 위험률과 인년당 발생률의 비로, 상대위험도와 다른 지표입니다.</li>
+<li>관찰연구의 2×2 표 지표는 보정 전 값이며, 교란은 층화나 회귀모형으로 보정해야 합니다(바·아 절).</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ch08-s3">
+<h2><span class="sec-no">다.</span>지수함수</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">회귀분석 출력의 계수 β를 논문에 쓰는 "몇 배"(OR, HR, IRR)로 바꾸는 계산이 지수함수 e<sup>β</sup>입니다. 반대로 "몇 배"를 계수로 바꾸는 계산이 자연로그(ln)입니다.</p>
+<ul>
+<li><b>비유.</b> 약사에게 익숙한 pH가 좋은 예입니다. pH가 1 내려가면 수소이온 농도는 10배가 됩니다. 눈금 위에서는 "1만큼 이동"이지만 실제 양은 "10배"입니다. 회귀계수 β도 이런 로그 눈금 위의 이동이고, e<sup>β</sup>가 그 이동을 실제 "몇 배"로 바꿔 줍니다. pH는 밑이 10인 로그, 회귀모형은 밑이 e(약 2.718)인 자연로그를 쓴다는 점만 다릅니다.</li>
+<li><b>논문에서는.</b> "β = 0.383"과 "OR 1.47 (95% CI 1.10–1.96)"은 같은 결과입니다. e<sup>0.383</sup> = 1.47이므로 "오즈가 1.47배"로 읽습니다.</li>
+<li><b>기억할 한 가지.</b> β = 0은 OR = 1(효과 없음)이고, β의 덧셈은 OR의 곱셈입니다. 그래서 10세당 OR은 1세당 OR에 10을 곱한 값이 아니라 1세당 OR을 10번 곱한 값입니다.</li>
+</ul>
+</div>
+
+<p>로지스틱 회귀, Cox 모형, 포아송 회귀의 출력에 나오는 계수는 그대로 읽을 수 없습니다. 계수는 로그 척도에 있고, 논문에는 지수함수로 바꾼 OR, HR, IRR이 보고됩니다. 1장 마 절에서 "OR = e<sup>0.642</sup> = 1.90"이라고만 적어 둔 계산이 이 절의 주제입니다. 수학은 두 가지 성질만 알면 충분합니다.</p>
+
+<h3>로그와 지수, 두 가지 성질</h3>
+<p><strong>e</strong>는 약 2.718인 상수이고, e<sup>x</sup>를 <strong>지수함수</strong><span class="en">(exponential function)</span>라고 하며 exp(x)로도 씁니다. 그 반대 계산이 <strong>자연로그</strong><span class="en">(natural logarithm)</span> ln(x)입니다. e<sup>0.693</sup> = 2이므로 ln 2 = 0.693입니다. 회귀계수가 놓인 로그 눈금과 논문에 보고하는 비(ratio) 눈금은 이렇게 대응합니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th>로그 척도의 값 x (계수)</th><th class="r">−1.386</th><th class="r">−0.693</th><th class="r">0</th><th class="r">0.693</th><th class="r">1.386</th><th class="r">2.303</th></tr></thead>
+<tbody><tr><td>비 척도의 값 e<sup>x</sup> (OR 등)</td><td class="r">0.25</td><td class="r">0.5</td><td class="r">1</td><td class="r">2</td><td class="r">4</td><td class="r">10</td></tr></tbody></table></div>
+<p>두 가지 성질만 기억하면 됩니다.</p>
+<ol>
+<li><strong>로그 척도의 0은 비 척도의 1입니다.</strong> 계수 β = 0(효과 없음)은 OR = e<sup>0</sup> = 1(효과 없음)에 대응합니다. 계수의 신뢰구간이 0을 포함하면 OR의 신뢰구간은 1을 포함합니다.</li>
+<li><strong>로그 척도의 덧셈은 비 척도의 곱셈입니다.</strong> 위 표에서 0.693을 더할 때마다 오른쪽 값은 2배가 되고(1 → 2 → 4), 0.693을 뺄 때마다 절반이 됩니다(1 → 0.5 → 0.25).</li>
+</ol>
+<!--FIG:ch08_exp-->
+<p>두 번째 성질 때문에 OR 2와 OR 0.5는 1에서 "같은 크기만큼" 떨어진 효과입니다(ln 2 = 0.693, ln 0.5 = −0.693). 일반 눈금으로 그리면 1 아래(0–1)는 좁고 1 위(1–∞)는 넓어 보호 효과가 작아 보이는 착시가 생기므로, 비를 그리는 포레스트 플롯은 로그 눈금을 씁니다.</p>
+
+<h3>회귀계수를 비로 바꾸기</h3>
+<p>로지스틱 회귀는 로그 오즈 척도에서 변수들의 효과를 <strong>더합니다</strong>. 이것을 지수함수로 되돌리면 효과가 <strong>곱해집니다</strong>. 그래서 e<sup>β</sup>는 "다른 변수가 같을 때 x가 1 증가하면 오즈가 몇 배가 되는가"를 뜻합니다. 다른 모형도 계수가 놓인 척도만 다를 뿐 원리는 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>모형</th><th>계수 β가 있는 척도</th><th>e<sup>β</sup>의 이름</th><th>장</th></tr></thead>
+<tbody>
+<tr><td>로지스틱 회귀</td><td>로그 오즈</td><td>오즈비 (OR)</td><td>9장</td></tr>
+<tr><td>로그-이항, 수정 포아송 회귀</td><td>로그 위험</td><td>상대위험도 (RR)</td><td>라 절</td></tr>
+<tr><td>Cox 비례위험모형</td><td>로그 위험률</td><td>위험비 (HR)</td><td>11장</td></tr>
+<tr><td>포아송·음이항 회귀</td><td>로그 발생률</td><td>발생률비 (IRR)</td><td>12장</td></tr>
+<tr><td>ln(y)를 결과로 한 선형회귀</td><td>로그 결과값</td><td>기하평균의 비</td><td>6장 라 절</td></tr>
+<tr><td>감마 분포·로그 연결 GLM</td><td>로그 평균</td><td>산술평균의 비</td><td>라 절</td></tr>
+</tbody></table></div>
+
+<h4>숫자로 따라가기</h4>
+<p>나 절의 퇴원 환자 코호트에서 다제약물과 30일 재입원의 관련을 나이, 성별, CCI, 의료급여와 함께 로지스틱 회귀로 분석하면 다제약물의 계수는 β = 0.3831, 표준오차 0.1485입니다(전체 출력은 아래 파이썬 출력 상자). OR과 신뢰구간은 이렇게 만듭니다.</p>
+<div class="flow">
+<div><div><b>계수를 OR로</b><p>e<sup>0.3831</sup> = 1.467. "다른 변수가 같을 때 다제약물 환자의 재입원 오즈가 1.47배, 즉 46.7% 높다"로 읽습니다.</p></div></div>
+<div><div><b>구간은 계수 쪽에서 먼저</b><p>0.3831 ± 1.96 × 0.1485 = 0.0920 to 0.6742</p></div></div>
+<div><div><b>양 끝을 각각 되돌리기</b><p>e<sup>0.0920</sup> = 1.096, e<sup>0.6742</sup> = 1.962 → OR 1.47 (1.10–1.96). OR 1.467에 ±1.96 × 0.1485를 직접 더하고 빼면 틀린 구간이 나옵니다.</p></div></div>
+</div>
+<p>오즈를 위험(확률)으로 되돌리려면 로그 오즈 → 오즈 → 위험의 순서로 계산합니다. 오즈를 위험으로 바꾸는 식은 "위험 = 오즈 ÷ (1 + 오즈)"입니다. CCI 3–4점이고 의료급여가 아닌 80세 남성이라면 모형이 계산한 로그 오즈는 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th></th><th class="r">로그 오즈</th><th class="r">오즈 (e<sup>로그 오즈</sup>)</th><th class="r">위험 = 오즈 ÷ (1 + 오즈)</th></tr></thead>
+<tbody>
+<tr><td>10개 미만</td><td class="r">−6.786 + 0.0600 × 80 + 0.632 = −1.354</td><td class="r">0.258</td><td class="r">20.5%</td></tr>
+<tr><td>다제약물</td><td class="r">−1.354 + 0.383 = −0.971</td><td class="r">0.379</td><td class="r">27.5%</td></tr>
+<tr class="hi"><td>비교</td><td class="r">차이 0.383</td><td class="r">비 1.467 (= OR)</td><td class="r">비 1.34, 차이 7.0%p</td></tr>
+</tbody></table></div>
+<p>로그 오즈에서 0.383을 더한 것이 오즈에서는 1.467배이고, 위험에서는 1.34배입니다. 첫 줄의 −6.786은 절편, 0.632는 CCI 3–4의 계수입니다. 로지스틱 모형에서 OR은 모든 환자에게 같지만, 위험의 비와 차이는 그 환자의 기저위험에 따라 달라집니다. 나 절 초록 상자의 "표준화 위험"은 이 계산을 1,500명 모두에게 해서 평균한 것입니다.</p>
+
+<h3>단위를 바꿀 때</h3>
+<p>연속형 변수의 e<sup>β</sup>는 "1단위당" 비입니다. 나이의 계수 0.0600은 1세당 OR 1.062인데, 논문에서는 흔히 10세당으로 보고합니다. 이때는 <strong>계수에 10을 곱한 뒤</strong> 지수함수로 바꿉니다: e<sup>10 × 0.0600</sup> = e<sup>0.600</sup> = 1.82. 신뢰구간도 계수의 구간 양 끝에 10을 곱한 뒤 바꾸어 1.42–2.34가 됩니다.</p>
+<p>1.062 × 10 = 10.6도, "6.2% × 10 = 62% 증가(1.62)"도 틀립니다. 효과가 곱으로 쌓이므로 10세 차이는 1세당 OR(반올림 전 1.0618)을 10번 곱한 1.822이고, 20세 차이는 1.822² = 3.32입니다. 표준편차(6.85세)당 OR은 e<sup>0.0600 × 6.85</sup> = 1.51(1.27–1.79)입니다. SD당 OR은 연구 집단의 흩어짐에 따라 값이 달라지므로 연구 간 비교에는 조심해야 합니다(6장 라 절의 표준화 계수와 같은 문제).</p>
+
+<h4>로그 변환한 설명변수</h4>
+<p>CRP처럼 치우친 검사값은 로그를 취해 모형에 넣기도 합니다. 폐렴 환자 코호트의 로지스틱 회귀에서 ln(CRP)의 계수가 0.38(SE 0.09)이었다면(가상의 예시), 이 계수는 "ln(CRP)가 1 증가할 때", 즉 CRP가 e = 2.718배가 될 때의 로그 OR입니다. 임상적으로 읽기 쉬운 배수로 바꾸려면 계수에 그 배수의 자연로그를 곱합니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th>CRP의 변화</th><th>계산</th><th class="r">OR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>2.718배 (ln 1단위)</td><td>e<sup>0.38</sup></td><td class="r">1.46 (1.23–1.74)</td></tr>
+<tr><td>2배</td><td>e<sup>0.38 × ln 2</sup> = e<sup>0.38 × 0.693</sup></td><td class="r">1.30 (1.15–1.47)</td></tr>
+<tr><td>10배</td><td>e<sup>0.38 × ln 10</sup> = e<sup>0.38 × 2.303</sup></td><td class="r">2.40 (1.60–3.60)</td></tr>
+</tbody></table></div>
+<p>논문이 log₁₀이나 log₂를 썼다면 계수의 의미가 달라집니다. log₁₀ 변환한 변수의 계수는 "10배당", log₂ 변환한 변수의 계수는 "2배당" 로그 OR입니다. Methods에서 어떤 로그를 썼는지 확인하지 않으면 효과를 2.3배(ln 10) 또는 0.69배(ln 2) 잘못 읽게 됩니다<cite data-ref="bland1996log"></cite>. 파이썬의 <code>numpy.log()</code>와 <code>math.log()</code>는 자연로그이고, 밑이 10과 2인 로그는 <code>numpy.log10()</code>, <code>numpy.log2()</code>로 따로 구합니다.</p>
+
+<h3>효과는 곱으로 쌓입니다</h3>
+<p>교호작용 항이 없는 로지스틱 모형에서 다제약물(OR 1.467)이면서 CCI ≥5(OR 2.609)인 환자의 오즈는, 둘 다 해당하지 않는 환자에 비해 1.467 × 2.609 = 3.83배입니다. 로그 척도에서 0.3831 + 0.9589 = 1.3420을 더한 뒤 지수함수로 바꾼 것과 같습니다(e<sup>1.3420</sup> = 3.83). 두 효과를 더해 1 + 0.467 + 1.609 = 3.08배로 계산하면 틀립니다. 실제 자료에서 두 요인이 함께 있을 때의 효과가 곱으로 예측한 값과 다른지는 교호작용의 문제입니다(바 절).</p>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>보고 단위 고르기</strong>: 연속형 변수는 임상적으로 의미 있는 단위(10세, eGFR 10 mL/min/1.73 m², 검사값 2배)로 바꿔 보고하고, 로그 변환했다면 밑(ln, log₂, log₁₀)을 Methods에 밝힙니다. 파이썬 statsmodels에서는 <code>np.exp(m.params)</code>와 <code>np.exp(m.conf_int())</code>로 OR과 구간을 한 번에 얻습니다(아래 출력 7번).</li>
+<li><strong>교란과 보정</strong>: 다변수 모형에서 노출의 e<sup>β</sup>는 "모형에 넣은 다른 변수가 같을 때"의 비, 즉 보정된 비입니다. 이 값이 교란을 얼마나 없앴는지는 어떤 변수를 넣었는지에 달려 있습니다(바·아 절). 같은 모형에 들어간 공변량의 e<sup>β</sup>는 노출의 효과처럼 인과적으로 읽지 않습니다(아 절의 Table 2 오류).</li>
+<li><strong>보고할 것</strong>: e<sup>β</sup>(OR, HR, IRR)와 95% CI, 연속형 변수의 단위, 범주형 변수의 기준범주(사 절). β만 보고한다면 표 제목이나 각주에 척도(log odds 등)를 적습니다.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels 로지스틱 회귀</b><span>가상의 예시 (statsmodels 0.15)</span></div>
+<div class="paper-b">
+<p>퇴원 환자 코호트(데이터프레임 dc)에 statsmodels의 formula 인터페이스로 로지스틱 회귀를 적합한 출력입니다. cci는 "0", "1-2", "3-4", "5+"의 네 값을 가진 문자형 변수라 <code>C(cci)</code>로 범주형임을 지정했습니다. 아래는 statsmodels 0.15.0으로 실제 실행한 출력이며, 출력의 모양(열 너비, 행 순서, 날짜 줄 등)은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; import statsmodels.formula.api as smf
+&gt;&gt;&gt; m = smf.logit("readm ~ poly + age + female + C(cci) + medaid", data=dc).fit()</span>
+Optimization terminated successfully.
+         Current function value: 0.435649
+         Iterations 6   <span class="mk">9</span>
+<span class="cm">&gt;&gt;&gt; print(m.summary())</span>
+                           Logit Regression Results
+==============================================================================
+Dep. Variable:                  readm   No. Observations:                 1500
+Model:                          Logit   Df Residuals:                     1492
+Method:                           MLE   Df Model:                            7
+Date:                Wed, 30 Sep 2026   Pseudo R-squ.:                 0.05526
+Time:                        01:44:23   Log-Likelihood:                -653.47   <span class="mk">6</span>
+converged:                       True   LL-Null:                       -691.70
+Covariance Type:            nonrobust   LLR p-value:                 7.272e-14
+=================================================================================
+                    coef    std err          z      P&gt;|z|      [0.025      0.975]   <span class="mk">1</span>
+---------------------------------------------------------------------------------
+Intercept        -6.7863      1.008     -6.734      0.000      -8.761      -4.811   <span class="mk">2</span>
+C(cci)[T.1-2]     0.3107      0.199      1.564      0.118      -0.079       0.700   <span class="mk">3</span>
+C(cci)[T.3-4]     0.6319      0.218      2.898      0.004       0.205       1.059
+C(cci)[T.5+]      0.9589      0.276      3.474      0.001       0.418       1.500
+poly              0.3831      0.149      2.580      0.010       0.092       0.674   <span class="mk">4</span>
+age               0.0600      0.013      4.673      0.000       0.035       0.085   <span class="mk">5</span>
+female           -0.2493      0.142     -1.761      0.078      -0.527       0.028
+medaid            0.9768      0.235      4.157      0.000       0.516       1.437
+=================================================================================
+
+<span class="cm">&gt;&gt;&gt; ci = np.exp(m.conf_int()); ci.columns = ["2.5%", "97.5%"]
+&gt;&gt;&gt; ci.insert(0, "OR", np.exp(m.params)); print(ci.round(3))</span>   <span class="mk">7</span>
+                  OR   2.5%  97.5%
+Intercept      0.001  0.000  0.008
+C(cci)[T.1-2]  1.364  0.924  2.014
+C(cci)[T.3-4]  1.881  1.227  2.884
+C(cci)[T.5+]   2.609  1.519  4.481
+poly           1.467  1.096  1.962
+age            1.062  1.035  1.089
+female         0.779  0.591  1.029   <span class="mk">8</span>
+medaid         2.656  1.676  4.210</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>coef 열은 로그 오즈 척도의 계수 β입니다.</b> 그대로는 "몇 배"로 읽을 수 없고 exp()로 바꿔야 합니다. z = coef ÷ std err이고, P&gt;|z|는 표준정규분포에서 구한 Wald 검정의 양측 P입니다(1장 마 절). [0.025, 0.975]는 로그 척도의 95% 신뢰구간(β ± 1.96 × SE)입니다.</span></li>
+<li><span class="mk">2</span><span><b>절편은 모든 설명변수가 0일 때의 로그 오즈입니다.</b> 여기서는 "0세, 남성, CCI 0, 다제약물·의료급여 모두 아님"인 사람의 로그 오즈라 현실에 존재하지 않는 사람의 값이므로 해석하지 않습니다. 나이를 평균(예: 76세)을 뺀 값으로 넣으면 절편이 '76세 기준 환자'의 로그 오즈가 되어 해석할 수 있습니다. 다른 계수는 바뀌지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>범주형 변수는 가변수로 들어갑니다.</b> C(cci)[T.1-2]는 "CCI가 1–2인가"를 나타내는 가변수이고, 출력에 없는 "0"이 기준범주입니다(값을 정렬했을 때 첫 번째 수준). 세 계수는 모두 CCI 0과의 비교입니다(사 절). formula에서 범주형 항이 앞에 오도록 열 순서가 바뀐 것도 볼 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>다제약물: β = 0.3831, z = 0.3831 ÷ 0.1485 = 2.580.</b> P&gt;|z|는 소수 셋째 자리까지만 보여 0.010으로 나오지만 정확한 값은 0.0099입니다(<code>m.pvalues</code>로 확인). e<sup>0.3831</sup> = 1.467이 논문에 보고할 보정 OR입니다. 같은 이유로 C(cci)[T.5+]의 0.001은 실제로 0.0005이고, 0.000은 "P &lt; 0.001"로 옮겨 적습니다.</span></li>
+<li><span class="mk">5</span><span><b>나이는 1세당 계수입니다.</b> 0.0600은 작아 보이지만 1세당 값이기 때문이며, 10세당 OR은 e<sup>0.600</sup> = 1.82입니다. 계수의 크기로 변수의 중요도를 비교하면 안 되는 이유입니다.</span></li>
+<li><span class="mk">6</span><span><b>로그우도와 모형 전체의 검정.</b> Log-Likelihood −653.47은 이 모형의 로그우도, LL-Null −691.70은 절편만 있는 모형의 로그우도입니다. −2를 곱하면 1306.9와 1383.4이고, 차이 76.45가 "7개 계수가 모두 0"이라는 귀무가설의 우도비 χ²(자유도 7)이며 그 P가 LLR p-value입니다(마 절). Pseudo R-squ.(McFadden) = 1 − (−653.47)/(−691.70) = 0.055는 선형회귀의 R²처럼 "설명된 분산"이 아니며, 원인 추정 연구에서 이 값이 낮은 것은 문제가 아닙니다.</span></li>
+<li><span class="mk">7</span><span><b>OR과 95% CI 만들기.</b> <code>m.conf_int()</code>는 로그 척도의 Wald 구간(β ± 1.96 × SE)을 주고, <code>np.exp()</code>가 양 끝과 계수를 OR 척도로 바꿉니다. 작은 표본에서 더 정확한 프로파일 우도 구간(마 절)은 프로그램에 따라 따로 계산해야 하므로, 논문 Methods에 어느 구간을 썼는지 적는 것이 좋습니다.</span></li>
+<li><span class="mk">8</span><span><b>여성: OR 0.779 (0.591–1.029).</b> 구간이 1을 포함하고 P = 0.078입니다. 계수의 P 값과 OR 신뢰구간이 1을 포함하는지가 같은 결론을 주는지 확인해 보세요(가 절).</span></li>
+<li><span class="mk">9</span><span><b>반복 계산의 수렴.</b> 로지스틱 회귀의 계수는 한 번에 풀리지 않아 Newton–Raphson 방법으로 반복해서 구합니다(마 절). "Optimization terminated successfully", "converged: True"가 수렴했다는 표시이며, 수렴 경고가 나오거나 계수·표준오차가 비정상적으로 크면 분리(9장) 같은 문제를 의심합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위 파이썬 출력의 결과를 논문의 표로 옮기면 다음과 같습니다. 국내 학술지에서는 이처럼 계수(β 또는 B)와 OR을 나란히 적는 경우가 많습니다. 이어서 단위와 로그 변환을 밝힌 Results 문장도 함께 읽어 봅니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 계수와 오즈비를 함께 적은 회귀분석 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Multivariable logistic regression for 30-day readmission (n = 1,500)</caption>
+<thead><tr><th>Variable</th><th class="r"><span class="mk">1</span> β (SE)</th><th class="r"><span class="mk">2</span> OR (95% CI)</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>Polypharmacy (≥10 drugs)</td><td class="r">0.383 (0.149)</td><td class="r"><span class="mk">3</span> 1.47 (1.10–1.96)</td><td class="r">0.010</td></tr>
+<tr><td><span class="mk">5</span> Age, per year</td><td class="r">0.060 (0.013)</td><td class="r">1.06 (1.04–1.09)</td><td class="r">&lt;0.001</td></tr>
+<tr><td>Female</td><td class="r"><span class="mk">4</span> −0.249 (0.142)</td><td class="r">0.78 (0.59–1.03)</td><td class="r">0.078</td></tr>
+<tr><td>Medical Aid</td><td class="r">0.977 (0.235)</td><td class="r">2.66 (1.68–4.21)</td><td class="r">&lt;0.001</td></tr>
+</tbody></table></div>
+<p class="jt-foot">The model also included the Charlson Comorbidity Index (0, 1–2, 3–4, ≥5). β, regression coefficient (log odds scale); SE, standard error.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>β는 로그 오즈 척도의 값입니다.</b> 0이면 효과 없음, 양수면 오즈를 높이는 쪽, 음수면 낮추는 쪽입니다. 크기는 그대로 "몇 배"로 읽을 수 없습니다. 통계 프로그램이 직접 내놓는 값이 이것이고, SPSS 출력을 옮긴 표에서는 B로 적힙니다.</span></li>
+<li><span class="mk">2</span><span><b>OR = e<sup>β</sup>.</b> e<sup>0.383</sup> = 1.47, e<sup>0.977</sup> = 2.66처럼 계수를 지수함수로 바꾼 값입니다. SPSS 출력을 옮긴 표에서는 Exp(B)로 적힙니다. 계산기나 엑셀의 EXP 함수로 직접 확인할 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>구간이 점추정값을 중심으로 비대칭입니다.</b> 1.47에서 아래로 0.37, 위로 0.49 떨어져 있습니다. 구간을 β 쪽에서 먼저 만든 뒤(0.383 ± 1.96 × 0.1485 = 0.092 to 0.674) 양 끝을 지수함수로 바꿨기 때문입니다(e<sup>0.092</sup> = 1.10, e<sup>0.674</sup> = 1.96). 점추정값은 양 끝의 기하평균입니다: √(1.10 × 1.96) = 1.47.</span></li>
+<li><span class="mk">4</span><span><b>음수 계수는 1보다 작은 OR입니다.</b> e<sup>−0.249</sup> = 0.78입니다. β의 구간(−0.527 to 0.028)이 0을 포함하므로 OR의 구간(0.59–1.03)은 1을 포함하고, P = 0.078입니다. 두 척도의 결론은 항상 같습니다.</span></li>
+<li><span class="mk">5</span><span><b>연속형 변수는 단위가 중요합니다.</b> 나이의 β 0.060은 작아 보이지만 "1세당" 값입니다. 10세 차이는 e<sup>10 × 0.060</sup> = e<sup>0.600</sup> = 1.82배로, 다제약물보다 큰 차이입니다(위 '단위를 바꿀 때').</span></li>
+</ol>
+</div></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 단위와 로그 변환을 밝힌 Results 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Older age was associated with readmission (<span class="mk">1</span> <span class="hl">OR per 10-year increase</span>, 1.82; 95% CI, 1.42–2.34). ... In the pneumonia cohort, C-reactive protein was <span class="mk">2</span> <span class="hl">log2-transformed</span> because of its skewed distribution; each doubling of CRP was associated with <span class="mk">3</span> <span class="hl">a 30% increase in the odds</span> of 30-day mortality (OR, 1.30; 95% CI, 1.15–1.47). Results per 1-SD increase are shown in <span class="mk">4</span> <span class="hl">Supplementary Table S3</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>10세당 OR.</b> 위 파이썬 출력의 1세당 계수 0.0600에 10을 곱해 e<sup>0.600</sup> = 1.82를 얻습니다. 구간도 로그 척도에서 10을 곱한 뒤 바꿉니다(1.42–2.34). 표에 "Age, per 10 years"처럼 단위가 적혀 있는지 반드시 확인합니다.</span></li>
+<li><span class="mk">2</span><span><b>log₂ 변환.</b> log₂(CRP)가 1 증가한다는 것은 CRP가 2배가 된다는 뜻이므로, 이 변수의 계수는 곧 "2배당" 로그 OR입니다. 자연로그로 넣은 계수 0.38에 ln 2 = 0.693을 곱한 0.263과 같은 값입니다.</span></li>
+<li><span class="mk">3</span><span><b>"30% increase in the odds".</b> e<sup>0.263</sup> = 1.30에서 1을 뺀 값입니다. "odds"라는 단어가 정확히 쓰였습니다. 사망이 흔한 결과라면 "30% higher risk"로 쓰면 과장입니다(나 절). CRP가 4배가 되면 1.30² = 1.69배입니다.</span></li>
+<li><span class="mk">4</span><span><b>SD당 결과.</b> SD당 OR은 연구 집단의 SD에 좌우되므로, 다른 연구의 SD당 OR과 크기를 직접 비교하기 어렵습니다. 임상적으로 의미 있는 단위(10세, 1 g/dL, 2배)로 보고하는 편이 해석하기 쉽습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ e^{a+b} = e^a \times e^b, \qquad \ln(a \times b) = \ln a + \ln b, \qquad e^{\ln x} = x \]
+<p>로그 척도의 덧셈이 비 척도의 곱셈이 되는 이유입니다.</p></div>
+<p>로지스틱 회귀는 로그 오즈를 선형으로 모형화하고, 지수함수로 되돌리면 효과가 곱해집니다.</p>
+<div class="eq">\[ \ln(\text{오즈}) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots \quad\Rightarrow\quad \text{오즈} = e^{\beta_0} \times e^{\beta_1 x_1} \times e^{\beta_2 x_2} \times \cdots \]
+<p>선형예측값(로그 오즈)을 η라 하면 오즈 = e<sup>η</sup>, 위험 = e<sup>η</sup>/(1 + e<sup>η</sup>)입니다.</p></div>
+<div class="eq">\[ OR = e^{\hat\beta}, \qquad 95\%\ CI = e^{\hat\beta \pm 1.96 \times SE} \qquad \text{예: } e^{0.3831 \pm 1.96 \times 0.1485} = e^{0.0920} \text{ to } e^{0.6742} = 1.096 \text{ to } 1.962 \]</div>
+<p>단위를 k배로 바꿀 때는 계수와 구간의 양 끝에 k를 곱합니다.</p>
+<div class="eq">\[ OR_{10\text{세}} = e^{10 \times 0.0600} = e^{0.600} = 1.822 = 1.0618^{10}, \qquad 95\%\ CI = e^{10 \times (0.0600 \pm 1.96 \times 0.01284)} = 1.417 \text{ to } 2.343 \]</div>
+<p>로그의 밑을 바꾼 설명변수의 계수는 다음과 같이 연결됩니다(β<sub>ln</sub>은 자연로그로 넣었을 때의 계수).</p>
+<div class="eq">\[ \beta_{\log_2} = \beta_{\ln} \times \ln 2 = 0.38 \times 0.693 = 0.263, \qquad \beta_{\log_{10}} = \beta_{\ln} \times \ln 10 = 0.38 \times 2.303 = 0.875 \]</div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>회귀계수 β는 로그 척도의 값이고, e<sup>β</sup>가 논문에 보고하는 비(OR, RR, HR, IRR)입니다.</li>
+<li>로그 척도의 0은 비 척도의 1이고, 로그 척도의 덧셈은 비 척도의 곱셈입니다.</li>
+<li>신뢰구간은 계수 쪽에서 먼저 만든 뒤 양 끝을 지수함수로 바꾸므로 비대칭입니다.</li>
+<li>단위를 바꿀 때는 계수에 단위를 곱한 뒤 지수함수로 바꿉니다(10세당 OR = e<sup>10β</sup>). 로그 변환한 설명변수는 어떤 로그(ln, log₂, log₁₀)를 썼는지에 따라 계수의 뜻이 달라집니다.</li>
+<li>같은 OR이라도 위험의 비와 차이는 환자의 기저위험에 따라 다릅니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ch08-s4">
+<h2><span class="sec-no">라.</span>일반화 선형모형</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">일반화 선형모형은 결과변수의 종류(있다/없다, 건수, 비용)에 맞춰 선형회귀를 넓힌 모형의 가족입니다. 로지스틱 회귀, 포아송 회귀, 비용 분석의 감마 회귀가 모두 이 가족입니다.</p>
+<ul>
+<li><b>비유.</b> 같은 엔진에 결과 종류별 변환기를 끼운 것으로 생각하면 됩니다. 엔진(절편 + 계수 × 변수 + …)은 선형회귀와 똑같고, 변환기(연결함수)가 엔진의 출력을 확률(0–1), 건수(0 이상), 비용(양수)의 범위로 옮겨 줍니다.</li>
+<li><b>논문에서는.</b> "generalized linear model with a gamma distribution and log link", "Poisson regression with robust variance"처럼 <strong>분포</strong>와 <strong>연결함수</strong>가 적혀 있습니다. 이 두 가지를 보면 계수의 뜻이 정해집니다. 로그 연결이면 e<sup>β</sup>는 "평균(위험, 발생률, 비용)이 몇 배인가"입니다.</li>
+<li><b>기억할 한 가지.</b> 연결함수가 지표를 정합니다. 로짓 연결 → 오즈비, 로그 연결 → 상대위험도·발생률비·평균의 비, 항등 연결 → 차이.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>결과변수가 정규분포를 따르지 않는 이분형(사건 여부), 건수(입원 횟수), 치우친 양수(의료비) 자료를 회귀모형으로 분석할 때</dd></div>
+  <div><dt>구성</dt><dd>결과변수의 분포 + 선형예측값(β₀ + β₁x₁ + …) + 연결함수</dd></div>
+  <div><dt>추정</dt><dd>최대우도추정(마 절). 반복 계산으로 구하므로 수렴 여부를 확인</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>분포와 연결함수(예: "gamma distribution and log link"), e<sup>β</sup> 또는 β와 95% CI</dd></div>
+</dl>
+
+<p>6장의 선형회귀는 결과변수가 연속형이고 잔차가 정규분포를 따르며 분산이 일정하다고 가정합니다. 재입원 여부(0/1), 1년간 입원 횟수, 연간 의료비는 이 가정에 맞지 않습니다. <strong>일반화 선형모형</strong><span class="en">(generalized linear model, GLM)</span>은 선형회귀의 틀을 유지하면서 이런 자료를 다룰 수 있게 넓힌 모형의 가족입니다<cite data-ref="nelder1972"></cite>. 로지스틱 회귀(9장), 포아송 회귀(12장), 비용 분석의 감마 모형(14장 아 절)이 모두 여기에 속하므로, GLM의 구조를 알면 Part 2의 모형들을 하나의 틀로 이해할 수 있습니다.</p>
+
+<h3>세 가지 구성 요소</h3>
+<div class="flow">
+<div><div><b>결과변수의 분포</b><p>이분형은 이항분포, 건수는 포아송분포, 치우친 양수는 감마분포처럼 자료가 만들어지는 방식에 맞는 분포를 고릅니다. 분포가 정해지면 <strong>평균과 흩어짐(분산)의 관계</strong>가 정해집니다. 포아송은 분산이 평균과 같고, 감마는 분산이 평균의 제곱에 비례합니다. 의료비처럼 평균이 큰 환자일수록 흩어짐이 훨씬 큰 자료에 감마분포가 맞는 이유입니다.</p></div></div>
+<div><div><b>선형예측값</b><p>β₀ + β₁x₁ + β₂x₂ + …. 설명변수의 효과를 더하는 부분으로, 선형회귀와 똑같습니다. 이 값은 −∞에서 +∞까지 어떤 값이든 가질 수 있습니다.</p></div></div>
+<div><div><b>연결함수</b><p>결과변수의 평균을 선형예측값과 잇는 변환입니다. 평균을 그대로 쓰는 항등 연결, 로그를 취하는 로그 연결, 로그 오즈로 바꾸는 로짓 연결이 대표적입니다. 연결함수가 계수의 해석을 정합니다.</p></div></div>
+</div>
+<p>선형회귀는 "정규분포 + 항등 연결"인 GLM의 특수한 경우입니다. 이분형 결과에 선형회귀를 그대로 쓰면(선형 확률 모형) 예측 확률이 0과 1을 벗어날 수 있습니다. 퇴원 환자 코호트에서 재입원을 선형회귀로 적합하면 예측값의 범위가 −0.02에서 0.445로, 일부 환자의 '확률'이 음수가 됩니다. 연결함수는 이런 일이 생기지 않도록 선형예측값의 범위를 평균이 가질 수 있는 범위로 옮겨 줍니다.</p>
+<!--FIG:ch08_links-->
+
+<h3>분포와 연결함수의 조합</h3>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>결과변수</th><th>분포</th><th>연결함수</th><th>모형 이름</th><th>보고하는 지표</th><th>장</th></tr></thead>
+<tbody>
+<tr><td>연속형</td><td>정규</td><td>항등</td><td>선형회귀</td><td>β = 평균 차이</td><td>6장</td></tr>
+<tr><td>이분형</td><td>이항</td><td>로짓</td><td>로지스틱 회귀</td><td>e<sup>β</sup> = OR</td><td>9장</td></tr>
+<tr><td>이분형</td><td>이항</td><td>로그</td><td>로그-이항 모형</td><td>e<sup>β</sup> = RR</td><td>라 절</td></tr>
+<tr><td>이분형</td><td>이항</td><td>항등</td><td>위험차 모형</td><td>β = 위험차</td><td>라 절</td></tr>
+<tr><td>이분형</td><td>포아송 + 강건 표준오차</td><td>로그</td><td>수정 포아송 회귀</td><td>e<sup>β</sup> = RR</td><td>라 절, 12장</td></tr>
+<tr><td>건수·발생률</td><td>포아송, 음이항</td><td>로그 (+ offset: ln 인년)</td><td>포아송·음이항 회귀</td><td>e<sup>β</sup> = IRR</td><td>12장</td></tr>
+<tr><td>치우친 양수 (의료비)</td><td>감마</td><td>로그</td><td>감마 GLM</td><td>e<sup>β</sup> = 산술평균의 비</td><td>라 절, 14장 아 절</td></tr>
+</tbody></table></div>
+<p>표를 읽는 요령은 <strong>연결함수가 지표를 정한다</strong>는 것입니다. 항등 연결이면 β가 평균(또는 위험)의 차이, 로그 연결이면 e<sup>β</sup>가 평균(위험, 발생률, 비용)의 비, 로짓 연결이면 e<sup>β</sup>가 오즈비입니다. 포아송 회귀의 offset은 추적기간이 사람마다 다를 때 건수를 발생률로 바꿔 주는 장치입니다. 나 절의 응급실 방문 예(120건/400인년 대 90건/450인년)에 ln(인년)을 offset으로 넣은 포아송 GLM을 적합하면 e<sup>β</sup> = 1.50으로 나 절에서 직접 계산한 IRR과 같습니다(12장).</p>
+
+<h3>숫자로 따라가기</h3>
+<p>같은 자료에 연결함수만 바꿔 적합해 봅니다. 먼저 공변량 없이 다제약물만 넣은 모형을 세 가지 연결함수로 적합하면, 나 절에서 2×2 표로 계산한 값이 정확히 다시 나옵니다: 로짓 연결 e<sup>β</sup> = 1.995(OR), 로그 연결 e<sup>β</sup> = 1.763(RR), 항등 연결 β = 0.1012(위험차). 2×2 표의 세 지표는 각각 GLM의 특수한 경우입니다.</p>
+<p>이제 나이, 성별, CCI, 의료급여를 함께 넣어 보정한 결과입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>모형</th><th>분포 / 연결</th><th>지표</th><th class="r">다제약물 (95% CI)</th><th>비고</th></tr></thead>
+<tbody>
+<tr><td>로지스틱 회귀</td><td>이항 / 로짓</td><td>OR</td><td class="r">1.47 (1.10–1.96)</td><td>재입원이 흔해 RR보다 1에서 멂</td></tr>
+<tr><td>로그-이항 모형</td><td>이항 / 로그</td><td>RR</td><td class="r">1.35 (1.07–1.71)</td><td>이 자료에서는 수렴(시작값에 따라 실패하기도 함)</td></tr>
+<tr><td>수정 포아송 회귀</td><td>포아송 / 로그, 강건 SE</td><td>RR</td><td class="r">1.36 (1.08–1.72)</td><td>모형 기반 SE를 쓰면 0.133, 강건 SE는 0.120</td></tr>
+<tr><td>선형 확률 모형</td><td>정규 / 항등, 강건 SE</td><td>위험차</td><td class="r">5.3%p (1.1–9.6)</td><td>일부 예측 확률이 음수</td></tr>
+<tr><td>위험차 모형</td><td>이항 / 항등</td><td>위험차</td><td class="r">—</td><td>예측 위험이 0 경계에 걸려 수렴하지 않음</td></tr>
+</tbody></table></div>
+<p>세 가지를 볼 수 있습니다.</p>
+<ul>
+<li><strong>RR을 원하면 로그 연결을 씁니다.</strong> 로그-이항 모형은 이상적이지만 그림 8-6 나처럼 예측 확률이 1을 넘지 못하게 막는 장치가 없어, 위험이 높은 환자가 많거나 연속형 변수가 많으면 수렴하지 않는 경우가 흔합니다. 이때 대안이 <strong>수정 포아송 회귀</strong><span class="en">(modified Poisson regression)</span>입니다. 0/1 결과에 포아송 분포를 '작업용'으로 가정해 로그 연결로 RR을 추정하고, 분포 가정이 틀린 만큼 부풀려진 표준오차를 <strong>강건 표준오차</strong><span class="en">(robust, sandwich standard error)</span>로 바로잡습니다<cite data-ref="zou2004"></cite>. 강건 SE 없이 보고하면 신뢰구간이 필요 이상으로 넓어집니다(0.133 대 0.120).</li>
+<li><strong>위험차 모형은 더 까다롭습니다.</strong> 항등 연결은 예측 위험이 0 아래나 1 위로 가는 것을 전혀 막지 못해 수렴 문제가 더 잦습니다. 선형 확률 모형에 강건 SE를 쓰거나, 나 절 초록 상자처럼 로지스틱 모형에서 표준화한 위험차를 구합니다.</li>
+<li><strong>방법이 달라도 방향과 크기는 비슷합니다.</strong> 보정 RR 1.35–1.36과 보정 OR 1.47의 차이는 방법의 차이라기보다 지표의 차이입니다(나 절).</li>
+</ul>
+
+<h3>의료비용 자료와 감마 GLM</h3>
+<p>6장 라 절에서 제2형 당뇨병 환자 400명의 연간 의료비를 로그 변환해 선형회귀로 분석했습니다. 그 결과 순응 환자의 의료비가 21.1% 낮았는데, 이것은 <strong>기하평균의 비</strong>(0.789)였고, 로그 척도의 예측값을 exp()로 되돌리면 산술평균을 크게 과소추정하는 <strong>재변환 문제</strong><span class="en">(retransformation problem)</span>가 있었습니다. 예산영향분석과 비용효과분석에 필요한 것은 1인당 산술평균 비용이므로(1장 바 절) 이 문제는 중요합니다.</p>
+<p>두 방법의 차이는 "로그를 언제 취하느냐"입니다. 로그-OLS는 환자마다 비용에 로그를 취한 뒤 그 <strong>평균</strong>을 모형화하고, 감마 GLM(로그 연결)은 원래 비용의 <strong>평균</strong>을 구한 뒤 그 로그를 모형화합니다. 그래서 로그-OLS의 e<sup>β</sup>는 기하평균의 비, 감마 GLM의 e<sup>β</sup>는 산술평균의 비이고, 감마 GLM의 예측값은 바로 원래 척도(원)의 평균이라 재변환이 필요 없습니다<cite data-ref="manning2001"></cite>(식은 '수식으로 보기').</p>
+<p>같은 400명 자료로 확인해 보겠습니다. 순응 여부만 넣은 감마 GLM의 e<sup>β</sup>는 0.768로, 두 군의 산술평균 비 251.1 ÷ 327.1 = 0.768과 정확히 같습니다. 나이(10세당)와 CCI를 보정하면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>방법</th><th>순응 효과 (95% CI)</th><th class="r">예측 평균 비용: 순응 / 비순응 (만원)</th></tr></thead>
+<tbody>
+<tr><td>로그-OLS (6장)</td><td>기하평균의 비 0.789 (0.659–0.944)</td><td class="r">171.2 / 217.1 (단순 재변환)</td></tr>
+<tr><td>로그-OLS + smearing 보정</td><td>같음</td><td class="r">254.0 / 322.1 (× 1.484)</td></tr>
+<tr><td>감마 GLM (로그 연결)</td><td>산술평균의 비 0.790 (0.644–0.971)</td><td class="r">254.7 / 322.3</td></tr>
+<tr><td>비용에 대한 선형회귀 (강건 SE)</td><td>평균 차이 −72.8만원 (−136.0 to −9.6)</td><td class="r">—</td></tr>
+<tr class="hi"><td>관측 산술평균 (보정 전)</td><td>비 0.768</td><td class="r">251.1 / 327.1</td></tr>
+</tbody></table></div>
+<p>로그-OLS의 예측값을 exp()로만 되돌리면 1인당 171.2만원과 217.1만원으로, 실제 평균(전체 282.6만원)보다 한참 낮습니다. 이 가상 자료는 로그 척도의 흩어짐이 두 군에서 같도록 만들었기 때문에 smearing 보정만으로도 감마 GLM과 거의 같은 값이 나오지만, 실제 비용 자료처럼 군마다 흩어짐이 다르면 smearing 보정도 틀어집니다. 감마 GLM은 이런 경우에도 산술평균을 직접 추정합니다. 다만 감마 GLM도 분포와 분산 구조를 가정한 모형이므로 어떤 분포가 맞는지 확인하는 방법(modified Park test 등)과 비용이 0인 환자가 많을 때 쓰는 이단계 모형은 14장 아 절에서 다룹니다<cite data-ref="mihaylova2011"></cite>.</p>
+
+<div class="callout tip"><p class="ct">약물경제학 연구에서는 · 비(ratio)에서 금액으로</p>
+<p>감마 GLM의 e<sup>β</sup> 0.790은 "순응 환자의 평균 의료비가 21% 낮다"는 상대적 크기입니다. 예산영향분석에는 "1인당 몇 원"이 필요하므로, 모든 환자를 순응으로 놓고 예측한 평균(254.7만원)과 모두 비순응으로 놓고 예측한 평균(322.3만원)을 비교하는 <strong>재활용 예측</strong><span class="en">(recycled predictions)</span>을 씁니다. 차이는 1인당 −67.6만원이고, 부트스트랩 95% CI는 −126.8 to −1.8만원입니다. 로그 연결 모형에서는 금액 차이가 환자의 공변량 분포에 따라 달라지므로 어느 집단의 공변량 분포로 평균했는지를 밝혀야 합니다. 관찰자료에서 이 차이를 순응의 인과 효과로 읽을 수 없다는 점(6장 라 절의 healthy adherer effect)도 그대로입니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 비용 분석의 Methods와 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Annual medical costs (excluding drug costs) were analyzed using a <span class="mk">1</span> <span class="hl">generalized linear model with a gamma distribution and log link</span>, adjusting for age and the Charlson Comorbidity Index. <span class="mk">2</span> <span class="hl">Adjusted mean costs were estimated using recycled predictions</span>, and 95% CIs were obtained by <span class="mk">3</span> <span class="hl">nonparametric bootstrapping with 1,000 replicates</span>.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Annual medical costs by medication adherence (10,000 KRW)</caption>
+<thead><tr><th></th><th class="r">Adherent<br>(n = 234)</th><th class="r">Nonadherent<br>(n = 166)</th><th class="r">Difference or ratio<br>(95% CI)</th></tr></thead>
+<tbody>
+<tr><td><span class="mk">4</span> Observed cost, mean (SD)</td><td class="r">251.1 (271.0)</td><td class="r">327.1 (363.2)</td><td class="r"></td></tr>
+<tr><td>Observed cost, median (IQR)</td><td class="r">168.8 (90.9–331.9)</td><td class="r">224.2 (118.5–364.5)</td><td class="r"></td></tr>
+<tr><td><span class="mk">5</span> Adjusted mean cost (95% CI)</td><td class="r">254.7 (221.2–296.1)</td><td class="r">322.3 (272.7–376.6)</td><td class="r">Difference −67.6 (−126.8 to −1.8)</td></tr>
+<tr><td><span class="mk">6</span> Adjusted cost ratio</td><td class="r"></td><td class="r">Reference</td><td class="r">0.79 (0.64 to 0.97)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Adjusted for age and Charlson Comorbidity Index. IQR, interquartile range.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>분포와 연결함수를 밝힌 문장.</b> 감마 분포는 비용이 양수이고 평균이 클수록 흩어짐도 크다는 성질을, 로그 연결은 공변량의 효과가 곱으로 작용한다는 가정을 담고 있습니다. "GLM"이라고만 쓰고 분포와 연결함수를 밝히지 않았다면 결과를 해석할 수 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>재활용 예측.</b> 400명 모두를 순응으로 바꿔 예측한 비용의 평균과, 모두를 비순응으로 바꿔 예측한 비용의 평균입니다. 두 군의 나이·CCI 분포가 같다고 놓고 비교한 값이라 관측 평균과 다릅니다.</span></li>
+<li><span class="mk">3</span><span><b>부트스트랩 신뢰구간.</b> 환자를 복원추출해 400명짜리 표본을 1,000번 새로 만들고, 매번 모형 적합과 예측을 반복해 차이의 2.5번째와 97.5번째 백분위수를 구간으로 썼습니다. 금액 차이처럼 공식으로 SE를 구하기 어려운 값에 흔히 씁니다<cite data-ref="thompson2000cost"></cite>.</span></li>
+<li><span class="mk">4</span><span><b>평균과 중앙값이 크게 다릅니다.</b> 순응군의 평균 251.1만원은 중앙값 168.8만원보다 훨씬 크고 SD가 평균보다 큽니다. 전형적인 오른쪽 치우침입니다. 그래도 분석은 중앙값이 아닌 평균을 대상으로 합니다(1장 바 절).</span></li>
+<li><span class="mk">5</span><span><b>1인당 금액 차이 −67.6만원.</b> 예산영향분석에 쓸 수 있는 단위입니다. 구간 상한이 −1.8만원으로 0에 가까워, 절감 규모의 불확실성이 크다는 점도 함께 읽습니다.</span></li>
+<li><span class="mk">6</span><span><b>비용 비 0.79.</b> 감마 GLM의 e<sup>β</sup>이며 산술평균의 비입니다. 254.7 ÷ 322.3 = 0.790과 같습니다. 로그-OLS의 0.789(기하평균의 비)와 숫자는 비슷하지만 뜻이 다르며, 실제 비용 자료에서는 두 값이 크게 벌어지기도 합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 결과변수의 종류로 먼저 고릅니다. 이분형이면 로지스틱 회귀(OR)가 기본이지만 결과가 흔하면 수정 포아송·로그-이항 모형(RR)을, 건수·발생률이면 추적기간을 offset으로 넣은 포아송·음이항 회귀(12장)를, 의료비면 감마 GLM(로그 연결, 14장 아 절)을 씁니다. 로그-이항 모형이 수렴하지 않으면 수정 포아송 회귀로 바꾸고 그 사실을 밝힙니다.</li>
+<li><strong>교란과 보정</strong>: GLM은 관찰연구에서 교란변수를 보정하는 기본 도구입니다. 노출과 함께 교란변수(바·아 절에서 고른 기저 시점 변수)를 선형예측값에 넣으면 노출의 e<sup>β</sup>가 보정된 비가 됩니다. 보정된 절대적 크기(위험차, 1인당 금액 차이)가 필요하면 표준화나 재활용 예측을 씁니다. 어떤 GLM을 쓰든 모형에 넣지 않은 교란은 보정되지 않습니다.</li>
+<li><strong>보고할 것</strong>: 분포와 연결함수, 강건 표준오차 사용 여부, offset, e<sup>β</sup>(또는 β)와 95% CI, 보정 변수. 수렴 문제로 모형을 바꿨다면 그 과정도 적습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>지금까지 본 분포와 연결함수의 선택이 논문의 Methods에서 어떻게 쓰이는지 봅니다. 나 절의 퇴원 환자 코호트 연구에서 Statistical analysis 문단을 이렇게 썼다고 합시다. 결과(30일 재입원)가 흔하기 때문에 로지스틱 회귀 대신 다른 GLM을 골랐다는 내용입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 흔한 결과의 상대위험도 추정</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Because 30-day readmission was common (17.3%), <span class="mk">1</span> <span class="hl">odds ratios would overestimate risk ratios</span>. We therefore estimated adjusted risk ratios using <span class="mk">2</span> <span class="hl">log-binomial regression</span>; as a sensitivity analysis, we used <span class="mk">3</span> <span class="hl">Poisson regression with robust variance estimation</span>. Adjusted risk differences were obtained by <span class="mk">4</span> <span class="hl">standardization</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>지표를 고른 이유.</b> 결과가 흔하면 OR과 RR이 벌어진다는 점(나 절)을 근거로 RR을 택했다는 문장입니다. 사건이 드물면(대략 10% 미만) 로지스틱 회귀의 OR을 RR의 근삿값으로 읽어도 큰 문제가 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>로그-이항 모형.</b> 이항 분포와 로그 연결의 GLM으로 e<sup>β</sup>가 곧 RR입니다. 수렴하지 않는 경우가 많으므로 "the model failed to converge" 같은 문장과 대안이 함께 나오는지 봅니다.</span></li>
+<li><span class="mk">3</span><span><b>수정 포아송 회귀.</b> "robust variance", "sandwich estimator", "modified Poisson"은 모두 같은 방법을 가리킵니다. 강건 분산을 쓰지 않고 포아송 회귀로 이분형 결과의 RR을 구했다면 신뢰구간이 너무 넓습니다.</span></li>
+<li><span class="mk">4</span><span><b>표준화.</b> 로지스틱 모형 등으로 모든 대상자의 위험을 노출이 있을 때와 없을 때로 각각 예측해 평균한 뒤 차이를 구하는 방법입니다(나 절 초록 상자). g-computation이라고도 부릅니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \eta = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots, \qquad g(\mu) = \eta \]
+<p>η는 선형예측값, μ는 결과변수의 평균, g는 연결함수입니다. 항등 연결은 g(μ) = μ, 로그 연결은 g(μ) = ln μ, 로짓 연결은 g(μ) = ln[μ/(1 − μ)]입니다.</p></div>
+<p>분포가 정하는 평균과 분산의 관계는 다음과 같습니다.</p>
+<div class="eq">\[ \text{이항: } Var(y) = \mu(1-\mu), \qquad \text{포아송: } Var(y) = \mu, \qquad \text{감마: } Var(y) \propto \mu^2 \]</div>
+<p>로그-OLS와 감마 GLM은 로그와 평균의 순서가 다릅니다.</p>
+<div class="eq">\[ \text{로그-OLS: } E[\ln(\text{비용})] = \beta_0 + \beta_1 x + \cdots \qquad\qquad \text{감마 GLM: } \ln E[\text{비용}] = \beta_0 + \beta_1 x + \cdots \]
+<p>로그-OLS의 e<sup>β</sup>는 기하평균의 비이고, 감마 GLM의 e<sup>β</sup>는 산술평균의 비입니다.</p></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>일반화 선형모형은 결과변수의 분포, 선형예측값, 연결함수로 이루어지며 선형·로지스틱·포아송·감마 회귀가 모두 여기에 속합니다.</li>
+<li>연결함수가 지표를 정합니다: 항등 → 차이, 로그 → 비(RR, IRR, 평균의 비), 로짓 → 오즈비.</li>
+<li>흔한 이분형 결과의 보정 RR은 로그-이항 모형이나 강건 표준오차를 쓴 수정 포아송 회귀로 직접 추정합니다.</li>
+<li>감마 GLM(로그 연결)의 e<sup>β</sup>는 산술평균의 비이고 예측값이 원래 척도라 재변환 문제가 없어, 의료비 분석에 널리 쓰입니다.</li>
+<li>GLM에 교란변수를 함께 넣으면 노출의 효과가 보정되며, 절대적 크기는 표준화(재활용 예측)로 구합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="ch08-s5">
+<h2><span class="sec-no">마.</span>우도</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">우도는 "이 값이 참이라면 지금 본 자료가 나올 가능성이 얼마인가"를 나타낸 점수입니다. 로지스틱 회귀 같은 모형의 계수는 이 점수가 가장 높아지는 값으로 정합니다(최대우도추정).</p>
+<ul>
+<li><b>비유.</b> 범인 찾기와 비슷합니다. 현장에 남은 증거(자료)는 정해져 있고, 용의자(후보 값)마다 "이 사람이 범인이라면 이런 증거가 남을 가능성"을 따져 가장 그럴듯한 사람을 고릅니다. 50명 중 7명에게 이상반응이 생겼다면, 참 발생률이 5%일 때보다 14%일 때 이 결과가 훨씬 그럴듯합니다.</li>
+<li><b>논문에서는.</b> "likelihood ratio test, χ² = 6.63, df = 1, P = 0.010", "−2 log likelihood", "AIC 1318.9 vs 1322.9"처럼 나옵니다. "변수를 넣었더니 모형이 자료를 설명하는 정도가 우연 이상으로 좋아졌다", "AIC가 작은 모형이 자료를 더 잘 설명한다"로 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 우도비 검정과 AIC는 "어느 모형이 자료를 더 잘 설명하는가"에 답합니다. 약의 효과를 추정하는 연구에서 교란변수를 고르는 기준으로 쓰지 않습니다.</li>
+</ul>
+</div>
+
+<p>로지스틱 회귀, 포아송 회귀, Cox 모형, 혼합모형의 계수는 모두 <strong>최대우도추정</strong><span class="en">(maximum likelihood estimation, MLE)</span>으로 구합니다. 출력에 나오는 −2 Log L, 이탈도(deviance), AIC, 우도비 검정도 모두 우도에서 나온 값입니다. 이 절에서는 계산보다 이 숫자들이 무엇을 비교하는지 이해하는 데 집중합니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>가 절의 예처럼 새 약을 복용한 환자 50명 중 7명에게 이상반응이 생겼다고 합시다. 이상반응의 참 발생 확률 p는 모릅니다. 그래서 후보 값마다 "p가 이 값이라면 50명 중 7명이라는 결과가 나올 가능성은 얼마인가"를 계산해 봅니다. 계산은 p를 7번, (1 − p)를 43번 곱하는 것입니다(식은 '수식으로 보기').</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th class="r">후보 p</th><th class="r">우도 L(p)</th><th class="r">로그우도 ln L(p)</th><th class="r">최댓값 대비 상대 우도</th></tr></thead>
+<tbody>
+<tr><td class="r">0.05</td><td class="r">8.61 × 10⁻¹¹</td><td class="r">−23.18</td><td class="r">0.054</td></tr>
+<tr><td class="r">0.10</td><td class="r">1.08 × 10⁻⁹</td><td class="r">−20.65</td><td class="r">0.670</td></tr>
+<tr class="hi"><td class="r">0.14</td><td class="r">1.61 × 10⁻⁹</td><td class="r">−20.25</td><td class="r">1</td></tr>
+<tr><td class="r">0.20</td><td class="r">8.71 × 10⁻¹⁰</td><td class="r">−20.86</td><td class="r">0.542</td></tr>
+<tr><td class="r">0.30</td><td class="r">4.78 × 10⁻¹¹</td><td class="r">−23.77</td><td class="r">0.030</td></tr>
+</tbody></table></div>
+<p>우도의 값 자체는 아주 작은 수라서 의미가 없고, <strong>후보들 사이의 상대적 크기</strong>가 의미를 가집니다. p = 0.14의 우도는 p = 0.05의 약 19배(1 ÷ 0.054)이므로 자료는 0.05보다 0.14를 훨씬 강하게 지지합니다. 우도가 가장 큰 값이 <strong>최대우도추정값</strong>이고, 이 예에서는 p̂ = 7/50 = 0.14로 직관적인 추정값과 같습니다.</p>
+<p><strong>확률</strong>은 참값을 고정하고 "어떤 자료가 나올까"를 묻고, <strong>우도</strong><span class="en">(likelihood)</span>는 자료를 고정하고 "어떤 값이 이 자료를 가장 잘 설명하나"를 묻습니다. 같은 계산을 다른 방향에서 읽는 것입니다. 그래서 우도는 확률분포가 아니며 모든 후보 p에 대해 더해도 1이 되지 않습니다. 실제 계산에서는 작은 수를 여러 번 곱하는 대신 로그를 취해 더하는 <strong>로그우도</strong><span class="en">(log-likelihood)</span>를 씁니다. 로그는 크기 순서를 바꾸지 않으므로 로그우도가 가장 큰 곳이 우도가 가장 큰 곳입니다.</p>
+<!--FIG:ch08_lik-->
+<p>로그우도 곡선의 모양에는 추정값의 정밀도가 담겨 있습니다. 꼭대기가 뾰족하면 자료가 좁은 범위의 값만 지지하므로 표준오차가 작고, 완만하면 표준오차가 큽니다. 환자가 많을수록 곡선이 뾰족해집니다. 이 예에서 꼭대기의 뾰족한 정도로 구한 표준오차는 0.049로, 비율의 표준오차 공식으로 구한 값과 같습니다. 그림 8-7 나의 <strong>우도비 신뢰구간</strong>(0.063–0.253)은 곡선을 그대로 따라가므로 가 절의 Wald 구간(0.044–0.236)과 달리 비대칭이며, Wilson 구간(0.070–0.262), 정확 구간(0.058–0.267)과 비슷합니다.</p>
+
+<h3>회귀모형에서는</h3>
+<p>로지스틱 회귀에서도 원리는 같습니다. 계수의 후보 값마다 환자 한 명 한 명의 예측 확률이 정해지고, 재입원한 환자는 예측 확률이 높을수록, 재입원하지 않은 환자는 낮을수록 점수가 올라갑니다. 1,500명의 점수(로그우도)를 모두 더한 값이 가장 커지는 계수 조합이 최대우도추정값입니다.</p>
+<p>선형회귀의 최소제곱법과 달리 이 값은 한 번의 계산으로 구해지지 않아, 시작값에서 출발해 로그우도가 더 이상 늘지 않을 때까지 계수를 고쳐 가는 반복 계산(Newton–Raphson, Fisher scoring)을 씁니다. statsmodels 출력의 "Iterations 6"이 그 반복 횟수입니다(다 절). 프로그램마다 시작값과 멈추는 기준이 달라 반복 횟수는 다를 수 있습니다. 한 범주의 모든 환자에게 사건이 있거나 없어서 계수가 무한대로 발산하는 <strong>분리</strong><span class="en">(separation)</span>(9장), 로그-이항 모형의 경계 문제(라 절)처럼 반복이 수렴하지 않는 경우가 있으므로, 경고 메시지와 비정상적으로 큰 계수·표준오차를 확인해야 합니다.</p>
+
+<h3>−2 log L과 우도비 검정</h3>
+<p>0/1 자료의 로그우도는 음수이고, 모형이 자료를 잘 설명할수록 0에 가까워집니다. 출력에서는 여기에 −2를 곱한 <strong>−2 log L</strong>을 많이 씁니다. "모형이 자료를 얼마나 못 맞추는가"를 나타내는 값으로 작을수록 잘 맞고, 두 모형의 −2 log L 차이가 카이제곱 분포를 따르기 때문에 검정에 바로 쓸 수 있습니다. <strong>이탈도</strong><span class="en">(deviance)</span>는 모형을 "모든 관측값을 완벽하게 맞추는 모형"과 비교한 값으로, 0/1 자료에서는 −2 log L과 같습니다.</p>
+<ul>
+<li>절편만 있는 모형(모든 환자의 재입원 확률이 17.3%로 같다고 보는 모형): −2 log L = 1383.4. statsmodels 요약표의 LL-Null(−691.70)에 −2를 곱한 값입니다.</li>
+<li>다제약물, 나이, 성별, CCI, 의료급여를 넣은 모형: −2 log L = 1306.9. 요약표의 Log-Likelihood(−653.47)에 −2를 곱한 값입니다.</li>
+</ul>
+<p>변수를 넣으면 −2 log L은 항상 줄어듭니다. 결과와 전혀 관계없는 변수라도 표본 안에서는 조금이라도 더 맞추기 때문입니다(6장 라 절의 R²와 같은 성질). 그래서 "우연으로 기대되는 것보다 많이 줄었는가"를 검정해야 합니다. 큰 모형이 작은 모형의 변수를 모두 포함할 때(<strong>내포된 모형</strong><span class="en">(nested models)</span>), 두 모형의 −2 log L 차이를 자유도가 "추가한 계수의 수"인 χ² 분포와 비교하는 것이 <strong>우도비 검정</strong><span class="en">(likelihood ratio test, LRT)</span>입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>질문</th><th>작은 모형</th><th>큰 모형</th><th class="r">χ²<sub>LR</sub></th><th class="r">자유도</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>다제약물이 재입원과 관련 있나</td><td>나이, 성별, CCI, 의료급여 (1313.58)</td><td>+ 다제약물 (1306.95)</td><td class="r">6.63</td><td class="r">1</td><td class="r">0.010</td></tr>
+<tr><td>CCI 범주가 전체로 관련 있나</td><td>CCI를 뺀 모형</td><td>+ CCI 가변수 3개</td><td class="r">14.62</td><td class="r">3</td><td class="r">0.002</td></tr>
+<tr><td>변수들이 하나라도 관련 있나</td><td>절편만 (1383.40)</td><td>전체 모형 (1306.95)</td><td class="r">76.45</td><td class="r">7</td><td class="r">&lt; 0.001</td></tr>
+</tbody></table></div>
+<p>첫 줄은 1313.58 − 1306.95 = 6.63을 자유도 1인 χ² 분포와 비교한 것입니다. 우도비 검정은 두 모형이 <strong>같은 환자</strong>로 적합되었을 때만 쓸 수 있습니다. 큰 모형에 결측이 있는 변수를 추가하면 분석 인원이 줄어 −2 log L의 차이가 의미를 잃습니다. 논문에서 모형마다 n이 다르면 이 점을 확인합니다.</p>
+
+<h3>Wald, 우도비, 점수 검정</h3>
+<p>"계수 = 0"(또는 p = p₀)을 검정하는 방법은 세 가지가 있습니다. 세 검정 모두 로그우도 곡선을 이용하지만 곡선의 어느 부분을 보느냐가 다릅니다.</p>
+<ul>
+<li><strong>Wald 검정</strong>: 추정값과 그 지점의 곡률(표준오차)만 써서 z = 추정값 ÷ SE를 계산합니다. statsmodels 요약표의 z와 P&gt;|z|가 이것이며, SAS는 z²을 Wald Chi-Square라는 이름으로 출력합니다(1장 마 절). 모형을 한 번만 적합하면 되어 가장 흔히 보고됩니다.</li>
+<li><strong>우도비 검정</strong>: 귀무가설을 넣은 모형과 넣지 않은 모형의 실제 로그우도 차이를 씁니다. 모형을 두 번 적합해야 하지만 가장 믿을 만하다고 평가됩니다.</li>
+<li><strong>점수 검정</strong><span class="en">(score test)</span>: 귀무가설 값에서의 로그우도 기울기(점수)와 곡률만 씁니다. 귀무가설 아래의 모형만 적합하면 됩니다. 2×2 표의 Pearson 카이제곱 검정(5장)은 로지스틱 회귀의 점수 검정과 같고, 로그순위법(7장)은 동점이 없을 때 Cox 모형의 점수 검정과 같습니다.</li>
+</ul>
+<!--FIG:ch08_tests-->
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>상황</th><th class="r">Wald χ² (P)</th><th class="r">우도비 χ² (P)</th><th class="r">점수 χ² (P)</th><th class="r">정확 이항검정 P</th></tr></thead>
+<tbody>
+<tr><td>7/50, H₀: p = 0.05</td><td class="r">3.36 (0.067)</td><td class="r">5.86 (0.016)</td><td class="r">8.53 (0.0035)</td><td class="r">0.012</td></tr>
+<tr><td>7/50, H₀: p = 0.10</td><td class="r">0.66 (0.41)</td><td class="r">0.80 (0.37)</td><td class="r">0.89 (0.35)</td><td class="r">0.34</td></tr>
+<tr><td>코호트 1,500명, 다제약물 계수 = 0</td><td class="r">6.66 (0.0099)</td><td class="r">6.63 (0.0100)</td><td class="r">—</td><td class="r">—</td></tr>
+</tbody></table></div>
+<p>귀무가설 값(0.05)이 추정값(0.14)에서 멀고 표본이 작으면 세 검정이 크게 어긋나, 같은 자료로 "유의하지 않음(Wald)"과 "매우 유의함(점수)"이 동시에 나옵니다. 귀무가설 값이 추정값에 가깝거나(0.10) 표본이 크면(코호트) 세 값이 거의 같습니다. 작은 표본, 드문 사건, 매우 큰 계수(OR이 수십 이상)에서는 Wald 검정이 부정확해지기 쉬우므로 우도비 검정을 함께 확인하는 것이 좋습니다<cite data-ref="hauck1977"></cite>. 신뢰구간도 마찬가지로, 우도비 검정을 뒤집어 만든 <strong>프로파일 우도 신뢰구간</strong><span class="en">(profile likelihood CI)</span>이 작은 표본에서 더 정확합니다. 코호트의 다제약물 OR은 Wald 구간 1.096–1.962, 프로파일 우도 구간 1.096–1.963으로 사실상 같습니다.</p>
+
+<h3>AIC와 BIC</h3>
+<p>내포되지 않은 모형(예: 나이를 연속형으로 넣은 모형과 세 범주로 넣은 모형)은 우도비 검정으로 비교할 수 없습니다. 이때 −2 log L에 계수 개수에 따른 벌점을 더한 정보 기준, 즉 AIC<span class="en">(Akaike information criterion)</span><cite data-ref="akaike1974"></cite>와 BIC<span class="en">(Bayesian information criterion)</span><cite data-ref="schwarz1978"></cite>를 씁니다. 계수를 늘리면 −2 log L은 반드시 줄어드므로, 계수 하나마다 AIC는 2점, BIC는 ln(n)점(1,500명이면 7.3점)을 벌점으로 더해 "적은 계수로 잘 맞는 모형"을 고릅니다. 값이 작을수록 좋은 모형입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>비교</th><th class="r">−2 log L</th><th class="r">계수 수 k</th><th class="r">AIC</th><th class="r">BIC</th></tr></thead>
+<tbody>
+<tr><td>전체 모형 (나이 연속형, CCI 가변수)</td><td class="r">1306.95</td><td class="r">8</td><td class="r">1322.95</td><td class="r">1365.45</td></tr>
+<tr><td>다제약물을 뺀 모형</td><td class="r">1313.58</td><td class="r">7</td><td class="r">1327.58</td><td class="r">1364.77</td></tr>
+<tr><td>나이를 세 범주(65–74, 75–84, ≥85)로 넣은 모형</td><td class="r">1311.41</td><td class="r">9</td><td class="r">1329.41</td><td class="r">1377.23</td></tr>
+<tr><td>CCI를 점수(0–3) 하나로 넣은 모형</td><td class="r">1306.95</td><td class="r">6</td><td class="r">1318.95</td><td class="r">1350.83</td></tr>
+</tbody></table></div>
+<p>나이는 연속형으로 넣은 모형이 범주형보다 AIC가 6.5 작고, CCI는 점수 하나로 넣어도 −2 log L이 거의 같아 계수를 2개 아끼는 만큼 AIC가 4.0 작습니다(사 절). 다제약물을 빼면 AIC는 나빠지지만(1322.95 → 1327.58) BIC는 조금 좋아집니다(1365.45 → 1364.77). BIC의 벌점이 더 커서 작은 모형을 선호하기 때문입니다. AIC의 차이가 2 미만이면 두 모형의 차이가 작다고 보는 경험칙이 흔히 쓰입니다.</p>
+
+<div class="callout warn"><p class="ct">주의 · AIC로 교란변수를 고르지 마세요</p>
+<p>AIC·BIC와 우도비 검정은 "어느 모형이 자료를 더 잘 설명하는가"에 답합니다. 다제약물의 효과를 추정하는 연구에서 다제약물 변수는 BIC가 좋아지든 나빠지든 모형에 들어가야 하고, 교란변수도 마찬가지입니다. 교란변수를 모형 적합도로 고르면 아 절에서 보듯 중요한 교란변수를 빠뜨릴 수 있습니다. 정보 기준은 예측모형을 만들거나 같은 변수를 어떤 형태(연속형, 범주, 곡선)로 넣을지 정할 때 더 알맞은 도구입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 가변수 여러 개로 들어간 변수나 교호작용 항 여러 개를 한 번에 검정할 때는 우도비 검정을 씁니다. 표본이 작거나 사건이 드물거나 OR이 매우 크게 나오면 Wald P와 Wald 구간 대신 우도비 검정과 프로파일 우도 구간을 확인합니다. 같은 변수를 어떤 형태(연속형, 범주, 점수)로 넣을지는 AIC로 비교할 수 있습니다.</li>
+<li><strong>교란과 보정</strong>: 원인 추정 연구에서 보정할 변수는 적합도(우도비 검정, AIC)가 아니라 인과 구조(인과 도표)와 사전 지식으로 분석 전에 정합니다(바·아 절). 우도비 검정으로 비교하는 두 모형은 같은 환자로 적합해야 하므로, 결측이 있는 공변량을 추가할 때는 분석 인원을 맞춥니다(결측자료 처리는 14장 자 절).</li>
+<li><strong>보고할 것</strong>: 검정 방법(Wald인지 우도비인지), χ²와 자유도, 모형 비교라면 두 모형에 들어간 변수와 분석 인원, AIC·BIC를 쓴 경우 값과 차이.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · 로그우도, 우도비 검정, AIC</b><span>가상의 예시 (statsmodels 0.15)</span></div>
+<div class="paper-b">
+<p>다 절에서 적합한 로지스틱 회귀 결과(m)에서 우도와 관련된 값을 꺼내 본 것입니다. statsmodels의 결과 객체는 로그우도(<code>llf</code>), 절편만 있는 모형의 로그우도(<code>llnull</code>), 우도비 χ²(<code>llr</code>)와 그 P(<code>llr_pvalue</code>), <code>aic</code>, <code>bic</code>를 속성으로 가지고 있습니다. 속성 이름과 표시 형식은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; print(f"llf = {m.llf:.3f}, llnull = {m.llnull:.3f}")</span>
+llf = -653.473, llnull = -691.699                          <span class="mk">1</span>
+<span class="cm">&gt;&gt;&gt; print(f"-2LL: {-2 * m.llnull:.3f} -&gt; {-2 * m.llf:.3f}")</span>
+-2LL: 1383.397 -&gt; 1306.946                                 <span class="mk">2</span>
+<span class="cm">&gt;&gt;&gt; print(f"LR chi2 = {m.llr:.2f}, df = {m.df_model:.0f}, P = {m.llr_pvalue:.2e}")</span>
+LR chi2 = 76.45, df = 7, P = 7.27e-14                      <span class="mk">3</span>
+<span class="cm">&gt;&gt;&gt; print(f"AIC = {m.aic:.3f}, BIC = {m.bic:.3f}")</span>
+AIC = 1322.946, BIC = 1365.452                             <span class="mk">4</span>
+
+<span class="cm">&gt;&gt;&gt; from scipy import stats
+&gt;&gt;&gt; m0 = smf.logit("readm ~ age + female + C(cci) + medaid", data=dc).fit(disp=0)
+&gt;&gt;&gt; lr = 2 * (m.llf - m0.llf)
+&gt;&gt;&gt; print(f"LR chi2 = {lr:.3f}, P = {stats.chi2.sf(lr, df=1):.4f}")</span>
+LR chi2 = 6.635, P = 0.0100                                <span class="mk">5</span>
+<span class="cm">&gt;&gt;&gt; print(f"without poly: AIC = {m0.aic:.3f}, BIC = {m0.bic:.3f}")</span>
+without poly: AIC = 1327.581, BIC = 1364.773               <span class="mk">6</span></pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>로그우도.</b> 요약표의 Log-Likelihood(−653.47)와 LL-Null(−691.70)과 같은 값입니다. 음수이며 0에 가까울수록 자료를 잘 설명하는 모형입니다.</span></li>
+<li><span class="mk">2</span><span><b>−2 log L.</b> 절편만 있는 모형 1383.397에서 변수를 넣은 모형 1306.946으로 줄었습니다. 0/1 자료에서는 이 값이 이탈도와 같아서, 같은 모형을 <code>smf.glm(…, family=sm.families.Binomial())</code>으로 적합하면 요약표에 "Deviance: 1306.9"로 나오고(절편만 있는 모형의 값은 <code>null_deviance</code> 속성), SAS에서는 "-2 Log L"이라는 이름으로 나옵니다.</span></li>
+<li><span class="mk">3</span><span><b>모형 전체의 우도비 검정: 1383.397 − 1306.946 = 76.45, 자유도 7.</b> "7개 계수가 모두 0이다"라는 귀무가설을 기각합니다. 이 검정은 모형에 쓸모 있는 변수가 하나라도 있는지를 볼 뿐, 모형이 좋다거나 다제약물의 효과가 있다는 뜻은 아닙니다. 논문의 "The model was significant (P &lt; .001)"는 거의 정보가 없는 문장입니다.</span></li>
+<li><span class="mk">4</span><span><b>AIC = −2 log L + 2k, BIC = −2 log L + k ln n.</b> 계수가 8개(절편, CCI 가변수 3개, 다제약물, 나이, 성별, 의료급여)이므로 AIC = 1306.946 + 2 × 8 = 1322.946, BIC = 1306.946 + 8 × ln 1,500 = 1306.946 + 8 × 7.313 = 1365.452입니다.</span></li>
+<li><span class="mk">5</span><span><b>다제약물에 대한 우도비 검정.</b> 다제약물만 뺀 모형(m0)과 비교해 2 × (−653.473 − (−656.790)) = 6.635, 자유도 1, P = 0.0100입니다. 요약표의 Wald 검정(z = 2.580, z² = 6.66, P = 0.0099)과 거의 같습니다. 두 모형은 같은 1,500명으로 적합했습니다.</span></li>
+<li><span class="mk">6</span><span><b>AIC와 BIC가 다른 모형을 고릅니다.</b> 다제약물을 빼면 AIC는 1322.946에서 1327.581로 나빠지지만 BIC는 1365.452에서 1364.773으로 조금 좋아집니다. BIC의 벌점이 더 크기 때문입니다. 다제약물의 효과를 추정하려는 연구에서는 어느 쪽이든 다제약물을 모형에서 빼지 않습니다(위 주의 상자).</span></li>
+</ol>
+</div></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 계산한 우도비 검정과 AIC가 퇴원 환자 코호트 논문의 Methods와 Results에서는 주로 이런 모습으로 나옵니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 우도비 검정을 쓴 Methods와 Results</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">The overall significance of multicategory variables and interaction terms was assessed using <span class="mk">1</span> <span class="hl">likelihood ratio tests</span>. ... Adding polypharmacy to the model including age, sex, CCI, and Medical Aid improved the model fit (<span class="mk">2</span> <span class="hl">likelihood ratio χ² = 6.63, df = 1, P = 0.010</span>). The CCI was associated with readmission (<span class="mk">3</span> <span class="hl">P = 0.002, 3 df</span>), and modeling the CCI as a linear score did not worsen the fit (<span class="mk">4</span> <span class="hl">P for nonlinearity &gt; 0.99; AIC 1318.9 vs 1322.9</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>범주가 여러 개인 변수의 전체 검정.</b> CCI처럼 가변수 여러 개로 들어간 변수(사 절)나 교호작용 항 여러 개의 계수가 모두 0인지를 한 번에 검정할 때 우도비 검정을 씁니다. 개별 가변수의 P만 보면 기준범주를 무엇으로 했느냐에 따라 결론이 달라집니다.</span></li>
+<li><span class="mk">2</span><span><b>변수 하나를 넣었을 때의 개선.</b> 다제약물을 뺀 모형과 넣은 모형이 자료를 얼마나 잘 설명하는지 비교한 값입니다. 모형이 자료를 못 맞추는 정도(−2 log L)가 1313.58에서 1306.95로 6.63 줄었고, 자유도 1인 χ² 분포에서 P = 0.010입니다(위 '−2 log L과 우도비 검정', 파이썬 출력 5번). 계수표의 Wald P(0.0099)와 거의 같습니다. 이 검정은 연관이 있는지를 보는 것이며, 효과의 크기는 보정 OR 1.47(95% CI 1.10–1.96)로 따로 보고해야 합니다.</span></li>
+<li><span class="mk">3</span><span><b>자유도 3의 전체 P.</b> CCI 가변수 3개를 한꺼번에 뺀 모형과의 비교(χ² = 14.62)입니다. "3 df"를 적어 주면 독자가 가변수 개수를 확인할 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>비선형성 검정과 AIC.</b> CCI를 점수 하나로 넣은 모형은 가변수 모형에 포함되는 더 단순한 모형이므로 우도비 검정(χ² = 0.003, 자유도 2)을 쓸 수 있고, AIC도 함께 제시했습니다. AIC는 작을수록 좋으므로 두 방법 모두 단순한 모형으로 충분하다는 결론입니다(위 'AIC와 BIC', 사 절).</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ L(p) = p^{7}(1-p)^{43}, \qquad \ln L(p) = 7\ln p + 43 \ln(1-p) \]
+<p>50명 중 누가 이상반응을 겪었는지의 경우의 수(이항계수)는 p와 관계없는 상수라서 생략했습니다. 곱하든 안 하든 어느 p에서 값이 가장 큰지는 같습니다.</p></div>
+<p>꼭대기에서의 곡률을 <strong>정보량</strong><span class="en">(information)</span>이라 하고, 표준오차는 정보량의 제곱근의 역수입니다.</p>
+<div class="eq">\[ I(\hat p) = \frac{n}{\hat p(1-\hat p)} = \frac{50}{0.14 \times 0.86} = 415.3, \qquad SE = \frac{1}{\sqrt{415.3}} = 0.049 = \sqrt{\frac{\hat p(1-\hat p)}{n}} \]</div>
+<p>로지스틱 회귀의 로그우도는 환자별 기여를 더한 것입니다.</p>
+<div class="eq">\[ \ln L(\beta) = \sum_{i=1}^{n} \left[ y_i \ln p_i + (1 - y_i)\ln(1 - p_i) \right], \qquad \ln\frac{p_i}{1-p_i} = \beta_0 + \beta_1 x_{1i} + \cdots \]
+<p>재입원한 환자(y = 1)는 ln p<sub>i</sub>만, 재입원하지 않은 환자(y = 0)는 ln(1 − p<sub>i</sub>)만 더해집니다.</p></div>
+<p>우도비 검정과 정보 기준의 식입니다. k는 추정한 계수(절편 포함)의 수, n은 관측값 수입니다.</p>
+<div class="eq">\[ \chi^2_{LR} = (-2\ln L_{\text{작은 모형}}) - (-2\ln L_{\text{큰 모형}}) = 2\,(\ln L_{\text{큰 모형}} - \ln L_{\text{작은 모형}}) \]
+\[ AIC = -2\ln L + 2k, \qquad BIC = -2\ln L + k \ln n \]
+<p>n = 1,500이면 ln n = 7.31이라 BIC는 계수 하나에 AIC보다 3.7배 큰 벌점을 줍니다.</p></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>우도는 자료를 고정하고 후보 값들이 그 자료를 얼마나 잘 설명하는지 나타낸 값이며, 최대우도추정값은 우도를 최대로 만드는 값입니다.</li>
+<li>로그우도 곡선이 뾰족할수록(정보량이 클수록) 표준오차가 작습니다.</li>
+<li>−2 log L(0/1 자료에서는 이탈도)은 작을수록 잘 맞는 모형이며, 내포된 두 모형의 차이가 우도비 검정의 χ²입니다. 두 모형은 같은 환자로 적합해야 합니다.</li>
+<li>Wald, 우도비, 점수 검정은 표본이 크면 비슷하고, 작은 표본이나 극단적인 추정값에서는 어긋나며 이때 우도비 검정이 더 믿을 만합니다.</li>
+<li>AIC·BIC는 내포되지 않은 모형 비교에 쓰며, 원인 추정 연구에서 교란변수를 고르는 기준으로 쓰지 않습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 바 -->
+<section class="sec" id="ch08-s6">
+<h2><span class="sec-no">바.</span>교란변수와 교호작용</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">교란은 비교하는 두 군이 약 말고도 다른 점이 있어서, 그 차이가 약의 효과처럼 보이는 것입니다. 교호작용(효과수정)은 약의 효과 자체가 환자군에 따라 실제로 다른 것입니다.</p>
+<ul>
+<li><b>이야기로 보면.</b> 의사들이 새 약 A를 중증 환자에게 주로 처방했다고 합시다. 중증 환자는 어떤 약을 먹든 입원이 많으므로, 약 A 복용자의 입원이 많아 보이는 것은 약 때문이 아니라 "누가 약 A를 받았는가" 때문일 수 있습니다. 이것이 약물역학에서 가장 흔한 <strong>적응증에 의한 교란</strong>입니다. 중증도가 같은 환자끼리 비교하면, 즉 중증도를 <strong>보정</strong>하면 이 착시를 걷어낼 수 있습니다(중증도를 제대로 측정했을 때).</li>
+<li><b>논문에서는.</b> "crude OR 2.00; adjusted OR 1.47 (adjusted for age, sex, CCI, and Medical Aid)"처럼 나옵니다. "나이, 성별, 동반질환, 의료급여가 같은 환자끼리 비교했을 때 다제약물 환자의 재입원 오즈가 1.47배이고, 보정 전 2.00과의 차이는 주로 이 변수들의 차이에서 온 부분이다"라고 읽습니다. 하위군 분석의 "P for interaction = 0.45"는 "하위군 사이의 효과 차이가 우연으로도 충분히 생길 수 있는 정도라, 효과가 다르다는 근거가 없다"는 뜻입니다. 효과가 같다는 증명은 아닙니다.</li>
+<li><b>기억할 한 가지.</b> 보정은 측정해서 모형에 넣은 변수에만 작동합니다. 청구자료에 없는 중증도, 허약, 흡연으로 생긴 교란은 보정 후에도 남습니다. 그리고 결과와 관련 있다고 아무 변수나 보정하면 오히려 편향이 생길 수 있습니다(매개변수, 충돌변수).</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>교란이 생기는 조건</dt><dd>어떤 변수가 노출(약 선택)과 결과(입원) 모두의 원인일 때. 약물역학에서는 적응증과 질병 중증도, 동반질환, 나이, 사회경제적 상태가 대표적</dd></div>
+  <div><dt>줄이는 방법</dt><dd>설계: 무작위배정, 대상 제한, 짝짓기, 활성 비교군 신규 사용자 설계. 분석: 층화(Mantel–Haenszel), 다변수 회귀, 성향점수(14장 다 절)</dd></div>
+  <div><dt>보정하면 안 되는 변수</dt><dd>노출 이후에 생긴 변수(매개변수), 노출과 결과가 함께 영향을 주는 변수(충돌변수)</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>보정 전(crude)과 보정 후(adjusted) 추정값, 보정 변수 목록과 고른 근거. 효과수정은 층별 추정값과 P for interaction</dd></div>
+</dl>
+
+<p>관찰연구에서 노출군과 비노출군을 비교할 때 가장 먼저 물어야 할 질문은 "두 군이 노출 말고도 다른 점이 있는가"입니다. 두 군의 차이가 결과에 섞여 들어오는 것이 <strong>교란</strong><span class="en">(confounding)</span>이고, 노출의 효과가 다른 변수의 수준에 따라 달라지는 것이 <strong>효과수정</strong><span class="en">(effect modification)</span> 또는 <strong>교호작용</strong><span class="en">(interaction)</span>입니다. 교란은 없애야 할 편향이고, 효과수정은 보고해야 할 사실이라는 점에서 둘은 성격이 전혀 다릅니다<cite data-ref="rothman2008"></cite>.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>적응증에 의한 교란이 숫자에서 어떻게 나타나는지 봅니다. 새 약물 A와 기존 약물 B를 쓰는 환자 각 1,200명의 1년 내 입원을 비교합니다(가상의 예시). 의사들은 중증 환자에게 약물 A를 주로 처방했습니다(A군의 75%, B군의 25%가 중증).</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>층</th><th>약물</th><th class="r">입원 / 인원</th><th class="r">위험</th><th class="r">RR (95% CI)</th><th class="r">OR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td rowspan="2">중증</td><td>A</td><td class="r">288 / 900</td><td class="r">32.0%</td><td class="r" rowspan="2">0.80 (0.68–0.95)</td><td class="r" rowspan="2">0.71 (0.54–0.92)</td></tr>
+<tr><td>B</td><td class="r">120 / 300</td><td class="r">40.0%</td></tr>
+<tr><td rowspan="2">경증</td><td>A</td><td class="r">24 / 300</td><td class="r">8.0%</td><td class="r" rowspan="2">0.80 (0.52–1.23)</td><td class="r" rowspan="2">0.78 (0.49–1.25)</td></tr>
+<tr><td>B</td><td class="r">90 / 900</td><td class="r">10.0%</td></tr>
+<tr class="hi"><td rowspan="2">합침 (보정 전)</td><td>A</td><td class="r">312 / 1,200</td><td class="r">26.0%</td><td class="r" rowspan="2">1.49 (1.27–1.74)</td><td class="r" rowspan="2">1.66 (1.36–2.02)</td></tr>
+<tr class="hi"><td>B</td><td class="r">210 / 1,200</td><td class="r">17.5%</td></tr>
+</tbody></table></div>
+<!--FIG:ch08_simpson-->
+<p>중증 환자끼리, 경증 환자끼리 비교하면 약물 A의 입원 위험이 B의 0.80배로 낮습니다. 그런데 두 층을 합치면 A군의 위험이 26.0%로 B군(17.5%)보다 높아 보입니다. 층마다의 관계와 합친 관계가 반대가 되는 이 현상을 <strong>Simpson의 역설</strong><span class="en">(Simpson's paradox)</span>이라고 합니다. 원인은 단순합니다. 중증 환자의 입원 위험(34%)이 경증 환자(9.5%)보다 훨씬 높은데, A군에 중증 환자가 몰려 있어 합친 비교에는 "약의 차이"와 "중증도의 차이"가 섞였습니다.</p>
+<p>해결 방법은 <strong>같은 층 안에서 비교한 결과를 합치는 것</strong>입니다. 중증 환자끼리의 RR(0.80)과 경증 환자끼리의 RR(0.80)을 층의 크기에 따라 가중 평균해 하나로 요약하는 것이 <strong>Mantel–Haenszel 방법</strong>입니다<cite data-ref="mantel1959"></cite>(식은 '수식으로 보기'). 이 자료에서 Mantel–Haenszel 상대위험도는 0.80(95% CI 0.68–0.94), 오즈비는 0.73(0.57–0.92)으로, 보정 전의 1.49와 1.66과는 방향이 반대입니다. "중증도를 보정한 RR 0.80"은 "중증도가 같은 환자끼리 비교하면 약물 A의 입원 위험이 B의 0.80배"라는 뜻입니다.</p>
+<p>공통 오즈비가 1인지 검정하는 <strong>Cochran–Mantel–Haenszel 검정</strong>은 χ² = 7.24(자유도 1, P = 0.007)입니다(연속성 보정을 하면 6.92, P = 0.009). 5장 다 절에서 언급한 SAS PROC FREQ의 'Mantel-Haenszel Chi-Square'(추세 검정)와 이름이 비슷하지만 다른 검정입니다.</p>
+
+<h3>교란변수를 알아보는 법</h3>
+<p><strong>교란변수</strong><span class="en">(confounder)</span>는 노출과 결과 모두의 원인이 되어, 노출과 결과 사이에 인과관계가 없어도 연관을 만들어 내거나 실제 연관을 가리는 변수입니다. 위 예의 중증도가 그렇습니다. 전통적으로 다음 세 조건으로 판단합니다.</p>
+<ol>
+<li>노출과 관련이 있다 (예: 중증 환자일수록 새 약을 처방받는다).</li>
+<li>노출이 없는 사람들 사이에서도 결과의 위험인자다 (예: 중증 환자는 어떤 약을 쓰든 입원이 많다).</li>
+<li>노출이 결과로 가는 경로의 중간에 있지 않다. 즉, 노출의 결과로 생긴 변수가 아니다.</li>
+</ol>
+<p>세 조건은 판단의 출발점이지만, 변수 사이의 인과 구조를 화살표로 그리는 <strong>인과 도표</strong><span class="en">(directed acyclic graph, DAG)</span>를 쓰면 어떤 변수를 보정해야 하고 어떤 변수는 보정하면 안 되는지 더 분명하게 보입니다<cite data-ref="greenland1999"></cite>. 화살표는 "원인 → 결과"입니다. 노출에서 결과로 가는 정문 경로 말고, 노출로 <em>들어오는</em> 화살표에서 시작해 결과에 닿는 경로(뒷문 경로)가 열려 있으면 교란이 생깁니다. 보정은 이 뒷문을 막는 일입니다.</p>
+<!--FIG:ch08_dag-->
+<ul>
+<li><strong>교란변수(가)</strong>: 질병 중증도 → 약물 선택, 질병 중증도 → 입원. 중증도를 보정(층화, 회귀모형에 포함)하면 뒷문 경로가 막힙니다.</li>
+<li><strong>매개변수(나)</strong><span class="en">(mediator)</span>: 스타틴 → LDL 감소 → 심근경색. LDL을 보정하면 스타틴 효과의 주된 통로를 막아 효과가 작게 추정됩니다. 노출 이후에 측정한 변수는 매개변수일 가능성이 크므로, 공변량은 노출 이전(기저 시점) 값으로 정의합니다.</li>
+<li><strong>충돌변수(다)</strong><span class="en">(collider)</span>: 약물 A 사용 → 입원 ← 질환 X. 두 화살표가 부딪히는 변수입니다. 이 경로는 원래 막혀 있는데, 충돌변수로 보정하거나 대상을 제한하면 오히려 열립니다. 예를 들어 인구 1만 명에서 약물 A 사용(20%)과 질환 X(10%)가 서로 무관(OR 1.0)해도, 두 가지가 각각 입원 확률을 높인다면 입원 환자만 모은 자료에서는 약물 A 사용자 중 질환 X가 19.2%, 비사용자 중 50.0%로 OR 0.24의 '보호 효과'가 나타납니다. 병원 기반 연구의 Berkson 편향이 이것입니다<cite data-ref="hernan2004"></cite>.</li>
+</ul>
+
+<h3>층화에서 회귀모형으로</h3>
+<p>퇴원 환자 코호트에서 다제약물 환자의 30일 재입원 위험은 23.4%로 10개 미만 환자(13.3%)보다 높았고, 보정 전 OR은 2.00이었습니다. 이 차이가 약이 많아서 생긴 것인지, 다제약물 환자가 원래 더 나이 들고 아픈 환자라서 생긴 것인지를 따지는 것이 보정입니다. 다제약물 환자는 CCI가 높은 경우가 많았으므로(CCI 0: 25%, 1–2: 37%, 3–4: 51%, ≥5: 77%가 다제약물) CCI로 층화해 봅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>CCI 층</th><th class="r">다제약물: 재입원/인원</th><th class="r">10개 미만: 재입원/인원</th><th class="r">층별 OR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>0</td><td class="r">20 / 108</td><td class="r">28 / 322</td><td class="r">2.39 (1.28–4.44)</td></tr>
+<tr><td>1–2</td><td class="r">44 / 222</td><td class="r">49 / 374</td><td class="r">1.64 (1.05–2.56)</td></tr>
+<tr><td>3–4</td><td class="r">46 / 177</td><td class="r">33 / 172</td><td class="r">1.48 (0.89–2.46)</td></tr>
+<tr><td>≥5</td><td class="r">31 / 96</td><td class="r">9 / 29</td><td class="r">1.06 (0.43–2.60)</td></tr>
+<tr class="hi"><td>Mantel–Haenszel</td><td class="r" colspan="2"></td><td class="r">1.63 (1.23–2.16)</td></tr>
+<tr><td>로지스틱 회귀 (다제약물 + CCI 가변수)</td><td class="r" colspan="2"></td><td class="r">1.64 (1.24–2.18)</td></tr>
+</tbody></table></div>
+<p>CCI만 보정해도 OR이 2.00에서 1.63으로 줄었고, 같은 변수를 넣은 로지스틱 회귀의 결과(1.64)와 거의 같습니다. 층별 OR이 2.39에서 1.06까지 달라 보이지만 층마다 구간이 넓고, 층별 OR이 같다는 가설의 검정(Woolf 검정) P = 0.48이라 우연으로 설명할 수 있는 차이입니다. 층화는 원리가 투명하지만 변수가 늘면 층이 기하급수적으로 늘어납니다. CCI 4범주 × 의료급여 2범주 × 성별 2범주 × 나이 5범주만 해도 80개 층이고, 많은 층이 비거나 사건이 없어집니다. 여러 교란변수를 한꺼번에 보정하려면 회귀모형이 필요하며, 나이·성별·CCI·의료급여를 모두 넣은 로지스틱 회귀의 OR은 1.47이었습니다(다 절).</p>
+
+<h4>보정한 값은 무엇을 뜻하나</h4>
+<p>보정 OR 1.47은 "나이, 성별, CCI, 의료급여가 모두 같은 두 환자를 비교했을 때 다제약물 환자의 재입원 오즈가 1.47배"라는 뜻입니다. 원리는 층화와 같습니다. 층을 직접 나누는 대신 회귀모형이 "다른 변수가 같다면"이라는 비교를 계산해 줍니다. 보정 전 2.00에서 1.47로 줄어든 부분은 주로 두 군의 나이, 동반질환, 의료급여 차이 때문에 생긴 부분입니다(오즈비는 비붕괴성 때문에 조금 달라지기도 합니다. 아래 심화 상자). 그러나 1.47이 곧 "약 때문에 생긴 효과"라는 보장은 없습니다. 모형에 넣지 않은 차이(허약, 이번 입원의 중증도)는 그대로 남아 있고, 모형의 형태(나이를 직선으로 넣은 것 등)가 틀렸을 수도 있기 때문입니다.</p>
+
+<div class="callout deep"><p class="ct">심화 · 층별 상대위험도는 같은데 오즈비는 왜 다른가</p>
+<p>약물 A·B 표에서 두 층의 RR은 0.80으로 정확히 같지만 OR은 0.71과 0.78로 다릅니다. 교란도 효과수정도 아닌, 오즈비라는 지표 자체의 성질 때문입니다. 나 절에서 본 것처럼 같은 RR이라도 기저위험이 높은 층(중증)에서 OR이 1에서 더 멀어집니다. 같은 이유로 오즈비는 교란변수가 아닌 변수로 보정해도 값이 바뀔 수 있는데, 이를 오즈비의 <strong>비붕괴성</strong><span class="en">(non-collapsibility)</span>이라고 합니다. 무작위배정 시험에서 예후 인자를 보정하면 보정 전보다 OR이 1에서 조금 멀어지는 것이 대표적인 예입니다. 상대위험도와 위험차에는 이런 성질이 없습니다. "보정하니 OR이 바뀌었다"를 곧바로 "교란이 있었다"로 읽으면 안 되는 이유이며, 결과가 흔할수록 차이가 커집니다.</p></div>
+
+<div class="callout tip"><p class="ct">사회약학 연구에서는 · 적응증에 의한 교란과 잔여 교란</p>
+<p>약물역학에서 가장 흔하고 다루기 어려운 교란은 <strong>적응증에 의한 교란</strong><span class="en">(confounding by indication)</span>입니다<cite data-ref="walker1996"></cite>. 약은 필요한 환자에게 처방되므로, 약을 쓴 환자는 원래 병이 더 심하거나 위험이 높습니다(위의 약물 A 예, 6장 라 절의 항고혈압제 계열 수 예). 청구자료에는 혈압, 검사 수치, 흡연, 중증도, 허약 같은 정보가 없어 모형으로 보정할 수 없는 부분이 남는데, 이것이 <strong>잔여 교란</strong><span class="en">(residual confounding)</span>입니다. 설계로 줄이는 방법이 비교 대상을 같은 적응증의 다른 약으로 정하고 약을 새로 시작한 사람만 비교하는 <strong>활성 비교군 신규 사용자 설계</strong><span class="en">(active comparator, new user design)</span>입니다<cite data-ref="ray2003"></cite><cite data-ref="lund2015"></cite>. 같은 적응증으로 처방받는 두 약을 비교하면 "약이 필요한 환자인가"라는 차이가 상당 부분 사라집니다. 성향점수 방법(14장 다 절)은 측정한 교란변수를 효율적으로 보정하는 도구일 뿐, 측정하지 않은 교란까지 없애 주지는 않습니다. "성향점수 매칭으로 두 군의 특성이 같아졌으므로 편향이 없다"는 해석은 틀립니다. 매칭 후 Table 1에서 균형을 이룬 것은 측정한 변수뿐입니다.</p></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 보정은 많이 할수록 좋다</p>
+<p><span class="wrong">결과와 관련된 변수는 모두 보정해야 정확한 효과를 얻는다.</span> 노출 이후에 생긴 매개변수(퇴원 후 약물 이상반응, 추적 중 순응도), 충돌변수(입원 여부로 대상 제한), 노출의 결과로 달라지는 검사값을 보정하면 오히려 편향이 생깁니다<cite data-ref="schisterman2009"></cite>. 보정할 변수는 "결과와 관련 있는가"가 아니라 "노출과 결과의 공통 원인인가(또는 그 대리 변수인가)"로 고릅니다(아 절).</p></div>
+
+<h3>교호작용과 효과수정</h3>
+<p>교란이 "비교가 공정하지 않아서 생기는 착시"라면, 효과수정은 "실제로 환자에 따라 효과가 다른 것"입니다. 신장으로 배설되는 약의 효과가 신기능에 따라 다르거나, 같은 예방 치료의 이득이 고위험군에서 더 큰 경우가 그렇습니다. 역학에서는 "층마다 효과가 다르다"는 뜻으로 효과수정을, 통계에서는 회귀모형의 곱셈항으로 교호작용을 주로 말하지만, 논문에서는 거의 같은 뜻으로 섞어 씁니다. 중요한 것은 <strong>어떤 척도에서 다른가</strong>입니다.</p>
+<!--FIG:ch08_scale-->
+<p>약물 A의 예에서 두 층의 RR은 모두 0.80이므로 비(곱셈 척도)로 보면 효과수정이 없습니다. 그러나 위험차는 중증 환자에서 −8.0%p(100명당 8명 감소), 경증 환자에서 −2.0%p(100명당 2명 감소)로 차(덧셈 척도)로 보면 효과가 다릅니다(차이의 검정 P = 0.11). 상대적 효과가 같아도 기저위험이 높은 집단에서 절대적 이득이 큰 것은 나 절에서 본 성질 그대로입니다. 로지스틱·Cox·포아송 모형의 교호작용 검정은 곱셈 척도의 검정이므로 "교호작용이 없었다"는 결론은 "비가 같았다"는 뜻일 뿐, 절대적 이득이 같다는 뜻이 아닙니다. 공중보건적 판단(누구를 먼저 치료할까)에는 덧셈 척도가 더 직접적이라 두 척도를 모두 보고하도록 권고됩니다<cite data-ref="knol2012"></cite>.</p>
+<p>회귀모형에서는 노출과 수정인자를 곱한 변수(교호작용 항)를 추가합니다. 이 항의 계수를 지수함수로 바꾼 값은 "두 하위군 OR의 비"이고, 그 검정이 곱셈 척도의 교호작용 검정입니다(식은 '수식으로 보기'). 교호작용 항이 있는 모형에서 노출의 계수 하나만 떼어 "노출의 효과"로 보고하면 안 됩니다. 그 값은 수정인자가 0(기준)인 사람들에서의 효과일 뿐이기 때문입니다(6장 라 절).</p>
+<p>퇴원 환자 코호트에서 다제약물 × CCI 곱셈항 3개를 전체 모형에 추가하면 우도비 χ² = 1.19(자유도 3), P = 0.76으로, CCI 수준에 따라 다제약물의 OR이 다르다는 근거는 없습니다. 위 층별 OR의 차이(2.39–1.06)가 우연으로 설명된다는 Woolf 검정의 결론과 같습니다.</p>
+
+<h3>하위군 분석과 P for interaction</h3>
+<p>임상시험 논문의 하위군 분석은 효과수정을 보여 주는 가장 흔한 형태입니다. 1장 다 절에서 본 것처럼, 하위군마다 따로 P 값을 구해 "A 하위군에서는 유의하고 B 하위군에서는 유의하지 않았다"고 비교하는 것은 틀린 방법입니다. 두 하위군의 효과가 다른지는 두 추정값의 차이를 직접 검정해야 하고<cite data-ref="altman2003int"></cite>, 이것이 논문의 <strong>P for interaction</strong>(P for heterogeneity)입니다. 회귀모형의 교호작용 항 검정과 같습니다.</p>
+<p>하위군 분석은 대부분 검정력이 낮고(교호작용을 검출하려면 주효과를 검출할 때보다 몇 배 큰 표본이 필요합니다), 여러 하위군을 보면 우연히 하나쯤 P for interaction이 작게 나옵니다. 그래서 하위군 결과는 미리 계획했는지, 몇 개를 봤는지, 생물학적으로 그럴듯한지, 다른 연구에서도 재현되는지를 함께 따져 신중하게 해석합니다<cite data-ref="sun2010"></cite>.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 하위군 분석의 포레스트 플롯</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>약물 X와 위약을 1,000명씩 비교한 무작위배정 시험의 1년 내 입원에 대한 하위군 분석입니다.</p>
+<!--FIG:ch08_forest-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>먼저 전체 결과를 봅니다.</b> 전체 RR 0.75(0.62–0.91)가 이 시험의 주 결과입니다. 하위군 분석은 이 효과가 환자 특성에 따라 뚜렷하게 다른지 확인하는 보조 분석이며, 기본 가정은 "모든 하위군의 효과가 전체 효과와 비슷하다"입니다.</span></li>
+<li><span class="mk">2</span><span><b>나이: 65세 미만만 유의해 보이지만 P for interaction = 0.45.</b> 65세 미만의 RR 0.69는 구간이 1을 포함하지 않고(P = 0.014), 65세 이상의 0.80은 1을 포함합니다(P = 0.08). 그러나 두 RR의 비는 0.69/0.80 = 0.86이고 이 차이는 우연으로 충분히 설명됩니다. "고령자에게는 효과가 없다"는 결론은 틀립니다. 성별(P = 0.41)과 당뇨병(P = 0.97)도 마찬가지입니다.</span></li>
+<li><span class="mk">3</span><span><b>eGFR: P for interaction = 0.002.</b> eGFR ≥60에서 RR 0.59(0.46–0.76), &lt;60에서 1.09(0.81–1.48)로 효과가 다를 가능성이 있는 유일한 하위군입니다. 신장으로 배설되는 약이라면 그럴듯한 설명이 있겠지만, 네 개의 하위군을 봤고(다중비교, 1장 다 절) 사후에 정한 구분인지도 확인해야 합니다. 이 결과만으로 신기능 저하 환자에게 쓰지 말라고 권고하기보다는 확인할 가설로 다룹니다.</span></li>
+<li><span class="mk">4</span><span><b>events/N 열과 네모의 크기.</b> 각 하위군의 사건 수와 인원이 있어 RR을 직접 검산할 수 있습니다(65세 미만: (62/480) ÷ (88/470) = 0.69). 네모가 작을수록 인원이 적고 구간이 넓습니다.</span></li>
+<li><span class="mk">5</span><span><b>방향 표시와 로그 눈금.</b> 1의 왼쪽이 약물 X에 유리한 쪽입니다. 눈금이 로그 척도라 0.5와 2가 1에서 같은 거리에 있습니다(다 절). 방향 표시가 결과변수(좋은 사건인지 나쁜 사건인지)와 맞는지 확인합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>설계로 먼저 줄이기</strong>: 청구자료 연구라면 같은 적응증의 다른 약과 비교하고(활성 비교군), 약을 새로 시작한 사람만 포함하며(신규 사용자), 모든 공변량을 약 시작일 이전의 일정 기간(예: 1년)에서 정의합니다<cite data-ref="lund2015"></cite>. 어떤 분석 기법보다 이 선택이 교란을 크게 줄입니다.</li>
+<li><strong>보정할 변수는 분석 전에 인과 도표로 고릅니다</strong>: ① 노출, 결과, 시간 순서를 정합니다. ② 임상 지식과 선행연구로 "약 선택과 결과 모두에 영향을 주는 요인" 후보를 적습니다. ③ 인과 도표를 그리고, 노출로 들어오는 뒷문 경로를 모두 막는 변수들을 고릅니다. 도표가 불확실할 때는 "노출이나 결과(또는 둘 다)의 원인인 기저 시점 변수를 보정한다"는 원칙이 실용적입니다. ④ 직접 측정하지 못한 교란변수는 대리 변수(예: 허약 대신 이전 입원 횟수와 의료이용량, 중증도 대신 병용약 수)로라도 넣습니다<cite data-ref="vanderweele2019"></cite>. 결과와의 P 값으로 고르지 않습니다(아 절).</li>
+<li><strong>보정하면 안 되는 것</strong>: 노출 이후에 생긴 변수(추적 중 순응도, 퇴원 후 이상반응, 치료 후 검사값)는 매개변수일 가능성이 큽니다. 입원 여부처럼 노출과 결과가 함께 영향을 주는 변수로 보정하거나 대상을 제한하면 충돌변수 편향이 생깁니다. 처방 의사의 선호처럼 약 선택에만 영향을 주고 결과와는 무관한 변수를 넣으면 정밀도가 떨어지고 측정하지 않은 교란의 편향이 오히려 커질 수 있습니다.</li>
+<li><strong>보정 방법</strong>: 교란변수가 한두 개면 층화와 Mantel–Haenszel 방법(이 절), 여러 개면 다변수 회귀(선형 6장, 로지스틱 9장, Cox 11장, 포아송 12장), 교란변수가 많은데 사건이 적으면 성향점수 방법(14장 다 절)을 씁니다.</li>
+<li><strong>보정으로 해결되지 않는 것</strong>: 측정하지 않은 교란(청구자료의 허약, 흡연, 검사 수치, 질병 중증도), 교란변수의 측정 오류, 연속형 교란변수를 거칠게 범주화해 남은 교란(사 절 결과표 6번 해설)은 어떤 모형으로도 없어지지 않습니다. 설계(활성 비교군), 추가 자료 연계, 민감도 분석으로 대응하고 Discussion에 한계로 적습니다.</li>
+<li><strong>교호작용</strong>: 효과가 다를 것으로 예상되는 소수의 하위군을 미리 정하고, 층별 추정값과 P for interaction을 함께 보고합니다. 가능하면 비(곱셈 척도)와 차(덧셈 척도)를 모두 제시합니다.</li>
+<li><strong>보고할 것</strong>: 보정 전·후 추정값과 95% CI, 보정 변수 목록과 고른 근거(인과 도표는 부록 그림), 공변량의 측정 기간, 하위군 분석을 사전에 계획했는지.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>지금까지 본 층화와 회귀모형의 보정이 관찰연구의 주 결과표에서는 어떻게 정리되는지 봅니다. 이런 표는 보통 보정 전 추정값과, 보정 변수를 단계적으로 늘린 추정값을 나란히 보여 줍니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 보정 전과 보정 후 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Polypharmacy at discharge and 30-day readmission</caption>
+<thead><tr><th></th><th class="r">&lt;10 drugs<br>(n = 897)</th><th class="r">Polypharmacy, ≥10 drugs<br>(n = 603)</th></tr></thead>
+<tbody>
+<tr><td><span class="mk">1</span> Readmissions, n (%)</td><td class="r">119 (13.3)</td><td class="r">141 (23.4)</td></tr>
+<tr class="grp"><td colspan="3">Odds ratio (95% CI)</td></tr>
+<tr><td class="ind"><span class="mk">2</span> Crude</td><td class="r">1 (Reference)</td><td class="r">2.00 (1.52–2.61)</td></tr>
+<tr><td class="ind"><span class="mk">3</span> Stratified by CCI (Mantel–Haenszel)</td><td class="r">1 (Reference)</td><td class="r">1.63 (1.23–2.16)</td></tr>
+<tr><td class="ind">Model 1: age, sex</td><td class="r">1 (Reference)</td><td class="r">1.88 (1.43–2.47)</td></tr>
+<tr><td class="ind"><span class="mk">4</span> Model 2: Model 1 + CCI</td><td class="r">1 (Reference)</td><td class="r">1.65 (1.24–2.19)</td></tr>
+<tr><td class="ind"><span class="mk">5</span> Model 3: Model 2 + Medical Aid</td><td class="r">1 (Reference)</td><td class="r">1.47 (1.10–1.96)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">CCI, Charlson Comorbidity Index (0, 1–2, 3–4, ≥5). Age was modeled as a continuous variable.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정 전 위험.</b> 141/603 = 23.4%, 119/897 = 13.3%. 이 숫자에서 바로 보정 전 RR 1.76과 OR 2.00을 계산할 수 있습니다. 재입원이 흔하므로 아래 OR들은 RR보다 1에서 멀리 있다는 점을 염두에 둡니다(나 절).</span></li>
+<li><span class="mk">2</span><span><b>Crude OR 2.00.</b> 다제약물 환자와 10개 미만 환자를 있는 그대로 비교한 값이라, 약의 수 말고 두 군의 나이, 동반질환, 경제적 형편 차이가 모두 섞여 있습니다. 관찰연구에서 이 값을 효과로 해석하지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>층화로 보정한 값.</b> CCI 네 층 안에서 따로 비교한 뒤 합친 Mantel–Haenszel OR로(위 '층화에서 회귀모형으로'), CCI를 가변수로 넣은 로지스틱 회귀(1.64)와 거의 같습니다. 층화와 회귀모형이 같은 일을 한다는 것을 보여 줍니다.</span></li>
+<li><span class="mk">4</span><span><b>단계별 변화로 교란의 크기를 가늠합니다.</b> 나이·성별 보정(1.88)은 보정 전과 큰 차이가 없지만 CCI를 더하자 1.65로 줄었습니다. 동반질환이 많은 환자가 약도 많이 받고 재입원도 많았다는 뜻입니다. 다만 단계별 변화량을 "CCI가 교란의 몇 %를 설명한다"로 나누어 읽는 것은 변수를 넣는 순서에 따라 값이 달라지므로 조심해야 합니다. 오즈비의 비붕괴성(위 심화 상자)도 변화의 일부를 만듭니다.</span></li>
+<li><span class="mk">5</span><span><b>주 결과: 미리 정한 교란변수를 모두 보정한 1.47.</b> "나이, 성별, CCI, 의료급여가 모두 같은 두 환자를 비교했다면 다제약물 환자의 재입원 오즈가 1.47배"라는 뜻입니다. 의료급여를 더하자 1.65에서 1.47로 줄었습니다. 의료급여 수급자는 다제약물이 많고(52% 대 38%) 나이와 CCI가 같다면 재입원 위험도 높았기 때문입니다(아 절). 청구자료에 없는 허약, 인지기능, 이번 입원의 중증도 같은 교란은 보정되지 않았으므로 1.47에도 잔여 교란이 남아 있을 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<p>층 i의 표를 \(a_i, b_i, c_i, d_i\)(노출군 사건·비사건, 비노출군 사건·비사건), 층의 인원을 \(N_i\), 노출군과 비노출군 인원을 \(n_{1i}\), \(n_{0i}\)라 하면 Mantel–Haenszel 추정값은 다음과 같습니다. 층마다의 비교를 층 크기로 가중해 합친 것입니다.</p>
+<div class="eq">\[ OR_{MH} = \frac{\sum_i a_i d_i / N_i}{\sum_i b_i c_i / N_i} = \frac{288 \times 180/1200 + 24 \times 810/1200}{612 \times 120/1200 + 276 \times 90/1200} = \frac{43.2 + 16.2}{61.2 + 20.7} = 0.73 \]
+\[ RR_{MH} = \frac{\sum_i a_i n_{0i} / N_i}{\sum_i c_i n_{1i} / N_i} = \frac{288 \times 300/1200 + 24 \times 900/1200}{120 \times 900/1200 + 90 \times 300/1200} = \frac{72 + 18}{90 + 22.5} = 0.80 \]</div>
+<p>교호작용 항이 있는 로지스틱 모형입니다(E는 노출, M은 수정인자, 둘 다 0/1).</p>
+<div class="eq">\[ \ln\frac{p}{1-p} = \beta_0 + \beta_1 E + \beta_2 M + \beta_3 (E \times M) \]
+<p>M = 0인 사람에서 노출의 OR은 \(e^{\beta_1}\), M = 1인 사람에서는 \(e^{\beta_1 + \beta_3}\)입니다. \(e^{\beta_3}\)은 두 OR의 비이고, β₃ = 0의 검정이 곱셈 척도의 교호작용 검정입니다.</p></div>
+<p>두 하위군의 비를 직접 비교하는 검정입니다.</p>
+<div class="eq">\[ z = \frac{\ln RR_1 - \ln RR_2}{\sqrt{SE_1^2 + SE_2^2}} \]
+<p>SE는 각 하위군의 로그 척도 표준오차입니다. 회귀모형에서는 곱셈항 β₃의 검정과 같습니다.</p></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>교란변수는 노출과 결과의 공통 원인으로, 보정하지 않으면 연관의 크기와 방향까지 왜곡할 수 있습니다(Simpson의 역설). 약물역학에서는 적응증에 의한 교란이 가장 흔합니다.</li>
+<li>보정은 "교란변수가 같은 사람끼리 비교한다"는 뜻입니다. 층화와 Mantel–Haenszel 방법은 층 안의 비교를 합치고, 여러 변수를 보정할 때는 회귀모형을 씁니다.</li>
+<li>보정할 변수는 인과 도표와 사전 지식으로 분석 전에 고릅니다. 매개변수와 충돌변수, 노출 이후에 생긴 변수는 보정하지 않습니다.</li>
+<li>보정은 측정한 교란변수에만 작동합니다. 청구자료 연구에는 잔여 교란이 남고, 성향점수 방법도 이를 없애지 못합니다. 활성 비교군 신규 사용자 설계가 가장 먼저 쓸 도구입니다.</li>
+<li>효과수정은 척도에 따라 달라지므로 비와 차 중 어느 척도에서 본 것인지 밝히고, 하위군 차이는 P for interaction으로 판단합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 사 -->
+<section class="sec" id="ch08-s7">
+<h2><span class="sec-no">사.</span>가변수의 설정</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">가변수는 "해당하면 1, 아니면 0"으로 범주를 숫자로 바꾼 변수입니다. 범주가 k개면 k − 1개를 만들고, 빠진 하나(기준범주)와 비교한 값이 결과로 나옵니다.</p>
+<ul>
+<li><b>비유.</b> 설문지의 체크 칸과 같습니다. CCI 범주가 네 개라면 "1–2점인가?", "3–4점인가?", "5점 이상인가?" 세 칸만 있으면 됩니다. 세 칸이 모두 비어 있으면 CCI 0점이므로 네 번째 칸은 필요 없습니다.</li>
+<li><b>논문에서는.</b> 표에 "CCI 0, 1 (Reference)"와 "CCI 3–4, OR 1.88 (1.23–2.88)"이 있으면 "다른 변수가 같을 때 CCI 3–4점 환자의 재입원 오즈가 CCI 0점 환자의 1.88배"로 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 각 가변수의 OR과 P는 기준범주와의 비교일 뿐입니다. "CCI가 재입원과 관련 있는가"는 가변수들을 한꺼번에 검정한 전체 P로 판단합니다.</li>
+</ul>
+</div>
+
+<p>회귀모형에는 숫자만 넣을 수 있으므로 CCI 범주(0, 1–2, 3–4, ≥5), 약물 계열, 요양기관 종별 같은 범주형 변수는 0과 1로 된 <strong>가변수</strong><span class="en">(dummy variable, indicator variable)</span>로 바꿔 넣습니다. 6장 라 절에서 요양기관 종별로 기본 원리를 보았고, 4장 다 절에서 분산분석이 가변수를 넣은 회귀분석과 같다는 것을 보았습니다. 이 절에서는 로지스틱 회귀에서 가변수를 만들고 읽는 방법, 기준범주를 고르는 요령, 순서형 변수를 범주와 점수 중 어느 쪽으로 넣을지를 다룹니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>CCI 네 범주는 가변수 세 개로 표현됩니다. 가변수가 모두 0인 범주가 <strong>기준범주</strong><span class="en">(reference category)</span>입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th>CCI 범주</th><th class="r">cci1-2</th><th class="r">cci3-4</th><th class="r">cci5+</th><th class="r">인원 (재입원)</th></tr></thead>
+<tbody>
+<tr class="hi"><td>0 (기준범주)</td><td class="r">0</td><td class="r">0</td><td class="r">0</td><td class="r">430 (48)</td></tr>
+<tr><td>1–2</td><td class="r">1</td><td class="r">0</td><td class="r">0</td><td class="r">596 (93)</td></tr>
+<tr><td>3–4</td><td class="r">0</td><td class="r">1</td><td class="r">0</td><td class="r">349 (79)</td></tr>
+<tr><td>≥5</td><td class="r">0</td><td class="r">0</td><td class="r">1</td><td class="r">125 (40)</td></tr>
+</tbody></table></div>
+<p>각 가변수의 e<sup>β</sup>는 "다른 변수가 같을 때 그 범주의 오즈 ÷ 기준범주의 오즈"입니다. 다 절 파이썬 출력의 C(cci)[T.3-4] 계수 0.632는 CCI 3–4점 환자의 재입원 오즈가 CCI 0점 환자의 e<sup>0.632</sup> = 1.88배라는 뜻입니다.</p>
+<p>가변수를 네 개 모두 만들어 절편과 함께 넣으면 네 가변수의 합이 항상 1이라 절편과 완전히 겹치므로(완전 다중공선성) 계수를 추정할 수 없습니다. 이것을 <strong>가변수 함정</strong><span class="en">(dummy variable trap)</span>이라 하며, 대부분의 프로그램은 범주형 변수로 지정하면 한 범주를 자동으로 기준범주로 빼 줍니다.</p>
+
+<h3>기준범주를 바꾸면 무엇이 달라지나</h3>
+<p>같은 모형을 기준범주만 바꿔 세 번 적합했습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>CCI 범주</th><th class="r">기준 = 0</th><th class="r">기준 = 1–2</th><th class="r">기준 = ≥5</th></tr></thead>
+<tbody>
+<tr><td>0</td><td class="r">1 (기준)</td><td class="r">0.73 (0.50–1.08), P = 0.12</td><td class="r">0.38 (0.22–0.66), P &lt; 0.001</td></tr>
+<tr><td>1–2</td><td class="r">1.36 (0.92–2.01), P = 0.12</td><td class="r">1 (기준)</td><td class="r">0.52 (0.33–0.83), P = 0.006</td></tr>
+<tr><td>3–4</td><td class="r">1.88 (1.23–2.88), P = 0.004</td><td class="r">1.38 (0.98–1.95), P = 0.07</td><td class="r">0.72 (0.45–1.15), P = 0.17</td></tr>
+<tr><td>≥5</td><td class="r">2.61 (1.52–4.48), P &lt; 0.001</td><td class="r">1.91 (1.20–3.05), P = 0.006</td><td class="r">1 (기준)</td></tr>
+<tr class="hi"><td>다제약물 OR (SE of β)</td><td class="r">1.467 (0.1485)</td><td class="r">1.467 (0.1485)</td><td class="r">1.467 (0.1485)</td></tr>
+<tr class="hi"><td>−2 log L</td><td class="r">1306.95</td><td class="r">1306.95</td><td class="r">1306.95</td></tr>
+</tbody></table></div>
+<p>기준범주를 바꾸면 <strong>가변수의 계수, 신뢰구간, 개별 P 값은 모두 바뀝니다.</strong> 비교하는 대상이 바뀌기 때문입니다. 그러나 <strong>모형 자체는 같습니다.</strong> 다른 변수(다제약물)의 추정값과 표준오차, −2 log L, 환자별 예측 확률은 그대로이고, 범주끼리의 비도 일정합니다. 기준 = 0 열에서 3–4와 1–2의 비 1.881 ÷ 1.364 = 1.38이 기준 = 1–2 열의 3–4 값과 같습니다. 기준을 바꿔도 새로 얻는 정보는 "다른 쌍의 신뢰구간과 P"뿐입니다.</p>
+<p>기준범주는 다음 순서로 고릅니다.</p>
+<ul>
+<li><strong>해석이 자연스러운 범주</strong>: 가장 건강한 범주(CCI 0), 비노출(약물 미사용), 표준 치료, 가장 흔한 범주.</li>
+<li><strong>인원과 사건이 충분한 범주</strong>: CCI ≥5(125명)처럼 작은 범주를 기준으로 하면 모든 비교가 그 작은 범주의 불확실성을 떠안아 구간이 넓어집니다. 위 표의 세 번째 열이 그 예입니다.</li>
+<li><strong>미리 정한 범주</strong>: 결과를 보고 가장 극적인 비교가 나오도록 기준을 바꾸면 안 됩니다.</li>
+</ul>
+
+<h3>순서형 변수는 범주로 넣을까, 점수로 넣을까</h3>
+<p>CCI 범주처럼 순서가 있는 변수는 두 가지 방식으로 넣을 수 있습니다. 가변수 세 개로 넣으면 범주 사이의 모양에 아무 제약이 없고, 범주 번호(0, 1, 2, 3)를 연속형 변수 하나로 넣으면 "한 단계 올라갈 때마다 로그 오즈가 같은 만큼 증가한다", 즉 오즈가 매 단계 같은 배수로 커진다는 선형 추세를 가정합니다.</p>
+<!--FIG:ch08_dummy-->
+<p>점수로 넣은 모형에서 CCI 한 단계당 OR은 1.38(1.17–1.62), P &lt; 0.001입니다. 이 P가 논문에서 흔히 보는 <strong>P for trend</strong>입니다(5장 다 절의 추세 검정을 회귀모형으로 옮긴 것). 가변수 모형과 점수 모형은 내포 관계라 우도비 검정으로 비교할 수 있는데, χ² = 0.003(자유도 2), P &gt; 0.99로 선형 추세에서 벗어난다는 근거가 없습니다. 이 자료에서는 추정할 계수를 2개 아끼는 점수 모형도 적절합니다(마 절의 AIC 비교). 반대로 범주들의 OR이 U자나 계단 모양이라면 점수 하나로 요약하면 안 됩니다.</p>
+<p>순서가 <strong>없는</strong> 명목형 변수에 1, 2, 3 같은 번호를 매겨 연속형으로 넣는 것은 흔하지만 명백한 오류입니다. 의료보장 유형을 "1 = 직장가입자, 2 = 지역가입자, 3 = 의료급여"로 코딩해 숫자 그대로 넣으면, 모형은 "지역가입자의 로그 오즈가 정확히 직장가입자와 의료급여의 중간"이라고 가정하게 되고 계수는 "번호가 1 늘 때"라는 의미 없는 값이 됩니다. 명목형 변수는 반드시 가변수로 넣습니다.</p>
+
+<h3>변수 전체의 P는 결합 검정으로</h3>
+<p>"CCI가 재입원과 관련 있는가"라는 질문에는 가변수 하나하나의 P가 아니라 세 계수가 모두 0이라는 귀무가설을 한꺼번에 검정해 답합니다. 우도비 검정(CCI를 뺀 모형과 비교)은 χ² = 14.62(자유도 3), P = 0.002이고, 세 계수의 Wald 결합 검정은 χ² = 14.57(자유도 3), P = 0.002입니다. 개별 가변수의 P는 기준범주에 따라 0.12가 되기도 하고 0.004가 되기도 하지만, 결합 검정의 P는 기준범주와 관계없이 같습니다. 선형회귀에서는 같은 역할을 F 검정이 합니다(6장 라 절). 파이썬에서는 CCI를 뺀 모형과 넣은 모형의 로그우도로 우도비 검정을 직접 계산하거나(마 절의 파이썬 출력), 결과 객체의 <code>wald_test()</code>로 Wald 결합 검정을 합니다. SAS는 "Type 3 Analysis of Effects" 표에 이 검정을 출력합니다.</p>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 명목형 변수(약물 계열, 요양기관 종별, 의료보장 유형)는 반드시 가변수로 넣습니다. 순서형 변수는 가변수(모양 제약 없음)와 점수(선형 추세) 중에서 고르고, 두 모형의 우도비 검정이나 AIC로 선형 추세가 맞는지 확인합니다. 기준범주는 해석이 자연스럽고 인원이 충분한 범주로 분석 전에 정합니다. 노출 자체가 범주형이면(약물 계열 A, B, C) 기준범주가 곧 비교 대상이므로 연구 질문에 맞는 활성 비교군을 기준으로 둡니다.</li>
+<li><strong>교란과 보정</strong>: 나이 같은 연속형 교란변수를 몇 개 범주로 나눠 보정하면 범주 안에 남은 차이가 잔여 교란이 됩니다. 이 코호트의 의료급여 수급자는 비수급자보다 훨씬 젊어서, 나이를 세 범주로 나눠 넣으면 의료급여의 OR이 연속형으로 넣었을 때의 2.66에서 2.14로 달라집니다(이 절 끝 '논문에서 읽어 보기'의 6번 해설). 교란변수는 가능하면 연속형으로 넣고(필요하면 곡선 형태로, 9장), 범주로 나눈다면 경계를 분석 전에 정합니다. 결측을 '미상' 범주로 따로 넣는 방식은 편리하지만 관찰연구에서 편향을 만들 수 있으므로 결측자료 방법(14장 자 절)을 검토합니다.</li>
+<li><strong>보고할 것</strong>: 변수마다 기준범주("Reference" 행), 범주 경계와 정한 근거, 범주형 변수 전체의 P와 검정 방법·자유도, 순서형 변수라면 P for trend.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">주의 · 프로그램마다 기본 기준범주가 다릅니다</p>
+<p>statsmodels의 formula에서 <code>C(cci)</code>는 값을 정렬했을 때 첫 번째 수준을 기준범주로 하고, <code>C(cci, Treatment(reference="1-2"))</code>처럼 기준을 바꿀 수 있습니다. SPSS의 로지스틱 회귀는 범주형 공변량의 기준을 기본적으로 마지막 범주로 두는 것으로 알려져 있고, SAS PROC LOGISTIC의 CLASS 문은 기본값이 아래의 효과 코딩이라 <code>PARAM=REF REF=FIRST</code>처럼 따로 지정해야 기준범주 코딩이 됩니다. 기본값은 버전에 따라 다를 수 있으므로 <strong>출력에서 어느 범주가 빠져 있는지</strong>를 반드시 확인합니다. 논문을 읽을 때도 표의 "Reference" 행이 어디인지부터 봅니다.</p></div>
+
+<div class="callout deep"><p class="ct">심화 · 효과 코딩</p>
+<p>기준범주 코딩 말고도 범주를 숫자로 바꾸는 방법이 있습니다. <strong>효과 코딩</strong><span class="en">(effect coding, deviation coding)</span>은 기준범주에 0 대신 −1을 주어, 각 계수가 "그 범주의 로그 오즈 − 모든 범주의 로그 오즈를 단순 평균한 값"이 되게 합니다. 이 코호트에서 CCI 네 범주의 로그 OR(기준 0)은 0, 0.311, 0.632, 0.959이고 평균은 0.475이므로, 효과 코딩으로 나타낸 네 범주의 효과는 −0.475, −0.165, 0.157, 0.484입니다(출력에는 기준범주를 뺀 세 값이 나오고, 기준범주의 효과는 세 값의 합에 −1을 곱한 값입니다). 모형은 같고 계수의 뜻만 다릅니다. 기준범주 코딩에 익숙한 사람이 효과 코딩 출력을 기준범주와의 비교로 읽으면 크게 틀리므로, 계수가 무엇과의 비교인지 확인해야 합니다.</p></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>기준범주, 변수 전체의 P, P for trend가 논문의 회귀분석 표에서 어떻게 함께 나타나는지 봅니다. 퇴원 환자 코호트의 로지스틱 회귀에서 나이를 세 범주(65–74, 75–84, ≥85세)로 나눠 넣은 결과표이며, 다른 변수는 다 절의 모형과 같습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 기준범주가 있는 회귀분석 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Multivariable logistic regression for 30-day readmission (n = 1,500; 260 events)</caption>
+<thead><tr><th>Variable</th><th class="r">Adjusted OR (95% CI)</th><th class="r">P value</th></tr></thead>
+<tbody>
+<tr><td>Polypharmacy (≥10 drugs)</td><td class="r">1.48 (1.11–1.99)</td><td class="r">0.008</td></tr>
+<tr><td><span class="mk">1</span> Age group, years</td><td class="r"></td><td class="r"><span class="mk">3</span> &lt;0.001<sup>a</sup></td></tr>
+<tr><td class="ind">65–74 (n = 588)</td><td class="r"><span class="mk">2</span> 1 (Reference)</td><td class="r"></td></tr>
+<tr><td class="ind">75–84 (n = 739)</td><td class="r">1.56 (1.08–2.27)</td><td class="r">0.019</td></tr>
+<tr><td class="ind">≥85 (n = 173)</td><td class="r">2.80 (1.74–4.51)</td><td class="r">&lt;0.001</td></tr>
+<tr><td>Female (vs male)</td><td class="r">0.77 (0.58–1.01)</td><td class="r">0.060</td></tr>
+<tr><td>Charlson Comorbidity Index</td><td class="r"></td><td class="r"><span class="mk">4</span> &lt;0.001<sup>a</sup>; &lt;0.001<sup>b</sup></td></tr>
+<tr><td class="ind">0</td><td class="r">1 (Reference)</td><td class="r"></td></tr>
+<tr><td class="ind">1–2</td><td class="r">1.40 (0.95–2.07)</td><td class="r"><span class="mk">5</span> 0.090</td></tr>
+<tr><td class="ind">3–4</td><td class="r">2.00 (1.30–3.05)</td><td class="r">0.001</td></tr>
+<tr><td class="ind">≥5</td><td class="r">2.76 (1.61–4.73)</td><td class="r">&lt;0.001</td></tr>
+<tr><td>Medical Aid (vs National Health Insurance)</td><td class="r"><span class="mk">6</span> 2.14 (1.36–3.36)</td><td class="r">&lt;0.001</td></tr>
+</tbody></table></div>
+<p class="jt-foot">All variables in the table were entered simultaneously. <sup>a</sup> Overall P value (likelihood ratio test). <sup>b</sup> P for trend, with CCI categories scored 0–3.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>연속형 변수를 범주로 넣었습니다.</b> 범주 경계(75세, 85세)를 분석 전에 정했는지 확인합니다. 마 절에서 본 것처럼 이 자료에서는 나이를 연속형으로 넣은 모형의 AIC가 6.5 작아 더 잘 맞습니다. 범주화는 정보를 버리고(1장 가 절), 아래 6번 해설처럼 교란 보정을 불완전하게 만들 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>Reference 행.</b> OR 1은 추정한 값이 아니라 정의상 1입니다. 신뢰구간이 없는 것이 정상입니다. 75–84세의 1.56은 "다른 변수가 같을 때 65–74세보다 오즈가 1.56배"라는 뜻이고, 85세 이상과 75–84세의 비교(2.80 ÷ 1.56 = 1.79)는 이 표에 신뢰구간과 P가 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>변수 전체의 P (각주 a).</b> 나이 범주 가변수 2개를 함께 검정한 우도비 검정입니다(χ² = 17.84, 자유도 2). "나이가 재입원과 관련 있는가"에 대한 답은 이 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>P for trend (각주 b).</b> CCI 범주에 0–3점을 매겨 연속형으로 넣은 별도 모형의 P입니다. 전체 P는 "범주 간에 어떤 차이든 있는가", P for trend는 "순서대로 증가하는가"를 묻습니다. 한 단계당 OR은 1.41이었습니다.</span></li>
+<li><span class="mk">5</span><span><b>개별 가변수의 P는 기준범주와의 비교일 뿐입니다.</b> CCI 1–2의 P = 0.090은 "CCI 0과 1–2의 차이가 불확실하다"는 뜻이지, "CCI 1–2는 재입원과 관련 없다"는 뜻이 아닙니다. 범주형 변수의 유의성은 3번과 4번 해설의 P로 판단합니다.</span></li>
+<li><span class="mk">6</span><span><b>나이를 범주로 넣으면 보정이 거칠어집니다.</b> 나이를 연속형으로 넣은 모형(다 절)에서 의료급여의 OR은 2.66이었는데 여기서는 2.14입니다. 이 코호트의 의료급여 수급자는 평균 68세로 비수급자(78세)보다 훨씬 젊어, 같은 65–74세 범주 안에서도 평균 나이가 67.1세 대 70.8세로 다르기 때문입니다. 범주 안에 남은 나이 차이가 잔여 교란입니다. 다제약물의 OR(1.48 대 1.47)은 이 자료에서 거의 영향을 받지 않았습니다.</span></li>
+</ol>
+</div></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>범주가 k개인 변수는 가변수 k − 1개로 넣고, 가변수의 e<sup>β</sup>는 기준범주와 비교한 비입니다.</li>
+<li>기준범주를 바꾸면 가변수의 계수와 P는 바뀌지만 모형, 다른 변수의 계수, 예측값은 그대로입니다. 기준범주는 해석이 자연스럽고 인원이 충분한 범주로 미리 정합니다.</li>
+<li>순서형 변수는 가변수(모양 제약 없음)와 점수(선형 추세 가정) 중에서 고르고, 두 모형의 우도비 검정으로 선형성을 확인합니다. 명목형 변수에 번호를 매겨 연속형으로 넣으면 안 됩니다.</li>
+<li>범주형 변수 전체의 유의성은 개별 가변수의 P가 아니라 결합 검정(우도비, Wald, F)으로 판단합니다.</li>
+<li>연속형 교란변수를 거칠게 범주화하면 범주 안에 잔여 교란이 남습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 아 -->
+<section class="sec" id="ch08-s8">
+<h2><span class="sec-no">아.</span>단변수 분석과 다변수 분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">단변수 분석은 결과와 변수 하나씩의 관계(보정 전)를, 다변수 분석은 여러 변수를 한 모형에 함께 넣어 "다른 변수가 같을 때"의 관계(보정 후)를 봅니다.</p>
+<ul>
+<li><b>왜 필요한가.</b> 다제약물 환자는 나이가 많고 동반질환도 많습니다. 다제약물 하나만 넣으면 "약이 많은 효과"와 "나이 들고 아픈 효과"가 한데 섞여 보입니다(단변수 OR 2.00). 나이와 동반질환 등을 함께 넣으면 모형이 이 변수들이 같은 환자끼리의 비교를 계산해 줍니다(다변수 OR 1.47).</li>
+<li><b>논문에서는.</b> 결과표에 "Univariable OR"과 "Multivariable OR" 열이 나란히 있고, Methods에 "Variables with P &lt; 0.2 in the univariable analysis were entered into the multivariable model"이라는 문장이 흔히 나옵니다. 두 번째 문장은 흔하지만 문제가 있는 방법입니다.</li>
+<li><b>기억할 한 가지.</b> 보정할 변수는 단변수 P 값이 아니라 인과 구조(인과 도표)와 사전 지식으로 분석 전에 정합니다. 그리고 다변수 모형에서 노출이 아닌 공변량의 OR은 원인 효과로 읽지 않습니다(Table 2 오류).</li>
+</ul>
+</div>
+
+<p>국내 논문의 결과표에는 "단변수 분석"과 "다변수 분석" 열이 나란히 있는 경우가 많고, Methods에는 "단변수 분석에서 P &lt; 0.2인 변수를 다변수 분석에 포함했다"는 문장이 자주 나옵니다. 이 절에서는 용어를 정리하고, 모형에 넣을 변수를 고르는 방법들이 결과를 어떻게 바꾸는지 퇴원 환자 코호트로 직접 확인합니다.</p>
+
+<h3>용어 정리</h3>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>용어</th><th>뜻</th><th>예</th></tr></thead>
+<tbody>
+<tr><td><strong>단변수 분석</strong><span class="en">(univariable analysis)</span></td><td>결과변수 하나와 설명변수 하나. 보정하지 않은(crude, unadjusted) 분석</td><td>다제약물 하나만 넣은 로지스틱 회귀, 2×2 표</td></tr>
+<tr><td><strong>다변수 분석</strong><span class="en">(multivariable analysis)</span></td><td>결과변수 하나와 설명변수 여러 개. 보정한(adjusted) 분석</td><td>다제약물, 나이, 성별, CCI, 의료급여를 함께 넣은 로지스틱 회귀</td></tr>
+<tr><td><strong>다변량 분석</strong><span class="en">(multivariate analysis)</span></td><td>결과변수가 여러 개인 분석</td><td>HbA1c와 체중 변화를 함께 모형화, 다변량 분산분석(MANOVA)</td></tr>
+</tbody></table></div>
+<p>엄밀히 "multivariate"는 결과변수가 여러 개일 때의 용어이므로, 설명변수가 여러 개인 로지스틱 회귀를 "multivariate logistic regression"이라고 쓰는 것은 틀린 표현입니다<cite data-ref="hidalgo2013"></cite>. 매우 흔한 혼용이라 논문을 읽을 때는 문맥으로 이해하면 되지만, 쓸 때는 "multivariable"을 씁니다. "univariate analysis"도 한 변수의 분포를 기술하는 분석(평균, 히스토그램)을 가리키는 경우가 있어, 보정하지 않은 회귀분석은 "univariable" 또는 "unadjusted"로 쓰는 편이 정확합니다.</p>
+
+<h3>목적이 변수 선택을 정합니다</h3>
+<p>다변수 모형을 만드는 목적은 크게 두 가지이고, 목적에 따라 변수를 고르는 원칙이 정반대입니다.</p>
+<div class="tree">
+  <div class="tree-col">
+    <h4>원인 추정 <span class="en">etiologic, causal</span></h4>
+    <p class="sub">"다제약물이 재입원 위험을 높이는가?" 노출 하나의 효과를 교란 없이 추정합니다.</p>
+    <div class="tree-leaf"><b>변수 선택</b><p>노출과 결과의 공통 원인(교란변수)을 임상 지식, 선행연구, 인과 도표로 <strong>분석 전에</strong> 정합니다. 결과와의 P 값으로 고르지 않습니다.</p></div>
+    <div class="tree-leaf"><b>보고</b><p>노출의 보정 효과(OR, RR, HR)와 신뢰구간. 공변량의 계수는 부차적인 값입니다(Table 2 오류).</p></div>
+  </div>
+  <div class="tree-col">
+    <h4>예측 <span class="en">prediction</span></h4>
+    <p class="sub">"퇴원 환자 중 누가 30일 안에 재입원할까?" 개인의 위험을 정확히 맞히는 것이 목표입니다.</p>
+    <div class="tree-leaf"><b>변수 선택</b><p>예측력이 기준입니다. 원인이 아닌 변수(이전 입원 횟수 같은 표지)도 쓸 수 있습니다. 과적합을 막기 위해 변수 수를 제한하고 벌점화 방법이나 교차검증을 씁니다.</p></div>
+    <div class="tree-leaf"><b>보고</b><p>변별력(C 통계량, AUC)과 보정(calibration), 외부 검증(14장 나 절). 개별 계수의 인과적 해석은 하지 않습니다.</p></div>
+  </div>
+</div>
+<p>국내 논문에서 흔한 "위험인자 탐색"은 두 목적이 섞인 경우가 많습니다. 어떤 변수가 결과와 독립적으로 관련되는지를 찾는다면서 단계적 선택으로 변수를 고르고, 남은 변수들의 OR을 모두 원인처럼 해석합니다. 연구 질문이 원인인지 예측인지부터 정해야 합니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>단변수 선별이 왜 위험한지 봅니다. 퇴원 환자 코호트의 연구 질문은 원인 추정("다제약물과 재입원의 연관")입니다. 연구자가 흔한 관행을 따라 단변수 분석에서 P &lt; 0.2인 변수만 다변수 모형에 넣었다고 합시다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>변수</th><th class="r">단변수 OR (95% CI)</th><th class="r">단변수 P</th><th>P &lt; 0.2 선별</th></tr></thead>
+<tbody>
+<tr><td>다제약물</td><td class="r">2.00 (1.52–2.61)</td><td class="r">&lt; 0.001</td><td>포함 (노출)</td></tr>
+<tr><td>나이 (10세당)</td><td class="r">1.67 (1.36–2.03)</td><td class="r">&lt; 0.001</td><td>포함</td></tr>
+<tr><td>여성</td><td class="r">0.79 (0.61–1.04)</td><td class="r">0.091</td><td>포함</td></tr>
+<tr><td>CCI (3 범주 대 0)</td><td class="r">1.47, 2.33, 3.75</td><td class="r">&lt; 0.001 (전체)</td><td>포함</td></tr>
+<tr class="hi"><td>의료급여</td><td class="r">1.16 (0.82–1.65)</td><td class="r">0.40</td><td><b>제외</b></td></tr>
+</tbody></table></div>
+<p>의료급여는 단변수 P = 0.40이라 제외됩니다. 그런데 모든 변수를 넣은 모형에서 의료급여의 OR은 2.66(1.68–4.21)으로 가장 강한 변수 중 하나이고, 의료급여를 빼면 다제약물의 OR이 1.47에서 1.65로 커집니다. 무슨 일이 일어난 걸까요.</p>
+<ul>
+<li>이 코호트의 의료급여 수급자는 평균 68.0세로 비수급자(78.0세)보다 10세 젊고, CCI 3점 이상이 12.2%로 비수급자(35.4%)보다 훨씬 적습니다. 원래는 재입원 위험이 낮은 사람들입니다.</li>
+<li>나이와 동반질환이 같은 사람끼리 비교하면 의료급여 수급자의 재입원 위험이 뚜렷하게 높지만(OR 2.66), 젊고 건강한 쪽으로 치우친 구성이 이를 가려 보정 전에는 19.2% 대 17.0%로 거의 차이가 없어 보였습니다(OR 1.16). 이렇게 연관을 가리는 방향의 교란을 <strong>음의 교란</strong><span class="en">(negative confounding)</span>이라고 합니다.</li>
+<li>동시에 의료급여 수급자는 다제약물 처방이 많았습니다(51.8% 대 37.9%). 결과의 위험인자이면서 노출과 관련된 변수이므로, 단변수 P와 관계없이 다제약물의 교란변수입니다.</li>
+</ul>
+<p>의료급여 하나만 보정하면 다제약물의 OR은 2.00에서 1.99로 거의 변하지 않습니다. 의료급여의 교란은 나이와 CCI를 함께 보정한 상태에서야 드러납니다. 어떤 변수가 교란변수인지는 <strong>다른 교란변수들을 보정한 상태에서</strong> 판단해야 하며, 변수를 하나씩 따로 보는 단변수 분석으로는 알 수 없습니다<cite data-ref="sun1996"></cite>.</p>
+
+<h3>변수 선택 방법에 따른 결과</h3>
+<p>같은 자료에 여러 방법을 적용했을 때 다제약물의 OR은 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>방법</th><th>모형에 남은 공변량</th><th class="r">다제약물 OR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>보정 없음</td><td>—</td><td class="r">2.00 (1.52–2.61)</td></tr>
+<tr><td>단변수 P &lt; 0.2 선별</td><td>나이, 성별, CCI</td><td class="r">1.65 (1.24–2.19)</td></tr>
+<tr><td>선별 후 후진 제거 (P &lt; 0.05 유지)</td><td>나이, CCI</td><td class="r">1.66 (1.25–2.20)</td></tr>
+<tr class="hi"><td>인과 도표에 근거해 미리 정함</td><td>나이, 성별, CCI, 의료급여</td><td class="r">1.47 (1.10–1.96)</td></tr>
+</tbody></table></div>
+<!--FIG:ch08_dag2-->
+<p>이 가상 자료는 의료급여가 실제 교란변수가 되도록 만들었으므로, 미리 정한 모형(1.47)이 참값에 가깝고 자료로 고른 두 모형은 교란이 남은 값입니다. 실제 연구에서는 참값을 모르므로 "어느 방법이 이번에 맞았나"로 판단할 수 없고, 방법의 원리로 판단해야 합니다.</p>
+<ul>
+<li><strong>인과 도표·사전 지식에 근거한 선택</strong>: 원인 추정 연구의 권장 방법입니다. 노출이나 결과(또는 둘 다)의 원인인 기저 시점 변수를 보정하고, 매개변수와 충돌변수는 빼며, 측정하지 못한 교란변수는 대리 변수로라도 보정합니다<cite data-ref="vanderweele2019"></cite>. 인과 도표는 부록 그림으로 제시하는 것이 좋습니다.</li>
+<li><strong>추정값 변화 기준</strong><span class="en">(change-in-estimate)</span>: 어떤 변수를 넣거나 뺄 때 노출의 추정값이 10% 이상 변하면 교란변수로 보고 남기는 방법입니다<cite data-ref="mickey1989"></cite>. 전체 모형에서 하나씩 빼 보면 다제약물 OR이 CCI 제외 시 17.3%, 의료급여 제외 시 12.3%, 나이 제외 시 5.4%, 성별 제외 시 1.2% 변합니다. P 값보다는 교란의 정의에 가깝지만, 빼는 순서에 따라 결과가 달라지고 오즈비의 비붕괴성(바 절)도 변화를 만들어 기계적으로 쓰기는 어렵습니다.</li>
+<li><strong>단변수 P 선별과 단계적 선택</strong><span class="en">(stepwise selection)</span>: 위에서 본 것처럼 교란변수를 빠뜨릴 수 있고, 남은 계수는 과대추정되며 신뢰구간은 선택 과정을 반영하지 못해 지나치게 좁습니다(6장 라 절)<cite data-ref="heinze2018"></cite>. 원인 추정 연구에서는 쓰지 않는 것이 원칙입니다.</li>
+</ul>
+
+<h3>Table 2 오류</h3>
+<p>원인 추정 모형에서 공변량의 보정 OR은 노출의 OR과 같은 의미를 갖지 않습니다<cite data-ref="westreich2013"></cite>. 이 모형에서 의료급여의 OR 2.66은 다제약물을 보정한 값이라, 의료급여가 다제약물을 거쳐 재입원에 미치는 경로(그림 8-14에서 의료급여 → 다제약물 → 재입원)가 빠진 일종의 직접 효과입니다. 나이의 OR(10세당 1.82)도 나이가 동반질환을 거쳐 재입원을 높이는 부분이 CCI 보정으로 빠진 값입니다. 각 공변량의 효과를 알고 싶다면 그 변수를 노출로 두고 그에 맞는 교란변수를 다시 골라 별도 모형을 만들어야 합니다(6장 라 절).</p>
+
+<h3>사건 수와 모형의 크기</h3>
+<p>로지스틱 회귀에서 추정할 수 있는 계수의 수는 인원보다 <strong>사건 수</strong>(재입원과 비재입원 중 적은 쪽)에 좌우됩니다. 이 코호트는 사건 260건, 절편을 뺀 계수 7개(가변수 포함)로 사건 수 대비 변수 수(events per variable, EPV)가 260 ÷ 7 = 37입니다. 흔히 인용되는 기준(10 이상)을 넉넉히 넘지만, 사건이 50건인 연구에서 같은 모형을 쓰면 EPV가 7에 불과해 계수가 불안정해집니다. EPV와 과적합, 분리 문제는 9장에서 다룹니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 변수 선택을 설명한 Methods 문장 두 가지</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>같은 연구를 두 가지 방식으로 쓴 Statistical analysis 문단입니다. 첫 번째는 흔하지만 문제가 있는 방식, 두 번째는 권장되는 방식입니다.</p>
+<p class="excerpt">(A) <span class="mk">1</span> <span class="hl">Variables with P &lt; 0.2 in the univariable analysis were entered into the multivariate logistic regression model</span>, and <span class="mk">2</span> <span class="hl">backward stepwise elimination</span> was used to retain variables with P &lt; 0.05.</p>
+<p class="excerpt">(B) <span class="mk">3</span> <span class="hl">Covariates were selected a priori based on a directed acyclic graph</span> (Supplementary Figure S1) and included age, sex, Charlson Comorbidity Index, and Medical Aid status, all measured <span class="mk">4</span> <span class="hl">before discharge</span>. With 260 events and 7 estimated coefficients, the model had <span class="mk">5</span> <span class="hl">approximately 37 events per variable</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>단변수 P 선별.</b> 결과와의 단변수 연관은 교란 여부를 알려 주지 않습니다. 이 코호트에서는 가장 중요한 교란변수 중 하나인 의료급여가 이 단계에서 빠집니다. "multivariate"도 정확히는 "multivariable"입니다.</span></li>
+<li><span class="mk">2</span><span><b>후진 제거법.</b> 남은 변수의 계수는 과대추정되고 신뢰구간은 지나치게 좁습니다. 원인 추정 연구에서 노출 변수까지 제거 대상에 포함했다면 더 큰 문제입니다. 이런 문장을 보면 보정하지 않은 교란이 남아 있을 가능성을 염두에 두고 결과를 읽습니다.</span></li>
+<li><span class="mk">3</span><span><b>사전에 정한 공변량과 인과 도표.</b> 무엇을 왜 보정했는지 독자가 판단할 수 있게 해 줍니다. 인과 도표의 가정(화살표) 자체가 틀릴 수 있으므로 근거가 된 선행연구와 임상 지식이 함께 제시되는지도 봅니다.</span></li>
+<li><span class="mk">4</span><span><b>공변량의 측정 시점.</b> 모든 공변량을 노출(퇴원 처방) 이전에 측정했다는 것은 매개변수를 보정하는 실수를 피했다는 뜻입니다. 퇴원 후 이상반응이나 추적 중 순응도를 보정했다면 문제가 됩니다(바 절).</span></li>
+<li><span class="mk">5</span><span><b>EPV.</b> 260 ÷ 7 = 37. 모형의 크기가 사건 수에 비해 적절하다는 근거입니다(9장).</span></li>
+</ol>
+</div></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>먼저 목적을 정합니다</strong>: "노출 하나의 효과"를 묻는 원인 추정 연구인지, "누가 사건을 겪을지"를 맞히는 예측 연구(9장, 14장 나 절)인지 계획서 첫 줄에 적습니다. 목적이 정해져야 변수 선택 원칙과 결과표의 모양이 정해집니다.</li>
+<li><strong>교란과 보정 (원인 추정 모형을 만드는 순서)</strong>: ① 인과 도표로 공변량을 고르고(바 절), 모두 노출 이전 시점에서 정의해 분석계획서에 미리 적습니다. ② 사건 수 대비 계수 수(EPV)를 확인하고, 공변량이 너무 많으면 요약 점수를 쓰거나 성향점수 방법(14장 다 절)을 검토합니다. ③ 연속형 공변량은 연속형으로 넣고 선형성을 확인합니다(9장). ④ 보정 전과 보정 후 추정값을 함께 제시합니다. ⑤ 공변량 집합이나 방법(성향점수)을 바꿔도 결론이 유지되는지 민감도 분석을 합니다. 이 모든 단계를 거쳐도 측정하지 않은 교란은 남으므로 Discussion에서 방향과 크기를 논의합니다.</li>
+<li><strong>하지 말 것</strong>: 단변수 P &lt; 0.2 선별, 단계적 선택, 노출 변수를 제거 대상에 포함하는 것, 공변량의 OR을 원인 효과처럼 해석하는 것(Table 2 오류).</li>
+<li><strong>보고할 것</strong>: Methods에 보정 변수와 고른 근거(인과 도표는 부록), 측정 시점, 분석 인원과 사건 수. 결과표는 노출 중심으로 보정 전·후 추정값과 95% CI를 싣고, 결과가 흔하면 RR이나 위험차도 함께 제시합니다(나·라 절). "multivariate" 대신 "multivariable"로 씁니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>지금까지 본 단변수·다변수 분석의 차이를 결과표에서 확인합니다. 퇴원 환자 코호트 연구를 국내 논문에서 흔한 형식으로 정리한 결과표입니다. 왼쪽은 변수를 하나씩 넣은 모형, 오른쪽은 모든 변수를 함께 넣은 모형의 결과입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 단변수·다변수 분석 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Factors associated with 30-day readmission: univariable and multivariable logistic regression</caption>
+<thead><tr><th>Variable</th><th class="r">Readmitted,<br>n/N (%)</th><th class="r"><span class="mk">1</span> Univariable OR<br>(95% CI)</th><th class="r">P</th><th class="r"><span class="mk">2</span> Multivariable OR<br>(95% CI)<sup>a</sup></th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>Polypharmacy (≥10 drugs)</td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td></tr>
+<tr><td class="ind">No</td><td class="r">119/897 (13.3)</td><td class="r">1 (Reference)</td><td class="r"></td><td class="r">1 (Reference)</td><td class="r"></td></tr>
+<tr><td class="ind">Yes</td><td class="r">141/603 (23.4)</td><td class="r">2.00 (1.52–2.61)</td><td class="r">&lt;0.001</td><td class="r"><span class="mk">3</span> 1.47 (1.10–1.96)</td><td class="r">0.010</td></tr>
+<tr><td>Age, per 10 years</td><td class="r"></td><td class="r">1.67 (1.36–2.03)</td><td class="r">&lt;0.001</td><td class="r">1.82 (1.42–2.34)</td><td class="r">&lt;0.001</td></tr>
+<tr><td>Female</td><td class="r">134/844 (15.9)</td><td class="r">0.79 (0.61–1.04)</td><td class="r">0.091</td><td class="r">0.78 (0.59–1.03)</td><td class="r">0.078</td></tr>
+<tr><td>Charlson Comorbidity Index</td><td class="r"></td><td class="r"></td><td class="r">&lt;0.001<sup>b</sup></td><td class="r"></td><td class="r">0.002<sup>b</sup></td></tr>
+<tr><td class="ind">0</td><td class="r">48/430 (11.2)</td><td class="r">1 (Reference)</td><td class="r"></td><td class="r">1 (Reference)</td><td class="r"></td></tr>
+<tr><td class="ind">1–2</td><td class="r">93/596 (15.6)</td><td class="r">1.47 (1.01–2.14)</td><td class="r">0.042</td><td class="r">1.36 (0.92–2.01)</td><td class="r">0.12</td></tr>
+<tr><td class="ind">3–4</td><td class="r">79/349 (22.6)</td><td class="r">2.33 (1.57–3.44)</td><td class="r">&lt;0.001</td><td class="r">1.88 (1.23–2.88)</td><td class="r">0.004</td></tr>
+<tr><td class="ind">≥5</td><td class="r">40/125 (32.0)</td><td class="r">3.75 (2.32–6.06)</td><td class="r">&lt;0.001</td><td class="r">2.61 (1.52–4.48)</td><td class="r">&lt;0.001</td></tr>
+<tr><td>Medical Aid</td><td class="r">47/245 (19.2)</td><td class="r"><span class="mk">4</span> 1.16 (0.82–1.65)</td><td class="r">0.40</td><td class="r">2.66 (1.68–4.21)</td><td class="r">&lt;0.001</td></tr>
+</tbody></table></div>
+<p class="jt-foot"><sup>a</sup> <span class="mk">5</span> Adjusted for all variables in the table. <sup>b</sup> Overall P value (likelihood ratio test, 3 df).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Univariable OR: 각 변수를 하나씩 넣은 모형.</b> 다제약물의 2.00은 2×2 표의 OR과 같습니다(나 절). 행마다 다른 모형에서 나온 값이므로 서로 보정되지 않았습니다.</span></li>
+<li><span class="mk">2</span><span><b>Multivariable OR: 모든 변수를 한 모형에 함께 넣은 값.</b> 각 OR은 "표의 다른 변수가 모두 같을 때"의 비교입니다. 각주 a가 보정 변수를 밝히고 있는지 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>노출의 OR이 2.00에서 1.47로 줄었습니다.</b> 보정 전 연관의 상당 부분이 나이, 동반질환, 의료급여의 차이 때문이었다는 뜻입니다(바 절). 이 연구의 주 결과는 이 값이며, 재입원이 흔하므로 보정 RR(약 1.36)로 함께 보고하면 더 좋습니다(나·라 절).</span></li>
+<li><span class="mk">4</span><span><b>단변수에서 유의하지 않은 변수가 다변수에서 강해졌습니다.</b> 1.16(P = 0.40)에서 2.66(P &lt; 0.001)으로 바뀐 것은 음의 교란 때문입니다(위 '숫자로 따라가기'). 이 표를 보고 "P &lt; 0.2로 선별했다면 빠졌을 변수"라는 것을 알아챌 수 있어야 합니다. 나이의 OR이 1.67에서 1.82로 커진 것도 비슷한 이유입니다. 나이와 의료급여만 함께 넣으면 나이의 OR이 2.20으로 커지고(젊은 의료급여 수급자의 높은 위험이 나이의 연관을 가리고 있었음), 나이와 CCI만 넣으면 1.40으로 작아지는데(나이의 연관 일부가 동반질환을 통한 것), 두 방향의 변화가 합쳐진 결과입니다.</span></li>
+<li><span class="mk">5</span><span><b>공변량의 OR을 원인으로 읽지 않습니다.</b> 이 모형은 다제약물의 연관을 추정하려고 만든 것이므로, "의료급여 수급이 재입원 위험을 2.66배 높인다"거나 "여성이 보호 인자다"라고 해석하는 것은 Table 2 오류입니다(위 'Table 2 오류'). 표 제목의 "Factors associated with"는 모든 변수를 같은 무게로 해석하도록 유도하므로, 원인 추정 연구라면 제목을 노출 중심으로 쓰는 편이 정확합니다.</span></li>
+</ol>
+</div></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab08">실습 8</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>단변수(univariable)는 설명변수 하나, 다변수(multivariable)는 설명변수 여러 개, 다변량(multivariate)은 결과변수 여러 개인 분석입니다.</li>
+<li>다변수 모형의 OR은 "모형의 다른 변수가 같을 때"의 비교이며, 보정 전과의 차이는 주로 그 변수들의 차이에서 온 부분입니다.</li>
+<li>원인 추정 모형의 공변량은 인과 도표와 사전 지식으로 분석 전에 정하고, 예측 모형의 변수는 예측력과 과적합 방지를 기준으로 고릅니다.</li>
+<li>단변수 P 선별과 단계적 선택은 교란변수를 빠뜨리고 계수와 신뢰구간을 왜곡할 수 있습니다. 교란 여부는 다른 교란변수를 보정한 상태에서 판단합니다.</li>
+<li>원인 추정 모형에서 공변량의 OR을 노출의 OR처럼 해석하면 Table 2 오류입니다. 로지스틱 모형의 크기는 사건 수에 맞춰 정합니다(EPV, 9장).</li>
+</ul></div>
+</section>

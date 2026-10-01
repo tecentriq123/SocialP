@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">열 고르기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(type(df[&quot;bwt&quot;]))    # 열 하나를 고르면 Series
+print(df[&quot;bwt&quot;].mean())   # 평균
+print(df[&quot;bwt&quot;].median()) # 중앙값
+df[[&quot;age&quot;, &quot;bwt&quot;]].head(3)  # 대괄호 두 겹: 여러 열 → DataFrame</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;class &#x27;pandas.Series<span class="mk">1</span>&#x27;&gt;
+2944.5873015873017<span class="mk">2</span>
+2977.0<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>bwt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>19</td>
+      <td>2523</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>33</td>
+      <td>2551</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>20</td>
+      <td>2557</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

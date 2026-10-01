@@ -1,0 +1,34 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">사건, 시간, 치료 변수 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d[&quot;death&quot;] = (d[&quot;status&quot;] == 2).astype(int)   # 사망 = 1, 이식·생존 = 0
+d[&quot;years&quot;] = d[&quot;time&quot;] / 365.25
+d[&quot;dpca&quot;] = (d[&quot;trt&quot;] == 1).astype(int)       # D-penicillamine = 1
+d[&quot;female&quot;] = (d[&quot;sex&quot;] == &quot;f&quot;).astype(int)
+d[&quot;age10&quot;] = d[&quot;age&quot;] / 10                    # 10세 단위
+
+print(&quot;사망&quot;, d[&quot;death&quot;].sum(), &quot;명, 이식(중도절단)&quot;,
+      (d[&quot;status&quot;] == 1).sum(), &quot;명&quot;)
+d.groupby(&quot;dpca&quot;)[&quot;death&quot;].agg([&quot;count&quot;, &quot;sum&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>사망 125 명<span class="mk">1</span>, 이식(중도절단) 19 명<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>sum</th>
+    </tr>
+    <tr>
+      <th>dpca</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>154</td>
+      <td>60</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>158</td>
+      <td>65</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">진단 변수를 읽기 쉽게 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">labels = {0: &quot;malignant&quot;, 1: &quot;benign&quot;}      # sklearn의 코딩
+df[&quot;diagnosis&quot;] = pd.Categorical(df[&quot;target&quot;].map(labels),
+                                 categories=[&quot;benign&quot;, &quot;malignant&quot;])
+df[&quot;malignant&quot;] = (df[&quot;target&quot;] == 0).astype(int)   # 1 = 악성
+print(df[&quot;malignant&quot;].sum())           # 악성 건수
+pd.crosstab(df[&quot;target&quot;], df[&quot;diagnosis&quot;])   # 바꾼 결과 확인</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>212<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>diagnosis</th>
+      <th>benign</th>
+      <th>malignant</th>
+    </tr>
+    <tr>
+      <th>target</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>212</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>357</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

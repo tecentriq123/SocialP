@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">표준화 + 로지스틱 회귀 모형 학습</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+clf = make_pipeline(StandardScaler(),
+                    LogisticRegression(max_iter=1000))
+clf.fit(X_train, y_train)            # 훈련 자료로만 학습
+print(clf.classes_)                  # predict_proba 열의 순서</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[0 1]<span class="mk">1</span></pre></div></div>

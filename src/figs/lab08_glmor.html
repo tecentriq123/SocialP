@@ -1,0 +1,27 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">계수를 오즈비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">or_tab = np.exp(m_logit.conf_int())
+or_tab.columns = [&quot;2.5%&quot;, &quot;97.5%&quot;]
+or_tab.insert(0, &quot;OR&quot;, np.exp(m_logit.params))
+or_tab.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OR</th>
+      <th>2.5%</th>
+      <th>97.5%</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>0.337<span class="mk">2</span></td>
+      <td>0.221</td>
+      <td>0.514</td>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <td>2.022<span class="mk">1</span></td>
+      <td>1.081</td>
+      <td>3.783</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

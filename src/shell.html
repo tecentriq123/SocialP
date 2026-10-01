@@ -1,0 +1,865 @@
+<title>사회약학 연구방법 노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@500;600;700&display=swap">
+<style>
+/* Layout: study-notes reader — slim top bar, chapter rail on the left, reading column (~46rem), section index on the right at wide widths. */
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --surface-2: #eef2f1;
+  --ink: #16201e;
+  --ink-2: #435150;
+  --muted: #72807d;
+  --line: #d9e0de;
+  --line-strong: #b9c4c1;
+  --accent: #0c6a60;
+  --accent-ink: #0a5a51;
+  --accent-soft: #e2f0ed;
+  --note: #22598c;  --note-soft: #e7eff8;
+  --warn: #9b4611;  --warn-soft: #fbefe5;
+  --deep: #4f3f94;  --deep-soft: #efedf8;
+  --good: #2c6e2f;  --good-soft: #e8f3e6;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #7d8986;
+  --grid: #e3e8e6; --axis: #b9c4c1;
+  --code-bg: #f0f3f2;
+  --hl-kw: #a626a4; --hl-str: #3f8f3e; --hl-num: #986801; --hl-com: #7b8784; --hl-fn: #2f6bd6; --hl-bi: #b1670a;
+  --f-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-serif: "Noto Serif KR", "AppleMyungjo", "Batang", Georgia, serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --read: 46rem;
+  --topbar: 56px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111615; --surface: #171d1c; --surface-2: #1e2625;
+    --ink: #e4ebe9; --ink-2: #b2bebb; --muted: #84918e;
+    --line: #2a3432; --line-strong: #3b4745;
+    --accent: #5fc4b4; --accent-ink: #7fd3c5; --accent-soft: #15302c;
+    --note: #8fbbe9; --note-soft: #172636;
+    --warn: #f0a46c; --warn-soft: #33241a;
+    --deep: #b6aaf0; --deep-soft: #24203a;
+    --good: #8fd08f; --good-soft: #1a2c1b;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #8b9794;
+    --grid: #253030; --axis: #3b4745; --code-bg: #1d2524; --hl-kw: #c98be0; --hl-str: #98c379; --hl-num: #d19a66; --hl-com: #7f8c89; --hl-fn: #6cb2f0; --hl-bi: #e5c07b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111615; --surface: #171d1c; --surface-2: #1e2625;
+  --ink: #e4ebe9; --ink-2: #b2bebb; --muted: #84918e;
+  --line: #2a3432; --line-strong: #3b4745;
+  --accent: #5fc4b4; --accent-ink: #7fd3c5; --accent-soft: #15302c;
+  --note: #8fbbe9; --note-soft: #172636;
+  --warn: #f0a46c; --warn-soft: #33241a;
+  --deep: #b6aaf0; --deep-soft: #24203a;
+  --good: #8fd08f; --good-soft: #1a2c1b;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #8b9794;
+  --grid: #253030; --axis: #3b4745; --code-bg: #1d2524; --hl-kw: #c98be0; --hl-str: #98c379; --hl-num: #d19a66; --hl-com: #7f8c89; --hl-fn: #6cb2f0; --hl-bi: #e5c07b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(var(--topbar) + 16px); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--f-sans); font-size: 16px; line-height: 1.8;
+  word-break: keep-all; overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent-ink); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+h1, h2, h3, h4 { text-wrap: balance; line-height: 1.35; }
+button { font: inherit; color: inherit; }
+code, kbd { font-family: var(--f-mono); font-size: .9em; background: var(--code-bg); padding: .08em .35em; border-radius: 4px; }
+
+/* top bar */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
+  height: var(--topbar); background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 12px; padding-inline: 16px;
+}
+.brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--ink); min-width: 0; }
+.brand b { font-family: var(--f-serif); font-weight: 700; font-size: 17px; letter-spacing: -.01em; white-space: nowrap; }
+.brand span { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar .spacer { flex: 1; }
+.tb-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink-2);
+  cursor: pointer; font-size: 14px; text-decoration: none; white-space: nowrap;
+}
+.tb-btn:hover { border-color: var(--line-strong); color: var(--ink); }
+.tb-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+#menuBtn { display: none; }
+
+/* shells */
+.page { padding-inline: 16px; padding-block: 32px 80px; }
+.wrap { max-width: 1120px; margin: 0 auto; }
+
+/* home */
+.home-hero { max-width: 44rem; padding-block: 28px 12px; }
+.eyebrow { font-size: 13px; letter-spacing: .06em; color: var(--accent-ink); font-weight: 600; margin: 0 0 10px; }
+.home-hero h1 { font-family: var(--f-serif); font-weight: 700; font-size: clamp(30px, 5vw, 42px); margin: 0 0 14px; letter-spacing: -.02em; }
+.home-hero p { color: var(--ink-2); font-size: 17px; margin: 0; }
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 36px; }
+.part-card {
+  display: flex; flex-direction: column; gap: 10px; padding: 22px 22px 20px; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--surface); text-decoration: none; color: var(--ink); min-width: 0;
+}
+a.part-card:hover { border-color: var(--accent); }
+.part-card .pc-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.part-card .pc-tag { font-size: 12.5px; color: var(--muted); letter-spacing: .04em; }
+.part-card h2 { font-family: var(--f-serif); font-size: 23px; margin: 0; }
+.part-card p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.7; }
+.part-card .pc-meta { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.part-card.soon { background: transparent; border-style: dashed; color: var(--muted); }
+.part-card.soon h2 { color: var(--ink-2); }
+.pill { display: inline-block; font-size: 12px; line-height: 1; padding: 5px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pill.ok { background: var(--accent-soft); color: var(--accent-ink); }
+.home-how { margin-top: 44px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; max-width: 64rem; }
+.home-how h3 { font-size: 15px; margin: 0 0 4px; }
+.home-how p { margin: 0; color: var(--ink-2); font-size: 14.5px; line-height: 1.7; }
+
+/* part (TOC) page */
+.part-head { max-width: 46rem; margin-bottom: 28px; }
+.crumbs { font-size: 13.5px; color: var(--muted); margin: 0 0 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.crumbs a { color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--accent-ink); text-decoration: underline; }
+.part-head h1 { font-family: var(--f-serif); font-size: clamp(28px, 4.5vw, 38px); margin: 0 0 12px; letter-spacing: -.02em; }
+.part-head p { color: var(--ink-2); margin: 0 0 8px; }
+.part-grid { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 40px; align-items: start; }
+.toc-part { margin-bottom: 36px; }
+.toc-part > h2 { font-size: 13px; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
+.toc-part > .tp-title { font-family: var(--f-serif); font-size: 22px; font-weight: 600; margin: 0 0 14px; }
+.toc-ch { border-top: 1px solid var(--line); padding-block: 16px; display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); gap: 4px 12px; }
+.toc-ch:last-child { border-bottom: 1px solid var(--line); }
+.toc-no { font-family: var(--f-serif); font-size: 26px; font-weight: 600; color: var(--accent); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.toc-ch.off .toc-no { color: var(--line-strong); }
+.toc-ch h3 { margin: 0; font-size: 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.toc-ch h3 a { color: var(--ink); text-decoration: none; }
+.toc-ch h3 a:hover { color: var(--accent-ink); text-decoration: underline; }
+.toc-ch.off h3 { color: var(--ink-2); font-weight: 500; }
+.toc-secs { grid-column: 2; list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 18px; font-size: 14.5px; }
+.toc-secs li { color: var(--muted); }
+.toc-secs a { color: var(--ink-2); text-decoration: none; }
+.toc-secs a:hover { color: var(--accent-ink); text-decoration: underline; }
+.toc-secs .sn { color: var(--muted); margin-right: 4px; }
+.side-card { position: sticky; top: calc(var(--topbar) + 24px); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 18px 18px 14px; }
+.side-card h3 { margin: 0 0 4px; font-size: 15px; }
+.side-card p { margin: 0 0 12px; color: var(--ink-2); font-size: 14px; line-height: 1.65; }
+.guide { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.5; }
+.guide th, .guide td { text-align: left; vertical-align: top; padding: 7px 6px; border-top: 1px solid var(--line); }
+.guide th { font-weight: 600; color: var(--muted); font-size: 12.5px; border-top: 0; }
+.guide td a { text-decoration: none; }
+.guide .gno { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* reader layout */
+.reader { display: grid; grid-template-columns: 250px minmax(0, 1fr) 200px; gap: 40px; max-width: 1320px; margin: 0 auto; }
+.rail { position: sticky; top: calc(var(--topbar) + 20px); align-self: start; max-height: calc(100vh - var(--topbar) - 40px); overflow-y: auto; padding-right: 6px; font-size: 14px; }
+.rail h4 { font-size: 12px; letter-spacing: .08em; color: var(--muted); margin: 18px 0 6px; font-weight: 600; }
+.rail h4:first-child { margin-top: 0; }
+.rail ol { list-style: none; margin: 0; padding: 0; }
+.rail li > a, .rail li > span { display: grid; grid-template-columns: 1.8rem 1fr; gap: 4px; padding: 5px 8px; border-radius: 6px; color: var(--ink-2); text-decoration: none; line-height: 1.45; }
+.rail li a:hover { background: var(--surface-2); color: var(--ink); }
+.rail li a.on { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.rail li > span { color: var(--muted); opacity: .7; }
+.rail .rn { font-variant-numeric: tabular-nums; color: var(--muted); }
+.rail li a.on .rn { color: var(--accent-ink); }
+.rail .back { display: inline-block; margin-bottom: 14px; color: var(--muted); text-decoration: none; font-size: 13.5px; }
+.rail .back:hover { color: var(--accent-ink); }
+.article { min-width: 0; max-width: var(--read); }
+.onpage { position: sticky; top: calc(var(--topbar) + 20px); align-self: start; font-size: 13.5px; }
+.onpage h4 { font-size: 12px; letter-spacing: .08em; color: var(--muted); margin: 0 0 8px; font-weight: 600; }
+.onpage ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--line); }
+.onpage a { display: block; padding: 4px 0 4px 12px; margin-left: -1px; border-left: 2px solid transparent; color: var(--muted); text-decoration: none; line-height: 1.45; }
+.onpage a:hover { color: var(--ink); }
+.onpage a.on { color: var(--accent-ink); border-left-color: var(--accent); }
+
+/* chapter header */
+.ch-head { margin-bottom: 36px; padding-bottom: 26px; border-bottom: 1px solid var(--line); }
+.ch-head .crumbs { margin-bottom: 18px; }
+.ch-no { font-family: var(--f-serif); font-size: 15px; font-weight: 600; color: var(--accent-ink); letter-spacing: .04em; margin: 0 0 6px; }
+.ch-head h1 { font-family: var(--f-serif); font-size: clamp(28px, 4.4vw, 38px); margin: 0 0 16px; letter-spacing: -.02em; font-weight: 700; }
+.lead { font-size: 17px; color: var(--ink-2); margin: 0; }
+.ch-map { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+.ch-map a { font-size: 13.5px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--ink-2); background: var(--surface); }
+.ch-map a:hover { border-color: var(--accent); color: var(--accent-ink); }
+
+/* article typography */
+.sec { padding-top: 12px; margin-bottom: 64px; }
+.sec > h2 { font-family: var(--f-serif); font-size: clamp(23px, 3.2vw, 28px); font-weight: 700; margin: 0 0 20px; display: flex; gap: 12px; align-items: baseline; letter-spacing: -.01em; }
+.sec > h2 .sec-no { color: var(--accent); font-size: .85em; }
+.article h3 { font-size: 19px; font-weight: 600; margin: 40px 0 12px; }
+.article h4 { font-size: 16px; font-weight: 600; margin: 28px 0 8px; }
+.article p { margin: 0 0 16px; }
+.article ul, .article ol { margin: 0 0 16px; padding-left: 1.4em; }
+.article li { margin-bottom: 6px; }
+.article li::marker { color: var(--muted); }
+.article strong { font-weight: 600; color: var(--ink); }
+.en { color: var(--muted); font-size: .92em; }
+.num { font-variant-numeric: tabular-nums; }
+mark { background: color-mix(in srgb, var(--s1) 18%, transparent); color: inherit; padding: 0 .15em; border-radius: 3px; }
+.mjx { overflow-x: auto; overflow-y: hidden; }
+.eq { margin: 18px 0 20px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.eq p { margin: 8px 0 0; font-size: 14.5px; color: var(--ink-2); }
+mjx-container[display="true"] { margin: 6px 0 !important; }
+mjx-container { color: var(--ink); }
+
+/* glance */
+.glance { display: grid; grid-template-columns: 7.2rem minmax(0, 1fr); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); margin: 0 0 24px; font-size: 15px; line-height: 1.65; overflow: hidden; }
+.glance > div { display: contents; }
+.glance dt, .glance dd { padding: 10px 14px; border-top: 1px solid var(--line); margin: 0; }
+.glance dt { color: var(--muted); font-size: 13.5px; font-weight: 600; background: var(--surface-2); }
+.glance > div:first-child dt, .glance > div:first-child dd { border-top: 0; }
+
+/* callouts */
+.callout { border-radius: 10px; padding: 14px 18px 4px; margin: 22px 0; font-size: 15.5px; line-height: 1.75; }
+.callout .ct { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; margin: 0 0 6px; letter-spacing: .02em; }
+.callout .ct svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; flex: none; }
+.callout p, .callout ul, .callout ol { margin-bottom: 10px; }
+.callout.note { background: var(--note-soft); } .callout.note .ct { color: var(--note); }
+.callout.warn { background: var(--warn-soft); } .callout.warn .ct { color: var(--warn); }
+.callout.deep { background: var(--deep-soft); } .callout.deep .ct { color: var(--deep); }
+.callout.tip { background: var(--good-soft); } .callout.tip .ct { color: var(--good); }
+.wrong { color: var(--ink); }
+.wrong::after { content: " (X)"; color: var(--warn); font-weight: 700; white-space: nowrap; }
+.lab-link { margin: 26px 0 0 !important; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 14.5px; color: var(--ink-2); }
+.lab-link a { font-weight: 600; }
+
+/* paper reading box */
+.paper { border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); margin: 28px 0; overflow: hidden; }
+.paper-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 18px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.paper-h b { font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.paper-h b svg { width: 16px; height: 16px; fill: none; stroke: var(--accent); stroke-width: 1.8; }
+.paper-h span { font-size: 12.5px; color: var(--muted); }
+.paper-b { padding: 18px 18px 6px; }
+.paper-b > p { font-size: 15px; }
+.excerpt { font-family: Georgia, "Times New Roman", var(--f-serif); font-size: 15.5px; line-height: 1.7; color: var(--ink); margin: 0 0 16px; padding: 2px 0 2px 16px; border-left: 2px solid var(--line-strong); }
+.excerpt .hl { background: color-mix(in srgb, var(--s2) 20%, transparent); border-radius: 3px; padding: 0 .1em; }
+.marks { list-style: none; padding: 0 !important; margin: 16px 0 12px; display: grid; gap: 10px; font-size: 15px; line-height: 1.7; }
+.marks li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; margin: 0 !important; }
+.mk { display: inline-flex; align-items: center; justify-content: center; width: 19px; height: 19px; border-radius: 50%; background: var(--s2); color: #fff; font-size: 11.5px; font-weight: 600; font-family: var(--f-sans); line-height: 1; vertical-align: 1px; margin: 0 2px; font-variant-numeric: tabular-nums; flex: none; }
+.marks .mk { margin-top: 4px; }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; margin: 18px 0 22px; }
+table.tbl { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.55; }
+.tbl th, .tbl td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.tbl thead th { background: var(--surface-2); font-weight: 600; font-size: 13.5px; color: var(--ink-2); border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
+.tbl td.r, .tbl th.r { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl td.c, .tbl th.c { text-align: center; }
+.tbl .hi td { background: color-mix(in srgb, var(--s1) 8%, transparent); }
+.tbl-cap { font-size: 14px; color: var(--ink-2); margin: 0 0 8px; }
+.tbl-cap b { color: var(--ink); }
+/* journal-style table */
+table.jt { border-collapse: collapse; width: 100%; min-width: 520px; font-family: Georgia, "Times New Roman", var(--f-serif); font-size: 14.5px; line-height: 1.5; color: var(--ink); }
+.jt caption { caption-side: top; text-align: left; font-size: 14.5px; padding-bottom: 8px; }
+.jt caption b { font-weight: 700; }
+.jt thead tr:first-child th { border-top: 1.5px solid var(--ink); }
+.jt thead th { font-weight: 700; border-bottom: 1px solid var(--ink); padding: 7px 10px; text-align: left; vertical-align: bottom; }
+.jt td { padding: 6px 10px; vertical-align: top; }
+.jt tbody tr:last-child td { border-bottom: 1.5px solid var(--ink); }
+.jt td.r, .jt th.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.jt td.c, .jt th.c { text-align: center; }
+.jt .ind { padding-left: 26px; }
+.jt .grp td { font-style: italic; padding-top: 10px; }
+.jt-foot { font-family: Georgia, "Times New Roman", var(--f-serif); font-size: 13px; color: var(--ink-2); margin: 8px 0 0; line-height: 1.55; }
+
+/* figures */
+.fig { margin: 26px 0; }
+.fig-body { display: grid; gap: 12px; }
+.fig-grid.g2 .fig-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fig-grid.g3 .fig-body { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.fig-panel { min-width: 0; overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 4px 2px; }
+.fig svg.viz { display: block; width: 100%; height: auto; }
+.fig:not(.fig-grid) svg.viz { min-width: 460px; }
+.fig figcaption { font-size: 14px; color: var(--ink-2); margin-top: 10px; line-height: 1.65; }
+.fig-note { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+.viz text { font-family: var(--f-sans); font-size: 13px; fill: var(--ink-2); }
+.viz .tick { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.viz .axlab { fill: var(--ink-2); font-size: 12.5px; }
+.viz .ptitle { fill: var(--ink); font-weight: 600; font-size: 13px; }
+.viz .lbl.strong { fill: var(--ink); font-weight: 600; }
+.viz .lbl.mute { fill: var(--muted); }
+.viz .small { font-size: 11.5px; }
+.viz .grid { stroke: var(--grid); stroke-width: 1; }
+.viz .axis { stroke: var(--axis); stroke-width: 1; }
+.viz .ref { stroke: var(--muted); }
+.viz .strongref { stroke: var(--ink-2); }
+.viz .ln { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.viz .s1 { stroke: var(--s1); } .viz .s2 { stroke: var(--s2); } .viz .s3 { stroke: var(--s3); } .viz .s4 { stroke: var(--s4); }
+.viz .f1 { fill: var(--s1); } .viz .f2 { fill: var(--s2); } .viz .f3 { fill: var(--s3); } .viz .f4 { fill: var(--s4); }
+.viz .a1 { fill: var(--s1); fill-opacity: .16; } .viz .a2 { fill: var(--s2); fill-opacity: .22; } .viz .a3 { fill: var(--s3); fill-opacity: .18; } .viz .a4 { fill: var(--s4); fill-opacity: .2; }
+.viz .pt { stroke: var(--surface); stroke-width: 1.5; }
+.viz .pth { fill: var(--surface); stroke-width: 1.6; }
+
+/* HTML diagrams */
+.tree { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 22px 0; }
+.tree-col { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 14px 16px 10px; min-width: 0; }
+.tree-col > h4 { margin: 0 0 2px !important; font-size: 16px; }
+.tree-col > .sub { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
+.tree-leaf { border-top: 1px solid var(--line); padding: 10px 0 6px; }
+.tree-leaf b { display: block; font-size: 15px; }
+.tree-leaf p { margin: 2px 0 0 !important; font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+.flow { display: grid; gap: 10px; margin: 22px 0; counter-reset: fl; }
+.flow > div { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.flow > div::before { counter-increment: fl; content: counter(fl); width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; font-size: 14px; }
+.flow > div > div > b { display: block; }
+.flow p { margin: 2px 0 0 !important; font-size: 14.5px; color: var(--ink-2); line-height: 1.65; }
+.matrix { display: grid; grid-template-columns: 7rem repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 22px 0; font-size: 14.5px; background: var(--surface); }
+.matrix > div { padding: 12px 14px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); line-height: 1.55; }
+.matrix > .mh { background: var(--surface-2); font-weight: 600; font-size: 13.5px; color: var(--ink-2); }
+.matrix > .m-ok { background: color-mix(in srgb, var(--s3) 10%, var(--surface)); }
+.matrix > .m-err { background: color-mix(in srgb, var(--s2) 12%, var(--surface)); }
+.matrix > div:nth-child(-n+3) { border-top: 0; }
+.matrix > div:nth-child(3n+1) { border-left: 0; }
+.matrix small { display: block; color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+
+/* key points */
+.keypoints { border-top: 2px solid var(--ink); padding-top: 14px; margin-top: 34px; }
+.keypoints .kt { font-size: 13.5px; font-weight: 600; letter-spacing: .04em; margin: 0 0 8px; }
+.keypoints ul { list-style: none; padding: 0 !important; margin: 0; }
+.keypoints li { position: relative; padding-left: 22px; margin-bottom: 8px; font-size: 15.5px; }
+.keypoints li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 9px; height: 9px; border-radius: 2px; background: var(--accent); }
+
+/* code */
+details.code { margin: 18px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+details.code summary { cursor: pointer; padding: 10px 14px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+details.code pre { margin: 0; padding: 14px 16px; border-top: 1px solid var(--line); background: var(--code-bg); overflow-x: auto; font-family: var(--f-mono); font-size: 13.5px; line-height: 1.6; border-radius: 0 0 10px 10px; }
+details.code pre code { background: none; padding: 0; }
+details.code .cm, .cm { color: var(--muted); }
+pre.out { font-family: var(--f-mono); font-size: 13px; line-height: 1.55; background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; margin: 0 0 12px; white-space: pre; }
+
+/* widgets */
+.widget { border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); padding: 16px 18px; margin: 26px 0; }
+.widget .wt { font-size: 14px; font-weight: 600; margin: 0 0 4px; display: flex; gap: 8px; align-items: center; }
+.widget .wt .pill { font-weight: 500; }
+.widget .wd { font-size: 14px; color: var(--ink-2); margin: 0 0 12px; }
+.wrow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 6px 12px; cursor: pointer; font-size: 14px; color: var(--ink-2); border-left: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.seg button:first-child { border-left: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+.wbtn { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 14px; }
+.wbtn:hover { border-color: var(--accent); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+.stat { border-top: 1px solid var(--line); padding-top: 8px; }
+.stat .sl { font-size: 12.5px; color: var(--muted); }
+.stat .sv { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+input[type="range"] { accent-color: var(--accent); width: min(320px, 100%); }
+.wchart { overflow-x: auto; }
+.wchart svg { display: block; width: 100%; height: auto; min-width: 420px; }
+
+/* pager */
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 56px; border-top: 1px solid var(--line); padding-top: 22px; }
+.pager a, .pager span { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); background: var(--surface); min-width: 0; }
+.pager a:hover { border-color: var(--accent); }
+.pager small { color: var(--muted); font-size: 12.5px; }
+.pager .nx { text-align: right; grid-column: 2; }
+.pager span { visibility: hidden; }
+
+/* citations & references */
+a.cite { font-size: .78em; vertical-align: super; line-height: 0; text-decoration: none; margin-left: 1px; font-variant-numeric: tabular-nums; }
+.reflist { list-style: none; padding: 0 !important; counter-reset: none; }
+.reflist li { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 6px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14.5px; line-height: 1.65; margin: 0 !important; }
+.reflist li:target { background: var(--accent-soft); }
+.reflist .rn { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; padding-right: 6px; }
+.reflist .used { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+/* search */
+.search-box { display: flex; gap: 8px; margin: 8px 0 22px; }
+.search-box input { flex: 1; min-width: 0; height: 44px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 0 14px; font: inherit; background: var(--surface); color: var(--ink); }
+.results { list-style: none; padding: 0; margin: 0; }
+.results li { border-top: 1px solid var(--line); padding: 14px 0; }
+.results a { font-weight: 600; text-decoration: none; }
+.results .rp { font-size: 12.5px; color: var(--muted); }
+.results p { margin: 4px 0 0; font-size: 14.5px; color: var(--ink-2); }
+.soon-box { border: 1px dashed var(--line-strong); border-radius: 12px; padding: 28px; color: var(--ink-2); }
+
+/* drawer (mobile rail) */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 40; }
+.drawer { position: fixed; top: 0; bottom: 0; left: 0; width: min(320px, 86vw); background: var(--surface); z-index: 41; padding: calc(env(safe-area-inset-top, 0px) + 16px) 14px 24px; overflow-y: auto; border-right: 1px solid var(--line); }
+.drawer .rail { position: static; max-height: none; }
+
+@media (min-width: 1241px) { .ch-map { display: none; } }
+@media (max-width: 1240px) {
+  .reader { grid-template-columns: 240px minmax(0, 1fr); }
+  .onpage { display: none; }
+}
+@media (max-width: 960px) {
+  .reader { grid-template-columns: minmax(0, 1fr); }
+  .reader > .rail { display: none; }
+  #menuBtn { display: inline-flex; }
+  .part-grid { grid-template-columns: minmax(0, 1fr); }
+  .side-card { position: static; }
+  .article { max-width: none; }
+}
+@media (max-width: 620px) {
+  body { font-size: 15.5px; }
+  .brand span { display: none; }
+  .tree { grid-template-columns: minmax(0, 1fr); }
+  .fig-grid.g2 .fig-body, .fig-grid.g3 .fig-body { grid-template-columns: minmax(0, 1fr); }
+  .glance { grid-template-columns: minmax(0, 1fr); }
+  .glance dt { border-top: 1px solid var(--line); padding-bottom: 4px; }
+  .glance dd { border-top: 0; padding-top: 4px; }
+  .matrix { grid-template-columns: 5rem repeat(2, minmax(0, 1fr)); font-size: 13.5px; }
+  .toc-ch { grid-template-columns: 2.4rem minmax(0, 1fr); }
+  .toc-no { font-size: 22px; }
+  .tb-btn .lbl-txt { display: none; }
+  .pager { grid-template-columns: minmax(0, 1fr); }
+  .pager .nx { grid-column: 1; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* python lab cells */
+.cell { border: 1px solid var(--line-strong); border-radius: 10px; margin: 18px 0 10px; background: var(--surface); overflow: hidden; }
+.cell-h { display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.4; }
+.cell-n { font-family: var(--f-mono); color: var(--accent-ink); font-weight: 600; white-space: nowrap; }
+.cell-t { color: var(--ink-2); flex: 1; min-width: 0; }
+button.copy { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-2); border-radius: 6px; padding: 3px 10px; font-size: 12.5px; cursor: pointer; }
+button.copy:hover { border-color: var(--accent); color: var(--accent-ink); }
+pre.cell-in { margin: 0; padding: 12px 14px; background: var(--code-bg); overflow-x: auto; font-family: var(--f-mono); font-size: 13.5px; line-height: 1.6; white-space: pre; }
+pre.cell-in code { background: none; padding: 0; font-size: inherit; }
+.cell-out { border-top: 1px solid var(--line); padding: 8px 14px 12px; min-width: 0; }
+.cell-out-h { font-size: 12px; color: var(--muted); margin-bottom: 4px; letter-spacing: .03em; }
+.cell-out pre { margin: 0; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.5; overflow-x: auto; white-space: pre; color: var(--ink); }
+.cell-out pre + pre, .cell-out pre + .df-wrap, .cell-out .df-wrap + pre { margin-top: 8px; }
+.cell-out .warn-out { background: var(--warn-soft); color: var(--warn); padding: 6px 8px; border-radius: 6px; white-space: pre-wrap; margin-top: 8px; }
+.cell-out .err-out { background: color-mix(in srgb, var(--s2) 14%, var(--surface)); color: var(--ink); padding: 6px 8px; border-radius: 6px; white-space: pre-wrap; margin-top: 8px; }
+.cell-img { display: block; max-width: 100%; height: auto; margin-top: 8px; background: #fff; border-radius: 6px; }
+.df-wrap { overflow-x: auto; }
+table.dfout { border-collapse: collapse; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.45; }
+.dfout th, .dfout td { padding: 4px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.dfout thead th { border-bottom: 1px solid var(--line-strong); color: var(--ink-2); }
+.dfout tbody th { text-align: left; color: var(--muted); font-weight: 500; }
+.lines { list-style: none; padding: 0 !important; margin: 4px 0 22px; font-size: 15px; line-height: 1.7; }
+.lines li { display: grid; grid-template-columns: minmax(0, 16rem) minmax(0, 1fr); gap: 14px; padding: 9px 0; border-top: 1px solid var(--line); margin: 0 !important; }
+.lines li:last-child { border-bottom: 1px solid var(--line); }
+.lines li > code:first-child { white-space: pre-wrap; word-break: break-all; font-size: 12.5px; align-self: start; line-height: 1.5; padding: 4px 6px; }
+/* beginner intuition box, "use in my study" box, real-paper guide */
+.easy { background: var(--accent-soft); border-radius: 12px; padding: 16px 20px 8px; margin: 0 0 24px; }
+.easy .et { font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--accent-ink); margin: 0 0 6px; }
+.easy .big { font-size: 17.5px; line-height: 1.7; font-weight: 500; color: var(--ink); margin: 0 0 10px; }
+.easy ul { margin: 0 0 8px; padding-left: 1.2em; }
+.easy li { margin-bottom: 6px; font-size: 15.5px; }
+.easy li b { color: var(--ink); }
+.callout.use { background: var(--surface); border: 1.5px solid var(--accent); }
+.callout.use .ct { color: var(--accent-ink); }
+.math-note { font-size: 14px; color: var(--muted); margin: -6px 0 14px !important; }
+details.real-box { margin: -14px 0 28px; border: 1px solid var(--line-strong); border-top: 0; border-radius: 0 0 12px 12px; background: var(--surface); }
+details.real-box > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 18px; font-size: 14px; font-weight: 600; color: var(--note); }
+details.real-box > summary::-webkit-details-marker { display: none; }
+details.real-box > summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details.real-box[open] > summary::before { transform: rotate(45deg); }
+details.real-box > summary .cnt { font-weight: 400; font-size: 12.5px; color: var(--muted); }
+details.real-box[open] > summary .cnt { display: none; }
+.real-b { padding: 2px 18px 8px; border-top: 1px dashed var(--line); }
+.real-b > p { font-size: 15px; }
+.real-cite { font-size: 14px !important; color: var(--ink-2); background: var(--surface-2); border-radius: 8px; padding: 8px 12px; }
+.real-cite a { word-break: break-all; }
+.real-note { font-size: 13px !important; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { details.real-box > summary::before { transition: none; } }
+.paper:has(+ details.real-box) { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 14px; }
+details.lines-box { margin: 6px 0 22px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+details.lines-box > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 14px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+details.lines-box > summary::-webkit-details-marker { display: none; }
+details.lines-box > summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details.lines-box[open] > summary::before { transform: rotate(45deg); }
+details.lines-box > summary:hover { color: var(--accent-ink); }
+details.lines-box > summary .cnt { font-weight: 400; font-size: 12.5px; color: var(--muted); }
+details.lines-box[open] > summary .cnt { display: none; }
+details.lines-box > ol.lines { margin: 0 14px 10px !important; }
+@media (prefers-reduced-motion: reduce) { details.lines-box > summary::before { transition: none; } }
+.hljs-keyword, .hljs-operator.hljs-keyword { color: var(--hl-kw); }
+.hljs-string { color: var(--hl-str); }
+.hljs-number, .hljs-literal { color: var(--hl-num); }
+.hljs-comment { color: var(--hl-com); font-style: italic; }
+.hljs-title, .hljs-title.function_ { color: var(--hl-fn); }
+.hljs-built_in, .hljs-type { color: var(--hl-bi); }
+.hljs-meta { color: var(--hl-com); }
+@media (max-width: 620px) {
+  .lines li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+{{EXTRA_CSS}}
+
+/* ---- 2026-10 개정: 학습 경로 구성 요소 (CONVENTIONS.md) ---- */
+.lv { display: inline-block; vertical-align: .15em; margin-left: 8px; font-family: var(--f-sans); font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 8px; border-radius: 999px; letter-spacing: .02em; white-space: nowrap; }
+.lv.deep { background: var(--deep-soft); color: var(--deep); }
+.route { border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); padding: 14px 18px 4px; margin: 0 0 32px; font-size: 15px; line-height: 1.7; }
+.route .rt { font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--accent-ink); margin: 0 0 8px; }
+.route dl { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 6px 14px; margin: 0 0 10px; }
+.route dt { color: var(--muted); font-size: 13.5px; font-weight: 600; padding-top: 2px; }
+.route dd { margin: 0; color: var(--ink-2); }
+.practice { margin-top: 26px; border: 1px solid var(--line); border-left: 3px solid var(--good); border-radius: 10px; background: var(--surface); padding: 14px 18px 6px; }
+.practice .pt { font-size: 13.5px; font-weight: 700; letter-spacing: .04em; color: var(--good); margin: 0 0 10px; }
+.article .practice ol { margin: 0 0 8px; padding-left: 1.3em; }
+.practice > ol > li { margin-bottom: 16px; font-size: 15.5px; }
+.practice li > p { margin: 0 0 8px; }
+.practice .qt { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 7px; margin-right: 8px; border-radius: 6px; background: var(--good-soft); color: var(--good); vertical-align: .1em; white-space: nowrap; }
+.practice details { border-top: 1px dashed var(--line); padding-top: 6px; }
+.practice summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent-ink); width: fit-content; }
+.practice details > div { padding: 8px 0 2px; font-size: 15px; line-height: 1.75; color: var(--ink-2); }
+.practice details > div p { margin: 0 0 8px; }
+.cmd-note { font-size: 14px; color: var(--muted); }
+.toc-ch.rv .toc-no { font-size: 17px; padding-top: 6px; }
+.toc-note { font-size: 14px; color: var(--muted); margin: 0 0 18px; }
+@media (max-width: 620px) {
+  .route dl { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .route dd { margin-bottom: 8px; }
+}
+</style>
+
+<header class="topbar">
+  <button class="tb-btn" id="menuBtn" type="button" aria-label="목차 열기">
+    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lbl-txt">목차</span>
+  </button>
+  <a class="brand" href="#home"><b>사회약학 연구방법 노트</b><span>대학원 신입생을 위한 스터디 자료</span></a>
+  <span class="spacer"></span>
+  <a class="tb-btn" href="#stats"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg><span class="lbl-txt">보건통계학 기초</span></a>
+  <a class="tb-btn" href="#search" aria-label="검색"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="lbl-txt">검색</span></a>
+</header>
+<main id="app" class="page"></main>
+<div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
+
+<script type="application/json" id="meta">{{META}}</script>
+{{TEMPLATES}}
+
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+  svg: { fontCache: "global" },
+  options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] },
+  startup: { typeset: false, ready() { MathJax.startup.defaultReady(); window.__mj = true; typesetNow(); } }
+};
+function typesetNow() {
+  const el = document.getElementById("app");
+  if (window.__mj && window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetClear && MathJax.typesetClear([el]);
+    MathJax.typesetPromise([el]).catch(() => {});
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer onload="window.__hlReady && window.__hlReady()"></script>
+<script>window.EXTRA_WIDGETS = {};</script>
+{{WIDGETS_JS}}
+<script>
+(() => {
+  const META = JSON.parse(document.getElementById("meta").textContent);
+  const CH = META.chapters;
+  const byId = Object.fromEntries(CH.map(c => [c.id, c]));
+  const app = document.getElementById("app");
+  const ICON = {
+    note: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
+    doc: '<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>'
+  };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const numLabel = c => c.lab ? `실습 ${+c.no}.` : (c.review ? "종합." : (c.id === "ch15" ? "" : `${c.no}.`));
+
+  function railHTML(activeId) {
+    let h = '<a class="back" href="#stats">← 보건통계학 기초 목차</a>';
+    for (const g of META.groups) {
+      h += `<h4>${esc(g.label)}</h4><ol>`;
+      for (const c of CH.filter(c => c.group === g.key)) {
+        const inner = `<span class="rn">${c.no}</span><span>${esc(c.title)}</span>`;
+        h += c.ready ? `<li><a href="#${c.id}" class="${c.id === activeId ? "on" : ""}">${inner}</a></li>` : `<li><span>${inner}</span></li>`;
+      }
+      h += "</ol>";
+    }
+    return `<nav class="rail" aria-label="장 목록">${h}</nav>`;
+  }
+
+  function renderHome() {
+    const ready = CH.filter(c => c.ready && c.id !== "ch15" && !c.lab).length;
+    const total = CH.filter(c => c.id !== "ch15" && !c.lab).length;
+    const labsReady = CH.filter(c => c.ready && c.lab).length, labsTotal = CH.filter(c => c.lab).length;
+    app.innerHTML = `<div class="wrap">
+      <section class="home-hero">
+        <p class="eyebrow">사회약학 · 약물역학 · 약물경제학</p>
+        <h1>사회약학 연구방법 노트</h1>
+        <p>연구실에 새로 들어온 대학원생이 논문을 읽고 분석을 시작하기 전에 알아야 할 내용을 정리한 자료입니다. 파트를 골라 목차에서 필요한 장을 읽으면 됩니다.</p>
+      </section>
+      <div class="parts">
+        <a class="part-card" href="#stats">
+          <div class="pc-top"><span class="pc-tag">PART · 통계</span><span class="pill ok">${ready}/${total}장 공개</span></div>
+          <h2>보건통계학 기초</h2>
+          <p>평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. 각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, Part 3에서 공개 데이터로 파이썬 실습을 합니다.</p>
+          <div class="pc-meta"><span>이론 0–14장 + 종합 연습 + 참고문헌</span><span>파이썬 실습 ${labsReady}/${labsTotal}개 공개</span></div>
+        </a>
+        <div class="part-card soon">
+          <div class="pc-top"><span class="pc-tag">다음 파트</span><span class="pill">추가 예정</span></div>
+          <h2>새 파트 자리</h2>
+          <p>연구실에서 필요한 주제가 정해지면 같은 형식으로 파트를 추가합니다.</p>
+        </div>
+      </div>
+      <div class="home-how">
+        <div><h3>읽는 순서</h3><p>처음이라면 0장부터 7장까지 순서대로 읽되, 장 첫머리의 '처음 읽을 때' 안내를 따라 '심화' 표시가 없는 부분을 먼저 읽습니다. 7장 다음의 '분석 고르기 연습'으로 PART 1을 점검한 뒤 8장으로 넘어갑니다. 8장부터는 논문에서 만난 기법을 찾아 읽어도 됩니다.</p></div>
+        <div><h3>논문 읽기 상자와 확인 문제</h3><p>'논문에서는 이렇게 보입니다' 상자는 논문 형식의 표와 문장에 번호를 붙여 수치 하나하나를 해석합니다. 절 끝의 '스스로 확인하기'는 답을 펼치기 전에 먼저 답을 적어 보세요.</p></div>
+        <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다.</p></div>
+      </div>
+    </div>`;
+  }
+
+  function renderPart() {
+    let toc = "";
+    for (const g of META.groups) {
+      toc += `<section class="toc-part"><h2>${esc(g.label)}</h2><p class="tp-title">${esc(g.title)}</p>`;
+      for (const c of CH.filter(c => c.group === g.key)) {
+        const title = c.ready ? `<a href="#${c.id}">${esc(c.title)}</a>` : esc(c.title);
+        const pill = c.ready ? "" : '<span class="pill">준비 중</span>';
+        const secs = (c.sections || []).map(s => `<li>${c.ready ? `<a href="#${s.id}"><span class="sn">${esc(s.no)}.</span>${esc(s.title)}</a>` : `<span class="sn">${esc(s.no)}.</span>${esc(s.title)}`}</li>`).join("");
+        toc += `<div class="toc-ch ${c.ready ? "" : "off"}${c.review ? " rv" : ""}"><div class="toc-no">${c.no}</div><h3>${title}${pill}</h3>${secs ? `<ol class="toc-secs">${secs}</ol>` : ""}</div>`;
+      }
+      toc += "</section>";
+    }
+    app.innerHTML = `<div class="wrap">
+      <header class="part-head">
+        <p class="crumbs"><a href="#home">홈</a><span>/</span><span>보건통계학 기초</span></p>
+        <h1>보건통계학 기초</h1>
+        <p>기초 개념(0장)과 기초 검정(1–7장)에서 회귀모형·생존분석·비열등성 검정(8–13장)까지 순서대로 쌓아 가도록 구성했습니다. PART 1 끝의 '분석 고르기 연습'은 연구 상황을 보고 분석을 고르는 연습입니다. Part 3은 각 장의 분석을 공개 데이터와 파이썬으로 직접 해 보는 실습입니다(실습 번호 = 장 번호). 14장에는 사회약학·약물역학 논문에서 자주 만나는 기법을 추가로 모았고, 인용한 문헌은 15장에 모았습니다.</p>
+        <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. 소제목에 <span class="lv deep">심화</span> 표시가 있으면 처음 읽을 때 건너뛰어도 됩니다.</p>
+      </header>
+      <div class="part-grid">
+        <div>${toc}</div>
+        <aside class="side-card">
+          <h3>어떤 검정을 쓸까</h3>
+          <p>결과변수의 종류와 비교하는 상황으로 기법을 고릅니다.</p>
+          <table class="guide">
+            <thead><tr><th>결과변수 · 상황</th><th>기법</th><th>장</th></tr></thead>
+            <tbody>${META.guide.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="gno">${r[2]}</td></tr>`).join("")}</tbody>
+          </table>
+        </aside>
+      </div>
+    </div>`;
+  }
+
+  function renderSearch(q) {
+    app.innerHTML = `<div class="wrap" style="max-width:46rem">
+      <p class="crumbs"><a href="#home">홈</a><span>/</span><span>검색</span></p>
+      <h1 style="font-family:var(--f-serif);margin:0 0 6px">본문 검색</h1>
+      <p style="color:var(--ink-2);margin:0">공개된 장의 본문 전체에서 찾습니다. 예: 오즈비, censoring, 비례위험 가정, SMD</p>
+      <form class="search-box" id="sform"><input id="sq" type="search" placeholder="검색어 입력" autocomplete="off" aria-label="검색어"></form>
+      <ul class="results" id="sres"></ul></div>`;
+    const input = document.getElementById("sq");
+    const run = () => {
+      const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const out = document.getElementById("sres");
+      if (!terms.length) { out.innerHTML = ""; return; }
+      const hits = [];
+      for (const it of searchIndex()) {
+        const low = it.text.toLowerCase();
+        if (terms.every(t => low.includes(t) || it.title.toLowerCase().includes(t))) {
+          const i = Math.max(0, low.indexOf(terms[0]));
+          const start = Math.max(0, i - 50);
+          let snip = it.text.slice(start, start + 150);
+          snip = esc(snip);
+          for (const t of terms) snip = snip.replace(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), m => `<mark>${m}</mark>`);
+          hits.push(`<li><div class="rp">${esc(it.ch)}</div><a href="#${it.id}">${esc(it.title)}</a><p>${start > 0 ? "…" : ""}${snip}…</p></li>`);
+        }
+      }
+      out.innerHTML = hits.length ? hits.join("") : '<li><p>일치하는 내용이 없습니다. 다른 표현(한글/영문)으로 찾아보세요.</p></li>';
+    };
+    input.addEventListener("input", run);
+    document.getElementById("sform").addEventListener("submit", e => { e.preventDefault(); run(); });
+    if (q) { input.value = q; run(); }
+    input.focus();
+  }
+
+  let _idx = null;
+  function searchIndex() {
+    if (_idx) return _idx;
+    _idx = [];
+    for (const c of CH.filter(c => c.ready)) {
+      const tpl = document.getElementById("tpl-" + c.id);
+      if (!tpl) continue;
+      const frag = tpl.content.cloneNode(true);
+      frag.querySelectorAll("svg, script, details.code").forEach(n => n.remove());
+      frag.querySelectorAll("section.sec").forEach(sec => {
+        const h = sec.querySelector("h2");
+        _idx.push({ id: sec.id, ch: c.lab ? `실습 ${+c.no} ${c.title}` : (c.review ? `종합 ${c.title}` : `${+c.no}장 ${c.title}`), title: h ? h.textContent.replace(/\s+/g, " ").trim() : c.title, text: sec.textContent.replace(/\\\(.*?\\\)|\\\[.*?\\\]/g, " ").replace(/\s+/g, " ").trim() });
+      });
+    }
+    return _idx;
+  }
+
+  let spy = null;
+  function renderChapter(id, anchor) {
+    const c = byId[id];
+    if (!c || !c.ready) {
+      app.innerHTML = `<div class="wrap" style="max-width:46rem"><p class="crumbs"><a href="#home">홈</a><span>/</span><a href="#stats">보건통계학 기초</a></p>
+        <h1 style="font-family:var(--f-serif)">${c ? esc(c.no + ". " + c.title) : "찾을 수 없는 페이지"}</h1>
+        <div class="soon-box">이 장은 아직 작성 중입니다. <a href="#stats">목차로 돌아가기</a></div></div>`;
+      return;
+    }
+    const tpl = document.getElementById("tpl-" + id);
+    const g = META.groups.find(g => g.key === c.group);
+    const readyList = CH.filter(x => x.ready);
+    const i = readyList.findIndex(x => x.id === id);
+    const prev = readyList[i - 1], next = readyList[i + 1];
+    const secs = c.sections || [];
+    app.innerHTML = `<div class="reader">
+      ${railHTML(id)}
+      <article class="article" id="article">
+        <header class="ch-head">
+          <p class="crumbs"><a href="#home">홈</a><span>/</span><a href="#stats">보건통계학 기초</a><span>/</span><span>${esc(g.label)}</span></p>
+          <p class="ch-no">${c.id === "ch15" ? "REFERENCES" : (c.lab ? "PYTHON LAB " + c.no : (c.review ? "PART 1 REVIEW" : "CHAPTER " + c.no))}</p>
+          <h1>${esc(c.title)}</h1>
+          <div id="leadSlot"></div>
+          ${secs.length > 1 ? `<nav class="ch-map" aria-label="이 장의 절">${secs.map(s => `<a href="#${s.id}">${esc(s.no)}. ${esc(s.title)}</a>`).join("")}</nav>` : ""}
+        </header>
+        <div id="body"></div>
+        <nav class="pager" aria-label="이전·다음 장">
+          ${prev ? `<a href="#${prev.id}"><small>← 이전</small><span>${numLabel(prev)} ${esc(prev.title)}</span></a>` : "<span></span>"}
+          ${next ? `<a class="nx" href="#${next.id}"><small>다음 →</small><span>${numLabel(next)} ${esc(next.title)}</span></a>` : ""}
+        </nav>
+      </article>
+      <aside class="onpage">${secs.length ? `<h4>이 장의 구성</h4><ol>${secs.map(s => `<li><a href="#${s.id}" data-sec="${s.id}">${esc(s.no)}. ${esc(s.title)}</a></li>`).join("")}</ol>` : ""}</aside>
+    </div>`;
+    const body = document.getElementById("body");
+    body.appendChild(tpl.content.cloneNode(true));
+    const lead = body.querySelector(":scope > .lead");
+    if (lead) document.getElementById("leadSlot").appendChild(lead);
+    initWidgets(body);
+    highlightCode(body);
+    typesetNow();
+    if (spy) spy.disconnect();
+    const links = [...document.querySelectorAll(".onpage a[data-sec]")];
+    if (links.length && "IntersectionObserver" in window) {
+      spy = new IntersectionObserver(entries => {
+        for (const e of entries) if (e.isIntersecting) {
+          links.forEach(l => l.classList.toggle("on", l.dataset.sec === e.target.id));
+        }
+      }, { rootMargin: "-20% 0px -70% 0px" });
+      body.querySelectorAll("section.sec").forEach(s => spy.observe(s));
+    }
+    if (anchor) {
+      const el = document.getElementById(anchor);
+      if (el) { requestAnimationFrame(() => el.scrollIntoView({ block: "start" })); return; }
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function route() {
+    closeDrawer();
+    const h = decodeURIComponent(location.hash.slice(1));
+    let cur = null;
+    if (!h || h === "home") { renderHome(); window.scrollTo(0, 0); }
+    else if (h === "stats") { renderPart(); window.scrollTo(0, 0); }
+    else if (h.startsWith("search")) { renderSearch(h.slice(7)); window.scrollTo(0, 0); }
+    else {
+      const m = h.match(/^((?:ch|lab|rv)\d\d)(?:-(.+))?$/);
+      if (m) {
+        cur = m[1];
+        const already = app.dataset.ch === cur && document.getElementById("article");
+        if (already && m[2]) { const el = document.getElementById(h); if (el) { el.scrollIntoView({ block: "start" }); return; } }
+        renderChapter(cur, m[2] ? h : null);
+      } else renderHome();
+    }
+    app.dataset.ch = cur || "";
+    document.getElementById("menuBtn").hidden = !cur;
+  }
+
+  // drawer for small screens
+  const dRoot = document.getElementById("drawerRoot");
+  function openDrawer() { document.getElementById("drawer").innerHTML = railHTML(app.dataset.ch); dRoot.hidden = false; }
+  function closeDrawer() { dRoot.hidden = true; }
+  document.getElementById("menuBtn").addEventListener("click", openDrawer);
+  document.getElementById("scrim").addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+
+  // ---------- widgets ----------
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function gauss(r) { let u = 0, v = 0; while (u === 0) u = r(); while (v === 0) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  const fmt = (v, d = 1) => v.toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+  const WIDGETS = {
+    fwer(el) {
+      el.innerHTML = `<p class="wt">직접 바꿔 보기 <span class="pill">계산기</span></p>
+        <p class="wd">검정 횟수를 바꾸면 우연한 '유의' 결과가 하나라도 나올 확률과 Bonferroni 기준이 어떻게 변하는지 봅니다.</p>
+        <div class="wrow"><label for="fwk">검정 횟수 k = <b id="fwkv">10</b></label><input id="fwk" type="range" min="1" max="50" value="10"></div>
+        <div class="stats">
+          <div class="stat"><div class="sl">하나라도 위양성일 확률</div><div class="sv" id="fw1"></div></div>
+          <div class="stat"><div class="sl">기대되는 위양성 개수</div><div class="sv" id="fw2"></div></div>
+          <div class="stat"><div class="sl">Bonferroni 검정별 기준</div><div class="sv" id="fw3"></div></div>
+        </div>`;
+      const k = el.querySelector("#fwk");
+      const up = () => { const n = +k.value; el.querySelector("#fwkv").textContent = n;
+        el.querySelector("#fw1").textContent = fmt((1 - Math.pow(0.95, n)) * 100, 1) + "%";
+        el.querySelector("#fw2").textContent = fmt(0.05 * n, 2) + "개";
+        el.querySelector("#fw3").textContent = "p < " + (0.05 / n).toPrecision(2); };
+      k.addEventListener("input", up); up();
+    },
+    clt(el) {
+      const MU = 3, SG = 0.9, POPM = Math.exp(MU + SG * SG / 2), POPSD = POPM * Math.sqrt(Math.exp(SG * SG) - 1);
+      let n = 5, seed = 11;
+      el.innerHTML = `<p class="wt">직접 바꿔 보기 <span class="pill">시뮬레이션</span></p>
+        <p class="wd">모집단: 환자 1인당 연간 외래 약제비(만원). 오른쪽으로 크게 치우친 분포입니다(평균 ${fmt(POPM)}, 중앙값 20.1, 표준편차 ${fmt(POPSD)}). 여기서 n명씩 뽑아 평균을 내는 일을 3,000번 반복하고, 그 3,000개 표본평균의 분포를 그립니다.</p>
+        <div class="wrow"><span>표본 크기 n</span><div class="seg" role="group" aria-label="표본 크기">${[1, 5, 30, 100].map(v => `<button type="button" data-n="${v}" aria-pressed="${v === n}">${v}</button>`).join("")}</div>
+        <button type="button" class="wbtn" id="cltRe">다시 뽑기</button></div>
+        <div class="wchart" id="cltChart"></div>
+        <div class="stats">
+          <div class="stat"><div class="sl">표본평균들의 평균</div><div class="sv" id="c1"></div></div>
+          <div class="stat"><div class="sl">표본평균들의 표준편차 (관측)</div><div class="sv" id="c2"></div></div>
+          <div class="stat"><div class="sl">이론적 표준오차 σ/√n</div><div class="sv" id="c3"></div></div>
+        </div>`;
+      const draw = () => {
+        const r = mulberry32(seed), R = 3000, means = new Float64Array(R);
+        for (let i = 0; i < R; i++) { let s = 0; for (let j = 0; j < n; j++) s += Math.exp(MU + SG * gauss(r)); means[i] = s / n; }
+        let m = 0; for (const v of means) m += v; m /= R;
+        let v2 = 0; for (const v of means) v2 += (v - m) ** 2; const sd = Math.sqrt(v2 / (R - 1));
+        const W = 640, H = 260, L = 50, Rr = 20, T = 16, B = 44, lo = 0, hi = 100, bw = 2, nb = (hi - lo) / bw;
+        const cnt = new Array(nb).fill(0); let over = 0;
+        for (const v of means) { const b = Math.floor((v - lo) / bw); if (b >= 0 && b < nb) cnt[b]++; else over++; }
+        const ymax = Math.max(...cnt) * 1.12;
+        const sx = x => L + (x - lo) / (hi - lo) * (W - L - Rr), sy = y => H - B - y / ymax * (H - T - B);
+        let s = "";
+        for (let t = 0; t <= 100; t += 20) s += `<line x1="${sx(t)}" y1="${T}" x2="${sx(t)}" y2="${H - B}" class="grid"/><text x="${sx(t)}" y="${H - B + 18}" text-anchor="middle" class="tick">${t}</text>`;
+        s += `<line x1="${L}" y1="${H - B}" x2="${W - Rr}" y2="${H - B}" class="axis"/>`;
+        cnt.forEach((c, i) => { if (!c) return; const x = sx(lo + i * bw) + 0.8, w = sx(lo + (i + 1) * bw) - sx(lo + i * bw) - 1.6; s += `<rect x="${x.toFixed(1)}" y="${sy(c).toFixed(1)}" width="${w.toFixed(1)}" height="${(sy(0) - sy(c)).toFixed(1)}" class="f1"/>`; });
+        if (n > 1) {
+          const se = POPSD / Math.sqrt(n); let d = "";
+          for (let x = 0; x <= 100; x += 0.25) { const y = R * bw * Math.exp(-0.5 * ((x - POPM) / se) ** 2) / (se * Math.sqrt(2 * Math.PI)); d += (d ? " L" : "M") + sx(x).toFixed(1) + "," + sy(Math.min(y, ymax)).toFixed(1); }
+          s += `<path d="${d}" class="ln s2" stroke-width="2" fill="none"/>`;
+          s += `<line x1="${W - Rr - 196}" y1="${T + 10}" x2="${W - Rr - 174}" y2="${T + 10}" class="ln s2" stroke-width="2.4"/><text x="${W - Rr - 168}" y="${T + 14}" class="lbl">같은 평균·SE의 정규곡선</text>`;
+        }
+        s += `<line x1="${sx(POPM)}" y1="${T}" x2="${sx(POPM)}" y2="${H - B}" class="ref" stroke-dasharray="4 4"/><text x="${sx(POPM) + 6}" y="${T + 12}" class="lbl mute small">모평균 ${fmt(POPM)}</text>`;
+        s += `<text x="${(L + W - Rr) / 2}" y="${H - 8}" text-anchor="middle" class="axlab">${n === 1 ? "환자 1명의 약제비 (만원) — 모집단 분포 그대로" : `${n}명 표본의 평균 약제비 (만원)`}</text>`;
+        if (over) s += `<text x="${W - Rr}" y="${T + 34}" text-anchor="end" class="lbl mute small">100 초과 ${over}개는 그림에서 생략</text>`;
+        el.querySelector("#cltChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" class="viz" role="img" aria-label="표본평균의 분포">${s}</svg>`;
+        el.querySelector("#c1").textContent = fmt(m) + "만원";
+        el.querySelector("#c2").textContent = fmt(sd, 2);
+        el.querySelector("#c3").textContent = fmt(POPSD / Math.sqrt(n), 2);
+      };
+      el.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { n = +b.dataset.n; el.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); }));
+      el.querySelector("#cltRe").addEventListener("click", () => { seed = (seed * 7 + 13) % 100000; draw(); });
+      draw();
+    }
+  };
+
+  function highlightCode(root) {
+    if (!window.hljs) return;
+    root.querySelectorAll("pre.cell-in code, details.code code.language-python").forEach(el => { if (!el.dataset.hl) { try { window.hljs.highlightElement(el); } catch (e) {} el.dataset.hl = "1"; } });
+  }
+  window.__hlReady = () => highlightCode(document.getElementById("app"));
+  document.addEventListener("click", e => {
+    const b = e.target.closest("button.copy");
+    if (!b) return;
+    const code = b.closest(".cell").querySelector("pre.cell-in code");
+    const text = code ? code.textContent : "";
+    const done = ok => { b.textContent = ok ? "복사됨" : "선택됨 · Ctrl+C"; setTimeout(() => { b.textContent = "복사"; }, 1800); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(code); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); done(false); };
+    try { navigator.clipboard.writeText(text).then(() => done(true), fallback); } catch (err) { fallback(); }
+  });
+  const HELP = { mulberry32, gauss, fmt, esc };
+  function initWidgets(root) {
+    root.querySelectorAll("[data-widget]").forEach(el => {
+      const f = WIDGETS[el.dataset.widget] || (window.EXTRA_WIDGETS || {})[el.dataset.widget];
+      if (f) { try { f(el, HELP); } catch (e) { console.error("widget", el.dataset.widget, e); } }
+    });
+  }
+
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>

@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">단순회귀 적합과 summary()</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+
+model = smf.ols(&quot;target ~ bmi&quot;, data=df).fit()   # 모형 적합
+print(model.summary())                           # 결과 요약표</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                 target   R-squared:                       0.344  <span class="mk">1</span><span class="mk">2</span>
+Model:                            OLS   Adj. R-squared:                  0.342  <span class="mk">3</span>
+Method:                 Least Squares   F-statistic:                     230.7  <span class="mk">4</span>
+Date:                Wed, 30 Sep 2026   Prob (F-statistic):           3.47e-42  <span class="mk">5</span>
+Time:                        02:24:39   Log-Likelihood:                -2454.0  <span class="mk">6</span>
+No. Observations:                 442   AIC:                             4912.  <span class="mk">7</span><span class="mk">8</span>
+Df Residuals:                     440   BIC:                             4920.  <span class="mk">9</span>
+Df Model:                           1                                           <span class="mk">10</span>
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          t      P&gt;|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept   -117.7734     18.019     -6.536      0.000    -153.187     -82.359  <span class="mk">11</span>
+bmi           10.2331      0.674     15.187      0.000       8.909      11.557  <span class="mk">12</span><span class="mk">13</span><span class="mk">14</span><span class="mk">15</span>
+==============================================================================
+Omnibus:                       11.674   Durbin-Watson:                   1.848  <span class="mk">16</span>
+Prob(Omnibus):                  0.003   Jarque-Bera (JB):                7.310
+Skew:                           0.156   Prob(JB):                       0.0259
+Kurtosis:                       2.453   Cond. No.                         162.  <span class="mk">17</span>
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.</pre></div></div>

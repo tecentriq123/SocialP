@@ -1,0 +1,84 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">환자 한 명 = 한 행으로 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pt = cgd.groupby(&quot;id&quot;).agg(
+    treat=(&quot;treat&quot;, &quot;first&quot;),
+    age=(&quot;age&quot;, &quot;first&quot;),
+    inherit=(&quot;inherit&quot;, &quot;first&quot;),
+    propylac=(&quot;propylac&quot;, &quot;first&quot;),
+    n_inf=(&quot;status&quot;, &quot;sum&quot;),       # 감염 건수
+    days=(&quot;tstop&quot;, &quot;max&quot;),         # 추적 일수
+).reset_index()
+pt[&quot;py&quot;] = pt[&quot;days&quot;] / 365.25     # 인년
+pt[&quot;treat&quot;] = pd.Categorical(pt[&quot;treat&quot;],
+                             categories=[&quot;placebo&quot;, &quot;rIFN-g&quot;])
+print(pt.shape)
+pt.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(128, 8)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>treat</th>
+      <th>age</th>
+      <th>inherit</th>
+      <th>propylac</th>
+      <th>n_inf</th>
+      <th>days</th>
+      <th>py</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>rIFN-g</td>
+      <td>12</td>
+      <td>autosomal</td>
+      <td>0</td>
+      <td>2</td>
+      <td>414</td>
+      <td>1.133470</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>placebo</td>
+      <td>15</td>
+      <td>autosomal</td>
+      <td>1</td>
+      <td>7</td>
+      <td>439</td>
+      <td>1.201916</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>rIFN-g</td>
+      <td>19</td>
+      <td>X-linked</td>
+      <td>1</td>
+      <td>0</td>
+      <td>382</td>
+      <td>1.045859</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>rIFN-g</td>
+      <td>12</td>
+      <td>X-linked</td>
+      <td>1</td>
+      <td>0</td>
+      <td>388</td>
+      <td>1.062286</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>placebo</td>
+      <td>17</td>
+      <td>X-linked</td>
+      <td>1</td>
+      <td>2</td>
+      <td>383</td>
+      <td>1.048597</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

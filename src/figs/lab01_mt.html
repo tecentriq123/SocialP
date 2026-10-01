@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">Bonferroni, Holm, Benjamini-Hochberg</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.multitest import multipletests
+
+for method in [&quot;bonferroni&quot;, &quot;holm&quot;, &quot;fdr_bh&quot;]:
+    reject, p_adj, _, _ = multipletests(tt[&quot;p&quot;], alpha=0.05,
+                                        method=method)
+    tt[&quot;p_&quot; + method] = p_adj          # 보정 p-value를 새 열로
+    print(f&quot;{method:10s}: {reject.sum()} significant&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bonferroni: 25<span class="mk">1</span> significant
+holm      : 25<span class="mk">2</span> significant
+fdr_bh    : 26<span class="mk">3</span> significant</pre></div></div>

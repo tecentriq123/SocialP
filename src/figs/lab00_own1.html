@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">연습용 파일 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 연습용 파일 만들기 (엑셀에서 저장한 한글 CSV를 흉내)
+demo = pd.DataFrame({&quot;환자번호&quot;: [1, 2, 3],
+                     &quot;성별&quot;: [&quot;남&quot;, &quot;여&quot;, &quot;여&quot;],
+                     &quot;HbA1c&quot;: [7.2, 6.8, 8.1]})
+demo.to_csv(&quot;my_patients.csv&quot;, index=False, encoding=&quot;cp949&quot;)
+demo.to_excel(&quot;my_patients.xlsx&quot;, index=False)</code></pre></div>

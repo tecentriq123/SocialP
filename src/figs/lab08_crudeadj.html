@@ -1,0 +1,41 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">보정 전과 보정 후 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_race = smf.logit(&quot;low ~ smoke + C(race)&quot;, df).fit(disp=0)
+b = m_race.params[&quot;smoke&quot;]
+b_lo, b_hi = m_race.conf_int().loc[&quot;smoke&quot;]
+rows = [[&quot;crude&quot;, t22.oddsratio, *t22.oddsratio_confint()],
+        [&quot;Mantel-Haenszel&quot;, st.oddsratio_pooled,
+         *st.oddsratio_pooled_confint()],
+        [&quot;logistic + C(race)&quot;, np.exp(b), np.exp(b_lo), np.exp(b_hi)]]
+pd.DataFrame(rows, columns=[&quot;method&quot;, &quot;OR&quot;, &quot;2.5%&quot;, &quot;97.5%&quot;]).round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>method</th>
+      <th>OR</th>
+      <th>2.5%</th>
+      <th>97.5%</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>crude</td>
+      <td>2.02<span class="mk">1</span></td>
+      <td>1.08</td>
+      <td>3.78</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mantel-Haenszel</td>
+      <td>3.09<span class="mk">2</span></td>
+      <td>1.49</td>
+      <td>6.39</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>logistic + C(race)</td>
+      <td>3.05<span class="mk">3</span></td>
+      <td>1.48</td>
+      <td>6.29</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

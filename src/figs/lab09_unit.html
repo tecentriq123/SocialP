@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">임상적으로 의미 있는 단위의 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_per(m, var, c):                  # c 단위당 오즈비와 95% CI
+    est = m.params[var]                 # 1단위당 로그 오즈비
+    lo, hi = m.conf_int().loc[var]      # 그 95% 신뢰구간
+    return np.round(np.exp([c * est, c * lo, c * hi]), 3)
+
+crude_lwt = smf.logit(&quot;low ~ lwt&quot;, data=bw).fit(disp=0)
+crude_age = smf.logit(&quot;low ~ age&quot;, data=bw).fit(disp=0)
+print(&quot;lwt per 10 lb, adjusted:&quot;, or_per(logit_m, &quot;lwt&quot;, 10))
+print(&quot;lwt per 10 lb, crude   :&quot;, or_per(crude_lwt, &quot;lwt&quot;, 10))
+print(&quot;age per 5 yr,  adjusted:&quot;, or_per(logit_m, &quot;age&quot;, 5))
+print(&quot;age per 5 yr,  crude   :&quot;, or_per(crude_age, &quot;age&quot;, 5))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>lwt per 10 lb, adjusted: [0.861<span class="mk">1</span> 0.75  0.989]<span class="mk">2</span>
+lwt per 10 lb, crude   : [0.869<span class="mk">3</span> 0.77  0.981]
+age per 5 yr,  adjusted: [0.828<span class="mk">4</span> 0.572 1.199]
+age per 5 yr,  crude   : [0.774 0.569 1.054]</pre></div></div>

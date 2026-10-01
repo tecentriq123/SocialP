@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">statsmodels 0.15의 함수와 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels
+print(&quot;statsmodels&quot;, statsmodels.__version__)
+from statsmodels.stats.nonparametric import jonckheere_terpstra
+
+res_sm = jonckheere_terpstra(tert, alternative=&quot;two-sided&quot;)
+print(f&quot;J = {res_sm.statistic:.0f}, z = {res_sm.zstat:.2f}, &quot;
+      f&quot;p = {res_sm.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>statsmodels 0.15.0<span class="mk">1</span>
+J = 7356, z = 3.44, p = 0.0006<span class="mk">2</span></pre></div></div>

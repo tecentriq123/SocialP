@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">흡연 여부에 이름표 붙이기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;smoke_f&quot;] = pd.Categorical(
+    df[&quot;smoke&quot;].map({0: &quot;Nonsmoker&quot;, 1: &quot;Smoker&quot;}),
+    categories=[&quot;Nonsmoker&quot;, &quot;Smoker&quot;])
+df[&quot;smoke_f&quot;].value_counts(sort=False)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+    </tr>
+    <tr>
+      <th>smoke_f</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Nonsmoker</th>
+      <td>115<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>Smoker</th>
+      <td>74<span class="mk">2</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

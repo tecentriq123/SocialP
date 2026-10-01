@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">평균의 신뢰구간과 개인의 예측구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">new = pd.DataFrame({&quot;bmi&quot;: [25, 30]})     # 예측하고 싶은 BMI 값
+pred = model.get_prediction(new)
+pred.summary_frame(alpha=0.05).round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>mean_se</th>
+      <th>mean_ci_lower</th>
+      <th>mean_ci_upper</th>
+      <th>obs_ci_lower</th>
+      <th>obs_ci_upper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>138.1<span class="mk">1</span></td>
+      <td>3.1<span class="mk">2</span></td>
+      <td>131.9<span class="mk">3</span></td>
+      <td>144.2</td>
+      <td>15.0<span class="mk">4</span></td>
+      <td>261.1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>189.2</td>
+      <td>3.8</td>
+      <td>181.7</td>
+      <td>196.8</td>
+      <td>66.1</td>
+      <td>312.3</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

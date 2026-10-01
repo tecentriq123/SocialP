@@ -1,0 +1,33 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">중앙값과 사분위수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">q = (df.groupby(&quot;smoke_f&quot;, observed=True)[&quot;bwt&quot;]
+       .quantile([0.25, 0.5, 0.75])
+       .unstack())
+q</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0.25</th>
+      <th>0.5</th>
+      <th>0.75</th>
+    </tr>
+    <tr>
+      <th>smoke_f</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Nonsmoker</th>
+      <td>2509.0</td>
+      <td>3100.0<span class="mk">1</span></td>
+      <td>3621.50</td>
+    </tr>
+    <tr>
+      <th>Smoker</th>
+      <td>2370.5</td>
+      <td>2775.5<span class="mk">2</span></td>
+      <td>3245.75</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,293 @@
+<p class="lead">3장의 대응표본 t 검정과 Wilcoxon 부호순위 검정을 t 검정의 역사에서 가장 유명한 자료로 해 봅니다. Student(1908)가 t 분포를 소개하며 쓴 수면제 자료로, 같은 환자 10명이 두 가지 약을 모두 복용했습니다. 긴 형식 자료를 환자별로 짝지어 넓은 형식으로 바꾸는 방법과, 짝을 무시하고 분석하면 결과가 얼마나 달라지는지도 확인합니다(<a href="#ch03">3장</a>).</p>
+
+<dl class="glance">
+  <div><dt>관련 이론</dt><dd><a href="#ch03-s1">3장 가 절 대응표본 T 검정</a>, <a href="#ch03-s2">3장 나 절 Wilcoxon signed rank test</a>. 자료 모양 바꾸기는 <a href="#ch10-s2">10장 나 절</a></dd></div>
+  <div><dt>데이터</dt><dd>sleep (R의 datasets 패키지). 환자 10명이 두 가지 수면제를 각각 복용했을 때, 약을 쓰지 않았을 때보다 늘어난 수면시간(시간). 20행 × 3변수. 원자료는 Cushny와 Peebles의 연구이며<cite data-ref="cushny1905"></cite>, Student가 t 검정의 예제로 썼습니다<cite data-ref="student1908"></cite>.</dd></div>
+  <div><dt>사용 패키지</dt><dd>pandas, numpy, scipy.stats, matplotlib</dd></div>
+  <div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). 추가 설치 없음. 새 노트북에서 셀 1부터 순서대로 실행하세요.</dd></div>
+</dl>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab03-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>자료에는 변수가 세 개뿐입니다. <code>extra</code>는 약을 먹지 않은 밤보다 늘어난 수면시간(시간, 음수면 오히려 줄어듦), <code>group</code>은 복용한 약(1 또는 2), <code>ID</code>는 환자 번호(1–10)입니다. R의 자료 설명서가 따로 경고하듯, <code>group</code>이라는 이름과 달리 이 자료는 서로 다른 두 군이 아니라 <b>같은 10명이 두 약을 모두 복용한</b> 결과입니다. 그래서 분석 단위는 측정 20개가 아니라 환자 10명이고, 같은 <code>ID</code>의 두 값이 한 쌍입니다. 이 구조를 확인하고 쌍을 만드는 것이 이 절의 목표입니다.</p>
+
+<h3>데이터 불러오기</h3>
+<!--FIG:lab03_load-->
+<ol class="lines">
+<li><code>import pandas as pd
+…
+import matplotlib.pyplot as plt</code><span>이 실습에 쓸 패키지를 모두 불러옵니다. 각 패키지의 역할은 <a href="#lab02-s1">실습 2 가 절</a>과 같습니다.</span></li>
+<li><code>url = ("…" "…/csv/datasets/sleep.csv")</code><span>Rdatasets 주소의 끝부분이 'datasets 패키지의 sleep 자료'라는 뜻입니다. 인터넷 연결이 필요합니다.</span></li>
+<li><code>sleep = pd.read_csv(url)</code><span>데이터프레임 이름을 <code>sleep</code>으로 했습니다.</span></li>
+<li><code>sleep</code><span>데이터프레임 이름만 쓰면 표 전체가 출력됩니다. 행이 많으면 앞뒤 일부만 보입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>첫 행: ID 1 환자가 약 1을 먹고 0.7시간 더 잤습니다.</b></span></li>
+<li><span class="mk">2</span><span><b>11번째 행: 같은 ID 1 환자가 약 2를 먹고 1.9시간 더 잤습니다.</b> 한 환자의 두 값이 10행 떨어져 있습니다. 이렇게 측정 한 번이 한 행인 모양을 <b>긴 형식</b><span class="en">(long format)</span>이라고 합니다(<a href="#ch10-s2">10장 나 절</a>). 20행 = 환자 10명 × 약 2개입니다.</span></li>
+</ol>
+
+<h3>짝 확인하기</h3>
+<p>쌍을 만들기 전에, 모든 환자가 두 약에 한 번씩 정확히 들어 있는지 확인합니다. 한 번도 없는 칸이 있으면 짝이 없는 환자이고, 2 이상인 칸이 있으면 같은 측정이 중복 입력된 것입니다.</p>
+<!--FIG:lab03_crosstab-->
+<ol class="lines">
+<li><code>pd.crosstab(sleep["ID"], sleep["group"])</code><span>행은 ID, 열은 group인 교차표를 만들고 칸마다 행의 개수를 셉니다. 5장의 분할표와 같은 모양입니다.</span></li>
+</ol>
+<p><b>출력 읽기.</b> 10명 모두 두 칸이 1입니다. 모든 환자가 두 약에 한 번씩 있으므로 완전한 쌍이 10개입니다. 실제 연구 자료에서는 추적 관찰이 끊겨 한쪽 값이 없는 환자가 흔하며, 대응 분석에서는 그런 환자가 빠집니다(3장 가 절 '완전한 쌍만 분석됨').</p>
+
+<h3>넓은 형식으로 바꾸기</h3>
+<p>대응 분석을 하려면 한 환자의 두 값이 같은 행에 나란히 있어야 합니다. 환자 한 명이 한 행인 이 모양을 <b>넓은 형식</b><span class="en">(wide format)</span>이라고 하며, pandas의 <code>pivot</code>으로 바꿉니다.</p>
+<!--FIG:lab03_wide-->
+<ol class="lines">
+<li><code>sleep.pivot(index="ID", columns="group", values="extra")</code><span>ID 값(1–10)이 행 이름이 되고, group 값(1, 2)이 열 이름이 되며, 칸에는 extra 값이 들어갑니다. 20행 × 4열의 긴 형식이 10행 × 2열의 넓은 형식으로 바뀝니다.</span></li>
+<li><code>wide.columns = ["drug1", "drug2"]</code><span>열 이름 1, 2를 알아보기 쉬운 이름으로 바꿉니다. <code>pivot</code>은 열을 group 값 순서(1, 2)로 정렬하므로 이 순서대로 이름을 줍니다.</span></li>
+<li><code>wide["d"] = wide["drug2"] - wide["drug1"]</code><span>같은 행끼리 빼서 환자별 차이 d = 약 2 − 약 1을 새 열로 만듭니다. 같은 행의 두 값은 반드시 같은 환자의 것이므로, 쌍이 ID로 정확히 맞춰집니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>환자 1의 d = 1.9 − 0.7 = 1.2시간.</b> 앞의 긴 형식에서 10행 떨어져 있던 두 값이 한 행에 모였습니다.</span></li>
+<li><span class="mk">2</span><span><b>환자 5는 두 약 모두 −0.1시간.</b> d = 0이라 "어느 약이 나은가"에 대한 정보가 없습니다. 다 절의 Wilcoxon 부호순위 검정에서는 이 환자가 빠집니다.</span></li>
+<li><span class="mk">3</span><span><b>환자 9는 약 1에서 0.0, 약 2에서 4.6시간.</b> d = 4.6으로 다른 환자(0–2.4)보다 훨씬 큽니다. 이 한 명이 차이 d의 분포 모양을 좌우합니다(나 절의 정규성 확인).</span></li>
+</ol>
+<p><code>sleep.loc[sleep["group"] == 2, "extra"]</code>와 <code>sleep.loc[sleep["group"] == 1, "extra"]</code>를 따로 꺼내 빼는 방법도 있지만, 이때는 두 묶음의 행 순서가 같은 환자 순서라는 보장이 없습니다. 자료가 정렬되어 있지 않으면 오류 없이 엉뚱한 사람끼리 빼게 됩니다. <code>pivot</code>처럼 ID로 짝을 맞추는 방식이 안전합니다.</p>
+
+<div class="callout warn"><p class="ct">이런 오류가 나면</p>
+<p>같은 ID와 group 조합이 두 번 이상 있으면 <code>pivot</code>은 어느 값을 넣을지 몰라 멈춥니다. 아래는 첫 행을 일부러 한 번 더 붙여 본 것입니다.</p>
+<!--FIG:lab03_duperror-->
+<p><code>ValueError: Index contains duplicate entries, cannot reshape</code>가 보이면 <code>sleep[sleep.duplicated(["ID", "group"], keep=False)]</code>로 중복된 행을 모두 찾아 원인(중복 입력, 같은 날 두 번 측정 등)을 확인합니다. 청구자료처럼 한 환자에게 같은 날짜의 기록이 여러 건 있는 자료에서 자주 만나는 오류입니다. 평균을 내서 합칠지 하나만 남길지는 연구 설계에 따라 정해야 하므로, 오류를 없애려고 기계적으로 <code>pivot_table</code>(기본값이 평균)로 바꾸지 마세요.</p></div>
+
+<h3>요약통계와 상관</h3>
+<!--FIG:lab03_describe-->
+<ol class="lines">
+<li><code>r = wide["drug1"].corr(wide["drug2"])</code><span>두 열의 Pearson 상관계수입니다(<a href="#ch06-s1">6장 가 절</a>). 약 1에서 많이 잔 환자가 약 2에서도 많이 자는지를 봅니다.</span></li>
+<li><code>wide.describe().round(2)</code><span>열마다 개수, 평균, SD, 최솟값, 사분위수, 최댓값을 한 표로 보여 줍니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>상관계수 r = 0.795.</b> 두 값이 강하게 연관되어 있습니다. 잠이 잘 늘어나는 사람은 어느 약에서나 잘 늘어난다는 뜻이고, 이 '사람 간 차이'가 빼기 과정에서 상쇄되는 것이 대응 분석의 이득입니다.</span></li>
+<li><span class="mk">2</span><span><b>d의 평균 1.58시간.</b> 2.33 − 0.75 = 1.58로, 차이의 평균은 평균의 차이와 같습니다(반올림 차이 제외).</span></li>
+<li><span class="mk">3</span><span><b>d의 SD 1.23시간.</b> 각 약의 SD(1.79, 2.00)보다 작습니다. 전후 상관이 높을수록 차이의 SD가 작아진다는 3장 가 절의 식이 여기서 성립합니다. 나 절에서 직접 계산합니다.</span></li>
+</ol>
+
+<h3>짝지은 그림</h3>
+<p>대응 자료는 두 군의 상자그림보다 환자별로 두 값을 선으로 이은 그림이 구조를 잘 보여 줍니다(3장 그림 3-1과 같은 형식).</p>
+<!--FIG:lab03_plot-->
+<ol class="lines">
+<li><code>fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.6))</code><span>1행 2열로 그래프 두 칸을 만들고 왼쪽을 <code>ax1</code>, 오른쪽을 <code>ax2</code>라고 부릅니다.</span></li>
+<li><code>for pid, row in wide.iterrows():</code><span><code>wide</code>의 행을 하나씩 꺼내 반복합니다. <code>pid</code>에는 행 이름(ID)이, <code>row</code>에는 그 행의 값들(drug1, drug2, d)이 들어갑니다. 반복할 내용은 다음 줄처럼 들여 씁니다.</span></li>
+<li><code>ax1.plot([1, 2], [row["drug1"], row["drug2"]], marker="o", color="gray")</code><span>가로 위치 1(약 1)과 2(약 2)에 그 환자의 두 값을 찍고 선으로 잇습니다. 10번 반복되므로 선이 10개입니다.</span></li>
+<li><code>ax1.set_xticks([1, 2], ["Drug 1", "Drug 2"])</code><span>가로축 1, 2 위치에 이름을 붙입니다(matplotlib 3.5 이상).</span></li>
+<li><code>ax2.scatter(wide.index, wide["d"], color="black")</code><span>오른쪽 그림은 가로축이 환자 번호, 세로축이 차이 d입니다. "Drug 2 − Drug 1 (hours)"는 약 2에서 더 늘어난 수면시간입니다.</span></li>
+<li><code>ax2.axhline(0, ls="--", color="gray")</code><span>차이가 0인 선입니다. 이 선 위의 점은 약 2에서 더 오래 잔 환자입니다.</span></li>
+<li><code>plt.tight_layout()</code><span>두 그래프의 축 이름이 겹치지 않게 간격을 맞춥니다.</span></li>
+</ol>
+<p><b>그림 읽기.</b> 왼쪽 그림에서 선 10개 중 9개가 올라가고 하나(환자 5)는 수평입니다. 약 1에서 −1.6시간부터 3.7시간까지 흩어진 환자 간 차이가 약에 따른 변화보다 훨씬 크고, 선들이 대체로 비슷한 기울기로 올라갑니다. 오른쪽 그림에서 d는 모두 0 이상이고, 환자 9(4.6시간)가 다른 환자들과 동떨어져 있습니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>group</code>이라는 이름과 상관없이, 같은 사람이 두 번 측정되었다면 대응 자료입니다. 분석 단위는 사람(쌍)입니다.</li>
+<li><code>pd.crosstab</code>으로 ID마다 두 측정이 한 번씩 있는지 확인하고, <code>pivot(index=ID, columns=측정, values=값)</code>으로 넓은 형식으로 바꿉니다.</li>
+<li>넓은 형식에서 같은 행끼리 빼면 ID로 정확히 짝지은 차이 d가 됩니다. 행 순서에 기대어 두 묶음을 빼는 방식은 위험합니다.</li>
+<li>대응 자료는 환자별로 두 값을 선으로 이은 그림과 차이 d의 그림으로 봅니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab03-s2">
+<h2><span class="sec-no">나.</span>대응표본 t 검정</h2>
+
+<p>대응표본 t 검정은 환자마다 차이 d를 구한 뒤, d의 평균이 0인지를 일표본 t 검정으로 봅니다(<a href="#ch03-s1">3장 가 절</a>). 귀무가설은 "두 약으로 늘어난 수면시간의 차이의 모평균이 0이다"이고, 자유도는 쌍의 수 − 1 = 9입니다.</p>
+
+<h3>대응표본 t 검정</h3>
+<!--FIG:lab03_ttest-->
+<ol class="lines">
+<li><code>stats.ttest_rel(wide["drug2"], wide["drug1"])</code><span>대응표본 t 검정입니다(rel은 related, 서로 관련된 표본이라는 뜻). 두 인자의 같은 위치 값끼리 짝을 짓고, <b>첫 번째 − 두 번째</b>(약 2 − 약 1) 방향으로 계산합니다. 두 열이 같은 <code>wide</code>의 행에서 나왔으므로 같은 위치 = 같은 환자입니다.</span></li>
+<li><code>print(res)</code><span>결과 객체 전체입니다. 이번에는 <code>df=np.int64(9)</code>처럼 자유도가 정수로 나옵니다.</span></li>
+<li><code>res.confidence_interval()</code><span>차이 평균의 95% 신뢰구간입니다(scipy 1.11 이상에서 사용 가능).</span></li>
+<li><code>wide['d'].mean()</code><span>f-문자열 안에서 따옴표가 겹치지 않도록 바깥은 큰따옴표, 안은 작은따옴표를 썼습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>t = 4.062.</b> 차이 평균이 그 표준오차의 약 4배입니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.0028.</b> 두 약의 효과가 같다면 이만큼 한쪽으로 치우친 차이가 우연히 나올 확률은 0.3%입니다.</span></li>
+<li><span class="mk">3</span><span><b>자유도 9 = 쌍 10개 − 1.</b> 측정값 20개가 아니라 쌍의 수로 정해집니다. 논문에는 t(9) = 4.06으로 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>평균 차이 1.58시간.</b> 약 2가 약 1보다 평균 1.58시간 더 수면을 늘렸습니다.</span></li>
+<li><span class="mk">5</span><span><b>95% CI 0.70 ~ 2.46시간.</b> 0을 포함하지 않으므로 p &lt; 0.05와 같은 결론이고, 차이가 0.7시간 정도로 작을 수도, 2.5시간 정도로 클 수도 있다는 뜻입니다.</span></li>
+</ol>
+
+<h3>차이 d에 대한 일표본 t 검정</h3>
+<p>대응표본 t 검정이 곧 차이 d에 대한 일표본 t 검정이라는 것을 확인합니다.</p>
+<!--FIG:lab03_onesample-->
+<ol class="lines">
+<li><code>d = wide["d"]</code><span>차이 열을 짧은 이름 <code>d</code>로 꺼내 둡니다. 다 절에서도 계속 씁니다.</span></li>
+<li><code>stats.ttest_1samp(d, popmean=0)</code><span>일표본 t 검정입니다. <code>popmean=0</code>은 "d의 모평균이 0"이라는 귀무가설입니다.</span></li>
+<li><code>se = d.std() / np.sqrt(len(d))</code><span>차이의 표준오차 s<sub>d</sub>/√n입니다. <code>len(d)</code>는 쌍의 수 10입니다.</span></li>
+<li><code>d.mean() / se</code><span>t = d̄ ÷ SE를 손으로 계산합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>일표본 t 검정의 t와 p가 <code>ttest_rel</code>과 똑같습니다.</b> 두 약의 값 20개가 아니라 차이 10개가 분석 대상이라는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>차이의 SD 1.230시간.</b></span></li>
+<li><span class="mk">3</span><span><b>SE = 1.230 ÷ √10 = 0.389시간.</b> t = 1.58 ÷ 0.389 = 4.062입니다. 신뢰구간은 1.58 ± 2.262 × 0.389 = 0.70 ~ 2.46이며, 2.262는 자유도 9인 t 분포의 양측 5% 임계값입니다.</span></li>
+</ol>
+
+<h3>잘못된 분석과 비교하기</h3>
+<p>같은 자료를 서로 다른 20명의 두 군처럼 독립표본 t 검정에 넣으면 어떻게 되는지 봅니다. 3장 가 절 '같은 자료를 독립표본으로 분석하면'과 같은 비교입니다.</p>
+<!--FIG:lab03_wrong-->
+<ol class="lines">
+<li><code>stats.ttest_ind(wide["drug2"], wide["drug1"])</code><span>독립표본 t 검정(scipy 기본값인 Student)입니다. 두 열이 서로 다른 사람들이라고 보고 짝 정보를 버립니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>t = 1.861.</b> 평균 차이(1.58)는 같은데 t가 절반 이하로 줄었습니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.079.</b> 올바른 분석의 0.0028보다 약 28배 커서 "유의하지 않음"으로 결론이 바뀝니다.</span></li>
+<li><span class="mk">3</span><span><b>자유도 18 = 20 − 2.</b> 20명의 서로 다른 사람이 있는 것처럼 계산했습니다.</span></li>
+<li><span class="mk">4</span><span><b>95% CI −0.20 ~ 3.36.</b> 구간이 두 배 가까이 넓어져 0을 포함합니다.</span></li>
+</ol>
+
+<h3>상관이 표준오차를 줄이는 원리</h3>
+<p>두 분석의 차이는 전후 상관에서 나옵니다. 3장 가 절의 식 Var(d) = σ₁² + σ₂² − 2ρσ₁σ₂로 확인합니다.</p>
+<!--FIG:lab03_var-->
+<ol class="lines">
+<li><code>s1, s2 = wide["drug1"].std(), wide["drug2"].std()</code><span>두 약 각각의 SD(환자 간 흩어짐)입니다.</span></li>
+<li><code>np.sqrt(s1**2 + s2**2 - 2 * r * s1 * s2)</code><span>상관 r을 반영한 차이의 SD입니다. <code>r</code>은 앞 셀에서 구한 0.795입니다.</span></li>
+<li><code>np.sqrt(s1**2 + s2**2)</code><span>두 값이 무관하다고(r = 0) 볼 때의 차이의 SD입니다. 독립표본 t 검정이 암묵적으로 이렇게 계산합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>SD₁ = 1.789, SD₂ = 2.002, r = 0.795.</b></span></li>
+<li><span class="mk">2</span><span><b>상관을 반영한 SD 1.230.</b> <code>d.std()</code>와 같은 값입니다. 공식이 맞는다는 확인입니다.</span></li>
+<li><span class="mk">3</span><span><b>r = 0으로 본 SD 2.685.</b> 이 값으로 만든 표준오차는 2.685 ÷ √10 = 0.849이고, t = 1.58 ÷ 0.849 = 1.861로 앞 셀의 잘못된 분석과 같습니다. 대응 분석의 표준오차(0.389)보다 2.2배 큽니다. 자유도가 18에서 9로 줄어드는 손해보다 표준오차가 줄어드는 이득이 훨씬 큽니다.</span></li>
+</ol>
+
+<h3>차이 d의 정규성</h3>
+<p>대응표본 t 검정의 정규성 가정은 약 1, 약 2 각각의 값이 아니라 <b>차이 d</b>에 대한 것입니다(3장 가 절). 오른쪽 그림에서 환자 9가 동떨어져 있었으므로 확인해 봅니다. Q-Q plot 그리는 법은 <a href="#lab01-s3">실습 1 다 절</a>을 참고하세요.</p>
+<!--FIG:lab03_shapiro-->
+<ol class="lines">
+<li><code>stats.shapiro(d)</code><span>Shapiro-Wilk 정규성 검정입니다. 결과 객체에서 <code>statistic</code>(W)과 <code>pvalue</code>를 꺼내 출력했습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>W = 0.830.</b> 1에 가까울수록 정규분포에 가깝습니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.033.</b> 쌍이 10개뿐이라 검정력이 낮은데도 정규성을 기각했습니다. 주로 환자 9의 d = 4.6 때문입니다. 쌍이 적고 d에 극단값이 있으면 t 검정의 결과가 이 한 명에게 크게 좌우되므로, Wilcoxon 부호순위 검정(다 절)을 함께 보는 것이 좋습니다. 다만 정규성 검정 결과를 보고 나서 검정을 바꾸면 그 자체가 선택 과정이 되므로, 실제 연구에서는 어떤 경우에 어떤 검정을 쓸지 분석계획에 미리 적어 둡니다.</span></li>
+</ol>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<ul>
+<li><code>stats.ttest_rel(wide["drug1"], wide["drug2"])</code>로 인자 순서를 바꾸면 t = −4.062, 신뢰구간 −2.46 ~ −0.70으로 부호만 바뀝니다.</li>
+<li>환자 9의 차이가 4.6이 아니라 14.6이었다고 해 보세요: <code>d2 = d.replace(4.6, 14.6)</code>, <code>stats.ttest_1samp(d2, 0)</code>. 약 2의 효과가 더 커 보이는 방향으로 값이 바뀌었는데도 SD가 커지면서 p = 0.088로 유의하지 않게 됩니다. 같은 자료에 <code>stats.wilcoxon(d2)</code>를 하면 p는 0.0039 그대로입니다.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 대응표본 t 검정의 Results 문장</b><span>sleep 자료의 실제 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">In the 10 patients who received both drugs, mean extra sleep was <span class="mk">1</span> <span class="hl">0.75 ± 1.79 h with drug 1 and 2.33 ± 2.00 h with drug 2</span>. Drug 2 increased sleep by a mean of <span class="mk">2</span> <span class="hl">1.58 h more than drug 1 (95% CI, 0.70 to 2.46)</span>; <span class="mk">3</span> <span class="hl">paired t-test, t(9) = 4.06, P = .003</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>약별 평균 ± SD.</b> 각 약에서 환자 간 흩어짐입니다. 이 두 SD로는 차이의 신뢰구간을 계산할 수 없습니다. 두 값의 상관(0.795)이나 차이의 SD(1.23)가 필요합니다(3장 가 절의 Results 상자 3번).</span></li>
+<li><span class="mk">2</span><span><b>환자 내 차이의 평균과 95% CI.</b> "drug 2 − drug 1" 방향이므로 양수는 약 2가 더 효과적이라는 뜻입니다. 신뢰구간은 <code>res.confidence_interval()</code>의 값입니다.</span></li>
+<li><span class="mk">3</span><span><b>t(9)와 P.</b> 자유도 9에서 분석된 쌍이 10개임을 알 수 있습니다. p = 0.0028을 반올림했습니다. 이 자료처럼 한 사람이 두 약을 모두 받는 교차설계는 복용 순서에 따른 시기 효과가 섞일 수 있어 순서군을 고려해 분석하는 것이 표준인데(3장 가 절 참고 상자), sleep 자료에는 복용 순서 정보가 없어 단순 대응 비교만 했습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>stats.ttest_rel(a, b)</code>는 같은 위치의 값끼리 짝지어 a − b를 분석하며, <code>stats.ttest_1samp(a - b, 0)</code>과 결과가 같습니다. 자유도는 쌍의 수 − 1입니다.</li>
+<li>같은 자료를 <code>ttest_ind</code>로 분석하면 전후 상관이 버려져 표준오차가 커집니다(이 자료에서 p = 0.0028 → 0.079).</li>
+<li>차이의 SD는 √(s₁² + s₂² − 2r s₁s₂)이므로 두 측정의 상관이 높을수록 대응 분석의 이득이 큽니다.</li>
+<li>정규성은 차이 d로 확인합니다. 쌍이 적고 극단값이 있으면 부호순위 검정을 함께 봅니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab03-s3">
+<h2><span class="sec-no">다.</span>Wilcoxon 부호순위 검정</h2>
+
+<p>Wilcoxon 부호순위 검정은 차이 d에서 0을 빼고, |d|에 순위를 매긴 뒤, 늘어난 쪽과 줄어든 쪽의 순위합을 비교합니다(<a href="#ch03-s2">3장 나 절</a>). 이 자료에는 3장 나 절에서 다룬 까다로운 요소가 모두 있습니다. 극단값(환자 9), 차이가 0인 쌍(환자 5), 동점(환자 3과 4의 d = 1.3)입니다.</p>
+
+<h3>Wilcoxon 부호순위 검정</h3>
+<!--FIG:lab03_wilcoxon-->
+<ol class="lines">
+<li><code>stats.wilcoxon(d)</code><span>인자를 하나만 주면 그 값을 차이 d로 보고 검정합니다. <code>stats.wilcoxon(wide["drug2"], wide["drug1"])</code>처럼 두 인자를 주면 함수 안에서 x − y를 계산하며 결과는 같습니다. scipy 설명서는 소수점 계산 오차 때문에 원래 같은 차이가 다른 값으로 취급될 수 있다며, 차이를 직접 계산하고 필요하면 반올림(<code>d.round(1)</code>)해서 넣으라고 권합니다.</span></li>
+<li><code>zero_method="wilcox"
+correction=False
+alternative="two-sided"
+method="auto"</code><span>코드에 적지 않았지만 자동으로 쓰이는 기본값입니다. 차이가 0인 쌍은 버리고(Wilcoxon의 원래 방식), 정규근사를 쓸 때 연속성 보정을 하지 않으며, 양측검정입니다. <code>method</code>는 아래 설명을 보세요.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>statistic = 0.0은 W+가 아닙니다.</b> scipy 설명서에 따르면 양측검정에서 statistic은 "0보다 큰 차이의 순위합과 0보다 작은 차이의 순위합 중 <b>작은 쪽</b>"입니다. 이 자료는 0이 아닌 차이 9개가 모두 양수라 W− = 0이 출력되었습니다. 3장 나 절의 W+와 비교하려면 아래 셀처럼 직접 계산하거나 <code>alternative="greater"</code>로 확인합니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.0039 = 2/512.</b> 약 효과가 같다면 9명 각자의 부호는 동전 던지기와 같아 2⁹ = 512가지 부호 조합이 모두 같은 확률입니다. 이 중 관측값만큼 극단적인 경우는 '모두 +'와 '모두 −' 두 가지뿐입니다. scipy 1.17 설명서에 따르면 <code>method="auto"</code>는 차이가 50개 이하이면 정확 분포를 쓰고, 0이나 동점이 있으면 13개 이하일 때 가능한 부호 조합을 모두 따지는 순열 방식으로 p를 구합니다. 이 자료는 후자에 해당합니다.</span></li>
+</ol>
+
+<h3>부호순위를 직접 계산하기</h3>
+<!--FIG:lab03_ranks-->
+<ol class="lines">
+<li><code>nz = d[d != 0]</code><span><code>d != 0</code>은 "0이 아닌가"의 True/False이고, 대괄호로 True인 값만 남깁니다. 환자 5가 빠져 9개가 됩니다.</span></li>
+<li><code>rk = stats.rankdata(nz.abs())</code><span><code>abs()</code>로 절댓값을 구하고 작은 순으로 순위를 매깁니다. 같은 값은 차지하는 순위의 평균(중간순위)을 받습니다.</span></li>
+<li><code>pd.DataFrame({"d": nz, "rank": rk}).T</code><span>차이와 순위를 두 열로 묶은 표를 만들고, <code>.T</code>(전치)로 행과 열을 바꿔 가로로 짧게 보여 줍니다. 맨 윗줄은 환자 ID입니다.</span></li>
+<li><code>rk[nz &gt; 0].sum()</code><span>차이가 양수인 쌍의 순위만 골라 더한 W+입니다. <code>rk[nz &lt; 0].sum()</code>은 W−입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>중간순위 4.5.</b> 환자 3과 4의 |d| = 1.3이 4위와 5위를 나눠 가져 둘 다 4.5를 받았습니다.</span></li>
+<li><span class="mk">2</span><span><b>n = 9.</b> 차이가 0인 환자 5가 빠졌습니다.</span></li>
+<li><span class="mk">3</span><span><b>W+ = 45 = 9 × 10 ÷ 2.</b> 가능한 최댓값입니다. 모든 환자가 약 2에서 더 잤기 때문입니다. 효과가 없다면 기댓값은 n(n + 1)/4 = 22.5입니다.</span></li>
+<li><span class="mk">4</span><span><b>W− = 0.</b> scipy가 양측검정에서 출력한 statistic입니다. W+ + W− = 45로 검산합니다.</span></li>
+</ol>
+
+<h3>p-value 계산 방식 비교</h3>
+<p>같은 자료에서도 정확 분포를 쓰는지, 정규근사를 쓰는지, 0을 어떻게 다루는지에 따라 p-value가 달라집니다(3장 나 절). 인자를 바꿔 가며 비교합니다.</p>
+<!--FIG:lab03_methods-->
+<ol class="lines">
+<li><code>stats.wilcoxon(d, alternative="greater")</code><span>"d가 0보다 큰 쪽으로 치우쳤다"는 단측검정입니다. 이때 statistic은 양수 차이의 순위합 W+입니다.</span></li>
+<li><code>method="asymptotic"</code><span>동점 보정을 한 정규근사입니다. 이 방식에서만 결과 객체에 <code>zstatistic</code>(z 값)이 들어 있습니다.</span></li>
+<li><code>correction=True</code><span>정규근사에 연속성 보정을 더합니다. scipy는 기본값이 보정하지 않는 것입니다.</span></li>
+<li><code>zero_method="pratt", method="asymptotic"</code><span>0인 쌍도 포함해 순위를 매긴 뒤 0의 순위만 버리는 Pratt 방식입니다(3장 나 절 파이썬 출력 해설 1번). 앞의 정규근사와 비교하려고 정규근사로 계산했습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>단측검정의 statistic = 45 = W+.</b> 같은 함수라도 <code>alternative</code>에 따라 statistic의 뜻이 달라집니다.</span></li>
+<li><span class="mk">2</span><span><b>단측 p = 0.00195 = 1/512.</b> '모두 +' 한 가지만 해당합니다. 방향을 자료를 보기 전에 정했을 때만 단측 p를 씁니다.</span></li>
+<li><span class="mk">3</span><span><b>z = −2.668.</b> E(W) = 22.5, 동점 보정 분산 = 9 × 10 × 19 ÷ 24 − (2³ − 2) ÷ 48 = 71.125이므로 z = (0 − 22.5) ÷ √71.125 = −2.668입니다. 작은 쪽 순위합(W− = 0)으로 계산해 음수로 나왔습니다.</span></li>
+<li><span class="mk">4</span><span><b>정규근사 p = 0.0076.</b> 정확한 값(0.0039)의 약 2배입니다. 쌍이 9개뿐이라 정규근사가 거칩니다.</span></li>
+<li><span class="mk">5</span><span><b>연속성 보정 p = 0.0091.</b> z = (0 + 0.5 − 22.5) ÷ 8.434 = −2.609입니다.</span></li>
+<li><span class="mk">6</span><span><b>Pratt 방식 정규근사 p = 0.0058.</b> 같은 정규근사인 0.0076과 값이 다릅니다. 0이 많은 자료일수록 0을 다루는 방식에 따른 차이가 커집니다. <code>method</code>를 지정하지 않으면(순열 방식) Pratt 방식도 p = 0.0039입니다.</span></li>
+</ol>
+
+<div class="callout note"><p class="ct">참고 · scipy 버전에 따라 p-value가 다를 수 있습니다</p>
+<p>이 페이지의 출력은 scipy 1.17.1로 만들었습니다. <code>wilcoxon</code>의 <code>method="auto"</code>가 0이나 동점을 다루는 방식은 버전에 따라 바뀌어 왔고, 이전 버전에서는 이 자료에 "0이 있어 정규근사로 바꾼다"는 경고와 함께 정규근사 p(0.0076)를 내기도 합니다. 정규근사를 뜻하는 인자 값도 예전 버전(예: scipy 1.9)에서는 <code>"asymptotic"</code>이 아니라 <code>"approx"</code>였으므로, 위 셀에서 <code>method</code> 값 때문에 오류가 나면 scipy를 업데이트합니다. 버전 확인은 <code>import scipy; print(scipy.__version__)</code>로 합니다. 결과 객체에는 어떤 방식을 썼는지 표시되지 않으므로, 논문에 쓸 결과는 <code>method</code>를 직접 지정하거나 쓴 방식과 버전을 Methods에 적어 두면 다른 사람이 같은 값을 재현할 수 있습니다.</p></div>
+
+<h3>부호검정</h3>
+<p>부호검정은 d의 부호만 봅니다. 효과가 없다면 0이 아닌 쌍 중 +의 개수는 성공 확률 0.5인 이항분포를 따릅니다(3장 나 절).</p>
+<!--FIG:lab03_sign-->
+<ol class="lines">
+<li><code>int((d &gt; 0).sum())</code><span><code>d &gt; 0</code>의 True를 세어 약 2에서 더 잔 환자 수를 구합니다. <code>int()</code>는 numpy 정수를 파이썬 정수로 바꿉니다.</span></li>
+<li><code>stats.binomtest(n_pos, n_pos + n_neg, p=0.5)</code><span>이항검정입니다. 0이 아닌 쌍(n = 9) 중 + 가 9번 나올 확률을 성공 확률 0.5인 이항분포로 계산합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>+ 9명, − 0명, 0 1명.</b> 논문에 이 세 숫자를 함께 쓰면 독자가 결과를 바로 이해하고 부호검정까지 검산할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.0039 = 2 × 0.5⁹.</b> 부호순위 검정과 같습니다. 모든 부호가 한쪽이라 순위 정보가 더할 것이 없기 때문입니다. 3장 나 절의 약물 수 예제처럼 부호가 섞여 있으면 부호검정의 p가 더 큽니다.</span></li>
+</ol>
+
+<h3>중앙값과 사분위수</h3>
+<!--FIG:lab03_median-->
+<ol class="lines">
+<li><code>wide.median()</code><span>열마다 중앙값을 구합니다.</span></li>
+<li><code>d.quantile([0.25, 0.5, 0.75])</code><span>차이 d의 1사분위수, 중앙값, 3사분위수입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>약 1의 중앙값 0.35시간.</b></span></li>
+<li><span class="mk">2</span><span><b>약 2의 중앙값 1.75시간.</b> 중앙값의 차이는 1.75 − 0.35 = 1.40시간입니다. 반면 바로 위의 d 행, 즉 환자별 차이의 중앙값은 1.30시간입니다. 평균과 달리 중앙값에서는 "차이의 중앙값"과 "중앙값의 차이"가 다릅니다(3장 나 절). 논문의 "median change"가 어느 쪽인지 확인해야 하는 이유입니다.</span></li>
+<li><span class="mk">3</span><span><b>d의 1사분위수 1.05시간.</b></span></li>
+<li><span class="mk">4</span><span><b>d의 3사분위수 1.70시간.</b> 가운데 50% 환자의 차이가 1.05–1.70시간입니다. 환자 9의 4.6시간은 이 범위에서 멀리 떨어져 있지만 중앙값과 IQR은 거의 영향을 받지 않습니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 부호순위 검정의 Methods와 Results 문장</b><span>sleep 자료의 실제 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Within-patient differences were analyzed with the paired t-test and, as a prespecified sensitivity analysis, with the <span class="mk">1</span> <span class="hl">Wilcoxon signed-rank test (pairs with a zero difference excluded; exact permutation P value, SciPy 1.17)</span>. … Extra sleep was greater with drug 2 than with drug 1 in <span class="mk">2</span> <span class="hl">9 of 10 patients and equal in 1</span> (<span class="mk">3</span> <span class="hl">median within-patient difference, 1.30 h [IQR, 1.05–1.70]</span>; <span class="mk">4</span> <span class="hl">Wilcoxon signed-rank test, P = .004</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0의 처리와 p 계산 방식.</b> 0인 쌍을 뺐는지(Wilcoxon 방식) 포함했는지(Pratt 방식), 정확 p인지 정규근사인지를 밝히면 다른 사람이 같은 값을 재현할 수 있습니다. 이 자료에서는 방식에 따라 p가 0.0039부터 0.0091까지 달라졌습니다.</span></li>
+<li><span class="mk">2</span><span><b>방향별 인원.</b> 증가 9명, 감소 0명, 변화 없음 1명입니다. 이 숫자만으로 부호검정 p = 2 × 0.5⁹ = 0.004를 검산할 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>환자 내 차이의 중앙값(IQR).</b> 두 약 중앙값의 차이(1.40)가 아니라 환자 10명의 차이 d의 중앙값입니다.</span></li>
+<li><span class="mk">4</span><span><b>P = .004.</b> 순열 방식으로 구한 0.0039를 반올림했습니다. 대응표본 t 검정(P = .003)과 결론이 같으므로, 환자 9의 큰 값이 결론을 좌우한 것은 아니라고 설명할 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>stats.wilcoxon(d)</code>의 statistic은 양측검정에서 W+와 W− 중 <b>작은 값</b>이고, <code>alternative="greater"</code>일 때 W+입니다.</li>
+<li>기본값 <code>zero_method="wilcox"</code>는 0인 쌍을 버립니다. <code>"pratt"</code>는 0을 순위 매김에 포함한 뒤 버립니다.</li>
+<li>scipy 1.17의 <code>method="auto"</code>는 0이나 동점이 있고 쌍이 13개 이하이면 모든 부호 조합으로 p를 구합니다. 버전과 방식에 따라 p가 다를 수 있으므로 방식을 밝힙니다.</li>
+<li>부호검정은 <code>stats.binomtest(+의 수, 0이 아닌 쌍의 수)</code>로 합니다.</li>
+<li>차이의 중앙값과 중앙값의 차이는 다릅니다. 방향별 인원(증가·감소·변화 없음)을 함께 보고하면 해석이 쉬워집니다.</li>
+</ul></div>
+</section>

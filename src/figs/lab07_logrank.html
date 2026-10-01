@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">로그순위 검정 (남 대 여)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import logrank_test
+
+m = lung[&quot;sex&quot;] == 1                       # 남성이면 True
+res = logrank_test(lung.loc[m, &quot;months&quot;], lung.loc[~m, &quot;months&quot;],
+                   event_observed_A=lung.loc[m, &quot;event&quot;],
+                   event_observed_B=lung.loc[~m, &quot;event&quot;])
+res.print_summary()
+print(res.test_statistic, res.p_value)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.StatisticalResult: logrank_test&gt;
+               t_0 = -1
+ null_distribution = chi squared
+degrees_of_freedom = 1<span class="mk">1</span>
+         test_name = logrank_test
+
+---
+ test_statistic      p  -log2(p)
+          10.33<span class="mk">2</span> &lt;0.005<span class="mk">3</span>      9.57<span class="mk">4</span>
+10.326741954885637 0.0013111645203554858<span class="mk">5</span></pre></div></div>

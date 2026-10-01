@@ -1,0 +1,358 @@
+<p class="lead">실습 1에서는 <a href="#ch01">1장</a>의 자료 탐색, 정규성 검정, 다중비교를 공개 데이터로 직접 해 봅니다. 위스콘신 유방암 진단 자료로 요약통계와 그래프를 만들고, 논문의 Table 1을 평균 ± SD, 중앙값(IQR), SMD로 직접 계산한 뒤, Q-Q plot과 Shapiro-Wilk 검정, 그리고 30개 변수를 한꺼번에 검정할 때의 다중비교 보정을 실행합니다.</p>
+
+<dl class="glance">
+  <div><dt>관련 이론</dt><dd><a href="#ch01-s1">1장 가 절 자료의 분류</a>(Table 1과 SMD), <a href="#ch01-s3">다 절 5% 유의수준과 다중비교</a>, <a href="#ch01-s8">아 절 자료의 탐색 및 정규성 검정</a></dd></div>
+  <div><dt>데이터</dt><dd>위스콘신 유방암 진단 자료(Breast Cancer Wisconsin, Diagnostic). scikit-learn 내장, 유방 종괴 세침흡인 검체 569건(악성 212, 양성 357), 세포핵 특징 30개. 미국 위스콘신 대학의 Wolberg 등이 수집한 자료입니다<cite data-ref="street1993"></cite>.</dd></div>
+  <div><dt>사용 패키지</dt><dd>pandas, numpy, scipy(<code>scipy.stats</code>), matplotlib, statsmodels(<code>multipletests</code>), scikit-learn</dd></div>
+  <div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00">실습 0</a> 참고). 추가 설치는 필요 없습니다. 출력은 pandas 3.0.2, scipy 1.17.1, statsmodels 0.15.0에서 실행한 결과이며, 버전에 따라 표시 형식이 조금 다를 수 있습니다.</dd></div>
+</dl>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab01-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>분석은 늘 자료가 무엇인지 확인하는 데서 시작합니다. 몇 건인지, 결과변수가 어떻게 코딩되어 있는지, 각 변수가 무엇을 잰 것인지 확인하지 않고 검정부터 하면 방향이 뒤집힌 결과를 보고하기 쉽습니다. 새 Colab 노트북을 열고 아래 셀부터 차례로 실행하세요.</p>
+
+<h3>데이터 불러오기</h3>
+<!--FIG:lab01_load-->
+<ol class="lines">
+<li><code>import numpy as np</code> … <code>from scipy import stats</code><span>이 실습에서 쓸 패키지를 한 셀에 모아 불러옵니다. <code>from scipy import stats</code>는 scipy의 통계 모듈을 <code>stats</code>라는 이름으로 가져오며, 이후 <code>stats.shapiro()</code>, <code>stats.ttest_ind()</code>처럼 씁니다.</span></li>
+<li><code>bc = load_breast_cancer(as_frame=True)</code><span>scikit-learn에 들어 있는 자료를 pandas 형태로 받습니다(<a href="#lab00-s5">실습 0 마 절</a>).</span></li>
+<li><code>df = bc.frame.copy()</code><span><code>bc.frame</code>은 설명변수 30열과 target 1열이 합쳐진 표입니다. <code>.copy()</code>로 복사본을 만들어 df에 저장하면, 뒤에서 열을 추가해도 원래 꾸러미의 표는 바뀌지 않습니다.</span></li>
+<li><code>df["target"].value_counts()</code><span>target의 값별 건수를 셉니다.</span></li>
+</ol>
+<p><b>출력 읽기</b></p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>569행 × 31열.</b> 검체 569건입니다. 한 행이 세침흡인 검체(이미지) 하나입니다.</span></li>
+<li><span class="mk">2</span><span><b>target = 1이 357건.</b> scikit-learn에서 1은 benign(양성)입니다.</span></li>
+<li><span class="mk">3</span><span><b>target = 0이 212건.</b> 0은 malignant(악성)입니다(<code>bc.target_names</code>의 순서). 악성 비율 212/569 = 37.3%는 이 자료를 모은 방식에서 나온 값이며, 유방 종괴 환자 전체의 악성 비율(유병률)로 읽으면 안 됩니다.</span></li>
+</ol>
+
+<h3>진단 변수를 읽기 쉽게 바꾸기</h3>
+<p>연구에서는 보통 "1 = 사건(질병) 있음"으로 코딩합니다. 이 자료는 반대로 0이 악성이므로, 그대로 쓰면 뒤의 로지스틱 회귀(실습 9)에서 오즈비의 방향이 뒤집힙니다. 코드 번호 대신 이름이 보이는 진단 변수와, 1 = 악성인 0/1 변수를 새로 만듭니다.</p>
+<!--FIG:lab01_recode-->
+<ol class="lines">
+<li><code>labels = {0: "malignant", 1: "benign"}</code><span>코드와 이름의 짝을 사전으로 적어 둡니다. 코드의 뜻은 <code>bc.target_names</code>에서 확인한 것입니다.</span></li>
+<li><code>df["target"].map(labels)</code><span>0과 1을 사전에서 찾아 "malignant", "benign"으로 바꿉니다.</span></li>
+<li><code>pd.Categorical(…, categories=["benign", "malignant"])</code><span>바꾼 값을 <b>범주형</b>(category)으로 만들고 범주의 순서를 benign → malignant로 정합니다. 순서를 정해 두면 표와 그래프에서 늘 양성이 먼저 나오고, pandas 버전이 달라도 결과의 순서가 같습니다.</span></li>
+<li><code>(df["target"] == 0).astype(int)</code><span><code>df["target"] == 0</code>은 악성이면 True인 참/거짓 열이고, <code>.astype(int)</code>는 True를 1, False를 0으로 바꿉니다. 이렇게 만든 <code>malignant</code> 열은 1 = 악성입니다.</span></li>
+<li><code>pd.crosstab(df["target"], df["diagnosis"])</code><span>원래 코드와 새 변수를 교차표로 맞대어, 바꾼 결과가 맞는지 확인합니다. 변수를 새로 만들면 늘 이렇게 원래 변수와 한 번 대조합니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span> 212는 malignant 열의 합, 즉 악성 건수입니다. 교차표에서 target 0은 모두 malignant(212), target 1은 모두 benign(357)으로 들어갔으므로 코딩이 맞습니다.</p>
+
+<h3>설명변수 30개의 구성</h3>
+<!--FIG:lab01_features-->
+<ol class="lines">
+<li><code>bc.feature_names.tolist()</code><span>설명변수 이름을 파이썬 리스트로 바꿔 <code>features</code>에 저장합니다. 뒤에서 30개 변수를 한꺼번에 고를 때 씁니다.</span></li>
+<li><code>features[:10]</code>, <code>features[10:13]</code><span><code>[시작:끝]</code>은 시작 번호부터 끝 번호 <b>바로 앞</b>까지를 잘라 옵니다. <code>[10:13]</code>은 10, 11, 12번째입니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span> 설명변수는 30개입니다. 세포핵의 특징 10가지를 이미지마다 세 가지 방식으로 요약한 것입니다. 0–9번은 이미지 안 세포핵들의 평균(mean), 10–19번은 표준오차(<span class="mk">2</span> error), 20–29번은 가장 큰 값 3개의 평균(<span class="mk">3</span> worst)입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>특징</th><th>뜻 (설명서 <code>bc.DESCR</code> 기준)</th></tr></thead>
+<tbody>
+<tr><td>radius</td><td>핵의 중심에서 윤곽까지 거리의 평균(반지름)</td></tr>
+<tr><td>texture</td><td>핵 영역 회색조 값의 표준편차(명암의 불균일함)</td></tr>
+<tr><td>perimeter, area</td><td>핵의 둘레와 면적</td></tr>
+<tr><td>smoothness</td><td>반지름 길이의 국소적 변동(윤곽이 얼마나 매끄러운가)</td></tr>
+<tr><td>compactness</td><td>둘레² / 면적 − 1</td></tr>
+<tr><td>concavity, concave points</td><td>윤곽의 오목한 부분의 정도와 개수</td></tr>
+<tr><td>symmetry, fractal dimension</td><td>대칭성, 윤곽의 복잡도</td></tr>
+</tbody></table></div>
+<p>예를 들어 <code>mean radius</code>는 한 검체 이미지에 있는 세포핵들의 반지름 평균이고, <code>area error</code>는 같은 이미지 안에서 세포핵 면적의 표준오차, 즉 핵의 크기가 얼마나 들쭉날쭉한가를 나타냅니다. 모두 이미지에서 잰 값이며, 설명서에 단위는 적혀 있지 않습니다. 30개 모두 연속형 자료입니다(<a href="#ch01-s1">1장 가 절</a>).</p>
+<!--FIG:lab01_head-->
+<p>앞 5행은 모두 악성이고, 새로 만든 <code>diagnosis</code>와 <code>malignant</code> 열이 맨 오른쪽에 붙었습니다. 이 실습에서는 크기 특징인 mean radius, 윤곽 특징인 mean smoothness, 치우침이 큰 area error를 주로 씁니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 자료 설명</b><span>셀 1–3의 출력으로 쓴 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">We used the <span class="mk">1</span> <span class="hl">publicly available Wisconsin Diagnostic Breast Cancer dataset</span>, which includes <span class="mk">2</span> <span class="hl">569 fine-needle aspirates</span> of breast masses (<span class="hl">212 malignant and 357 benign</span>). Thirty nuclear features were computed from digitized images: <span class="mk">3</span> <span class="hl">the mean, standard error, and mean of the three largest values of ten characteristics of the cell nuclei</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>자료원.</b> 공개 자료의 이름과 원출처(자료를 처음 만든 연구)를 밝힙니다<cite data-ref="street1993"></cite>.</span></li>
+<li><span class="mk">2</span><span><b>대상 수와 결과변수의 분포.</b> 셀 1의 569, 셀 2의 212와 357을 옮겼습니다. 결과변수의 코딩(0 = 악성)은 논문에 쓰지 않지만, 분석 코드에서는 반드시 확인해야 하는 부분입니다.</span></li>
+<li><span class="mk">3</span><span><b>변수의 정의.</b> "error"는 설명서의 standard error, "worst"는 가장 큰 값 3개의 평균입니다. 변수 이름만 옮기지 말고 무엇을 잰 값인지 풀어 씁니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>불러온 직후 행·열 수와 결과변수의 건수를 확인합니다. 이 자료는 569건, 악성 212건, 양성 357건입니다.</li>
+<li>scikit-learn의 이 자료는 0 = 악성, 1 = 양성입니다. 이름이 보이는 범주형 변수와 1 = 악성인 0/1 변수를 만들고, 교차표로 원래 코드와 대조합니다.</li>
+<li>설명변수 30개는 세포핵 특징 10가지의 평균(mean), 표준오차(error), 최댓값 3개 평균(worst)입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab01-s2">
+<h2><span class="sec-no">나.</span>요약통계와 그래프</h2>
+
+<p>검정을 고르기 전에 분포를 봅니다(<a href="#ch01-s8">1장 아 절</a>). 평균과 중앙값이 얼마나 다른지, 왜도가 얼마인지, 히스토그램과 상자그림이 어떤 모양인지에 따라 Table 1의 요약 방법(평균 ± SD 또는 중앙값(IQR))과 검정 방법이 정해집니다.</p>
+
+<h3>describe()로 전체 요약</h3>
+<!--FIG:lab01_describe-->
+<ol class="lines">
+<li><code>cols = [...]</code><span>살펴볼 네 변수의 이름을 리스트로 저장합니다. 이후 <code>df[cols]</code>로 네 열을 한 번에 고릅니다.</span></li>
+<li><code>df[cols].describe().round(3)</code><span>네 열의 요약통계를 소수 셋째 자리까지 보여 줍니다(<a href="#lab00-s6">실습 0 바 절</a>).</span></li>
+</ol>
+<p><b>출력 읽기</b></p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>area error의 평균 40.337.</b></span></li>
+<li><span class="mk">2</span><span><b>area error의 중앙값 24.530.</b> 평균이 중앙값보다 16 가까이 큽니다. 평균이 중앙값보다 뚜렷하게 크면 오른쪽 꼬리가 긴 분포일 가능성이 큽니다. 3사분위수(45.190)에서 최댓값까지의 거리가 1사분위수(17.850)에서 최솟값(6.802)까지보다 훨씬 긴 것도 같은 신호입니다.</span></li>
+<li><span class="mk">3</span><span><b>최댓값 542.200.</b> 중앙값의 20배가 넘는 극단값입니다. 평균과 표준편차(45.491)가 이런 값에 크게 끌려갑니다.</span></li>
+</ol>
+<p>반면 mean smoothness는 평균과 중앙값이 둘 다 0.096으로 같습니다. 대칭에 가까운 분포라고 짐작할 수 있습니다.</p>
+
+<h3>평균, 중앙값, 왜도</h3>
+<p><strong>왜도</strong><span class="en">(skewness)</span>는 분포가 한쪽으로 치우친 정도를 한 숫자로 나타냅니다. 0이면 좌우 대칭, 양수면 오른쪽 꼬리가 긴 분포, 음수면 왼쪽 꼬리가 긴 분포입니다. 정해진 기준은 없지만, 절댓값이 1을 넘으면 치우침이 뚜렷하다고 보는 경우가 많습니다.</p>
+<!--FIG:lab01_skew-->
+<ol class="lines">
+<li><code>pd.DataFrame({"mean": …, "median": …, "skewness": …})</code><span>세 개의 Series를 열로 붙여 표를 만듭니다. 각 Series는 변수 이름을 인덱스로 가지므로, 같은 변수끼리 한 행에 맞춰집니다.</span></li>
+<li><code>df[cols].mean()</code><span>DataFrame에 <code>.mean()</code>을 붙이면 열마다 평균을 계산해 Series로 돌려줍니다.</span></li>
+<li><code>df[cols].apply(stats.skew)</code><span><code>.apply(함수)</code>는 괄호 안의 함수를 열마다 적용합니다. 여기서는 scipy의 왜도 함수를 네 열에 각각 적용합니다. pandas의 <code>df[cols].skew()</code>도 왜도를 계산하지만 표본크기 보정 방식이 달라 값이 조금 다릅니다(예: area error 5.447).</span></li>
+</ol>
+<p>출력에서 <span class="mk">1</span> mean smoothness의 왜도는 0.455로 대칭에 가깝고, <span class="mk">2</span> area error의 왜도는 5.433으로 오른쪽으로 강하게 치우쳐 있습니다. mean area(1.641)도 치우쳐 있고, mean radius(0.940)는 그 중간입니다. 1장 아 절의 표에서 재원일수(왜도 2.32)를 중앙값(IQR)으로 요약한 것과 같은 판단을 여기서도 합니다.</p>
+
+<h3>히스토그램</h3>
+<!--FIG:lab01_hist-->
+<ol class="lines">
+<li><code>import matplotlib.pyplot as plt</code><span>그래프 패키지 matplotlib의 pyplot 모듈을 <code>plt</code>라는 별명으로 불러옵니다.</span></li>
+<li><code>fig, axes = plt.subplots(1, 2, figsize=(9, 3.4))</code><span>1행 2열로 그래프 칸 두 개를 만듭니다. <code>fig</code>는 전체 그림, <code>axes</code>는 칸 두 개(<code>axes[0]</code>, <code>axes[1]</code>)입니다. <code>figsize</code>는 가로·세로 크기(인치)입니다.</span></li>
+<li><code>for ax, col in zip(axes, [...]):</code><span><code>zip</code>은 두 목록을 짝지어 줍니다. 첫 번째 반복에서는 (왼쪽 칸, "mean smoothness"), 두 번째 반복에서는 (오른쪽 칸, "area error")가 <code>ax</code>, <code>col</code>에 들어갑니다. 들여쓰기된 줄들이 반복마다 실행됩니다.</span></li>
+<li><code>ax.hist(df[col], bins=30, …)</code><span>값의 범위를 30개 구간(bins)으로 나눠 구간마다 검체 수를 막대로 그립니다. <code>bins</code>를 바꾸면 모양의 인상이 달라지므로 한두 가지로 바꿔 보는 것이 좋습니다.</span></li>
+<li><code>ax.axvline(df[col].mean(), …)</code><span>평균 위치에 세로선을 긋습니다. 다음 줄은 중앙값에 점선을 긋습니다. <code>label</code>은 범례에 쓸 이름입니다.</span></li>
+<li><code>set_title</code>, <code>set_xlabel</code>, <code>set_ylabel</code>, <code>legend()</code><span>제목, x축 이름(Value, 값), y축 이름(Number of samples, 검체 수), 범례를 붙입니다. Colab에는 기본적으로 한글 글꼴이 없어 한글이 네모로 보이므로 그래프 글자는 영어로 씁니다.</span></li>
+<li><code>plt.tight_layout()</code>, <code>plt.show()</code><span>칸 사이 간격을 자동으로 맞추고 그림을 표시합니다.</span></li>
+</ol>
+<p>왼쪽 mean smoothness는 가운데가 높고 좌우가 비슷하게 줄어드는 종 모양이며, 평균(실선)과 중앙값(점선)이 거의 겹칩니다. 오른쪽 area error는 대부분이 왼쪽 끝에 몰려 있고 500이 넘는 값까지 꼬리가 길게 늘어져 있으며, 평균이 꼬리 쪽으로 끌려가 중앙값보다 오른쪽에 있습니다.</p>
+
+<h3>진단별 요약과 상자그림</h3>
+<p>Table 1은 군별로 요약합니다. <code>groupby</code>로 진단별 요약을 구하고, 상자그림으로 분포를 비교합니다.</p>
+<!--FIG:lab01_group-->
+<ol class="lines">
+<li><code>df.groupby("diagnosis", observed=True)</code><span>진단(benign, malignant)별로 행을 나눕니다. <code>observed=True</code>는 범주형 변수로 묶을 때 실제로 있는 범주만 쓰라는 옵션입니다. pandas 버전에 따라 기본값이 달라 경고가 나오므로 직접 적어 둡니다.</span></li>
+<li><code>["mean radius"].agg([...]).round(2)</code><span>mean radius의 건수, 평균, 표준편차, 중앙값을 군별로 계산합니다.</span></li>
+</ol>
+<p>출력에서 양성의 평균 반지름은 <span class="mk">1</span> 12.15, 악성은 <span class="mk">2</span> 17.46입니다. 두 군 모두 평균과 중앙값(12.20, 17.33)이 가깝습니다. 앞에서 전체 자료의 왜도가 0.94였던 것은 한 군의 분포가 치우쳐서라기보다, 평균이 다른 두 군이 섞여 있어서라고 볼 수 있습니다. 그래서 t 검정처럼 두 군을 비교하는 분석에서는 분포를 <b>군별로</b> 확인합니다(다 절).</p>
+<!--FIG:lab01_box-->
+<ol class="lines">
+<li><code>data = [df.loc[df["diagnosis"] == g, col] for g in groups]</code><span>대괄호 안에 <code>for</code>를 쓴 <b>리스트 컴프리헨션</b><span class="en">(list comprehension)</span>입니다. groups의 각 군(g)에 대해 그 군의 col 값을 꺼내 리스트 두 개짜리 목록을 만듭니다. <code>df.loc[행 조건, 열 이름]</code>은 조건에 맞는 행에서 그 열만 꺼내는 방법입니다.</span></li>
+<li><code>ax.boxplot(data)</code><span>목록의 순서대로 상자그림을 그립니다.</span></li>
+<li><code>ax.set_xticks([1, 2], groups)</code><span>x축의 1, 2번 위치에 군 이름을 붙입니다. (matplotlib 버전에 따라 <code>boxplot</code>의 이름표 인자가 바뀌어서 이 방법을 썼습니다.)</span></li>
+</ol>
+<p>상자의 가운데 선이 중앙값, 상자의 아래·위가 1·3사분위수, 수염은 상자에서 사분위범위의 1.5배 안쪽의 가장 먼 값까지, 동그라미는 그 밖의 값입니다(<a href="#ch01-s8">1장 아 절 상자그림 읽기</a>). 왼쪽 mean radius는 두 군 모두 상자가 대칭에 가깝고 악성이 전체적으로 위에 있습니다. 오른쪽 area error는 악성군의 상자와 수염이 위쪽으로 길고 500이 넘는 극단값이 있어, 오른쪽으로 치우친 분포임을 보여 줍니다.</p>
+
+<h3>Table 1 만들기</h3>
+<p>관찰연구 논문의 Table 1은 군별 기저특성을, 정규분포에 가까운 연속형 변수는 평균 ± SD로, 치우친 연속형 변수는 중앙값(IQR)으로 요약하고, 두 군의 차이는 표준화 평균차로 나타냅니다(<a href="#ch01-s1">1장 가 절</a>). 다섯 변수로 이 숫자들을 직접 계산합니다.</p>
+<!--FIG:lab01_t1_msd-->
+<ol class="lines">
+<li><code>g = df.groupby("diagnosis", observed=True)[t1_vars]</code><span>진단별로 나눈 뒤 다섯 변수만 남긴 묶음을 g에 저장합니다. 다음 줄들에서 g에 요약 함수를 붙여 씁니다.</span></li>
+<li><code>m = g.mean().T</code><span><code>g.mean()</code>은 행이 군(2개), 열이 변수(5개)인 표입니다. <code>.T</code>는 행과 열을 바꾸는 전치(transpose)로, Table 1처럼 행이 변수, 열이 군이 됩니다.</span></li>
+<li><code>s = g.std().T</code><span>군별 표준편차입니다. pandas의 <code>std()</code>는 n − 1로 나누는 표본표준편차입니다.</span></li>
+<li><code>pd.concat({"mean": m, "sd": s}, axis=1)</code><span>두 표를 옆으로(<code>axis=1</code>) 붙이고, 위에 mean과 sd라는 이름표를 한 줄 더 답니다.</span></li>
+</ol>
+<p>출력에서 mean radius의 양성군 평균은 <span class="mk">1</span> 12.147, 표준편차는 <span class="mk">2</span> 1.781입니다. 앞의 groupby 결과(12.15, 1.78)와 같은 값을 반올림 없이 본 것입니다.</p>
+<!--FIG:lab01_t1_q-->
+<ol class="lines">
+<li><code>g.quantile([0.25, 0.5, 0.75]).T</code><span>군별로 25%, 50%(중앙값), 75% 분위수를 계산합니다. 열 이름이 두 줄(군, 분위수)로 붙습니다.</span></li>
+</ol>
+<p>치우친 변수인 mean area의 양성군은 <span class="mk">1</span> 중앙값 458.40, IQR 378.20–551.10입니다. 평균(462.790)과 비교해 보세요.</p>
+<!--FIG:lab01_smd-->
+<ol class="lines">
+<li><code>m["malignant"] - m["benign"]</code><span>변수마다 두 군의 평균 차이입니다. 다섯 변수가 한 번에 계산됩니다.</span></li>
+<li><code>np.sqrt((s["malignant"] ** 2 + s["benign"] ** 2) / 2)</code><span>두 군 분산(SD의 제곱, <code>**</code>는 거듭제곱)의 평균에 제곱근을 씌운 값으로, 두 군을 합한 표준편차 역할을 합니다. 평균 차이를 이 값으로 나누면 SMD입니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span> mean radius의 SMD는 2.05입니다. 손으로 검산하면 (17.463 − 12.147) ÷ √[(3.204² + 1.781²)/2] = 5.316 ÷ 2.592 = 2.05로, <a href="#ch01-s1">1장 가 절</a>의 나이 SMD 계산과 같은 공식입니다. SMD는 단위가 없으므로 크기가 전혀 다른 변수(반지름과 면적)끼리도 차이의 크기를 비교할 수 있습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Table 1</b><span>셀 10–12의 출력으로 만든 표</span></div>
+<div class="paper-b">
+<p>위의 숫자를 논문 형식의 표로 옮기면 다음과 같습니다. 표의 숫자는 셀 10–12의 결과를 그대로 반올림한 것입니다.</p>
+<!--FIG:lab01_t1-->
+<p class="jt-foot">SD, standard deviation; IQR, interquartile range; SMD, standardized mean difference (difference in means divided by the square root of the average of the two group variances).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>평균 ± SD.</b> 셀 10의 17.463 ± 3.204를 소수 둘째 자리로 반올림했습니다. 두 군 모두 평균과 중앙값이 가깝고 분포가 대칭에 가까워 평균 ± SD로 요약했습니다.</span></li>
+<li><span class="mk">2</span><span><b>자릿수.</b> smoothness처럼 값이 작은 변수는 소수 셋째 자리까지 써야 두 군의 차이가 보입니다. 평균 차이는 약 0.010(0.1029 − 0.0925)에 불과하지만 SMD는 0.80으로 큽니다. 두 군 안의 흩어짐(SD 0.013)이 작기 때문입니다. 원래 단위의 차이가 작다고 효과가 작은 것은 아닙니다.</span></li>
+<li><span class="mk">3</span><span><b>중앙값(IQR).</b> 셀 11의 분위수에서 옮겼습니다. 오른쪽으로 치우친 변수(전체 왜도 1.64, 5.43)라 평균 ± SD 대신 이 형식을 썼습니다. IQR은 "Q1–Q3" 범위로 씁니다. "IQR 172.9"처럼 폭 하나로 쓰는 논문도 있으니, 읽을 때 어느 형식인지 확인하세요.</span></li>
+<li><span class="mk">4</span><span><b>SMD 2.05.</b> 셀 12의 값입니다. 1장 가 절의 SMD 0.1 기준은 관찰연구에서 <b>비교하려는 두 치료군이 기저에 비슷한가</b>를 판단할 때 쓰는 기준입니다<cite data-ref="austin2009smd"></cite>. 이 표처럼 진단군 사이의 특징을 비교할 때 SMD는 차이의 크기를 나타내는 효과크기로 읽습니다. 치우친 변수의 SMD도 평균과 SD로 계산하므로 극단값의 영향을 받는다는 점에 주의합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p><code>t1_vars</code>에 <code>"worst concave points"</code>를 추가하고 셀 10–12를 다시 실행해 보세요. 표에 한 행이 늘고 SMD가 함께 계산됩니다. 변수가 많을 때는 Table 1을 자동으로 만들어 주는 패키지(예: tableone)도 있지만, 한 번은 이렇게 직접 계산해 보아야 출력의 숫자가 무엇인지 확인할 수 있습니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>평균과 중앙값의 차이, 왜도, 히스토그램, 상자그림을 함께 보고 분포의 치우침을 판단합니다. area error는 평균 40.3, 중앙값 24.5, 왜도 5.43으로 오른쪽으로 강하게 치우쳐 있습니다.</li>
+<li>전체 자료의 치우침은 군이 섞여서 생길 수 있으므로, 군을 비교할 때는 군별로 분포를 봅니다.</li>
+<li>Table 1의 평균 ± SD, 중앙값(IQR), SMD는 <code>groupby</code>의 <code>mean</code>, <code>std</code>, <code>quantile</code>로 계산할 수 있고, SMD는 평균 차이를 두 군 분산 평균의 제곱근으로 나눈 값입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab01-s3">
+<h2><span class="sec-no">다.</span>Q-Q plot과 정규성 검정</h2>
+
+<p>Q-Q plot은 관측값을 크기순으로 정렬해 "정규분포라면 이 순위에 있어야 할 값"과 짝지어 그린 그림입니다. 점이 직선 위에 늘어서면 정규분포에 가깝습니다(<a href="#ch01-s8">1장 아 절</a>). 두 군을 비교하는 분석의 정규성은 군별로 확인하므로, 여기서는 양성 종양 357건 안에서 대칭인 변수(mean radius)와 치우친 변수(area error)를 비교합니다.</p>
+
+<h3>Q-Q plot</h3>
+<!--FIG:lab01_qq-->
+<ol class="lines">
+<li><code>benign = df[df["diagnosis"] == "benign"]</code><span>양성 357행만 남긴 표입니다.</span></li>
+<li><code>stats.probplot(benign[col], dist="norm", plot=ax)</code><span>scipy의 Q-Q plot 함수입니다. <code>dist="norm"</code>은 정규분포와 비교하라는 뜻이고, <code>plot=ax</code>는 그 칸에 그리라는 뜻입니다. x축(Theoretical quantiles)은 표준정규분포의 이론적 분위수, y축(Ordered Values)은 크기순으로 정렬한 관측값이며, 빨간 선이 기준선입니다.</span></li>
+<li><code>ax.set_title(col + " (benign)")</code><span>문자열을 이어 붙여 제목을 만듭니다. probplot이 붙이는 기본 제목(Probability Plot)을 덮어씁니다.</span></li>
+</ol>
+<p>왼쪽 mean radius는 양 끝의 몇 점을 빼면 점이 기준선을 그대로 따라갑니다. 오른쪽 area error는 점들이 직선이 아니라 아래로 볼록한 곡선을 그리고, 오른쪽 끝이 기준선 위로 크게 휘어 올라갑니다. 오른쪽 꼬리가 긴 분포의 전형적인 모습입니다. 왼쪽 끝이 기준선보다 위에 있는 것은 값이 0 근처에서 더 내려가지 못해 왼쪽 꼬리가 짧다는 뜻입니다.</p>
+
+<h3>Shapiro-Wilk 검정</h3>
+<p>Shapiro-Wilk 검정의 귀무가설은 "자료가 정규분포를 따른다"입니다<cite data-ref="shapiro1965"></cite>. 그래서 p &lt; 0.05이면 정규성을 기각합니다. 다른 검정과 방향이 반대라는 점에 주의하세요.</p>
+<!--FIG:lab01_shapiro-->
+<ol class="lines">
+<li><code>for col in [...]:</code><span>두 변수에 같은 계산을 반복합니다.</span></li>
+<li><code>w, p = stats.shapiro(x)</code><span><code>stats.shapiro()</code>는 검정통계량 W와 p-value 두 값을 돌려주며, 왼쪽에 이름 두 개를 쉼표로 쓰면 순서대로 나눠 담깁니다. <code>print(stats.shapiro(x))</code>로 그대로 출력하면 <code>ShapiroResult(statistic=…, pvalue=…)</code> 형태로 보입니다.</span></li>
+<li><code>print(f"{col}: n = {len(x)}, … W = {w:.3f}, p = {p:.3g}")</code><span>따옴표 앞에 f를 붙인 <b>f-문자열</b>은 중괄호 <code>{ }</code> 안의 값을 글자 속에 끼워 넣습니다. <code>:.3f</code>는 소수 셋째 자리까지, <code>:.3g</code>는 유효숫자 3자리(아주 작은 수는 지수 표기), <code>:.2f</code>는 소수 둘째 자리입니다. 한 줄이 길어서 괄호 안에서 두 줄로 나눠 썼습니다.</span></li>
+</ol>
+<p><b>출력 읽기</b></p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>W = 0.997.</b> W는 0과 1 사이 값으로, 1에 가까울수록 정규분포에 가깝습니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.668.</b> 정규성을 기각하지 않습니다. Q-Q plot, 왜도(−0.08)와 같은 결론입니다. 단, "기각하지 않음"은 "정규분포임이 증명됨"이 아닙니다(<a href="#ch01-s2">1장 나 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>W = 0.896.</b> 1에서 뚜렷하게 떨어져 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>p = 6.76e-15.</b> 6.76 × 10⁻¹⁵이라는 뜻의 지수 표기입니다. 논문에는 P &lt; 0.001로 씁니다. 정규성을 기각하며, Q-Q plot의 곡선과 왜도 1.64와 같은 방향입니다.</span></li>
+</ol>
+
+<h3>표본이 클 때의 주의점</h3>
+<p>정규성 검정의 p-value는 분포의 모양뿐 아니라 표본크기에도 좌우됩니다(<a href="#ch01-s8">1장 아 절 주의 상자</a>). 앞의 히스토그램에서 거의 대칭이던 mean smoothness를 전체 569건으로 검정해 보겠습니다.</p>
+<!--FIG:lab01_bign-->
+<ol class="lines">
+<li><code>fig, ax = plt.subplots(figsize=(4.5, 3.6))</code><span>칸을 하나만 만들 때는 <code>ax</code> 하나를 받습니다.</span></li>
+</ol>
+<p>Q-Q plot의 점은 오른쪽 끝의 몇 개를 빼면 기준선을 잘 따르고, <span class="mk">1</span> W = 0.987로 1에 가깝습니다. 그런데 <span class="mk">2</span> p = 8.6e-05(0.000086)로 정규성이 기각됩니다. 569건이면 분석에 문제가 되지 않을 정도의 작은 차이(여기서는 오른쪽 끝의 극단값 몇 개)도 검출할 만큼 검정력이 높기 때문입니다. 표본크기만 바꿔 보면 이 점이 분명해집니다.</p>
+<!--FIG:lab01_nsim-->
+<ol class="lines">
+<li><code>rng = np.random.default_rng(2026)</code><span>난수 생성기를 만듭니다. 괄호 안의 숫자(시드)를 고정하면 몇 번을 실행해도 같은 난수가 나와 결과가 재현됩니다.</span></li>
+<li><code>xs = df["mean smoothness"].to_numpy()</code><span>Series를 numpy 배열로 바꿉니다. 569건 전체를 하나의 '모집단'으로 보고 여기서 표본을 뽑습니다.</span></li>
+<li><code>for n in [20, 50, 100, 200, 400]:</code><span>표본크기를 다섯 가지로 바꿔 가며 반복합니다. 그 안의 <code>for i in range(1000):</code>는 크기마다 1000번 반복합니다.</span></li>
+<li><code>rng.choice(xs, size=n, replace=False)</code><span>569개 중 n개를 중복 없이(<code>replace=False</code>) 무작위로 뽑습니다.</span></li>
+<li><code>if stats.shapiro(sample).pvalue &lt; 0.05: rejected += 1</code><span>뽑은 표본의 p-value가 0.05보다 작으면 기각 횟수에 1을 더합니다. <code>.pvalue</code>는 결과에서 p-value만 꺼내는 방법입니다.</span></li>
+<li><code>{rejected / 1000:.1%}</code><span>기각 비율을 백분율(소수 첫째 자리)로 표시합니다.</span></li>
+</ol>
+<p>같은 변수, 같은 분포인데 <span class="mk">1</span> n = 20이면 9.1%의 표본에서만 정규성이 기각되고, <span class="mk">2</span> n = 400이면 87.7%에서 기각됩니다. 자료가 정확히 정규분포라면 기각 비율은 표본크기와 관계없이 약 5%(α)여야 하므로, n = 20의 9.1%는 이 변수가 정규분포와 약간 다르지만 작은 표본의 검정은 그 차이를 대부분 놓친다는 뜻입니다. 반대로 큰 표본에서는 중심극한정리 덕분에 이 정도의 차이가 t 검정 같은 평균 비교에 거의 영향을 주지 않는데도(<a href="#ch01-s6">1장 바 절</a>), 검정은 거의 항상 기각합니다. 그래서 정규성은 검정 하나로 정하지 않고 그래프, 요약통계, 표본크기, 분석 목적을 함께 보고 판단합니다<cite data-ref="ghasemi2012"></cite>.</p>
+
+<div class="callout warn"><p class="ct">이런 경고가 나면</p>
+<p>표본이 5000건을 넘으면 scipy가 <code>UserWarning</code>으로 Shapiro-Wilk 검정의 p-value가 정확하지 않을 수 있다고 알려 줍니다(문구는 버전에 따라 다를 수 있음). 건강보험 청구자료처럼 수만 명 규모의 자료에서는 정규성 검정 대신 히스토그램, Q-Q plot, 평균과 중앙값의 비교로 판단하는 것이 일반적입니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 정규성 확인</b><span>셀 13–14의 출력으로 쓴 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">The distribution of each continuous feature was assessed <span class="mk">1</span> <span class="hl">within each diagnostic group using Q–Q plots and the Shapiro–Wilk test</span>. Among benign tumors, mean radius was approximately normally distributed (skewness, −0.08; <span class="mk">2</span> <span class="hl">W = 0.997; P = 0.67</span>), whereas the standard error of area was right-skewed (skewness, 1.64; <span class="mk">3</span> <span class="hl">W = 0.896; P &lt; 0.001</span>). Skewed features are therefore <span class="mk">4</span> <span class="hl">presented as medians with interquartile ranges</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>무엇을, 어디서 확인했는가.</b> 검정과 그림을 함께 썼고, 전체가 아니라 군별로 확인했다는 점을 밝힙니다. 셀 13의 Q-Q plot과 셀 14의 검정이 여기에 해당합니다.</span></li>
+<li><span class="mk">2</span><span><b>W = 0.997, P = 0.67.</b> 셀 14의 0.668을 소수 둘째 자리로 반올림했습니다. p-value는 0.05 근처가 아니면 두 자리면 충분합니다.</span></li>
+<li><span class="mk">3</span><span><b>P &lt; 0.001.</b> 6.76e-15처럼 아주 작은 p-value는 정확한 값 대신 P &lt; 0.001로 씁니다. "P = 0.000"은 틀린 표기입니다. p-value는 0이 될 수 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>판단 → 요약 방법.</b> 분포 판단이 Table 1의 요약 형식(나 절)과 이어집니다. 이 자료처럼 군마다 수백 건이면 Shapiro-Wilk 검정은 작은 차이에도 유의하게 나오므로(셀 15–16), 판단의 근거로 Q-Q plot과 왜도를 함께 적는 것이 좋습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>셀 14의 <code>benign</code>을 악성 종양만 남긴 표(<code>df[df["diagnosis"] == "malignant"]</code>)로 바꿔 실행해 보세요. 악성 212건에서는 mean radius도 p &lt; 0.05가 나옵니다(왜도 약 0.5). 셀 16의 <code>"mean smoothness"</code>를 <code>"area error"</code>로 바꾸면, 치우침이 큰 변수는 n = 20에서도 대부분 기각된다는 것을 확인할 수 있습니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Q-Q plot에서 점이 기준선을 따르면 정규분포에 가깝고, 오른쪽 끝이 위로 휘면 오른쪽 꼬리가 긴 분포입니다. 두 군 비교의 정규성은 군별로 봅니다.</li>
+<li>Shapiro-Wilk 검정의 귀무가설은 "정규분포를 따른다"이며, <code>stats.shapiro()</code>가 W와 p-value를 돌려줍니다.</li>
+<li>같은 분포라도 n = 20에서는 9.1%, n = 400에서는 87.7%의 표본에서 정규성이 기각되었습니다. 정규성 검정의 결과는 표본크기에 크게 좌우되므로 그래프·요약통계와 함께 판단합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab01-s4">
+<h2><span class="sec-no">라.</span>다중비교 보정</h2>
+
+<p>30개 특징을 악성과 양성 사이에서 하나씩 비교하면 검정을 30번 하는 것입니다. 효과가 전혀 없어도 평균 30 × 0.05 = 1.5개는 우연히 p &lt; 0.05가 나옵니다(<a href="#ch01-s3">1장 다 절</a>). 여기서는 실제 자료로 검정 30개를 한꺼번에 하고, Bonferroni, Holm, Benjamini-Hochberg 보정을 적용한 뒤, 귀무가설이 참인 상황을 일부러 만들어 보정하지 않으면 거짓양성이 얼마나 생기는지 확인합니다.</p>
+
+<h3>30개 변수를 한 번에 검정하기</h3>
+<p>두 군의 평균 비교에는 두 군의 분산이 같다고 가정하지 않는 Welch의 t 검정을 씁니다(<a href="#ch02-s1">2장 가 절</a>). area error처럼 치우친 변수도 있지만, 군마다 200건이 넘으므로 평균의 표본분포는 정규분포에 가깝습니다(<a href="#ch01-s6">1장 바 절</a>). 이 절의 목적은 다중비교이므로 모든 변수에 같은 검정을 씁니다.</p>
+<!--FIG:lab01_ttest-->
+<ol class="lines">
+<li><code>mal = df[df["diagnosis"] == "malignant"]</code><span>악성 212행, 다음 줄은 양성 357행의 표입니다.</span></li>
+<li><code>stats.ttest_ind(mal[features], ben[features], equal_var=False)</code><span>독립표본 t 검정입니다. 30열짜리 표 두 개를 넣으면 <b>열마다 따로</b> 검정해 t 30개와 p 30개를 한꺼번에 돌려줍니다. <code>equal_var=False</code>가 Welch의 t 검정이고, 생략하면(기본값 True) 분산이 같다고 가정하는 Student의 t 검정이 됩니다.</span></li>
+<li><code>pd.DataFrame({"t": res.statistic, "p": res.pvalue}, index=features)</code><span>결과의 <code>.statistic</code>(t 값 30개)과 <code>.pvalue</code>(p-value 30개)를 두 열로 하고, 행 이름을 변수 이름으로 붙인 표 <code>tt</code>를 만듭니다.</span></li>
+<li><code>(tt["p"] &lt; 0.05).sum()</code><span>비교 결과 True/False를 더하면 True가 1로 계산되므로, p &lt; 0.05인 변수의 개수가 됩니다.</span></li>
+<li><code>tt.sort_values("p").head(3)</code><span>p가 작은 순서로 정렬해 앞의 3개를 봅니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span> 30개 중 26개가 p &lt; 0.05입니다. p-value 칸의 <code>1.061454e-96</code>은 1.06 × 10⁻⁹⁶이라는 뜻입니다. 악성과 양성의 세포핵 차이가 매우 크기 때문에, 이렇게 거의 모든 변수가 압도적으로 유의한 상황에서는 보정을 해도 결론이 거의 바뀌지 않습니다.</p>
+
+<h3>세 가지 보정 방법 적용</h3>
+<!--FIG:lab01_mt-->
+<ol class="lines">
+<li><code>from statsmodels.stats.multitest import multipletests</code><span>statsmodels의 다중비교 보정 함수를 가져옵니다.</span></li>
+<li><code>for method in ["bonferroni", "holm", "fdr_bh"]:</code><span>세 방법을 차례로 적용합니다. <code>"fdr_bh"</code>가 Benjamini-Hochberg 방법입니다.</span></li>
+<li><code>reject, p_adj, _, _ = multipletests(tt["p"], alpha=0.05, method=method)</code><span>p-value 30개를 넣으면 네 가지를 돌려줍니다. 첫째 <code>reject</code>는 보정 후 유의한지(True/False) 30개, 둘째 <code>p_adj</code>는 보정한 p-value 30개입니다. 나머지 둘(보정된 유의수준)은 쓰지 않으므로 '버리는 자리'라는 뜻의 <code>_</code>에 받습니다.</span></li>
+<li><code>tt["p_" + method] = p_adj</code><span>보정 p-value를 <code>p_bonferroni</code>, <code>p_holm</code>, <code>p_fdr_bh</code>라는 새 열로 저장합니다.</span></li>
+<li><code>reject.sum()</code><span>보정 후에도 유의한 변수의 개수입니다.</span></li>
+</ol>
+<p>출력에서 <span class="mk">1</span> Bonferroni 25개, <span class="mk">2</span> Holm 25개, <span class="mk">3</span> Benjamini-Hochberg 26개입니다. 어느 변수에서 갈렸는지 p가 큰 쪽을 봅니다.</p>
+<!--FIG:lab01_mt_rows-->
+<ol class="lines">
+<li><code>tt.sort_values("p")[show_cols].tail(6)</code><span>p가 작은 순서로 정렬한 뒤 네 열만 골라 끝의 6행(p가 가장 큰 6개)을 봅니다.</span></li>
+</ol>
+<p><span class="mk">1</span> fractal dimension error(프랙탈 차원의 표준오차)가 경계에 있습니다. 원래 p = 0.0422(4.220238e-02)는 30개 중 26번째로 작은 값입니다. 세 방법의 보정 p-value를 1장 다 절의 규칙으로 검산하면 다음과 같습니다.</p>
+<ul>
+<li><b>Bonferroni</b>: 0.0422 × 30 = 1.27이고, 1을 넘으면 1로 표시하므로 1.000입니다. 유의하지 않습니다.</li>
+<li><b>Holm</b>: 26번째이므로 (30 − 26 + 1) = 5를 곱해 0.0422 × 5 = 0.211입니다. 유의하지 않습니다.</li>
+<li><b>Benjamini-Hochberg</b>: 30/26을 곱해 0.0422 × 30/26 = 0.0487입니다. 0.05보다 작아 유의합니다.</li>
+</ul>
+<p>BH 보정이 이 변수를 남긴 것은 "유의하다고 판단한 26개 중 거짓의 비율(FDR)"을 5% 이하로 관리하는 방법이라서, 진짜 차이가 많은 상황에서는 기준이 너그러워지기 때문입니다<cite data-ref="bh1995"></cite>. Bonferroni와 Holm은 "하나라도 거짓양성이 나올 확률(FWER)"을 5% 이하로 관리하므로 더 엄격합니다<cite data-ref="holm1979"></cite>. 보정 p-value에서 1.000은 계산값이 1을 넘어 1로 자른 것입니다.</p>
+
+<h3>귀무가설이 참일 때 생기는 거짓양성</h3>
+<p>위의 자료는 차이가 너무 커서 보정의 필요성이 잘 드러나지 않습니다. 이번에는 <b>양성 종양 357건을 무작위로 절반씩 나눕니다</b>. 두 군은 같은 집단에서 제비뽑기로 나눈 것이므로 30개 변수 모두 '진짜 차이 없음'(귀무가설이 참)입니다. 여기서 나오는 유의한 결과는 모두 거짓양성입니다.</p>
+<!--FIG:lab01_null1-->
+<ol class="lines">
+<li><code>half_a = ben.sample(frac=0.5, random_state=3)</code><span><code>.sample(frac=0.5)</code>는 행의 50%를 무작위로 뽑습니다. <code>random_state</code>는 난수 시드로, 같은 숫자면 같은 행이 뽑힙니다.</span></li>
+<li><code>half_b = ben.drop(half_a.index)</code><span>뽑힌 행(half_a의 인덱스)을 뺀 나머지가 다른 절반입니다. 357은 홀수라 178명과 179명으로 나뉩니다.</span></li>
+<li><code>stats.ttest_ind(…).pvalue</code><span>30개 변수를 두 절반 사이에서 검정하고 p-value만 꺼냅니다.</span></li>
+<li><code>multipletests(p_null, method=method)[0].sum()</code><span><code>[0]</code>은 돌려받은 네 가지 중 첫 번째(reject)이고, <code>.sum()</code>은 유의한 개수입니다.</span></li>
+</ol>
+<p>이 분할에서는 <span class="mk">1</span> 보정 없이 2개 변수가 p &lt; 0.05였고, 세 보정 방법 모두 0개였습니다. 차이가 없는 두 군에서 "유의한 차이" 2개를 논문에 보고할 뻔한 것입니다. <code>random_state</code>를 1부터 11까지 바꿔 보면 보정 전 유의한 개수가 0개에서 5개까지 달라집니다. 분할 한 번의 결과는 우연에 좌우되므로 1000번 반복해 평균적인 모습을 봅니다.</p>
+<!--FIG:lab01_nullsim-->
+<ol class="lines">
+<li><code>rows = []</code><span>빈 리스트를 만들어 반복마다 결과를 하나씩 쌓습니다.</span></li>
+<li><code>for i in range(1000):</code> … <code>random_state=i</code><span>시드를 0부터 999까지 바꿔 가며 서로 다른 무작위 분할 1000개를 만듭니다.</span></li>
+<li><code>row = {"none": (p &lt; 0.05).sum()}</code><span>이번 분할에서 보정 없이 유의한 개수를 사전에 담고, 이어서 세 보정 방법의 개수를 추가합니다.</span></li>
+<li><code>rows.append(row)</code><span>이번 결과를 리스트 끝에 붙입니다.</span></li>
+<li><code>sim = pd.DataFrame(rows)</code><span>사전 1000개를 표로 바꿉니다. 1000행 × 4열(방법)이고, 각 칸은 그 분할에서 나온 거짓양성의 개수입니다.</span></li>
+<li><code>(sim &gt; 0).mean()</code><span>칸마다 "거짓양성이 1개 이상인가"를 True/False로 바꾸고 열마다 평균을 내면, 1000번 중 거짓양성이 하나라도 나온 비율, 즉 가족단위 오류율(FWER)의 추정값이 됩니다.</span></li>
+<li><code>sim.mean()</code><span>분할 한 번당 평균 거짓양성 개수입니다. 두 결과를 FWER, mean_FP라는 두 열로 붙여 한 표로 보여 줍니다.</span></li>
+</ol>
+<p><b>출력 읽기</b></p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정하지 않으면 48.1%.</b> 차이가 전혀 없는 두 군을 비교했는데 절반 가까운 분할에서 "유의한 차이"가 적어도 하나 나왔습니다. 30개 검정이 서로 독립이라면 1 − 0.95³⁰ = 0.785(78.5%)여야 하지만(<a href="#ch01-s3">1장 다 절</a>의 공식), radius, perimeter, area처럼 서로 강하게 상관된 변수가 많아 실제로는 이보다 낮습니다. 상관된 검정 30개는 독립인 검정 30개보다 '정보가 적은' 셈이기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>Bonferroni와 Holm은 2.4%.</b> 목표인 5%보다 낮습니다. 변수들이 상관되어 있으면 Bonferroni는 필요 이상으로 보수적이 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>Benjamini-Hochberg는 2.9%.</b> BH는 원래 FDR을 관리하는 방법이지만, 이 경우처럼 모든 귀무가설이 참이면 유의한 결과는 모두 거짓이므로 FDR과 FWER가 같아지고, BH도 FWER를 5% 이하로 지킵니다.</span></li>
+<li><span class="mk">4</span><span><b>평균 거짓양성 1.414개.</b> 30 × 0.05 = 1.5와 가깝습니다. 개수의 기댓값은 변수끼리 상관되어 있어도 검정 수 × α입니다. 상관은 "거짓양성이 한 번에 몰려 나오는가"에 영향을 줄 뿐입니다.</span></li>
+</ol>
+
+<h3>작은 표본에서 세 방법의 차이</h3>
+<p>마지막으로 실제 차이가 있지만 표본이 작은 연구를 흉내 냅니다. 악성과 양성에서 10건씩만 뽑아 같은 검정을 합니다.</p>
+<!--FIG:lab01_small-->
+<ol class="lines">
+<li><code>mal.sample(10, random_state=0)</code><span>숫자 하나를 넣으면 그 개수만큼 행을 무작위로 뽑습니다.</span></li>
+</ol>
+<p><span class="mk">1</span> 보정 없이 21개, <span class="mk">2</span> Bonferroni(및 Holm) 7개, <span class="mk">3</span> Benjamini-Hochberg 18개입니다. 이 30개 변수 중 상당수는 실제로 차이가 있으므로(전체 자료에서 26개가 유의), 엄격한 FWER 보정은 진짜 차이를 많이 놓치고, FDR 보정은 더 많이 찾아냅니다. 확증적 분석에서 1차 결과변수의 다중성은 FWER로 엄격하게 통제하고, 많은 변수 중 후보를 고르는 탐색적 분석에서는 FDR을 쓰는 이유가 여기에 있습니다(<a href="#ch01-s3">1장 다 절 심화 상자</a>).</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 다중비교 보정</b><span>셀 17–19의 출력으로 쓴 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><span class="mk">1</span> <span class="hl">Each of the 30 nuclear features was compared between malignant and benign tumors using Welch's t-test</span>. To account for multiple comparisons, P values were adjusted using the <span class="mk">2</span> <span class="hl">Holm method</span>. Of the 30 features, <span class="mk">3</span> <span class="hl">26 differed at an unadjusted P &lt; 0.05, and 25 remained significant after Holm adjustment</span>; the standard error of fractal dimension was no longer significant (unadjusted P = 0.042; <span class="mk">4</span> <span class="hl">Holm-adjusted P = 0.21</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>검정 방법과 검정의 수.</b> 몇 번의 검정을 했는지 드러나야 독자가 다중성을 판단할 수 있습니다. 셀 17에서 30개를 한 번에 검정했습니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 방법.</b> 분석 전에 정한 방법을 씁니다. 결과를 보고 가장 유리한 보정 방법을 고르는 것은 또 다른 다중비교입니다. FDR로 보정했다면 "adjusted using the Benjamini–Hochberg procedure to control the false discovery rate at 5%"처럼 무엇을 통제했는지 함께 씁니다.</span></li>
+<li><span class="mk">3</span><span><b>보정 전후의 개수.</b> 셀 17의 26개, 셀 18의 25개입니다. 같은 자료를 BH로 보정했다면 26개가 모두 유의했을 것입니다.</span></li>
+<li><span class="mk">4</span><span><b>보정 p-value.</b> 셀 19의 원래 p 0.0422, Holm 보정 p 0.211을 옮겼습니다. 보정 p-value를 보고할 때는 그것이 보정한 값임을 반드시 밝힙니다. 원래 p를 보정 기준(0.05/30 = 0.0017)과 비교하는 방식으로 쓰는 논문도 있으니, 어느 쪽인지 확인하며 읽습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 보정 후 유의하지 않으면 차이가 없다</p>
+<p><span class="wrong">Holm 보정 후 유의하지 않았으므로 두 군의 fractal dimension error는 같다.</span> 보정은 거짓양성을 줄이는 대신 진짜 차이를 놓칠 가능성(2종 오류)을 키웁니다. 유의하지 않다는 결과는 차이가 없다는 증명이 아니며(<a href="#ch01-s2">1장 나 절</a>), 차이의 크기와 신뢰구간을 함께 보고 해석합니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>stats.ttest_ind()</code>에 표를 넣으면 열마다 검정한 p-value를 한꺼번에 얻고, <code>multipletests(p, method=…)</code>로 Bonferroni(<code>"bonferroni"</code>), Holm(<code>"holm"</code>), Benjamini-Hochberg(<code>"fdr_bh"</code>) 보정을 합니다.</li>
+<li>차이가 없는 두 군에서 30개 변수를 보정 없이 검정하자 1000번 중 48.1%에서 거짓양성이 나왔고, 평균 거짓양성 수는 30 × 0.05에 가까웠습니다. 세 보정 모두 이 비율을 5% 이하로 낮췄습니다.</li>
+<li>진짜 차이가 많을 때 BH는 Bonferroni·Holm보다 많은 차이를 찾아냅니다. 논문에는 검정 수, 보정 방법, 보정 p-value임을 밝힙니다.</li>
+</ul></div>
+</section>

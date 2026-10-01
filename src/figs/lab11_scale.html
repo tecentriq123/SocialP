@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">위험비의 단위 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b = cph.params_                         # 계수(로그 위험비)
+print(&quot;나이 1세당 HR   :&quot;, round(np.exp(b[&quot;age10&quot;] / 10), 3))
+print(&quot;나이 10세당 HR  :&quot;, round(np.exp(b[&quot;age10&quot;]), 3))
+print(&quot;나이 20세당 HR  :&quot;, round(np.exp(b[&quot;age10&quot;] * 2), 3))
+print(&quot;빌리루빈 2배 HR :&quot;, round(np.exp(b[&quot;log2_bili&quot;]), 3))
+print(&quot;빌리루빈 4배 HR :&quot;, round(np.exp(b[&quot;log2_bili&quot;] * 2), 3))
+print(&quot;알부민 0.5 g/dL 감소 HR:&quot;, round(np.exp(-0.5 * b[&quot;albumin&quot;]), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>나이 1세당 HR   : 1.032<span class="mk">1</span>
+나이 10세당 HR  : 1.369
+나이 20세당 HR  : 1.874<span class="mk">2</span>
+빌리루빈 2배 HR : 1.842
+빌리루빈 4배 HR : 3.393<span class="mk">3</span>
+알부민 0.5 g/dL 감소 HR: 1.639<span class="mk">4</span></pre></div></div>

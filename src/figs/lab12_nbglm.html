@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">GLM의 음이항 family와 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">nb_glm = smf.glm(form, data=pt,
+                 family=sm.families.NegativeBinomial(alpha=a),
+                 offset=np.log(pt[&quot;py&quot;])).fit()
+both = pd.concat({&quot;discrete NB&quot;: nb2.params,
+                  &quot;GLM NB (alpha fixed)&quot;: nb_glm.params}, axis=1)
+print(both.round(4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                      discrete NB  GLM NB (alpha fixed)
+Intercept                  0.9236                0.9237
+treat[T.rIFN-g]           -1.0096               -1.0097
+inherit[T.autosomal]       0.3358                0.3357
+age                       -0.0369               -0.0369
+propylac                  -0.5782               -0.5783
+alpha                      0.7153                   NaN</pre></div></div>

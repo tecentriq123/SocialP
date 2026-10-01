@@ -1,0 +1,45 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">발생률비와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = pois.conf_int()
+pd.DataFrame({&quot;IRR&quot;: np.exp(pois.params),
+              &quot;2.5%&quot;: np.exp(ci[0]),
+              &quot;97.5%&quot;: np.exp(ci[1])}).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>IRR</th>
+      <th>2.5%</th>
+      <th>97.5%</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>2.460</td>
+      <td>1.254</td>
+      <td>4.828</td>
+    </tr>
+    <tr>
+      <th>treat[T.rIFN-g]</th>
+      <td>0.362</td>
+      <td>0.217</td>
+      <td>0.605</td>
+    </tr>
+    <tr>
+      <th>inherit[T.autosomal]</th>
+      <td>1.426</td>
+      <td>0.887</td>
+      <td>2.292</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>0.964</td>
+      <td>0.938</td>
+      <td>0.990</td>
+    </tr>
+    <tr>
+      <th>propylac</th>
+      <td>0.589</td>
+      <td>0.326</td>
+      <td>1.064</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

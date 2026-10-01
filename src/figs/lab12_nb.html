@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">음이항 회귀 (NB2)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">nb2 = smf.negativebinomial(form, data=pt,
+                           offset=np.log(pt[&quot;py&quot;])).fit()
+print(nb2.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Optimization terminated successfully.<span class="mk">1</span>
+         Current function value: 0.955298
+         Iterations: 22
+         Function evaluations: 26
+         Gradient evaluations: 26
+                     NegativeBinomial Regression Results                      
+==============================================================================
+Dep. Variable:                  n_inf   No. Observations:                  128
+Model:               NegativeBinomial   Df Residuals:                      123
+Method:                           MLE   Df Model:                            4
+Date:                Wed, 30 Sep 2026   Pseudo R-squ.:                 0.06590
+Time:                        08:54:20   Log-Likelihood:                -122.28
+converged:                       True<span class="mk">2</span>   LL-Null:                       -130.90
+Covariance Type:            nonrobust   LLR p-value:                  0.001726<span class="mk">3</span>
+========================================================================================
+                           coef    std err          z      P&gt;|z|      [0.025      0.975]
+----------------------------------------------------------------------------------------
+Intercept                0.9236      0.467      1.978      0.048       0.009       1.839
+treat[T.rIFN-g]         -1.0096      0.306     -3.298      0.001      -1.610      -0.410<span class="mk">4</span>
+inherit[T.autosomal]     0.3358      0.301      1.115      0.265      -0.255       0.926
+age                     -0.0369      0.017     -2.230      0.026      -0.069      -0.004
+propylac                -0.5782      0.400     -1.444      0.149      -1.363       0.206
+alpha                    0.7153      0.360      1.985      0.047       0.009       1.422<span class="mk">5</span>
+========================================================================================</pre></div></div>

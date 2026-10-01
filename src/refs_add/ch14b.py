@@ -1,0 +1,26 @@
+# Chapter 14, sections 라–사 (competing risks, immortal time, meta-analysis, ITS/DID).
+# Bibliographic details checked against PubMed records (2026-09-30).
+ADD = {
+    "austin2016cr": {"text": "Austin PC, Lee DS, Fine JP. Introduction to the analysis of survival data in the presence of competing risks. <i>Circulation</i>. 2016;133(6):601-609.",
+                     "doi": "10.1161/CIRCULATIONAHA.115.017719"},
+    "latouche2013": {"text": "Latouche A, Allignol A, Beyersmann J, Labopin M, Fine JP. A competing risks analysis should report results on all cause-specific hazards and cumulative incidence functions. <i>J Clin Epidemiol</i>. 2013;66(6):648-653.",
+                     "doi": "10.1016/j.jclinepi.2012.09.017"},
+    "suissa2008": {"text": "Suissa S. Immortal time bias in pharmaco-epidemiology. <i>Am J Epidemiol</i>. 2008;167(4):492-499.",
+                   "doi": "10.1093/aje/kwm324"},
+    "levesque2010": {"text": "Lévesque LE, Hanley JA, Kezouh A, Suissa S. Problem of immortal time bias in cohort studies: example using statins for preventing progression of diabetes. <i>BMJ</i>. 2010;340:b5087.",
+                     "doi": "10.1136/bmj.b5087"},
+    "dersimonian1986": {"text": "DerSimonian R, Laird N. Meta-analysis in clinical trials. <i>Control Clin Trials</i>. 1986;7(3):177-188.",
+                        "doi": "10.1016/0197-2456(86)90046-2"},
+    "higgins2002": {"text": "Higgins JPT, Thompson SG. Quantifying heterogeneity in a meta-analysis. <i>Stat Med</i>. 2002;21(11):1539-1558.",
+                    "doi": "10.1002/sim.1186"},
+    "higgins2003": {"text": "Higgins JPT, Thompson SG, Deeks JJ, Altman DG. Measuring inconsistency in meta-analyses. <i>BMJ</i>. 2003;327(7414):557-560.",
+                    "doi": "10.1136/bmj.327.7414.557"},
+    "egger1997": {"text": "Egger M, Davey Smith G, Schneider M, Minder C. Bias in meta-analysis detected by a simple, graphical test. <i>BMJ</i>. 1997;315(7109):629-634.",
+                  "doi": "10.1136/bmj.315.7109.629"},
+    "wagner2002": {"text": "Wagner AK, Soumerai SB, Zhang F, Ross-Degnan D. Segmented regression analysis of interrupted time series studies in medication use research. <i>J Clin Pharm Ther</i>. 2002;27(4):299-309.",
+                   "doi": "10.1046/j.1365-2710.2002.00430.x"},
+    "bernal2017": {"text": "Bernal JL, Cummins S, Gasparrini A. Interrupted time series regression for the evaluation of public health interventions: a tutorial. <i>Int J Epidemiol</i>. 2017;46(1):348-355.",
+                   "doi": "10.1093/ije/dyw098"},
+    "dimick2014": {"text": "Dimick JB, Ryan AM. Methods for evaluating changes in health care policy: the difference-in-differences approach. <i>JAMA</i>. 2014;312(22):2401-2402.",
+                   "doi": "10.1001/jama.2014.16153"},
+}

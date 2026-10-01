@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">두 군씩 비교와 다중비교 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import pairwise_logrank_test
+
+pw = pairwise_logrank_test(e[&quot;months&quot;], e[&quot;ecog&quot;], e[&quot;event&quot;])
+out = pw.summary[[&quot;test_statistic&quot;, &quot;p&quot;]].copy()
+out[&quot;p_bonferroni&quot;] = (out[&quot;p&quot;] * 3).clip(upper=1)   # 비교 3번
+out.round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>test_statistic</th>
+      <th>p</th>
+      <th>p_bonferroni</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">0</th>
+      <th>1</th>
+      <td>3.4568</td>
+      <td>0.0630<span class="mk">1</span></td>
+      <td>0.1890<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>17.4185</td>
+      <td>0.0000</td>
+      <td>0.0001</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <th>2</th>
+      <td>9.0850</td>
+      <td>0.0026</td>
+      <td>0.0077</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

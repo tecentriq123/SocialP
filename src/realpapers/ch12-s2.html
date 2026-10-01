@@ -1,0 +1,11 @@
+<div class="real" data-after="5" data-title="COPD 악화 건수의 음이항 회귀"><p class="real-cite">Cho J, Lee CH, Kim DK, et al. Impact of gender on chronic obstructive pulmonary disease outcomes: a propensity score-matched analysis of a prospective cohort study. <i>Korean J Intern Med</i>. 2020;35(5):1154-1163. <a href="https://doi.org/10.3904/kjim.2019.111" target="_blank" rel="noopener">doi:10.3904/kjim.2019.111</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7487291/" target="_blank" rel="noopener">PMC 전문</a></p>
+<p>국내 두 전향적 COPD 코호트(KOLD, KOCOSS)에서 성향점수로 짝지은 여성 74명과 남성 74명의 중등도 이상 악화 발생률을 비교한 연구입니다. 악화는 한 사람에게 여러 번 일어나는 건수이므로 저자들은 음이항 회귀<span class="en">(negative binomial regression)</span>로 발생률비를 추정했습니다. 이 절의 COPD 흡입제 예제와 결과변수가 같아 과산포를 실제 숫자로 확인하기 좋습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>어디를 보나: Methods의 통계분석 단락.</b> 악화 발생률을 음이항 회귀 모형으로 비교했다고만 적혀 있고, 추적 기간의 로그를 오프셋으로 넣었는지는 명시되어 있지 않습니다. 짝지은 뒤 평균 추적 기간이 여성 2.7년, 남성 3.1년으로 달랐으므로 오프셋이 필요한 상황입니다. 'incidence rates'를 비교했다는 표현으로 보아 넣었을 가능성이 높지만, 논문만으로는 확인할 수 없는 부분입니다.</span></li>
+<li><span class="mk">2</span><span><b>Results 첫 단락의 건수.</b> 여성은 33명(44.6%)이 모두 184회, 남성은 32명(43.2%)이 107회 악화를 겪었습니다. 한 번 이상 악화된 사람의 비율은 거의 같은데, 악화를 겪은 사람 1인당 횟수는 5.6회 대 3.3회입니다(이 사이트의 계산). 절반 이상은 0회이고 일부가 여러 번 겪는 분포, 즉 분산이 평균보다 큰 과산포의 전형적인 모습입니다.</span></li>
+<li><span class="mk">3</span><span><b>IRR 1.49 (95% CI 0.88–2.54)와 과산포의 크기.</b> 이 구간에서 역산한 로그 척도의 표준오차는 약 0.27입니다. 같은 사건 수로 포아송 가정의 표준오차를 구하면 √(1/184 + 1/107) = 0.12이고, 점추정값 1.49에 이 값을 쓰면 95% CI가 약 1.17–1.89로 1을 넘습니다(모두 이 사이트의 계산, 공변량이 없는 단순 비교 기준). 과산포를 무시하면 신뢰구간이 절반 이하로 좁아져 결론이 바뀔 수 있다는 것을 보여 줍니다. 본문에는 과산포 모수 α나 포아송 모형과의 비교가 보고되지 않았습니다.</span></li>
+<li><span class="mk">4</span><span><b>MPR로 보정한 IRR 1.47 (0.86–2.52).</b> 추적 기간 중 흡입제의 약물 보유율(MPR)로 보정한 값입니다. 추적 중에 측정한 순응도는 노출(성별) 이후의 변수라서, 성별이 순응도를 거쳐 악화에 영향을 준다면 매개변수가 됩니다. 이 경우 보정은 '순응도 차이를 거치지 않는 차이'를 묻는 것이 됩니다. 이 연구에서는 값이 거의 변하지 않았습니다.</span></li>
+<li><span class="mk">5</span><span><b>'차이가 없다'는 결론 읽기.</b> 신뢰구간 0.88–2.54는 여성의 악화 발생률이 12% 낮을 가능성부터 2.5배일 가능성까지 포함하므로, 차이가 없다는 증거라기보다 판단할 정보가 부족한 결과입니다. 저자들도 여성 환자가 적어 검정력이 부족했을 수 있다고 적었습니다. 첫 악화까지의 시간을 비교한 로그순위 검정(P = 0.433)은 두 번째 이후의 악화 정보를 쓰지 않는다는 점도 함께 기억합니다.</span></li>
+</ol>
+<p class="real-note">숫자는 원문 초록, Methods, Results에서 옮겼습니다. '이 사이트의 계산'은 원문 숫자로 직접 계산한 값입니다. 그림과 표는 링크한 원문에서 직접 확인하세요.</p>
+</div><!--/real-->

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">위험차, 상대위험도, 오즈비, NNH</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.contingency_tables import Table2x2
+from statsmodels.stats.proportion import confint_proportions_2indep
+
+def show(name, est, ci):
+    print(f&quot;{name:3s} = {est:6.3f} (95% CI {ci[0]:.3f} to {ci[1]:.3f})&quot;)
+
+t22 = Table2x2(tab.to_numpy())
+rd_ci = confint_proportions_2indep(a, a + b, c, c + d,
+                                   compare=&quot;diff&quot;, method=&quot;wald&quot;)
+show(&quot;RD&quot;, p1 - p0, rd_ci)
+show(&quot;RR&quot;, t22.riskratio, t22.riskratio_confint())
+show(&quot;OR&quot;, t22.oddsratio, t22.oddsratio_confint())
+show(&quot;NNH&quot;, 1 / (p1 - p0), (1 / rd_ci[1], 1 / rd_ci[0]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RD  =  0.153<span class="mk">1</span> (95% CI 0.016 to 0.290)
+RR  =  1.608 (95% CI 1.058 to 2.443)<span class="mk">2</span>
+OR  =  2.022 (95% CI 1.081 to 3.783)<span class="mk">3</span>
+NNH =  6.526<span class="mk">4</span> (95% CI 3.444 to 62.221<span class="mk">5</span>)</pre></div></div>

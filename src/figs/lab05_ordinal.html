@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">statsmodels로 같은 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lbl = Table(cc).test_ordinal_association(
+    row_scores=score, col_scores=np.array([1, 0]))
+print(f&quot;z = {lbl.zscore:.3f}, z^2 = {lbl.zscore**2:.2f}, &quot;
+      f&quot;p = {lbl.pvalue:.2e}&quot;)
+print(f&quot;Cochran-Armitage (N r^2) = {len(x) * r**2:.2f}&quot;)
+dev = pear.statistic - M2          # 직선에서 벗어난 부분
+print(f&quot;departure = {dev:.2f}, p = {stats.chi2.sf(dev, 2):.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>z = 12.368<span class="mk">1</span>, z^2 = 152.97<span class="mk">2</span>, p = 3.88e-35
+Cochran-Armitage (N r^2) = 153.13<span class="mk">3</span>
+departure = 5.98<span class="mk">4</span>, p = 0.050<span class="mk">5</span></pre></div></div>

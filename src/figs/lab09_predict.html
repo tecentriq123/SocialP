@@ -1,0 +1,70 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">예시 산모의 예측 확률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">new = pd.DataFrame({
+    &quot;age&quot;:   [25, 25, 20, 20],
+    &quot;lwt&quot;:   [120, 120, 100, 100],
+    &quot;race&quot;:  [&quot;white&quot;, &quot;white&quot;, &quot;black&quot;, &quot;black&quot;],
+    &quot;smoke&quot;: [0, 1, 0, 1],
+    &quot;ptd&quot;:   [0, 0, 1, 1],
+    &quot;ht&quot;:    [0, 0, 0, 0],
+    &quot;ui&quot;:    [0, 0, 1, 1]})
+new[&quot;p_low&quot;] = logit_m.predict(new).round(3)   # 예측 확률
+new</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>lwt</th>
+      <th>race</th>
+      <th>smoke</th>
+      <th>ptd</th>
+      <th>ht</th>
+      <th>ui</th>
+      <th>p_low</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>25</td>
+      <td>120</td>
+      <td>white</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.109<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>25</td>
+      <td>120</td>
+      <td>white</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.223<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>20</td>
+      <td>100</td>
+      <td>black</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.823<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>20</td>
+      <td>100</td>
+      <td>black</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.916<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">혈청 측정값 6개를 모두 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_all = smf.ols(&quot;target ~ bmi + age + C(sex) + bp&quot;
+                    &quot; + s1 + s2 + s3 + s4 + s5 + s6&quot;, data=df).fit()
+print(vif_table(model_all))
+print(f&quot;r(s1, s2) = {df[&#x27;s1&#x27;].corr(df[&#x27;s2&#x27;]):.2f}&quot;)
+print(&quot;SE of s5:&quot;, round(model_adj.bse[&quot;s5&quot;], 2), &quot;-&gt;&quot;,
+      round(model_all.bse[&quot;s5&quot;], 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>C(sex)[T.2]     1.28
+bmi             1.51
+age             1.22
+bp              1.46
+s1             59.20<span class="mk">1</span>
+s2             39.19
+s3             15.40
+s4              8.89
+s5             10.08
+s6              1.48
+Name: VIF, dtype: float64
+r(s1, s2) = 0.90<span class="mk">2</span>
+SE of s5: 5.94 -&gt; 15.67<span class="mk">3</span></pre></div></div>

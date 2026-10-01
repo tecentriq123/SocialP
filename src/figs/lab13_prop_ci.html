@@ -1,0 +1,64 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">위험차의 Wald 구간과 Newcombe 구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.proportion import confint_proportions_2indep
+
+trials = {&quot;main&quot;: (186, 224, 190, 224),     # 성공 수, 인원 (신약, 표준)
+          &quot;small&quot;: (48, 50, 50, 50)}
+rows = []
+for name, (x1, n1, x2, n2) in trials.items():
+    for m in [&quot;wald&quot;, &quot;newcomb&quot;]:
+        lo, hi = confint_proportions_2indep(x1, n1, x2, n2,
+                                            method=m, compare=&quot;diff&quot;)
+        rows.append([name, m, x1 / n1 - x2 / n2, lo, hi])
+tab = pd.DataFrame(rows, columns=[&quot;trial&quot;, &quot;method&quot;, &quot;diff&quot;,
+                                  &quot;lower&quot;, &quot;upper&quot;])
+tab[&quot;NI (lower &gt; -0.10)&quot;] = tab[&quot;lower&quot;] &gt; -0.10
+tab.round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>trial</th>
+      <th>method</th>
+      <th>diff</th>
+      <th>lower</th>
+      <th>upper</th>
+      <th>NI (lower &gt; -0.10)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>main</td>
+      <td>wald</td>
+      <td>-0.0179</td>
+      <td>-0.0859</td>
+      <td>0.0501</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>main</td>
+      <td>newcomb</td>
+      <td>-0.0179</td>
+      <td>-0.0862</td>
+      <td>0.0506</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>small</td>
+      <td>wald</td>
+      <td>-0.0400</td>
+      <td>-0.0943</td>
+      <td>0.0143</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>small</td>
+      <td>newcomb</td>
+      <td>-0.0400</td>
+      <td>-0.1346</td>
+      <td>0.0370</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

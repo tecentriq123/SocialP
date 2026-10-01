@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">효과크기 η²와 ω²</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ss_b = table.loc[&quot;race_f&quot;, &quot;sum_sq&quot;]      # 군간 제곱합
+ss_w = table.loc[&quot;Residual&quot;, &quot;sum_sq&quot;]    # 군내 제곱합
+ms_w = table.loc[&quot;Residual&quot;, &quot;mean_sq&quot;]   # 군내 평균제곱
+eta2 = ss_b / (ss_b + ss_w)
+omega2 = (ss_b - 2 * ms_w) / (ss_b + ss_w + ms_w)
+print(f&quot;SS_B = {ss_b:,.0f}, SS_W = {ss_w:,.0f}&quot;)
+print(f&quot;eta^2 = {eta2:.3f}, omega^2 = {omega2:.3f}&quot;)
+print(f&quot;pooled SD = {np.sqrt(ms_w):.1f} g&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>SS_B = 5,015,725<span class="mk">1</span>, SS_W = 94,953,931
+eta^2 = 0.050<span class="mk">2</span>, omega^2 = 0.040<span class="mk">3</span>
+pooled SD = 714.5 g<span class="mk">4</span></pre></div></div>

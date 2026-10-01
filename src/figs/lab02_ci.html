@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">평균 차이와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import scipy
+print(&quot;scipy&quot;, scipy.__version__)
+
+diff = smoker.mean() - nonsmoker.mean()
+ci = welch.confidence_interval(confidence_level=0.95)
+print(f&quot;평균 차이 = {diff:.1f} g&quot;)
+print(f&quot;95% CI = {ci.low:.1f} ~ {ci.high:.1f} g&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>scipy 1.17.1<span class="mk">1</span>
+평균 차이 = -283.8 g<span class="mk">2</span>
+95% CI = -489.0 ~ -78.6 g<span class="mk">3</span></pre></div></div>

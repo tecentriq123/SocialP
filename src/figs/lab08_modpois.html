@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">수정 포아송 회귀로 보정 상대위험도 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mp = smf.glm(f_adj, df, family=fam.Poisson()).fit(cov_type=&quot;HC0&quot;)
+ml = smf.glm(f_adj, df, family=fam.Binomial()).fit()
+for name, r in [(&quot;aRR, modified Poisson&quot;, mp), (&quot;aOR, logistic&quot;, ml)]:
+    lo, hi = np.exp(r.conf_int().loc[&quot;smoke&quot;])
+    est = np.exp(r.params[&quot;smoke&quot;])
+    print(f&quot;{name:22s}: {est:.2f} (95% CI {lo:.2f} to {hi:.2f})&quot;)
+print(&quot;max fitted p (Poisson):&quot;, round(mp.fittedvalues.max(), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>aRR, modified Poisson : 1.73 (95% CI 1.14 to 2.64)<span class="mk">1</span>
+aOR, logistic         : 2.36<span class="mk">2</span> (95% CI 1.07 to 5.22)
+max fitted p (Poisson): 1.297<span class="mk">3</span></pre></div></div>

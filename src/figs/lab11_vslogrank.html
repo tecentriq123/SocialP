@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">단변수 Cox 모형과 로그순위 검정 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import logrank_test
+
+a = df[&quot;dpca&quot;] == 1
+lr = logrank_test(df.loc[a, &quot;years&quot;], df.loc[~a, &quot;years&quot;],
+                  df.loc[a, &quot;death&quot;], df.loc[~a, &quot;death&quot;])
+z = cph1.summary.loc[&quot;dpca&quot;, &quot;z&quot;]
+print(&quot;log-rank chi2 :&quot;, round(lr.test_statistic, 4))
+print(&quot;Wald z^2      :&quot;, round(z**2, 4))
+print(&quot;LR chi2       :&quot;,
+      round(cph1.log_likelihood_ratio_test().test_statistic, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>log-rank chi2 : 0.1017<span class="mk">1</span>
+Wald z^2      : 0.102<span class="mk">2</span>
+LR chi2       : 0.1021<span class="mk">3</span></pre></div></div>

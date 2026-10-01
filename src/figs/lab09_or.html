@@ -1,0 +1,75 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">오즈비와 95% 신뢰구간 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = logit_m.conf_int()                  # 로그 오즈비의 95% CI
+or_tab = pd.DataFrame({
+    &quot;OR&quot;: np.exp(logit_m.params),        # e^β = 오즈비
+    &quot;lower&quot;: np.exp(ci[0]),
+    &quot;upper&quot;: np.exp(ci[1]),
+    &quot;P&quot;: logit_m.pvalues})
+or_tab.drop(&quot;Intercept&quot;).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OR</th>
+      <th>lower</th>
+      <th>upper</th>
+      <th>P</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(race)[T.black]</th>
+      <td>3.363<span class="mk">5</span></td>
+      <td>1.184</td>
+      <td>9.549</td>
+      <td>0.023</td>
+    </tr>
+    <tr>
+      <th>C(race)[T.other]</th>
+      <td>2.235</td>
+      <td>0.928</td>
+      <td>5.382</td>
+      <td>0.073</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>0.963</td>
+      <td>0.894</td>
+      <td>1.037</td>
+      <td>0.318</td>
+    </tr>
+    <tr>
+      <th>lwt</th>
+      <td>0.985<span class="mk">4</span></td>
+      <td>0.972</td>
+      <td>0.999</td>
+      <td>0.034</td>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <td>2.331<span class="mk">1</span></td>
+      <td>1.048<span class="mk">2</span></td>
+      <td>5.187<span class="mk">3</span></td>
+      <td>0.038</td>
+    </tr>
+    <tr>
+      <th>ptd</th>
+      <td>3.393</td>
+      <td>1.369</td>
+      <td>8.409</td>
+      <td>0.008</td>
+    </tr>
+    <tr>
+      <th>ht</th>
+      <td>6.288</td>
+      <td>1.585</td>
+      <td>24.954</td>
+      <td>0.009</td>
+    </tr>
+    <tr>
+      <th>ui</th>
+      <td>2.036</td>
+      <td>0.822</td>
+      <td>5.047</td>
+      <td>0.125</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

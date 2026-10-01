@@ -1,0 +1,97 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">NCCTG 폐암 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+
+url = (&quot;https://vincentarelbundock.github.io/Rdatasets/&quot;
+       &quot;csv/survival/cancer.csv&quot;)
+lung = pd.read_csv(url)
+print(lung.shape)
+lung.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(228, 11)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rownames<span class="mk">2</span></th>
+      <th>inst</th>
+      <th>time</th>
+      <th>status<span class="mk">3</span></th>
+      <th>age</th>
+      <th>sex</th>
+      <th>ph.ecog<span class="mk">4</span></th>
+      <th>ph.karno</th>
+      <th>pat.karno</th>
+      <th>meal.cal</th>
+      <th>wt.loss</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>3.0</td>
+      <td>306</td>
+      <td>2</td>
+      <td>74</td>
+      <td>1</td>
+      <td>1.0</td>
+      <td>90.0</td>
+      <td>100.0</td>
+      <td>1175.0</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>3.0</td>
+      <td>455</td>
+      <td>2</td>
+      <td>68</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>90.0</td>
+      <td>90.0</td>
+      <td>1225.0</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>3.0</td>
+      <td>1010</td>
+      <td>1</td>
+      <td>56</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>90.0</td>
+      <td>90.0</td>
+      <td>NaN</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>5.0</td>
+      <td>210</td>
+      <td>2</td>
+      <td>57</td>
+      <td>1</td>
+      <td>1.0</td>
+      <td>90.0</td>
+      <td>60.0</td>
+      <td>1150.0</td>
+      <td>11.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>1.0</td>
+      <td>883</td>
+      <td>2</td>
+      <td>60</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>100.0</td>
+      <td>90.0</td>
+      <td>NaN</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

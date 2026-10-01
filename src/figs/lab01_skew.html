@@ -1,0 +1,41 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">평균, 중앙값, 왜도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">summary = pd.DataFrame({
+    &quot;mean&quot;: df[cols].mean(),
+    &quot;median&quot;: df[cols].median(),
+    &quot;skewness&quot;: df[cols].apply(stats.skew),   # 열마다 왜도
+})
+summary.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>median</th>
+      <th>skewness</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean radius</th>
+      <td>14.127</td>
+      <td>13.370</td>
+      <td>0.940</td>
+    </tr>
+    <tr>
+      <th>mean smoothness</th>
+      <td>0.096</td>
+      <td>0.096</td>
+      <td>0.455<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>mean area</th>
+      <td>654.889</td>
+      <td>551.100</td>
+      <td>1.641</td>
+    </tr>
+    <tr>
+      <th>area error</th>
+      <td>40.337</td>
+      <td>24.530</td>
+      <td>5.433<span class="mk">2</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

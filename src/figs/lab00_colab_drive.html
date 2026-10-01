@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">Colab 전용</span><span class="cell-t">Google Drive의 파일 읽기 (이 사이트에서는 실행하지 않음)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from google.colab import drive
+drive.mount(&quot;/content/drive&quot;)   # 구글 계정 접근 허용 창이 뜸
+
+import pandas as pd
+path = &quot;/content/drive/MyDrive/lab/my_patients.csv&quot;
+df_my = pd.read_csv(path, encoding=&quot;cp949&quot;)</code></pre></div>

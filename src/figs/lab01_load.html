@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">데이터 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+from scipy import stats
+from sklearn.datasets import load_breast_cancer
+
+bc = load_breast_cancer(as_frame=True)
+df = bc.frame.copy()     # 설명변수 30개 + target 1개
+print(df.shape)
+print(df[&quot;target&quot;].value_counts())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(569, 31)<span class="mk">1</span>
+target
+1    357<span class="mk">2</span>
+0    212<span class="mk">3</span>
+Name: count, dtype: int64</pre></div></div>

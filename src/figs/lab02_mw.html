@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Mann-Whitney 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mw = stats.mannwhitneyu(smoker, nonsmoker,
+                        alternative=&quot;two-sided&quot;)
+print(mw)
+n1n2 = n1 * n2
+print(&quot;U(smoker) =&quot;, mw.statistic)
+print(&quot;U(nonsmoker) =&quot;, n1n2 - mw.statistic)
+print(f&quot;p = {mw.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MannwhitneyuResult(statistic=np.float64(3260.5), pvalue=np.float64(0.006767788964645173))
+U(smoker) = 3260.5<span class="mk">1</span>
+U(nonsmoker) = 5249.5<span class="mk">2</span>
+p = 0.0068<span class="mk">3</span></pre></div></div>

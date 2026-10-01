@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">몇 명을 몇 번 측정했나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(sleep[&quot;Subject&quot;].nunique())            # 참가자 수
+print(sleep.groupby(&quot;Subject&quot;).size().value_counts())
+print(sleep[&quot;Days&quot;].unique())                # 측정 시점</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>18<span class="mk">1</span>
+10    18<span class="mk">2</span>
+Name: count, dtype: int64
+[0 1 2 3 4 5 6 7 8 9]</pre></div></div>

@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">부종으로 층화한 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cph_s = CoxPHFitter()
+cph_s.fit(df, duration_col=&quot;years&quot;, event_col=&quot;death&quot;,
+          formula=&quot;dpca + age10 + female + log2_bili + albumin&quot;
+                  &quot; + protime&quot;,
+          strata=[&quot;edema&quot;])
+cph_s.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations&gt;
+             duration col = &#x27;years&#x27;
+                event col = &#x27;death&#x27;
+                   strata = edema<span class="mk">1</span>
+      baseline estimation = breslow
+   number of observations = 312
+number of events observed = 125
+   partial log-likelihood = -458.464
+         time fit was run = 2026-09-29 23:54:15 UTC
+
+---
+            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%
+covariate                                                                                                   
+dpca      -0.082     0.922<span class="mk">2</span>     0.194          -0.462           0.299               0.630               1.348
+age10      0.318     1.374     0.094           0.133           0.503               1.143               1.653
+female    -0.339     0.713     0.254          -0.836           0.159               0.433               1.173
+log2_bili  0.593     1.810     0.069           0.457           0.729               1.580               2.073
+albumin   -0.934     0.393     0.239          -1.402          -0.467               0.246               0.627
+protime    0.257     1.293     0.085           0.090           0.424               1.094               1.527
+
+           cmp to      z       p  -log2(p)
+covariate                                 
+dpca        0.000 -0.421   0.674     0.569
+age10       0.000  3.373   0.001    10.394
+female      0.000 -1.333   0.182     2.454
+log2_bili   0.000  8.564 &lt;0.0005    56.353
+albumin     0.000 -3.916 &lt;0.0005    13.441
+protime     0.000  3.022   0.003     8.636
+---
+Concordance = 0.806<span class="mk">3</span>
+Partial AIC = 928.927
+log-likelihood ratio test = 132.353 on 6 df<span class="mk">4</span>
+-log2(p) of ll-ratio test = 84.332</pre></div></div>

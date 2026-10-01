@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Greenwood 공식과 log-log 신뢰구간 직접 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">et = kmf.event_table.loc[:12]             # 12개월까지의 사건 표
+d, n = et[&quot;observed&quot;], et[&quot;at_risk&quot;]
+gw = (d / (n * (n - d))).sum()            # Greenwood 합
+s = kmf.survival_function_at_times(12).iloc[0]
+print(&quot;표준오차:&quot;, round(s * np.sqrt(gw), 4))
+
+sigma = np.sqrt(gw) / abs(np.log(s))      # log-log 척도의 표준오차
+print(&quot;log-log CI:&quot;, round(s ** np.exp(1.96 * sigma), 3),
+      round(s ** np.exp(-1.96 * sigma), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>표준오차: 0.0358<span class="mk">1</span>
+log-log CI: 0.339 0.478<span class="mk">2</span></pre></div></div>

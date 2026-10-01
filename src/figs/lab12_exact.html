@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">조건부 정확검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">share = T[&quot;rIFN-g&quot;] / T.sum()        # rIFN-g군 인년의 비율
+res = stats.binomtest(int(d[&quot;rIFN-g&quot;]), int(d.sum()), share)
+print(f&quot;expected share {share:.3f}, observed {d[&#x27;rIFN-g&#x27;]}/{d.sum()}&quot;)
+print(&quot;exact P =&quot;, res.pvalue)
+ci = res.proportion_ci()             # 정확(Clopper-Pearson) 구간
+k = T[&quot;placebo&quot;] / T[&quot;rIFN-g&quot;]
+print(f&quot;exact 95% CI {ci.low / (1 - ci.low) * k:.3f}&quot;
+      f&quot; to {ci.high / (1 - ci.high) * k:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>expected share 0.506<span class="mk">1</span>, observed 20/76<span class="mk">2</span>
+exact P = 2.5759626765141705e-05<span class="mk">3</span>
+exact 95% CI 0.198 to 0.591<span class="mk">4</span></pre></div></div>

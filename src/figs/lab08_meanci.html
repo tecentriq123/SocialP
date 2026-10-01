@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">평균의 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">bwt = df[&quot;bwt&quot;]
+n = len(bwt)
+mean, sd = bwt.mean(), bwt.std()   # std()는 n - 1로 나눈 표준편차
+se = sd / np.sqrt(n)
+t_crit = stats.t.ppf(0.975, n - 1)  # 자유도 188인 t 분포의 97.5% 점
+print(f&quot;mean = {mean:.1f}, SD = {sd:.1f}, SE = {se:.2f}&quot;)
+print(f&quot;t = {t_crit:.3f}, half-width = {t_crit * se:.1f}&quot;)
+print(f&quot;95% CI = {mean - t_crit * se:.1f} to {mean + t_crit * se:.1f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>mean = 2944.6<span class="mk">1</span>, SD = 729.2, SE = 53.04<span class="mk">2</span>
+t = 1.973<span class="mk">3</span>, half-width = 104.6
+95% CI = 2840.0 to 3049.2<span class="mk">4</span></pre></div></div>

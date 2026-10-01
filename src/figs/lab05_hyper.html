@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">가능한 모든 표의 확률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">total, lbw, ht_n = 189, 59, 12   # 전체, LBW 합계, HT 산모 수
+a = np.arange(0, ht_n + 1)        # HT 산모 중 LBW 수: 0 ~ 12
+prob = stats.hypergeom.pmf(a, total, lbw, ht_n)
+p_obs = prob[7]                   # 관측된 표 (a = 7)
+extreme = prob &lt;= p_obs * (1 + 1e-7)
+print(prob.round(4).tolist())
+print(f&quot;P(a = 7) = {p_obs:.4f}, 양측 p = {prob[extreme].sum():.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[0.0095, 0.0565, 0.1501, 0.2357, 0.2434, 0.1742, 0.0885, 0.0322, 0.0083, 0.0015, 0.0002, 0.0, 0.0]
+P(a = 7) = 0.0322<span class="mk">1</span>, 양측 p = 0.0516<span class="mk">2</span></pre></div></div>

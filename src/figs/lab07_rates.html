@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">시점별 생존율과 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = kmf.confidence_interval_
+for t in [6, 12, 24]:
+    s = kmf.survival_function_at_times(t).iloc[0]
+    lo, hi = ci.loc[:t].iloc[-1]          # t 이전 마지막 계단
+    print(f&quot;{t:&gt;2}개월 생존율 {s:.3f} (95% CI {lo:.3f}-{hi:.3f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> 6개월 생존율 0.708 (95% CI 0.644-0.763)
+12개월 생존율 0.409 (95% CI 0.339-0.478)<span class="mk">1</span>
+24개월 생존율 0.116 (95% CI 0.068-0.178)<span class="mk">2</span></pre></div></div>

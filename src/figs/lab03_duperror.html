@@ -1,0 +1,2 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">같은 짝이 두 번 있으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dup = pd.concat([sleep, sleep.iloc[[0]]])   # 첫 행이 두 번 들어감
+dup.pivot(index=&quot;ID&quot;, columns=&quot;group&quot;, values=&quot;extra&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre class="err-out">ValueError: Index contains duplicate entries, cannot reshape</pre></div></div>

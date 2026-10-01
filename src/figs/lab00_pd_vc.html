@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">value_counts()</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(df[&quot;race_lab&quot;].value_counts())                  # 범주별 빈도
+print(df[&quot;smoke&quot;].value_counts(normalize=True).round(3))  # 비율</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>race_lab
+white    96<span class="mk">1</span>
+other    67
+black    26
+Name: count, dtype: int64
+smoke
+0    0.608
+1    0.392<span class="mk">2</span>
+Name: proportion, dtype: float64</pre></div></div>

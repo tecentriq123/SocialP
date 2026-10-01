@@ -1,0 +1,39 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">군별·기간별 평균 발작 건수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(epil.groupby(&quot;trt&quot;, observed=True)[&quot;subject&quot;].nunique())
+tab = epil.groupby([&quot;trt&quot;, &quot;period&quot;], observed=True)[&quot;y&quot;].mean()
+tab.unstack().round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>trt
+placebo      28<span class="mk">1</span>
+progabide    31
+Name: subject, dtype: int64</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>period</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+    </tr>
+    <tr>
+      <th>trt</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>placebo</th>
+      <td>9.36</td>
+      <td>8.29</td>
+      <td>8.79</td>
+      <td>7.96</td>
+    </tr>
+    <tr>
+      <th>progabide</th>
+      <td>8.58</td>
+      <td>8.42</td>
+      <td>8.13</td>
+      <td>6.71</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

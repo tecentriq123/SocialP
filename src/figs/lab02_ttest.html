@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">Student t 검정과 Welch t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">smoker = df.loc[df[&quot;smoke&quot;] == 1, &quot;bwt&quot;]
+nonsmoker = df.loc[df[&quot;smoke&quot;] == 0, &quot;bwt&quot;]
+
+student = stats.ttest_ind(smoker, nonsmoker, equal_var=True)
+welch = stats.ttest_ind(smoker, nonsmoker, equal_var=False)
+print(welch)
+print(f&quot;Student: t = {student.statistic:.3f}, &quot;
+      f&quot;p = {student.pvalue:.4f}, df = {student.df:.0f}&quot;)
+print(f&quot;Welch:   t = {welch.statistic:.3f}, &quot;
+      f&quot;p = {welch.pvalue:.4f}, df = {welch.df:.1f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>TtestResult<span class="mk">1</span>(statistic=np.float64(-2.7298856759879087), pvalue=np.float64(0.007002548173076962), df=np.float64(170.10024146854795))
+Student: t = -2.653, p = 0.0087, df = 187<span class="mk">2</span>
+Welch:   t = -2.730<span class="mk">3</span>, p = 0.0070<span class="mk">4</span>, df = 170.1<span class="mk">5</span></pre></div></div>

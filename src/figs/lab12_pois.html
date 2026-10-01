@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">포아송 회귀 (오프셋 = log 인년)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+pt[&quot;inherit&quot;] = pd.Categorical(pt[&quot;inherit&quot;],
+                               categories=[&quot;X-linked&quot;, &quot;autosomal&quot;])
+form = &quot;n_inf ~ treat + age + inherit + propylac&quot;
+pois = smf.glm(form, data=pt, family=sm.families.Poisson(),
+               offset=np.log(pt[&quot;py&quot;])).fit()
+print(pois.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                  n_inf   No. Observations:                  128<span class="mk">1</span>
+Model:                            GLM   Df Residuals:                      123
+Model Family:                 Poisson   Df Model:                            4
+Link Function:                    Log<span class="mk">2</span>   Scale:                          1.0000<span class="mk">3</span>
+Method:                          IRLS   Log-Likelihood:                -127.05
+Date:                Wed, 30 Sep 2026   Deviance:                       151.07<span class="mk">4</span>
+Time:                        08:54:20   Pearson chi2:                     170.<span class="mk">5</span>
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.2010
+Covariance Type:            nonrobust                                         
+========================================================================================
+                           coef    std err          z      P&gt;|z|      [0.025      0.975]
+----------------------------------------------------------------------------------------
+Intercept                0.9004      0.344      2.618      0.009       0.226       1.574<span class="mk">6</span>
+treat[T.rIFN-g]         -1.0157      0.262     -3.876      0.000      -1.529      -0.502<span class="mk">7</span>
+inherit[T.autosomal]     0.3548      0.242      1.466      0.143      -0.120       0.829
+age                     -0.0371      0.014     -2.736      0.006      -0.064      -0.011<span class="mk">8</span>
+propylac                -0.5288      0.301     -1.754      0.079      -1.120       0.062
+========================================================================================</pre></div></div>

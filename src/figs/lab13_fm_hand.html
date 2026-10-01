@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">Farrington–Manning 검정을 직접 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy.optimize import minimize_scalar
+
+x1, n1, x2, n2, delta = 186, 224, 190, 224, -0.10
+
+def negloglik(p2):          # 귀무가설 p1 - p2 = delta 아래의 -로그우도
+    p1 = p2 + delta
+    return -(stats.binom.logpmf(x1, n1, p1)
+             + stats.binom.logpmf(x2, n2, p2))
+
+opt = minimize_scalar(negloglik, bounds=(0.1001, 0.9999),
+                      method=&quot;bounded&quot;)
+p2t = opt.x
+p1t = p2t + delta
+se0 = np.sqrt(p1t * (1 - p1t) / n1 + p2t * (1 - p2t) / n2)
+z = (x1 / n1 - x2 / n2 - delta) / se0
+print(f&quot;restricted MLE: new {p1t:.4f}, standard {p2t:.4f}&quot;)
+print(f&quot;z = {z:.3f}, one-sided P = {stats.norm.sf(z):.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>restricted MLE: new 0.7795, standard 0.8795<span class="mk">1</span>
+z = 2.333<span class="mk">2</span>, one-sided P = 0.0098<span class="mk">3</span></pre></div></div>

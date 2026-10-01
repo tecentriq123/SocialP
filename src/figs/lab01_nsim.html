@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">표본크기와 정규성 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(2026)      # 난수 시드 고정
+xs = df[&quot;mean smoothness&quot;].to_numpy()
+for n in [20, 50, 100, 200, 400]:
+    rejected = 0
+    for i in range(1000):              # 표본을 1000번 뽑아 검정
+        sample = rng.choice(xs, size=n, replace=False)
+        if stats.shapiro(sample).pvalue &lt; 0.05:
+            rejected += 1
+    print(f&quot;n = {n:3d}: p &lt; 0.05 in {rejected / 1000:.1%}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>n =  20: p &lt; 0.05 in 9.1%<span class="mk">1</span>
+n =  50: p &lt; 0.05 in 20.2%
+n = 100: p &lt; 0.05 in 31.6%
+n = 200: p &lt; 0.05 in 56.5%
+n = 400: p &lt; 0.05 in 87.7%<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">오즈비 두 가지</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy.stats.contingency import odds_ratio
+
+for kind in [&quot;sample&quot;, &quot;conditional&quot;]:
+    o = odds_ratio(obs_h.to_numpy(), kind=kind)
+    ci = o.confidence_interval(confidence_level=0.95)
+    print(f&quot;{kind:11s} OR = {o.statistic:.3f} &quot;
+          f&quot;(95% CI {ci.low:.2f} to {ci.high:.2f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>sample      OR = 3.365<span class="mk">1</span> (95% CI 1.02 to 11.09)<span class="mk">2</span>
+conditional OR = 3.341<span class="mk">3</span> (95% CI 0.87 to 14.00)<span class="mk">4</span></pre></div></div>

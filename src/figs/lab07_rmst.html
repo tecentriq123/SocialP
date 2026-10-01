@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">24개월 제한평균생존시간(RMST)과 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import restricted_mean_survival_time as rmst
+
+def rmst_se(k, tau):
+    &quot;&quot;&quot;RMST(tau)와 그 표준오차 (Greenwood형 분산)&quot;&quot;&quot;
+    et = k.event_table.loc[:tau]
+    et = et[et[&quot;observed&quot;] &gt; 0]           # 사망이 있는 시점만
+    area = np.array([rmst(k, t=tau) - rmst(k, t=t) for t in et.index])
+    n, d = et[&quot;at_risk&quot;], et[&quot;observed&quot;]
+    var = (area**2 * d / (n * (n - d))).sum()
+    return rmst(k, t=tau), np.sqrt(var)
+
+(r_m, se_m), (r_f, se_f) = [rmst_se(k, 24) for k in km_sex.values()]
+diff, se = r_f - r_m, np.sqrt(se_m**2 + se_f**2)
+print(f&quot;24개월 RMST: 남 {r_m:.2f}, 여 {r_f:.2f}개월&quot;)
+print(f&quot;차이 {diff:.2f}개월 (95% CI {diff - 1.96*se:.2f}&quot;
+      f&quot; to {diff + 1.96*se:.2f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>24개월 RMST: 남 10.22<span class="mk">1</span>, 여 14.28<span class="mk">2</span>개월
+차이 4.06개월<span class="mk">3</span> (95% CI 1.91 to 6.21)<span class="mk">4</span></pre></div></div>

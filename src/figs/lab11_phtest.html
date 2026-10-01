@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">비례위험 검정 (척도화 Schoenfeld 잔차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import proportional_hazard_test
+
+ph = proportional_hazard_test(cph, df, time_transform=&quot;rank&quot;)
+ph.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.StatisticalResult: proportional_hazard_test&gt;
+    time_transform = rank<span class="mk">1</span>
+ null_distribution = chi squared
+degrees_of_freedom = 1<span class="mk">2</span>
+             model = &lt;lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations&gt;
+         test_name = proportional_hazard_test
+
+---
+                 test_statistic     p  -log2(p)
+C(edema)[T.0.5]           4.500 0.034<span class="mk">3</span>     4.883
+C(edema)[T.1.0]           0.594 0.441     1.181
+age10                     0.210 0.647     0.628
+albumin                   0.011 0.917     0.125
+dpca                      2.136 0.144<span class="mk">4</span>     2.797
+female                    0.030 0.863     0.212
+log2_bili                 1.960 0.162     2.630
+protime                   4.641 0.031<span class="mk">5</span>     5.001</pre></div></div>

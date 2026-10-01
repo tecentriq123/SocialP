@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">등분산 확인과 Welch 분산분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.oneway import anova_oneway
+
+lev = stats.levene(white, black, other)       # 중앙값 기준
+print(f&quot;Levene: p = {lev.pvalue:.3f}&quot;)
+welch = anova_oneway(df[&quot;bwt&quot;], df[&quot;race_f&quot;], use_var=&quot;unequal&quot;)
+print(f&quot;Welch F = {welch.statistic:.3f}, &quot;
+      f&quot;df = ({welch.df_num:.0f}, {welch.df_denom:.1f}), &quot;
+      f&quot;p = {welch.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Levene: p = 0.627<span class="mk">1</span>
+Welch F = 5.060<span class="mk">2</span>, df = (2, 72.4)<span class="mk">3</span>, p = 0.0088<span class="mk">4</span></pre></div></div>

@@ -1,0 +1,52 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">흡연의 효과를 네 모형으로 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for name, r in fits.items():
+    lo, hi = np.exp(r.conf_int().loc[&quot;smoke&quot;])
+    rows.append([name, np.exp(r.params[&quot;smoke&quot;]), r.bse[&quot;smoke&quot;],
+                 lo, hi])
+cols = [&quot;model&quot;, &quot;exp(b)&quot;, &quot;SE(b)&quot;, &quot;2.5%&quot;, &quot;97.5%&quot;]
+pd.DataFrame(rows, columns=cols).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>model</th>
+      <th>exp(b)</th>
+      <th>SE(b)</th>
+      <th>2.5%</th>
+      <th>97.5%</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>logit</td>
+      <td>2.022<span class="mk">1</span></td>
+      <td>0.320</td>
+      <td>1.081</td>
+      <td>3.783</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>log-binomial<span class="mk">2</span></td>
+      <td>1.608</td>
+      <td>0.214</td>
+      <td>1.058</td>
+      <td>2.443</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Poisson</td>
+      <td>1.608</td>
+      <td>0.260<span class="mk">3</span></td>
+      <td>0.965</td>
+      <td>2.678</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Poisson robust<span class="mk">4</span></td>
+      <td>1.608</td>
+      <td>0.214</td>
+      <td>1.058</td>
+      <td>2.443</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

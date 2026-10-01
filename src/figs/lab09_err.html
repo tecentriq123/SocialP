@@ -1,0 +1,2 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">결과변수를 0/1이 아닌 값으로 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">bw[&quot;low12&quot;] = bw[&quot;low&quot;] + 1       # 결과를 1/2로 코딩했다고 가정
+smf.logit(&quot;low12 ~ smoke&quot;, data=bw).fit()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre class="err-out">ValueError: endog must be in the unit interval.</pre></div></div>

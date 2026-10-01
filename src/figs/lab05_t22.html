@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">상대위험도와 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.contingency_tables import Table2x2
+
+t22 = Table2x2(obs.to_numpy())  # DataFrame 대신 숫자 배열로
+print(t22.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Estimate   SE   LCB   UCB  p-value
+-------------------------------------------------
+Odds ratio        2.022<span class="mk">1</span>       1.081 3.783<span class="mk">3</span>   0.028
+Log odds ratio    0.704 0.320<span class="mk">2</span> 0.078 1.331   0.028
+Risk ratio        1.608<span class="mk">4</span>       1.058 2.443<span class="mk">5</span>   0.026
+Log risk ratio    0.475 0.214 0.056 0.893   0.026
+-------------------------------------------------</pre></div></div>

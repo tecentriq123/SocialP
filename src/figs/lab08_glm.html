@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">로지스틱 회귀를 GLM으로 적합하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+fam = sm.families
+m_logit = smf.glm(&quot;low ~ smoke&quot;, data=df,
+                  family=fam.Binomial()).fit()
+print(m_logit.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                    low   No. Observations:                  189
+Model:                            GLM   Df Residuals:                      187
+Model Family:                Binomial<span class="mk">1</span>   Df Model:                            1
+Link Function:                  Logit<span class="mk">2</span>   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -114.90<span class="mk">3</span>
+Date:                Wed, 30 Sep 2026   Deviance:                       229.80<span class="mk">4</span>
+Time:                        08:41:50   Pearson chi2:                     189.
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.02542
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     -1.0871      0.215     -5.062      0.000      -1.508      -0.666
+smoke          0.7041      0.320      2.203      0.028<span class="mk">5</span>       0.078       1.331
+==============================================================================</pre></div></div>

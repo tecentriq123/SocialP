@@ -1,0 +1,37 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">statsmodels와 scikit-learn의 계수 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cols3 = [&quot;mean radius&quot;, &quot;mean texture&quot;, &quot;mean smoothness&quot;]
+Z = StandardScaler().fit_transform(X_train[cols3])     # 표준화
+sm_fit = sm.Logit(y_train.to_numpy(), sm.add_constant(Z)).fit(disp=0)
+sk_c1 = LogisticRegression().fit(Z, y_train)            # 기본 C = 1
+sk_big = LogisticRegression(C=1e6).fit(Z, y_train)      # 벌점 거의 없음
+pd.DataFrame({&quot;statsmodels&quot;: sm_fit.params[1:],
+              &quot;sklearn C=1&quot;: sk_c1.coef_[0],
+              &quot;sklearn C=1e6&quot;: sk_big.coef_[0]}, index=cols3).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>statsmodels</th>
+      <th>sklearn C=1</th>
+      <th>sklearn C=1e6</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean radius</th>
+      <td>5.047<span class="mk">1</span></td>
+      <td>3.704<span class="mk">2</span></td>
+      <td>5.047</td>
+    </tr>
+    <tr>
+      <th>mean texture</th>
+      <td>1.786</td>
+      <td>1.337</td>
+      <td>1.786</td>
+    </tr>
+    <tr>
+      <th>mean smoothness</th>
+      <td>2.247</td>
+      <td>1.680</td>
+      <td>2.248</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

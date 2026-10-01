@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">AUC의 부트스트랩 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(2026)          # 난수 시드 고정
+yt, aucs = y_test.to_numpy(), []
+for _ in range(1000):
+    i = rng.integers(0, len(yt), len(yt))  # 복원추출한 행 번호
+    if yt[i].min() == yt[i].max():         # 한 범주만 뽑히면 건너뜀
+        continue
+    aucs.append(roc_auc_score(yt[i], p_test[i]))
+print(len(aucs), np.percentile(aucs, [2.5, 97.5]).round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>1000<span class="mk">1</span> [0.992 1.   ]<span class="mk">2</span></pre></div></div>

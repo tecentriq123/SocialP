@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">로그우도, 이탈도, AIC</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m0 = smf.glm(&quot;low ~ 1&quot;, df, family=fam.Binomial()).fit()  # 절편만
+for name, r in [(&quot;null&quot;, m0), (&quot;smoke&quot;, m_logit)]:
+    print(f&quot;{name:5s}: llf = {r.llf:.3f}, deviance = {r.deviance:.3f},&quot;
+          f&quot; df_model = {r.df_model:.0f}, AIC = {r.aic:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>null : llf = -117.336<span class="mk">1</span>, deviance = 234.672<span class="mk">2</span>, df_model = 0, AIC = 236.672
+smoke: llf = -114.902<span class="mk">3</span>, deviance = 229.805<span class="mk">4</span>, df_model = 1, AIC = 233.805<span class="mk">5</span></pre></div></div>

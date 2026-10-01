@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">순서를 지정하지 않고 합치면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">es.groupby(&quot;alcgp&quot;)[[&quot;ncases&quot;, &quot;ncontrols&quot;]].sum()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ncases</th>
+      <th>ncontrols</th>
+    </tr>
+    <tr>
+      <th>alcgp</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0-39g/day</th>
+      <td>29</td>
+      <td>386</td>
+    </tr>
+    <tr>
+      <th>120+<span class="mk">1</span></th>
+      <td>45</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>40-79</th>
+      <td>75</td>
+      <td>280</td>
+    </tr>
+    <tr>
+      <th>80-119</th>
+      <td>51</td>
+      <td>87</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

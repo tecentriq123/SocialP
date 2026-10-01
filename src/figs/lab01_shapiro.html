@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">Shapiro-Wilk 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for col in [&quot;mean radius&quot;, &quot;area error&quot;]:
+    x = benign[col]
+    w, p = stats.shapiro(x)       # 검정통계량 W와 p-value
+    print(f&quot;{col}: n = {len(x)}, skewness = {stats.skew(x):.2f}, &quot;
+          f&quot;W = {w:.3f}, p = {p:.3g}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>mean radius: n = 357, skewness = -0.08, W = 0.997<span class="mk">1</span>, p = 0.668<span class="mk">2</span>
+area error: n = 357, skewness = 1.64, W = 0.896<span class="mk">3</span>, p = 6.76e-15<span class="mk">4</span></pre></div></div>

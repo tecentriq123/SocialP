@@ -1,0 +1,42 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">군별 요약통계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = df.groupby(&quot;race_f&quot;, observed=True)[&quot;bwt&quot;]
+g.agg([&quot;count&quot;, &quot;mean&quot;, &quot;std&quot;, &quot;median&quot;]).round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>median</th>
+    </tr>
+    <tr>
+      <th>race_f</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>White</th>
+      <td>96</td>
+      <td>3102.7<span class="mk">1</span></td>
+      <td>727.9</td>
+      <td>3062.0</td>
+    </tr>
+    <tr>
+      <th>Black</th>
+      <td>26</td>
+      <td>2719.7<span class="mk">2</span></td>
+      <td>638.7<span class="mk">3</span></td>
+      <td>2849.0</td>
+    </tr>
+    <tr>
+      <th>Other</th>
+      <td>67</td>
+      <td>2805.3</td>
+      <td>722.2</td>
+      <td>2835.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

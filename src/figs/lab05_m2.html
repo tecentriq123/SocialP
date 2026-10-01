@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">M² = (N − 1)r² 직접 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">score = np.array([1, 2, 3, 4])     # 음주 범주의 점수
+case_n = cc[&quot;ncases&quot;].to_numpy()
+ctrl_n = cc[&quot;ncontrols&quot;].to_numpy()
+x = np.r_[np.repeat(score, case_n), np.repeat(score, ctrl_n)]
+y = np.r_[np.ones(case_n.sum()), np.zeros(ctrl_n.sum())]
+print(x.shape, x[y == 1].mean(), x[y == 0].mean().round(3))
+r = np.corrcoef(x, y)[0, 1]
+M2 = (len(x) - 1) * r**2
+print(f&quot;r = {r:.4f}, M2 = {M2:.2f}, p = {stats.chi2.sf(M2, 1):.2e}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(975,)<span class="mk">1</span> 2.56<span class="mk">2</span> 1.671<span class="mk">3</span>
+r = 0.3963<span class="mk">4</span>, M2 = 152.97<span class="mk">5</span>, p = 3.88e-35<span class="mk">6</span></pre></div></div>

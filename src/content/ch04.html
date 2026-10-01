@@ -1,0 +1,905 @@
+<p class="lead">군이 셋 이상이면 먼저 "모든 군이 같은가"를 한 번에 검정하고(분산분석, Kruskal-Wallis), 그다음 어느 군끼리 다른지를 사후분석으로 확인합니다. 군에 순서가 있으면 Jonckheere-Terpstra 검정으로 경향을 볼 수 있습니다. 이 장은 약사 중재 세 군의 복약순응도라는 하나의 예제를 따라가며 각 방법의 원리와, 논문에 나오는 F, H, 위첨자 문자, P for trend를 읽는 법을 다룹니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch00-s3">0장 다 절</a>의 분산·표준편차, <a href="#ch00-s5">0장 마 절</a>의 표준오차와 t 분포, <a href="#ch00-s6">0장 바 절</a>의 p값과 신뢰구간, <a href="#ch01-s3">1장 다 절</a>의 다중비교와 가족단위 오류율(FWER), <a href="#ch02-s1">2장 가 절</a>의 독립표본 t 검정(합동분산, Welch t 검정)</dd>
+<dt>먼저 읽을 부분</dt><dd>절마다 '쉽게 말하면', '숫자로 따라가기', '흔한 오해', '정리'. 나 절(사후분석)은 다 절(분산분석)에서 구하는 군내 평균제곱을 쓰므로, 가 → 다 → 라 → 나 → 마 순서로 읽어도 됩니다.</dd>
+<dt>나중에 읽을 부분</dt><dd>'심화' 표시가 붙은 소제목과 상자(나 절의 Scheffé·Games-Howell·권장되지 않는 방법, 다 절의 Welch 분산분석 출력과 회귀분석과의 관계, 라 절의 동률 보정), '수식으로 보기', '실제 논문으로 읽어 보기'(가 절 상자의 4·5번 항목은 5장을 읽은 뒤)</dd>
+<dt>이 장을 마치면</dt><dd>① 세 군을 두 군씩 t 검정으로 여러 번 비교하면 안 되는 이유를 설명할 수 있다. ② 분산분석표에서 F, 두 자유도, P를 찾아 "F(2, 87) = 4.12, P = 0.020"을 풀어 말할 수 있다. ③ 모든 쌍을 볼지(Tukey), 대조군과만 비교할지(Dunnett) 목적에 따라 사후분석을 고를 수 있다. ④ 관찰연구 Table 1에서 세 군 비교의 P 대신 쌍별 SMD로 균형을 볼 수 있다.</dd>
+</dl></div>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ch04-s1">
+<h2><span class="sec-no">가.</span>독립된 세 군 이상의 크기를 비교하는 방법</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">군이 셋 이상이면 두 군씩 여러 번 비교하지 않고, 먼저 "모든 군이 같은가"를 한 번에 검정한 뒤, 필요하면 어느 군끼리 다른지 따로 확인합니다.</p>
+<ul>
+<li><b>왜 한 번에 검정하나.</b> 복권을 여러 장 사면 한 장쯤 당첨되기 쉬운 것처럼, 비교를 여러 번 하면 그중 하나쯤 우연히 '유의'가 나오기 쉽습니다. 세 군을 두 군씩 t 검정하면 비교가 세 번이 되고, 실제 차이가 전혀 없어도 적어도 하나가 유의하게 나올 확률이 5%가 아니라 약 12–14%가 됩니다.</li>
+<li><b>논문에서는.</b> 세 군을 나란히 놓은 표에 P 열이 하나 있고 각주에 "One-way ANOVA"나 "Kruskal–Wallis test"라고 적혀 있습니다. "P = 0.020"은 "세 군이 모두 같다고 보기는 어렵다"까지만 말해 줍니다.</li>
+<li><b>기억할 한 가지.</b> 이 P는 특정 두 군의 비교가 아닙니다. 어느 군끼리 다른지는 사후분석(나 절) 결과를 따로 찾아 읽어야 합니다.</li>
+</ul>
+</div>
+
+<p>2장에서는 두 군을 비교했습니다. 실제 연구에서는 한 약의 세 가지 용량, 세 가지 약물 계열, 강도가 다른 여러 중재, 소득분위나 암 병기처럼 군이 셋 이상인 경우가 흔합니다. 이 절에서는 이 장 전체에서 쓸 예제를 소개하고, 분석의 전체 흐름과 검정을 고르는 기준을 정리합니다. 어느 군끼리 다른지 확인하는 사후분석은 나 절, 각 검정의 계산 원리는 다 절(분산분석), 라 절(Kruskal-Wallis), 마 절(Jonckheere-Terpstra)에서 다룹니다.</p>
+
+<h3>예제 자료</h3>
+<p>항고혈압제를 새로 시작한 환자 90명을 세 가지 약사 중재에 30명씩 무작위배정했다고 합시다. <strong>일반 복약지도</strong>(대조군), <strong>1회 상담</strong>(첫 조제 때 15분 상담), <strong>집중 상담</strong>(1회 상담에 2주·4주 뒤 전화 추적을 더함)입니다. 결과변수는 6개월 동안의 <strong>PDC</strong><span class="en">(proportion of days covered)</span>, 즉 관찰 기간 중 약을 보유한 날의 비율(%)입니다. 군별 PDC를 요약하면 다음과 같습니다. 이 장의 모든 수치는 가상 자료로 실제 계산한 값입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>군</th><th class="r">n</th><th class="r">평균 ± SD</th><th class="r">평균의 95% 신뢰구간</th><th class="r">중앙값 (IQR)</th></tr></thead>
+<tbody>
+<tr><td>일반 복약지도</td><td class="r">30</td><td class="r">70.2 ± 12.6</td><td class="r">65.5–74.9</td><td class="r">72.0 (60.1–78.4)</td></tr>
+<tr><td>1회 상담</td><td class="r">30</td><td class="r">76.0 ± 10.9</td><td class="r">71.9–80.1</td><td class="r">76.2 (66.3–83.1)</td></tr>
+<tr><td>집중 상담</td><td class="r">30</td><td class="r">78.7 ± 11.8</td><td class="r">74.3–83.2</td><td class="r">80.4 (68.3–87.1)</td></tr>
+<tr><td>전체</td><td class="r">90</td><td class="r">75.0</td><td class="r"></td><td class="r"></td></tr>
+</tbody></table></div>
+<!--FIG:ch04_strip-->
+<p>평균은 일반 70.2%, 1회 상담 76.0%, 집중 상담 78.7%로 중재가 강할수록 높습니다. 하지만 그림에서 보듯 세 군의 분포는 크게 겹칩니다. 이 차이가 중재의 효과인지, 30명씩 뽑다 보니 생긴 우연인지 판단하는 것이 이 장의 질문입니다. 1장 라 절에서 자유도를 설명할 때 본 문장 "F(2, 87) = 4.12, P = .020"이 바로 이 자료의 분산분석 결과입니다.</p>
+
+<h3>두 군씩 t 검정을 반복하지 않는 이유</h3>
+<p>세 군이면 비교할 쌍이 일반–1회, 일반–집중, 1회–집중의 세 개입니다. 각 쌍을 α = 0.05로 t 검정하면 1장 다 절의 다중비교 문제가 생깁니다. 세 평균이 실제로 모두 같아도 적어도 한 쌍이 우연히 유의할 확률은, 세 비교가 서로 독립이라면 1 − 0.95 × 0.95 × 0.95 = 14.3%입니다. 실제로는 세 비교가 같은 군을 나눠 쓰므로(일반 복약지도군이 두 비교에 들어감) 서로 상관되어 있고, 군당 30명이고 정규분포·등분산을 가정하면 이 확률은 약 12.1%입니다. 독립일 때보다 조금 낮지만 약속한 5%의 두 배가 넘는다는 점은 같습니다. 군이 늘면 쌍의 수가 k(k − 1)/2로 빠르게 늘어납니다.</p>
+<!--FIG:ch04_fwer-->
+<p>이유가 하나 더 있습니다. 두 군만 떼어 t 검정을 하면 군 안의 흩어짐(표준편차)을 그 두 군 60명으로만 추정합니다(자유도 58). 세 군을 함께 분석하면 90명 모두로 흩어짐을 추정하므로(자유도 87) 추정이 더 안정적입니다. 분산분석과 그 뒤의 사후분석은 이 합동 추정값을 씁니다.</p>
+
+<h3>전체 검정 다음 사후분석</h3>
+<p>그래서 세 군 이상의 비교는 보통 두 단계로 진행합니다. 먼저 <strong>전체 검정</strong><span class="en">(omnibus test, 총괄 검정)</span>으로 "모든 군의 평균(또는 분포)이 같다"는 귀무가설을 한 번에 검정합니다. 대립가설은 "적어도 한 군은 다르다"입니다. "모든 군이 서로 다르다"가 대립가설이 아니라는 점에 주의하세요. 전체 검정이 유의하면 <strong>사후분석</strong><span class="en">(post hoc analysis)</span>으로 어느 쌍이 다른지를 다중비교를 보정하면서 확인합니다.</p>
+<div class="flow">
+<div><div><b>자료 보기</b><p>군별 요약통계와 그림(그림 4-1)으로 치우침, 극단값, 군별 흩어짐의 차이를 확인합니다(1장 아 절).</p></div></div>
+<div><div><b>검정 고르기</b><p>결과변수의 유형과 분포, 등분산 여부, 군에 순서가 있는지, 연구가설이 무엇인지 보고 아래 표에서 고릅니다. 가능하면 자료를 보기 전에 분석계획서에 정해 둡니다.</p></div></div>
+<div><div><b>전체 검정</b><p>일원배치 분산분석, Welch 분산분석(다 절), Kruskal-Wallis 검정(라 절). 결과는 F 또는 H 값 하나와 p-value 하나입니다.</p></div></div>
+<div><div><b>사후분석</b><p>어느 쌍이 다른지, 가족단위 오류율(FWER)을 통제하는 방법으로 확인합니다(나 절).</p></div></div>
+<div><div><b>효과의 크기 보고</b><p>쌍별 평균 차이와 95% 신뢰구간, η²(에타제곱: 전체 변동 가운데 군 차이로 설명되는 비율, 다 절) 같은 효과크기를 함께 제시합니다. p-value만으로는 차이가 임상적으로 의미 있는 크기인지 알 수 없습니다.</p></div></div>
+</div>
+
+<h3>어떤 검정을 고를까</h3>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>자료와 질문</th><th>전체 검정</th><th>사후분석</th><th>절·장</th></tr></thead>
+<tbody>
+<tr><td>연속형, 군별로 정규분포에 가깝고 분산이 비슷함</td><td>일원배치 분산분석</td><td>Tukey HSD, 대조군과만 비교하면 Dunnett</td><td>다, 나</td></tr>
+<tr><td>정규분포에 가깝지만 군별 분산이 다름 (특히 군 크기도 다를 때)</td><td>Welch 분산분석</td><td>Games-Howell</td><td>다, 나</td></tr>
+<tr><td>표본이 작고 분포가 치우침, 제거할 근거가 없는 극단값, 순서형 척도(리커트 점수)</td><td>Kruskal-Wallis 검정</td><td>Dunn 검정 (Holm 또는 Bonferroni 보정)</td><td>라, 나</td></tr>
+<tr><td>군에 자연스러운 순서(용량, 중재 강도, 병기)가 있고 "순서대로 커진다(작아진다)"가 연구가설</td><td>Jonckheere-Terpstra 검정, 또는 선형 추세 검정</td><td>필요하면 인접 군 비교</td><td>마</td></tr>
+<tr><td>같은 환자를 여러 시점에 반복 측정</td><td>반복측정 분산분석, 선형 혼합모형</td><td>시점별 비교</td><td>10장</td></tr>
+<tr><td>나이, 기저 PDC 같은 다른 변수를 보정해야 함</td><td>가변수를 넣은 다중회귀(공분산분석)</td><td>보정된 평균 비교</td><td>6장 라 절, 8장 사 절</td></tr>
+</tbody></table></div>
+<p>이 장의 예제에 여러 방법을 적용한 결과를 미리 보면 다음과 같습니다. 같은 자료라도 무엇을 묻고 무엇을 가정하느냐에 따라 통계량과 p-value가 달라집니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th>방법</th><th class="r">검정통계량</th><th class="r">P</th><th>절</th></tr></thead>
+<tbody>
+<tr><td>일원배치 분산분석</td><td class="r">F(2, 87) = 4.12</td><td class="r">0.020</td><td>다</td></tr>
+<tr><td>Welch 분산분석</td><td class="r">F(2, 57.8) = 3.77</td><td class="r">0.029</td><td>다</td></tr>
+<tr><td>Kruskal-Wallis 검정</td><td class="r">H = 7.45 (자유도 2)</td><td class="r">0.024</td><td>라</td></tr>
+<tr><td>Jonckheere-Terpstra 검정 (일반 &lt; 1회 &lt; 집중)</td><td class="r">z = 2.72</td><td class="r">0.007</td><td>마</td></tr>
+</tbody></table></div>
+
+<div class="callout warn"><p class="ct">주의 · 여러 검정을 돌려 보고 하나를 고르지 마세요</p>
+<p>위 표는 방법의 차이를 보여 주려고 한 자료에 모두 적용한 것입니다. 실제 연구에서 분산분석, Kruskal-Wallis, 추세 검정을 모두 해 보고 가장 작은 p-value를 보고하면 그 자체가 다중비교가 됩니다. 검정은 자료의 성격과 연구가설에 따라 미리 정하고, 민감도 분석으로 다른 방법을 함께 보고할 때는 그 사실을 밝힙니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 통계분석 문단</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Continuous outcomes were compared across the three arms using <span class="mk">1</span> <span class="hl">one-way analysis of variance (ANOVA) when approximately normally distributed</span> and <span class="mk">2</span> <span class="hl">the Kruskal–Wallis test otherwise</span>. <span class="mk">3</span> <span class="hl">Homogeneity of variances was assessed using Levene's test</span>. <span class="mk">4</span> <span class="hl">When the overall test was significant, pairwise comparisons were made using Tukey's honestly significant difference test after ANOVA or Dunn's test with Holm adjustment after the Kruskal–Wallis test</span>. <span class="mk">5</span> <span class="hl">The trend across the ordered intervention arms (usual care, brief counselling, intensive counselling) was assessed using the Jonckheere–Terpstra test</span>. All tests were two-sided, with a significance level of 0.05.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>분산분석의 조건.</b> "approximately normally distributed"를 어떻게 판단했는지(그림, Shapiro-Wilk 검정 등)가 같은 문단이나 앞 문단에 있어야 합니다. 분산분석에서 정규성은 각 군의 자료, 또는 모형의 잔차(각 값 − 자기 군 평균)에 대한 가정입니다(다 절).</span></li>
+<li><span class="mk">2</span><span><b>비모수 대안.</b> 이 논문의 결과 표에서 중앙값(IQR)으로 요약된 변수는 Kruskal-Wallis 검정으로 비교했다고 읽으면 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>등분산 가정 확인.</b> Levene 검정의 귀무가설은 "군별 분산이 같다"입니다. 이 문장에는 검정이 유의했을 때 무엇을 했는지(Welch 분산분석으로 바꿨는지)가 빠져 있습니다. 좋은 Methods라면 그 처리 방법까지 적습니다.</span></li>
+<li><span class="mk">4</span><span><b>두 단계 절차와 짝이 맞는 사후분석.</b> 전체 검정이 유의할 때만 사후분석을 했다는 뜻입니다. 분산분석 뒤에는 Tukey, Kruskal-Wallis 뒤에는 Dunn처럼 짝이 맞는 방법을 썼는지, 결과에 보정된 P를 보고했는지 확인합니다.</span></li>
+<li><span class="mk">5</span><span><b>순서가 있는 군의 추세.</b> 군의 순서(usual → brief → intensive)를 Methods에 미리 적은 것은 좋은 신호입니다. 자료를 본 뒤 평균 크기순으로 군을 늘어놓고 추세 검정을 하면 결과가 부풀려지기 때문입니다(마 절). Jonckheere-Terpstra 검정은 직선이 아니라 '단조'<span class="en">(monotonic)</span> 경향, 즉 순서대로 계속 커지기만(또는 작아지기만) 하는 모양을 보는 검정이므로, 이 문장처럼 "trend"라고 쓰는 것이 맞고 "linear trend"라고 쓰면 엄밀히는 부정확합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout tip"><p class="ct">사회약학 연구에서는</p>
+<p>청구자료로 세 가지 약물 계열(예: SGLT2 억제제, DPP-4 억제제, 설포닐우레아) 사용자의 의료비나 입원일수를 비교하는 연구가 흔합니다. 이런 관찰연구의 기저특성표(Table 1)에는 나이·동반질환을 세 군에서 비교한 분산분석이나 Kruskal-Wallis 검정의 P가 실리곤 하지만, P는 차이의 크기를 나타내지 않습니다. 예를 들어 군마다 5,000명이면 평균 나이가 64.0, 64.4, 64.8세(SD 10)로 가장 큰 쌍별 차이가 0.08 SD뿐이어도 분산분석 P &lt; 0.001입니다. 그래서 대규모 관찰연구에서는 평균 차이를 SD 단위로 나타낸 <strong>표준화 평균차</strong><span class="en">(standardized mean difference, SMD)</span>를 두 군씩 계산해, 가장 큰 쌍별 SMD가 0.1 미만인지로 균형을 봅니다(<a href="#ch01-s1">1장 가 절</a>, <a href="#ch14-s3">14장 다 절</a>). 결과를 비교할 때도 P보다 차이의 크기를 중심으로 읽습니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 위 '어떤 검정을 고를까' 표를 기준으로 결과변수의 유형과 분포, 군별 분산, 군의 순서, 연구가설을 보고 자료를 보기 전에 정합니다. 결과가 있음/없음(예: PDC 80% 이상 여부)이면 카이제곱 검정(5장)입니다.</li>
+<li><strong>교란과 보정</strong>: 분산분석, Kruskal-Wallis 검정, Jonckheere-Terpstra 검정은 모두 군 외의 다른 변수를 고려하지 않습니다. 무작위배정 연구에서는 이것으로 충분하지만, 청구자료에서 세 약물 계열 사용자를 비교하는 관찰연구에서는 나이·동반질환·기저 상태가 다른 세 군을 그대로 비교한 <strong>보정하지 않은 비교</strong>입니다. 교란변수를 보정하려면 군을 가변수(그 군이면 1, 아니면 0인 변수, 8장 사 절)로 바꿔 교란변수와 함께 넣은 다중회귀를 쓰거나(연속형 결과는 6장 라 절), 성향점수 방법(14장 다 절)을 셋 이상의 군으로 확장한 방법을 씁니다. 측정하지 않은 교란변수는 어느 방법으로도 보정되지 않습니다.</li>
+<li><strong>보고할 것</strong>: 군별 인원과 요약값, 전체 검정의 이름·통계량·자유도·P, 사후분석 방법과 보정된 P, 주요 쌍의 차이와 95% CI. 관찰연구라면 보정 전과 보정 후 결과를 함께 씁니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>이 절에서 소개한 예제의 결과가 논문 표에서는 어떻게 보이는지 확인합니다. 세 군 이상을 비교하는 논문의 표에는 대개 P 열이 하나뿐이고, 이 P가 무엇을 비교한 결과인지부터 확인해야 합니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 세 군 비교 표의 P 열</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Adherence outcomes at 6 months by intervention arm</caption>
+<thead><tr><th>Outcome</th><th class="r">Usual care<br>(n = 30)</th><th class="r">Brief counselling<br>(n = 30)</th><th class="r">Intensive counselling<br>(n = 30)</th><th class="r"><span class="mk">1</span> P value</th></tr></thead>
+<tbody>
+<tr><td>PDC, %, mean ± SD</td><td class="r">70.2 ± 12.6</td><td class="r">76.0 ± 10.9</td><td class="r">78.7 ± 11.8</td><td class="r"><span class="mk">2</span> 0.020<sup>a</sup></td></tr>
+<tr><td>PDC ≥ 80%, n (%)</td><td class="r">5 (16.7)</td><td class="r">12 (40.0)</td><td class="r">15 (50.0)</td><td class="r"><span class="mk">3</span> 0.022<sup>b</sup></td></tr>
+<tr><td>Medication knowledge score (0–10), median (IQR)</td><td class="r">6 (5–7)</td><td class="r">7 (6–8)</td><td class="r">8 (6–9)</td><td class="r"><span class="mk">4</span> 0.011<sup>c</sup></td></tr>
+</tbody></table></div>
+<p class="jt-foot">P values are for the overall comparison across the three arms. PDC, proportion of days covered; IQR, interquartile range. <sup>a</sup> One-way ANOVA. <sup>b</sup> χ² test. <sup>c</sup> Kruskal–Wallis test.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>P 열 하나 = 전체 검정.</b> 각주의 "overall comparison across the three arms"가 핵심입니다. 이 P는 "세 군이 모두 같다"는 귀무가설에 대한 검정 결과이지, 특정 두 군(예: 집중 상담 vs 일반 복약지도)을 비교한 값이 아닙니다. 어느 쌍이 다른지는 이 표만으로 알 수 없고, 본문이나 다른 표의 사후분석 결과를 찾아야 합니다(나 절).</span></li>
+<li><span class="mk">2</span><span><b>평균 ± SD 행 → 분산분석.</b> 0.020은 분산분석의 검정통계량 F(2, 87) = 4.12의 p-value(0.0196)를 반올림한 값입니다(다 절). "세 평균이 모두 같다면 이 정도 이상의 평균 차이가 우연히 나올 확률이 2%"라는 뜻이고, 적어도 한 군의 평균이 다르다고 판단합니다. 이 값에는 차이의 크기 정보가 없습니다. 가장 큰 차이(집중 − 일반)는 8.6%p입니다.</span></li>
+<li><span class="mk">3</span><span><b>비율 행 → 카이제곱 검정.</b> 3 × 2 표(세 군 × 80% 이상 여부)이므로 자유도는 (3 − 1) × (2 − 1) = 2이고, χ²(2) = 7.66, P = 0.022입니다(5장). 이 검정도 세 비율 16.7%, 40.0%, 50.0%가 모두 같은지를 한 번에 봅니다.</span></li>
+<li><span class="mk">4</span><span><b>중앙값(IQR) 행 → Kruskal-Wallis 검정.</b> 0–10점 지식 점수는 정수 값의 순서형에 가까운 자료라 순위 기반 검정을 썼습니다. 요약 방법(중앙값)과 검정(Kruskal-Wallis)이 짝을 이룹니다. 다만 이 검정은 엄밀히 중앙값이 같은지를 보는 검정이 아니라, 한 군의 값이 다른 군보다 큰 경향이 있는지를 봅니다(라 절). 1회 상담과 집중 상담의 중앙값이 7과 8로 한 점 차이지만 IQR이 크게 겹친다는 점도 함께 읽습니다.</span></li>
+</ol>
+</div></div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>세 군 이상을 두 군씩 반복 t 검정하면 우연히 유의할 확률이 5%를 넘습니다(세 군이면 약 12–14%).</li>
+<li>먼저 전체 검정(분산분석, Welch 분산분석, Kruskal-Wallis)으로 "모두 같은가"를 보고, 사후분석으로 어느 쌍이 다른지 확인합니다.</li>
+<li>전체 검정의 대립가설은 "적어도 한 군이 다르다"입니다. 표의 P 열 하나는 어느 쌍의 비교도 아닙니다.</li>
+<li>검정은 분포, 등분산, 군의 순서, 연구가설에 따라 미리 고릅니다. 순서가 있는 군의 경향은 Jonckheere-Terpstra 같은 추세 검정으로 봅니다.</li>
+<li>관찰연구에서 이 검정들은 보정하지 않은 비교입니다. 교란변수는 가변수를 넣은 다중회귀(6장 라 절)나 성향점수(14장 다 절)로 보정합니다.</li>
+</ul></div>
+
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">해석 고치기</span>“세 중재군의 PDC를 분산분석으로 비교한 결과 P = 0.02였다. 따라서 세 군의 평균은 모두 서로 다르다.” 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>분산분석의 대립가설은 "적어도 한 군의 평균이 다르다"이지 "모든 군이 서로 다르다"가 아닙니다. P = 0.02는 "세 평균이 모두 같다"는 귀무가설을 기각할 근거일 뿐, 어느 쌍이 다른지는 알려 주지 않습니다. 이 장의 예제도 분산분석 P = 0.020이었지만 사후분석에서 유의한 쌍은 집중 상담 − 일반 복약지도 하나였습니다(나 절). 고쳐 쓰면 "세 군의 평균이 모두 같다고 보기는 어려웠다(F(2, 87) = 4.12, P = 0.020). 어느 군끼리 다른지는 사후분석으로 확인했다"입니다. 전체 검정의 P를 쌍별 결론으로 옮기는 것이 가장 흔한 오류입니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>같은 PDC 주제에서 연구 상황만 바꾸었습니다. 각각 어떤 방법이 맞고, 무엇을 먼저 구분해야 할까요? (1) 세 중재군(각 30명)의 PDC가 정규분포에 가깝고 SD도 비슷하며, 모든 쌍의 차이에 관심이 있다. (2) 세 군이 각 12명이고 PDC가 100% 근처에 몰려 한쪽으로 길게 치우쳐 있다. (3) 상담 0회·1회·3회의 세 군에서 "상담이 많을수록 PDC가 높다"를 미리 가설로 정했다. (4) 1회 상담군과 집중 상담군을 각각 일반 복약지도군과 비교하는 것만이 연구 질문이다.</p>
+<details><summary>답과 풀이</summary><div><p>먼저 연구 질문(모든 쌍인가, 추세인가, 대조군 대비인가)을 구분하고, 그다음 자료의 분포를 봅니다. (1)은 일원배치 분산분석 뒤 Tukey HSD입니다. (2)는 표본이 작고 치우쳤으므로 Kruskal-Wallis 검정 뒤 Dunn 검정(Holm 보정)입니다. (3)은 순서와 방향을 자료를 보기 전에 정했으므로 Jonckheere-Terpstra 검정(평균에 관심이 있으면 순서 점수를 넣은 선형 추세 검정)이 질문에 맞고, 실제로 순서대로 커지는 경향이 있다면 모든 방향을 보는 Kruskal-Wallis 검정보다 검정력이 높습니다(마 절). (4)는 처음부터 대조군 대비 비교 두 개만 계획했으므로 Dunnett 방법이 맞고, 세 쌍을 모두 보는 Tukey보다 검정력이 높습니다. 같은 자료라도 질문이 바뀌면 방법이 바뀝니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>세 약물 계열 사용자(각 40명)를 비교한 소규모 관찰연구의 Table 1에 나이가 60.0 ± 10, 63.0 ± 10, 64.5 ± 10세, P = 0.13(분산분석)으로 적혀 있고, 저자는 "세 군의 나이는 균형이 맞았다"고 썼습니다. 이 결론을 받아들일 수 있을까요?</p>
+<details><summary>답과 풀이</summary><div><p>받아들이기 어렵습니다. P = 0.13은 표본이 작아 차이를 검출하지 못했다는 뜻일 수 있고, 차이의 크기는 알려 주지 않습니다. 쌍별 SMD를 계산하면 (63.0 − 60.0) ÷ 10 = 0.30, (64.5 − 60.0) ÷ 10 = 0.45, (64.5 − 63.0) ÷ 10 = 0.15로, 가장 큰 값 0.45가 기준 0.1을 크게 넘습니다. 즉 나이의 불균형이 크므로 결과를 비교할 때 나이를 보정해야 합니다. 반대로 대규모 자료에서는 SMD가 0.1 미만인데도 P &lt; 0.001이 나올 수 있으므로(이 절 '사회약학 연구에서는'), 균형은 P가 아니라 SMD로 판단합니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ch04-s2">
+<h2><span class="sec-no">나.</span>사후분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">전체 검정에서 "어딘가 다르다"가 나온 뒤 어느 두 군이 다른지 확인하는 단계입니다. 비교를 여러 번 하는 만큼 '유의'의 기준을 엄격하게 조정합니다.</p>
+<ul>
+<li><b>왜 기준을 조정하나.</b> 세 쌍을 동시에 보면 그중 하나가 우연히 유의할 기회도 세 번입니다. 그래서 문턱을 올립니다. 이 장의 예제에서 보정 없는 t 검정은 두 평균이 6.06%p 이상 차이 나면 '유의'이지만, 세 쌍을 동시에 보는 Tukey 방법은 7.27%p 이상이어야 '유의'입니다.</li>
+<li><b>논문에서는.</b> 표의 평균 옆 위첨자(70.2<sup>a</sup>, 76.0<sup>a,b</sup>, 78.7<sup>b</sup>)나 "mean difference 8.6 (95% CI, 1.3 to 15.8), P = 0.017, Tukey"처럼 나옵니다. 위첨자는 "같은 문자를 공유하면 유의한 차이가 없다"로, 문장은 "세 쌍을 동시에 비교한 보정을 한 뒤에도 집중 상담의 PDC가 일반보다 8.6%p 높다"로 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 어떤 사후분석을 썼는지, P가 보정된 값인지 확인합니다. 자료를 보고 차이가 가장 큰 쌍만 골라 보정 없이 검정한 결과는 믿을 수 없습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+<div><dt>언제 쓰나</dt><dd>전체 검정 뒤 어느 군끼리 다른지 확인할 때. 또는 처음부터 특정 비교(예: 각 처치군 vs 대조군)만 계획했을 때</dd></div>
+<div><dt>통제하는 것</dt><dd>비교 묶음 전체의 1종 오류 확률(FWER)을 α(보통 5%) 이하로</dd></div>
+<div><dt>고르는 기준</dt><dd>① 어떤 비교에 관심이 있나(모든 쌍 / 대조군 대비 / 군 조합) ② 등분산을 가정할 수 있나 ③ 모수적 검정 뒤인가, 비모수 검정 뒤인가</dd></div>
+<div><dt>논문 보고 형식</dt><dd>쌍별 평균 차이와 보정된 95% 신뢰구간, 보정된 P. 표에서는 위첨자 문자(a, b)나 기호(*P &lt; 0.05 vs control)</dd></div>
+</dl>
+
+<p>사후분석의 핵심은 여러 쌍을 비교하면서도 <strong>비교 묶음 전체에서</strong> 1종 오류가 하나라도 생길 확률(FWER, 1장 다 절)을 5%로 묶어 두는 것입니다. 방법마다 어떤 비교를 대상으로 하는지, 어떤 가정을 하는지가 다릅니다. 이 절은 가 절의 예제로 계산합니다.</p>
+
+<div class="callout note"><p class="ct">먼저 알아 둘 것 · 이 절에서 쓰는 SD와 SE</p>
+<p>이 절의 계산은 <a href="#ch04-s3">다 절</a> 분산분석표의 <strong>군내 평균제곱</strong><span class="en">(mean square within)</span> MS<sub>W</sub> = 139.5를 씁니다. 군 크기가 같을 때 MS<sub>W</sub>는 세 군 분산의 평균입니다: (12.58² + 10.94² + 11.85²) ÷ 3 = 139.5(표의 SD는 소수 첫째 자리로 반올림한 값이라 여기서는 반올림 전 값을 씁니다). 그 제곱근 √139.5 = 11.8%p가 세 군 공통의 SD 추정값입니다. 평균 하나의 SE는 √(139.5 ÷ 30) = 2.16%p이고, 두 평균 차이의 SE는 두 평균이 각자 흔들리는 몫을 더해 √(2.16² + 2.16²) = 11.8 × √(2/30) = 3.05%p입니다(<a href="#ch00-s5">0장 마 절</a>에서 차이의 SE를 구한 방식과 같습니다). 다 절을 먼저 읽고 오면 더 쉽습니다.</p></div>
+
+<h3>숫자로 따라가기</h3>
+<p>세 쌍의 평균 차이는 1회 상담 − 일반 5.80%p, 집중 상담 − 일반 8.57%p, 집중 상담 − 1회 상담 2.77%p입니다. 차이가 얼마나 커야 '유의'일까요?</p>
+<div class="flow">
+<div><div><b>한 쌍만 볼 때의 문턱</b><p>두 평균 차이의 표준오차는 3.05%p입니다(세 군 90명 전체로 추정한 공통 SD 11.8로 계산, 다 절). 보정 없는 t 검정이라면 자유도 87인 t 분포의 상위 2.5% 값 1.99를 곱해 약 6.06%p(반올림 전 값 1.988 × 3.049)보다 크면 유의합니다. 이 기준이면 집중 − 일반(8.57)은 넘고, 1회 − 일반(5.80)은 아슬아슬하게 못 넘습니다(p = 0.060).</p></div></div>
+<div><div><b>세 쌍을 동시에 볼 때의 문턱 (Tukey)</b><p>세 평균이 실제로 같아도 표본평균은 우연히 흩어지고, 그중 가장 큰 평균과 가장 작은 평균의 차이는 한 쌍만 볼 때보다 커지기 쉽습니다. Tukey 방법은 이 "가장 큰 − 가장 작은" 차이가 우연히 얼마나 벌어질 수 있는지를 기준으로 문턱을 정합니다. 예제의 문턱은 7.27%p입니다(계산은 '수식으로 보기').</p></div></div>
+<div><div><b>판정</b><p>집중 − 일반(8.57)만 7.27을 넘어 유의하고, 1회 − 일반(5.80)과 집중 − 1회(2.77)는 넘지 못합니다. 가장 극단적인 쌍을 기준으로 문턱을 정했으므로 다른 쌍들도 자동으로 보호됩니다.</p></div></div>
+</div>
+<p>Tukey 방법은 세 쌍을 동시에 보는 대가로 문턱을 6.06에서 7.27로 올린 셈입니다. 차이의 SE 3.05를 단위로 바꿔 보면 문턱이 1.99 SE에서 2.38 SE로 오른 것입니다. Tukey가 기준으로 쓰는 값 q = 3.37('수식으로 보기')은 평균 하나의 SE(2.16)로 나눈 척도라서, 두 평균 차이의 SE(3.05 = 2.16 × √2)로 나누는 t와 비교하려면 √2로 나눕니다: 3.37 ÷ √2 = 2.38. 신뢰구간으로 보면 보정의 의미가 더 분명해집니다. Tukey 방법의 95% 신뢰구간은 "세 구간이 모두 동시에 참값을 포함할 확률"이 95%가 되도록 보정 없는 구간보다 넓게 만든 <strong>동시 신뢰구간</strong><span class="en">(simultaneous confidence interval)</span>입니다.</p>
+<!--FIG:ch04_ci-->
+
+<h3>방법별 원리</h3>
+<p>처음 배울 때는 Tukey(모든 쌍), Dunnett(대조군 대비), Holm(일반적인 보정), Dunn(순위 기반) 네 가지면 충분합니다. 분산이 다를 때 Tukey 대신 쓰는 Games-Howell은 용도만 알아 두고(계산 세부는 '심화'), Scheffé와 권장되지 않는 방법(LSD 계열)은 논문에서 만났을 때 찾아보면 됩니다.</p>
+<h4>Tukey HSD</h4>
+<p>Tukey의 <strong>HSD</strong><span class="en">(honestly significant difference)</span> 검정은 모든 쌍을 비교할 때의 기본 방법입니다. 원리는 위 '숫자로 따라가기'에서 보았습니다. 기준으로 삼는 분포는 "가장 큰 평균 − 가장 작은 평균"의 분포인 <strong>스튜던트화 범위 분포</strong><span class="en">(studentized range distribution)</span>입니다. '스튜던트화'는 모르는 모집단 SD 대신 자료에서 추정한 표준오차로 나누었다는 뜻이며, t 통계량도 같은 의미에서 스튜던트화된 값입니다. 군별 인원이 다르면 이를 조정한 Tukey-Kramer 방법을 씁니다<cite data-ref="kramer1956"></cite>.</p>
+
+<h4>Bonferroni·Holm 보정 쌍별 t 검정</h4>
+<p>1장 다 절의 보정을 쌍별 t 검정에 적용한 것입니다. 세 쌍의 p-value에 모두 3을 곱하거나(Bonferroni), 작은 것부터 3, 2, 1을 차례로 곱합니다(Holm)<cite data-ref="holm1979"></cite>. 곱한 값이 1을 넘으면 1로 둡니다. Holm에는 규칙이 하나 더 있습니다. 보정 P는 앞(더 작은 p)의 보정 P보다 작아질 수 없으므로, 곱한 값이 앞의 보정 P보다 작으면 앞의 값을 그대로 씁니다. 예를 들어 p가 0.01, 0.03, 0.04이면 곱셈만 한 값은 0.03, 0.06, 0.04이지만 Holm 보정 P는 0.03, 0.06, 0.06입니다(<a href="#ch01-s3">1장 다 절</a>). 관심 있는 몇 쌍만 미리 정했을 때 쓰기 좋고, 어떤 검정에도 적용할 수 있습니다. 모든 쌍을 비교할 때는 Tukey보다 대체로 약간 보수적입니다.</p>
+
+<h4>Scheffé <span class="lv deep">심화</span></h4>
+<p>Scheffé 방법은 쌍별 비교뿐 아니라 모든 <strong>대비</strong><span class="en">(contrast)</span>를 대상으로 합니다<cite data-ref="scheffe1953"></cite>. 대비란 군 평균에 합이 0인 가중치를 곱해 더한 비교입니다. 예를 들어 가중치 (−1, ½, ½)는 "일반 복약지도 vs 두 상담군의 평균"이라는 비교가 됩니다. 이런 대비를 자료를 본 뒤 몇 개든 만들어 검정해도 FWER이 5%로 유지됩니다. 그 대가로 쌍별 비교만 할 때는 가장 보수적입니다. 전체 F 검정과 결론이 정확히 맞물린다는 성질이 있는데, 아래 '전체 검정은 유의한데 유의한 쌍이 없을 때'에서 다시 봅니다.</p>
+
+<h4>Dunnett</h4>
+<p>Dunnett 방법은 여러 처치군을 <strong>하나의 대조군</strong>과만 비교합니다<cite data-ref="dunnett1955"></cite>. 세 군이면 비교가 1회 − 일반, 집중 − 일반의 2개로 줄어, 세 쌍을 모두 보는 Tukey보다 대조군 비교의 검정력이 높습니다. 위약이나 표준치료 대비 여러 용량의 효과를 보는 임상시험에 적합합니다. 대신 처치군끼리(1회 vs 집중)는 비교하지 않으므로 "집중 상담이 1회 상담보다 낫다"는 결론은 낼 수 없습니다.</p>
+
+<h4>Games-Howell <span class="lv deep">심화</span></h4>
+<p>Games-Howell 방법은 군별 분산이 다를 때 쓰는 Tukey의 변형입니다<cite data-ref="games1976"></cite>. 세 군 공통의 흩어짐 대신 쌍마다 두 군 각자의 분산으로 표준오차를 구하고, 자유도도 Welch t 검정(2장)처럼 쌍마다 따로 계산합니다. 분산과 군 크기가 모두 다를 때 Welch 분산분석(다 절)과 짝을 이룹니다. 군당 인원이 아주 적으면 약간 관대해질 수 있다고 알려져 있습니다.</p>
+
+<h4>Dunn</h4>
+<p>Kruskal-Wallis 검정 뒤의 사후분석입니다<cite data-ref="dunn1964"></cite>. 세 군 전체에서 한꺼번에 매긴 순위의 군별 평균을 쌍마다 비교하고, p-value는 Bonferroni나 Holm으로 보정합니다. 계산은 라 절에서 합니다.</p>
+
+<h4>권장되지 않는 방법: Fisher의 LSD, Duncan, Student-Newman-Keuls <span class="lv deep">심화</span></h4>
+<p><strong>Fisher의 LSD</strong><span class="en">(least significant difference)</span>는 전체 F 검정이 유의할 때만 보정 없이 쌍별 t 검정을 하는 방법입니다. 군이 정확히 3개일 때는 이 절차가 FWER을 5% 이하로 지키지만, 4개 이상이면 지키지 못합니다<cite data-ref="hayter1986"></cite>. Duncan의 다중범위검정과 Student-Newman-Keuls(SNK) 검정도 군이 많을 때 FWER을 충분히 통제하지 못해 의학 연구에서는 권장되지 않습니다. 논문에서 이 방법들을 보면 유의한 쌍이 실제보다 많이 보고되었을 가능성을 염두에 두세요.</p>
+
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>방법</th><th>비교 대상</th><th>등분산 가정</th><th>통제하는 오류</th><th>보수성</th><th>이럴 때</th></tr></thead>
+<tbody>
+<tr><td>Tukey HSD (Tukey-Kramer)</td><td>모든 쌍</td><td>필요</td><td>FWER</td><td>중간</td><td>모든 쌍에 관심이 있을 때의 기본값</td></tr>
+<tr><td>Bonferroni</td><td>미리 정한 m개 비교</td><td>합동분산을 쓰면 필요</td><td>FWER</td><td>비교 수가 많으면 보수적</td><td>몇 개 비교만 계획했을 때</td></tr>
+<tr><td>Holm</td><td>미리 정한 m개 비교</td><td>위와 같음</td><td>FWER</td><td>Bonferroni보다 항상 같거나 덜 보수적</td><td>Bonferroni를 쓸 상황이면 대신</td></tr>
+<tr><td>Scheffé</td><td>모든 대비(쌍 + 군 조합)</td><td>필요</td><td>FWER (무한히 많은 대비)</td><td>쌍별 비교에는 가장 보수적</td><td>자료를 본 뒤 군 조합 비교를 탐색할 때</td></tr>
+<tr><td>Dunnett</td><td>각 처치군 vs 대조군 (k − 1개)</td><td>필요</td><td>FWER</td><td>대조군 비교에서 Tukey보다 강력</td><td>위약·표준치료 대비 여러 처치</td></tr>
+<tr><td>Games-Howell</td><td>모든 쌍</td><td>불필요</td><td>FWER (근사)</td><td>Tukey와 비슷</td><td>분산이 다를 때, Welch 분산분석 뒤</td></tr>
+<tr><td>Dunn</td><td>모든 쌍 (순위)</td><td>비모수</td><td>곁들인 보정 방법에 따라</td><td>보정 방법에 따라</td><td>Kruskal-Wallis 뒤</td></tr>
+<tr><td>Fisher의 LSD</td><td>모든 쌍 (F 유의 후, 보정 없음)</td><td>필요</td><td>3군일 때만 FWER</td><td>가장 관대</td><td>권장되지 않음 (4군 이상)</td></tr>
+</tbody></table></div>
+
+<h3>같은 자료, 여러 방법</h3>
+<p>예제 자료의 세 쌍을 여러 방법으로 비교한 결과입니다. 차이는 뒤 군 − 앞 군(%p)이고, 나머지 열은 모두 p-value입니다. 굵은 값이 0.05보다 작은 것입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>비교</th><th class="r">차이</th><th class="r">보정 없음</th><th class="r">Bonferroni</th><th class="r">Holm</th><th class="r">Tukey</th><th class="r">Scheffé</th><th class="r">Dunnett</th><th class="r">Games-Howell</th></tr></thead>
+<tbody>
+<tr><td style="white-space:nowrap">1회 상담 − 일반</td><td class="r">5.80</td><td class="r">0.060</td><td class="r">0.181</td><td class="r">0.121</td><td class="r">0.144</td><td class="r">0.170</td><td class="r">0.108</td><td class="r">0.147</td></tr>
+<tr class="hi"><td style="white-space:nowrap">집중 상담 − 일반</td><td class="r">8.57</td><td class="r"><b>0.006</b></td><td class="r"><b>0.018</b></td><td class="r"><b>0.018</b></td><td class="r"><b>0.017</b></td><td class="r"><b>0.023</b></td><td class="r"><b>0.012</b></td><td class="r"><b>0.023</b></td></tr>
+<tr><td style="white-space:nowrap">집중 상담 − 1회 상담</td><td class="r">2.77</td><td class="r">0.366</td><td class="r">1.000</td><td class="r">0.366</td><td class="r">0.636</td><td class="r">0.663</td><td class="r">—</td><td class="r">0.616</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>결론은 모든 방법에서 같습니다.</strong> 집중 상담 − 일반 복약지도만 유의하고, 나머지 두 쌍은 유의하지 않습니다. 방법 간 차이는 p-value의 크기, 즉 보수성에서 나타납니다.</li>
+<li><strong>보정 없는 p와 비교해 보세요.</strong> 1회 상담 − 일반은 보정 없이 0.060으로 경계선 근처였지만, 어떤 보정을 해도 0.11–0.18이 됩니다. 세 쌍을 동시에 보는 이상 이 쌍 하나의 증거는 약합니다.</li>
+<li><strong>Dunnett이 가장 작은 이유</strong>: 대조군 대비 2개 비교만 보호하면 되기 때문입니다. 대신 집중 − 1회 비교는 하지 않습니다(표의 —).</li>
+<li><strong>Games-Howell이 Tukey와 거의 같은 이유</strong>: 이 자료는 군별 SD가 10.9–12.6으로 비슷해 등분산 가정이 잘 맞습니다. 분산이 크게 다르면 두 방법의 결과가 벌어집니다.</li>
+<li><strong>보수성의 순서는 쌍마다 조금 다를 수 있습니다.</strong> 1회 상담 − 일반에서는 Holm(0.121)이 Tukey(0.144)보다 작습니다. Holm은 가장 작은 p부터 차례로 보정 배수를 줄여 가기 때문입니다. 위 비교표의 보수성은 '대체로'의 순서입니다.</li>
+</ul>
+
+<h3>표의 위첨자 문자 읽기</h3>
+<p>논문의 표에서는 평균 옆에 a, b, ab 같은 위첨자를 붙여 사후분석 결과를 한꺼번에 나타내곤 합니다(이 절 끝의 '논문에서 읽어 보기'에서 실제 표 형식으로 확인합니다). 규칙은 하나입니다. <strong>같은 문자를 하나라도 공유하는 군끼리는 유의한 차이가 없고, 공유하는 문자가 없는 군끼리는 유의하게 다릅니다.</strong> 예제의 Tukey 결과로 문자를 붙이는 과정은 다음과 같습니다.</p>
+<div class="flow">
+<div><div><b>평균 크기순으로 정렬</b><p>일반 70.2 &lt; 1회 상담 76.0 &lt; 집중 상담 78.7</p></div></div>
+<div><div><b>유의하지 않은 쌍을 묶기</b><p>일반–1회(p = 0.144)는 유의하지 않으므로 같은 문자 a를 줍니다. 1회–집중(p = 0.636)도 유의하지 않으므로 같은 문자 b를 줍니다.</p></div></div>
+<div><div><b>유의한 쌍은 문자를 공유하지 않게 확인</b><p>일반–집중(p = 0.017)은 유의하므로 둘이 공유하는 문자가 없어야 합니다. 일반은 a, 집중은 b뿐이므로 조건을 만족합니다.</p></div></div>
+<div><div><b>결과</b><p>일반 복약지도 <sup>a</sup>, 1회 상담 <sup>ab</sup>, 집중 상담 <sup>b</sup></p></div></div>
+</div>
+<p>1회 상담의 "ab"는 모순처럼 보입니다. 1회 상담은 일반과 같고(a), 집중과도 같은데(b), 일반과 집중은 다르다는 것이기 때문입니다. 하지만 "유의한 차이가 없다"는 "같다"가 아니라 "다르다고 할 증거가 부족하다"는 뜻입니다(1장 나 절). 1회 상담의 평균은 양쪽 사이에 있어서 어느 쪽과도 차이를 입증할 만큼 떨어져 있지 않을 뿐입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 대조군 대비 결과 문장 (Dunnett)</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Compared with usual care, mean PDC was <span class="mk">1</span> <span class="hl">8.6 percentage points higher in the intensive-counselling arm (95% CI, 1.7 to 15.4; P = 0.012)</span> and <span class="mk">2</span> <span class="hl">5.8 percentage points higher in the brief-counselling arm (95% CI, −1.1 to 12.7; P = 0.11)</span>. <span class="mk">3</span> <span class="hl">Confidence intervals and P values were adjusted for the two comparisons with the control group using Dunnett's method</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정된 차이와 신뢰구간.</b> 78.7 − 70.2 = 8.6%p입니다. PDC 자체가 %이므로 차이는 '8.6%'가 아니라 '8.6 percentage points(%p)'로 씁니다. 8.6%라고 쓰면 70.2%의 8.6%, 즉 6%p 남짓의 상대적 증가로 오해될 수 있습니다. 신뢰구간 1.7–15.4는 Dunnett 보정 구간이라 보정 없는 구간(2.5–14.6)보다 넓고, P = 0.012도 보정 없는 값(0.006)보다 큽니다.</span></li>
+<li><span class="mk">2</span><span><b>유의하지 않은 비교의 신뢰구간.</b> 구간이 0을 포함하므로 유의하지 않습니다. 하지만 상한이 12.7%p이므로 임상적으로 의미 있는 효과가 있을 가능성도 배제하지 못합니다. 군당 30명 연구로는 5%p 정도의 차이를 확인하기에 검정력이 부족했다고 읽는 것이 정확합니다.</span></li>
+<li><span class="mk">3</span><span><b>무엇을 보정했나.</b> 대조군과의 비교 2개만 보정했습니다. 두 상담군끼리의 비교는 하지 않았으므로, 이 문장만으로 "집중 상담이 1회 상담보다 낫다"고 말할 수 없습니다. 연구 질문이 "각 중재가 일반 복약지도보다 나은가"였다면 Dunnett이 적절한 선택입니다.</span></li>
+</ol>
+</div></div>
+
+<h3>전체 검정은 유의한데 유의한 쌍이 없을 때</h3>
+<p>분산분석은 유의한데 Tukey 사후분석에서 어느 쌍도 유의하지 않은 일이 실제로 생깁니다. 예를 들어 세 군(각 30명, SD 모두 12.0)의 평균이 70.0, 76.8, 77.0이라면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
+<thead><tr><th>검정</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>분산분석 F(2, 87) = 3.31</td><td class="r"><b>0.041</b></td></tr>
+<tr><td>Tukey: 1회 상담 − 일반 (6.8%p)</td><td class="r">0.078</td></tr>
+<tr><td>Tukey: 집중 상담 − 일반 (7.0%p)</td><td class="r">0.067</td></tr>
+<tr><td>Tukey: 집중 상담 − 1회 상담 (0.2%p)</td><td class="r">0.998</td></tr>
+<tr><td>Scheffé 대비: 일반 vs 두 상담군 평균 (6.9%p)</td><td class="r"><b>0.041</b></td></tr>
+</tbody></table></div>
+<p>모순이 아닙니다. F 검정은 쌍별 차이만 보는 것이 아니라 "군 평균들이 어떤 식으로든 다른가"를 봅니다. 수학적으로 F 검정이 유의하다는 것은 Scheffé 방법으로 유의한 <strong>대비가 적어도 하나 존재한다</strong>는 것과 정확히 같습니다<cite data-ref="scheffe1953"></cite>. 이 자료에서 그 대비는 한 쌍이 아니라 "일반 복약지도 vs 두 상담군의 평균"입니다. 두 상담군의 평균이 서로 비슷하고 둘 다 일반보다 높으므로, 두 군을 합친 비교에서는 차이가 드러나지만 한 쌍씩 떼어 보면 증거가 모자랍니다. 이럴 때는 "적어도 한 군은 다르지만 어느 쌍인지는 특정할 수 없다"고 쓰고, 효과의 크기와 신뢰구간을 함께 제시하는 것이 정확합니다.</p>
+
+<div class="callout deep"><p class="ct">심화 · 계획된 비교</p>
+<p>연구를 시작하기 전부터 질문이 "약사 상담(1회든 집중이든)이 일반 복약지도보다 순응도를 높이는가"였다면, 모든 쌍을 비교할 필요 없이 그 대비 하나만 검정하면 됩니다. 이를 <strong>계획된 비교</strong><span class="en">(planned comparison, a priori contrast)</span>라고 하며, 검정이 하나이므로 다중비교 보정이 필요 없습니다. 예제 자료에서 이 대비는 70.2와 두 상담군 평균 77.4의 차이 7.19%p, t(87) = 2.72, P = 0.008입니다. 같은 대비를 자료를 본 뒤 떠올렸다면 Scheffé로 보정해야 하고 P = 0.029가 됩니다. 어떤 비교가 계획된 것인지는 분석계획서나 임상시험 등록 정보로 확인할 수 있습니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 연구 질문에 맞춰 미리 정합니다. 모든 쌍에 관심이 있으면 Tukey(분산이 다르면 Games-Howell), 각 처치군을 하나의 대조군과만 비교하면 Dunnett, 몇 개 비교만 계획했으면 Holm, Kruskal-Wallis 뒤에는 Dunn(Holm 보정)입니다. 질문이 처음부터 대비 하나(예: 상담군 전체 vs 일반)라면 계획된 비교 하나로 충분합니다. 파이썬에서 실행하는 방법은 아래 '심화 · 파이썬에서 다른 사후분석 실행하기'에 모았습니다.</li>
+<li><strong>교란과 보정</strong>: 관찰연구에서 군별 결과를 그대로 사후분석하면 쌍별 차이도 모두 보정하지 않은 차이입니다. 교란변수를 보정하려면 군을 가변수로 넣고 교란변수를 함께 넣은 다중회귀(6장 라 절, 8장 사 절)를 적합한 뒤, 그 모형에서 얻은 보정된 평균 차이를 쌍별로 비교하고 같은 방식(Tukey, Holm 등)으로 다중비교를 보정합니다. 성향점수 방법(14장 다 절)으로 군을 맞춘 뒤 쌍별로 비교할 때도 다중비교 보정은 따로 필요합니다.</li>
+<li><strong>보고할 것</strong>: 사후분석 방법의 이름, 보정된 P, 쌍별 평균 차이와 보정된(동시) 95% CI. 유의하지 않은 쌍의 결과도 함께 제시합니다.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 사후분석을 둘러싼 오류</p>
+<ul>
+<li><span class="wrong">세 평균을 보니 일반과 집중의 차이가 가장 커서, 그 두 군만 t 검정했다(p = 0.006).</span> 자료를 보고 가장 차이가 큰 쌍을 고른 순간, 사실상 세 쌍을 모두 비교한 것과 같습니다. 가장 큰 차이를 고르는 행위 자체가 Tukey 방법이 기준으로 삼는 '범위'이므로 Tukey로 보정한 p(0.017)를 보고해야 합니다.</li>
+<li><span class="wrong">사후분석은 전체 검정이 유의할 때만 할 수 있다.</span> 절반만 맞습니다. Fisher의 LSD는 전체 F 검정을 문지기로 써야만 오류율이 통제되지만, Tukey·Dunnett·Bonferroni·Holm은 그 자체로 FWER을 통제하므로 전체 검정 없이 써도 됩니다. 다만 "전체 검정이 유의할 때만 사후분석"을 분석계획으로 정했다면 그대로 지켜야 하고, 전체 검정이 유의하지 않은데 사후분석 결과 하나를 강조하는 것은 부적절합니다.</li>
+<li><span class="wrong">어떤 사후분석을 썼는지 밝히지 않고 "P &lt; 0.05 by post hoc test"라고만 쓴다.</span> 방법에 따라 같은 쌍의 p가 0.108에서 0.181까지 달라지므로(위 '같은 자료, 여러 방법' 표) 방법과 보정 여부는 결과 해석에 필수 정보입니다.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · scipy의 tukey_hsd()</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p><code>usual</code>, <code>brief</code>, <code>intensive</code>는 세 군의 PDC 값을 담은 배열입니다. scipy 1.17에서 실행한 출력이며, 버전에 따라 표시 형식이 조금 다를 수 있습니다.</p>
+<p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
+<pre class="out"><span class="cm"># res = stats.tukey_hsd(usual, brief, intensive)   # 0 = usual, 1 = brief, 2 = intensive</span>
+<span class="cm"># print(res)</span>
+Pairwise Group Comparisons (95.0% Confidence Interval) <span class="mk">1</span>
+Comparison  Statistic  p-value  Lower CI  Upper CI  <span class="mk">2</span> <span class="mk">3</span> <span class="mk">4</span>
+ (0 - 1)     -5.800     0.144   -13.071     1.471
+ (0 - 2)     -8.573     0.017   -15.844    -1.302
+ (1 - 0)      5.800     0.144    -1.471    13.071
+ (1 - 2)     -2.773     0.636   -10.044     4.498
+ (2 - 0)      8.573     0.017     1.302    15.844
+ (2 - 1)      2.773     0.636    -4.498    10.044</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>95.0% Confidence Interval.</b> Tukey 동시 신뢰구간입니다. 아래 세 비교의 신뢰구간이 모두 동시에 참값을 포함할 확률이 95%(family-wise)라는 뜻이며, 구간 하나하나의 신뢰수준은 95%보다 높습니다. 제목에 Tukey라는 이름이 나오지 않으므로 어떤 함수를 썼는지는 코드로 확인합니다.</span></li>
+<li><span class="mk">2</span><span><b>(1 - 0)은 인자 번호로 쓴 비교.</b> 괄호 안 숫자는 <code>tukey_hsd()</code>에 넣은 순서(0부터)로, 0 = 일반 복약지도, 1 = 1회 상담, 2 = 집중 상담입니다. Statistic은 앞 번호 군의 평균 − 뒤 번호 군의 평균이므로 (1 - 0)의 5.800은 1회 상담 − 일반 복약지도입니다. 모든 쌍이 방향만 바꿔 두 번씩 나오므로(예: (0 - 1)과 (1 - 0)) 서로 다른 비교는 세 개뿐입니다.</span></li>
+<li><span class="mk">3</span><span><b>Lower CI, Upper CI = Tukey 동시 신뢰구간.</b> (1 - 0)의 구간(−1.471, 13.071)은 0을 포함하므로 유의하지 않고, (2 - 0)의 구간(1.302, 15.844)은 0을 포함하지 않으므로 유의합니다. 그림 4-3의 파란 구간이 이것입니다.</span></li>
+<li><span class="mk">4</span><span><b>p-value는 이미 보정된 값.</b> 여기에 다시 3을 곱하는(Bonferroni를 한 번 더 적용하는) 실수가 가끔 있습니다. 출력은 소수 셋째 자리까지 보여 주며(더 자세한 값은 <code>res.pvalue</code>), 논문에는 보통 0.144, 0.017, 0.636처럼 씁니다.</span></li>
+</ol>
+</div></div>
+<p>원자료가 없어도 위 출력의 핵심 숫자는 분산분석표의 MS<sub>W</sub>와 평균 차이만으로 다시 계산할 수 있습니다. <code>stats.studentized_range.ppf()</code>가 문턱 q를, <code>stats.studentized_range.sf()</code>가 Tukey p-value를 줍니다(q = 평균 차이 ÷ 평균 하나의 SE).</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">요약값으로 Tukey 문턱과 p-value 다시 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+from scipy import stats
+
+ms_w, n, k, df_w = 139.469651, 30, 3, 87   # 군내 평균제곱, 군당 인원, 군 수, 자유도
+se_one = np.sqrt(ms_w / n)                  # 평균 하나의 SE (2.16)
+se_diff = np.sqrt(2 * ms_w / n)             # 두 평균 차이의 SE (3.05)
+
+q_crit = stats.studentized_range.ppf(0.95, k, df_w)
+t_crit = stats.t.ppf(0.975, df_w)
+print(f&quot;q = {q_crit:.3f}, q/√2 = {q_crit / np.sqrt(2):.3f}, t = {t_crit:.3f}&quot;)
+print(f&quot;Tukey 문턱 = {q_crit * se_one:.2f}, 보정 없는 문턱 = {t_crit * se_diff:.2f}&quot;)
+
+for name, diff in [(&quot;1회 - 일반&quot;, 5.800), (&quot;집중 - 일반&quot;, 8.573), (&quot;집중 - 1회&quot;, 2.773)]:
+    p = stats.studentized_range.sf(diff / se_one, k, df_w)
+    print(f&quot;{name}: Tukey p = {p:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>q = 3.372, q/√2 = 2.384, t = 1.988
+Tukey 문턱 = 7.27, 보정 없는 문턱 = 6.06
+1회 - 일반: Tukey p = 0.144
+집중 - 일반: Tukey p = 0.017
+집중 - 1회: Tukey p = 0.636</pre></div></div>
+
+<div class="callout deep"><p class="ct">심화 · 파이썬에서 다른 사후분석 실행하기</p>
+<ul>
+<li><strong>Dunnett</strong>: scipy 1.11 이상에서 <code>res = stats.dunnett(brief, intensive, control=usual)</code>로 실행합니다. 대조군은 <code>control=</code>에 넣고, 비교할 처치군을 앞에 차례로 넣습니다. 예제 자료에서 <code>print(res)</code>의 출력은 다음과 같습니다.
+<pre class="out">Dunnett's test (95.0% Confidence Interval)
+Comparison               Statistic  p-value  Lower CI  Upper CI
+ (Sample 0 - Control)      1.902     0.108    -1.055    12.655
+ (Sample 1 - Control)      2.812     0.012     1.718    15.428</pre>
+Sample 0은 첫 번째 인자(1회 상담), Sample 1은 두 번째 인자(집중 상담), Control은 일반 복약지도입니다. <code>tukey_hsd()</code>와 달리 Statistic은 평균 차이가 아니라 t 값이고, 평균 차이는 신뢰구간의 가운데입니다(예: (1.718 + 15.428) ÷ 2 = 8.57). p-value와 신뢰구간은 이미 Dunnett 보정이 된 값으로, 위 '대조군 대비 결과 문장' 상자의 P = 0.11, 0.012와 95% CI −1.1 to 12.7, 1.7 to 15.4가 이것입니다. p-value는 난수를 쓰는 수치 적분으로 계산하므로 실행할 때마다 셋째 자리가 조금 달라질 수 있습니다(1회 상담은 0.108 또는 0.109).</li>
+<li><strong>Games-Howell</strong>: scipy와 statsmodels에는 Games-Howell 함수가 없습니다. pingouin 같은 별도 패키지를 설치해(<a href="#lab00-s4">실습 0 라 절</a>, Colab에서는 <code>!pip install pingouin</code>) <code>pingouin.pairwise_gameshowell(data=df, dv="pdc", between="arm")</code>처럼 씁니다. 여기서 <code>df</code>는 환자별 자료로, <code>pdc</code> 열에 PDC 값, <code>arm</code> 열에 군이 들어 있는 표입니다.</li>
+<li><strong>Bonferroni·Holm</strong>: 파이썬 statsmodels에서는 분산분석 모형(<code>ols</code>)의 결과에 <code>t_test_pairwise()</code>를 쓰면 두 군의 표준편차가 아니라 세 군 전체의 합동분산(MS<sub>W</sub>)으로 t를 계산하고, <code>method</code> 인자로 보정 방법을 고릅니다(기본값은 Holm-Šidák). 위 '같은 자료, 여러 방법' 표의 보정 없음·Bonferroni·Holm 값이 이 방식입니다. 두 군씩 떼어 <code>stats.ttest_ind()</code>를 반복하면 그 두 군의 분산만 쓰므로 p-value가 조금 다릅니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 문자를 붙여 본 Tukey 결과가 논문 표에서는 어떻게 보이는지 확인합니다. 가 절의 PDC 예제에서 분산분석이 유의하게 나온 뒤(P = 0.020), 어느 군끼리 다른지를 평균 옆 위첨자 문자로 표시한 표입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 위첨자 문자가 붙은 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Six-month adherence by intervention arm</caption>
+<thead><tr><th>Outcome</th><th class="r">Usual care<br>(n = 30)</th><th class="r">Brief counselling<br>(n = 30)</th><th class="r">Intensive counselling<br>(n = 30)</th><th class="r">P value</th></tr></thead>
+<tbody>
+<tr><td>PDC, %</td><td class="r"><span class="mk">1</span> 70.2 ± 12.6<sup>a</sup></td><td class="r"><span class="mk">2</span> 76.0 ± 10.9<sup>a,b</sup></td><td class="r">78.7 ± 11.8<sup>b</sup></td><td class="r"><span class="mk">3</span> 0.020</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are mean ± SD. P value from one-way ANOVA. <span class="mk">4</span> <sup>a,b</sup> Means within a row not sharing a superscript letter differ significantly (Tukey's HSD test, P &lt; 0.05).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>문자 a.</b> 일반 복약지도군입니다. 문자 자체에는 의미가 없고, 같은 문자를 공유하는지만 봅니다. 대부분 평균이 가장 작은(또는 가장 큰) 군부터 a를 붙입니다.</span></li>
+<li><span class="mk">2</span><span><b>문자 a,b.</b> 1회 상담군은 일반 복약지도군(a)과도, 집중 상담군(b)과도 유의한 차이가 없습니다(Tukey p = 0.144, 0.636). "세 군 중 가운데라서 양쪽과 구별되지 않는다"로 읽습니다. 1회 상담이 효과가 없다는 뜻도, 집중 상담과 효과가 같다는 뜻도 아닙니다.</span></li>
+<li><span class="mk">3</span><span><b>P 열은 전체 검정.</b> 0.020은 분산분석의 p-value입니다. 쌍별 결과는 위첨자로, 전체 결과는 P 열로 나눠 보여 주는 형식입니다.</span></li>
+<li><span class="mk">4</span><span><b>각주가 해석의 열쇠.</b> "not sharing a letter differ significantly"는 문자를 공유하지 않는 쌍(a와 b, 즉 일반과 집중)만 유의하게 다르다는 뜻입니다(Tukey p = 0.017). 각주에 어떤 사후분석을 썼는지(Tukey, Bonferroni, Duncan 등)가 적혀 있는지 반드시 확인하세요. Duncan이나 보정 없는 LSD(위 '권장되지 않는 방법')라면 문자가 더 잘게 갈라지는 경향이 있습니다. 위첨자 문자를 "어느 군과 유의하게 다른지"를 가리키는 기호(예: a, vs usual care)로 쓰는 논문도 있으므로 각주를 먼저 읽습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기 <span class="lv deep">심화</span></h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<p>Tukey 방법의 검정통계량 q와 문턱(HSD)은 다음과 같습니다.</p>
+<div class="eq">\[ q = \frac{|\bar{x}_i - \bar{x}_j|}{\sqrt{\mathrm{MS_W}/n}}, \qquad \text{HSD} = q_{0.05;\,k,\,N-k} \times \sqrt{\frac{\mathrm{MS_W}}{n}} = 3.372 \times \sqrt{\frac{139.5}{30}} = 3.372 \times 2.156 = 7.27 \]
+<p>\(\mathrm{MS_W}\)는 분산분석의 군내 평균제곱(합동분산, 다 절), \(n\)은 군당 인원, 3.372(보통 3.37로 적음)는 군 3개·자유도 87일 때 스튜던트화 범위 분포의 상위 5% 값으로 <code>stats.studentized_range.ppf(0.95, 3, 87)</code>로 구합니다. 두 평균의 차이가 7.27%p보다 크면 유의합니다. 보정 없는 t 검정의 문턱은 1.988 × √(139.5 × 2 ÷ 30) = 1.988 × 3.050 = 6.06%p입니다(1.988 = <code>stats.t.ppf(0.975, 87)</code>). q의 분모는 평균 하나의 SE이고 t의 분모는 두 평균 차이의 SE(평균 하나의 SE × √2)이므로, q를 t와 같은 척도로 바꾸면 3.372 ÷ √2 = 2.38입니다.</p>
+</div>
+<p>군별 인원이 다르면 \(\sqrt{\mathrm{MS_W}/n}\) 대신 \(\sqrt{\mathrm{MS_W}/2 \times (1/n_i + 1/n_j)}\)를 쓰는 Tukey-Kramer 방법을 씁니다. 파이썬 scipy의 <code>stats.tukey_hsd()</code>도 군 크기가 다르면 이 방식으로 계산합니다.</p>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>사후분석은 여러 쌍을 비교하면서 비교 묶음 전체의 1종 오류(FWER)를 5%로 묶어 둡니다. 그 대가로 '유의'의 문턱이 올라갑니다(예제: 6.06 → 7.27%p).</li>
+<li>모든 쌍이면 Tukey, 대조군과만 비교하면 Dunnett, 분산이 다르면 Games-Howell, Kruskal-Wallis 뒤에는 Dunn(Holm 보정)을 씁니다. Fisher의 LSD, Duncan, SNK는 권장되지 않습니다.</li>
+<li>위첨자 문자는 "같은 문자를 공유하면 유의한 차이 없음"을 뜻하며, ab는 양쪽 어느 군과도 차이를 입증하지 못했다는 뜻입니다.</li>
+<li>자료를 보고 가장 차이 큰 쌍만 골라 보정 없이 검정하면 안 됩니다. 사후분석 방법과 보정된 P, 신뢰구간을 함께 보고합니다.</li>
+<li>전체 검정이 유의해도 유의한 쌍이 없을 수 있습니다. 차이가 한 쌍이 아니라 군 조합(대비)에 있을 때 생깁니다.</li>
+</ul></div>
+
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>미리 정한 세 쌍 비교의 보정 없는 p가 0.004, 0.020, 0.030이었습니다. Bonferroni와 Holm 보정 P를 각각 구하고, α = 0.05에서 몇 개가 유의한지 비교하세요.</p>
+<details><summary>답과 풀이</summary><div><p>Bonferroni는 모두 3을 곱해 0.012, 0.060, 0.090이므로 첫 번째만 유의합니다. Holm은 작은 것부터 3, 2, 1을 곱해 0.012, 0.040, 0.030이 되는데, 세 번째 값 0.030이 앞의 보정 P 0.040보다 작으므로 0.040으로 올립니다. 따라서 Holm 보정 P는 0.012, 0.040, 0.040이고 셋 모두 유의합니다. 곱한 값을 그대로 쓰면 보정 P의 순서가 원래 p의 순서와 뒤바뀌므로(0.040 다음에 0.030), 앞의 보정 P보다 작아질 수 없다는 규칙을 빠뜨리지 않아야 합니다. Holm이 Bonferroni보다 항상 같거나 덜 보수적이라는 점도 이 예에서 확인됩니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>네 군(위약, 저용량, 중용량, 고용량)의 평균이 표에 42.1<sup>a</sup>, 45.3<sup>ab</sup>, 48.9<sup>b</sup>, 49.6<sup>b</sup>로 적혀 있고, 각주는 "Means not sharing a superscript letter differ significantly (Tukey's HSD, P &lt; 0.05)"입니다. 유의하게 다른 쌍은 어느 것이며, "저용량은 위약과 효과가 같다"고 읽어도 될까요?</p>
+<details><summary>답과 풀이</summary><div><p>공유하는 문자가 없는 쌍만 유의하므로 위약(a)–중용량(b), 위약(a)–고용량(b)의 두 쌍이 유의합니다. 저용량(ab)은 위약과 a를, 중·고용량과 b를 공유하므로 어느 쪽과도 유의한 차이가 없고, 중용량과 고용량도 b를 공유해 유의하지 않습니다. 하지만 "유의한 차이가 없다"는 "같다"가 아니라 "다르다고 할 증거가 부족하다"는 뜻이므로 "저용량은 위약과 효과가 같다"고 읽으면 안 됩니다. 저용량의 평균은 양쪽 사이에 있어 어느 쪽과도 차이를 입증하지 못했을 뿐이며, 차이의 크기와 신뢰구간은 본문이나 보충자료에서 찾아봐야 합니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>“Dunnett 방법으로 일반 복약지도와 비교한 결과 집중 상담은 P = 0.012, 1회 상담은 P = 0.11이었다. 따라서 집중 상담이 1회 상담보다 효과가 크다.” 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>Dunnett 방법은 각 처치군을 대조군과만 비교하므로 두 상담군끼리는 비교하지 않았습니다. 한 비교는 유의하고 다른 비교는 유의하지 않다는 사실은 두 효과가 서로 다르다는 증거가 아닙니다. 두 비교는 같은 대조군을 공유하므로, 두 P를 나란히 놓는 것으로는 두 상담군 사이의 차이를 판단할 수 없습니다. 실제로 같은 자료에서 집중 상담 − 1회 상담을 직접 비교하면 차이는 2.77%p, Tukey P = 0.636입니다. 고쳐 쓰면 "집중 상담은 일반 복약지도보다 PDC가 8.6%p 높았고, 1회 상담과 일반 복약지도의 차이 5.8%p는 유의하지 않았다. 두 상담군끼리는 비교하지 않았다"입니다. 두 상담군의 비교가 궁금했다면 처음부터 그 쌍을 포함하는 방법(Tukey 등)을 계획해야 합니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ch04-s3">
+<h2><span class="sec-no">다.</span>일원배치 분산분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">세 군 이상의 평균이 모두 같은지 한 번에 검정하는 방법입니다. 군 평균들이 서로 떨어진 정도(신호)를 군 안에서 환자들이 흩어진 정도(잡음)와 비교합니다.</p>
+<ul>
+<li><b>비유.</b> 세 반의 시험 점수를 비교한다고 합시다. 반 평균이 5점씩 차이 나도, 각 반 안에서 점수가 30점부터 100점까지 흩어져 있다면 5점 차이는 누구를 뽑았느냐에 따라 우연히 생길 수 있는 크기입니다. 반대로 각 반 안의 점수가 거의 같다면 5점 차이는 분명한 차이입니다.</li>
+<li><b>논문에서는.</b> "F(2, 87) = 4.12, P = 0.020"처럼 나옵니다. "군 평균 사이의 흩어짐이 군 안의 흩어짐으로 기대되는 수준의 약 4배이고, 세 평균이 모두 같다고 보기는 어렵다"라고 읽습니다. 괄호 안 두 숫자는 자유도(군 수 − 1, 인원 − 군 수)입니다.</li>
+<li><b>기억할 한 가지.</b> 이름에 '분산'이 들어 있지만 평균을 비교하는 방법이고, 결론은 "적어도 한 군이 다르다"까지입니다. 어느 군인지는 사후분석(나 절)으로 봅니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+<div><dt>언제 쓰나</dt><dd>독립된 세 군 이상의 평균을 비교할 때. 결과변수는 연속형</dd></div>
+<div><dt>귀무가설</dt><dd>모든 군의 모평균이 같다 (μ<sub>1</sub> = μ<sub>2</sub> = μ<sub>3</sub>). 대립가설: 적어도 한 군의 모평균이 다르다</dd></div>
+<div><dt>가정</dt><dd>관측값의 독립성, 잔차의 정규성, 군별 분산의 동일성(등분산성)</dd></div>
+<div><dt>논문 보고 형식</dt><dd>F(2, 87) = 4.12, P = 0.020, η² = 0.09, 이어서 사후분석 결과</dd></div>
+</dl>
+
+<p><strong>일원배치 분산분석</strong><span class="en">(one-way analysis of variance, one-way ANOVA)</span>에서 '일원'은 군을 나누는 요인이 하나(이 예제에서는 중재 종류)라는 뜻입니다. 중재 종류와 성별처럼 요인이 둘이면 이원배치 분산분석<span class="en">(two-way ANOVA)</span>이 됩니다. 두 군만 비교하는 분산분석은 독립표본 t 검정과 같은 결과를 줍니다(F = t², 1장 마 절).</p>
+
+<h3>개념</h3>
+<p>앞의 시험 점수 비유를 그림으로 보면 그림 4-4와 같습니다. 두 그림은 군 평균이 같은데, 군 안의 흩어짐이 작은 왼쪽에서는 평균 차이가 뚜렷하고 흩어짐이 큰 오른쪽에서는 우연과 구별하기 어렵습니다.</p>
+<!--FIG:ch04_spread-->
+<p>분산분석은 이 비교를 하나의 비율로 만듭니다. 군 평균 사이의 흩어짐을 <strong>군간 평균제곱</strong><span class="en">(mean square between, MS<sub>B</sub>)</span>, 군 안의 흩어짐을 <strong>군내 평균제곱</strong><span class="en">(mean square within, MS<sub>W</sub>)</span>으로 계산해 나눈 값이 F 통계량입니다. 즉 F = 신호 ÷ 잡음 = 군간 평균제곱 ÷ 군내 평균제곱입니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>계산을 손으로 따라가기 위해 예제 연구의 예비연구라고 생각하고 군당 5명씩, 15명의 작은 자료를 씁니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>군</th><th>PDC (%)</th><th class="r">군 평균</th><th>군 평균과의 편차</th><th class="r">군내 제곱합</th><th class="r">군 분산</th></tr></thead>
+<tbody>
+<tr><td>일반 복약지도</td><td class="num">58, 63, 67, 69, 73</td><td class="r">66</td><td class="num">−8, −3, 1, 3, 7</td><td class="r">132</td><td class="r">33.0</td></tr>
+<tr><td>1회 상담</td><td class="num">62, 68, 71, 77, 82</td><td class="r">72</td><td class="num">−10, −4, −1, 5, 10</td><td class="r">242</td><td class="r">60.5</td></tr>
+<tr><td>집중 상담</td><td class="num">70, 74, 79, 81, 86</td><td class="r">78</td><td class="num">−8, −4, 1, 3, 8</td><td class="r">154</td><td class="r">38.5</td></tr>
+<tr><td>전체 (15명)</td><td></td><td class="r">72</td><td></td><td class="r">528</td><td></td></tr>
+</tbody></table></div>
+<p>각 환자의 값이 전체 평균(72)에서 떨어진 거리는 두 부분으로 나눌 수 있습니다. 예를 들어 일반 복약지도군의 58은 전체 평균보다 14 낮은데, 이 중 6은 "일반 복약지도군이라서"(군 평균 66 − 전체 평균 72), 나머지 8은 "그 군 안에서 이 환자가 낮아서"(58 − 66)입니다. 이 두 부분을 각각 제곱해 모든 환자에 대해 더하면 전체 변동이 <strong>군간 제곱합</strong>(군 차이 몫)과 <strong>군내 제곱합</strong>(개인차 몫) 두 조각으로 정확히 나뉩니다(식은 '수식으로 보기').</p>
+<!--FIG:ch04_ss-->
+<div class="flow">
+<div><div><b>전체 제곱합</b><p>15명 각각의 (값 − 72)²을 더합니다. 일반 312 + 1회 242 + 집중 334 = <strong>SS<sub>T</sub> = 888</strong></p></div></div>
+<div><div><b>군간 제곱합</b><p>(군 평균 − 72)²에 군 인원 5를 곱해 더합니다. 5 × (66 − 72)² + 5 × (72 − 72)² + 5 × (78 − 72)² = 180 + 0 + 180 = <strong>SS<sub>B</sub> = 360</strong></p></div></div>
+<div><div><b>군내 제곱합</b><p>위 표의 군별 제곱합을 더합니다. 132 + 242 + 154 = <strong>SS<sub>W</sub> = 528</strong>. 확인: 360 + 528 = 888</p></div></div>
+<div><div><b>자유도</b><p>군간: 군 수 − 1 = 2. 군내: 전체 인원 − 군 수 = 15 − 3 = 12. 전체: 15 − 1 = 14 (= 2 + 12)</p></div></div>
+<div><div><b>평균제곱과 F</b><p>MS<sub>B</sub> = 360 ÷ 2 = 180, MS<sub>W</sub> = 528 ÷ 12 = 44. F = 180 ÷ 44 = <strong>4.09</strong></p></div></div>
+<div><div><b>p-value</b><p>F(2, 12) 분포에서 4.09보다 오른쪽 넓이 = <strong>0.044</strong>(<code>stats.f.sf(180/44, 2, 12)</code>). 5% 임계값은 3.89(<code>stats.f.ppf(0.95, 2, 12)</code>)이므로 유의수준 5%에서 귀무가설을 기각합니다.</p></div></div>
+</div>
+
+<h4>F가 1 근처이면 차이가 없다는 뜻인 이유</h4>
+<p>두 평균제곱의 정체를 보면 F의 의미가 분명해집니다.</p>
+<ul>
+<li><strong>MS<sub>W</sub> = 44</strong>는 세 군 분산(33.0, 60.5, 38.5)의 평균입니다(군 크기가 같을 때). 2장 t 검정의 합동분산을 세 군으로 넓힌 것으로, 군 평균이 같든 다르든 환자 개인 간 흩어짐 σ²를 추정합니다.</li>
+<li><strong>MS<sub>B</sub> = 180</strong>은 군 평균 세 개(66, 72, 78)의 분산 36에 군 인원 5를 곱한 값입니다. 표본평균의 분산은 σ²/n이므로(1장 바 절), 세 모평균이 실제로 같다면 군 평균들의 분산 × n도 σ²를 추정합니다.</li>
+</ul>
+<p>따라서 귀무가설이 참이면 분자와 분모가 같은 σ²를 추정하므로 F는 1 근처에 있습니다. 모평균이 다르면 분자에 '평균 차이'가 더해져 F가 1보다 커집니다. F 검정이 F 분포의 오른쪽 꼬리만 보는 이유도 여기에 있습니다. 평균 차이는 방향과 관계없이 F를 키우기만 하므로, 오른쪽 꼬리만 보는 F 검정은 단측검정이 아니라 "어느 방향이든 차이가 있는가"를 보는 검정입니다.</p>
+
+<h3>분산분석표</h3>
+<p>예제 자료(군당 30명)의 결과를 분산분석표<span class="en">(ANOVA table)</span>로 정리하면 다음과 같습니다. 표의 모든 칸이 위의 여섯 단계와 같은 방법으로 계산됩니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>변동 요인</th><th class="r">제곱합 (SS)</th><th class="r">자유도 (df)</th><th class="r">평균제곱 (MS)</th><th class="r">F</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>군간 (between groups)</td><td class="r">1,148.3</td><td class="r">2</td><td class="r">574.2</td><td class="r">4.12</td><td class="r">0.020</td></tr>
+<tr><td>군내 (within groups, 잔차)</td><td class="r">12,133.9</td><td class="r">87</td><td class="r">139.5</td><td class="r"></td><td class="r"></td></tr>
+<tr><td>전체</td><td class="r">13,282.2</td><td class="r">89</td><td class="r"></td><td class="r"></td><td class="r"></td></tr>
+</tbody></table></div>
+<p>F = 574.2 ÷ 139.5 = 4.12이고, F(2, 87) 분포의 5% 임계값 3.10보다 크므로 유의합니다(P = 0.0196). MS<sub>W</sub>의 제곱근 √139.5 = 11.8%p는 세 군 공통의 표준편차 추정값(합동표준편차)이며, 나 절의 Tukey 계산에 쓰인 값입니다.</p>
+
+<h3>효과크기: η²와 ω²</h3>
+<p>p-value는 표본 수에 좌우되므로 차이가 얼마나 큰지는 따로 봐야 합니다. 분산분석의 대표적인 효과크기는 <strong>에타제곱</strong><span class="en">(eta squared, η²)</span>으로, 전체 변동 중 군 차이로 설명되는 비율입니다. 군간 제곱합 ÷ 전체 제곱합 = 1,148.3 ÷ 13,282.2 = 0.086입니다.</p>
+<p>η² = 0.086은 환자 간 PDC 차이의 8.6%가 어느 중재를 받았느냐로 설명되고, 나머지 91.4%는 같은 중재를 받은 환자들 사이의 개인차라는 뜻입니다. η²는 표본에서 계산한 값이라 모집단의 설명력을 과대추정하는 경향이 있어, 이를 보정한 <strong>오메가제곱</strong><span class="en">(omega squared, ω²)</span>을 쓰기도 합니다(예제 0.065, 식은 '수식으로 보기'). 작은 예제(η² = 0.405)처럼 표본이 작을수록 두 값의 차이가 커집니다. 흔히 인용되는 기준(η² 0.01 작음, 0.06 중간, 0.14 큼)<cite data-ref="cohen1988"></cite>은 행동과학에서 제안된 대략적인 기준이므로 기계적으로 적용하지 마세요. 임상 연구에서는 η²보다 "집중 상담군의 PDC가 평균 8.6%p 높았다(95% CI …)"처럼 원래 단위의 차이가 훨씬 해석하기 쉽습니다.</p>
+
+<h3>가정과 확인 방법</h3>
+<h4>1. 관측값의 독립성</h4>
+<p>한 환자의 값이 다른 환자의 값에 영향을 주지 않아야 합니다. 검정으로 확인하는 가정이 아니라 연구 설계로 판단합니다. 예를 들어 약국 단위로 중재를 배정했다면(군집 무작위배정) 같은 약국 환자들은 서로 비슷하므로 독립이 아니고, 분산분석은 p-value를 실제보다 작게 계산합니다. 같은 환자를 여러 시점에 측정한 자료도 독립이 아닙니다. 이런 자료는 반복측정 분산분석이나 선형 혼합모형(10장)으로 분석합니다.</p>
+<h4>2. 잔차의 정규성</h4>
+<p><strong>잔차</strong><span class="en">(residual)</span>는 각 값에서 자기 군 평균을 뺀 값입니다. 군별로 정규성을 보거나, 90명의 잔차를 모아 Q-Q plot과 Shapiro-Wilk 검정으로 확인합니다(1장 아 절). 예제의 잔차는 W = 0.979, P = 0.15로 정규성을 기각하지 않습니다. 군당 인원이 30명 정도로 크고 군 크기가 비슷하면 중심극한정리 덕분에 분산분석은 정규성 위반에 비교적 강합니다. 표본이 작고 분포가 심하게 치우쳤다면 Kruskal-Wallis 검정(라 절)이나 로그 변환을 고려합니다.</p>
+<h4>3. 등분산성</h4>
+<p>세 군의 모분산이 같아야 합니다. <strong>Levene 검정</strong><span class="en">(Levene's test)</span>은 각 값이 군 평균에서 떨어진 거리의 절댓값으로 분산분석을 해서 흩어짐이 군마다 다른지 봅니다<cite data-ref="levene1960"></cite>. 평균 대신 중앙값에서의 거리를 쓰는 변형(Brown-Forsythe)은 치우친 자료에 더 안정적이며<cite data-ref="brown1974"></cite>, 파이썬 scipy의 <code>stats.levene()</code>은 이 변형을 기본값(<code>center="median"</code>)으로 씁니다. 예제에서는 평균 기준 F(2, 87) = 0.26, P = 0.77, 중앙값 기준 F = 0.18, P = 0.84로 등분산을 기각하지 않고, 가장 큰 SD와 가장 작은 SD의 비도 12.58 ÷ 10.94 = 1.15로 작습니다.</p>
+<p>등분산 가정이 깨지면 얼마나 문제가 될까요? 세 군의 모평균이 모두 같은 상황을 컴퓨터로 2만 번 만들어, α = 0.05로 검정했을 때 실제로 '유의'가 나온 비율(실제 1종 오류율)을 구했습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>군별 인원</th><th>군별 SD</th><th class="r">분산분석</th><th class="r">Welch 분산분석</th><th class="r">Kruskal-Wallis</th></tr></thead>
+<tbody>
+<tr><td>30, 30, 30</td><td>15, 10, 5</td><td class="r">6.2%</td><td class="r">5.0%</td><td class="r">6.2%</td></tr>
+<tr class="hi"><td>10, 20, 40</td><td>15, 10, 5 (작은 군의 분산이 큼)</td><td class="r"><b>20.1%</b></td><td class="r">5.4%</td><td class="r"><b>11.9%</b></td></tr>
+<tr><td>10, 20, 40</td><td>5, 10, 15 (큰 군의 분산이 큼)</td><td class="r">1.3%</td><td class="r">5.0%</td><td class="r">2.2%</td></tr>
+<tr><td>10, 20, 40</td><td>10, 10, 10</td><td class="r">5.0%</td><td class="r">5.0%</td><td class="r">4.4%</td></tr>
+</tbody></table></div>
+<p>세 가지를 알 수 있습니다. 첫째, 군 크기가 같으면 SD가 세 배 차이 나도 분산분석의 오류율은 6% 정도로 크게 흔들리지 않습니다. 둘째, <strong>군 크기와 분산이 함께 다를 때</strong>가 위험합니다. 작은 군의 분산이 크면 1종 오류가 20%까지 올라가고, 반대면 지나치게 보수적이 되어 검정력을 잃습니다. 셋째, Kruskal-Wallis 검정도 이 상황에서 12%로 부풀어 오릅니다. 비모수 검정이 등분산 문제의 해결책은 아닙니다(라 절).</p>
+<p>분산이 다를 때는 <strong>Welch 분산분석</strong><span class="en">(Welch's ANOVA)</span>을 씁니다<cite data-ref="welch1951"></cite>. 두 군의 Welch t 검정(2장)을 세 군 이상으로 넓힌 것으로, 흩어짐이 작고 인원이 많아 평균이 정확한 군에 더 큰 가중치(n<sub>i</sub>/s<sub>i</sub>²)를 주어 평균을 비교하고, 분모의 자유도를 자료에서 근사합니다. 분산이 같을 때도 Welch 분산분석의 1종 오류율은 5.0%로 정확합니다(위 표 마지막 줄). 위 표는 1종 오류율만 보여 주므로 같은 방식의 모의실험(2만 번)으로 검정력도 비교해 보면, 분산이 같을 때 Welch를 써서 잃는 검정력은 작았습니다. 군당 30명·SD 모두 12·모평균 70, 76, 79일 때 분산분석 74%, Welch 73%였고, 군 크기 10, 20, 40명·SD 모두 10·모평균 70, 75, 80일 때 77%와 73%였습니다. 그래서 처음부터 Welch 분산분석을 기본으로 쓰자는 의견도 있습니다. 예제에서는 F(2, 57.8) = 3.77, P = 0.029입니다.</p>
+
+<h3>회귀분석과의 관계 <span class="lv deep">심화</span></h3>
+<p>분산분석은 군을 <strong>가변수</strong><span class="en">(dummy variable)</span>로 바꾼 선형회귀와 같습니다(6장, 8장 사 절). 일반 복약지도를 기준으로 "1회 상담이면 1" "집중 상담이면 1"인 가변수 두 개를 만들어 회귀분석을 하면 다음 결과가 나옵니다.</p>
+<p><strong>PDC 예측값 = 70.17 + 5.80 × (1회 상담이면 1) + 8.57 × (집중 상담이면 1)</strong></p>
+<p>절편 70.17은 기준군(일반 복약지도)의 평균, 두 계수는 기준군과의 평균 차이입니다. 계수의 p-value(0.060, 0.006)는 나 절 표의 '보정 없음' 값과 같고, 회귀모형 전체의 F(2, 87) = 4.12와 결정계수 R² = 0.086은 분산분석의 F, η²와 같습니다. 이 관계를 알면 분산분석을 쉽게 확장할 수 있습니다. 모형에 나이나 기저 순응도를 더하면 공변량을 보정한 군 비교(공분산분석, ANCOVA)가 되고, 이는 결국 다중회귀분석입니다(6장 라 절).</p>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 독립된 세 군 이상의 연속형 결과에서 평균 차이가 관심사이면 분산분석을 씁니다. 군 크기와 분산이 함께 다르면 Welch 분산분석을 쓰고(확신이 없으면 처음부터 Welch), 표본이 작고 분포가 심하게 치우쳤거나 순서형 점수이면 Kruskal-Wallis 검정(라 절), 같은 환자의 반복 측정이면 반복측정 분산분석이나 혼합모형(10장)입니다.</li>
+<li><strong>교란과 보정</strong>: 관찰연구(예: 청구자료나 전자의무기록에서 세 약물 계열 사용자 비교)에서 분산분석의 F와 P는 <strong>보정하지 않은 비교</strong>입니다. 위 '회귀분석과의 관계'에서 본 것처럼 분산분석은 가변수 회귀이므로, 같은 모형에 나이·기저값·동반질환 같은 교란변수(노출 이전 시점의 값)를 더하면 보정된 군 비교가 됩니다(공분산분석, 다중회귀. 6장 라 절). 이때 가변수의 계수가 기준군 대비 보정된 평균 차이입니다. 성향점수 방법을 셋 이상의 군으로 확장해 쓸 수도 있습니다(14장 다 절). 측정하지 않은 교란변수는 어느 방법으로도 보정되지 않습니다.</li>
+<li><strong>보고할 것</strong>: 군별 인원과 평균 ± SD, F(분자 자유도, 분모 자유도)와 P, Welch 분산분석이면 그 사실과 소수 자유도, 효과크기(η² 또는 쌍별 평균 차이와 95% CI), 사후분석 방법.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 분산분석과 등분산 검정</p>
+<ul>
+<li><span class="wrong">분산분석은 세 군의 분산을 비교하는 검정이다.</span> 평균을 비교하는 검정입니다. 분산은 평균 차이가 우연의 범위를 넘는지 판단하는 도구로 씁니다. 분산 자체를 비교하는 검정은 Levene 검정입니다.</li>
+<li><span class="wrong">Levene 검정이 유의하지 않았으므로 세 군의 분산이 같다.</span> 표본이 작으면 Levene 검정의 검정력이 낮아 분산이 꽤 달라도 유의하지 않게 나옵니다. "기각하지 못했다"는 "같다"의 증거가 아닙니다(1장 나 절). SD의 비와 군 크기를 함께 보고, 확신이 없으면 Welch 분산분석을 씁니다.</li>
+<li><span class="wrong">분산분석이 유의하므로 집중 상담군이 일반 복약지도군보다 PDC가 높다.</span> 분산분석은 어느 군이 다른지 알려 주지 않습니다. 쌍별 결론은 사후분석(나 절)으로 냅니다.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels의 분산분석표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p><code>df</code>는 환자별 자료(<code>pdc</code>: PDC 값, <code>arm</code>: 군)입니다. statsmodels 0.15, pandas 3.0에서 실행한 출력이며, 버전에 따라 표시 형식이 조금 다를 수 있습니다.</p>
+<p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
+<pre class="out"><span class="cm"># fit = smf.ols("pdc ~ arm", data=df).fit()</span>
+<span class="cm"># print(sm.stats.anova_lm(fit))</span>
+            df        sum_sq     mean_sq         F    PR(&gt;F)  <span class="mk">2</span> <span class="mk">3</span> <span class="mk">4</span> <span class="mk">5</span>
+arm        2.0   1148.334222  574.167111  4.116789  0.019576
+Residual  87.0  12133.859667  139.469651       NaN       NaN  <span class="mk">1</span></pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>행 이름.</b> statsmodels는 군간 변동을 요인 이름(arm)으로, 군내 변동을 Residual(잔차)로 표시합니다. SPSS는 Between Groups / Within Groups / Total, SAS는 Model / Error / Corrected Total로 표시합니다. 이름만 다르고 같은 값입니다. 전체 행은 출력에 없으므로 필요하면 두 행을 더합니다(1148.3 + 12133.9 = 13282.2). Residual 행의 NaN은 해당 칸이 비어 있다(해당 없음)는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>df.</b> 이 열의 df는 자유도(degrees of freedom)로, 데이터프레임 이름 df와는 관계없습니다. 2 = 군 수 − 1, 87 = 분석에 들어간 인원 − 군 수. Residual의 df로 결측 없이 90명이 모두 분석되었는지 확인할 수 있습니다(1장 라 절).</span></li>
+<li><span class="mk">3</span><span><b>sum_sq와 mean_sq.</b> mean_sq = sum_sq ÷ df입니다(1148.334 ÷ 2 = 574.167, 12133.860 ÷ 87 = 139.470). 소수 여섯째 자리까지 보여 주므로 손으로 나눠 검산하기 쉽습니다.</span></li>
+<li><span class="mk">4</span><span><b>F = 574.167 ÷ 139.470 = 4.117.</b> 논문에는 F(2, 87) = 4.12처럼 두 자유도와 함께 씁니다.</span></li>
+<li><span class="mk">5</span><span><b>PR(&gt;F) = 0.0196.</b> F(2, 87) 분포에서 4.117보다 큰 쪽의 넓이, 즉 p-value입니다. 논문에는 P = 0.020처럼 씁니다.</span></li>
+</ol>
+</div></div>
+<p>원자료가 없어도 출력의 sum_sq와 df만 있으면 나머지 칸과 p-value를 다시 계산할 수 있습니다. <code>stats.f.sf(F, 분자 자유도, 분모 자유도)</code>가 F보다 오른쪽 넓이(p-value)를, <code>stats.f.ppf(0.95, …)</code>가 5% 임계값을 줍니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">제곱합으로 F와 p-value 다시 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+
+ss_b, ss_w = 1148.334222, 12133.859667   # 출력의 sum_sq
+df_b, df_w = 2, 87                        # 출력의 df
+ms_b, ms_w = ss_b / df_b, ss_w / df_w     # mean_sq = sum_sq ÷ df
+F = ms_b / ms_w
+print(f&quot;MS_B = {ms_b:.3f}, MS_W = {ms_w:.3f}, F = {F:.3f}&quot;)
+print(f&quot;p = {stats.f.sf(F, df_b, df_w):.4f}&quot;)                 # F보다 오른쪽 넓이
+print(f&quot;5% 임계값 = {stats.f.ppf(0.95, df_b, df_w):.2f}&quot;)
+print(f&quot;eta^2 = {ss_b / (ss_b + ss_w):.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MS_B = 574.167, MS_W = 139.470, F = 4.117
+p = 0.0196
+5% 임계값 = 3.10
+eta^2 = 0.086</pre></div></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · Welch 분산분석 <span class="lv deep">심화</span></b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>scipy 1.17, statsmodels 0.15에서 실행한 출력이며, 버전에 따라 표시 형식이 조금 다를 수 있습니다.</p>
+<p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
+<pre class="out"><span class="cm"># stats.f_oneway(usual, brief, intensive, equal_var=False)   # scipy 1.16 이상</span> <span class="mk">1</span> <span class="mk">3</span>
+F_onewayResult(statistic=np.float64(3.769535291925845), pvalue=np.float64(0.02892035211838178))
+
+<span class="cm"># from statsmodels.stats.oneway import anova_oneway</span>
+<span class="cm"># res = anova_oneway(df["pdc"], df["arm"], use_var="unequal")</span>
+<span class="cm"># res.df</span>
+(2.0, np.float64(57.80805640891234)) <span class="mk">2</span></pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>equal_var=False가 Welch 분산분석.</b> scipy의 <code>f_oneway()</code>는 기본값(<code>equal_var=True</code>)이 일반 분산분석(F = 4.117)이고, <code>equal_var=False</code>를 주어야 Welch 분산분석이 됩니다. 두 군의 <code>ttest_ind()</code>가 기본값으로 Student t 검정을 하는 것과 같은 방식입니다. 이 인자는 scipy 1.16부터 있으므로, 그보다 오래된 버전에서는 statsmodels의 <code>anova_oneway()</code>를 씁니다(이 함수는 <code>use_var="unequal"</code>, 즉 Welch가 기본값).</span></li>
+<li><span class="mk">2</span><span><b>분모 자유도 57.808.</b> scipy 결과에는 자유도가 나오지 않아 statsmodels 결과의 <code>df</code>로 확인했습니다. (2.0, 57.808)은 (분자 자유도, 분모 자유도)입니다. 분모 자유도가 정수가 아니고 87보다 작습니다. 분산을 군별로 따로 추정하는 대가로 자유도를 근사한 값입니다. 논문에는 "Welch's F(2, 57.8) = 3.77"처럼 소수 자유도를 그대로 씁니다. 소수 자유도가 보이면 Welch 방법을 썼다는 표시입니다.</span></li>
+<li><span class="mk">3</span><span><b>p-value = 0.029.</b> 일반 분산분석(0.020)과 비슷합니다. 이 자료는 군 크기가 같고 분산도 비슷하기 때문입니다. 두 방법의 결과가 크게 다르다면 분산과 군 크기가 함께 다른 상황인지 확인합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>지금까지 계산한 F, P, η²가 논문에서는 어떻게 쓰이는지 확인합니다. 가 절의 세 중재 PDC 예제를 분산분석과 Tukey 사후분석으로 분석한 논문의 Results 문장입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Results 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Mean PDC at 6 months differed across the three arms (usual care, 70.2% ± 12.6%; brief counselling, 76.0% ± 10.9%; intensive counselling, 78.7% ± 11.8%; <span class="mk">1</span> <span class="hl">F(2, 87) = 4.12</span>, <span class="mk">2</span> <span class="hl">P = 0.020</span>, <span class="mk">3</span> <span class="hl">η² = 0.09</span>). In post hoc Tukey comparisons, PDC was higher with intensive counselling than with usual care (mean difference, 8.6 percentage points; <span class="mk">4</span> <span class="hl">95% CI, 1.3 to 15.8</span>; P = 0.017), whereas <span class="mk">5</span> <span class="hl">the other pairwise differences were not statistically significant</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>F(2, 87) = 4.12.</b> 괄호 안의 자유도로 3개 군, 90명이 분석되었음을 역산할 수 있습니다(2 + 1 = 3군, 87 + 3 = 90명). 일반 분산분석이라 분모 자유도가 인원 − 군 수이기 때문이며, Welch 분산분석처럼 분모 자유도가 소수(예: 57.8)이면 이렇게 역산할 수 없습니다. F = 4.12는 군 평균 사이의 흩어짐이 군 안의 흩어짐으로 기대되는 수준의 약 4배라는 뜻입니다(위 '숫자로 따라가기').</span></li>
+<li><span class="mk">2</span><span><b>P = 0.020은 전체 검정의 p-value.</b> "세 평균이 모두 같다"를 기각한다는 뜻입니다. 이 숫자만으로 어느 군이 높은지는 알 수 없고, 바로 뒤 문장의 사후분석이 그 답입니다.</span></li>
+<li><span class="mk">3</span><span><b>η² = 0.09.</b> PDC 변동의 약 9%가 군 차이로 설명됩니다(1,148.3 ÷ 13,282.2 = 0.086, 위 '효과크기'). 나머지는 같은 중재를 받은 환자 사이의 개인차입니다. 군 간 차이가 통계적으로 유의해도 환자 개인의 순응도를 예측하기에는 부족하다는 점을 보여 줍니다.</span></li>
+<li><span class="mk">4</span><span><b>Tukey 동시 신뢰구간.</b> 1.3–15.8은 보정하지 않은 구간(2.5–14.6)보다 넓습니다. 세 쌍을 동시에 비교한 보정이 반영된 것입니다(나 절). 하한 1.3%p는 임상적으로 거의 의미 없는 크기이므로 "효과는 있을 가능성이 크지만 크기는 불확실하다"고 읽습니다.</span></li>
+<li><span class="mk">5</span><span><b>유의하지 않은 쌍.</b> 1회 상담 − 일반은 5.8%p(Tukey 95% CI −1.5 to 13.1)로, 효과가 없다고 결론 내릴 수 있는 결과가 아닙니다. 좋은 논문은 유의하지 않은 쌍의 차이와 신뢰구간도 표나 보충자료에 제시합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기 <span class="lv deep">심화</span></h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ F = \frac{\text{군간 평균제곱}}{\text{군내 평균제곱}} = \frac{\mathrm{MS_B}}{\mathrm{MS_W}} = \frac{\mathrm{SS_B}/(k-1)}{\mathrm{SS_W}/(N-k)} \]
+<p>k는 군 수, N은 전체 인원입니다.</p></div>
+<p>전체 제곱합은 군간 제곱합과 군내 제곱합으로 정확히 나뉩니다.</p>
+<div class="eq">\[ \underbrace{\sum (x - \bar{x})^2}_{\text{전체 제곱합 } \mathrm{SS_T}} = \underbrace{\sum_i n_i(\bar{x}_i - \bar{x})^2}_{\text{군간 제곱합 } \mathrm{SS_B}} + \underbrace{\sum_i \sum (x - \bar{x}_i)^2}_{\text{군내 제곱합 } \mathrm{SS_W}} \]
+<p>\(\bar{x}\)는 전체 평균, \(\bar{x}_i\)는 i번째 군의 평균, \(n_i\)는 그 군의 인원입니다. 작은 예제: 888 = 360 + 528.</p>
+</div>
+<p>효과크기 η²와 ω²는 다음과 같습니다.</p>
+<div class="eq">\[ \eta^2 = \frac{\mathrm{SS_B}}{\mathrm{SS_T}} = \frac{1{,}148.3}{13{,}282.2} = 0.086, \qquad \omega^2 = \frac{\mathrm{SS_B} - (k-1)\,\mathrm{MS_W}}{\mathrm{SS_T} + \mathrm{MS_W}} = \frac{1{,}148.3 - 2 \times 139.5}{13{,}282.2 + 139.5} = 0.065 \]</div>
+<p>가변수 회귀로 쓰면 분산분석 모형은 다음과 같습니다.</p>
+<div class="eq">\[ \widehat{\text{PDC}} = 70.17 + 5.80 \times (\text{1회 상담}) + 8.57 \times (\text{집중 상담}) \]</div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>분산분석은 평균을 비교하는 방법이며, 전체 변동을 군간 변동과 군내 변동으로 나눠 F = 군간 평균제곱 ÷ 군내 평균제곱을 계산합니다.</li>
+<li>귀무가설이 참이면 F는 1 근처이고, 군 평균 차이가 군 안의 흩어짐에 비해 클수록 F가 커집니다.</li>
+<li>F(2, 87)의 두 자유도는 군 수 − 1과 인원 − 군 수입니다. 효과크기 η²는 군 차이로 설명되는 변동의 비율입니다.</li>
+<li>가정은 독립성, 잔차의 정규성, 등분산성입니다. 군 크기와 분산이 함께 다르면 1종 오류가 크게 흔들리므로 Welch 분산분석을 씁니다.</li>
+<li>분산분석은 가변수 회귀와 같습니다. 관찰연구에서는 이 모형에 교란변수를 더해(공분산분석, 6장 라 절) 보정된 군 비교를 하거나 성향점수(14장 다 절)를 씁니다.</li>
+</ul></div>
+
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>한 논문의 Results에 "F(3, 116) = 2.95, P = 0.036 (one-way ANOVA)"라고 적혀 있습니다. 몇 개 군, 몇 명이 분석되었을까요? 같은 자료를 Welch 분산분석으로 보고해 분모 자유도가 61.2로 적혀 있었다면 같은 방법으로 인원을 알 수 있을까요?</p>
+<details><summary>답과 풀이</summary><div><p>일반 분산분석이면 분자 자유도 = 군 수 − 1이므로 3 + 1 = 4개 군이고, 분모 자유도 = 인원 − 군 수이므로 116 + 4 = 120명입니다. P도 자유도와 맞는지 확인할 수 있습니다(<code>stats.f.sf(2.95, 3, 116)</code> = 0.036). Welch 분산분석의 분모 자유도는 군별 분산과 인원으로 근사한 소수 값이라 인원 − 군 수가 아니므로, 61.2로는 인원을 역산할 수 없습니다. 이때는 분자 자유도 3으로 4개 군이라는 것만 알 수 있고, 인원은 표의 n이나 Methods에서 확인합니다.</p></div></details></li>
+<li><p><span class="qt">계산</span>세 군(각 25명)의 PDC를 비교한 분산분석에서 군간 제곱합이 900, 군내 제곱합이 11,100이었습니다. η², F, P를 구하고 결과를 한 문장으로 요약하세요.</p>
+<details><summary>답과 풀이</summary><div><p>전체 제곱합은 900 + 11,100 = 12,000이므로 η² = 900 ÷ 12,000 = 0.075입니다. 자유도는 군간 3 − 1 = 2, 군내 75 − 3 = 72이므로 MS<sub>B</sub> = 900 ÷ 2 = 450, MS<sub>W</sub> = 11,100 ÷ 72 = 154.2, F = 450 ÷ 154.2 = 2.92이고, P = 0.060입니다(<code>stats.f.sf(2.92, 2, 72)</code>). η² 0.075는 이 장의 예제(0.086)와 비슷한 크기지만, 인원이 적어 5% 수준에서 유의하지 않습니다. 요약하면 "PDC 변동의 약 7.5%가 군 차이로 설명되었으나 F(2, 72) = 2.92, P = 0.060으로 세 평균이 모두 같다는 가설을 기각하지 못했다"입니다. 기각하지 못한 것이 차이가 없다는 뜻은 아닙니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>“Levene 검정 P = 0.21이므로 세 군의 분산은 같다. 따라서 군 크기가 12, 25, 50명으로 달라도 일반 분산분석을 쓰면 된다.” 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>Levene 검정의 P = 0.21은 "분산이 같다"의 증거가 아니라 "다르다고 할 증거가 부족하다"는 뜻이고, 12명처럼 작은 군이 있으면 검정력이 낮아 분산이 꽤 달라도 유의하지 않게 나옵니다. 게다가 군 크기가 크게 다를 때가 분산 차이에 가장 취약한 상황입니다. 이 절의 모의실험에서 작은 군의 분산이 크면 분산분석의 1종 오류가 20%까지 올라갔습니다. 따라서 군별 SD의 비와 군 크기를 함께 보고, 확신이 없으면 Welch 분산분석을 씁니다. 고쳐 쓰면 "Levene 검정에서 분산의 차이는 유의하지 않았으나(P = 0.21) 군 크기가 크게 달라 Welch 분산분석을 주 분석으로 썼다"입니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ch04-s4">
+<h2><span class="sec-no">라.</span>Kruskal-Wallis test</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">세 군 이상의 값을 한꺼번에 줄 세워 순위를 매기고, 어느 군의 평균 순위가 유난히 높거나 낮은지 보는 방법입니다. 분산분석의 비모수 버전입니다.</p>
+<ul>
+<li><b>순위를 쓰는 이유.</b> 세 반이 함께 달리기를 하고 기록 대신 등수만 본다고 합시다. 반별 평균 등수가 비슷하면 차이가 없는 것이고, 한 반의 평균 등수가 유난히 앞서면 그 반이 빠른 것입니다. 한 명이 아주 늦게 들어와도 등수로는 꼴찌일 뿐이라 결과를 크게 흔들지 못합니다.</li>
+<li><b>논문에서는.</b> 군별 "median (IQR)"과 함께 "Kruskal–Wallis test, P = 0.024"처럼 나옵니다. "세 군 중 적어도 한 군의 값이 다른 군보다 크게 나오는 경향이 있다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 중앙값이 같은지를 보는 검정이 아닙니다. 또 군마다 흩어짐이 크게 다른 자료의 해결책도 아닙니다(다 절의 모의실험).</li>
+</ul>
+</div>
+
+<dl class="glance">
+<div><dt>언제 쓰나</dt><dd>독립된 세 군 이상 비교에서 표본이 작고 분포가 치우쳤거나, 극단값이 있거나, 결과가 순서형 척도(통증 점수, 리커트 점수)일 때</dd></div>
+<div><dt>귀무가설</dt><dd>모든 군의 분포가 같다. 대립가설: 적어도 한 군의 값이 다른 군보다 큰(또는 작은) 경향이 있다</dd></div>
+<div><dt>가정</dt><dd>관측값의 독립성, 값에 순위를 매길 수 있음. 분포 모양이 군마다 같다고 가정할 때만 중앙값 비교로 해석</dd></div>
+<div><dt>논문 보고 형식</dt><dd>군별 중앙값(IQR), H = 7.45(또는 χ² = 7.45), 자유도 2, P = 0.024, 이어서 Dunn 사후분석</dd></div>
+</dl>
+
+<p><strong>Kruskal-Wallis 검정</strong>은 분산분석의 비모수 버전입니다<cite data-ref="kruskal1952"></cite>. 값 대신 순위를 쓰므로 극단값의 영향을 덜 받고 정규분포를 가정하지 않습니다. 두 군에 적용하면 정규근사를 쓴 Mann-Whitney 검정(2장 나 절)과 같은 검정이 되므로, Mann-Whitney 검정을 세 군 이상으로 넓힌 것으로 볼 수도 있습니다.</p>
+
+<h3>개념</h3>
+<p>세 군의 모든 값을 한 줄로 세우고 가장 작은 값부터 1, 2, 3, … 순위를 매깁니다. 군은 무시하고 전체에서 매긴다는 점이 중요합니다. 세 군의 분포가 같다면 순위는 세 군에 고르게 섞여 있을 것이고, 각 군의 평균 순위는 전체 평균 순위 (N + 1)/2 근처에 있을 것입니다. 한 군에 높은 순위가 몰려 있으면 그 군의 평균 순위가 전체 평균 순위에서 멀어집니다. Kruskal-Wallis 통계량 H는 군별 평균 순위가 전체 평균 순위에서 얼마나 떨어져 있는지를 요약한 값입니다. 순위로 바꾼 자료에 분산분석을 하는 것과 같은 생각입니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>다 절의 작은 예제(군당 5명)를 순위로 바꿉니다. 15개 값에 동률이 없으므로 순위는 1부터 15까지입니다.</p>
+<!--FIG:ch04_ranks-->
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>군</th><th>PDC (%)</th><th>전체 15명 중 순위</th><th class="r">순위합 R<sub>i</sub></th><th class="r">평균 순위</th></tr></thead>
+<tbody>
+<tr><td>일반 복약지도</td><td class="num">58, 63, 67, 69, 73</td><td class="num">1, 3, 4, 6, 9</td><td class="r">23</td><td class="r">4.6</td></tr>
+<tr><td>1회 상담</td><td class="num">62, 68, 71, 77, 82</td><td class="num">2, 5, 8, 11, 14</td><td class="r">40</td><td class="r">8.0</td></tr>
+<tr><td>집중 상담</td><td class="num">70, 74, 79, 81, 86</td><td class="num">7, 10, 12, 13, 15</td><td class="r">57</td><td class="r">11.4</td></tr>
+<tr><td>전체</td><td></td><td></td><td class="r">120</td><td class="r">8.0</td></tr>
+</tbody></table></div>
+<p>순위합의 전체 합은 항상 N(N + 1)/2 = 15 × 16 ÷ 2 = 120이므로 계산을 검산할 수 있습니다. 전체 평균 순위는 (15 + 1)/2 = 8입니다. 일반 복약지도군은 평균 순위가 4.6으로 낮은 쪽에, 집중 상담군은 11.4로 높은 쪽에 몰려 있습니다.</p>
+<div class="flow">
+<div><div><b>평균 순위가 떨어진 거리</b><p>각 군의 평균 순위에서 8을 빼고 제곱한 뒤 군 인원 5를 곱해 더합니다. 5 × (4.6 − 8)² + 5 × (8.0 − 8)² + 5 × (11.4 − 8)² = 57.8 + 0 + 57.8 = 115.6</p></div></div>
+<div><div><b>크기 맞추기</b><p>순위의 흩어짐에 맞춰 크기를 조정하는 상수 12 ÷ (15 × 16) = 0.05를 곱합니다. H = 0.05 × 115.6 = <strong>5.78</strong></p></div></div>
+<div><div><b>p-value (카이제곱 근사)</b><p>차이가 없을 때 H는 근사적으로 자유도 k − 1 = 2인 카이제곱 분포를 따릅니다. χ²(2)의 5% 임계값은 5.99이고 H = 5.78은 그보다 조금 작아 <strong>P = 0.056</strong>입니다(<code>stats.chi2.sf(5.78, 2)</code>).</p></div></div>
+<div><div><b>p-value (정확 계산)</b><p>군당 인원이 작으면 이 근사가 부정확합니다. 15명을 5명씩 세 군에 나누는 756,756가지 경우를 모두 계산해 H가 5.78 이상인 비율을 구한 <strong>정확한 p-value는 0.049</strong>입니다. 같은 자료의 분산분석 P는 0.044였습니다.</p></div></div>
+</div>
+<p>분산분석의 군간 제곱합과 구조가 같다는 점을 확인하세요. 실제로 H는 순위에 대해 계산한 군간 제곱합 ÷ 전체 제곱합에 (N − 1)을 곱한 값과 같습니다. 즉 순위로 바꾼 자료의 η²에 (N − 1)을 곱한 것입니다.</p>
+
+<div class="callout note"><p class="ct">참고 · 작은 표본에서 p-value가 경계선에 걸릴 때</p>
+<p>이 작은 예제는 방법과 계산 방식에 따라 P가 0.044, 0.049, 0.056으로 갈립니다. 결론이 0.05 근처에서 방법 선택에 따라 뒤집힌다면, 그 자료가 주는 증거는 어느 쪽이든 약하다고 보는 것이 정확합니다. 군당 인원이 5명 이하처럼 작으면 카이제곱 근사 대신 정확검정<span class="en">(exact test)</span>이나 순열검정<span class="en">(permutation test)</span>을 쓰는 것이 좋습니다. 정확검정은 위의 756,756가지처럼 가능한 배정을 모두 따져 근사 없이 p-value를 구하고, 순열검정은 군 이름표를 바꿔 붙인 여러 경우에서 통계량의 분포를 직접 만들어 p-value를 구합니다(모든 경우를 따지면 정확검정과 같습니다). 파이썬 scipy의 <code>stats.kruskal()</code>은 카이제곱 근사 p-value만 주므로(scipy 1.17 기준), 정확 p-value가 필요하면 <code>stats.permutation_test()</code>로 모든 배정을 따지는 순열검정을 합니다(이 예제에서 0.049).</p></div>
+
+<h3>동률 보정 <span class="lv deep">심화</span></h3>
+<p>같은 값이 여러 개 있으면 그 값들에 평균 순위를 줍니다(1장 사 절). 동률이 있으면 순위가 덜 흩어지므로, H를 1보다 조금 작은 보정 계수로 나눠 조금 키웁니다(식은 '수식으로 보기'). 동률이 없으면 보정 계수가 1이라 H가 그대로입니다.</p>
+<p>예제 자료(90명)에는 같은 값이 2–3개씩인 동률 묶음이 네 개뿐이라 보정 계수가 0.99992이고, H는 7.4462에서 7.4468로 거의 변하지 않습니다. 가 절 표의 지식 점수(0–10점 정수)처럼 값의 종류가 적은 자료는 다릅니다. 90명의 값이 0–10의 정수뿐이라 동률이 매우 많고, 보정 계수가 0.972로 H가 8.75에서 8.99로 커집니다. 대부분의 통계 프로그램은 이 보정을 자동으로 적용합니다.</p>
+
+<h3>예제 자료에 적용</h3>
+<p>군당 30명의 PDC 자료에 Kruskal-Wallis 검정을 적용하면 평균 순위는 일반 35.7, 1회 상담 46.9, 집중 상담 53.9이고(전체 평균 순위 45.5), H = 7.45, 자유도 2, <strong>P = 0.024</strong>입니다. 분산분석(P = 0.020)과 거의 같은 결론인데, 이 자료가 정규분포에 가까워 순위로 바꿔도 잃는 정보가 적기 때문입니다.</p>
+<p>어느 쌍이 다른지는 <strong>Dunn 검정</strong>으로 봅니다<cite data-ref="dunn1964"></cite>. 전체에서 매긴 순위의 군별 평균을 쌍마다 비교합니다. 예를 들어 집중 상담과 일반 복약지도의 평균 순위 차이 18.25(= 53.93 − 35.68)를 그 표준오차 6.75로 나누면 z = 2.71입니다(식은 '수식으로 보기'). z를 표준정규분포에 비교해 p-value를 구한 뒤 Holm이나 Bonferroni로 보정합니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>비교</th><th class="r">평균 순위 차이</th><th class="r">z</th><th class="r">보정 없는 P</th><th class="r">Holm 보정 P</th><th class="r">P(뒤 군 값 &gt; 앞 군 값)</th></tr></thead>
+<tbody>
+<tr><td>1회 상담 − 일반</td><td class="r">11.20</td><td class="r">1.66</td><td class="r">0.097</td><td class="r">0.194</td><td class="r">0.63</td></tr>
+<tr class="hi"><td>집중 상담 − 일반</td><td class="r">18.25</td><td class="r">2.71</td><td class="r">0.007</td><td class="r"><b>0.020</b></td><td class="r">0.70</td></tr>
+<tr><td>집중 상담 − 1회 상담</td><td class="r">7.05</td><td class="r">1.05</td><td class="r">0.296</td><td class="r">0.296</td><td class="r">0.58</td></tr>
+</tbody></table></div>
+<p>분산분석 뒤의 Tukey와 같은 결론입니다. 마지막 열은 두 군에서 한 명씩 무작위로 뽑았을 때 뒤 군 환자의 PDC가 더 높을 확률로, Mann-Whitney 검정의 U를 두 군 인원의 곱으로 나눈 값입니다(예: 630.5 ÷ (30 × 30) = 0.70). 귀무가설 아래에서는 0.5이며, 순위 기반 검정이 실제로 무엇을 보는지 보여 주는 직관적인 효과크기입니다. 이 값들은 마 절에서 다시 씁니다.</p>
+<p>Kruskal-Wallis 뒤에 Dunn 검정 대신 쌍마다 Mann-Whitney 검정을 따로 하고 보정하는 논문도 있습니다. 이 방법은 쌍마다 두 군만으로 순위를 다시 매기므로 Dunn 검정과 p-value가 조금 다릅니다(예제에서 보정 전 0.093, 0.008, 0.287). 어느 쪽이든 보정 방법을 밝혔는지 확인합니다.</p>
+
+<h3>무엇을 검정하는가</h3>
+<p>Kruskal-Wallis 검정의 귀무가설은 "모든 군의 분포가 같다"입니다. 기각되면 "적어도 한 군의 값이 다른 군보다 크게 나오는 경향이 있다", 즉 위 표의 P(뒤 군 값 &gt; 앞 군 값)가 0.5가 아닌 쌍이 있다는 뜻입니다. 이것을 중앙값의 차이로 해석할 수 있는 것은 군마다 분포의 모양과 퍼짐이 같고 위치만 옮겨진 경우뿐입니다. Mann-Whitney 검정에 대해 1장 사 절에서 본 것과 같은 이야기입니다<cite data-ref="hart2001"></cite>. 다 절의 모의실험에서 보았듯, 군별 분산과 군 크기가 함께 다르면 평균과 중앙값이 모두 같아도 Kruskal-Wallis 검정의 1종 오류가 12%까지 올라갑니다. 분산이 다른 자료를 Kruskal-Wallis 검정으로 바꾼다고 등분산 문제가 해결되지는 않습니다.</p>
+<p>효과크기로는 순위에 대해 계산한 η²에 해당하는 H/(N − 1)을 쓰기도 합니다(예제: 7.45 ÷ 89 = 0.084). 순위 기반 효과크기는 정의가 여러 가지이므로 논문에서 어떤 공식을 썼는지 확인하세요.</p>
+
+<div class="callout tip"><p class="ct">사회약학 연구에서는</p>
+<p>약국 서비스 만족도(리커트 5점), 복약 이해도 점수, 삶의 질 점수처럼 범위가 정해진 순서형 결과를 여러 군에서 비교할 때 Kruskal-Wallis 검정을 자주 씁니다. 반면 세 군의 의료비를 비교할 때는 주의가 필요합니다. 비용 분석과 예산영향분석에 필요한 값은 평균 비용인데, Kruskal-Wallis 검정은 평균 비용의 차이에 대해 말해 주지 않습니다(1장 바 절, 14장 아 절).</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 독립된 세 군 이상에서 표본이 작고 분포가 치우쳤거나 극단값이 있거나, 결과가 순서형 점수일 때 씁니다. 군당 30명 정도 이상이고 극단값이 심하지 않으면 평균 차이와 신뢰구간을 주는 분산분석이 해석하기 쉽습니다. 군 크기와 분산이 함께 다르면 이 검정도 1종 오류가 커지므로 Welch 분산분석을 먼저 고려합니다. 군에 순서가 있고 경향이 가설이면 Jonckheere-Terpstra 검정(마 절)입니다.</li>
+<li><strong>교란과 보정</strong>: Kruskal-Wallis 검정은 다른 변수를 보정할 수 없습니다. 관찰연구에서 세 약물 계열 사용자의 입원일수나 설문 점수를 이 검정으로 비교하면 보정하지 않은 결과입니다. 교란변수를 보정하려면 회귀모형으로 넘어갑니다. 연속형 결과는 다중 선형회귀(6장 라 절, 치우친 결과는 로그 변환 뒤), 건수나 일수는 포아송·음이항 회귀(12장)를 쓰고, 셋 이상의 군을 성향점수로 맞추는 방법도 있습니다(14장 다 절). 측정하지 않은 교란변수는 보정되지 않습니다.</li>
+<li><strong>보고할 것</strong>: 군별 인원과 중앙값(IQR), H(또는 χ²)와 자유도, P와 계산 방식(카이제곱 근사 또는 정확검정), 사후분석(Dunn 등)과 보정 방법, 가능하면 쌍별 우월 확률 같은 효과크기.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · Kruskal-Wallis 검정</p>
+<ul>
+<li><span class="wrong">Kruskal-Wallis 검정은 세 군의 중앙값이 같은지 검정한다.</span> 분포 모양이 같을 때만 그렇게 해석할 수 있습니다. 일반적으로는 "한 군의 값이 다른 군보다 크게 나오는 경향"을 검정합니다.</li>
+<li><span class="wrong">비모수 검정은 가정이 없다.</span> 관측값의 독립성은 똑같이 필요하고, 분산이 다르면 1종 오류가 흔들립니다(다 절의 모의실험).</li>
+<li><span class="wrong">정규성 검정 p &lt; 0.05이므로 무조건 Kruskal-Wallis 검정을 써야 한다.</span> 군당 30명 이상이고 극단값이 심하지 않으면 분산분석도 대체로 괜찮고, 평균 차이와 신뢰구간이라는 해석하기 쉬운 결과를 줍니다. 대규모 자료에서는 정규성 검정이 사소한 차이에도 유의해진다는 점도 기억하세요(1장 아 절).</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · 출력과 Results 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>scipy 1.17에서 실행한 출력이며, 버전에 따라 표시 형식이 조금 다를 수 있습니다.</p>
+<p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
+<pre class="out"><span class="cm"># stats.kruskal(usual, brief, intensive)</span> <span class="mk">1</span> <span class="mk">2</span>
+KruskalResult(statistic=np.float64(7.446840090553576), pvalue=np.float64(0.024151228145830986))</pre>
+<p class="excerpt">PDC differed across the three arms (<span class="mk">1</span> <span class="hl">Kruskal–Wallis H = 7.45, df = 2</span>, <span class="mk">2</span> <span class="hl">P = 0.024</span>). <span class="mk">3</span> <span class="hl">Post hoc Dunn's tests with Holm adjustment</span> showed a higher PDC in the intensive-counselling arm than in the usual-care arm (P = 0.020).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>statistic이 H입니다.</b> scipy는 H를 statistic으로만 표시하지만, H를 카이제곱 분포에 비교하므로 "chi-squared"나 "χ²"라고 표시하는 프로그램도 있고, 논문은 흔히 "H"라고 씁니다. 논문에 "χ²(2) = 7.45"로 적혀 있어도 카이제곱 검정(5장)이 아니라 Kruskal-Wallis 검정일 수 있으니 Methods를 확인합니다. 자유도 2는 군 수 − 1이며 scipy 출력에는 나오지 않으므로 직접 적습니다. 분산분석의 F와 달리 표본 크기와 관련된 자유도가 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>P = 0.024.</b> 카이제곱 근사에 의한 값이며, 동률 보정이 자동으로 적용되어 있습니다(보정 전 H = 7.4462, 보정 후 7.4468). 군당 인원이 작은 연구라면 정확검정을 썼는지 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>짝이 맞는 사후분석.</b> Kruskal-Wallis 뒤에 Tukey를 쓰는 것은 짝이 맞지 않습니다(Tukey는 평균과 합동분산에 기반한 방법). Dunn 검정이나 보정한 쌍별 Mann-Whitney 검정이 짝입니다.</span></li>
+</ol>
+</div></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>위에서 계산한 H와 Dunn 검정 결과를 논문의 표로 옮겨 봅니다. 가 절의 PDC 예제를 중앙값(IQR)으로 요약하고 Kruskal-Wallis 검정과 Dunn 사후분석을 한 논문이라면 표는 이렇게 보입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 중앙값 표와 Dunn 사후분석</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Six-month PDC by intervention arm</caption>
+<thead><tr><th>Outcome</th><th class="r">Usual care<br>(n = 30)</th><th class="r">Brief counselling<br>(n = 30)</th><th class="r">Intensive counselling<br>(n = 30)</th><th class="r">P value</th></tr></thead>
+<tbody>
+<tr><td><span class="mk">1</span> PDC, %, median (IQR)</td><td class="r">72.0 (60.1–78.4)</td><td class="r">76.2 (66.3–83.1)</td><td class="r"><span class="mk">2</span> 80.4 (68.3–87.1)*</td><td class="r"><span class="mk">3</span> 0.024<sup>a</sup></td></tr>
+</tbody></table></div>
+<p class="jt-foot">IQR, interquartile range. <span class="mk">4</span> <sup>a</sup> Kruskal–Wallis test. *P = 0.020 vs usual care (Dunn's test with Holm adjustment for three pairwise comparisons).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>중앙값(IQR).</b> 순위 기반 검정과 짝을 이루는 요약입니다. 72.0 (60.1–78.4)은 일반 복약지도군 30명 중 가운데 사람의 PDC가 72.0%이고, 가운데 50%(15명)가 60.1–78.4% 사이에 있다는 뜻입니다. 세 군의 IQR이 크게 겹친다는 점도 읽어 두세요.</span></li>
+<li><span class="mk">2</span><span><b>별표와 각주.</b> 집중 상담군만 일반 복약지도군과 유의하게 다릅니다(Dunn 검정, Holm 보정 P = 0.020). 1회 상담군에 별표가 없는 것은 일반과의 차이가 유의하지 않다는 뜻입니다(보정 P = 0.19). 별표 방식은 '무엇 대비'인지가 각주에 있어야 읽을 수 있습니다. 이 표에서 두 상담군 사이의 비교 결과는 각주에 없으므로 본문에서 찾아야 합니다.</span></li>
+<li><span class="mk">3</span><span><b>P = 0.024는 전체 검정.</b> 검정통계량 H = 7.45(자유도 2)를 카이제곱 분포에 비교한 값입니다(위 '숫자로 따라가기'와 '예제 자료에 적용'). "세 군의 분포가 모두 같다"를 기각할 뿐, 중앙값이 가장 높은 군이 나머지 모두와 다르다는 뜻은 아닙니다.</span></li>
+<li><span class="mk">4</span><span><b>이 검정이 주지 않는 정보.</b> 비모수 검정 결과에는 평균 차이와 그 신뢰구간이 없습니다. 효과의 크기를 보여 주려고 중앙값 차이의 신뢰구간(Hodges-Lehmann 추정값 등, 2장 나 절)이나 위 '예제 자료에 적용' 표의 확률 P(X &gt; Y)를 함께 제시하는 논문도 있습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기 <span class="lv deep">심화</span></h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ H =\frac{12}{N(N+1)} \sum_i n_i \left(\bar{R}_i - \frac{N+1}{2}\right)^2 = \frac{12}{15 \times 16}\left[5(4.6-8)^2 + 5(8.0-8)^2 + 5(11.4-8)^2\right] = 0.05 \times 115.6 = 5.78 \]
+<p>\(\bar{R}_i\)는 i번째 군의 평균 순위, \(n_i\)는 군 인원입니다. 대괄호 안은 순위로 계산한 군간 제곱합이고, 앞의 12/(N(N + 1))은 이를 순위 1–N의 분산 N(N + 1)/12로 나눠 크기를 맞추는 상수입니다. 논문에서는 같은 식을 \(\frac{12}{N(N+1)}\sum R_i^2/n_i - 3(N+1)\)로 쓰기도 합니다.</p>
+</div>
+<p>동률이 있으면 H를 다음 보정 계수로 나눕니다.</p>
+<div class="eq">\[ H_{\text{보정}} = \frac{H}{1 - \dfrac{\sum_{j} (t_j^3 - t_j)}{N^3 - N}} \]
+<p>\(t_j\)는 j번째 동률 묶음에 속한 값의 수입니다(t 통계량과는 관계없는 기호). 동률이 없으면 분모가 1이 되어 H가 그대로입니다.</p>
+</div>
+<p>Dunn 검정의 z는 두 군의 평균 순위 차이를 그 표준오차로 나눈 값입니다.</p>
+<div class="eq">\[ z = \frac{\bar{R}_i - \bar{R}_j}{\sqrt{\dfrac{N(N+1)}{12}\left(\dfrac{1}{n_i} + \dfrac{1}{n_j}\right)}} = \frac{53.93 - 35.68}{\sqrt{\dfrac{90 \times 91}{12}\left(\dfrac{1}{30} + \dfrac{1}{30}\right)}} = \frac{18.25}{6.75} = 2.71 \]
+<p>집중 상담 − 일반 복약지도의 예입니다. 동률이 있으면 분모에 작은 보정이 들어갑니다.</p>
+</div>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Kruskal-Wallis 검정은 전체 자료에서 순위를 매긴 뒤 군별 평균 순위가 전체 평균 순위에서 얼마나 떨어져 있는지(H)를 봅니다.</li>
+<li>H는 근사적으로 자유도 k − 1인 카이제곱 분포를 따릅니다. 군당 인원이 작으면 근사가 부정확하므로 정확검정을 고려합니다.</li>
+<li>엄밀히는 중앙값이 아니라 "한 군의 값이 더 크게 나오는 경향"을 검정합니다. 분산이 다른 자료의 해결책은 아닙니다.</li>
+<li>사후분석은 Dunn 검정(또는 보정한 쌍별 Mann-Whitney 검정)으로 하고, 보정 방법을 밝힙니다.</li>
+<li>다른 변수를 보정할 수 없으므로, 관찰연구에서는 보정하지 않은 비교로 읽고 회귀모형이나 성향점수로 보정합니다.</li>
+</ul></div>
+
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>군당 5명(모두 15명, 동률 없음)을 비교했더니 세 군의 순위합이 25, 37, 58이었습니다. H와 카이제곱 근사 P를 구하세요. 이 P를 그대로 믿어도 될까요?</p>
+<details><summary>답과 풀이</summary><div><p>평균 순위는 25 ÷ 5 = 5.0, 7.4, 11.6이고 전체 평균 순위는 (15 + 1) ÷ 2 = 8입니다. 5 × (5.0 − 8)² + 5 × (7.4 − 8)² + 5 × (11.6 − 8)² = 45 + 1.8 + 64.8 = 111.6이고, 여기에 12 ÷ (15 × 16) = 0.05를 곱하면 H = 5.58입니다. 자유도 2인 카이제곱 분포로 P = 0.061입니다(<code>stats.chi2.sf(5.58, 2)</code>). 군당 5명은 카이제곱 근사가 부정확할 수 있는 크기이므로 정확검정(순열검정)으로 확인하는 것이 좋고, 결론이 0.05 근처에서 방법에 따라 갈린다면 어느 쪽이든 증거가 약하다고 읽습니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>세 군의 통증 점수를 median (IQR)로 요약한 표의 P 열에 "χ²(2) = 9.10, P = 0.011"이라고만 적혀 있습니다. 이것을 카이제곱 검정(5장)의 결과로 읽어도 될까요?</p>
+<details><summary>답과 풀이</summary><div><p>단정하면 안 됩니다. Kruskal-Wallis 검정의 H는 카이제곱 분포에 비교하므로 프로그램과 논문에 따라 "χ²"로 표시되기도 하고, 자유도도 군 수 − 1 = 2로 3 × 2 표의 카이제곱 검정과 같습니다. χ²(2) = 9.10에서 P = 0.011은 두 경우 모두 똑같이 나오므로(<code>stats.chi2.sf(9.10, 2)</code>) 숫자만으로는 구별할 수 없습니다. 중앙값(IQR)으로 요약한 점수라면 Kruskal-Wallis 검정일 가능성이 크지만, 각주나 Methods에서 검정 이름을 확인해야 합니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>“Kruskal-Wallis 검정 P = 0.024이므로 세 군의 중앙값은 서로 다르며, 중앙값이 가장 높은 집중 상담군(80.4%)이 나머지 두 군보다 PDC가 높다.” 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>두 가지가 틀렸습니다. 첫째, Kruskal-Wallis 검정은 중앙값이 같은지를 보는 검정이 아니라 한 군의 값이 다른 군보다 크게 나오는 경향이 있는지를 보며, 분포 모양이 같을 때만 중앙값 차이로 해석할 수 있습니다. 둘째, 전체 검정의 P는 어느 쌍이 다른지 알려 주지 않습니다. 이 장의 예제에서 Dunn 검정(Holm 보정)으로 유의한 쌍은 집중 상담 − 일반(P = 0.020)뿐이었고, 집중 상담 − 1회 상담은 P = 0.296이었습니다. 고쳐 쓰면 "세 군의 PDC 분포가 모두 같다고 보기는 어려웠고(H = 7.45, P = 0.024), 사후분석에서 집중 상담군이 일반 복약지도군보다 PDC가 높은 경향을 보였다"입니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="ch04-s5">
+<h2><span class="sec-no">마.</span>Jonckheere-Terpstra test</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">군에 자연스러운 순서(용량, 중재 강도, 병기)가 있을 때, 값이 그 순서대로 커지는지(또는 작아지는지)만 집중해서 보는 비모수 검정입니다.</p>
+<ul>
+<li><b>비유.</b> Kruskal-Wallis 검정이 모든 방향의 차이에 귀를 여는 것이라면, 이 검정은 "순서대로 커진다"는 한 방향에만 귀를 기울입니다. 그 방향의 경향이 실제로 있으면 더 잘 들리지만, 가운데 군만 높은 것 같은 다른 형태의 차이는 놓칩니다.</li>
+<li><b>논문에서는.</b> 표의 "P for trend = 0.007 (Jonckheere–Terpstra test)"처럼 나옵니다. "중재가 강할수록 PDC가 높아지는 경향이 있다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 군의 순서와 방향은 자료를 보기 전에 정해야 합니다. 또 유의한 추세가 "모든 단계에서 증가했다"는 뜻은 아닙니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+<div><dt>언제 쓰나</dt><dd>군에 자연스러운 순서(저·중·고용량, 중재 강도, 암 병기, 누적 사용량 삼분위)가 있고, 연구가설이 "순서대로 커진다(또는 작아진다)"일 때</dd></div>
+<div><dt>귀무가설</dt><dd>모든 군의 분포가 같다. 대립가설: 군의 순서대로 값이 커지는(작아지는) 경향이 있다</dd></div>
+<div><dt>가정</dt><dd>관측값의 독립성. 군의 순서와 방향을 자료를 보기 전에 정할 것</dd></div>
+<div><dt>논문 보고 형식</dt><dd>P for trend = 0.007 (Jonckheere–Terpstra test). 표준화 통계량 z를 함께 쓰기도 함</dd></div>
+</dl>
+
+<p>Kruskal-Wallis 검정은 군의 순서를 전혀 쓰지 않습니다. 군 이름표를 서로 바꿔 붙여도 H는 그대로입니다. 그래서 "어딘가 다르다"는 넓은 질문에는 답하지만, "중재가 강할수록 순응도가 높아지는가"처럼 방향이 정해진 질문에는 정보를 낭비합니다. <strong>Jonckheere-Terpstra 검정</strong>은 군의 순서를 이용해 단조 증가(또는 감소) 경향, 즉 순서대로 계속 커지기만(작아지기만) 하는 모양(직선일 필요는 없음)만을 찾는 비모수 검정입니다<cite data-ref="jonckheere1954"></cite><cite data-ref="terpstra1952"></cite>.</p>
+
+<h3>개념</h3>
+<p>순서가 앞선 군(일반)과 뒤선 군(집중)에서 환자를 한 명씩 뽑아 짝을 지었을 때, 뒤선 군 환자의 값이 더 큰 짝이 몇 개인지 셉니다. 이 수가 두 군의 Mann-Whitney 검정에서 쓰는 U 통계량입니다(2장 나 절). Jonckheere-Terpstra 통계량 J는 순서가 있는 모든 군 쌍에 대해 이 U를 더한 값입니다. 경향이 없다면 각 짝에서 뒤 군이 클 확률이 반반이므로 J는 가능한 최댓값의 절반 근처에 있고, 순서대로 커지는 경향이 있으면 J가 최댓값 쪽으로 커집니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>다시 군당 5명의 작은 예제입니다. 군의 순서는 일반 → 1회 상담 → 집중 상담이고, 가설은 "중재가 강할수록 PDC가 높다"입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>군 쌍 (앞 → 뒤)</th><th>앞 군의 각 값에 대해 뒤 군에서 더 큰 값의 수</th><th class="r">U</th><th class="r">가능한 최댓값</th></tr></thead>
+<tbody>
+<tr><td>일반 → 1회 상담</td><td class="num">58: 5개, 63: 4개, 67: 4개, 69: 3개, 73: 2개</td><td class="r">18</td><td class="r">25</td></tr>
+<tr><td>일반 → 집중 상담</td><td class="num">58: 5, 63: 5, 67: 5, 69: 5, 73: 4</td><td class="r">24</td><td class="r">25</td></tr>
+<tr><td>1회 상담 → 집중 상담</td><td class="num">62: 5, 68: 5, 71: 4, 77: 3, 82: 1</td><td class="r">18</td><td class="r">25</td></tr>
+<tr><td>합계</td><td></td><td class="r"><b>J = 60</b></td><td class="r">75</td></tr>
+</tbody></table></div>
+<p>예를 들어 일반 복약지도군의 63보다 큰 1회 상담군 값은 68, 71, 77, 82의 4개입니다. 75개의 짝 중 60개에서 순서가 뒤인 군의 값이 더 컸습니다.</p>
+<ul>
+<li>경향이 없을 때의 기댓값: 최댓값 75의 절반인 37.5</li>
+<li>우연에 의한 J의 흩어짐(표준편차): 9.46 (계산은 '수식으로 보기')</li>
+<li>z = (60 − 37.5) ÷ 9.46 = <b>2.38</b>, 양측 <b>P = 0.017</b> (단측 0.009, <code>2 * stats.norm.sf(2.38)</code>). 756,756가지 배정을 모두 따진 정확한 p-value도 0.017입니다.</li>
+</ul>
+<p>같은 15명 자료에서 세 검정의 결과를 나란히 놓으면 차이가 분명합니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
+<thead><tr><th>검정 (작은 예제, 군당 5명)</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>일원배치 분산분석</td><td class="r">0.044</td></tr>
+<tr><td>Kruskal-Wallis (카이제곱 근사 / 정확)</td><td class="r">0.056 / 0.049</td></tr>
+<tr class="hi"><td>Jonckheere-Terpstra (양측)</td><td class="r"><b>0.017</b></td></tr>
+</tbody></table></div>
+<p>세 군의 평균 순위가 4.6, 8.0, 11.4로 가설의 순서대로 늘어서 있으므로, 이 방향만 보는 검정이 가장 강한 증거를 줍니다. 단, 이 비교가 정당하려면 순서와 가설을 자료를 보기 전에 정했어야 합니다.</p>
+
+<h3>예제 자료에 적용</h3>
+<p>군당 30명 자료에서는 각 쌍의 짝이 30 × 30 = 900개입니다. 라 절 표의 확률에 900을 곱하면 U가 됩니다.</p>
+<ul>
+<li>U<sub>일반→1회</sub> = 564, U<sub>일반→집중</sub> = 630.5, U<sub>1회→집중</sub> = 522.5 (0.5는 동률 짝)</li>
+<li>J = 564 + 630.5 + 522.5 = 1,717 (최댓값 2,700)</li>
+<li>경향이 없을 때의 기댓값은 최댓값의 절반인 1,350, 동률 보정 표준편차 135.0</li>
+<li>z = (1,717 − 1,350) ÷ 135.0 = <b>2.72</b>, 양측 <b>P = 0.007</b> (단측 0.003)</li>
+</ul>
+<p>Kruskal-Wallis 검정(P = 0.024)보다 강한 증거입니다. "중재 강도가 높을수록 PDC가 높은 경향이 있다"고 해석합니다. 모든 단계에서 증가가 확인되었다는 뜻은 아닙니다. 1회 상담 → 집중 상담 한 단계만 떼어 보면 P(집중 &gt; 1회) = 0.58로 차이가 작고, 쌍별 검정에서도 유의하지 않았습니다(라 절). Jonckheere-Terpstra 검정은 전체적인 단조 경향에 대한 검정입니다.</p>
+
+<h3>언제 더 강력하고 언제 약한가</h3>
+<p>정규분포 자료(군당 10명)를 컴퓨터로 만들어 세 검정의 검정력을 비교했습니다. δ는 군 평균 차이를 표준편차 단위로 나타낸 값입니다.</p>
+<!--FIG:ch04_power-->
+<ul>
+<li><strong>순서대로 커지는 경우</strong>(평균 0, δ/2, δ): δ = 1일 때 검정력은 Jonckheere-Terpstra 54%, 분산분석 44%, Kruskal-Wallis 42%입니다. 경향이 실제로 있으면 순서를 쓰는 검정이 가장 강력합니다.</li>
+<li><strong>가운데 군만 높은 경우</strong>(평균 0, δ, 0): 같은 δ = 1에서 Kruskal-Wallis는 55%, 분산분석은 59%로 차이를 잡아내지만 Jonckheere-Terpstra는 3%로 거의 검출하지 못합니다. 앞→가운데의 증가와 가운데→뒤의 감소가 서로 상쇄되기 때문입니다. 중간 용량에서 효과가 가장 큰 경우처럼 봉우리형 반응이 예상되면 이 검정은 맞지 않습니다(봉우리형 대립가설을 위한 Mack-Wolfe 검정 같은 방법이 따로 있습니다).</li>
+</ul>
+
+<div class="callout warn"><p class="ct">주의 · 순서와 방향은 자료를 보기 전에 정합니다</p>
+<p>자료를 본 뒤 평균이 작은 군부터 큰 군 순서로 늘어놓고 Jonckheere-Terpstra 검정을 하면, 경향이 전혀 없어도 '유의'가 쉽게 나옵니다. 관측된 순서에 맞춰 가설을 만든 것이기 때문입니다. 용량이나 중재 강도처럼 순서가 설계에 내재된 경우에만 쓰고, Methods에 순서를 명시합니다. 단측검정(increasing)을 쓰려면 방향도 미리 정해야 하며, 결과를 보고 단측으로 바꾸는 것은 1장 나 절에서 본 것처럼 부적절합니다.</p></div>
+
+<h3>모수적 추세 검정과 'P for trend'</h3>
+<p>'P for trend'라는 같은 이름 아래 여러 방법이 쓰입니다.</p>
+<ul>
+<li><strong>순서 점수를 넣은 선형회귀</strong>: 군을 1, 2, 3 점수로 바꿔 연속형 변수처럼 회귀모형에 넣고 기울기를 검정합니다. 예제에서는 한 단계당 4.29%p 증가, P = 0.006입니다. 분산분석에서 가중치 (−1, 0, 1)의 선형 대비를 검정하는 것도 같은 생각입니다. Jonckheere-Terpstra 검정과 달리 점수 간격(1, 2, 3)이 같다는 가정이 들어갑니다.</li>
+<li><strong>비율의 추세</strong>: 결과가 이분형(PDC 80% 이상 여부)이면 선형 대 선형 결합 검정이나 Cochran-Armitage 추세 검정을 씁니다(5장 다 절). 예제에서 16.7% → 40.0% → 50.0%의 추세는 P = 0.007입니다.</li>
+<li><strong>보정 모형 안의 추세</strong>: 관찰연구에서는 노출 범주(예: 누적 사용량 삼분위)의 중앙값을 연속형 변수로 로지스틱·Cox 모형에 넣어 교란변수를 보정한 P for trend를 구합니다(9장, 11장).</li>
+</ul>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 같은 'P for trend', 다른 방법</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p><span class="mk">3</span> 두 관찰연구의 Methods에서 가져온 문장입니다. 둘 다 결과표에는 'P for trend'로 표시됩니다.</p>
+<p class="excerpt">(A) Serum magnesium levels across tertiles of cumulative proton pump inhibitor exposure (defined daily doses) were compared using the <span class="mk">1</span> <span class="hl">Jonckheere–Terpstra test</span>.</p>
+<p class="excerpt">(B) <span class="mk">2</span> <span class="hl">P for trend was calculated by entering the median value of each tertile as a continuous variable in the multivariable Cox model</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(A) 보정하지 않은 순위 기반 추세.</b> 누적 사용량 삼분위라는 순서 있는 세 군에서 연속형 결과(혈청 마그네슘)가 단조 감소 또는 증가하는지 봅니다. 나이, 신기능 같은 교란변수는 보정되지 않으므로, 유의한 추세가 곧 용량-반응 관계의 증거는 아닙니다.</span></li>
+<li><span class="mk">2</span><span><b>(B) 모형 기반 추세.</b> 삼분위 중앙값을 연속형 점수로 넣었으므로 "점수 한 단위 증가당 위험비(HR)가 일정하다"는 선형 가정 아래의 추세 검정이고, 모형의 공변량이 보정됩니다(11장). 점수를 1, 2, 3으로 넣느냐 중앙값으로 넣느냐에 따라 P가 달라질 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>읽는 법.</b> 'P for trend'를 보면 ① 어떤 결과변수의 추세인지 ② 순위 기반인지 모형 기반인지 ③ 보정했는지 ④ 순서와 점수를 어떻게 정했는지를 Methods에서 확인합니다. 이름이 같다고 같은 질문에 대한 답이 아닙니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 군에 설계상의 순서가 있고 가설이 "순서대로 커진다(작아진다)"일 때 씁니다. 연속형 결과를 평균으로 보고 싶으면 순서 점수를 넣은 선형회귀, 이분형 결과이면 선형 대 선형 결합이나 Cochran-Armitage 추세 검정(5장 다 절)입니다. 중간 군에서 효과가 가장 클 수 있다면(봉우리형) 이 검정은 맞지 않습니다.</li>
+<li><strong>교란과 보정</strong>: 관찰연구의 용량-반응 분석(예: 청구자료에서 누적 사용량 삼분위별 결과)에서는 많이 쓴 사람이 원래 더 아프거나 더 오래 치료받은 사람일 수 있어, 순서에 따른 경향 자체가 교란으로 생길 수 있습니다. Jonckheere-Terpstra 검정은 이를 보정하지 못하므로, 보정된 추세는 회귀모형 안에서 구합니다. 노출 범주의 중앙값(또는 1, 2, 3 점수)을 연속형 변수로 넣고 교란변수를 함께 넣어 그 계수를 검정합니다. 연속형 결과는 다중 선형회귀(6장 라 절), 이분형 결과는 로지스틱 회귀(9장), 생존 결과는 Cox 모형(11장)입니다. 측정하지 않은 교란변수는 보정되지 않습니다.</li>
+<li><strong>보고할 것</strong>: 미리 정한 군의 순서와 방향, 검정 이름(어떤 'P for trend'인지), 통계량(J 또는 z), 양측인지 단측인지, P, 군별 요약값.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>이 절에서 계산한 추세 검정이 논문 표에서는 어떻게 보고되는지 확인합니다. 가 절의 세 중재는 일반 복약지도 → 1회 상담 → 집중 상담으로 강도의 순서가 있습니다. 이런 논문의 표에는 순서를 무시한 P와 순서를 쓴 'P for trend'가 나란히 나오곤 합니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · P value와 P for trend가 나란히 있는 표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 4.</b> Adherence by intensity of pharmacist intervention</caption>
+<thead><tr><th>Outcome</th><th class="r">Usual care<br>(n = 30)</th><th class="r">Brief<br>(n = 30)</th><th class="r">Intensive<br>(n = 30)</th><th class="r">P value<sup>a</sup></th><th class="r">P for trend<sup>b</sup></th></tr></thead>
+<tbody>
+<tr><td>PDC, %, median (IQR)</td><td class="r">72.0 (60.1–78.4)</td><td class="r">76.2 (66.3–83.1)</td><td class="r">80.4 (68.3–87.1)</td><td class="r"><span class="mk">1</span> 0.024</td><td class="r"><span class="mk">2</span> 0.007</td></tr>
+<tr><td>PDC ≥ 80%, n (%)</td><td class="r">5 (16.7)</td><td class="r">12 (40.0)</td><td class="r">15 (50.0)</td><td class="r">0.022</td><td class="r"><span class="mk">3</span> 0.007</td></tr>
+</tbody></table></div>
+<p class="jt-foot"><sup>a</sup> Kruskal–Wallis test for PDC; χ² test for PDC ≥ 80%. <sup>b</sup> Jonckheere–Terpstra test for PDC; linear-by-linear association test for PDC ≥ 80%. <span class="mk">4</span> The order of arms (usual care &lt; brief &lt; intensive) was prespecified; all tests were two-sided.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>P value = 순서를 무시한 전체 검정.</b> Kruskal-Wallis 검정은 "세 군의 분포가 어딘가 다르다"를 봅니다. 군 이름의 순서를 바꿔도 0.024 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>P for trend = 순서를 쓴 검정.</b> Jonckheere-Terpstra 검정(J = 1,717, z = 2.72, 위 '예제 자료에 적용')입니다. 같은 자료에서 P가 0.024보다 작은 이유는 세 군이 가설의 순서대로 늘어서 있어 증거가 한 방향으로 모이기 때문입니다. "중재 강도에 따라 PDC가 높아지는 경향"으로 읽고, "각 단계마다 유의하게 증가"로 읽지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>변수 유형마다 다른 추세 검정.</b> 이분형 결과의 추세는 선형 대 선형 결합 검정(자유도 1, χ² = 7.19)으로 구했습니다(5장 다 절). 같은 P for trend 열이어도 행마다 방법이 다를 수 있으므로 각주를 봅니다. 두 행의 P for trend가 똑같이 0.007인 것은 우연입니다.</span></li>
+<li><span class="mk">4</span><span><b>각주에서 확인할 것.</b> 순서를 미리 정했는지, 양측인지 단측인지, 어떤 방법인지입니다. 이 표는 세 가지를 모두 밝혔습니다. 순서가 명시되지 않은 P for trend는 자료를 본 뒤 순서를 정했을 가능성을 배제할 수 없습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기 <span class="lv deep">심화</span></h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ J =\sum_{i &lt; j} U_{ij}, \qquad E(J) = \frac{N^2 - \sum n_i^2}{4}, \qquad z = \frac{J - E(J)}{\sqrt{\mathrm{Var}(J)}} \]
+<p>\(U_{ij}\)는 순서상 앞 군 i와 뒤 군 j의 짝 중 j 쪽 값이 큰 짝의 수(같으면 0.5개)입니다. 동률이 없으면 \(\mathrm{Var}(J) = [N^2(2N+3) - \sum n_i^2(2n_i+3)]/72\)이고, 동률이 있으면 프로그램이 보정한 분산을 씁니다.</p>
+</div>
+<p>작은 예제: E(J) = (15² − 3 × 5²) ÷ 4 = (225 − 75) ÷ 4 = 37.5, Var(J) = [15² × 33 − 3 × 25 × 13] ÷ 72 = (7,425 − 975) ÷ 72 = 89.6, 표준편차 9.46. 군당 30명 예제: E(J) = (90² − 3 × 30²) ÷ 4 = (8,100 − 2,700) ÷ 4 = 1,350.</p>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Jonckheere-Terpstra 검정은 순서가 있는 군에서 "순서대로 커진다(작아진다)"는 경향을 봅니다. 통계량 J는 순서가 있는 모든 군 쌍의 Mann-Whitney U를 더한 값입니다.</li>
+<li>경향이 실제로 있으면 순서를 쓰지 않는 Kruskal-Wallis 검정보다 강력하지만, 가운데 군만 높은 봉우리형<span class="en">(umbrella)</span> 차이는 거의 잡아내지 못합니다.</li>
+<li>군의 순서와 방향은 자료를 보기 전에 정해야 합니다. 유의한 추세가 모든 인접 단계의 증가를 뜻하지는 않습니다.</li>
+<li>'P for trend'는 Jonckheere-Terpstra, 순서 점수 회귀, 선형 대 선형 결합, 보정 모형 안의 추세 검정 등 여러 방법을 가리킵니다. Methods에서 어느 것인지 확인합니다.</li>
+<li>관찰연구의 용량-반응 추세는 교란으로도 생길 수 있으므로, 교란변수를 넣은 회귀모형 안에서 추세를 검정합니다.</li>
+</ul></div>
+
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>이 절의 작은 예제(군당 5명)에서 J가 60이 아니라 48이었다면 z와 양측 P는 얼마일까요? 결론은 어떻게 달라지나요?</p>
+<details><summary>답과 풀이</summary><div><p>경향이 없을 때 J의 기댓값 37.5와 표준편차 9.46은 군 크기로만 정해지므로 J가 달라져도 그대로입니다. z = (48 − 37.5) ÷ 9.46 = 1.11이고, 양측 P = 0.27입니다(<code>2 * stats.norm.sf(1.11)</code>). 75개 짝 가운데 48개(64%)에서 뒤 군의 값이 더 컸지만, 이 정도는 경향이 없어도 우연히 나올 수 있는 수준입니다. "순서대로 커지는 경향을 확인하지 못했다"고 쓰고, 경향이 없다는 결론으로 읽지 않습니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>저·중·고용량 세 군의 혈압 강하를 비교하려 합니다. (1) 용량이 높을수록 효과가 커질 것으로 예상하는 경우와 (2) 중간 용량에서 효과가 가장 크고 고용량에서는 이상반응으로 복용을 중단하는 환자가 늘어 효과가 줄 것으로 예상하는 경우, 각각 어떤 검정을 계획해야 할까요?</p>
+<details><summary>답과 풀이</summary><div><p>먼저 구분할 것은 예상하는 반응의 모양입니다. (1)은 순서와 방향(증가)을 자료를 보기 전에 정할 수 있으므로 Jonckheere-Terpstra 검정이 맞고, 평균 차이의 크기에 관심이 있으면 순서 점수를 넣은 선형 추세 검정을 씁니다. (2)는 가운데가 높은 봉우리형이라 단조 경향이 아니므로 Jonckheere-Terpstra 검정은 맞지 않습니다. 증가와 감소가 서로 상쇄되어 이 절의 모의실험처럼 차이를 거의 잡아내지 못하기 때문입니다. (2)에서는 분산분석이나 Kruskal-Wallis 검정 같은 전체 검정 뒤 사후분석을 하거나, 봉우리형 대립가설을 위한 방법(Mack-Wolfe 검정)을 미리 계획합니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>“P for trend = 0.007(Jonckheere–Terpstra)이므로 중재 강도를 한 단계 올릴 때마다 PDC가 유의하게 높아진다.” 무엇이 틀렸고 어떻게 고쳐 써야 하나?</p>
+<details><summary>답과 풀이</summary><div><p>Jonckheere-Terpstra 검정은 세 군 전체의 단조 경향을 한 번에 보는 검정이지, 인접한 단계마다 증가를 검정하지 않습니다. 이 장의 예제에서도 1회 상담 → 집중 상담 한 단계만 보면 P(집중 &gt; 1회) = 0.58이고, Dunn 검정에서 P = 0.296으로 유의하지 않았습니다. 또 "한 단계당 얼마"라는 크기는 순위 기반 검정에서 나오지 않습니다. 고쳐 쓰면 "중재 강도가 높을수록 PDC가 높은 경향이 있었다(Jonckheere–Terpstra z = 2.72, P for trend = 0.007). 다만 1회 상담과 집중 상담 사이의 차이는 작았다"입니다. 한 단계당 변화량을 말하려면 순서 점수를 넣은 회귀(예제: 한 단계당 4.29%p)를 따로 보고합니다.</p></div></details></li>
+</ol></div>
+</section>

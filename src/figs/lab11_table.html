@@ -1,0 +1,62 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">논문용 위험비 표 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = cph.summary[[&quot;exp(coef)&quot;, &quot;exp(coef) lower 95%&quot;,
+                   &quot;exp(coef) upper 95%&quot;, &quot;p&quot;]].copy()
+tab.columns = [&quot;HR&quot;, &quot;lower&quot;, &quot;upper&quot;, &quot;p&quot;]
+tab[&quot;HR (95% CI)&quot;] = [f&quot;{h:.2f} ({l:.2f}-{u:.2f})&quot;
+                      for h, l, u in zip(tab.HR, tab.lower, tab.upper)]
+tab[&quot;P&quot;] = [f&quot;{p:.3f}&quot; if p &gt;= 0.001 else &quot;&lt;0.001&quot; for p in tab.p]
+tab[[&quot;HR (95% CI)&quot;, &quot;P&quot;]]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>HR (95% CI)</th>
+      <th>P</th>
+    </tr>
+    <tr>
+      <th>covariate</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>dpca</th>
+      <td>0.94 (0.64-1.37)<span class="mk">1</span></td>
+      <td>0.739</td>
+    </tr>
+    <tr>
+      <th>age10</th>
+      <td>1.37 (1.14-1.64)</td>
+      <td>&lt;0.001<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>female</th>
+      <td>0.70 (0.43-1.16)</td>
+      <td>0.166</td>
+    </tr>
+    <tr>
+      <th>log2_bili</th>
+      <td>1.84 (1.61-2.11)</td>
+      <td>&lt;0.001</td>
+    </tr>
+    <tr>
+      <th>albumin</th>
+      <td>0.37 (0.23-0.59)</td>
+      <td>&lt;0.001</td>
+    </tr>
+    <tr>
+      <th>C(edema)[T.0.5]</th>
+      <td>1.22 (0.70-2.13)</td>
+      <td>0.488</td>
+    </tr>
+    <tr>
+      <th>C(edema)[T.1.0]</th>
+      <td>2.58 (1.41-4.73)</td>
+      <td>0.002</td>
+    </tr>
+    <tr>
+      <th>protime</th>
+      <td>1.28 (1.08-1.52)</td>
+      <td>0.004</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

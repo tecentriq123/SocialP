@@ -1,0 +1,73 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">esoph 데이터 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">url2 = (&quot;https://vincentarelbundock.github.io/Rdatasets/&quot;
+        &quot;csv/datasets/esoph.csv&quot;)
+es = pd.read_csv(url2)
+print(es.shape, es[&quot;ncases&quot;].sum(), es[&quot;ncontrols&quot;].sum())
+es.head(6)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(88, 6) 200 775<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rownames</th>
+      <th>agegp</th>
+      <th>alcgp</th>
+      <th>tobgp</th>
+      <th>ncases</th>
+      <th>ncontrols</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>25-34</td>
+      <td>0-39g/day</td>
+      <td>0-9g/day</td>
+      <td>0</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>25-34</td>
+      <td>0-39g/day</td>
+      <td>10-19</td>
+      <td>0</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>25-34</td>
+      <td>0-39g/day</td>
+      <td>20-29</td>
+      <td>0</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>25-34</td>
+      <td>0-39g/day</td>
+      <td>30+</td>
+      <td>0</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>25-34</td>
+      <td>40-79</td>
+      <td>0-9g/day</td>
+      <td>0</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>25-34</td>
+      <td>40-79</td>
+      <td>10-19</td>
+      <td>0</td>
+      <td>7</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

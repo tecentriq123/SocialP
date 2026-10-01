@@ -1,0 +1,53 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">추적 기간을 3년에서 나눈 긴 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cut = 3                                     # 3년에서 나눔
+x = df.assign(id=df.index)                  # 환자 번호 열
+early = x.assign(start=0.0, stop=x[&quot;years&quot;].clip(upper=cut), late=0)
+early[&quot;event&quot;] = np.where(x[&quot;years&quot;] &lt;= cut, x[&quot;death&quot;], 0)
+late = x[x[&quot;years&quot;] &gt; cut].assign(start=float(cut), late=1)
+late[&quot;stop&quot;] = late[&quot;years&quot;]
+late[&quot;event&quot;] = late[&quot;death&quot;]
+long = pd.concat([early, late]).drop(columns=[&quot;years&quot;, &quot;death&quot;])
+long[&quot;protime_late&quot;] = long[&quot;protime&quot;] * long[&quot;late&quot;]
+print(len(df), &quot;명 -&gt;&quot;, len(long), &quot;줄&quot;)
+show = [&quot;id&quot;, &quot;start&quot;, &quot;stop&quot;, &quot;event&quot;, &quot;protime&quot;, &quot;protime_late&quot;]
+long[long[&quot;id&quot;].isin([0, 3])].sort_values([&quot;id&quot;, &quot;start&quot;])[show]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>312 명 -&gt; 552 줄<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>start</th>
+      <th>stop</th>
+      <th>event</th>
+      <th>protime</th>
+      <th>protime_late</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0.0</td>
+      <td>1.095140<span class="mk">2</span></td>
+      <td>1</td>
+      <td>12.2</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>0.0</td>
+      <td>3.000000<span class="mk">3</span></td>
+      <td>0</td>
+      <td>10.3</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>3.0</td>
+      <td>5.270363<span class="mk">4</span></td>
+      <td>1</td>
+      <td>10.3</td>
+      <td>10.3</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

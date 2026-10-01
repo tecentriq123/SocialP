@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">사건 수와 EPV</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">n_event = int(bw[&quot;low&quot;].sum())            # 사건(저체중아) 수
+n_non = int((bw[&quot;low&quot;] == 0).sum())       # 사건이 없는 수
+k = 8     # 절편 외 계수: age, lwt, race 2개, smoke, ptd, ht, ui
+print(&quot;events:&quot;, n_event, &quot; non-events:&quot;, n_non)
+print(&quot;proportion:&quot;, round(n_event / len(bw), 3))
+print(&quot;EPV =&quot;, round(min(n_event, n_non) / k, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>events: 59<span class="mk">1</span>  non-events: 130
+proportion: 0.312<span class="mk">2</span>
+EPV = 7.4<span class="mk">3</span></pre></div></div>

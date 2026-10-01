@@ -1,0 +1,39 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">분산팽창계수(VIF)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.outliers_influence import (
+    variance_inflation_factor)
+
+def vif_table(m):
+    X, names = m.model.exog, m.model.exog_names   # 설계행렬, 열 이름
+    v = [variance_inflation_factor(X, i) for i in range(X.shape[1])]
+    s = pd.Series(v, index=names, name=&quot;VIF&quot;)    # 이름 붙인 Series
+    return s.drop(&quot;Intercept&quot;).round(2)
+
+vif_table(model_adj)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>VIF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(sex)[T.2]</th>
+      <td>1.08</td>
+    </tr>
+    <tr>
+      <th>bmi</th>
+      <td>1.35</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>1.17</td>
+    </tr>
+    <tr>
+      <th>bp</th>
+      <td>1.40</td>
+    </tr>
+    <tr>
+      <th>s5</th>
+      <td>1.38</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

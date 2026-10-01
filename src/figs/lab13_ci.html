@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">차이와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = stats.ttest_ind(new, ref, equal_var=False)   # Welch t 검정
+d = new.mean() - ref.mean()                        # 신약 - 대조약
+ci = res.confidence_interval(confidence_level=0.95)
+print(f&quot;difference = {d:.3f}&quot;)
+print(f&quot;95% CI {ci.low:.3f} to {ci.high:.3f}&quot;)
+print(f&quot;P (difference = 0) = {res.pvalue:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>difference = 0.145<span class="mk">1</span>
+95% CI -0.063 to 0.353<span class="mk">2</span>
+P (difference = 0) = 0.172<span class="mk">3</span></pre></div></div>

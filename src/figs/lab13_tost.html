@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">TOST: 두 번의 단측 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dl = np.log(auc_T) - np.log(auc_R)          # 대상자별 ln(T/R)
+lower = stats.ttest_1samp(dl, np.log(0.80), alternative=&quot;greater&quot;)
+upper = stats.ttest_1samp(dl, np.log(1.25), alternative=&quot;less&quot;)
+print(f&quot;t_L = {lower.statistic:.2f}, P = {lower.pvalue:.5f}&quot;)
+print(f&quot;t_U = {upper.statistic:.2f}, P = {upper.pvalue:.5f}&quot;)
+print(f&quot;paired t test of no difference: P = {res.pvalue:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>t_L = 4.48, P = 0.00046<span class="mk">1</span>
+t_U = -6.65, P = 0.00002<span class="mk">2</span>
+paired t test of no difference: P = 0.30<span class="mk">3</span></pre></div></div>

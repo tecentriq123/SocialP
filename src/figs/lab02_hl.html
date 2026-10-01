@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">Hodges-Lehmann 추정치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">diffs = np.subtract.outer(smoker.to_numpy(),
+                          nonsmoker.to_numpy())
+print(diffs.shape)
+hl = np.median(diffs)
+
+d_sorted = np.sort(diffs.ravel())
+N = n1 + n2
+k = round(n1n2 / 2 - 1.96 * np.sqrt(n1n2 * (N + 1) / 12))
+lo, hi = d_sorted[k - 1], d_sorted[n1n2 - k]
+print(f&quot;HL = {hl:.1f} g, 95% CI {lo} ~ {hi}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(74, 115)<span class="mk">1</span>
+HL = -307.0 g<span class="mk">2</span>, 95% CI -512 ~ -85<span class="mk">3</span></pre></div></div>

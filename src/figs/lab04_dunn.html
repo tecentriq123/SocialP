@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Dunn 검정 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">N = len(df)
+t = df[&quot;bwt&quot;].value_counts()               # 동점 묶음의 크기
+tie = (t**3 - t).sum() / (12 * (N - 1))    # 동점 보정 항
+mean_rank = df.groupby(&quot;race_f&quot;, observed=True)[&quot;rank&quot;].mean()
+n = df[&quot;race_f&quot;].value_counts()
+
+p_dunn = []
+for a, b in pairs:
+    se = np.sqrt((N * (N + 1) / 12 - tie) * (1 / n[a] + 1 / n[b]))
+    z = (mean_rank[a] - mean_rank[b]) / se
+    p_dunn.append(2 * stats.norm.sf(abs(z)))
+p_dunn_holm = multipletests(p_dunn, method=&quot;holm&quot;)[1]
+print(np.round(p_dunn, 4), np.round(p_dunn_holm, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[0.0179 0.0197 0.5096]<span class="mk">1</span> [0.0537 0.0537 0.5096]<span class="mk">2</span></pre></div></div>

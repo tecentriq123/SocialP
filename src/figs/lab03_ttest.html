@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">대응표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = stats.ttest_rel(wide[&quot;drug2&quot;], wide[&quot;drug1&quot;])
+print(res)
+print(f&quot;t = {res.statistic:.3f}, p = {res.pvalue:.4f}, &quot;
+      f&quot;df = {res.df}&quot;)
+ci = res.confidence_interval()
+print(f&quot;mean d = {wide[&#x27;d&#x27;].mean():.2f} h, &quot;
+      f&quot;95% CI {ci.low:.2f} ~ {ci.high:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>TtestResult(statistic=np.float64(4.062127683382037), pvalue=np.float64(0.002832890197384273), df=np.int64(9))
+t = 4.062<span class="mk">1</span>, p = 0.0028<span class="mk">2</span>, df = 9<span class="mk">3</span>
+mean d = 1.58 h<span class="mk">4</span>, 95% CI 0.70 ~ 2.46<span class="mk">5</span></pre></div></div>

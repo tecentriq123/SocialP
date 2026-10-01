@@ -1,0 +1,63 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">음주량 순서대로 합치기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">alc_order = [&quot;0-39g/day&quot;, &quot;40-79&quot;, &quot;80-119&quot;, &quot;120+&quot;]
+es[&quot;alcgp&quot;] = pd.Categorical(es[&quot;alcgp&quot;], categories=alc_order,
+                             ordered=True)
+alc = (es.groupby(&quot;alcgp&quot;, observed=True)
+         [[&quot;ncases&quot;, &quot;ncontrols&quot;]].sum())
+n_grp = alc[&quot;ncases&quot;] + alc[&quot;ncontrols&quot;]
+alc[&quot;pct_case&quot;] = 100 * alc[&quot;ncases&quot;] / n_grp
+alc[&quot;odds&quot;] = alc[&quot;ncases&quot;] / alc[&quot;ncontrols&quot;]
+alc[&quot;OR&quot;] = alc[&quot;odds&quot;] / alc[&quot;odds&quot;].iloc[0]
+alc.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ncases</th>
+      <th>ncontrols</th>
+      <th>pct_case</th>
+      <th>odds</th>
+      <th>OR</th>
+    </tr>
+    <tr>
+      <th>alcgp</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0-39g/day</th>
+      <td>29</td>
+      <td>386</td>
+      <td>6.988<span class="mk">1</span></td>
+      <td>0.075<span class="mk">2</span></td>
+      <td>1.000</td>
+    </tr>
+    <tr>
+      <th>40-79</th>
+      <td>75</td>
+      <td>280</td>
+      <td>21.127</td>
+      <td>0.268</td>
+      <td>3.565</td>
+    </tr>
+    <tr>
+      <th>80-119</th>
+      <td>51</td>
+      <td>87</td>
+      <td>36.957</td>
+      <td>0.586</td>
+      <td>7.803</td>
+    </tr>
+    <tr>
+      <th>120+</th>
+      <td>45</td>
+      <td>22</td>
+      <td>67.164<span class="mk">3</span></td>
+      <td>2.045</td>
+      <td>27.226<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

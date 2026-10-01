@@ -1,0 +1,39 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">세 모형의 치료 효과 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">comp = pd.DataFrame({
+    &quot;unadjusted&quot;: cph1.summary.loc[&quot;dpca&quot;],
+    &quot;adjusted&quot;: cph.summary.loc[&quot;dpca&quot;],
+    &quot;stratified by edema&quot;: cph_s.summary.loc[&quot;dpca&quot;]}).T
+comp[[&quot;exp(coef)&quot;, &quot;exp(coef) lower 95%&quot;,
+      &quot;exp(coef) upper 95%&quot;, &quot;p&quot;]].round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>exp(coef)</th>
+      <th>exp(coef) lower 95%</th>
+      <th>exp(coef) upper 95%</th>
+      <th>p</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>unadjusted</th>
+      <td>1.059<span class="mk">1</span></td>
+      <td>0.745</td>
+      <td>1.504</td>
+      <td>0.749</td>
+    </tr>
+    <tr>
+      <th>adjusted</th>
+      <td>0.938<span class="mk">2</span></td>
+      <td>0.642</td>
+      <td>1.370</td>
+      <td>0.739</td>
+    </tr>
+    <tr>
+      <th>stratified by edema</th>
+      <td>0.922<span class="mk">3</span></td>
+      <td>0.630</td>
+      <td>1.348</td>
+      <td>0.674</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

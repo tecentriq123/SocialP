@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">J는 Mann-Whitney U의 합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">U12 = stats.mannwhitneyu(tert[1], tert[0]).statistic   # T2 &gt; T1
+U13 = stats.mannwhitneyu(tert[2], tert[0]).statistic   # T3 &gt; T1
+U23 = stats.mannwhitneyu(tert[2], tert[1]).statistic   # T3 &gt; T2
+print(U12, U13, U23, U12 + U13 + U23)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>2434.5 2831.5 2090.0 7356.0<span class="mk">1</span></pre></div></div>

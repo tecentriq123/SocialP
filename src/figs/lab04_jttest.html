@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">정규근사로 p-value 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def jt_test(groups):
+    &quot;&quot;&quot;Jonckheere-Terpstra 검정: 동점 보정 정규근사, 양측 p&quot;&quot;&quot;
+    J = jt_J(groups)
+    n = np.array([len(x) for x in groups])      # 군별 인원
+    N = n.sum()
+    allv = np.concatenate([np.asarray(x) for x in groups])
+    t = np.unique(allv, return_counts=True)[1]  # 동점 묶음 크기
+    EJ = (N**2 - (n**2).sum()) / 4               # 귀무가설 아래 평균
+    v1 = (N*(N-1)*(2*N+5) - (n*(n-1)*(2*n+5)).sum()
+          - (t*(t-1)*(2*t+5)).sum()) / 72
+    v2 = ((n*(n-1)*(n-2)).sum() * (t*(t-1)*(t-2)).sum()
+          / (36 * N * (N-1) * (N-2)))
+    v3 = (n*(n-1)).sum() * (t*(t-1)).sum() / (8 * N * (N-1))
+    z = (J - EJ) / np.sqrt(v1 + v2 + v3)
+    return J, EJ, z, 2 * stats.norm.sf(abs(z))
+
+J, EJ, z, p = jt_test(tert)
+print(f&quot;J = {J:.0f}, E(J) = {EJ:.0f}, z = {z:.2f}, p = {p:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>J = 7356<span class="mk">1</span>, E(J) = 5947<span class="mk">2</span>, z = 3.44<span class="mk">3</span>, p = 0.0006<span class="mk">4</span></pre></div></div>

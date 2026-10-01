@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">필요 없는 열 지우기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df = df.drop(columns=&quot;rownames&quot;)   # R의 행 이름 열 지우기
+print(df.shape)
+print(df.columns.tolist())         # 남은 열 이름 목록</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(189, 10)<span class="mk">1</span>
+[&#x27;low&#x27;, &#x27;age&#x27;, &#x27;lwt&#x27;, &#x27;race&#x27;, &#x27;smoke&#x27;, &#x27;ptl&#x27;, &#x27;ht&#x27;, &#x27;ui&#x27;, &#x27;ftv&#x27;, &#x27;bwt&#x27;]</pre></div></div>

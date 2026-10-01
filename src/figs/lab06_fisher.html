@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">손 공식으로 검산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+
+n, r = len(df), res.statistic
+t = r * np.sqrt(n - 2) / np.sqrt(1 - r**2)   # 6장 가 절의 t 공식
+z, se = np.arctanh(r), 1 / np.sqrt(n - 3)    # Fisher z 변환과 SE
+print(f&quot;t = {t:.3f}, df = {n - 2}&quot;)
+print(&quot;95% CI:&quot;, np.tanh([z - 1.96 * se, z + 1.96 * se]).round(4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>t = 15.187, df = 440<span class="mk">1</span>
+95% CI: [0.5217 0.6445]<span class="mk">2</span></pre></div></div>

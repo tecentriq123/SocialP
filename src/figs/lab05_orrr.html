@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">오즈비와 상대위험도의 관계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rr, or_ = t22.riskratio, t22.oddsratio
+print(f&quot;RR = {rr:.3f}, OR = {or_:.3f}&quot;)
+print(&quot;RR x (1-p0)/(1-p1) =&quot;, round(rr * (1 - p0) / (1 - p1), 3))
+print(&quot;OR/(1-p0+p0*OR) =&quot;, round(or_ / (1 - p0 + p0 * or_), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RR = 1.608, OR = 2.022
+RR x (1-p0)/(1-p1) = 2.022<span class="mk">1</span>
+OR/(1-p0+p0*OR) = 1.608<span class="mk">2</span></pre></div></div>

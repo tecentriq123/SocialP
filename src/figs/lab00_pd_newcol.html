@@ -1,0 +1,51 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">새 열 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;bwt_kg&quot;] = df[&quot;bwt&quot;] / 1000          # 새 열: g → kg
+race_names = {1: &quot;white&quot;, 2: &quot;black&quot;, 3: &quot;other&quot;}
+df[&quot;race_lab&quot;] = df[&quot;race&quot;].map(race_names)   # 숫자 코드 → 이름
+df[[&quot;bwt&quot;, &quot;bwt_kg&quot;, &quot;race&quot;, &quot;race_lab&quot;]].head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>bwt</th>
+      <th>bwt_kg<span class="mk">1</span></th>
+      <th>race</th>
+      <th>race_lab<span class="mk">2</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2523</td>
+      <td>2.523</td>
+      <td>2</td>
+      <td>black</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2551</td>
+      <td>2.551</td>
+      <td>3</td>
+      <td>other</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2557</td>
+      <td>2.557</td>
+      <td>1</td>
+      <td>white</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2594</td>
+      <td>2.594</td>
+      <td>1</td>
+      <td>white</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2600</td>
+      <td>2.600</td>
+      <td>1</td>
+      <td>white</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

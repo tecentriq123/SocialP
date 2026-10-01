@@ -1,0 +1,54 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">가장 영향력이 큰 1명을 빼고 다시 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_wo = smf.logit(f, data=bw.drop(index=top.index[0])).fit(disp=0)
+comp = pd.DataFrame({&quot;OR all (n=189)&quot;: np.exp(logit_m.params),
+                     &quot;OR without 1&quot;: np.exp(m_wo.params)})
+comp.drop(&quot;Intercept&quot;).round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OR all (n=189)</th>
+      <th>OR without 1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(race)[T.black]</th>
+      <td>3.36</td>
+      <td>3.43</td>
+    </tr>
+    <tr>
+      <th>C(race)[T.other]</th>
+      <td>2.23</td>
+      <td>2.33</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>0.96</td>
+      <td>0.96</td>
+    </tr>
+    <tr>
+      <th>lwt</th>
+      <td>0.99</td>
+      <td>0.98</td>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <td>2.33</td>
+      <td>2.26</td>
+    </tr>
+    <tr>
+      <th>ptd</th>
+      <td>3.39</td>
+      <td>3.33</td>
+    </tr>
+    <tr>
+      <th>ht</th>
+      <td>6.29</td>
+      <td>9.74<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>ui</th>
+      <td>2.04</td>
+      <td>2.02</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

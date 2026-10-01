@@ -1,0 +1,70 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">비율의 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.proportion import proportion_confint
+
+rows = []
+for count, n in [(59, 189), (7, 12)]:
+    for method in [&quot;normal&quot;, &quot;wilson&quot;, &quot;beta&quot;]:
+        lo, hi = proportion_confint(count, n, method=method)
+        rows.append([f&quot;{count}/{n}&quot;, method, count / n, lo, hi])
+cols = [&quot;data&quot;, &quot;method&quot;, &quot;p&quot;, &quot;lower&quot;, &quot;upper&quot;]
+pd.DataFrame(rows, columns=cols).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>data</th>
+      <th>method</th>
+      <th>p</th>
+      <th>lower</th>
+      <th>upper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>59/189</td>
+      <td>normal</td>
+      <td>0.312</td>
+      <td>0.246<span class="mk">1</span></td>
+      <td>0.378</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>59/189</td>
+      <td>wilson</td>
+      <td>0.312</td>
+      <td>0.250<span class="mk">2</span></td>
+      <td>0.381</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>59/189</td>
+      <td>beta</td>
+      <td>0.312</td>
+      <td>0.247</td>
+      <td>0.383</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7/12</td>
+      <td>normal</td>
+      <td>0.583</td>
+      <td>0.304<span class="mk">3</span></td>
+      <td>0.862<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7/12</td>
+      <td>wilson</td>
+      <td>0.583</td>
+      <td>0.320</td>
+      <td>0.807<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>7/12</td>
+      <td>beta</td>
+      <td>0.583</td>
+      <td>0.277<span class="mk">6</span></td>
+      <td>0.848</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

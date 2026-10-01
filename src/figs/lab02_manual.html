@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">같은 값을 공식으로 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">n1, n2 = len(smoker), len(nonsmoker)
+v1, v2 = smoker.var(), nonsmoker.var()   # 분산 (n - 1로 나눔)
+se = np.sqrt(v1 / n1 + v2 / n2)          # 차이의 표준오차
+df_w = (v1/n1 + v2/n2)**2 / (
+    (v1/n1)**2 / (n1 - 1) + (v2/n2)**2 / (n2 - 1))
+t_crit = stats.t.ppf(0.975, df_w)        # 양측 5% 임계값
+print(f&quot;SE = {se:.2f}, t = {diff / se:.3f}, df = {df_w:.2f}&quot;)
+print(f&quot;CI = {diff - t_crit*se:.1f} ~ {diff + t_crit*se:.1f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>SE = 103.95<span class="mk">1</span>, t = -2.730, df = 170.10<span class="mk">2</span>
+CI = -489.0 ~ -78.6<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">범주에 이름표와 순서 붙이기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def label(col, mapping):
+    # mapping에 적은 순서가 곧 범주의 순서가 됩니다
+    return pd.Categorical(df[col].map(mapping),
+                          categories=list(mapping.values()))
+
+df[&quot;ptl_any&quot;] = (df[&quot;ptl&quot;] &gt; 0).astype(int)  # 조산 경험 1회 이상
+df[&quot;low_f&quot;] = label(&quot;low&quot;, {1: &quot;LBW&quot;, 0: &quot;Not LBW&quot;})
+df[&quot;smoke_f&quot;] = label(&quot;smoke&quot;, {1: &quot;Smoker&quot;, 0: &quot;Nonsmoker&quot;})
+df[&quot;ht_f&quot;] = label(&quot;ht&quot;, {1: &quot;HT&quot;, 0: &quot;No HT&quot;})
+df[&quot;ptl_f&quot;] = label(&quot;ptl_any&quot;, {1: &quot;Preterm&quot;, 0: &quot;None&quot;})
+df[&quot;race_f&quot;] = label(&quot;race&quot;, {1: &quot;White&quot;, 2: &quot;Black&quot;, 3: &quot;Other&quot;})</code></pre></div>

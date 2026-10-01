@@ -1,0 +1,47 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">임계값별 민감도, 특이도, 정확도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def classify(t):
+    pred = (p_test &gt;= t).astype(int)         # 임계값 t 이상 = 악성
+    tn, fp, fn, tp = confusion_matrix(y_test, pred).ravel()
+    return {&quot;threshold&quot;: t, &quot;TP&quot;: tp, &quot;FN&quot;: fn, &quot;FP&quot;: fp, &quot;TN&quot;: tn,
+            &quot;sensitivity&quot;: tp / (tp + fn),
+            &quot;specificity&quot;: tn / (tn + fp),
+            &quot;accuracy&quot;: (tp + tn) / len(pred)}
+
+pd.DataFrame([classify(t) for t in [0.5, 0.2]]).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>threshold</th>
+      <th>TP</th>
+      <th>FN</th>
+      <th>FP</th>
+      <th>TN</th>
+      <th>sensitivity</th>
+      <th>specificity</th>
+      <th>accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.5</td>
+      <td>60</td>
+      <td>4</td>
+      <td>1</td>
+      <td>106</td>
+      <td>0.938<span class="mk">1</span></td>
+      <td>0.991<span class="mk">2</span></td>
+      <td>0.971<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.2</td>
+      <td>63</td>
+      <td>1</td>
+      <td>3</td>
+      <td>104</td>
+      <td>0.984<span class="mk">4</span></td>
+      <td>0.972</td>
+      <td>0.977</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

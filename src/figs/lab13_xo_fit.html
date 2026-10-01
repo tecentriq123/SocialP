@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">교차설계 분산분석으로 90% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+
+fit = smf.ols(&quot;np.log(auc) ~ C(subject) + C(period) + C(form)&quot;,
+              data=be).fit()
+t = &quot;C(form)[T.T]&quot;
+lo, hi = fit.conf_int(alpha=0.10).loc[t]       # 90% 신뢰구간
+print(f&quot;GMR = {np.exp(fit.params[t]) * 100:.2f}%, &quot;
+      f&quot;90% CI {np.exp(lo) * 100:.2f}% to {np.exp(hi) * 100:.2f}%&quot;)
+print(f&quot;residual df = {fit.df_resid:.0f}, MSE = {fit.mse_resid:.4f}&quot;)
+print(f&quot;CV_intra = {np.sqrt(np.exp(fit.mse_resid) - 1) * 100:.1f}%&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>GMR = 95.82%<span class="mk">1</span>, 90% CI 89.71% to 102.36%<span class="mk">2</span>
+residual df = 22<span class="mk">3</span>, MSE = 0.0177
+CV_intra = 13.4%<span class="mk">4</span></pre></div></div>

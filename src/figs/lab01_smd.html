@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">표준화 평균차(SMD)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># SMD = (평균 차이) / 두 군 분산의 평균의 제곱근
+smd = (m[&quot;malignant&quot;] - m[&quot;benign&quot;]) / np.sqrt(
+    (s[&quot;malignant&quot;] ** 2 + s[&quot;benign&quot;] ** 2) / 2)
+print(smd.round(2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>mean radius        2.05<span class="mk">1</span>
+mean texture       0.95
+mean smoothness    0.80
+mean area          1.86
+area error         1.18
+dtype: float64</pre></div></div>

@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">인종별 2×2 표와 층별 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tables = []
+for race, sub in df.groupby(&quot;race_f&quot;, observed=True):
+    t = pd.crosstab(sub[&quot;smoke&quot;], sub[&quot;low&quot;]).loc[[1, 0], [1, 0]]
+    tables.append(t.to_numpy())
+    t2 = Table2x2(t.to_numpy())
+    lo, hi = t2.oddsratio_confint()
+    print(f&quot;{race:5} {t.to_numpy().tolist()}  &quot;
+          f&quot;OR = {t2.oddsratio:.2f} ({lo:.2f} to {hi:.2f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>White [[19, 33], [4, 40]]<span class="mk">1</span>  OR = 5.76 (1.78 to 18.60)<span class="mk">2</span>
+Black [[6, 4], [5, 11]]  OR = 3.30 (0.63 to 17.16)<span class="mk">3</span>
+Other [[5, 7], [20, 35]]  OR = 1.25 (0.35 to 4.46)<span class="mk">4</span></pre></div></div>

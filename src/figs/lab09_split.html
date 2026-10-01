@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">훈련 자료와 시험 자료로 나누기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, stratify=y, random_state=42)
+print(X_train.shape, X_test.shape)
+print(round(y_train.mean(), 3), round(y_test.mean(), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(398, 30) (171, 30)<span class="mk">1</span>
+0.372 0.374<span class="mk">2</span></pre></div></div>

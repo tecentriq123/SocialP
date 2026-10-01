@@ -1,0 +1,61 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">check_assumptions의 요약과 조언</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cph.check_assumptions(df, p_value_threshold=0.05)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>The ``p_value_threshold`` is set at 0.05.<span class="mk">1</span> Even under the null hypothesis of no violations, some
+covariates will be below the threshold by chance. This is compounded when there are many covariates.
+Similarly, when there are lots of observations, even minor deviances from the proportional hazard
+assumption will be flagged.
+
+With that in mind, it&#x27;s best to use a combination of statistical tests and visual tests to determine
+the most serious violations. Produce visual plots using ``check_assumptions(..., show_plots=True)``
+and looking for non-constant lines. See link [A] below for a full example.
+
+&lt;lifelines.StatisticalResult: proportional_hazard_test&gt;
+ null_distribution = chi squared
+degrees_of_freedom = 1
+             model = &lt;lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations&gt;
+         test_name = proportional_hazard_test
+
+---
+                      test_statistic    p  -log2(p)
+C(edema)[T.0.5] km              4.01 0.05      4.47
+                rank            4.50 0.03<span class="mk">2</span>      4.88
+C(edema)[T.1.0] km              0.34 0.56      0.84
+                rank            0.59 0.44      1.18
+age10           km              0.02 0.90      0.15
+                rank            0.21 0.65      0.63
+albumin         km              0.02 0.89      0.18
+                rank            0.01 0.92      0.12
+dpca            km              1.42 0.23      2.10
+                rank            2.14 0.14      2.80
+female          km              0.03 0.85      0.23
+                rank            0.03 0.86      0.21
+log2_bili       km              2.04 0.15      2.70
+                rank            1.96 0.16      2.63
+protime         km              3.14 0.08      3.71
+                rank            4.64 0.03      5.00
+
+
+1. Variable &#x27;C(edema)[T.0.5]&#x27; failed the non-proportional test: p-value is 0.0339.<span class="mk">3</span>
+
+   Advice: with so few unique values (only 2), you can include `strata=[&#x27;C(edema)[T.0.5]&#x27;, ...]`<span class="mk">4</span> in
+the call in `.fit`. See documentation in link [E] below.
+
+2. Variable &#x27;protime&#x27; failed the non-proportional test: p-value is 0.0312.<span class="mk">5</span>
+
+   Advice 1: the functional form of the variable &#x27;protime&#x27; might be incorrect. That is, there may be
+non-linear terms missing. The proportional hazard test used is very sensitive to incorrect
+functional forms. See documentation in link [D] below on how to specify a functional form.
+
+   Advice 2: try binning the variable &#x27;protime&#x27; using pd.cut, and then specify it in
+`strata=[&#x27;protime&#x27;, ...]` in the call in `.fit`. See documentation in link [B] below.
+
+   Advice 3: try adding an interaction term with your time variable.<span class="mk">6</span> See documentation in link [C]
+below.
+
+
+---
+[A]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html
+[B]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Bin-variable-and-stratify-on-it
+[C]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Introduce-time-varying-covariates
+[D]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Modify-the-functional-form
+[E]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Stratification
+
+[]</pre></div></div>

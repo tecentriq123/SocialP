@@ -1,0 +1,572 @@
+<p class="lead">5장에서 손으로 계산한 카이제곱 검정, Fisher의 정확한 검정, 선형 대 선형 결합을 공개 데이터로 직접 해 봅니다. 산모의 흡연·고혈압 병력과 저체중아 출생의 관련을 교차표로 정리하고 상대위험도·오즈비·위험차를 함께 구한 뒤, 식도암 환자-대조군 자료에서 음주량에 따른 추세를 검정합니다. 이론은 <a href="#ch05">5장</a>과 <a href="#ch08-s2">8장 나 절</a>을 함께 보세요.</p>
+
+<dl class="glance">
+  <div><dt>관련 이론</dt><dd><a href="#ch05">5장 비율을 비교하는 방법</a> (가 절 카이제곱 검정, 나 절 Fisher의 정확한 검정, 다 절 선형 대 선형 결합), <a href="#ch08-s2">8장 나 절 상대위험도와 교차비</a></dd></div>
+  <div><dt>데이터</dt><dd><b>birthwt</b> (R MASS 패키지): 1986년 미국 매사추세츠주 스프링필드 Baystate Medical Center의 출생아 189명, 10개 변수. 저체중아 출생의 위험인자를 찾기 위해 모은 자료로 Hosmer와 Lemeshow의 로지스틱 회귀 교재에 실렸습니다<cite data-ref="hosmer1989"></cite>.<br><b>esoph</b> (R datasets 패키지): 프랑스 일에빌렌(Ille-et-Vilaine) 지역의 식도암 환자-대조군 연구. 환자 200명, 대조군 775명을 나이·음주량·흡연량 조합별로 센 88행 자료입니다<cite data-ref="breslow1980"></cite>.</dd></div>
+  <div><dt>사용 패키지</dt><dd>pandas, numpy, scipy (<code>stats.chi2_contingency</code>, <code>stats.fisher_exact</code>, <code>stats.hypergeom</code>), statsmodels (<code>Table2x2</code>, <code>Table</code>, <code>confint_proportions_2indep</code>), matplotlib</dd></div>
+  <div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00">실습 0</a> 참고). 모든 패키지가 Colab에 기본으로 설치되어 있어 따로 설치할 것이 없습니다. 셀을 위에서부터 순서대로 실행하세요.</dd></div>
+</dl>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab05-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>이 실습의 결과변수는 <b>저체중아 출생</b>(출생체중 2.5 kg 미만) 여부입니다. 노출로는 임신 중 흡연, 고혈압 병력, 이전 조산 경험을 보고, 세 군 이상의 비교에는 산모의 인종을 씁니다. 모두 두세 개의 범주로 이루어진 범주형 변수라서 평균 대신 비율을 비교합니다(<a href="#ch05-s1">5장 가 절</a>).</p>
+
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>변수</th><th>뜻</th><th>값</th><th>이 실습에서의 역할</th></tr></thead>
+<tbody>
+<tr><td><code>low</code></td><td>출생체중 2.5 kg 미만 여부</td><td>1 = 저체중아, 0 = 아님</td><td>결과변수</td></tr>
+<tr><td><code>smoke</code></td><td>임신 중 흡연</td><td>1 = 흡연, 0 = 비흡연</td><td>노출 (나 절)</td></tr>
+<tr><td><code>ht</code></td><td>고혈압 병력</td><td>1 = 있음, 0 = 없음</td><td>노출 (다 절, 해당자가 적음)</td></tr>
+<tr><td><code>ptl</code></td><td>이전 조산 횟수</td><td>0–3회</td><td>1회 이상 여부로 바꿔 사용</td></tr>
+<tr><td><code>race</code></td><td>산모의 인종</td><td>1 = 백인, 2 = 흑인, 3 = 기타</td><td>세 군 비교 (나 절)</td></tr>
+<tr><td><code>bwt</code></td><td>출생체중 (g)</td><td>709–4990</td><td><code>low</code>를 만든 원래 값</td></tr>
+</tbody></table></div>
+
+<h3>패키지와 데이터 불러오기</h3>
+<p>Colab에서 새 노트북을 열고 첫 셀에 아래 코드를 입력한 뒤 Shift + Enter로 실행합니다. 데이터는 R의 공개 데이터셋을 CSV 파일로 모아 둔 Rdatasets 사이트에서 인터넷으로 바로 읽어 옵니다(<a href="#lab00-s5">실습 0 마 절</a>). 인터넷 연결이 필요합니다.</p>
+<!--FIG:lab05_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import numpy as np</code><span>숫자 계산 패키지 numpy를 <code>np</code>라는 짧은 이름으로 불러옵니다. 뒤에서 배열을 만들거나(<code>np.array</code>) 반복하는(<code>np.repeat</code>) 데 씁니다.</span></li>
+<li><code>import pandas as pd</code><span>표 형태의 자료를 다루는 pandas를 <code>pd</code>로 불러옵니다. 교차표를 만드는 <code>pd.crosstab</code>이 여기에 있습니다.</span></li>
+<li><code>from scipy import stats</code><span>scipy의 통계 모듈입니다. 카이제곱 검정(<code>stats.chi2_contingency</code>), Fisher 검정(<code>stats.fisher_exact</code>), 확률분포(<code>stats.chi2</code>, <code>stats.hypergeom</code>)를 모두 <code>stats.</code>으로 부릅니다.</span></li>
+<li><code>url = ("https://…/" "csv/MASS/birthwt.csv")</code><span>주소가 길어서 문자열 두 개로 나눠 적었습니다. 괄호 안에 문자열을 나란히 쓰면 파이썬이 하나로 이어 붙입니다. 주소 형식은 <code>…/csv/패키지이름/데이터이름.csv</code>입니다.</span></li>
+<li><code>df = pd.read_csv(url)</code><span>CSV 파일을 읽어 <b>데이터프레임</b>(DataFrame, 행과 열이 있는 표)으로 만들고 <code>df</code>라는 이름에 담습니다. 한 행이 출생아 한 명입니다.</span></li>
+<li><code>print(df.shape)</code><span>(행 수, 열 수)를 출력합니다.</span></li>
+<li><code>df.head()</code><span>앞의 5행을 보여 줍니다. 셀의 마지막 줄이 값이면 print 없이도 출력됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>189행, 11열입니다.</b> 문서에는 10개 변수라고 되어 있는데 11열인 이유는 첫 열 <code>rownames</code> 때문입니다. R에서 쓰던 행 번호를 CSV로 옮기면서 생긴 열이라 분석에는 쓰지 않습니다. 표의 맨 왼쪽 0, 1, 2…는 pandas가 붙인 행 번호(인덱스)입니다.</span></li>
+</ol>
+
+<h3>범주에 이름표와 순서 붙이기</h3>
+<p>0과 1로만 된 변수는 계산에는 편하지만 표로 만들면 무엇이 무엇인지 알아보기 어렵습니다. 또 더 중요한 이유가 있습니다. 교차표의 <b>행과 열의 순서</b>가 효과 지표의 방향을 정합니다. 뒤에서 쓰는 statsmodels의 <code>Table2x2</code>는 "첫 행 = 노출군, 둘째 행 = 비노출군, 첫 열 = 사건 있음"인 표를 기준으로 상대위험도와 오즈비를 계산합니다. pandas는 숫자를 작은 것부터 정렬하므로 그대로 두면 비흡연(0)이 첫 행, 저체중아 아님(0)이 첫 열이 됩니다. 그래서 이름표를 붙이면서 순서도 직접 정해 둡니다.</p>
+<!--FIG:lab05_label-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def label(col, mapping):</code><span>같은 작업을 다섯 번 반복하므로 <b>함수</b>로 만들었습니다. <code>def 이름(입력1, 입력2):</code>로 시작하고, 그 아래 들여쓴 줄이 함수의 내용입니다. <code>col</code>은 열 이름, <code>mapping</code>은 "원래 값: 이름표" 사전입니다.</span></li>
+<li><code>df[col].map(mapping)</code><span>열의 값 하나하나를 사전에 따라 바꿉니다. 예: <code>low</code> 열의 1은 "LBW"(low birth weight, 저체중아)로, 0은 "Not LBW"로 바뀝니다. 사전에 없는 값은 결측(NaN)이 됩니다.</span></li>
+<li><code>pd.Categorical(…, categories=list(mapping.values()))</code><span><b>범주형</b>(category) 자료형으로 만들면서 범주의 순서를 <code>categories</code>로 지정합니다. <code>mapping.values()</code>는 사전의 이름표들을 적은 순서대로 꺼내므로, 사전을 <code>{1: …, 0: …}</code>처럼 1을 먼저 적으면 1의 이름표가 첫 범주가 됩니다. 이 순서는 pandas 2.x와 3.x 어디서나 같게 유지됩니다.</span></li>
+<li><code>return …</code><span>만든 범주형 값을 함수 밖으로 돌려줍니다.</span></li>
+<li><code>df["ptl_any"] = (df["ptl"] &gt; 0).astype(int)</code><span>이전 조산 횟수(0–3)가 1 이상이면 True, 아니면 False인 열을 만들고 <code>.astype(int)</code>로 1과 0으로 바꿉니다. 조산 2회, 3회인 산모가 6명뿐이라 1회 이상으로 묶었습니다.</span></li>
+<li><code>df["low_f"] = label("low", {1: "LBW", 0: "Not LBW"})</code><span>원래 열 <code>low</code>는 그대로 두고 이름표가 붙은 새 열 <code>low_f</code>를 만듭니다(f는 factor의 약자로 붙인 이름입니다). 원래 숫자 열은 평균(= 비율)을 구하거나 회귀모형에 넣을 때 계속 씁니다.</span></li>
+<li><code>df["race_f"] = label("race", {1: "White", 2: "Black", 3: "Other"})</code><span>범주가 셋인 변수도 같은 방법입니다. 순서는 1, 2, 3 그대로 두었습니다. 이름표를 영어로 붙인 것은 그래프의 한글이 Colab에서 네모로 깨지기 때문입니다.</span></li>
+</ol>
+<p>이 셀은 새 열을 만들기만 하므로 출력이 없습니다. 잘 만들어졌는지는 다음 셀에서 확인합니다.</p>
+
+<h3>범주별 빈도 확인</h3>
+<!--FIG:lab05_counts-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>for col in [ … ]:</code><span>목록의 열 이름을 하나씩 <code>col</code>에 넣으며 아래 들여쓴 줄을 반복합니다.</span></li>
+<li><code>df[col].value_counts(sort=False)</code><span>범주별 인원을 셉니다. <code>sort=False</code>는 많은 순서로 정렬하지 말고 앞에서 정한 범주 순서대로 보여 달라는 뜻입니다.</span></li>
+<li><code>.to_dict()</code><span>결과를 {범주: 인원} 사전으로 바꿔 한 줄에 출력되게 했습니다.</span></li>
+<li><code>round(df["low"].mean(), 3)</code><span>0/1 변수의 평균은 1의 비율입니다. 189명 중 저체중아의 비율을 소수 셋째 자리까지 구합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>저체중아 59명, 아닌 아기 130명입니다.</b> 이름표가 "LBW", "Not LBW" 순서로 나온 것으로 범주 순서가 제대로 지정되었음을 확인합니다. NaN이 섞여 있다면 <code>map</code>의 사전에 없는 값이 있었다는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>고혈압 병력이 있는 산모는 12명뿐입니다.</b> 이 변수로 교차표를 만들면 칸의 기대빈도가 작아져 카이제곱 근사가 불안해집니다. 다 절에서 Fisher의 정확한 검정을 쓰는 이유입니다.</span></li>
+<li><span class="mk">3</span><span><b>조산 경험이 있는 산모는 30명입니다.</b> 이 변수의 교차표는 가장 작은 기대빈도가 9.37로 5를 넘어 카이제곱 검정을 써도 됩니다(아래 '직접 바꿔 보기').</span></li>
+<li><span class="mk">4</span><span><b>저체중아 비율은 31.2%입니다.</b> 결과가 이 정도로 흔하면 오즈비가 상대위험도보다 1에서 꽤 멀리 떨어집니다(<a href="#ch08-s2">8장 나 절</a>). 나 절에서 숫자로 확인합니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">이런 오류가 나면</p>
+<ul>
+<li><b><code>KeyError: 'Smoke'</code></b>: 열 이름의 대소문자나 철자가 틀렸습니다. birthwt의 열 이름은 모두 소문자입니다. <code>df.columns</code>로 정확한 이름을 확인하세요(<a href="#lab00-s7">실습 0 사 절</a>).</li>
+<li><b>이름표 열이 모두 NaN</b>: 사전의 키를 <code>{"1": "LBW", "0": "Not LBW"}</code>처럼 문자열로 적으면, 숫자 1과 문자 "1"은 다른 값이라 하나도 바뀌지 않습니다. <code>df["low"].dtype</code>으로 자료형(여기서는 정수 int64)을 확인하고 키도 숫자로 적습니다.</li>
+</ul></div>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>나 절의 교차표 코드에서 <code>df["smoke_f"]</code>를 <code>df["ptl_f"]</code>로 바꿔 조산 경험과 저체중아의 관련을 검정해 보세요. 네 칸의 기대빈도는 9.37, 20.63, 49.63, 109.37로 모두 5 이상이라 카이제곱 검정을 그대로 쓸 수 있습니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 자료와 분석 방법</b><span>birthwt 실습</span></div>
+<div class="paper-b">
+<p class="excerpt">We analyzed data on <span class="mk">1</span> <span class="hl">189 births at Baystate Medical Center, Springfield, Massachusetts, in 1986</span>. Low birth weight was defined as a <span class="mk">2</span> <span class="hl">birth weight of less than 2,500 g</span>. Maternal smoking during pregnancy, history of hypertension, and <span class="mk">3</span> <span class="hl">any previous premature labor (one or more)</span> were examined as exposures. Categorical variables are presented as numbers and percentages and were compared using the <span class="mk">4</span> <span class="hl">χ² test without continuity correction, or Fisher's exact test when any expected cell count was less than 5</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>자료원.</b> 공개 데이터를 썼다면 출처(여기서는 R MASS 패키지의 birthwt와 원 교재)를 밝혀 독자가 같은 자료로 재현할 수 있게 합니다.</span></li>
+<li><span class="mk">2</span><span><b>결과변수의 정의.</b> "2,500 g 미만"인지 "이하"인지가 명확해야 합니다. 이 자료의 <code>low</code>는 2.5 kg 미만을 1로 표시한 변수입니다. 청구자료 연구라면 어떤 진단 코드로 결과를 정의했는지가 이 자리에 옵니다.</span></li>
+<li><span class="mk">3</span><span><b>변수를 바꿨다면 그 방법을 씁니다.</b> 조산 횟수를 "1회 이상"으로 묶은 것처럼 원자료를 가공한 규칙은 Methods에 남겨야 합니다.</span></li>
+<li><span class="mk">4</span><span><b>검정 선택 기준을 미리 적습니다.</b> 연속성 보정을 했는지와 Fisher 검정으로 바꾸는 기준(기대빈도 5 미만)을 밝히면, 독자가 표의 P 값이 어떤 검정에서 나왔는지 알 수 있습니다(<a href="#ch05-s1">5장 가 절</a>의 논문 상자). 이 기준은 결과를 보기 전에 정합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>데이터는 <code>pd.read_csv("…/csv/MASS/birthwt.csv")</code>로 읽습니다. 한 행이 출생아 한 명이고 결과변수 <code>low</code>는 1 = 저체중아입니다.</li>
+<li>이름표는 <code>pd.Categorical(…, categories=[…])</code>로 붙이고 범주 순서를 직접 정합니다. 교차표의 행·열 순서가 효과 지표의 방향을 정하기 때문입니다.</li>
+<li>원래의 0/1 숫자 열은 남겨 둡니다. 평균이 곧 비율이고 회귀모형에도 그대로 씁니다.</li>
+<li>분석 전에 범주별 인원을 확인합니다. 인원이 적은 범주(고혈압 병력 12명)는 검정 방법 선택에 영향을 줍니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab05-s2">
+<h2><span class="sec-no">나.</span>카이제곱 검정</h2>
+
+<p>흡연 산모와 비흡연 산모의 저체중아 비율을 비교합니다. 순서는 <a href="#ch05-s1">5장 가 절</a>의 손계산과 같습니다. 교차표를 만들고, 기대빈도와 카이제곱 통계량을 구하고, 같은 표에서 효과의 크기(위험차, 상대위험도, 오즈비)와 신뢰구간을 구합니다.</p>
+
+<h3>교차표와 합계</h3>
+<!--FIG:lab05_crosstab-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pd.crosstab(행, 열, margins=True)</code><span>첫 인자의 범주를 행, 둘째 인자의 범주를 열로 놓고 칸마다 인원을 셉니다. 행에 노출(흡연), 열에 결과(저체중아)를 두는 것이 역학 표의 관례입니다. <code>margins=True</code>는 행 합계와 열 합계("All")를 덧붙입니다. 가 절에서 정한 범주 순서 덕분에 흡연군이 첫 행, LBW가 첫 열로 나옵니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>흡연 산모 74명 중 30명이 저체중아를 낳았습니다.</b> 2×2 표의 a 칸(노출 있음, 사건 있음)입니다.</span></li>
+<li><span class="mk">2</span><span><b>비흡연 산모 115명 중 29명.</b> c 칸입니다. 이 네 칸(30, 44, 29, 86)이 이 절의 모든 계산의 재료입니다.</span></li>
+<li><span class="mk">3</span><span><b>전체 189명.</b> 행 합계(74, 115)와 열 합계(59, 130)는 기대빈도를 구할 때 씁니다.</span></li>
+</ol>
+
+<h3>행 백분율</h3>
+<!--FIG:lab05_rowpct-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>normalize="index"</code><span>빈도 대신 비율을 구하는데, 분모를 <b>행 합계</b>로 합니다(index는 pandas에서 행을 가리키는 말). <code>"columns"</code>로 쓰면 열 합계, <code>"all"</code>로 쓰면 전체 인원이 분모가 됩니다.</span></li>
+<li><code>(pct * 100).round(1)</code><span>백분율로 바꾸고 소수 첫째 자리로 반올림합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>흡연군의 저체중아 비율 40.5%</b>(30/74). 행이 노출군이므로 행 백분율이 곧 각 군의 <b>위험</b>(risk)입니다.</span></li>
+<li><span class="mk">2</span><span><b>비흡연군 25.2%</b>(29/115). 논문 표의 n (%)는 이 두 숫자입니다. 행과 열을 바꿔 놓고 열 백분율을 구하면 같은 값이 나오니, 분모가 무엇인지(여기서는 각 흡연군의 산모 수)를 항상 확인합니다.</span></li>
+</ol>
+
+<h3>카이제곱 검정</h3>
+<p><code>stats.chi2_contingency</code>는 교차표를 받아 기대빈도, 카이제곱 통계량, 자유도, p-value를 한 번에 계산합니다. 합계 행·열이 붙은 표를 넣으면 합계까지 관측값으로 계산하므로, 합계 없는 표를 따로 만들어 넣습니다.</p>
+<!--FIG:lab05_chi2-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>obs = pd.crosstab(df["smoke_f"], df["low_f"])</code><span><code>margins</code> 없이 만든 2행 2열의 관측빈도 표입니다.</span></li>
+<li><code>stats.chi2_contingency(obs, correction=False)</code><span>Pearson 카이제곱 검정을 합니다. <code>correction=False</code>는 Yates 연속성 보정을 하지 말라는 뜻입니다. scipy는 2×2 표(자유도 1)에서 <b>보정이 기본값</b>이라 보정하지 않은 값을 원하면 이렇게 꼭 적어야 합니다.</span></li>
+<li><code>print("statistic    :", res.statistic)
+…</code><span>결과 객체 <code>res</code>에는 네 가지 값이 들어 있고, 점(.) 뒤에 이름을 붙여 하나씩 꺼냅니다: <code>statistic</code>(χ² 통계량), <code>pvalue</code>, <code>dof</code>(자유도), <code>expected_freq</code>(기대빈도 배열). <code>print(res)</code>로 통째로 출력해도 되지만 한 줄이 너무 길어집니다. 예전 scipy에서는 결과가 (통계량, p, 자유도, 기대빈도) 튜플로 나오는데, <code>chi2, p, dof, expected = stats.chi2_contingency(…)</code>처럼 풀어 쓰는 방법은 어느 버전에서나 됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>χ² = 4.92.</b> 네 칸의 (O − E)²/E를 더한 값입니다. 소수 자릿수가 길게 나오는 것은 계산 결과를 그대로 보여 주기 때문이며, 보고할 때는 4.92로 반올림합니다.</span></li>
+<li><span class="mk">2</span><span><b>p = 0.026.</b> 자유도 1인 카이제곱 분포에서 4.92 이상이 나올 확률입니다. 흡연과 저체중아 출생이 무관하다고 보기 어렵다는 뜻이지만, 방향과 크기는 이 값으로 알 수 없습니다(<a href="#ch05-s1">5장 가 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>자유도 (2 − 1) × (2 − 1) = 1.</b></span></li>
+<li><span class="mk">4</span><span><b>기대빈도 표.</b> 첫 칸 23.10은 74 × 59 / 189, 즉 흡연군 인원 × 전체 저체중아 비율입니다. 흡연과 무관하다면 흡연군에서 23.1명이 저체중아였어야 하는데 실제로는 30명으로 6.9명 많았습니다. 네 칸의 차이(O − E)는 모두 ±6.90으로 크기가 같습니다(2×2 표의 성질).</span></li>
+</ol>
+
+<h3>Yates 연속성 보정과 비교</h3>
+<!--FIG:lab05_yates-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>yates = stats.chi2_contingency(obs)</code><span><code>correction</code>을 적지 않으면 기본값 True가 적용되어 Yates 보정 결과가 나옵니다. 3×2처럼 자유도가 1보다 큰 표에서는 이 인자와 관계없이 보정하지 않습니다.</span></li>
+<li><code>f"…{res.statistic:.3f}…"</code><span>f-문자열 안의 <code>{값:.3f}</code>는 소수 셋째 자리까지 보여 주라는 형식 지정입니다.</span></li>
+<li><code>res.expected_freq.min().round(1)</code><span>네 칸 기대빈도 중 가장 작은 값입니다. 카이제곱 근사가 괜찮은지 판단하는 기준입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정하지 않은 Pearson 검정 p = 0.0265.</b></span></li>
+<li><span class="mk">2</span><span><b>Yates 보정 p = 0.0396.</b> 보정하면 통계량이 작아지고 p가 커집니다. 같은 자료인데도 논문마다 p가 다르게 보고되는 흔한 이유입니다. 5장 가 절에서 설명한 것처럼 요즘은 보정하지 않은 값을 쓰고 기대빈도가 작을 때 Fisher 검정으로 바꾸는 방식이 더 널리 권장되므로, 이 실습에서는 보정하지 않은 값을 보고합니다<cite data-ref="campbell2007"></cite>.</span></li>
+<li><span class="mk">3</span><span><b>가장 작은 기대빈도 23.1.</b> 5보다 훨씬 크므로 카이제곱 근사에 문제가 없습니다.</span></li>
+</ol>
+
+<h3>상대위험도와 오즈비</h3>
+<p>검정은 "관련이 있는가"만 알려 주므로 효과의 크기를 따로 구합니다. statsmodels의 <code>Table2x2</code>는 2×2 표 하나로 상대위험도와 오즈비, 로그 척도의 표준오차, 95% 신뢰구간을 계산합니다. 비(ratio)의 신뢰구간은 로그 척도에서 만들어 지수함수로 되돌립니다(<a href="#ch08-s1">8장 가 절</a>).</p>
+<!--FIG:lab05_t22-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from statsmodels.stats.contingency_tables import Table2x2</code><span>statsmodels의 교차표 모듈에서 2×2 표 전용 클래스를 불러옵니다.</span></li>
+<li><code>Table2x2(obs.to_numpy())</code><span><code>.to_numpy()</code>는 데이터프레임에서 이름표를 떼고 숫자만 담긴 2×2 배열 [[30, 44], [29, 86]]을 꺼냅니다. <code>Table2x2</code>는 이 배열의 <b>첫 행을 노출군, 첫 열을 사건</b>으로 읽어 RR = (30/74) ÷ (29/115), OR = (30 × 86) ÷ (44 × 29)를 계산합니다. 데이터프레임을 그대로 넣으면 안 되는 이유는 아래 주의 상자에 있습니다.</span></li>
+<li><code>print(t22.summary())</code><span>주요 값을 표로 요약합니다. 값을 하나씩 꺼내려면 <code>t22.riskratio</code>, <code>t22.riskratio_confint()</code>, <code>t22.oddsratio</code>, <code>t22.oddsratio_confint()</code>를 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>오즈비 2.022.</b> 흡연군의 저체중아 오즈(30/44 = 0.682)가 비흡연군(29/86 = 0.337)의 2.02배라는 뜻입니다. 오즈비는 교차비라고도 합니다.</span></li>
+<li><span class="mk">2</span><span><b>로그 오즈비의 표준오차 0.320.</b> \(\sqrt{1/30 + 1/44 + 1/29 + 1/86}\)입니다. 오즈비 행에는 SE가 비어 있는데, 표준오차는 로그 척도에서만 계산하기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>오즈비의 95% CI 1.081–3.783.</b> 로그 척도에서 0.704 ± 1.96 × 0.320 = 0.078–1.331을 구한 뒤 각각 e를 거듭제곱한 값입니다. 점추정값 2.022를 중심으로 비대칭입니다.</span></li>
+<li><span class="mk">4</span><span><b>상대위험도 1.608.</b> 40.5% ÷ 25.2%. 흡연 산모의 저체중아 출산 위험이 비흡연 산모의 1.61배(61% 높음)라는 뜻입니다.</span></li>
+<li><span class="mk">5</span><span><b>상대위험도의 95% CI 1.058–2.443.</b> 1을 포함하지 않아 카이제곱 검정과 같은 결론입니다. 오른쪽 p-value 열(0.026, 0.028)은 로그 RR, 로그 OR이 0인지 보는 Wald 검정의 값이라 카이제곱 검정의 p(0.0265)와 조금 다릅니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">주의 · Table2x2에 DataFrame을 그대로 넣으면</p>
+<p>오류 메시지 없이 틀린 값이 나옵니다. 이런 실수가 가장 위험합니다.</p>
+<!--FIG:lab05_t22wrong-->
+<p><span class="mk">1</span> 2×2여야 할 표가 4×4가 되었고, <span class="mk">2</span> 상대위험도가 1.0으로 나왔습니다. <code>Table2x2</code>는 원래 짝지은 자료처럼 행과 열의 범주가 같은 정사각형 표를 다루는 클래스를 바탕으로 만들어져, 데이터프레임을 받으면 행 이름(Smoker, Nonsmoker)과 열 이름(LBW, Not LBW)을 합친 네 범주로 표를 다시 짜 버립니다(이 사이트에서 쓴 statsmodels 0.15 기준). 그래서 <code>.to_numpy()</code>로 숫자만 넘기고, 결과의 상대위험도가 행 백분율로 직접 계산한 40.5 ÷ 25.2와 같은지 한 번 검산하는 습관을 들이세요.</p></div>
+
+<h3>위험차와 95% 신뢰구간</h3>
+<p><code>Table2x2</code>는 위험차를 계산하지 않으므로 두 비율의 차이를 다루는 함수를 따로 씁니다. 위험차는 "100명당 몇 명 더"라는 절대적 크기를 보여 줍니다(<a href="#ch08-s2">8장 나 절</a>).</p>
+<!--FIG:lab05_rd-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>(a, b), (c, d) = obs.to_numpy()</code><span>2×2 배열의 첫 행을 (a, b), 둘째 행을 (c, d)로 한 번에 풀어 담습니다. a = 30, b = 44, c = 29, d = 86으로 5장의 기호와 같습니다.</span></li>
+<li><code>p1, p0 = a / (a + b), c / (c + d)</code><span>흡연군의 위험 30/74와 비흡연군의 위험 29/115입니다.</span></li>
+<li><code>confint_proportions_2indep(a, a + b, c, c + d, compare="diff", method="wald")</code><span>독립된 두 군의 비율을 비교하는 신뢰구간입니다. 인자는 (1군 사건 수, 1군 인원, 2군 사건 수, 2군 인원) 순서입니다. <code>compare="diff"</code>는 차이, <code>method="wald"</code>는 교과서의 공식 \((p_1 - p_0) \pm 1.96\sqrt{p_1(1-p_1)/n_1 + p_0(1-p_0)/n_0}\)입니다. <code>method</code>를 적지 않으면 Newcombe 방법이 쓰여 0.018–0.287로 조금 다르게 나옵니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>위험차 0.153, 즉 15.3%p.</b> 흡연 산모 100명당 저체중아가 약 15명 더 태어났다는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>95% CI 1.6%p에서 29.0%p.</b> 0을 포함하지 않지만 폭이 넓습니다. 차이가 2%p 정도로 작을 수도, 29%p로 클 수도 있다는 뜻입니다. 역수 1/0.153 ≈ 6.5는 "흡연 산모 6.5명당 저체중아 1명이 더"라는 뜻의 NNH(number needed to harm)인데, 이 해석은 교란이 없다는 전제가 필요합니다. 실습 8에서 다시 다룹니다.</span></li>
+</ol>
+
+<div class="callout note"><p class="ct">참고 · 이 자료에서 '위험'을 계산해도 되나</p>
+<p>위험, 상대위험도, 위험차는 대상을 노출에 따라 모으거나 한 집단 전체를 따라간 자료(코호트, 임상시험)에서 의미가 있습니다. 이 자료의 저체중아 비율 31.2%는 일반 출생아의 저체중아 비율보다 훨씬 높아, 고위험 산모가 많이 포함되었거나 결과에 따라 대상을 모았을 가능성이 있습니다. 자료 문서에는 대상 선정 방법이 자세히 나와 있지 않습니다. 이 실습에서는 189명을 하나의 코호트처럼 보고 위험을 계산하지만, 실제 연구라면 표본이 어떻게 모였는지부터 확인해야 합니다. 결과에 따라 대상을 뽑은 자료라면 '위험'은 대조군을 몇 명 뽑았느냐에 따라 달라지는 숫자가 되고, 해석할 수 있는 지표는 오즈비뿐입니다(<a href="#ch08-s2">8장 나 절</a>, 라 절의 esoph 자료).</p></div>
+
+<h3>오즈비와 상대위험도의 관계</h3>
+<p>저체중아는 이 자료에서 31%로 흔한 결과입니다. 이런 결과에서는 오즈비가 상대위험도보다 1에서 훨씬 멀리 떨어집니다. <a href="#ch08-s2">8장 나 절</a>의 관계식이 실제 자료에서도 정확히 맞는지 확인해 봅니다.</p>
+<!--FIG:lab05_orrr-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>rr, or_ = t22.riskratio, t22.oddsratio</code><span>앞 셀의 결과에서 두 값을 꺼냅니다. <code>or</code>는 파이썬의 예약어(“또는”)라 변수 이름으로 쓸 수 없어서 밑줄을 붙였습니다.</span></li>
+<li><code>rr * (1 - p0) / (1 - p1)</code><span>OR = RR × (1 − p₀)/(1 − p₁)을 계산합니다.</span></li>
+<li><code>or_ / (1 - p0 + p0 * or_)</code><span>반대로 오즈비와 비노출군 위험 p₀로 상대위험도를 되돌리는 Zhang–Yu 공식입니다<cite data-ref="zhang1998"></cite>.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>RR 1.608에 (1 − 0.252)/(1 − 0.405) = 1.258을 곱하면 OR 2.022.</b> 두 군의 위험이 모두 높아서 보정 인수가 1에서 멀어졌습니다.</span></li>
+<li><span class="mk">2</span><span><b>OR 2.022에서 거꾸로 RR 1.608을 되찾았습니다.</b> 보정하지 않은 2×2 표에서는 이 공식이 정확히 맞습니다. 여러 변수를 보정한 오즈비에는 근삿값일 뿐이라, 보정 상대위험도가 필요하면 처음부터 상대위험도를 추정하는 모형을 씁니다(<a href="#lab08-s2">실습 8 나 절</a>).</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 오즈비를 위험의 배수로 읽기</p>
+<p><span class="wrong">오즈비가 2.02이므로 흡연 산모의 저체중아 출산 위험은 비흡연 산모의 2배다.</span> 위험의 비는 상대위험도 1.61입니다. 2.02배가 된 것은 오즈입니다. 저체중아처럼 31%나 되는 흔한 결과에서 오즈비를 "위험이 두 배"로 옮기면 실제(61% 증가)를 크게 부풀립니다. 결과가 드물 때(대략 10% 이하)만 두 값이 비슷해집니다(<a href="#ch05-s1">5장 가 절</a>, <a href="#ch08-s2">8장 나 절</a>).</p></div>
+
+<h3>세 군 이상: 인종별 저체중아 비율</h3>
+<p>범주가 셋인 인종과 저체중아의 3×2 표입니다. 계산 방법은 같고 자유도만 (3 − 1) × (2 − 1) = 2로 늘어납니다. 이 검정은 "세 군의 비율이 모두 같은가"를 한 번에 보는 전체 검정입니다.</p>
+<!--FIG:lab05_race-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>stats.chi2_contingency(obs_r)</code><span>3×2 표는 자유도가 2라서 <code>correction</code> 인자를 적든 안 적든 보정하지 않은 Pearson 검정입니다.</span></li>
+<li><code>print(f"chi2 = …, " f"p = …")</code><span>줄이 길어 f-문자열 두 개로 나눴습니다. 괄호 안에서 줄을 바꾸면 파이썬이 한 줄로 이어 읽습니다.</span></li>
+<li><code>pd.crosstab(…, normalize="index")</code><span>인종별 저체중아 비율(행 백분율)입니다. 셀의 마지막 줄이라 표로 출력됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>χ² = 5.005.</b></span></li>
+<li><span class="mk">2</span><span><b>자유도 2.</b></span></li>
+<li><span class="mk">3</span><span><b>p = 0.082.</b> 저체중아 비율이 백인 24.0%, 흑인 42.3%, 기타 37.3%로 차이가 커 보이지만, 흑인 산모가 26명뿐이라 우연으로 설명할 수 있는 범위를 벗어나지 못했습니다. "인종에 따라 차이가 없다"는 뜻은 아닙니다(<a href="#ch01-s2">1장 나 절</a>).</span></li>
+</ol>
+
+<h3>수정 표준화 잔차</h3>
+<p>전체 검정 결과와 관계없이, 어느 칸이 기대에서 많이 벗어났는지 보려면 <b>수정 표준화 잔차</b><span class="en">(adjusted standardized residual)</span>를 봅니다(<a href="#ch05-s1">5장 가 절</a>). 절댓값이 1.96보다 크면 그 칸의 관측빈도가 기대와 뚜렷하게 다르다고 봅니다.</p>
+<!--FIG:lab05_resid-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from statsmodels.stats.contingency_tables import Table</code><span>2×2가 아닌 일반 r×c 표를 다루는 클래스입니다.</span></li>
+<li><code>Table(obs_r).standardized_resids</code><span>칸마다 (O − E)/√[E × (1 − 행 비율) × (1 − 열 비율)]을 계산합니다. 5장의 수정 표준화 잔차 공식과 같고, SPSS 교차분석의 "adjusted standardized" 잔차와 같은 값입니다. <code>Table</code>은 <code>Table2x2</code>와 달리 데이터프레임을 그대로 받아도 되고, 결과도 이름표가 붙은 표로 돌려줍니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>백인 산모의 LBW 칸 −2.19.</b> 관측 23명이 기대 29.97명보다 적은 것이 표준오차의 2.19배라는 뜻입니다. 직접 계산하면 (23 − 29.97) ÷ √(29.97 × (1 − 96/189) × (1 − 59/189)) = −2.19입니다.</span></li>
+<li><span class="mk">2</span><span><b>흑인 1.31</b>과 <span class="mk">3</span> <b>기타 1.34</b>는 기대보다 조금 많지만 1.96에 미치지 못합니다. 세 칸을 함께 보는 것이므로 Bonferroni 기준(2.39)을 쓰면 백인 칸도 넘지 못해, 전체 검정(p = 0.082)과 같은 결론이 됩니다. 결과가 두 범주라 같은 행의 두 칸은 부호만 반대입니다.</span></li>
+</ol>
+
+<h3>그래프로 확인하기</h3>
+<p>논문에 싣지 않더라도 비율을 막대그래프로 그려 보면 표의 숫자를 한눈에 확인할 수 있습니다. 세로축(Low birth weight, %)은 저체중아 비율, 가로축은 흡연 여부(smoke_f)와 인종(race_f)입니다.</p>
+<!--FIG:lab05_barplot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>fig, axes = plt.subplots(1, 2, figsize=(8, 3.2), sharey=True)</code><span>1행 2열의 그림 두 칸을 만듭니다. <code>figsize</code>는 가로·세로 크기(인치), <code>sharey=True</code>는 두 그림의 세로축 눈금을 같게 맞춥니다.</span></li>
+<li><code>for ax, col in zip(axes, ["smoke_f", "race_f"]):</code><span>첫 칸에는 흡연, 둘째 칸에는 인종을 그립니다. <code>zip</code>은 두 목록을 짝지어 하나씩 꺼냅니다.</span></li>
+<li><code>df.groupby(col, observed=True)["low"].mean() * 100</code><span>범주별 <code>low</code>의 평균, 즉 저체중아 비율(%)입니다. <code>observed=True</code>는 범주형 변수로 묶을 때 실제로 있는 범주만 쓰라는 뜻으로, pandas 버전에 따라 기본값이 달라 경고가 나오지 않게 적어 둡니다.</span></li>
+<li><code>ax.bar(…)
+ax.bar_label(bars, fmt="%.1f")</code><span>막대를 그리고 막대 위에 값을 소수 첫째 자리로 적습니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 흡연과 저체중아 출생</b><span>birthwt 실습 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Low birth weight occurred in <span class="mk">1</span> <span class="hl">30 of 74 infants (40.5%) born to mothers who smoked during pregnancy and in 29 of 115 (25.2%) born to nonsmokers</span> (<span class="mk">2</span> <span class="hl">χ² = 4.92, df = 1, P = 0.026</span>). The <span class="mk">3</span> <span class="hl">risk ratio was 1.61 (95% CI, 1.06–2.44)</span> and the <span class="mk">4</span> <span class="hl">risk difference was 15.3 percentage points (95% CI, 1.6–29.0)</span>; the corresponding <span class="mk">5</span> <span class="hl">odds ratio was 2.02 (95% CI, 1.08–3.78)</span>. The proportion of low birth weight was 24.0%, 42.3%, and 37.3% among White, Black, and other mothers, respectively (<span class="mk">6</span> <span class="hl">χ² = 5.00, df = 2, P = 0.082</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>분자와 분모를 함께 씁니다.</b> 행 백분율 셀의 40.5%와 25.2%에 교차표의 30/74, 29/115를 붙였습니다. 퍼센트만 쓰면 표본 크기를 알 수 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>연속성 보정을 하지 않은 Pearson 검정의 값입니다.</b> Yates 보정 값(χ² = 4.24, P = 0.040)을 썼다면 Methods에 그렇게 밝혀야 합니다. 통계량과 자유도를 함께 쓰면 독자가 어떤 검정인지 확인할 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>상대위험도는 표본을 하나의 코호트로 볼 수 있을 때 씁니다.</b> 이 실습은 189명을 그렇게 다뤘습니다. 결과(저체중아 여부)에 따라 대상을 모은 자료였다면 이 자리에는 오즈비만 쓸 수 있습니다(위 참고 상자). 구간은 <code>Table2x2</code>의 로그 척도 구간(1.058–2.443)을 반올림한 것입니다.</span></li>
+<li><span class="mk">4</span><span><b>절대적 크기인 위험차를 함께 씁니다.</b> 같은 RR 1.61이라도 기저위험이 2%인 집단과 25%인 집단의 의미는 다릅니다(<a href="#ch08-s2">8장 나 절</a>). CONSORT 지침도 이분형 결과에 상대적·절대적 지표를 함께 보고하도록 권고합니다<cite data-ref="moher2010consort"></cite>.</span></li>
+<li><span class="mk">5</span><span><b>오즈비는 상대위험도보다 1에서 멉니다.</b> 2.02와 1.61의 차이는 저체중아가 흔하기 때문입니다. 오즈비를 쓴다면 "odds"라는 단어를 정확히 쓰고, "2배의 위험"으로 옮기지 않습니다.</span></li>
+<li><span class="mk">6</span><span><b>세 군 전체 검정의 결과입니다.</b> P = 0.082는 "세 군의 비율이 같다는 가설을 기각하지 못했다"는 뜻입니다. 백인 칸의 수정 표준화 잔차(−2.19)만 골라 "백인 산모의 위험이 유의하게 낮았다"고 쓰면 다중비교 문제를 무시한 과장입니다. 이 결과들은 모두 보정하지 않은 비교이며, 인종과 흡연이 서로 얽혀 있는 문제(교란)는 <a href="#lab08-s3">실습 8 다 절</a>에서 다룹니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>pd.crosstab(노출, 결과)</code>로 교차표를, <code>normalize="index"</code>로 군별 위험(행 백분율)을 구합니다.</li>
+<li><code>stats.chi2_contingency</code>는 2×2 표에서 Yates 보정이 기본값입니다. 보정하지 않은 Pearson 검정은 <code>correction=False</code>로 지정하고, <code>expected_freq</code>로 기대빈도를 확인합니다.</li>
+<li><code>Table2x2(표.to_numpy())</code>로 상대위험도·오즈비와 로그 척도 신뢰구간을, <code>confint_proportions_2indep</code>로 위험차의 신뢰구간을 구합니다. 데이터프레임을 그대로 넣으면 틀린 값이 나옵니다.</li>
+<li>결과가 흔하면(이 자료 31%) 오즈비(2.02)가 상대위험도(1.61)보다 1에서 멀리 있습니다. "위험이 몇 배"는 상대위험도로만 말합니다.</li>
+<li>r×c 표의 전체 검정 뒤에는 <code>Table(표).standardized_resids</code>로 수정 표준화 잔차를 보되, 여러 칸을 동시에 본다는 점을 고려합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab05-s3">
+<h2><span class="sec-no">다.</span>Fisher의 정확한 검정</h2>
+
+<p>고혈압 병력이 있는 산모는 12명뿐입니다. 이런 변수로 교차표를 만들면 일부 칸의 기대빈도가 5보다 작아져 카이제곱 분포 근사를 믿기 어렵습니다. 이때 여백(행·열 합계)을 고정하고 가능한 모든 표의 확률을 직접 계산하는 Fisher의 정확한 검정을 씁니다(<a href="#ch05-s2">5장 나 절</a>).</p>
+
+<h3>기대빈도 확인</h3>
+<!--FIG:lab05_ht-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>obs_h = pd.crosstab(df["ht_f"], df["low_f"])</code><span>고혈압 병력(행) × 저체중아(열)의 2×2 표입니다. <code>print(obs_h)</code>로 관측빈도를 먼저 봅니다.</span></li>
+<li><code>stats.chi2_contingency(obs_h).expected_freq</code><span>검정 결과 중 기대빈도 배열만 꺼냅니다. 기대빈도는 보정 여부와 관계없이 같습니다.</span></li>
+<li><code>(exp_h &lt; 5).sum()</code><span><code>exp_h &lt; 5</code>는 칸마다 True/False인 배열이고, <code>.sum()</code>은 True를 1로 세어 더합니다. 즉 기대빈도가 5 미만인 칸의 수입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>고혈압 병력이 있는 산모의 LBW 칸 기대빈도 3.75</b>(12 × 59 / 189). 관측빈도는 7명입니다. 판단 기준은 관측빈도가 아니라 기대빈도입니다.</span></li>
+<li><span class="mk">2</span><span><b>4칸 중 1칸(25%)이 5 미만입니다.</b> 2×2 표에서는 한 칸만 5 미만이어도 Cochran의 기준(20% 이하)을 넘으므로 Fisher의 정확한 검정을 씁니다<cite data-ref="cochran1954"></cite>.</span></li>
+</ol>
+
+<h3>Fisher의 정확한 검정</h3>
+<!--FIG:lab05_fisher-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>fe = stats.fisher_exact(obs_h)</code><span>2×2 표에 Fisher의 정확한 검정을 합니다. 기본값은 양측검정(<code>alternative="two-sided"</code>)입니다.</span></li>
+<li><code>fe.statistic
+fe.pvalue</code><span>결과 객체에는 <code>statistic</code>(2×2 표에서는 오즈비)과 <code>pvalue</code>가 들어 있습니다.</span></li>
+<li><code>chi_u
+chi_y</code><span>비교를 위해 같은 표에 보정하지 않은 카이제곱 검정과 Yates 보정 카이제곱 검정도 해 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>statistic = 3.365는 표본 오즈비입니다.</b> (7 × 125) ÷ (5 × 52) = 875 ÷ 260 = 3.365로, 표에서 바로 계산한 값입니다. R의 <code>fisher.test()</code>가 출력하는 조건부 최대우도 추정값과 다릅니다(아래 셀).</span></li>
+<li><span class="mk">2</span><span><b>양측 p = 0.0516.</b> 관측된 표보다 확률이 같거나 작은 표들의 확률을 모두 더한 값입니다. 아래에서 직접 계산해 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>보정하지 않은 카이제곱 검정은 p = 0.036</b>으로 0.05보다 작습니다. 기대빈도가 작은 표에서는 근사가 p를 실제보다 작게 만들 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>Yates 보정은 p = 0.076.</b> 같은 표에서 방법에 따라 p가 0.036, 0.052, 0.076으로 달라지고, 0.05를 기준으로 하면 결론까지 바뀝니다. 결과를 보고 가장 작은 p를 고르면 안 되며, 가 절의 논문 상자처럼 기준(기대빈도 5 미만이면 Fisher)을 미리 정해 두어야 합니다(<a href="#ch05-s2">5장 나 절</a>).</span></li>
+</ol>
+
+<h3>오즈비 두 가지</h3>
+<p>scipy의 <code>fisher_exact</code>가 돌려주는 오즈비는 표본 오즈비이고, R의 <code>fisher.test()</code>가 Fisher 검정과 함께 출력하는 값은 <b>조건부 최대우도 추정값</b><span class="en">(conditional maximum likelihood estimate)</span>입니다. scipy에서는 <code>odds_ratio</code> 함수로 두 가지를 모두 구할 수 있습니다(scipy 1.10 이상).</p>
+<!--FIG:lab05_or2-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from scipy.stats.contingency import odds_ratio</code><span>scipy의 교차표 모듈에서 오즈비 함수를 불러옵니다.</span></li>
+<li><code>for kind in ["sample", "conditional"]:</code><span>두 종류를 차례로 계산합니다.</span></li>
+<li><code>odds_ratio(obs_h.to_numpy(), kind=kind)</code><span><code>kind="sample"</code>은 표본 오즈비(ad/bc), <code>"conditional"</code>은 여백을 고정한 비중심 초기하분포에서 구한 조건부 최대우도 추정값입니다.</span></li>
+<li><code>o.confidence_interval(confidence_level=0.95)</code><span>95% 신뢰구간입니다. 표본 오즈비는 로그 척도의 정규 근사(Woolf 방법), 조건부 추정값은 정확 신뢰구간을 줍니다.</span></li>
+<li><code>f"{kind:11s} …"</code><span><code>:11s</code>는 글자를 11칸 폭에 맞춰 적으라는 형식입니다. 두 줄의 숫자가 나란히 정렬됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>표본 오즈비 3.365</b>는 <code>fisher_exact</code>의 statistic과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>그 신뢰구간 1.02–11.09는 1을 포함하지 않습니다.</b> 그런데 Fisher 검정의 p는 0.052로 0.05보다 큽니다. 구간은 정규 근사, p는 정확 계산이라 서로 다른 방법에서 나왔기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>조건부 최대우도 추정값 3.341.</b> 표본이 작아 표본 오즈비와 조금 다릅니다. 논문의 Fisher 검정 옆에 적힌 오즈비를 표로 검산했는데 조금 다르다면 이 값일 가능성이 큽니다(<a href="#ch05-s2">5장 나 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>정확 신뢰구간 0.87–14.00은 1을 포함해</b> Fisher 검정의 결론과 맞습니다. Fisher 검정을 보고할 때는 같은 원리의 조건부 추정값과 정확 신뢰구간을 함께 쓰는 편이 일관됩니다. 구간이 0.87에서 14까지 걸쳐 있어 12명으로는 효과의 크기를 거의 알 수 없다는 것도 함께 읽어야 합니다.</span></li>
+</ol>
+
+<h3>가능한 모든 표의 확률</h3>
+<p>Fisher 검정의 p를 초기하분포로 직접 계산해 봅니다. 여백(전체 189명, 저체중아 59명, 고혈압 병력 산모 12명)을 고정하면 표는 왼쪽 위 칸 a(고혈압 병력 산모 중 저체중아 수) 하나로 정해지고, a는 0부터 12까지만 가능합니다. 12명을 189명 중에서 무작위로 뽑았을 때 그 안에 저체중아가 a명 들어갈 확률이 초기하분포입니다(<a href="#ch05-s2">5장 나 절</a>의 카드 나누기 비유).</p>
+<!--FIG:lab05_hyper-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>total, lbw, ht_n = 189, 59, 12</code><span>세 여백 값을 변수에 담습니다.</span></li>
+<li><code>a = np.arange(0, ht_n + 1)</code><span>0, 1, …, 12의 정수 배열입니다. <code>np.arange(시작, 끝)</code>은 끝 값을 포함하지 않으므로 +1을 했습니다.</span></li>
+<li><code>stats.hypergeom.pmf(a, total, lbw, ht_n)</code><span>초기하분포의 확률질량함수로 a가 각 값일 확률을 한꺼번에 구합니다. 인자 순서는 (구할 값, 전체 수, '성공' 항목 수, 뽑는 수)입니다. 결과 <code>prob</code>도 13개짜리 배열입니다.</span></li>
+<li><code>p_obs = prob[7]</code><span>실제로 관측된 표(a = 7)의 확률입니다. 배열의 번호는 0부터 시작하므로 <code>[7]</code>이 a = 7입니다.</span></li>
+<li><code>extreme = prob &lt;= p_obs * (1 + 1e-7)</code><span>관측된 표보다 확률이 같거나 작은 표를 True로 표시합니다. 컴퓨터의 소수 계산에는 아주 작은 오차가 있어서 "같은" 확률을 놓치지 않도록 1천만분의 1만큼 여유를 두었습니다.</span></li>
+<li><code>prob[extreme].sum()</code><span>True인 표의 확률만 골라 더합니다. 이것이 양측 p-value입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>관측된 표의 확률 0.0322.</b> 목록에서 여덟 번째 값(a = 7)입니다. 가장 흔한 표는 a = 4(0.2434)로 기대빈도 3.75에 가장 가깝습니다.</span></li>
+<li><span class="mk">2</span><span><b>양측 p = 0.0516</b>으로 <code>fisher_exact</code>의 값과 같습니다. a = 7, 8, 9, 10, 11, 12(오른쪽 꼬리)와 a = 0(0.0095, 왼쪽 꼬리)의 확률을 더한 것입니다. a = 1은 확률이 0.0565로 관측된 표보다 커서 빠집니다. 분포가 좌우 대칭이 아니어서 양쪽 꼬리의 폭이 다릅니다.</span></li>
+</ol>
+<!--FIG:lab05_hyperplot-->
+<p>가로축은 고혈압 병력 산모 12명 중 저체중아 수(a), 세로축은 그 표가 나올 확률입니다. 주황 막대가 p-value에 더해진 표들이고, 점선은 기대빈도 3.75입니다. <code>np.where(extreme, "tab:orange", "tab:gray")</code>는 extreme이 True인 막대는 주황, 아니면 회색으로 칠하라는 뜻입니다.</p>
+
+<div class="callout note"><p class="ct">참고 · 표가 2×2보다 크면</p>
+<p>Fisher 검정은 r×c 표로 확장할 수 있습니다(Freeman–Halton 확장). scipy의 <code>fisher_exact</code>는 1.15 버전부터 r×c 표도 받지만, 그 전 버전에서는 2×2가 아닌 표를 넣으면 오류가 납니다. r×c 표에서는 오즈비가 하나로 정해지지 않으므로 statistic도 오즈비가 아닌 다른 값이 나옵니다. 기대빈도가 작은 r×c 표라면 범주를 의미 있게 합치는 방법도 고려하고, 어떤 방법을 썼는지 Methods에 밝힙니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 사건이 적은 노출</b><span>birthwt 실습 결과</span></div>
+<div class="paper-b">
+<p class="excerpt">Among the <span class="mk">1</span> <span class="hl">12 mothers with a history of hypertension, 7 (58.3%)</span> delivered a low-birth-weight infant, compared with 52 of 177 (29.4%) mothers without hypertension (<span class="mk">2</span> <span class="hl">P = 0.052, Fisher's exact test</span>; <span class="mk">3</span> <span class="hl">conditional maximum likelihood odds ratio, 3.34; exact 95% CI, 0.87–14.0</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>분모가 12명입니다.</b> 한 명이 달라질 때마다 비율이 8.3%p씩 움직입니다. 이런 행에서는 퍼센트보다 분자·분모를 먼저 읽습니다.</span></li>
+<li><span class="mk">2</span><span><b>검정 이름을 문장 안에 적었습니다.</b> 기대빈도 3.75인 칸이 있어 Fisher 검정을 썼습니다. 보정하지 않은 카이제곱 검정이었다면 P = 0.036이 되어 "유의하다"고 쓰게 되므로, 어떤 검정인지가 결론을 좌우합니다.</span></li>
+<li><span class="mk">3</span><span><b>검정과 같은 원리의 효과 추정값.</b> 조건부 오즈비와 정확 신뢰구간은 Fisher 검정과 일관된 결론(구간이 1을 포함)을 줍니다. P = 0.052를 "고혈압 병력은 저체중아와 관련 없다"로 읽으면 틀립니다. 오즈비의 신뢰구간이 0.87부터 14까지로 매우 넓어 "판단할 정보가 부족하다"가 정확한 해석입니다(<a href="#ch08-s1">8장 가 절</a>). 또 이 결과는 다른 변수를 보정하지 않은 비교입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>검정을 고르기 전에 <code>chi2_contingency(…).expected_freq</code>로 기대빈도를 확인합니다. 2×2 표에서 한 칸이라도 5 미만이면 Fisher의 정확한 검정을 씁니다.</li>
+<li><code>stats.fisher_exact(표)</code>는 양측 p와 <b>표본</b> 오즈비를 돌려줍니다. R의 <code>fisher.test()</code>와 같은 조건부 최대우도 추정값과 정확 신뢰구간은 <code>odds_ratio(표, kind="conditional")</code>로 구합니다.</li>
+<li>양측 p는 초기하분포에서 관측된 표보다 확률이 같거나 작은 표의 확률을 모두 더한 값이며, <code>stats.hypergeom.pmf</code>로 직접 확인할 수 있습니다.</li>
+<li>기대빈도가 작은 표에서는 방법에 따라 p가 크게 달라지므로 검정 방법을 미리 정합니다. 작은 표본의 "유의하지 않음"은 대부분 정보 부족입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab05-s4">
+<h2><span class="sec-no">라.</span>선형 대 선형 결합</h2>
+
+<p>노출의 범주에 순서가 있으면 "순서를 따라 한 방향으로 변하는가"를 묻는 추세 검정을 쓸 수 있습니다(<a href="#ch05-s3">5장 다 절</a>). 여기서는 식도암 환자-대조군 연구 자료 esoph에서 하루 음주량(4단계)과 식도암의 관련을 봅니다.</p>
+
+<h3>자료의 구조</h3>
+<p>esoph는 birthwt와 모양이 다릅니다. 한 행이 한 사람이 아니라 <b>나이군 × 음주량 × 흡연량 조합 하나</b>이고, 그 조합에 속한 환자 수(<code>ncases</code>)와 대조군 수(<code>ncontrols</code>)가 적혀 있습니다. 이런 자료를 <b>집계 자료</b><span class="en">(grouped data)</span>라고 합니다. 조합은 6 × 4 × 4 = 96개가 가능하지만 해당자가 없는 조합은 빠져서 88행입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>변수</th><th>뜻</th><th>값</th></tr></thead>
+<tbody>
+<tr><td><code>agegp</code></td><td>나이군</td><td>25-34, 35-44, 45-54, 55-64, 65-74, 75+ (세)</td></tr>
+<tr><td><code>alcgp</code></td><td>하루 알코올 섭취량</td><td>0-39g/day, 40-79, 80-119, 120+ (g/일)</td></tr>
+<tr><td><code>tobgp</code></td><td>하루 담배 소비량</td><td>0-9g/day, 10-19, 20-29, 30+ (g/일)</td></tr>
+<tr><td><code>ncases</code>, <code>ncontrols</code></td><td>그 조합의 환자 수, 대조군 수</td><td>정수</td></tr>
+</tbody></table></div>
+<p>환자-대조군 연구는 식도암 환자를 먼저 모으고 대조군을 연구자가 정한 수만큼 뽑은 뒤 과거의 음주량을 비교합니다. 환자와 대조군의 비율(200 : 775)이 설계로 정해지므로, 음주군별 "환자의 비율"은 식도암의 위험이 아닙니다. 이 설계에서 의미 있는 효과 지표는 오즈비입니다(<a href="#ch08-s2">8장 나 절</a>).</p>
+<!--FIG:lab05_esoph-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>url2 = ("…" "csv/datasets/esoph.csv")</code><span>esoph는 R의 기본 패키지 datasets에 있으므로 주소의 패키지 이름 자리가 <code>datasets</code>입니다.</span></li>
+<li><code>es["ncases"].sum(), es["ncontrols"].sum()</code><span>88행에 흩어진 환자 수와 대조군 수를 모두 더해 전체 인원을 확인합니다.</span></li>
+<li><code>es.head(6)</code><span>앞의 6행을 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>88행, 6열이고 환자 200명, 대조군 775명입니다.</b> 행 수(88)와 사람 수(975)가 다르다는 점이 집계 자료의 특징입니다. 첫 행은 "25–34세, 하루 0–39 g 음주, 0–9 g 흡연"인 사람 중 환자 0명, 대조군 40명이라는 뜻입니다. 젊은 나이군에는 환자가 거의 없습니다.</span></li>
+</ol>
+
+<h3>순서를 지정하지 않고 합치면</h3>
+<p>음주량별로 환자 수와 대조군 수를 더하려면 <code>groupby</code>를 씁니다. 그런데 그대로 실행하면 순서가 틀어집니다.</p>
+<!--FIG:lab05_badorder-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>120+가 두 번째에 왔습니다.</b> <code>alcgp</code>는 문자열이라 pandas가 사전 순서로 정렬했습니다. 첫 글자가 "0" &lt; "1" &lt; "4" &lt; "8"이므로 0-39, 120+, 40-79, 80-119 순서가 됩니다. 이 순서로 점수 1, 2, 3, 4를 매기면 추세 검정이 엉뚱한 질문을 하게 됩니다. 5장 다 절에서 "코드 순서가 실제 순서와 다르면 결과가 틀린다"고 한 경우가 바로 이것입니다.</span></li>
+</ol>
+
+<h3>음주량 순서대로 합치기</h3>
+<!--FIG:lab05_alc-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>alc_order = [ … ]</code><span>실제 순서대로 범주 이름을 적습니다. 데이터에 적힌 글자와 정확히 같아야 합니다(첫 범주만 "g/day"가 붙어 있음).</span></li>
+<li><code>pd.Categorical(es["alcgp"], categories=alc_order, ordered=True)</code><span>문자열 열을 순서 있는 범주형으로 바꿉니다. 이후의 정렬, 표, 그래프가 모두 이 순서를 따릅니다.</span></li>
+<li><code>es.groupby("alcgp", observed=True)[["ncases", "ncontrols"]].sum()</code><span>음주군별로 행을 묶어 환자 수와 대조군 수를 각각 더합니다. 88행이 4행이 되고, 나이와 흡연량의 구분은 사라집니다.</span></li>
+<li><code>n_grp = alc["ncases"] + alc["ncontrols"]</code><span>음주군별 전체 인원입니다.</span></li>
+<li><code>alc["pct_case"]
+alc["odds"]
+alc["OR"]</code><span>환자의 비율(%), 환자 수 ÷ 대조군 수(오즈), 그리고 첫 행(0–39 g)의 오즈를 기준으로 나눈 오즈비를 새 열로 만듭니다. <code>.iloc[0]</code>은 위치로 첫 번째 값을 꺼냅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0–39 g군에서 환자의 비율 6.99%.</b> 29 ÷ (29 + 386)입니다. 이 값은 식도암의 위험이 아닙니다. 대조군을 두 배로 뽑았다면 절반 가까이로 줄어들 숫자입니다.</span></li>
+<li><span class="mk">2</span><span><b>오즈 0.075.</b> 대조군 1명당 환자 0.075명입니다. 오즈 자체도 대조군을 몇 명 뽑았느냐에 따라 달라지지만, 모든 음주군에 같은 비율로 영향을 주므로 군 사이의 비(오즈비)에서는 약분되어 사라집니다(<a href="#ch08-s2">8장 나 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>120 g 이상군에서는 67.2%</b>로, 음주량이 늘수록 환자의 비율이 한 방향으로 커집니다. 추세 검정이 확인하려는 모양입니다.</span></li>
+<li><span class="mk">4</span><span><b>오즈비 27.2.</b> 하루 120 g 이상 마시는 사람이 식도암 환자일 오즈가 0–39 g인 사람의 27배라는 뜻입니다. 식도암은 인구 전체에서 드문 질환이므로 이 오즈비는 발생 위험의 비에 가까운 값으로 읽을 수 있습니다(희귀질환 가정). 단, 나이와 흡연을 보정하지 않은 값입니다.</span></li>
+</ol>
+
+<h3>음주량별 오즈비와 95% 신뢰구간</h3>
+<p>음주군마다 기준군(0–39 g)과 짝지어 2×2 표를 만들고 <code>Table2x2</code>로 오즈비의 신뢰구간을 구합니다.</p>
+<!--FIG:lab05_alcor-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ref = alc.iloc[0]</code><span>기준군 행(환자 29, 대조군 386)을 꺼냅니다.</span></li>
+<li><code>for g, row in alc.iloc[1:].iterrows():</code><span>둘째 행부터 한 행씩 꺼냅니다. <code>g</code>는 행 이름(음주군), <code>row</code>는 그 행의 값들입니다.</span></li>
+<li><code>Table2x2(np.array([[…], […]]))</code><span>첫 행에 그 음주군, 둘째 행에 기준군을 놓은 2×2 표입니다. 열은 (환자, 대조군) 순서입니다.</span></li>
+<li><code>t.oddsratio_confint()</code><span>오즈비의 95% 신뢰구간 (하한, 상한)을 돌려줍니다.</span></li>
+<li><code>f"{g:&gt;6}: OR {t.oddsratio:5.2f} …"</code><span><code>:&gt;6</code>은 6칸 폭에 오른쪽 정렬, <code>:5.2f</code>는 5칸 폭에 소수 둘째 자리입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>40–79 g: OR 3.57 (2.26–5.62).</b> 가장 낮은 음주군과 비교해 오즈가 3.6배입니다.</span></li>
+<li><span class="mk">2</span><span><b>120 g 이상: OR 27.23 (14.44–51.34).</b> 점추정값이 크고 이 군의 인원(67명)이 적어서 구간이 매우 넓습니다. 로그 척도에서 대칭이라 √(14.44 × 51.34) = 27.2로 점추정값과 맞습니다.</span></li>
+</ol>
+
+<h3>환자군과 대조군의 음주 분포</h3>
+<p>환자-대조군 연구의 논문 표는 보통 행 백분율 대신 <b>열 백분율</b>, 즉 환자군 안에서의 음주 분포와 대조군 안에서의 음주 분포를 보여 줍니다. 두 군은 각각 따로 모은 집단이기 때문입니다.</p>
+<!--FIG:lab05_colpct-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>cc = alc[["ncases", "ncontrols"]]</code><span>뒤의 검정에 쓸 4행 2열의 빈도 표입니다(대괄호 두 겹은 여러 열을 고를 때 씁니다).</span></li>
+<li><code>cc / cc.sum() * 100</code><span><code>cc.sum()</code>은 열 합계(200, 775)이고, 데이터프레임을 이 값으로 나누면 열마다 자기 합계로 나눠집니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>환자의 14.5%만 0–39 g군이었습니다.</b> 네 값을 더하면 100%입니다.</span></li>
+<li><span class="mk">2</span><span><b>대조군은 절반(49.8%)이 0–39 g군입니다.</b> 환자군의 음주 분포가 대조군보다 전체적으로 많이 마시는 쪽으로 옮겨 가 있습니다.</span></li>
+</ol>
+
+<h3>그래프로 확인하기</h3>
+<!--FIG:lab05_alcplot-->
+<p>가로축은 하루 알코올 섭취량 범주, 세로축(Cases among subjects, %)은 그 군의 환자 비율이고, 막대 위의 숫자는 환자 수/전체 인원입니다. <code>plt.bar_label(bars, labels=[…])</code>의 <code>labels</code>에 직접 만든 글자 목록을 넣어 비율 대신 분수를 적었습니다. 세로축이 위험이 아니라는 점을 다시 기억해 두세요.</p>
+
+<h3>Pearson 카이제곱 검정 (자유도 3)</h3>
+<!--FIG:lab05_alcchi2-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>χ² = 158.95</b>, <span class="mk">2</span> <b>자유도 (4 − 1) × (2 − 1) = 3</b>, <span class="mk">3</span> <b>p = 3.08 × 10⁻³⁴.</b> <code>:.2e</code>는 지수 표기로 보여 달라는 형식이고, <code>e-34</code>는 10⁻³⁴입니다. 논문에는 "P &lt; 0.001"로 씁니다. 이 검정은 네 범주의 순서를 어떻게 바꿔도 같은 값이 나옵니다. 순서 정보를 쓰지 않는다는 뜻입니다.</span></li>
+</ol>
+
+<h3>M² = (N − 1)r² 직접 계산</h3>
+<p>선형 대 선형 결합 통계량은 사람마다 "음주 점수"와 "환자 여부(1/0)"를 붙인 뒤 두 값의 Pearson 상관계수 r로 계산합니다(<a href="#ch05-s3">5장 다 절</a>). 집계 자료를 한 사람당 한 줄인 형태로 풀어 975명의 두 변수를 만듭니다.</p>
+<!--FIG:lab05_m2-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>score = np.array([1, 2, 3, 4])</code><span>네 음주 범주에 매긴 점수입니다. 간격이 같다는 가정을 담고 있습니다.</span></li>
+<li><code>case_n = cc["ncases"].to_numpy()</code><span>음주군별 환자 수 [29, 75, 51, 45]를 numpy 배열로 꺼냅니다. 다음 줄은 대조군 수입니다.</span></li>
+<li><code>np.repeat(score, case_n)</code><span>점수 1을 29번, 2를 75번, 3을 51번, 4를 45번 반복한 200개짜리 배열입니다. 환자 200명의 음주 점수가 됩니다.</span></li>
+<li><code>x = np.r_[…, …]</code><span><code>np.r_</code>는 배열을 이어 붙입니다. 환자 200명 뒤에 대조군 775명의 점수를 붙여 975개의 x를 만듭니다.</span></li>
+<li><code>y = np.r_[np.ones(…), np.zeros(…)]</code><span>같은 순서로 환자는 1, 대조군은 0인 y를 만듭니다. x와 y의 같은 위치가 같은 사람입니다.</span></li>
+<li><code>x[y == 1].mean()</code><span>y가 1인 사람(환자)의 평균 음주 점수입니다. 다음 값은 대조군의 평균 점수입니다.</span></li>
+<li><code>np.corrcoef(x, y)[0, 1]</code><span>두 변수의 상관행렬(2×2)을 구하고 그중 x와 y의 상관계수 칸 [0, 1]을 꺼냅니다.</span></li>
+<li><code>M2 = (len(x) - 1) * r**2</code><span>M² = (N − 1)r²입니다. <code>**</code>는 거듭제곱입니다.</span></li>
+<li><code>stats.chi2.sf(M2, 1)</code><span>자유도 1인 카이제곱 분포에서 M² 이상이 나올 확률(생존함수, survival function)이 p-value입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>975명분의 배열이 만들어졌습니다.</b></span></li>
+<li><span class="mk">2</span><span><b>환자의 평균 음주 점수 2.56</b>, <span class="mk">3</span> <b>대조군 1.671.</b> 환자-대조군 자료에서 이 검정은 "환자군의 음주 점수가 대조군보다 높은가"를 보는 것과 같습니다. 두 평균의 차이가 클수록 r이 커집니다.</span></li>
+<li><span class="mk">4</span><span><b>r = 0.396.</b> 양수이므로 음주 점수가 높을수록 환자일 가능성이 큰 방향입니다.</span></li>
+<li><span class="mk">5</span><span><b>M² = 974 × 0.3963² = 152.97</b>, 자유도 1.</span></li>
+<li><span class="mk">6</span><span><b>p = 3.88 × 10⁻³⁵.</b> 논문에는 P for trend &lt; 0.001로 씁니다.</span></li>
+</ol>
+
+<h3>statsmodels로 같은 검정</h3>
+<p>매번 자료를 풀어 쓰지 않아도 statsmodels의 <code>Table</code>에 있는 <code>test_ordinal_association</code>으로 같은 값을 얻습니다. 이 메서드의 분산 계산에는 N − 1이 들어 있어 z²이 M²와 정확히 같습니다.</p>
+<!--FIG:lab05_ordinal-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>Table(cc).test_ordinal_association(row_scores=score, col_scores=np.array([1, 0]))</code><span>행(음주군)에 점수 1–4, 열(환자, 대조군)에 점수 1과 0을 줍니다. 열 점수를 적지 않으면 기본값 0, 1이 쓰여 환자가 0, 대조군이 1이 되므로 z의 부호만 반대로 나옵니다. 행 점수도 적지 않으면 0, 1, 2, 3이 쓰이는데, 간격이 같으면 결과는 1, 2, 3, 4와 똑같습니다.</span></li>
+<li><code>lbl.zscore
+lbl.pvalue</code><span>결과 객체에서 z 값과 양측 p를 꺼냅니다.</span></li>
+<li><code>len(x) * r**2</code><span>Cochran–Armitage 추세 검정의 통계량 N r²입니다.</span></li>
+<li><code>dev = pear.statistic - M2</code><span>Pearson χ²에서 직선 추세 부분을 뺀 나머지, 즉 직선에서 벗어난 부분입니다. 자유도는 3 − 1 = 2입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>z = 12.37</b>, <span class="mk">2</span> <b>z² = 152.97</b>로 직접 계산한 M²와 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>Cochran–Armitage 통계량 153.13.</b> M²에 N/(N − 1) = 975/974를 곱한 값이라 사실상 같은 검정입니다(<a href="#ch05-s3">5장 다 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>직선에서 벗어난 부분 5.98</b>(<span class="mk">5</span> 자유도 2, p = 0.050). Pearson χ² 158.95 가운데 152.97(96%)이 직선 추세 한 가지로 설명됩니다. 남은 부분이 경계선에 걸린 것은 환자 비율이 7.0%, 21.1%, 37.0%, 67.2%로 높은 음주군에서 더 가파르게 올라가기 때문입니다. 추세 검정은 직선 성분이 있는지를 볼 뿐 관계가 정확히 직선이라는 뜻은 아닙니다.</span></li>
+</ol>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<ul>
+<li><b>점수 바꾸기</b>: <code>score = np.array([20, 60, 100, 160])</code>처럼 범주의 대략적인 중간값을 쓰면(120 g 이상은 160으로 가정) M²가 157.32로 바뀝니다. 간격이 같은 점수(예: 20, 60, 100, 140)는 1, 2, 3, 4와 똑같은 결과를 줍니다. 점수는 자료를 보기 전에 정하고 논문에 밝힙니다.</li>
+<li><b>흡연량으로 바꾸기</b>: <code>alcgp</code> 대신 <code>tobgp</code>(순서 "0-9g/day", "10-19", "20-29", "30+")로 같은 분석을 하면 Pearson χ² = 29.36(자유도 3), M² = 26.93(자유도 1)이 나옵니다. 음주보다 관련은 약하지만 역시 대부분이 직선 추세입니다.</li>
+</ul></div>
+
+<div class="callout warn"><p class="ct">주의 · 합친 자료의 추세에는 교란이 섞여 있습니다</p>
+<p>88행을 음주량으로만 합치면서 나이와 흡연량의 구분을 버렸습니다. 나이가 많을수록 식도암 환자가 많고(25–34세 환자 1명, 55–64세 76명), 음주량과 흡연량도 서로 관련되어 있으므로, 위의 오즈비와 추세에는 이 변수들의 영향이 섞여 있습니다. 이 자료를 소개한 교재의 분석처럼 나이군으로 층화하거나(<a href="#lab08-s3">실습 8 다 절</a>의 Mantel–Haenszel 방법, 추세 검정의 층화 확장<cite data-ref="mantel1963"></cite>) 로지스틱 회귀로 보정해야 음주 자체의 관련을 볼 수 있습니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 환자-대조군 연구의 추세 표</b><span>esoph 실습 결과</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Daily alcohol consumption among cases of esophageal cancer and controls</caption>
+<thead><tr><th>Alcohol, g/day</th><th class="r"><span class="mk">1</span> Cases<br>(n = 200)</th><th class="r">Controls<br>(n = 775)</th><th class="r"><span class="mk">2</span> Crude OR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>0–39</td><td class="r">29 (14.5)</td><td class="r">386 (49.8)</td><td class="r">1 (Reference)</td></tr>
+<tr><td>40–79</td><td class="r">75 (37.5)</td><td class="r">280 (36.1)</td><td class="r">3.57 (2.26–5.62)</td></tr>
+<tr><td>80–119</td><td class="r">51 (25.5)</td><td class="r">87 (11.2)</td><td class="r">7.80 (4.68–13.02)</td></tr>
+<tr><td>≥120</td><td class="r">45 (22.5)</td><td class="r">22 (2.8)</td><td class="r"><span class="mk">3</span> 27.23 (14.44–51.34)</td></tr>
+<tr><td><span class="mk">4</span> P for trend</td><td class="r"></td><td class="r"></td><td class="r">&lt;0.001</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are n (%). OR, odds ratio; CI, confidence interval. P for trend was obtained from the linear-by-linear association test with scores of 1–4 for the ordered categories. <span class="mk">5</span> <span class="hl">Odds ratios were not adjusted for age or tobacco consumption</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>열 백분율입니다.</b> "환자 200명 중 29명(14.5%)이 0–39 g군"이라는 뜻입니다. 행 방향으로 29/(29 + 386) = 7.0%를 계산해 "위험"이라고 부르면 안 됩니다. 대조군을 몇 명 뽑았느냐에 따라 달라지는 숫자이기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>환자-대조군 연구의 효과 지표는 오즈비입니다.</b> 표의 OR은 모두 같은 기준범주(0–39 g)와 비교한 값입니다(<a href="#ch08-s7">8장 사 절</a>). 식도암이 드문 질환이라 발생 위험의 비에 가깝게 읽을 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>큰 오즈비와 넓은 구간.</b> 27.2의 구간이 14.4부터 51.3까지입니다. 효과가 크다는 것은 분명하지만 정확한 크기는 불확실합니다. 소수 둘째 자리까지 적는 것이 과한 정밀도로 보인다면 27.2 (14.4–51.3)처럼 줄여 적어도 됩니다.</span></li>
+<li><span class="mk">4</span><span><b>P for trend = M²의 p.</b> 셀의 M² = 152.97(자유도 1)에서 나온 값입니다. 음주 범주가 올라갈수록 환자일 오즈가 일정하게 커지는 경향이 우연으로 보기 어렵다는 뜻이며, 인접한 두 범주의 차이가 모두 유의하다는 뜻은 아닙니다(<a href="#ch05-s3">5장 다 절</a>).</span></li>
+<li><span class="mk">5</span><span><b>보정하지 않았다는 사실을 각주에 밝힙니다.</b> 실제 논문이라면 나이 등을 보정한 오즈비가 본 결과가 되고, 이 표는 그 앞 단계의 기술적 결과입니다. 층화와 보정은 <a href="#lab08">실습 8</a>에서 다룹니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>집계 자료(한 행 = 한 조합, 환자 수·대조군 수)는 <code>groupby(…).sum()</code>으로 원하는 변수별로 합칩니다.</li>
+<li>순서가 있는 문자열 범주는 <code>pd.Categorical(…, categories=[…], ordered=True)</code>로 순서를 지정해야 합니다. 그대로 두면 사전 순서로 정렬되어 추세 검정이 틀립니다.</li>
+<li>선형 대 선형 결합 M² = (N − 1)r²는 자료를 한 사람당 한 줄로 풀어 직접 계산하거나 <code>Table(표).test_ordinal_association(row_scores=…, col_scores=…)</code>의 z²로 구합니다. Cochran–Armitage 통계량 N r²과 사실상 같습니다.</li>
+<li>Pearson χ²(자유도 r − 1)와 M²(자유도 1)의 차이가 직선에서 벗어난 부분입니다.</li>
+<li>환자-대조군 자료의 환자 비율은 위험이 아닙니다. 효과는 오즈비로 보고하고, 합친 자료의 추세에는 교란이 섞일 수 있음을 밝힙니다.</li>
+</ul></div>
+</section>

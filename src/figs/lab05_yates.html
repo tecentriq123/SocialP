@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">Yates 연속성 보정과 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">yates = stats.chi2_contingency(obs)  # correction=True가 기본값
+print(f&quot;Pearson: chi2 = {res.statistic:.3f}, p = {res.pvalue:.4f}&quot;)
+print(f&quot;Yates:   chi2 = {yates.statistic:.3f}, p = {yates.pvalue:.4f}&quot;)
+print(&quot;가장 작은 기대빈도:&quot;, res.expected_freq.min().round(1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Pearson: chi2 = 4.924, p = 0.0265<span class="mk">1</span>
+Yates:   chi2 = 4.236, p = 0.0396<span class="mk">2</span>
+가장 작은 기대빈도: 23.1<span class="mk">3</span></pre></div></div>

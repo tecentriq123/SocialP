@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">강건(샌드위치) 표준오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pois_r = smf.glm(form, data=pt, family=sm.families.Poisson(),
+                 offset=np.log(pt[&quot;py&quot;])).fit(cov_type=&quot;HC0&quot;)
+t = &quot;treat[T.rIFN-g]&quot;
+print(&quot;model-based SE:&quot;, round(pois.bse[t], 3))
+print(&quot;robust SE     :&quot;, round(pois_r.bse[t], 3))
+print(&quot;robust 95% CI :&quot;, np.exp(pois_r.conf_int().loc[t]).round(3).values)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>model-based SE: 0.262<span class="mk">1</span>
+robust SE     : 0.309<span class="mk">2</span>
+robust 95% CI : [0.198 0.664]</pre></div></div>

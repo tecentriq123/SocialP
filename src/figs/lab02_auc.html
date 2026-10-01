@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">우월 확률과 AUC</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ps = mw.statistic / n1n2
+print(f&quot;P(smoker &gt; nonsmoker) = {ps:.3f}&quot;)
+
+from sklearn.metrics import roc_auc_score
+auc = roc_auc_score(df[&quot;smoke&quot;], df[&quot;bwt&quot;])
+print(f&quot;AUC = {auc:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>P(smoker &gt; nonsmoker) = 0.383<span class="mk">1</span>
+AUC = 0.383<span class="mk">2</span></pre></div></div>

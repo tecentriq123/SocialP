@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">Greenhouse–Geisser ε 직접 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+
+S = np.cov(wide.values, rowvar=False)   # 10×10 공분산 행렬
+k, n = S.shape[0], wide.shape[0]        # 시점 10, 참가자 18
+# 이중 중심화: 행 평균·열 평균을 빼고 전체 평균을 더함
+Sc = S - S.mean(axis=0) - S.mean(axis=1)[:, None] + S.mean()
+eps = np.trace(Sc)**2 / ((k - 1) * np.sum(Sc**2))
+print(&quot;GG epsilon:&quot;, round(eps, 3))
+
+F = aov.anova_table.loc[&quot;Days&quot;, &quot;F Value&quot;]
+df1, df2 = k - 1, (k - 1) * (n - 1)
+print(&quot;보정 자유도:&quot;, round(eps * df1, 2), round(eps * df2, 2))
+print(&quot;p, 보정 없음:&quot;, stats.f.sf(F, df1, df2))
+print(&quot;p, GG 보정  :&quot;, stats.f.sf(F, eps * df1, eps * df2))
+print(&quot;p, 하한 보정:&quot;, stats.f.sf(F, 1, n - 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>GG epsilon: 0.369<span class="mk">1</span>
+보정 자유도: 3.32 56.46<span class="mk">2</span>
+p, 보정 없음: 8.99534541600201e-21
+p, GG 보정  : 5.463091767581479e-09
+p, 하한 보정: 0.0004599124155647096</pre></div></div>

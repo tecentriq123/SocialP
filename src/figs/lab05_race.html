@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">세 군 이상: 인종별 저체중아 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs_r = pd.crosstab(df[&quot;race_f&quot;], df[&quot;low_f&quot;])
+res_r = stats.chi2_contingency(obs_r)  # 2×2가 아니면 보정 없음
+print(f&quot;chi2 = {res_r.statistic:.3f}, dof = {res_r.dof}, &quot;
+      f&quot;p = {res_r.pvalue:.4f}&quot;)
+pct_r = pd.crosstab(df[&quot;race_f&quot;], df[&quot;low_f&quot;], normalize=&quot;index&quot;)
+(pct_r * 100).round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>chi2 = 5.005<span class="mk">1</span>, dof = 2<span class="mk">2</span>, p = 0.0819<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>low_f</th>
+      <th>LBW</th>
+      <th>Not LBW</th>
+    </tr>
+    <tr>
+      <th>race_f</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>White</th>
+      <td>24.0</td>
+      <td>76.0</td>
+    </tr>
+    <tr>
+      <th>Black</th>
+      <td>42.3</td>
+      <td>57.7</td>
+    </tr>
+    <tr>
+      <th>Other</th>
+      <td>37.3</td>
+      <td>62.7</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">일원배치 분산분석 (scipy)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">white = df.loc[df[&quot;race_f&quot;] == &quot;White&quot;, &quot;bwt&quot;]
+black = df.loc[df[&quot;race_f&quot;] == &quot;Black&quot;, &quot;bwt&quot;]
+other = df.loc[df[&quot;race_f&quot;] == &quot;Other&quot;, &quot;bwt&quot;]
+
+res = stats.f_oneway(white, black, other)
+print(res)
+print(f&quot;F = {res.statistic:.3f}, p = {res.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>F_onewayResult(statistic=np.float64(4.912513318643409), pvalue=np.float64(0.008336077494540366))
+F = 4.913<span class="mk">1</span>, p = 0.0083<span class="mk">2</span></pre></div></div>

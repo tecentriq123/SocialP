@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">카이제곱 검정 (연속성 보정 없음)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs = pd.crosstab(df[&quot;smoke_f&quot;], df[&quot;low_f&quot;])  # 합계 없는 2×2 표
+res = stats.chi2_contingency(obs, correction=False)
+print(&quot;statistic    :&quot;, res.statistic)
+print(&quot;pvalue       :&quot;, res.pvalue)
+print(&quot;dof          :&quot;, res.dof)
+print(&quot;expected_freq:&quot;)
+print(res.expected_freq)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>statistic    : 4.923705434361292<span class="mk">1</span>
+pvalue       : 0.026490642530502487<span class="mk">2</span>
+dof          : 1<span class="mk">3</span>
+expected_freq:
+[[23.1005291<span class="mk">4</span> 50.8994709]
+ [35.8994709 79.1005291]]</pre></div></div>

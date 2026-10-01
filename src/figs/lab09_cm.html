@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">혼동행렬</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.metrics import confusion_matrix
+
+pred05 = (p_test &gt;= 0.5).astype(int)        # 0.5 이상이면 악성으로
+print(confusion_matrix(y_test, pred05))      # 행 = 실제, 열 = 예측</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[[106   1]<span class="mk">1</span>
+ [  4  60]]<span class="mk">2</span></pre></div></div>

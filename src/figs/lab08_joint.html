@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">인종 전체의 P: 결합 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(m_cat.wald_test_terms())
+m_smoke = smf.logit(&quot;low ~ smoke&quot;, df).fit(disp=0)
+lr = 2 * (m_cat.llf - m_smoke.llf)
+print(f&quot;\nLR test for race: chi2 = {lr:.3f}, df = 2, &quot;
+      f&quot;P = {stats.chi2.sf(lr, 2):.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                                      chi2        P&gt;chi2  df constraint
+Intercept                        27.206652  1.828285e-07              1
+C(race, Treatment(reference=1))   9.112888<span class="mk">1</span>  1.049933e-02              2
+smoke                             9.135791  2.506571e-03              1
+
+LR test for race: chi2 = 9.830<span class="mk">2</span>, df = 2, P = 0.0073</pre></div></div>

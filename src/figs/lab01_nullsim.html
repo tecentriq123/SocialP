@@ -1,0 +1,43 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">귀무가설이 참일 때 (1000번 반복)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for i in range(1000):                 # 무작위 분할을 1000번 반복
+    a = ben.sample(frac=0.5, random_state=i)
+    b = ben.drop(a.index)
+    p = stats.ttest_ind(a[features], b[features],
+                        equal_var=False).pvalue
+    row = {&quot;none&quot;: (p &lt; 0.05).sum()}
+    for method in [&quot;bonferroni&quot;, &quot;holm&quot;, &quot;fdr_bh&quot;]:
+        row[method] = multipletests(p, method=method)[0].sum()
+    rows.append(row)
+sim = pd.DataFrame(rows)       # 1000행: 반복마다 거짓양성 수
+pd.DataFrame({&quot;FWER&quot;: (sim &gt; 0).mean(),   # 1개 이상 나온 비율
+              &quot;mean_FP&quot;: sim.mean()})     # 평균 거짓양성 수</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>FWER</th>
+      <th>mean_FP</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>none</th>
+      <td>0.481<span class="mk">1</span></td>
+      <td>1.414<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>bonferroni</th>
+      <td>0.024<span class="mk">2</span></td>
+      <td>0.043</td>
+    </tr>
+    <tr>
+      <th>holm</th>
+      <td>0.024</td>
+      <td>0.045</td>
+    </tr>
+    <tr>
+      <th>fdr_bh</th>
+      <td>0.029<span class="mk">3</span></td>
+      <td>0.100</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

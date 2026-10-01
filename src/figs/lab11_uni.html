@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">치료만 넣은 Cox 모형 (단변수)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+
+cph1 = CoxPHFitter()
+cph1.fit(df, duration_col=&quot;years&quot;, event_col=&quot;death&quot;, formula=&quot;dpca&quot;)
+cph1.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations<span class="mk">1</span>&gt;
+             duration col = &#x27;years&#x27;
+                event col = &#x27;death&#x27;
+      baseline estimation = breslow<span class="mk">3</span>
+   number of observations = 312
+number of events observed = 125<span class="mk">2</span>
+   partial log-likelihood = -639.915<span class="mk">4</span>
+         time fit was run = 2026-09-29 23:54:14 UTC
+
+---
+           coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%
+covariate                                                                                                  
+dpca      0.057<span class="mk">5</span>     1.059<span class="mk">6</span>     0.179<span class="mk">7</span>          -0.294           0.408               0.745               1.504<span class="mk">8</span>
+
+           cmp to     z     p  -log2(p)
+covariate                              
+dpca        0.000 0.319<span class="mk">9</span> 0.749<span class="mk">10</span>     0.416
+---
+Concordance = 0.499<span class="mk">11</span>
+Partial AIC = 1281.831<span class="mk">12</span>
+log-likelihood ratio test = 0.102 on 1 df<span class="mk">13</span>
+-log2(p) of ll-ratio test = 0.416</pre></div></div>

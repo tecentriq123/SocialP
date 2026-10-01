@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">시간 단위 바꾸기와 사건 수 세기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lung[&quot;months&quot;] = lung[&quot;time&quot;] / 30.4375   # 365.25일 / 12
+
+n, d = len(lung), lung[&quot;event&quot;].sum()
+print(&quot;환자&quot;, n, &quot;명, 사망&quot;, d, &quot;명, 중도절단&quot;, n - d, &quot;명&quot;)
+print(&quot;사망 비율(추적 기간 무시):&quot;, round(d / n * 100, 1), &quot;%&quot;)
+
+py = lung[&quot;months&quot;].sum() / 12            # 총 추적 인년
+print(&quot;총 추적:&quot;, round(py, 1), &quot;인년&quot;)
+print(&quot;사망률:&quot;, round(d / py * 100, 1), &quot;/ 100인년&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>환자 228 명, 사망 165 명, 중도절단 63 명<span class="mk">1</span>
+사망 비율(추적 기간 무시): 72.4 %<span class="mk">2</span>
+총 추적: 190.5 인년<span class="mk">3</span>
+사망률: 86.6 / 100인년<span class="mk">4</span></pre></div></div>

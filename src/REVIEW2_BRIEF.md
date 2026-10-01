@@ -1,0 +1,16 @@
+# Brief: review of the beginner-friendly rewrite (2026-09-30)
+
+The theory chapters (content/ch01–ch13.html) were just restructured for beginners (see REWRITE_BRIEF.md for what was requested: 쉽게 말하면 intuition box → paper/numeric example → 내 연구에 쓸 때 box → formulas moved to 수식으로 보기; markers placed before the phrases they explain). The version before the rewrite is in `/tmp/claude-0/-home-claude/e0b25f68-ca2e-5b14-8f3a-9898d4746d73/scratchpad/backup/content_0930_1100/chNN.html` (ch03 before-rewrite: `.../scratchpad/ch03_before.html`). The earlier version had already passed an independent statistical review, so **focus on what changed**: diff old vs new (e.g., `python3 - <<EOF … difflib …` on text with tags stripped, or `diff <(sed 's/<[^>]*>//g' old) <(sed 's/<[^>]*>//g' new)`).
+
+Environment: `source /home/claude/pylibs/env.sh` (statsmodels 0.15, lifelines 0.30.3, scipy 1.17, numpy, pandas). Read STYLE.md (terminology table) and REVIEW_BRIEF.md (general reviewer rules).
+
+## Check
+1. **New or changed statements are correct.** Analogies and plain-language explanations must not be wrong or misleading (e.g., a p-value analogy that implies P(H0|data); "HR = risk ratio"; "adjustment removes all confounding"; "OR = N times the risk"). Fix or tighten them. Keep them simple — do not re-complicate.
+2. **New numbers** introduced in the rewrite (not present in the old file) must be recomputed from the chapter's data/parameters (use `gen/nums_chNN.py`, `gen/lib_*.py`); fix any wrong value and add a short computation to the nums script if it is missing (append a clearly labelled block; do not break existing output).
+3. **Structure integrity after moving blocks**: references like "위 표", "아래 상자", "앞의 예제", "이 절 끝의 '수식으로 보기'", "(가 절)", "Results 상자 3번", figure/table numbers (그림 N-k, 표 N-k — captions must be numbered in order of appearance; cross-chapter references must point to the right figure), and "N번 항목" must still point at the right thing now that blocks moved.
+4. **Markers**: every `<ol class="marks">` number has exactly one matching `<span class="mk">` in its box and it sits before the phrase it explains (not needed inside `<pre>` outputs or inside SVG figures).
+5. **Beginner flow**: the first 2–3 screens of each section (easy box, first paper box, first example) should be understandable without the formulas; each method section has a correct "내 연구에 쓸 때" box (confounding/adjustment advice must be right: adjust for pre-exposure confounders, not mediators/colliders; unmeasured confounding remains; PS does not remove all bias).
+6. Real-paper guides are injected at build time under the first paper box (files in realpapers/, reviewed separately) — just confirm in the built page that the first `<div class="paper">` of each section is a paper-style box (not a program-output box).
+
+## Fix and report
+Minimal targeted edits in your assigned content files (and nums/fig scripts if needed; re-run fig scripts after caption changes). Do not edit other chapters, realpapers/, shared files or briefs. Verify with `python3 build.py --only <ids> --out /tmp/claude-0/-home-claude/e0b25f68-ca2e-5b14-8f3a-9898d4746d73/scratchpad/<dir>/t.html` (no warnings) and `python3 tools/move_marks.py content/chNN.html` (0 unhandled). Final reply (under 250 words): fixes made (chapter/section: wrong → now) and anything needing the owner's judgment.

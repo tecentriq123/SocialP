@@ -1,0 +1,62 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">요약통계와 상관</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">r = wide[&quot;drug1&quot;].corr(wide[&quot;drug2&quot;])
+print(f&quot;두 약의 상관계수 r = {r:.3f}&quot;)
+wide.describe().round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>두 약의 상관계수 r = 0.795<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>drug1</th>
+      <th>drug2</th>
+      <th>d</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>10.00</td>
+      <td>10.00</td>
+      <td>10.00</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>0.75</td>
+      <td>2.33</td>
+      <td>1.58<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>1.79</td>
+      <td>2.00</td>
+      <td>1.23<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>-1.60</td>
+      <td>-0.10</td>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>-0.18</td>
+      <td>0.88</td>
+      <td>1.05</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>0.35</td>
+      <td>1.75</td>
+      <td>1.30</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>1.70</td>
+      <td>4.15</td>
+      <td>1.70</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>3.70</td>
+      <td>5.50</td>
+      <td>4.60</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

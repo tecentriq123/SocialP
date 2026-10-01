@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">AUC와 정확도는 다른 것을 잽니다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p_half = p_test / 2                        # 모든 확률을 절반으로
+acc = lambda p: ((p &gt;= 0.5).astype(int) == y_test).mean()
+print(&quot;AUC     :&quot;, round(roc_auc_score(y_test, p_test), 4), &quot;-&gt;&quot;,
+      round(roc_auc_score(y_test, p_half), 4))
+print(&quot;Brier   :&quot;, round(brier_score_loss(y_test, p_test), 4), &quot;-&gt;&quot;,
+      round(brier_score_loss(y_test, p_half), 4))
+print(&quot;accuracy:&quot;, round(acc(p_test), 3), &quot;-&gt;&quot;, round(acc(p_half), 3))
+print(&quot;accuracy if all benign:&quot;, round((y_test == 0).mean(), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>AUC     : 0.9975 -&gt; 0.9975<span class="mk">1</span>
+Brier   : 0.0187 -&gt; 0.1134<span class="mk">2</span>
+accuracy: 0.971 -&gt; 0.632<span class="mk">3</span>
+accuracy if all benign: 0.626<span class="mk">4</span></pre></div></div>

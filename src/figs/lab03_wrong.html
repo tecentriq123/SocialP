@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">잘못된 분석: 독립표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">wrong = stats.ttest_ind(wide[&quot;drug2&quot;], wide[&quot;drug1&quot;])  # 잘못된 분석
+ci_w = wrong.confidence_interval()
+print(f&quot;t = {wrong.statistic:.3f}, p = {wrong.pvalue:.4f}, &quot;
+      f&quot;df = {wrong.df:.0f}&quot;)
+print(f&quot;95% CI {ci_w.low:.2f} ~ {ci_w.high:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>t = 1.861<span class="mk">1</span>, p = 0.0792<span class="mk">2</span>, df = 18<span class="mk">3</span>
+95% CI -0.20 ~ 3.36<span class="mk">4</span></pre></div></div>

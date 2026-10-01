@@ -1,0 +1,47 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">넓은 형식 → 긴 형식 (melt)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">long = wide.reset_index().melt(id_vars=&quot;Subject&quot;,
+                               var_name=&quot;Days&quot;,
+                               value_name=&quot;Reaction&quot;)
+long = long.sort_values([&quot;Subject&quot;, &quot;Days&quot;])
+print(long.shape)
+long.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(180, 3)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Subject</th>
+      <th>Days</th>
+      <th>Reaction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>308</td>
+      <td>0</td>
+      <td>249.5600</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>308</td>
+      <td>1</td>
+      <td>258.7047</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>308</td>
+      <td>2</td>
+      <td>250.8006</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>308</td>
+      <td>3</td>
+      <td>321.4398</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>308</td>
+      <td>4</td>
+      <td>356.8519</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

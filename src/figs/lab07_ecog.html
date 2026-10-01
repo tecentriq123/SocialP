@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">세 군 비교 (ECOG 0, 1, 2+)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import multivariate_logrank_test
+
+e = lung.dropna(subset=[&quot;ph.ecog&quot;]).copy()      # 결측 1명 제외
+e[&quot;ecog&quot;] = e[&quot;ph.ecog&quot;].clip(upper=2).astype(int)   # 3 -&gt; 2 (&quot;2+&quot;)
+print(e[&quot;ecog&quot;].value_counts().sort_index())
+
+res3 = multivariate_logrank_test(e[&quot;months&quot;], e[&quot;ecog&quot;], e[&quot;event&quot;])
+res3.print_summary()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ecog
+0     63
+1    113
+2     51<span class="mk">1</span>
+Name: count, dtype: int64
+&lt;lifelines.StatisticalResult: multivariate_logrank_test&gt;
+               t_0 = -1
+ null_distribution = chi squared
+degrees_of_freedom = 2<span class="mk">2</span>
+         test_name = multivariate_logrank_test
+
+---
+ test_statistic      p  -log2(p)
+          18.98<span class="mk">3</span> &lt;0.005     13.69</pre></div></div>

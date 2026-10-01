@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">Table 2 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">full = smf.logit(&quot;low ~ &quot; + &quot; + &quot;.join(terms), df).fit(disp=0)
+multi = or_ci(full).loc[uni.index]      # 단변수 표와 같은 행 순서
+fmt = lambda t: [f&quot;{r.OR:.2f} ({r.lo:.2f}-{r.hi:.2f})&quot;
+                 for r in t.itertuples()]
+table2 = pd.DataFrame({&quot;Univariable OR (95% CI)&quot;: fmt(uni),
+                       &quot;Multivariable OR (95% CI)&quot;: fmt(multi)},
+                      index=uni.index)
+print(&quot;n =&quot;, int(full.nobs), &quot; events =&quot;, int(df[&quot;low&quot;].sum()),
+      &quot; coefficients =&quot;, len(full.params) - 1)
+table2</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>n = 189  events = 59<span class="mk">1</span>  coefficients = 7<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Univariable OR (95% CI)</th>
+      <th>Multivariable OR (95% CI)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>smoke</th>
+      <td>2.02 (1.08-3.78)<span class="mk">3</span></td>
+      <td>2.36 (1.07-5.22)<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>C(race)[T.2]</th>
+      <td>2.33 (0.94-5.77)</td>
+      <td>3.22 (1.13-9.14)</td>
+    </tr>
+    <tr>
+      <th>C(race)[T.3]</th>
+      <td>1.89 (0.96-3.74)</td>
+      <td>2.26 (0.95-5.38)</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>0.95 (0.89-1.01)</td>
+      <td>0.96 (0.89-1.03)</td>
+    </tr>
+    <tr>
+      <th>lwt_kg</th>
+      <td>0.97 (0.94-1.00)</td>
+      <td>0.97 (0.94-1.00)</td>
+    </tr>
+    <tr>
+      <th>ptl_any</th>
+      <td>4.32 (1.92-9.73)</td>
+      <td>3.80 (1.55-9.31)</td>
+    </tr>
+    <tr>
+      <th>ht</th>
+      <td>3.37 (1.02-11.09)</td>
+      <td>5.70 (1.44-22.61)</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

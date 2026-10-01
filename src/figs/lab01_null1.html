@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">귀무가설이 참일 때 (한 번)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 양성 357건을 무작위로 둘로 나눔: 두 군은 같은 집단 (귀무가설이 참)
+half_a = ben.sample(frac=0.5, random_state=3)
+half_b = ben.drop(half_a.index)
+p_null = stats.ttest_ind(half_a[features], half_b[features],
+                         equal_var=False).pvalue
+print(len(half_a), len(half_b))
+print(&quot;no correction:&quot;, (p_null &lt; 0.05).sum())
+for method in [&quot;bonferroni&quot;, &quot;holm&quot;, &quot;fdr_bh&quot;]:
+    print(f&quot;{method}:&quot;, multipletests(p_null, method=method)[0].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>178 179
+no correction: 2<span class="mk">1</span>
+bonferroni: 0
+holm: 0
+fdr_bh: 0</pre></div></div>

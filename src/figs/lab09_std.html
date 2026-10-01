@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">모형 기반 표준화로 보정 상대위험도 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">r1 = logit_m.predict(bw.assign(smoke=1)).mean()   # 모두 흡연했다면
+r0 = logit_m.predict(bw.assign(smoke=0)).mean()   # 모두 비흡연이라면
+print(f&quot;standardized risk: smokers {r1:.3f}, non-smokers {r0:.3f}&quot;)
+print(f&quot;adjusted RR = {r1 / r0:.2f}, RD = {r1 - r0:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>standardized risk: smokers 0.404<span class="mk">1</span>, non-smokers 0.252<span class="mk">2</span>
+adjusted RR = 1.60<span class="mk">3</span>, RD = 0.152<span class="mk">4</span></pre></div></div>

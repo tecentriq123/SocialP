@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">보정 전후 BMI 계수 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b_crude = model.params[&quot;bmi&quot;]         # 단순회귀의 bmi 계수
+b_adj = model_adj.params[&quot;bmi&quot;]       # 다중회귀의 bmi 계수
+print(f&quot;bmi coefficient: {b_crude:.2f} -&gt; {b_adj:.2f}&quot;)
+print(f&quot;change: {(b_adj - b_crude) / b_crude * 100:.1f}%&quot;)
+print(df[[&quot;bmi&quot;, &quot;bp&quot;, &quot;s5&quot;, &quot;target&quot;]].corr().round(2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bmi coefficient: 10.23 -&gt; 6.45<span class="mk">1</span>
+change: -36.9%<span class="mk">2</span>
+         bmi    bp    s5  target
+bmi     1.00  0.40  0.45    0.59
+bp      0.40  1.00  0.39    0.44
+s5      0.45  0.39  1.00    0.57
+target  0.59  0.44  0.57    1.00</pre></div></div>

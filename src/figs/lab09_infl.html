@@ -1,0 +1,98 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">영향력이 큰 관측값 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+
+glm_m = smf.glm(f, data=bw, family=sm.families.Binomial()).fit()
+print(&quot;same coefficients:&quot;, np.allclose(glm_m.params, logit_m.params))
+infl = glm_m.get_influence().summary_frame()     # 관측값별 영향력
+cols = [&quot;cooks_d&quot;, &quot;standard_resid&quot;, &quot;hat_diag&quot;]
+top = infl[cols].sort_values(&quot;cooks_d&quot;, ascending=False).head(5)
+top.join(bw[[&quot;low&quot;, &quot;age&quot;, &quot;lwt&quot;, &quot;race&quot;, &quot;smoke&quot;, &quot;ptd&quot;, &quot;ht&quot;,
+             &quot;ui&quot;]]).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>same coefficients: True<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cooks_d</th>
+      <th>standard_resid</th>
+      <th>hat_diag</th>
+      <th>low</th>
+      <th>age</th>
+      <th>lwt</th>
+      <th>race</th>
+      <th>smoke</th>
+      <th>ptd</th>
+      <th>ht</th>
+      <th>ui</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>12</th>
+      <td>0.048<span class="mk">2</span></td>
+      <td>-1.786</td>
+      <td>0.120</td>
+      <td>0</td>
+      <td>22</td>
+      <td>95</td>
+      <td>other</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>146</th>
+      <td>0.046</td>
+      <td>1.934</td>
+      <td>0.100</td>
+      <td>1</td>
+      <td>21</td>
+      <td>200</td>
+      <td>black</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>0.039</td>
+      <td>-1.587</td>
+      <td>0.123</td>
+      <td>0</td>
+      <td>35</td>
+      <td>121</td>
+      <td>black</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>131</th>
+      <td>0.032</td>
+      <td>2.381</td>
+      <td>0.049</td>
+      <td>1</td>
+      <td>29</td>
+      <td>130</td>
+      <td>white</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>182</th>
+      <td>0.032</td>
+      <td>3.252</td>
+      <td>0.027</td>
+      <td>1</td>
+      <td>26</td>
+      <td>190</td>
+      <td>white</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">빌리루빈을 로그로 넣은 이유 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for name, f in [(&quot;bili&quot;, &quot;bili&quot;), (&quot;log2_bili&quot;, &quot;log2_bili&quot;)]:
+    m = CoxPHFitter().fit(df, &quot;years&quot;, &quot;death&quot;,
+        formula=f&quot;dpca + age10 + female + {f} + albumin&quot;
+                &quot; + C(edema) + protime&quot;)
+    print(f&quot;{name:&lt;10} partial AIC = {m.AIC_partial_:.1f}&quot;
+          f&quot;  C = {m.concordance_index_:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bili       partial AIC = 1124.7<span class="mk">1</span>  C = 0.832
+log2_bili  partial AIC = 1094.3<span class="mk">2</span>  C = 0.846</pre></div></div>

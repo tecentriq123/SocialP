@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">기하평균비와 90% 신뢰구간 (대응 자료)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">auc_R = np.array([412, 538, 365, 620, 488, 297,
+                  554, 431, 702, 389, 515, 460])   # 대조약
+auc_T = np.array([366, 455, 303, 548, 556, 268,
+                  535, 510, 639, 429, 412, 525])   # 시험약
+res = stats.ttest_rel(np.log(auc_T), np.log(auc_R))
+ci90 = res.confidence_interval(confidence_level=0.90)
+gmr = np.exp(np.mean(np.log(auc_T) - np.log(auc_R)))
+print(f&quot;GMR = {gmr * 100:.2f}%&quot;)
+print(f&quot;90% CI {np.exp(ci90.low) * 100:.2f}% &quot;
+      f&quot;to {np.exp(ci90.high) * 100:.2f}%&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>GMR = 95.75%<span class="mk">1</span>
+90% CI 89.10% to 102.89%<span class="mk">2</span></pre></div></div>

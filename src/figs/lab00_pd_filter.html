@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">조건에 맞는 행 고르기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">is_smoker = df[&quot;smoke&quot;] == 1   # 행마다 True / False
+print(is_smoker.head())
+smokers = df[is_smoker]        # True인 행만 남기기
+print(smokers.shape)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>0    False
+1    False
+2     True
+3     True
+4     True
+Name: smoke, dtype: bool<span class="mk">1</span>
+(74, 10)<span class="mk">2</span></pre></div></div>

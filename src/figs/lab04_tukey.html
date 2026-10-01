@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">Tukey HSD 사후분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+tukey = pairwise_tukeyhsd(df[&quot;bwt&quot;], df[&quot;race_f&quot;], alpha=0.05)
+print(tukey)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  Multiple Comparison of Means - Tukey HSD, FWER=0.05<span class="mk">1</span>  
+=======================================================
+group1 group2 meandiff<span class="mk">2</span> p-adj    lower    upper   reject
+-------------------------------------------------------
+ Black  Other  85.5913 0.8624<span class="mk">3</span> -304.4521 475.6346  False
+ Black  White 383.0264 0.0428<span class="mk">4</span>    9.8166 756.2363   True
+ Other  White 297.4352  0.026<span class="mk">5</span>   28.7051 566.1652   True
+-------------------------------------------------------</pre></div></div>

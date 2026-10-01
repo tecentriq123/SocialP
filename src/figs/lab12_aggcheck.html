@@ -1,0 +1,46 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">요약이 맞는지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">span = (cgd[&quot;tstop&quot;] - cgd[&quot;tstart&quot;]).groupby(cgd[&quot;id&quot;]).sum()
+print((span.values == pt[&quot;days&quot;].values).all())  # 빈틈 없는 추적?
+print(pt[&quot;n_inf&quot;].sum(), round(pt[&quot;py&quot;].sum(), 1))
+pt[&quot;n_inf&quot;].value_counts().sort_index()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>True<span class="mk">1</span>
+76 102.6<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+    </tr>
+    <tr>
+      <th>n_inf</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>84</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>27</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

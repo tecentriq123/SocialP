@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">Kaplan-Meier 추정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">kmf = KaplanMeierFitter()
+kmf.fit(lung[&quot;months&quot;], event_observed=lung[&quot;event&quot;],
+        label=&quot;All patients&quot;)
+print(kmf)
+kmf.survival_function_.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.KaplanMeierFitter:&quot;All patients&quot;, fitted with 228 total observations<span class="mk">1</span>, 63 right-censored<span class="mk">2</span> observations&gt;</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>All patients</th>
+    </tr>
+    <tr>
+      <th>timeline</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0.000000</th>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>0.164271</th>
+      <td>0.995614<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>0.361396</th>
+      <td>0.982456</td>
+    </tr>
+    <tr>
+      <th>0.394251</th>
+      <td>0.978070</td>
+    </tr>
+    <tr>
+      <th>0.427105</th>
+      <td>0.969298</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

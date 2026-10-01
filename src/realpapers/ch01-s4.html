@@ -1,0 +1,11 @@
+<div class="real" data-after="1" data-title="F(2,54)에서 분석 인원 거꾸로 읽기 · 1장 단계에서는 1–3번만 읽어도 됨"><p class="real-cite">Movahhedi A, Çalı A, Şevgin Ö. Unrestricted Versus Restricted Anterior Knee Displacement During Bodyweight Squat Training in Physically Active Young Adults: An Exploratory Three-Arm Randomized Controlled Trial. <i>J Clin Med</i>. 2026;15(18):7162. <a href="https://doi.org/10.3390/jcm15187162" target="_blank" rel="noopener">doi:10.3390/jcm15187162</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC13607129/" target="_blank" rel="noopener">PMC 전문</a></p>
+<p>신체활동이 많은 젊은 성인 60명을 무릎이 발끝을 넘어가도 되는 스쿼트, 넘지 않게 막은 스쿼트, 평소 활동(대조군)의 세 군으로 무작위배정하고 6주 뒤를 비교한 탐색적 임상시험입니다. 약학 주제는 아니지만 Results에 F(2,54), F(2,53) 같은 표기가 여러 번 나오고 분석 인원이 자세히 밝혀져 있어, 괄호 속 자유도를 읽는 연습에 알맞습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>어디를 보나: Results의 1차 결과 문장.</b> 추적 장애지수 비교가 F(2,54) = 1.999로 보고되었습니다. 분자 자유도 2 = 군 수 − 1이므로 3개 군, 분모 자유도 54 = 분석 인원 − 군 수이므로 57명이 분석되었다고 역산할 수 있습니다(이 절 가상 상자의 2번 항목과 같은 계산).</span></li>
+<li><span class="mk">2</span><span><b>무작위배정 인원과 맞춰 보기.</b> 60명이 무작위배정되었고 3명이 중도 탈락해 57명(19, 18, 20명)이 분석되었습니다. 저자는 Methods에서 이 분석이 탈락자를 뺀 complete-case 분석이며 엄밀한 ITT(intention-to-treat) 분석이 아니라고 밝혔습니다. 이런 설명이 없는 논문에서도 자유도만 보면 몇 명이 빠졌는지 알 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>공변량을 넣으면 자유도가 하나 줄어듭니다.</b> 기저값을 공변량으로 넣은 공분산분석(ANCOVA) 민감도분석에서는 같은 결과가 F(2,53) = 1.539로 보고되었습니다. 57명에서 추정한 모수(군 평균 3개와 기저값의 기울기 1개)의 수를 빼면 53이 됩니다. "관측값 수 − 추정한 모수 수"라는 이 절의 규칙이 그대로 적용됩니다.</span></li>
+<li><span class="mk">4</span><span><b>F와 두 자유도로 효과크기 되살리기.</b> 분산분석의 에타제곱<span class="en">(eta squared, η²)</span>은 F와 두 자유도만으로 복원됩니다. η² = (F × 분자 자유도) ÷ (F × 분자 자유도 + 분모 자유도) = 3.998 ÷ 57.998 ≈ 0.069로, 논문이 보고한 η² 0.069와 같습니다. 자유도가 단순한 형식이 아니라 결과를 검산하는 정보라는 뜻입니다(4장 다 절).</span></li>
+<li><span class="mk">5</span><span><b>소수 자유도의 흔적.</b> 유일하게 유의했던 2차 결과(왼쪽 햄스트링 압통역치)의 쌍별 비교에 대해 저자는 표의 신뢰구간이 두 군의 요약통계로 계산한 보정 없는 Welch–Satterthwaite 구간이라고 설명했습니다. 이 방식은 자유도를 공식으로 근사하므로 정수가 아닐 수 있습니다(2장 가 절의 Welch t 검정). 논문에 그 자유도 값은 적혀 있지 않습니다.</span></li>
+</ol>
+<p class="real-note">숫자는 원문 Methods와 Results에서 옮겼고, η² 검산은 보고된 F와 자유도로 직접 계산했습니다. 표와 그림은 링크한 원문에서 직접 확인하세요.</p>
+</div><!--/real-->

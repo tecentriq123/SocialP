@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">교차표와 합계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pd.crosstab(df[&quot;smoke_f&quot;], df[&quot;low_f&quot;], margins=True)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>low_f</th>
+      <th>LBW</th>
+      <th>Not LBW</th>
+      <th>All</th>
+    </tr>
+    <tr>
+      <th>smoke_f</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Smoker</th>
+      <td>30<span class="mk">1</span></td>
+      <td>44</td>
+      <td>74</td>
+    </tr>
+    <tr>
+      <th>Nonsmoker</th>
+      <td>29<span class="mk">2</span></td>
+      <td>86</td>
+      <td>115</td>
+    </tr>
+    <tr>
+      <th>All</th>
+      <td>59</td>
+      <td>130</td>
+      <td>189<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

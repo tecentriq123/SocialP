@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">crosstab()으로 교차표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(pd.crosstab(df[&quot;smoke&quot;], df[&quot;low&quot;], margins=True))
+pd.crosstab(df[&quot;smoke&quot;], df[&quot;low&quot;], normalize=&quot;index&quot;).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>low      0   1  All<span class="mk">1</span>
+smoke              
+0       86  29  115
+1       44  30   74
+All    130  59  189</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>low</th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.748</td>
+      <td>0.252</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.595</td>
+      <td>0.405<span class="mk">2</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>
