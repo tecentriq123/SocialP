@@ -11,8 +11,10 @@ COURSE = {"key": "stats", "title": "보건통계학 기초", "file": "stats.html
 GROUPS = [
     {"key": "p1", "label": "PART 1", "title": "보건의학통계 시작하기"},
     {"key": "p2", "label": "PART 2", "title": "중급 보건의학통계 맛보기"},
-    {"key": "p3", "label": "PART 3", "title": "파이썬 실습"},
-    {"key": "ap", "label": "부록", "title": "더 알아야 할 기법과 참고문헌"},
+    {"key": "p3", "label": "PART 3", "title": "약물역학 연구 설계"},
+    {"key": "p4", "label": "PART 4", "title": "약물경제성 평가"},
+    {"key": "p5", "label": "PART 5", "title": "파이썬 실습"},
+    {"key": "ap", "label": "부록", "title": "추가 검정과 참고문헌"},
 ]
 
 CHAPTERS = [
@@ -43,27 +45,43 @@ CHAPTERS = [
     ("ch13", "p2", "두 치료법의 동등성, 비열등성을 검정하는 방법",
      ["동등성 검정과 비열등성 검정", "크기의 비열등성 검정 (높을수록 좋은 경우)", "크기의 비열등성 검정 (낮을수록 좋은 경우)",
       "비율의 비열등성 검정"]),
-    ("lab00", "p3", "실습 환경 준비",
+    ("ch14", "p3", "청구자료 코호트 연구의 설계",
+     ["청구자료의 구조와 한계", "신규사용자·활성비교군 설계", "노출·결과·공변량의 정의", "추적과 분석 전략"]),
+    ("ch15", "p3", "성향점수",
+     ["보정할 변수 고르기", "성향점수의 추정과 겹침", "매칭과 가중", "균형 진단과 효과 추정", "남는 교란과 민감도 분석"]),
+    ("ch16", "p3", "시간과 관련된 편향",
+     ["불멸시간 편향", "랜드마크 분석", "시간의존 노출과 시간의존 Cox 모형", "기존 사용자 편향과 그 밖의 편향"]),
+    ("ch17", "p3", "경쟁위험 분석", ["경쟁위험과 누적발생함수", "원인별 위험비와 Fine–Gray 위험비"]),
+    ("ch18", "p3", "정책 효과의 평가", ["전후 비교의 함정", "중단시계열분석", "대조군이 있는 중단시계열", "이중차분법"]),
+    ("ch19", "p3", "메타분석",
+     ["체계적 문헌고찰의 절차", "효과의 통합: 고정효과와 무작위효과", "이질성, 하위군 분석, 메타회귀", "출판 편향과 민감도 분석",
+      "통합 결과의 활용: NNT·NNH와 경제성 평가"]),
+    ("ch20", "p4", "경제성 평가의 틀", []),
+    ("ch21", "p4", "비용 자료 분석", []),
+    ("ch22", "p4", "효용과 QALY", []),
+    ("ch23", "p4", "결정분석 모형", []),
+    ("ch24", "p4", "불확실성 분석", []),
+    ("ch25", "p4", "경제성 평가 논문 읽기", []),
+    ("lab00", "p5", "실습 환경 준비",
      ["파이썬과 주피터 노트북", "Google Colab으로 시작하기", "내 컴퓨터(Windows 11)에 설치하기", "셀 실행과 패키지 설치",
       "데이터 불러오기", "pandas로 데이터 살펴보기", "오류 메시지 읽는 법"]),
-    ("lab01", "p3", "자료 탐색과 정규성 검정", ["실습 데이터 준비", "요약통계와 그래프", "Q-Q plot과 정규성 검정", "다중비교 보정"]),
-    ("lab02", "p3", "두 군의 크기 비교", ["실습 데이터 준비", "독립표본 t 검정", "Mann-Whitney 검정"]),
-    ("lab03", "p3", "치료 전과 후의 크기 비교", ["실습 데이터 준비", "대응표본 t 검정", "Wilcoxon 부호순위 검정"]),
-    ("lab04", "p3", "세 군 이상의 크기 비교", ["실습 데이터 준비", "분산분석과 사후분석", "Kruskal-Wallis 검정", "Jonckheere-Terpstra 검정"]),
-    ("lab05", "p3", "비율 비교", ["실습 데이터 준비", "카이제곱 검정", "Fisher의 정확한 검정", "선형 대 선형 결합"]),
-    ("lab06", "p3", "상관분석과 선형회귀", ["실습 데이터 준비", "상관분석", "단순회귀분석", "다중회귀분석"]),
-    ("lab07", "p3", "Kaplan-Meier와 로그순위법", ["실습 데이터 준비", "Kaplan-Meier 생존곡선", "로그순위법"]),
-    ("lab08", "p3", "신뢰구간, 효과크기, 교란", ["신뢰구간과 효과크기", "일반화 선형모형과 우도비 검정", "교란과 층화 분석", "가변수와 다변수 분석"]),
-    ("lab09", "p3", "로지스틱 회귀분석", ["실습 데이터 준비", "다변수 로지스틱 회귀", "모형 점검", "예측모형과 성능 평가"]),
-    ("lab10", "p3", "반복측정 자료 분석", ["실습 데이터와 자료구조 변환", "반복측정 분산분석", "선형 혼합모형", "일반화 추정 방정식"]),
-    ("lab11", "p3", "Cox 비례위험모형", ["실습 데이터 준비", "Cox 모형과 위험비", "비례위험 가정 점검", "보정 생존곡선과 층화 Cox"]),
-    ("lab12", "p3", "포아송 회귀와 음이항 회귀", ["실습 데이터 준비", "발생률과 발생률비", "포아송 회귀와 과산포", "음이항 회귀"]),
-    ("lab13", "p3", "동등성·비열등성 검정", ["평균 차이의 비열등성", "비율 차이의 비열등성", "생물학적 동등성"]),
-    ("ch14", "ap", "추가로 알아야 할 검정",
-     ["McNemar 검정", "진단검사 정확도와 ROC 곡선", "성향점수 방법", "경쟁위험 분석", "시간의존 변수와 불멸시간 편향",
-      "메타분석", "중단시계열분석과 이중차분법", "의료비용 자료의 분석", "결측자료와 다중대체", "표본크기와 검정력",
-      "일치도 분석"]),
-    ("ch15", "ap", "참고문헌", []),
+    ("lab01", "p5", "자료 탐색과 정규성 검정", ["실습 데이터 준비", "요약통계와 그래프", "Q-Q plot과 정규성 검정", "다중비교 보정"]),
+    ("lab02", "p5", "두 군의 크기 비교", ["실습 데이터 준비", "독립표본 t 검정", "Mann-Whitney 검정"]),
+    ("lab03", "p5", "치료 전과 후의 크기 비교", ["실습 데이터 준비", "대응표본 t 검정", "Wilcoxon 부호순위 검정"]),
+    ("lab04", "p5", "세 군 이상의 크기 비교", ["실습 데이터 준비", "분산분석과 사후분석", "Kruskal-Wallis 검정", "Jonckheere-Terpstra 검정"]),
+    ("lab05", "p5", "비율 비교", ["실습 데이터 준비", "카이제곱 검정", "Fisher의 정확한 검정", "선형 대 선형 결합"]),
+    ("lab06", "p5", "상관분석과 선형회귀", ["실습 데이터 준비", "상관분석", "단순회귀분석", "다중회귀분석"]),
+    ("lab07", "p5", "Kaplan-Meier와 로그순위법", ["실습 데이터 준비", "Kaplan-Meier 생존곡선", "로그순위법"]),
+    ("lab08", "p5", "신뢰구간, 효과크기, 교란", ["신뢰구간과 효과크기", "일반화 선형모형과 우도비 검정", "교란과 층화 분석", "가변수와 다변수 분석"]),
+    ("lab09", "p5", "로지스틱 회귀분석", ["실습 데이터 준비", "다변수 로지스틱 회귀", "모형 점검", "예측모형과 성능 평가"]),
+    ("lab10", "p5", "반복측정 자료 분석", ["실습 데이터와 자료구조 변환", "반복측정 분산분석", "선형 혼합모형", "일반화 추정 방정식"]),
+    ("lab11", "p5", "Cox 비례위험모형", ["실습 데이터 준비", "Cox 모형과 위험비", "비례위험 가정 점검", "보정 생존곡선과 층화 Cox"]),
+    ("lab12", "p5", "포아송 회귀와 음이항 회귀", ["실습 데이터 준비", "발생률과 발생률비", "포아송 회귀와 과산포", "음이항 회귀"]),
+    ("lab13", "p5", "동등성·비열등성 검정", ["평균 차이의 비열등성", "비율 차이의 비열등성", "생물학적 동등성"]),
+    ("ap01", "ap", "추가로 알아야 할 검정",
+     ["McNemar 검정", "진단검사 정확도와 ROC 곡선", "의료비용 자료의 분석", "결측자료와 다중대체", "표본크기와 검정력", "일치도 분석"],
+     {"no": "A", "appendix": True}),
+    ("ap02", "ap", "참고문헌", [], {"no": "B", "appendix": True, "refs": True}),
 ]
 
 GUIDE = [
@@ -79,10 +97,26 @@ GUIDE = [
     ("생존시간 · 위험인자 보정", "Cox 비례위험모형", "11"),
     ("사건 발생 건수·발생률", "포아송 / 음이항 회귀", "12"),
     ("새 치료가 '못하지 않음'", "비열등성·동등성 검정", "13"),
-    ("관찰연구의 교란 보정", "성향점수(PSM·IPTW)", "14"),
+    ("관찰연구의 교란 보정", "성향점수(매칭·IPTW)", "15"),
+    ("노출 시점이 늦게 정해짐", "랜드마크, 시간의존 Cox", "16"),
+    ("다른 사건이 먼저 일어남", "누적발생함수, Fine–Gray", "17"),
+    ("정책 시행 전후", "중단시계열, 이중차분법", "18"),
+    ("여러 연구의 결과 통합", "메타분석", "19"),
 ]
 
 KO = "가나다라마바사아자차카타파하"
+REFS_ID = "ap02"   # the references page (부록 B)
+
+
+def ch_label(cid):
+    """Reader-facing name of a chapter id: 3장, 실습 3, 부록 A, 분석 고르기 연습."""
+    if cid.startswith("lab"):
+        return f"실습 {int(cid[-2:])}"
+    if cid.startswith("ap"):
+        return "부록 " + "AB"[int(cid[-2:]) - 1]
+    if cid.startswith("rv"):
+        return "분석 고르기 연습"
+    return f"{int(cid[-2:])}장"
 
 
 
@@ -205,10 +239,11 @@ def chapter_meta():
     for cid, grp, title, secs, *extra in CHAPTERS:
         extra = extra[0] if extra else {}
         path = os.path.join(ROOT, "content", cid + ".html")
-        ready = (os.path.exists(path) and (ONLY is None or cid in ONLY)) or cid == "ch15"
+        ready = (os.path.exists(path) and (ONLY is None or cid in ONLY)) or cid == REFS_ID
         d = {"id": cid, "no": extra.get("no", cid[-2:]), "lab": cid.startswith("lab")}
-        if extra.get("review"):
-            d["review"] = True
+        for flag in ("review", "appendix", "refs"):
+            if extra.get(flag):
+                d[flag] = True
         d.update({
             "group": grp, "title": title, "ready": ready,
             "sections": [{"id": f"{cid}-s{i + 1}", "no": KO[i], "title": t} for i, t in enumerate(secs)],
@@ -324,7 +359,7 @@ def inject_real(cid, src):
 
 def build():
     meta = chapter_meta()
-    ready = [c for c in meta if c["ready"] and c["id"] != "ch15"]
+    ready = [c for c in meta if c["ready"] and c["id"] != REFS_ID]
     order, used_in = [], {}
     bodies = {}
     for c in ready:
@@ -358,7 +393,7 @@ def build():
     def cite(m):
         k = m.group(1)
         title = re.sub(r"<[^>]+>", "", REFS[k]["text"])
-        return f'<a class="cite" href="#ch15-ref-{k}" title="{html.escape(title)}">[{num[k]}]</a>'
+        return f'<a class="cite" href="#{REFS_ID}-ref-{k}" title="{html.escape(title)}">[{num[k]}]</a>'
 
     for cid in bodies:
         bodies[cid] = CITE_RE.sub(cite, bodies[cid])
@@ -373,19 +408,19 @@ def build():
             link = f' <a href="https://doi.org/{r["doi"]}" target="_blank" rel="noopener">doi:{r["doi"]}</a>'
         elif r.get("url"):
             link = f' <a href="{r["url"]}" target="_blank" rel="noopener">링크</a>'
-        chs = ", ".join(f'<a href="#{i}">' + (f'실습 {int(i[-2:])}' if i.startswith("lab") else f'{int(i[-2:])}장') + '</a>' for i in used_in[k])
-        items.append(f'<li id="ch15-ref-{k}"><span class="rn">{num[k]}.</span><span>{r["text"]}{link}'
+        chs = ", ".join(f'<a href="#{i}">{ch_label(i)}</a>' for i in used_in[k])
+        items.append(f'<li id="{REFS_ID}-ref-{k}"><span class="rn">{num[k]}.</span><span>{r["text"]}{link}'
                      f'<span class="used">인용: {chs}</span></span></li>')
     books = [k for k, r in REFS.items() if r.get("book") and k not in num]
-    book_items = "".join(f'<li id="ch15-ref-{k}"><span class="rn">·</span><span>{REFS[k]["text"]}</span></li>' for k in books)
+    book_items = "".join(f'<li id="{REFS_ID}-ref-{k}"><span class="rn">·</span><span>{REFS[k]["text"]}</span></li>' for k in books)
     ref_body = (
         '<p class="lead">본문에서 [번호]로 인용한 문헌을 인용 순서대로 모았습니다. '
         + ('개정하면서 새로 인용한 문헌은 목록 끝에 번호를 이어 붙였습니다. ' if any(REFS[k].get("append") for k in order) else '')
         + '각 항목 아래의 장 번호를 누르면 해당 장으로 이동합니다.</p>'
-        f'<section class="sec" id="ch15-cited"><h2>본문 인용 문헌</h2><ol class="reflist">{"".join(items)}</ol></section>'
-        + (f'<section class="sec" id="ch15-books"><h2>함께 보면 좋은 교재</h2><ol class="reflist">{book_items}</ol></section>' if book_items else "")
+        f'<section class="sec" id="{REFS_ID}-cited"><h2>본문 인용 문헌</h2><ol class="reflist">{"".join(items)}</ol></section>'
+        + (f'<section class="sec" id="{REFS_ID}-books"><h2>함께 보면 좋은 교재</h2><ol class="reflist">{book_items}</ol></section>' if book_items else "")
     )
-    bodies["ch15"] = ref_body
+    bodies[REFS_ID] = ref_body
 
     tpls = "\n".join(f'<template id="tpl-{cid}">{b}</template>' for cid, b in bodies.items())
     shell = open(os.path.join(ROOT, "shell.html"), encoding="utf-8").read()
@@ -411,14 +446,14 @@ def build():
 
 def build_home(shell, meta):
     """dist/index.html: the small home page that lists the courses (same shell, META.mode = "home")."""
-    theory = [c for c in meta if not c["lab"] and c["id"] != "ch15"]
+    theory = [c for c in meta if not c["lab"] and not c.get("refs")]
     labs = [c for c in meta if c["lab"]]
     courses = [
         {"tag": "과목 · 통계", "title": COURSE["title"], "href": COURSE["file"],
          "status": f"{sum(c['ready'] for c in theory)}/{len(theory)}장 공개",
          "desc": "평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. "
                  "각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, 공개 데이터로 파이썬 실습을 합니다.",
-         "meta": ["이론 0–14장 + 종합 연습 + 참고문헌", f"파이썬 실습 {sum(c['ready'] for c in labs)}/{len(labs)}개 공개"]},
+         "meta": ["이론 0–25장 + 종합 연습 + 부록", f"파이썬 실습 {sum(c['ready'] for c in labs)}/{len(labs)}개 공개"]},
         {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": None, "status": "준비 중",
          "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, "
                  "의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.",

@@ -539,7 +539,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 <main id="app" class="page"></main>
 <div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
 
-<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "16/16장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. 각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, 공개 데이터로 파이썬 실습을 합니다.", "meta": ["이론 0–14장 + 종합 연습 + 참고문헌", "파이썬 실습 14/14개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": null, "status": "준비 중", "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, 의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.", "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]}]}</script>
+<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "22/28장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. 각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, 공개 데이터로 파이썬 실습을 합니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 14/14개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": null, "status": "준비 중", "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, 의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.", "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]}]}</script>
 
 
 <script>
@@ -572,7 +572,7 @@ function typesetNow() {
     doc: '<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>'
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const numLabel = c => c.lab ? `실습 ${+c.no}.` : (c.review ? "종합." : (c.id === "ch15" ? "" : `${c.no}.`));
+  const numLabel = c => c.lab ? `실습 ${+c.no}.` : (c.review ? "종합." : (c.appendix ? `부록 ${c.no}.` : `${c.no}.`));
 
   function railHTML(activeId) {
     let h = `<a class="back" href="#toc">← ${esc(COURSE.title)} 목차</a>`;
@@ -632,7 +632,7 @@ function typesetNow() {
       <header class="part-head">
         <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>${esc(COURSE.title)}</span></p>
         <h1>${esc(COURSE.title)}</h1>
-        <p>기초 개념(0장)과 기초 검정(1–7장)에서 회귀모형·생존분석·비열등성 검정(8–13장)까지 순서대로 쌓아 가도록 구성했습니다. PART 1 끝의 '분석 고르기 연습'은 연구 상황을 보고 분석을 고르는 연습입니다. Part 3은 각 장의 분석을 공개 데이터와 파이썬으로 직접 해 보는 실습입니다(실습 번호 = 장 번호). 14장에는 사회약학·약물역학 논문에서 자주 만나는 기법을 추가로 모았고, 인용한 문헌은 15장에 모았습니다.</p>
+        <p>PART 1(0–7장)은 기초 개념과 기초 검정, PART 2(8–13장)는 회귀모형·생존분석·비열등성 검정입니다. PART 3(14–19장)은 청구자료 코호트 설계, 성향점수, 시간 관련 편향, 경쟁위험, 정책평가, 메타분석처럼 약물역학 논문을 읽고 쓰는 데 필요한 연구 설계를 다룹니다. PART 4는 약물경제성 평가(준비 중), PART 5는 공개 데이터와 파이썬으로 직접 해 보는 실습입니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
         <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. <span class="lv deep">심화</span> 표시가 붙은 부분은 접혀 있습니다. 처음 읽을 때는 건너뛰고, 필요할 때 눌러서 펼쳐 보세요.</p>
       </header>
       <div class="part-grid">
@@ -697,7 +697,7 @@ function typesetNow() {
       frag.querySelectorAll("svg, script, details.code").forEach(n => n.remove());
       frag.querySelectorAll("section.sec").forEach(sec => {
         const h = sec.querySelector("h2");
-        _idx.push({ id: sec.id, ch: c.lab ? `실습 ${+c.no} ${c.title}` : (c.review ? `종합 ${c.title}` : `${+c.no}장 ${c.title}`), title: h ? h.textContent.replace(/\s+/g, " ").trim() : c.title, text: sec.textContent.replace(/\\\(.*?\\\)|\\\[.*?\\\]/g, " ").replace(/\s+/g, " ").trim() });
+        _idx.push({ id: sec.id, ch: c.lab ? `실습 ${+c.no} ${c.title}` : (c.review ? `종합 ${c.title}` : (c.appendix ? `부록 ${c.no} ${c.title}` : `${+c.no}장 ${c.title}`)), title: h ? h.textContent.replace(/\s+/g, " ").trim() : c.title, text: sec.textContent.replace(/\\\(.*?\\\)|\\\[.*?\\\]/g, " ").replace(/\s+/g, " ").trim() });
       });
     }
     return _idx;
@@ -723,7 +723,7 @@ function typesetNow() {
       <article class="article" id="article">
         <header class="ch-head">
           <p class="crumbs"><a href="index.html">홈</a><span>/</span><a href="#toc">${esc(COURSE.title)}</a><span>/</span><span>${esc(g.label)}</span></p>
-          <p class="ch-no">${c.id === "ch15" ? "REFERENCES" : (c.lab ? "PYTHON LAB " + c.no : (c.review ? "PART 1 REVIEW" : "CHAPTER " + c.no))}</p>
+          <p class="ch-no">${c.appendix ? "APPENDIX " + c.no : (c.lab ? "PYTHON LAB " + c.no : (c.review ? "PART 1 REVIEW" : "CHAPTER " + c.no))}</p>
           <h1>${esc(c.title)}</h1>
           <div id="leadSlot"></div>
           ${secs.length > 1 ? `<nav class="ch-map" aria-label="이 장의 절">${secs.map(s => `<a href="#${s.id}">${esc(s.no)}. ${esc(s.title)}</a>`).join("")}</nav>` : ""}
@@ -766,14 +766,14 @@ function typesetNow() {
     let cur = null;
     if (HOME) {
       // old links such as index.html#ch11-s1 pointed at the single-file site: send them to the course page
-      if (/^(?:(?:ch|lab|rv)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
+      if (/^(?:(?:ch|lab|rv|ap)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
       renderHome(); window.scrollTo(0, 0);
     }
     else if (h === "home") { location.href = "index.html"; return; }
     else if (!h || h === "toc" || h === COURSE.key) { renderPart(); window.scrollTo(0, 0); }
     else if (h.startsWith("search")) { renderSearch(h.slice(7)); window.scrollTo(0, 0); }
     else {
-      const m = h.match(/^((?:ch|lab|rv)\d\d)(?:-(.+))?$/);
+      const m = h.match(/^((?:ch|lab|rv|ap)\d\d)(?:-(.+))?$/);
       if (m) {
         cur = m[1];
         const already = app.dataset.ch === cur && document.getElementById("article");

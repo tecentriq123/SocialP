@@ -359,7 +359,7 @@
 </div></div>
 
 <div class="callout tip"><p class="ct">사회약학 연구에서는</p>
-<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(14장 다 절). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 가 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 가 절 '추적 종료 사유 표').</p></div>
+<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(15장). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 가 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 가 절 '추적 종료 사유 표').</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>KaplanMeierFitter().fit(시간, 사건, label=…)</code> 한 번으로 <code>survival_function_</code>(곡선), <code>event_table</code>(위험집합·사망·중도절단), <code>median_survival_time_</code>, <code>confidence_interval_</code>을 얻습니다.</li>

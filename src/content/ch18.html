@@ -1,0 +1,684 @@
+<p class="lead">약가 인하, 급여기준 변경, 안전성 서한, 시범사업처럼 어느 날부터 집단 전체에 적용되는 정책은 개인을 무작위로 나눠 평가하기 어렵습니다. 이 장에서는 청구자료를 달마다 집계한 시계열로 정책의 효과를 추정하는 방법을 다룹니다. 가 절에서 시행 전후의 평균을 비교하면 왜 틀리는지 보고, 나 절의 중단시계열분석, 다 절의 대조군이 있는 중단시계열, 라 절의 이중차분법으로 "정책이 없었다면 어땠을지"를 추정하는 방법을 차례로 봅니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch03-s1">3장 가 절</a>의 군 안의 전후 비교와 평균으로의 회귀, <a href="#ch06-s3">6장 다 절</a>과 <a href="#ch06-s4">라 절</a>의 회귀계수 읽는 법, <a href="#ch08-s6">8장 바 절</a>의 교호작용, <a href="#ch10-s4">10장 라 절</a>의 군집 자료와 강건 표준오차, <a href="#ch12-s2">12장 나 절</a>의 오프셋(나 절의 접힌 부분에서만 씁니다)</dd>
+<dt>먼저 읽을 부분</dt><dd>네 절의 '쉽게 말하면', '숫자로 따라가기', 흔한 오해 상자, '내 연구에 쓸 때', '논문에서 읽어 보기', 정리, 스스로 확인하기. 가 절의 '전후 평균에 섞이는 것'과 '정책 평가에 쓰는 설계', 나 절의 '자기상관'과 '계절성, 시점 수, 적응 기간', 다 절의 '비교 계열 고르기', 라 절의 '평행 추세 가정'과 '중단시계열분석과 이중차분법의 비교'</dd>
+<dt>나중에 읽을 부분</dt><dd>'심화' 표시가 붙은 접힌 부분. 중간 계산, 나 절의 포아송 분절회귀와 '파이썬 출력 읽기', 다 절의 교호작용 모형, 라 절의 순차 도입과 '파이썬 출력 읽기', 네 절의 '수식으로 보기', 나 절의 '실제 논문으로 읽어 보기'</dd>
+<dt>이 장을 마치면</dt><dd>① 시행 전후 평균 비교에 기존 추세, 평균으로의 회귀, 계절성, 같은 시기의 다른 변화가 섞인다는 것을 설명하고, 그런 논문의 결론을 가려 읽을 수 있다 ② 분절회귀 결과표의 기존 추세, 수준 변화, 기울기 변화를 읽고 "시행 12개월째의 효과"를 직접 계산할 수 있다 ③ 비교 계열이 왜 필요한지, 어떤 계열이 비교 계열로 맞지 않는지 말할 수 있다 ④ 2×2 평균표에서 이중차분 추정값을 구하고, 평행 추세 가정을 어떻게 점검하는지와 그 점검이 증명은 아니라는 것을 안다</dd>
+</dl></div>
+
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ch18-s1">
+<h2><span class="sec-no">가.</span>전후 비교의 함정</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">정책 시행 전의 평균과 시행 후의 평균을 비교한 차이에는 정책의 효과 말고도 여러 가지가 섞여 있습니다. 정책이 없었어도 일어났을 변화를 빼야 효과가 남습니다.</p>
+<ul>
+<li><b>비유.</b> 체중이 매달 1 kg씩 빠지던 사람이 새 보조제를 먹기 시작했습니다. 먹기 전 여섯 달의 평균 체중과 먹은 뒤 여섯 달의 평균 체중을 비교하면 6 kg이 줄어 있습니다. 보조제가 아무 일도 하지 않았어도 나오는 숫자입니다. 원래 빠지던 속도가 그대로 이어졌을 뿐입니다.</li>
+<li><b>논문에서는.</b> "The mean prescribing rate decreased from 91.1 to 73.7 per 1,000 after the programme (P &lt; 0.001)"처럼 나옵니다. "시행 후 평균이 낮다"까지만 말해 주는 문장이고, 낮아진 이유는 말해 주지 않습니다.</li>
+<li><b>기억할 한 가지.</b> 정책의 효과는 "시행 전과 비교한 차이"가 아니라 "정책이 없었다면 지금쯤 보였을 값과 비교한 차이"입니다. 이 장의 나머지 세 절은 그 '없었다면'을 추정하는 방법입니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>무엇이 문제인가</dt><dd>대조군 없이 시행 전후의 평균이나 비율만 비교한 연구(단일군 전후 비교)</dd></div>
+  <div><dt>섞이는 것</dt><dd>기존 추세, 평균으로의 회귀, 계절성, 같은 시기의 다른 변화, 시행 예고와 적응 기간, 측정 방법의 변화</dd></div>
+  <div><dt>대안</dt><dd>시행 전 여러 시점의 추세를 쓰는 중단시계열분석(나 절), 비교 집단의 변화를 빼는 방법(다·라 절)</dd></div>
+  <div><dt>논문에서 확인할 것</dt><dd>시행 전 시점이 몇 개인가, 시행 전 추세를 보여 주는 그림이 있는가, 비교 집단이 있는가</dd></div>
+</dl>
+
+<h3>이 장의 예제</h3>
+<p>네 절에서 같은 가상의 정책을 평가합니다. 2018년 1월부터 20개 시군구(아래에서 '시범 지역')에서 고령자 수면진정제 처방 관리 시범사업을 시작했다고 합시다. 시범 지역의 의료기관에서는 65세 이상 환자에게 벤조디아제핀계 약물이나 졸피뎀을 처방할 때 점검 창이 뜨고, 30일을 넘겨 처방하려면 사유를 적어야 합니다. 사업을 하지 않은 40개 시군구가 '비교 지역'입니다.</p>
+<p>청구자료에서 2015년 1월부터 2019년 12월까지 60개월(시행 전 36개월, 시행 후 24개월) 동안 달마다 <b>처방률</b>을 구했습니다. 처방률은 그 달에 외래를 이용한 65세 이상 환자 1,000명 가운데 수면진정제를 원외처방받은 환자 수입니다. 분모인 65세 이상 외래환자는 시범 지역이 한 달에 약 24만–26만 명, 비교 지역이 약 40만–45만 명입니다. 자료는 사업의 실제 효과를 정해 놓고 만든 모의자료이고, 그 값은 다 절에서 밝힙니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>가장 쉬운 분석은 시범 지역의 시행 전 36개월과 시행 후 24개월의 월별 처방률을 두 묶음으로 놓고 평균을 비교하는 것입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th class="r">시행 전 36개월 평균</th><th class="r">시행 후 24개월 평균</th><th class="r">차이 (95% CI)</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>시범 지역 (사업 시행)</td><td class="r">91.14</td><td class="r">73.68</td><td class="r">−17.46 (−19.25 ~ −15.67)</td><td class="r">&lt; 0.001</td></tr>
+<tr class="hi"><td>비교 지역 (사업 없음)</td><td class="r">79.66</td><td class="r">69.60</td><td class="r">−10.06 (−11.40 ~ −8.72)</td><td class="r">&lt; 0.001</td></tr>
+</tbody></table></div>
+<p>시범 지역만 보면 "사업 뒤 처방률이 1,000명당 17.5명(19.2%) 줄었고 P &lt; 0.001"입니다. 그런데 같은 계산을 사업이 없었던 비교 지역에 해도 10.1명(12.6%)이 줄고 P &lt; 0.001입니다. 사업이 없었는데도 '유의한 감소'가 나왔습니다.</p>
+<!--FIG:ch18_naive-->
+<p>이유는 그림에 있습니다. 두 지역의 처방률은 2015년부터 이미 달마다 약 0.24씩 내려가고 있었습니다. 시행 전 36개월의 한가운데(18.5번째 달)와 시행 후 24개월의 한가운데(48.5번째 달)는 30개월 떨어져 있으므로, 아무 일이 없어도 두 평균은 0.24 × 30 ≈ 7.3만큼 벌어집니다. 시범 지역의 차이 −17.46 가운데 −7.26은 원래의 흐름입니다.</p>
+<!--FOLD:계산 과정 보기: 기존 추세만으로 생기는 전후 평균 차이-->
+<p>시범 지역의 시행 전 36개월에 직선을 맞추면 기울기가 월 −0.242입니다(나 절). 직선 위에서 어떤 기간의 평균은 그 기간 한가운데 시점의 값과 같습니다. 시행 전 기간(1–36번째 달)의 한가운데는 18.5, 시행 후 기간(37–60번째 달)의 한가운데는 48.5이므로 거리는 30개월이고, 추세가 그대로 이어지기만 해도 두 평균의 차이는 −0.2421 × 30 = −7.26입니다. 연도별 평균으로 보아도 같은 흐름이 보입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:38rem">
+<thead><tr><th>연평균 처방률</th><th class="r">2015</th><th class="r">2016</th><th class="r">2017</th><th class="r">2018</th><th class="r">2019</th></tr></thead>
+<tbody>
+<tr><td>시범 지역</td><td class="r">94.33</td><td class="r">90.60</td><td class="r">88.50</td><td class="r">76.18</td><td class="r">71.18</td></tr>
+<tr><td>비교 지역</td><td class="r">82.69</td><td class="r">79.31</td><td class="r">76.98</td><td class="r">70.96</td><td class="r">68.25</td></tr>
+</tbody></table></div>
+<p>사업 전인 2015년에서 2017년 사이에도 시범 지역은 5.8, 비교 지역은 5.7 내려갔습니다. 전후 평균 비교는 이 감소를 모두 사업의 효과로 셉니다.</p>
+<!--/FOLD-->
+<p>남은 −10.20도 모두 사업의 효과라고 할 수는 없습니다. 같은 시기에 다른 일이 있었을 수 있기 때문입니다. 다 절에서 비교 지역을 이용해 이 부분을 다시 나눕니다.</p>
+
+<h3>전후 평균에 섞이는 것</h3>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>원인</th><th>무엇인가</th><th>약물 정책 연구에서의 예</th></tr></thead>
+<tbody>
+<tr><td><strong>기존 추세</strong> <span class="en">(secular trend)</span></td><td>정책과 무관하게 이미 진행 중이던 증가나 감소</td><td>진료지침 변화, 대체 약의 등장, 인구 고령화로 처방이 이미 줄거나 늘고 있던 경우</td></tr>
+<tr><td><strong>평균으로의 회귀</strong> <span class="en">(regression to the mean)</span></td><td>값이 유난히 높았던 때나 곳을 골라 개입하면, 아무것도 하지 않아도 다음 값은 평소 수준으로 돌아옴</td><td>처방률이 가장 높았던 지역이나 의료기관을 시범 대상으로 고른 경우, 처방이 급증한 직후에 대책을 낸 경우</td></tr>
+<tr><td><strong>계절성</strong> <span class="en">(seasonality)</span></td><td>해마다 되풀이되는 오르내림</td><td>항생제·호흡기 약은 겨울에 많음. 시행 전 6개월(7–12월)과 후 6개월(1–6월)은 계절이 다름</td></tr>
+<tr><td><strong>같은 시기의 다른 변화</strong> <span class="en">(co-intervention)</span></td><td>평가하려는 정책과 비슷한 때에 일어난 다른 사건</td><td>같은 달의 안전성 서한, 급여기준이나 청구 코드의 변경, 언론 보도, 코로나19 유행처럼 의료 이용 전체를 바꾼 사건</td></tr>
+<tr><td><strong>예고와 적응 기간</strong></td><td>시행 전에 미리 반응하거나, 시행 뒤 몇 달에 걸쳐 서서히 반응</td><td>급여 제한이나 약가 인하를 앞두고 처방이 몰리거나 미리 줄어듦, 시행 초기의 계도 기간</td></tr>
+</tbody></table></div>
+<p>평균으로의 회귀는 3장 가 절에서 환자 단위로 보았습니다. 지역이나 의료기관 단위에서도 똑같이 일어납니다. 시군구 250곳 가운데 어느 한 해의 처방률이 가장 높았던 20곳을 시범 지역으로 뽑았다고 합시다. 시군구의 평소 수준이 서로 표준편차 6만큼 다르고 해마다 우연히 표준편차 3만큼 오르내린다면, 뽑힌 20곳의 그해 평균은 전체 평균보다 12.5 높지만 다음 해에는 아무 일이 없어도 2.5 내려옵니다<cite data-ref="barnett2005"></cite>. 이 장의 예제에서는 시범 지역을 처방률과 무관하게 정했다고 가정합니다.</p>
+<!--FOLD:계산 과정 보기: 12.5와 2.5가 나오는 과정-->
+<p>한 해의 처방률은 '평소 수준 + 그해의 우연한 변동'이므로 표준편차는 √(6² + 3²) = 6.71입니다. 250곳 중 상위 20곳(8%)은 정규분포에서 z ≥ 1.405인 부분이고, 이 부분의 평균은 전체 평균보다 12.47 높습니다(정규분포 꼬리의 평균, 3장 가 절 '수식으로 보기'). 한 해 값의 흔들림 가운데 평소 수준의 차이가 차지하는 비율(재측정 신뢰도)은 36 ÷ 45 = 0.80이므로, 다음 해의 기댓값은 평균에서 12.47 × 0.80 ≈ 9.97만 떨어져 있습니다. 내려오는 폭은 12.47 × (1 − 0.80) = 2.49입니다. 같은 설정으로 4,000번 모의실험한 평균은 −2.46이었습니다.</p>
+<!--/FOLD-->
+<p>이 밖에 기간 중에 상병코드나 약품 분류가 바뀌거나 분모의 정의가 달라지면(측정 방법의 변화), 대상 집단의 나이나 중증도 구성이 바뀌면(구성의 변화) 그것도 전후 차이에 섞입니다.</p>
+
+<h3>정책 평가에 쓰는 설계</h3>
+<p>무작위배정 없이 정책의 효과를 추정하는 설계를 <strong>준실험 설계</strong><span class="en">(quasi-experimental design)</span>라고 합니다<cite data-ref="kontopantelis2015"></cite>. 설계마다 "정책이 없었다면"을 무엇으로 추정하는지가 다르고, 그에 따라 남는 약점이 다릅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>설계</th><th>'정책이 없었다면'의 추정</th><th>남는 약점</th><th>이 장</th></tr></thead>
+<tbody>
+<tr><td>단일군 전후 비교</td><td>시행 전 평균이 그대로 이어졌을 것</td><td>위 표의 다섯 가지 모두</td><td>가 절</td></tr>
+<tr><td>중단시계열분석</td><td>시행 전 추세가 그대로 이어졌을 것</td><td>같은 시기의 다른 변화, 추세가 직선이 아닌 경우</td><td>나 절</td></tr>
+<tr><td>대조군이 있는 중단시계열</td><td>시행 전 추세 + 비교 집단이 보인 변화</td><td>한쪽 집단만 겪은 변화, 비교 집단으로 번진 정책의 영향</td><td>다 절</td></tr>
+<tr><td>이중차분법</td><td>비교 집단과 같은 크기의 전후 변화</td><td>두 집단의 추세가 원래 달랐던 경우</td><td>라 절</td></tr>
+<tr><td>지역·기관 단위 무작위배정</td><td>무작위로 정한 대조 지역</td><td>정책에서는 실행하기 어려움</td><td>다루지 않음</td></tr>
+</tbody></table></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 전후 비교를 읽을 때</p>
+<p><span class="wrong">시행 후 평균이 유의하게 낮아졌으니 정책의 효과다.</span> 예제의 비교 지역은 사업이 없었는데도 10.1이 줄었고 P &lt; 0.001이었습니다. P 값은 "두 기간의 평균이 다르다"는 것만 말합니다. 다른 이유가 정책인지, 원래의 추세인지, 같은 시기의 다른 사건인지는 구분하지 못합니다.</p>
+<p><span class="wrong">시행 전후 평균이 같으니 정책은 효과가 없었다.</span> 처방이 매달 늘고 있었는데 시행 뒤 평균이 시행 전과 같다면, 정책이 증가를 멈춘 것일 수 있습니다. 전후 평균 비교는 효과를 부풀릴 수도, 가릴 수도 있습니다.</p>
+<p><span class="wrong">문제가 가장 심한 곳에 개입했더니 가장 많이 좋아졌다. 필요한 곳에 정책이 잘 들었다.</span> 가장 나빴던 곳은 아무것도 하지 않아도 다음 측정에서 평균 쪽으로 돌아옵니다. 같은 기준으로 뽑혔지만 개입하지 않은 곳과 비교해야 합니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>언제 쓰나</strong>: 전후 평균 비교는 자료를 설명하는 기술통계로만 씁니다. 효과를 추정하려면 시행 전 시점을 여러 개 확보해 중단시계열분석(나 절)을 하고, 가능하면 비교 집단을 둡니다(다·라 절).</li>
+<li><strong>분석 전에 정할 것</strong>: 시행일과 예고일, 같은 시기의 다른 정책·코드 변경·급여기준 변경 목록, 결과 지표의 분자와 분모(기간 내내 같은 정의), 시간 단위(월·분기), 대상 지역이나 기관이 어떻게 선정되었는지(값이 높아서 뽑혔는가).</li>
+<li><strong>먼저 그림</strong>: 어떤 분석이든 월별 값을 시간 순서로 그린 그림부터 봅니다. 시행 전 추세, 계절 무늬, 튀는 달이 그림에서 먼저 보입니다.</li>
+<li><strong>보고할 것</strong>: 전후 평균을 싣더라도 "시행 전 추세를 고려하지 않은 값"이라고 밝히고, 효과의 추정은 나–라 절의 방법으로 합니다.</li>
+<li><strong>파이썬</strong>: 명세서 단위 자료를 pandas의 <code>groupby</code>로 연월별 분자·분모로 집계합니다. 이 절의 전후 비교는 <code>scipy.stats.ttest_ind(후, 전, equal_var=False)</code>로 계산했습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>단일군 전후 비교는 초록에 다음처럼 실립니다. 예제의 시범 지역 숫자로 만든 문장입니다.</p>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 대조군 없는 전후 비교의 초록</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">We conducted a <span class="mk">1</span> <span class="hl">before-and-after study</span> using national claims data. The mean monthly rate of sedative-hypnotic prescribing among outpatients aged ≥65 years in the pilot districts <span class="mk">2</span> <span class="hl">decreased from 91.1 per 1,000 in the 36 months before the programme to 73.7 per 1,000 in the 24 months after</span> (difference, −17.5; 95% CI, −19.3 to −15.7; <span class="mk">3</span> <span class="hl">P &lt; 0.001</span>). <span class="mk">4</span> <span class="hl">The programme reduced sedative-hypnotic prescribing by 19%.</span></p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>설계부터 확인합니다.</b> "before-and-after", "pre–post", "compared with the pre-intervention period"라는 표현만 있고 비교 집단이나 시행 전 추세에 대한 말이 없으면 단일군 전후 비교입니다. 3장 가 절에서 본 대조군 없는 전후 비교와 같은 약점을 가집니다.</span></li>
+<li><span class="mk">2</span><span><b>두 평균.</b> 36개월과 24개월을 각각 숫자 하나로 줄였습니다. 그 안에서 값이 오르고 있었는지 내리고 있었는지는 사라집니다. 본문에 월별 그림이 있는지, 시행 전 구간이 평평한지 찾아봅니다. 이 예에서는 시행 전에 이미 매달 0.24씩 내려가고 있었습니다(그림 18-1).</span></li>
+<li><span class="mk">3</span><span><b>P 값이 답하는 질문.</b> "시행 전과 후의 평균이 같다"는 가설을 기각한 것입니다. 왜 달라졌는지는 답하지 않습니다. 사업이 없었던 비교 지역도 같은 검정에서 P &lt; 0.001이었습니다.</span></li>
+<li><span class="mk">4</span><span><b>인과를 말하는 결론.</b> "reduced"는 사업이 원인이라는 뜻이지만 이 설계로는 뒷받침되지 않습니다. 17.5 가운데 약 7.3은 기존 추세이고, 나머지에도 같은 달의 다른 사건이 섞여 있을 수 있습니다. 근거에 맞는 문장은 "처방률은 시행 후 기간에 더 낮았다" 정도입니다. 비교 지역까지 쓴 다 절과 라 절의 분석으로는 사업의 효과가 시행 후 24개월 평균 −7.4 안팎입니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<p>정책이 없을 때 결과가 달마다 b씩 변하는 직선을 따르고, 정책의 효과가 시행 후 기간 평균으로 E라고 하면 전후 평균의 차이는 다음과 같습니다.</p>
+<div class="eq">\[ \bar{Y}_{\text{후}} - \bar{Y}_{\text{전}} = E + b \times (\text{두 기간 한가운데 사이의 개월 수}) \]
+<p>예제: b = −0.2421, 두 기간의 한가운데는 18.5와 48.5이므로 거리 30개월. −17.46 = E + (−0.2421 × 30) = E − 7.26이므로 E = −10.20입니다. 이 E는 나 절의 분절회귀로 구한 '시행 후 24개월의 평균 효과'와 같은 값이고, 여기에는 같은 달에 있었던 다른 사건의 영향도 들어 있습니다(다 절).</p></div>
+<p>평균으로의 회귀로 생기는 변화는 3장 가 절의 식과 같습니다. 선정 때의 값이 전체 평균에서 d만큼 떨어져 있고 재측정 신뢰도가 r이면, 다음 측정의 기댓값은 평균에서 r × d만큼만 떨어져 있어 (1 − r) × d만큼 돌아옵니다. 위 예에서는 (1 − 0.80) × 12.47 = 2.49입니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>시행 전후 평균의 차이에는 정책의 효과 외에 기존 추세, 평균으로의 회귀, 계절성, 같은 시기의 다른 변화, 예고와 적응 기간이 섞입니다.</li>
+<li>예제에서 시범 지역의 전후 차이는 −17.46이지만 사업이 없었던 비교 지역도 −10.06이고 둘 다 P &lt; 0.001입니다. 유의한 전후 차이는 정책 효과의 증거가 되지 못합니다.</li>
+<li>추세만으로 생기는 차이는 '기울기 × 두 기간 한가운데 사이의 거리'입니다(−0.24 × 30개월 ≈ −7.3).</li>
+<li>정책의 효과는 "정책이 없었다면 보였을 값"과 비교한 차이입니다. 시행 전 추세를 연장하거나(나 절) 비교 집단의 변화를 빼서(다·라 절) 그 값을 추정합니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>어떤 항생제의 외래 처방률이 정책과 무관하게 매달 0.4씩 줄고 있었습니다. 급여기준을 바꾼 뒤 평가하려고 시행 전 24개월 평균과 시행 후 24개월 평균을 비교했습니다. 정책의 효과가 전혀 없었다면 두 평균의 차이는 얼마로 나옵니까?</p>
+<details><summary>답과 풀이</summary><div><p>시행 전 24개월의 한가운데와 시행 후 24개월의 한가운데는 24개월 떨어져 있습니다. 추세가 그대로 이어지기만 해도 두 평균의 차이는 −0.4 × 24 = −9.6입니다. 월별 값의 흔들림이 크지 않으면 이 정도 차이는 쉽게 유의하게 나옵니다. 전후 평균 비교에서 −9.6보다 더 크게 줄어야 비로소 정책이 무언가 했다고 볼 수 있고, 그 판단은 시행 전 추세를 모형에 넣는 중단시계열분석(나 절)으로 합니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"2022년에 항정신병약 처방률이 가장 높았던 요양병원 30곳에 약사 처방 검토 사업을 시행했다. 30곳의 평균 처방률은 2022년 41.2%에서 2023년 36.5%로 줄었다(P &lt; 0.001). 처방 검토 사업은 항정신병약 처방을 4.7%p 줄였다." 무엇이 문제이고, 어떤 자료가 더 있어야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>두 가지가 섞여 있습니다. 첫째, 처방률이 가장 높았던 곳을 골랐으므로 평균으로의 회귀가 일어납니다. 2022년 값에는 그해의 우연한 변동이 들어 있고, 2023년에는 사업이 없어도 평소 수준 쪽으로 내려옵니다. 둘째, 요양병원 전체에서 처방률이 이미 줄고 있었다면 그 추세도 섞입니다. 필요한 자료는 (1) 같은 기준으로 처방률이 높았지만 사업을 하지 않은 요양병원의 같은 기간 변화, (2) 2022년 이전 여러 해(또는 여러 달)의 처방률 추세입니다. 고쳐 쓰면 "사업을 시행한 30곳의 처방률은 4.7%p 낮아졌다. 대조군이 없고 처방률이 높은 기관을 선정했으므로, 이 감소에는 평균으로의 회귀와 기존 추세가 포함되어 있을 수 있다"입니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>초록에 "DUR 점검 항목 추가 후 6개월(1–6월)의 병용금기 처방 건수는 추가 전 6개월(전년도 7–12월)보다 12% 적었다"고 쓰여 있습니다. 본문에서 무엇을 찾아봐야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>(1) 시행 전 추세: 추가 전에도 줄고 있었는지 보여 주는 월별 그림이나 시행 전 여러 시점의 값. (2) 계절: 비교한 두 기간이 7–12월과 1–6월로 서로 다른 계절입니다. 처방 건수가 계절을 타는 약이라면 전년도 같은 달(1–6월)과 비교한 결과가 있어야 합니다. (3) 분모: '건수'가 줄었다면 전체 처방 건수나 환자 수도 줄었는지, 비율로도 줄었는지. (4) 같은 시기의 다른 변화: 급여기준, 청구 코드, 다른 점검 항목의 변경. (5) 비교 집단: 점검 항목에 추가되지 않은 다른 병용금기 조합의 같은 기간 변화. 이 가운데 아무것도 없다면 12%를 정책의 효과로 읽을 수 없습니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ch18-s2">
+<h2><span class="sec-no">나.</span>중단시계열분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">정책 시행 전 여러 달의 흐름에 직선을 맞추고, 그 직선을 시행 후로 연장해 "정책이 없었다면"의 값으로 삼습니다. 실제 값이 그 연장선에서 얼마나 떨어져 있는지가 효과의 추정입니다.</p>
+<ul>
+<li><b>비유.</b> 일정한 속도로 달리던 차가 공사 구간 표지판을 지났습니다. 지나자마자 속도가 뚝 떨어졌는지(수준 변화), 그 뒤로 점점 더 느려지는지(기울기 변화)를 따로 봅니다. 비교 기준은 "표지판이 없었다면 그대로 달렸을 속도"입니다.</li>
+<li><b>논문에서는.</b> "level change −7.37 (95% CI −9.56 to −5.18); trend change −0.226 per month (−0.349 to −0.103)"처럼 나옵니다. "시행과 함께 처방률이 1,000명당 7.4명 내려갔고, 그 뒤로는 원래의 추세보다 매달 0.23명씩 더 내려갔다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 이 방법은 "정책이 없었다면 시행 전 추세가 그대로 이어졌을 것"이라고 가정합니다. 같은 달에 다른 사건이 있었다면 한 계열만으로는 정책의 효과와 구분하지 못합니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>시행 시점이 분명한 정책을, 시행 전후로 같은 간격(월·분기)의 값이 여러 개 있는 시계열로 평가할 때</dd></div>
+  <div><dt>알고 싶은 것</dt><dd>시행 시점에 수준이 바뀌었나(수준 변화), 추세의 기울기가 바뀌었나(기울기 변화), 시행 k개월째에 '정책이 없었다면'의 값(반사실)과 얼마나 다른가</dd></div>
+  <div><dt>가정·조건</dt><dd>정책이 없었다면 시행 전 추세가 이어졌을 것, 같은 시기의 다른 변화가 없을 것. 자기상관과 계절성을 확인하고 처리</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>기존 추세, 수준 변화, 기울기 변화와 95% CI, 특정 시점의 절대·상대 변화, 자기상관 처리 방법, 관측값·적합선·반사실 그림</dd></div>
+</dl>
+
+<h3>자료 만들기</h3>
+<p><strong>중단시계열분석</strong><span class="en">(interrupted time series, ITS)</span>은 같은 집단에서 일정한 간격으로 잰 값의 줄(시계열)이 정책 시점에서 '끊겼는지' 봅니다. 분석 단위는 환자가 아니라 달입니다. 청구자료의 명세서를 연월별로 묶어 달마다 분자와 분모를 세면 한 달이 한 줄인 자료가 됩니다. 여기에 변수 세 개를 만들어 붙입니다. time은 시작부터 몇 번째 달인지, post는 시행 후면 1, time_after는 시행 후 몇 번째 달인지입니다. 분자는 수면진정제를 원외처방받은 65세 이상 환자 수, 분모는 외래를 이용한 65세 이상 환자 수이고 처방률은 1,000명당 값입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>연월</th><th class="r">time</th><th class="r">post</th><th class="r">time_after</th><th class="r">분자</th><th class="r">분모</th><th class="r">처방률</th></tr></thead>
+<tbody>
+<tr><td>2015년 1월</td><td class="r">1</td><td class="r">0</td><td class="r">0</td><td class="r">22,725</td><td class="r">236,300</td><td class="r">96.17</td></tr>
+<tr><td>2015년 2월</td><td class="r">2</td><td class="r">0</td><td class="r">0</td><td class="r">22,576</td><td class="r">236,774</td><td class="r">95.35</td></tr>
+<tr><td>⋮</td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td></tr>
+<tr><td>2017년 12월</td><td class="r">36</td><td class="r">0</td><td class="r">0</td><td class="r">22,441</td><td class="r">252,841</td><td class="r">88.76</td></tr>
+<tr class="hi"><td>2018년 1월 (시행)</td><td class="r">37</td><td class="r">1</td><td class="r">1</td><td class="r">20,690</td><td class="r">253,315</td><td class="r">81.68</td></tr>
+<tr><td>2018년 2월</td><td class="r">38</td><td class="r">1</td><td class="r">2</td><td class="r">20,278</td><td class="r">253,787</td><td class="r">79.90</td></tr>
+<tr><td>⋮</td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td><td class="r"></td></tr>
+<tr><td>2019년 12월</td><td class="r">60</td><td class="r">1</td><td class="r">24</td><td class="r">18,499</td><td class="r">264,182</td><td class="r">70.02</td></tr>
+</tbody></table></div>
+
+<h3>숫자로 따라가기</h3>
+<p>가장 널리 쓰는 분석은 시행 전과 후에 각각 직선을 맞추는 <strong>분절회귀</strong><span class="en">(segmented regression)</span>입니다. 위의 세 변수를 설명변수로 넣은 선형회귀(6장)입니다<cite data-ref="wagner2002"></cite><cite data-ref="bernal2017"></cite>.</p>
+<p style="text-align:center"><b>처방률 = 기저 수준 + 기존 추세 × time + 수준 변화 × post + 기울기 변화 × time_after + 오차</b></p>
+<p>시행 전에는 post와 time_after가 모두 0이라 앞의 두 항만 남아 직선 하나가 됩니다. 시행 후에는 post가 1이 되어 직선이 '수준 변화'만큼 옮겨지고, time_after가 1, 2, 3, …으로 늘면서 기울기가 '기울기 변화'만큼 달라집니다. 시범 지역 60개월에 적합한 결과입니다(신뢰구간은 아래 '자기상관'의 방법으로 구했습니다).</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>계수</th><th>변수</th><th class="r">추정값 (95% CI)</th><th>읽는 법</th></tr></thead>
+<tbody>
+<tr><td>기저 수준</td><td>절편</td><td class="r">95.62 (94.79 ~ 96.45)</td><td>time = 0(2014년 12월)에서의 추정 처방률</td></tr>
+<tr><td>기존 추세</td><td>time</td><td class="r">−0.242 (−0.294 ~ −0.190)</td><td>시행 전에도 매달 0.24씩 내려가고 있었음</td></tr>
+<tr class="hi"><td>수준 변화</td><td>post</td><td class="r">−7.37 (−9.56 ~ −5.18)</td><td>시행 시점에서 적합선이 연장선보다 7.4 낮게 시작</td></tr>
+<tr class="hi"><td>기울기 변화</td><td>time_after</td><td class="r">−0.226 (−0.349 ~ −0.103)</td><td>시행 후 기울기가 −0.242에서 −0.468로 가팔라짐</td></tr>
+</tbody></table></div>
+<!--FIG:ch18_its-->
+<div class="flow">
+<div><div><b>반사실</b><p>시행 전 직선(95.62 − 0.242 × time)을 시행 후로 연장한 주황 점선이 "사업이 없었다면"의 추정, 곧 <strong>반사실</strong><span class="en">(counterfactual)</span>입니다.</p></div></div>
+<div><div><b>수준 변화</b><p>시행과 함께 적합선이 반사실보다 7.37 아래에서 시작합니다. 정책에 곧바로 반응한 부분인 <strong>수준 변화</strong><span class="en">(level change)</span>입니다.</p></div></div>
+<div><div><b>기울기 변화</b><p>시행 후 기울기는 −0.242 + (−0.226) = −0.468입니다. 반사실과의 간격이 매달 0.226씩 더 벌어지는 이 부분이 <strong>기울기 변화</strong><span class="en">(slope change, trend change)</span>입니다.</p></div></div>
+<div><div><b>k개월째의 효과</b><p>수준 변화 + k × 기울기 변화입니다. 시행 12개월째(2018년 12월)에는 −10.09(95% CI −12.16 ~ −8.02)로, 반사실 84.00보다 12.0% 낮습니다.</p></div></div>
+</div>
+<!--FOLD:계산 과정 보기: 12개월째와 24개월째의 반사실, 적합값, 효과-->
+<p>시행 12개월째는 time = 48, post = 1, time_after = 12입니다.</p>
+<ul>
+<li>반사실 = 95.621 − 0.2421 × 48 = 84.00</li>
+<li>적합값 = 84.00 − 7.371 + 12 × (−0.2263) = 73.91</li>
+<li>효과 = 73.91 − 84.00 = −10.09, 상대 변화 = −10.09 ÷ 84.00 = −12.0%</li>
+</ul>
+<p>표의 반올림한 계수로 계산하면 −7.37 + 12 × (−0.226) = −10.08로 끝자리가 조금 다릅니다. 같은 식으로 시행 첫 달(time_after = 1)은 −7.60, 24개월째는 −12.80(95% CI −15.65 ~ −9.95, 반사실 81.09 대비 −15.8%)입니다. 효과의 신뢰구간은 두 계수의 표준오차를 따로 더해서는 구할 수 없고, 두 계수의 공분산까지 써야 합니다. 프로그램에서는 "수준 변화 + 12 × 기울기 변화"라는 조합을 지정해 구합니다(아래 '파이썬 출력 읽기').</p>
+<p>time_after를 시행 첫 달에 1이 아니라 0으로 두는 논문도 있습니다. 그러면 수준 변화가 '시행 첫 달의 효과'가 되어 기울기 변화 한 달치만큼 값이 달라집니다(이 예에서는 −7.60). 논문의 변수 정의를 확인하고, 헷갈리면 특정 시점의 효과를 직접 계산해 비교합니다.</p>
+<!--/FOLD-->
+<p>이 −10.09가 사업의 효과가 되려면 2018년 1월 무렵에 처방률을 바꿀 다른 일이 없었어야 합니다. 이 가정은 다 절에서 비교 지역의 계열로 확인합니다.</p>
+
+<h3>자기상관</h3>
+<p>월별 처방률은 이웃한 달끼리 닮습니다. 같은 환자가 다음 달에도 처방받고, 어떤 사건의 영향은 여러 달 이어지기 때문입니다. 직선에서 벗어난 정도(잔차)가 이번 달에 양(+)이면 다음 달에도 양이기 쉬운 이런 성질을 <strong>자기상관</strong><span class="en">(autocorrelation)</span>이라고 합니다. 보통의 회귀는 60개 달이 서로 독립이라고 보고 표준오차를 계산하므로, 이런 양의 자기상관이 있으면 신뢰구간이 너무 좁아집니다. 계수의 추정값 자체는 그대로 쓸 수 있습니다.</p>
+<p>확인은 두 가지로 합니다. <strong>Durbin–Watson 통계량</strong>은 0에서 4 사이의 값으로, 2 근처면 한 달 간격의 자기상관이 없고 2보다 작을수록 양의 자기상관이 강합니다. 이 자료는 0.95입니다. 잔차의 <strong>자기상관 그림</strong><span class="en">(autocorrelation function, ACF)</span>은 1개월, 2개월, … 떨어진 잔차끼리의 상관계수를 막대로 그린 것입니다(그림 18-3(b)).</p>
+<!--FIG:ch18_acf-->
+<p>대처도 두 가지입니다. 계수는 그대로 두고 표준오차만 자기상관을 감안해 다시 계산하는 <strong>Newey–West 표준오차</strong>(HAC 표준오차라고도 함)를 쓰거나, 오차가 지난달 오차에 이어진다는 구조를 모형에 넣습니다(1차 자기회귀 AR(1) 오차 모형, Prais–Winsten 방법, ARIMA)<cite data-ref="schaffer2021"></cite>.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>분석 방법</th><th class="r">수준 변화 (95% CI)</th><th class="r">기울기 변화 (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>보통의 최소제곱, 자기상관 무시</td><td class="r">−7.37 (−8.99 ~ −5.75)</td><td class="r">−0.226 (−0.328 ~ −0.124)</td></tr>
+<tr class="hi"><td>Newey–West 표준오차 (시차 3)</td><td class="r">−7.37 (−9.56 ~ −5.18)</td><td class="r">−0.226 (−0.349 ~ −0.103)</td></tr>
+<tr><td>AR(1) 오차 모형</td><td class="r">−7.22 (−9.51 ~ −4.92)</td><td class="r">−0.228 (−0.405 ~ −0.051)</td></tr>
+<tr><td>계절 항 추가 + Newey–West</td><td class="r">−7.77 (−9.17 ~ −6.38)</td><td class="r">−0.215 (−0.294 ~ −0.137)</td></tr>
+</tbody></table></div>
+<p>자기상관을 무시한 첫 줄의 신뢰구간이 둘째·셋째 줄보다 좁습니다(수준 변화의 표준오차 0.81 대 1.12). 이 장의 본문과 표는 둘째 줄을 씁니다. 이 예에서는 어느 방법이든 결론이 같지만 그렇지 않은 자료도 있으므로, 방법은 결과를 보기 전에 정하고 다른 방법은 민감도 분석으로 싣습니다.</p>
+<!--FOLD:자세히 보기: Newey–West의 시차 고르기, AR(1) 오차 모형, Durbin–Watson의 한계-->
+<p>Newey–West 표준오차에는 "몇 달 떨어진 잔차까지 서로 관련 있다고 볼 것인가"(시차)를 정해 줘야 합니다. 이 자료에서 시차를 1, 3, 6으로 바꾸면 수준 변화의 표준오차는 0.99, 1.12, 1.07입니다. 자기상관 그림에서 상관이 남아 있는 범위를 보고 정하고, 바꿔도 결론이 같은지 확인합니다.</p>
+<p>AR(1) 오차 모형은 "이번 달 오차 = ρ × 지난달 오차 + 새로운 우연"이라고 놓고 ρ와 회귀계수를 함께 추정합니다. 이 자료에서 ρ는 0.53으로 추정되었고, 이 모형으로 바꾼 뒤의 Durbin–Watson 통계량은 1.78로 2에 가까워졌습니다. 최대우도로 적합한 ARIMA(1,0,0) 오차 모형의 결과도 수준 변화 −7.14(−9.17 ~ −5.11), 기울기 변화 −0.215(−0.381 ~ −0.049)로 비슷합니다.</p>
+<p>모의실험 연구에 따르면 시계열이 짧을 때 Durbin–Watson 검정은 자기상관을 잘 찾아내지 못하고, 어느 방법을 쓰든 자기상관이 실제보다 작게 추정되어 신뢰구간이 좁게 나오는 경향이 있습니다<cite data-ref="turner2021"></cite>. Durbin–Watson 통계량이 2 근처라는 이유만으로 자기상관을 무시하지 말고, 신뢰구간의 끝이 0에 가까운 결과는 조심해서 읽습니다.</p>
+<p>보고 실태도 고르지 않습니다. 약물 사용 연구의 중단시계열 논문 220편을 검토한 연구에서 자기상관을 고려했다고 밝힌 논문은 66%, 계절성을 보정한 논문은 31%였습니다<cite data-ref="jandoc2015"></cite>. 논문을 읽을 때 Methods에서 이 두 가지를 찾아봅니다.</p>
+<!--/FOLD-->
+
+<h3>계절성, 시점 수, 적응 기간</h3>
+<ul>
+<li><strong>계절성.</strong> 그림 18-3(b)의 자기상관이 6–7개월 간격에서 음, 12개월 간격에서 다시 양인 것은 해마다 되풀이되는 오르내림이 남아 있다는 표시입니다. 달을 나타내는 가변수나 1년 주기의 사인·코사인 항을 모형에 넣어 보정합니다(위 표의 넷째 줄). 이 자료처럼 계절 무늬가 보이면 실제 연구에서는 계절 항을 넣은 모형을 주 분석으로 삼습니다. 이 장은 계수 세 개를 읽는 연습을 위해 계절 항이 없는 모형을 본문에 두었습니다. 계절성을 다루려면 월별 자료가 적어도 24개월은 있어야 합니다<cite data-ref="wagner2002"></cite>.</li>
+<li><strong>시점 수.</strong> 흔히 시행 전후 각각 12개 시점을 권하지만 검정력을 계산해서 나온 숫자는 아닙니다. 필요한 수는 효과의 크기, 자료의 흔들림, 자기상관에 따라 다릅니다<cite data-ref="zhang2011"></cite>. 이 예제를 시행 전후 12개월씩으로 줄이면 기울기 변화의 95% CI가 −0.59 ~ 0.31로 넓어져 기울기가 바뀌었는지 말할 수 없게 됩니다.</li>
+<li><strong>예고와 적응 기간.</strong> 정책이 예고되어 미리 반응했거나 시행 뒤 몇 달에 걸쳐 자리 잡았다면, 그 기간을 빼거나 따로 모형화합니다. 어느 달을 뺄지는 자료를 보기 전에 정책의 내용을 근거로 정합니다.</li>
+<li><strong>건수 자료.</strong> 결과가 건수이면 처방률 대신 건수를 포아송 회귀(12장 나 절)로 분석할 수 있습니다. 이때 계수는 차이가 아닌 비로 읽습니다.</li>
+</ul>
+<!--FOLD:자세히 보기: 계절 항을 넣은 모형, 짧은 시계열, 적응 기간을 뺀 분석, 포아송 분절회귀-->
+<p><b>계절 항.</b> 1년 주기의 사인·코사인 항 두 개를 넣으면 겨울에 높고 여름에 낮은, 위아래 약 1.2 크기의 계절 변동이 추정됩니다. 잔차의 표준편차가 1.52에서 1.26으로 줄고 Durbin–Watson 통계량은 0.95에서 1.30으로 올라갑니다. 계절 무늬가 빠진 뒤에도 자기상관이 남아 있으므로 Newey–West 표준오차를 함께 씁니다. 달 가변수 11개를 넣은 모형의 결과(수준 변화 −7.72, 기울기 변화 −0.217)도 거의 같습니다. 계절성이 있는 자료에서는 계절 항을 넣은 모형이 권장되므로<cite data-ref="bernal2017"></cite>, 실제 연구였다면 이 모형을 주 분석으로 삼았을 것입니다.</p>
+<p><b>짧은 시계열.</b> 한 시점의 값이 적은 수의 환자에서 나오면 값이 크게 흔들리므로, 분모가 작으면 분기 단위로 묶습니다(한 시점에 100명 이상이 바람직하다는 권고가 있습니다<cite data-ref="wagner2002"></cite>). 시행 전후 12개월씩만 쓰면 수준 변화 −5.67(−7.72 ~ −3.63), 기울기 변화 −0.140(−0.592 ~ 0.312)입니다. 6개월씩만 쓰면 기울기 변화가 −1.87로 전혀 다른 값이 나옵니다. 시점이 적으면 몇 달의 우연한 오르내림이 추세로 읽힙니다. 시행 전후 각각 8개 시점을 최소한으로 제시한 글도 있습니다<cite data-ref="penfold2013"></cite>.</p>
+<p><b>적응 기간.</b> 시행 직후 3개월(2018년 1–3월)을 빼고 분석하면 수준 변화 −8.54(−10.60 ~ −6.48), 기울기 변화 −0.157(−0.266 ~ −0.048)입니다. 두 계수가 서로 값을 주고받았을 뿐 12개월째의 효과는 −10.43으로 비슷합니다. 이런 민감도 분석에서는 계수 하나하나보다 특정 시점의 효과를 비교하는 편이 안정적입니다.</p>
+<p><b>포아송 분절회귀.</b> 분자(건수)를 결과로, ln(분모)를 오프셋으로 넣고 같은 세 변수를 쓰면 계수를 지수로 바꾼 값이 비가 됩니다. 이 자료에서 수준 변화는 0.916(95% CI 0.892–0.941)으로 "시행 시점에 처방률이 반사실의 0.916배가 되었다"로 읽고, 12개월째는 0.877(0.856–0.898)로 12.3% 낮습니다. 선형 모형의 −12.0%와 같은 결론입니다. 월별 집계 건수는 포아송 분포가 예상하는 것보다 훨씬 크게 흔들리고(이 자료의 Pearson χ² ÷ 자유도 = 6.9) 자기상관도 있으므로, 여기서도 Newey–West 표준오차를 썼습니다.</p>
+<!--/FOLD-->
+
+<div class="callout warn"><p class="ct">흔한 오해 · 분절회귀 결과를 읽을 때</p>
+<p><span class="wrong">수준 변화가 유의하지 않으니 정책은 효과가 없었다.</span> 수준 변화는 효과의 한 부분일 뿐입니다. 어떤 논문에서 수준 변화가 −1.2(95% CI −3.5 ~ 1.1), 기울기 변화가 월 −0.40(−0.58 ~ −0.22)이라면, 시행 직후에는 뚜렷한 변화가 없었지만 12개월째에는 −1.2 + 12 × (−0.40) = −6.0만큼 반사실보다 낮습니다. 교육이나 계도처럼 서서히 퍼지는 정책은 기울기 변화로 나타납니다. 두 계수를 함께 보고 특정 시점의 효과를 확인합니다.</p>
+<p><span class="wrong">기울기 변화 −0.226은 시행 후 처방률이 매달 0.226씩 줄었다는 뜻이다.</span> 기울기가 얼마나 '달라졌는가'입니다. 시행 후 기울기는 기존 추세에 이 값을 더한 −0.242 + (−0.226) = −0.468입니다.</p>
+<p><span class="wrong">처방률이 정확히 시행 시점에 꺾였으므로 정책 때문에 줄었다.</span> 시점이 맞아떨어지는 것만으로는 원인을 정할 수 없습니다. 같은 달의 다른 정책, 코드 변경, 언론 보도를 확인하고 비교 계열로 뒷받침합니다(다 절).</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>언제 쓰나</strong>: 약가 인하, 급여기준 변경, 안전성 서한처럼 시행일이 분명하고, 청구자료로 시행 전후 여러 시점의 값을 만들 수 있을 때. 시행 전 추세가 직선에서 크게 벗어나면 직선의 연장이 반사실로 맞지 않으므로 그림으로 먼저 확인합니다.</li>
+<li><strong>분석 전에 정할 것</strong>: 결과 지표의 분자와 분모(기간 내내 같은 정의), 시간 단위, 시행 시점과 적응 기간, 자기상관과 계절성 처리 방법, 효과를 요약할 시점(예: 12개월째).</li>
+<li><strong>청구자료에서</strong>: 환자 구성이 바뀌면 연령 표준화율을 쓰거나 구성 변수를 보정합니다. 청구와 심사에 시간이 걸리므로 가장 최근 몇 달의 자료가 다 채워졌는지 확인합니다.</li>
+<li><strong>보고할 것</strong>: Methods에 모형식과 변수 정의, 시점 수, 자기상관과 계절성의 처리. Results에 기존 추세, 수준 변화, 기울기 변화(95% CI), 특정 시점의 절대·상대 변화, 관측값·적합선·반사실 그림, 민감도 분석.</li>
+<li><strong>파이썬</strong>: statsmodels의 <code>smf.ols(...).fit(cov_type="HAC", cov_kwds={"maxlags": 3})</code>가 Newey–West 표준오차를 쓴 분절회귀입니다. <code>durbin_watson()</code>, <code>acf()</code>, AR(1) 오차 모형 <code>sm.GLSAR(...).iterative_fit()</code>과 <code>ARIMA(..., exog=...)</code>, 건수 자료의 <code>sm.GLM(..., family=sm.families.Poisson(), offset=...)</code>도 있습니다. 실행 예는 아래 접힌 '파이썬 출력 읽기'(심화)에 있습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 분절회귀의 Methods와 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">We fitted a <span class="mk">1</span> <span class="hl">segmented linear regression</span> to the monthly prescribing rate, with terms for the baseline trend, a change in level, and a change in trend after January 2018. Because the residuals were autocorrelated (Durbin–Watson statistic, 0.95), <span class="mk">2</span> <span class="hl">standard errors were estimated with the Newey–West method (lag 3)</span>.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Segmented regression of the monthly rate of sedative-hypnotic prescribing per 1,000 outpatients aged ≥65 years in the pilot districts, January 2015 to December 2019</caption>
+<thead><tr><th>Parameter</th><th class="r">Estimate</th><th class="r">95% CI</th><th class="r">P</th></tr></thead>
+<tbody>
+<tr><td>Baseline level<sup>a</sup></td><td class="r">95.62</td><td class="r">94.79 to 96.45</td><td class="r">&lt;.001</td></tr>
+<tr><td><span class="mk">3</span> Pre-programme trend, per month</td><td class="r">−0.242</td><td class="r">−0.294 to −0.190</td><td class="r">&lt;.001</td></tr>
+<tr><td><span class="mk">4</span> Level change</td><td class="r">−7.37</td><td class="r">−9.56 to −5.18</td><td class="r">&lt;.001</td></tr>
+<tr><td><span class="mk">5</span> Trend change, per month</td><td class="r">−0.226</td><td class="r">−0.349 to −0.103</td><td class="r">&lt;.001</td></tr>
+<tr><td class="ind">Post-programme trend, per month</td><td class="r">−0.468</td><td class="r">−0.575 to −0.362</td><td class="r"></td></tr>
+<tr><td><span class="mk">6</span> Absolute change at 12 months<sup>b</sup></td><td class="r">−10.09</td><td class="r">−12.16 to −8.02</td><td class="r">&lt;.001</td></tr>
+<tr><td class="ind">Relative change at 12 months</td><td class="r">−12.0%</td><td class="r"></td><td class="r"></td></tr>
+</tbody></table></div>
+<p class="jt-foot"><sup>a</sup> Intercept (model-estimated rate at month 0, December 2014). <sup>b</sup> Fitted rate minus the counterfactual rate (pre-programme trend extended) in December 2018. <span class="mk">7</span> Sensitivity analyses: with harmonic terms for seasonality, level change −7.77 (95% CI −9.17 to −6.38) and trend change −0.215 (−0.294 to −0.137); with first-order autoregressive errors, −7.22 (−9.51 to −4.92) and −0.228 (−0.405 to −0.051).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>분절회귀.</b> "baseline trend, change in level, change in trend"가 이 절의 기존 추세, 수준 변화, 기울기 변화입니다. 변수 이름은 논문마다 다릅니다(time, intervention, time after intervention 등).</span></li>
+<li><span class="mk">2</span><span><b>자기상관 처리.</b> Durbin–Watson 0.95는 양의 자기상관이 있다는 뜻이고, 그래서 표준오차를 Newey–West 방법으로 구했습니다. 이런 문장 없이 "ordinary least squares"만 있으면 신뢰구간이 너무 좁을 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>기존 추세 −0.242.</b> 사업 전에도 처방률이 매달 0.24씩 줄고 있었습니다(3년이면 8.7). 가 절의 전후 평균 비교가 효과를 부풀린 이유입니다.</span></li>
+<li><span class="mk">4</span><span><b>수준 변화 −7.37.</b> 시행 시점에서 적합선이 기존 추세의 연장선보다 1,000명당 7.4명 낮게 시작한다는 뜻입니다.</span></li>
+<li><span class="mk">5</span><span><b>기울기 변화 −0.226.</b> 기존 기울기에 더해지는 값입니다. 바로 아랫줄의 시행 후 기울기 −0.468이 −0.242 + (−0.226)입니다. 아랫줄이 없는 논문에서는 직접 더해 봅니다.</span></li>
+<li><span class="mk">6</span><span><b>12개월째의 절대·상대 변화.</b> 수준 변화 + 12 × 기울기 변화입니다(표의 숫자로는 −7.37 + 12 × (−0.226) = −10.08, 반올림 전 값으로 −10.09). 같은 달의 반사실 84.00으로 나누면 −12.0%입니다. "그래서 얼마나 줄었나"에 답하는 줄입니다. 시점에 따라 값이 달라지므로(24개월째는 −12.80) 어느 시점인지 확인합니다.</span></li>
+<li><span class="mk">7</span><span><b>민감도 분석.</b> 계절 항을 넣거나 오차 구조를 바꿔도 추정값이 비슷합니다. 그래도 이 표는 2018년 1월에 처방률을 바꿀 다른 일이 없었는지에는 답하지 못합니다. −10.09는 '2018년 1월 이후 달라진 모든 것'의 크기입니다.</span></li>
+</ol>
+</div></div>
+
+<h3>파이썬 출력 읽기 <span class="lv deep">심화</span></h3>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels 분절회귀</b><span>가상의 예시 (statsmodels 0.15)</span></div>
+<div class="paper-b">
+<p>데이터프레임 its는 한 달이 한 줄이고 rate, time, post, time_after 열이 있습니다. statsmodels 0.15.0으로 실제 실행한 출력이며, 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; import statsmodels.api as sm</span>
+<span class="cm">&gt;&gt;&gt; import statsmodels.formula.api as smf</span>
+<span class="cm">&gt;&gt;&gt; from statsmodels.stats.stattools import durbin_watson</span>
+<span class="cm">&gt;&gt;&gt; fit0 = smf.ols("rate ~ time + post + time_after", data=its).fit()</span>
+<span class="cm">&gt;&gt;&gt; print(durbin_watson(fit0.resid))</span>
+0.9450457125177137 <span class="mk">1</span>
+<span class="cm">&gt;&gt;&gt; fit = smf.ols("rate ~ time + post + time_after", data=its).fit(</span>
+<span class="cm">...     cov_type="HAC", cov_kwds={"maxlags": 3})</span> <span class="mk">2</span>
+<span class="cm">&gt;&gt;&gt; print(fit.summary())</span>
+                            OLS Regression Results
+==============================================================================
+Dep. Variable:                   rate   R-squared:                       0.974
+Model:                            OLS   Adj. R-squared:                  0.973
+Method:                 Least Squares   F-statistic:                     790.4
+Date:                Fri, 02 Oct 2026   Prob (F-statistic):           8.78e-46
+Time:                        20:05:22   Log-Likelihood:                -108.10
+No. Observations:                  60   AIC:                             224.2
+Df Residuals:                      56   BIC:                             232.6
+Df Model:                           3
+Covariance Type:                  HAC
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     95.6211      0.425    224.896      0.000      94.788      96.454
+time          -0.2421      0.026     -9.185      0.000      -0.294      -0.190
+post          -7.3707      1.117     -6.601      0.000      -9.559      -5.182 <span class="mk">3</span>
+time_after    -0.2263      0.063     -3.605      0.000      -0.349      -0.103
+==============================================================================
+Omnibus:                        0.366   Durbin-Watson:                   0.945
+Prob(Omnibus):                  0.833   Jarque-Bera (JB):                0.538
+Skew:                          -0.109   Prob(JB):                        0.764
+Kurtosis:                       2.591   Cond. No.                         153.
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 3 lags and without small sample correction
+<span class="cm">&gt;&gt;&gt; print(fit0.bse.round(4))</span> <span class="mk">4</span>
+Intercept     0.5166
+time          0.0243
+post          0.8090
+time_after    0.0509
+dtype: float64
+<span class="cm">&gt;&gt;&gt; print(fit.t_test("post + 12 * time_after = 0"))</span> <span class="mk">5</span>
+                             Test for Constraints
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+c0           -10.0860      1.056     -9.553      0.000     -12.155      -8.017
+==============================================================================
+<span class="cm">&gt;&gt;&gt; X = sm.add_constant(its[["time", "post", "time_after"]])</span>
+<span class="cm">&gt;&gt;&gt; g = sm.GLSAR(its["rate"], X, rho=1).iterative_fit(maxiter=50)</span> <span class="mk">6</span>
+<span class="cm">&gt;&gt;&gt; print(g.model.rho.round(4), g.params.round(4).values, g.bse.round(4).values)</span>
+[0.527] [95.4687 -0.239  -7.2164 -0.2279] [1.0294 0.0451 1.1439 0.0882]</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Durbin–Watson 통계량.</b> 먼저 보통의 방법으로 적합한 모형(fit0)의 잔차로 계산합니다. 0.945로 2보다 한참 작아 양의 자기상관이 있습니다. 요약표 아래쪽의 Durbin-Watson 줄에도 같은 값이 나옵니다.</span></li>
+<li><span class="mk">2</span><span><b>cov_type="HAC".</b> 계수는 그대로 두고 표준오차만 Newey–West 방법으로 계산하라는 옵션이고, maxlags가 시차입니다. 요약표의 Covariance Type 줄과 맨 아래 Notes에서 이 옵션이 적용되었는지 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>post 줄과 그 아래 time_after 줄.</b> 수준 변화 −7.37(95% CI −9.56 ~ −5.18)과 기울기 변화 −0.226(−0.349 ~ −0.103)입니다. time 줄이 기존 추세, Intercept가 기저 수준입니다.</span></li>
+<li><span class="mk">4</span><span><b>자기상관을 무시한 표준오차.</b> fit0의 표준오차는 post 0.809, time_after 0.051로, HAC 표준오차(1.117, 0.063)보다 작습니다. 계수(coef)는 두 적합에서 같습니다.</span></li>
+<li><span class="mk">5</span><span><b>12개월째의 효과.</b> <code>t_test</code>에 계수의 조합을 식으로 적으면 추정값과 신뢰구간을 줍니다. −10.09(95% CI −12.16 ~ −8.02)입니다. 24개월째는 12를 24로 바꿉니다.</span></li>
+<li><span class="mk">6</span><span><b>AR(1) 오차 모형.</b> <code>GLSAR</code>의 <code>iterative_fit</code>은 ρ와 계수를 번갈아 추정합니다. ρ = 0.527이고, 수준 변화 −7.22(표준오차 1.144), 기울기 변화 −0.228(0.088)입니다. 이 함수는 첫 관측값을 빼고 59개로 적합하는 방식(Cochrane–Orcutt)이어서, 첫 관측값을 살리는 Prais–Winsten 방법을 쓴 프로그램과는 숫자가 조금 다를 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ Y_t = \beta_0 + \beta_1\,\text{time}_t + \beta_2\,\text{post}_t + \beta_3\,\text{time after}_t + \varepsilon_t \]
+<p>β<sub>0</sub>은 기저 수준, β<sub>1</sub>은 기존 추세, β<sub>2</sub>는 수준 변화, β<sub>3</sub>은 기울기 변화입니다. 시행 k개월째(time = 36 + k)의 반사실은 β<sub>0</sub> + β<sub>1</sub>(36 + k), 효과는 β<sub>2</sub> + β<sub>3</sub>k입니다. 예제(k = 12): −7.371 + 12 × (−0.2263) = −10.09.</p></div>
+<div class="eq">\[ SE(\hat\beta_2 + k\hat\beta_3) = \sqrt{Var(\hat\beta_2) + k^2\,Var(\hat\beta_3) + 2k\,Cov(\hat\beta_2, \hat\beta_3)} \]
+<p>두 계수의 추정값은 서로 음의 상관을 가지므로(수준 변화를 크게 잡으면 기울기 변화는 작게 잡힘) 공분산 항을 빼고 계산하면 표준오차가 너무 커집니다. 예제에서 12개월째 효과의 표준오차는 1.056으로, 수준 변화 하나의 표준오차 1.117보다 작습니다.</p></div>
+<div class="eq">\[ DW = \frac{\sum_{t=2}^{T}(e_t - e_{t-1})^2}{\sum_{t=1}^{T} e_t^2} \approx 2(1 - r_1) \]
+<p>e<sub>t</sub>는 잔차, r<sub>1</sub>은 한 달 간격의 자기상관입니다. 예제에서 r<sub>1</sub> = 0.513이므로 2 × (1 − 0.513) = 0.97로, 실제 값 0.945와 비슷합니다. AR(1) 오차 모형은 \(\varepsilon_t = \rho\,\varepsilon_{t-1} + u_t\)라고 놓습니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>중단시계열분석은 시행 전 추세를 연장한 선(반사실)과 실제 값을 비교합니다. 분절회귀의 계수는 기존 추세, 수준 변화, 기울기 변화입니다.</li>
+<li>기울기 변화는 기울기의 '차이'입니다. 시행 후 기울기는 기존 추세 + 기울기 변화이고, 시행 k개월째의 효과는 수준 변화 + k × 기울기 변화입니다(예제 12개월째 −10.09, 반사실 대비 −12.0%).</li>
+<li>월별 자료는 이웃한 달끼리 닮아 있어(자기상관) 보통의 표준오차가 너무 작게 나옵니다. Durbin–Watson 통계량과 자기상관 그림으로 확인하고 Newey–West 표준오차나 AR 오차 모형을 씁니다.</li>
+<li>계절성, 시점 수, 적응 기간은 설계 단계에서 정합니다. 시점이 적으면 기울기 변화를 믿기 어렵습니다.</li>
+<li>한 계열만으로는 같은 시기의 다른 변화와 정책의 효과를 구분하지 못합니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>어떤 논문의 분절회귀 결과표가 다음과 같습니다(월별 처방률, 정책은 24번째 달 뒤에 시행, time after는 시행 첫 달이 1). 기저 수준 40.0, 기존 추세 +0.10/월, 수준 변화 −3.2, 기울기 변화 −0.15/월. (1) 시행 후 처방률은 늘고 있습니까, 줄고 있습니까? (2) 시행 12개월째의 효과와 상대 변화를 구해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>(1) 시행 후 기울기는 0.10 + (−0.15) = −0.05/월이므로 매달 0.05씩 줄고 있습니다. 기울기 변화 −0.15를 "매달 0.15씩 감소"로 읽으면 틀립니다. (2) 효과는 −3.2 + 12 × (−0.15) = −5.0입니다. 12개월째는 time = 36이므로 반사실은 40.0 + 0.10 × 36 = 43.6, 적합값은 43.6 − 5.0 = 38.6, 상대 변화는 −5.0 ÷ 43.6 = −11.5%입니다. 시행 전보다 낮아진 정도(시행 직전 약 42.4에서 38.6으로 −3.8)가 아니라, 정책이 없었다면 올라가 있었을 43.6과 비교한 값이 효과입니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"안전성 서한 배포 후 수준 변화는 −1.2(95% CI −3.5 to 1.1, P = 0.31)로 유의하지 않았다. 기울기 변화는 −0.40/월(95% CI −0.58 to −0.22, P &lt; 0.001)이었다. 수준 변화가 유의하지 않으므로 서한은 처방에 영향을 주지 못했다." 무엇이 틀렸습니까?</p>
+<details><summary>답과 풀이</summary><div><p>수준 변화만 보고 결론을 냈습니다. 기울기 변화가 −0.40/월이고 신뢰구간이 0에서 떨어져 있으므로, 서한 뒤 처방률은 원래의 추세보다 매달 0.40씩 더 낮아졌습니다. 6개월째의 효과는 −1.2 + 6 × (−0.40) = −3.6, 12개월째는 −6.0입니다. 고쳐 쓰면 "서한 직후의 즉각적인 변화는 뚜렷하지 않았으나(수준 변화 −1.2, 95% CI −3.5 to 1.1), 이후 추세가 월 0.40씩 낮아져 12개월째에는 반사실보다 약 6.0 낮았다"입니다. 12개월째 효과의 신뢰구간은 두 계수의 공분산이 있어야 구할 수 있으므로 논문에 실려 있는지 확인합니다. 또 "유의하지 않다"는 "효과가 없다"가 아닙니다. 수준 변화의 신뢰구간은 −3.5까지 포함합니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>Methods에 "ordinary least squares regression"이라고만 쓰여 있고, 보충자료에 Durbin–Watson 통계량이 0.95라고 나와 있습니다. 본문의 수준 변화는 −7.37(95% CI −8.99 to −5.75)입니다. 이 신뢰구간을 어떻게 읽어야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>Durbin–Watson 0.95는 양의 자기상관을 뜻하고, 이를 무시한 보통의 표준오차는 너무 작습니다. 점추정값 −7.37은 그대로 쓸 수 있지만 신뢰구간은 실제보다 좁다고 보아야 합니다. 이 절의 예제가 바로 이 자료이고, Newey–West 표준오차로 다시 구한 신뢰구간은 −9.56 ~ −5.18로 폭이 1.35배입니다. 이 예에서는 결론이 바뀌지 않지만, 신뢰구간의 끝이 0에 가까운 결과였다면 유의성이 달라질 수 있습니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ch18-s3">
+<h2><span class="sec-no">다.</span>대조군이 있는 중단시계열</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">정책을 받지 않은 비교 계열을 함께 분석합니다. 두 계열이 똑같이 겪은 변화를 빼면, 정책을 받은 쪽에만 있었던 변화가 남습니다.</p>
+<ul>
+<li><b>비유.</b> 새 비료를 준 밭의 수확이 작년보다 20% 늘었습니다. 그런데 그해에는 날씨가 좋아서 비료를 주지 않은 옆 밭도 8% 늘었습니다. 비료의 몫은 20%가 아니라 옆 밭이 늘어난 만큼을 뺀 나머지입니다. 옆 밭이 있어야 날씨의 몫을 알 수 있습니다.</li>
+<li><b>논문에서는.</b> "level change relative to comparison districts, −4.84 (95% CI −5.63 to −4.05)"처럼 나옵니다. "비교 지역의 변화를 빼고 나면, 시범 지역의 처방률은 시행과 함께 1,000명당 4.8명 더 내려갔다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 비교 계열은 정책의 영향을 받지 않으면서, 정책 말고 다른 사건은 똑같이 겪는 계열이어야 합니다. 정책 때문에 처방이 옮겨 간 다른 약처럼 정책의 영향이 번진 계열을 쓰면 답이 틀어집니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>중단시계열분석을 하는데 같은 시기에 다른 변화가 있었을 수 있고, 정책을 받지 않은 집단의 같은 기간 시계열을 만들 수 있을 때</dd></div>
+  <div><dt>알고 싶은 것</dt><dd>정책을 받은 계열의 수준 변화·기울기 변화가 비교 계열의 그것보다 얼마나 더 큰가</dd></div>
+  <div><dt>가정·조건</dt><dd>비교 계열이 정책의 영향을 받지 않을 것, 두 계열이 같은 외부 사건을 같은 크기로 겪을 것, 시행 전 추세가 비슷할 것</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>두 계열 각각의 수준 변화·기울기 변화, 그 차이와 95% CI, 두 계열을 함께 그린 그림, 비교 계열을 고른 이유</dd></div>
+</dl>
+
+<h3>왜 비교 계열이 필요한가</h3>
+<p>나 절의 분석은 "2018년 1월에 처방률을 바꿀 일은 시범사업뿐이었다"고 가정했습니다. 이제 예제에 사실 하나를 더합니다. 2018년 1월에는 전국 의료기관에 고령자의 수면진정제 장기 처방에 주의하라는 안전성 서한도 배포되었습니다(가상). 시범 지역의 계열 하나로는 서한의 효과와 사업의 효과를 나눌 수 없습니다. 서한은 받았지만 사업은 하지 않은 비교 지역 40개 시군구의 계열이 있으면 나눌 수 있습니다. 비교 계열을 더한 설계를 <strong>대조군이 있는 중단시계열</strong><span class="en">(controlled interrupted time series, CITS)</span>이라고 합니다<cite data-ref="lopezbernal2018"></cite>.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>나 절의 분절회귀를 세 번 합니다. 시범 지역의 계열, 비교 지역의 계열, 그리고 달마다 '시범 지역 처방률 − 비교 지역 처방률'을 구한 차이의 계열입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th class="r">시범 지역</th><th class="r">비교 지역</th><th class="r">차이 (시범 − 비교)</th></tr></thead>
+<tbody>
+<tr><td>기저 수준</td><td class="r">95.62</td><td class="r">84.10</td><td class="r">11.53</td></tr>
+<tr><td>기존 추세 (월)</td><td class="r">−0.242<br>(−0.294 ~ −0.190)</td><td class="r">−0.239<br>(−0.287 ~ −0.192)</td><td class="r">−0.003<br>(−0.027 ~ 0.022)</td></tr>
+<tr class="hi"><td>수준 변화</td><td class="r">−7.37<br>(−9.56 ~ −5.18)</td><td class="r">−2.53<br>(−4.71 ~ −0.35)</td><td class="r">−4.84<br>(−5.63 ~ −4.05)</td></tr>
+<tr class="hi"><td>기울기 변화 (월)</td><td class="r">−0.226<br>(−0.349 ~ −0.103)</td><td class="r">−0.028<br>(−0.142 ~ 0.087)</td><td class="r">−0.198<br>(−0.251 ~ −0.146)</td></tr>
+<tr><td>12개월째의 효과</td><td class="r">−10.09<br>(−12.16 ~ −8.02)</td><td class="r">−2.86<br>(−4.82 ~ −0.90)</td><td class="r">−7.22<br>(−8.03 ~ −6.41)</td></tr>
+</tbody></table></div>
+<p>괄호 안은 95% 신뢰구간(Newey–West 표준오차, 시차 3)입니다. 차이 열은 차이의 계열을 직접 분석한 값이라, 앞 두 열을 뺀 값과 끝자리가 다를 수 있습니다.</p>
+<!--FIG:ch18_cits-->
+<div class="flow">
+<div><div><b>비교 지역도 내려갔다</b><p>사업이 없었던 비교 지역의 처방률도 2018년 1월에 2.53 내려갔습니다(95% CI −4.71 ~ −0.35). 서한처럼 두 지역이 함께 겪은 변화로 볼 수 있습니다. 기울기 변화는 뚜렷하지 않았습니다(−0.028, 95% CI −0.142 ~ 0.087).</p></div></div>
+<div><div><b>시범 지역에만 있었던 변화</b><p>시범 지역의 수준 변화 −7.37에서 비교 지역의 −2.53을 빼면 −4.84입니다. 기울기 변화는 −0.226 − (−0.028) = −0.198입니다.</p></div></div>
+<div><div><b>12개월째의 효과</b><p>−4.84 + 12 × (−0.198) = −7.22(95% CI −8.03 ~ −6.41). 나 절의 −10.09는 비교 지역에서도 일어난 변화 약 2.9를 사업의 효과에 얹은 값이었습니다.</p></div></div>
+<div><div><b>신뢰구간이 좁아졌다</b><p>계절 변동이나 전국적인 사건처럼 두 지역이 달마다 함께 오르내리는 부분이 차이에서 지워집니다. 잔차의 표준편차가 1.52에서 0.84로 줄고, Durbin–Watson 통계량도 0.95에서 1.76으로 2에 가까워졌습니다.</p></div></div>
+</div>
+<p>이 모의자료는 사업의 효과를 수준 변화 −5.0, 기울기 변화 월 −0.20(12개월째 −7.4)으로, 같은 달 전국 서한의 효과를 −2.0으로 정해 놓고 만들었습니다. 비교 계열을 쓴 추정(−4.84, −0.198, −7.22)은 이 값에 가깝고, 시범 지역만 본 나 절의 추정(−7.37, −0.226, −10.09)은 서한의 효과만큼 치우쳐 있습니다. 실제 연구에서는 정답을 모르므로, 비교 계열이 가장 직접적인 점검 수단입니다.</p>
+<!--FOLD:자세히 보기: 차이의 계열 대신 교호작용 모형으로 분석하기-->
+<p>논문에서는 차이의 계열을 만드는 대신, 두 계열의 120줄(60개월 × 2)을 한 자료로 쌓고 시범 지역 여부(group, 시범 지역이면 1)와 세 변수의 교호작용(8장 바 절)을 넣은 모형을 더 자주 봅니다.</p>
+<p style="text-align:center"><b>처방률 = (기저 수준 + 기존 추세 × time + 수준 변화 × post + 기울기 변화 × time_after) + group × (수준의 차이 + 추세의 차이 × time + 수준 변화의 차이 × post + 기울기 변화의 차이 × time_after)</b></p>
+<p>앞 괄호는 비교 지역의 분절회귀이고, 뒤 괄호의 네 계수는 시범 지역이 비교 지역과 얼마나 다른지를 나타냅니다. 이 모형의 group × post 계수는 −4.84, group × time_after 계수는 −0.198로 위 표의 차이 열과 정확히 같습니다. group × time 계수 −0.003은 시행 전 두 지역의 추세가 얼마나 달랐는지를 보여 줍니다.</p>
+<p>표준오차는 조심해서 구해야 합니다. 두 계열은 같은 달에 함께 오르내리므로(이 자료에서 두 지역 잔차의 상관계수 0.83) 120줄이 서로 독립이 아닙니다. 이를 무시한 보통의 표준오차는 수준 변화의 차이에서 1.09로, 차이의 계열로 구한 0.40보다 훨씬 큽니다. 같은 달의 두 줄을 한 묶음으로 본 군집 강건 표준오차(10장 라 절)는 0.43입니다. 차이의 계열을 분석하면 이 문제를 따로 신경 쓰지 않아도 됩니다.</p>
+<!--/FOLD-->
+
+<h3>비교 계열 고르기</h3>
+<p>좋은 비교 계열은 정책의 영향을 받지 않으면서, 정책 말고 다른 사건(전국 단위의 서한, 급여기준이나 코드의 변경, 계절, 감염병 유행)은 정책을 받은 계열과 똑같이 겪는 계열입니다<cite data-ref="lopezbernal2018"></cite>. 여기에 더해 시행 전 추세가 비슷한지를 자료로 확인합니다. 예제에서는 시행 전 기울기가 −0.242와 −0.239로 거의 같았습니다(차이 −0.003, 95% CI −0.027 ~ 0.022). 수준은 달라도 됩니다(시범 지역이 약 11.5 높음).</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>비교 계열</th><th>예</th><th>조심할 점</th></tr></thead>
+<tbody>
+<tr><td>정책을 시행하지 않은 지역</td><td>시범사업을 하지 않은 시군구</td><td>환자가 지역을 넘나들거나 같은 의사가 양쪽에서 진료하면 정책의 영향이 번짐. 한쪽 지역에만 있었던 사건</td></tr>
+<tr><td>같은 지역의 정책 대상이 아닌 집단</td><td>시범 지역의 50–64세 환자</td><td>의사의 처방 습관이 나이와 무관하게 바뀌면 비교 집단의 처방도 줄어 효과가 작게 추정됨</td></tr>
+<tr><td>같은 집단의 정책 대상이 아닌 약</td><td>약가가 유지된 약, 제한 대상이 아닌 성분</td><td>대체해서 쓸 수 있는 약이면 처방이 그쪽으로 옮겨 가 비교 계열이 늘고 효과가 크게 추정됨</td></tr>
+<tr><td>정책과 무관한 결과</td><td>같은 환자군의 점안제 처방률</td><td>정책이 바꿀 리 없는 결과여야 함. 자료나 코드의 변화 같은 공통 사건을 잡아내는 용도</td></tr>
+</tbody></table></div>
+<p>위 표는 약물 정책 연구에서 자주 쓰는 비교 계열입니다. 이 밖에 한두 해 전의 같은 집단(과거 코호트)이나 정책이 겨냥한 행동을 원래 하지 않던 집단을 쓰기도 합니다<cite data-ref="lopezbernal2018"></cite>.</p>
+<p>정책의 영향이 비교 계열로 번지는 것을 <strong>파급 효과</strong><span class="en">(spillover)</span>라고 합니다. 방향에 따라 추정이 양쪽으로 틀어집니다. 예제에서 수면진정제 대신 처방이 다른 약으로 옮겨 가 '비교 계열'이 정책 때문에 1.5 올라갔다면 수준 변화의 차이는 −4.84가 아니라 −6.34로 부풀고, 반대로 비교 계열의 처방도 함께 1.5 줄었다면 −3.34로 작아집니다. 비교 계열을 고를 때는 "이 정책이 이 계열을 바꿀 길이 있는가"를 먼저 따집니다. 처방이 옮겨 간 계열은 비교 계열로는 맞지 않지만, 정책의 의도하지 않은 결과를 보여 주는 결과 변수로는 가치가 있습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 비교 계열이 있는 분석을 읽을 때</p>
+<p><span class="wrong">시범 지역의 수준 변화는 유의하고(P &lt; 0.001) 비교 지역의 수준 변화는 유의하지 않았으므로, 사업의 효과가 입증되었다.</span> 두 계열을 따로 검정해 P 값을 견주는 것은 비교가 아닙니다(3장 가 절의 '군별 전후 P만 비교하는 오류'와 같습니다). 두 변화의 <b>차이</b>와 그 신뢰구간을 직접 추정해야 합니다. 예제에서는 비교 지역의 수준 변화도 유의했지만(−2.53), 차이 −4.84(95% CI −5.63 ~ −4.05)가 사업의 효과를 말해 줍니다.</p>
+<p><span class="wrong">대조군을 넣었으니 같은 시기의 다른 변화는 모두 해결되었다.</span> 지워지는 것은 두 계열이 <b>함께</b> 겪은 변화뿐입니다. 시범 지역에서만 같은 달에 다른 사업이 시작되었다면 그 효과는 그대로 남습니다.</p>
+<p><span class="wrong">비교 지역은 시범 지역과 처방률 수준이 비슷해야 한다.</span> 수준은 달라도 됩니다. 필요한 것은 정책이 없었을 때 두 계열이 같은 흐름으로 움직였으리라는 것이고, 시행 전 추세가 비슷한지로 뒷받침합니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>언제 쓰나</strong>: 중단시계열분석을 계획할 때는 비교 계열을 만들 수 있는지부터 따져 봅니다. 전국에 동시에 적용된 정책(일괄 약가 인하 등)은 시행하지 않은 지역이 없으므로, 대상이 아닌 집단이나 약, 정책과 무관한 결과에서 비교 계열을 찾습니다.</li>
+<li><strong>분석 전에 정할 것</strong>: 비교 계열과 그것을 고른 이유(정책의 영향이 번질 길이 없는가, 같은 사건을 겪는가), 시행 전 추세 비교, 분석 방법(차이의 계열 또는 위 접힌 상자의 교호작용 모형).</li>
+<li><strong>맞는 비교 계열이 없으면</strong>: 무리하게 만들지 않습니다. 단일 계열 분석으로 두고, 같은 시기의 다른 변화를 조사해 한계로 적습니다.</li>
+<li><strong>보고할 것</strong>: 두 계열 각각의 추정값과 차이(95% CI), 두 계열과 반사실을 함께 그린 그림, 시행 전 추세의 차이, 파급 효과의 가능성에 대한 검토.</li>
+<li><strong>파이썬</strong>: 차이의 계열을 만들어 나 절과 같은 <code>smf.ols(...).fit(cov_type="HAC", ...)</code>에 넣습니다. 교호작용 모형은 두 계열을 쌓은 자료에 <code>smf.ols("rate ~ (time + post + time_after) * group", data=both)</code>로 적합합니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 대조군이 있는 중단시계열의 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Because a nationwide safety letter was issued in the same month, <span class="mk">1</span> <span class="hl">40 districts without the programme served as a comparison series</span>. We fitted the segmented regression to each series and to the monthly difference between the two series (pilot minus comparison); Newey–West standard errors (lag 3) were used.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Controlled interrupted time series analysis of the monthly sedative-hypnotic prescribing rate per 1,000 outpatients aged ≥65 years</caption>
+<thead><tr><th>Parameter</th><th class="r">Pilot districts</th><th class="r">Comparison districts</th><th class="r"><span class="mk">3</span> Difference (95% CI)</th></tr></thead>
+<tbody>
+<tr><td><span class="mk">2</span> Pre-programme trend, per month</td><td class="r">−0.242</td><td class="r">−0.239</td><td class="r">−0.003 (−0.027 to 0.022)</td></tr>
+<tr><td>Level change</td><td class="r">−7.37</td><td class="r"><span class="mk">4</span> −2.53</td><td class="r">−4.84 (−5.63 to −4.05)</td></tr>
+<tr><td>Trend change, per month</td><td class="r">−0.226</td><td class="r">−0.028</td><td class="r">−0.198 (−0.251 to −0.146)</td></tr>
+<tr><td><span class="mk">5</span> Absolute change at 12 months</td><td class="r">−10.09</td><td class="r">−2.86</td><td class="r">−7.22 (−8.03 to −6.41)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">The difference column is from the segmented regression of the monthly difference series.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>비교 계열과 그 이유.</b> 같은 달에 전국 서한이 있었기 때문에, 서한은 받고 사업은 하지 않은 지역을 비교 계열로 삼았다고 밝혔습니다. 읽는 사람은 두 가지를 따져 봅니다. 비교 지역이 사업의 영향을 받을 길은 없는가(환자나 의사의 이동), 비교 지역이 서한을 시범 지역과 같은 정도로 겪었는가.</span></li>
+<li><span class="mk">2</span><span><b>시행 전 추세.</b> 두 지역의 기울기가 −0.242와 −0.239로 거의 같고, 차이의 신뢰구간이 0을 가운데 두고 좁습니다. 두 계열이 사업 전에 같은 흐름이었다는 근거입니다. 이 줄이나 시행 전 구간을 보여 주는 그림이 없는 논문은 비교 계열이 적절한지 판단하기 어렵습니다.</span></li>
+<li><span class="mk">3</span><span><b>차이 열이 결론입니다.</b> 시범 지역 열(나 절의 결과)은 '2018년 1월 이후 달라진 모든 것', 비교 지역 열은 '사업 말고 달라진 것', 차이 열이 '사업 때문에 달라진 것'의 추정입니다.</span></li>
+<li><span class="mk">4</span><span><b>비교 지역의 수준 변화 −2.53.</b> 사업이 없었던 지역도 같은 달에 내려갔습니다. 이 값이 0에 가까웠다면 나 절의 단일 계열 분석과 결론이 같았을 것이고, 이 예처럼 0이 아니면 단일 계열 분석이 그만큼 치우쳐 있었다는 뜻입니다.</span></li>
+<li><span class="mk">5</span><span><b>12개월째의 변화.</b> 차이 열에서 −4.84 + 12 × (−0.198) = −7.22입니다. 시범 지역 열의 −10.09와 비교하면, 단일 계열 분석이 효과를 약 2.9(40%) 크게 잡았습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ Y_{gt} = \beta_0 + \beta_1 T_t + \beta_2 P_t + \beta_3 A_t + G_g\,(\beta_4 + \beta_5 T_t + \beta_6 P_t + \beta_7 A_t) + \varepsilon_{gt} \]
+<p>T는 time, P는 post, A는 time_after, G는 시범 지역이면 1입니다. β<sub>2</sub>, β<sub>3</sub>은 비교 지역의 수준 변화와 기울기 변화(−2.53, −0.028), β<sub>6</sub>, β<sub>7</sub>은 그 차이(−4.84, −0.198)이고, β<sub>5</sub>는 시행 전 추세의 차이(−0.003)입니다. 시범 지역의 수준 변화는 β<sub>2</sub> + β<sub>6</sub> = −7.37입니다. 시행 k개월째에 사업의 효과는 β<sub>6</sub> + β<sub>7</sub>k입니다.</p></div>
+<p>두 계열의 시점이 같으면, 달마다의 차이 \(D_t = Y_{1t} - Y_{0t}\)에 나 절의 모형을 적합한 계수가 β<sub>4</sub>, β<sub>5</sub>, β<sub>6</sub>, β<sub>7</sub>과 같습니다. 두 계열이 함께 겪는 오차가 D<sub>t</sub>에서 상쇄되므로 표준오차가 작아집니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>단일 계열의 중단시계열분석은 같은 시기의 다른 변화를 정책의 효과로 셉니다. 비교 계열을 더하면 두 계열이 함께 겪은 변화를 뺄 수 있습니다.</li>
+<li>결론은 두 계열의 수준 변화·기울기 변화의 '차이'와 그 신뢰구간에서 읽습니다. 두 계열의 P 값을 따로 견주지 않습니다.</li>
+<li>예제에서 시범 지역만 본 12개월째 효과 −10.09 가운데 약 2.9는 두 지역이 함께 겪은 변화였고, 사업의 효과는 −7.22(95% CI −8.03 ~ −6.41)로 추정됩니다.</li>
+<li>비교 계열은 정책의 영향을 받지 않고, 다른 사건은 똑같이 겪으며, 시행 전 추세가 비슷해야 합니다. 처방이 옮겨 간 대체 약처럼 정책의 영향이 번진 계열은 비교 계열이 될 수 없습니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>어떤 급여 제한 정책을 평가한 논문에서 정책 대상 지역의 수준 변화는 −6.0, 기울기 변화는 월 −0.30이고, 비교 지역은 각각 −2.5와 −0.10입니다. 비교 지역을 감안한 수준 변화, 기울기 변화, 시행 12개월째의 효과를 구해 보세요. 대상 지역만 보았다면 12개월째의 효과를 얼마로 보고했을까요?</p>
+<details><summary>답과 풀이</summary><div><p>수준 변화의 차이는 −6.0 − (−2.5) = −3.5, 기울기 변화의 차이는 −0.30 − (−0.10) = −0.20입니다. 12개월째의 효과는 −3.5 + 12 × (−0.20) = −5.9입니다. 대상 지역만 보았다면 −6.0 + 12 × (−0.30) = −9.6으로 보고했을 것이고, 그 가운데 −2.5 + 12 × (−0.10) = −3.7은 비교 지역에서도 일어난 변화입니다. 신뢰구간은 이 숫자들만으로는 구할 수 없으므로 논문의 차이 열에서 확인합니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>2012년의 일괄 약가 인하처럼 전국에 동시에 적용된 약가 인하가 '가격이 인하된 당뇨병 약의 월 약제비'에 준 영향을 평가하려 합니다. 비교 계열 후보가 셋입니다. (가) 가격이 유지된 당뇨병 약의 약제비 (나) 같은 기간 약가 변동이 없었던 안과용 점안제의 약제비 (다) 가격이 인하된 약의 '사용량'. 각각 비교 계열로 쓸 수 있습니까?</p>
+<details><summary>답과 풀이</summary><div><p>(가)는 맞지 않습니다. 가격이 유지된 약은 인하된 약과 대체 관계에 있어 처방이 그쪽으로 옮겨 갈 수 있고, 그러면 비교 계열이 정책 때문에 늘어 효과가 부풀려집니다. 이 계열은 비교 계열이 아니라 정책의 의도하지 않은 결과를 보는 결과 변수로 따로 분석합니다(이 장 나 절의 '실제 논문으로 읽어 보기'가 그런 예입니다). (나)는 정책의 영향을 받을 길이 없으므로, 청구 체계의 변화나 전체 의료 이용의 변화 같은 공통 사건을 잡아내는 비교 계열로 쓸 수 있습니다. 다만 당뇨병 약과 같은 사건을 같은 크기로 겪는다는 보장은 약하고, 시행 전 추세가 비슷한지 확인해야 합니다. (다)는 비교 계열이 아니라 같은 정책의 또 다른 결과입니다. 약제비 = 가격 × 사용량이므로, 약제비 감소가 가격 때문인지 사용량 때문인지 나눠 보는 데 씁니다. 전국 동시 정책에서는 완벽한 비교 계열을 찾기 어렵다는 점을 한계로 적습니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"중재 병원의 항생제 사용량은 수준 변화 −8.1(P = 0.002)로 유의하게 감소했고, 대조 병원은 −5.9(P = 0.08)로 유의하지 않았다. 따라서 항생제 관리 프로그램은 효과적이었다." 무엇이 틀렸습니까?</p>
+<details><summary>답과 풀이</summary><div><p>한쪽은 유의하고 다른 쪽은 유의하지 않다는 것으로 두 변화가 다르다고 결론 냈습니다. 대조 병원도 5.9 줄었고, P = 0.08은 "변화가 없었다"는 뜻이 아닙니다(자료가 적거나 흔들림이 크면 같은 크기의 변화도 유의하지 않게 나옵니다). 비교해야 할 값은 두 수준 변화의 차이 −8.1 − (−5.9) = −2.2와 그 신뢰구간입니다. 이 차이의 신뢰구간이 0을 포함한다면 프로그램의 효과를 말할 수 없습니다. 고쳐 쓰면 "수준 변화는 중재 병원 −8.1, 대조 병원 −5.9였고, 그 차이는 −2.2(95% CI는 교호작용 모형 또는 차이의 계열에서 구한 값)였다"입니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ch18-s4">
+<h2><span class="sec-no">라.</span>이중차분법</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">정책을 받은 집단의 전후 변화에서, 받지 않은 집단의 전후 변화를 뺍니다. '차이의 차이'가 정책 효과의 추정입니다.</p>
+<ul>
+<li><b>비유.</b> 1반만 방과 후 보충수업을 했습니다. 1반의 평균은 중간고사보다 기말고사에서 8점 올랐고, 보충수업이 없었던 2반도 3점 올랐습니다. 기말고사가 쉬웠던 것입니다. 보충수업의 몫은 8 − 3 = 5점으로 봅니다. 두 반의 원래 점수가 같을 필요는 없습니다. 보충수업이 없었다면 1반도 2반만큼 올랐으리라는 가정만 필요합니다.</li>
+<li><b>논문에서는.</b> "difference-in-differences estimate, −7.40 (95% CI −7.87 to −6.94)"처럼 나옵니다. "비교 지역에서 일어난 변화를 빼고 나면, 시범 지역의 처방률은 시행 후 기간에 평균 1,000명당 7.4명 더 낮아졌다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> "정책이 없었다면 두 집단의 변화가 같았을 것"이라는 평행 추세 가정에 모든 것이 달려 있습니다. 이 가정은 자료로 뒷받침할 수는 있어도 증명할 수는 없습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>정책을 받은 집단과 받지 않은 집단이 있고, 두 집단 모두 시행 전후의 자료가 있을 때. 시점이 전후 한 번씩뿐이어도 계산할 수 있음</dd></div>
+  <div><dt>추정하는 것</dt><dd>(정책 집단의 후 − 전) − (비교 집단의 후 − 전). 회귀에서는 '집단 × 시행 후' 교호작용 항의 계수</dd></div>
+  <div><dt>가정</dt><dd>평행 추세: 정책이 없었다면 두 집단의 변화가 같았을 것. 같은 시기에 한 집단만 겪은 다른 변화가 없을 것, 정책의 영향이 비교 집단으로 번지지 않을 것</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>2×2 평균표, 이중차분 추정값(95% CI), 표준오차의 군집 단위, 시행 전 추세 그림이나 사건연구 그림</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>가 절의 전후 평균을 두 지역에 대해 2×2 표로 놓습니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th></th><th class="r">시행 전 (36개월)</th><th class="r">시행 후 (24개월)</th><th class="r">변화 (후 − 전)</th></tr></thead>
+<tbody>
+<tr><td>시범 지역</td><td class="r">91.14</td><td class="r">73.68</td><td class="r">−17.46</td></tr>
+<tr><td>비교 지역</td><td class="r">79.66</td><td class="r">69.60</td><td class="r">−10.06</td></tr>
+<tr class="hi"><td>차이 (시범 − 비교)</td><td class="r">11.48</td><td class="r">4.08</td><td class="r">−7.40</td></tr>
+</tbody></table></div>
+<p>이 표에서 세 가지 비교를 할 수 있고, 그중 하나만 사업의 효과를 추정합니다.</p>
+<ul>
+<li><strong>시범 지역의 전후 비교(−17.46)</strong>: 비교 지역도 10.06 줄었으므로, 사업과 무관한 감소가 섞여 있습니다(가 절).</li>
+<li><strong>시행 후 두 지역의 비교(4.08)</strong>: 시범 지역은 사업 전부터 11.48 높았습니다. 원래의 차이를 무시한 비교입니다.</li>
+<li><strong>차이의 차이(−7.40)</strong>: −17.46 − (−10.06) = −7.40. 시범 지역의 변화에서 '어차피 일어났을 변화'인 비교 지역의 변화를 뺀 값입니다. 이 방법을 <strong>이중차분법</strong><span class="en">(difference-in-differences, DID)</span>이라고 합니다<cite data-ref="dimick2014"></cite>.</li>
+</ul>
+<!--FIG:ch18_did-->
+<p>그림의 파란 점선은 시범 지역의 시행 전 평균 91.14에 비교 지역의 변화 −10.06을 더한 81.08입니다. "사업이 없었다면 시범 지역도 비교 지역만큼만 변했을 것"이라는 가정으로 만든 반사실이고, 실제 평균 73.68과의 간격이 −7.40입니다.</p>
+
+<h3>회귀식으로 구하기</h3>
+<p>같은 값을 회귀로 구할 수 있습니다. 시범 지역이면 1인 변수 treat, 시행 후면 1인 변수 post, 그리고 둘의 곱을 넣습니다.</p>
+<p style="text-align:center"><b>처방률 = β<sub>0</sub> + β<sub>1</sub> × treat + β<sub>2</sub> × post + β<sub>3</sub> × (treat × post) + 오차</b></p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th>계수</th><th class="r">추정값</th><th>2×2 표에서의 뜻</th></tr></thead>
+<tbody>
+<tr><td>β<sub>0</sub> (절편)</td><td class="r">79.66</td><td>비교 지역의 시행 전 평균</td></tr>
+<tr><td>β<sub>1</sub> (treat)</td><td class="r">11.48</td><td>시행 전 두 지역의 차이</td></tr>
+<tr><td>β<sub>2</sub> (post)</td><td class="r">−10.06</td><td>비교 지역의 전후 변화</td></tr>
+<tr class="hi"><td>β<sub>3</sub> (treat × post)</td><td class="r">−7.40</td><td>이중차분 추정값</td></tr>
+</tbody></table></div>
+<p>교호작용 항(8장 바 절)의 계수가 "시범 지역의 전후 변화가 비교 지역의 전후 변화와 얼마나 다른가"이고, 이것이 이중차분 추정값입니다. 회귀로 구하면 신뢰구간이 나오고, 공변량을 보정하거나 여러 시점을 다루기 쉽습니다.</p>
+<p>신뢰구간을 구할 때는 분석 단위를 조심합니다. 60개 시군구의 60개월 자료는 3,600줄이지만, 같은 시군구의 60개 값은 서로 닮아 있어 독립인 3,600개가 아닙니다. 사업은 시군구 단위로 배정되었으므로 시군구를 한 묶음(군집)으로 보는 <strong>군집 강건 표준오차</strong><span class="en">(cluster-robust standard error)</span>를 씁니다(10장 라 절). 결과는 −7.40(95% CI −7.87 ~ −6.94)입니다.</p>
+<!--FOLD:자세히 보기: 시군구별 변화량으로 보는 군집의 뜻, 가중치, 군집 수가 적을 때-->
+<p>군집 단위로 본다는 것은 시군구 하나를 관측값 하나처럼 다룬다는 뜻입니다. 시군구마다 '시행 후 평균 − 시행 전 평균'을 구하면 변화량이 60개 생깁니다. 시범 지역 20곳의 변화량은 평균 −17.4(표준편차 0.7, 범위 −19.2 ~ −16.5), 비교 지역 40곳은 평균 −10.2(표준편차 1.0, 범위 −12.9 ~ −7.9)입니다. 이 두 묶음의 평균 차이를 구하면 −7.40(95% CI −7.87 ~ −6.93)으로, 3,600줄에 군집 강건 표준오차를 쓴 결과와 거의 같습니다. 이중차분법의 정밀도는 줄의 수가 아니라 시군구의 수와 시군구 사이의 흔들림에서 나옵니다.</p>
+<p>시군구마다 65세 이상 외래환자 수가 다르므로, 위 회귀에는 시군구의 평균 환자 수를 가중치로 주었습니다. 그래야 계수가 2×2 표의 평균(지역 전체 환자 기준의 처방률)과 일치합니다. 가중치를 주지 않으면 시군구 하나하나를 같은 비중으로 평균한 값이 되어 −7.26(95% CI −7.70 ~ −6.82)으로 조금 다릅니다. 어느 쪽이든 미리 정해 밝힙니다.</p>
+<p>군집 강건 표준오차는 군집이 수십 개 이상일 때 믿을 만합니다. 시범 지역 1곳과 비교 지역 1곳처럼 군집이 몇 개뿐이면 표준오차가 실제보다 작게 나오기 쉽고, 그 지역에만 있었던 우연한 사건과 정책의 효과를 구분할 수 없습니다<cite data-ref="wing2018"></cite>.</p>
+<!--/FOLD-->
+
+<h3>평행 추세 가정</h3>
+<p>이중차분법의 핵심 가정은 <strong>평행 추세</strong><span class="en">(parallel trends)</span>입니다. 사업이 없었다면 시범 지역의 처방률도 비교 지역과 같은 크기만큼 변했으리라는 것입니다. 두 지역의 수준은 달라도 됩니다(시행 전 차이 11.48). 사업이 없었을 때의 시범 지역은 관측할 수 없으므로 이 가정은 직접 확인할 수 없고, 시행 전 자료로 뒷받침합니다<cite data-ref="wing2018"></cite>.</p>
+<ul>
+<li><strong>시행 전 그림</strong>: 그림 18-5에서 시행 전 두 지역의 점들이 나란히 내려갑니다.</li>
+<li><strong>시행 전 추세의 차이</strong>: 시행 전 36개월의 기울기 차이는 월 −0.003(95% CI −0.037 ~ 0.032)입니다.</li>
+<li><strong>사건연구 그림</strong>: 기간을 여러 구간으로 나눠, 구간마다 두 지역의 차이가 시행 직전에 비해 얼마나 달라졌는지 그립니다. 이것을 <strong>사건연구</strong><span class="en">(event study)</span>라고 합니다. 시행 전 구간의 값이 0 근처에 머물면 평행 추세와 모순되지 않습니다.</li>
+</ul>
+<!--FIG:ch18_event-->
+<p>그림 18-6에서 시행 전 다섯 반기의 값은 −0.44에서 0.30 사이이고 신뢰구간이 모두 0을 포함합니다. 시행 후에는 −6.03, −6.83, −7.85, −9.60으로 점점 커집니다. 이중차분 추정값 −7.40이 이 시행 후 효과들을 하나로 뭉쳐 평균한 값이라는 것도 이 그림에서 보입니다.</p>
+<p>다만 이 점검들은 시행 <b>전</b>에 추세가 비슷했다는 것만 보여 줍니다. 가정은 시행 <b>후</b>에 대한 것입니다. 시행 전 추세의 차이가 유의하지 않다는 것도 차이가 없다는 증명이 아닙니다. 신뢰구간의 끝인 월 0.032만큼 실제로 추세가 달랐다면, 두 기간의 한가운데가 30개월 떨어져 있으므로 이중차분 추정값은 0.032 × 30 ≈ 1.0만큼 치우칩니다. 사전 추세의 차이는 P 값이 아니라 신뢰구간으로 읽고, 그 크기가 추정된 효과에 비해 작은지 봅니다.</p>
+<!--FOLD:자세히 보기: 평행 추세가 깨지는 경우와 결과의 척도-->
+<p>평행 추세는 다음과 같은 때 깨집니다. 한 집단에서만 같은 시기에 다른 변화가 있었을 때, 시행 전후로 두 집단의 환자 구성이 다르게 바뀌었을 때, 값이 유난히 높았던 지역을 정책 대상으로 골랐을 때(평균으로의 회귀는 고른 쪽에서만 일어납니다), 정책의 영향이 비교 집단으로 번졌을 때입니다.</p>
+<p>평행 추세는 결과의 척도에 따라 성립하기도 하고 깨지기도 합니다. 처방률이 90과 80에서 둘 다 10씩 줄면 차이의 척도에서는 평행이지만 비율로는 11%와 12.5% 감소로 평행이 아닙니다. 결과가 이분형이라 개인 단위 자료에 로지스틱 회귀를 쓰면 교호작용 계수는 오즈비 척도의 값이므로 %p 차이로 읽을 수 없습니다. 어느 척도에서 가정을 두었는지 논문에서 확인합니다.</p>
+<!--/FOLD-->
+
+<h3>중단시계열분석과 이중차분법의 비교</h3>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th>중단시계열분석 (나·다 절)</th><th>이중차분법</th></tr></thead>
+<tbody>
+<tr><td>필요한 자료</td><td>시행 전후로 여러 시점. 비교 계열은 선택</td><td>비교 집단이 반드시 필요. 시점은 전후 한 번씩이어도 계산 가능</td></tr>
+<tr><td>'정책이 없었다면'</td><td>시행 전 추세의 연장</td><td>비교 집단과 같은 크기의 변화</td></tr>
+<tr><td>핵심 가정</td><td>시행 전 추세가 이어졌을 것, 같은 시기의 다른 변화가 없을 것</td><td>평행 추세</td></tr>
+<tr><td>효과의 모양</td><td>수준 변화와 기울기 변화를 나눠 추정. 시점별 효과</td><td>시행 후 기간의 평균 효과 하나(사건연구로 나눠 볼 수 있음)</td></tr>
+<tr><td>표준오차</td><td>자기상관을 감안(Newey–West 등)</td><td>정책이 배정된 단위로 군집</td></tr>
+<tr><td>흔한 약점</td><td>시점이 적을 때, 추세가 직선이 아닐 때</td><td>두 집단의 추세가 원래 달랐을 때, 군집이 적을 때</td></tr>
+</tbody></table></div>
+<p>이 장의 네 가지 분석을 같은 척도(시행 후 24개월의 평균 효과)로 나란히 놓으면 방법마다 무엇이 섞여 있는지 보입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:46rem">
+<thead><tr><th>분석</th><th class="r">추정값 (95% CI)</th><th>들어 있는 것</th></tr></thead>
+<tbody>
+<tr><td>전후 평균 비교 (가 절)</td><td class="r">−17.46</td><td>기존 추세 + 전국 서한 + 사업</td></tr>
+<tr><td>중단시계열분석 (나 절)</td><td class="r">−10.20 (−12.29 ~ −8.11)</td><td>전국 서한 + 사업</td></tr>
+<tr><td>대조군이 있는 중단시계열 (다 절)</td><td class="r">−7.32 (−8.14 ~ −6.50)</td><td>사업</td></tr>
+<tr><td>이중차분법 (라 절)</td><td class="r">−7.40 (−7.87 ~ −6.94)</td><td>사업</td></tr>
+<tr class="hi"><td>모의자료에 넣은 사업의 효과</td><td class="r">−7.5</td><td></td></tr>
+</tbody></table></div>
+
+<h3>시행 시점이 집단마다 다를 때 <span class="lv deep">심화</span></h3>
+<p>시범사업이 지역마다 다른 해에 순차적으로 도입되는 경우가 있습니다. 이때 흔히 쓰는 분석은 지역 가변수와 시점 가변수를 모두 넣은 회귀(이원 고정효과 회귀, two-way fixed effects)에 '시행 중이면 1'인 변수를 넣는 것입니다. 그런데 이 회귀는 먼저 도입한 지역을 나중에 도입한 지역의 비교 집단으로도 씁니다. 효과가 시간에 따라 커지거나 지역마다 다르면 추정값이 치우칠 수 있고, 심하면 부호가 바뀔 수도 있습니다. 이를 보완해, 아직 도입하지 않았거나 끝까지 도입하지 않은 지역만 비교 집단으로 쓰는 방법들이 제안되어 있습니다<cite data-ref="wing2024"></cite>. 순차 도입 자료를 다룬 논문을 읽을 때는 어떤 집단을 비교 집단으로 썼는지, 도입 시점별 사건연구 그림이 있는지 확인합니다. 이 장의 예제처럼 모든 시범 지역이 같은 달에 시작한 경우에는 이 문제가 생기지 않으며, 이원 고정효과 회귀의 추정값도 −7.40으로 같습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 이중차분 결과를 읽을 때</p>
+<p><span class="wrong">평행 추세 검정에서 P &gt; 0.05였으므로 평행 추세 가정이 증명되었다.</span> 유의하지 않다는 것은 차이를 찾지 못했다는 뜻입니다(1장). 자료가 적으면 꽤 큰 추세 차이도 유의하지 않게 나옵니다. 그리고 검정이 보는 것은 시행 전 기간이고, 가정은 시행 후에 대한 것입니다. 사전 추세 차이의 신뢰구간과 사건연구 그림으로 "가정과 모순되는 증거가 없다"까지만 말할 수 있습니다.</p>
+<p><span class="wrong">이중차분법은 두 집단의 시행 전 수준이 비슷해야 쓸 수 있다.</span> 수준은 달라도 됩니다(예제에서 11.48 차이). 필요한 것은 변화가 같았으리라는 가정입니다. 다만 수준이 크게 다른 집단은 추세도 다르기 쉬우므로 사전 추세를 더 꼼꼼히 봅니다.</p>
+<p><span class="wrong">이중차분 추정값이 −7.40이므로 시행 직후부터 처방률이 7.40 낮아졌다.</span> 시행 후 기간 전체의 평균입니다. 사건연구 그림에서 효과는 첫 반기 −6.0에서 넷째 반기 −9.6으로 커졌습니다. 효과가 시간에 따라 달라지는지는 사건연구나 다 절의 분석으로 봅니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>언제 쓰나</strong>: 일부 지역·기관·집단에만 적용된 정책이고, 적용되지 않은 비교 집단의 전후 자료가 있을 때. 시행 전 시점이 여러 개 있으면 다 절의 방법과 함께 쓰고, 두 결과가 같은 방향인지 봅니다.</li>
+<li><strong>분석 전에 정할 것</strong>: 비교 집단과 그 근거(다 절 '비교 계열 고르기'와 같은 기준), 결과의 척도(차이, 비), 군집 단위(정책이 배정된 단위), 가중치, 평행 추세를 점검할 방법.</li>
+<li><strong>청구자료에서</strong>: 지역은 요양기관 소재지와 환자 거주지 가운데 어느 쪽으로 나눌지 정합니다. 시행 전후로 두 집단의 환자 구성이 다르게 바뀌지 않았는지 기저 특성표를 기간별로 확인하고, 필요하면 개인 수준 자료로 공변량을 보정합니다.</li>
+<li><strong>보고할 것</strong>: Methods에 모형식(treat, post, 교호작용), 군집 단위와 군집 수, 가중치. Results에 2×2 평균표, 이중차분 추정값(95% CI), 시행 전 추세 그림 또는 사건연구 그림. 한계에 평행 추세가 깨질 수 있는 이유.</li>
+<li><strong>파이썬</strong>: statsmodels의 <code>smf.wls("rate ~ treat * post", data=panel, weights=panel["w"]).fit(cov_type="cluster", cov_kwds={"groups": panel["unit"]})</code>에서 <code>treat:post</code> 줄을 읽습니다(가중치가 없으면 <code>smf.ols</code>). 사건연구는 구간별 가변수와 treat의 곱을 직접 만들어 같은 함수에 넣습니다. 순차 도입을 위한 전용 함수는 statsmodels에 없습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 이중차분 분석의 Methods와 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">The effect of the programme was estimated with a difference-in-differences model that included indicators for pilot districts and for the post-programme period and <span class="mk">1</span> <span class="hl">their interaction</span>, weighted by the number of outpatients aged ≥65 years. <span class="mk">2</span> <span class="hl">Standard errors were clustered at the district level.</span> The parallel-trends assumption was examined by comparing pre-programme trends and with an event-study model.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 4.</b> Difference-in-differences analysis of the sedative-hypnotic prescribing rate per 1,000 outpatients aged ≥65 years</caption>
+<thead><tr><th></th><th class="r">Before<br>(Jan 2015–Dec 2017)</th><th class="r">After<br>(Jan 2018–Dec 2019)</th><th class="r">Change</th></tr></thead>
+<tbody>
+<tr><td>Pilot districts (n = 20)</td><td class="r">91.14</td><td class="r">73.68</td><td class="r">−17.46</td></tr>
+<tr><td>Comparison districts (n = 40)</td><td class="r">79.66</td><td class="r">69.60</td><td class="r"><span class="mk">3</span> −10.06</td></tr>
+<tr><td><span class="mk">4</span> Difference-in-differences (95% CI)</td><td class="r"></td><td class="r"></td><td class="r">−7.40 (−7.87 to −6.94)</td></tr>
+<tr><td><span class="mk">5</span> Difference in pre-programme trend, per month (95% CI)</td><td class="r"></td><td class="r"></td><td class="r">−0.003 (−0.037 to 0.032)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">P &lt; .001 for the difference-in-differences estimate; P = .88 for the difference in pre-programme trend. <span class="mk">6</span> Event-study estimates for the five half-years before the programme ranged from −0.44 to 0.30 (joint test, P = .76).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>교호작용 항.</b> "pilot × post"의 계수가 이중차분 추정값입니다. Methods에 "interaction between group and period"라는 표현이 있으면 결과표에서 그 계수를 찾습니다. 논문에 따라 "DID estimator", "treatment × post"로 적습니다.</span></li>
+<li><span class="mk">2</span><span><b>군집 단위.</b> 정책이 시군구 단위로 배정되었으므로 시군구로 군집한 표준오차를 썼습니다. 이 문장이 없거나 군집 단위가 환자·명세서처럼 정책 배정 단위보다 작으면 신뢰구간이 너무 좁을 수 있습니다. 군집 수(여기서는 60)도 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>비교 지역의 변화 −10.06.</b> 사업이 없었어도 일어난 변화의 크기입니다. 이 값이 크다는 것은 전후 비교만 했다면 그만큼을 사업의 효과로 잘못 셌으리라는 뜻입니다.</span></li>
+<li><span class="mk">4</span><span><b>이중차분 추정값.</b> −17.46 − (−10.06) = −7.40. 시행 후 24개월 동안 평균적으로, 사업이 없었을 때보다 처방률이 1,000명당 7.4명 낮았다는 추정입니다. 평행 추세 가정이 맞을 때만 사업의 효과로 읽을 수 있습니다.</span></li>
+<li><span class="mk">5</span><span><b>사전 추세의 차이.</b> 신뢰구간 −0.037 ~ 0.032가 0을 가운데 두고 좁습니다. P = 0.88은 "평행하다"의 증명이 아니므로 신뢰구간의 폭으로 읽습니다. 끝값 0.032가 사실이어도 30개월 동안 약 1.0의 차이가 생길 뿐이어서, −7.40이라는 결론을 뒤집지 못합니다.</span></li>
+<li><span class="mk">6</span><span><b>사건연구.</b> 시행 전 구간의 추정값들이 0 근처라는 보고입니다. 본문이나 보충자료의 그림에서 시행 전 점들이 한쪽으로 기울어 가는 모양(시행 전부터 벌어지고 있었다는 표시)이 없는지 직접 봅니다.</span></li>
+</ol>
+</div></div>
+
+<h3>파이썬 출력 읽기 <span class="lv deep">심화</span></h3>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels 이중차분 회귀</b><span>가상의 예시 (statsmodels 0.15)</span></div>
+<div class="paper-b">
+<p>데이터프레임 panel은 시군구-월이 한 줄(3,600줄)이고 unit(시군구 번호), treat, post, rate, w(시군구의 평균 65세 이상 외래환자 수) 열이 있습니다. 요약표 가운데 계수 부분만 실었습니다. 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; did = smf.wls("rate ~ treat * post", data=panel, weights=panel["w"]).fit(</span>
+<span class="cm">...     cov_type="cluster", cov_kwds={"groups": panel["unit"]})</span> <span class="mk">1</span>
+<span class="cm">&gt;&gt;&gt; print(did.summary().tables[1])</span>
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     79.6646      0.977     81.523      0.000      77.749      81.580 <span class="mk">2</span>
+treat         11.4771      1.513      7.588      0.000       8.513      14.442
+post         -10.0615      0.153    -65.839      0.000     -10.361      -9.762
+treat:post    -7.4015      0.238    -31.102      0.000      -7.868      -6.935 <span class="mk">3</span>
+==============================================================================</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>treat * post와 군집.</b> 식의 <code>treat * post</code>는 treat, post, treat:post 세 항을 한꺼번에 넣으라는 뜻입니다. <code>cov_type="cluster"</code>와 <code>groups</code>로 군집 단위를 지정합니다.</span></li>
+<li><span class="mk">2</span><span><b>앞의 세 줄.</b> Intercept는 비교 지역의 시행 전 평균(79.66), treat는 시행 전 두 지역의 차이(11.48), post는 비교 지역의 전후 변화(−10.06)입니다. 2×2 표와 맞춰 보면 모형을 제대로 세웠는지 확인할 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>treat:post.</b> 이중차분 추정값 −7.40, 군집 강건 표준오차 0.238, 95% CI −7.87 ~ −6.94입니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \text{DID} = (\bar{Y}_{T,\text{후}} - \bar{Y}_{T,\text{전}}) - (\bar{Y}_{C,\text{후}} - \bar{Y}_{C,\text{전}}) = (73.68 - 91.14) - (69.60 - 79.66) = -7.40 \]
+<p>T는 시범 지역, C는 비교 지역입니다. 회귀식 \(Y = \beta_0 + \beta_1\,\text{treat} + \beta_2\,\text{post} + \beta_3\,(\text{treat} \times \text{post}) + \varepsilon\)에서 네 칸의 평균은 β<sub>0</sub>(비교·전), β<sub>0</sub> + β<sub>2</sub>(비교·후), β<sub>0</sub> + β<sub>1</sub>(시범·전), β<sub>0</sub> + β<sub>1</sub> + β<sub>2</sub> + β<sub>3</sub>(시범·후)이므로 DID = β<sub>3</sub>입니다.</p></div>
+<p>평행 추세 가정은 "사업이 없었을 때 시범 지역의 시행 후 평균"을 \(\bar{Y}_{T,\text{전}} + (\bar{Y}_{C,\text{후}} - \bar{Y}_{C,\text{전}})\) = 91.14 − 10.06 = 81.08로 놓는 것입니다. 실제로는 두 집단의 추세가 달마다 δ만큼 달랐다면 이 값이 δ × (두 기간 한가운데 사이의 개월 수)만큼 틀리고, 이중차분 추정값도 그만큼 치우칩니다. 예제에서 δ의 95% 신뢰구간 −0.037 ~ 0.032에 30개월을 곱하면 −1.1 ~ 1.0입니다.</p>
+<p>다 절의 모형과 견주면, 이중차분법은 시행 전 추세의 차이(β<sub>5</sub>)를 0으로 놓고 수준 변화와 기울기 변화를 시행 후 기간의 평균 하나로 합친 것입니다. 다 절의 계수로 24개월 평균을 구하면 −4.84 + 12.5 × (−0.198) = −7.32로 이중차분 추정값 −7.40과 비슷합니다(12.5는 time_after 1–24의 평균).</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>이중차분법은 정책 집단의 전후 변화에서 비교 집단의 전후 변화를 뺍니다. 예제에서 −17.46 − (−10.06) = −7.40입니다.</li>
+<li>회귀에서는 '집단 × 시행 후' 교호작용 항의 계수가 이중차분 추정값이고, 표준오차는 정책이 배정된 단위로 군집합니다.</li>
+<li>핵심 가정은 평행 추세입니다. 수준은 달라도 되고, 정책이 없었다면 변화가 같았어야 합니다. 시행 전 그림, 사전 추세의 차이, 사건연구 그림으로 뒷받침하지만 증명은 아닙니다.</li>
+<li>이중차분 추정값은 시행 후 기간의 평균 효과입니다. 효과가 시간에 따라 어떻게 달라지는지는 사건연구나 대조군이 있는 중단시계열로 봅니다.</li>
+<li>같은 자료에서 전후 비교 −17.46, 중단시계열 −10.20, 대조군이 있는 분석 −7.3 ~ −7.4였습니다. 설계가 "정책이 없었다면"을 얼마나 잘 추정하는지에 따라 답이 달라집니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>다제약물 관리 사업을 시행한 지역과 비교 지역에서, 65세 이상 환자 가운데 10개 이상의 약을 처방받은 환자의 비율(%)입니다. 시행 지역은 시행 전 32.5, 시행 후 26.1이고 비교 지역은 30.2, 28.6입니다. 이중차분 추정값을 구하고, 시행 지역의 전후 비교와 시행 후 두 지역 비교가 각각 무엇을 놓치는지 말해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>시행 지역의 변화는 26.1 − 32.5 = −6.4%p, 비교 지역의 변화는 28.6 − 30.2 = −1.6%p이므로 이중차분 추정값은 −6.4 − (−1.6) = −4.8%p입니다. 시행 지역의 전후 비교(−6.4%p)는 사업이 없었어도 일어났을 감소 1.6%p를 효과로 셉니다. 시행 후 두 지역의 비교(26.1 − 28.6 = −2.5%p)는 시행 지역이 원래 2.3%p 높았다는 것을 무시해 효과를 작게 봅니다. −4.8%p를 사업의 효과로 읽으려면 평행 추세 가정이 필요하고, 신뢰구간은 지역이나 기관 단위로 군집한 표준오차로 구합니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"시행 전 18개월 동안 두 집단의 추세 차이(시행 집단 − 비교 집단)는 월 0.05%p(95% CI −0.02 to 0.12, P = 0.16)로 유의하지 않아 평행 추세 가정이 확인되었다. 이중차분 추정값은 −1.5%p(95% CI −2.6 to −0.4)였다." 시행 전후 기간의 한가운데가 18개월 떨어져 있다면, 이 결론을 얼마나 믿을 수 있습니까?</p>
+<details><summary>답과 풀이</summary><div><p>"확인되었다"가 지나칩니다. P = 0.16은 추세 차이를 찾지 못했다는 뜻이고, 신뢰구간은 월 0.12%p까지 포함합니다. 점추정값 0.05%p가 실제 차이라면 18개월 동안 0.05 × 18 = 0.9%p, 상한 0.12%p라면 2.2%p의 차이가 사업과 무관하게 생깁니다. 추정된 효과가 −1.5%p이므로, 사전 추세의 불확실성이 효과의 크기와 맞먹습니다. 이 예에서는 추세 차이가 양(+)의 방향이라 효과가 작게 추정되는 쪽이지만, 방향이 반대였다면 효과가 없는데도 있는 것처럼 나올 수 있습니다. 고쳐 쓰면 "사전 추세의 차이는 유의하지 않았으나(월 0.05%p, 95% CI −0.02 to 0.12) 신뢰구간이 넓어 평행 추세를 강하게 뒷받침하지는 못한다"입니다. 사건연구 그림과 추세 차이를 허용한 민감도 분석(다 절의 모형)을 함께 봅니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>(가) 2021년 7월 전국에 동시에 시행된 급여기준 변경을, 2018–2023년의 월별 처방률로 평가한다. (나) 2022년에 8개 병원만 참여한 항생제 관리 프로그램을, 참여 병원과 비참여 병원의 2021년·2023년 연간 사용량으로 평가한다. 각각 어떤 설계가 가능하고 무엇이 약점입니까?</p>
+<details><summary>답과 풀이</summary><div><p>(가)는 시행하지 않은 지역이 없으므로 중단시계열분석(나 절)이 기본입니다. 시행 전 42개월, 시행 후 30개월로 시점은 충분합니다. 약점은 같은 시기의 다른 변화(코로나19 유행기의 의료 이용 변화가 겹칩니다)를 구분하지 못한다는 것이므로, 변경 대상이 아닌 약이나 집단에서 비교 계열을 찾아 다 절의 분석을 더합니다. 대체 관계에 있는 약은 비교 계열로 쓰지 않습니다. (나)는 시점이 전후 한 번씩이라 중단시계열분석은 할 수 없고 이중차분법을 씁니다. 약점은 시행 전 시점이 하나뿐이어서 평행 추세를 점검할 수 없다는 것, 병원이 스스로 참여를 정했다면 참여 병원이 원래 사용량을 줄이던 병원일 수 있다는 것, 참여 병원이 8곳이라 군집이 적다는 것입니다. 2019–2021년의 자료를 더 확보해 사전 추세를 보여 주는 것이 가장 큰 개선입니다.</p></div></details></li>
+</ol></div>
+</section>

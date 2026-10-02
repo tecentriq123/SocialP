@@ -1,0 +1,719 @@
+<p class="lead">같은 질문을 다룬 여러 연구를 찾아 하나의 결과로 합치는 체계적 문헌고찰과 메타분석을 다룹니다. 가 절에서는 문헌을 찾고 고르고 평가하는 절차를, 나 절에서는 연구 결과를 가중평균하는 두 모형을 봅니다. 다 절과 라 절에서는 합친 결과를 얼마나 믿을 수 있는지 따지는 방법(이질성, 하위군 분석, 출판 편향, 민감도 분석)을, 마 절에서는 합친 상대적 효과를 NNT 같은 절대적 효과와 경제성 평가의 입력값으로 바꾸는 방법을 다룹니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch05-s1">5장 가 절</a>의 2×2 표와 상대위험도·오즈비, <a href="#ch08-s1">8장 가 절</a>의 신뢰구간, <a href="#ch08-s2">8장 나 절</a>의 상대위험도·오즈비·위험차·NNT, <a href="#ch08-s3">8장 다 절</a>의 로그 척도에서 비를 다루는 법, <a href="#ch08-s6">8장 바 절</a>의 하위군 분석과 P for interaction, <a href="#ch13-s1">13장 가 절</a>의 ITT 분석</dd>
+<dt>먼저 읽을 부분</dt><dd>다섯 절의 '쉽게 말하면', '숫자로 따라가기'의 설정과 결과, 흔한 오해 상자, '내 연구에 쓸 때', '논문에서 읽어 보기', 정리, 스스로 확인하기. 가 절의 '이 장의 예제'(뒤 절이 모두 이 예제를 씁니다), 나 절의 '두 모형의 차이'와 '포레스트 플롯 읽는 법', 다 절의 '하위군 분석', 라 절의 '깔때기 그림과 Egger 검정', 마 절의 '이득과 위해를 견줄 때'</dd>
+<dt>나중에 읽을 부분</dt><dd>'심화' 표시가 붙은 접힌 부분. 나 절의 계산 과정, 연속형 결과를 합치는 예, 사건이 0건인 연구와 여러 군이 있는 시험, 파이썬 출력 읽기. 다 절의 I²의 신뢰구간 계산과 시험 안의 교호작용을 합치는 방법. 라 절의 한 연구씩 뺀 결과표. 마 절의 오즈비를 기저 위험에 적용하는 계산 과정. 다섯 절의 '수식으로 보기'와 '실제 논문으로 읽어 보기'(라 절과 마 절)</dd>
+<dt>이 장을 마치면</dt><dd>① 메타분석 논문의 Methods에서 등록, 검색, 선정(PRISMA 흐름도), 편향 위험 평가를 찾아 확인할 수 있다 ② 포레스트 플롯의 네모, 마름모, 가중치, I²를 읽고 고정효과 모형과 무작위효과 모형의 차이를 설명할 수 있다 ③ 하위군 분석의 P for interaction, 깔때기 그림과 Egger 검정, 메타회귀의 결과를 과장 없이 해석할 수 있다 ④ 합친 오즈비를 기저 위험과 기간을 밝힌 NNT·NNH로 바꾸고, 이것이 경제성 평가 모형에 어떻게 들어가는지 말할 수 있다</dd>
+</dl></div>
+
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ch19-s1">
+<h2><span class="sec-no">가.</span>체계적 문헌고찰의 절차</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">체계적 문헌고찰은 하나의 질문에 대해, 미리 정한 규칙에 따라 관련 연구를 빠짐없이 찾고 고르고 평가하는 연구입니다. 메타분석은 그렇게 모은 연구의 결과를 하나의 숫자로 합치는 통계 단계입니다.</p>
+<ul>
+<li><b>비유.</b> 요리의 맛은 조리법보다 재료에서 먼저 정해집니다. 입맛에 맞는 재료만 골라 담았거나 상한 재료가 섞였다면 아무리 정교하게 조리해도 좋은 음식이 나오지 않습니다. 메타분석에서 재료는 포함된 연구이고, 재료를 고르는 과정이 체계적 문헌고찰입니다.</li>
+<li><b>논문에서는.</b> "registered in PROSPERO … reported according to PRISMA … two reviewers independently … risk of bias was assessed with RoB 2 … 1,248 records identified, 48 full texts assessed, 10 trials included"처럼 나옵니다. 계획을 미리 등록했고, 문헌 1,248건에서 출발해 10개 시험을 골랐으며, 두 사람이 따로 평가했다는 뜻입니다.</li>
+<li><b>기억할 한 가지.</b> 메타분석은 합치는 연구보다 나을 수 없습니다. 편향된 연구를 합치면 편향된 결과가 더 좁은 신뢰구간으로 나옵니다. 그래서 통합된 숫자를 보기 전에 '어떤 연구를 어떻게 골랐는가'를 먼저 읽습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>무엇인가</dt><dd><strong>체계적 문헌고찰</strong><span class="en">(systematic review)</span>은 질문, 검색, 선정, 평가의 규칙을 미리 정해 놓고 수행하는 문헌 연구. <strong>메타분석</strong><span class="en">(meta-analysis)</span>은 그 안에서 결과를 통계적으로 합치는 부분</dd></div>
+  <div><dt>순서</dt><dd>질문(PICO) → 계획서 등록 → 검색 → 선정 → 자료 추출 → 편향 위험 평가 → 통합(나 절) → 근거의 확실성 평가</dd></div>
+  <div><dt>읽을 때 확인</dt><dd>계획서를 미리 등록했는가, 검색이 충분한가, 두 사람이 독립적으로 선정·추출했는가, 포함된 연구의 편향 위험은 어떤가</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>PRISMA 흐름도(Figure 1), 포함된 연구의 특성표(Table 1), 편향 위험 평가 결과(대개 부록), 등록 번호</dd></div>
+</dl>
+
+<h3>이 장의 예제</h3>
+<p>이 장 전체에서 하나의 가상 체계적 문헌고찰을 따라갑니다. 급성관상동맥증후군(ACS)을 겪은 환자에게 표준 항혈소판요법에 더해 가상의 경구 항응고제 '약물 X'를 추가하면 허혈 사건이 줄어드는지, 그 대신 출혈이 얼마나 늘어나는지를 묻습니다. 약물 X와 위약을 비교한 무작위배정 임상시험 10개(31,725명)가 포함되었습니다. 시험의 이름과 숫자는 모두 설명을 위해 만든 것입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>시험 (발표 연도)</th><th>임상시험 단계</th><th class="r">약물 X군</th><th class="r">위약군</th><th class="r">추적 기간</th><th class="r">STEMI 환자 비율</th><th>편향 위험 (RoB 2 종합)</th></tr></thead>
+<tbody>
+<tr><td>Trial A (2008)</td><td>2상</td><td class="r">620</td><td class="r">310</td><td class="r">6개월</td><td class="r">55%</td><td>낮음</td></tr>
+<tr><td>Trial B (2009)</td><td>2상</td><td class="r">1,160</td><td class="r">580</td><td class="r">6개월</td><td class="r">52%</td><td>낮음</td></tr>
+<tr><td>Trial C (2010)</td><td>2상</td><td class="r">240</td><td class="r">120</td><td class="r">6개월</td><td class="r">68%</td><td>일부 우려</td></tr>
+<tr><td>Trial D (2011)</td><td>3상</td><td class="r">3,650</td><td class="r">3,640</td><td class="r">12개월</td><td class="r">41%</td><td>낮음</td></tr>
+<tr><td>Trial E (2011)</td><td>2상</td><td class="r">900</td><td class="r">450</td><td class="r">6개월</td><td class="r">60%</td><td>낮음</td></tr>
+<tr><td>Trial F (2012)</td><td>3상</td><td class="r">5,100</td><td class="r">5,080</td><td class="r">18개월</td><td class="r">50%</td><td>낮음</td></tr>
+<tr><td>Trial G (2013)</td><td>2상</td><td class="r">410</td><td class="r">205</td><td class="r">6개월</td><td class="r">47%</td><td>높음</td></tr>
+<tr><td>Trial H (2014)</td><td>3상</td><td class="r">2,450</td><td class="r">2,440</td><td class="r">12개월</td><td class="r">36%</td><td>낮음</td></tr>
+<tr><td>Trial I (2016)</td><td>3상</td><td class="r">1,800</td><td class="r">1,790</td><td class="r">12개월</td><td class="r">63%</td><td>낮음</td></tr>
+<tr><td>Trial J (2018)</td><td>2상</td><td class="r">520</td><td class="r">260</td><td class="r">9개월</td><td class="r">58%</td><td>낮음</td></tr>
+<tr class="hi"><td>합계</td><td>10개 시험</td><td class="r">16,850</td><td class="r">14,875</td><td class="r">6–18개월</td><td class="r"></td><td>낮음 8, 일부 우려 1, 높음 1</td></tr>
+</tbody></table></div>
+<p>유효성 결과는 심혈관 사망, 심근경색, 뇌졸중 가운데 하나라도 일어난 경우(이하 '허혈 사건')이고, 안전성 결과는 주요 출혈입니다. STEMI는 ST분절 상승 심근경색이고, 나머지 환자는 비ST분절 상승 급성관상동맥증후군(NSTE-ACS)입니다. 2상 시험은 약물 X군에 두 배 많이 배정했고(2:1), 3상 시험은 같은 수로 배정했습니다. 이 표의 내용은 나 절부터 마 절까지 계속 쓰입니다.</p>
+
+<h3>절차</h3>
+<div class="flow">
+<div><div><b>질문 정하기</b><p>대상(Population), 중재(Intervention), 비교(Comparator), 결과(Outcome)를 정합니다. 머리글자를 따서 <strong>PICO</strong>라고 합니다. 예제: ACS 후 환자 / 표준 항혈소판요법 + 약물 X / 표준 항혈소판요법 + 위약 / 허혈 사건과 주요 출혈.</p></div></div>
+<div><div><b>계획서 등록</b><p>검색 전에 선정 기준, 주 결과, 하위군 분석, 통합 방법을 적은 계획서를 공개 등록소에 올립니다. 대표적인 등록소가 영국 요크대학교가 운영하는 <strong>PROSPERO</strong>입니다. 결과를 본 뒤에 유리한 분석만 골라 보고하는 일을 막는 장치입니다.</p></div></div>
+<div><div><b>검색과 선정</b><p>여러 데이터베이스(PubMed, Embase, CENTRAL 등)를 검색하고, 제목·초록 검토와 원문 검토의 두 단계로 걸러 냅니다. 각 단계에서 남은 수와 빠진 이유를 <strong>PRISMA 흐름도</strong>로 보고합니다<cite data-ref="page2021"></cite>.</p></div></div>
+<div><div><b>자료 추출</b><p>미리 만든 양식에 시험마다 군별 인원과 사건 수, 추적 기간, 환자 특성을 옮겨 적습니다. 선정과 추출은 두 사람이 따로 한 뒤 맞춰 보고, 어긋나면 제3자가 판단합니다.</p></div></div>
+<div><div><b>편향 위험 평가</b><p>포함된 연구마다 결과가 한쪽으로 치우쳤을 가능성을 정해진 도구로 평가합니다. 무작위배정 시험에는 RoB 2를 씁니다(아래).</p></div></div>
+<div><div><b>통합과 확실성 평가</b><p>결과를 합치고(나 절), 합친 결과가 믿을 만한지 따져 본 뒤(다·라 절), 근거 전체의 확실성을 평가합니다(아래 GRADE).</p></div></div>
+</div>
+<p>보고 지침인 PRISMA<span class="en">(Preferred Reporting Items for Systematic reviews and Meta-Analyses)</span>는 논문에 무엇을 적어야 하는지를 정한 27개 항목의 점검표와 흐름도 양식입니다<cite data-ref="page2021"></cite>. "PRISMA를 따랐다"는 문장은 보고 형식을 지켰다는 뜻이고, 연구의 질을 보증하는 말은 아닙니다.</p>
+
+<h3>질문과 결과변수를 읽을 때</h3>
+<p>여러 사건을 묶어 하나라도 일어나면 사건으로 세는 결과를 <strong>복합 평가변수</strong><span class="en">(composite end point)</span>라고 합니다. 예제의 '심혈관 사망, 심근경색, 뇌졸중'이 그렇습니다. 사건 수가 늘어 검정력이 좋아지지만, 구성 요소의 무게가 서로 다르고 효과도 다를 수 있습니다. 통합 결과가 주로 어느 구성 요소에서 나왔는지 구성 요소별 결과를 함께 확인합니다. 출혈처럼 시험마다 정의가 다른 결과(예: 서로 다른 출혈 분류 기준)는 "각 시험의 정의에 따랐다"고 적는 경우가 많고, 그만큼 합친 값의 해석이 느슨해집니다.</p>
+<p>무작위배정 시험을 합칠 때는 각 시험의 <strong>치료의향 분석</strong><span class="en">(intention-to-treat, ITT)</span> 결과, 즉 배정된 군 그대로 센 사건 수와 인원을 추출하는 것이 원칙입니다(<a href="#ch13-s1">13장 가 절</a>). 약을 끝까지 복용한 사람만 센 숫자를 가져오면 무작위배정으로 맞춰 놓은 두 군의 균형이 깨집니다.</p>
+
+<h3>편향 위험 평가</h3>
+<p><strong>편향 위험</strong><span class="en">(risk of bias; '비뚤림 위험'으로도 번역)</span> 평가는 "이 연구의 결과가 설계나 수행의 문제로 한쪽으로 치우쳤을 가능성"을 연구마다 판정하는 일입니다. 무작위배정 시험에는 Cochrane의 <strong>RoB 2</strong>를 쓰며, 다섯 영역을 각각 낮음<span class="en">(low risk)</span>, 일부 우려<span class="en">(some concerns)</span>, 높음<span class="en">(high risk)</span>으로 판정한 뒤 종합합니다<cite data-ref="sterne2019rob"></cite>.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>RoB 2의 영역</th><th>묻는 것</th><th>문제가 되는 예</th></tr></thead>
+<tbody>
+<tr><td>1. 무작위배정 과정</td><td>배정 순서가 무작위였고 배정 전에 감춰졌는가</td><td>다음 환자가 어느 군인지 연구자가 미리 알 수 있었음</td></tr>
+<tr><td>2. 의도한 중재에서 벗어남</td><td>배정을 알아서 치료가 달라지지 않았는가, 배정된 대로 분석했는가</td><td>눈가림이 없어 대조군이 다른 약을 더 많이 추가함</td></tr>
+<tr><td>3. 결과 자료의 결측</td><td>결과를 알 수 없는 사람이 얼마나 되고 군마다 다른가</td><td>한 군에서 추적 소실이 훨씬 많음</td></tr>
+<tr><td>4. 결과의 측정</td><td>결과를 판정한 사람이 배정을 몰랐는가</td><td>배정을 아는 연구자가 출혈의 중증도를 판정함</td></tr>
+<tr><td>5. 보고된 결과의 선택</td><td>여러 분석 가운데 유리한 것만 골라 보고하지 않았는가</td><td>계획서의 주 결과와 논문의 주 결과가 다름</td></tr>
+</tbody></table></div>
+<p>예제에서는 Trial C가 공개 표지<span class="en">(open-label)</span>로 진행되어 2번 영역에서 '일부 우려', Trial G가 추적 소실이 많아 3번 영역에서 '높음'으로 판정되었다고 하겠습니다. 이 판정은 라 절에서 "편향 위험이 낮지 않은 시험을 빼면 결과가 달라지는가"라는 민감도 분석에 쓰입니다. 관찰연구(코호트 연구 등)를 합칠 때는 교란과 대상자 선택에서 생기는 편향까지 일곱 영역을 평가하는 <strong>ROBINS-I</strong>를 씁니다<cite data-ref="sterne2016robins"></cite>.</p>
+
+<h3>근거의 확실성</h3>
+<p>편향 위험이 연구 하나하나에 대한 평가라면, <strong>GRADE</strong>는 결과변수별로 근거 전체를 얼마나 믿을 수 있는지(근거의 확실성<span class="en">(certainty of evidence)</span>) 높음, 중등도, 낮음, 매우 낮음의 네 단계로 평가하는 틀입니다<cite data-ref="guyatt2008"></cite>. 무작위배정 시험의 근거는 '높음'에서 출발하고, 편향 위험, 연구 간 불일치(다 절의 이질성), 질문과 근거의 거리(비직접성), 넓은 신뢰구간(비정밀), 출판 편향(라 절)이 있으면 단계를 내립니다. 메타분석 논문의 요약표에 "moderate certainty"라고 적혀 있으면 이 평가의 결과입니다(마 절의 논문 상자).</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 메타분석이라는 이름에 기대기</p>
+<p><span class="wrong">메타분석은 근거 수준이 가장 높은 연구이므로 결론을 그대로 받아들이면 된다.</span> 메타분석의 질은 포함된 연구와 고찰 과정의 질에 달려 있습니다. 검색이 좁았거나, 선정 기준이 결과를 본 뒤에 바뀌었거나, 포함된 시험의 편향 위험이 높으면 합친 숫자도 그만큼 약합니다. 좁은 신뢰구간은 우연에 의한 오차가 작다는 뜻일 뿐이고, 편향이 작다는 뜻은 아닙니다.</p>
+<p><span class="wrong">체계적 문헌고찰과 메타분석은 같은 말이다.</span> 체계적 문헌고찰은 문헌을 찾고 평가하는 연구 방법 전체이고, 메타분석은 그 안의 통계적 통합입니다. 연구들이 서로 너무 달라 합치지 않고 표와 글로만 정리한 체계적 문헌고찰도 있고, 체계적으로 찾지 않은 연구 몇 개를 합친 메타분석도 있습니다. 뒤의 경우는 어떤 연구를 골랐는지에 따라 결과가 달라지므로 조심해서 읽습니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>논문을 읽을 때 먼저 볼 것</strong>: ① 등록 번호가 있고 주 결과와 하위군 분석이 계획서와 같은가 ② 검색한 데이터베이스와 검색 종료일 ③ 흐름도의 숫자가 맞아떨어지고 원문 검토 단계의 제외 사유가 납득되는가 ④ 포함된 연구의 특성표에서 대상, 용량, 추적 기간이 합칠 만큼 비슷한가 ⑤ 편향 위험 평가 결과. 이 다섯 가지를 본 뒤에 통합 결과의 그림(나 절의 포레스트 플롯)으로 넘어갑니다.</li>
+<li><strong>분석 전에 정할 것</strong>: PICO와 선정 기준, 주 결과 하나와 효과 척도(오즈비, 상대위험도, 평균 차이), 통합 모형, 미리 정한 하위군(적을수록 좋음), 민감도 분석 목록. 계획서로 등록하고, 등록 뒤에 바꾼 것은 논문에 밝힙니다.</li>
+<li><strong>보고할 것</strong>: 등록 번호, 전체 검색식(부록), PRISMA 흐름도, 포함된 연구의 특성표, 연구별·영역별 편향 위험, 결과변수별 근거의 확실성.</li>
+<li><strong>파이썬</strong>: 이 절의 단계(검색, 선정, 편향 위험 평가)는 통계 함수로 하는 일이 아닙니다. 추출한 자료를 연구 하나가 한 줄인 표(pandas 데이터프레임)로 정리해 두면 나 절부터의 분석에 그대로 씁니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>예제 문헌고찰의 Methods 첫 문단과 문헌 선정 흐름도입니다. 메타분석 논문을 펼치면 통합 결과보다 이 두 곳을 먼저 읽습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 체계적 문헌고찰의 Methods</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">The protocol was <span class="mk">1</span> <span class="hl">registered in PROSPERO before the search was run</span>, and the review is reported according to the <span class="mk">2</span> <span class="hl">PRISMA 2020 statement</span>. We searched PubMed, Embase, and the Cochrane Central Register of Controlled Trials <span class="mk">3</span> <span class="hl">from inception to March 31, 2024</span>, without language restrictions, and screened the reference lists of eligible articles. We included randomized, placebo-controlled trials of drug X added to standard antiplatelet therapy in adults with a recent acute coronary syndrome. <span class="mk">4</span> <span class="hl">Two reviewers independently</span> screened records, extracted data with a standardized form, and assessed risk of bias with the <span class="mk">5</span> <span class="hl">Cochrane RoB 2 tool</span>; disagreements were resolved by a third reviewer. The primary efficacy outcome was <span class="mk">6</span> <span class="hl">the composite of cardiovascular death, myocardial infarction, or stroke</span>; the primary safety outcome was major bleeding as defined in each trial. Outcome data were extracted <span class="mk">7</span> <span class="hl">according to the intention-to-treat principle</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사전 등록.</b> 검색을 돌리기 전에 계획서를 등록했다는 문장입니다. 등록 번호(CRD로 시작)가 있으면 PROSPERO 사이트에서 계획서를 찾아, 논문의 주 결과와 하위군 분석이 계획서와 같은지 대조할 수 있습니다. 등록일이 검색일보다 늦거나 등록이 없다면 분석 선택이 결과를 본 뒤에 이루어졌을 가능성을 염두에 둡니다.</span></li>
+<li><span class="mk">2</span><span><b>보고 지침.</b> PRISMA는 무엇을 보고할지 정한 점검표입니다. 이 문장만으로는 검색이 충분했는지, 평가가 엄격했는지 알 수 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>검색 범위와 종료일.</b> 데이터베이스가 하나뿐이거나 영어 논문만 찾았다면 빠진 연구가 있을 수 있습니다. 종료일 이후에 나온 큰 시험이 있는지도 확인합니다. 종료일이 오래된 메타분석은 결론이 이미 바뀌었을 수 있습니다. 찾은 논문의 참고문헌 목록을 거슬러 올라가며 더 찾는 것을 "backward snowballing"이라고 적는 논문도 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>두 사람의 독립 평가.</b> 한 사람이 고르면 실수와 주관이 걸러지지 않습니다. 두 사람이 서로의 결과를 모른 채 평가하고 어긋난 것을 조정했다는 문장을 찾습니다.</span></li>
+<li><span class="mk">5</span><span><b>편향 위험 도구.</b> 무작위배정 시험이면 RoB 2, 관찰연구면 ROBINS-I가 표준입니다. 결과는 대개 부록의 표나 신호등 모양 그림에 있습니다. 본문에 "편향 위험이 높은 시험을 뺀 분석"이 있는지 함께 봅니다(라 절).</span></li>
+<li><span class="mk">6</span><span><b>복합 평가변수.</b> 세 사건 가운데 하나라도 일어나면 사건 1건입니다. 사망과 비치명적 심근경색이 같은 무게로 세어진다는 점, 구성 요소별 결과가 따로 보고되는지를 확인합니다.</span></li>
+<li><span class="mk">7</span><span><b>ITT 원칙.</b> 각 시험에서 배정된 군 그대로의 사건 수와 인원을 가져왔다는 뜻입니다. 분모가 '배정된 인원'인지 '약을 한 번이라도 복용한 인원'인지는 시험마다 다를 수 있어, 포레스트 플롯의 events/N이 원 논문의 어느 분석 집단인지 표의 각주에서 확인합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 문헌 선정 흐름도</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<!--FIG:ch19_prisma-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>검색으로 찾은 문헌 1,248건.</b> 세 데이터베이스의 합입니다(412 + 655 + 181). 같은 논문이 여러 데이터베이스에 실려 있으므로 중복 316건을 빼면 932건이 남습니다. 단위는 '문헌(record)'이고 아직 '연구'가 아닙니다.</span></li>
+<li><span class="mk">2</span><span><b>제목과 초록으로 884건 제외.</b> 932 − 884 = 48건만 원문을 구해 읽습니다. 이 단계의 제외 사유는 대개 한 줄로만 적습니다.</span></li>
+<li><span class="mk">3</span><span><b>원문 검토에서 38건 제외와 그 이유.</b> 14 + 9 + 8 + 4 + 3 = 38로 맞아떨어지는지 검산합니다. 가장 많은 사유인 '포함된 시험의 2차 보고'는 같은 시험에서 나온 하위 분석이나 장기 추적 논문으로, 따로 넣으면 같은 환자를 두 번 세게 됩니다. '결과 미보고'로 빠진 4건은 눈여겨봅니다. 결과가 좋지 않아 보고하지 않은 것이라면 편향이 생깁니다(라 절).</span></li>
+<li><span class="mk">4</span><span><b>최종 10개 시험, 31,725명.</b> 48 − 38 = 10. 이 숫자가 포레스트 플롯의 줄 수, 특성표의 행 수와 같은지 확인합니다. 어떤 결과변수의 분석에 10개가 다 들어가지 않았다면(예: 하위군 결과를 보고한 시험만) 그 이유가 적혀 있어야 합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>체계적 문헌고찰은 질문(PICO), 등록, 검색, 선정, 추출, 편향 위험 평가를 미리 정한 규칙대로 수행하고, 메타분석은 그 결과를 합치는 통계 단계입니다.</li>
+<li>PRISMA 흐름도에서 단계별 숫자가 맞는지, 원문 검토 단계의 제외 사유가 무엇인지 확인합니다.</li>
+<li>무작위배정 시험의 편향 위험은 RoB 2의 다섯 영역으로, 관찰연구는 ROBINS-I로 평가합니다. 근거 전체의 확실성은 GRADE로 평가합니다.</li>
+<li>합친 결과의 신뢰구간이 좁아도 포함된 연구의 편향은 줄어들지 않습니다. 통합 결과보다 선정과 평가 과정을 먼저 읽습니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">논문 읽기</span>어느 메타분석<cite data-ref="chiarito2018"></cite>의 초록에는 문헌 473건을 선별해 19건을 적격 후보로 평가했고 6건을 포함했다고 적혀 있습니다. 흐름도에서 어떤 두 숫자를 찾아 검산하고, 무엇을 더 확인해야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>첫 단계에서 제외된 문헌은 473 − 19 = 454건, 원문 검토에서 제외된 문헌은 19 − 6 = 13건이어야 합니다. 흐름도의 제외 상자에 적힌 숫자가 이 값과 같은지, 13건의 사유별 숫자를 더하면 13이 되는지 봅니다. 더 확인할 것은 원문 검토 단계의 제외 사유입니다. '대상자가 겹치는 논문'처럼 중복을 피하려는 사유는 자연스럽지만, '결과 미보고'나 저자가 정한 조건(특정 용량, 특정 환자군)으로 뺀 시험이 있다면 그 조건이 계획서에 미리 적혀 있었는지 확인합니다. 그리고 최종 6개가 모든 분석에 다 들어갔는지, 일부 분석에는 몇 개만 들어갔는지도 봅니다. 이 논문은 마 절의 '실제 논문으로 읽어 보기'에서 자세히 읽습니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>(가) 약사 중재의 효과를 본 무작위배정 시험 8개를 합치는 고찰과 (나) 청구자료 코호트 연구 12개에서 어떤 약과 골절의 연관성을 합치는 고찰이 있습니다. 편향 위험 평가 도구로 각각 무엇을 쓰고, (나)에서 특히 무엇을 더 평가합니까?</p>
+<details><summary>답과 풀이</summary><div><p>(가)는 RoB 2로 다섯 영역(무작위배정 과정, 의도한 중재에서 벗어남, 결과 자료의 결측, 결과의 측정, 보고된 결과의 선택)을 평가합니다. (나)는 무작위배정이 없으므로 ROBINS-I를 씁니다. ROBINS-I는 RoB 2에 없는 교란에 의한 편향과 대상자 선택에 의한 편향을 따로 평가합니다. 청구자료 코호트라면 적응증에 의한 교란을 어떻게 다뤘는지(14장, 15장), 불멸시간 편향이 없는지(16장)가 여기에 해당합니다. 같은 방향의 편향을 가진 관찰연구를 합치면 편향된 값이 좁은 신뢰구간으로 나오므로(라 절), (나)에서는 통합 결과보다 이 평가가 더 중요합니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"이 메타분석은 PRISMA 지침을 따랐고 29,000명이 넘는 환자를 포함했으므로 결과의 신뢰도가 높다." 무엇이 부족합니까?</p>
+<details><summary>답과 풀이</summary><div><p>PRISMA는 보고 형식에 대한 지침이어서, 따랐다는 사실이 연구의 질을 말해 주지 않습니다. 환자 수가 많으면 신뢰구간이 좁아질 뿐이고, 포함된 시험의 편향이나 빠진 시험 때문에 생기는 편향은 줄어들지 않습니다. 고쳐 쓰면 "계획서가 사전 등록되었고, 포함된 시험 ○개 가운데 ○개의 편향 위험이 낮게 평가되었으며, 주 결과의 근거 확실성은 ○○로 평가되었다"처럼 선정과 평가 과정의 내용을 근거로 들어야 합니다. 환자 수는 정밀도의 근거로만 씁니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ch19-s2">
+<h2><span class="sec-no">나.</span>효과의 통합: 고정효과와 무작위효과</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">연구마다 구한 효과(오즈비, 평균 차이 등)를 정밀한 연구에 더 큰 무게를 주어 평균한 것이 <strong>통합 추정값</strong><span class="en">(pooled estimate)</span>입니다. 무게를 주는 방식에 고정효과 모형과 무작위효과 모형 두 가지가 있습니다.</p>
+<ul>
+<li><b>비유.</b> 여러 여론조사를 합쳐 지지율을 추정할 때 5,000명을 조사한 결과를 200명을 조사한 결과보다 더 믿습니다. 메타분석도 표준오차가 작은(정밀한) 연구에 더 큰 가중치를 줍니다. 환자를 한데 섞어 다시 분석하는 것이 아니고, 연구마다 구한 비교 결과를 평균합니다.</li>
+<li><b>두 모형.</b> 고정효과 모형은 "모든 연구가 같은 참값 하나를 재고 있다"고 봅니다. 무작위효과 모형은 "연구마다 환자와 용량이 달라 참값도 조금씩 다르고, 우리는 그 평균을 추정한다"고 봅니다. 뒤의 모형은 연구 사이의 차이만큼 신뢰구간이 넓어지고 작은 연구의 무게가 상대적으로 커집니다.</li>
+<li><b>논문에서는.</b> "pooled OR 0.83 (95% CI 0.73–0.93; random-effects model; I² = 32%)"처럼 나오고, 그림으로는 포레스트 플롯이 실립니다. "10개 시험의 오즈비를 가중평균하면 0.83이고, 평균 효과가 0.73에서 0.93 사이일 것으로 추정된다"고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 통합 추정값은 '평균'입니다. 평균 뒤에서 연구들이 서로 얼마나 다른지(다 절)를 함께 보지 않으면 평균만으로 결론을 내리게 됩니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>같은 질문을 다룬 연구들의 효과 추정값과 표준오차가 있을 때. 비(오즈비, 상대위험도, 위험비)는 로그를 취해 합친 뒤 지수로 되돌립니다.</dd></div>
+  <div><dt>가중치</dt><dd>고정효과: 1 ÷ 표준오차². 무작위효과: 1 ÷ (표준오차² + 연구 간 분산 τ²)</dd></div>
+  <div><dt>가정</dt><dd>연구들이 합칠 만큼 비슷한 질문을 다룸. 고정효과 모형은 공통의 참값 하나, 무작위효과 모형은 참값들의 분포를 가정</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>포레스트 플롯, 통합 추정값(95% CI), 모형과 τ² 추정 방법(예: DerSimonian–Laird), 이질성 지표(Q, I², τ²)</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>가 절 예제의 유효성 결과(허혈 사건)를 합쳐 봅니다. 효과 척도는 <strong>오즈비</strong><span class="en">(odds ratio, OR; 교차비)</span>입니다. 상대위험도<span class="en">(relative risk, RR)</span>로 합쳐도 방법은 같지만, 임상시험 메타분석에서 오즈비를 자주 만나므로 이 장에서는 오즈비로 따라갑니다. 시험 10개의 사건 수와 오즈비는 아래 그림 19-2의 왼쪽과 오른쪽 열에 있습니다.</p>
+<div class="flow">
+<div><div><b>시험마다 효과와 표준오차</b><p>Trial I: 약물 X군 122/1,800명(6.8%), 위약군 167/1,790명(9.3%)에서 허혈 사건. 오즈비 0.71, 로그 오즈비 −0.347, 표준오차 0.124, 95% CI 0.55–0.90 (<a href="#ch05-s1">5장 가 절</a>, <a href="#ch08-s2">8장 나 절</a>의 계산).</p></div></div>
+<div><div><b>정밀도로 가중치 주기</b><p><strong>역분산 가중치</strong><span class="en">(inverse-variance weight)</span> = 1 ÷ 표준오차². 사건이 많은 Trial F(표준오차 0.063)는 254.7, 가장 작은 Trial C(표준오차 0.686)는 2.1입니다. 전체에서 차지하는 비율은 42.7%와 0.4%입니다.</p></div></div>
+<div><div><b>고정효과 모형으로 합치기</b><p>로그 오즈비의 가중평균은 −0.170, 표준오차 0.041. 지수로 되돌리면 오즈비 0.84 (95% CI 0.78–0.91).</p></div></div>
+<div><div><b>무작위효과 모형으로 합치기</b><p>모든 시험의 분산에 연구 간 분산 τ² = 0.0098(다 절에서 계산)을 더해 가중치를 다시 구합니다. Trial F의 비율은 27.3%로 줄고 Trial C는 0.8%로 늘어납니다. 가중평균은 −0.192, 표준오차 0.061, 오즈비 0.83 (95% CI 0.73–0.93), P = 0.002.</p></div></div>
+</div>
+<!--FOLD:계산 과정 보기: 시험별 로그 오즈비, 표준오차, 두 모형의 가중치-->
+<p>Trial I의 2×2 표는 약물 X군 사건 122명·비사건 1,678명, 위약군 사건 167명·비사건 1,623명입니다. 오즈비 = (122 × 1,623) ÷ (1,678 × 167) = 0.707, ln 0.707 = −0.347입니다. 로그 오즈비의 분산은 네 칸의 역수를 더한 1/122 + 1/1,678 + 1/167 + 1/1,623 = 0.0154이고 표준오차는 그 제곱근 0.124입니다. 95% CI는 exp(−0.347 ± 1.96 × 0.124) = 0.55–0.90, 가중치는 1 ÷ 0.0154 = 64.9입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>시험</th><th class="r">로그 오즈비</th><th class="r">표준오차</th><th class="r">고정효과 가중치</th><th class="r">비율</th><th class="r">무작위효과 가중치</th><th class="r">비율</th></tr></thead>
+<tbody>
+<tr><td>Trial A</td><td class="r">0.046</td><td class="r">0.373</td><td class="r">7.2</td><td class="r">1.2%</td><td class="r">6.7</td><td class="r">2.5%</td></tr>
+<tr><td>Trial B</td><td class="r">−0.145</td><td class="r">0.247</td><td class="r">16.4</td><td class="r">2.7%</td><td class="r">14.1</td><td class="r">5.3%</td></tr>
+<tr><td>Trial C</td><td class="r">0.296</td><td class="r">0.686</td><td class="r">2.1</td><td class="r">0.4%</td><td class="r">2.1</td><td class="r">0.8%</td></tr>
+<tr><td>Trial D</td><td class="r">0.033</td><td class="r">0.085</td><td class="r">138.0</td><td class="r">23.1%</td><td class="r">58.6</td><td class="r">22.0%</td></tr>
+<tr><td>Trial E</td><td class="r">−0.629</td><td class="r">0.259</td><td class="r">14.9</td><td class="r">2.5%</td><td class="r">13.0</td><td class="r">4.9%</td></tr>
+<tr><td>Trial F</td><td class="r">−0.184</td><td class="r">0.063</td><td class="r">254.7</td><td class="r">42.7%</td><td class="r">72.7</td><td class="r">27.3%</td></tr>
+<tr><td>Trial G</td><td class="r">−0.608</td><td class="r">0.468</td><td class="r">4.6</td><td class="r">0.8%</td><td class="r">4.4</td><td class="r">1.6%</td></tr>
+<tr><td>Trial H</td><td class="r">−0.233</td><td class="r">0.110</td><td class="r">82.5</td><td class="r">13.8%</td><td class="r">45.6</td><td class="r">17.1%</td></tr>
+<tr><td>Trial I</td><td class="r">−0.347</td><td class="r">0.124</td><td class="r">64.9</td><td class="r">10.9%</td><td class="r">39.6</td><td class="r">14.9%</td></tr>
+<tr><td>Trial J</td><td class="r">−0.344</td><td class="r">0.301</td><td class="r">11.0</td><td class="r">1.8%</td><td class="r">9.9</td><td class="r">3.7%</td></tr>
+<tr class="hi"><td>합계</td><td class="r"></td><td class="r"></td><td class="r">596.4</td><td class="r">100%</td><td class="r">266.7</td><td class="r">100%</td></tr>
+</tbody></table></div>
+<p>고정효과: Σ(가중치 × 로그 오즈비) ÷ Σ가중치 = −101.5 ÷ 596.4 = −0.170, 표준오차 = 1 ÷ √596.4 = 0.041, 95% CI = exp(−0.170 ± 1.96 × 0.041) = 0.78–0.91. 무작위효과: 가중치를 1 ÷ (표준오차² + 0.0098)로 바꾸면 −51.2 ÷ 266.7 = −0.192, 표준오차 = 1 ÷ √266.7 = 0.061, 95% CI = exp(−0.192 ± 1.96 × 0.061) = 0.73–0.93, z = −0.192 ÷ 0.061 = −3.14입니다. 표의 반올림한 값으로 검산하면 끝자리가 조금 다를 수 있습니다.</p>
+<!--/FOLD-->
+<!--FIG:ch19_forest-->
+<p>두 모형의 결과는 0.84와 0.83으로 비슷하지만 신뢰구간은 무작위효과 쪽이 넓습니다(0.78–0.91 대 0.73–0.93). 무작위효과 추정값이 조금 더 낮은 이유는 효과가 크게 나온 작은 시험들(E, G, J)의 무게가 늘었기 때문입니다.</p>
+
+<h3>두 모형의 차이</h3>
+<!--FIG:ch19_models-->
+<p><strong>고정효과 모형</strong><span class="en">(fixed-effect model)</span>은 모든 연구가 같은 참값 하나를 추정하며 결과가 서로 다른 이유는 표본오차뿐이라고 가정합니다. 그래서 정밀한 큰 연구가 결과를 주도합니다. <strong>무작위효과 모형</strong><span class="en">(random-effects model)</span>은 대상 환자, 용량, 병용 치료, 추적 기간이 달라 연구마다 참값이 조금씩 다르다고 보고, 그 참값들의 평균을 추정합니다<cite data-ref="dersimonian1986"></cite>. 연구 간 차이의 크기를 <strong>연구 간 분산</strong><span class="en">(between-study variance)</span> τ²(타우 제곱)으로 추정해 모든 연구의 분산에 똑같이 더하므로, 가중치가 고르게 되고 신뢰구간이 넓어집니다. τ²를 추정하는 방법 가운데 가장 널리 쓰여 온 것이 DerSimonian–Laird 방법입니다.</p>
+<p>어느 모형을 쓸지는 이질성 검정의 결과로 정하지 않고, 연구들이 같은 참값을 추정한다고 볼 수 있는지로 미리 정합니다. 여러 나라에서 서로 다른 용량과 환자군으로 수행된 임상시험을 합칠 때는 대개 무작위효과 모형을 주 분석으로 하고, 고정효과 모형의 결과를 민감도 분석으로 함께 봅니다(라 절). 다만 무작위효과 모형이 언제나 더 안전한 선택은 아닙니다. 작은 연구의 무게가 커지므로, 작은 연구일수록 효과가 크게 나오는 경향이 있으면(라 절의 소규모 연구 효과) 통합 추정값이 그쪽으로 끌려갑니다<cite data-ref="sterne2011funnel"></cite>.</p>
+<p>이분형 결과에는 역분산법 말고 <strong>Mantel–Haenszel 방법</strong>도 널리 쓰입니다. 로그 오즈비와 표준오차를 거치지 않고 2×2 표의 사건 수로 직접 가중평균하는 방법이어서(<a href="#ch08-s6">8장 바 절</a>) 사건이 드문 연구가 섞여 있을 때 더 안정적입니다. 예제에서는 0.84 (0.78–0.91)로 역분산 고정효과 결과와 같습니다.</p>
+
+<h3>포레스트 플롯 읽는 법</h3>
+<p><strong>포레스트 플롯</strong><span class="en">(forest plot)</span>은 한 줄이 한 연구입니다(그림 19-2).</p>
+<ul>
+<li><strong>네모와 가로선</strong>: 네모의 위치가 그 연구의 추정값, 가로선이 95% 신뢰구간입니다. 네모의 크기는 가중치에 비례합니다. 선이 길고 네모가 작은 연구(Trial C)는 정보가 적은 연구입니다.</li>
+<li><strong>세로 기준선</strong>: 오즈비 1이 '차이 없음'입니다. 가로선이 기준선을 지나면 그 연구 하나로는 유의하지 않습니다. 10개 가운데 6개가 그렇지만 통합 결과는 유의합니다. 연구 하나하나의 유의성을 세는 것은 의미가 없습니다.</li>
+<li><strong>마름모</strong>: 가운데가 통합 추정값, 양 끝이 95% 신뢰구간입니다. 마름모가 기준선에 닿지 않으면 통합 결과가 유의합니다.</li>
+<li><strong>가로축</strong>: 비는 로그 눈금으로 그립니다. 0.5와 2가 1에서 같은 거리에 있습니다. 어느 쪽이 치료에 유리한지는 축 아래의 "Favours …" 표시로 확인합니다.</li>
+<li><strong>아래 줄</strong>: 이질성 지표(Q, I², τ²)와 전체 효과 검정(z, P)이 적힙니다. 이질성 지표는 다 절에서 읽습니다.</li>
+</ul>
+
+<h3>효과 척도 맞추기</h3>
+<p>합치려면 모든 연구의 효과가 같은 척도여야 합니다. 오즈비를 보고한 연구와 상대위험도를 보고한 연구를 한 분석에 섞으면 안 됩니다. 결과가 흔할수록 오즈비는 상대위험도보다 1에서 더 멀어지기 때문입니다(8장 나 절). 생존분석의 위험비<span class="en">(hazard ratio, HR)</span>도 따로 합칩니다. 논문에 사건 수가 없고 "HR 0.82 (95% CI 0.70–0.96)"만 있어도 합칠 수 있습니다. 로그 위험비는 ln 0.82 = −0.198이고, 표준오차는 신뢰구간의 폭에서 (ln 0.96 − ln 0.70) ÷ (2 × 1.96) = 0.081로 되살립니다. 관찰연구를 합칠 때는 이렇게 각 연구의 보정된 추정값과 신뢰구간을 가져옵니다.</p>
+<p>결과가 연속형이면 같은 단위일 때 <strong>평균 차이</strong><span class="en">(mean difference, MD)</span>를, 연구마다 측정 도구가 다를 때(서로 다른 삶의 질 설문 등) 표준편차 단위로 바꾼 <strong>표준화 평균 차이</strong><span class="en">(standardized mean difference, SMD)</span>를 합칩니다. 합치는 방법은 오즈비와 같고 로그 변환만 하지 않습니다.</p>
+<!--FOLD:자세히 보기: 연속형 결과를 합칠 때 (약사 중재와 HbA1c의 예)-->
+<p>2형 당뇨병 환자에서 약사 주도 중재와 통상 관리를 비교한 무작위배정 시험 6개(1,320명)를 합치는 가상의 예입니다. 결과는 6개월 HbA1c 변화량의 평균 차이(중재 − 통상 관리)입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>연구</th><th class="r">중재군 n</th><th class="r">대조군 n</th><th class="r">평균 차이 (%p)</th><th class="r">표준오차</th><th class="r">고정효과 가중치</th><th class="r">무작위효과 가중치</th></tr></thead>
+<tbody>
+<tr><td>Study A</td><td class="r">45</td><td class="r">44</td><td class="r">−0.60</td><td class="r">0.244</td><td class="r">5.2%</td><td class="r">12.6%</td></tr>
+<tr><td>Study B</td><td class="r">120</td><td class="r">118</td><td class="r">−0.30</td><td class="r">0.130</td><td class="r">18.5%</td><td class="r">18.6%</td></tr>
+<tr><td>Study C</td><td class="r">60</td><td class="r">58</td><td class="r">−1.10</td><td class="r">0.230</td><td class="r">5.9%</td><td class="r">13.2%</td></tr>
+<tr><td>Study D</td><td class="r">210</td><td class="r">205</td><td class="r">−0.20</td><td class="r">0.088</td><td class="r">39.9%</td><td class="r">20.7%</td></tr>
+<tr><td>Study E</td><td class="r">80</td><td class="r">82</td><td class="r">−0.70</td><td class="r">0.181</td><td class="r">9.5%</td><td class="r">15.8%</td></tr>
+<tr><td>Study F</td><td class="r">150</td><td class="r">148</td><td class="r">−0.10</td><td class="r">0.122</td><td class="r">21.0%</td><td class="r">19.0%</td></tr>
+<tr class="hi"><td>통합 추정값 (95% CI)</td><td class="r" colspan="3"></td><td class="r"></td><td class="r">−0.32 (−0.43 ~ −0.21)</td><td class="r">−0.45 (−0.70 ~ −0.20)</td></tr>
+</tbody></table></div>
+<p>Study A는 중재군 변화 −0.9 ± 1.1, 대조군 −0.3 ± 1.2이므로 평균 차이 −0.60, 표준오차 √(1.1²/45 + 1.2²/44) = 0.244입니다(2장 가 절의 두 군 평균 차이와 같은 계산). 이 예는 연구 간 차이가 커서(I² = 78%, τ² = 0.072, 다 절) 두 모형의 결과가 −0.32와 −0.45로 뚜렷이 다릅니다. 효과가 큰 작은 연구들(A, C, E)의 무게가 무작위효과 모형에서 늘어났기 때문입니다.</p>
+<!--FIG:ch19_forest_md-->
+<p>연속형 결과에서 자주 만나는 문제는 변화량의 표준편차가 보고되지 않는 것입니다. 3장 가 절에서 본 것처럼 변화량의 표준편차는 시점별 표준편차만으로 계산할 수 없고 전후 상관을 알아야 합니다. 보고되지 않았으면 신뢰구간이나 P에서 역산하거나 상관을 가정합니다. 기저 SD 1.3, 6개월 SD 1.4, 상관 0.5를 가정하면 변화량 SD = √(1.3² + 1.4² − 2 × 0.5 × 1.3 × 1.4) = 1.35입니다. 논문에 "we imputed the SD of the change assuming a correlation of 0.5"라고 적혀 있으면 이 계산이고, 가정한 상관을 바꿔도 결론이 같은지 민감도 분석을 확인합니다. 같은 자료를 표준화 평균 차이(Hedges' g)로 합치면 −0.40 (−0.61 ~ −0.19)이 됩니다. 이 값은 %p가 아니고 '표준편차 0.40개만큼'이라는 뜻입니다.</p>
+<!--/FOLD-->
+
+<div class="callout warn"><p class="ct">흔한 오해 · 통합 추정값을 읽을 때</p>
+<p><span class="wrong">통합 오즈비가 0.83이므로 약물 X는 허혈 사건의 위험을 17% 줄인다.</span> 오즈비는 오즈의 비이고 위험의 비(상대위험도)가 아닙니다. 이 예제처럼 사건이 10% 안팎으로 드물면 둘이 비슷해서 같은 자료를 상대위험도로 합쳐도 0.84입니다. 그러나 대조군 위험이 40%인 결과라면 오즈비 0.83은 상대위험도 0.89에 해당합니다. 결과가 흔할수록 오즈비를 "위험이 몇 배"로 읽으면 효과를 과장하게 됩니다(8장 나 절).</p>
+<p><span class="wrong">10개 시험의 사건 수를 모두 더하면 약물 X군 1,271/16,850명(7.5%), 위약군 1,386/14,875명(9.3%)이므로 이 둘을 비교하면 된다.</span> 사건 수를 그냥 더하면 무작위배정이 깨집니다. 이 예제에서 추적이 짧아 사건이 적은 2상 시험은 약물 X군에 두 배 많이 배정했으므로, 약물 X군에는 '사건이 적게 생기는 짧은 시험의 환자'가 더 많이 섞입니다. 더한 숫자로 구한 오즈비는 0.79로 실제보다 좋아 보입니다. 메타분석은 시험 안에서 구한 비교 결과만 합치므로 이 문제가 없습니다.</p>
+<p><span class="wrong">Trial J는 0.71 (0.39–1.28)로 유의하지 않으므로 이 시험에서는 효과가 없었다.</span> 유의하지 않다는 것은 효과가 없다는 증거가 아닙니다. 신뢰구간은 오즈를 61% 줄이는 효과부터 28% 늘리는 효과까지 모두 포함합니다. 이 시험은 판단하기에 너무 작았을 뿐이고, 이런 시험들을 합쳐 정밀도를 높이는 것이 메타분석의 목적입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>분석 전에 정할 것</strong>: 효과 척도(이분형이면 오즈비 또는 상대위험도, 연속형이면 평균 차이 또는 표준화 평균 차이, 생존 결과면 위험비), 주 분석 모형과 τ² 추정 방법, 사건이 0건인 연구의 처리 방법. 결과를 본 뒤에 유리한 모형을 고르지 않습니다.</li>
+<li><strong>자료 정리</strong>: 이분형 결과는 연구마다 군별 사건 수와 인원 네 숫자를, 연속형은 군별 평균·표준편차·인원을, 관찰연구는 보정된 추정값과 신뢰구간을 모읍니다. 한 시험에 용량군이 여러 개면 대조군을 여러 번 세지 않도록 합칩니다(아래 심화).</li>
+<li><strong>보고할 것</strong>: 연구 수와 인원, 효과 척도, 모형과 추정 방법, 통합 추정값과 95% CI, 연구별 추정값과 가중치가 보이는 포레스트 플롯. Methods 예: "Odds ratios were pooled with a random-effects model (DerSimonian–Laird) using inverse-variance weights; a fixed-effect analysis was performed as a sensitivity analysis."</li>
+<li><strong>파이썬</strong>: statsmodels의 <code>effectsize_2proportions(사건1, 인원1, 사건2, 인원2, statistic="odds-ratio")</code>가 연구별 로그 오즈비와 분산을, <code>combine_effects(효과, 분산, method_re="chi2")</code>가 고정효과와 DerSimonian–Laird 무작위효과 결과를 줍니다(둘 다 <code>statsmodels.stats.meta_analysis</code>). 결과의 <code>plot_forest()</code>로 포레스트 플롯을 그립니다. 연속형 결과는 <code>effectsize_smd()</code>, Mantel–Haenszel 오즈비는 <code>statsmodels.api.stats.StratifiedTable</code>로 구합니다. 논문의 Methods에 자주 나오는 Review Manager(RevMan)와 Stata는 같은 계산을 해 주는 프로그램 이름입니다.</li>
+</ul></div>
+
+<h3>사건이 0건인 연구와 여러 군이 있는 시험 <span class="lv deep">심화</span></h3>
+<p><b>사건이 0건인 칸.</b> 예제의 주요 출혈에서 Trial C는 약물 X군 3/240, 위약군 0/120입니다. 한 칸이 0이면 오즈비가 무한대가 되어 로그를 취할 수 없습니다. 흔히 쓰는 처리는 그 연구의 네 칸에 0.5씩 더하는 <strong>연속성 수정</strong><span class="en">(continuity correction)</span>입니다. 그러면 오즈비 3.55 (0.18–69.32), 가중치 0.4%로 들어갑니다. 신뢰구간이 매우 넓어 통합 결과에 거의 영향을 주지 않습니다. 이 예제의 통합 오즈비는 0.5를 더했을 때 2.28 (1.90–2.74), Trial C를 뺐을 때 2.28 (1.90–2.73), 수정 없이 계산할 수 있는 Mantel–Haenszel 방법으로 2.31 (1.93–2.77)입니다. 사건이 드문 결과가 주된 관심이고 0건 연구가 많으면 더하는 값에 따라 결과가 달라질 수 있으므로, 수정 없이 쓸 수 있는 방법과 비교한 민감도 분석이 필요합니다<cite data-ref="sweeting2004"></cite>. 두 군 모두 0건인 연구는 오즈비나 상대위험도에 대한 정보가 없어 그 분석에서 빠집니다. 논문 Methods의 "studies with no events in either group could not be assessed" 같은 문장이 이 뜻입니다.</p>
+<p>statsmodels의 <code>effectsize_2proportions(..., zero_correction=0.5)</code>는 0인 칸이 없는 연구까지 <b>모든 연구</b>의 사건 수에 0.5를 더합니다(0.15 버전에서 확인). 0이 있는 연구에만 더하는 흔한 방식과 달라서, 이 예제에서는 통합 오즈비가 2.24로 조금 달라집니다. 흔한 방식을 따르려면 0이 있는 연구만 따로 0.5를 더해 계산합니다.</p>
+<p><b>여러 군이 있는 시험.</b> Trial B가 사실은 저용량군(25/580), 고용량군(22/580), 위약군(27/580)의 세 군 시험이었다고 합시다. 저용량 대 위약, 고용량 대 위약을 두 줄로 따로 넣으면 위약군 580명이 두 번 세어집니다. 두 줄의 가중치 합은 고정효과 기준 4.0%로, 두 용량군을 합쳐 한 줄(47/1,160 대 27/580)로 넣었을 때의 2.7%보다 약 1.5배 큽니다. 같은 대조군에서 나온 두 추정값은 서로 독립이 아닌데도 독립인 것처럼 계산되어 신뢰구간이 실제보다 좁아집니다. 처리 방법은 용량군을 합쳐 한 비교로 만들거나, 대조군을 군 수만큼 나누어 배정하는 것입니다. 이 장의 예제는 처음부터 용량군을 합친 숫자입니다.</p>
+<p><b>연구 수가 적을 때의 신뢰구간.</b> DerSimonian–Laird 방법은 τ²를 정확히 아는 것처럼 계산하므로, 연구가 몇 개뿐이면 신뢰구간이 실제보다 좁게 나오는 경향이 있습니다. 이를 보완하는 Hartung–Knapp(–Sidik–Jonkman) 방법은 표준오차를 다시 계산하고 t 분포를 씁니다<cite data-ref="inthout2014"></cite>. 예제에서는 0.72–0.94로 조금 넓어집니다(<code>combine_effects(..., use_t=True)</code> 결과의 'random effect wls' 행). 연구가 다섯 개 안팎인 메타분석에서 경계선의 유의성은 방법에 따라 달라질 수 있다는 점을 기억해 둡니다.</p>
+
+<h3>논문에서 읽어 보기</h3>
+<p>같은 10개 시험의 안전성 결과(주요 출혈)를 합친 포레스트 플롯입니다. 유효성 결과와 달리 사건이 드물고, 기준선의 오른쪽이 약물 X에 불리한 쪽입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 포레스트 플롯</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<!--FIG:ch19_forest_bleed-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>events/N 열.</b> 군별 사건 수와 인원입니다. Trial D의 오즈비를 검산하면 (91 ÷ 3,559) ÷ (37 ÷ 3,603) = 2.49입니다. 맨 아래 합계 줄의 410/16,850과 170/14,875는 참고용 합계이고, 통합 오즈비는 이 두 숫자로 계산한 것이 아닙니다(위 흔한 오해 상자).</span></li>
+<li><span class="mk">2</span><span><b>사건이 0건인 시험.</b> Trial C의 위약군은 0/120입니다. 네 칸에 0.5를 더해 오즈비 3.55를 구했고, 신뢰구간(0.18–69.32)이 그림 범위를 넘어 화살표로 표시되었습니다. 가중치가 0.4%여서 통합 결과에 거의 기여하지 않습니다. 0건 시험을 어떻게 처리했는지는 Methods에 적혀 있어야 합니다.</span></li>
+<li><span class="mk">3</span><span><b>가중치.</b> 3상 시험 네 개(D, F, H, I)의 가중치 합이 94.1%입니다. 열 개 시험을 합쳤지만 결과는 사실상 큰 시험 네 개가 정합니다. 가중치가 한두 시험에 몰려 있으면, 통합 결과는 그 시험의 환자와 용량에 대한 결과라고 읽어야 합니다.</span></li>
+<li><span class="mk">4</span><span><b>통합 오즈비 2.28 (1.90–2.74).</b> 마름모가 기준선 1의 오른쪽에 떨어져 있어 주요 출혈이 유의하게 늘었습니다. 주요 출혈은 1–3%로 드문 사건이어서 여기서는 오즈비가 상대위험도와 거의 같습니다(대조군 위험 1.2%에 적용하면 상대위험도 2.25). 그래도 "2.28배"는 상대적 크기이고, 실제로 몇 명에게 더 생기는지는 마 절에서 계산합니다.</span></li>
+<li><span class="mk">5</span><span><b>이질성 줄.</b> Q = 4.06이 자유도 9보다 작아 I² = 0%, τ² = 0입니다. τ²가 0이면 무작위효과 가중치가 고정효과 가중치와 같아져 두 모형의 결과가 같습니다. 다만 작은 시험들의 신뢰구간이 워낙 넓어서, 실제로 시험마다 효과가 달라도 드러나기 어렵습니다(다 절).</span></li>
+<li><span class="mk">6</span><span><b>방향 표시.</b> 출혈은 나쁜 사건이므로 오즈비가 1보다 크면 약물 X에 불리합니다. 그래서 오른쪽이 "Favours placebo"입니다. 생존이나 완치처럼 좋은 사건이 결과이면 방향이 반대가 되므로, 숫자를 읽기 전에 이 표시와 결과변수의 뜻을 맞춰 봅니다.</span></li>
+</ol>
+</div></div>
+
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels combine_effects <span class="lv deep">심화</span></b><span>가상의 예시 (statsmodels 0.15)</span></div>
+<div class="paper-b">
+<p>유효성 결과를 statsmodels로 합친 출력입니다. e1, n1은 약물 X군의 사건 수와 인원, e0, n0은 위약군의 값이 시험 순서대로 들어 있는 배열입니다. statsmodels 0.15.0으로 실제 실행한 결과이며, 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; from statsmodels.stats.meta_analysis import effectsize_2proportions, combine_effects</span>
+<span class="cm">&gt;&gt;&gt; eff, var = effectsize_2proportions(e1, n1, e0, n0, statistic="odds-ratio")</span>
+<span class="cm">&gt;&gt;&gt; res = combine_effects(eff, var, method_re="chi2", row_names=names)</span>
+<span class="cm">&gt;&gt;&gt; print(res.summary_frame().round(4))</span>
+                      <span class="mk">1</span> eff  sd_eff  ci_low  ci_upp   <span class="mk">2</span> w_fe    w_re
+Trial A            0.0461  0.3734 -0.6857  0.7779  0.0120  0.0251
+Trial B           -0.1451  0.2470 -0.6293  0.3390  0.0275  0.0529
+Trial C            0.2963  0.6864 -1.0491  1.6417  0.0036  0.0078
+Trial D            0.0332  0.0851 -0.1336  0.2000  0.2314  0.2196
+Trial E           -0.6295  0.2592 -1.1374 -0.1215  0.0250  0.0487
+Trial F           -0.1843  0.0627 -0.3071 -0.0615  0.4271  0.2726
+Trial G           -0.6080  0.4677 -1.5246  0.3086  0.0077  0.0164
+Trial H           -0.2331  0.1101 -0.4489 -0.0173  0.1383  0.1708
+Trial I           -0.3473  0.1241 -0.5905 -0.1041  0.1089  0.1486
+Trial J           -0.3442  0.3011 -0.9345  0.2460  0.0185  0.0373
+<span class="mk">3</span> fixed effect      -0.1702  0.0409 -0.2505 -0.0900  1.0000     NaN
+<span class="mk">4</span> random effect     -0.1921  0.0612 -0.3121 -0.0721     NaN  1.0000
+<span class="mk">5</span> fixed effect wls  -0.1702  0.0497 -0.2677 -0.0727  1.0000     NaN
+random effect wls -0.1921  0.0591 -0.3080 -0.0762     NaN  1.0000
+<span class="cm">&gt;&gt;&gt; print(round(res.q, 4), round(res.i2, 4), round(res.tau2, 6))</span>
+<span class="mk">6</span> 13.2849 0.3225 0.009827</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>eff는 로그 오즈비.</b> 출력의 모든 값이 로그 척도입니다. 오즈비로 읽으려면 지수를 취합니다. Trial I는 e<sup>−0.3473</sup> = 0.71, 신뢰구간은 e<sup>−0.5905</sup> = 0.55와 e<sup>−0.1041</sup> = 0.90입니다. sd_eff는 표준오차입니다.</span></li>
+<li><span class="mk">2</span><span><b>두 모형의 가중치 비율.</b> w_fe가 고정효과, w_re가 무작위효과 가중치의 비율입니다. Trial F가 0.4271에서 0.2726으로 줄어드는 것이 위 '숫자로 따라가기'의 42.7%와 27.3%입니다.</span></li>
+<li><span class="mk">3</span><span><b>고정효과 통합 결과.</b> e<sup>−0.1702</sup> = 0.84, 신뢰구간 e<sup>−0.2505</sup> = 0.78과 e<sup>−0.0900</sup> = 0.91.</span></li>
+<li><span class="mk">4</span><span><b>무작위효과 통합 결과.</b> e<sup>−0.1921</sup> = 0.83, 신뢰구간 0.73–0.93. <code>method_re="chi2"</code>가 DerSimonian–Laird 방법입니다. 이 인자를 주지 않으면 기본값 <code>"iterated"</code>(Paule–Mandel 방법)로 τ²를 추정해 숫자가 조금 달라집니다.</span></li>
+<li><span class="mk">5</span><span><b>wls가 붙은 두 행.</b> 추정값은 같고 표준오차만 자료의 흩어짐에 맞춰 다시 계산한 변형입니다(위 심화 '연구 수가 적을 때의 신뢰구간'). 처음에는 위의 두 행만 읽으면 됩니다.</span></li>
+<li><span class="mk">6</span><span><b>이질성 지표.</b> 차례로 Q = 13.28, I² = 32%, τ² = 0.0098입니다. 다 절에서 읽는 법을 다룹니다. <code>res.test_homogeneity()</code>는 Q 검정의 P(0.15)를 줍니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<p>2×2 표의 네 칸을 a(치료군 사건), b(치료군 비사건), c(대조군 사건), d(대조군 비사건)라고 하면 연구 하나의 로그 오즈비와 표준오차는 다음과 같습니다.</p>
+<div class="eq">\[ y_i = \ln\frac{a\,d}{b\,c}, \qquad SE_i = \sqrt{\frac{1}{a} + \frac{1}{b} + \frac{1}{c} + \frac{1}{d}} \]
+<p>Trial I: \(y = \ln\frac{122 \times 1623}{1678 \times 167} = -0.347\), \(SE = \sqrt{1/122 + 1/1678 + 1/167 + 1/1623} = 0.124\). 로그 상대위험도의 표준오차는 \(\sqrt{1/a - 1/n_1 + 1/c - 1/n_0}\)입니다. 추정값과 신뢰구간만 보고된 연구는 \(SE = (\ln \text{상한} - \ln \text{하한}) / (2 \times 1.96)\)으로 되살립니다.</p></div>
+<div class="eq">\[ \hat{\theta}_{FE} = \frac{\sum w_i y_i}{\sum w_i}, \qquad w_i = \frac{1}{SE_i^2}, \qquad SE(\hat{\theta}_{FE}) = \frac{1}{\sqrt{\sum w_i}} \]
+<p>고정효과 모형. 예제: Σw = 596.4, Σwy = −101.5이므로 −0.170, SE = 1 ÷ √596.4 = 0.041.</p></div>
+<div class="eq">\[ \hat{\theta}_{RE} = \frac{\sum w_i^{*} y_i}{\sum w_i^{*}}, \qquad w_i^{*} = \frac{1}{SE_i^2 + \tau^2}, \qquad SE(\hat{\theta}_{RE}) = \frac{1}{\sqrt{\sum w_i^{*}}} \]
+<p>무작위효과 모형. τ²는 다 절의 식으로 추정합니다. 예제: τ² = 0.0098, Σw* = 266.7, Σw*y = −51.2이므로 −0.192, SE = 0.061. 전체 효과의 검정은 z = −0.192 ÷ 0.061 = −3.14, P = 0.002입니다. τ² = 0이면 두 모형은 같아집니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>메타분석은 연구마다 구한 효과를 역분산(정밀도)으로 가중평균합니다. 비는 로그 척도에서 합친 뒤 지수로 되돌립니다.</li>
+<li>고정효과 모형은 공통의 참값 하나를, 무작위효과 모형은 연구마다 다른 참값들의 평균을 추정합니다. 무작위효과 모형은 신뢰구간이 더 넓고 작은 연구의 무게가 상대적으로 큽니다.</li>
+<li>포레스트 플롯에서 네모는 연구의 추정값과 가중치, 가로선은 신뢰구간, 마름모는 통합 추정값입니다. 가중치가 어느 연구에 몰려 있는지 봅니다.</li>
+<li>통합 오즈비는 상대위험도가 아니며, 시험들의 사건 수를 그냥 더해 비교한 값과도 다릅니다.</li>
+<li>오즈비, 상대위험도, 위험비는 서로 섞어 합치지 않습니다. 사건이 0건인 연구와 여러 군이 있는 시험의 처리 방법은 Methods에서 확인합니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>Trial H는 약물 X군 161/2,450명, 위약군 199/2,440명에서 허혈 사건이 생겼습니다. 오즈비, 로그 오즈비의 표준오차, 95% 신뢰구간, 역분산 가중치를 구해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>네 칸은 a = 161, b = 2,289, c = 199, d = 2,241입니다. 오즈비 = (161 × 2,241) ÷ (2,289 × 199) = 0.79, 로그 오즈비 = −0.233입니다. 분산 = 1/161 + 1/2,289 + 1/199 + 1/2,241 = 0.0121, 표준오차 = 0.110입니다. 95% CI = exp(−0.233 ± 1.96 × 0.110) = 0.64–0.98로 그림 19-2의 Trial H 줄과 같습니다. 가중치 = 1 ÷ 0.0121 = 82.5이고, 전체 596.4의 13.8%입니다. 분산은 네 칸의 역수의 합이어서, 사건 수(a와 c)가 작은 연구일수록 분산이 크고 가중치가 작습니다. 인원이 많아도 사건이 적으면 정보가 적습니다.</p></div></details></li>
+<li><p><span class="qt">계산</span>청구자료 코호트 연구 하나가 "adjusted RR 0.88 (95% CI 0.79–0.98)"만 보고했습니다. 메타분석에 넣을 로그 상대위험도와 표준오차를 구해 보세요. 이 연구를 위 예제의 오즈비 분석에 함께 넣어도 됩니까?</p>
+<details><summary>답과 풀이</summary><div><p>로그 상대위험도 = ln 0.88 = −0.128, 표준오차 = (ln 0.98 − ln 0.79) ÷ (2 × 1.96) = 0.055, 가중치 = 1 ÷ 0.055² = 약 331입니다. 그러나 예제의 분석에 넣으면 안 됩니다. 첫째, 척도가 다릅니다(상대위험도와 오즈비). 둘째, 설계가 다릅니다. 예제는 무작위배정 시험만 합쳤고, 이 연구는 교란을 보정한 관찰연구입니다. 가중치 331은 예제에서 가장 큰 Trial F(254.7)보다 커서, 넣는 순간 통합 결과를 이 연구가 주도하게 됩니다. 관찰연구는 따로 합치거나 따로 제시하고, 무작위배정 시험의 결과와 방향이 같은지 비교하는 데 씁니다(라 절).</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"무작위효과 모형의 통합 오즈비는 0.83(95% CI 0.73–0.93)이었다. 따라서 어느 병원에서 어떤 ACS 환자에게 쓰더라도 약물 X는 허혈 사건의 오즈를 7–27% 줄인다." 무엇이 틀렸습니까?</p>
+<details><summary>답과 풀이</summary><div><p>무작위효과 모형의 신뢰구간은 '연구마다 다른 참효과들의 평균'이 어디쯤인지에 대한 범위입니다. 개별 환경에서의 효과가 모두 그 안에 있다는 뜻이 아닙니다. 연구 사이의 차이(τ²)가 있으면 어떤 환경의 참효과는 평균보다 훨씬 크거나 작을 수 있고, 그 범위는 다 절의 예측구간(이 예제에서 0.63–1.08)으로 봅니다. 고쳐 쓰면 "평균적으로 허혈 사건의 오즈를 17% 줄이는 것으로 추정된다(95% CI 7–27%). 다만 시험 사이에 효과의 차이가 있어, 새로운 환경에서의 효과는 이보다 넓은 범위에 있을 수 있다"입니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ch19-s3">
+<h2><span class="sec-no">다.</span>이질성, 하위군 분석, 메타회귀</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">통합 추정값이 평균이라면, 이질성은 그 평균 주위에서 연구들이 우연 이상으로 서로 얼마나 다른가입니다. 하위군 분석과 메타회귀는 왜 다른지를 찾아보는 방법인데, 찾아낸 차이는 대부분 확인이 필요한 가설로 다룹니다.</p>
+<ul>
+<li><b>비유.</b> 한 반의 평균 점수가 70점이라는 말만으로는 모두 70점 근처인지, 40점과 100점이 섞여 있는지 알 수 없습니다. 메타분석에서도 연구들이 비슷한 결과를 냈는지, 제각각인데 평균만 낸 것인지를 따로 봅니다.</li>
+<li><b>세 가지 숫자.</b> Q는 "흩어짐이 우연으로 설명되는가"의 검정통계량, I²는 "흩어짐 가운데 우연이 아닌 부분의 비율", τ는 "연구별 참효과가 실제로 얼마나 다른가(표준편차)"입니다.</li>
+<li><b>논문에서는.</b> "I² = 32%; P for heterogeneity = .15", "STEMI: OR 0.78 (0.69–0.89); NSTE-ACS: OR 0.92 (0.81–1.06); P for interaction = .08"처럼 나옵니다. 뒤 문장은 "두 하위군의 오즈비가 0.78과 0.92로 달라 보이지만, 그 차이가 우연으로 설명될 수 있는지 검정하면 P = 0.08"이라는 뜻입니다.</li>
+<li><b>기억할 한 가지.</b> 한 하위군은 유의하고 다른 하위군은 유의하지 않다는 사실은 두 하위군의 효과가 다르다는 증거가 아닙니다. 차이 자체를 검정한 P for interaction을 봅니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>이질성 지표</dt><dd>Cochran Q와 그 P, I²(%), τ²(연구 간 분산), 예측구간</dd></div>
+  <div><dt>원인 탐색</dt><dd>하위군 분석(범주형 특성)과 하위군 간 차이 검정, 메타회귀(연속형 특성)</dd></div>
+  <div><dt>주의</dt><dd>연구 수가 적으면 Q 검정의 검정력이 낮고 I²가 매우 불확실함. 하위군과 메타회귀의 결과는 연구 사이의 관찰적 비교여서 가설 생성 수준으로 해석</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>I², P for heterogeneity, τ²; 하위군별 통합 추정값과 "test for subgroup differences" 또는 "P for interaction"; 메타회귀의 기울기(95% CI)와 P</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>나 절에서 합친 유효성 결과(그림 19-2)의 이질성을 재어 봅니다. <strong>이질성</strong><span class="en">(heterogeneity)</span>은 연구마다 결과가 우연 이상으로 다른 정도입니다.</p>
+<div class="flow">
+<div><div><b>Q: 흩어짐의 크기</b><p>각 시험의 로그 오즈비가 고정효과 통합값에서 떨어진 거리를 제곱해 가중치를 곱하고 모두 더합니다. Q = 13.28. 우연(표본오차)만 있다면 Q는 자유도(시험 수 − 1 = 9) 근처여야 합니다. 이 차이의 검정이 <strong>Cochran Q 검정</strong>이고 P = 0.15입니다.</p></div></div>
+<div><div><b>I²: 우연이 아닌 부분의 비율</b><p>I² = (Q − 자유도) ÷ Q = (13.28 − 9) ÷ 13.28 = 32%. 시험 결과의 흩어짐 가운데 32%가 우연으로 설명되지 않는다는 뜻입니다.</p></div></div>
+<div><div><b>τ: 참효과가 실제로 다른 정도</b><p>연구 간 분산 τ² = 0.0098, 그 제곱근 τ = 0.099. 로그 오즈비 척도에서 시험별 참효과의 표준편차입니다. 오즈비로 옮기면, 평균이 0.83일 때 시험별 참 오즈비의 대부분(95%)이 대략 0.68에서 1.00 사이에 퍼져 있다는 크기입니다.</p></div></div>
+<div><div><b>예측구간</b><p>새로운 시험(새로운 환경)에서 기대되는 참 오즈비의 95% 범위는 0.63–1.08입니다. 통합 추정값의 신뢰구간(0.73–0.93)보다 넓고 1을 넘습니다.</p></div></div>
+</div>
+
+<h3>I²를 읽을 때</h3>
+<p>I²는 대략 25%, 50%, 75%를 낮음, 중간, 높음의 기준으로 읽습니다<cite data-ref="higgins2003"></cite>. 논문마다 기준을 조금씩 다르게 적으므로 Methods에 적힌 기준을 확인합니다. 읽을 때 조심할 점이 세 가지 있습니다.</p>
+<ul>
+<li><strong>I²는 효과 차이의 크기가 아닙니다.</strong> 흩어짐 가운데 이질성이 차지하는 비율입니다. 연구들이 모두 아주 크면(표본오차가 작으면) 임상적으로 사소한 차이도 I²를 높입니다. 반대로 작은 연구만 있으면 실제 차이가 커도 I²가 낮게 나옵니다. 차이의 크기는 τ와 예측구간으로 봅니다.</li>
+<li><strong>연구가 적으면 I²가 매우 불확실합니다.</strong> 이 예제의 I² 32%의 95% 신뢰구간은 0–68%입니다<cite data-ref="higgins2002"></cite>. 시험 10개로도 '이질성 없음'부터 '높음에 가까움'까지 구분하지 못합니다. 연구가 네댓 개인 메타분석의 I² = 0%는 "이질성이 없다"가 아니고 "이질성을 가려낼 정보가 없다"에 가깝습니다.</li>
+<li><strong>Q 검정은 검정력이 낮습니다.</strong> 연구 수가 적으면 실제로 이질성이 있어도 P가 0.05를 넘기 쉽습니다. 그래서 0.10을 기준으로 쓰기도 합니다. P = 0.15를 "이질성이 없다"로 읽지 않습니다.</li>
+</ul>
+<!--FOLD:자세히 보기: I²의 신뢰구간은 어떻게 구하나-->
+<p>I² 대신 H = √(Q ÷ 자유도)를 쓰면 로그 척도에서 신뢰구간을 구하기 쉽습니다<cite data-ref="higgins2002"></cite>. 예제에서는 H = √(13.28 ÷ 9) = 1.21입니다. Q가 연구 수 k보다 크면 ln H의 표준오차는 0.5 × (ln Q − ln(k − 1)) ÷ (√(2Q) − √(2k − 3))이고, 그렇지 않으면 √[1 ÷ (2(k − 2)) × (1 − 1 ÷ (3(k − 2)²))]입니다. ln H ± 1.96 × 표준오차를 지수로 되돌려 H의 구간을 얻고, I² = (H² − 1) ÷ H²로 바꾸며 음수는 0으로 둡니다. 예제의 결과가 0–68%입니다. 연구가 여섯 개인 아래 STEMI 하위군(I² = 3%)은 0–75%입니다. 이 구간을 보고하는 논문은 많지 않지만, 연구 수가 적을 때 I²를 얼마나 믿을 수 있는지 가늠하는 데 쓸모가 있습니다.</p>
+<!--/FOLD-->
+
+<h3>예측구간</h3>
+<p>무작위효과 모형의 신뢰구간(0.73–0.93)은 '참효과들의 평균'이 어디쯤인지에 대한 불확실성입니다. 여기에 연구 사이의 차이(τ²)까지 더해, 새로운 환경에서 수행될 연구의 참효과가 있을 범위를 나타낸 것이 <strong>예측구간</strong><span class="en">(prediction interval)</span>입니다<cite data-ref="riley2011"></cite>. 그림 19-2의 맨 아래 회색 선이 이것입니다. 이 예제의 0.63–1.08은 "평균적으로는 효과가 있지만, 어떤 환경에서는 효과가 거의 없을 수도 있다"는 뜻입니다. 내 병원, 내 환자군에 적용할 때 궁금한 것은 평균보다 이 범위입니다. 연구가 적으면 τ² 추정이 불안정해 예측구간도 매우 넓어집니다.</p>
+
+<h3>하위군 분석</h3>
+<p>이질성의 원인을 찾는 첫 번째 방법은 연구(또는 환자)를 특성에 따라 나누어 따로 합치는 <strong>하위군 분석</strong><span class="en">(subgroup analysis)</span>입니다. 예제에서는 계획서에 미리 정한 대로 기저 진단(STEMI 대 NSTE-ACS)에 따라 나누었습니다. 결과를 진단별로 나누어 보고한 시험은 10개 가운데 6개(A, B, D, F, H, I)였습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>하위군</th><th class="r">약물 X군</th><th class="r">위약군</th><th class="r">통합 오즈비 (95% CI)</th><th class="r">P</th><th class="r">I²</th></tr></thead>
+<tbody>
+<tr><td>STEMI</td><td class="r">528/7,006</td><td class="r">636/6,510</td><td class="r">0.78 (0.69–0.89)</td><td class="r">&lt; 0.001</td><td class="r">3%</td></tr>
+<tr><td>NSTE-ACS</td><td class="r">663/7,774</td><td class="r">688/7,330</td><td class="r">0.92 (0.81–1.06)</td><td class="r">0.24</td><td class="r">18%</td></tr>
+<tr class="hi"><td>두 하위군의 차이</td><td class="r" colspan="2"></td><td class="r">오즈비의 비 0.85 (0.71–1.02)</td><td class="r">0.08</td><td class="r"></td></tr>
+</tbody></table></div>
+<p>STEMI에서는 유의하고 NSTE-ACS에서는 유의하지 않습니다. 여기서 "약물 X는 STEMI 환자에게만 효과가 있다"고 결론 내리고 싶어지지만, 이 비교는 틀린 방법입니다(<a href="#ch08-s6">8장 바 절</a>). 각 하위군의 P는 "이 하위군에서 효과가 0인가"를 물을 뿐, "두 하위군의 효과가 서로 다른가"를 묻지 않습니다. 뒤의 질문은 두 추정값의 차이를 직접 검정해야 답할 수 있습니다<cite data-ref="altman2003int"></cite>. 메타분석에서는 이것을 <strong>하위군 간 차이 검정</strong><span class="en">(test for subgroup differences)</span>이라 하고, 그 P를 흔히 P for interaction이라고 적습니다.</p>
+<p>예제의 결과는 P = 0.08입니다. 두 오즈비의 비는 0.78 ÷ 0.92 = 0.85이고 95% 신뢰구간은 0.71–1.02입니다. 이 구간은 '차이 없음'(1)도, 꽤 큰 차이(0.71)도 포함합니다. 따라서 읽는 방법은 "STEMI에서 효과가 더 클 가능성을 시사하지만, 이 자료로는 차이가 있다고 말하기 어렵다"입니다. 논문은 이런 결과를 흔히 "a trend toward interaction"이라고 쓰는데, 이 표현은 유의하지 않았다는 사실을 부드럽게 적은 것이고 차이가 있다는 근거가 아닙니다.</p>
+<p>하위군 결과를 얼마나 믿을지는 P 하나로 정하지 않습니다. 미리 계획했는가, 본 하위군이 몇 개인가(여러 개를 보면 우연히 하나쯤 작은 P가 나옵니다), 차이의 방향을 미리 예상했는가, 시험 안에서 비교한 결과인가, 다른 결과변수와 다른 연구에서도 같은 양상인가를 함께 따집니다<cite data-ref="sun2010"></cite>.</p>
+
+<h3>하위군의 세 가지 수준</h3>
+<p>메타분석의 하위군 분석은 무엇을 나누었는지에 따라 근거의 무게가 다릅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>나누는 대상</th><th>예</th><th>비교가 이루어지는 곳</th><th>주의할 점</th></tr></thead>
+<tbody>
+<tr><td>연구 수준의 특성</td><td>2상 시험 대 3상 시험, 약물의 종류, 용량</td><td>시험과 시험 사이</td><td>무작위배정이 아닌 관찰적 비교. 시험들은 다른 특성(환자, 시기, 병용 치료)도 함께 다름</td></tr>
+<tr><td>시험이 보고한 하위군 결과</td><td>각 시험이 STEMI와 NSTE-ACS의 결과를 따로 보고</td><td>주로 시험 안</td><td>나누어 보고한 시험만 들어감(예제는 10개 중 6개). 여전히 요약된 숫자만 씀</td></tr>
+<tr><td>개별 환자 자료</td><td>시험들의 환자별 원자료를 모아 다시 분석</td><td>시험 안, 환자 수준</td><td>가장 믿을 만하지만 자료를 얻기 어려움</td></tr>
+</tbody></table></div>
+<p>예제에서 연구 수준의 특성으로 나누면 2상 시험 6개의 통합 오즈비는 0.73 (0.57–0.95), 3상 시험 4개는 0.85 (0.73–0.98)이고 차이 검정의 P는 0.36입니다. 설령 이 차이가 유의했더라도 "2상이어서 효과가 크다"고 말할 수는 없습니다. 2상 시험은 규모가 작고 추적이 짧으며 환자 구성도 다릅니다. 논문이 스스로를 "study-level meta-analysis"라고 부르며 환자 수준 자료가 없다는 한계를 적었다면, 하위군 결과를 그만큼 조심해서 읽으라는 뜻입니다.</p>
+
+<h3>메타회귀</h3>
+<p><strong>메타회귀</strong><span class="en">(meta-regression)</span>는 연구의 효과 크기를 결과변수로, 연구 수준의 특성(평균 연령, 용량, 특정 환자의 비율 등)을 설명변수로 놓은 회귀분석입니다. 점 하나가 연구 하나이고, 정밀한 연구에 큰 가중치를 줍니다. 예제에서 10개 시험 모두의 'STEMI 환자 비율'을 설명변수로 넣어 보겠습니다.</p>
+<!--FIG:ch19_metareg-->
+<p>기울기는 STEMI 환자 비율이 10%p 높은 시험일수록 오즈비가 0.91배(95% CI 0.81–1.02), P = 0.11입니다. 하위군 분석과 같은 방향이지만 유의하지 않습니다. 메타회귀를 읽을 때는 다음을 기억합니다<cite data-ref="thompson2002"></cite>.</p>
+<ul>
+<li><strong>연구 수가 표본 크기입니다.</strong> 환자가 31,725명이어도 회귀에 들어가는 점은 10개입니다. 설명변수 하나에 연구 10개 이상을 권하는 경험칙(Cochrane 핸드북)이 있고, 그보다 적으면 기울기가 한두 연구에 좌우됩니다.</li>
+<li><strong>연구 사이의 관찰적 비교입니다.</strong> STEMI 비율이 높은 시험은 다른 점도 다를 수 있습니다. 무작위배정이 보장하는 것은 시험 안의 비교뿐입니다.</li>
+<li><strong>집계 자료의 관계를 개인에게 옮길 수 없습니다.</strong> "STEMI 비율이 높은 시험에서 효과가 컸다"는 "STEMI 환자에게서 효과가 크다"와 다른 말입니다. 연구 평균끼리의 관계가 개인 수준의 관계와 다를 수 있는 이 문제를 <strong>생태학적 편향</strong><span class="en">(ecological bias)</span>이라고 합니다. 평균 연령, 여성 비율처럼 환자 특성의 평균을 설명변수로 쓴 메타회귀에서 특히 그렇습니다.</li>
+<li><strong>여러 변수를 넣어 보면 우연히 하나는 유의해집니다.</strong> 미리 정한 변수가 아니면 탐색 결과로만 다룹니다. 논문이 "hypothesis-generating"이라고 적는 이유입니다.</li>
+</ul>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 이질성과 하위군을 읽을 때</p>
+<p><span class="wrong">주요 출혈은 I² = 0%, STEMI 하위군은 I² = 3%이므로 이질성이 없다.</span> 시험 6개로 구한 I² 3%의 95% 신뢰구간은 0–75%입니다. 낮은 I²는 이질성이 없다는 증거가 아니고, 특히 연구가 적을 때는 거의 아무것도 말해 주지 않습니다. 같은 이유로 <span class="wrong">I² = 32%이므로 시험 사이에서 효과가 32% 차이 난다</span>도 틀립니다. I²는 비율이고, 차이의 크기는 τ와 예측구간으로 봅니다.</p>
+<p><span class="wrong">P for interaction = 0.08이므로 STEMI와 NSTE-ACS에서 약의 효과가 다르다.</span> 0.05를 넘는 P를 차이의 근거로 삼을 수 없습니다. 반대로 "차이가 없다"고 단정할 수도 없습니다. 오즈비의 비 0.85 (0.71–1.02)가 보여 주듯 이 자료는 두 가능성을 모두 남겨 둡니다. 후속 연구에서 확인할 가설입니다.</p>
+<p><span class="wrong">NSTE-ACS 환자에서는 오즈비 0.92 (0.81–1.06)로 유의하지 않으므로 효과가 없다.</span> 유의하지 않다는 것은 효과가 없다는 뜻이 아닙니다. 신뢰구간은 오즈를 19% 줄이는 효과부터 6% 늘리는 효과까지 포함합니다. "효과가 있는지 이 자료로는 판단할 수 없다"가 맞는 표현입니다. 무작위효과 모형을 썼다고 이질성 문제가 해결된 것도 아닙니다. 이 모형은 이질성을 신뢰구간에 반영할 뿐, 왜 다른지 설명하지 않습니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>미리 정할 것</strong>: 하위군과 메타회귀의 변수는 계획서에 적고 개수를 줄입니다. 차이의 방향에 대한 예상과 근거도 함께 적습니다. 이질성이 크면 합치지 않고 연구별로 서술하는 선택도 미리 고려합니다.</li>
+<li><strong>보고할 것</strong>: Q와 P, I², τ², 가능하면 예측구간. 하위군마다 연구 수, 통합 추정값(95% CI), 하위군 간 차이 검정의 P. 메타회귀는 연구 수, 기울기(95% CI), P, 남은 이질성. 계획에 없던 분석은 사후 분석이라고 밝힙니다.</li>
+<li><strong>해석</strong>: 하위군별 유의성을 비교하지 않고 차이 검정으로 판단합니다. 결론 문장은 P for interaction이 뒷받침하는 만큼만 씁니다.</li>
+<li><strong>파이썬</strong>: <code>combine_effects()</code> 결과의 <code>q</code>, <code>i2</code>, <code>tau2</code> 속성과 <code>test_homogeneity()</code>가 이질성 지표를 줍니다. 하위군 분석은 하위군마다 <code>combine_effects()</code>를 따로 돌린 뒤 차이 검정을 직접 계산합니다(접힌 '수식으로 보기'). 예측구간과 메타회귀를 한 번에 해 주는 함수는 statsmodels에 없어서 직접 구현합니다. 메타회귀는 설명변수를 넣고 남은 연구 간 분산 τ²를 먼저 계산한 뒤 <code>sm.WLS(효과, 설명변수, weights=1/(분산 + τ²)).fit(cov_type="fixed scale")</code>로 계수와 표준오차를 구할 수 있습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>예제의 하위군 분석을 논문의 그림으로 옮겼습니다. 하위군이 있는 포레스트 플롯은 하위군마다 소계 마름모가 하나씩 있고, 맨 아래에 하위군 간 차이 검정이 한 줄 적힙니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 하위군이 있는 포레스트 플롯과 메타회귀</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<!--FIG:ch19_subgroup-->
+<p class="excerpt">In an exploratory random-effects meta-regression of all 10 trials, the treatment effect did not vary significantly with the proportion of patients with STEMI (<span class="mk">6</span> <span class="hl">ratio of odds ratios per 10-percentage-point increase, 0.91; 95% CI, 0.81–1.02; P = .11</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>하위군과 포함된 시험.</b> 진단별 결과를 보고한 6개 시험만 들어 있습니다. 같은 시험이 두 하위군에 한 번씩 나오고, 가중치는 하위군 안에서 100%가 되도록 계산됩니다. 맨 아래 Overall 0.85 (0.77–0.95)는 이 12줄을 합친 값이어서, 10개 시험을 모두 쓴 주 분석(0.83)과 조금 다릅니다. 빠진 4개 시험이 왜 빠졌는지(나누어 보고하지 않음) 확인합니다.</span></li>
+<li><span class="mk">2</span><span><b>STEMI 소계 0.78 (0.69–0.89).</b> 마름모가 기준선에 닿지 않습니다. 사건 수는 약물 X군 528/7,006, 위약군 636/6,510입니다.</span></li>
+<li><span class="mk">3</span><span><b>NSTE-ACS 소계 0.92 (0.81–1.06).</b> 마름모가 기준선을 지납니다. 이것을 "효과 없음"으로 읽지 않습니다. 구간의 대부분이 1보다 왼쪽에 있고, 위 흔한 오해 상자에서 본 것처럼 19% 감소와도 양립합니다.</span></li>
+<li><span class="mk">4</span><span><b>하위군 안의 이질성.</b> STEMI 하위군의 I² = 3%, P = .40입니다. 뒤의 "test for effect"는 소계가 1과 다른지의 검정입니다. 두 P를 혼동하지 않습니다. 시험이 6개뿐이어서 낮은 I²를 '일관된 효과'의 근거로 삼기에는 약합니다.</span></li>
+<li><span class="mk">5</span><span><b>하위군 간 차이 검정.</b> χ² = 3.03, 자유도 1(하위군 수 − 1), P = .08. 두 소계가 같다는 귀무가설을 검정한 것으로, 이 그림에서 "효과가 진단에 따라 다른가"에 답하는 줄은 이것 하나입니다. 0.05를 넘으므로 차이가 있다고 결론 내릴 수 없습니다. 논문의 결론 문장이 이 P보다 강하게 쓰여 있지 않은지 확인합니다.</span></li>
+<li><span class="mk">6</span><span><b>메타회귀의 기울기.</b> 설명변수가 10%p 늘 때 오즈비가 몇 배가 되는지를 나타냅니다. 0.91은 STEMI 비율이 50%인 시험과 60%인 시험을 비교하면 뒤 시험의 오즈비가 0.91배라는 뜻입니다. 구간이 1을 포함하고, 점이 10개뿐인 탐색적 분석이며, 시험 수준의 관계여서 환자 개인에게 옮겨 말할 수 없습니다. "exploratory"라는 단어가 이 한계를 저자가 밝힌 것입니다.</span></li>
+</ol>
+</div></div>
+
+<!--FOLD:자세히 보기: 시험 안의 차이를 먼저 구해 합치는 방법과 모형에 따른 P의 차이-->
+<p>위의 하위군 간 차이 검정은 하위군별 소계를 구한 뒤 두 소계를 비교합니다. 다른 방법은 시험마다 두 하위군의 로그 오즈비 차이(시험 안의 교호작용)를 먼저 구하고, 그 차이들을 메타분석으로 합치는 것입니다. 시험 안의 비교만 쓰므로 시험 사이의 차이가 섞이지 않습니다. 예제에서 이렇게 구한 오즈비의 비는 0.86 (0.73–1.02), P = 0.08로 위 결과와 거의 같습니다. 여섯 시험이 모두 두 하위군에 기여했기 때문입니다.</p>
+<p>하위군 소계를 고정효과 모형으로 구하면 STEMI 0.78 (0.69–0.88), NSTE-ACS 0.93 (0.83–1.04)이 되어 차이 검정의 P가 0.04로 내려갑니다. 모형 선택에 따라 0.05의 양쪽을 오가는 결과는 그만큼 불안정한 결과입니다. 유의성의 경계에 있는 하위군 결과는 어느 모형으로 계산했는지 확인하고, 한쪽 결과만으로 단정하지 않습니다.</p>
+<!--/FOLD-->
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ Q = \sum w_i (y_i - \hat{\theta}_{FE})^2, \qquad I^2 = \frac{Q - (k-1)}{Q}, \qquad \hat{\tau}^2 = \frac{Q - (k-1)}{\sum w_i - \sum w_i^2 / \sum w_i} \]
+<p>k는 연구 수, \(w_i = 1/SE_i^2\)이고, 음수가 나오면 0으로 둡니다. τ²의 이 추정식이 DerSimonian–Laird 방법입니다<cite data-ref="dersimonian1986"></cite><cite data-ref="higgins2002"></cite>. 예제: Q = 13.28, k = 10이므로 I² = 4.28 ÷ 13.28 = 0.32, 분모는 596.4 − 95,661 ÷ 596.4 = 436.0, τ² = 4.28 ÷ 436.0 = 0.0098. 우연만 있을 때 Q는 자유도 k − 1인 카이제곱 분포를 따르므로 P = 0.15입니다.</p></div>
+<div class="eq">\[ \text{95% 예측구간} = \hat{\theta}_{RE} \pm t_{k-2,\,0.975} \sqrt{\hat{\tau}^2 + SE(\hat{\theta}_{RE})^2} \]
+<p>예제: −0.192 ± 2.306 × √(0.0098 + 0.061²) = −0.192 ± 0.269이므로 로그 척도에서 −0.461 ~ 0.077, 오즈비로 0.63–1.08입니다<cite data-ref="riley2011"></cite>. 연구가 3개 이상이어야 계산할 수 있습니다.</p></div>
+<div class="eq">\[ z = \frac{\hat{\theta}_1 - \hat{\theta}_2}{\sqrt{SE_1^2 + SE_2^2}}, \qquad Q_{between} = z^2 \quad (\text{하위군이 둘일 때, 자유도 1}) \]
+<p>하위군 간 차이 검정. 예제: STEMI −0.245(SE 0.064), NSTE-ACS −0.081(SE 0.069)이므로 차이 −0.164, 표준오차 √(0.064² + 0.069²) = 0.094, z = −1.74, P = 0.08. 오즈비의 비는 exp(−0.164) = 0.85, 95% CI는 exp(−0.164 ± 1.96 × 0.094) = 0.71–1.02입니다. 논문에 하위군별 오즈비와 신뢰구간만 있어도 이 식으로 P for interaction을 직접 계산할 수 있습니다. 하위군이 셋 이상이면 소계들을 다시 고정효과로 합칠 때의 Q를 자유도(하위군 수 − 1)의 카이제곱 분포와 비교합니다.</p></div>
+<div class="eq">\[ y_i = \beta_0 + \beta_1 x_i + u_i + \varepsilon_i, \qquad u_i \sim N(0, \tau^2_{res}), \quad \varepsilon_i \sim N(0, SE_i^2) \]
+<p>무작위효과 메타회귀. \(x_i\)는 연구 수준의 설명변수, \(\tau^2_{res}\)는 설명변수로 설명되지 않고 남은 연구 간 분산입니다. 가중치 \(1/(SE_i^2 + \tau^2_{res})\)의 가중최소제곱으로 추정합니다. 예제: x를 STEMI 비율(10%p 단위)로 두면 β₁ = −0.094(SE 0.058), exp(β₁) = 0.91, z = −1.61, P = 0.11이고, 남은 연구 간 분산은 0.0044로 설명변수 없이 구한 0.0098보다 작습니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Q의 P는 이질성의 유무에 대한 검정, I²는 흩어짐 가운데 이질성의 비율, τ와 예측구간은 효과가 실제로 다른 크기입니다. 연구가 적으면 Q 검정의 검정력이 낮고 I²는 매우 불확실합니다.</li>
+<li>예측구간은 새로운 환경에서 기대되는 효과의 범위이고, 통합 추정값의 신뢰구간보다 넓습니다.</li>
+<li>하위군의 효과가 서로 다른지는 하위군 간 차이 검정(P for interaction)으로 판단합니다. 한쪽만 유의하다는 사실은 차이의 근거가 아닙니다.</li>
+<li>유의하지 않은 하위군 결과는 '효과 없음'이 아니고, 0.05를 넘는 P for interaction은 '차이 있음'이 아닙니다.</li>
+<li>연구 수준의 하위군 분석과 메타회귀는 연구 사이의 관찰적 비교입니다. 연구 수가 적으면 불안정하고, 집계 자료의 관계를 개인에게 옮겨 말할 수 없으므로 가설 생성 수준으로 해석합니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>두 메타분석의 이질성 줄이 각각 "Q = 30.0, df = 5"와 "Q = 4.2, df = 4"입니다. I²를 구하고, 두 번째 메타분석에 대해 "이질성이 없으므로 효과가 일관된다"고 쓸 수 있는지 판단해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>첫 번째는 I² = (30.0 − 5) ÷ 30.0 = 83%로 높은 이질성입니다. 두 번째는 (4.2 − 4) ÷ 4.2 = 5%이고 Q 검정의 P는 0.38입니다. 그러나 연구가 5개뿐이어서 이 I²의 95% 신뢰구간은 0–80%에 이릅니다. 낮은 I²와 유의하지 않은 Q 검정은 이질성이 없다는 증거가 되지 못합니다. 쓸 수 있는 문장은 "통계적 이질성의 증거는 관찰되지 않았다(I² = 5%), 다만 연구 수가 적어 이질성을 가려낼 검정력이 낮다" 정도입니다. 포레스트 플롯에서 연구들의 신뢰구간이 서로 겹치는지, 방향이 같은지를 눈으로도 확인합니다.</p></div></details></li>
+<li><p><span class="qt">계산</span>어느 메타분석이 당뇨병이 있는 환자에서 OR 0.70 (95% CI 0.52–0.94), 당뇨병이 없는 환자에서 OR 0.90 (95% CI 0.74–1.09)을 보고하고 "당뇨병 환자에서만 효과가 있었다"고 썼습니다. P for interaction은 보고되지 않았습니다. 직접 계산해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>로그 오즈비는 ln 0.70 = −0.357, ln 0.90 = −0.105이고, 표준오차는 신뢰구간에서 (ln 0.94 − ln 0.52) ÷ 3.92 = 0.151, (ln 1.09 − ln 0.74) ÷ 3.92 = 0.099입니다. 차이는 −0.251, 차이의 표준오차는 √(0.151² + 0.099²) = 0.180, z = −1.39, P = 0.16입니다. 오즈비의 비는 0.78 (95% CI 0.55–1.11)입니다. 두 하위군의 효과가 다르다는 근거가 없으므로 "당뇨병 환자에서만 효과가 있었다"는 결론은 지지되지 않습니다. 맞는 서술은 "당뇨병 유무에 따른 효과의 차이는 유의하지 않았다(P for interaction = 0.16)"입니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>시험 6개를 합친 메타분석이 "시험별 평균 연령에 대한 메타회귀에서 평균 연령이 높을수록 치료 효과가 작았다(P = 0.03). 따라서 고령 환자에게는 이 약의 효과가 작다"고 결론 내렸습니다. 이 결론의 문제를 세 가지 짚어 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>첫째, 점이 6개뿐인 회귀입니다. 한 시험만 빠지거나 바뀌어도 기울기와 P가 크게 달라질 수 있고, 설명변수 하나에 연구 10개 이상이라는 경험칙에도 못 미칩니다. 둘째, 시험 사이의 관찰적 비교입니다. 평균 연령이 높은 시험은 용량, 병용 치료, 수행 시기, 동반질환도 다를 수 있어 연령 때문이라고 말할 수 없습니다. 셋째, 생태학적 편향입니다. "평균 연령이 높은 시험에서 효과가 작았다"는 시험 수준의 관계이고, "고령 환자 개인에게 효과가 작다"는 환자 수준의 주장입니다. 평균 연령이 62세인 시험과 67세인 시험에는 둘 다 50대와 80대가 섞여 있습니다. 환자 수준의 결론은 시험 안에서 연령별로 나눈 결과나 개별 환자 자료가 있어야 낼 수 있습니다. 메타회귀가 미리 계획된 분석이었는지도 확인합니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ch19-s4">
+<h2><span class="sec-no">라.</span>출판 편향과 민감도 분석</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">출판 편향은 결과가 좋게 나온 연구가 더 잘 출판되어, 찾아 모은 연구가 처음부터 한쪽으로 치우쳐 있는 문제입니다. 민감도 분석은 분석 방법이나 포함한 연구를 바꿔도 결론이 유지되는지 확인하는 절차입니다.</p>
+<ul>
+<li><b>비유.</b> 시험을 잘 본 학생만 점수를 공개한다면, 공개된 점수의 평균은 반 평균보다 높습니다. 효과가 뚜렷하게 나온 연구만 학술지에 실리고 나머지가 연구자의 서랍에 남는다면, 문헌을 아무리 빠짐없이 검색해도 합친 값은 실제보다 좋게 나옵니다.</li>
+<li><b>확인하는 그림.</b> 큰 연구는 결과와 관계없이 출판되는 편이므로 편향은 주로 작은 연구에서 생깁니다. 그래서 가로축에 효과, 세로축에 연구의 크기(표준오차)를 놓고, 작은 연구들이 한쪽으로 쏠려 있는지 봅니다. 이것이 깔때기 그림입니다.</li>
+<li><b>논문에서는.</b> "Funnel plots showed no asymmetry (Egger test, P = .47). Results were consistent in fixed-effect and leave-one-out analyses."처럼 나옵니다.</li>
+<li><b>기억할 한 가지.</b> "비대칭이 보이지 않았다"는 "출판 편향이 없다"와 다른 말입니다. 연구가 10개에 못 미치면 깔때기 그림과 Egger 검정은 편향을 찾아낼 힘이 거의 없습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>무엇을 보나</dt><dd>작은 연구일수록 효과가 크게 나오는 경향(소규모 연구 효과)이 있는가, 한 연구나 한 가지 분석 선택이 결론을 좌우하는가</dd></div>
+  <div><dt>도구</dt><dd>깔때기 그림, Egger 검정, (보정) trim-and-fill; 한 연구씩 빼기, 모형·효과 척도 바꾸기, 편향 위험이 높은 연구 빼기</dd></div>
+  <div><dt>한계</dt><dd>비대칭 검정은 연구 10개 이상에서 권장되고 그래도 검정력이 낮음. 비대칭의 원인은 출판 편향만이 아님</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>깔때기 그림(대개 부록), Egger 검정의 P, 민감도 분석별 통합 추정값(95% CI)</dd></div>
+</dl>
+
+<h3>출판 편향과 소규모 연구 효과</h3>
+<p><strong>출판 편향</strong><span class="en">(publication bias; '출판 비뚤림'으로도 번역)</span>은 연구의 출판 여부가 결과의 방향과 유의성에 따라 달라져서 생깁니다. 유의한 결과를 낸 연구는 더 빨리, 더 눈에 띄는 학술지에, 영어로 출판되는 경향이 있습니다. 출판된 논문 안에서 유리한 결과변수만 골라 보고하는 것도 같은 종류의 문제입니다. 임상시험 등록 제도가 생긴 뒤로 등록된 시험의 결과를 찾아볼 수 있게 되었지만, 등록되지 않은 작은 시험과 관찰연구에서는 여전히 확인하기 어렵습니다.</p>
+<p>메타분석에서 직접 볼 수 있는 것은 출판 편향 자체가 아니고 <strong>소규모 연구 효과</strong><span class="en">(small-study effects)</span>, 즉 작은 연구일수록 효과가 크게 나오는 경향입니다. 이 경향의 원인은 여러 가지입니다<cite data-ref="sterne2011funnel"></cite>. 출판 편향 말고도, 작은 연구가 방법론적으로 약해 효과가 과장되었을 수 있고, 작은 연구가 위험이 높은 환자나 더 집중적인 중재를 다뤄 실제로 효과가 컸을 수 있으며, 우연일 수도 있습니다. 그래서 비대칭이 보여도 출판 편향이라고 단정하지 않습니다.</p>
+
+<h3>깔때기 그림과 Egger 검정</h3>
+<!--FIG:ch19_funnel-->
+<p><strong>깔때기 그림</strong><span class="en">(funnel plot)</span>은 연구마다 효과 추정값(가로)과 표준오차(세로, 위가 정밀한 연구)를 찍은 산점도입니다. 편향이 없으면 큰 연구는 통합값 가까이에 모이고 작은 연구는 좌우로 넓게 퍼져, 뒤집어 놓은 깔때기 모양이 됩니다. 그림 19-8의 (나)처럼 아래쪽 한편(치료에 불리한 쪽)이 비어 있으면 그 자리에 있어야 할 작은 연구가 빠졌을 가능성을 생각합니다. 이 가상의 약은 실제로 효과가 없어서 30개 시험을 모두 합치면 오즈비 0.99 (0.91–1.07)이지만, 출판된 17개만 합치면 0.908 (0.827–0.996), P = 0.04로 유의한 효과가 있는 것처럼 나옵니다.</p>
+<p>눈으로 보는 판단은 주관적이어서, 비대칭을 회귀로 검정하는 <strong>Egger 검정</strong>을 함께 씁니다<cite data-ref="egger1997"></cite>. 연구의 효과를 그 표준오차에 대해 회귀시켜, 표준오차가 큰 연구(작은 연구)일수록 효과가 한쪽으로 치우치는지를 기울기로 검정하는 방법입니다(식은 접힌 '수식으로 보기'). 그림 (나)의 출판된 17개 시험에서는 P &lt; 0.001로 비대칭이 뚜렷합니다. 이 장의 예제인 그림 (가)에서는 P = 0.47입니다.</p>
+<p>예제의 P = 0.47을 "출판 편향이 없다"로 읽으면 안 됩니다. 그림 (가)에는 작은 시험이 여섯 개뿐이고, 그 가운데 효과가 큰 쪽(E, G)과 반대쪽(A, C)이 섞여 있어 대칭인지 아닌지 가릴 수 없습니다. 비대칭 검정은 연구가 10개 이상일 때만 하도록 권장되고, 10개를 겨우 넘는 수준에서는 검정력이 낮습니다<cite data-ref="sterne2011funnel"></cite>. 연구가 대여섯 개인 메타분석이 "깔때기 그림에서 출판 편향이 없었다"고 쓴 문장은 "확인할 방법이 없었다"로 읽는 편이 맞습니다. 이질성이 큰 경우와 모든 연구의 크기가 비슷한 경우에도 깔때기 그림은 쓸모가 줄어듭니다.</p>
+<p>비대칭이 있을 때 빠진 연구를 대칭이 되도록 채워 넣고 통합값을 다시 계산하는 <strong>trim-and-fill</strong> 방법이 있습니다. "출판 편향을 보정한 값"으로 보고되곤 하지만, 비대칭이 모두 출판 편향 때문이라는 강한 가정에 기대므로 민감도 분석의 하나로만 읽습니다.</p>
+
+<h3>민감도 분석</h3>
+<p><strong>민감도 분석</strong><span class="en">(sensitivity analysis)</span>은 분석 과정의 선택을 하나씩 바꿔 결과가 얼마나 달라지는지 보는 것입니다. 예제의 유효성 결과(주 분석: 무작위효과 오즈비 0.83, 95% CI 0.73–0.93)에 흔히 쓰는 네 가지를 적용했습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>분석</th><th>바꾼 것</th><th class="r">통합 오즈비 (95% CI)</th><th>읽는 법</th></tr></thead>
+<tbody>
+<tr class="hi"><td>주 분석</td><td>무작위효과 모형, 시험 10개</td><td class="r">0.83 (0.73–0.93)</td><td></td></tr>
+<tr><td>모형 바꾸기</td><td>고정효과 모형</td><td class="r">0.84 (0.78–0.91)</td><td>두 모형의 결과가 비슷하면 작은 시험이 결과를 끌고 가지 않았다는 뜻</td></tr>
+<tr><td>한 시험씩 빼기</td><td>시험 하나를 빼고 9개로 다시 합침 (10번)</td><td class="r">0.79–0.85 (범위)</td><td>어느 시험을 빼도 신뢰구간이 1을 넘지 않음</td></tr>
+<tr><td>편향 위험</td><td>'낮음'이 아닌 시험(C, G) 제외</td><td class="r">0.83 (0.73–0.94)</td><td>질이 낮은 시험이 효과를 부풀리지 않았음</td></tr>
+<tr><td>효과 척도 바꾸기</td><td>오즈비 대신 상대위험도</td><td class="r">0.84 (0.75–0.94)</td><td>척도 선택에 결론이 달려 있지 않음</td></tr>
+</tbody></table></div>
+<p><strong>한 연구씩 빼기</strong><span class="en">(leave-one-out analysis)</span>는 특정 연구 하나가 결론이나 이질성을 좌우하는지 보여 줍니다. 예제에서 Trial D를 빼면 통합 오즈비가 0.79 (0.72–0.87)로 내려가고 I²가 32%에서 0%로 떨어집니다. 이질성의 대부분이 이 시험 하나에서 나왔다는 뜻입니다. 가중치가 가장 큰 Trial F를 빼면 0.81 (0.69–0.96)로 추정값은 비슷하고 신뢰구간이 넓어집니다. 이런 결과가 나왔다고 Trial D를 분석에서 지우지는 않습니다. 결과가 다르다는 이유로 연구를 빼면 그것이 또 하나의 편향이 됩니다. 대신 그 시험이 환자, 용량, 병용 치료에서 무엇이 달랐는지 살펴보고 그 사실을 보고합니다.</p>
+<!--FOLD:계산 과정 보기: 한 시험씩 뺀 결과 전체-->
+<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
+<thead><tr><th>뺀 시험</th><th class="r">나머지 9개의 통합 오즈비 (95% CI)</th><th class="r">I²</th></tr></thead>
+<tbody>
+<tr><td>Trial A</td><td class="r">0.82 (0.72–0.93)</td><td class="r">38%</td></tr>
+<tr><td>Trial B</td><td class="r">0.82 (0.72–0.93)</td><td class="r">40%</td></tr>
+<tr><td>Trial C</td><td class="r">0.82 (0.72–0.93)</td><td class="r">38%</td></tr>
+<tr class="hi"><td>Trial D</td><td class="r">0.79 (0.72–0.87)</td><td class="r">0%</td></tr>
+<tr><td>Trial E</td><td class="r">0.85 (0.76–0.94)</td><td class="r">21%</td></tr>
+<tr><td>Trial F</td><td class="r">0.81 (0.69–0.96)</td><td class="r">39%</td></tr>
+<tr><td>Trial G</td><td class="r">0.83 (0.74–0.94)</td><td class="r">35%</td></tr>
+<tr><td>Trial H</td><td class="r">0.83 (0.71–0.96)</td><td class="r">38%</td></tr>
+<tr><td>Trial I</td><td class="r">0.85 (0.75–0.96)</td><td class="r">27%</td></tr>
+<tr><td>Trial J</td><td class="r">0.83 (0.73–0.94)</td><td class="r">38%</td></tr>
+</tbody></table></div>
+<p>작은 시험(A, B, C, G, J)은 빼도 결과가 거의 변하지 않습니다. 가중치가 작기 때문입니다. 효과가 크게 나온 Trial E나 I를 빼면 통합값이 0.85로 조금 올라가고, 효과가 없게 나온 Trial D를 빼면 0.79로 내려갑니다.</p>
+<!--/FOLD-->
+<p>민감도 분석에서 결과가 유지되었다는 것은 "이 분석 선택들에 결론이 달려 있지 않다"는 뜻입니다. 모든 민감도 분석이 같은 연구들을 재료로 쓰므로, 포함된 연구에 공통으로 있는 편향이나 빠진 연구 때문에 생기는 편향은 민감도 분석으로 드러나지 않습니다.</p>
+
+<h3>관찰연구를 합칠 때</h3>
+<p>코호트 연구나 환자-대조군 연구의 결과도 같은 방법으로 합칩니다. 다만 무작위배정 시험을 합칠 때와 사정이 다릅니다.</p>
+<ul>
+<li><strong>합친다고 교란이 없어지지 않습니다.</strong> 연구마다 보정된 추정값을 합치지만, 보정하지 못한 교란은 그대로 남습니다. 같은 방향의 편향을 가진 연구들(예: 불멸시간 편향, 16장)을 합치면 편향된 값이 좁은 신뢰구간으로 나옵니다. 연구 수가 많고 I²가 낮다는 사실이 인과 효과의 근거가 되지 못합니다.</li>
+<li><strong>연구마다 재는 것이 다릅니다.</strong> 보정 변수, 노출 정의, 비교군(비사용자 대 활성 비교군), 추적 방식이 달라 이질성이 크고, '평균'이 무엇의 평균인지 불분명해지기 쉽습니다.</li>
+<li><strong>출판 편향을 확인하기 더 어렵습니다.</strong> 사전 등록이 드물고, 같은 자료로 여러 분석을 해 본 뒤 유의한 것만 논문이 될 수 있습니다.</li>
+</ul>
+<p>그래서 무작위배정 시험과 관찰연구는 따로 합쳐 따로 제시하는 것이 보통이고, 관찰연구의 메타분석에서는 통합 추정값보다 연구별 편향 위험 평가(ROBINS-I, 가 절)와 설계에 따른 하위군 결과를 더 무겁게 읽습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 편향이 없다는 말을 읽을 때</p>
+<p><span class="wrong">Egger 검정의 P가 0.05보다 크므로 출판 편향이 없다.</span> 유의하지 않은 검정은 '없음'의 증거가 아닙니다. Egger 검정은 연구가 수십 개가 아니면 검정력이 낮고, 10개 미만에서는 쓰지 않도록 권장됩니다. 쓸 수 있는 문장은 "비대칭의 증거는 관찰되지 않았으나, 연구 수가 적어 출판 편향을 배제할 수 없다"입니다.</p>
+<p><span class="wrong">깔때기 그림이 비대칭이므로 출판 편향이 있다.</span> 비대칭은 작은 연구의 질, 실제 효과의 차이, 우연으로도 생깁니다. 비대칭은 '작은 연구의 결과가 큰 연구와 체계적으로 다르다'는 신호이고, 그 이유는 따로 따져야 합니다.</p>
+<p><span class="wrong">관찰연구 20개를 합친 위험비의 신뢰구간이 좁으므로 이 약의 효과는 확실하다.</span> 신뢰구간은 우연에 의한 오차만 반영합니다. 20개 연구가 같은 설계상의 결함을 가졌다면 좁은 신뢰구간은 '편향된 값을 정밀하게 추정했다'는 뜻입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>미리 정할 것</strong>: 민감도 분석 목록(모형, 한 연구씩 빼기, 편향 위험이 높은 연구 제외, 효과 척도, 0건 연구의 처리)을 계획서에 적습니다. 출판 편향 평가는 연구가 10개 이상일 때만 한다고 미리 정해 둡니다.</li>
+<li><strong>출판 편향을 줄이는 방법</strong>: 통계 검정보다 검색이 먼저입니다. 임상시험 등록소(ClinicalTrials.gov 등)에서 결과가 출판되지 않은 시험을 찾고, 학회 초록과 규제기관 심사 자료까지 검색 범위에 넣습니다.</li>
+<li><strong>보고할 것</strong>: 깔때기 그림과 검정 방법, 연구 수가 적어 평가하지 못했다면 그 사실, 민감도 분석마다 통합 추정값과 95% CI. 결과가 달라진 분석이 있으면 숨기지 않고 해석을 덧붙입니다.</li>
+<li><strong>파이썬</strong>: 깔때기 그림은 matplotlib의 산점도로 직접 그립니다. Egger 검정은 전용 함수가 없어 회귀로 직접 구현합니다. 효과를 표준오차에 대해 가중회귀(<code>sm.WLS(효과, sm.add_constant(표준오차), weights=1/표준오차**2)</code>)시킨 뒤 기울기의 P를 읽습니다. 한 연구씩 빼기는 반복문 안에서 <code>combine_effects()</code>를 다시 돌립니다. trim-and-fill은 statsmodels에 없습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>예제의 출판 편향 평가와 민감도 분석을 Results 문단으로 옮겼습니다. 메타분석 논문에서 이 문단은 대개 짧고, 그림과 표는 부록에 있습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 출판 편향과 민감도 분석의 Results</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Visual inspection of the funnel plot did not suggest asymmetry (<span class="mk">1</span> <span class="hl">Egger test, P = .47</span>; eFigure 2), <span class="mk">2</span> <span class="hl">although the power of this test is limited with 10 trials</span>. The pooled estimate was similar <span class="mk">3</span> <span class="hl">in the fixed-effect analysis (OR, 0.84; 95% CI, 0.78–0.91)</span> and <span class="mk">4</span> <span class="hl">after exclusion of the 2 trials not at low risk of bias (OR, 0.83; 95% CI, 0.73–0.94)</span>. <span class="mk">5</span> <span class="hl">In leave-one-out analyses, the pooled OR ranged from 0.79 to 0.85</span> and remained statistically significant; <span class="mk">6</span> <span class="hl">omitting Trial D reduced I² from 32% to 0%</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Egger 검정의 P.</b> 깔때기 그림의 비대칭을 회귀로 검정한 결과입니다. 표준오차가 1 커질 때 로그 오즈비가 −0.51만큼 달라지는 기울기(표준오차 0.67)가 0과 다른지 본 것으로, 방향은 '작은 시험일수록 효과가 크다' 쪽이지만 우연으로 충분히 설명됩니다. P = .47은 비대칭의 증거가 없다는 뜻이고, 편향이 없다는 증거는 아닙니다.</span></li>
+<li><span class="mk">2</span><span><b>검정력의 한계를 밝힌 문장.</b> 저자가 이 한계를 스스로 적었는지 봅니다. 연구 수가 10개 미만인데 "no evidence of publication bias"라고만 적은 논문은 평가가 불가능했다는 사실을 말하지 않은 것입니다.</span></li>
+<li><span class="mk">3</span><span><b>고정효과 모형과의 비교.</b> 주 분석(무작위효과 0.83, 0.73–0.93)과 추정값이 거의 같고 신뢰구간만 좁습니다. 두 모형의 추정값이 크게 다르다면 작은 연구와 큰 연구의 결과가 다르다는 신호여서 깔때기 그림을 다시 봐야 합니다.</span></li>
+<li><span class="mk">4</span><span><b>편향 위험이 낮지 않은 시험 제외.</b> 가 절에서 '일부 우려'와 '높음'으로 평가된 Trial C와 G를 뺀 결과입니다. 두 시험의 가중치가 작아(합쳐 2.4%) 결과가 거의 변하지 않았습니다. 편향 위험이 높은 시험의 가중치가 클 때는 이 분석이 주 분석만큼 중요합니다.</span></li>
+<li><span class="mk">5</span><span><b>한 시험씩 뺀 범위.</b> 10번의 분석에서 가장 낮은 값(0.79)과 가장 높은 값(0.85)입니다. 범위만 적혀 있으면 어느 시험을 뺐을 때의 값인지, 신뢰구간이 1에 얼마나 가까워지는지를 부록의 표에서 확인합니다.</span></li>
+<li><span class="mk">6</span><span><b>이질성의 출처.</b> Trial D 하나를 빼면 I²가 0%가 됩니다. 나머지 9개 시험은 서로 비슷한 결과를 냈고 Trial D만 달랐다는 뜻입니다. 좋은 논문은 이어서 Trial D가 무엇이 달랐는지(환자 구성, 용량, 병용 치료)를 논의합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \frac{y_i}{SE_i} = a + b \cdot \frac{1}{SE_i} + e_i \]
+<p>Egger 검정의 원래 형태입니다<cite data-ref="egger1997"></cite>. 연구의 효과를 표준오차로 나눈 값을 정밀도(1 ÷ 표준오차)에 대해 회귀시키고, 절편 a가 0과 다른지 자유도 k − 2의 t 검정으로 봅니다. 편향이 없으면 정밀도가 0에 가까운 아주 작은 연구의 표준화된 효과는 0 근처여야 하므로 a = 0입니다. 이 식은 효과 \(y_i\)를 표준오차 \(SE_i\)에 대해 가중치 \(1/SE_i^2\)로 회귀시킨 것과 같고, 그때는 a가 기울기로 나옵니다. 예제: a = −0.51 (표준오차 0.67), t = −0.76, 자유도 8, P = 0.47.</p></div>
+<p>오즈비를 합친 메타분석에서는 로그 오즈비와 그 표준오차가 수학적으로 서로 얽혀 있어, 편향이 없어도 Egger 검정이 유의하게 나오는 비율이 높아질 수 있습니다. 이분형 결과에는 이를 고친 변형 검정을 쓰도록 권장됩니다<cite data-ref="sterne2011funnel"></cite>.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>출판 편향은 결과에 따라 출판 여부가 달라져 생기고, 주로 작은 연구에서 나타납니다. 깔때기 그림의 비대칭과 Egger 검정으로 살펴봅니다.</li>
+<li>비대칭 검정은 연구 10개 이상에서 권장되고 그래도 검정력이 낮습니다. "비대칭이 없었다"는 "출판 편향이 없다"가 아닙니다.</li>
+<li>비대칭의 원인은 출판 편향 말고도 작은 연구의 질, 실제 효과의 차이, 우연이 있습니다.</li>
+<li>민감도 분석(모형 바꾸기, 한 연구씩 빼기, 편향 위험이 높은 연구 제외)은 결론이 특정 선택이나 특정 연구에 달려 있는지를 보여 줍니다. 포함된 연구에 공통인 편향은 드러내지 못합니다.</li>
+<li>관찰연구를 합쳐도 교란은 없어지지 않습니다. 같은 방향으로 편향된 연구를 합치면 편향된 값이 정밀하게 나옵니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">논문 읽기</span>시험 6개를 합친 메타분석의 Results에 "깔때기 그림의 분포는 출판 편향과 소규모 연구 효과가 없음을 보여 주었다"고 적혀 있습니다. 이 문장을 어떻게 읽어야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>점이 6개인 깔때기 그림으로는 대칭과 비대칭을 가릴 수 없습니다. 비대칭 검정은 연구가 10개 이상일 때만 하도록 권장되고, 그 이유가 바로 검정력입니다. 따라서 이 문장이 말해 주는 것은 "뚜렷한 비대칭이 눈에 띄지 않았다"까지이고, "출판 편향이 없다"는 결론은 나오지 않습니다. 이런 논문에서는 통계 검정보다 다른 근거를 찾습니다. 임상시험 등록소를 검색했는지, 등록되었지만 결과가 출판되지 않은 시험이 있는지, 포함된 시험이 모두 사전 등록된 대규모 시험인지를 확인합니다. 제약회사가 수행한 2상·3상 시험처럼 등록과 결과 공개가 의무인 시험들만 합친 경우에는 출판 편향의 여지가 상대적으로 작다고 볼 근거가 됩니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"한 시험씩 빼는 분석에서 Trial D를 제외하자 I²가 32%에서 0%로 줄었다. Trial D는 이상값이므로 최종 분석에서 제외하고 통합 오즈비 0.79를 주 결과로 보고한다." 무엇이 문제입니까?</p>
+<details><summary>답과 풀이</summary><div><p>결과가 다른 시험을 결과를 본 뒤에 빼면, 남은 시험들은 '서로 비슷한 결과를 낸 시험'으로 골라진 셈이 되어 통합값과 이질성이 모두 왜곡됩니다. 이 예에서는 효과가 없게 나온 시험을 뺐으므로 통합 효과가 0.83에서 0.79로 커지고 신뢰구간도 좁아집니다. 한 연구씩 빼기는 결론이 한 연구에 달려 있는지 확인하는 민감도 분석이고, 연구를 고르는 도구가 아닙니다. 주 결과는 계획서대로 10개 시험을 모두 합친 0.83 (0.73–0.93)으로 보고하고, "Trial D를 제외하면 0.79 (0.72–0.87), I² = 0%"를 민감도 분석으로 함께 적습니다. 그리고 Trial D가 다른 시험과 무엇이 달랐는지(STEMI 환자 비율이 낮았는지, 병용 치료가 달랐는지)를 논의합니다. 계획서에 미리 정한 제외 기준(예: 편향 위험이 높은 시험)에 해당할 때만 제외가 정당합니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>청구자료 코호트 연구 15개를 합친 메타분석이 "어떤 약의 사용자는 비사용자보다 사망 위험비가 0.70 (95% CI 0.65–0.75; I² = 12%)"이라고 보고했습니다. 통합 결과를 믿기 전에 확인할 것을 세 가지 들어 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>첫째, 각 연구의 설계입니다. 사용자와 비사용자를 비교한 코호트 연구는 불멸시간 편향(16장)과 건강한 사용자 효과에 취약합니다. 15개 연구가 같은 결함을 가졌다면 결과가 서로 비슷하게 나오므로 I²가 낮은 것이 오히려 자연스럽습니다. 낮은 I²와 좁은 신뢰구간은 편향이 없다는 근거가 아닙니다. 둘째, 편향 위험 평가입니다. ROBINS-I 같은 도구로 연구마다 교란과 대상자 선택의 편향을 평가했는지, 편향 위험이 낮은 연구(예: 신규사용자·활성비교군 설계, 14장)만 합친 결과가 어떻게 달라지는지 봅니다. 셋째, 무작위배정 시험의 근거입니다. 같은 질문에 대한 시험이 있다면 방향과 크기가 같은지 비교합니다. 관찰연구에서만 큰 효과가 보이고 시험에서는 보이지 않는다면 편향을 먼저 의심합니다. 위험비 0.70을 "사망 위험이 30% 낮다"로 읽지 않는다는 점(7장, 11장)도 함께 기억합니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="ch19-s5">
+<h2><span class="sec-no">마.</span>통합 결과의 활용: NNT·NNH와 경제성 평가</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">메타분석이 내놓는 오즈비는 상대적 효과입니다. 진료와 정책에 필요한 것은 "몇 명을 치료하면 몇 명이 이득을 보고 몇 명이 해를 입는가"라는 절대적 효과이고, 이것은 상대적 효과를 특정 환자군의 <strong>기저 위험</strong><span class="en">(baseline risk; 치료하지 않을 때의 위험)</span>에 적용해서 구합니다.</p>
+<ul>
+<li><b>비유.</b> '30% 할인'은 1만 원짜리 물건에서는 3천 원, 100만 원짜리에서는 30만 원입니다. 할인율(상대적 효과)이 같아도 아낀 금액(절대적 효과)은 원래 가격(기저 위험)에 따라 다릅니다.</li>
+<li><b>NNT와 NNH.</b> <strong>치료필요수</strong><span class="en">(number needed to treat, NNT)</span>는 사건 1건을 막으려면 몇 명을 치료해야 하는가, <strong>위해필요수</strong><span class="en">(number needed to harm, NNH)</span>는 몇 명을 치료하면 위해 1건이 더 생기는가입니다. 둘 다 위험차의 역수입니다(8장 나 절).</li>
+<li><b>논문에서는.</b> "NNT 73 (95% CI 47–186) to prevent one ischemic event and NNH 67 (95% CI 50–94) for one major bleeding over 12 months"처럼 나옵니다.</li>
+<li><b>기억할 한 가지.</b> NNT는 '어떤 기저 위험의 환자를, 얼마 동안 치료했을 때'의 값입니다. 이 두 가지가 적혀 있지 않은 NNT는 해석할 수 없습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>언제 쓰나</dt><dd>통합된 상대적 효과(오즈비, 상대위험도, 위험비)를 환자·정책 결정에 쓸 절대적 효과로 바꿀 때, 경제성 평가 모형의 입력값으로 쓸 때</dd></div>
+  <div><dt>계산</dt><dd>기저 위험에 상대적 효과를 적용해 치료군 위험을 구하고, 위험차의 역수로 NNT·NNH를 구함</dd></div>
+  <div><dt>함께 밝힐 것</dt><dd>기저 위험의 값과 출처, 기간, 신뢰구간</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>1,000명당 사건 수의 차이(95% CI), NNT·NNH(95% CI), 근거의 확실성을 함께 실은 요약표(summary of findings)</dd></div>
+</dl>
+
+<h3>숫자로 따라가기</h3>
+<p>예제의 통합 오즈비(허혈 사건 0.83, 주요 출혈 2.28)를 절대적 효과로 바꿉니다.</p>
+<div class="flow">
+<div><div><b>기저 위험과 기간 정하기</b><p>12개월을 기준으로 합니다. 12개월 동안 추적한 세 시험(D, H, I)의 위약군에서 허혈 사건은 662/7,870명(8.4%), 주요 출혈은 93/7,870명(1.2%)이었습니다. 이 값을 '약물 X를 쓰지 않을 때의 12개월 위험'으로 씁니다.</p></div></div>
+<div><div><b>상대적 효과 적용하기</b><p>기저 위험 8.4%에 오즈비 0.83을 적용하면 약물 X를 쓸 때의 위험은 7.0%입니다. 오즈비는 위험에 직접 곱하지 않고 오즈로 바꿔서 곱합니다(아래 계산 과정).</p></div></div>
+<div><div><b>위험차와 NNT</b><p>위험차 = 7.0% − 8.4% = −1.4%p(반올림 전 −1.365%p). NNT = 1 ÷ 0.01365 = 73명 (95% CI 47–186). 73명을 12개월 치료하면 허혈 사건 1건을 막습니다.</p></div></div>
+<div><div><b>위해도 같은 방법으로</b><p>주요 출혈은 기저 위험 1.2%에 오즈비 2.28을 적용하면 2.7%. 위험차 +1.5%p, NNH = 1 ÷ 0.0150 = 67명 (95% CI 50–94).</p></div></div>
+<div><div><b>1,000명당으로 나란히</b><p>1,000명을 12개월 치료하면 허혈 사건이 14건(95% CI 5–21) 줄고 주요 출혈이 15건(95% CI 11–20) 늘어납니다.</p></div></div>
+</div>
+<!--FOLD:계산 과정 보기: 오즈비를 기저 위험에 적용하기-->
+<p>기저 위험 8.4%의 오즈는 0.084 ÷ 0.916 = 0.0917입니다. 여기에 오즈비 0.825를 곱하면 0.0757, 다시 위험으로 바꾸면 0.0757 ÷ 1.0757 = 7.04%입니다. 신뢰구간은 오즈비의 양 끝을 같은 방법으로 넣어 구합니다. 0.732를 넣으면 6.29%(위험차 −2.11%p, NNT 47), 0.930을 넣으면 7.86%(위험차 −0.54%p, NNT 186)입니다. 주요 출혈은 오즈 0.012 ÷ 0.988 = 0.01215에 2.28을 곱해 0.0277, 위험 2.70%, 위험차 +1.50%p입니다. 오즈비 구간 1.90–2.74를 넣으면 위험차 1.06–2.02%p, NNH 94–50입니다. 이 신뢰구간은 통합 오즈비의 불확실성만 옮긴 것이고, 기저 위험 자체의 불확실성은 들어 있지 않습니다.</p>
+<p>상대위험도를 합친 메타분석이라면 계산이 더 간단합니다. 치료군 위험 = 기저 위험 × 상대위험도이므로 위험차 = 기저 위험 × (1 − 상대위험도)입니다.</p>
+<!--/FOLD-->
+
+<h3>기저 위험과 기간을 밝혀야 하는 이유</h3>
+<!--FIG:ch19_absolute-->
+<p>같은 오즈비 0.83이라도 기저 위험이 4%인 환자군에서는 1,000명당 7건을 막고(NNT 148), 15%인 환자군에서는 23건을 막습니다(NNT 44). NNT는 약의 고정된 성질이 아니고 '약 × 환자군 × 기간'의 값입니다. 그래서 메타분석에서 NNT를 구할 때는 상대적 효과를 먼저 합치고, 관심 있는 환자군의 기저 위험에 적용하는 순서를 따릅니다. 기저 위험은 포함된 시험의 대조군에서 가져올 수도 있고, 적용하려는 나라의 청구자료나 등록자료에서 가져올 수도 있습니다.</p>
+<p>기간도 같습니다. 예제의 시험들은 6개월에서 18개월까지 추적했습니다. 추적이 길수록 사건이 많이 쌓이므로, 추적 기간이 다른 시험들의 사건을 한데 모아 구한 NNT는 '몇 개월 동안 치료했을 때'인지 말할 수 없습니다. 논문의 NNT 옆에 기간이 없으면 포함된 시험의 추적 기간 표를 찾아봅니다.</p>
+<p>시험들의 사건 수를 그냥 더해 NNT를 구하는 것은 더 큰 문제입니다. 예제에서 그렇게 하면 7.5% 대 9.3%, 위험차 1.8%p, NNT 56이 나옵니다. 나 절의 흔한 오해 상자에서 본 것처럼, 추적이 짧은 2상 시험이 약물 X군에 더 많은 환자를 배정했기 때문에(짧은 시험의 환자 비중이 약물 X군 23%, 위약군 13%) 약물 X군의 위험이 실제보다 낮게 계산된 결과입니다.</p>
+
+<h3>NNT의 신뢰구간</h3>
+<p>NNT의 신뢰구간은 위험차 신뢰구간의 양 끝을 뒤집어 구합니다<cite data-ref="altman1998nnt"></cite>. 위험차 −2.11 ~ −0.54%p가 NNT 47–186이 됩니다. 구간이 한쪽으로 길게 늘어지는 것은 역수를 취했기 때문입니다.</p>
+<p>효과가 유의하지 않으면 사정이 달라집니다. 다 절의 NSTE-ACS 하위군(오즈비 0.92, 95% CI 0.81–1.06)을 같은 기저 위험 8.4%에 적용하면 위험차는 −0.60%p(−1.52 ~ +0.42%p)이고 NNT는 166입니다. 그런데 위험차의 구간이 0을 지나므로, 한쪽 끝은 '66명을 치료하면 1건을 막는다'이고 다른 쪽 끝은 '235명을 치료하면 1건이 더 생긴다'입니다. 그 사이에 위험차 0, 즉 NNT 무한대가 있습니다. 이런 구간은 "이득 쪽 66에서 무한대를 지나 위해 쪽 235까지"로 적어야 하고(<a href="#ch08-s2">8장 나 절</a>), 보통의 구간처럼 "166 (66–235)"로 쓸 수 없습니다. 그래서 유의하지 않은 결과에는 NNT를 신뢰구간 없이 숫자 하나만 적는 논문이 있습니다. 신뢰구간이 없는 NNT 166은 정밀한 값이 아니고, "이득이 있는지조차 확실하지 않은 상태의 점추정값"입니다.</p>
+
+<h3>이득과 위해를 견줄 때</h3>
+<p>예제에서 NNT는 73, NNH는 67입니다. 두 숫자를 견줄 때 주의할 점이 있습니다.</p>
+<ul>
+<li><strong>NNT와 NNH는 빼지 않습니다.</strong> 둘은 위험차의 역수여서 "NNT − NNH = 6"이라는 숫자에는 뜻이 없습니다. 견주려면 역수를 취하기 전의 값, 즉 1,000명당 사건 수로 돌아갑니다. 1,000명을 12개월 치료하면 허혈 사건 14건을 막고 주요 출혈 15건이 늘어납니다.</li>
+<li><strong>사건의 무게가 다릅니다.</strong> 허혈 사건에는 심혈관 사망과 후유증이 남는 뇌졸중이 들어 있고, 주요 출혈에는 수혈로 회복되는 출혈부터 두개내 출혈까지 들어 있습니다. 1건 대 1건으로 맞바꿀 수 없습니다. 사건마다 환자가 잃는 건강의 크기를 효용 가중치로 매겨 질보정수명<span class="en">(QALY)</span>으로 합산하는 것이 PART 4에서 다루는 방법입니다.</li>
+<li><strong>불확실성이 큽니다.</strong> 14건의 신뢰구간은 5–21건, 15건의 신뢰구간은 11–20건입니다. 두 구간이 넓게 겹쳐서, 건수만으로는 어느 쪽이 큰지 말하기 어렵습니다.</li>
+<li><strong>환자군마다 달라집니다.</strong> 그림 19-9처럼 허혈 위험이 높고 출혈 위험이 낮은 환자에서는 이득이 더 크고, 반대의 환자에서는 위해가 더 큽니다. 평균 환자에 대한 균형이 모든 환자의 균형은 아닙니다.</li>
+</ul>
+
+<h3>경제성 평가의 입력값</h3>
+<p>약물경제성 평가의 결정분석 모형<span class="en">(decision-analytic model)</span>(PART 4)은 메타분석의 가장 중요한 사용처 가운데 하나입니다. 모형은 대개 "표준치료를 받는 환자에게 사건이 일어날 확률"을 국내 자료(청구자료 코호트, 등록자료)에서 가져오고, 여기에 메타분석의 상대적 효과를 적용해 신약군의 확률을 만듭니다. 이 절에서 한 계산과 같은 구조입니다. 그래서 경제성 평가 논문을 읽을 때는 효과 입력값이 어느 메타분석의 어떤 추정값인지, 이질성이 컸는지, 하위군의 추정값을 가져다 쓰지 않았는지를 확인합니다. 통합 추정값의 신뢰구간은 모형의 불확실성 분석에 그대로 들어갑니다(예: 로그 오즈비가 평균 −0.192, 표준오차 0.061인 정규분포를 따른다고 놓고 값을 뽑는 확률적 민감도 분석<span class="en">(probabilistic sensitivity analysis)</span>). 유효성뿐 아니라 이상반응의 상대적 효과도 비용과 효용 감소로 모형에 들어가므로, 이 절의 '이득과 위해 견주기'는 모형 안에서 QALY와 비용으로 이루어집니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · NNT를 읽을 때</p>
+<p><span class="wrong">오즈비가 0.83이므로 100명을 치료하면 17명이 이득을 본다(NNT = 1 ÷ 0.17 ≒ 6).</span> 상대적 감소율의 역수는 NNT가 아닙니다. NNT는 절대 위험차의 역수이고, 기저 위험 8.4%에서 위험차는 1.36%p, NNT는 73입니다. 상대적 효과만 보고 효과의 크기를 가늠하면 이렇게 열 배 넘게 과장됩니다.</p>
+<p><span class="wrong">NNT가 73, NNH가 67이므로 해가 이득보다 6명만큼 크다.</span> NNT와 NNH의 차이는 해석할 수 없는 숫자입니다. 두 값의 대소는 "1,000명당 막는 사건 수와 늘어나는 사건 수 가운데 어느 쪽이 많은가"만 알려 주고, 사건의 무게와 불확실성은 담지 않습니다.</p>
+<p><span class="wrong">이 약의 NNT는 73이다.</span> 기저 위험과 기간이 빠진 NNT는 다른 환자군에 옮겨 쓸 수 없습니다. "12개월 허혈 사건 위험이 8.4%인 환자에서 12개월 동안의 NNT는 73(95% CI 47–186)"이 완전한 문장입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>순서</strong>: 상대적 효과를 먼저 합치고, 기저 위험을 정한 뒤 절대적 효과로 바꿉니다. 위험차를 시험마다 구해 직접 합칠 수도 있지만(예제에서 −1.24%p, 95% CI −2.02 ~ −0.46), 기저 위험과 추적 기간이 다른 시험들에서는 위험차가 시험마다 달라지므로 대개 상대적 효과를 합치는 쪽을 택합니다.</li>
+<li><strong>정할 것</strong>: 기저 위험의 출처(포함된 시험의 대조군, 국내 청구자료 코호트 등)와 기간. 위험 수준이 다른 환자군이 있으면 낮음·중간·높음 두세 수준으로 나누어 제시합니다.</li>
+<li><strong>보고할 것</strong>: 상대적 효과(95% CI), 가정한 기저 위험과 기간, 1,000명당 사건 수의 차이(95% CI), NNT·NNH(95% CI). 유의하지 않은 결과의 NNT는 NNTB/NNTH 표기로 구간을 적거나(8장 나 절) 위험차와 그 신뢰구간으로 대신합니다. 이득과 위해는 같은 분모(1,000명당)로 나란히 적습니다.</li>
+<li><strong>파이썬</strong>: 전용 함수 없이 직접 계산합니다. <code>odds = p0 / (1 - p0) * OR; p1 = odds / (1 + odds); nnt = 1 / abs(p1 - p0)</code>의 세 줄이면 되고, 오즈비의 신뢰한계를 차례로 넣어 구간을 구합니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>체계적 문헌고찰은 주요 결과를 한 장의 요약표로 정리하곤 합니다. 상대적 효과, 절대적 효과, 근거의 확실성이 한 표에 놓여 있어, 이 장에서 배운 것을 한꺼번에 읽게 됩니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 결과 요약표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Summary of findings at 12 months: drug X vs placebo, added to antiplatelet therapy (10 trials, 31,725 participants)</caption>
+<thead><tr><th></th><th class="r">CV death, MI, or stroke</th><th class="r">Major bleeding</th></tr></thead>
+<tbody>
+<tr><td><span class="mk">1</span> Relative effect, OR (95% CI)</td><td class="r">0.83 (0.73–0.93)</td><td class="r">2.28 (1.90–2.74)</td></tr>
+<tr><td><span class="mk">2</span> Risk with placebo, per 1,000</td><td class="r">84</td><td class="r">12</td></tr>
+<tr><td><span class="mk">3</span> Risk with drug X, per 1,000 (95% CI)</td><td class="r">70 (63–79)</td><td class="r">27 (23–32)</td></tr>
+<tr><td><span class="mk">4</span> Difference per 1,000 (95% CI)</td><td class="r">14 fewer (5–21 fewer)</td><td class="r">15 more (11–20 more)</td></tr>
+<tr><td><span class="mk">5</span> NNT or NNH (95% CI)</td><td class="r">NNT 73 (47–186)</td><td class="r">NNH 67 (50–94)</td></tr>
+<tr><td><span class="mk">6</span> Certainty of evidence (GRADE)</td><td class="r">Moderate<sup>a</sup></td><td class="r">High</td></tr>
+</tbody></table></div>
+<p class="jt-foot">OR, odds ratio (random-effects model); CV, cardiovascular; MI, myocardial infarction; NNT, number needed to treat; NNH, number needed to harm. The risk with placebo is the pooled 12-month risk in the placebo groups of the three trials with 12 months of follow-up. The risk with drug X was obtained by applying the pooled OR to the risk with placebo. <sup>a</sup> Downgraded one level for inconsistency (the 95% prediction interval, 0.63–1.08, includes no effect).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>상대적 효과.</b> 나 절에서 합친 오즈비입니다. 이 줄만 보면 출혈(2.28)이 허혈 사건(0.83)보다 훨씬 큰 변화로 보입니다. 그러나 상대적 효과의 크기끼리는 견줄 수 없습니다. 기저 위험이 7배 다르기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>가정한 기저 위험.</b> 약을 쓰지 않을 때의 위험입니다. 각주에서 출처를 확인합니다. 내가 적용하려는 환자군의 위험이 이 값과 다르면 아래 줄의 숫자도 달라집니다.</span></li>
+<li><span class="mk">3</span><span><b>치료군 위험.</b> 기저 위험에 오즈비를 적용한 값입니다. 84 → 70은 위 '숫자로 따라가기'의 8.4% → 7.0%입니다. 괄호 안은 오즈비 신뢰구간의 양 끝을 적용한 범위입니다.</span></li>
+<li><span class="mk">4</span><span><b>1,000명당 차이.</b> 84 − 70 = 14건 감소, 27 − 12 = 15건 증가. 이득과 위해를 같은 단위로 견줄 수 있는 줄이 이것입니다. 건수는 비슷하지만 사건의 무게가 달라, 이 표만으로 순이득을 판정하지 않습니다.</span></li>
+<li><span class="mk">5</span><span><b>NNT와 NNH.</b> 1,000 ÷ 14 ≒ 73(반올림 전 값으로 계산), 1,000 ÷ 15 ≒ 67. 4번 줄의 역수일 뿐 새로운 정보가 아닙니다. 구간 47–186은 4번 줄의 21건과 5건에 대응합니다(1,000 ÷ 21, 1,000 ÷ 5의 반올림 전 값).</span></li>
+<li><span class="mk">6</span><span><b>근거의 확실성.</b> 가 절의 GRADE 평가입니다. 무작위배정 시험의 근거는 '높음'에서 시작하고, 허혈 사건은 시험 사이의 불일치(다 절의 예측구간이 1을 포함) 때문에 한 단계 내려 '중등도'가 되었습니다. 이유는 각주에 적혀 있습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ p_1 = \frac{OR \times p_0}{1 - p_0 + OR \times p_0}, \qquad \text{위험차} = p_1 - p_0, \qquad NNT = \frac{1}{|p_1 - p_0|} \]
+<p>\(p_0\)는 기저 위험, \(p_1\)은 치료할 때의 위험입니다. 예제: \(p_1 = \frac{0.825 \times 0.084}{0.916 + 0.825 \times 0.084} = 0.0704\), 위험차 −0.0136, NNT = 73. 상대위험도를 쓰면 \(p_1 = RR \times p_0\)입니다.</p></div>
+<div class="eq">\[ \text{NNT의 95% CI} = \left( \frac{1}{|\text{위험차의 큰 쪽 끝}|},\ \frac{1}{|\text{위험차의 작은 쪽 끝}|} \right) \]
+<p>예제: 위험차 −0.0211 ~ −0.0054이므로 1 ÷ 0.0211 = 47, 1 ÷ 0.0054 = 186. 위험차의 구간이 0을 포함하면 NNT의 구간은 무한대를 지나므로 이 식을 그대로 쓸 수 없고, 이득 쪽과 위해 쪽을 나누어 적습니다<cite data-ref="altman1998nnt"></cite>.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>통합 오즈비는 상대적 효과입니다. 절대적 효과(위험차, 1,000명당 사건 수, NNT·NNH)는 기저 위험에 상대적 효과를 적용해 구합니다.</li>
+<li>NNT와 NNH는 기저 위험과 기간이 함께 적혀야 의미가 있습니다. 시험들의 사건 수를 그냥 더해 구하지 않습니다.</li>
+<li>NNT의 신뢰구간은 위험차 구간의 역수입니다. 유의하지 않은 결과에서는 구간이 무한대를 지나므로, 신뢰구간 없는 NNT를 정밀한 값으로 읽지 않습니다.</li>
+<li>이득과 위해는 1,000명당 사건 수로 나란히 놓고 봅니다. NNT에서 NNH를 빼지 않으며, 사건의 무게가 다르다는 점은 효용과 QALY(PART 4)로 다룹니다.</li>
+<li>경제성 평가 모형은 기저 위험에 메타분석의 상대적 효과를 적용하는 같은 구조를 쓰고, 통합 추정값의 신뢰구간이 불확실성 분석에 들어갑니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>예제의 통합 오즈비 0.825(95% CI 0.732–0.930)를 12개월 허혈 사건 위험이 15%인 고위험 환자군에 적용해, 치료할 때의 위험, 위험차, NNT를 구해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>기저 오즈 = 0.15 ÷ 0.85 = 0.1765, 여기에 0.825를 곱하면 0.1456, 위험으로 바꾸면 0.1456 ÷ 1.1456 = 12.7%입니다. 위험차는 12.7% − 15% = −2.3%p(정확히는 −2.29%p), NNT = 1 ÷ 0.0229 = 44입니다. 오즈비의 양 끝을 넣으면 NNT의 95% CI는 28–112입니다. 본문의 기저 위험 8.4%에서는 NNT가 73이었습니다. 약의 상대적 효과는 같아도 위험이 높은 환자군에서는 더 적은 수를 치료해 1건을 막습니다. 반대로 주요 출혈의 기저 위험도 함께 높은 환자군이라면 NNH도 작아진다는 점(기저 위험 3%이면 NNH 28)을 같이 따져야 합니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"전체 환자에서 NNT는 73, NNH는 67이었다. 순임상편익을 NNT − NNH로 정의하면 6이므로 약물 X의 순편익은 거의 중립이다." 무엇이 틀렸고 어떻게 고쳐 씁니까?</p>
+<details><summary>답과 풀이</summary><div><p>NNT와 NNH는 위험차의 역수이므로 빼서 얻은 6은 사람 수도 사건 수도 아닌, 뜻이 없는 숫자입니다. 예를 들어 NNT 10과 NNH 16(차이 6)은 1,000명당 100건을 막고 63건을 늘리는 상황이고, NNT 73과 NNH 67(차이 6)은 14건을 막고 15건을 늘리는 상황입니다. 같은 '6'이 전혀 다른 균형을 가리킵니다. 고쳐 쓰면 "1,000명을 12개월 치료하면 허혈 사건이 14건(95% CI 5–21) 줄고 주요 출혈이 15건(95% CI 11–20) 늘어난다. 건수는 비슷하지만 두 사건의 중증도가 달라, 순편익은 사건별 효용 가중치를 적용해 평가해야 한다"입니다. 건수의 신뢰구간이 넓게 겹친다는 점과 환자군의 기저 위험에 따라 균형이 달라진다는 점도 함께 적습니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>어느 메타분석이 한 하위군에서 "OR 0.92 (95% CI 0.81–1.06); NNT 166"이라고 신뢰구간 없이 NNT를 보고했습니다. 이 NNT를 어떻게 읽어야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>오즈비의 신뢰구간이 1을 포함하므로 위험차의 신뢰구간도 0을 포함합니다. 본문에서 계산한 것처럼 기저 위험 8.4%에서 위험차는 −0.60%p(−1.52 ~ +0.42%p)이고, NNT의 구간은 이득 쪽 66에서 무한대를 지나 위해 쪽 235까지입니다. 저자가 신뢰구간을 적지 않은 것은 보통의 구간으로 쓸 수 없기 때문입니다. 따라서 NNT 166을 "166명을 치료하면 1건을 막는다"는 확정된 값으로 읽으면 안 됩니다. "이득이 있다면 그 정도 크기일 수 있으나, 이득이 없거나 오히려 사건이 늘 가능성도 자료와 모순되지 않는다"가 맞는 해석입니다. 이 NNT를 다른 하위군의 NNT나 NNH와 나란히 놓고 크기를 비교하는 것도 같은 이유로 조심해야 합니다.</p></div></details></li>
+</ol></div>
+</section>

@@ -5,7 +5,6 @@ Does not commit or push."""
 import os, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = "/home/claude/socialp"
-subprocess.run([sys.executable, os.path.join(ROOT, "tools", "merge14.py")], check=True, cwd=ROOT)
 subprocess.run([sys.executable, os.path.join(ROOT, "build.py")], check=True, cwd=ROOT)
 head = open(os.path.join(ROOT, "tools", "deploy_head.html"), encoding="utf-8").read()
 for name in ("index.html", "stats.html"):   # home page + one page per course
