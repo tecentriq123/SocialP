@@ -466,6 +466,21 @@ details.lines-box > summary { cursor: pointer; list-style: none; display: flex; 
 details.lines-box > summary::-webkit-details-marker { display: none; }
 details.lines-box > summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; flex: none; }
 details.lines-box[open] > summary::before { transform: rotate(45deg); }
+/* collapsed '심화' parts (build.py fold_deep) */
+details.deep-sec, details.deep-box { margin: 28px 0 18px; border: 1px solid var(--line); border-left: 3px solid var(--deep); border-radius: 10px; background: var(--surface); }
+details.deep-box { margin: 18px 0; }
+details.deep-sec > summary, details.deep-box > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; padding: 11px 16px; }
+details.deep-sec > summary::-webkit-details-marker, details.deep-box > summary::-webkit-details-marker { display: none; }
+details.deep-sec > summary::before, details.deep-box > summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid var(--deep); border-bottom: 2px solid var(--deep); transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details.deep-sec[open] > summary::before, details.deep-box[open] > summary::before { transform: rotate(45deg); }
+.article details.deep-sec > summary h3, .article details.deep-sec > summary h4 { margin: 0; font-size: 17px; }
+.article details.deep-sec.deep-h4 > summary h4 { font-size: 15.5px; }
+details.deep-box > summary .ds-t { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+details.deep-sec > .deep-body { padding: 0 18px 10px; }
+details.deep-sec > .deep-body > :first-child { margin-top: 6px; }
+details.deep-box > :not(summary) { margin: 0 14px 14px; }
+details.deep-box > .deep-body { margin: 0; padding: 0 18px 8px; }
+details.deep-box > .deep-body > :first-child { margin-top: 4px; }
 details.lines-box > summary:hover { color: var(--accent-ink); }
 details.lines-box > summary .cnt { font-weight: 400; font-size: 12.5px; color: var(--muted); }
 details.lines-box[open] > summary .cnt { display: none; }
@@ -594,7 +609,7 @@ function typesetNow() {
         </div>
       </div>
       <div class="home-how">
-        <div><h3>읽는 순서</h3><p>처음이라면 0장부터 7장까지 순서대로 읽되, 장 첫머리의 '처음 읽을 때' 안내를 따라 '심화' 표시가 없는 부분을 먼저 읽습니다. 7장 다음의 '분석 고르기 연습'으로 PART 1을 점검한 뒤 8장으로 넘어갑니다. 8장부터는 논문에서 만난 기법을 찾아 읽어도 됩니다.</p></div>
+        <div><h3>읽는 순서</h3><p>처음이라면 0장부터 7장까지 순서대로 읽되, 장 첫머리의 '처음 읽을 때' 안내를 따라 읽고, 접혀 있는 '심화' 상자는 처음에는 건너뜁니다. 7장 다음의 '분석 고르기 연습'으로 PART 1을 점검한 뒤 8장으로 넘어갑니다. 8장부터는 논문에서 만난 기법을 찾아 읽어도 됩니다.</p></div>
         <div><h3>논문 읽기 상자와 확인 문제</h3><p>'논문에서는 이렇게 보입니다' 상자는 논문 형식의 표와 문장에 번호를 붙여 수치 하나하나를 해석합니다. 절 끝의 '스스로 확인하기'는 답을 펼치기 전에 먼저 답을 적어 보세요.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다.</p></div>
       </div>
@@ -618,7 +633,7 @@ function typesetNow() {
         <p class="crumbs"><a href="#home">홈</a><span>/</span><span>보건통계학 기초</span></p>
         <h1>보건통계학 기초</h1>
         <p>기초 개념(0장)과 기초 검정(1–7장)에서 회귀모형·생존분석·비열등성 검정(8–13장)까지 순서대로 쌓아 가도록 구성했습니다. PART 1 끝의 '분석 고르기 연습'은 연구 상황을 보고 분석을 고르는 연습입니다. Part 3은 각 장의 분석을 공개 데이터와 파이썬으로 직접 해 보는 실습입니다(실습 번호 = 장 번호). 14장에는 사회약학·약물역학 논문에서 자주 만나는 기법을 추가로 모았고, 인용한 문헌은 15장에 모았습니다.</p>
-        <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. 소제목에 <span class="lv deep">심화</span> 표시가 있으면 처음 읽을 때 건너뛰어도 됩니다.</p>
+        <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. <span class="lv deep">심화</span> 표시가 붙은 부분은 접혀 있습니다. 처음 읽을 때는 건너뛰고, 필요할 때 눌러서 펼쳐 보세요.</p>
       </header>
       <div class="part-grid">
         <div>${toc}</div>

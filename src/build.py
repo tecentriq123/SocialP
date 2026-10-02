@@ -82,6 +82,118 @@ GUIDE = [
 KO = "가나다라마바사아자차카타파하"
 
 
+
+# ---------------------------------------------------------------- deep folding
+DEEP_TAG = '<span class="lv deep">심화</span>'
+_H3 = re.compile(r'<h3\b[^>]*>.*?</h3>', re.S)
+_H4 = re.compile(r'<h4\b[^>]*>.*?</h4>', re.S)
+_DIVTAG = re.compile(r'<(/?)div\b[^>]*>')
+_TAIL = ('<div class="practice">', '<div class="keypoints">', '<p class="lab-link">')
+
+
+def _div_end(src, start):
+    depth = 0
+    for m in _DIVTAG.finditer(src, start):
+        depth += -1 if m.group(1) else 1
+        if depth == 0:
+            return m.end()
+    return -1
+
+
+def _plain(h):
+    return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', h.replace(DEEP_TAG, ''))).strip()
+
+
+def _is_deep_heading(h):
+    return DEEP_TAG in h or _plain(h).startswith('수식으로 보기')
+
+
+def _fold_h4(chunk):
+    hs = list(_H4.finditer(chunk))
+    if not any(DEEP_TAG in m.group(0) for m in hs):
+        return chunk
+    out, pos = [], 0
+    for i, m in enumerate(hs):
+        if DEEP_TAG not in m.group(0):
+            continue
+        end = hs[i + 1].start() if i + 1 < len(hs) else len(chunk)
+        for t in _TAIL:
+            k = chunk.find(t, m.end(), end)
+            if k != -1:
+                end = k
+        out.append(chunk[pos:m.start()])
+        h = m.group(0)
+        if DEEP_TAG not in h:
+            h = h.replace('</h4>', ' ' + DEEP_TAG + '</h4>')
+        out.append(f'<details class="deep-sec deep-h4"><summary>{h}</summary><div class="deep-body">{chunk[m.end():end]}</div></details>')
+        pos = end
+    out.append(chunk[pos:])
+    return ''.join(out)
+
+
+def _fold_boxes(chunk):
+    """Wrap paper / callout boxes whose title carries the 심화 tag."""
+    out, pos = [], 0
+    for m in re.finditer(r'<div class="(paper|callout[^"]*)">', chunk):
+        if m.start() < pos:
+            continue
+        end = _div_end(chunk, m.start())
+        if end < 0:
+            continue
+        box = chunk[m.start():end]
+        head = re.search(r'<div class="paper-h">(.*?)</div>', box, re.S) if m.group(1) == 'paper' else re.search(r'<p class="ct">(.*?)</p>', box, re.S)
+        if not head:
+            continue
+        title = _plain(head.group(1))
+        is_deep = DEEP_TAG in head.group(1) or 'deep' in m.group(1).split() or title.startswith('심화')
+        if not is_deep:
+            continue
+        title = re.sub(r'^심화\s*·\s*', '', title)
+        out.append(chunk[pos:m.start()])
+        out.append(f'<details class="deep-box"><summary><span class="ds-t">{html.escape(title)}</span> {DEEP_TAG}</summary>{box}</details>')
+        pos = end
+    out.append(chunk[pos:])
+    return ''.join(out)
+
+
+_FOLD = re.compile(r'<!--FOLD:(.*?)-->(.*?)<!--/FOLD-->', re.S)
+
+
+def _fold_markers(src):
+    """<!--FOLD:summary text--> ... <!--/FOLD--> → a collapsed '심화' box (used to fold part of a subsection,
+    e.g. the intermediate steps of a worked example, while a short visible summary stays above)."""
+    return _FOLD.sub(lambda m: f'<details class="deep-box"><summary><span class="ds-t">{html.escape(m.group(1).strip())}</span> '
+                               f'{DEEP_TAG}</summary><div class="deep-body">{m.group(2)}</div></details>', src)
+
+
+def fold_deep(src):
+    src = _fold_markers(src)
+    """Collapse '심화' subsections (h3/h4 with the tag, and every '수식으로 보기') and '심화' boxes into <details>."""
+    def sec(m):
+        body = m.group(2)
+        hs = list(_H3.finditer(body))
+        out, pos = [], 0
+        for i, h in enumerate(hs):
+            end = hs[i + 1].start() if i + 1 < len(hs) else len(body)
+            tail = end
+            for t in _TAIL:
+                k = body.find(t, h.end(), end)
+                if k != -1:
+                    tail = min(tail, k)
+            out.append(_fold_boxes(_fold_h4(body[pos:h.start()])))
+            region = body[h.start():tail]
+            if _is_deep_heading(h.group(0)):
+                hh = h.group(0)
+                if DEEP_TAG not in hh:
+                    hh = hh.replace('</h3>', ' ' + DEEP_TAG + '</h3>')
+                out.append(f'<details class="deep-sec"><summary>{hh}</summary><div class="deep-body">{region[len(h.group(0)):]}</div></details>')
+            else:
+                out.append(_fold_boxes(_fold_h4(region)))
+            pos = tail
+        out.append(_fold_boxes(_fold_h4(body[pos:])))
+        return m.group(1) + ''.join(out) + '</section>'
+    return re.sub(r'(<section class="sec" id="[^"]+">)(.*?)</section>', sec, src, flags=re.S)
+
 ONLY = None
 
 
@@ -234,7 +346,8 @@ def build():
         for s in c["sections"]:
             if f'id="{s["id"]}"' not in src:
                 print(f"WARNING: section {s['id']} missing in {c['id']}")
-        bodies[c["id"]] = collapse_lines(inject_real(c["id"], src))
+        body = collapse_lines(inject_real(c["id"], src))
+        bodies[c["id"]] = body if NOFOLD else fold_deep(body)
     # refs flagged "append" are numbered after all others (keeps already published numbers stable)
     order = [k for k in order if not REFS[k].get("append")] + [k for k in order if REFS[k].get("append")]
     num = {k: i + 1 for i, k in enumerate(order)}
@@ -291,15 +404,19 @@ def build():
 
 
 OUT = None
+NOFOLD = False
 
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", nargs="*", help="chapter ids to include, e.g. ch02 ch03")
     ap.add_argument("--out", help="output html path (default dist/index.html)")
+    ap.add_argument("--nofold", action="store_true", help="do not collapse 심화 parts")
     a = ap.parse_args()
     if a.only:
         ONLY = set(a.only)
     if a.out:
         OUT = a.out
+    if a.nofold:
+        NOFOLD = True
     build()
