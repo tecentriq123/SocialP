@@ -84,6 +84,7 @@ code, kbd { font-family: var(--f-mono); font-size: .9em; background: var(--code-
 .brand b { font-family: var(--f-serif); font-weight: 700; font-size: 17px; letter-spacing: -.01em; white-space: nowrap; }
 .brand span { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar .spacer { flex: 1; }
+[hidden] { display: none !important; }
 .tb-btn {
   display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px;
   border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink-2);
@@ -529,10 +530,10 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
   <button class="tb-btn" id="menuBtn" type="button" aria-label="목차 열기">
     <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lbl-txt">목차</span>
   </button>
-  <a class="brand" href="#home"><b>사회약학 연구방법 노트</b><span>대학원 신입생을 위한 스터디 자료</span></a>
+  <a class="brand" href="index.html"><b>사회약학 연구방법 노트</b><span>대학원 신입생을 위한 스터디 자료</span></a>
   <span class="spacer"></span>
-  <a class="tb-btn" href="#stats"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg><span class="lbl-txt">보건통계학 기초</span></a>
-  <a class="tb-btn" href="#search" aria-label="검색"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="lbl-txt">검색</span></a>
+  <a class="tb-btn" id="courseBtn" href="#toc"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg><span class="lbl-txt" id="courseBtnTxt"></span></a>
+  <a class="tb-btn" id="searchBtn" href="#search" aria-label="검색"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="lbl-txt">검색</span></a>
 </header>
 <main id="app" class="page"></main>
 <div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
@@ -562,7 +563,9 @@ function typesetNow() {
 <script>
 (() => {
   const META = JSON.parse(document.getElementById("meta").textContent);
-  const CH = META.chapters;
+  const CH = META.chapters || [];
+  const HOME = META.mode === "home";
+  const COURSE = META.course || { key: "", title: "" };
   const byId = Object.fromEntries(CH.map(c => [c.id, c]));
   const app = document.getElementById("app");
   const ICON = {
@@ -573,7 +576,7 @@ function typesetNow() {
   const numLabel = c => c.lab ? `실습 ${+c.no}.` : (c.review ? "종합." : (c.id === "ch15" ? "" : `${c.no}.`));
 
   function railHTML(activeId) {
-    let h = '<a class="back" href="#stats">← 보건통계학 기초 목차</a>';
+    let h = `<a class="back" href="#toc">← ${esc(COURSE.title)} 목차</a>`;
     for (const g of META.groups) {
       h += `<h4>${esc(g.label)}</h4><ol>`;
       for (const c of CH.filter(c => c.group === g.key)) {
@@ -586,31 +589,29 @@ function typesetNow() {
   }
 
   function renderHome() {
-    const ready = CH.filter(c => c.ready && c.id !== "ch15" && !c.lab).length;
-    const total = CH.filter(c => c.id !== "ch15" && !c.lab).length;
-    const labsReady = CH.filter(c => c.ready && c.lab).length, labsTotal = CH.filter(c => c.lab).length;
+    const cards = (META.courses || []).map(c => c.href
+      ? `<a class="part-card" href="${c.href}">
+          <div class="pc-top"><span class="pc-tag">${esc(c.tag)}</span><span class="pill ok">${esc(c.status)}</span></div>
+          <h2>${esc(c.title)}</h2>
+          <p>${esc(c.desc)}</p>
+          <div class="pc-meta">${c.meta.map(m => `<span>${esc(m)}</span>`).join("")}</div>
+        </a>`
+      : `<div class="part-card soon">
+          <div class="pc-top"><span class="pc-tag">${esc(c.tag)}</span><span class="pill">${esc(c.status)}</span></div>
+          <h2>${esc(c.title)}</h2>
+          <p>${esc(c.desc)}</p>
+          <div class="pc-meta">${c.meta.map(m => `<span>${esc(m)}</span>`).join("")}</div>
+        </div>`).join("");
     app.innerHTML = `<div class="wrap">
       <section class="home-hero">
         <p class="eyebrow">사회약학 · 약물역학 · 약물경제학</p>
         <h1>사회약학 연구방법 노트</h1>
-        <p>연구실에 새로 들어온 대학원생이 논문을 읽고 분석을 시작하기 전에 알아야 할 내용을 정리한 자료입니다. 파트를 골라 목차에서 필요한 장을 읽으면 됩니다.</p>
+        <p>연구실에 새로 들어온 대학원생이 논문을 읽고 분석을 시작하기 전에 알아야 할 내용을 정리한 자료입니다. 과목을 골라 목차에서 필요한 장을 읽으면 됩니다.</p>
       </section>
-      <div class="parts">
-        <a class="part-card" href="#stats">
-          <div class="pc-top"><span class="pc-tag">PART · 통계</span><span class="pill ok">${ready}/${total}장 공개</span></div>
-          <h2>보건통계학 기초</h2>
-          <p>평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. 각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, Part 3에서 공개 데이터로 파이썬 실습을 합니다.</p>
-          <div class="pc-meta"><span>이론 0–14장 + 종합 연습 + 참고문헌</span><span>파이썬 실습 ${labsReady}/${labsTotal}개 공개</span></div>
-        </a>
-        <div class="part-card soon">
-          <div class="pc-top"><span class="pc-tag">다음 파트</span><span class="pill">추가 예정</span></div>
-          <h2>새 파트 자리</h2>
-          <p>연구실에서 필요한 주제가 정해지면 같은 형식으로 파트를 추가합니다.</p>
-        </div>
-      </div>
+      <div class="parts">${cards}</div>
       <div class="home-how">
-        <div><h3>읽는 순서</h3><p>처음이라면 0장부터 7장까지 순서대로 읽되, 장 첫머리의 '처음 읽을 때' 안내를 따라 읽고, 접혀 있는 '심화' 상자는 처음에는 건너뜁니다. 7장 다음의 '분석 고르기 연습'으로 PART 1을 점검한 뒤 8장으로 넘어갑니다. 8장부터는 논문에서 만난 기법을 찾아 읽어도 됩니다.</p></div>
-        <div><h3>논문 읽기 상자와 확인 문제</h3><p>'논문에서는 이렇게 보입니다' 상자는 논문 형식의 표와 문장에 번호를 붙여 수치 하나하나를 해석합니다. 절 끝의 '스스로 확인하기'는 답을 펼치기 전에 먼저 답을 적어 보세요.</p></div>
+        <div><h3>과목 구성</h3><p>과목마다 이론 장과 파이썬 실습이 있습니다. 통계가 처음이라면 '보건통계학 기초'의 0장부터 읽습니다.</p></div>
+        <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분을 알려 줍니다. '심화' 표시가 붙은 부분은 접혀 있어서, 필요할 때 눌러서 펼쳐 봅니다.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다.</p></div>
       </div>
     </div>`;
@@ -630,8 +631,8 @@ function typesetNow() {
     }
     app.innerHTML = `<div class="wrap">
       <header class="part-head">
-        <p class="crumbs"><a href="#home">홈</a><span>/</span><span>보건통계학 기초</span></p>
-        <h1>보건통계학 기초</h1>
+        <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>${esc(COURSE.title)}</span></p>
+        <h1>${esc(COURSE.title)}</h1>
         <p>기초 개념(0장)과 기초 검정(1–7장)에서 회귀모형·생존분석·비열등성 검정(8–13장)까지 순서대로 쌓아 가도록 구성했습니다. PART 1 끝의 '분석 고르기 연습'은 연구 상황을 보고 분석을 고르는 연습입니다. Part 3은 각 장의 분석을 공개 데이터와 파이썬으로 직접 해 보는 실습입니다(실습 번호 = 장 번호). 14장에는 사회약학·약물역학 논문에서 자주 만나는 기법을 추가로 모았고, 인용한 문헌은 15장에 모았습니다.</p>
         <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. <span class="lv deep">심화</span> 표시가 붙은 부분은 접혀 있습니다. 처음 읽을 때는 건너뛰고, 필요할 때 눌러서 펼쳐 보세요.</p>
       </header>
@@ -646,12 +647,17 @@ function typesetNow() {
           </table>
         </aside>
       </div>
+      <div class="home-how">
+        <div><h3>읽는 순서</h3><p>처음이라면 0장부터 7장까지 순서대로 읽되, 장 첫머리의 '처음 읽을 때' 안내를 따라 읽고, 접혀 있는 '심화' 상자는 처음에는 건너뜁니다. 7장 다음의 '분석 고르기 연습'으로 PART 1을 점검한 뒤 8장으로 넘어갑니다. 8장부터는 논문에서 만난 기법을 찾아 읽어도 됩니다.</p></div>
+        <div><h3>논문 읽기 상자와 확인 문제</h3><p>'논문에서는 이렇게 보입니다' 상자는 논문 형식의 표와 문장에 번호를 붙여 수치 하나하나를 해석합니다. 절 끝의 '스스로 확인하기'는 답을 펼치기 전에 먼저 답을 적어 보세요.</p></div>
+        <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다.</p></div>
+      </div>
     </div>`;
   }
 
   function renderSearch(q) {
     app.innerHTML = `<div class="wrap" style="max-width:46rem">
-      <p class="crumbs"><a href="#home">홈</a><span>/</span><span>검색</span></p>
+      <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>검색</span></p>
       <h1 style="font-family:var(--f-serif);margin:0 0 6px">본문 검색</h1>
       <p style="color:var(--ink-2);margin:0">공개된 장의 본문 전체에서 찾습니다. 예: 오즈비, censoring, 비례위험 가정, SMD</p>
       <form class="search-box" id="sform"><input id="sq" type="search" placeholder="검색어 입력" autocomplete="off" aria-label="검색어"></form>
@@ -702,9 +708,9 @@ function typesetNow() {
   function renderChapter(id, anchor) {
     const c = byId[id];
     if (!c || !c.ready) {
-      app.innerHTML = `<div class="wrap" style="max-width:46rem"><p class="crumbs"><a href="#home">홈</a><span>/</span><a href="#stats">보건통계학 기초</a></p>
+      app.innerHTML = `<div class="wrap" style="max-width:46rem"><p class="crumbs"><a href="index.html">홈</a><span>/</span><a href="#toc">${esc(COURSE.title)}</a></p>
         <h1 style="font-family:var(--f-serif)">${c ? esc(c.no + ". " + c.title) : "찾을 수 없는 페이지"}</h1>
-        <div class="soon-box">이 장은 아직 작성 중입니다. <a href="#stats">목차로 돌아가기</a></div></div>`;
+        <div class="soon-box">이 장은 아직 작성 중입니다. <a href="#toc">목차로 돌아가기</a></div></div>`;
       return;
     }
     const tpl = document.getElementById("tpl-" + id);
@@ -717,7 +723,7 @@ function typesetNow() {
       ${railHTML(id)}
       <article class="article" id="article">
         <header class="ch-head">
-          <p class="crumbs"><a href="#home">홈</a><span>/</span><a href="#stats">보건통계학 기초</a><span>/</span><span>${esc(g.label)}</span></p>
+          <p class="crumbs"><a href="index.html">홈</a><span>/</span><a href="#toc">${esc(COURSE.title)}</a><span>/</span><span>${esc(g.label)}</span></p>
           <p class="ch-no">${c.id === "ch15" ? "REFERENCES" : (c.lab ? "PYTHON LAB " + c.no : (c.review ? "PART 1 REVIEW" : "CHAPTER " + c.no))}</p>
           <h1>${esc(c.title)}</h1>
           <div id="leadSlot"></div>
@@ -759,8 +765,13 @@ function typesetNow() {
     closeDrawer();
     const h = decodeURIComponent(location.hash.slice(1));
     let cur = null;
-    if (!h || h === "home") { renderHome(); window.scrollTo(0, 0); }
-    else if (h === "stats") { renderPart(); window.scrollTo(0, 0); }
+    if (HOME) {
+      // old links such as index.html#ch11-s1 pointed at the single-file site: send them to the course page
+      if (/^(?:(?:ch|lab|rv)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
+      renderHome(); window.scrollTo(0, 0);
+    }
+    else if (h === "home") { location.href = "index.html"; return; }
+    else if (!h || h === "toc" || h === COURSE.key) { renderPart(); window.scrollTo(0, 0); }
     else if (h.startsWith("search")) { renderSearch(h.slice(7)); window.scrollTo(0, 0); }
     else {
       const m = h.match(/^((?:ch|lab|rv)\d\d)(?:-(.+))?$/);
@@ -769,10 +780,12 @@ function typesetNow() {
         const already = app.dataset.ch === cur && document.getElementById("article");
         if (already && m[2]) { const el = document.getElementById(h); if (el) { el.scrollIntoView({ block: "start" }); return; } }
         renderChapter(cur, m[2] ? h : null);
-      } else renderHome();
+      } else renderPart();
     }
     app.dataset.ch = cur || "";
     document.getElementById("menuBtn").hidden = !cur;
+    document.getElementById("courseBtn").hidden = HOME;
+    document.getElementById("searchBtn").hidden = HOME;
   }
 
   // drawer for small screens
@@ -874,6 +887,8 @@ function typesetNow() {
     });
   }
 
+  document.getElementById("courseBtnTxt").textContent = COURSE.title;
+  if (COURSE.title) document.title = COURSE.title + " · 사회약학 연구방법 노트";
   window.addEventListener("hashchange", route);
   route();
 })();

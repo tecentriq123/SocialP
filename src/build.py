@@ -1,9 +1,12 @@
-"""Assemble index.html from shell.html + content/chXX.html + figs + refs."""
+"""Assemble the site from shell.html + content/chXX.html + figs + refs:
+dist/stats.html (the course page) and dist/index.html (home, lists the courses)."""
 import glob, json, os, re, html, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 from refs import REFS  # noqa: E402
+
+COURSE = {"key": "stats", "title": "보건통계학 기초", "file": "stats.html"}
 
 GROUPS = [
     {"key": "p1", "label": "PART 1", "title": "보건의학통계 시작하기"},
@@ -386,7 +389,8 @@ def build():
 
     tpls = "\n".join(f'<template id="tpl-{cid}">{b}</template>' for cid, b in bodies.items())
     shell = open(os.path.join(ROOT, "shell.html"), encoding="utf-8").read()
-    meta_json = json.dumps({"chapters": meta, "groups": GROUPS, "guide": GUIDE}, ensure_ascii=False)
+    meta_json = json.dumps({"mode": "course", "course": COURSE, "chapters": meta, "groups": GROUPS, "guide": GUIDE},
+                           ensure_ascii=False)
     wjs, css = [], []
     for c in ready:
         wp = os.path.join(ROOT, "widgets", c["id"] + ".js")
@@ -397,10 +401,37 @@ def build():
             css.append(open(cp, encoding="utf-8").read())
     out = (shell.replace("{{META}}", meta_json.replace("</", "<\\/")).replace("{{TEMPLATES}}", tpls)
            .replace("{{WIDGETS_JS}}", "\n".join(wjs)).replace("{{EXTRA_CSS}}", "\n".join(css)))
-    dst = OUT or os.path.join(ROOT, "dist", "index.html")
+    dst = OUT or os.path.join(ROOT, "dist", COURSE["file"])
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     open(dst, "w", encoding="utf-8").write(out)
     print(f"built {dst}: {len(out) / 1024:.0f} KB, chapters ready: {[c['id'] for c in ready]}, refs: {len(order)}")
+    if OUT is None and ONLY is None:
+        build_home(shell, meta)
+
+
+def build_home(shell, meta):
+    """dist/index.html: the small home page that lists the courses (same shell, META.mode = "home")."""
+    theory = [c for c in meta if not c["lab"] and c["id"] != "ch15"]
+    labs = [c for c in meta if c["lab"]]
+    courses = [
+        {"tag": "과목 · 통계", "title": COURSE["title"], "href": COURSE["file"],
+         "status": f"{sum(c['ready'] for c in theory)}/{len(theory)}장 공개",
+         "desc": "평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. "
+                 "각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, 공개 데이터로 파이썬 실습을 합니다.",
+         "meta": ["이론 0–14장 + 종합 연습 + 참고문헌", f"파이썬 실습 {sum(c['ready'] for c in labs)}/{len(labs)}개 공개"]},
+        {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": None, "status": "준비 중",
+         "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, "
+                 "의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.",
+         "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]},
+    ]
+    meta_json = json.dumps({"mode": "home", "courses": courses}, ensure_ascii=False)
+    out = (shell.replace("{{META}}", meta_json.replace("</", "<\\/")).replace("{{TEMPLATES}}", "")
+           .replace("{{WIDGETS_JS}}", "").replace("{{EXTRA_CSS}}", ""))
+    # the home page shows no formulas or code: drop the MathJax / highlight.js CDN scripts
+    out = re.sub(r'<script src="https://cdn[^"]*"[^>]*></script>\n?', "", out)
+    dst = os.path.join(ROOT, "dist", "index.html")
+    open(dst, "w", encoding="utf-8").write(out)
+    print(f"built {dst}: {len(out) / 1024:.0f} KB (home)")
 
 
 OUT = None

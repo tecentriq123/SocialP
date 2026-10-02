@@ -1,4 +1,4 @@
-"""Visible (not collapsed) text length per chapter in dist/index.html, vs the unfolded build."""
+"""Visible (not collapsed) text length per chapter in dist/stats.html, vs the unfolded build."""
 import re, sys, json
 def strip_details(h):
     while True:

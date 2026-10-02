@@ -1,5 +1,5 @@
 """Build the site and copy it + the source into the GitHub working copy (/home/claude/socialp).
-- /home/claude/socialp/index.html  = deploy head + dist/index.html + closing tags
+- /home/claude/socialp/index.html, stats.html = deploy head + dist/<same name> + closing tags
 - /home/claude/socialp/src/         = this source tree (without dist/ and caches)
 Does not commit or push."""
 import os, subprocess, sys
@@ -8,8 +8,9 @@ REPO = "/home/claude/socialp"
 subprocess.run([sys.executable, os.path.join(ROOT, "tools", "merge14.py")], check=True, cwd=ROOT)
 subprocess.run([sys.executable, os.path.join(ROOT, "build.py")], check=True, cwd=ROOT)
 head = open(os.path.join(ROOT, "tools", "deploy_head.html"), encoding="utf-8").read()
-body = open(os.path.join(ROOT, "dist", "index.html"), encoding="utf-8").read()
-open(os.path.join(REPO, "index.html"), "w", encoding="utf-8").write(head + body + "\n</body></html>\n")
+for name in ("index.html", "stats.html"):   # home page + one page per course
+    body = open(os.path.join(ROOT, "dist", name), encoding="utf-8").read()
+    open(os.path.join(REPO, name), "w", encoding="utf-8").write(head + body + "\n</body></html>\n")
 import shutil
 dst = os.path.join(REPO, "src")
 if os.path.exists(dst):
