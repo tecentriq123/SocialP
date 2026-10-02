@@ -1,0 +1,44 @@
+<!-- share -->
+<pre class="cell-in"><code class="language-python">import numpy as np
+
+def model(horizon):                                   # 분석기간(개월)을 넣으면 (증분비용, 증분QALY)를 돌려준다
+    t = np.arange(0, horizon + 1)
+    res = {}
+    for arm, hr_pfs, hr_os, c_drug, c_ae, dq_ae in ((&quot;A&quot;, 0.65, 0.75, 190, 120, 0.012), (&quot;B&quot;, 1.0, 1.0, 120, 80, 0.008)):
+        os_ = np.exp(-np.log(2) / 28 ** 1.15 * hr_os * t ** 1.15)                    # 전체생존 곡선
+        pfs = np.minimum(np.exp(-np.log(2) / 10 ** 0.95 * hr_pfs * t ** 0.95), os_)  # 무진행생존 곡선
+        pf = (pfs[:-1] + pfs[1:]) / 2                 # 무진행 비율(반주기 보정)
+        pd_ = ((os_ - pfs)[:-1] + (os_ - pfs)[1:]) / 2
+        died = os_[:-1] - os_[1:]
+        disc = 1 / 1.045 ** ((t[:-1] + 0.5) / 12)     # 할인 계수
+        cost = ((pf * (c_drug + 40) + pd_ * 250 + died * 800) * disc).sum() + c_ae
+        qaly = ((pf * 0.78 + pd_ * 0.62) / 12 * disc).sum() - dq_ae
+        res[arm] = (cost, qaly)
+    return res[&quot;A&quot;][0] - res[&quot;B&quot;][0], res[&quot;A&quot;][1] - res[&quot;B&quot;][1]
+
+dc_all, dq_all = model(240)                           # 기준 분석: 20년
+dc_obs, dq_obs = model(30)                            # 시험이 관찰한 30개월에서 끊으면
+print(&quot;20년  :&quot;, round(dc_all), round(dq_all, 3), round(dc_all / dq_all))
+print(&quot;30개월:&quot;, round(dc_obs), round(dq_obs, 3), round(dc_obs / dq_obs))
+print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quot; 비용&quot;, round(1 - dc_obs / dc_all, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>20년  : 2872 0.511 5621
+30개월: 1157 0.128 9056
+30개월 뒤의 몫: QALY 0.75  비용 0.597</pre></div>
+
+<!-- bia -->
+<pre class="cell-in"><code class="language-python">import numpy as np
+
+cost_A = np.array([2820.7, 2226.8, 1763.1, 1366.9, 1044.3])   # 치료 시작 후 1-5년차의 1인당 비용(만원), 신약 A
+cost_B = np.array([2200.1, 1821.0, 1398.5, 1021.5, 723.8])    # 표준요법 B
+n_new = 600                                                    # 해마다 치료를 새로 시작하는 환자 수
+share = np.array([0.10, 0.20, 0.30, 0.40, 0.50])               # 그해 시작하는 환자 가운데 신약 A의 비율
+start_A = n_new * share                                        # 연도별로 신약 A를 시작한 환자 수
+
+net = np.zeros(5)
+for year in range(5):                                          # 급여 후 연차(0 = 첫해)
+    for start in range(year + 1):                              # 그해까지 시작한 코호트를 모두 더한다
+        k = year - start                                       # 그 코호트의 치료 연차(0 = 1년차)
+        net[year] += start_A[start] * (cost_A[k] - cost_B[k])
+print(start_A)
+print(np.round(net / 10000, 1), round(net.sum() / 10000, 1))   # 억 원</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[ 60. 120. 180. 240. 300.]
+[ 3.7  9.9 18.2 28.6 41. ] 101.5</pre></div>
+

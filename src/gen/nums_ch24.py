@@ -188,6 +188,43 @@ print(f"  10만 회(seed 1): 확률 {BIG['p_ce']:.4f} (6,000에서 {L.ceac(BIG_D
 print("  평균 순편익의 몬테카를로 표준오차(5,000회):", L.inmb(DC, DQ).std(ddof=1) / math.sqrt(5000))
 N["conv"] = {"run": RUNP[::10].tolist(), "run_n": list(range(1, 5001, 10)), "at": CONV, "seeds": SEEDS, "big_p": BIG["p_ce"]}
 
+show("나. 무진행생존 곡선이 전체생존 곡선을 넘어 잘린 모의실험 (입력값을 독립으로 뽑은 결과)")
+
+
+def cap_stats(n, seed):
+    """L.psa와 같은 난수로 입력값 n벌을 다시 뽑아, 군별로 무진행생존 곡선(자르기 전)이 전체생존 곡선을 넘는지 센다.
+    반환: (A군에서 처음 넘는 개월, 그때의 전체생존, 잘려 나간 무진행 기간(개월), B군에서 넘는지) 배열."""
+    rng = np.random.default_rng(seed)
+    t = np.arange(0, L.HORIZON_MONTHS + 1) * L.CYCLE_MONTHS
+    first, os_at, lost, cap_b = np.full(n, np.nan), np.full(n, np.nan), np.zeros(n), np.zeros(n, bool)
+    for i in range(n):
+        q = L.draw(rng)
+        so_a, sp_a = L.surv(q["os_lam"] * q["hr_os"], q["os_gam"], t), L.surv(q["pfs_lam"] * q["hr_pfs"], q["pfs_gam"], t)
+        so_b, sp_b = L.surv(q["os_lam"], q["os_gam"], t), L.surv(q["pfs_lam"], q["pfs_gam"], t)
+        ex = sp_a > so_a
+        if ex.any():
+            k = int(np.argmax(ex))
+            first[i], os_at[i], lost[i] = t[k], so_a[k], np.maximum(sp_a - so_a, 0).sum()
+        cap_b[i] = bool((sp_b > so_b).any())
+    return first, os_at, lost, cap_b
+
+
+c_first, c_os, c_lost, c_b = cap_stats(5000, SEED)
+c_a = ~np.isnan(c_first)
+c_any = c_a | c_b
+nb_ = L.inmb(DC, DQ)
+print(f"  5,000벌: 적어도 한 군에서 잘림 {int(c_any.sum())}벌 ({c_any.mean():.4f}); 신약 A군 {c_a.mean():.4f}, 표준요법 B군 {c_b.mean():.4f}")
+print(f"  A군에서 잘린 것 가운데 만나는 시점의 전체생존이 5% 미만인 비율 {np.mean(c_os[c_a] < 0.05):.3f}")
+print(f"  전체 모의실험 가운데 A군의 두 곡선이 5년 안에 만나는 비율 {np.mean(c_first < 60):.4f}, 잘려 나간 무진행 기간이 1개월을 넘는 비율 {np.mean(c_lost > 1.0):.4f}")
+print(f"  비용효과적일 확률: 잘린 {int(c_any.sum())}벌 {np.mean(nb_[c_any] > 0):.4f}, 잘리지 않은 {int((~c_any).sum())}벌 {np.mean(nb_[~c_any] > 0):.4f}")
+b_first, _, _, b_b = cap_stats(100000, 1)
+print(f"  10만 벌(seed 1): 적어도 한 군에서 잘림 {np.mean(~np.isnan(b_first) | b_b):.4f}")
+assert int(c_any.sum()) == 1122
+N["cap"] = {"any": float(c_any.mean()), "A": float(c_a.mean()), "B": float(c_b.mean()), "n_any": int(c_any.sum()),
+            "tail_share": float(np.mean(c_os[c_a] < 0.05)), "within5y": float(np.mean(c_first < 60)), "lost_gt1": float(np.mean(c_lost > 1.0)),
+            "p_ce_cap": float(np.mean(nb_[c_any] > 0)), "p_ce_nocap": float(np.mean(nb_[~c_any] > 0)),
+            "any_100k": float(np.mean(~np.isnan(b_first) | b_b))}
+
 show("나(심화). 와이블 모양·척도 모수의 상관과 촐레스키 분해")
 from lifelines import WeibullFitter
 trial = np.loadtxt(os.path.join(HERE, "_ch23_trial.csv"), delimiter=",", skiprows=1)
