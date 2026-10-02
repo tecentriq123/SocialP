@@ -1,0 +1,654 @@
+<p class="lead">효과가 좋은 신약이라도 건강보험이 그 값을 치를 만한지는 따로 따져야 합니다. 경제성 평가는 두 가지 이상의 대안을 비용과 건강 결과 양쪽에서 비교해 이 질문에 답합니다. 이 장에서는 경제성 평가가 무엇을 묻는지, 네 가지 유형이 어떻게 다른지, 분석 전에 정해야 하는 관점·비교대안·분석기간·할인이 무엇인지, 결과를 요약하는 증분비용효과비와 비용효과평면을 어떻게 읽는지를 다룹니다. PART 4 전체에서 따라갈 예시(진행성 신세포암 1차 치료, 신약 A 대 표준요법 B)도 이 장에서 소개합니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch19-s5">19장 마 절</a>의 절대적 효과(위험차, NNT·NNH)와 "이득과 위해는 무게가 다르다"는 점, <a href="#ch13-s1">13장 가 절</a>의 동등성·비열등성("유의한 차이가 없다"는 "같다"가 아님), <a href="#ch07-s2">7장 나 절</a>의 생존곡선, <a href="#ap01-s3">부록 A 다 절</a>의 "비용은 평균으로 비교한다"</dd>
+<dt>먼저 읽을 부분</dt><dd>네 절의 '쉽게 말하면', 표 20-1부터 20-11까지와 그림 20-1부터 20-4까지, '숫자로 따라가기'의 결과, 흔한 오해 상자, '내 연구에 쓸 때', '논문에서 읽어 보기', 정리, 스스로 확인하기</dd>
+<dt>나중에 읽을 부분</dt><dd>'심화' 표시가 붙은 접힌 부분. 가 절의 급여 절차 세부, 나 절과 라 절의 계산 과정, 다 절과 라 절의 파이썬 코드, 라 절의 국내 심의 사례 숫자와 '덜 효과적이고 더 싼 대안', 네 절의 '수식으로 보기'</dd>
+<dt>이 장을 마치면</dt><dd>① 완전한 경제성 평가와 비용 분석·질병비용 연구·재정영향분석을 구분하고, 논문이 네 유형 가운데 어느 것인지 Methods에서 찾을 수 있다 ② 관점, 비교대안, 분석기간, 할인율이 결과를 어떻게 바꾸는지 설명하고, 현행 국내 지침의 기본값을 말할 수 있다 ③ 두 대안의 비용과 QALY에서 증분비용효과비를 계산해 비용효과평면에 놓고, 평균 비용효과비와 구분할 수 있다 ④ 우월·열등·확장 열등을 가려 효율 경계를 만들고, 음수 ICER와 "ICER가 낮을수록 좋은 약"이라는 해석의 문제를 설명할 수 있다</dd>
+</dl></div>
+
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ch20-s1">
+<h2><span class="sec-no">가.</span>경제성 평가가 답하는 질문</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">경제성 평가는 "이 약에 돈을 더 쓰면 건강을 얼마나 더 얻는가, 그 돈을 다른 곳에 썼을 때 얻을 건강보다 많은가"를 묻습니다. 그래서 언제나 두 가지 이상의 대안을 놓고 비용과 건강 결과를 함께 비교합니다.</p>
+<ul>
+<li><b>비유.</b> 약국 냉장고에 빈 칸이 하나 남았습니다. 새 제품을 들이면 그 칸에 다른 제품은 둘 수 없습니다. 새 제품이 좋은지만 볼 것이 아니고, 그 칸에 둘 수 있었던 다른 제품보다 나은지를 봐야 합니다. 건강보험 재정도 같습니다. 신약에 쓴 돈은 다른 환자의 치료에 쓸 수 없습니다.</li>
+<li><b>논문에서는.</b> "Compared with standard therapy, drug A yielded 0.511 additional QALYs at an additional cost of ₩28.7 million"처럼 나옵니다. "표준요법 대신 신약 A를 쓰면 환자 1명당 약 2,870만원이 더 들고, 완전한 건강으로 환산한 생존 기간이 약 반 년 늘어난다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> 경제성 평가는 싼 약을 고르는 분석이 아닙니다. 더 비싸도 늘어난 건강이 그 값을 하면 '비용효과적'이고, 싸도 잃는 건강이 크면 비용효과적이지 않습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>답하는 질문</dt><dd>비교대안 대신 이 치료를 쓰면 비용이 얼마나 더 들고 건강을 얼마나 더 얻는가. 그 추가 비용이 추가 건강에 견주어 받아들일 만한가</dd></div>
+  <div><dt>필요한 것</dt><dd>둘 이상의 대안, 대안별 비용, 대안별 건강 결과</dd></div>
+  <div><dt>쓰이는 곳</dt><dd>신약의 급여 여부와 가격 결정, 진료지침, 보건사업의 우선순위</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>대안별 총비용과 총효과, 증분비용, 증분효과, 증분비용효과비<span class="en">(incremental cost-effectiveness ratio, ICER)</span></dd></div>
+</dl>
+
+<h3>한정된 재정과 기회비용</h3>
+<p>쓸 수 있는 돈이 정해져 있으면 하나를 고를 때 다른 것을 포기하게 됩니다. 포기한 것 가운데 가장 좋은 것의 가치를 <strong>기회비용</strong><span class="en">(opportunity cost)</span>이라고 합니다. 보건의료에서 기회비용은 돈이 아니라 그 돈으로 다른 환자가 얻을 수 있었던 건강입니다<cite data-ref="drummond2015book"></cite>.</p>
+<p>보건소에 예산 1억 원이 있고 두 사업 가운데 하나만 할 수 있다고 합시다. 건강 결과는 <strong>질보정생존연수</strong><span class="en">(quality-adjusted life year, QALY)</span>로 셉니다. 완전히 건강하게 사는 1년을 1로 치는 단위이고, 22장에서 자세히 다룹니다.</p>
+<p class="tbl-cap"><b>표 20-1.</b> 예산 1억 원으로 할 수 있는 두 사업 (가상의 숫자)</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th></th><th class="r">1인당 비용</th><th class="r">1인당 건강 이득</th><th class="r">1억 원으로 가능한 인원</th><th class="r">얻는 건강 합계</th></tr></thead>
+<tbody>
+<tr><td>사업 X</td><td class="r">500만원</td><td class="r">0.10 QALY</td><td class="r">20명</td><td class="r">2.0 QALY</td></tr>
+<tr class="hi"><td>사업 Y</td><td class="r">200만원</td><td class="r">0.05 QALY</td><td class="r">50명</td><td class="r">2.5 QALY</td></tr>
+</tbody></table></div>
+<p>한 사람이 얻는 효과는 X가 Y의 두 배입니다. 그러나 같은 예산으로 얻는 건강의 합은 Y가 더 큽니다. X를 고르면 Y로 얻을 수 있었던 2.5 QALY를 포기하고 2.0 QALY를 얻으므로 주민 전체로는 0.5 QALY를 잃습니다. "효과가 더 좋다"만으로는 선택을 정할 수 없고, 효과를 얻는 데 드는 비용을 함께 봐야 합니다.</p>
+
+<h3>임상시험의 결과만으로는 부족한 이유</h3>
+<p>임상시험과 메타분석은 "신약이 비교약보다 효과가 있는가, 얼마나 있는가"에 답합니다. 19장 마 절에서는 그 결과를 1,000명당 사건 수와 NNT·NNH 같은 절대적 효과로 바꿨습니다. 그래도 급여를 결정하기에는 세 가지가 빠져 있습니다.</p>
+<ul>
+<li><b>종류가 다른 결과를 합칠 방법.</b> 막은 허혈 사건 14건과 늘어난 출혈 15건은 무게가 달라 그대로 견줄 수 없었습니다. 경제성 평가는 생존 기간과 삶의 질을 QALY 하나로 합칩니다.</li>
+<li><b>비용.</b> 약값만이 아닙니다. 약이 진행을 늦추면 입원과 후속치료가 줄고, 오래 살면 관리 비용이 늘어납니다. 이 모두를 대안별로 더합니다.</li>
+<li><b>판단 기준.</b> 추가 건강 1단위에 얼마까지 낼 것인가의 기준(라 절의 임계값)이 있어야 "받아들일 만하다"를 말할 수 있습니다.</li>
+</ul>
+<p>이 세 가지를 갖춘 분석 틀은 1970년대에 정리되었고<cite data-ref="weinstein1977"></cite>, 지금은 여러 나라가 신약의 급여 결정에 씁니다.</p>
+
+<h3>완전한 경제성 평가와 부분 평가</h3>
+<p>경제성 평가의 조건은 두 가지입니다. 첫째, 둘 이상의 대안을 비교합니다. 둘째, 비용과 결과를 모두 봅니다. 둘 다 만족해야 <strong>완전한 경제성 평가</strong><span class="en">(full economic evaluation)</span>이고, 하나라도 빠지면 부분 평가입니다<cite data-ref="drummond2015book"></cite>.</p>
+<p class="tbl-cap"><b>표 20-2.</b> 비용과 결과를 다루는 연구의 구분</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th>비용만 봄</th><th>결과만 봄</th><th>비용과 결과를 모두 봄</th></tr></thead>
+<tbody>
+<tr><td>대안 하나 (비교 없음)</td><td>비용 기술, 질병비용 연구</td><td>결과 기술</td><td>비용과 결과의 기술</td></tr>
+<tr><td>둘 이상의 대안 비교</td><td>비용 분석</td><td>효과 평가 (임상시험, 코호트 연구)</td><td class="hi"><b>완전한 경제성 평가</b></td></tr>
+</tbody></table></div>
+<p>논문 제목에 'cost'나 'economic'이 있어도 완전한 경제성 평가가 아닌 경우가 많습니다.</p>
+<ul>
+<li><strong>질병비용 연구</strong><span class="en">(cost-of-illness study)</span>: 한 질환 때문에 사회가 쓰는 비용의 크기를 잽니다. 대안을 비교하지 않으므로 어떤 치료가 나은지는 말하지 못합니다.</li>
+<li><strong>비용 분석</strong><span class="en">(cost analysis)</span>: 두 군의 의료비를 비교합니다(21장). 결과가 빠져 있어서, 비용이 적은 쪽이 건강도 나쁜지 알 수 없습니다.</li>
+<li><strong>재정영향분석</strong><span class="en">(budget impact analysis)</span>: 신약을 급여하면 앞으로 몇 년 동안 보험 재정 지출이 얼마나 달라지는지를 환자 수와 점유율로 추계합니다<cite data-ref="sullivan2014bia"></cite>. "감당할 수 있는가"에 답하고, "값어치가 있는가"에는 답하지 않습니다. 환자가 많은 질환이면 비용효과적인 약도 재정영향은 클 수 있습니다(<a href="#ch25-s3">25장 다 절</a>).</li>
+</ul>
+
+<h3>국내 급여 결정에서의 위치</h3>
+<p>우리나라는 2006년 12월부터 <strong>선별등재제도</strong><span class="en">(positive list system)</span>를 시행합니다. 허가받은 약을 모두 급여하지 않고, 임상적 유용성과 비용효과성을 평가해 가치가 인정된 약만 급여 목록에 올립니다<cite data-ref="bae2018role"></cite>.</p>
+<div class="flow">
+<div><div><b>제약사의 급여 신청</b><p>신청 가격, 임상 근거, 필요하면 경제성 평가 자료를 냅니다.</p></div></div>
+<div><div><b>건강보험심사평가원의 평가</b><p>약제급여평가위원회가 급여 적정성을 심의합니다. 경제성 평가 자료는 경제성평가소위원회가 먼저 기술적으로 검토합니다.</p></div></div>
+<div><div><b>국민건강보험공단과의 협상</b><p>약가와 예상 사용량을 협상합니다. 결렬되면 등재되지 않습니다.</p></div></div>
+<div><div><b>보건복지부의 등재</b><p>건강보험정책심의위원회를 거쳐 고시합니다.</p></div></div>
+</div>
+<p>모든 신약이 경제성 평가 자료를 내지는 않습니다. 자료가 요구되는 경우는 비교약보다 임상적으로 우월하다고 주장하면서 더 높은 가격을 신청할 때입니다. 임상적으로 비슷하거나 비열등한 약은 대체약의 가격(가중평균가)과 투약비용을 비교해 평가합니다<cite data-ref="yoo2019access"></cite>. 그래서 경제성 평가로 심의된 건수는 2007–2016년에 91건으로 많지 않습니다<cite data-ref="bae2018role"></cite>. 자료를 만들 때 따르는 기준이 건강보험심사평가원의 「의약품 경제성 평가 지침」이고, 현행은 2021년 1월에 개정된 3판입니다<cite data-ref="hira2021guideline"></cite><cite data-ref="bae2022kguideline"></cite>. PART 4는 이 지침을 기준으로 삼습니다.</p>
+<p>대체 치료가 없는 중증 질환의 항암제·희귀질환 치료제에는 경제성 평가 자료 없이 등재되는 경로가 따로 있고, 위험분담제로 실제 가격을 낮춰 비용효과성을 맞추기도 합니다. 내용은 아래 접힌 상자에 있습니다.</p>
+<!--FOLD:자세히 보기: 경제성 평가 자료 없이 등재되는 경로와 위험분담제-->
+<ul>
+<li><b>진료상 필수 약제.</b> 대체할 치료법이 없고, 생명을 위협하는 중증 질환에 쓰이며, 희귀질환 등 소수 환자가 대상이고, 생존 연장 등 임상적으로 의미 있는 개선이 입증된 약은 경제성 평가 없이 외국 가격을 참고해 협상합니다<cite data-ref="yoo2019access"></cite>.</li>
+<li><b>경제성 평가 자료 제출 생략.</b> 2015년 무렵 도입되었습니다. 대체 치료가 없는 생명을 위협하는 중증 질환의 항암제·희귀질환 치료제 가운데, 환자 수가 적어 근거를 만들기 어렵고 주요 7개국 중 3개국 이상에 등재된 약이 대상입니다. 이 경로의 신약은 2016년 9월부터 총액제한형 위험분담 계약을 반드시 맺습니다<cite data-ref="lee2021rsa"></cite>. 세부 기준은 그 뒤로 바뀌었을 수 있으므로 현행 규정을 확인합니다.</li>
+<li><b>위험분담제</b><span class="en">(risk sharing arrangement)</span><b>.</b> 2013년 12월에 시행되었습니다<cite data-ref="yoo2019access"></cite>. 대체 치료가 없는 항암제·희귀질환 치료제 등을 대상으로, 제약사가 약값의 일부를 공단에 돌려주거나(환급형) 연간 청구액 상한을 넘는 금액을 돌려주는(총액제한형) 등의 계약을 맺습니다<cite data-ref="lee2021rsa"></cite>. 위험분담 대상 약도 같은 절차로 평가하고 계약 내용이 경제성 평가에 반영되므로, 표시 가격이 아닌 환급 뒤의 실제 가격으로 비용효과성을 맞추는 구조입니다<cite data-ref="yoo2019access"></cite>. 공통 예시가 24장에서 "가격을 얼마로 낮추면 비용효과적인가"로 이어지는 배경입니다.</li>
+</ul>
+<!--/FOLD-->
+
+<h3>PART 4에서 따라갈 예시</h3>
+<p>20장부터 25장까지 하나의 가상 급여 신청 사례를 따라갑니다. 진행성 신세포암의 1차 치료에서 <b>신약 A</b>를 <b>표준요법 B</b>와 비교합니다. 실제 약이 아니고 모든 숫자는 설명을 위해 지어낸 것입니다. 환자는 무진행, 진행, 사망의 세 상태를 거치고, 두 약 모두 진행할 때까지 투여합니다. 신약 A는 진행과 사망을 늦추지만(무진행생존 위험비 0.65, 전체생존 위험비 0.75) 한 달 약값이 190만원으로 B의 120만원보다 비쌉니다. 20년 동안의 비용과 QALY를 모형으로 계산한 기준 분석<span class="en">(base case)</span> 결과는 다음과 같습니다. 모형은 23장에서 만듭니다.</p>
+<p class="tbl-cap"><b>표 20-3.</b> 공통 예시의 기준 분석 결과 (가상의 예시. 환자 1명당, 보건의료체계 관점, 비용과 QALY는 연 4.5% 할인. 관점과 할인은 다 절)</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th></th><th class="r">신약 A</th><th class="r">표준요법 B</th><th class="r">증분 (A − B)</th></tr></thead>
+<tbody>
+<tr><td>총비용 (만원)</td><td class="r">10,562</td><td class="r">7,689</td><td class="r">2,872</td></tr>
+<tr><td>생존연수 <span class="en">(life years)</span>, 할인 전</td><td class="r">3.916</td><td class="r">3.054</td><td class="r"></td></tr>
+<tr><td>QALY</td><td class="r">2.385</td><td class="r">1.874</td><td class="r">0.511</td></tr>
+<tr class="hi"><td>ICER (만원/QALY)</td><td class="r"></td><td class="r"></td><td class="r">5,621</td></tr>
+</tbody></table></div>
+<p>증분은 반올림하기 전 값으로 계산해서 표의 두 값을 뺀 것과 끝자리가 1 다를 수 있습니다. 신약 A를 쓰면 환자 1명당 2,872만원이 더 들고 0.511 QALY를 더 얻습니다. 마지막 줄의 ICER는 이 둘의 비이고 라 절에서 다룹니다. 이 값을 판단할 기준으로 PART 4는 QALY당 5,000만원을 씁니다. 우리나라에는 공식 임계값이 없으므로(라 절) 이 값은 <b>이 예시에서 가정한 임계값</b>입니다. 신약 A는 기준을 조금 넘습니다. 이 결과가 얼마나 불확실한지, 가격을 얼마로 낮추면 기준 안에 들어오는지가 23–25장의 주제입니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 경제성 평가의 목적</p>
+<p><span class="wrong">비용효과적인 약은 의료비를 줄여 주는 약이다.</span> 비용효과적<span class="en">(cost-effective)</span>이라는 말은 "추가로 드는 비용이 추가로 얻는 건강에 견주어 받아들일 만하다"는 뜻입니다. 비용효과적인 신약의 대부분은 돈이 더 듭니다. 비용이 줄어드는 경우는 비용 절감<span class="en">(cost-saving)</span>이라고 따로 부릅니다.</p>
+<p><span class="wrong">임상시험에서 유의하게 우월했으므로 급여되어야 한다.</span> 우월성은 경제성 평가의 출발점입니다. 얼마나 더 좋은지, 얼마나 더 비싼지, 그 돈으로 포기하는 건강이 얼마인지가 남아 있습니다.</p>
+<p><span class="wrong">재정영향분석을 냈으니 경제성 평가를 한 것이다.</span> 재정영향분석에는 건강 결과가 없습니다. 지출 총액이 얼마나 변하는지를 보는 별개의 분석입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>먼저 정할 것</strong>: 누구의 결정을 돕는 분석인지(급여 신청, 진료지침, 학술 연구), 대상 환자군, 비교할 대안들입니다. 결정 문제가 분명해야 다 절의 관점과 분석기간을 정할 수 있습니다.</li>
+<li><strong>이름 붙이기</strong>: 비용만 비교했다면 'cost analysis', 지출 추계라면 'budget impact analysis'라고 씁니다. 결과를 함께 비교하지 않은 연구에 'cost-effectiveness'라는 말을 쓰지 않습니다.</li>
+<li><strong>보고할 것</strong>: 보고 기준은 CHEERS 2022이고 28개 항목입니다<cite data-ref="husereau2022cheers"></cite>. 이 절과 관련된 항목은 배경과 목적(3번), 연구 대상 인구(5번), 환경과 장소(6번), 비교대안(7번)입니다. 전체 항목은 <a href="#ch25-s1">25장 가 절</a>에서 다룹니다.</li>
+<li><strong>외국과의 차이</strong>: 경제성 평가를 급여 결정에 쓰는 정도는 나라마다 다릅니다. 국내에서 자료 제출이 생략되는 약에도 영국, 호주, 캐나다는 경제성 평가 자료를 요구했다는 비교 연구가 있습니다<cite data-ref="hong2025highpriced"></cite>.</li>
+<li><strong>파이썬</strong>: 결정분석 모형<span class="en">(decision-analytic model)</span>을 위한 표준 패키지는 없습니다. numpy 배열로 직접 구현하며(23장), PART 4 공통 예시의 모형 결과도 그렇게 계산했습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>공통 예시를 논문으로 쓴다면 초록은 다음과 같습니다. 경제성 평가 논문의 초록에는 이 절에서 말한 요소가 거의 정해진 순서로 나옵니다.</p>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 경제성 평가 논문의 초록</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Objective:</b> To evaluate the <span class="mk">1</span> <span class="hl">cost-effectiveness</span> of drug A <span class="mk">2</span> <span class="hl">compared with standard therapy B</span> as first-line treatment for advanced renal cell carcinoma <span class="mk">3</span> <span class="hl">from the Korean healthcare system perspective</span>. <b>Methods:</b> A partitioned survival model with three health states was used to estimate <span class="mk">4</span> <span class="hl">costs and quality-adjusted life years (QALYs)</span> over a 20-year time horizon. Costs and QALYs were discounted at 4.5% per year. <b>Results:</b> Drug A was associated with higher costs (₩105.6 million vs ₩76.9 million) and more QALYs (2.385 vs 1.874) than standard therapy B, resulting in an <span class="mk">5</span> <span class="hl">incremental cost-effectiveness ratio of ₩56.2 million per QALY gained</span>. <b>Conclusions:</b> At its list price, drug A <span class="mk">6</span> <span class="hl">was not cost-effective at a willingness-to-pay threshold of ₩50 million per QALY</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>비용과 결과를 함께 본다는 표시.</b> 제목과 목적에 'cost-effectiveness'가 있으면 완전한 경제성 평가를 뜻합니다. 실제로 그런지는 Results에 비용과 건강 결과가 대안별로 모두 있는지로 확인합니다.</span></li>
+<li><span class="mk">2</span><span><b>비교대안.</b> 경제성 평가의 결과는 언제나 "무엇과 비교해서"입니다. 비교대안이 실제 진료에서 쓰이는 치료인지 확인합니다(다 절).</span></li>
+<li><span class="mk">3</span><span><b>관점.</b> 누구의 비용을 셌는지입니다. 보건의료체계 관점은 의료비만 세고 환자의 교통비나 생산성 손실은 넣지 않습니다(다 절).</span></li>
+<li><span class="mk">4</span><span><b>두 가지 결과물.</b> 모형이 대안마다 내놓는 것은 비용과 QALY입니다. ₩105.6 million은 1억 560만원으로 표 20-3의 10,562만원을 백만 원 단위로 적은 값입니다.</span></li>
+<li><span class="mk">5</span><span><b>증분비용효과비.</b> (105.6 − 76.9) ÷ (2.385 − 1.874) = 28.7 ÷ 0.511 = 56.2. QALY 1단위를 더 얻는 데 약 5,620만원이 든다는 뜻입니다. 표 20-3의 5,621만원/QALY를 백만 원 단위로 반올림한 값입니다.</span></li>
+<li><span class="mk">6</span><span><b>결론은 임계값에 달려 있습니다.</b> "비용효과적이지 않다"는 효과가 없다는 뜻이 아닙니다. 저자가 정한 기준(QALY당 5,000만원)보다 ICER가 높다는 뜻이고, 기준이나 가격이 달라지면 결론도 달라집니다. 결론 문장에서 임계값과 그 근거를 찾습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \text{포기하는 건강} = \frac{\text{추가 비용}}{k} \]
+<p>\(k\)는 같은 재정에서 건강 1단위(1 QALY)를 만드는 데 드는 비용입니다. 표 20-1에서 사업 Y는 200 ÷ 0.05 = 4,000만원으로 1 QALY를 만듭니다. 사업 X에 1억 원을 쓰면 Y로 얻을 10,000 ÷ 4,000 = 2.5 QALY를 포기하고 2.0 QALY를 얻습니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>재정이 한정되어 있으면 신약에 쓴 돈만큼 다른 치료를 포기합니다. 그 포기한 건강이 기회비용입니다.</li>
+<li>완전한 경제성 평가는 둘 이상의 대안을 비용과 결과 양쪽에서 비교합니다. 비용 분석, 질병비용 연구, 재정영향분석은 완전한 경제성 평가가 아닙니다.</li>
+<li>'비용효과적'은 '비용 절감'이 아닙니다. 추가 비용이 추가 건강에 견주어 받아들일 만하다는 뜻입니다.</li>
+<li>국내에서는 비교약보다 우월하다고 주장하며 더 높은 가격을 신청하는 약에 경제성 평가 자료가 요구되고, 기준은 심평원 지침(2021년 3판)입니다.</li>
+<li>PART 4의 공통 예시에서 신약 A는 표준요법 B보다 2,872만원 더 들고 0.511 QALY를 더 얻습니다(ICER 5,621만원/QALY).</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">분석 고르기</span>다음 세 연구는 각각 표 20-2의 어디에 해당합니까? (가) 청구자료로 제2형 당뇨병 환자의 연간 총 진료비를 추계한 연구 (나) 약사 중재군과 통상관리군의 1년 입원비를 비교한 연구 (다) 신약 급여 후 3년 동안 건강보험 약품비가 얼마나 늘지 추계한 연구.</p>
+<details><summary>답과 풀이</summary><div><p>(가) 질병비용 연구입니다. 대안의 비교가 없고 비용만 봅니다. (나) 비용 분석입니다. 두 군을 비교하지만 건강 결과가 없습니다. 중재군의 입원비가 적더라도 건강 결과가 같거나 나은지 함께 봐야 경제성 평가가 됩니다. (다) 재정영향분석입니다. 신약이 있을 때와 없을 때의 지출을 비교하지만 건강 결과가 없고, 환자 1명이 아닌 전체 지출을 봅니다. 셋 다 완전한 경제성 평가가 아닙니다.</p></div></details></li>
+<li><p><span class="qt">계산</span>환자 1명당 1,500만원이 더 들고 0.25 QALY를 더 얻는 신약이 있습니다. 해마다 200명이 이 약을 씁니다. 같은 재정을 다른 곳에 쓰면 5,000만원마다 1 QALY를 얻는다고 가정할 때, 이 약을 급여하면 전체 건강은 늘어납니까 줄어듭니까?</p>
+<details><summary>답과 풀이</summary><div><p>추가 비용은 200 × 1,500 = 300,000만원(30억 원)이고 얻는 건강은 200 × 0.25 = 50 QALY입니다. 같은 30억 원을 다른 곳에 쓰면 300,000 ÷ 5,000 = 60 QALY를 얻습니다. 이 약을 급여하면 50 QALY를 얻고 60 QALY를 포기하므로 전체로는 10 QALY가 줄어듭니다. 이 약의 QALY당 추가 비용은 1,500 ÷ 0.25 = 6,000만원으로 가정한 5,000만원보다 높습니다. 두 계산은 같은 결론을 다른 방식으로 말한 것입니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"신약 A는 표준요법 B보다 비용효과적이지 않았다. 따라서 신약 A는 B보다 효과가 떨어진다." 무엇이 틀렸습니까?</p>
+<details><summary>답과 풀이</summary><div><p>비용효과적이지 않다는 것은 효과가 떨어진다는 뜻이 아닙니다. 공통 예시에서 신약 A는 B보다 0.511 QALY를 더 얻는, 더 효과적인 약입니다. 다만 추가 비용 2,872만원이 그 건강 이득에 견주어 이 예시에서 가정한 임계값(QALY당 5,000만원)을 넘을 뿐입니다. 고쳐 쓰면 "신약 A는 B보다 효과적이지만, 현재 가격에서는 QALY당 추가 비용이 5,621만원으로 가정한 임계값 5,000만원을 넘었다"입니다. 가격이 내려가면 같은 약이 비용효과적이 됩니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ch20-s2">
+<h2><span class="sec-no">나.</span>경제성 평가의 네 가지 유형</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">경제성 평가의 네 유형은 비용을 세는 방법은 같고, 건강 결과를 무엇으로 재는지가 다릅니다. 결과가 같다고 보고 비용만 비교하면 비용-최소화 분석, 생존연수 같은 자연 단위로 재면 비용-효과 분석, QALY로 재면 비용-효용 분석, 돈으로 환산하면 비용-편익 분석입니다.</p>
+<ul>
+<li><b>비유.</b> 자동차 두 대를 비교할 때 성능이 같다면 가격만 봅니다. 성능이 다르면 연비처럼 한 가지 수치로 비교하거나, 여러 성능을 합친 종합 점수로 비교하거나, 성능의 차이를 금액으로 바꿔 가격과 견줍니다. 네 유형은 이 네 가지 방식에 대응합니다.</li>
+<li><b>논문에서는.</b> "A cost-utility analysis was conducted … incremental cost per QALY gained"처럼 Methods에 유형과 결과 지표가 나옵니다.</li>
+<li><b>기억할 한 가지.</b> 제목의 'cost-effectiveness analysis'는 네 유형을 아우르는 넓은 뜻으로 쓰일 때가 많습니다. 유형은 제목이 아닌 결과 지표(QALY인지, 자연 단위인지)로 확인합니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>나누는 기준</dt><dd>건강 결과의 단위. 재지 않음(동등), 자연 단위, QALY, 금액</dd></div>
+  <div><dt>국내 지침</dt><dd>비용-효용 분석을 선호. 결과는 QALY</dd></div>
+  <div><dt>결과 형식</dt><dd>비용 차이, 효과 1단위당 추가 비용, QALY당 추가 비용, 순편익(금액)</dd></div>
+  <div><dt>논문에서 확인할 것</dt><dd>결과 지표가 무엇인가. 비용만 비교했다면 효과가 같다는 근거가 있는가</dd></div>
+</dl>
+
+<h3>네 유형의 차이</h3>
+<p class="tbl-cap"><b>표 20-4.</b> 경제성 평가의 네 유형</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>유형</th><th>건강 결과의 단위</th><th>결과 제시</th><th>쓰는 경우</th><th>한계</th></tr></thead>
+<tbody>
+<tr><td><strong>비용-최소화 분석</strong> <span class="en">(cost-minimization analysis, CMA)</span></td><td>재지 않음. 대안들의 효과가 같다고 봄</td><td>비용의 차이</td><td>효과가 동등하다는 근거가 있을 때</td><td>동등성을 입증하기 어려움</td></tr>
+<tr><td><strong>비용-효과 분석</strong> <span class="en">(cost-effectiveness analysis, CEA)</span></td><td>자연 단위. 생존연수, 막은 사건 수, 혈압 mmHg</td><td>효과 1단위당 추가 비용</td><td>같은 결과 지표를 쓰는 대안끼리 비교할 때</td><td>결과 지표가 다른 질환과 비교할 수 없음. 삶의 질이 빠짐</td></tr>
+<tr class="hi"><td><strong>비용-효용 분석</strong> <span class="en">(cost-utility analysis, CUA)</span></td><td>QALY. 생존 기간에 삶의 질 가중치를 곱한 값</td><td>QALY당 추가 비용</td><td>생존과 삶의 질이 함께 달라질 때. 질환이 다른 치료와 비교할 때</td><td>삶의 질 가중치인 효용<span class="en">(utility)</span>을 재야 함 (22장)</td></tr>
+<tr><td><strong>비용-편익 분석</strong> <span class="en">(cost-benefit analysis, CBA)</span></td><td>금액</td><td>순편익 = 편익 − 비용</td><td>보건의료 밖의 사업과 견줄 때</td><td>건강을 금액으로 환산하는 방법에 합의가 어려움</td></tr>
+</tbody></table></div>
+<p>비용-효과 분석의 약점은 단위입니다. "뇌졸중 1건 예방에 3,000만원"과 "골절 1건 예방에 2,000만원" 가운데 어느 쪽이 나은지는 답할 수 없습니다. QALY는 질환과 관계없이 쓸 수 있는 공통 단위여서, 항암제와 당뇨병 약을 같은 기준으로 견줄 수 있습니다. 급여 결정처럼 여러 질환의 치료가 같은 재정을 나눠 쓰는 상황에서 비용-효용 분석을 쓰는 이유입니다<cite data-ref="drummond2015book"></cite>. 비용-편익 분석은 건강까지 돈으로 바꾸기 때문에 "비용보다 편익이 큰가"를 바로 답하지만, 의약품 급여 평가에서는 드물게 쓰입니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>공통 예시의 같은 결과를 유형별로 적어 봅니다. 신약 A는 표준요법 B보다 2,872만원이 더 들고, 생존연수가 0.670년(할인 후), QALY가 0.511 늘어납니다.</p>
+<ul>
+<li><b>비용-효과 분석</b>: 생존연수 1년을 더 얻는 데 4,287만원.</li>
+<li><b>비용-효용 분석</b>: 1 QALY를 더 얻는 데 5,621만원.</li>
+<li><b>비용-편익 분석의 꼴</b>: 1 QALY의 가치를 이 예시에서 가정한 5,000만원으로 치면 편익은 2,555만원, 비용은 2,872만원이어서 순편익은 −317만원. 라 절의 순금전편익이 이 계산입니다.</li>
+<li><b>비용-최소화 분석</b>: 쓸 수 없습니다. 두 약의 효과가 다르기 때문입니다.</li>
+</ul>
+<p>QALY당 비용이 생존연수당 비용보다 높은 것은 늘어난 생존 기간이 완전한 건강 상태가 아니기 때문입니다. 무진행 상태의 효용은 0.78, 진행 상태는 0.62여서 늘어난 생존 1년은 평균 0.76 QALY로만 셉니다. 생존연수 증가를 그대로 QALY 증가로 읽으면 안 됩니다.</p>
+<!--FOLD:계산 과정 보기-->
+<ul>
+<li>생존연수당 비용: 2,872 ÷ 0.670 = 4,287만원/생존연수 (반올림 전 값으로 계산)</li>
+<li>QALY당 비용: 2,872 ÷ 0.511 = 5,621만원/QALY (반올림 전 값으로 계산. 표시된 값으로 나누면 5,620)</li>
+<li>편익을 금액으로: 5,000 × 0.511 = 2,555만원. 순편익 2,555 − 2,872 = −317만원</li>
+<li>늘어난 생존 1년의 평균 QALY: 0.511 ÷ 0.670 = 0.76</li>
+</ul>
+<!--/FOLD-->
+
+<h3>국내 지침과 외국</h3>
+<p>심평원 지침은 비용-효용 분석을 선호하고, 효과 지표로 QALY를, 그리고 검사 수치 같은 중간 결과가 아닌 최종 결과를 쓰도록 합니다(지침 요약 기준)<cite data-ref="isporkorea2024"></cite>. 2014–2018년에 심평원에 제출된 경제성 평가 50건 가운데 47건이 QALY를 썼고<cite data-ref="hong2021utility"></cite>, 비용-최소화 분석만 낸 것은 2건입니다<cite data-ref="bae2022sens"></cite>. 영국 NICE도 QALY를 기준으로 삼습니다<cite data-ref="nice2022manual"></cite>. 미국의 권고(Second Panel)는 QALY를 쓰는 분석을 그대로 'cost-effectiveness analysis'라고 부릅니다<cite data-ref="sanders2016panel"></cite>. 학술지에서 CEA가 넓은 뜻으로 쓰이는 배경입니다.</p>
+
+<h3>비용-최소화 분석의 조건</h3>
+<p>비용만 비교하려면 효과가 같다는 근거가 먼저 있어야 합니다. "두 군의 차이가 유의하지 않았다"는 근거가 되지 못합니다. 유의하지 않은 차이는 표본이 작아서일 수 있고, 동등하다는 주장은 미리 정한 한계 안에 신뢰구간이 들어오는 동등성·비열등성 시험으로 뒷받침해야 합니다(<a href="#ch13-s1">13장 가 절</a>). 그런 근거가 있어도 효과의 추정값에는 불확실성이 남으므로, 처음부터 비용-최소화 분석을 택하지 말고 비용과 효과를 함께 추정해 불확실성을 보라는 지적이 있습니다<cite data-ref="briggs2001"></cite>. 국내 제도에서는 임상적 유용성이 대체약과 비슷하거나 비열등하다고 인정되면 경제성 평가 대신 투약비용을 비교합니다(가 절). 형식은 비용-최소화 분석과 같습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 유형을 읽을 때</p>
+<p><span class="wrong">제목이 cost-effectiveness analysis이므로 QALY를 쓰지 않은 분석이다.</span> 좁은 뜻의 비용-효과 분석은 자연 단위를 쓰지만, 학술지에서는 QALY를 쓴 분석도 이 이름으로 부릅니다. Methods와 Results의 결과 지표를 봅니다.</p>
+<p><span class="wrong">두 약의 효과 차이가 유의하지 않았으므로(P = 0.21) 비용만 비교하면 된다.</span> 차이가 없다는 증거와 차이의 증거가 없는 것은 다릅니다. 동등성이나 비열등성이 입증되지 않았다면 비용-최소화 분석의 전제가 서지 않습니다.</p>
+<p><span class="wrong">생존연수당 4,287만원이므로 QALY당 비용도 그쯤이다.</span> 늘어난 생존 기간의 삶의 질이 낮을수록 QALY당 비용은 더 높습니다. 이 예에서는 5,621만원입니다. 두 값은 서로 바꿔 쓸 수 없고, 임계값과 견주는 값은 QALY당 비용입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 급여 결정용이면 비용-효용 분석이 기본입니다. 결과가 한 가지이고 삶의 질 자료가 없으면 비용-효과 분석을 하되, 결과 지표가 환자에게 의미 있는 최종 결과인지 확인합니다. 효과가 같다는 근거가 약하면 비용-최소화 분석을 주 분석으로 삼지 않습니다.</li>
+<li><strong>보고할 것</strong>: Methods에 유형과 결과 지표를 적습니다(CHEERS 2022의 11번 결과 지표의 선택). 제목에도 "cost-utility analysis"처럼 유형을 밝히면 독자가 찾기 쉽습니다. QALY당 비용과 생존연수당 비용을 함께 보고하면 삶의 질 가중치의 영향을 독자가 볼 수 있습니다.</li>
+<li><strong>외국과의 차이</strong>: CHEERS 2022는 비용-편익 분석과 형평성을 고려하는 분석에도 쓸 수 있도록 범위를 넓혔습니다<cite data-ref="husereau2022cheers"></cite>. 국내 급여 평가는 비용-효용 분석 중심입니다.</li>
+<li><strong>파이썬</strong>: 유형이 달라도 계산은 같습니다. 증분비용을 증분효과로 나누며, 분모를 생존연수로 둘지 QALY로 둘지만 다릅니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>서로 다른 세 논문의 Methods 문장입니다. 유형이 어디에 어떻게 적히는지 봅니다.</p>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 분석 유형을 밝히는 문장</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Paper 1.</b> <i>Cost-effectiveness of drug A versus standard therapy B for advanced renal cell carcinoma in Korea.</i> … We conducted a <span class="mk">1</span> <span class="hl">cost-utility analysis</span>. The primary outcome was the incremental cost per <span class="mk">2</span> <span class="hl">quality-adjusted life year (QALY) gained</span>; the incremental cost per life-year gained was a secondary outcome.</p>
+<p class="excerpt"><b>Paper 2.</b> Because the randomized trial <span class="mk">3</span> <span class="hl">demonstrated non-inferiority of drug X to drug Y</span> with respect to the primary efficacy end point, a <span class="mk">4</span> <span class="hl">cost-minimization analysis</span> was performed, comparing drug acquisition, administration, and monitoring costs over 12 months.</p>
+<p class="excerpt"><b>Paper 3.</b> Pharmacist-led medication review cost an additional ₩310,000 per patient and prevented 0.05 hospitalizations per patient over 12 months, corresponding to <span class="mk">5</span> <span class="hl">₩6.2 million per hospitalization avoided</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>제목은 cost-effectiveness, 본문은 cost-utility.</b> 흔한 조합입니다. 제목의 표현은 넓은 뜻이고 실제 유형은 Methods에 적힙니다.</span></li>
+<li><span class="mk">2</span><span><b>결과 지표.</b> QALY당 추가 비용이 주 결과이고 생존연수당 추가 비용이 보조 결과입니다. 공통 예시라면 5,621만원/QALY와 4,287만원/생존연수입니다. 이득의 대부분이 생존 연장인 약에서는 뒤의 값이 더 낮게 나온다는 점을 알고 읽습니다. 생존은 그대로이고 삶의 질만 좋아지는 치료에서는 반대가 될 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>동등하다는 근거.</b> 비용만 비교하기 전에 효과가 같다는 근거를 댔습니다. 비열등성 시험의 한계가 임상적으로 타당했는지, 유효성만이 아닌 이상반응과 삶의 질도 비슷한지 확인합니다. 비열등성은 "한계 이상 나쁘지 않다"이고 "같다"가 아닙니다(13장 가 절).</span></li>
+<li><span class="mk">4</span><span><b>비용-최소화 분석.</b> 결과는 두 약의 비용 차이 하나입니다. 어떤 비용 항목을 넣었는지와 기간을 봅니다. 12개월 뒤의 비용 차이는 이 분석에 없습니다.</span></li>
+<li><span class="mk">5</span><span><b>자연 단위의 비용-효과 분석.</b> 31만원 ÷ 0.05건 = 620만원으로 입원 1건을 막습니다. 이 숫자가 받아들일 만한지는 입원 1건의 가치를 얼마로 보느냐에 달려 있고, 그 기준은 따로 없습니다. 다른 질환의 "QALY당 얼마"와도 견줄 수 없습니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ \text{CEA: } \frac{C_A - C_B}{E_A - E_B}, \qquad \text{CUA: } \frac{C_A - C_B}{QALY_A - QALY_B}, \qquad \text{CMA: } C_A - C_B, \qquad \text{CBA: } (B_A - B_B) - (C_A - C_B) \]
+<p>\(C\)는 비용, \(E\)는 자연 단위의 효과, \(B\)는 금액으로 환산한 편익입니다. 공통 예시: CEA 2,872 ÷ 0.670 = 4,287만원/생존연수, CUA 2,872 ÷ 0.511 = 5,621만원/QALY(반올림 전 값으로 계산), 1 QALY를 5,000만원으로 환산한 순편익 2,555 − 2,872 = −317만원.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>네 유형은 건강 결과의 단위로 나뉩니다. 재지 않으면 비용-최소화, 자연 단위면 비용-효과, QALY면 비용-효용, 금액이면 비용-편익 분석입니다.</li>
+<li>QALY는 질환이 달라도 견줄 수 있는 공통 단위입니다. 국내 지침은 비용-효용 분석을 선호합니다.</li>
+<li>학술지의 'cost-effectiveness analysis'는 QALY를 쓴 분석도 포함하는 넓은 뜻으로 쓰입니다. 유형은 결과 지표로 확인합니다.</li>
+<li>비용-최소화 분석은 효과가 동등하다는 근거가 있을 때만 성립합니다. 유의하지 않은 차이는 그 근거가 아닙니다.</li>
+<li>공통 예시의 생존연수당 비용은 4,287만원, QALY당 비용은 5,621만원입니다. 두 값은 바꿔 쓸 수 없습니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">분석 고르기</span>(가) 진행성 암에서 생존을 3개월 늘리지만 이상반응으로 삶의 질이 떨어지는 항암제 (나) 동등성 시험에서 오리지널과 효과가 같다고 입증된 바이오시밀러 (다) 금연 프로그램 두 가지를 6개월 금연 성공자 수로 비교. 각각 어떤 유형이 알맞습니까?</p>
+<details><summary>답과 풀이</summary><div><p>(가) 비용-효용 분석입니다. 생존 기간과 삶의 질이 반대 방향으로 움직이므로 둘을 합친 QALY가 필요합니다. 생존연수만 보면 삶의 질 저하가 빠집니다. (나) 비용-최소화 분석을 쓸 수 있습니다. 미리 정한 한계로 동등성이 입증되었기 때문입니다. 안전성도 비슷한지는 따로 확인합니다. (다) 비용-효과 분석입니다. 결과 지표가 두 프로그램에 공통인 자연 단위(금연 성공자 1명)입니다. 다만 금연 프로그램을 고혈압 관리 사업과 견주려면 QALY로 바꾼 비용-효용 분석이 필요합니다.</p></div></details></li>
+<li><p><span class="qt">계산</span>신약이 비교약보다 1,800만원 더 들고 생존연수를 0.60년, QALY를 0.40 늘립니다. 생존연수당 추가 비용과 QALY당 추가 비용을 구하고, 두 값이 다른 이유를 설명해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>생존연수당 1,800 ÷ 0.60 = 3,000만원, QALY당 1,800 ÷ 0.40 = 4,500만원입니다. 늘어난 생존 0.60년이 완전한 건강 상태가 아니어서 QALY로는 0.40만 세기 때문에 분모가 작아지고 비가 커집니다. 늘어난 1년이 평균 0.40 ÷ 0.60 = 0.67 QALY로 환산된 셈입니다. 임계값이 QALY당으로 정해져 있다면 견줄 값은 4,500만원입니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"두 항응고제의 뇌졸중 발생률에 유의한 차이가 없었다(위험비 0.88, 95% CI 0.66–1.17). 따라서 효과가 같다고 보고 비용-최소화 분석을 했다." 무엇이 문제입니까?</p>
+<details><summary>답과 풀이</summary><div><p>신뢰구간 0.66–1.17은 위험률이 34% 낮은 경우부터 17% 높은 경우까지 포함합니다. 이 자료는 "같다"를 보여 주지 않고 "차이가 있는지 모른다"를 보여 줍니다. 효과가 같다고 하려면 미리 정한 동등성·비열등성 한계 안에 신뢰구간이 들어와야 합니다. 그런 근거가 없다면 점추정값과 불확실성을 그대로 넣어 비용과 효과를 함께 추정하는 비용-효과 분석이나 비용-효용 분석을 하고, 결과의 불확실성을 민감도 분석으로 보여 주는 것이 맞습니다(24장).</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ch20-s3">
+<h2><span class="sec-no">다.</span>관점, 비교대안, 분석기간, 할인</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">경제성 평가의 결과는 계산 전에 정하는 네 가지에 따라 달라집니다. 누구의 비용을 셀 것인가(관점), 무엇과 비교할 것인가(비교대안), 언제까지 볼 것인가(분석기간), 미래의 비용과 건강을 지금의 가치로 얼마나 줄여 셀 것인가(할인)입니다.</p>
+<ul>
+<li><b>비유.</b> 약국에 자동조제기를 들일지 따져 본다고 합시다. 약국장의 지출만 볼지 직원의 시간까지 볼지, 지금의 수작업과 비교할지 다른 기종과 비교할지, 1년만 볼지 기계 수명인 10년을 볼지, 10년 뒤에 아낄 돈을 오늘의 돈과 같게 칠지에 따라 답이 달라집니다.</li>
+<li><b>논문에서는.</b> "from the healthcare system perspective … over a lifetime horizon … costs and QALYs were discounted at 4.5% per year"처럼 Methods 첫 문단에 모여 나옵니다.</li>
+<li><b>기억할 한 가지.</b> 이 네 가지가 다른 두 연구의 ICER는 나란히 놓고 비교할 수 없습니다. ICER를 읽기 전에 Methods에서 네 가지를 먼저 찾습니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>관점</dt><dd>현행 국내 지침은 보건의료체계 관점. 의료비만 세고 교통비·간병비·생산성 손실은 기본 분석에서 제외</dd></div>
+  <div><dt>비교대안</dt><dd>실제 진료에서 가장 많이 쓰이는 치료</dd></div>
+  <div><dt>분석기간</dt><dd>대안 사이의 비용과 결과 차이를 모두 담을 만큼 길게. 생존에 영향을 주는 약은 대개 평생</dd></div>
+  <div><dt>할인</dt><dd>비용과 결과 모두 연 4.5%</dd></div>
+</dl>
+
+<h3>관점</h3>
+<p><strong>관점</strong><span class="en">(perspective)</span>은 누구의 입장에서 비용을 세는가입니다. 같은 치료라도 관점에 따라 들어가는 비용 항목이 다릅니다<cite data-ref="kim2022econ"></cite>.</p>
+<p class="tbl-cap"><b>표 20-5.</b> 관점에 따라 포함되는 비용 항목 (관점의 일반적인 정의에 따른 구분)</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>비용 항목</th><th class="c">보험자(지불자) 관점</th><th class="c">보건의료체계 관점</th><th class="c">사회적 관점</th></tr></thead>
+<tbody>
+<tr><td>공단 부담금</td><td class="c">포함</td><td class="c">포함</td><td class="c">포함</td></tr>
+<tr><td>급여 항목의 본인부담금</td><td class="c">필요하면 포함</td><td class="c">포함</td><td class="c">포함</td></tr>
+<tr><td>비급여 본인부담금</td><td class="c">제외</td><td class="c">포함<sup>a</sup></td><td class="c">포함</td></tr>
+<tr><td>교통비, 간병비 (비의료비용)</td><td class="c">제외</td><td class="c">제외</td><td class="c">포함</td></tr>
+<tr><td>생산성 손실 (일하지 못한 시간, 조기 사망)</td><td class="c">제외</td><td class="c">제외</td><td class="c">포함</td></tr>
+</tbody></table></div>
+<p class="jt-foot"><sup>a</sup> 의료비는 공단 부담금, 급여 항목의 본인부담금, 비급여 본인부담금으로 이루어지고, 보건의료체계 관점은 보건의료체계 안에서 발생한 의료비를 센다는 일반적인 정의에 따른 구분입니다<cite data-ref="kim2022econ"></cite>. 심평원 지침이 비급여 비용을 어떤 범위와 방법으로 넣도록 하는지는 이 노트에서 확인하지 못했습니다. 실제 분석에서는 지침 원문에서 확인합니다. 비급여 비용은 청구자료에 없어 의료기관 자료 등으로 따로 구해야 합니다.</p>
+<p>현행 심평원 지침(3판)은 <strong>보건의료체계 관점</strong><span class="en">(healthcare system perspective)</span>을 씁니다. 2판의 '제한적 사회적 관점'에서 바뀐 것입니다<cite data-ref="bae2022kguideline"></cite>. 지침 요약에 따르면 교통비와 간병비는 기본 분석에서 빼고 필요하면 따로 제시하며, 생산성 손실도 기본 분석에 넣지 않습니다<cite data-ref="isporkorea2024"></cite>. 공통 예시도 의료비만 셉니다.</p>
+<p>관점이 넓다고 ICER가 한 방향으로 움직이지는 않습니다. 신약이 간병 부담을 줄이면 사회적 관점에서 비용 차이가 작아지고, 생존을 늘려 간병 기간이 길어지면 커집니다. 급여 결정이 목적이면 지침의 관점을 기본으로 하고 다른 관점은 추가 분석으로 둡니다.</p>
+
+<h3>비교대안</h3>
+<p>ICER는 비교대안에 대한 값이므로 <strong>비교대안</strong><span class="en">(comparator)</span>이 바뀌면 값도 바뀝니다. 효과가 약한 치료나 위약과 비교하면 신약의 이득이 커 보입니다. 그래서 비교대안은 "신약이 급여되면 실제로 대체될 치료"여야 합니다. 국내 지침의 원칙은 시장에서 가장 많이 쓰이는 약이고, 3판에서 일정한 조건을 만족하면 임상시험의 비교약도 고를 수 있게 되었습니다<cite data-ref="bae2022kguideline"></cite>. 쓰이는 치료가 여럿이면 모두 대안으로 놓고 비교합니다(라 절의 효율 경계). 임상시험의 대조약이 국내 표준치료와 다르면 직접 비교한 자료가 없으므로 공통 대조군을 거치는 간접비교로 상대효과를 구합니다.</p>
+
+<h3>분석기간</h3>
+<p><strong>분석기간</strong><span class="en">(time horizon)</span>은 비용과 결과를 언제까지 더할 것인가입니다. 원칙은 대안 사이의 의미 있는 차이를 모두 담을 만큼 길게 잡는 것입니다<cite data-ref="isporkorea2024"></cite>. 생존에 영향을 주는 약은 환자가 모두 사망할 때까지, 즉 평생<span class="en">(lifetime)</span>이 됩니다.</p>
+<p>문제는 임상시험이 그만큼 길지 않다는 것입니다. 공통 예시의 시험 추적이 3년이었다면 그 시점에 신약 A군의 50.0%, 표준요법 B군의 39.6%가 살아 있습니다. 3년에서 계산을 멈추면 이 환자들이 그 뒤에 얻는 생존 이득이 빠집니다.</p>
+<p class="tbl-cap"><b>표 20-6.</b> 분석기간에 따른 공통 예시의 결과 (가상의 예시)</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th>분석기간</th><th class="r">증분비용 (만원)</th><th class="r">증분 QALY</th><th class="r">ICER (만원/QALY)</th></tr></thead>
+<tbody>
+<tr><td>3년</td><td class="r">1,316</td><td class="r">0.165</td><td class="r">7,994</td></tr>
+<tr><td>5년</td><td class="r">1,875</td><td class="r">0.297</td><td class="r">6,324</td></tr>
+<tr><td>10년</td><td class="r">2,640</td><td class="r">0.464</td><td class="r">5,686</td></tr>
+<tr class="hi"><td>20년 (기준 분석)</td><td class="r">2,872</td><td class="r">0.511</td><td class="r">5,621</td></tr>
+</tbody></table></div>
+<!--FIG:ch20_horizon-->
+<p>3년에서 끊으면 ICER가 7,994만원/QALY로 기준 분석보다 42% 높습니다. 약값은 치료 초기에 집중되고 생존 이득은 뒤로 갈수록 쌓이기 때문입니다. 10년을 넘으면 남은 환자가 적어 값이 거의 변하지 않습니다. 20년에는 두 군 모두 생존자가 1% 미만이어서 이 예시의 20년은 사실상 평생입니다.</p>
+<p>관찰된 기간 뒤의 비용과 건강은 자료에 없으므로 모형으로 이어 그려야 합니다. 이것이 경제성 평가에 결정분석 모형이 필요한 가장 큰 이유입니다. 생존곡선을 관찰 기간 너머로 늘리는 외삽은 결과를 크게 좌우하는 가정이므로 지침도 그 불확실성을 점검하도록 요구합니다(<a href="#ch23-s4">23장 라 절</a>).</p>
+
+<h3>할인</h3>
+<p>사람들은 같은 100만원이라도 10년 뒤보다 지금 받기를 원합니다. 지금 받은 돈은 다른 데 써서 가치를 만들 수 있기 때문입니다. 그래서 미래에 발생하는 비용과 건강은 지금의 가치로 줄여서 더하는데, 이것을 <strong>할인</strong><span class="en">(discounting)</span>이라 하고 줄이는 비율을 <strong>할인율</strong><span class="en">(discount rate)</span>이라고 합니다. t년 뒤의 값에 1 ÷ (1 + 할인율)<sup>t</sup>를 곱합니다. 이 곱하는 수가 할인계수이고, 할인한 값이 <strong>현재가치</strong><span class="en">(present value)</span>입니다.</p>
+<p class="tbl-cap"><b>표 20-7.</b> 연 4.5%로 할인할 때의 현재가치</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th>발생 시점</th><th class="r">할인계수</th><th class="r">비용 1,000만원의 현재가치</th><th class="r">1 QALY의 현재가치</th></tr></thead>
+<tbody>
+<tr><td>1년 뒤</td><td class="r">0.957</td><td class="r">957만원</td><td class="r">0.957</td></tr>
+<tr><td>5년 뒤</td><td class="r">0.802</td><td class="r">802만원</td><td class="r">0.802</td></tr>
+<tr><td>10년 뒤</td><td class="r">0.644</td><td class="r">644만원</td><td class="r">0.644</td></tr>
+<tr><td>20년 뒤</td><td class="r">0.415</td><td class="r">415만원</td><td class="r">0.415</td></tr>
+</tbody></table></div>
+<!--FIG:ch20_discount-->
+<p>국내 지침의 기본 할인율은 비용과 결과 모두 연 4.5%입니다. 2판의 5%에서 낮춘 값이고<cite data-ref="bae2022kguideline"></cite>, 공공사업 평가에 쓰는 사회적 할인율 4.5%와 같은 값입니다<cite data-ref="kim2022econ"></cite>. 지침 요약에 따르면 가정을 바꿔 결과의 변화를 보는 민감도 분석<span class="en">(sensitivity analysis, 24장)</span>에서는 0%와 3%를 적용합니다<cite data-ref="isporkorea2024"></cite>. 건강도 비용과 같은 율로 할인하는 것이 낯설 수 있습니다. 비용만 할인하면 같은 사업을 뒤로 미룰수록 유리해 보이는 모순이 생기기 때문에 대부분의 지침이 둘을 같은 율로 할인합니다. 다르게 정한 나라도 있습니다<cite data-ref="attema2018"></cite>.</p>
+
+<h4>숫자로 따라가기</h4>
+<p>공통 예시를 할인율만 바꿔 다시 계산했습니다.</p>
+<p class="tbl-cap"><b>표 20-8.</b> 할인율에 따른 공통 예시의 결과 (가상의 예시)</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th>할인율 (비용과 QALY)</th><th class="r">증분비용 (만원)</th><th class="r">증분 QALY</th><th class="r">ICER (만원/QALY)</th></tr></thead>
+<tbody>
+<tr><td>0% (할인하지 않음)</td><td class="r">3,508</td><td class="r">0.646</td><td class="r">5,431</td></tr>
+<tr><td>3%</td><td class="r">3,058</td><td class="r">0.550</td><td class="r">5,555</td></tr>
+<tr class="hi"><td>4.5% (기준 분석)</td><td class="r">2,872</td><td class="r">0.511</td><td class="r">5,621</td></tr>
+</tbody></table></div>
+<p>할인하면 증분비용은 18%, 증분 QALY는 21% 줄어듭니다. 신약 A의 총비용은 12,194만원에서 10,562만원으로, QALY는 2.732에서 2.385로 줄어듭니다. 분자와 분모가 함께 줄어서 ICER는 5,431에서 5,621로 조금만 오릅니다. QALY가 조금 더 줄어드는 것은 건강 이득이 비용보다 늦게 발생하기 때문입니다. 예방접종이나 검진처럼 비용은 지금 들고 이득은 수십 년 뒤에 오는 사업에서는 할인의 영향이 훨씬 큽니다.</p>
+<!--FOLD:파이썬으로 계산해 보기: 할인계수와 현재가치-->
+<p>표 20-7의 할인계수와, 3년 동안 해마다 500만원씩 드는 비용의 현재가치를 계산합니다. 주피터 노트북의 셀에 그대로 입력해 실행하면 아래 출력이 나옵니다.</p>
+<pre class="out"><span class="cm">import numpy as np
+
+r = 0.045                                  # 연 할인율 4.5%
+years = np.array([1, 5, 10, 20])           # 몇 년 뒤인가
+factor = 1 / (1 + r) ** years              # 할인계수
+print(np.round(factor, 3))
+print(np.round(1000 * factor))             # 1,000만원의 현재가치
+
+cost = np.array([500, 500, 500])           # 1, 2, 3년 뒤에 드는 비용(만원)
+t = np.array([1, 2, 3])
+pv = cost / (1 + r) ** t                   # 해마다 따로 할인
+print(cost.sum(), np.round(pv, 1), round(pv.sum(), 1))</span>
+[0.957 0.802 0.644 0.415]
+[957. 802. 644. 415.]
+1500 [478.5 457.9 438.1] 1374.5</pre>
+<ul>
+<li><code>(1 + r) ** years</code>: <code>**</code>는 거듭제곱입니다. 배열 years의 값 네 개에 한꺼번에 적용되어 결과도 네 개가 나옵니다.</li>
+<li>첫 줄 출력이 표 20-7의 할인계수이고, 둘째 줄은 1,000만원에 곱한 현재가치입니다.</li>
+<li>마지막 줄: 할인하지 않은 합계는 1,500만원, 해마다의 현재가치는 478.5, 457.9, 438.1만원, 그 합은 1,374.5만원입니다. 모형에서는 주기(공통 예시는 1개월)마다 이 계산을 하고 더합니다.</li>
+<li>표 20-8은 23장에서 만드는 모형을 할인율만 0과 0.03으로 바꿔 다시 돌린 결과입니다. 모형 안에서도 같은 식을 씁니다.</li>
+</ul>
+<!--/FOLD-->
+
+<h3>외국 지침과의 차이</h3>
+<p>관점과 할인율은 나라마다 다릅니다. 외국에서 한 경제성 평가의 ICER를 국내 결과와 그대로 견줄 수 없는 이유 가운데 하나입니다.</p>
+<p class="tbl-cap"><b>표 20-9.</b> 지침별 관점과 할인율</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>지침</th><th>관점</th><th>할인율 (연)</th></tr></thead>
+<tbody>
+<tr class="hi"><td>한국 심평원 (2021)</td><td>보건의료체계</td><td>비용·결과 4.5%</td></tr>
+<tr><td>영국 NICE (2022)<cite data-ref="nice2022manual"></cite></td><td>국가보건서비스(NHS)와 개인사회서비스</td><td>비용·결과 3.5%</td></tr>
+<tr><td>미국 Second Panel (2016)<cite data-ref="sanders2016panel"></cite></td><td>보건의료 부문 관점과 사회적 관점을 둘 다 제시</td><td>비용·결과 3%</td></tr>
+<tr><td>캐나다 CADTH (2017)<cite data-ref="cadth2017"></cite></td><td>공공 보건의료 지불자</td><td>비용·결과 1.5%</td></tr>
+<tr><td>WHO-CHOICE (2021)<cite data-ref="bertram2021choice"></cite></td><td>보건의료체계</td><td>비용 3%, 건강 효과는 0%와 3% 두 가지</td></tr>
+</tbody></table></div>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 분석의 틀을 읽을 때</p>
+<p><span class="wrong">할인은 물가 상승을 보정하는 것이다.</span> 물가 보정은 과거에 조사한 비용을 기준 연도의 가격으로 맞추는 작업이고, 할인은 물가가 전혀 오르지 않아도 하는 작업입니다. 둘은 따로 합니다.</p>
+<p><span class="wrong">돈은 할인하지만 건강은 할인하지 않는다.</span> 국내 지침은 비용과 QALY를 같은 율로 할인합니다. 공통 예시에서 비용만 4.5%로 할인하고 QALY를 할인하지 않으면 ICER가 4,447만원/QALY로 나와, 이 예시에서 가정한 임계값 5,000만원 아래로 내려갑니다. 할인 방법 하나로 결론이 바뀌므로 Methods에서 비용과 결과의 할인율을 각각 확인합니다.</p>
+<p><span class="wrong">임상시험을 3년 추적했으므로 분석기간도 3년이면 된다.</span> 분석기간은 자료의 길이로 정하지 않고 대안 사이에 차이가 남아 있는 기간으로 정합니다. 표 20-6처럼 짧게 끊으면 생존 이득이 빠져 ICER가 달라집니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>분석 전에 정할 것</strong>: 국내 급여 평가용이면 보건의료체계 관점, 가장 많이 쓰이는 비교대안, 차이를 모두 담는 분석기간, 비용·결과 연 4.5% 할인이 기본입니다. 지침과 다르게 정했다면 이유를 적습니다.</li>
+<li><strong>보고할 것</strong>: CHEERS 2022의 비교대안(7번), 관점(8번), 분석기간(9번), 할인율(10번) 항목에 선택한 값과 근거를 씁니다<cite data-ref="husereau2022cheers"></cite>. 예: "A healthcare system perspective was adopted. Costs and QALYs were discounted at 4.5% per year, in line with the Korean guideline." 비용의 기준 연도와 통화도 함께 적습니다(15번).</li>
+<li><strong>민감도 분석</strong>: 할인율 0%와 3%, 더 짧은 분석기간, 다른 관점의 결과를 시나리오로 제시합니다(<a href="#ch24-s1">24장 가 절</a>).</li>
+<li><strong>파이썬</strong>: 할인은 numpy로 <code>1 / (1 + r) ** t</code>를 곱하면 됩니다. 전용 함수는 필요 없습니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>공통 예시를 논문으로 쓴다면 Methods의 '분석의 틀' 문단은 다음과 같습니다.</p>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 분석 틀 문단</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">The analysis was conducted <span class="mk">1</span> <span class="hl">from the perspective of the Korean healthcare system</span>; non-medical costs and productivity losses were not included. <span class="mk">2</span> <span class="hl">Standard therapy B, the most widely used first-line treatment in Korea, was the comparator.</span> A <span class="mk">3</span> <span class="hl">20-year time horizon</span> was used, at which point fewer than 1% of patients in either arm were predicted to be alive. Costs and QALYs were <span class="mk">4</span> <span class="hl">discounted at 4.5% per year</span>; <span class="mk">5</span> <span class="hl">rates of 0% and 3% were applied in sensitivity analyses</span>. Costs are expressed in <span class="mk">6</span> <span class="hl">2025 Korean won</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>관점.</b> 의료비만 셌다는 뜻입니다. 뒤따르는 문장이 무엇을 뺐는지 알려 줍니다. 간병 부담이 큰 질환이라면 사회적 관점의 추가 분석이 있는지 찾아봅니다.</span></li>
+<li><span class="mk">2</span><span><b>비교대안과 그 근거.</b> "가장 널리 쓰이는 치료"라는 근거가 붙어 있습니다. 비교대안이 위약이거나 지금은 잘 쓰지 않는 치료라면 ICER가 실제보다 좋게 나왔을 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>분석기간과 그 근거.</b> 20년이 사실상 평생임을 생존자 비율로 설명했습니다. 임상시험 추적보다 훨씬 길므로 그 뒤는 외삽입니다. 어떤 방법으로 외삽했는지를 Methods의 다른 문단에서 확인합니다.</span></li>
+<li><span class="mk">4</span><span><b>할인율.</b> 비용과 QALY에 같은 4.5%입니다. 표 20-7처럼 10년 뒤의 값은 0.644배로, 20년 뒤의 값은 0.415배로 계산되었습니다. Results의 QALY 2.385가 할인된 값이라는 점도 여기서 알 수 있습니다.</span></li>
+<li><span class="mk">5</span><span><b>할인율 민감도 분석.</b> 표 20-8에 해당하는 결과가 보충자료에 있을 것입니다. 0%에서 5,431만원, 3%에서 5,555만원입니다.</span></li>
+<li><span class="mk">6</span><span><b>기준 연도와 통화.</b> 모든 비용을 2025년 가격으로 맞췄다는 뜻입니다. 다른 연도나 다른 나라의 결과와 견주려면 물가와 환율을 맞춰야 합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ PV = \sum_{t} \frac{X_t}{(1+r)^{t}} \]
+<p>\(X_t\)는 t년 뒤에 발생하는 비용 또는 QALY, \(r\)은 연 할인율, \(PV\)는 현재가치입니다. 예: 10년 뒤의 1,000만원은 1,000 ÷ 1.045<sup>10</sup> = 644만원. 1, 2, 3년 뒤에 500만원씩 들면 478.5 + 457.9 + 438.1 = 1,374.5만원.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>관점은 누구의 비용을 세는가입니다. 현행 국내 지침은 보건의료체계 관점이고 교통비, 간병비, 생산성 손실은 기본 분석에 넣지 않습니다.</li>
+<li>비교대안은 신약이 실제로 대체할 치료입니다. 비교대안이 바뀌면 ICER도 바뀝니다.</li>
+<li>분석기간은 대안 사이의 차이를 모두 담을 만큼 길어야 합니다. 공통 예시를 3년에서 끊으면 ICER가 7,994만원, 20년이면 5,621만원입니다.</li>
+<li>미래의 비용과 QALY는 같은 율로 할인합니다. 국내 지침은 연 4.5%이고, 10년 뒤의 값은 0.644배가 됩니다.</li>
+<li>네 가지가 다른 연구끼리는 ICER를 그대로 비교할 수 없습니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>어떤 치료에 1년 뒤, 2년 뒤, 3년 뒤에 각각 500만원이 듭니다. 연 4.5%로 할인한 현재가치의 합은 얼마입니까? 10년 뒤에 얻는 1 QALY의 현재가치는 4.5%와 3%에서 각각 얼마입니까?</p>
+<details><summary>답과 풀이</summary><div><p>500 ÷ 1.045 = 478.5, 500 ÷ 1.045² = 457.9, 500 ÷ 1.045³ = 438.1이고 합은 1,374.5만원입니다. 할인하지 않은 1,500만원보다 125.5만원 적습니다. 10년 뒤의 1 QALY는 4.5%에서 1 ÷ 1.045<sup>10</sup> = 0.644, 3%에서 1 ÷ 1.03<sup>10</sup> = 0.744입니다. 할인율이 낮을수록 미래의 건강을 크게 칩니다. 이득이 늦게 오는 예방 사업은 할인율이 낮은 지침에서 더 유리하게 평가됩니다.</p></div></details></li>
+<li><p><span class="qt">논문 읽기</span>한 논문이 "임상시험의 추적 기간에 맞춰 3년의 분석기간을 적용했고, ICER는 7,994만원/QALY였다"고 보고했습니다. 3년 시점에 신약군의 50%가 생존해 있었습니다. 이 결과를 어떻게 읽어야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>3년 시점에 환자의 절반이 살아 있으므로 그 뒤에도 두 군의 비용과 건강에 차이가 이어집니다. 분석기간이 그 차이를 다 담지 못했습니다. 표 20-6에서 같은 모형을 20년까지 계산하면 5,621만원/QALY입니다. 생존 이득이 뒤에 쌓이는 약에서는 짧은 분석기간이 ICER를 높입니다. 반대로 효과가 일찍 나타나고 뒤로 갈수록 사라지는 치료에서는 짧은 분석기간이 유리할 수 있습니다. 3년 결과는 "자료가 있는 기간만 본 시나리오"로 읽고, 평생 분석기간의 결과와 외삽 가정을 찾아봅니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>치매 치료제의 경제성 평가를 급여 신청용으로 준비합니다. 이 약은 요양시설 입소를 늦추고 가족의 간병 시간을 줄입니다. 관점을 어떻게 정하겠습니까?</p>
+<details><summary>답과 풀이</summary><div><p>급여 신청용이므로 기본 분석은 지침에 따라 보건의료체계 관점으로 합니다. 이 관점에서는 가족의 간병 시간과 교통비가 빠지므로 약의 주요 이득 가운데 일부가 비용에 반영되지 않습니다. 그래서 간병비와 생산성 손실을 넣은 사회적 관점의 분석을 추가로 제시합니다. 지침 요약에 따르면 비의료비용은 기본 분석과 따로 제시할 수 있습니다. 두 결과를 섞지 않고 나란히 보고하며, 어떤 항목을 넣었는지 표로 밝힙니다.</p></div></details></li>
+</ol></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ch20-s4">
+<h2><span class="sec-no">라.</span>증분비용효과비와 비용효과평면</h2>
+
+<div class="easy">
+<p class="et">쉽게 말하면</p>
+<p class="big">증분비용효과비(ICER)는 "비교대안 대신 이 치료를 쓰면 건강 1단위를 더 얻는 데 돈이 얼마나 더 드는가"입니다. 추가 비용을 추가 효과로 나눈 값이고, 비용효과평면은 이 둘을 한 점으로 찍은 그림입니다.</p>
+<ul>
+<li><b>비유.</b> 월 5만원에 데이터 10GB인 요금제와 월 7만원에 30GB인 요금제가 있습니다. 바꿀지 정할 때 볼 것은 7만원 ÷ 30GB가 아닙니다. 2만원을 더 내고 20GB를 더 얻는 것, 즉 1GB당 1,000원이 값어치가 있는가입니다.</li>
+<li><b>논문에서는.</b> "The ICER was ₩56.2 million per QALY gained"처럼 나옵니다. "1 QALY를 더 얻는 데 5,620만원이 더 든다"라고 읽습니다.</li>
+<li><b>기억할 한 가지.</b> ICER는 비교대안이 있어야 정해지는 값입니다. 그리고 음수가 나오면 숫자를 읽지 말고, 더 싸고 더 좋은 것인지 더 비싸고 더 나쁜 것인지를 봅니다.</li>
+</ul>
+</div>
+
+<dl class="glance">
+  <div><dt>정의</dt><dd>ICER = 증분비용 ÷ 증분효과 = (비용<sub>A</sub> − 비용<sub>B</sub>) ÷ (QALY<sub>A</sub> − QALY<sub>B</sub>)</dd></div>
+  <div><dt>판단 규칙</dt><dd>더 비싸고 더 효과적인 대안은 ICER가 임계값보다 낮으면 비용효과적</dd></div>
+  <div><dt>대안이 여럿일 때</dt><dd>열등·확장 열등인 대안을 빼고 효율 경계 위에서 이웃한 대안끼리 ICER를 구함</dd></div>
+  <div><dt>논문 보고 형식</dt><dd>대안별 총비용과 QALY, 증분, ICER. 우월·열등이면 숫자 대신 "dominant", "dominated"</dd></div>
+</dl>
+
+<h3>평균 비와 증분 비</h3>
+<p>공통 예시의 두 약에서 비용을 QALY로 나눈 값을 두 가지로 구해 봅니다.</p>
+<p class="tbl-cap"><b>표 20-10.</b> 평균 비용효과비와 증분비용효과비 (가상의 예시. 비는 반올림 전 값으로 계산)</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:42rem">
+<thead><tr><th></th><th class="r">신약 A</th><th class="r">표준요법 B</th></tr></thead>
+<tbody>
+<tr><td>총비용 (만원)</td><td class="r">10,562</td><td class="r">7,689</td></tr>
+<tr><td>QALY</td><td class="r">2.385</td><td class="r">1.874</td></tr>
+<tr><td>평균 비용효과비 (총비용 ÷ QALY)</td><td class="r">4,429</td><td class="r">4,104</td></tr>
+<tr class="hi"><td>증분비용효과비 (A 대 B)</td><td class="r">5,621</td><td class="r"></td></tr>
+</tbody></table></div>
+<p>신약 A의 평균 비 4,429만원/QALY는 이 예시에서 가정한 임계값 5,000만원보다 낮습니다. 이것을 보고 비용효과적이라고 하면 틀립니다. 평균 비는 "비용도 건강도 0인 상태"와 비교한 값인데, 치료하지 않아도 환자에게는 비용과 건강이 있으므로 그런 대안은 없습니다. 결정할 것은 "B 대신 A를 쓸 것인가"입니다. B를 쓰면 이미 1.874 QALY를 얻으므로, A의 값어치는 추가로 드는 돈과 추가로 얻는 건강으로 따집니다. 이것이 <strong>증분비용효과비</strong><span class="en">(incremental cost-effectiveness ratio, ICER)</span>입니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>증분비용은 2,872만원, 증분 QALY는 2.385 − 1.874 = 0.511입니다. 표에 적힌 값으로 빼면 10,562 − 7,689 = 2,873이지만, 증분은 반올림하기 전 값(10,561.8 − 7,689.5 = 2,872.3)으로 계산하므로 2,872입니다. ICER = 2,872 ÷ 0.511 = <b>5,621만원/QALY</b>(반올림 전 값으로 계산)입니다. 신약 A로 1 QALY를 더 얻으려면 5,621만원이 더 듭니다.</p>
+<!--FOLD:계산 과정 보기: 증분비용의 내역-->
+<p>증분비용 2,872만원을 항목별로 나누면 다음과 같습니다(환자 1명당, 할인 후).</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:42rem">
+<thead><tr><th>비용 항목 (만원)</th><th class="r">신약 A</th><th class="r">표준요법 B</th><th class="r">증분</th></tr></thead>
+<tbody>
+<tr><td>약값</td><td class="r">4,124.4</td><td class="r">1,707.8</td><td class="r">2,416.6</td></tr>
+<tr><td>무진행 상태의 관리비</td><td class="r">868.3</td><td class="r">569.3</td><td class="r">299.0</td></tr>
+<tr><td>진행 상태의 비용</td><td class="r">4,769.5</td><td class="r">4,628.6</td><td class="r">140.9</td></tr>
+<tr><td>임종기 비용</td><td class="r">679.6</td><td class="r">703.8</td><td class="r">−24.2</td></tr>
+<tr><td>이상반응 치료비</td><td class="r">120.0</td><td class="r">80.0</td><td class="r">40.0</td></tr>
+<tr class="hi"><td>합계</td><td class="r">10,561.8</td><td class="r">7,689.5</td><td class="r">2,872.3</td></tr>
+</tbody></table></div>
+<p>증분비용의 84%가 약값입니다. 신약 A는 한 달 약값이 비싸고, 진행이 늦어져 약을 쓰는 기간도 깁니다. ICER = 2,872.3 ÷ 0.5110 = 5,621입니다. 표시된 정수로 나누면 2,872 ÷ 0.511 = 5,620으로 끝자리가 다릅니다.</p>
+<!--/FOLD-->
+
+<h3>비용효과평면</h3>
+<p>증분효과를 가로축에, 증분비용을 세로축에 놓은 그림이 <strong>비용효과평면</strong><span class="en">(cost-effectiveness plane)</span>입니다<cite data-ref="black1990"></cite>. 원점은 비교대안이고, 신약이 놓인 사분면에 따라 판단이 달라집니다.</p>
+<!--FIG:ch20_plane-->
+<ul>
+<li><b>오른쪽 아래(더 싸고 더 효과적).</b> 신약이 <strong>우월</strong><span class="en">(dominant)</span>합니다. 계산할 것 없이 채택합니다.</li>
+<li><b>왼쪽 위(더 비싸고 덜 효과적).</b> 신약이 <strong>열등</strong><span class="en">(dominated)</span>합니다. 채택하지 않습니다.</li>
+<li><b>오른쪽 위(더 비싸고 더 효과적).</b> 신약의 대부분이 여기에 있습니다. ICER를 임계값과 비교해야 합니다.</li>
+<li><b>왼쪽 아래(더 싸고 덜 효과적).</b> 드문 경우입니다(아래 '음수 ICER와 ICER를 다룰 때의 주의' 뒤의 접힌 상자).</li>
+</ul>
+
+<h3>임계값과 판단 규칙</h3>
+<p>건강 1단위를 더 얻는 데 낼 수 있는 최대 금액을 <strong>임계값</strong><span class="en">(cost-effectiveness threshold; 지불의사 금액이라고도 함)</span>이라고 합니다. 평면에서는 원점을 지나는 직선이고 기울기가 임계값입니다. 점이 이 선의 오른쪽 아래에 있으면 비용효과적입니다. 오른쪽 위 사분면에서는 "ICER가 임계값보다 낮다"와 같은 말입니다. 공통 예시의 점은 가정한 임계값 선(5,000만원/QALY)보다 조금 위에 있어서(그림 20-3 (나)) 현재 가격에서는 비용효과적이지 않습니다.</p>
+<p>임계값은 가 절의 기회비용을 숫자로 만든 것입니다. 같은 재정을 다른 곳에 쓰면 5,000만원마다 1 QALY를 얻는다면, 5,621만원을 들여 1 QALY를 얻는 치료는 얻는 건강보다 포기하는 건강이 더 큽니다.</p>
+<p>우리나라에는 공식적으로 정해진 임계값이 없습니다. 심평원은 명시적인 임계값을 쓰지 않고, 질병의 위중도, 사회적 질병부담, 삶의 질에 미치는 영향, 혁신성 등을 고려해 기존 심의 결과를 참조하여 평가한다고 설명합니다<cite data-ref="hira2022icer"></cite><cite data-ref="kim2022econ"></cite>. 과거 심의에서는 1인당 국내총생산(GDP) 수준이 참고되었고, 항암제와 희귀질환 치료제에는 더 높은 값이 받아들여졌습니다<cite data-ref="bae2018role"></cite>. 이 사이트의 5,000만원/QALY는 계산을 보여 주려고 정한 값입니다.</p>
+<!--FOLD:자세히 보기: 국내 심의 사례의 숫자와 외국의 임계값-->
+<ul>
+<li><b>국내 심의 분석.</b> 2007–2016년에 경제성 평가로 심의된 91건 가운데 46건이 수용되고 45건이 거절되었습니다. 수용된 건의 평균 ICER는 2,310만원/QALY, 거절된 건은 5,830만원/QALY였습니다. 당시 1인당 GDP(약 2,500만원)를 넘어 수용된 것이 17건 있었지만 그 두 배(약 5,000만원)를 넘어 수용된 것은 없었고, GDP보다 낮아도 불확실성 때문에 거절된 것이 12건 있었습니다<cite data-ref="bae2018role"></cite>. ICER 하나로 결정되지 않는다는 뜻입니다.</li>
+<li><b>심평원이 공개한 ICER.</b> 2022년 12월에 처음 공개된 자료(2007–2021년 등재 72개 성분)에서 ICER의 중앙값은 일반 약제 약 1,600만원, 항암제 약 4,500만원, 희귀질환 치료제 약 3,200만원/QALY로 보도되었습니다<cite data-ref="hira2022icer"></cite>. 공지의 원표가 아닌 당시 보도로 확인한 값입니다.</li>
+<li><b>영국.</b> NICE의 2022년 매뉴얼은 QALY당 2만–3만 파운드의 범위를 제시해 왔습니다<cite data-ref="nice2022manual"></cite>. NICE는 2025년 12월 1일에 이 범위를 2만 5천–3만 5천 파운드로 올리고 2026년 4월부터 기술평가에 적용한다고 발표했습니다<cite data-ref="nice2025threshold"></cite>. 최근에 바뀐 내용이므로 인용할 때는 NICE의 현행 문서를 확인합니다.</li>
+<li><b>미국.</b> 공식 임계값은 없고, 문헌에서는 QALY당 5만 달러가 오랫동안 관행처럼 쓰였습니다<cite data-ref="neumann2014threshold"></cite>.</li>
+<li><b>1인당 GDP 기준.</b> 1인당 GDP의 1–3배를 임계값으로 쓰는 관행에 대해 세계보건기구 쪽 저자들은 이것을 결정 규칙으로 쓰지 말라고 합니다<cite data-ref="bertram2016threshold"></cite>.</li>
+</ul>
+<!--/FOLD-->
+
+<h3>순금전편익</h3>
+<p>같은 판단을 비가 아닌 차로 나타낸 것이 <strong>순금전편익</strong><span class="en">(net monetary benefit, NMB)</span>입니다. 늘어난 건강을 임계값으로 환산한 금액에서 늘어난 비용을 뺍니다<cite data-ref="stinnett1998"></cite>.</p>
+<p>공통 예시: 5,000 × 0.511 − 2,872 = <b>−317만원</b>. 음수이므로 가정한 임계값에서 비용효과적이지 않습니다. "ICER가 임계값보다 높다"와 "증분 순금전편익이 음수다"는 같은 말이고, 그림 20-3 (나)에서 점과 임계값 선 사이의 세로 거리가 이 317만원입니다. 건강 단위로 바꾸면 −317 ÷ 5,000 = −0.063 QALY입니다. 환자 100명에게 신약 A를 쓰면 51.1 QALY를 얻고, 추가 비용 28.7억 원으로 다른 곳에서 얻을 57.4 QALY를 포기하므로 전체로는 6.3 QALY가 줄어듭니다.</p>
+<p>순금전편익은 아래에서 볼 음수 ICER의 문제가 없어 불확실성 분석에서 주로 씁니다. 자세한 내용은 <a href="#ch24-s3">24장 다 절</a>에서 다룹니다.</p>
+
+<h3>대안이 여럿일 때</h3>
+<p>실제로는 비교할 치료가 둘보다 많습니다. 공통 예시에 지어낸 대안 두 개를 더합니다. 예전에 쓰던 기존약 C와, 표준요법 B에 다른 약을 더한 병용요법 D입니다.</p>
+<p class="tbl-cap"><b>표 20-11.</b> 네 대안의 비교 (가상의 예시. 비용이 낮은 순서. 순금전편익은 이 예시에서 가정한 임계값 5,000만원/QALY에서 반올림 전 값으로 계산)</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>대안</th><th class="r">총비용 (만원)</th><th class="r">QALY</th><th>판정</th><th class="r">ICER (만원/QALY)</th><th class="r">순금전편익 (만원)</th></tr></thead>
+<tbody>
+<tr><td>표준요법 B</td><td class="r">7,689</td><td class="r">1.874</td><td>효율 경계 (기준)</td><td class="r">–</td><td class="r">1,679</td></tr>
+<tr><td>기존약 C</td><td class="r">8,100</td><td class="r">1.700</td><td>열등</td><td class="r">–</td><td class="r">400</td></tr>
+<tr><td>병용요법 D</td><td class="r">9,400</td><td class="r">2.000</td><td>확장 열등</td><td class="r">–</td><td class="r">600</td></tr>
+<tr class="hi"><td>신약 A</td><td class="r">10,562</td><td class="r">2.385</td><td>효율 경계</td><td class="r">5,621 (B 대비)</td><td class="r">1,362</td></tr>
+</tbody></table></div>
+<!--FIG:ch20_frontier-->
+<ul>
+<li><b>열등.</b> 기존약 C는 B보다 비싸면서 QALY도 적습니다. 어떤 임계값에서도 고를 이유가 없으므로 뺍니다.</li>
+<li><b>확장 열등</b><span class="en">(extended dominance)</span><b>.</b> 병용요법 D는 B보다 비싸고 더 효과적이어서 열등은 아닙니다. 그런데 B에서 D로 가는 데 QALY당 13,537만원이 들고, D에서 A로 가는 데는 3,020만원이 듭니다. 덜 효과적인 단계가 더 비싼 값을 요구합니다. D에 쓸 돈이면 환자 일부에게 A를 쓰는 편이 같은 건강을 더 싸게 얻습니다(그림 20-4의 빈 점). 이런 대안도 뺍니다<cite data-ref="cantor1994"></cite>.</li>
+<li><b>효율 경계</b><span class="en">(efficiency frontier)</span><b>.</b> 남은 대안을 이은 선입니다. ICER는 이 선 위에서 이웃한 대안끼리 구합니다. 여기서는 A 대 B의 5,621만원/QALY 하나가 남습니다<cite data-ref="karlsson1996"></cite>.</li>
+</ul>
+<p>판단은 경계 위에서 합니다. 가장 싼 대안에서 출발해 ICER가 임계값보다 낮은 동안 더 효과적인 대안으로 옮겨 갑니다. 이 예에서는 A의 ICER가 가정한 임계값 5,000만원을 넘으므로 표준요법 B에 머뭅니다. 표의 마지막 열처럼 대안마다 5,000 × QALY − 비용을 구해 가장 큰 것을 골라도 같은 답(B)이 나옵니다.</p>
+<!--FOLD:계산 과정 보기: 효율 경계를 만드는 순서와 파이썬 코드-->
+<div class="flow">
+<div><div><b>비용이 낮은 순서로 정렬</b><p>B(7,689) → C(8,100) → D(9,400) → A(10,562).</p></div></div>
+<div><div><b>열등인 대안 빼기</b><p>자기보다 싸면서 효과가 같거나 큰 대안이 있으면 뺍니다. C(1.700 QALY)는 더 싼 B(1.874 QALY)보다 효과가 적어 빠집니다.</p></div></div>
+<div><div><b>이웃끼리 ICER 구하기</b><p>D 대 B: (9,400 − 7,689) ÷ (2.000 − 1.874) = 13,537. A 대 D: (10,562 − 9,400) ÷ (2.385 − 2.000) = 3,020. 반올림 전 값으로 계산했습니다.</p></div></div>
+<div><div><b>ICER가 줄어드는 곳 찾기</b><p>경계 위에서는 효과가 큰 대안으로 갈수록 ICER가 커져야 합니다. 13,537 다음에 3,020이 왔으므로 D가 확장 열등입니다. 환자의 24.7%에게 A를, 나머지에게 B를 쓰면 평균 QALY가 D와 같은 2.000이 되고 평균 비용은 8,400만원으로 D보다 1,000만원 적습니다.</p></div></div>
+<div><div><b>다시 계산</b><p>D를 빼고 A 대 B: 2,872 ÷ 0.511 = 5,621(반올림 전 값으로 계산). ICER가 줄어드는 곳이 없을 때까지 되풀이합니다.</p></div></div>
+</div>
+<p>같은 순서를 파이썬으로 옮긴 코드와 실행 결과입니다. 전용 패키지가 없어 직접 구현합니다.</p>
+<pre class="out"><span class="cm">import numpy as np
+
+names = ["표준요법 B", "기존약 C", "병용요법 D", "신약 A"]
+cost = np.array([7689.5, 8100.0, 9400.0, 10561.8])   # 총비용(만원)
+qaly = np.array([1.87364, 1.70000, 2.00000, 2.38467]) # 총 QALY
+
+keep = []                                    # 효율 경계에 남는 대안의 번호
+for i in np.argsort(cost):                   # 비용이 낮은 것부터 차례로
+    if any(qaly[j] &gt;= qaly[i] for j in keep):
+        print(names[i], "-&gt; 열등")           # 더 싸면서 효과가 같거나 큰 대안이 있음
+        continue
+    keep.append(i)
+    while len(keep) &gt;= 3:                    # 이어진 세 대안의 ICER 순서를 확인
+        a, b, c = keep[-3:]
+        icer_ab = (cost[b] - cost[a]) / (qaly[b] - qaly[a])
+        icer_bc = (cost[c] - cost[b]) / (qaly[c] - qaly[b])
+        if icer_ab &lt;= icer_bc:
+            break
+        print(names[b], "-&gt; 확장 열등", round(icer_ab), "&gt;", round(icer_bc))
+        keep.pop(-2)                         # 가운데 대안을 뺌
+
+for a, b in zip(keep[:-1], keep[1:]):
+    icer = (cost[b] - cost[a]) / (qaly[b] - qaly[a])
+    print(names[b], "대", names[a], "ICER", round(icer), "만원/QALY")</span>
+기존약 C -&gt; 열등
+병용요법 D -&gt; 확장 열등 13537 &gt; 3020
+신약 A 대 표준요법 B ICER 5621 만원/QALY</pre>
+<ul>
+<li><code>np.argsort(cost)</code>: 비용이 낮은 순서대로 대안의 번호를 줍니다. 여기서는 0(B), 1(C), 2(D), 3(A)입니다.</li>
+<li><code>any(qaly[j] &gt;= qaly[i] for j in keep)</code>: 이미 남겨 둔 더 싼 대안 가운데 효과가 같거나 큰 것이 하나라도 있으면 참입니다. C에서 참이 되어 "열등"이 출력됩니다.</li>
+<li><code>while</code> 블록: 경계에 남은 마지막 세 대안(a, b, c)에서 앞 단계의 ICER가 뒤 단계보다 크면 가운데(b)를 뺍니다. A를 넣는 순간 B–D–A에서 13537 &gt; 3020이어서 D가 빠집니다.</li>
+<li>마지막 반복문은 경계에 남은 대안을 이웃끼리 짝지어 ICER를 출력합니다. 반올림 차이를 없애려고 입력값을 소수 다섯째 자리까지 넣었습니다.</li>
+</ul>
+<!--/FOLD-->
+
+<h3>음수 ICER와 ICER를 다룰 때의 주의</h3>
+<ul>
+<li><b>음수 ICER는 숫자로 읽지 않습니다.</b> 500만원 덜 들고 0.2 QALY를 더 얻는 약(우월)도, 500만원 더 들고 0.2 QALY를 잃는 약(열등)도 ICER는 똑같이 −2,500만원/QALY입니다. 정반대의 상황이 같은 숫자가 됩니다. 그래서 논문은 음수를 적지 않고 "dominant" 또는 "dominated"라고 씁니다.</li>
+<li><b>ICER가 낮다고 더 좋은 약이 아닙니다.</b> ICER는 "이 비교대안에 견준 추가분의 값"입니다. 표 20-11의 A 대 D(3,020만원)처럼 빠져야 할 대안과 비교하면 실제보다 좋게 나옵니다. 여러 약의 ICER를 견주려면 관점, 분석기간, 할인율이 같고 비교대안이 알맞아야 합니다.</li>
+<li><b>ICER의 평균을 내지 않습니다.</b> 모의실험을 여러 번 되풀이한 결과나 하위군의 결과를 하나로 요약할 때는 증분비용의 평균을 증분효과의 평균으로 나눕니다<cite data-ref="stinnett1997"></cite>. 증분비용 3,000만원에 증분 QALY 0.60인 하위군(ICER 5,000)과 2,800만원에 0.10인 하위군(ICER 28,000)이 있다고 합시다. 두 ICER를 평균하면 16,500이지만, 비용과 효과를 먼저 평균해 나누면 2,900 ÷ 0.35 = 8,286입니다(인원이 같을 때).</li>
+</ul>
+<!--FOLD:자세히 보기: 덜 효과적이고 더 싼 대안-->
+<p>왼쪽 아래 사분면에서는 ICER가 양수이지만 뜻이 뒤집힙니다. 1,000만원을 아끼고 0.1 QALY를 잃는 대안의 ICER는 (−1,000) ÷ (−0.1) = 10,000만원/QALY입니다. 이 값은 "1 QALY를 포기할 때마다 아끼는 돈"이므로 클수록 좋고, 임계값보다 <b>높아야</b> 받아들일 만합니다. 가정한 임계값 5,000만원에서 순금전편익은 5,000 × (−0.1) − (−1,000) = +500만원으로 양수입니다. 순금전편익은 사분면과 관계없이 "양수면 비용효과적"으로 읽을 수 있습니다. 다만 건강을 잃는 결정이므로 실제 급여 결정에서는 숫자만으로 받아들여지지 않을 수 있습니다.</p>
+<!--/FOLD-->
+
+<div class="callout warn"><p class="ct">흔한 오해 · ICER를 읽을 때</p>
+<p><span class="wrong">ICER는 낮을수록 좋으므로 −2,500만원/QALY인 약이 가장 좋다.</span> 음수 ICER는 더 싸고 더 좋은 경우와 더 비싸고 더 나쁜 경우에 모두 나옵니다. 증분비용과 증분효과의 부호를 따로 확인합니다.</p>
+<p><span class="wrong">신약 A의 비용효과비는 10,562 ÷ 2.385 = 4,429만원/QALY이므로 임계값 5,000만원보다 낮아 비용효과적이다.</span> 이것은 평균 비이고 ICER가 아닙니다. 표준요법 B와 비교한 ICER는 5,621만원/QALY입니다.</p>
+<p><span class="wrong">신약 A를 병용요법 D와 비교한 ICER가 3,020만원/QALY이므로 A는 비용효과적이다.</span> D는 확장 열등이어서 비교대안이 될 수 없습니다. 효율 경계 위의 이웃인 B와 비교해야 하고, 그 값은 5,621만원입니다.</p></div>
+
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>보고할 것</strong>: ICER만 적지 않습니다. 대안별 총비용과 총효과, 증분비용, 증분효과, ICER를 한 표에 싣습니다. 지침 요약도 대안별 총비용·총효과와 함께 ICER를 제시하도록 합니다<cite data-ref="isporkorea2024"></cite>. CHEERS 2022의 23번(주요 결과 요약) 항목입니다. 비용은 항목별로 나눠 보이면 차이가 어디서 오는지 알 수 있습니다.</li>
+<li><strong>대안이 셋 이상이면</strong>: 모든 대안을 비용순으로 놓고 열등·확장 열등을 표시한 뒤 경계 위의 ICER를 보고합니다. 신약을 대안마다 따로 짝지어 비교한 ICER만 늘어놓지 않습니다.</li>
+<li><strong>표현</strong>: 우월하면 "dominant", 열등하면 "dominated"로 적고 음수 ICER는 쓰지 않습니다. 임계값을 썼다면 값과 근거를 밝히고, 여러 임계값에서의 결과를 함께 보입니다(24장 다 절).</li>
+<li><strong>외국과의 차이</strong>: 미국의 Second Panel은 하나의 임계값과 비교하지 말고 여러 임계값에서 결론이 어떻게 달라지는지 보이라고 권고합니다<cite data-ref="sanders2016panel"></cite>.</li>
+<li><strong>파이썬</strong>: ICER와 순금전편익은 뺄셈과 나눗셈이고, 효율 경계는 위 접힌 코드처럼 numpy로 직접 구현합니다.</li>
+</ul></div>
+
+<h3>논문에서 읽어 보기</h3>
+<p>공통 예시의 기준 분석 결과를 학술지 형식의 표로 옮겼습니다. 경제성 평가 논문의 결과표가 대개 이 모양입니다.</p>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 기준 분석 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Base-case results per patient over a 20-year time horizon</caption>
+<thead><tr><th></th><th class="r">Drug A</th><th class="r">Standard therapy B</th><th class="r">Incremental</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="4"><span class="mk">1</span> Costs, ₩ thousand</td></tr>
+<tr><td class="ind">Drug acquisition</td><td class="r">41,244</td><td class="r">17,078</td><td class="r"><span class="mk">2</span> 24,166</td></tr>
+<tr><td class="ind">Disease management, progression-free</td><td class="r">8,683</td><td class="r">5,693</td><td class="r">2,990</td></tr>
+<tr><td class="ind">Disease management, progressed disease</td><td class="r">47,695</td><td class="r">46,286</td><td class="r">1,409</td></tr>
+<tr><td class="ind">End-of-life care</td><td class="r">6,796</td><td class="r">7,038</td><td class="r"><span class="mk">3</span> −242</td></tr>
+<tr><td class="ind">Adverse events</td><td class="r">1,200</td><td class="r">800</td><td class="r">400</td></tr>
+<tr><td class="ind"><b>Total costs</b></td><td class="r">105,618</td><td class="r">76,895</td><td class="r">28,723</td></tr>
+<tr class="grp"><td colspan="4">Health outcomes</td></tr>
+<tr><td class="ind">Life-years</td><td class="r">3.399</td><td class="r">2.729</td><td class="r">0.670</td></tr>
+<tr><td class="ind">QALYs</td><td class="r">2.385</td><td class="r">1.874</td><td class="r"><span class="mk">4</span> 0.511</td></tr>
+<tr class="grp"><td colspan="4">Incremental cost-effectiveness ratio</td></tr>
+<tr><td class="ind">₩ million per life-year gained</td><td class="r"></td><td class="r"></td><td class="r">42.9</td></tr>
+<tr><td class="ind">₩ million per QALY gained</td><td class="r"></td><td class="r"></td><td class="r"><span class="mk">5</span> 56.2</td></tr>
+</tbody></table></div>
+<p class="jt-foot">QALY, quality-adjusted life year. <span class="mk">6</span> Costs and health outcomes were discounted at 4.5% per year. Incremental values are drug A minus standard therapy B.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>대안별 비용과 단위.</b> 천 원 단위입니다. 신약 A의 총비용 105,618천 원은 1억 562만원으로 표 20-3의 10,562만원입니다. 다섯 항목을 더하면 총비용이 됩니다(41,244 + 8,683 + 47,695 + 6,796 + 1,200 = 105,618). 합이 맞지 않는 표는 빠진 항목이 있는지 의심합니다.</span></li>
+<li><span class="mk">2</span><span><b>증분비용의 구성.</b> 증분 열은 A에서 B를 뺀 값입니다. 총 증분 28,723천 원 가운데 약값이 24,166천 원으로 84%입니다. 가격을 낮추면 ICER가 곧바로 움직이는 구조라는 것을 이 줄에서 읽습니다.</span></li>
+<li><span class="mk">3</span><span><b>음수인 증분.</b> 임종기 비용은 신약 A군이 242천 원 적습니다. 사망이 늦게 일어나 같은 비용이 더 많이 할인되기 때문입니다. 증분이 음수인 항목은 그 항목에서 비용이 줄었다는 뜻이고, 오류가 아닙니다.</span></li>
+<li><span class="mk">4</span><span><b>증분 QALY와 증분 생존연수.</b> 2.385 − 1.874 = 0.511. 생존연수 증가 0.670보다 작습니다. 늘어난 기간의 삶의 질이 1보다 낮기 때문입니다(나 절).</span></li>
+<li><span class="mk">5</span><span><b>ICER.</b> 28,723 ÷ 0.511 = 56,209천 원, 즉 5,621만원/QALY(₩56.2 million)입니다. 표의 마지막 열에서 직접 검산할 수 있습니다. 총비용을 QALY로 나눈 값(105,618 ÷ 2.385)은 평균 비이고 ICER가 아닙니다.</span></li>
+<li><span class="mk">6</span><span><b>할인 여부.</b> 생존연수와 QALY가 할인된 값입니다. 할인 전 생존연수는 3.916년과 3.054년(표 20-3)으로 더 깁니다. 논문의 생존연수를 임상시험의 생존 기간과 견줄 때는 할인 전 값인지 확인합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>수식으로 보기</h3>
+<p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
+<div class="eq">\[ ICER = \frac{\Delta C}{\Delta E} = \frac{C_A - C_B}{E_A - E_B} \]
+<p>\(C\)는 대안별 총비용, \(E\)는 총효과(QALY)입니다. 공통 예시: (10,562 − 7,689) ÷ (2.385 − 1.874) = 2,872 ÷ 0.511 = 5,621만원/QALY. 증분비용 2,872와 ICER 5,621은 반올림 전 값으로 계산해서, 표시된 값으로 계산한 2,873, 5,620과 끝자리가 다릅니다.</p></div>
+<div class="eq">\[ NMB = \lambda \times \Delta E - \Delta C, \qquad NHB = \Delta E - \frac{\Delta C}{\lambda} \]
+<p>\(\lambda\)는 임계값입니다. 증분 순금전편익 5,000 × 0.511 − 2,872 = −317만원, 순건강편익<span class="en">(net health benefit)</span> 0.511 − 2,872 ÷ 5,000 = −0.063 QALY. \(\Delta E &gt; 0\)일 때 \(NMB &gt; 0\)은 \(ICER &lt; \lambda\)와 같은 조건입니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>ICER는 증분비용 ÷ 증분효과입니다. 총비용 ÷ 총효과인 평균 비(신약 A 4,429만원)는 결정에 쓰지 않습니다. 공통 예시의 ICER는 5,621만원/QALY입니다.</li>
+<li>비용효과평면에서 오른쪽 아래는 우월, 왼쪽 위는 열등입니다. 오른쪽 위에서는 ICER를 임계값과 비교합니다. 우리나라에는 공식 임계값이 없습니다.</li>
+<li>순금전편익(임계값 × 증분효과 − 증분비용)이 양수면 비용효과적입니다. 공통 예시는 가정한 임계값 5,000만원에서 −317만원입니다.</li>
+<li>대안이 여럿이면 열등과 확장 열등을 빼고 효율 경계 위에서 이웃끼리 ICER를 구합니다.</li>
+<li>음수 ICER는 우월과 열등을 구분하지 못합니다. ICER는 비교대안과 분석의 틀이 같을 때만 견줄 수 있고, 평균을 낼 때는 비용과 효과를 먼저 평균합니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>세 치료의 총비용과 QALY가 P(1,000만원, 1.00), Q(1,600만원, 1.10), R(2,200만원, 1.50)입니다. 효율 경계를 만들고 ICER를 구해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>비용순으로 P, Q, R이고 효과도 같은 순서로 커지므로 열등인 대안은 없습니다. 이웃끼리의 ICER는 Q 대 P가 600 ÷ 0.10 = 6,000만원, R 대 Q가 600 ÷ 0.40 = 1,500만원입니다. 뒤 단계가 더 작으므로 Q는 확장 열등입니다. Q를 빼면 R 대 P가 1,200 ÷ 0.50 = 2,400만원/QALY입니다. 경계는 P–R이고 보고할 ICER는 2,400만원 하나입니다. "R 대 Q 1,500만원"을 R의 ICER로 보고하면 실제보다 좋게 보입니다. R의 평균 비 2,200 ÷ 1.50 = 1,467만원도 ICER가 아닙니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"신약의 ICER는 −2,500만원/QALY로, 임계값 5,000만원보다 훨씬 낮아 매우 비용효과적이었다." 이 문장만으로 결론을 믿을 수 있습니까?</p>
+<details><summary>답과 풀이</summary><div><p>믿을 수 없습니다. ICER가 음수가 되는 경우는 둘입니다. 증분비용이 음수이고 증분효과가 양수이면(예: −500만원, +0.2 QALY) 신약이 우월합니다. 증분비용이 양수이고 증분효과가 음수이면(예: +500만원, −0.2 QALY) 신약이 열등합니다. 두 경우 모두 −2,500입니다. 결과표에서 증분비용과 증분효과의 부호를 확인해야 하고, 저자는 음수 ICER 대신 "dominant" 또는 "dominated"라고 써야 합니다.</p></div></details></li>
+<li><p><span class="qt">계산</span>공통 예시(증분비용 2,872만원, 증분 QALY 0.511)의 증분 순금전편익을 임계값 3,000만원, 6,000만원, 7,000만원에서 구하고, 부호가 바뀌는 임계값이 얼마인지 말해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>3,000 × 0.511 − 2,872 = −1,339만원, 6,000에서 +194만원, 7,000에서 +705만원입니다(반올림 전 값으로 계산). 임계값이 3,000만원이나 5,000만원이면 음수여서 비용효과적이지 않고, 6,000만원 이상이면 양수입니다. 부호가 바뀌는 임계값은 순금전편익이 0이 되는 값, 즉 ICER인 5,621만원입니다. 같은 약이 임계값에 따라 비용효과적일 수도 아닐 수도 있으므로, 공식 임계값이 없는 국내 상황에서는 여러 임계값에서의 결과를 함께 봅니다.</p></div></details></li>
+</ol></div>
+</section>

@@ -1,0 +1,101 @@
+<!-- dsa -->
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">일원 민감도 분석과 임계 가격</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+from scipy import stats
+from scipy.optimize import brentq
+
+t = np.arange(0, 241)                                   # 0, 1, ..., 240개월
+base = dict(hr_pfs=0.65, hr_os=0.75,                    # 기준 분석 입력값(23장 다 절의 표)
+            pfs_lam=np.log(2) / 10 ** 0.95, pfs_gam=0.95, os_lam=np.log(2) / 28 ** 1.15, os_gam=1.15,
+            u_pf=0.78, u_pd=0.62, du_ae_A=0.012, du_ae_B=0.008,
+            c_pf=40.0, c_pd=250.0, c_death=800.0, c_ae_A=120.0, c_ae_B=80.0,
+            c_drug_A=190.0, c_drug_B=120.0)
+
+def model(v):                                           # 입력값 한 벌 → (증분비용, 증분QALY)
+    res = {}
+    for arm, hr_pfs, hr_os in ((&quot;A&quot;, v[&quot;hr_pfs&quot;], v[&quot;hr_os&quot;]), (&quot;B&quot;, 1.0, 1.0)):
+        os_ = np.exp(-v[&quot;os_lam&quot;] * hr_os * t ** v[&quot;os_gam&quot;])
+        pfs = np.minimum(np.exp(-v[&quot;pfs_lam&quot;] * hr_pfs * t ** v[&quot;pfs_gam&quot;]), os_)
+        pf = (pfs[:-1] + pfs[1:]) / 2                   # 무진행 비율(반주기 보정)
+        pd_ = ((os_ - pfs)[:-1] + (os_ - pfs)[1:]) / 2  # 진행 비율
+        died = os_[:-1] - os_[1:]
+        disc = 1 / 1.045 ** ((t[:-1] + 0.5) / 12)
+        cost = ((pf * (v[&quot;c_drug_&quot; + arm] + v[&quot;c_pf&quot;]) + pd_ * v[&quot;c_pd&quot;] + died * v[&quot;c_death&quot;]) * disc).sum() + v[&quot;c_ae_&quot; + arm]
+        qaly = ((pf * v[&quot;u_pf&quot;] + pd_ * v[&quot;u_pd&quot;]) / 12 * disc).sum() - v[&quot;du_ae_&quot; + arm]
+        res[arm] = (cost, qaly)
+    return res[&quot;A&quot;][0] - res[&quot;B&quot;][0], res[&quot;A&quot;][1] - res[&quot;B&quot;][1]
+
+dc, dq = model(base)
+print(&quot;기준 분석: 증분비용&quot;, round(dc), &quot;증분QALY&quot;, round(dq, 3), &quot;ICER&quot;, round(dc / dq))
+
+z = np.array([-1.96, 1.96])
+ranges = {&quot;hr_os&quot;: np.exp(np.log(0.75) + z * 0.131),    # 위험비: 로그 척도에서 ±1.96 × 표준오차
+          &quot;hr_pfs&quot;: np.exp(np.log(0.65) + z * 0.113),
+          &quot;c_drug_A&quot;: np.array([152.0, 190.0]),         # 표시 가격에서 20% 인하한 값까지
+          &quot;u_pf&quot;: stats.beta.ppf([0.025, 0.975], 147.94, 41.727)}   # 베타분포의 95% 구간(나 절)
+for name, (low, high) in ranges.items():                # 일원 민감도 분석: 하나씩만 바꾼다
+    icers = []
+    for value in (low, high):
+        c, q = model({**base, name: value})
+        icers.append(round(c / q))
+    print(name, &quot;범위&quot;, round(low, 3), &quot;-&quot;, round(high, 3), &quot; ICER&quot;, icers)
+
+def gap(price):                                         # 그 가격에서의 ICER - 5,000
+    c, q = model({**base, &quot;c_drug_A&quot;: price})
+    return c / q - 5000
+print(&quot;ICER가 5,000이 되는 월 약값:&quot;, round(brentq(gap, 100, 190), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>기준 분석: 증분비용 2872 증분QALY 0.511 ICER 5621
+hr_os 범위 0.58 - 0.97  ICER [5232, 7922]
+hr_pfs 범위 0.521 - 0.811  ICER [4784, 6499]
+c_drug_A 범위 152.0 - 190.0  ICER [4006, 5621]
+u_pf 범위 0.719 - 0.836  ICER [6076, 5262]
+ICER가 5,000이 되는 월 약값: 175.39</pre></div></div>
+<!-- psa -->
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">확률적 민감도 분석 5,000회</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">spec = dict(hr_pfs=(&quot;lognormal&quot;, 0.113), hr_os=(&quot;lognormal&quot;, 0.131),      # (분포, 불확실성의 크기)
+            pfs_lam=(&quot;lognormal&quot;, 0.08), pfs_gam=(&quot;lognormal&quot;, 0.05),
+            os_lam=(&quot;lognormal&quot;, 0.10), os_gam=(&quot;lognormal&quot;, 0.06),
+            u_pf=(&quot;beta&quot;, 0.03), u_pd=(&quot;beta&quot;, 0.05),
+            du_ae_A=(&quot;gamma&quot;, 0.25), du_ae_B=(&quot;gamma&quot;, 0.25),
+            c_pf=(&quot;gamma&quot;, 0.20), c_pd=(&quot;gamma&quot;, 0.20), c_death=(&quot;gamma&quot;, 0.20),
+            c_ae_A=(&quot;gamma&quot;, 0.25), c_ae_B=(&quot;gamma&quot;, 0.25))
+
+def draw(rng):                                          # 입력값 한 벌을 분포에서 뽑는다
+    v = dict(base)                                      # 약값은 base의 값 그대로(고정)
+    for name, (dist, u) in spec.items():
+        m = base[name]
+        if dist == &quot;lognormal&quot;:                         # u = 로그 척도의 표준오차
+            v[name] = np.exp(rng.normal(np.log(m), u))
+        elif dist == &quot;beta&quot;:                            # u = 표준오차
+            n = m * (1 - m) / u ** 2 - 1
+            v[name] = rng.beta(m * n, (1 - m) * n)
+        else:                                           # gamma: u = 표준오차 / 평균
+            se = m * u
+            shape = (m / se) ** 2
+            v[name] = rng.gamma(shape, m / shape)
+    return v
+
+rng = np.random.default_rng(20261002)                   # 난수 seed를 고정해 결과를 재현
+sims = np.array([model(draw(rng)) for _ in range(5000)])
+dc, dq = sims[:, 0], sims[:, 1]                         # 5,000벌의 증분비용, 증분QALY
+
+print(&quot;평균 증분비용&quot;, round(dc.mean()), &quot; 95% 구간&quot;, np.percentile(dc, [2.5, 97.5]).round(0))
+print(&quot;평균 증분QALY&quot;, round(dq.mean(), 3), &quot; 95% 구간&quot;, np.percentile(dq, [2.5, 97.5]).round(3))
+print(&quot;ICER(평균 ÷ 평균)&quot;, round(dc.mean() / dq.mean()))
+print(&quot;더 비싸고 더 효과적인 비율&quot;, np.mean((dc &gt; 0) &amp; (dq &gt; 0)))
+inmb = 5000 * dq - dc                                   # 임계값 5,000에서의 증분 순금전편익
+print(&quot;비용효과적일 확률&quot;, np.mean(inmb &gt; 0), &quot; 몬테카를로 표준오차&quot;, round(np.sqrt(np.mean(inmb &gt; 0) * np.mean(inmb &lt;= 0) / 5000), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>평균 증분비용 2935  95% 구간 [ 919. 5500.]
+평균 증분QALY 0.524  95% 구간 [0.112 1.041]
+ICER(평균 ÷ 평균) 5597
+더 비싸고 더 효과적인 비율 0.9956
+비용효과적일 확률 0.1762  몬테카를로 표준오차 0.0054</pre></div></div>
+<!-- ceac -->
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lams = np.array([3000, 4000, 5000, 6000, 7000, 8000, 10000])
+for lam in lams:
+    inmb = lam * dq - dc                                # 모의실험마다의 증분 순금전편익
+    p_ce = np.mean(inmb &gt; 0)                            # 양수인 비율 = 비용효과적일 확률
+    evpi = np.maximum(inmb, 0).mean() - max(inmb.mean(), 0)
+    print(lam, &quot; 확률&quot;, round(p_ce, 3), &quot; 평균 순편익&quot;, round(inmb.mean()), &quot; EVPI&quot;, round(evpi, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3000  확률 0.007  평균 순편익 -1362  EVPI 1.9
+4000  확률 0.022  평균 순편익 -837  EVPI 5.5
+5000  확률 0.176  평균 순편익 -313  EVPI 47.0
+6000  확률 0.652  평균 순편익 211  EVPI 101.8
+7000  확률 0.876  평균 순편익 736  EVPI 37.6
+8000  확률 0.936  평균 순편익 1260  EVPI 21.3
+10000  확률 0.97  평균 순편익 2309  EVPI 11.7</pre></div></div>

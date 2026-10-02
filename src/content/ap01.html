@@ -204,6 +204,7 @@
 
 <section class="sec" id="ap01-s3">
 <h2><span class="sec-no">다.</span>의료비용 자료의 분석</h2>
+<p>이 절은 짧은 요약입니다. 비용의 종류와 측정, 평균 비용의 비교, 회귀모형은 <a href="#ch21">21장 비용 자료 분석</a>에서 자세히 다룹니다.</p>
 
 <div class="easy">
 <p class="et">쉽게 말하면</p>
@@ -238,9 +239,9 @@
 <thead><tr><th>방법</th><th>추정하는 것</th><th>이럴 때</th><th>주의</th></tr></thead>
 <tbody>
 <tr class="hi"><td>평균 비교(t 검정) + 부트스트랩 CI</td><td>산술평균 차이(원)</td><td>무작위배정 시험, 표본이 충분할 때</td><td>공변량을 보정하지 못함</td></tr>
-<tr><td>감마 GLM, 로그 연결 (8장 라 절)</td><td>산술평균의 비. 재활용 예측으로 금액 차이</td><td>관찰연구에서 교란변수를 보정할 때</td><td>0원은 넣을 수 없음. 분산 구조가 맞는지 확인(modified Park test)</td></tr>
+<tr><td>감마 GLM, 로그 연결 (8장 라 절)</td><td>산술평균의 비. 재활용 예측으로 금액 차이</td><td>관찰연구에서 교란변수를 보정할 때</td><td>0원이 많으면 맞지 않음(2단계 모형을 씀). 분산 구조가 맞는지 확인(modified Park test)</td></tr>
 <tr><td>이단계 모형</td><td>사용 확률 × 사용자의 평균</td><td>0원이 많을 때</td><td>두 부분의 예측을 곱해 금액을 구하고 CI는 부트스트랩</td></tr>
-<tr><td>로그 변환 뒤 선형회귀</td><td>기하평균의 비</td><td>비용의 주 분석으로는 권하지 않음</td><td>0원 처리 불가, 재변환 문제</td></tr>
+<tr><td>로그 변환 뒤 선형회귀</td><td>기하평균의 비</td><td>평균 비용이 목적일 때는 재변환이 필요해 주의</td><td>0원 처리 불가, 재변환 문제</td></tr>
 <tr><td>Mann-Whitney 검정</td><td>한 군 값이 더 클 확률(순위)</td><td>평균이 질문이 아닐 때</td><td>평균 비용 차이에 답하지 못함</td></tr>
 </tbody></table></div>
 <p>감마 분포가 자료에 맞는지는 modified Park test로 확인합니다. 원래 척도의 잔차 제곱을 예측값에 로그 연결 GLM으로 회귀해 분산이 평균의 몇 제곱에 비례하는지 보는 방법으로, 그 계수가 2 근처이면 감마 분포의 가정(분산 ∝ 평균²)과 맞습니다<cite data-ref="manning2001"></cite>. 여러 방법 중 어느 것이 자료에 맞는지는 표본을 나눠 예측 오차를 비교하는 식으로 정하기도 합니다<cite data-ref="mihaylova2011"></cite><cite data-ref="deb2018"></cite>. 무작위배정 시험의 주 분석은 평균 차이와 부트스트랩 신뢰구간이면 충분한 경우가 많습니다<cite data-ref="thompson2000cost"></cite>.</p>

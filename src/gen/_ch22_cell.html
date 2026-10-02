@@ -1,0 +1,33 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">사다리꼴 공식으로 QALY 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+from scipy.integrate import trapezoid
+
+# 환자 다: 측정 시점(개월)과 그때의 효용. 15개월에 사망했으므로 그 시점의 효용은 0
+t = np.array([0, 3, 6, 12, 15])
+u = np.array([0.841, 0.762, 0.751, 0.581, 0.0])
+
+area = trapezoid(u, t)             # 곡선 아래 면적(단위: 효용 × 개월)
+print(&quot;면적:&quot;, round(area, 3), &quot;→ QALY:&quot;, round(area / 12, 3))
+
+# 사다리꼴을 하나씩 계산해 같은 값인지 확인
+width = np.diff(t)                 # 구간의 길이: 3, 3, 6, 3
+height = (u[:-1] + u[1:]) / 2      # 구간 양 끝 효용의 평균
+print(&quot;구간별 QALY:&quot;, np.round(width * height / 12, 3))
+
+# 환자가 여러 명일 때: 긴 형식의 표(한 행 = 측정 한 번)에서 환자별로 계산
+df = pd.DataFrame({
+    &quot;id&quot;:    [&quot;가&quot;] * 6 + [&quot;나&quot;] * 6 + [&quot;다&quot;] * 5,
+    &quot;month&quot;: [0, 3, 6, 12, 18, 24] * 2 + [0, 3, 6, 12, 15],
+    &quot;utility&quot;: [0.862, 0.841, 0.862, 0.862, 0.841, 0.862,
+                0.862, 0.829, 0.762, 0.593, 0.560, 0.518,
+                0.841, 0.762, 0.751, 0.581, 0.0],
+})
+qaly = df.groupby(&quot;id&quot;)[[&quot;month&quot;, &quot;utility&quot;]].apply(
+    lambda g: trapezoid(g[&quot;utility&quot;], g[&quot;month&quot;]) / 12)
+print(qaly.round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>면적: 9.541 → QALY: 0.795
+구간별 QALY: [0.2   0.189 0.333 0.073]
+id
+가    1.708
+나    1.307
+다    0.795
+dtype: float64</pre></div></div>
