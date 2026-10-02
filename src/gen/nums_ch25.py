@@ -228,7 +228,15 @@ assert np.allclose(BI["net"], BI["gross_A"] - BI["displaced"])
 print(f"  3년차 재정영향 {eok(BI['net'][2]):.1f}억 원, 5년 합 {eok(BI['net'].sum()):.1f}억 원; 신약 약품비 5년 합 {eok(BI['drug_A'].sum()):.1f}억 원 (순증가의 {BI['drug_A'].sum() / BI['net'].sum():.2f}배)")
 print(f"  기준 지출 대비 증가율(5년차) {BI['net'][4] / BI['world0'][4] * 100:.1f}%")
 print(f"  공단 부담금만(산정특례 본인부담 5%를 뺀 0.95배) 5년 합 {eok(BI['net'].sum()) * 0.95:.1f}억 원, 3년차 {eok(BI['net'][2]) * 0.95:.1f}")
+# 검수(2026-10-03) 추가: 약품비만 본 순증가(신약 A 약품비 − 대체된 표준요법 B 약품비). 진행 상태 비용이 줄어드는 몫이 빠지므로
+# 급여 진료비 전체로 본 재정영향보다 크다. 다 절 접힌 '계산 과정 보기'에 쓴다.
+drug_B_displaced = np.array([sum(BI["n_A"][s] * dB[t - s] for s in range(t + 1)) for t in range(YEARS)])
+net_drug = BI["drug_A"] - drug_B_displaced
+print(f"  약품비만 본 순증가(억 원): {np.round(eok(net_drug), 1).tolist()} 5년 합 {eok(net_drug.sum()):.1f}"
+      f" | 3년차: 신약 A {eok(BI['drug_A'][2]):.1f} − 대체된 B {eok(drug_B_displaced[2]):.1f} = {eok(net_drug[2]):.1f}"
+      f" | 약품비 밖의 차이(3년차) {eok(BI['net'][2] - net_drug[2]):.1f}")
 N["bia"] = {"n_new": N_NEW, "uptake": UPTAKE, "cA": cA.tolist(), "cB": cB.tolist(), "dA": dA.tolist(), "dB": dB.tolist(),
+            "drug_B_displaced": drug_B_displaced.tolist(), "net_drug": net_drug.tolist(),
             **{k: (np.asarray(v).tolist()) for k, v in BI.items()}}
 
 show("다. 재정영향분석의 시나리오와 흔한 실수")
