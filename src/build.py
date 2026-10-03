@@ -13,7 +13,10 @@ GROUPS = [
     {"key": "p2", "label": "PART 2", "title": "중급 보건의학통계 맛보기"},
     {"key": "p3", "label": "PART 3", "title": "약물역학 연구 설계"},
     {"key": "p4", "label": "PART 4", "title": "약물경제성 평가"},
-    {"key": "p5", "label": "PART 5", "title": "파이썬 실습"},
+    {"key": "p5", "label": "PART 5", "title": "파이썬 실습",
+     # 목차와 장 목록에서 접어 두는 묶음. 실습 번호가 upto 이하이면 그 묶음에 들어간다
+     "subs": [{"key": "p5a", "label": "A", "title": "검정별 실습", "note": "1–13장과 짝", "upto": 13},
+              {"key": "p5b", "label": "B", "title": "연구 유형별 실습", "note": "약물역학(14–19장)과 약물경제성 평가(20–25장)", "upto": 99}]},
     {"key": "ap", "label": "부록", "title": "추가 검정과 참고문헌"},
 ]
 
@@ -84,6 +87,16 @@ CHAPTERS = [
     ("lab11", "p5", "Cox 비례위험모형", ["실습 데이터 준비", "Cox 모형과 위험비", "비례위험 가정 점검", "보정 생존곡선과 층화 Cox"]),
     ("lab12", "p5", "포아송 회귀와 음이항 회귀", ["실습 데이터 준비", "발생률과 발생률비", "포아송 회귀와 과산포", "음이항 회귀"]),
     ("lab13", "p5", "동등성·비열등성 검정", ["평균 차이의 비열등성", "비율 차이의 비열등성", "생물학적 동등성"]),
+    # PART 5 B: 14장 이후와 짝인 실습 (절 제목은 쓸 때 정한다)
+    ("lab14", "p5", "청구자료에서 코호트 만들기", []),
+    ("lab15", "p5", "성향점수 분석", []),
+    ("lab16", "p5", "불멸시간 편향과 시간의존 Cox 모형", []),
+    ("lab17", "p5", "경쟁위험 분석", []),
+    ("lab18", "p5", "중단시계열분석과 이중차분법", []),
+    ("lab19", "p5", "메타분석", []),
+    ("lab21", "p5", "비용 자료 분석", []),
+    ("lab23", "p5", "결정분석 모형 만들기", []),
+    ("lab24", "p5", "민감도 분석", []),
     ("ap01", "ap", "추가로 알아야 할 검정",
      ["McNemar 검정", "진단검사 정확도와 ROC 곡선", "의료비용 자료의 분석", "결측자료와 다중대체", "표본크기와 검정력", "일치도 분석"],
      {"no": "A", "appendix": True}),
@@ -247,6 +260,9 @@ def chapter_meta():
         path = os.path.join(ROOT, "content", cid + ".html")
         ready = (os.path.exists(path) and (ONLY is None or cid in ONLY)) or cid == REFS_ID
         d = {"id": cid, "no": extra.get("no", cid[-2:]), "lab": cid.startswith("lab")}
+        subs = next((g.get("subs") for g in GROUPS if g["key"] == grp), None)
+        if subs and cid[-2:].isdigit():
+            d["sub"] = next(sb["key"] for sb in subs if int(cid[-2:]) <= sb["upto"])
         for flag in ("review", "appendix", "refs"):
             if extra.get(flag):
                 d[flag] = True

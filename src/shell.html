@@ -150,6 +150,28 @@ a.part-card:hover { border-color: var(--accent); }
 .toc-ch.off h3 { color: var(--ink-2); font-weight: 500; }
 .toc-secs { grid-column: 2; list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 2px 18px; font-size: 14.5px; }
 .toc-secs li { color: var(--muted); }
+/* PART 안의 접히는 묶음 (PART 5 A·B) */
+details.toc-sub { border-top: 1px solid var(--line); }
+details.toc-sub:last-child { border-bottom: 1px solid var(--line); }
+details.toc-sub > summary { cursor: pointer; list-style: none; display: grid; grid-template-columns: 3.2rem minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding-block: 16px; }
+details.toc-sub > summary::-webkit-details-marker { display: none; }
+details.toc-sub > summary .ts-t { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+details.toc-sub > summary b { font-size: 18px; }
+details.toc-sub > summary small { color: var(--muted); font-size: 13.5px; }
+details.toc-sub > summary .chev { width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .15s; margin-right: 6px; }
+details.toc-sub[open] > summary .chev { transform: rotate(-135deg); }
+details.toc-sub > summary:hover b { color: var(--accent-ink); }
+details.toc-sub > .ts-body { margin: 0 0 14px 1.1rem; padding-left: 1.1rem; border-left: 2px solid var(--line); }
+details.toc-sub > .ts-body .toc-ch:first-child { border-top: 0; padding-top: 4px; }
+details.toc-sub > .ts-body .toc-ch:last-child { border-bottom: 0; }
+details.rail-sub > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; color: var(--ink-2); font-weight: 600; }
+details.rail-sub > summary::-webkit-details-marker { display: none; }
+details.rail-sub > summary::before { content: ""; width: 6px; height: 6px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details.rail-sub[open] > summary::before { transform: rotate(45deg); }
+details.rail-sub > summary:hover { background: var(--surface-2); color: var(--ink); }
+details.rail-sub > summary small { font-weight: 400; color: var(--muted); font-size: 12px; }
+details.rail-sub > ol { margin-left: 6px; padding-left: 6px; border-left: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { details.toc-sub > summary .chev, details.rail-sub > summary::before { transition: none; } }
 .toc-secs a { color: var(--ink-2); text-decoration: none; }
 .toc-secs a:hover { color: var(--accent-ink); text-decoration: underline; }
 .toc-secs .sn { color: var(--muted); margin-right: 4px; }
@@ -588,15 +610,35 @@ function typesetNow() {
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const numLabel = c => c.lab ? `실습 ${+c.no}.` : (c.review ? "종합." : (c.appendix ? `부록 ${c.no}.` : `${c.no}.`));
 
+  // PART 안의 접히는 묶음(PART 5 A·B): 펼쳐 둔 묶음을 이 탭에서 기억한다
+  const SUB_KEY = "srn-sub-open-" + (COURSE.key || "home");
+  let subOpen = [];
+  try { subOpen = JSON.parse(sessionStorage.getItem(SUB_KEY) || "[]") || []; } catch (e) { subOpen = []; }
+  document.addEventListener("toggle", e => {
+    const d = e.target;
+    if (!d.dataset || !d.dataset.sub) return;
+    subOpen = subOpen.filter(k => k !== d.dataset.sub);
+    if (d.open) subOpen.push(d.dataset.sub);
+    try { sessionStorage.setItem(SUB_KEY, JSON.stringify(subOpen)); } catch (err) {}
+  }, true);
+  const subCount = list => { const n = list.filter(c => c.ready).length; return n === list.length ? `${n}개` : (n ? `${n}개 공개 · ${list.length - n}개 준비 중` : `${list.length}개 준비 중`); };
+
   function railHTML(activeId) {
     let h = `<a class="back" href="#toc">← ${esc(COURSE.title)} 목차</a>`;
+    const item = c => {
+      const inner = `<span class="rn">${c.no}</span><span>${esc(c.title)}</span>`;
+      return c.ready ? `<li><a href="#${c.id}" class="${c.id === activeId ? "on" : ""}">${inner}</a></li>` : `<li><span>${inner}</span></li>`;
+    };
     for (const g of META.groups) {
-      h += `<h4>${esc(g.label)}</h4><ol>`;
-      for (const c of CH.filter(c => c.group === g.key)) {
-        const inner = `<span class="rn">${c.no}</span><span>${esc(c.title)}</span>`;
-        h += c.ready ? `<li><a href="#${c.id}" class="${c.id === activeId ? "on" : ""}">${inner}</a></li>` : `<li><span>${inner}</span></li>`;
-      }
-      h += "</ol>";
+      const list = CH.filter(c => c.group === g.key);
+      h += `<h4>${esc(g.label)}</h4>`;
+      if (g.subs) {
+        for (const sb of g.subs) {
+          const sl = list.filter(c => c.sub === sb.key);
+          const open = sl.some(c => c.id === activeId) || subOpen.includes(sb.key);
+          h += `<details class="rail-sub" data-sub="${sb.key}"${open ? " open" : ""}><summary>${esc(sb.label)}. ${esc(sb.title)} <small>${sl.length}</small></summary><ol>${sl.map(item).join("")}</ol></details>`;
+        }
+      } else h += `<ol>${list.map(item).join("")}</ol>`;
     }
     return `<nav class="rail" aria-label="장 목록">${h}</nav>`;
   }
@@ -632,21 +674,30 @@ function typesetNow() {
 
   function renderPart() {
     let toc = "";
+    const row = c => {
+      const title = c.ready ? `<a href="#${c.id}">${esc(c.title)}</a>` : esc(c.title);
+      const pill = c.ready ? "" : '<span class="pill">준비 중</span>';
+      const secs = (c.sections || []).map(s => `<li>${c.ready ? `<a href="#${s.id}"><span class="sn">${esc(s.no)}.</span>${esc(s.title)}</a>` : `<span class="sn">${esc(s.no)}.</span>${esc(s.title)}`}</li>`).join("");
+      return `<div class="toc-ch ${c.ready ? "" : "off"}${c.review ? " rv" : ""}"><div class="toc-no">${c.no}</div><h3>${title}${pill}</h3>${secs ? `<ol class="toc-secs">${secs}</ol>` : ""}</div>`;
+    };
     for (const g of META.groups) {
+      const list = CH.filter(c => c.group === g.key);
       toc += `<section class="toc-part"><h2>${esc(g.label)}</h2><p class="tp-title">${esc(g.title)}</p>`;
-      for (const c of CH.filter(c => c.group === g.key)) {
-        const title = c.ready ? `<a href="#${c.id}">${esc(c.title)}</a>` : esc(c.title);
-        const pill = c.ready ? "" : '<span class="pill">준비 중</span>';
-        const secs = (c.sections || []).map(s => `<li>${c.ready ? `<a href="#${s.id}"><span class="sn">${esc(s.no)}.</span>${esc(s.title)}</a>` : `<span class="sn">${esc(s.no)}.</span>${esc(s.title)}`}</li>`).join("");
-        toc += `<div class="toc-ch ${c.ready ? "" : "off"}${c.review ? " rv" : ""}"><div class="toc-no">${c.no}</div><h3>${title}${pill}</h3>${secs ? `<ol class="toc-secs">${secs}</ol>` : ""}</div>`;
-      }
+      if (g.subs) {
+        for (const sb of g.subs) {
+          const sl = list.filter(c => c.sub === sb.key);
+          toc += `<details class="toc-sub" data-sub="${sb.key}"${subOpen.includes(sb.key) ? " open" : ""}>
+            <summary><span class="toc-no">${esc(sb.label)}</span><span class="ts-t"><b>${esc(sb.title)}</b><small>실습 ${+sl[0].no}–${+sl[sl.length - 1].no} · ${esc(sb.note)} · ${subCount(sl)}</small></span><span class="chev" aria-hidden="true"></span></summary>
+            <div class="ts-body">${sl.map(row).join("")}</div></details>`;
+        }
+      } else toc += list.map(row).join("");
       toc += "</section>";
     }
     app.innerHTML = `<div class="wrap">
       <header class="part-head">
         <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>${esc(COURSE.title)}</span></p>
         <h1>${esc(COURSE.title)}</h1>
-        <p>PART 1(0–7장)은 기초 개념과 기초 검정, PART 2(8–13장)는 회귀모형·생존분석·비열등성 검정입니다. PART 3(14–19장)은 청구자료 코호트 설계, 성향점수, 시간 관련 편향, 경쟁위험, 정책평가, 메타분석처럼 약물역학 논문을 읽고 쓰는 데 필요한 연구 설계를 다룹니다. PART 4는 약물경제성 평가(준비 중), PART 5는 공개 데이터와 파이썬으로 직접 해 보는 실습입니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
+        <p>PART 1(0–7장)은 기초 개념과 기초 검정, PART 2(8–13장)는 회귀모형·생존분석·비열등성 검정입니다. PART 3(14–19장)은 청구자료 코호트 설계, 성향점수, 시간 관련 편향, 경쟁위험, 정책평가, 메타분석처럼 약물역학 논문을 읽고 쓰는 데 필요한 연구 설계를 다룹니다. PART 4(20–25장)는 비용, 효용과 QALY, 결정분석 모형, 불확실성 분석까지 약물경제성 평가를 다룹니다. PART 5는 공개 데이터와 파이썬으로 직접 해 보는 실습으로, A(검정별 실습)와 B(연구 유형별 실습) 묶음을 눌러서 펼칩니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
         <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. <span class="lv deep">심화</span> 표시가 붙은 부분은 접혀 있습니다. 처음 읽을 때는 건너뛰고, 필요할 때 눌러서 펼쳐 보세요.</p>
       </header>
       <div class="part-grid">
