@@ -11,7 +11,8 @@
 #   - nice2022manual: nice.org.uk/process/pmg36 (2022-01-31 발간, history 페이지 기준 최종 갱신 2026-03-31).
 #   - cadth2017: cda-amc.ca 지침 페이지(4th Edition, 최종 갱신 2017-03-20).
 #   - hira2021guideline: HIRA 공지(2021-02-24, 「의약품 경제성 평가 지침」 개정 안내(21.1.))와 HIRA OAK Repository 검색 기록
-#     (발간등록번호 G000DB6-2021-25)으로 서지사항만 확인. 원문 파일은 이번 작업 환경에서 열지 못했다.
+#     (발간등록번호 G000DB6-2021-25)으로 서지사항 확인. 2026-10-03 원문 PDF로 대조(표지의 발간등록번호
+#     G000DB6-2021-25, 발행 시기 "2021. 1." 일치. 대조 기록은 P4_GUIDELINE.md).
 #   - hira2022icer: HIRA 공지사항(2022-12-16) 페이지 확인. 표의 숫자는 당일 보도(헬스코리아뉴스 등)로 확인.
 #   - isporkorea2024: ISPOR 'Pharmacoeconomic Guidelines Around the World' 한국 페이지(최종 갱신 2024-05-21).
 # 다른 파일에 이미 있어 여기서 다시 정의하지 않고 그대로 쓰는 key:
