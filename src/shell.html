@@ -93,6 +93,13 @@ code, kbd { font-family: var(--f-mono); font-size: .9em; background: var(--code-
 .tb-btn:hover { border-color: var(--line-strong); color: var(--ink); }
 .tb-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 #menuBtn { display: none; }
+/* 읽던 곳으로 돌아가기 */
+.back-btn { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; flex: none; }
+.back-btn:hover { border-color: var(--accent); color: var(--accent-ink); }
+.back-btn small { font-weight: 400; font-size: 12.5px; opacity: .85; max-width: 11rem; overflow: hidden; text-overflow: ellipsis; }
+.back-btn small:empty { display: none; }
+.brand { overflow: hidden; }
+.brand b { overflow: hidden; text-overflow: ellipsis; }
 
 /* shells */
 .page { padding-inline: 16px; padding-block: 32px 80px; }
@@ -408,6 +415,8 @@ a.cite { font-size: .78em; vertical-align: super; line-height: 0; text-decoratio
   .toc-ch { grid-template-columns: 2.4rem minmax(0, 1fr); }
   .toc-no { font-size: 22px; }
   .tb-btn .lbl-txt { display: none; }
+  .back-btn small { display: none; }
+  .topbar { gap: 8px; }
   .pager { grid-template-columns: minmax(0, 1fr); }
   .pager .nx { grid-column: 1; }
 }
@@ -527,6 +536,9 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 </style>
 
 <header class="topbar">
+  <button class="tb-btn back-btn" id="backBtn" type="button" hidden aria-label="읽던 곳으로 돌아가기">
+    <svg viewBox="0 0 24 24"><path d="M10 6l-6 6 6 6M4 12h16"/></svg><span class="lbl-txt">읽던 곳으로</span><small id="backWhere"></small>
+  </button>
   <button class="tb-btn" id="menuBtn" type="button" aria-label="목차 열기">
     <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="lbl-txt">목차</span>
   </button>
@@ -552,8 +564,9 @@ function typesetNow() {
   const el = document.getElementById("app");
   if (window.__mj && window.MathJax && MathJax.typesetPromise) {
     MathJax.typesetClear && MathJax.typesetClear([el]);
-    MathJax.typesetPromise([el]).catch(() => {});
+    return MathJax.typesetPromise([el]).catch(() => {});
   }
+  return Promise.resolve();
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
@@ -705,7 +718,7 @@ function typesetNow() {
   }
 
   let spy = null;
-  function renderChapter(id, anchor) {
+  function renderChapter(id, anchor, keepScroll) {
     const c = byId[id];
     if (!c || !c.ready) {
       app.innerHTML = `<div class="wrap" style="max-width:46rem"><p class="crumbs"><a href="index.html">홈</a><span>/</span><a href="#toc">${esc(COURSE.title)}</a></p>
@@ -743,7 +756,7 @@ function typesetNow() {
     if (lead) document.getElementById("leadSlot").appendChild(lead);
     initWidgets(body);
     highlightCode(body);
-    typesetNow();
+    lastTypeset = typesetNow() || Promise.resolve();
     if (spy) spy.disconnect();
     const links = [...document.querySelectorAll(".onpage a[data-sec]")];
     if (links.length && "IntersectionObserver" in window) {
@@ -754,6 +767,7 @@ function typesetNow() {
       }, { rootMargin: "-20% 0px -70% 0px" });
       body.querySelectorAll("section.sec").forEach(s => spy.observe(s));
     }
+    if (keepScroll) return;
     if (anchor) {
       const el = document.getElementById(anchor);
       if (el) { requestAnimationFrame(() => el.scrollIntoView({ block: "start" })); return; }
@@ -761,9 +775,103 @@ function typesetNow() {
     window.scrollTo(0, 0);
   }
 
+  /* ---------- 읽던 곳으로 돌아가기 ----------
+     본문 속 링크(다른 장·절, 참고문헌 번호)를 누르면 그 순간의 위치를 기억해 두고,
+     왼쪽 위 단추나 브라우저의 뒤로 가기로 그 자리에 되돌아온다.
+     위치는 "화면 맨 위에 있던 문단이 몇 번째인지 + 펼쳐 둔 접힌 상자"로 기억한다
+     (수식이 그려지면서 높이가 바뀌어도 같은 문단으로 돌아가기 위해). */
+  let lastTypeset = Promise.resolve();
+  let pendingRestore = null, restoreToken = 0;
+  const BACK_KEY = "srn-back-" + (COURSE.key || "home");
+  const ANCH = "p, li, h2, h3, h4, tr, figure, pre, summary";
+  let backStack = [];
+  try { backStack = JSON.parse(sessionStorage.getItem(BACK_KEY) || "[]") || []; } catch (e) { backStack = []; }
+  const saveBack = () => { try { sessionStorage.setItem(BACK_KEY, JSON.stringify(backStack)); } catch (e) {} };
+  const chName = c => c.lab ? `실습 ${+c.no}` : (c.review ? "종합" : (c.appendix ? `부록 ${c.no}` : `${+c.no}장`));
+  const topEdge = () => (document.querySelector(".topbar")?.getBoundingClientRect().bottom || 56) + 8;
+
+  function hereState() {
+    const body = document.getElementById("body");
+    const c = byId[app.dataset.ch];
+    const st = { hash: location.hash, y: Math.round(window.scrollY), ch: c ? c.id : "" };
+    if (!body || !c) return st;
+    st.open = [...body.querySelectorAll("details")].map((d, i) => d.open ? i : -1).filter(i => i >= 0);
+    const edge = topEdge(), els = body.querySelectorAll(ANCH);
+    for (let i = 0; i < els.length; i++) {
+      const r = els[i].getBoundingClientRect();
+      if (r.height > 0 && r.bottom > edge) { st.a = { i, off: Math.round(r.top) }; break; }
+    }
+    let sec = null;
+    body.querySelectorAll("section.sec").forEach(x => { if (x.getBoundingClientRect().top <= edge + 80) sec = x; });
+    const sm = sec && (c.sections || []).find(x => x.id === sec.id);
+    st.label = chName(c) + (sm ? ` ${sm.no} 절` : "");
+    return st;
+  }
+
+  function restoreTo(st) {
+    const body = document.getElementById("body");
+    const token = ++restoreToken;
+    if (body && st.open) { const ds = body.querySelectorAll("details"); st.open.forEach(i => { if (ds[i]) ds[i].open = true; }); }
+    const place = () => {
+      if (token !== restoreToken) return;
+      const el = body && st.a ? body.querySelectorAll(ANCH)[st.a.i] : null;
+      const top = el && el.getBoundingClientRect().height > 0 ? window.scrollY + el.getBoundingClientRect().top - st.a.off : (st.y || 0);
+      window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
+    };
+    place();
+    requestAnimationFrame(place);
+    lastTypeset.then(() => requestAnimationFrame(place));   // 수식이 그려진 뒤 한 번 더 맞춘다
+    setTimeout(() => { if (token === restoreToken) restoreToken++; }, 4000);
+    // 읽는 사람이 직접 움직이기 시작하면 더는 건드리지 않는다
+    const stop = () => { if (token === restoreToken) restoreToken++; };
+    ["wheel", "touchstart", "keydown", "mousedown"].forEach(ev => window.addEventListener(ev, stop, { once: true, passive: true }));
+  }
+
+  function updateBackBtn() {
+    const btn = document.getElementById("backBtn");
+    const top = backStack[backStack.length - 1];
+    btn.hidden = HOME || !top;
+    if (top) {
+      document.getElementById("backWhere").textContent = top.label || "";
+      btn.title = (top.label ? top.label + "의 " : "") + "읽던 곳으로 돌아가기";
+    }
+  }
+
+  document.addEventListener("click", e => {
+    if (HOME || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || a.getAttribute("href") === location.hash) return;
+    const st = hereState();
+    try { history.replaceState(st, ""); } catch (err) {}      // 브라우저 뒤로 가기에서도 같은 자리로
+    if (st.ch && a.closest("#body, #leadSlot")) {             // 본문 속 링크만 단추에 쌓는다
+      backStack.push(st); if (backStack.length > 12) backStack.shift();
+      saveBack();
+    }
+  }, true);
+
+  document.getElementById("backBtn").addEventListener("click", () => {
+    const st = backStack.pop();
+    saveBack();
+    if (!st) { updateBackBtn(); return; }
+    if (st.hash === location.hash || (st.ch && st.ch === app.dataset.ch && !st.hash)) {
+      restoreTo(st); updateBackBtn();
+    } else { pendingRestore = st; location.hash = st.hash || "#" + st.ch; }
+  });
+
+  window.addEventListener("popstate", e => {
+    const st = e.state;
+    if (!st || typeof st.y !== "number") return;
+    pendingRestore = st;
+    const top = backStack[backStack.length - 1];
+    if (top && top.hash === st.hash && top.y === st.y) { backStack.pop(); saveBack(); }   // 뒤로 가기로 이미 돌아온 경우
+  });
+  try { history.scrollRestoration = "manual"; } catch (e) {}
+
   function route() {
     closeDrawer();
     const h = decodeURIComponent(location.hash.slice(1));
+    const pr = pendingRestore; pendingRestore = null;
+    restoreToken++;
     let cur = null;
     if (HOME) {
       // old links such as index.html#ch11-s1 pointed at the single-file site: send them to the course page
@@ -778,10 +886,14 @@ function typesetNow() {
       if (m) {
         cur = m[1];
         const already = app.dataset.ch === cur && document.getElementById("article");
+        if (already && pr && pr.ch === cur) { restoreTo(pr); return; }
         if (already && m[2]) { const el = document.getElementById(h); if (el) { el.scrollIntoView({ block: "start" }); return; } }
-        renderChapter(cur, m[2] ? h : null);
+        const back = pr && pr.ch === cur;
+        renderChapter(cur, m[2] ? h : null, back);
+        if (back) { app.dataset.ch = cur; restoreTo(pr); }
       } else renderPart();
     }
+    if (pr && !cur && !pr.ch && pr.hash === location.hash) requestAnimationFrame(() => window.scrollTo({ top: pr.y, behavior: "instant" }));   // 목차·검색 화면도 보던 자리로
     app.dataset.ch = cur || "";
     document.getElementById("menuBtn").hidden = !cur;
     document.getElementById("courseBtn").hidden = HOME;
@@ -889,7 +1001,7 @@ function typesetNow() {
 
   document.getElementById("courseBtnTxt").textContent = COURSE.title;
   if (COURSE.title) document.title = COURSE.title + " · 사회약학 연구방법 노트";
-  window.addEventListener("hashchange", route);
-  route();
+  window.addEventListener("hashchange", () => { route(); updateBackBtn(); });
+  route(); updateBackBtn();
 })();
 </script>
