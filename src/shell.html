@@ -679,6 +679,8 @@ function typesetNow() {
     const run = () => {
       const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
       const out = document.getElementById("sres");
+      // 검색어를 주소에 남겨 둔다: 결과를 눌렀다가 뒤로 오면 같은 검색 결과가 다시 보인다
+      try { history.replaceState(history.state, "", "#search" + (input.value.trim() ? "/" + encodeURIComponent(input.value.trim()) : "")); } catch (e) {}
       if (!terms.length) { out.innerHTML = ""; return; }
       const hits = [];
       for (const it of searchIndex()) {
@@ -843,7 +845,7 @@ function typesetNow() {
     if (!a || a.getAttribute("href") === location.hash) return;
     const st = hereState();
     try { history.replaceState(st, ""); } catch (err) {}      // 브라우저 뒤로 가기에서도 같은 자리로
-    if (st.ch && a.closest("#body, #leadSlot")) {             // 본문 속 링크만 단추에 쌓는다
+    if (st.ch && (a.closest("#body, #leadSlot") || a.id === "searchBtn")) {   // 본문 속 링크와, 읽다가 누른 검색만 단추에 쌓는다
       backStack.push(st); if (backStack.length > 12) backStack.shift();
       saveBack();
     }
