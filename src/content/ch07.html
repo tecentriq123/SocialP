@@ -85,7 +85,7 @@
 <p>의학 연구의 중도절단은 대부분 <strong>우측 중도절단</strong><span class="en">(right censoring)</span>입니다. "사건 시간은 이 시점보다 뒤"라는 것만 아는 경우로, 생기는 이유는 세 가지입니다.</p>
 <ul>
 <li><strong>행정적 중도절단</strong><span class="en">(administrative censoring)</span>: 자료 마감일(data cutoff)까지 사건이 없었던 경우. 늦게 등록한 환자일수록 관찰할 수 있는 기간이 짧습니다.</li>
-<li><strong>추적 소실</strong><span class="en">(loss to follow-up)</span>: 전원, 연락 두절, 연구 참여 철회. 국민건강보험공단(NHIS) 자료에서는 보험 자격 상실(해외 이주 등)이 여기에 해당합니다. 건강보험심사평가원(HIRA) 청구자료에는 자격 정보가 없어서, 연구마다 마지막 의료이용일이나 자료 기간 종료를 추적 종료로 정의합니다.</li>
+<li><strong>추적 소실</strong><span class="en">(loss to follow-up)</span>: 전원, 연락 두절, 연구 참여 철회. 국민건강보험공단(NHIS) 자료에서는 보험 자격 상실(해외 이주 등)이 여기에 해당합니다. 건강보험심사평가원(HIRA) 청구자료에는 자격 파일이 따로 없어 자격 상실 시점을 알 수 없으므로, 연구마다 마지막 의료이용일이나 자료 기간 종료를 추적 종료로 정의합니다.</li>
 <li><strong>연구 설계에 따른 중도절단</strong>: 약을 실제로 쓰는 동안만 추적하는 as-treated 분석에서 약을 중단하거나 다른 약으로 바꾼 경우입니다(아래 접힌 '청구자료에서 코호트 만들기').</li>
 </ul>
 <p>HIRA 청구자료에서 쓰는 두 가지 추적 종료 정의는 편향의 방향이 다릅니다.</p>
@@ -120,7 +120,7 @@
 <p>이 발생률을 전체 기간이 아니라 아주 짧은 구간(예: 한 달)마다 구한 것이 생존분석의 <strong>위험률</strong><span class="en">(hazard)</span>입니다. '그 시점까지 사건 없이 관찰 중인 사람 가운데 지금 사건이 생기는 속도'로, 위험이 일정하다면 100인년당 34.6명은 0.346 ÷ 12 = 0.029/월, 즉 살아 있는 100명당 한 달에 약 2.9명이 사망하는 속도입니다. 두 군의 위험률의 비가 <strong>위험비</strong><span class="en">(hazard ratio, HR)</span>이고, 두 군 모두 위험률이 시간에 따라 크게 변하지 않으면 전체 기간의 발생률비<span class="en">(incidence rate ratio, IRR)</span>가 위험비와 비슷해집니다. 위험률과 위험비는 11장에서 자세히 다룹니다.</p>
 
 <h3>추적기간의 중앙값</h3>
-<p>논문은 보통 "중앙 추적기간(median follow-up) ○○개월"로 추적이 충분했는지 보고합니다. 그런데 계산 방법에 따라 값이 크게 다릅니다. 표 7-1에서 전체 환자 time의 중앙값은 18개월, 중도절단된 환자만의 중앙값은 25개월, <strong>역 Kaplan-Meier 방법</strong><span class="en">(reverse Kaplan-Meier)</span>으로는 32개월입니다. 사망한 환자를 "사망하지 않았다면 그보다 오래 관찰되었을 사람"으로 취급하는 역 Kaplan-Meier 방법이 현재 가장 널리 권하는 방법이므로<cite data-ref="schemper1996"></cite>, 논문에서는 어떤 방법으로 구한 값인지 확인합니다.</p>
+<p>논문은 보통 "중앙 추적기간(median follow-up) ○○개월"로 추적이 충분했는지 보고합니다. 그런데 계산 방법에 따라 값이 크게 다릅니다. 표 7-1에서 전체 환자 time의 중앙값은 18개월, 중도절단된 환자만의 중앙값은 25개월, <strong>역 Kaplan-Meier 방법</strong><span class="en">(reverse Kaplan-Meier)</span>으로는 32개월입니다. 현재 가장 널리 권하는 방법은 역 Kaplan-Meier 방법이므로<cite data-ref="schemper1996"></cite>, 논문에서는 어떤 방법으로 구한 값인지 확인합니다. 역 Kaplan-Meier 방법의 원리는 나 절에서 Kaplan-Meier 방법을 읽은 뒤 아래 접힌 상자에서 봅니다.</p>
 <!--FOLD:자세히 보기: 세 가지 계산 방법의 차이-->
 <ul>
 <li><strong>전체 환자 time의 중앙값</strong>: 18개월. 사망한 환자는 사망과 함께 추적이 끝나므로, 사망이 많을수록 '추적기간'이 짧아 보입니다. 연구를 얼마나 오래 했는지와 병이 얼마나 치명적인지가 섞인 값입니다.</li>
@@ -149,7 +149,7 @@
 <div class="paper-b">
 <p class="excerpt">Of the 300 patients included, 152 received drug A and 148 received drug B as first-line therapy. The median follow-up, <span class="mk">1</span> <span class="hl">estimated with the reverse Kaplan–Meier method, was 51.4 months (interquartile range [IQR], 40.6 to 66.4)</span>. <span class="mk">2</span> <span class="hl">During 648.9 person-years of follow-up, 210 patients died</span> (100 in the drug A group and 110 in the drug B group); the crude mortality rates were <span class="mk">3</span> <span class="hl">27.5 and 38.6 per 100 person-years</span>, respectively. A total of 17 patients (5.7%) were lost to follow-up (<span class="mk">4</span> <span class="hl">12 [7.9%] in the drug A group and 5 [3.4%] in the drug B group</span>).</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>역 Kaplan-Meier 중앙 추적기간.</b> 같은 자료에서 전체 환자 time의 중앙값을 구하면 20.5개월, 생존자만의 중앙값은 45.9개월입니다. 방법에 따라 두 배 넘게 차이가 나므로 어떤 방법인지 반드시 확인합니다. IQR 40.6–66.4개월은 역 Kaplan-Meier 곡선이 0.75와 0.25 아래로 내려가는 시점입니다. 추적의 절반이 약 51개월 이상 이어질 수 있었다는 뜻이므로, 5년(60개월) 이후 생존곡선은 적은 수의 환자에 근거한다고 예상할 수 있습니다.</span></li>
+<li><span class="mk">1</span><span><b>역 Kaplan-Meier 중앙 추적기간.</b> 같은 자료에서 전체 환자 time의 중앙값을 구하면 20.5개월, 생존자만의 중앙값은 45.9개월입니다. 방법에 따라 두 배 넘게 차이가 나므로 어떤 방법인지 반드시 확인합니다. IQR 40.6–66.4개월도 같은 방법으로 구한 사분위범위입니다(구하는 법은 위 접힌 '역 Kaplan-Meier 방법의 계산'(심화)). 추적의 절반이 약 51개월 이상 이어질 수 있었다는 뜻이므로, 5년(60개월) 이후 생존곡선은 적은 수의 환자에 근거한다고 예상할 수 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>총 인년과 사망자 수.</b> 648.9인년은 300명의 time(개월)을 모두 더해 12로 나눈 값입니다. 300명 중 210명(70%)이 사망했다는 비율은 특정 시점의 사망 위험이 아닙니다. 추적을 더 하면 계속 커지는 값입니다.</span></li>
 <li><span class="mk">3</span><span><b>조사망률.</b> 약물 A는 100명 ÷ 363.9인년 = 100인년당 27.5명, 약물 B는 110명 ÷ 284.9인년 = 38.6명입니다. 약물 B의 인년이 적은 것은 환자 수가 약간 적고 더 일찍 사망했기 때문입니다. 두 발생률의 비(IRR)는 0.71로 뒤에 나올 Cox 모형의 위험비(HR) 0.73과 비슷합니다(위 '인년과 발생률'). 다만 어느 쪽도 IMDC 위험군 같은 교란변수를 보정하지 않은 값입니다(다 절).</span></li>
 <li><span class="mk">4</span><span><b>군별 추적 소실.</b> 추적 소실 비율이 약물 A에서 두 배 이상 높습니다. 소실된 환자가 상태가 나빠져 전원된 사람들이라면 약물 A의 생존율이 과대추정됩니다. 좋은 논문은 소실자의 기저 특성을 비교하거나 소실자를 사건으로 가정한 민감도 분석을 함께 보고합니다.</span></li>
@@ -594,7 +594,7 @@ dtype: float64</pre></div></div>
 <h3>숫자로 따라가기</h3>
 <p>표 7-1의 12명은 사실 두 가지 약으로 치료받았습니다. #4, #6, #8, #9, #10, #12는 약물 A, 나머지 6명은 약물 B입니다.</p>
 <!--FIG:ch07_km2-->
-<p class="tbl-cap"><b>표 7-3.</b> 로그순위 검정의 계산 (사망이 있었던 시점만)</p>
+<p class="tbl-cap"><b>표 7-3.</b> 로그순위 검정의 계산 (사망이 있었던 시점만). V는 그 시점의 O<sub>A</sub> − E<sub>A</sub>가 우연히 흔들리는 정도(분산)입니다.</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th class="r">t</th><th class="r">n<sub>A</sub></th><th class="r">n<sub>B</sub></th><th class="r">n</th><th class="r">d<sub>A</sub> (= O<sub>A</sub>)</th><th class="r">d<sub>B</sub></th><th class="r">d</th><th class="r">E<sub>A</sub> = d × n<sub>A</sub>/n</th><th class="r">O<sub>A</sub> − E<sub>A</sub></th><th class="r">V</th></tr></thead>
 <tbody>

@@ -6,6 +6,7 @@
 # nice2022manual)와 refs_add/ch20.py(stinnett1997)에 있다.
 # bae2022sens(PMID 35652044)는 PMC 전문(PMC9149282)을 읽어 본문에 인용한 숫자를 확인했다: 50건 가운데 결정론적 민감도 분석 49건,
 # 확률적 민감도 분석 18건(36%), 일원 분석 범위의 근거가 95% CI 14%·다른 자료원 38%·임의 값 48%, ICER 변화의 중앙값(약값 19.9% 등).
+# 2026-10-03: 나 절 '분포 고르기'의 ara2011tsd12(NICE DSU TSD 12, 1 − 효용에 감마·로그정규분포)는 refs_add/ch22.py에 있다.
 ADD = {
     # PMID 10537899
     "claxton1999": {"text": "Claxton K. The irrelevance of inference: a decision-making approach to the stochastic evaluation of health care technologies. <i>J Health Econ</i>. 1999;18(3):341-364.",

@@ -13,6 +13,13 @@ ADD = {
     # PMID 27794523
     "seong2017": {"text": "Cheol Seong S, Kim YY, Khang YH, et al. Data resource profile: the National Health Information Database of the National Health Insurance Service in South Korea. <i>Int J Epidemiol</i>. 2017;46(3):799-800.",
                   "doi": "10.1093/ije/dyw253"},
+    # PMID 26822938 (NHIS sample cohort profile; no PMC full text, content checked through the title and through citing papers)
+    "lee2017nsc": {"text": "Lee J, Lee JS, Park SH, Shin SA, Kim K. Cohort profile: the National Health Insurance Service-National Sample Cohort (NHIS-NSC), South Korea. <i>Int J Epidemiol</i>. 2017;46(2):e15.",
+                   "doi": "10.1093/ije/dyv319"},
+    # PMID 35656154 (PMC9133780 full text read 2026-10-03: HIRA death only through the in-hospital treatment-result code and sometimes omitted;
+    # NHIS has death records, screening, income in addition to the HIRA contents; NHIS sample cohorts are longitudinal, HIRA patient samples cross-sectional)
+    "kyoung2022": {"text": "Kyoung DS, Kim HS. Understanding and utilizing claim data from the Korean National Health Insurance Service (NHIS) and Health Insurance Review &amp; Assessment (HIRA) database for research. <i>J Lipid Atheroscler</i>. 2022;11(2):103-110.",
+                   "doi": "10.12997/jla.2022.11.2.103"},
     # PMID 30429167
     "langan2018": {"text": "Langan SM, Schmidt SA, Wing K, et al. The reporting of studies conducted using observational routinely collected health data statement for pharmacoepidemiology (RECORD-PE). <i>BMJ</i>. 2018;363:k3532.",
                    "doi": "10.1136/bmj.k3532"},

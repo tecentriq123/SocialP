@@ -121,6 +121,8 @@ GUIDE = [
     ("다른 사건이 먼저 일어남", "누적발생함수, Fine–Gray", "17"),
     ("정책 시행 전후", "중단시계열, 이중차분법", "18"),
     ("여러 연구의 결과 통합", "메타분석", "19"),
+    ("비용 비교 (치우친 금액)", "평균 차이와 부트스트랩, 감마 GLM", "21"),
+    ("비용과 효과를 함께", "ICER, 결정분석 모형", "20·23"),
 ]
 
 KO = "가나다라마바사아자차카타파하"
@@ -472,10 +474,11 @@ def build_home(shell, meta):
     labs = [c for c in meta if c["lab"]]
     courses = [
         {"tag": "과목 · 통계", "title": COURSE["title"], "href": COURSE["file"],
-         "status": f"{sum(c['ready'] for c in theory)}/{len(theory)}장 공개",
-         "desc": "평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. "
-                 "각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, 공개 데이터로 파이썬 실습을 합니다.",
-         "meta": ["이론 0–25장 + 종합 연습 + 부록", f"파이썬 실습 {sum(c['ready'] for c in labs)}/{len(labs)}개 공개"]},
+         "status": ("0–25장 공개" if all(c["ready"] for c in theory) else f"{sum(c['ready'] for c in theory)}/{len(theory)}장 공개"),
+         "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. "
+                 "논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.",
+         "meta": ["이론 0–25장 + 종합 연습 + 부록",
+                  f"파이썬 실습 {sum(c['ready'] for c in labs)}개 공개" + (f", {sum(not c['ready'] for c in labs)}개 준비 중" if any(not c['ready'] for c in labs) else "")]},
         {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": None, "status": "준비 중",
          "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, "
                  "의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.",

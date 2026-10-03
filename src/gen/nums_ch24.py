@@ -47,6 +47,13 @@ print("나머지(7번째 이하) 폭의 최댓값:", max(r["swing"] for r in OW[
 for k, (lo, hi) in {"hr_pfs": (0.52, 0.81), "hr_os": (0.58, 0.97)}.items():
     assert round(L.DSA_RANGES[k][0], 2) == lo and round(L.DSA_RANGES[k][1], 2) == hi
 # 로그 척도 표준오차는 신뢰구간에서: (ln 상한 − ln 하한) / (2 × 1.96)
+# 표 24-2의 γ 행 각주: 척도 모수 λ를 고정하고 모양 모수 γ만 바꾸므로 전체생존 곡선의 중앙값도 함께 달라진다
+for _g, _med in zip(L.DSA_RANGES["os_gam"][:2], (42, 19)):
+    _m = L.weib_median(p["os_lam"], _g)
+    print(f"os_gam {_g:.4f}: 표준요법 B의 중앙 전체생존 {_m:.2f}개월 (기준 {L.weib_median(p['os_lam'], p['os_gam']):.1f}개월), "
+          f"신약 A {L.weib_median(p['os_lam'] * p['hr_os'], _g):.2f}개월")
+    assert round(_m) == _med and abs(_m - round(_m)) < 0.45
+assert round(L.weib_median(p["os_lam"], p["os_gam"])) == 28
 print("hr_os 로그 SE (CI 0.58–0.97에서):", (math.log(0.97) - math.log(0.58)) / (2 * 1.96), " hr_pfs:", (math.log(0.81) - math.log(0.52)) / (2 * 1.96))
 
 show("가. 전체생존 위험비를 바꿀 때 ICER가 덜 내려가는 이유")

@@ -23,6 +23,14 @@ ADD = {
     # Oxford Academic 논문 페이지로 확인
     "bang2000": {"text": "Bang H, Tsiatis AA. Estimating medical costs with censored data. <i>Biometrika</i>. 2000;87(2):329-343.",
                  "doi": "10.1093/biomet/87.2.329"},
+    # PMID 19378353 (2026-10-03 PubMed 레코드로 서지와 초록 확인. 모의실험: n > 50이면 치우침이 심해도 두 방법의 표준오차가 정확,
+    #   표본이 작고 치우침이 심하면 중심극한정리 쪽이 부트스트랩보다 조금 더 정확)
+    "nixon2010": {"text": "Nixon RM, Wonderling D, Grieve RD. Non-parametric methods for cost-effectiveness analysis: the central limit theorem and the bootstrap compared. <i>Health Econ</i>. 2010;19(3):316-333.",
+                  "doi": "10.1002/hec.1477"},
+    # PMID 12483759 (2026-10-03 PubMed 레코드로 서지와 초록 확인. 부트스트랩과 점근 정규성에 기댄 방법이 기술적으로 타당해도
+    #   비효율적이거나 오도하는 추론을 줄 수 있다는 주장. 초록에 "작은 표본"이나 "과소 추정"이라는 말은 없으므로 그렇게 인용하지 않는다)
+    "ohagan2003": {"text": "O'Hagan A, Stevens JW. Assessing and comparing costs: how robust are the bootstrap and methods based on asymptotic normality? <i>Health Econ</i>. 2003;12(1):33-49.",
+                   "doi": "10.1002/hec.699"},
     "nhis_sanjeong": {"text": "국민건강보험공단. 본인일부부담금 산정특례 제도 [제도 안내]. 2026년 10월 2일 확인.",
                       "url": "https://www.nhis.or.kr/static/html/wbma/c/wbmac0215.html"},
 }

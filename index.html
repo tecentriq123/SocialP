@@ -534,6 +534,25 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 /* ---- 2026-10 개정: 학습 경로 구성 요소 (CONVENTIONS.md) ---- */
 .lv { display: inline-block; vertical-align: .15em; margin-left: 8px; font-family: var(--f-sans); font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 8px; border-radius: 999px; letter-spacing: .02em; white-space: nowrap; }
 .lv.deep { background: var(--deep-soft); color: var(--deep); }
+.lv.do { background: var(--note-soft); color: var(--note); }   /* 직접 분석: 접지 않는 수준 표시 */
+/* 목차 화면의 읽는 순서 카드 */
+.start-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; margin-bottom: 40px; }
+.start-card { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 18px 20px 16px; }
+.start-card h2 { font-size: 16px; margin: 0 0 6px; }
+.start-card p { margin: 0 0 10px; color: var(--ink-2); font-size: 14.5px; line-height: 1.7; }
+.start-card a { color: var(--accent-ink); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+.start-card a:hover { border-bottom-color: var(--accent); }
+.start-card .path { color: var(--ink); line-height: 1.9; }
+.start-card .path b, .path-topics dt { font-weight: 600; color: var(--ink); }
+.path-topics { margin: 0 0 10px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; font-size: 14.5px; }
+.path-topics > div { display: contents; }
+.path-topics dd { margin: 0; color: var(--ink-2); }
+.start-card .path-note { font-size: 13.5px; color: var(--muted); margin-bottom: 0; }
+.five { margin: 0 0 10px; padding-left: 1.3rem; font-size: 14.5px; line-height: 1.65; color: var(--ink-2); }
+.five li { margin-bottom: 5px; }
+.five b { color: var(--ink); margin-right: 6px; }
+@media (max-width: 960px) { .start-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 620px) { .path-topics { display: block; } .path-topics > div { display: block; margin-bottom: 4px; } .path-topics dt, .path-topics dd { display: inline; } .path-topics dt { margin-right: 8px; } }
 .route { border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); padding: 14px 18px 4px; margin: 0 0 32px; font-size: 15px; line-height: 1.7; }
 .route .rt { font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--accent-ink); margin: 0 0 8px; }
 .route dl { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 6px 14px; margin: 0 0 10px; }
@@ -573,7 +592,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 <main id="app" class="page"></main>
 <div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
 
-<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "28/28장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 t 검정, 로지스틱 회귀, Cox 비례위험모형, 비열등성 검정까지. 각 기법의 원리와 함께 논문 표·그림에서 수치를 읽는 법을 다루고, 공개 데이터로 파이썬 실습을 합니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 14/23개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": null, "status": "준비 중", "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, 의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.", "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]}]}</script>
+<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 14개 공개, 9개 준비 중"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": null, "status": "준비 중", "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, 의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.", "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]}]}</script>
 
 
 <script>
@@ -660,18 +679,19 @@ function typesetNow() {
       <section class="home-hero">
         <p class="eyebrow">사회약학 · 약물역학 · 약물경제학</p>
         <h1>사회약학 연구방법 노트</h1>
-        <p>연구실에 새로 들어온 대학원생이 논문을 읽고 분석을 시작하기 전에 알아야 할 내용을 정리한 자료입니다. 과목을 골라 목차에서 필요한 장을 읽으면 됩니다.</p>
+        <p>연구실에 새로 들어온 대학원생이 논문을 읽고 분석을 시작하기 전에 알아야 할 내용을 정리한 자료입니다. 처음이라면 과목 목차 맨 위의 '읽는 순서'부터 봅니다.</p>
       </section>
       <div class="parts">${cards}</div>
       <div class="home-how">
-        <div><h3>과목 구성</h3><p>과목마다 이론 장과 파이썬 실습이 있습니다. 통계가 처음이라면 '보건통계학 기초'의 0장부터 읽습니다.</p></div>
+        <div><h3>과목 구성</h3><p>과목마다 이론 장과 파이썬 실습이 있습니다. '보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있습니다.</p></div>
         <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분을 알려 줍니다. '심화' 표시가 붙은 부분은 접혀 있어서, 필요할 때 눌러서 펼쳐 봅니다.</p></div>
-        <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다.</p></div>
+        <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>
     </div>`;
   }
 
   function renderPart() {
+    const L = (id, t) => `<a href="#${id}">${t}</a>`;
     let toc = "";
     const row = c => {
       const title = c.ready ? `<a href="#${c.id}">${esc(c.title)}</a>` : esc(c.title);
@@ -696,9 +716,37 @@ function typesetNow() {
       <header class="part-head">
         <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>${esc(COURSE.title)}</span></p>
         <h1>${esc(COURSE.title)}</h1>
-        <p>PART 1(0–7장)은 기초 개념과 기초 검정, PART 2(8–13장)는 회귀모형·생존분석·비열등성 검정입니다. PART 3(14–19장)은 청구자료 코호트 설계, 성향점수, 시간 관련 편향, 경쟁위험, 정책평가, 메타분석처럼 약물역학 논문을 읽고 쓰는 데 필요한 연구 설계를 다룹니다. PART 4(20–25장)는 비용, 효용과 QALY, 결정분석 모형, 불확실성 분석까지 약물경제성 평가를 다룹니다. PART 5는 공개 데이터와 파이썬으로 직접 해 보는 실습으로, A(검정별 실습)와 B(연구 유형별 실습) 묶음을 눌러서 펼칩니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
+        <p>논문을 읽는 데 필요한 통계(PART 1–2), 청구자료 연구의 설계와 편향(PART 3), 약물경제성 평가(PART 4), 파이썬 실습(PART 5)으로 이루어져 있습니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
         <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. <span class="lv deep">심화</span> 표시가 붙은 부분은 접혀 있습니다. 처음 읽을 때는 건너뛰고, 필요할 때 눌러서 펼쳐 보세요.</p>
       </header>
+      <div class="start-grid">
+        <section class="start-card">
+          <h2>읽는 순서</h2>
+          <p>순서대로 다 읽을 필요는 없습니다. 먼저 아래 경로를 읽고, 그다음은 연구 주제에 맞는 장으로 갑니다.</p>
+          <p class="path"><b>처음 읽을 때</b><br>${L("ch00", "0장")} → ${L("ch01", "1장")} 가·나·다·사 → ${L("ch02-s1", "2장 가")} → ${L("ch03-s1", "3장 가")} → ${L("ch05-s1", "5장 가")} → ${L("ch06", "6장")} 가·다·라 → ${L("ch07", "7장")} 가·나 → ${L("rv01", "분석 고르기 연습")} → ${L("ch08", "8장")}(다·라·마 절은 핵심만) → ${L("ch09", "9장")}</p>
+          <dl class="path-topics">
+            <div><dt>청구자료·약물역학</dt><dd>${L("ch14", "14")} → ${L("ch11", "11")} → ${L("ch15", "15")} → ${L("ch16", "16")} (필요하면 ${L("ch17", "17")}, ${L("ch12", "12")})</dd></div>
+            <div><dt>반복측정 자료</dt><dd>${L("ch10", "10")}</dd></div>
+            <div><dt>비열등성 시험</dt><dd>${L("ch13-s1", "13 가")}</dd></div>
+            <div><dt>정책 평가</dt><dd>${L("ch18", "18")}</dd></div>
+            <div><dt>메타분석</dt><dd>${L("ch19", "19")}</dd></div>
+            <div><dt>약물경제성 평가</dt><dd>${L("ch20", "20")} → ${L("ch21", "21")} → ${L("ch22", "22")} → ${L("ch23", "23")} → ${L("ch24", "24")} → ${L("ch25", "25")} (0장과 7장 가·나 절을 읽었다면 바로 시작할 수 있습니다)</dd></div>
+          </dl>
+          <p class="path-note">접힌 '심화' 부분은 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 실습(PART 5)은 직접 분석할 때 짝이 되는 장과 함께 합니다.</p>
+        </section>
+        <section class="start-card">
+          <h2>논문에서 먼저 찾을 다섯 가지</h2>
+          <p>예: SGLT2 억제제와 심부전 입원을 다룬 청구자료 연구</p>
+          <ol class="five">
+            <li><b>연구질문</b>SGLT2 억제제를 시작한 환자는 DPP-4 억제제를 시작한 환자보다 심부전 입원이 적은가</li>
+            <li><b>연구설계</b>청구자료 코호트 연구. 무작위배정이 아니어서 두 군이 처음부터 다르다 (${L("ch08-s6", "8장 바")}, ${L("ch14", "14장")})</li>
+            <li><b>결과변수</b>심부전 입원까지의 시간. 추적 기간이 사람마다 다르다 (${L("ch01-s1", "1장 가")}, ${L("ch07-s1", "7장 가")})</li>
+            <li><b>효과지표</b>위험비와 95% 신뢰구간, 1,000인년당 발생률 (${L("ch00-s6", "0장 바")}, ${L("ch08-s2", "8장 나")})</li>
+            <li><b>분석</b>성향점수로 두 군을 맞춘 뒤 Cox 모형 (${L("ch15", "15장")}, ${L("ch11", "11장")})</li>
+          </ol>
+          <p class="path-note">어떤 논문이든 이 다섯 가지를 먼저 찾은 뒤에 표와 숫자를 읽습니다. 분석 방법을 고르는 순서는 ${L("rv01-s1", "분석 고르기 연습 가 절")}에 있습니다.</p>
+        </section>
+      </div>
       <div class="part-grid">
         <div>${toc}</div>
         <aside class="side-card">
@@ -711,9 +759,9 @@ function typesetNow() {
         </aside>
       </div>
       <div class="home-how">
-        <div><h3>읽는 순서</h3><p>처음이라면 0장부터 7장까지 순서대로 읽되, 장 첫머리의 '처음 읽을 때' 안내를 따라 읽고, 접혀 있는 '심화' 상자는 처음에는 건너뜁니다. 7장 다음의 '분석 고르기 연습'으로 PART 1을 점검한 뒤 8장으로 넘어갑니다. 8장부터는 논문에서 만난 기법을 찾아 읽어도 됩니다.</p></div>
+        <div><h3>장 첫머리의 안내</h3><p>각 장의 '처음 읽을 때' 상자가 그 장에서 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. 접힌 '심화' 상자는 처음에는 건너뜁니다.</p></div>
         <div><h3>논문 읽기 상자와 확인 문제</h3><p>'논문에서는 이렇게 보입니다' 상자는 논문 형식의 표와 문장에 번호를 붙여 수치 하나하나를 해석합니다. 절 끝의 '스스로 확인하기'는 답을 펼치기 전에 먼저 답을 적어 보세요.</p></div>
-        <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다.</p></div>
+        <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>
     </div>`;
   }
