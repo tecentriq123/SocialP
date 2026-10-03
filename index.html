@@ -548,6 +548,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .path-topics > div { display: contents; }
 .path-topics dd { margin: 0; color: var(--ink-2); }
 .start-card .path-note { font-size: 13.5px; color: var(--muted); margin-bottom: 0; }
+.start-card .path-note .lv { margin: 0 2px; font-size: 11px; padding: 3px 6px; vertical-align: baseline; }
 .five { margin: 0 0 10px; padding-left: 1.3rem; font-size: 14.5px; line-height: 1.65; color: var(--ink-2); }
 .five li { margin-bottom: 5px; }
 .five b { color: var(--ink); margin-right: 6px; }
@@ -564,6 +565,8 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .practice > ol > li { margin-bottom: 16px; font-size: 15.5px; }
 .practice li > p { margin: 0 0 8px; }
 .practice .qt { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 7px; margin-right: 8px; border-radius: 6px; background: var(--good-soft); color: var(--good); vertical-align: .1em; white-space: nowrap; }
+.practice .lv { margin-left: 0; margin-right: 8px; border-radius: 6px; padding: 4px 7px; vertical-align: baseline; }
+.route dd .lv { margin-left: 0; margin-right: 6px; }
 .practice details { border-top: 1px dashed var(--line); padding-top: 6px; }
 .practice summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent-ink); width: fit-content; }
 .practice details > div { padding: 8px 0 2px; font-size: 15px; line-height: 1.75; color: var(--ink-2); }
@@ -684,7 +687,7 @@ function typesetNow() {
       <div class="parts">${cards}</div>
       <div class="home-how">
         <div><h3>과목 구성</h3><p>과목마다 이론 장과 파이썬 실습이 있습니다. '보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있습니다.</p></div>
-        <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분을 알려 줍니다. '심화' 표시가 붙은 부분은 접혀 있어서, 필요할 때 눌러서 펼쳐 봅니다.</p></div>
+        <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 논문을 읽는 데 필요한 부분과 직접 분석할 때 읽을 부분을 나눠 알려 줍니다. '심화' 표시가 붙은 부분은 접혀 있어서, 필요할 때 눌러서 펼쳐 봅니다.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>
     </div>`;
@@ -732,7 +735,7 @@ function typesetNow() {
             <div><dt>메타분석</dt><dd>${L("ch19", "19")}</dd></div>
             <div><dt>약물경제성 평가</dt><dd>${L("ch20", "20")} → ${L("ch21", "21")} → ${L("ch22", "22")} → ${L("ch23", "23")} → ${L("ch24", "24")} → ${L("ch25", "25")} (0장과 7장 가·나 절을 읽었다면 바로 시작할 수 있습니다)</dd></div>
           </dl>
-          <p class="path-note">접힌 '심화' 부분은 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 실습(PART 5)은 직접 분석할 때 짝이 되는 장과 함께 합니다.</p>
+          <p class="path-note">접힌 '심화' 부분과, 확인 문제 가운데 <span class="lv do">직접 분석</span>·<span class="lv deep">심화</span> 표시가 붙은 문제는 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 실습(PART 5)은 직접 분석할 때 짝이 되는 장과 함께 합니다.</p>
         </section>
         <section class="start-card">
           <h2>논문에서 먼저 찾을 다섯 가지</h2>
@@ -759,7 +762,7 @@ function typesetNow() {
         </aside>
       </div>
       <div class="home-how">
-        <div><h3>장 첫머리의 안내</h3><p>각 장의 '처음 읽을 때' 상자가 그 장에서 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. 접힌 '심화' 상자는 처음에는 건너뜁니다.</p></div>
+        <div><h3>장 첫머리의 안내</h3><p>각 장의 '처음 읽을 때' 상자가 논문을 읽는 데 필요한 부분과 직접 분석할 때 읽을 부분을 나눠 알려 줍니다. 접힌 '심화' 상자는 처음에는 건너뜁니다.</p></div>
         <div><h3>논문 읽기 상자와 확인 문제</h3><p>'논문에서는 이렇게 보입니다' 상자는 논문 형식의 표와 문장에 번호를 붙여 수치 하나하나를 해석합니다. 절 끝의 '스스로 확인하기'는 답을 펼치기 전에 먼저 답을 적어 보세요.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>
