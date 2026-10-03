@@ -152,7 +152,7 @@
 
 <h3>청구자료에서 코호트 만들기 <span class="lv deep">심화</span></h3>
 <p class="cmd-note">이 주제는 <a href="#ch14">14장 청구자료 코호트 연구의 설계</a>에서 자세히 다룹니다. 아래는 생존분석에 필요한 부분만 간추린 내용입니다.</p>
-<p>건강보험 청구자료로 두 약을 비교할 때는 시작 시점·사건·추적 종료를 연구자가 처방과 진단 기록으로부터 직접 만들어야 합니다. 논문에서는 이 과정이 Methods의 몇 문장으로 압축되는데, 그 문단은 이 절 끝의 '논문에서 읽어 보기'에서 번호를 따라 읽습니다. 가장 많이 쓰는 틀은 <strong>활성 비교약 신규사용자 설계</strong><span class="en">(active-comparator new-user design)</span>입니다<cite data-ref="ray2003"></cite><cite data-ref="lund2015"></cite>.</p>
+<p>건강보험 청구자료로 두 약을 비교할 때는 시작 시점·사건·추적 종료를 연구자가 처방과 진단 기록으로부터 직접 만들어야 합니다. 논문에서는 이 과정이 Methods의 몇 문장으로 압축되는데, 그 문단은 이 절 끝의 '논문에서 읽어 보기'에서 번호를 따라 읽습니다. 가장 많이 쓰는 틀은 <strong>활성 비교약 신규 사용자 설계</strong><span class="en">(active-comparator new-user design)</span>입니다<cite data-ref="ray2003"></cite><cite data-ref="lund2015"></cite>.</p>
 <!--FIG:ch07_claims-->
 <ul>
 <li><strong>Index date</strong>: 두 약 중 하나를 처음 처방받은 날입니다. 이날이 time 0입니다.</li>
@@ -171,7 +171,7 @@
 </tbody></table></div>
 <p>대안은 사망 정보를 연계하는 것입니다. 국민건강보험공단 자격 DB의 사망일이나 통계청 사망원인 자료를 연계하면 병원 밖 사망까지 알 수 있습니다. 병원 안에서의 사망은 청구 명세서의 진료 결과(사망 퇴원)로 일부 파악할 수 있지만 병원 밖 사망은 빠집니다. 논문에서는 어떤 정의를 썼는지와 사망 자료 연계 여부를 Methods에서 확인합니다.</p>
 <h4>청구 기록을 (time, status)로 바꾸기</h4>
-<p>위 정의를 가상의 환자 4명에 적용해 봅니다. SGLT2 억제제 신규사용자이고, 사건은 심부전 입원, 유예기간은 60일, 자료 기간은 2022년 12월 31일에 끝납니다. 사망일은 사망 자료를 연계해 얻었다고 합니다.</p>
+<p>위 정의를 가상의 환자 4명에 적용해 봅니다. SGLT2 억제제 신규 사용자이고, 사건은 심부전 입원, 유예기간은 60일, 자료 기간은 2022년 12월 31일에 끝납니다. 사망일은 사망 자료를 연계해 얻었다고 합니다.</p>
 <div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
 <thead><tr><th>환자</th><th>처방일 (공급일수)</th><th class="r">심부전 입원일</th><th class="r">사망일</th></tr></thead>
 <tbody>
@@ -280,7 +280,7 @@ dtype: float64</pre></div></div>
 </ul></div>
 
 <h3>논문에서 읽어 보기</h3>
-<p>지금까지 본 time 0, 사건 정의, 중도절단 규칙이 청구자료 연구의 Methods에서 어떻게 적히는지 확인합니다. 신규사용자 설계, 세척 기간, 유예기간 같은 용어는 번호 해설에서 하나씩 풀고, 자세한 설명과 계산 예제는 위 접힌 '청구자료에서 코호트 만들기'에 있습니다. 건강보험 청구자료로 SGLT2 억제제와 DPP-4 억제제를 새로 쓰기 시작한 환자의 심부전 입원을 비교한 연구의 Methods입니다(1장 Table 1의 신규사용자 연구를 이어서 쓰며, 위 접힌 부분의 Table S3와 같은 연구입니다). 시작 시점·사건·추적 종료가 어디에 적혀 있는지 번호를 따라 찾아보세요.</p>
+<p>지금까지 본 time 0, 사건 정의, 중도절단 규칙이 청구자료 연구의 Methods에서 어떻게 적히는지 확인합니다. 신규 사용자 설계, 세척 기간, 유예기간 같은 용어는 번호 해설에서 하나씩 풀고, 자세한 설명과 계산 예제는 위 접힌 '청구자료에서 코호트 만들기'에 있습니다. 건강보험 청구자료로 SGLT2 억제제와 DPP-4 억제제를 새로 쓰기 시작한 환자의 심부전 입원을 비교한 연구의 Methods입니다(1장 Table 1의 신규 사용자 연구를 이어서 쓰며, 위 접힌 부분의 Table S3와 같은 연구입니다). 시작 시점·사건·추적 종료가 어디에 적혀 있는지 번호를 따라 찾아보세요.</p>
 
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 코호트 정의</b><span>가상의 예시</span></div>
@@ -288,7 +288,7 @@ dtype: float64</pre></div></div>
 <p class="excerpt">We conducted a retrospective cohort study <span class="mk">1</span> <span class="hl">using the Health Insurance Review and Assessment Service (HIRA) database from January 1, 2015, to December 31, 2022</span>. We identified new users of SGLT2 inhibitors or DPP-4 inhibitors, defined as patients <span class="mk">2</span> <span class="hl">without a prescription for either drug class during the 365 days</span> before their first prescription; the date of the first prescription was defined as the <span class="mk">3</span> <span class="hl">index date</span>. Baseline characteristics were assessed during the 365-day look-back period. The outcome was <span class="mk">4</span> <span class="hl">hospitalization for heart failure, defined as an inpatient claim with a primary diagnosis of heart failure (ICD-10 code I50)</span>. <span class="mk">5</span> <span class="hl">Patients with a hospitalization for heart failure during the look-back period were excluded</span>. <span class="mk">6</span> <span class="hl">Follow-up started on the day after the index date</span> and continued until the occurrence of the outcome, death, treatment discontinuation, switching to or adding the comparator drug, or the end of the study period, <span class="mk">7</span> <span class="hl">whichever came first</span>. Treatment discontinuation was defined as <span class="mk">8</span> <span class="hl">no refill within 60 days after the end of the days' supply</span> of the last prescription. In sensitivity analyses, <span class="mk">9</span> <span class="hl">we followed patients regardless of treatment discontinuation or switching (intention-to-treat–like analysis)</span> and varied the grace period to 30 and 90 days.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>자료원과 연구 기간.</b> 연구 기간의 끝(2022년 12월 31일)이 가장 늦은 추적 종료일, 즉 자료 기간이 끝나서 생기는 행정적 중도절단 시점입니다. 세척 기간 365일이 필요하므로 실제 index date는 2016년 1월 1일 이후만 가능합니다. 꼼꼼한 논문은 "index dates between January 1, 2016, and ..."처럼 대상자 등록 기간을 따로 밝힙니다.</span></li>
-<li><span class="mk">2</span><span><b>신규사용자 정의(세척 기간, washout period).</b> 비교하는 두 계열 어느 쪽도 365일 동안 처방이 없어야 '새로 시작한 사람'으로 봅니다. 기간이 길수록 진짜 신규 사용자일 가능성이 높지만 자료가 짧은 환자는 제외됩니다. 한쪽 계열만 확인하면 다른 계열을 쓰다가 바꾼 환자가 섞이므로 두 계열 모두 확인했는지 봅니다.</span></li>
+<li><span class="mk">2</span><span><b>신규 사용자 정의(세척 기간, washout period).</b> 비교하는 두 계열 어느 쪽도 365일 동안 처방이 없어야 '새로 시작한 사람'으로 봅니다. 기간이 길수록 진짜 신규 사용자일 가능성이 높지만 자료가 짧은 환자는 제외됩니다. 한쪽 계열만 확인하면 다른 계열을 쓰다가 바꾼 환자가 섞이므로 두 계열 모두 확인했는지 봅니다.</span></li>
 <li><span class="mk">3</span><span><b>시작 시점(time 0).</b> 첫 처방일 하루에 대상자 선정(신규 사용 확인), 치료군 결정(어느 약인지), 추적 시작이 모두 일어납니다. 이 세 가지가 어긋나면 편향이 생깁니다. 예를 들어 "처방을 두 번 이상 받은 사람"을 사용군으로 정하면서 추적은 첫 처방일부터 시작하면, 두 번째 처방 전까지 사용군 환자는 정의상 사망할 수 없는 기간(불멸시간<span class="en">(immortal time)</span>)을 갖게 되어 사용군이 유리해집니다(불멸시간 편향, 위 접힌 '청구자료에서 코호트 만들기'의 주의 상자, 16장).</span></li>
 <li><span class="mk">4</span><span><b>사건 정의.</b> '입원 청구의 주상병'으로 제한하면 외래에서 코드만 입력된 경우를 제외해 양성예측도가 높아지는 대신 일부 사건을 놓칩니다. 정의를 바꾼 민감도 분석이 있는지 확인합니다.</span></li>
 <li><span class="mk">5</span><span><b>과거 사건 제외.</b> 세척 기간(look-back period)에 이미 심부전으로 입원한 환자를 뺍니다. 이들이 추적 중 다시 입원하면 약을 시작한 뒤 새로 생긴 사건인지 기존 심부전의 재입원인지 섞이기 때문입니다. 그래서 이 연구는 "심부전 입원력이 없는 환자에게 처음 생기는 심부전 입원"을 본 것이고, 결과도 그런 환자에게 적용된다는 점을 함께 읽습니다.</span></li>
