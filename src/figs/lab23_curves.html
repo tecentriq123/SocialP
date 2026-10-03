@@ -1,0 +1,80 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">시간 격자와 군별 생존곡선</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t = np.arange(0, 241)                  # 주기 경계: 0, 1, ..., 240개월
+
+def surv(lam, gam, t):
+    &quot;&quot;&quot;와이블 생존함수 S(t) = exp(-lam * t^gam)&quot;&quot;&quot;
+    return np.exp(-lam * t ** gam)
+
+def curves(p, arm, t):
+    &quot;&quot;&quot;군별 무진행생존(PFS), 전체생존(OS) 곡선&quot;&quot;&quot;
+    hr_pfs = p[&quot;hr_pfs&quot;] if arm == &quot;A&quot; else 1.0   # B는 기준군
+    hr_os = p[&quot;hr_os&quot;] if arm == &quot;A&quot; else 1.0
+    s_pfs = surv(p[&quot;pfs_lam&quot;] * hr_pfs, p[&quot;pfs_gam&quot;], t)
+    s_os = surv(p[&quot;os_lam&quot;] * hr_os, p[&quot;os_gam&quot;], t)
+    return s_pfs, s_os
+
+pfs_B, os_B = curves(p, &quot;B&quot;, t)
+pfs_A, os_A = curves(p, &quot;A&quot;, t)
+show = [0, 12, 24, 36, 60, 120, 240]
+pd.DataFrame({&quot;PFS_B&quot;: pfs_B, &quot;OS_B&quot;: os_B,
+              &quot;PFS_A&quot;: pfs_A, &quot;OS_A&quot;: os_A}).loc[show].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>PFS_B</th>
+      <th>OS_B</th>
+      <th>PFS_A</th>
+      <th>OS_A</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.4386<span class="mk">1</span></td>
+      <td>0.7698</td>
+      <td>0.5852</td>
+      <td>0.8218</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>0.2035</td>
+      <td>0.5596<span class="mk">2</span></td>
+      <td>0.3552</td>
+      <td>0.6470<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>0.0963</td>
+      <td>0.3964</td>
+      <td>0.2184</td>
+      <td>0.4995</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>0.0223</td>
+      <td>0.1892</td>
+      <td>0.0844</td>
+      <td>0.2868</td>
+    </tr>
+    <tr>
+      <th>120</th>
+      <td>0.0006</td>
+      <td>0.0248</td>
+      <td>0.0084</td>
+      <td>0.0626</td>
+    </tr>
+    <tr>
+      <th>240</th>
+      <td>0.0000</td>
+      <td>0.0003<span class="mk">4</span></td>
+      <td>0.0001</td>
+      <td>0.0021<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

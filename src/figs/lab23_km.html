@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">Kaplan-Meier 추정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import KaplanMeierFitter
+from lifelines.utils import restricted_mean_survival_time
+
+T, E = trial[&quot;months&quot;], trial[&quot;event&quot;]
+kmf = KaplanMeierFitter().fit(T, E, label=&quot;Kaplan-Meier&quot;)
+print(&quot;12, 24개월 생존율:&quot;, kmf.predict([12, 24]).round(3).tolist())
+print(&quot;마지막 관찰 시점(개월):&quot;, round(T.max(), 1),
+      &quot; 그때의 생존율:&quot;, round(kmf.survival_function_.iloc[-1, 0], 3))
+print(&quot;중앙생존기간:&quot;, kmf.median_survival_time_)
+print(&quot;30개월까지의 곡선 아래 면적(개월):&quot;,
+      round(restricted_mean_survival_time(kmf, t=30), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>12, 24개월 생존율: [0.793, 0.557]<span class="mk">1</span>
+마지막 관찰 시점(개월): 30.0  그때의 생존율: 0.503<span class="mk">2</span>
+중앙생존기간: inf<span class="mk">3</span>
+30개월까지의 곡선 아래 면적(개월): 21.9<span class="mk">4</span></pre></div></div>

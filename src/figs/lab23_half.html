@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">반주기 보정과 상태별 평균 기간 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pf_t = occ_B[&quot;pf&quot;].to_numpy()          # 241개: 0, 1, ..., 240개월
+pd_t = occ_B[&quot;pd&quot;].to_numpy()
+pf = (pf_t[:-1] + pf_t[1:]) / 2        # 240개: 주기 시작과 끝의 평균
+pd_ = (pd_t[:-1] + pd_t[1:]) / 2
+print(len(pf_t), &quot;-&gt;&quot;, len(pf))
+print(&quot;첫 주기의 무진행:&quot;, pf_t[0], pf_t[1].round(4),
+      &quot;-&gt; 평균&quot;, pf[0].round(4))
+
+print(&quot;무진행 기간(년):&quot;, round(pf.sum() / 12, 3))
+print(&quot;진행 기간(년)  :&quot;, round(pd_.sum() / 12, 3))
+print(&quot;생존연수       :&quot;, round((pf + pd_).sum() / 12, 3))
+print(&quot;보정 없이 주기 시작 값으로 세면:&quot;,
+      round((pf_t[:-1] + pd_t[:-1]).sum() / 12, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>241 -&gt; 240<span class="mk">1</span>
+첫 주기의 무진행: 1.0 0.9252 -&gt; 평균 0.9626<span class="mk">2</span>
+무진행 기간(년): 1.255<span class="mk">3</span>
+진행 기간(년)  : 1.799<span class="mk">4</span>
+생존연수       : 3.054<span class="mk">5</span>
+보정 없이 주기 시작 값으로 세면: 3.095<span class="mk">6</span></pre></div></div>

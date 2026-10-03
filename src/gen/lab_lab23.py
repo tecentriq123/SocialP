@@ -89,7 +89,7 @@ models = {"Exponential": ExponentialFitter(),
           "Weibull": WeibullFitter(),
           "Log-logistic": LogLogisticFitter(),
           "Log-normal": LogNormalFitter(),
-          "Generalized gamma": GeneralizedGammaFitter()}
+          "Gen. gamma": GeneralizedGammaFitter()}
 rows, S = [], {}
 for name, f in models.items():
     f.fit(T, E)                        # 최대우도추정
@@ -101,9 +101,9 @@ for name, f in models.items():
 cols = ["model", "k", "AIC", "BIC", "S(2y)", "S(5y)",
         "S(10y)", "S(20y)", "mean_y"]
 fit_tab = pd.DataFrame(rows, columns=cols).set_index("model")
-fit_tab.round(3)
+fit_tab.round(3).round({"AIC": 1, "BIC": 1})
 ''', title="모수 모형 다섯 개의 적합과 외삽")
-save("lab23_fit", c, dfmarks={"1375.921": 1, "1380.552": 2, "0.564": 3, "0.058": 4, "0.177": 5, "0.081": 6,
+save("lab23_fit", c, dfmarks={"1375.9": 1, "1380.6": 2, "0.564": 3, "0.058": 4, "0.177": 5, "0.081": 6,
                               "2.642": 7, "5.187": 8})
 
 c = nb.cell('''
@@ -256,7 +256,7 @@ save("lab23_half", c, marks={"241 -> 240": 1, "평균 0.9626": 2, "1.255": 3, "1
 c = nb.cell('''
 died = os_B[:-1] - os_B[1:]            # 그 주기에 사망한 비율
 mid = (t[:-1] + 0.5) / 12              # 주기 중간 시점(년)
-disc = 1 / (1 + p["disc"]) ** mid      # 할인계수
+disc = 1 / (1 + p["disc"]) ** mid      # 할인 계수
 
 cyc = pd.DataFrame({
     "pf": pf, "pd": pd_, "died": died,
@@ -266,9 +266,10 @@ cyc = pd.DataFrame({
     "c_death": died * p["c_death"],    # 임종기 비용
     "qaly": (pf * p["u_pf"] + pd_ * p["u_pd"]) / 12,
     "disc": disc}, index=t[1:])
-cyc.loc[[1, 2, 12, 120, 240]].round(4)
-''', title="주기별 비용과 QALY, 할인계수 (표준요법 B)")
-save("lab23_cycle", c, dfmarks={"115.5105": 1, "11.9241": 2, "0.0641": 3, "0.9982": 4, "0.6451": 5})
+cyc.loc[[1, 2, 12, 120, 240]].round(4).round(
+    {"c_drug": 1, "c_pf": 1, "c_pd": 1, "c_death": 1})
+''', title="주기별 비용과 QALY, 할인 계수 (표준요법 B)")
+save("lab23_cycle", c, dfmarks={"115.5": 1, "11.9": 2, "0.0641": 3, "0.9982": 4, "0.6451": 5})
 
 c = nb.cell('''
 items = ["c_drug", "c_pf", "c_pd", "c_death"]
@@ -527,7 +528,7 @@ chk("KM S(12), S(24), S(last)", ns["kmf"].predict([12, 24]).tolist() + [ns["kmf"
 assert np.isinf(ns["kmf"].median_survival_time_) and np.isinf(KM["median"])
 ft = ns["fit_tab"]
 for name, key in (("Exponential", "exp"), ("Weibull", "weib"), ("Log-logistic", "llog"), ("Log-normal", "lnorm"),
-                  ("Generalized gamma", "ggam")):
+                  ("Gen. gamma", "ggam")):
     x = N["fit"][key]
     assert int(ft.loc[name, "k"]) == x["k"]
     # 본문은 반올림하기 전의 모의 자료로, 실습은 소수 여섯째 자리까지 저장한 CSV로 적합하므로 1e-5쯤의 차이가 난다

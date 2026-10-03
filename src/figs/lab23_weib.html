@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">lifelines의 와이블 모수를 이 실습의 식으로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">w = models[&quot;Weibull&quot;]
+print(&quot;lifelines: lambda_ =&quot;, round(w.lambda_, 3),
+      &quot; rho_ =&quot;, round(w.rho_, 4))
+
+gam_fit = w.rho_                       # 모양 모수는 그대로
+lam_fit = w.lambda_ ** (-w.rho_)       # lambda_는 바꿔야 한다
+print(&quot;이 실습의 식: lam =&quot;, round(lam_fit, 5),
+      &quot; gam =&quot;, round(gam_fit, 4))
+
+s_ours = np.exp(-lam_fit * grid ** gam_fit)
+print(&quot;두 식으로 구한 생존율의 최대 차이:&quot;,
+      np.abs(s_ours - S[&quot;Weibull&quot;]).max())
+print(&quot;중앙값(개월):&quot;, round((np.log(2) / lam_fit) ** (1 / gam_fit), 1))
+print(&quot;관찰 기간(30개월)의 몫:&quot;,
+      round(((s_ours[:30] + s_ours[1:31]) / 2).sum()
+            / ((s_ours[:-1] + s_ours[1:]) / 2).sum(), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>lifelines: lambda_ = 39.059<span class="mk">1</span>  rho_ = 1.1454<span class="mk">2</span>
+이 실습의 식: lam = 0.01502<span class="mk">3</span>  gam = 1.1454
+두 식으로 구한 생존율의 최대 차이:<span class="mk">4</span> 2.498001805406602e-16
+중앙값(개월): 28.4<span class="mk">5</span>
+관찰 기간(30개월)의 몫: 0.58<span class="mk">6</span></pre></div></div>

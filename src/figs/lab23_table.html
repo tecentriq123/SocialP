@@ -1,0 +1,86 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">군별 결과 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = pd.DataFrame({&quot;A&quot;: base[&quot;A&quot;], &quot;B&quot;: base[&quot;B&quot;]})
+tab[&quot;diff&quot;] = tab[&quot;A&quot;] - tab[&quot;B&quot;]
+tab.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>A</th>
+      <th>B</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>ly_pf</th>
+      <td>1.974<span class="mk">1</span></td>
+      <td>1.255</td>
+      <td>0.719</td>
+    </tr>
+    <tr>
+      <th>ly_pd</th>
+      <td>1.942</td>
+      <td>1.799</td>
+      <td>0.143</td>
+    </tr>
+    <tr>
+      <th>ly</th>
+      <td>3.916<span class="mk">2</span></td>
+      <td>3.054</td>
+      <td>0.863</td>
+    </tr>
+    <tr>
+      <th>ly_d</th>
+      <td>3.399<span class="mk">3</span></td>
+      <td>2.729</td>
+      <td>0.670</td>
+    </tr>
+    <tr>
+      <th>qaly_undisc</th>
+      <td>2.732<span class="mk">4</span></td>
+      <td>2.086</td>
+      <td>0.646</td>
+    </tr>
+    <tr>
+      <th>qaly</th>
+      <td>2.385<span class="mk">5</span></td>
+      <td>1.874</td>
+      <td>0.511</td>
+    </tr>
+    <tr>
+      <th>c_drug</th>
+      <td>4124.384<span class="mk">6</span></td>
+      <td>1707.815</td>
+      <td>2416.569</td>
+    </tr>
+    <tr>
+      <th>c_pf</th>
+      <td>868.291</td>
+      <td>569.272</td>
+      <td>299.020</td>
+    </tr>
+    <tr>
+      <th>c_pd</th>
+      <td>4769.494</td>
+      <td>4628.582</td>
+      <td>140.912</td>
+    </tr>
+    <tr>
+      <th>c_death</th>
+      <td>679.609</td>
+      <td>703.816</td>
+      <td>-24.207<span class="mk">7</span></td>
+    </tr>
+    <tr>
+      <th>c_ae</th>
+      <td>120.000</td>
+      <td>80.000</td>
+      <td>40.000</td>
+    </tr>
+    <tr>
+      <th>cost</th>
+      <td>10561.778<span class="mk">8</span></td>
+      <td>7689.485</td>
+      <td>2872.294</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

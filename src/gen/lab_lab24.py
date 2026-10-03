@@ -8,7 +8,7 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/lab_lab24.py
 끝의 대조 블록이 실습 결과를 lib_p4의 oneway(), threshold_price(), psa(n=5000, seed=20261002), psa_inputs(), ceac(), evpi(),
 twoway()와 gen/_ch24_nums.json(24장 본문의 숫자)에 맞춘다.
 """
-import json, os, sys
+import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np  # noqa: E402
 from labkit import Notebook, _mark  # noqa: E402
@@ -403,6 +403,9 @@ print(dc.shape, dq.shape)
 print("처음 세 벌의 증분비용:", dc[:3].round(1))
 print("처음 세 벌의 증분 QALY:", dq[:3].round(4))
 ''', title="5,000벌 돌리기")
+# 걸린 시간은 실행할 때마다 달라서 그대로 두면 figs/lab24_psa.html이 돌릴 때마다 바뀐다.
+# 화면에 보이는 값만 이 환경에서 한 번 잰 0.7초로 고정한다(본문에 "실행할 때마다 다릅니다"라고 적었다).
+c.stdout = re.sub(r"(걸린 시간\(초\): )[0-9.]+", r"\g<1>0.7", c.stdout)
 save("lab24_psa", c, marks={"걸린 시간(초):": 1, "뽑은 횟수 5137": 2, "버린 횟수 137": 3, "(5000,) (5000,)": 4, "[2709.5 4450.7 4428.8]": 5})
 
 c = nb.cell('''

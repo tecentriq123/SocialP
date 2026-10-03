@@ -1,0 +1,40 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">모형을 함수 하나로 묶기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def run_model(p, horizon=240):
+    &quot;&quot;&quot;입력값 사전 p -&gt; 결과 사전 (시간 개월, 비용 만원)&quot;&quot;&quot;
+    t = np.arange(0, horizon + 1)            # 주기 경계 시점
+    disc = 1 / (1 + p[&quot;disc&quot;]) ** ((t[:-1] + 0.5) / 12)
+    res = {}
+    for arm in [&quot;A&quot;, &quot;B&quot;]:
+        hr_pfs = p[&quot;hr_pfs&quot;] if arm == &quot;A&quot; else 1.0
+        hr_os = p[&quot;hr_os&quot;] if arm == &quot;A&quot; else 1.0
+        s_os = np.exp(-p[&quot;os_lam&quot;] * hr_os * t ** p[&quot;os_gam&quot;])
+        s_pfs = np.exp(-p[&quot;pfs_lam&quot;] * hr_pfs * t ** p[&quot;pfs_gam&quot;])
+        s_pfs = np.minimum(s_pfs, s_os)      # PFS가 OS를 넘지 않게
+        pd_t = s_os - s_pfs                  # 진행 = OS - PFS
+        pf = (s_pfs[:-1] + s_pfs[1:]) / 2    # 반주기 보정
+        pd_ = (pd_t[:-1] + pd_t[1:]) / 2
+        died = s_os[:-1] - s_os[1:]          # 주기별 사망
+        q = (pf * p[&quot;u_pf&quot;] + pd_ * p[&quot;u_pd&quot;]) / 12
+        r = {&quot;ly_pf&quot;: pf.sum() / 12, &quot;ly_pd&quot;: pd_.sum() / 12,
+             &quot;ly&quot;: (pf + pd_).sum() / 12,
+             &quot;ly_d&quot;: ((pf + pd_) * disc).sum() / 12,
+             &quot;qaly_undisc&quot;: q.sum() - p[&quot;du_ae_&quot; + arm],
+             &quot;qaly&quot;: (q * disc).sum() - p[&quot;du_ae_&quot; + arm],
+             &quot;c_drug&quot;: (pf * p[&quot;c_drug_&quot; + arm] * disc).sum(),
+             &quot;c_pf&quot;: (pf * p[&quot;c_pf&quot;] * disc).sum(),
+             &quot;c_pd&quot;: (pd_ * p[&quot;c_pd&quot;] * disc).sum(),
+             &quot;c_death&quot;: (died * p[&quot;c_death&quot;] * disc).sum(),
+             &quot;c_ae&quot;: p[&quot;c_ae_&quot; + arm]}
+        r[&quot;cost&quot;] = (r[&quot;c_drug&quot;] + r[&quot;c_pf&quot;] + r[&quot;c_pd&quot;]
+                     + r[&quot;c_death&quot;] + r[&quot;c_ae&quot;])
+        res[arm] = r
+    res[&quot;d_cost&quot;] = res[&quot;A&quot;][&quot;cost&quot;] - res[&quot;B&quot;][&quot;cost&quot;]
+    res[&quot;d_qaly&quot;] = res[&quot;A&quot;][&quot;qaly&quot;] - res[&quot;B&quot;][&quot;qaly&quot;]
+    res[&quot;d_ly&quot;] = res[&quot;A&quot;][&quot;ly_d&quot;] - res[&quot;B&quot;][&quot;ly_d&quot;]
+    dq = res[&quot;d_qaly&quot;]
+    res[&quot;icer&quot;] = res[&quot;d_cost&quot;] / dq if dq != 0 else np.nan
+    return res
+
+base = run_model(p)
+print(&quot;함수:&quot;, round(base[&quot;B&quot;][&quot;cost&quot;], 6), round(base[&quot;B&quot;][&quot;qaly&quot;], 6))
+print(&quot;단계:&quot;, round(cost_B, 6), round(qaly_B, 6))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>함수: 7689.48472<span class="mk">1</span> 1.87364
+단계: 7689.48472<span class="mk">2</span> 1.87364</pre></div></div>

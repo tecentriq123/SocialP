@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">240주기를 더해 표준요법 B의 총비용과 QALY 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">items = [&quot;c_drug&quot;, &quot;c_pf&quot;, &quot;c_pd&quot;, &quot;c_death&quot;]
+undisc = cyc[items].sum()                        # 할인 전 합계
+after = cyc[items].mul(cyc[&quot;disc&quot;], axis=0).sum()   # 할인 후 합계
+print(pd.DataFrame({&quot;undiscounted&quot;: undisc,
+                    &quot;discounted&quot;: after}).round(1))
+
+cost_B = after.sum() + p[&quot;c_ae_B&quot;]               # 이상반응 비용은 1회
+qaly_B = (cyc[&quot;qaly&quot;] * cyc[&quot;disc&quot;]).sum() - p[&quot;du_ae_B&quot;]
+print(&quot;B 총비용:&quot;, round(cost_B, 1), &quot; QALY:&quot;, round(qaly_B, 3))
+print(&quot;할인 전 QALY:&quot;, round(cyc[&quot;qaly&quot;].sum() - p[&quot;du_ae_B&quot;], 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         undiscounted  discounted
+c_drug         1807.1      1707.8<span class="mk">1</span>
+c_pf            602.4       569.3
+c_pd           5396.1      4628.6<span class="mk">2</span>
+c_death         799.8<span class="mk">3</span>       703.8
+B 총비용: 7689.5<span class="mk">4</span>  QALY: 1.874<span class="mk">5</span>
+할인 전 QALY: 2.086<span class="mk">6</span></pre></div></div>

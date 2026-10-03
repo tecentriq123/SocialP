@@ -336,10 +336,10 @@
 <p>관찰된 기간 뒤의 비용과 건강은 자료에 없으므로 모형으로 이어 그려야 합니다. 이것이 경제성 평가에 결정분석 모형이 필요한 가장 큰 이유입니다. 생존곡선을 관찰 기간 너머로 늘리는 외삽은 결과를 크게 좌우하는 가정입니다. 그래서 지침은 관찰 기간의 자료만 쓴 분석 결과를 함께 내고, 관찰 기간 뒤에 효과가 사라지거나 줄어든다고 가정한 민감도 분석을 하도록 합니다(지침 7–8쪽, <a href="#ch23-s4">23장 라 절</a>)<cite data-ref="hira2021guideline"></cite>.</p>
 
 <h3>할인</h3>
-<p>사람들은 같은 100만원이라도 10년 뒤보다 지금 받기를 원합니다. 지금 받은 돈은 다른 데 써서 가치를 만들 수 있기 때문입니다. 그래서 미래에 발생하는 비용과 건강은 지금의 가치로 줄여서 더하는데, 이것을 <strong>할인</strong><span class="en">(discounting)</span>이라 하고 줄이는 비율을 <strong>할인율</strong><span class="en">(discount rate)</span>이라고 합니다. t년 뒤의 값에 1 ÷ (1 + 할인율)<sup>t</sup>를 곱합니다. 이 곱하는 수가 할인계수이고, 할인한 값이 <strong>현재가치</strong><span class="en">(present value)</span>입니다.</p>
+<p>사람들은 같은 100만원이라도 10년 뒤보다 지금 받기를 원합니다. 지금 받은 돈은 다른 데 써서 가치를 만들 수 있기 때문입니다. 그래서 미래에 발생하는 비용과 건강은 지금의 가치로 줄여서 더하는데, 이것을 <strong>할인</strong><span class="en">(discounting)</span>이라 하고 줄이는 비율을 <strong>할인율</strong><span class="en">(discount rate)</span>이라고 합니다. t년 뒤의 값에 1 ÷ (1 + 할인율)<sup>t</sup>를 곱합니다. 이 곱하는 수가 할인 계수이고, 할인한 값이 <strong>현재가치</strong><span class="en">(present value)</span>입니다.</p>
 <p class="tbl-cap"><b>표 20-7.</b> 연 4.5%로 할인할 때의 현재가치</p>
 <div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
-<thead><tr><th>발생 시점</th><th class="r">할인계수</th><th class="r">비용 1,000만원의 현재가치</th><th class="r">1 QALY의 현재가치</th></tr></thead>
+<thead><tr><th>발생 시점</th><th class="r">할인 계수</th><th class="r">비용 1,000만원의 현재가치</th><th class="r">1 QALY의 현재가치</th></tr></thead>
 <tbody>
 <tr><td>1년 뒤</td><td class="r">0.957</td><td class="r">957만원</td><td class="r">0.957</td></tr>
 <tr><td>5년 뒤</td><td class="r">0.802</td><td class="r">802만원</td><td class="r">0.802</td></tr>
@@ -363,13 +363,13 @@
 <tr class="hi"><td>4.5% (기준 분석)</td><td class="r">2,872</td><td class="r">0.511</td><td class="r">5,621</td></tr>
 </tbody></table></div>
 <p>할인하면 증분비용은 18%, 증분 QALY는 21% 줄어듭니다. 신약 A의 총비용은 12,194만원에서 10,562만원으로, QALY는 2.732에서 2.385로 줄어듭니다. 분자와 분모가 함께 줄어서 ICER는 5,431에서 5,621로 조금만 오릅니다. QALY가 조금 더 줄어드는 것은 건강 이득이 비용보다 늦게 발생하기 때문입니다. 예방접종이나 검진처럼 비용은 지금 들고 이득은 수십 년 뒤에 오는 사업에서는 할인의 영향이 훨씬 큽니다.</p>
-<!--FOLD:파이썬으로 계산해 보기: 할인계수와 현재가치-->
-<p>표 20-7의 할인계수와, 3년 동안 해마다 500만원씩 드는 비용의 현재가치를 계산합니다. 주피터 노트북의 셀에 그대로 입력해 실행하면 아래 출력이 나옵니다.</p>
+<!--FOLD:파이썬으로 계산해 보기: 할인 계수와 현재가치-->
+<p>표 20-7의 할인 계수와, 3년 동안 해마다 500만원씩 드는 비용의 현재가치를 계산합니다. 주피터 노트북의 셀에 그대로 입력해 실행하면 아래 출력이 나옵니다.</p>
 <pre class="out"><span class="cm">import numpy as np
 
 r = 0.045                                  # 연 할인율 4.5%
 years = np.array([1, 5, 10, 20])           # 몇 년 뒤인가
-factor = 1 / (1 + r) ** years              # 할인계수
+factor = 1 / (1 + r) ** years              # 할인 계수
 print(np.round(factor, 3))
 print(np.round(1000 * factor))             # 1,000만원의 현재가치
 
@@ -382,7 +382,7 @@ print(cost.sum(), np.round(pv, 1), round(pv.sum(), 1))</span>
 1500 [478.5 457.9 438.1] 1374.5</pre>
 <ul>
 <li><code>(1 + r) ** years</code>: <code>**</code>는 거듭제곱입니다. 배열 years의 값 네 개에 한꺼번에 적용되어 결과도 네 개가 나옵니다.</li>
-<li>첫 줄 출력이 표 20-7의 할인계수이고, 둘째 줄은 1,000만원에 곱한 현재가치입니다.</li>
+<li>첫 줄 출력이 표 20-7의 할인 계수이고, 둘째 줄은 1,000만원에 곱한 현재가치입니다.</li>
 <li>마지막 줄: 할인하지 않은 합계는 1,500만원, 해마다의 현재가치는 478.5, 457.9, 438.1만원, 그 합은 1,374.5만원입니다. 모형에서는 주기(공통 예시는 1개월)마다 이 계산을 하고 더합니다.</li>
 <li>표 20-8은 23장에서 만드는 모형을 할인율만 0과 0.03으로 바꿔 다시 돌린 결과입니다. 모형 안에서도 같은 식을 씁니다.</li>
 </ul>

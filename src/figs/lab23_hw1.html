@@ -1,0 +1,54 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 1 정답. 분석기간에 따른 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for years in [3, 5, 10, 20]:
+    r = run_model(p, horizon=years * 12)
+    alive = np.exp(-p[&quot;os_lam&quot;] * p[&quot;hr_os&quot;]
+                   * (years * 12) ** p[&quot;os_gam&quot;])
+    rows.append([years, r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;], alive])
+hw1 = pd.DataFrame(rows, columns=[&quot;years&quot;, &quot;d_cost&quot;, &quot;d_qaly&quot;,
+                                  &quot;icer&quot;, &quot;alive_A&quot;])
+hw1.round({&quot;d_cost&quot;: 0, &quot;d_qaly&quot;: 3, &quot;icer&quot;: 0, &quot;alive_A&quot;: 3})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>years</th>
+      <th>d_cost</th>
+      <th>d_qaly</th>
+      <th>icer</th>
+      <th>alive_A</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3</td>
+      <td>1316.0</td>
+      <td>0.165</td>
+      <td>7994.0<span class="mk">1</span></td>
+      <td>0.500<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5</td>
+      <td>1875.0</td>
+      <td>0.297</td>
+      <td>6324.0</td>
+      <td>0.287</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10</td>
+      <td>2640.0</td>
+      <td>0.464</td>
+      <td>5686.0<span class="mk">3</span></td>
+      <td>0.063</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>20</td>
+      <td>2872.0</td>
+      <td>0.511</td>
+      <td>5621.0<span class="mk">4</span></td>
+      <td>0.002</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

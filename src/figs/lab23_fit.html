@@ -1,0 +1,104 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">모수 모형 다섯 개의 적합과 외삽</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import (ExponentialFitter, WeibullFitter,
+                       LogLogisticFitter, LogNormalFitter,
+                       GeneralizedGammaFitter)
+
+grid = np.arange(0, 241)               # 0, 1, ..., 240개월
+models = {&quot;Exponential&quot;: ExponentialFitter(),
+          &quot;Weibull&quot;: WeibullFitter(),
+          &quot;Log-logistic&quot;: LogLogisticFitter(),
+          &quot;Log-normal&quot;: LogNormalFitter(),
+          &quot;Gen. gamma&quot;: GeneralizedGammaFitter()}
+rows, S = [], {}
+for name, f in models.items():
+    f.fit(T, E)                        # 최대우도추정
+    s = f.survival_function_at_times(grid).to_numpy()
+    S[name] = s                        # 20년까지 늘린 곡선
+    mean_y = ((s[:-1] + s[1:]) / 2).sum() / 12
+    rows.append([name, len(f.params_), f.AIC_, f.BIC_,
+                 s[24], s[60], s[120], s[240], mean_y])
+cols = [&quot;model&quot;, &quot;k&quot;, &quot;AIC&quot;, &quot;BIC&quot;, &quot;S(2y)&quot;, &quot;S(5y)&quot;,
+        &quot;S(10y)&quot;, &quot;S(20y)&quot;, &quot;mean_y&quot;]
+fit_tab = pd.DataFrame(rows, columns=cols).set_index(&quot;model&quot;)
+fit_tab.round(3).round({&quot;AIC&quot;: 1, &quot;BIC&quot;: 1})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k</th>
+      <th>AIC</th>
+      <th>BIC</th>
+      <th>S(2y)</th>
+      <th>S(5y)</th>
+      <th>S(10y)</th>
+      <th>S(20y)</th>
+      <th>mean_y</th>
+    </tr>
+    <tr>
+      <th>model</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Exponential</th>
+      <td>1</td>
+      <td>1376.8</td>
+      <td>1380.6<span class="mk">2</span></td>
+      <td>0.566</td>
+      <td>0.241</td>
+      <td>0.058<span class="mk">4</span></td>
+      <td>0.003</td>
+      <td>3.500</td>
+    </tr>
+    <tr>
+      <th>Weibull</th>
+      <td>2</td>
+      <td>1375.9<span class="mk">1</span></td>
+      <td>1383.3</td>
+      <td>0.564<span class="mk">3</span></td>
+      <td>0.195</td>
+      <td>0.027</td>
+      <td>0.000</td>
+      <td>3.101</td>
+    </tr>
+    <tr>
+      <th>Log-logistic</th>
+      <td>2</td>
+      <td>1379.7</td>
+      <td>1387.1</td>
+      <td>0.567</td>
+      <td>0.283</td>
+      <td>0.138</td>
+      <td>0.060</td>
+      <td>4.623</td>
+    </tr>
+    <tr>
+      <th>Log-normal</th>
+      <td>2</td>
+      <td>1389.8</td>
+      <td>1397.2</td>
+      <td>0.569</td>
+      <td>0.326</td>
+      <td>0.177<span class="mk">5</span></td>
+      <td>0.081<span class="mk">6</span></td>
+      <td>5.187<span class="mk">8</span></td>
+    </tr>
+    <tr>
+      <th>Gen. gamma</th>
+      <td>3</td>
+      <td>1376.9</td>
+      <td>1388.0</td>
+      <td>0.567</td>
+      <td>0.121</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>2.642<span class="mk">7</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

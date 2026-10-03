@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 3 정답. ICER가 임계값과 같아지는 약값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">months = base[&quot;A&quot;][&quot;c_drug&quot;] / p[&quot;c_drug_A&quot;]     # 할인한 투약 개월 수
+nmb = threshold * base[&quot;d_qaly&quot;] - base[&quot;d_cost&quot;]   # 순금전편익
+price = p[&quot;c_drug_A&quot;] + nmb / months
+print(&quot;A군의 할인한 투약 개월 수:&quot;, round(months, 3))
+print(&quot;임계 가격:&quot;, round(price, 2), &quot;만원,&quot;,
+      &quot;인하율:&quot;, round((1 - price / p[&quot;c_drug_A&quot;]) * 100, 1), &quot;%&quot;)
+
+r = run_model(dict(p, c_drug_A=price))
+print(&quot;그 가격에서의 ICER:&quot;, round(r[&quot;icer&quot;], 4))
+for x in [190, 180, 170]:
+    print(x, round(run_model(dict(p, c_drug_A=x))[&quot;icer&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A군의 할인한 투약 개월 수: 21.707<span class="mk">1</span>
+임계 가격: 175.39<span class="mk">2</span> 만원, 인하율: 7.7<span class="mk">3</span> %
+그 가격에서의 ICER: 5000.0<span class="mk">4</span>
+190 5621
+180 5196
+170 4771</pre></div></div>

@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">점검 4, 5, 6. 할인율 0%, 효용 1, 약값 0</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">r0 = run_model(dict(p, disc=0.0))                # 4. 할인율 0%
+r1 = run_model(dict(p, u_pf=1.0, u_pd=1.0,       # 5. 효용 1, 손실 0
+                    du_ae_A=0.0, du_ae_B=0.0))
+r2 = run_model(dict(p, c_drug_A=0.0, c_drug_B=0.0))   # 6. 약값 0
+for arm in [&quot;A&quot;, &quot;B&quot;]:
+    assert np.isclose(r0[arm][&quot;qaly&quot;], base[arm][&quot;qaly_undisc&quot;])
+    assert np.isclose(r0[arm][&quot;ly_d&quot;], base[arm][&quot;ly&quot;])
+    assert np.isclose(r1[arm][&quot;qaly&quot;], base[arm][&quot;ly_d&quot;])
+    assert r2[arm][&quot;c_drug&quot;] == 0
+    assert r2[arm][&quot;qaly&quot;] == base[arm][&quot;qaly&quot;]
+print(&quot;4. 할인율 0%: A의 총비용&quot;, round(r0[&quot;A&quot;][&quot;cost&quot;]),
+      &quot; QALY&quot;, round(r0[&quot;A&quot;][&quot;qaly&quot;], 3), &quot; ICER&quot;, round(r0[&quot;icer&quot;]))
+print(&quot;5. 효용 1: A의 QALY&quot;, round(r1[&quot;A&quot;][&quot;qaly&quot;], 3),
+      &quot;= 할인한 생존연수&quot;, round(base[&quot;A&quot;][&quot;ly_d&quot;], 3))
+print(&quot;6. 약값 0: A의 총비용&quot;, round(r2[&quot;A&quot;][&quot;cost&quot;]),
+      &quot; 증분비용&quot;, round(r2[&quot;d_cost&quot;]), &quot; ICER&quot;, round(r2[&quot;icer&quot;]))
+print(&quot;점검 4, 5, 6 통과&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>4. 할인율 0%: A의 총비용 12194<span class="mk">1</span>  QALY 2.732<span class="mk">2</span>  ICER 5431
+5. 효용 1: A의 QALY 3.399<span class="mk">3</span> = 할인한 생존연수 3.399
+6. 약값 0: A의 총비용 6437<span class="mk">4</span>  증분비용 456  ICER 892
+점검 4, 5, 6 통과<span class="mk">5</span></pre></div></div>

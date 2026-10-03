@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">점검 3. 두 군에 같은 입력값을 넣으면 증분이 0</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">same = dict(p, hr_pfs=1.0, hr_os=1.0,            # 효과가 같고
+            c_drug_A=p[&quot;c_drug_B&quot;],              # 약값이 같고
+            c_ae_A=p[&quot;c_ae_B&quot;], du_ae_A=p[&quot;du_ae_B&quot;])
+r = run_model(same)
+print(&quot;증분비용:&quot;, r[&quot;d_cost&quot;], &quot; 증분 QALY:&quot;, r[&quot;d_qaly&quot;],
+      &quot; ICER:&quot;, r[&quot;icer&quot;])
+assert r[&quot;d_cost&quot;] == 0 and r[&quot;d_qaly&quot;] == 0
+print(&quot;점검 3 통과&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>증분비용: 0.0<span class="mk">1</span>  증분 QALY: 0.0  ICER: nan<span class="mk">2</span>
+점검 3 통과</pre></div></div>

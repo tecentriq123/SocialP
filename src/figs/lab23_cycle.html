@@ -1,0 +1,91 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">주기별 비용과 QALY, 할인 계수 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">died = os_B[:-1] - os_B[1:]            # 그 주기에 사망한 비율
+mid = (t[:-1] + 0.5) / 12              # 주기 중간 시점(년)
+disc = 1 / (1 + p[&quot;disc&quot;]) ** mid      # 할인 계수
+
+cyc = pd.DataFrame({
+    &quot;pf&quot;: pf, &quot;pd&quot;: pd_, &quot;died&quot;: died,
+    &quot;c_drug&quot;: pf * p[&quot;c_drug_B&quot;],      # 약값: 무진행 상태에서만
+    &quot;c_pf&quot;: pf * p[&quot;c_pf&quot;],            # 무진행 상태 관리비
+    &quot;c_pd&quot;: pd_ * p[&quot;c_pd&quot;],           # 진행 상태 비용
+    &quot;c_death&quot;: died * p[&quot;c_death&quot;],    # 임종기 비용
+    &quot;qaly&quot;: (pf * p[&quot;u_pf&quot;] + pd_ * p[&quot;u_pd&quot;]) / 12,
+    &quot;disc&quot;: disc}, index=t[1:])
+cyc.loc[[1, 2, 12, 120, 240]].round(4).round(
+    {&quot;c_drug&quot;: 1, &quot;c_pf&quot;: 1, &quot;c_pd&quot;: 1, &quot;c_death&quot;: 1})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pf</th>
+      <th>pd</th>
+      <th>died</th>
+      <th>c_drug</th>
+      <th>c_pf</th>
+      <th>c_pd</th>
+      <th>c_death</th>
+      <th>qaly</th>
+      <th>disc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>0.9626</td>
+      <td>0.0300</td>
+      <td>0.0149</td>
+      <td>115.5<span class="mk">1</span></td>
+      <td>38.5</td>
+      <td>7.5</td>
+      <td>11.9<span class="mk">2</span></td>
+      <td>0.0641<span class="mk">3</span></td>
+      <td>0.9982<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.8928</td>
+      <td>0.0833</td>
+      <td>0.0179</td>
+      <td>107.1</td>
+      <td>35.7</td>
+      <td>20.8</td>
+      <td>14.3</td>
+      <td>0.0623</td>
+      <td>0.9945</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.4534</td>
+      <td>0.3261</td>
+      <td>0.0194</td>
+      <td>54.4</td>
+      <td>18.1</td>
+      <td>81.5</td>
+      <td>15.5</td>
+      <td>0.0463</td>
+      <td>0.9587</td>
+    </tr>
+    <tr>
+      <th>120</th>
+      <td>0.0007</td>
+      <td>0.0246</td>
+      <td>0.0009</td>
+      <td>0.1</td>
+      <td>0.0</td>
+      <td>6.2</td>
+      <td>0.7</td>
+      <td>0.0013</td>
+      <td>0.6451<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>240</th>
+      <td>0.0000</td>
+      <td>0.0003</td>
+      <td>0.0000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.1</td>
+      <td>0.0</td>
+      <td>0.0000</td>
+      <td>0.4154</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

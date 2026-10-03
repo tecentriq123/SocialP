@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">점검에 걸리는 입력값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p_bad = dict(p, pfs_lam=weib_lam(30, 0.95))      # 중앙 PFS 30개월
+s_pfs, s_os = curves(p_bad, &quot;B&quot;, t)
+print(&quot;PFS가 OS를 넘는 시점의 수:&quot;, (s_pfs &gt; s_os).sum())
+assert (s_pfs &lt;= s_os).all(), &quot;PFS가 OS를 넘는 주기가 있습니다&quot;</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>PFS가 OS를 넘는 시점의 수: 220<span class="mk">1</span></pre><pre class="err-out">AssertionError: PFS가 OS를 넘는 주기가 있습니다</pre></div></div>

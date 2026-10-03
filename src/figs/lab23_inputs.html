@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">입력값 사전</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def weib_lam(median, gam):
+    &quot;&quot;&quot;중앙값(개월)과 모양 모수 -&gt; lam. S(중앙값) = 0.5가 되게&quot;&quot;&quot;
+    return np.log(2) / median ** gam
+
+p = {
+    # 표준요법 B의 와이블 곡선: 중앙 PFS 10개월, 중앙 OS 28개월
+    &quot;pfs_gam&quot;: 0.95, &quot;pfs_lam&quot;: weib_lam(10, 0.95),
+    &quot;os_gam&quot;: 1.15, &quot;os_lam&quot;: weib_lam(28, 1.15),
+    # 신약 A의 위험비 (B 대비)
+    &quot;hr_pfs&quot;: 0.65, &quot;hr_os&quot;: 0.75,
+    # 상태별 효용, 이상반응의 QALY 손실 (1회)
+    &quot;u_pf&quot;: 0.78, &quot;u_pd&quot;: 0.62,
+    &quot;du_ae_A&quot;: 0.012, &quot;du_ae_B&quot;: 0.008,
+    # 비용 (만원): 월 약값, 상태별 월 비용, 임종기와 이상반응 (1회)
+    &quot;c_drug_A&quot;: 190.0, &quot;c_drug_B&quot;: 120.0,
+    &quot;c_pf&quot;: 40.0, &quot;c_pd&quot;: 250.0, &quot;c_death&quot;: 800.0,
+    &quot;c_ae_A&quot;: 120.0, &quot;c_ae_B&quot;: 80.0,
+    &quot;disc&quot;: 0.045,                     # 연 할인율
+}
+print(len(p), &quot;개 입력값&quot;)
+print(&quot;pfs_lam =&quot;, round(p[&quot;pfs_lam&quot;], 5),
+      &quot; os_lam =&quot;, round(p[&quot;os_lam&quot;], 5))
+print(&quot;os_lam에서 되돌린 중앙값:&quot;,
+      round((np.log(2) / p[&quot;os_lam&quot;]) ** (1 / p[&quot;os_gam&quot;]), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>18 개 입력값<span class="mk">1</span>
+pfs_lam = 0.07777<span class="mk">2</span>  os_lam = 0.01502<span class="mk">3</span>
+os_lam에서 되돌린 중앙값: 28.0<span class="mk">4</span></pre></div></div>

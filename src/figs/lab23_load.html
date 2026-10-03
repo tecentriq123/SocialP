@@ -1,0 +1,51 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">패키지와 시험 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+trial = pd.read_csv(BASE + &quot;rcc_trial.csv&quot;)
+print(trial.shape)
+print(trial[&quot;event&quot;].value_counts().to_dict())
+trial.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(300, 3)<span class="mk">1</span>
+{0: 155, 1: 145}<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pid</th>
+      <th>months</th>
+      <th>event</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>T001</td>
+      <td>24.903896<span class="mk">3</span></td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>T002</td>
+      <td>25.713838</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>T003</td>
+      <td>28.353408</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>T004</td>
+      <td>11.711834<span class="mk">4</span></td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>T005</td>
+      <td>4.524690</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

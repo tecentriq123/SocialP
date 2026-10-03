@@ -1,0 +1,97 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">두 곡선에서 상태 비율 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def occupancy(p, arm, t):
+    &quot;&quot;&quot;시점별 상태 비율: 무진행(pf), 진행(pd), 사망(dead)&quot;&quot;&quot;
+    s_pfs, s_os = curves(p, arm, t)
+    s_pfs = np.minimum(s_pfs, s_os)    # PFS가 OS를 넘지 않게
+    return pd.DataFrame({&quot;pf&quot;: s_pfs, &quot;pd&quot;: s_os - s_pfs,
+                         &quot;dead&quot;: 1 - s_os}, index=t)
+
+occ_B = occupancy(p, &quot;B&quot;, t)
+occ_A = occupancy(p, &quot;A&quot;, t)
+print(occ_B.shape)
+print(&quot;B군 24개월:&quot;, occ_B.loc[24].round(4).tolist(),
+      &quot; 합:&quot;, occ_B.loc[24].sum())
+both = pd.concat({&quot;B&quot;: occ_B, &quot;A&quot;: occ_A}, axis=1)
+(both.loc[show] * 100).round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(241, 3)<span class="mk">1</span>
+B군 24개월: [0.2035, 0.3561, 0.4404]<span class="mk">2</span>  합: 1.0</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="3" halign="left">B</th>
+      <th colspan="3" halign="left">A</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>pf</th>
+      <th>pd</th>
+      <th>dead</th>
+      <th>pf</th>
+      <th>pd</th>
+      <th>dead</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>100.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>100.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>43.9<span class="mk">3</span></td>
+      <td>33.1<span class="mk">4</span></td>
+      <td>23.0<span class="mk">5</span></td>
+      <td>58.5<span class="mk">6</span></td>
+      <td>23.7</td>
+      <td>17.8</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>20.3</td>
+      <td>35.6</td>
+      <td>44.0</td>
+      <td>35.5</td>
+      <td>29.2</td>
+      <td>35.3</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>9.6</td>
+      <td>30.0</td>
+      <td>60.4</td>
+      <td>21.8</td>
+      <td>28.1</td>
+      <td>50.0</td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>2.2</td>
+      <td>16.7</td>
+      <td>81.1</td>
+      <td>8.4</td>
+      <td>20.2</td>
+      <td>71.3</td>
+    </tr>
+    <tr>
+      <th>120</th>
+      <td>0.1</td>
+      <td>2.4</td>
+      <td>97.5</td>
+      <td>0.8</td>
+      <td>5.4</td>
+      <td>93.7</td>
+    </tr>
+    <tr>
+      <th>240</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>100.0</td>
+      <td>0.0</td>
+      <td>0.2</td>
+      <td>99.8</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

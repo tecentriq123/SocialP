@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">증분, ICER, 순금전편익</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">threshold = 5000                       # 이 예시에서 가정한 임계값
+print(&quot;증분비용  :&quot;, round(base[&quot;d_cost&quot;], 1))
+print(&quot;증분 QALY :&quot;, round(base[&quot;d_qaly&quot;], 4))
+print(&quot;ICER      :&quot;, round(base[&quot;icer&quot;]), &quot;만원/QALY&quot;)
+print(&quot;생존연수당:&quot;, round(base[&quot;d_cost&quot;] / base[&quot;d_ly&quot;]),
+      &quot;만원/생존연수&quot;)
+nmb = threshold * base[&quot;d_qaly&quot;] - base[&quot;d_cost&quot;]
+print(&quot;증분 순금전편익:&quot;, round(nmb, 1), &quot;만원&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>증분비용  : 2872.3<span class="mk">1</span>
+증분 QALY : 0.511<span class="mk">2</span>
+ICER      : 5621<span class="mk">3</span> 만원/QALY
+생존연수당: 4287<span class="mk">4</span> 만원/생존연수
+증분 순금전편익: -317.1<span class="mk">5</span> 만원</pre></div></div>

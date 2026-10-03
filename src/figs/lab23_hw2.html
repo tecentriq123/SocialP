@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 2 정답. 할인율에 따른 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for rate in [0.0, 0.03, 0.045]:
+    r = run_model(dict(p, disc=rate))
+    rows.append([rate, r[&quot;A&quot;][&quot;cost&quot;], r[&quot;A&quot;][&quot;qaly&quot;],
+                 r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;]])
+hw2 = pd.DataFrame(rows, columns=[&quot;rate&quot;, &quot;cost_A&quot;, &quot;qaly_A&quot;,
+                                  &quot;d_cost&quot;, &quot;d_qaly&quot;, &quot;icer&quot;])
+print(hw2.round({&quot;cost_A&quot;: 0, &quot;qaly_A&quot;: 3, &quot;d_cost&quot;: 0,
+                 &quot;d_qaly&quot;: 3, &quot;icer&quot;: 0}).to_string(index=False))
+
+dq_undisc = base[&quot;A&quot;][&quot;qaly_undisc&quot;] - base[&quot;B&quot;][&quot;qaly_undisc&quot;]
+print(&quot;비용만 4.5%로 할인하고 QALY는 할인하지 않으면:&quot;,
+      round(base[&quot;d_cost&quot;] / dq_undisc))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> rate  cost_A  qaly_A  d_cost  d_qaly   icer
+0.000 12194.0   2.732  3508.0   0.646 5431.0<span class="mk">1</span>
+0.030 11051.0   2.489  3058.0   0.550 5555.0<span class="mk">2</span>
+0.045 10562.0   2.385  2872.0   0.511 5621.0
+비용만 4.5%로 할인하고 QALY는 할인하지 않으면: 4447<span class="mk">3</span></pre></div></div>

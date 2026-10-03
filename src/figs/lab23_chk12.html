@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">점검 1과 2. 상태 비율의 합과 부호, 두 곡선의 순서</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for arm in [&quot;A&quot;, &quot;B&quot;]:
+    x = occupancy(p, arm, t).to_numpy()          # 241행 x 3열
+    assert np.isclose(x.sum(axis=1), 1).all(), &quot;합이 1이 아닌 주기&quot;
+    assert (x &gt;= 0).all(), &quot;음수인 비율&quot;
+    s_pfs, s_os = curves(p, arm, t)              # 자르기 전 곡선
+    assert (s_pfs &lt;= s_os).all(), &quot;PFS가 OS를 넘는 주기&quot;
+    print(arm, &quot;합의 범위:&quot;, x.sum(axis=1).min(), x.sum(axis=1).max(),
+          &quot; 가장 작은 비율:&quot;, x.min().round(6),
+          &quot; OS - PFS의 최솟값:&quot;, (s_os - s_pfs).min().round(6))
+print(&quot;점검 1, 2 통과&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A 합의 범위: 0.9999999999999999<span class="mk">1</span> 1.0  가장 작은 비율: 0.0  OS - PFS의 최솟값: 0.0
+B 합의 범위: 0.9999999999999999 1.0  가장 작은 비율: 0.0  OS - PFS의 최솟값: 0.0
+점검 1, 2 통과<span class="mk">2</span></pre></div></div>
