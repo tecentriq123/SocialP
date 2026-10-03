@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">원래 비용의 선형회귀 (강건 표준오차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = &quot;cost ~ trt + age + male + cci + stage4&quot;
+ols = smf.ols(f, data=df).fit(cov_type=&quot;HC3&quot;)
+print(ols.summary().tables[1])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept   2060.3698    206.196      9.992      0.000    1656.232    2464.507
+trt          512.5732<span class="mk">1</span>     50.960     10.058      0.000     412.693<span class="mk">2</span>     612.453
+age           -3.4564      3.345     -1.033      0.301     -10.012       3.100
+male         104.4025     53.351      1.957      0.050      -0.163     208.968
+cci          200.1425<span class="mk">3</span>     26.998      7.413      0.000     147.228     253.057
+stage4        53.2079     50.459      1.054      0.292     -45.690     152.106
+==============================================================================</pre></div></div>

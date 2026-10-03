@@ -1,0 +1,131 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">열 개 시험의 효과크기 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def log_or(e1, n1, e0, n0):
+    &quot;&quot;&quot;로그 오즈비와 분산 (0인 칸이 있는 시험만 0.5씩 더함)&quot;&quot;&quot;
+    a, c = e1.astype(float), e0.astype(float)
+    b, d = n1 - a, n0 - c
+    zero = (a == 0) | (b == 0) | (c == 0) | (d == 0)
+    a, b, c, d = [x + 0.5 * zero for x in (a, b, c, d)]
+    return np.log(a * d / (b * c)), 1/a + 1/b + 1/c + 1/d
+
+es = tr[[&quot;trial&quot;]].copy()
+es[&quot;yi&quot;], es[&quot;vi&quot;] = log_or(tr[&quot;mace_x&quot;], tr[&quot;n_x&quot;],
+                            tr[&quot;mace_pbo&quot;], tr[&quot;n_pbo&quot;])
+es[&quot;se&quot;] = np.sqrt(es[&quot;vi&quot;])
+es[&quot;or&quot;] = np.exp(es[&quot;yi&quot;])
+es[&quot;lo&quot;] = np.exp(es[&quot;yi&quot;] - Z * es[&quot;se&quot;])
+es[&quot;hi&quot;] = np.exp(es[&quot;yi&quot;] + Z * es[&quot;se&quot;])
+es.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>trial</th>
+      <th>yi</th>
+      <th>vi</th>
+      <th>se</th>
+      <th>or</th>
+      <th>lo</th>
+      <th>hi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Trial A</td>
+      <td>0.046</td>
+      <td>0.139</td>
+      <td>0.373</td>
+      <td>1.047</td>
+      <td>0.504</td>
+      <td>2.177</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Trial B</td>
+      <td>-0.145</td>
+      <td>0.061</td>
+      <td>0.247</td>
+      <td>0.865</td>
+      <td>0.533</td>
+      <td>1.404</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Trial C</td>
+      <td>0.296</td>
+      <td>0.471</td>
+      <td>0.686<span class="mk">1</span></td>
+      <td>1.345</td>
+      <td>0.350</td>
+      <td>5.164</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Trial D</td>
+      <td>0.033</td>
+      <td>0.007</td>
+      <td>0.085</td>
+      <td>1.034</td>
+      <td>0.875</td>
+      <td>1.221</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Trial E</td>
+      <td>-0.629</td>
+      <td>0.067</td>
+      <td>0.259</td>
+      <td>0.533</td>
+      <td>0.321</td>
+      <td>0.886</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Trial F</td>
+      <td>-0.184</td>
+      <td>0.004</td>
+      <td>0.063<span class="mk">2</span></td>
+      <td>0.832</td>
+      <td>0.736</td>
+      <td>0.940</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Trial G</td>
+      <td>-0.608</td>
+      <td>0.219</td>
+      <td>0.468</td>
+      <td>0.544</td>
+      <td>0.218</td>
+      <td>1.362</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Trial H</td>
+      <td>-0.233</td>
+      <td>0.012</td>
+      <td>0.110</td>
+      <td>0.792</td>
+      <td>0.638</td>
+      <td>0.983</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Trial I</td>
+      <td>-0.347<span class="mk">3</span></td>
+      <td>0.015</td>
+      <td>0.124</td>
+      <td>0.707</td>
+      <td>0.554</td>
+      <td>0.901</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Trial J</td>
+      <td>-0.344</td>
+      <td>0.091</td>
+      <td>0.301</td>
+      <td>0.709</td>
+      <td>0.393</td>
+      <td>1.279<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

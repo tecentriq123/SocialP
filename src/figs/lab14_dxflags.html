@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">기저 기간의 상병으로 말기신부전과 심부전 입원력 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">v = visit.merge(index, on=&quot;pid&quot;)
+v[&quot;before&quot;] = (v[&quot;index_date&quot;] - v[&quot;visit_date&quot;]).dt.days
+base = v[(v[&quot;before&quot;] &gt;= 0) &amp; (v[&quot;before&quot;] &lt;= 365)]
+
+def has_dx(df, codes, cols=(&quot;dx_main&quot;, &quot;dx_sub1&quot;, &quot;dx_sub2&quot;)):
+    hit = pd.Series(False, index=df.index)
+    for col in cols:
+        hit = hit | df[col].str.startswith(codes, na=False)
+    return hit
+
+esrd = base[has_dx(base, (&quot;N185&quot;, &quot;Z49&quot;, &quot;Z992&quot;))]
+hhf0 = base[(base[&quot;setting&quot;] == &quot;I&quot;)
+            &amp; has_dx(base, &quot;I50&quot;, cols=[&quot;dx_main&quot;])]
+coh[&quot;esrd&quot;] = coh[&quot;pid&quot;].isin(esrd[&quot;pid&quot;])
+coh[&quot;prior_hhf&quot;] = coh[&quot;pid&quot;].isin(hhf0[&quot;pid&quot;])
+print(coh[[&quot;esrd&quot;, &quot;prior_hhf&quot;]].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>esrd         194<span class="mk">1</span>
+prior_hhf    234<span class="mk">2</span>
+dtype: int64</pre></div></div>

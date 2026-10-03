@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">Fine–Gray 모형 (모든 환자의 자료 마감 시점을 알 때)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">died = ckd[&quot;status&quot;] == 2
+# 투석 전 사망자의 추적 시간을 자료 마감까지로 늘림
+ckd[&quot;years_sd&quot;] = np.where(died, ckd[&quot;max_years&quot;], ckd[&quot;years&quot;])
+
+fg = CoxPHFitter().fit(ckd, &quot;years_sd&quot;, &quot;dial&quot;, formula=&quot;drug_a&quot;)
+print(fg.summary[cols].round(3))
+print(&quot;p =&quot;, round(fg.summary.loc[&quot;drug_a&quot;, &quot;p&quot;], 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           exp(coef)  exp(coef) lower 95%  exp(coef) upper 95%      p
+covariate                                                            
+drug_a         1.254<span class="mk">1</span>                1.099<span class="mk">2</span>                1.431  0.001
+p = 0.0008<span class="mk">3</span></pre></div></div>

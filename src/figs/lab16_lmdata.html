@@ -1,0 +1,42 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">3개월 랜드마크 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">L = 365 * 3 / 12                           # 3개월 = 91.25일
+lm = d[d[&quot;fu_days&quot;] &gt; L].copy()            # 그때 살아 있는 사람만
+lm[&quot;exposed&quot;] = (lm[&quot;rx_day&quot;] &lt;= L).astype(int)   # 그때까지 시작 = 1
+lm[&quot;t_lm&quot;] = lm[&quot;fu_days&quot;] - L             # 랜드마크부터의 일수
+print(&quot;대상자&quot;, len(lm), &quot;명, 제외&quot;, len(d) - len(lm), &quot;명&quot;)
+late = ((lm[&quot;exposed&quot;] == 0) &amp; (lm[&quot;ever&quot;] == 1)).sum()
+print(&quot;비노출군 가운데 3개월 뒤에 시작한 사람&quot;, late, &quot;명&quot;)
+
+t2 = lm.groupby(&quot;exposed&quot;)[&quot;died&quot;].agg([&quot;count&quot;, &quot;sum&quot;, &quot;mean&quot;])
+t2.columns = [&quot;n&quot;, &quot;deaths&quot;, &quot;risk&quot;]
+t2[&quot;risk&quot;] = (t2[&quot;risk&quot;] * 100).round(1)
+t2</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>대상자 5583 명<span class="mk">1</span>, 제외 417 명<span class="mk">2</span>
+비노출군 가운데 3개월 뒤에 시작한 사람 1763 명<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>deaths</th>
+      <th>risk</th>
+    </tr>
+    <tr>
+      <th>exposed</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>4649<span class="mk">4</span></td>
+      <td>686</td>
+      <td>14.8<span class="mk">6</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>934<span class="mk">5</span></td>
+      <td>131</td>
+      <td>14.0<span class="mk">7</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

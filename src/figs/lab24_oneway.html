@@ -1,0 +1,152 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">입력값을 하나씩 양 끝으로 바꿔 ICER 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for key in ranges.index:
+    low, high = ranges.loc[key, &quot;low&quot;], ranges.loc[key, &quot;high&quot;]
+    r_low = run_model(set_input(p, key, low))     # 낮은 값으로
+    r_high = run_model(set_input(p, key, high))   # 높은 값으로
+    rows.append([key, r_low[&quot;icer&quot;], r_high[&quot;icer&quot;]])
+ow = pd.DataFrame(rows, columns=[&quot;key&quot;, &quot;icer_low&quot;,
+                                 &quot;icer_high&quot;]).set_index(&quot;key&quot;)
+ow[&quot;swing&quot;] = (ow[&quot;icer_high&quot;] - ow[&quot;icer_low&quot;]).abs()
+lowest = ow[[&quot;icer_low&quot;, &quot;icer_high&quot;]].min(axis=1)
+ow[&quot;below&quot;] = lowest &lt; threshold       # 임계값 아래로 내려가는가
+ow = ow.sort_values(&quot;swing&quot;, ascending=False)
+print(&quot;기준 분석 ICER:&quot;, round(base[&quot;icer&quot;]))
+ow.round(0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>기준 분석 ICER: 5621<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>icer_low</th>
+      <th>icer_high</th>
+      <th>swing</th>
+      <th>below</th>
+    </tr>
+    <tr>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>hr_os</th>
+      <td>5232.0<span class="mk">2</span></td>
+      <td>7922.0<span class="mk">3</span></td>
+      <td>2690.0<span class="mk">4</span></td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>hr_pfs</th>
+      <td>4784.0</td>
+      <td>6499.0</td>
+      <td>1715.0</td>
+      <td>True<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>c_drug_A</th>
+      <td>4006.0<span class="mk">6</span></td>
+      <td>5621.0</td>
+      <td>1614.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>c_drug_B</th>
+      <td>6289.0</td>
+      <td>4952.0<span class="mk">7</span></td>
+      <td>1337.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>u_pf</th>
+      <td>6076.0<span class="mk">8</span></td>
+      <td>5262.0</td>
+      <td>814.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>c_pf</th>
+      <td>5414.0</td>
+      <td>5871.0</td>
+      <td>457.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>c_ae_A</th>
+      <td>5520.0</td>
+      <td>5749.0</td>
+      <td>229.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>c_pd</th>
+      <td>5523.0</td>
+      <td>5739.0</td>
+      <td>215.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>os_gam</th>
+      <td>5519.0</td>
+      <td>5734.0</td>
+      <td>215.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>pfs_gam</th>
+      <td>5515.0</td>
+      <td>5714.0</td>
+      <td>199.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>pfs_med</th>
+      <td>5537.0</td>
+      <td>5715.0</td>
+      <td>177.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>os_med</th>
+      <td>5706.0</td>
+      <td>5546.0</td>
+      <td>160.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>c_ae_B</th>
+      <td>5688.0</td>
+      <td>5535.0</td>
+      <td>153.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>du_ae_A</th>
+      <td>5565.0</td>
+      <td>5694.0</td>
+      <td>129.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>u_pd</th>
+      <td>5673.0</td>
+      <td>5572.0</td>
+      <td>101.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>du_ae_B</th>
+      <td>5659.0</td>
+      <td>5573.0</td>
+      <td>86.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>c_death</th>
+      <td>5637.0</td>
+      <td>5600.0<span class="mk">9</span></td>
+      <td>37.0</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

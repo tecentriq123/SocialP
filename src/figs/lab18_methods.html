@@ -1,0 +1,66 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">AR(1) 오차 모형과 네 가지 방법의 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+
+X = sm.add_constant(its[[&quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;]])
+gls = sm.GLSAR(its[&quot;rate&quot;], X, rho=1).iterative_fit(maxiter=50)
+print(&quot;rho:&quot;, np.round(gls.model.rho, 3))
+
+def row(res):
+    ci = res.conf_int()
+    return [res.params[&quot;post&quot;], *ci.loc[&quot;post&quot;],
+            res.params[&quot;time_after&quot;], *ci.loc[&quot;time_after&quot;]]
+
+tab = pd.DataFrame(
+    {&quot;OLS&quot;: row(fit0), &quot;Newey-West (lag 3)&quot;: row(fit),
+     &quot;AR(1) errors&quot;: row(gls), &quot;Seasonal + Newey-West&quot;: row(fit_s)},
+    index=[&quot;level&quot;, &quot;lower&quot;, &quot;upper&quot;, &quot;slope&quot;, &quot;lower&quot;, &quot;upper&quot;]).T
+tab.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>rho: [0.527]<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>level</th>
+      <th>lower</th>
+      <th>upper</th>
+      <th>slope</th>
+      <th>lower</th>
+      <th>upper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>OLS</th>
+      <td>-7.371</td>
+      <td>-8.991<span class="mk">2</span></td>
+      <td>-5.750</td>
+      <td>-0.226</td>
+      <td>-0.328</td>
+      <td>-0.124</td>
+    </tr>
+    <tr>
+      <th>Newey-West (lag 3)</th>
+      <td>-7.371</td>
+      <td>-9.559<span class="mk">3</span></td>
+      <td>-5.182</td>
+      <td>-0.226</td>
+      <td>-0.349</td>
+      <td>-0.103</td>
+    </tr>
+    <tr>
+      <th>AR(1) errors</th>
+      <td>-7.216<span class="mk">4</span></td>
+      <td>-9.509</td>
+      <td>-4.924</td>
+      <td>-0.228</td>
+      <td>-0.405</td>
+      <td>-0.051</td>
+    </tr>
+    <tr>
+      <th>Seasonal + Newey-West</th>
+      <td>-7.772<span class="mk">5</span></td>
+      <td>-9.168</td>
+      <td>-6.376</td>
+      <td>-0.215</td>
+      <td>-0.294</td>
+      <td>-0.137</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

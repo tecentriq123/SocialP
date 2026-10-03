@@ -1,0 +1,63 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">매칭 코호트 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ma = df.iloc[pairs[&quot;a_row&quot;]].copy()       # 짝을 찾은 A 사용자
+mb = df.iloc[pairs[&quot;b_row&quot;]].copy()       # 짝이 된 B 사용자
+ma[&quot;pair&quot;] = range(len(pairs))            # 짝 번호 0, 1, 2, ...
+mb[&quot;pair&quot;] = range(len(pairs))
+m = pd.concat([ma, mb])                   # 매칭 코호트 (긴 형식)
+
+gap = np.abs(ma[&quot;logit&quot;].to_numpy() - mb[&quot;logit&quot;].to_numpy())
+print(&quot;matched A:&quot;, len(ma), &quot;of&quot;, a.sum(),
+      f&quot;({len(ma) / a.sum():.1%})&quot;)
+print(&quot;largest distance in a pair:&quot;, round(gap.max(), 3))
+show = [&quot;pair&quot;, &quot;id&quot;, &quot;drugA&quot;, &quot;age&quot;, &quot;hf&quot;, &quot;ps&quot;]
+m.sort_values([&quot;pair&quot;, &quot;drugA&quot;])[show].head(4).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>matched A: 3516 of 4053<span class="mk">1</span> (86.8%)<span class="mk">2</span>
+largest distance in a pair: 0.122<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pair</th>
+      <th>id</th>
+      <th>drugA</th>
+      <th>age</th>
+      <th>hf</th>
+      <th>ps</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>332</th>
+      <td>0</td>
+      <td>333</td>
+      <td>0</td>
+      <td>61.397</td>
+      <td>0</td>
+      <td>0.315</td>
+    </tr>
+    <tr>
+      <th>8203</th>
+      <td>0</td>
+      <td>8204</td>
+      <td>1</td>
+      <td>64.058</td>
+      <td>0</td>
+      <td>0.315</td>
+    </tr>
+    <tr>
+      <th>3072</th>
+      <td>1</td>
+      <td>3073</td>
+      <td>0</td>
+      <td>65.210</td>
+      <td>0</td>
+      <td>0.435</td>
+    </tr>
+    <tr>
+      <th>3696</th>
+      <td>1</td>
+      <td>3697</td>
+      <td>1</td>
+      <td>68.365</td>
+      <td>0</td>
+      <td>0.435</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

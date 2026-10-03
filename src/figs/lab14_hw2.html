@@ -1,0 +1,27 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 2 정답: 세척 기간 180일</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">coh180 = coh.copy()
+prior180 = m[(m[&quot;before&quot;] &gt;= 1) &amp; (m[&quot;before&quot;] &lt;= 180)]
+coh180[&quot;prevalent&quot;] = coh180[&quot;pid&quot;].isin(prior180[&quot;pid&quot;])
+flow180, keep180 = flow_table(coh180)
+print(flow180.to_string(index=False))
+print(coh180[keep180][&quot;arm&quot;].value_counts())
+late = prior[~prior[&quot;pid&quot;].isin(prior180[&quot;pid&quot;])]
+print(late.groupby(&quot;pid&quot;)[&quot;before&quot;].min().describe().round(0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                             step excluded  remaining
+          Prescribed in 2016-2021               10000
+Prior use of either class (365 d)     3785       6215
+       Both classes on index date       91       6124
+                   Age &lt; 18 years       10       6114
+         ESRD or dialysis (365 d)      117       5997
+       HF hospitalization (365 d)      141       5856
+arm
+DPP4i     4812
+SGLT2i    1044
+Name: count, dtype: int64
+count    318.0
+mean     280.0
+std       47.0
+min      190.0
+25%      242.0
+50%      284.0
+75%      320.0
+max      360.0
+Name: before, dtype: float64</pre></div></div>

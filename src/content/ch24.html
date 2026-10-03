@@ -63,13 +63,12 @@
 <tr><td>신약 A의 월 약값</td><td class='r'>190</td><td class='r'>152–190</td><td>표시 가격에서 20% 인하까지</td><td class='r'>4,006</td><td class='r'>5,621</td><td class='r'>1,614</td></tr>
 <tr><td>표준요법 B의 월 약값</td><td class='r'>120</td><td class='r'>96–144</td><td>±20% (임의로 정함)</td><td class='r'>6,289</td><td class='r'>4,952</td><td class='r'>1,337</td></tr>
 <tr><td>무진행 상태의 효용</td><td class='r'>0.78</td><td class='r'>0.72–0.84</td><td>95% 구간</td><td class='r'>6,076</td><td class='r'>5,262</td><td class='r'>814</td></tr>
-<tr><td>전체생존 곡선의 모양 모수 γ<sup>a</sup></td><td class='r'>1.15</td><td class='r'>1.02–1.29</td><td>95% 구간</td><td class='r'>5,383</td><td class='r'>6,039</td><td class='r'>657</td></tr>
+<tr><td>무진행 상태 월 관리비</td><td class='r'>40</td><td class='r'>26–57</td><td>95% 구간</td><td class='r'>5,414</td><td class='r'>5,871</td><td class='r'>457</td></tr>
 </tbody></table></div>
-<p class="jt-foot"><sup>a</sup> 척도 모수는 그대로 두고 모양 모수만 바꾼 값이어서 곡선의 중앙값도 함께 달라집니다. 표준요법 B의 중앙 전체생존기간은 기준값에서 28개월이고, γ가 1.02이면 약 42개월, 1.29이면 약 19개월입니다.</p>
 <p>기준 분석의 ICER는 5,621만원/QALY입니다. 이 표를 막대그림으로 옮긴 것이 <strong>토네이도 그림</strong><span class="en">(tornado diagram)</span>입니다.</p>
 <!--FIG:ch24_tornado-->
 <ul>
-<li><b>결과를 가장 크게 움직이는 것은 치료 효과와 약값입니다.</b> 전체생존 위험비, 무진행생존 위험비, 신약 A의 약값 순입니다. 관리비나 이상반응 비용 같은 나머지 11개는 ICER를 460만원 넘게 움직이지 못합니다(아래 접힌 표).</li>
+<li><b>결과를 가장 크게 움직이는 것은 치료 효과와 약값입니다.</b> 전체생존 위험비, 무진행생존 위험비, 신약 A의 약값 순입니다. 이상반응 비용이나 생존곡선의 모수 같은 나머지 11개는 ICER를 230만원 넘게 움직이지 못합니다(아래 접힌 표).</li>
 <li><b>막대가 임계값을 넘는 입력값이 결론을 바꿀 수 있습니다.</b> 이 예시에서 가정한 임계값 5,000만원/QALY 아래로 내려가는 것은 무진행생존 위험비가 구간의 좋은 쪽 끝(0.52)일 때, 신약 A의 약값을 낮출 때, 표준요법 B가 지금보다 비쌀 때뿐입니다. 전체생존 위험비는 막대가 가장 길지만 좋은 쪽 끝(0.58)에서도 5,232만원입니다.</li>
 <li><b>막대는 대칭이 아닐 수 있습니다.</b> 전체생존 위험비가 0.97이면 ICER가 41% 오르고 0.58이면 7% 내립니다. 생존 기간이 늘면 진행 상태의 비용도 함께 늘기 때문입니다.</li>
 </ul>
@@ -88,19 +87,19 @@
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>입력값</th><th class="r">기준값</th><th class="r">범위(95% 구간)</th><th class="r">낮은 값일 때 ICER</th><th class="r">높은 값일 때 ICER</th><th class="r">폭</th></tr></thead>
 <tbody>
-<tr><td>무진행 상태 월 관리비</td><td class='r'>40</td><td class='r'>26–57</td><td class='r'>5,414</td><td class='r'>5,871</td><td class='r'>457</td></tr>
 <tr><td>이상반응 치료비, 신약 A</td><td class='r'>120</td><td class='r'>69–186</td><td class='r'>5,520</td><td class='r'>5,749</td><td class='r'>229</td></tr>
 <tr><td>진행 상태 월 비용</td><td class='r'>250</td><td class='r'>162–357</td><td class='r'>5,523</td><td class='r'>5,739</td><td class='r'>215</td></tr>
-<tr><td>무진행생존 곡선의 척도 모수 λ</td><td class='r'>0.0778</td><td class='r'>0.0665–0.0910</td><td class='r'>5,735</td><td class='r'>5,522</td><td class='r'>214</td></tr>
-<tr><td>전체생존 곡선의 척도 모수 λ</td><td class='r'>0.0150</td><td class='r'>0.0123–0.0183</td><td class='r'>5,540</td><td class='r'>5,714</td><td class='r'>174</td></tr>
+<tr><td>전체생존 곡선의 모양 모수 γ</td><td class='r'>1.15</td><td class='r'>1.02–1.29</td><td class='r'>5,519</td><td class='r'>5,734</td><td class='r'>215</td></tr>
+<tr><td>무진행생존 곡선의 모양 모수 γ</td><td class='r'>0.95</td><td class='r'>0.86–1.05</td><td class='r'>5,515</td><td class='r'>5,714</td><td class='r'>199</td></tr>
+<tr><td>중앙 무진행생존기간(개월), 표준요법 B</td><td class='r'>10</td><td class='r'>8.7–11.5</td><td class='r'>5,537</td><td class='r'>5,715</td><td class='r'>177</td></tr>
+<tr><td>중앙 전체생존기간(개월), 표준요법 B</td><td class='r'>28</td><td class='r'>23.9–32.8</td><td class='r'>5,706</td><td class='r'>5,546</td><td class='r'>160</td></tr>
 <tr><td>이상반응 치료비, 표준요법 B</td><td class='r'>80</td><td class='r'>46–124</td><td class='r'>5,688</td><td class='r'>5,535</td><td class='r'>153</td></tr>
 <tr><td>이상반응 QALY 손실, 신약 A</td><td class='r'>0.012</td><td class='r'>0.007–0.019</td><td class='r'>5,565</td><td class='r'>5,694</td><td class='r'>129</td></tr>
-<tr><td>무진행생존 곡선의 모양 모수 γ</td><td class='r'>0.95</td><td class='r'>0.86–1.05</td><td class='r'>5,683</td><td class='r'>5,575</td><td class='r'>108</td></tr>
 <tr><td>진행 상태의 효용</td><td class='r'>0.62</td><td class='r'>0.52–0.72</td><td class='r'>5,673</td><td class='r'>5,572</td><td class='r'>101</td></tr>
 <tr><td>이상반응 QALY 손실, 표준요법 B</td><td class='r'>0.008</td><td class='r'>0.005–0.012</td><td class='r'>5,659</td><td class='r'>5,573</td><td class='r'>86</td></tr>
 <tr><td>임종기 비용</td><td class='r'>800</td><td class='r'>518–1,143</td><td class='r'>5,637</td><td class='r'>5,600</td><td class='r'>37</td></tr>
 </tbody></table></div>
-<p>λ와 γ는 표준요법 B의 와이블 곡선 S(t) = exp(−λt<sup>γ</sup>)의 모수입니다. 이 값들은 두 군의 곡선을 함께 움직이므로 증분 결과에 주는 영향이 위험비보다 작습니다. 비용과 QALY 손실의 구간은 표준오차를 평균의 20–25%로 가정하고 만든 분포에서 나온 것이어서(나 절), 이 막대들의 길이도 그 가정에 달려 있습니다.</p>
+<p>중앙 생존기간과 모양 모수 γ는 표준요법 B의 와이블 곡선을 정하는 두 값입니다(23장 다 절). 중앙값을 바꿀 때는 모양 모수를, 모양 모수를 바꿀 때는 중앙값을 기준값에 두었습니다. 이 값들은 두 군의 곡선을 함께 움직이므로 증분 결과에 주는 영향이 위험비보다 작습니다. 비용과 QALY 손실의 구간은 표준오차를 평균의 20–25%로 가정하고 만든 분포에서 나온 것이어서(나 절), 이 막대들의 길이도 그 가정에 달려 있습니다.</p>
 <!--/FOLD-->
 <p>두 입력값을 함께 바꿔 결과를 격자로 보이는 것은 <strong>이원 민감도 분석</strong><span class="en">(two-way sensitivity analysis)</span>입니다. 무진행생존 위험비가 구간의 나쁜 쪽 끝(0.81)이면 약값을 160만원으로 낮춰도 ICER가 5,345만원입니다.</p>
 <!--FOLD:자세히 보기: 약값과 무진행생존 위험비를 함께 바꾼 표-->
@@ -258,7 +257,7 @@ ICER가 5,000이 되는 월 약값: 175.39</pre></div></div>
 <tr><td>Monthly price of drug A<sup>b</sup></td><td class="r">190 (152–190)</td><td class="r">4,006</td><td class="r">5,621</td></tr>
 <tr><td>Monthly price of standard therapy B<sup>a</sup></td><td class="r">120 (96–144)</td><td class="r">6,289</td><td class="r">4,952</td></tr>
 <tr><td>Utility, progression-free</td><td class="r">0.78 (0.72–0.84)</td><td class="r">6,076</td><td class="r">5,262</td></tr>
-<tr><td>Weibull shape, overall survival</td><td class="r">1.15 (1.02–1.29)</td><td class="r">5,383</td><td class="r">6,039</td></tr>
+<tr><td>Cost of progression-free state, per month</td><td class="r">40 (26–57)</td><td class="r">5,414</td><td class="r">5,871</td></tr>
 </tbody></table></div>
 <p class="jt-foot">HR, hazard ratio; ICER, incremental cost-effectiveness ratio. Base-case ICER: 5,621. <sup>a</sup>Range of ±20%. <sup>b</sup>List price to −20%.</p>
 <p class="excerpt"><span class="mk">4</span> <span class="hl">The ICER fell below 5,000 only at the lower bound of the hazard ratio for progression-free survival, with a lower price of drug A, or with a higher price of standard therapy B.</span> In a threshold analysis, <span class="mk">5</span> <span class="hl">the ICER equalled 5,000 at a monthly price of 175.4 (a 7.7% reduction)</span>. <span class="mk">6</span> <span class="hl">Across scenario analyses, the ICER ranged from 5,281 to 6,324.</span></p>
@@ -353,20 +352,22 @@ ICER가 5,000이 되는 월 약값: 175.39</pre></div></div>
 </ul>
 <p>공통 예시는 비용의 표준오차를 평균의 20–25%로 두었습니다. 실제 연구에서는 청구자료 분석(21장)이나 시험 자료에서 얻은 표준오차를 씁니다. 표준오차를 알 수 없어 평균의 일정 비율로 가정했다면 그 사실을 입력값 표에 적습니다.</p>
 <!--/FOLD-->
-<p>입력값끼리 관련이 있으면 따로따로 뽑지 않고 함께 뽑아야 합니다. 같은 자료에서 추정한 와이블 곡선의 두 모수가 대표적입니다. 심평원 지침도 확률적 민감도 분석에서 분포와 함께 모수 간 상관관계를 고려하도록 합니다<cite data-ref="hira2021guideline"></cite>(지침 48쪽). 공통 예시는 설명을 단순하게 하려고 모든 입력값을 서로 독립으로 뽑았습니다.</p>
+<p>입력값끼리 관련이 있으면 따로따로 뽑지 않고 함께 뽑아야 합니다. 무진행생존과 전체생존은 같은 환자에게서 추정한 값이어서, 따로 뽑으면 "진행은 늦는데 사망은 빠른" 조합이 섞이고 무진행생존 곡선이 전체생존 곡선을 넘는 벌이 나옵니다(무진행 상태인 사람이 살아 있는 사람보다 많을 수는 없습니다). 심평원 지침도 확률적 민감도 분석에서 분포와 함께 모수 간 상관관계를 고려하도록 합니다<cite data-ref="hira2021guideline"></cite>(지침 48쪽).</p>
 <!--FOLD:자세히 보기: 모수 사이의 상관과 촐레스키 분해-->
 <p>23장 라 절의 가상 시험 자료(300명)에 와이블 모형을 적합하면 척도 모수와 모양 모수의 추정값은 서로 강하게 얽혀 있습니다. 로그 척도에서 ln λ의 표준오차는 0.292, ln γ의 표준오차는 0.077이고 두 추정값의 상관계수는 −0.96입니다. λ가 크게 추정되면 γ는 작게 추정되어야 곡선이 같은 자료를 지나가기 때문입니다.</p>
 <p>이 상관을 무시하고 두 모수를 따로 뽑으면 자료와 맞지 않는 곡선이 섞입니다. 2만 번 뽑아 24개월 생존율을 계산하면, 상관을 반영했을 때의 95% 구간은 50.4–61.1%로 Kaplan-Meier 추정값의 신뢰구간(49.9–61.1%)과 비슷합니다. 따로 뽑으면 26.4–76.7%로 터무니없이 넓어집니다.</p>
 <p>상관이 있는 값을 함께 뽑을 때는 공분산 행렬을 <strong>촐레스키 분해</strong><span class="en">(Cholesky decomposition)</span>해서 씁니다. 공분산 행렬 Σ를 Σ = L Lᵀ가 되는 아래 삼각 행렬 L로 나누고, 서로 독립인 표준정규 난수 z에 L을 곱해 평균에 더합니다. 이 예에서는 L의 원소가 0.292, −0.074, 0.022여서 ln λ = 평균 + 0.292 z₁, ln γ = 평균 − 0.074 z₁ + 0.022 z₂가 됩니다. 두 식이 z₁을 함께 쓰기 때문에 음의 상관이 생깁니다. numpy에서는 <code>rng.multivariate_normal(평균, 공분산 행렬)</code>이 이 계산을 대신 합니다.</p>
-<p>공통 예시의 입력값 표는 이 과정을 생략하고 두 모수에 작은 표준오차(0.10, 0.06)를 주어 따로 뽑았습니다. 실제 분석에서는 생존 모형의 적합 결과가 주는 공분산 행렬을 그대로 씁니다. 합이 1이어야 하는 여러 범주의 확률(예: 한 상태에서 세 상태로 가는 전이확률)은 베타분포를 따로 쓰지 않고 디리클레분포<span class="en">(Dirichlet distribution)</span>에서 함께 뽑습니다<cite data-ref="briggs2006book"></cite>.</p>
+<p>공통 예시는 같은 곡선을 척도 모수 λ 대신 중앙 생존기간으로 나타냅니다(λ = ln 2 ÷ 중앙값<sup>γ</sup>). 이렇게 바꾸면 위 자료에서 ln 중앙값의 표준오차는 0.074이고 ln γ와의 상관계수는 −0.20으로 약해집니다. 중앙값은 자료가 많은 곡선의 가운데를 붙잡는 값이어서 모양 모수와 덜 얽히기 때문입니다. 그래서 둘을 따로 뽑아도 24개월 생존율의 95% 구간이 50.8–61.9%로 자료와 맞습니다. 실제 분석에서는 생존 모형의 적합 결과가 주는 공분산 행렬을 그대로 쓰는 것이 원칙입니다. 합이 1이어야 하는 여러 범주의 확률(예: 한 상태에서 세 상태로 가는 전이확률)은 베타분포를 따로 쓰지 않고 디리클레분포<span class="en">(Dirichlet distribution)</span>에서 함께 뽑습니다<cite data-ref="briggs2006book"></cite>.</p>
 <!--/FOLD-->
-<p>독립으로 뽑은 대가가 있습니다. 5,000벌 가운데 약 22%에서는 뽑힌 무진행생존 곡선이 분석기간 안에 전체생존 곡선을 넘어서, 모형이 무진행생존을 전체생존 값으로 잘랐습니다. 설명용 모형의 한계입니다. 실제 분석에서는 곡선의 모수를 적합 결과의 공분산 행렬(모수들이 함께 움직이는 정도를 적은 표)이나 부트스트랩<span class="en">(bootstrap)</span>으로 함께 뽑고, 잘린 모의실험의 비율을 보고합니다.</p>
-<!--FOLD:자세히 보기: 무진행생존 곡선이 전체생존 곡선을 넘은 모의실험-->
-<p>기준 분석에서는 두 곡선이 분석기간 안에 만나지 않습니다(23장 다 절). 확률적 분석에서는 무진행생존과 전체생존의 척도 모수, 모양 모수, 위험비를 서로 독립으로 뽑으므로 "진행은 늦고 사망은 빠른" 조합이 섞입니다. 5,000벌 가운데 1,122벌(22.4%)에서 적어도 한 군의 무진행생존 곡선이 20년 안에 전체생존 곡선을 넘었습니다(신약 A군 21.7%, 표준요법 B군 13.2%). 10만 벌로 세어도 22.0%입니다. 무진행 상태로 살아 있는 사람이 살아 있는 사람보다 많을 수는 없으므로, 코드의 <code>np.minimum</code>이 그 시점부터 무진행생존을 전체생존 값으로 자릅니다. 잘린 뒤에는 진행 상태의 비율이 0으로 계산됩니다.</p>
+<p>공통 예시는 곡선을 중앙 생존기간과 모양 모수로 나타내고, 무진행생존과 전체생존의 중앙값끼리, 모양 모수끼리, 위험비끼리 양의 상관(이 예시에서 가정한 값 0.5)을 주어 뽑았습니다. 그래도 분석기간 안에 두 곡선이 엇갈린 벌은 버리고 다시 뽑았는데, 5,137벌 가운데 137벌(2.7%)이었고 짝을 따로 뽑았다면 9.1%였습니다.</p>
+<!--FOLD:자세히 보기: 곡선과 위험비를 뽑은 방법과 다시 뽑기-->
+<p>기준 분석에서는 두 곡선이 분석기간 안에 만나지 않습니다(23장 다 절). 확률적 분석에서 곡선과 위험비를 흔들면 만나는 조합이 생기므로, 뽑는 방법을 다음과 같이 정했습니다.</p>
 <ul>
-<li><b>영향의 크기.</b> 신약 A군을 기준으로 보면, 잘린 모의실험의 57%는 전체생존이 5% 아래로 내려간 꼬리에서 두 곡선이 만나 결과에 거의 영향이 없습니다. 그러나 전체 모의실험의 5%에서는 두 곡선이 5년 안에 만나고, 7%에서는 잘려 나간 무진행 기간이 1개월을 넘습니다.</li>
-<li><b>결과에 주는 뜻.</b> 표 24-5의 구간과 다 절의 확률에는 임상적으로 있기 어려운 곡선 조합에서 나온 값이 섞여 있습니다. 잘린 1,122벌과 잘리지 않은 3,878벌에서 비용효과적인 비율은 16.3%와 18.0%로 비슷해서 이 예시의 결론이 잘림에 좌우되지는 않습니다. 그렇더라도 다섯 번에 한 번꼴로 이 장치가 작동한다는 것은 두 곡선을 뽑는 방법이 서로 맞지 않는다는 신호이므로, 실제 분석이라면 고쳐야 합니다.</li>
-<li><b>바로잡는 방법.</b> 첫째, 곡선마다 척도 모수와 모양 모수를 적합 결과의 공분산 행렬에서 함께 뽑습니다(위 접힌 상자). 자료와 맞지 않는 곡선이 줄어듭니다. 둘째, 환자 단위 자료가 있으면 환자를 부트스트랩으로 다시 뽑아(21장 나 절) 무진행생존과 전체생존을 같은 표본에서 다시 적합합니다. 같은 환자의 진행과 사망이 함께 뽑히므로 두 곡선 사이의 관련이 유지됩니다. 셋째, 진행과 사망을 구조적으로 잇는 상태전이 모형으로 결과를 견주어 봅니다. 분할생존모형이 두 평가변수를 따로 모형화한다는 점은 이 구조의 근본 한계로 꼽힙니다<cite data-ref="woods2020psm"></cite>.</li>
+<li><b>표현과 표준오차.</b> 표준요법 B의 곡선마다 중앙 생존기간과 모양 모수를 로그정규분포에서 뽑고, 척도 모수는 그 둘에서 계산합니다. 로그 척도의 표준오차는 중앙 무진행생존 0.07, 중앙 전체생존 0.08, 모양 모수 0.05(무진행생존)와 0.06(전체생존)입니다. 95% 구간으로는 중앙값 8.7–11.5개월과 23.9–32.8개월입니다. 23장 라 절의 가상 시험(표준요법 B군 300명, 추적 24–30개월)에 와이블 모형을 적합하면 전체생존의 표준오차가 0.074(중앙값)와 0.077(모양)이고, 같은 설계로 만든 무진행생존 자료에서는 0.069와 0.053입니다. 두 군 600명을 함께 적합하면 모양 모수의 표준오차는 전체생존 0.06, 무진행생존 0.04로 줄어듭니다. 이 크기에 맞춰 정했습니다.</li>
+<li><b>상관.</b> 무진행생존과 전체생존의 중앙값끼리, 모양 모수끼리, 위험비끼리 로그 척도에서 상관계수 0.5를 주었습니다. 짝마다 표준정규 난수 z₁, z₂를 뽑고 둘째 값에는 z₂ 대신 0.5 z₁ + 0.866 z₂를 씁니다(위 상자의 촐레스키 분해를 값 두 개에 적용한 것). 이렇게 뽑으면 중앙 무진행생존이 10개월보다 길게 뽑힌 벌의 69%에서 중앙 전체생존도 28개월보다 깁니다(따로 뽑으면 50%). 0.5는 가정한 값입니다. 진행 시간과 사망 시간의 상관이 0.5–0.7인 군당 300명의 가상 시험을 600번씩 만들어 적합해 보면, 두 평가변수의 추정값 사이의 상관이 중앙값 0.51–0.61, 모양 모수 0.40–0.45, 위험비 0.56–0.64였습니다.</li>
+<li><b>다시 뽑기.</b> 뽑은 값으로 두 군의 곡선을 0–240개월에서 계산해, 어느 군에서든 무진행생존이 전체생존보다 큰 달이 있으면 곡선과 위험비를 버리고 다시 뽑습니다. 5,000벌을 채택하는 동안 137벌(2.7%)을 버렸고, 10만 벌로 세면 2.9%입니다. 버린 137벌 가운데 135벌은 신약 A군에서, 3벌은 표준요법 B군에서 엇갈렸습니다(1벌은 두 군 모두). 채택된 5,000벌에서는 코드의 <code>np.minimum</code>이 값을 바꾸는 일이 없습니다.</li>
+<li><b>상관을 주지 않으면.</b> 세 짝을 모두 따로 뽑으면 버리는 비율이 9.1%로 늘어납니다. 버려지는 벌은 "진행은 늦고 사망은 빠른" 쪽(무진행생존 위험비가 낮고 전체생존 위험비가 높은 쪽)에 몰려 있어서, 많이 버릴수록 남은 벌의 분포가 처음 정한 분포에서 멀어집니다. 채택된 5,000벌에서 두 위험비의 가운데 값(기하평균)은 따로 뽑았을 때 0.655와 0.742, 상관을 주었을 때 0.651과 0.749입니다(처음 정한 값 0.65와 0.75). 다시 뽑기는 상관을 반영하고도 남는 소수에만 쓰는 장치이고, 버린 비율은 보고합니다.</li>
+<li><b>실제 분석에서는.</b> 곡선마다 모수를 적합 결과의 공분산 행렬에서 뽑거나(위 접힌 상자), 환자 단위 자료가 있으면 환자를 부트스트랩<span class="en">(bootstrap)</span>으로 다시 뽑아(21장 나 절) 무진행생존과 전체생존을 같은 표본에서 다시 적합합니다. 같은 환자의 진행과 사망이 함께 뽑히므로 두 곡선 사이의 관련이 자료 그대로 유지됩니다. 진행과 사망을 구조적으로 잇는 상태전이 모형으로 결과를 견주어 보기도 합니다. 분할생존모형이 두 평가변수를 따로 모형화한다는 점은 이 구조의 근본 한계로 꼽힙니다<cite data-ref="woods2020psm"></cite>.</li>
 </ul>
 <!--/FOLD-->
 
@@ -376,42 +377,59 @@ ICER가 5,000이 되는 월 약값: 175.39</pre></div></div>
 <div class="tbl-wrap"><table class="tbl" style="max-width:46rem">
 <thead><tr><th></th><th class="r">기준 분석</th><th class="r">확률적 분석의 평균 (95% 구간)</th></tr></thead>
 <tbody>
-<tr><td>증분비용(만원)</td><td class="r">2,872</td><td class="r">2,935 (919–5,500)</td></tr>
-<tr><td>증분 QALY</td><td class="r">0.511</td><td class="r">0.524 (0.112–1.041)</td></tr>
-<tr><td>ICER(만원/QALY)</td><td class="r">5,621</td><td class="r">5,597</td></tr>
-<tr><td>증분 순금전편익(만원, 임계값 5,000)</td><td class="r">−317</td><td class="r">−313 (−1,056에서 526)</td></tr>
-<tr class="hi"><td>비용효과적일 확률(임계값 5,000)</td><td class="r"></td><td class="r">17.6%</td></tr>
+<tr><td>증분비용(만원)</td><td class="r">2,872</td><td class="r">2,935 (1,061–5,102)</td></tr>
+<tr><td>증분 QALY</td><td class="r">0.511</td><td class="r">0.525 (0.101–1.008)</td></tr>
+<tr><td>ICER(만원/QALY)</td><td class="r">5,621</td><td class="r">5,586</td></tr>
+<tr><td>증분 순금전편익(만원, 임계값 5,000)</td><td class="r">−317</td><td class="r">−308 (−919에서 412)</td></tr>
+<tr class="hi"><td>비용효과적일 확률(임계값 5,000)</td><td class="r"></td><td class="r">16.0%</td></tr>
 </tbody></table></div>
-<p class="jt-foot">이 예제는 확률적 민감도 분석이 어떻게 돌아가는지 보여 주는 단순화된 모형이고, 이 표와 그림 24-3에는 무진행생존 곡선을 전체생존 곡선에 맞춰 자른 모의실험(약 22%, 위 '분포 고르기')이 들어 있습니다. 실제 연구에서는 자르는 것으로 끝내지 않고, 생존곡선과 입력값이 임상적으로 어긋나지 않게 추정하고 뽑는 방법을 먼저 검토합니다.</p>
-<p>95% 구간은 5,000개 결과의 2.5와 97.5 백분위수입니다. 확률적 분석의 ICER는 평균 증분비용을 평균 증분 QALY로 나눈 값입니다(2,935 ÷ 0.524, 반올림 전 값으로 계산). 5,000쌍을 비용효과평면(20장 라 절)에 찍으면 다음과 같습니다.</p>
+<p>95% 구간은 5,000개 결과의 2.5와 97.5 백분위수입니다. 확률적 분석의 ICER는 평균 증분비용을 평균 증분 QALY로 나눈 값입니다(2,935 ÷ 0.525, 반올림 전 값으로 계산). 5,000쌍을 비용효과평면(20장 라 절)에 찍으면 다음과 같습니다.</p>
 <!--FIG:ch24_scatter-->
 <ul>
-<li><b>사분면.</b> 5,000회 가운데 4,978회(99.6%)가 "더 비싸고 더 효과적"입니다. 신약 A가 열등한 것(더 비싸고 덜 효과적)이 13회, 우월한 것이 5회, 더 싸고 덜 효과적인 것이 4회입니다.</li>
-<li><b>임계값 선.</b> 가정한 임계값 5,000만원/QALY의 선보다 아래에 있는 점, 곧 그 모의실험에서 신약 A가 비용효과적인 점은 881개(17.6%)입니다. 임계값을 6,000만원으로 보면 65.2%입니다(다 절).</li>
-<li><b>기준 분석과의 차이.</b> 확률적 분석의 평균(증분 QALY 0.524)은 기준 분석(0.511)과 조금 다릅니다. 모형의 결과가 입력값에 직선으로 비례하지 않아서, 입력값의 가운데 값을 넣은 결과와 결과의 평균이 같지 않기 때문입니다.</li>
+<li><b>사분면.</b> 5,000회 가운데 4,958회(99.2%)가 "더 비싸고 더 효과적"입니다. 신약 A가 열등한 것(더 비싸고 덜 효과적)이 37회, 우월한 것이 3회, 더 싸고 덜 효과적인 것이 2회입니다.</li>
+<li><b>임계값 선.</b> 가정한 임계값 5,000만원/QALY의 선보다 아래에 있는 점, 곧 그 모의실험에서 신약 A가 비용효과적인 점은 802개(16.0%)입니다. 임계값을 6,000만원으로 보면 65.9%입니다(다 절).</li>
+<li><b>기준 분석과의 차이.</b> 확률적 분석의 평균(증분 QALY 0.525)은 기준 분석(0.511)과 조금 다릅니다. 모형의 결과가 입력값에 직선으로 비례하지 않아서, 입력값의 가운데 값을 넣은 결과와 결과의 평균이 같지 않기 때문입니다.</li>
 </ul>
 <!--FOLD:자세히 보기: 기준 분석과 확률적 분석의 평균이 다른 이유와 무엇을 보고할지-->
 <p>가 절의 접힌 표(전체생존 위험비의 막대가 한쪽으로 긴 이유)에서 전체생존 위험비가 0.58이면 증분 QALY가 기준 분석보다 0.436 늘고, 0.97이면 0.374 줄었습니다. 같은 폭으로 좋아질 때 얻는 것이 나빠질 때 잃는 것보다 큽니다. 이런 입력값을 분포에서 뽑아 평균을 내면 가운데 값을 넣은 결과보다 큰 값이 나옵니다.</p>
-<p>반대 방향으로 작용하는 것도 있습니다. 로그정규분포는 기준값이 중앙값이어서 평균이 조금 큽니다(전체생존 위험비 0.756). 분포의 평균값을 모형에 넣어 한 번 계산하면 증분 QALY 0.491, ICER 5,673만원/QALY입니다. 기준 분석(0.511), 평균값을 넣은 계산(0.491), 확률적 분석의 평균(0.524)이 모두 다릅니다.</p>
-<p>결정에 필요한 것은 기대비용과 기대효과이고, 모형이 비선형이면 확률적 분석의 평균이 그 값에 해당합니다. 그래서 캐나다 지침은 기준 분석 자체를 확률적 분석으로 하도록 하고<cite data-ref="cadth2017"></cite>, NICE도 가능하면 확률적 분석에서 얻은 추정값을 쓰도록 합니다<cite data-ref="nice2022manual"></cite>. 두 결과를 모두 표에 적고, 차이가 크면 이유를 설명합니다. 이 예시의 차이(ICER 5,621 대 5,597)는 결론을 바꾸지 않습니다.</p>
+<p>반대 방향으로 작용하는 것도 있습니다. 로그정규분포는 기준값이 중앙값이어서 평균이 조금 큽니다(전체생존 위험비 0.756). 분포의 평균값을 모형에 넣어 한 번 계산하면 증분 QALY 0.496, ICER 5,672만원/QALY입니다. 기준 분석(0.511), 평균값을 넣은 계산(0.496), 확률적 분석의 평균(0.525)이 모두 다릅니다.</p>
+<p>결정에 필요한 것은 기대비용과 기대효과이고, 모형이 비선형이면 확률적 분석의 평균이 그 값에 해당합니다. 그래서 캐나다 지침은 기준 분석 자체를 확률적 분석으로 하도록 하고<cite data-ref="cadth2017"></cite>, NICE도 가능하면 확률적 분석에서 얻은 추정값을 쓰도록 합니다<cite data-ref="nice2022manual"></cite>. 두 결과를 모두 표에 적고, 차이가 크면 이유를 설명합니다. 이 예시의 차이(ICER 5,621 대 5,586)는 결론을 바꾸지 않습니다.</p>
 <!--/FOLD-->
 <!--FOLD:파이썬으로 계산해 보기: 확률적 민감도 분석 5,000회-->
 <p>가 절의 접힌 코드(<code>model()</code>과 <code>base</code>)를 먼저 실행한 다음 이어서 실행합니다.</p>
-<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">확률적 민감도 분석 5,000회</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">spec = dict(hr_pfs=(&quot;lognormal&quot;, 0.113), hr_os=(&quot;lognormal&quot;, 0.131),      # (분포, 불확실성의 크기)
-            pfs_lam=(&quot;lognormal&quot;, 0.08), pfs_gam=(&quot;lognormal&quot;, 0.05),
-            os_lam=(&quot;lognormal&quot;, 0.10), os_gam=(&quot;lognormal&quot;, 0.06),
-            u_pf=(&quot;beta&quot;, 0.03), u_pd=(&quot;beta&quot;, 0.05),
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">확률적 민감도 분석 5,000회</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pairs = {(&quot;pfs_med&quot;, &quot;os_med&quot;): (10, 28, 0.07, 0.08),         # 함께 뽑는 짝: 기준값 둘, 로그 척도의 표준오차 둘
+         (&quot;pfs_gam&quot;, &quot;os_gam&quot;): (0.95, 1.15, 0.05, 0.06),    # med = 중앙 생존기간(개월), gam = 모양 모수
+         (&quot;hr_pfs&quot;, &quot;hr_os&quot;): (0.65, 0.75, 0.113, 0.131)}
+rho = 0.5                                               # 짝 안의 두 값 사이의 상관계수
+spec = dict(u_pf=(&quot;beta&quot;, 0.03), u_pd=(&quot;beta&quot;, 0.05),   # 따로 뽑는 입력값: (분포, 불확실성의 크기)
             du_ae_A=(&quot;gamma&quot;, 0.25), du_ae_B=(&quot;gamma&quot;, 0.25),
             c_pf=(&quot;gamma&quot;, 0.20), c_pd=(&quot;gamma&quot;, 0.20), c_death=(&quot;gamma&quot;, 0.20),
             c_ae_A=(&quot;gamma&quot;, 0.25), c_ae_B=(&quot;gamma&quot;, 0.25))
+count = {&quot;tries&quot;: 0}                                    # 곡선과 위험비를 뽑은 횟수를 센다
+
+def crossed(v):                                         # 어느 군에서든 무진행생존 곡선이 전체생존 곡선을 넘으면 True
+    for hr_pfs, hr_os in ((v[&quot;hr_pfs&quot;], v[&quot;hr_os&quot;]), (1.0, 1.0)):
+        pfs = np.exp(-v[&quot;pfs_lam&quot;] * hr_pfs * t ** v[&quot;pfs_gam&quot;])
+        os_ = np.exp(-v[&quot;os_lam&quot;] * hr_os * t ** v[&quot;os_gam&quot;])
+        if (pfs &gt; os_).any():
+            return True
+    return False
 
 def draw(rng):                                          # 입력값 한 벌을 분포에서 뽑는다
     v = dict(base)                                      # 약값은 base의 값 그대로(고정)
+    while True:                                         # 곡선이 엇갈리면 다시 뽑는다
+        count[&quot;tries&quot;] += 1
+        for (k1, k2), (m1, m2, s1, s2) in pairs.items():
+            z1, z2 = rng.normal(size=2)                 # 서로 독립인 표준정규 난수 두 개
+            z2 = rho * z1 + np.sqrt(1 - rho ** 2) * z2  # z2를 z1과 상관 0.5인 값으로 바꾼다
+            v[k1], v[k2] = m1 * np.exp(s1 * z1), m2 * np.exp(s2 * z2)
+        v[&quot;pfs_lam&quot;] = np.log(2) / v[&quot;pfs_med&quot;] ** v[&quot;pfs_gam&quot;]   # 중앙값과 모양 모수에서 척도 모수
+        v[&quot;os_lam&quot;] = np.log(2) / v[&quot;os_med&quot;] ** v[&quot;os_gam&quot;]
+        if not crossed(v):
+            break
     for name, (dist, u) in spec.items():
         m = base[name]
-        if dist == &quot;lognormal&quot;:                         # u = 로그 척도의 표준오차
-            v[name] = np.exp(rng.normal(np.log(m), u))
-        elif dist == &quot;beta&quot;:                            # u = 표준오차
+        if dist == &quot;beta&quot;:                              # u = 표준오차
             n = m * (1 - m) / u ** 2 - 1
             v[name] = rng.beta(m * n, (1 - m) * n)
         else:                                           # gamma: u = 표준오차 / 평균
@@ -424,19 +442,23 @@ rng = np.random.default_rng(20261002)                   # 난수 seed를 고정�
 sims = np.array([model(draw(rng)) for _ in range(5000)])
 dc, dq = sims[:, 0], sims[:, 1]                         # 5,000벌의 증분비용, 증분QALY
 
+print(&quot;뽑은 횟수&quot;, count[&quot;tries&quot;], &quot; 곡선이 엇갈려 버린 횟수&quot;, count[&quot;tries&quot;] - 5000)
 print(&quot;평균 증분비용&quot;, round(dc.mean()), &quot; 95% 구간&quot;, np.percentile(dc, [2.5, 97.5]).round(0))
 print(&quot;평균 증분QALY&quot;, round(dq.mean(), 3), &quot; 95% 구간&quot;, np.percentile(dq, [2.5, 97.5]).round(3))
 print(&quot;ICER(평균 ÷ 평균)&quot;, round(dc.mean() / dq.mean()))
 print(&quot;더 비싸고 더 효과적인 비율&quot;, np.mean((dc &gt; 0) &amp; (dq &gt; 0)))
 inmb = 5000 * dq - dc                                   # 임계값 5,000에서의 증분 순금전편익
-print(&quot;비용효과적일 확률&quot;, np.mean(inmb &gt; 0), &quot; 몬테카를로 표준오차&quot;, round(np.sqrt(np.mean(inmb &gt; 0) * np.mean(inmb &lt;= 0) / 5000), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>평균 증분비용 2935  95% 구간 [ 919. 5500.]
-평균 증분QALY 0.524  95% 구간 [0.112 1.041]
-ICER(평균 ÷ 평균) 5597
-더 비싸고 더 효과적인 비율 0.9956
-비용효과적일 확률 0.1762  몬테카를로 표준오차 0.0054</pre></div></div>
+print(&quot;비용효과적일 확률&quot;, np.mean(inmb &gt; 0), &quot; 몬테카를로 표준오차&quot;, round(np.sqrt(np.mean(inmb &gt; 0) * np.mean(inmb &lt;= 0) / 5000), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>뽑은 횟수 5137  곡선이 엇갈려 버린 횟수 137
+평균 증분비용 2935  95% 구간 [1061. 5102.]
+평균 증분QALY 0.525  95% 구간 [0.101 1.008]
+ICER(평균 ÷ 평균) 5586
+더 비싸고 더 효과적인 비율 0.9916
+비용효과적일 확률 0.1604  몬테카를로 표준오차 0.0052</pre></div></div>
 <ul>
-<li><code>spec</code>은 입력값마다 분포의 종류와 불확실성의 크기를 적은 사전입니다. 약값은 여기에 없으므로 <code>base</code>의 값이 그대로 쓰입니다.</li>
-<li><code>draw(rng)</code>가 입력값 한 벌을 뽑습니다. 로그정규는 로그 값을 정규분포에서 뽑아 <code>np.exp</code>를 취하고, 베타와 감마는 위 '계산 과정 보기'의 식으로 모수를 구해 <code>rng.beta</code>, <code>rng.gamma</code>에 넣습니다.</li>
+<li><code>pairs</code>는 함께 뽑는 세 짝(중앙값, 모양 모수, 위험비)의 기준값과 로그 척도의 표준오차입니다. <code>spec</code>은 따로 뽑는 입력값의 분포와 불확실성의 크기입니다. 약값은 어디에도 없으므로 <code>base</code>의 값이 그대로 쓰입니다.</li>
+<li><code>z2 = rho * z1 + np.sqrt(1 - rho ** 2) * z2</code>가 상관을 만드는 줄입니다. 새 <code>z2</code>는 <code>z1</code>과 상관계수가 0.5인 표준정규 난수입니다. 기준값에 <code>np.exp(표준오차 * z)</code>를 곱하면 로그정규분포에서 뽑은 값이 됩니다.</li>
+<li><code>crossed(v)</code>는 두 군의 곡선을 계산해 무진행생존이 전체생존보다 큰 달이 있는지 봅니다. <code>while True:</code>는 엇갈리지 않는 벌이 나올 때까지 곡선과 위험비를 다시 뽑습니다. 출력 첫 줄이 그 횟수입니다(5,137번 뽑아 137번 버림).</li>
+<li>베타와 감마는 위 '계산 과정 보기'의 식으로 모수를 구해 <code>rng.beta</code>, <code>rng.gamma</code>에 넣습니다.</li>
 <li><code>np.random.default_rng(20261002)</code>는 난수 생성기입니다. 괄호 안의 수(seed)가 같으면 뽑히는 값이 같아 결과를 그대로 재현할 수 있습니다.</li>
 <li><code>[model(draw(rng)) for _ in range(5000)]</code>가 분석의 전부입니다. 한 벌 뽑고 모형을 돌리는 일을 5,000번 합니다. 결과는 5,000행 2열의 배열입니다.</li>
 <li><code>np.percentile(dc, [2.5, 97.5])</code>가 95% 구간, <code>np.mean(inmb &gt; 0)</code>이 순금전편익이 양수인 비율입니다. 출력이 표 24-5와 같습니다.</li>
@@ -446,13 +468,13 @@ ICER(평균 ÷ 평균) 5597
 <h3>모의실험 횟수</h3>
 <p>난수를 쓰는 계산이므로 결과에는 우연한 오차가 있습니다. 이것을 몬테카를로 오차라고 하며 횟수를 늘리면 줄어듭니다.</p>
 <!--FIG:ch24_converge-->
-<p>비용효과적일 확률은 500회에서 16.8%, 1,000회에서 17.7%, 5,000회에서 17.6%였습니다. 5,000회에서 이 확률의 몬테카를로 표준오차는 0.5%포인트이므로, 난수가 달랐다면 약 ±1%포인트 안에서 다른 값이 나왔을 것입니다. 실제로 난수의 출발값(seed)을 20가지로 바꿔 5,000회씩 돌리면 15.0–17.3%가 나오고 10만 회를 돌리면 16.7%여서, 이 장의 17.6%는 조금 높게 나온 경우입니다. 횟수는 "seed를 바꿔도 결론과 보고할 숫자가 달라지지 않을 만큼"이 기준이고, 누적 결과가 안정되는지를 그림으로 확인합니다<cite data-ref="hatswell2018"></cite>.</p>
+<p>비용효과적일 확률은 500회에서 14.2%, 1,000회에서 15.2%, 5,000회에서 16.0%였습니다. 5,000회에서 이 확률의 몬테카를로 표준오차는 0.5%포인트이므로, 난수가 달랐다면 약 ±1%포인트 안에서 다른 값이 나왔을 것입니다. 실제로 난수의 출발값(seed)을 20가지로 바꿔 5,000회씩 돌리면 15.3–16.9%가 나오고 10만 회를 돌리면 16.1%여서, 이 장의 16.0%는 그 범위 안에 있습니다. 횟수는 "seed를 바꿔도 결론과 보고할 숫자가 달라지지 않을 만큼"이 기준이고, 누적 결과가 안정되는지를 그림으로 확인합니다<cite data-ref="hatswell2018"></cite>.</p>
 
 <h3>ICER의 신뢰구간을 쓰지 않는 이유</h3>
-<p>모의실험마다 ICER를 구해 2.5와 97.5 백분위수를 읽으면 4,004–10,237만원/QALY입니다. 이 구간을 "ICER의 95% 신뢰구간"으로 보고하면 곤란한 점이 있습니다<cite data-ref="briggs2002box"></cite><cite data-ref="stinnett1998"></cite>.</p>
+<p>모의실험마다 ICER를 구해 2.5와 97.5 백분위수를 읽으면 4,371–10,187만원/QALY입니다. 이 구간을 "ICER의 95% 신뢰구간"으로 보고하면 곤란한 점이 있습니다<cite data-ref="briggs2002box"></cite><cite data-ref="stinnett1998"></cite>.</p>
 <ul>
-<li><b>음수 ICER가 섞입니다.</b> 5,000회 가운데 18회는 ICER가 음수입니다. 5회는 신약이 우월한 경우이고 13회는 열등한 경우인데, 크기순으로 줄을 세우면 둘이 구분 없이 가장 낮은 쪽에 놓입니다(20장 라 절). 더 싸고 덜 효과적인 4회는 ICER가 양수여서 다른 값과 섞이지만, 이때는 ICER가 클수록 신약에 유리해 뜻이 반대입니다.</li>
-<li><b>분모가 0에 가까우면 값이 튑니다.</b> 증분 QALY가 0.002인 모의실험의 ICER는 19억 원/QALY입니다. 이런 값 때문에 모의실험별 ICER의 평균(5,924)은 평균끼리 나눈 값(5,597)과 다릅니다.</li>
+<li><b>음수 ICER가 섞입니다.</b> 5,000회 가운데 40회는 ICER가 음수입니다. 3회는 신약이 우월한 경우이고 37회는 열등한 경우인데, 크기순으로 줄을 세우면 둘이 구분 없이 가장 낮은 쪽에 놓입니다(20장 라 절). 더 싸고 덜 효과적인 2회는 ICER가 양수여서 다른 값과 섞이지만, 이때는 ICER가 클수록 신약에 유리해 뜻이 반대입니다.</li>
+<li><b>분모가 0에 가까우면 값이 튑니다.</b> 증분 QALY가 0.002인 모의실험의 ICER는 27억 원/QALY입니다. 이런 값 때문에 모의실험별 ICER의 평균(4,237)은 평균끼리 나눈 값(5,586)과 다릅니다.</li>
 </ul>
 <p>점들이 모두 오른쪽 위 사분면에 있고 증분 QALY가 0에서 멀 때에만 이 구간을 그대로 읽을 수 있습니다. 그래서 보고할 때는 증분비용과 증분 QALY 각각의 평균과 구간, 산점도, 그리고 음수가 되어도 뜻이 분명한 순편익과 비용효과 수용곡선(다 절)을 씁니다.</p>
 
@@ -463,7 +485,7 @@ ICER(평균 ÷ 평균) 5597
 </div>
 
 <div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
-<li><strong>분석 전에 정할 것</strong>: 입력값마다 분포와 표준오차의 출처, 고정할 입력값, 함께 뽑을 입력값, 모의실험 횟수와 난수의 출발값(seed)입니다.</li>
+<li><strong>분석 전에 정할 것</strong>: 입력값마다 분포와 표준오차의 출처, 고정할 입력값, 함께 뽑을 입력값과 그 상관, 곡선이 엇갈린 벌의 처리, 모의실험 횟수와 난수의 출발값(seed)입니다.</li>
 <li><strong>지침</strong>: 지침 2판은 확률적 민감도 분석을 권장하는 수준이었고, 2014–2018년 제출 자료 50건 가운데 18건(36%)이 수행했습니다<cite data-ref="bae2022sens"></cite>. 3판(2021년 개정)부터는 일원 민감도 분석과 확률적 민감도 분석을 둘 다 하도록 합니다<cite data-ref="hira2021guideline"></cite>(지침 48쪽). 안내글은 확률적 분석을 '해야 한다' 수준으로 올렸다고 밝히고(3쪽), 본문은 "둘 다 수행할 것을 권장한다"고 적습니다(50쪽).</li>
 <li><strong>보고할 것</strong>: 입력값 표에 값과 분포(CHEERS 2022의 22번), Methods에 횟수와 고정한 입력값(20번), Results에 증분비용·증분 QALY의 평균과 구간, 산점도, 수용곡선(24번)을 적습니다<cite data-ref="husereau2022cheers"></cite>.</li>
 <li><strong>국제 관행과의 차이</strong>: NICE는 제출되는 모든 비용효과 모형에 확률적 민감도 분석을 요구해 왔습니다<cite data-ref="claxton2005psa"></cite>.</li>
@@ -482,7 +504,7 @@ ICER(평균 ÷ 평균) 5597
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 확률적 민감도 분석의 Methods와 입력값의 분포</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<p class="excerpt">Parameter uncertainty was assessed in a probabilistic sensitivity analysis with <span class="mk">1</span> <span class="hl">5,000 Monte Carlo simulations</span>, in which <span class="mk">2</span> <span class="hl">all uncertain parameters were sampled simultaneously from their assigned distributions</span>. Drug prices and the discount rate were held constant.</p>
+<p class="excerpt">Parameter uncertainty was assessed in a probabilistic sensitivity analysis with <span class="mk">1</span> <span class="hl">5,000 Monte Carlo simulations</span>, in which <span class="mk">2</span> <span class="hl">all uncertain parameters were sampled simultaneously from their assigned distributions</span>. Drug prices and the discount rate were held constant. The medians and shape parameters of the PFS and OS curves and the two hazard ratios were sampled in pairs with an assumed correlation of 0.5; parameter sets in which the PFS curve exceeded the OS curve (2.7% of draws) were redrawn.</p>
 <div class="tbl-wrap"><table class="jt">
 <caption><b>Table 1 (excerpt).</b> Model inputs and distributions used in the probabilistic sensitivity analysis</caption>
 <thead><tr><th>Parameter</th><th class="r">Base case</th><th class="r">SE or 95% CI</th><th>Distribution</th></tr></thead>
@@ -496,7 +518,7 @@ ICER(평균 ÷ 평균) 5597
 <tr><td>Price of drug A; drug B, per month</td><td class="r">190; 120</td><td class="r">–</td><td><span class="mk">6</span> Fixed</td></tr>
 </tbody></table></div>
 <p class="jt-foot">HR, hazard ratio; SE, standard error. Costs in 10,000 KRW. Lognormal parameters are on the log scale.</p>
-<p class="excerpt">In the probabilistic analysis, drug A was associated with <span class="mk">7</span> <span class="hl">a mean incremental cost of 2,935 (95% interval, 919 to 5,500) and 0.524 incremental QALYs (95% interval, 0.112 to 1.041)</span>. <span class="mk">8</span> <span class="hl">Drug A was more costly and more effective in 99.6% of simulations.</span></p>
+<p class="excerpt">In the probabilistic analysis, drug A was associated with <span class="mk">7</span> <span class="hl">a mean incremental cost of 2,935 (95% interval, 1,061 to 5,102) and 0.525 incremental QALYs (95% interval, 0.101 to 1.008)</span>. <span class="mk">8</span> <span class="hl">Drug A was more costly and more effective in 99.2% of simulations.</span></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>모의실험 횟수.</b> 입력값을 5,000벌 뽑아 모형을 5,000번 돌렸다는 뜻입니다. 환자 5,000명이 아닙니다. 횟수가 수백 회뿐이면 결과가 난수에 따라 흔들립니다.</span></li>
 <li><span class="mk">2</span><span><b>동시에 뽑음.</b> 일원 민감도 분석과 다른 점입니다. 어떤 입력값이 빠졌는지도 확인합니다. 다음 문장이 약값과 할인율을 고정했다고 밝히고 있습니다.</span></li>
@@ -504,8 +526,8 @@ ICER(평균 ÷ 평균) 5597
 <li><span class="mk">4</span><span><b>베타분포.</b> 평균 α ÷ (α + β) = 147.9 ÷ 189.6 = 0.78로 기준값과 같아야 합니다. α + β가 클수록 분포가 좁습니다.</span></li>
 <li><span class="mk">5</span><span><b>감마분포.</b> 평균 = 모양 × 척도 = 25 × 10 = 250, 표준오차 = √25 × 10 = 50으로 검산됩니다. 프로그램에 따라 척도 대신 그 역수(rate)를 적기도 하므로 평균이 맞는지로 확인합니다.</span></li>
 <li><span class="mk">6</span><span><b>Fixed.</b> 분포를 주지 않은 입력값입니다. 약값의 영향은 임계값 분석이나 시나리오 분석에서 따로 찾아봅니다.</span></li>
-<li><span class="mk">7</span><span><b>평균과 95% 구간.</b> 5,000개 결과의 평균과 2.5·97.5 백분위수입니다. 증분 QALY의 구간 0.112–1.041은 모수 불확실성만으로 건강 이득이 아홉 배까지 달라질 수 있다는 뜻입니다. ICER의 구간 대신 비용과 QALY를 따로 적은 점을 봅니다.</span></li>
-<li><span class="mk">8</span><span><b>사분면의 비율.</b> 점의 99.6%가 한 사분면에 있습니다. 여러 사분면에 흩어진 분석이라면 음수 ICER가 섞이므로 ICER의 분포를 읽어서는 안 됩니다.</span></li>
+<li><span class="mk">7</span><span><b>평균과 95% 구간.</b> 5,000개 결과의 평균과 2.5·97.5 백분위수입니다. 증분 QALY의 구간 0.101–1.008은 모수 불확실성만으로 건강 이득이 열 배까지 달라질 수 있다는 뜻입니다. ICER의 구간 대신 비용과 QALY를 따로 적은 점을 봅니다.</span></li>
+<li><span class="mk">8</span><span><b>사분면의 비율.</b> 점의 99.2%가 한 사분면에 있습니다. 여러 사분면에 흩어진 분석이라면 음수 ICER가 섞이므로 ICER의 분포를 읽어서는 안 됩니다.</span></li>
 </ol>
 </div></div>
 
@@ -518,13 +540,13 @@ ICER(평균 ÷ 평균) 5597
 <div class="eq">\[ \ln HR \sim N\!\left(\ln \widehat{HR},\; se_{\ln}^2\right), \qquad se_{\ln} = \frac{\ln(\text{상한}) - \ln(\text{하한})}{2 \times 1.96} \]
 <p>위험비의 로그정규분포입니다. (ln 0.97 − ln 0.58) ÷ 3.92 = 0.131.</p></div>
 <div class="eq">\[ SE_{MC}(\hat p) = \sqrt{\frac{\hat p(1-\hat p)}{N}} \]
-<p>\(N\)회 모의실험에서 구한 확률 \(\hat p\)의 몬테카를로 표준오차입니다. √(0.176 × 0.824 ÷ 5,000) = 0.0054.</p></div>
+<p>\(N\)회 모의실험에서 구한 확률 \(\hat p\)의 몬테카를로 표준오차입니다. √(0.160 × 0.840 ÷ 5,000) = 0.0052.</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>확률적 민감도 분석은 불확실한 입력값을 모두 분포에서 한꺼번에 뽑아 모형을 수천 번 돌립니다. 0과 1 사이의 효용과 확률에는 베타, 비용에는 감마, 위험비에는 로그정규분포를 씁니다.</li>
 <li>분포의 모수는 평균과 표준오차에서 구합니다. 환자 사이의 표준편차가 아니라 평균의 표준오차를 씁니다. 약값과 할인율은 고정합니다.</li>
-<li>관련 있는 입력값은 함께 뽑아야 합니다. 공통 예시는 모두 독립으로 뽑아서 모의실험의 약 22%에서 무진행생존 곡선이 전체생존 곡선에 맞춰 잘렸습니다.</li>
-<li>공통 예시 5,000회의 평균은 증분비용 2,935만원(919–5,500), 증분 QALY 0.524(0.112–1.041)이고, 가정한 임계값에서 비용효과적인 모의실험은 17.6%입니다.</li>
+<li>관련 있는 입력값은 함께 뽑아야 합니다. 공통 예시는 무진행생존과 전체생존의 곡선과 위험비를 양의 상관을 주어 뽑고, 그래도 두 곡선이 엇갈린 벌(2.7%)은 다시 뽑았습니다.</li>
+<li>공통 예시 5,000회의 평균은 증분비용 2,935만원(1,061–5,102), 증분 QALY 0.525(0.101–1.008)이고, 가정한 임계값에서 비용효과적인 모의실험은 16.0%입니다.</li>
 <li>횟수를 늘리면 몬테카를로 오차만 줄어듭니다. ICER의 구간 대신 증분비용과 증분 QALY의 구간, 산점도, 순편익을 보고합니다.</li>
 </ul></div>
 <div class="practice"><p class="pt">스스로 확인하기</p>
@@ -548,7 +570,7 @@ ICER(평균 ÷ 평균) 5597
 <p class="big">확률적 민감도 분석의 모의실험 가운데 신약이 비용효과적으로 나온 것의 비율이 "비용효과적일 확률"입니다. 이 비율은 임계값을 얼마로 보느냐에 따라 달라지므로, 임계값을 바꿔 가며 구한 비율을 이은 곡선이 비용효과 수용곡선입니다.</p>
 <ul>
 <li><b>비유.</b> 시험 점수가 나온 뒤 합격선을 60점으로 하면 합격률이 얼마, 70점으로 하면 얼마인지 그려 보는 것과 같습니다. 합격선(임계값)을 정하지 않고도 어느 수준에서 결과가 갈리는지 한눈에 보입니다.</li>
-<li><b>논문에서는.</b> "At a willingness-to-pay threshold of ₩50 million per QALY, the probability that drug A was cost-effective was 17.6%"처럼 나옵니다.</li>
+<li><b>논문에서는.</b> "At a willingness-to-pay threshold of ₩50 million per QALY, the probability that drug A was cost-effective was 16.0%"처럼 나옵니다.</li>
 <li><b>기억할 한 가지.</b> 이 확률은 약이 효과가 있을 확률이 아닙니다. 그리고 결정이 틀렸을 때 잃는 것이 얼마나 큰지는 말해 주지 않습니다.</li>
 </ul>
 </div>
@@ -574,15 +596,15 @@ ICER(평균 ÷ 평균) 5597
 <div class="tbl-wrap"><table class="tbl" style="max-width:46rem">
 <thead><tr><th>모의실험</th><th class="r">증분 QALY</th><th class="r">증분비용(만원)</th><th class="r">순금전편익, 임계값 5,000</th><th class="r">순금전편익, 임계값 6,000</th></tr></thead>
 <tbody>
-<tr><td>1</td><td class="r">0.364</td><td class="r">1,998</td><td class="r">−180</td><td class="r">+184</td></tr>
-<tr><td>2</td><td class="r">0.310</td><td class="r">557</td><td class="r">+992</td><td class="r">+1,302</td></tr>
-<tr><td>3</td><td class="r">0.506</td><td class="r">2,584</td><td class="r">−55</td><td class="r">+451</td></tr>
-<tr><td>4</td><td class="r">0.454</td><td class="r">2,170</td><td class="r">+99</td><td class="r">+552</td></tr>
-<tr><td>5</td><td class="r">0.196</td><td class="r">1,565</td><td class="r">−585</td><td class="r">−389</td></tr>
+<tr><td>1</td><td class="r">0.570</td><td class="r">2,709</td><td class="r">+143</td><td class="r">+713</td></tr>
+<tr><td>2</td><td class="r">0.700</td><td class="r">4,451</td><td class="r">−949</td><td class="r">−248</td></tr>
+<tr><td>3</td><td class="r">0.985</td><td class="r">4,429</td><td class="r">+497</td><td class="r">+1,482</td></tr>
+<tr><td>4</td><td class="r">0.551</td><td class="r">3,187</td><td class="r">−433</td><td class="r">+118</td></tr>
+<tr><td>5</td><td class="r">0.317</td><td class="r">2,101</td><td class="r">−516</td><td class="r">−199</td></tr>
 </tbody></table></div>
-<p>순금전편익은 반올림 전 값으로 계산했습니다. 임계값 5,000만원에서는 다섯 번 가운데 두 번(2번과 4번)이 양수이고, 6,000만원에서는 네 번이 양수입니다. 같은 계산을 5,000번 모두에 하면 임계값 5,000만원에서 순금전편익의 평균은 −313만원(95% 구간 −1,056에서 526)이고, 양수인 것은 881번입니다.</p>
+<p>순금전편익은 반올림 전 값으로 계산했습니다. 임계값 5,000만원에서는 다섯 번 가운데 두 번(1번과 3번)이 양수이고, 6,000만원에서는 세 번이 양수입니다. 같은 계산을 5,000번 모두에 하면 임계값 5,000만원에서 순금전편익의 평균은 −308만원(95% 구간 −919에서 412)이고, 양수인 것은 802번입니다.</p>
 <!--FIG:ch24_inmb-->
-<p>881 ÷ 5,000 = <b>17.6%</b>가 이 예시에서 가정한 임계값 5,000만원/QALY에서 신약 A가 비용효과적일 확률입니다.</p>
+<p>802 ÷ 5,000 = <b>16.0%</b>가 이 예시에서 가정한 임계값 5,000만원/QALY에서 신약 A가 비용효과적일 확률입니다.</p>
 
 <h3>수용곡선</h3>
 <p>임계값을 0에서 12,000만원/QALY까지 바꿔 가며 이 비율을 구해 이은 것이 <strong>비용효과 수용곡선</strong><span class="en">(cost-effectiveness acceptability curve, CEAC)</span>입니다<cite data-ref="vanhout1994"></cite><cite data-ref="fenwick2001"></cite>.</p>
@@ -591,57 +613,57 @@ ICER(평균 ÷ 평균) 5597
 <div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
 <thead><tr><th class="r">임계값(만원/QALY)</th><th class="r">순금전편익의 평균(만원)</th><th class="r">비용효과적일 확률</th><th class="r">1인당 EVPI(만원)</th></tr></thead>
 <tbody>
-<tr><td class='r'>3,000</td><td class='r'>−1,362</td><td class='r'>0.7%</td><td class='r'>1.9</td></tr>
-<tr><td class='r'>4,000</td><td class='r'>−837</td><td class='r'>2.2%</td><td class='r'>5.5</td></tr>
-<tr class='hi'><td class='r'>5,000</td><td class='r'>−313</td><td class='r'>17.6%</td><td class='r'>47.0</td></tr>
-<tr><td class='r'>5,500</td><td class='r'>−51</td><td class='r'>42.0%</td><td class='r'>143.7</td></tr>
-<tr><td class='r'>6,000</td><td class='r'>211</td><td class='r'>65.2%</td><td class='r'>101.8</td></tr>
-<tr><td class='r'>7,000</td><td class='r'>736</td><td class='r'>87.6%</td><td class='r'>37.6</td></tr>
-<tr><td class='r'>8,000</td><td class='r'>1,260</td><td class='r'>93.6%</td><td class='r'>21.3</td></tr>
-<tr><td class='r'>10,000</td><td class='r'>2,309</td><td class='r'>97.0%</td><td class='r'>11.7</td></tr>
-<tr><td class='r'>12,000</td><td class='r'>3,358</td><td class='r'>98.1%</td><td class='r'>8.8</td></tr>
+<tr><td class='r'>3,000</td><td class='r'>−1,359</td><td class='r'>0.2%</td><td class='r'>0.5</td></tr>
+<tr><td class='r'>4,000</td><td class='r'>−833</td><td class='r'>0.7%</td><td class='r'>1.3</td></tr>
+<tr class='hi'><td class='r'>5,000</td><td class='r'>−308</td><td class='r'>16.0%</td><td class='r'>35.9</td></tr>
+<tr><td class='r'>5,500</td><td class='r'>−45</td><td class='r'>42.0%</td><td class='r'>139.1</td></tr>
+<tr><td class='r'>6,000</td><td class='r'>218</td><td class='r'>65.9%</td><td class='r'>100.7</td></tr>
+<tr><td class='r'>7,000</td><td class='r'>743</td><td class='r'>86.7%</td><td class='r'>42.6</td></tr>
+<tr><td class='r'>8,000</td><td class='r'>1,269</td><td class='r'>93.0%</td><td class='r'>27.0</td></tr>
+<tr><td class='r'>10,000</td><td class='r'>2,319</td><td class='r'>96.5%</td><td class='r'>18.4</td></tr>
+<tr><td class='r'>12,000</td><td class='r'>3,370</td><td class='r'>97.5%</td><td class='r'>16.0</td></tr>
 </tbody></table></div>
-<p>임계값이 5,000만원이면 17.6%, 6,000만원이면 65.2%, 8,000만원이면 93.6%입니다. 5,000만원과 6,000만원 사이에서 곡선이 가파르게 오르므로, 임계값을 얼마로 보느냐에 따라 결론이 갈립니다. 공식 임계값이 없는 국내 상황(20장 라 절)에서는 한 점의 확률보다 곡선 전체가 더 많은 것을 알려 줍니다. 마지막 열은 아래에서 설명합니다.</p>
-<p>가격을 바꾸면 곡선이 통째로 움직입니다. 가 절에서 구한 임계 가격 175.4만원에서는 ICER가 5,000만원이 되지만 그때 비용효과적일 확률은 48.5%입니다. 확률을 80%로 올리려면 약 160만원까지 낮춰야 합니다.</p>
+<p>임계값이 5,000만원이면 16.0%, 6,000만원이면 65.9%, 8,000만원이면 93.0%입니다. 5,000만원과 6,000만원 사이에서 곡선이 가파르게 오르므로, 임계값을 얼마로 보느냐에 따라 결론이 갈립니다. 공식 임계값이 없는 국내 상황(20장 라 절)에서는 한 점의 확률보다 곡선 전체가 더 많은 것을 알려 줍니다. 마지막 열은 아래에서 설명합니다.</p>
+<p>가격을 바꾸면 곡선이 통째로 움직입니다. 가 절에서 구한 임계 가격 175.4만원에서는 ICER가 5,000만원이 되지만 그때 비용효과적일 확률은 48.3%입니다. 확률을 80%로 올리려면 약 162만원까지 낮춰야 합니다.</p>
 <!--FOLD:자세히 보기: 약값에 따른 비용효과적일 확률-->
 <div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
 <thead><tr><th>신약 A의 월 약값</th><th class="r">기준 분석의 ICER</th><th class="r">순금전편익의 평균(만원)</th><th class="r">비용효과적일 확률(임계값 5,000)</th></tr></thead>
 <tbody>
-<tr><td>190만원 (표시 가격)</td><td class='r'>5,621</td><td class='r'>−313</td><td class='r'>17.6%</td></tr>
-<tr><td>180만원</td><td class='r'>5,196</td><td class='r'>−92</td><td class='r'>37.6%</td></tr>
-<tr><td>175.4만원 (임계 가격)</td><td class='r'>5,000</td><td class='r'>10</td><td class='r'>48.5%</td></tr>
-<tr><td>170만원</td><td class='r'>4,771</td><td class='r'>129</td><td class='r'>61.2%</td></tr>
-<tr><td>160만원</td><td class='r'>4,346</td><td class='r'>350</td><td class='r'>81.2%</td></tr>
-<tr><td>152만원 (20% 인하)</td><td class='r'>4,006</td><td class='r'>526</td><td class='r'>90.6%</td></tr>
+<tr><td>190만원 (표시 가격)</td><td class='r'>5,621</td><td class='r'>−308</td><td class='r'>16.0%</td></tr>
+<tr><td>180만원</td><td class='r'>5,196</td><td class='r'>−89</td><td class='r'>37.5%</td></tr>
+<tr><td>175.4만원 (임계 가격)</td><td class='r'>5,000</td><td class='r'>12</td><td class='r'>48.3%</td></tr>
+<tr><td>170만원</td><td class='r'>4,771</td><td class='r'>130</td><td class='r'>62.8%</td></tr>
+<tr><td>160만원</td><td class='r'>4,346</td><td class='r'>348</td><td class='r'>82.5%</td></tr>
+<tr><td>152만원 (20% 인하)</td><td class='r'>4,006</td><td class='r'>523</td><td class='r'>91.3%</td></tr>
 </tbody></table></div>
-<p>같은 난수로 약값만 바꿔 5,000회를 다시 돌린 결과입니다. 임계 가격은 "기대값으로 본전"인 가격이어서 그 가격에서의 확률은 절반 근처입니다. 불확실성까지 감안해 더 높은 확률을 요구한다면 가격은 더 낮아져야 합니다. 확률이 80% 이상이 되는 가격은 160.8만원(15.4% 인하), 90% 이상은 152.7만원(19.7% 인하)입니다.</p>
+<p>같은 난수로 약값만 바꿔 5,000회를 다시 돌린 결과입니다. 임계 가격은 "기대값으로 본전"인 가격이어서 그 가격에서의 확률은 절반 근처입니다. 불확실성까지 감안해 더 높은 확률을 요구한다면 가격은 더 낮아져야 합니다. 확률이 80% 이상이 되는 가격은 161.6만원(15.0% 인하), 90% 이상은 153.8만원(19.0% 인하)입니다.</p>
 <!--/FOLD-->
 
 <h3>읽을 때 주의할 점</h3>
 <ul>
-<li><b>효과가 있을 확률이 아닙니다.</b> 이 예시에서 신약 A가 QALY를 늘리는 모의실험은 99.7%입니다. 17.6%는 "가정한 임계값에서 늘어난 건강이 늘어난 비용만큼의 값어치를 할" 확률입니다.</li>
-<li><b>손실의 크기를 말하지 않습니다.</b> 확률 17.6%는 틀렸을 때 얼마를 잃는지와 무관합니다. 그래서 어느 대안을 택할지는 확률이 아니라 순편익의 평균으로 정하고, 확률은 그 결정이 얼마나 불확실한지를 나타내는 값으로 읽습니다<cite data-ref="claxton1999"></cite>.</li>
-<li><b>50% 지점이 ICER는 아닙니다.</b> 곡선이 50%를 넘는 임계값(이 예시 5,670만원)은 ICER(5,621만원)와 비슷하지만 같지 않습니다.</li>
-<li><b>0에서 시작해 100%에 닿는 곡선이 아닙니다.</b> 임계값 0에서의 값은 신약이 비용을 줄이는 모의실험의 비율(0.2%)이고, 임계값이 아주 커지면 신약이 QALY를 늘리는 모의실험의 비율(99.7%)에 가까워질 뿐 100%가 되지 않습니다. 곡선이 늘 오르기만 하는 것도 아닙니다<cite data-ref="fenwick2004"></cite>.</li>
+<li><b>효과가 있을 확률이 아닙니다.</b> 이 예시에서 신약 A가 QALY를 늘리는 모의실험은 99.2%입니다. 16.0%는 "가정한 임계값에서 늘어난 건강이 늘어난 비용만큼의 값어치를 할" 확률입니다.</li>
+<li><b>손실의 크기를 말하지 않습니다.</b> 확률 16.0%는 틀렸을 때 얼마를 잃는지와 무관합니다. 그래서 어느 대안을 택할지는 확률이 아니라 순편익의 평균으로 정하고, 확률은 그 결정이 얼마나 불확실한지를 나타내는 값으로 읽습니다<cite data-ref="claxton1999"></cite>.</li>
+<li><b>50% 지점이 ICER는 아닙니다.</b> 곡선이 50%를 넘는 임계값(이 예시 5,650만원)은 ICER(5,621만원)와 비슷하지만 같지 않습니다.</li>
+<li><b>0에서 시작해 100%에 닿는 곡선이 아닙니다.</b> 임계값 0에서의 값은 신약이 비용을 줄이는 모의실험의 비율(0.1%)이고, 임계값이 아주 커지면 신약이 QALY를 늘리는 모의실험의 비율(99.2%)에 가까워질 뿐 100%가 되지 않습니다. 곡선이 늘 오르기만 하는 것도 아닙니다<cite data-ref="fenwick2004"></cite>.</li>
 </ul>
 <!--FOLD:자세히 보기: 대안이 셋 이상일 때의 수용곡선-->
 <p><b>대안이 셋 이상이면</b> 대안마다 곡선이 하나씩 생깁니다. 확률이 가장 높은 대안과 기대 순편익이 가장 큰 대안이 다를 수 있어서, 기대 순편익이 가장 큰 대안의 확률만 이은 비용효과 수용 경계<span class="en">(cost-effectiveness acceptability frontier, CEAF)</span>를 함께 봅니다<cite data-ref="barton2008"></cite>.</p>
 <!--/FOLD-->
 <!--FOLD:자세히 보기: 50% 지점과 ICER가 다른 이유-->
-<p>곡선은 임계값 5,670만원에서 50%를 넘습니다. 기준 분석의 ICER는 5,621만원, 확률적 분석의 ICER는 5,597만원이고, 5,597만원에서의 확률은 46.9%입니다. 50% 지점은 모의실험별 ICER의 중앙값(5,661만원)에 가깝습니다. 거의 모든 모의실험에서 증분 QALY가 양수이기 때문입니다. 평균끼리 나눈 ICER와는 순편익의 평균과 중앙값이 같을 때(예를 들어 분포가 좌우대칭일 때)에만 일치합니다.</p>
+<p>곡선은 임계값 5,650만원에서 50%를 넘습니다. 기준 분석의 ICER는 5,621만원, 확률적 분석의 ICER는 5,586만원이고, 5,586만원에서의 확률은 47.2%입니다. 50% 지점은 모의실험별 ICER의 중앙값(5,625만원)에 가깝습니다. 거의 모든 모의실험에서 증분 QALY가 양수이기 때문입니다. 평균끼리 나눈 ICER와는 순편익의 평균과 중앙값이 같을 때(예를 들어 분포가 좌우대칭일 때)에만 일치합니다.</p>
 <!--/FOLD-->
 
 <h3>완전정보의 기대가치</h3>
-<p>논문에서 이 값을 만났을 때 뜻을 읽을 수 있으면 됩니다. 지금 가진 정보로는 가정한 임계값에서 표준요법 B를 택하는 것이 맞습니다(순금전편익의 평균이 음수). 그런데 모의실험의 17.6%에서는 신약 A가 더 나았고, 그때의 순금전편익은 평균 267만원이었습니다. 입력값의 참값을 미리 알 수 있었다면 그 경우에는 A를 택했을 것이므로, 불확실한 채로 결정해서 놓치는 기대 이득은 0.176 × 267 = <b>환자 1인당 47만원</b>입니다. 이것이 <strong>완전정보의 기대가치</strong><span class="en">(expected value of perfect information, EVPI)</span>이고, 여기에 대상 환자 수를 곱한 값이 추가 연구에 쓸 만한 금액의 상한입니다<cite data-ref="briggs2012ispor"></cite><cite data-ref="wilson2015"></cite>.</p>
-<p>EVPI는 결정이 가장 아슬아슬한 곳, 곧 임계값이 ICER 근처일 때 가장 큽니다(그림 24-6 (나), 임계값 5,600만원에서 171만원). 확률이 50%에 가까워도 틀렸을 때의 손실이 작으면 EVPI는 작고, 확률이 90%여도 손실이 크면 EVPI가 클 수 있습니다.</p>
+<p>논문에서 이 값을 만났을 때 뜻을 읽을 수 있으면 됩니다. 지금 가진 정보로는 가정한 임계값에서 표준요법 B를 택하는 것이 맞습니다(순금전편익의 평균이 음수). 그런데 모의실험의 16.0%에서는 신약 A가 더 나았고, 그때의 순금전편익은 평균 224만원이었습니다. 입력값의 참값을 미리 알 수 있었다면 그 경우에는 A를 택했을 것이므로, 불확실한 채로 결정해서 놓치는 기대 이득은 0.160 × 224 = <b>환자 1인당 36만원</b>입니다. 이것이 <strong>완전정보의 기대가치</strong><span class="en">(expected value of perfect information, EVPI)</span>이고, 여기에 대상 환자 수를 곱한 값이 추가 연구에 쓸 만한 금액의 상한입니다<cite data-ref="briggs2012ispor"></cite><cite data-ref="wilson2015"></cite>.</p>
+<p>EVPI는 결정이 가장 아슬아슬한 곳, 곧 임계값이 ICER 근처일 때 가장 큽니다(그림 24-6 (나), 임계값 5,590만원에서 164만원). 확률이 50%에 가까워도 틀렸을 때의 손실이 작으면 EVPI는 작고, 확률이 90%여도 손실이 크면 EVPI가 클 수 있습니다.</p>
 <!--FOLD:계산 과정 보기: 완전정보의 기대가치-->
 <div class="flow">
-<div><div><b>지금의 정보로 고릅니다</b><p>대안별 순편익의 평균이 큰 쪽을 고릅니다. 증분 순금전편익의 평균이 −313만원이므로 표준요법 B입니다. B를 기준으로 하면 이 선택의 기대 이득은 0입니다.</p></div></div>
+<div><div><b>지금의 정보로 고릅니다</b><p>대안별 순편익의 평균이 큰 쪽을 고릅니다. 증분 순금전편익의 평균이 −308만원이므로 표준요법 B입니다. B를 기준으로 하면 이 선택의 기대 이득은 0입니다.</p></div></div>
 <div><div><b>참값을 안다면 어떻게 고를지 봅니다</b><p>모의실험 하나를 "참값이 이랬다면"으로 보고 그때 더 나은 대안을 고릅니다. 증분 순금전편익이 양수이면 A를 골라 그만큼 얻고, 음수이면 B를 골라 0입니다.</p></div></div>
-<div><div><b>평균을 냅니다</b><p>5,000회에서 max(증분 순금전편익, 0)의 평균은 47.0만원입니다. 양수인 881회의 평균 266.7만원에 비율 0.1762를 곱한 값과 같습니다.</p></div></div>
-<div><div><b>둘의 차이가 EVPI입니다</b><p>47.0 − 0 = 47.0만원. 임계값이 6,000만원이면 지금의 선택은 A(평균 +211만원)이고, 참값을 안다면 얻는 기대 이득은 313만원이어서 EVPI는 102만원입니다.</p></div></div>
+<div><div><b>평균을 냅니다</b><p>5,000회에서 max(증분 순금전편익, 0)의 평균은 35.9만원입니다. 양수인 802회의 평균 224.1만원에 비율 0.1604를 곱한 값과 같습니다.</p></div></div>
+<div><div><b>둘의 차이가 EVPI입니다</b><p>35.9 − 0 = 35.9만원. 임계값이 6,000만원이면 지금의 선택은 A(평균 +218만원)이고, 참값을 안다면 얻는 기대 이득은 318만원이어서 EVPI는 101만원입니다.</p></div></div>
 </div>
-<p>환자 1인당 값에 그 결정의 영향을 받는 환자 수를 곱하면 인구 전체의 EVPI가 됩니다. 대상 환자가 앞으로 3,000명이라고 가정하면 47만원 × 3,000 = 약 14억 원입니다(환자 수는 설명을 위해 정한 값이고, 실제 계산에서는 해마다의 환자 수를 할인해 더합니다). 계획한 연구의 비용이 이 값보다 크면 그 연구는 할 가치가 없습니다. 어느 입력값의 불확실성을 줄이는 것이 값어치가 큰지는 모수별 완전정보의 기대가치<span class="en">(expected value of partial perfect information, EVPPI)</span>로 따집니다. 이 값들은 모형에 넣은 모수 불확실성만 반영하며, 5,000회로 계산한 47만원에는 몬테카를로 오차가 있습니다(10만 회로는 42만원).</p>
+<p>환자 1인당 값에 그 결정의 영향을 받는 환자 수를 곱하면 인구 전체의 EVPI가 됩니다. 대상 환자가 앞으로 3,000명이라고 가정하면 36만원 × 3,000 = 약 11억 원입니다(환자 수는 설명을 위해 정한 값이고, 실제 계산에서는 해마다의 환자 수를 할인해 더합니다). 계획한 연구의 비용이 이 값보다 크면 그 연구는 할 가치가 없습니다. 어느 입력값의 불확실성을 줄이는 것이 값어치가 큰지는 모수별 완전정보의 기대가치<span class="en">(expected value of partial perfect information, EVPPI)</span>로 따집니다. 이 값들은 모형에 넣은 모수 불확실성만 반영하며, 5,000회로 계산한 36만원에는 몬테카를로 오차가 있습니다(10만 회로는 35만원).</p>
 <!--/FOLD-->
 <!--FOLD:파이썬으로 계산해 보기: 임계값별 확률과 EVPI-->
 <p>나 절의 접힌 코드에서 만든 <code>dc</code>, <code>dq</code>(5,000벌의 증분비용과 증분 QALY)에 이어서 실행합니다.</p>
@@ -650,13 +672,13 @@ for lam in lams:
     inmb = lam * dq - dc                                # 모의실험마다의 증분 순금전편익
     p_ce = np.mean(inmb &gt; 0)                            # 양수인 비율 = 비용효과적일 확률
     evpi = np.maximum(inmb, 0).mean() - max(inmb.mean(), 0)
-    print(lam, &quot; 확률&quot;, round(p_ce, 3), &quot; 평균 순편익&quot;, round(inmb.mean()), &quot; EVPI&quot;, round(evpi, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3000  확률 0.007  평균 순편익 -1362  EVPI 1.9
-4000  확률 0.022  평균 순편익 -837  EVPI 5.5
-5000  확률 0.176  평균 순편익 -313  EVPI 47.0
-6000  확률 0.652  평균 순편익 211  EVPI 101.8
-7000  확률 0.876  평균 순편익 736  EVPI 37.6
-8000  확률 0.936  평균 순편익 1260  EVPI 21.3
-10000  확률 0.97  평균 순편익 2309  EVPI 11.7</pre></div></div>
+    print(lam, &quot; 확률&quot;, round(p_ce, 3), &quot; 평균 순편익&quot;, round(inmb.mean()), &quot; EVPI&quot;, round(evpi, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3000  확률 0.002  평균 순편익 -1359  EVPI 0.5
+4000  확률 0.007  평균 순편익 -833  EVPI 1.3
+5000  확률 0.16  평균 순편익 -308  EVPI 35.9
+6000  확률 0.659  평균 순편익 218  EVPI 100.7
+7000  확률 0.867  평균 순편익 743  EVPI 42.6
+8000  확률 0.93  평균 순편익 1269  EVPI 27.0
+10000  확률 0.965  평균 순편익 2319  EVPI 18.4</pre></div></div>
 <ul>
 <li><code>lam * dq - dc</code>는 길이 5,000인 배열입니다. 모의실험마다의 증분 순금전편익이 한 줄로 계산됩니다.</li>
 <li><code>np.mean(inmb &gt; 0)</code>은 참(1)과 거짓(0)의 평균이므로 양수인 비율입니다. 임계값마다 이 값을 구해 이으면 수용곡선입니다.</li>
@@ -669,8 +691,8 @@ for lam in lams:
 <p>우리나라는 명시적인 임계값을 쓰지 않고, 심평원은 기본 분석 결과와 함께 민감도 분석에서 드러난 불확실성을 고려해 평가한다고 설명합니다<cite data-ref="hira2022icer"></cite>. 과거 심의를 분석한 연구에서도 ICER가 낮은데 불확실성 때문에 받아들여지지 않은 사례가 있었고<cite data-ref="bae2018role"></cite>, 심의에 참여한 연구자들은 불확실성이 결과에 큰 영향을 주면 추가 자료를 요구받거나 부정적으로 평가된다고 경험을 전합니다<cite data-ref="bae2022sens"></cite>. 수용곡선과 가격별 확률은 "어느 가격이면 결론이 흔들리지 않는가"를 보여 주는 자료가 됩니다.</p>
 
 <div class="callout warn"><p class="ct">흔한 오해 · 수용곡선을 읽을 때</p>
-<p><span class="wrong">비용효과적일 확률이 17.6%이므로 신약 A가 표준요법보다 효과적일 확률은 17.6%이다.</span> 효과(QALY 증가)가 있는 모의실험은 99.7%입니다. 17.6%는 임계값 5,000만원/QALY에서 비용까지 따졌을 때의 확률이고, 임계값을 6,000만원으로 보면 65.2%가 됩니다. 임계값을 밝히지 않은 "비용효과적일 확률"은 뜻이 없습니다.</p>
-<p><span class="wrong">수용곡선이 50%를 지나는 임계값이 ICER다.</span> 이 예시에서 50% 지점은 5,670만원이고 ICER는 5,621만원(확률적 분석 5,597만원)입니다. 비슷하지만 같지 않고, 분포가 한쪽으로 치우친 분석에서는 크게 다를 수 있습니다(스스로 확인하기 3번).</p>
+<p><span class="wrong">비용효과적일 확률이 16.0%이므로 신약 A가 표준요법보다 효과적일 확률은 16.0%이다.</span> 효과(QALY 증가)가 있는 모의실험은 99.2%입니다. 16.0%는 임계값 5,000만원/QALY에서 비용까지 따졌을 때의 확률이고, 임계값을 6,000만원으로 보면 65.9%가 됩니다. 임계값을 밝히지 않은 "비용효과적일 확률"은 뜻이 없습니다.</p>
+<p><span class="wrong">수용곡선이 50%를 지나는 임계값이 ICER다.</span> 이 예시에서 50% 지점은 5,650만원이고 ICER는 5,621만원(확률적 분석 5,586만원)입니다. 비슷하지만 같지 않고, 분포가 한쪽으로 치우친 분석에서는 크게 다를 수 있습니다(스스로 확인하기 3번).</p>
 <p><span class="wrong">확률이 95%를 넘어야 비용효과적이라고 할 수 있다.</span> 통계적 유의성의 기준을 옮겨 온 생각입니다. 급여는 하거나 하지 않거나 둘 중 하나를 골라야 하는 결정이어서, 기대 순편익이 큰 쪽을 택하는 것이 원칙이고 확률과 EVPI는 추가 근거가 필요한지를 판단하는 데 씁니다<cite data-ref="claxton1999"></cite>. 실제 심의에서 불확실성을 얼마나 받아들일지는 의사결정자의 몫입니다.</p>
 </div>
 
@@ -687,13 +709,13 @@ for lam in lams:
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 수용곡선 그림과 Results 문단</b><span>가상의 예시</span></div>
 <div class="paper-b">
 <!--FIG:ch24_paperceac-->
-<p class="excerpt"><span class="mk">1</span> <span class="hl">At a willingness-to-pay threshold of ₩50 million per QALY, the probability that drug A was cost-effective was 17.6%</span>; the probability was <span class="mk">2</span> <span class="hl">65.2% at ₩60 million and 93.6% at ₩80 million per QALY</span> (Figure 3). <span class="mk">3</span> <span class="hl">The mean incremental net monetary benefit at ₩50 million per QALY was −&#8288;₩3.13 million (95% interval, −&#8288;₩10.56 million to ₩5.26 million)</span>, and <span class="mk">4</span> <span class="hl">the expected value of perfect information was ₩0.47 million per patient</span>. <span class="mk">5</span> <span class="hl">When the monthly price of drug A was reduced from ₩1.90 million to ₩1.60 million, the probability at ₩50 million per QALY increased to 81.2%.</span> <span class="mk">6</span> <span class="hl">Structural uncertainty was explored in scenario analyses and is not reflected in these probabilities.</span></p>
+<p class="excerpt"><span class="mk">1</span> <span class="hl">At a willingness-to-pay threshold of ₩50 million per QALY, the probability that drug A was cost-effective was 16.0%</span>; the probability was <span class="mk">2</span> <span class="hl">65.9% at ₩60 million and 93.0% at ₩80 million per QALY</span> (Figure 3). <span class="mk">3</span> <span class="hl">The mean incremental net monetary benefit at ₩50 million per QALY was −&#8288;₩3.08 million (95% interval, −&#8288;₩9.19 million to ₩4.12 million)</span>, and <span class="mk">4</span> <span class="hl">the expected value of perfect information was ₩0.36 million per patient</span>. <span class="mk">5</span> <span class="hl">When the monthly price of drug A was reduced from ₩1.90 million to ₩1.60 million, the probability at ₩50 million per QALY increased to 82.5%.</span> <span class="mk">6</span> <span class="hl">Structural uncertainty was explored in scenario analyses and is not reflected in these probabilities.</span></p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>임계값과 확률.</b> 임계값 5,000만원/QALY에서 모의실험의 17.6%가 비용효과적이었다는 뜻입니다. "willingness-to-pay threshold"는 임계값의 다른 이름입니다. 신약이 효과적일 확률이 아닙니다.</span></li>
-<li><span class="mk">2</span><span><b>다른 임계값에서의 확률.</b> 그림의 곡선에서 가로축 60과 80의 높이를 읽은 값입니다. 5,000만원과 6,000만원 사이에서 17.6%가 65.2%로 뛰므로 결론이 임계값에 민감합니다.</span></li>
-<li><span class="mk">3</span><span><b>순금전편익의 평균과 구간.</b> −313만원(−1,056만원에서 526만원)입니다. 평균이 음수이므로 이 임계값에서는 표준요법이 선택되고, 구간이 0을 포함한다는 것은 반대 결론의 모의실험도 적지 않다는 뜻입니다.</span></li>
-<li><span class="mk">4</span><span><b>EVPI.</b> 환자 1인당 47만원입니다. 불확실성을 완전히 없앨 때 얻는 기대 이득의 상한이고, 환자 수를 곱해 추가 연구의 비용과 견줍니다.</span></li>
-<li><span class="mk">5</span><span><b>가격과 확률.</b> 월 약값을 190만원에서 160만원으로 낮추면 확률이 81.2%가 됩니다. 민감도 분석 결과가 가격 협상의 근거로 쓰이는 방식입니다.</span></li>
+<li><span class="mk">1</span><span><b>임계값과 확률.</b> 임계값 5,000만원/QALY에서 모의실험의 16.0%가 비용효과적이었다는 뜻입니다. "willingness-to-pay threshold"는 임계값의 다른 이름입니다. 신약이 효과적일 확률이 아닙니다.</span></li>
+<li><span class="mk">2</span><span><b>다른 임계값에서의 확률.</b> 그림의 곡선에서 가로축 60과 80의 높이를 읽은 값입니다. 5,000만원과 6,000만원 사이에서 16.0%가 65.9%로 뛰므로 결론이 임계값에 민감합니다.</span></li>
+<li><span class="mk">3</span><span><b>순금전편익의 평균과 구간.</b> −308만원(−919만원에서 412만원)입니다. 평균이 음수이므로 이 임계값에서는 표준요법이 선택되고, 구간이 0을 포함한다는 것은 반대 결론의 모의실험도 적지 않다는 뜻입니다.</span></li>
+<li><span class="mk">4</span><span><b>EVPI.</b> 환자 1인당 36만원입니다. 불확실성을 완전히 없앨 때 얻는 기대 이득의 상한이고, 환자 수를 곱해 추가 연구의 비용과 견줍니다.</span></li>
+<li><span class="mk">5</span><span><b>가격과 확률.</b> 월 약값을 190만원에서 160만원으로 낮추면 확률이 82.5%가 됩니다. 민감도 분석 결과가 가격 협상의 근거로 쓰이는 방식입니다.</span></li>
 <li><span class="mk">6</span><span><b>반영되지 않은 불확실성.</b> 이 확률에는 외삽 모형이나 치료 효과 지속 기간 같은 구조적 가정의 불확실성이 빠져 있습니다. 이런 문장이 없더라도 시나리오 분석 결과를 함께 읽어야 합니다.</span></li>
 </ol>
 </div></div>
@@ -701,22 +723,22 @@ for lam in lams:
 <h3>수식으로 보기</h3>
 <p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
 <div class="eq">\[ INMB_i(\lambda) = \lambda\,\Delta E_i - \Delta C_i, \qquad \hat p(\lambda) = \frac{1}{N}\sum_{i=1}^{N} \mathbf{1}\left[\,INMB_i(\lambda) &gt; 0\,\right] \]
-<p>\(i\)는 모의실험의 번호, \(N\)은 횟수, \(\lambda\)는 임계값입니다. λ = 5,000에서 양수가 881회이므로 881 ÷ 5,000 = 0.176. \(\hat p(\lambda)\)를 λ에 대해 그린 것이 수용곡선입니다.</p></div>
+<p>\(i\)는 모의실험의 번호, \(N\)은 횟수, \(\lambda\)는 임계값입니다. λ = 5,000에서 양수가 802회이므로 802 ÷ 5,000 = 0.160. \(\hat p(\lambda)\)를 λ에 대해 그린 것이 수용곡선입니다.</p></div>
 <div class="eq">\[ EVPI(\lambda) = \frac{1}{N}\sum_{i=1}^{N} \max\left(INMB_i(\lambda),\, 0\right) - \max\left(\overline{INMB}(\lambda),\, 0\right) \]
-<p>대안이 둘일 때의 식입니다. λ = 5,000: 47.0 − max(−313.0, 0) = 47.0만원. λ = 6,000: 313.3 − 211.5 = 101.8만원.</p></div>
+<p>대안이 둘일 때의 식입니다. λ = 5,000: 35.9 − max(−307.7, 0) = 35.9만원. λ = 6,000: 318.4 − 217.7 = 100.7만원.</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>증분 순금전편익 = 임계값 × 증분 QALY − 증분비용. 양수면 비용효과적이고, 비와 달리 평균을 내거나 줄을 세워도 뜻이 유지됩니다.</li>
-<li>비용효과적일 확률은 순금전편익이 양수인 모의실험의 비율이고, 임계값별 확률을 이은 것이 수용곡선입니다. 공통 예시는 5,000만원/QALY에서 17.6%, 6,000만원에서 65.2%입니다.</li>
+<li>비용효과적일 확률은 순금전편익이 양수인 모의실험의 비율이고, 임계값별 확률을 이은 것이 수용곡선입니다. 공통 예시는 5,000만원/QALY에서 16.0%, 6,000만원에서 65.9%입니다.</li>
 <li>이 확률은 약이 효과 있을 확률이 아니고, 50% 지점이 ICER도 아니며, 틀렸을 때의 손실 크기를 담지 않습니다. 결정은 기대 순편익으로 하고 확률은 결정의 불확실성으로 읽습니다.</li>
-<li>완전정보의 기대가치(EVPI)는 불확실한 채로 결정해서 놓치는 기대 이득입니다. 가정한 임계값에서 환자 1인당 47만원이고 임계값이 ICER 근처일 때 가장 큽니다.</li>
+<li>완전정보의 기대가치(EVPI)는 불확실한 채로 결정해서 놓치는 기대 이득입니다. 가정한 임계값에서 환자 1인당 36만원이고 임계값이 ICER 근처일 때 가장 큽니다.</li>
 </ul></div>
 <div class="practice"><p class="pt">스스로 확인하기</p>
 <ol>
 <li><p><span class="qt">계산</span>모의실험 10회의 증분 순금전편익(만원)이 −900, −650, −520, −400, −310, −250, −120, −40, 180, 510입니다. 평균과 비용효과적일 확률을 구해 보세요. '완전정보의 기대가치'까지 읽었다면 1인당 EVPI도 구해 봅니다. EVPI는 음수를 모두 0으로 바꾼 값들의 평균에서 전체 평균(음수이면 0)을 뺀 값입니다.</p>
 <details><summary>답과 풀이</summary><div><p>합은 −2,500이므로 평균은 −250만원입니다. 평균이 음수이므로 지금의 정보로는 비교대안을 택합니다. 양수는 2회(180, 510)여서 확률은 20%입니다. EVPI는 max(값, 0)의 평균에서 max(평균, 0)을 뺀 값입니다. (180 + 510) ÷ 10 = 69만원, 뒤의 항은 0이므로 EVPI는 69만원입니다. 모든 값에 400을 더한 경우(가격을 낮춘 경우에 해당)를 계산해 보면 평균 +150만원, 확률 60%, EVPI는 237 − 150 = 87만원입니다. 확률이 20%에서 60%로 바뀌어 결정이 뒤집혔고, 결정이 더 아슬아슬해져 EVPI는 오히려 커졌습니다.</p></div></details></li>
-<li><p><span class="qt">해석 고치기</span>"확률적 민감도 분석에서 신약이 비용효과적일 확률은 17.6%였다. 즉 신약은 82.4%의 환자에게 효과가 없다." 무엇이 틀렸습니까?</p>
-<details><summary>답과 풀이</summary><div><p>세 가지가 틀렸습니다. 첫째, 확률의 단위는 환자가 아니라 모의실험입니다. 입력값의 참값이 무엇인지 모르는 데서 오는 불확실성이고, 환자의 17.6%에게만 듣는다는 뜻이 아닙니다. 둘째, 효과가 아니라 비용효과성에 관한 확률입니다. 이 분석에서 신약이 QALY를 늘리는 모의실험은 99.7%입니다. 셋째, 임계값이 빠졌습니다. 17.6%는 임계값 5,000만원/QALY에서의 값이고 6,000만원에서는 65.2%입니다. 바르게 쓰면 "임계값 5,000만원/QALY에서 신약이 비용효과적일 확률은 17.6%였다"입니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"확률적 민감도 분석에서 신약이 비용효과적일 확률은 16.0%였다. 즉 신약은 84.0%의 환자에게 효과가 없다." 무엇이 틀렸습니까?</p>
+<details><summary>답과 풀이</summary><div><p>세 가지가 틀렸습니다. 첫째, 확률의 단위는 환자가 아니라 모의실험입니다. 입력값의 참값이 무엇인지 모르는 데서 오는 불확실성이고, 환자의 16.0%에게만 듣는다는 뜻이 아닙니다. 둘째, 효과가 아니라 비용효과성에 관한 확률입니다. 이 분석에서 신약이 QALY를 늘리는 모의실험은 99.2%입니다. 셋째, 임계값이 빠졌습니다. 16.0%는 임계값 5,000만원/QALY에서의 값이고 6,000만원에서는 65.9%입니다. 바르게 쓰면 "임계값 5,000만원/QALY에서 신약이 비용효과적일 확률은 16.0%였다"입니다.</p></div></details></li>
 <li><p><span class="qt">계산</span>모의실험 5회의 (증분 QALY, 증분비용)이 (0.2, 2,000), (0.4, 2,400), (0.5, 2,500), (0.6, 2,600), (1.3, 3,000)입니다. 임계값 4,500만원에서 순금전편익은 차례로 −1,100, −600, −250, +100, +2,850이고, 모의실험별 ICER는 10,000, 6,000, 5,000, 4,333, 2,308입니다. 평균끼리 나눈 ICER, 이 임계값에서의 비용효과적일 확률과 순금전편익의 평균을 구해 보세요. 수용곡선이 50%를 넘는 임계값은 ICER와 같습니까?</p>
 <details><summary>답과 풀이</summary><div><p>평균 증분비용 2,500만원, 평균 증분 QALY 0.6이므로 ICER는 4,167만원/QALY입니다. 임계값 4,500만원에서 순금전편익은 차례로 −1,100, −600, −250, +100, +2,850이고 평균은 +200만원입니다. 평균이 양수이므로 신약을 택하는 것이 맞는데, 양수인 것은 2회뿐이어서 확률은 40%입니다. 다섯 번 각각의 ICER는 10,000, 6,000, 5,000, 4,333, 2,308이므로 확률이 50%를 넘는 것은 임계값이 5,000만원을 넘을 때입니다. ICER 4,167만원과 다릅니다. 건강 이득이 아주 큰 모의실험 하나(1.3 QALY)가 평균을 끌어올렸기 때문입니다. 수용곡선은 양수인지 아닌지만 세고 크기는 보지 않으므로, 이렇게 한쪽으로 치우친 분포에서는 확률이 50%보다 낮은 대안이 기대값으로는 더 나을 수 있습니다.</p></div></details></li>
 </ol></div>

@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">성향점수 모형 (로지스틱 회귀)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f_ps = (&quot;drugA ~ age + female + hf + ckd + prior_hosp&quot;
+        &quot; + n_drug + tertiary&quot;)
+ps_fit = smf.logit(f_ps, data=df).fit(disp=0)
+print(ps_fit.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                           Logit Regression Results                           
+==============================================================================
+Dep. Variable:                  drugA<span class="mk">1</span>   No. Observations:                10000
+Model:                          Logit   Df Residuals:                     9992
+Method:                           MLE   Df Model:                            7
+Date:                Sat, 03 Oct 2026   Pseudo R-squ.:                 0.06109<span class="mk">2</span>
+Time:                        16:34:00   Log-Likelihood:                -6338.6
+converged:                       True   LL-Null:                       -6751.0
+Covariance Type:            nonrobust   LLR p-value:                8.337e-174
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     -2.9134      0.152    -19.167      0.000      -3.211      -2.616
+age            0.0265      0.002     11.590      0.000       0.022       0.031
+female        -0.0757      0.043     -1.779      0.075<span class="mk">3</span>      -0.159       0.008
+hf             0.7566<span class="mk">4</span>      0.074     10.209      0.000       0.611       0.902
+ckd            0.4791      0.061      7.900      0.000       0.360       0.598
+prior_hosp     0.4717      0.054      8.711      0.000       0.366       0.578
+n_drug         0.0731      0.009      8.330      0.000       0.056       0.090
+tertiary       0.5593      0.048     11.554      0.000       0.464       0.654
+==============================================================================</pre></div></div>

@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 3 정답. 가중치 없는 분석과 시군구별 변화량</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># (1) 가중치 없는 이중차분
+did_u = smf.ols(&quot;rate ~ treat * post&quot;, data=panel).fit(
+    cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: panel[&quot;unit&quot;]})
+lo, hi = did_u.conf_int().loc[&quot;treat:post&quot;]
+print(f&quot;unweighted DID: {did_u.params[&#x27;treat:post&#x27;]:.2f}&quot;
+      f&quot; ({lo:.2f}, {hi:.2f})&quot;)
+
+# (2) 시군구마다 변화량 하나
+chg = (panel.groupby([&quot;unit&quot;, &quot;treat&quot;, &quot;w&quot;, &quot;post&quot;])[&quot;rate&quot;]
+            .mean().unstack(&quot;post&quot;).reset_index())
+chg[&quot;chg&quot;] = chg[1] - chg[0]
+print(chg.groupby(&quot;treat&quot;)[&quot;chg&quot;].describe().round(1)[
+    [&quot;count&quot;, &quot;mean&quot;, &quot;std&quot;, &quot;min&quot;, &quot;max&quot;]])
+fit_chg = smf.wls(&quot;chg ~ treat&quot;, data=chg,
+                  weights=chg[&quot;w&quot;]).fit(cov_type=&quot;HC1&quot;)
+lo, hi = fit_chg.conf_int().loc[&quot;treat&quot;]
+print(f&quot;district-level: {fit_chg.params[&#x27;treat&#x27;]:.2f}&quot;
+      f&quot; ({lo:.2f}, {hi:.2f})  n = {int(fit_chg.nobs)}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>unweighted DID: -7.26 (-7.70, -6.82)
+       count  mean  std   min   max
+treat                              
+0       40.0 -10.2  1.0 -12.9  -7.9
+1       20.0 -17.4  0.7 -19.2 -16.5
+district-level: -7.40 (-7.87, -6.93)  n = 60</pre></div></div>

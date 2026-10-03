@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">잘못된 분류의 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+
+cph = CoxPHFitter()
+cph.fit(d, duration_col=&quot;fu_days&quot;, event_col=&quot;died&quot;, formula=&quot;ever&quot;)
+cph.print_summary(decimals=3)
+
+def hr_ci(model, name):
+    r = model.summary.loc[name]
+    lo, hi = r[&quot;exp(coef) lower 95%&quot;], r[&quot;exp(coef) upper 95%&quot;]
+    return f&quot;{r[&#x27;exp(coef)&#x27;]:.2f} ({lo:.2f}-{hi:.2f})&quot;
+
+print(&quot;HR (95% CI):&quot;, hr_ci(cph, &quot;ever&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.CoxPHFitter: fitted with 6000 total observations, 4766 right-censored observations&gt;
+             duration col = &#x27;fu_days&#x27;
+                event col = &#x27;died&#x27;
+      baseline estimation = breslow
+   number of observations = 6000
+number of events observed = 1234<span class="mk">1</span>
+   partial log-likelihood = -10462.796
+         time fit was run = 2026-10-03 16:32:00 UTC
+
+---
+            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%
+covariate                                                                                                   
+ever      -1.004<span class="mk">2</span>     0.366<span class="mk">3</span>     0.065          -1.131          -0.877               0.323<span class="mk">4</span>               0.416<span class="mk">5</span>
+
+           cmp to       z       p  -log2(p)
+covariate                                  
+ever        0.000 -15.465 &lt;0.0005<span class="mk">6</span>   176.795
+---
+Concordance = 0.619
+Partial AIC = 20927.592
+log-likelihood ratio test = 271.803 on 1 df
+-log2(p) of ll-ratio test = 200.439
+
+HR (95% CI): 0.37 (0.32-0.42)<span class="mk">7</span></pre></div></div>

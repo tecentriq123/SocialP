@@ -1,0 +1,65 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">표 16-4의 환자 세 명 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ex = {298: &quot;A&quot;, 64: &quot;B&quot;, 3: &quot;C&quot;}       # 16장 표 16-4의 환자
+t = long[long[&quot;id&quot;].isin(ex)].copy()
+t[&quot;patient&quot;] = t[&quot;id&quot;].map(ex)
+t[[&quot;start&quot;, &quot;stop&quot;]] = t[[&quot;start&quot;, &quot;stop&quot;]].round().astype(int)
+t = t.sort_values([&quot;patient&quot;, &quot;start&quot;])
+t[[&quot;patient&quot;, &quot;id&quot;, &quot;start&quot;, &quot;stop&quot;, &quot;drugx&quot;, &quot;died&quot;]]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>patient</th>
+      <th>id</th>
+      <th>start</th>
+      <th>stop</th>
+      <th>drugx</th>
+      <th>died</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>438</th>
+      <td>A</td>
+      <td>298</td>
+      <td>0</td>
+      <td>126<span class="mk">1</span></td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>439</th>
+      <td>A</td>
+      <td>298</td>
+      <td>126</td>
+      <td>301<span class="mk">2</span></td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>99</th>
+      <td>B</td>
+      <td>64</td>
+      <td>0</td>
+      <td>44<span class="mk">3</span></td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>C</td>
+      <td>3</td>
+      <td>0</td>
+      <td>49</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>C</td>
+      <td>3</td>
+      <td>49</td>
+      <td>365<span class="mk">4</span></td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

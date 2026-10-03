@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">교호작용 모형으로 한 번에 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cols = [&quot;treat&quot;, &quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;, &quot;rate&quot;]
+both = pd.concat([its[cols], comp[cols]], ignore_index=True)
+both = both.rename(columns={&quot;treat&quot;: &quot;group&quot;})   # 시범 지역 = 1
+
+f_c = &quot;rate ~ (time + post + time_after) * group&quot;
+cits = smf.ols(f_c, data=both).fit(
+    cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: both[&quot;time&quot;]})
+print(cits.summary().tables[1])
+print(&quot;ordinary SE:&quot;)
+print(smf.ols(f_c, data=both).fit().bse[
+    [&quot;post:group&quot;, &quot;time_after:group&quot;]].round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>====================================================================================
+                       coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------------
+Intercept           84.0951      0.326    257.905      0.000      83.456      84.734
+time                -0.2395      0.020    -12.055      0.000      -0.278      -0.201
+post                -2.5281      0.855     -2.957      0.003      -4.204      -0.852<span class="mk">1</span>
+time_after          -0.0279      0.045     -0.623      0.534      -0.116       0.060
+group               11.5260      0.329     35.005      0.000      10.881      12.171
+time:group          -0.0026      0.015     -0.174      0.862      -0.033       0.027<span class="mk">2</span>
+post:group          -4.8426      0.429    -11.286      0.000      -5.684      -4.002<span class="mk">3</span>
+time_after:group    -0.1984      0.028     -7.052      0.000      -0.253      -0.143<span class="mk">4</span>
+====================================================================================
+ordinary SE:
+post:group          1.089<span class="mk">5</span>
+time_after:group    0.069
+dtype: float64</pre></div></div>

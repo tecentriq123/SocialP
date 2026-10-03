@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">중도절단되지 않고 남을 확률 G(t)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 중도절단을 &#x27;사건&#x27;으로 놓은 Kaplan-Meier = 추적이 이어질 확률 G(t)
+kmc = KaplanMeierFitter().fit(ckd[&quot;years&quot;], ckd[&quot;status&quot;] == 0)
+print(kmc.predict([1, 3, 3.5, 4, 4.5, 4.99]).round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>1.00    1.000
+3.00    1.000<span class="mk">1</span>
+3.50    0.908
+4.00    0.820<span class="mk">2</span>
+4.50    0.717
+4.99    0.618<span class="mk">3</span>
+Name: KM_estimate, dtype: float64</pre></div></div>

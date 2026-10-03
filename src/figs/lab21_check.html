@@ -1,0 +1,75 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">분포와 평균 구조 점검</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">chk = pd.DataFrame({&quot;cost&quot;: df[&quot;cost&quot;], &quot;pred&quot;: glm.predict(df)})
+chk[&quot;res2&quot;] = (chk[&quot;cost&quot;] - chk[&quot;pred&quot;]) ** 2
+chk[&quot;ln_pred&quot;] = np.log(chk[&quot;pred&quot;])
+park = smf.glm(&quot;res2 ~ ln_pred&quot;, data=chk,
+               family=fam).fit(cov_type=&quot;HC0&quot;)
+print(&quot;기울기:&quot;, park.params[&quot;ln_pred&quot;].round(2),
+      park.conf_int().loc[&quot;ln_pred&quot;].round(2).tolist())
+
+chk[&quot;tenth&quot;] = pd.qcut(chk[&quot;pred&quot;], 10, labels=False) + 1
+chk.groupby(&quot;tenth&quot;)[[&quot;cost&quot;, &quot;pred&quot;]].mean().round(0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>기울기: 2.02<span class="mk">1</span> [0.65, 3.4]</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cost</th>
+      <th>pred</th>
+    </tr>
+    <tr>
+      <th>tenth</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>1935.0</td>
+      <td>1965.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2084.0</td>
+      <td>2086.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2151.0</td>
+      <td>2173.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2201.0</td>
+      <td>2281.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2394.0</td>
+      <td>2378.0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2536.0</td>
+      <td>2465.0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2650.0</td>
+      <td>2543.0</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2736.0</td>
+      <td>2655.0</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2758.0</td>
+      <td>2762.0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>2878.0<span class="mk">2</span></td>
+      <td>3019.0<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

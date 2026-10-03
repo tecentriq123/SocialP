@@ -1,0 +1,59 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">상관과 다시 뽑기를 바꿔 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for rho, redraw in [(0.5, True), (0.0, True),
+                    (0.5, False), (0.0, False)]:
+    c2, q2, n2 = run_psa(p, rho=rho, redraw=redraw)
+    rows.append([rho, redraw, n2[&quot;tries&quot;], n2[&quot;crossed&quot;],
+                 n2[&quot;crossed&quot;] / n2[&quot;tries&quot;],
+                 np.mean(threshold * q2 - c2 &gt; 0)])
+pd.DataFrame(rows, columns=[&quot;rho&quot;, &quot;redraw&quot;, &quot;tries&quot;, &quot;crossed&quot;,
+                            &quot;share&quot;, &quot;p_ce&quot;]).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rho</th>
+      <th>redraw</th>
+      <th>tries</th>
+      <th>crossed</th>
+      <th>share</th>
+      <th>p_ce</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.5</td>
+      <td>True</td>
+      <td>5137<span class="mk">1</span></td>
+      <td>137</td>
+      <td>0.0267</td>
+      <td>0.1604</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>True</td>
+      <td>5503<span class="mk">2</span></td>
+      <td>503</td>
+      <td>0.0914<span class="mk">3</span></td>
+      <td>0.1648</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.5</td>
+      <td>False</td>
+      <td>5000</td>
+      <td>141<span class="mk">4</span></td>
+      <td>0.0282</td>
+      <td>0.1614</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>False</td>
+      <td>5000</td>
+      <td>427<span class="mk">5</span></td>
+      <td>0.0854</td>
+      <td>0.1702<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

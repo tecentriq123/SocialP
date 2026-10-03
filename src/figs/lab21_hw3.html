@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 3 정답. 입원비의 이단계 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;anyinp&quot;] = (df[&quot;cost_inp&quot;] &gt; 0).astype(int)  # 입원비가 생겼으면 1
+rhs = &quot;trt + age + male + cci + stage4&quot;
+part1 = smf.logit(&quot;anyinp ~ &quot; + rhs, data=df).fit(disp=0)
+pos = df[df[&quot;cost_inp&quot;] &gt; 0]                     # 입원비가 있는 환자만
+part2 = smf.glm(&quot;cost_inp ~ &quot; + rhs, data=pos, family=fam).fit()
+print(&quot;입원비가 0보다 큰 환자:&quot;, len(pos), &quot;명&quot;)
+print(&quot;1부 오즈비:&quot;, np.exp(part1.params[&quot;trt&quot;]).round(3),
+      np.exp(part1.conf_int().loc[&quot;trt&quot;]).round(2).tolist())
+print(&quot;2부 비용 비:&quot;, np.exp(part2.params[&quot;trt&quot;]).round(3),
+      np.exp(part2.conf_int().loc[&quot;trt&quot;]).round(2).tolist())
+
+dA, dB = df.assign(trt=1), df.assign(trt=0)
+eA = (part1.predict(dA) * part2.predict(dA)).mean()
+eB = (part1.predict(dB) * part2.predict(dB)).mean()
+print(&quot;모두 A, 모두 B, 차이:&quot;, round(eA, 1), round(eB, 1),
+      round(eA - eB, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>입원비가 0보다 큰 환자: 1835<span class="mk">1</span> 명
+1부 오즈비: 0.935<span class="mk">2</span> [0.8, 1.1]
+2부 비용 비: 0.923<span class="mk">3</span> [0.82, 1.04]
+모두 A, 모두 B, 차이: 645.1 715.9 -70.7<span class="mk">4</span></pre></div></div>

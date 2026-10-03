@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">일찍 사망한 사람은 어느 군에 있는가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(&quot;사용군에서 첫 처방 전에 사망한 사람:&quot;,
+      (u[&quot;fu_days&quot;] &lt; u[&quot;rx_day&quot;]).sum(), &quot;명&quot;)
+early = d[(d[&quot;died&quot;] == 1) &amp; (d[&quot;fu_days&quot;] &lt;= 365 * 3 / 12)]
+print(&quot;퇴원 후 3개월 안의 사망:&quot;, len(early), &quot;건&quot;)
+print(early[&quot;ever&quot;].value_counts())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>사용군에서 첫 처방 전에 사망한 사람: 0 명<span class="mk">1</span>
+퇴원 후 3개월 안의 사망: 417 건<span class="mk">2</span>
+ever
+0    380<span class="mk">3</span>
+1     37<span class="mk">4</span>
+Name: count, dtype: int64</pre></div></div>

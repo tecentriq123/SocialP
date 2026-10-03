@@ -1,0 +1,56 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">방법별 결과 모으기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res_tab = pd.DataFrame(
+    {&quot;all_A&quot;: [a.mean(), ols.predict(dA).mean(), nA, nA * s,
+               nA * sA, pA.mean()],
+     &quot;all_B&quot;: [b.mean(), ols.predict(dB).mean(), nB, nB * s,
+               nB * sB, pB.mean()]},
+    index=[&quot;unadjusted&quot;, &quot;OLS&quot;, &quot;log OLS, naive&quot;, &quot;log OLS, smearing&quot;,
+           &quot;log OLS, smearing by arm&quot;, &quot;gamma GLM&quot;])
+res_tab[&quot;diff&quot;] = res_tab[&quot;all_A&quot;] - res_tab[&quot;all_B&quot;]
+res_tab.round(0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>all_A</th>
+      <th>all_B</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>unadjusted</th>
+      <td>2669.0</td>
+      <td>2273.0</td>
+      <td>396.0<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>OLS</th>
+      <td>2739.0</td>
+      <td>2226.0</td>
+      <td>513.0<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>log OLS, naive</th>
+      <td>2508.0</td>
+      <td>1937.0</td>
+      <td>571.0<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>log OLS, smearing</th>
+      <td>2827.0</td>
+      <td>2184.0</td>
+      <td>643.0<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>log OLS, smearing by arm</th>
+      <td>2737.0</td>
+      <td>2230.0</td>
+      <td>507.0<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>gamma GLM</th>
+      <td>2760.0</td>
+      <td>2224.0</td>
+      <td>536.0<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

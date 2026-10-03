@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">시행 12개월째의 효과와 시행 후 기울기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(fit.t_test(&quot;post + 12 * time_after = 0&quot;))   # 12개월째의 효과
+print(fit.t_test(&quot;time + time_after = 0&quot;))        # 시행 후 기울기
+
+b = fit.params
+cf12 = b[&quot;Intercept&quot;] + b[&quot;time&quot;] * 48           # 반사실 (time = 48)
+eff12 = b[&quot;post&quot;] + 12 * b[&quot;time_after&quot;]         # 12개월째의 효과
+print(f&quot;counterfactual: {cf12:.2f}&quot;)
+print(f&quot;fitted        : {cf12 + eff12:.2f}&quot;)
+print(f&quot;relative      : {100 * eff12 / cf12:.1f}%&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                             Test for Constraints                             
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+c0           -10.0860      1.056     -9.553      0.000     -12.155      -8.017<span class="mk">1</span>
+==============================================================================
+                             Test for Constraints                             
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+c0            -0.4684      0.054     -8.653      0.000      -0.575      -0.362<span class="mk">2</span>
+==============================================================================
+counterfactual: 84.00<span class="mk">3</span>
+fitted        : 73.91<span class="mk">4</span>
+relative      : -12.0%<span class="mk">5</span></pre></div></div>

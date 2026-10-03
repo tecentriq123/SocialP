@@ -27,6 +27,9 @@ async def main(ch, out, dark, mobile):
         pg.on("console", lambda m: errs.append(m.text) if m.type == "error" and "ERR_FAILED" not in m.text else None)
         await pg.goto("file://" + html + "#" + ch)
         await pg.wait_for_timeout(600)
+        # open every folded box first (elements inside a closed <details> cannot be screenshotted)
+        await pg.evaluate("document.querySelectorAll('#body details').forEach(d => d.open = true)")
+        await pg.wait_for_timeout(200)
         sw = await pg.evaluate("document.documentElement.scrollWidth")
         print(f"page scrollWidth={sw} (viewport {vw})" + ("  <-- HORIZONTAL OVERFLOW" if sw > vw else ""))
         n = 0

@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">세 분석의 위험비 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pd.DataFrame({&quot;HR (95% CI)&quot;: {
+    &quot;ever vs never use, from discharge&quot;: hr_ci(cph, &quot;ever&quot;),
+    &quot;landmark at 3 months&quot;: hr_ci(cph_lm, &quot;exposed&quot;),
+    &quot;time-varying exposure&quot;: hr_ci(ctv, &quot;drugx&quot;)}})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>HR (95% CI)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>ever vs never use, from discharge</th>
+      <td>0.37 (0.32-0.42)<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>landmark at 3 months</th>
+      <td>0.94 (0.78-1.14)<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>time-varying exposure</th>
+      <td>1.03 (0.90-1.18)<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

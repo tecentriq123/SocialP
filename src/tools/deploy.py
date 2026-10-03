@@ -15,4 +15,12 @@ dst = os.path.join(REPO, "src")
 if os.path.exists(dst):
     shutil.rmtree(dst)
 shutil.copytree(ROOT, dst, ignore=shutil.ignore_patterns("dist", "__pycache__", "*.pyc"))
+# published files for the labs: src pub/data -> /data, pub/notebooks -> /notebooks (served by the site as static files)
+for sub in ("data", "notebooks"):
+    srcd = os.path.join(ROOT, "pub", sub)
+    dstd = os.path.join(REPO, sub)
+    if os.path.exists(dstd):
+        shutil.rmtree(dstd)
+    if os.path.isdir(srcd) and os.listdir(srcd):
+        shutil.copytree(srcd, dstd)
 print("deployed to", REPO)

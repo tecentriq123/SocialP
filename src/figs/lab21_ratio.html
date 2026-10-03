@@ -1,0 +1,59 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">계수를 비용 비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ratio = pd.DataFrame({&quot;cost_ratio&quot;: np.exp(glm.params),
+                      &quot;lower&quot;: np.exp(glm.conf_int()[0]),
+                      &quot;upper&quot;: np.exp(glm.conf_int()[1]),
+                      &quot;p&quot;: glm.pvalues})
+ratio.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cost_ratio</th>
+      <th>lower</th>
+      <th>upper</th>
+      <th>p</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>2037.101<span class="mk">3</span></td>
+      <td>1736.154</td>
+      <td>2390.215</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>trt</th>
+      <td>1.241<span class="mk">1</span></td>
+      <td>1.188</td>
+      <td>1.296</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>0.999</td>
+      <td>0.996</td>
+      <td>1.001</td>
+      <td>0.321</td>
+    </tr>
+    <tr>
+      <th>male</th>
+      <td>1.041</td>
+      <td>0.995</td>
+      <td>1.089</td>
+      <td>0.084</td>
+    </tr>
+    <tr>
+      <th>cci</th>
+      <td>1.087<span class="mk">2</span></td>
+      <td>1.068</td>
+      <td>1.106</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>stage4</th>
+      <td>1.025</td>
+      <td>0.984</td>
+      <td>1.069</td>
+      <td>0.238</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

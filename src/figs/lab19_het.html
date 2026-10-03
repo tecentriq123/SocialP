@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">이질성 지표와 예측구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p_q = stats.chi2.sf(m[&quot;Q&quot;], m[&quot;k&quot;] - 1)
+tau = np.sqrt(m[&quot;tau2&quot;])
+tcrit = stats.t.ppf(0.975, m[&quot;k&quot;] - 2)
+half = tcrit * np.sqrt(m[&quot;tau2&quot;] + m[&quot;se_re&quot;]**2)
+print(f&quot;Q = {m[&#x27;Q&#x27;]:.2f}, df = {m[&#x27;k&#x27;] - 1}, P = {p_q:.2f}&quot;)
+print(f&quot;I2 = {m[&#x27;I2&#x27;]:.0%}&quot;)
+print(f&quot;tau2 = {m[&#x27;tau2&#x27;]:.4f}, tau = {tau:.3f}&quot;)
+print(f&quot;exp(mean +/- 1.96 tau): {np.exp(m[&#x27;re&#x27;] - Z*tau):.2f}&quot;
+      f&quot;-{np.exp(m[&#x27;re&#x27;] + Z*tau):.2f}&quot;)
+print(f&quot;t({m[&#x27;k&#x27;] - 2}) = {tcrit:.3f}, half-width = {half:.3f}&quot;)
+print(f&quot;95% prediction interval: {np.exp(m[&#x27;re&#x27;] - half):.2f}&quot;
+      f&quot;-{np.exp(m[&#x27;re&#x27;] + half):.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Q = 13.28, df = 9, P = 0.15<span class="mk">1</span>
+I2 = 32%<span class="mk">2</span>
+tau2 = 0.0098, tau = 0.099<span class="mk">3</span>
+exp(mean +/- 1.96 tau): 0.68-1.00<span class="mk">4</span>
+t(8) = 2.306<span class="mk">5</span>, half-width = 0.269
+95% prediction interval: 0.63-1.08<span class="mk">6</span></pre></div></div>

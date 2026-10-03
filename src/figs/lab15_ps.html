@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">환자별 성향점수와 C 통계량</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.metrics import roc_auc_score
+
+df[&quot;ps&quot;] = ps_fit.predict(df)             # 환자별 성향점수
+print(df.groupby(&quot;drugA&quot;)[&quot;ps&quot;]
+        .agg([&quot;mean&quot;, &quot;min&quot;, &quot;max&quot;]).round(3))
+print(&quot;C statistic:&quot;,
+      round(roc_auc_score(df[&quot;drugA&quot;], df[&quot;ps&quot;]), 3))
+
+new = pd.DataFrame({
+    &quot;age&quot;: [78, 58], &quot;female&quot;: [1, 0], &quot;hf&quot;: [1, 0],
+    &quot;ckd&quot;: [1, 0], &quot;prior_hosp&quot;: [1, 0], &quot;n_drug&quot;: [9, 4],
+    &quot;tertiary&quot;: [1, 0]})
+print(&quot;two patients:&quot;, ps_fit.predict(new).round(3).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        mean    min    max
+drugA                     
+0      0.372  0.130  0.896<span class="mk">1</span>
+1      0.454  0.149  0.932<span class="mk">2</span>
+C statistic: 0.658<span class="mk">3</span>
+two patients: [0.881, 0.253]<span class="mk">4</span></pre></div></div>

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">시험 하나의 로그 오즈비와 표준오차 (Trial I)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t = tr[tr[&quot;trial&quot;] == &quot;Trial I&quot;].iloc[0]
+a, c = t[&quot;mace_x&quot;], t[&quot;mace_pbo&quot;]           # 사건이 생긴 사람
+b, d = t[&quot;n_x&quot;] - a, t[&quot;n_pbo&quot;] - c         # 생기지 않은 사람
+or_i = (a * d) / (b * c)
+y_i = np.log(or_i)                          # 로그 오즈비
+v_i = 1/a + 1/b + 1/c + 1/d                 # 그 분산
+se_i = np.sqrt(v_i)
+Z = stats.norm.ppf(0.975)                   # 1.959964
+print(&quot;a, b, c, d =&quot;, a, b, c, d)
+print(f&quot;OR {or_i:.3f}, log OR {y_i:.4f},&quot;
+      f&quot; var {v_i:.4f}, SE {se_i:.4f}&quot;)
+print(f&quot;95% CI {np.exp(y_i - Z*se_i):.2f}-{np.exp(y_i + Z*se_i):.2f}&quot;)
+print(f&quot;weight = 1/var = {1 / v_i:.1f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>a, b, c, d = 122 1678 167 1623<span class="mk">1</span>
+OR 0.707<span class="mk">2</span>, log OR -0.3473<span class="mk">3</span>, var 0.0154, SE 0.1241<span class="mk">4</span>
+95% CI 0.55-0.90<span class="mk">5</span>
+weight = 1/var = 64.9<span class="mk">6</span></pre></div></div>

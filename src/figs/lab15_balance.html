@@ -1,0 +1,63 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">보정 전, 매칭 뒤, 가중 뒤의 균형 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">bal = pd.DataFrame({
+    &quot;before&quot;: [smd(df[v], df[&quot;drugA&quot;]) for v in covs],
+    &quot;matched&quot;: [smd(m[v], m[&quot;drugA&quot;]) for v in covs],
+    &quot;IPTW&quot;: [smd(df[v], df[&quot;drugA&quot;], df[&quot;w&quot;]) for v in covs],
+}, index=covs).abs()
+print(bal.max().round(3))
+bal.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>before     0.346<span class="mk">1</span>
+matched    0.018<span class="mk">2</span>
+IPTW       0.006<span class="mk">3</span>
+dtype: float64</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>before</th>
+      <th>matched</th>
+      <th>IPTW</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>age</th>
+      <td>0.346</td>
+      <td>0.004</td>
+      <td>0.006</td>
+    </tr>
+    <tr>
+      <th>female</th>
+      <td>0.042<span class="mk">4</span></td>
+      <td>0.006</td>
+      <td>0.005</td>
+    </tr>
+    <tr>
+      <th>hf</th>
+      <td>0.292</td>
+      <td>0.010</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>ckd</th>
+      <td>0.241</td>
+      <td>0.010</td>
+      <td>0.002</td>
+    </tr>
+    <tr>
+      <th>prior_hosp</th>
+      <td>0.203</td>
+      <td>0.003</td>
+      <td>0.002</td>
+    </tr>
+    <tr>
+      <th>n_drug</th>
+      <td>0.331</td>
+      <td>0.005</td>
+      <td>0.001</td>
+    </tr>
+    <tr>
+      <th>tertiary</th>
+      <td>0.229</td>
+      <td>0.018</td>
+      <td>0.001</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

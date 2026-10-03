@@ -1,0 +1,45 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">세 분석의 입원 위험과 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def risks(d, w=None):
+    &quot;&quot;&quot;A군 위험, B군 위험, 상대위험도, 위험차 (w는 가중치 열 이름).&quot;&quot;&quot;
+    t = d[&quot;drugA&quot;] == 1
+    w = np.ones(len(d)) if w is None else d[w].to_numpy()
+    rA = np.average(d.loc[t, &quot;hosp_1y&quot;], weights=w[t])
+    rB = np.average(d.loc[~t, &quot;hosp_1y&quot;], weights=w[~t])
+    return [rA, rB, rA / rB, rA - rB]
+
+est = pd.DataFrame(
+    {&quot;crude&quot;: risks(df), &quot;matched&quot;: risks(m), &quot;IPTW&quot;: risks(df, &quot;w&quot;)},
+    index=[&quot;risk A&quot;, &quot;risk B&quot;, &quot;RR&quot;, &quot;RD&quot;]).T
+est.round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>risk A</th>
+      <th>risk B</th>
+      <th>RR</th>
+      <th>RD</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>crude</th>
+      <td>0.1340</td>
+      <td>0.1009</td>
+      <td>1.3279<span class="mk">1</span></td>
+      <td>0.0331</td>
+    </tr>
+    <tr>
+      <th>matched</th>
+      <td>0.1089</td>
+      <td>0.1200</td>
+      <td>0.9076<span class="mk">2</span></td>
+      <td>-0.0111<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>IPTW</th>
+      <td>0.1104</td>
+      <td>0.1158</td>
+      <td>0.9535<span class="mk">4</span></td>
+      <td>-0.0054</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

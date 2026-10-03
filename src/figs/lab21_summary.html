@@ -1,0 +1,66 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">군별 요약통계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(df.groupby(&quot;arm&quot;)[&quot;cost&quot;].describe().round(1).T)
+
+df.groupby(&quot;arm&quot;)[items].agg([&quot;mean&quot;, &quot;std&quot;]).round(1).T</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>arm          A        B
+count   1203.0   1797.0
+mean    2668.9<span class="mk">1</span>   2272.8
+std     1303.1<span class="mk">2</span>   1462.2
+min      200.8    118.6
+25%     2184.8   1520.0
+50%     2462.3<span class="mk">3</span>   1836.4
+75%     2849.2   2579.9
+max    21727.1<span class="mk">4</span>  16462.9</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>arm</th>
+      <th>A</th>
+      <th>B</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">cost_drug</th>
+      <th>mean</th>
+      <td>1558.6<span class="mk">5</span></td>
+      <td>818.7</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>706.9</td>
+      <td>472.3</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">cost_op</th>
+      <th>mean</th>
+      <td>525.5</td>
+      <td>694.3</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>586.3</td>
+      <td>756.0</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">cost_inp</th>
+      <th>mean</th>
+      <td>584.8</td>
+      <td>759.8</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>1202.7<span class="mk">6</span></td>
+      <td>1236.8</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">cost</th>
+      <th>mean</th>
+      <td>2668.9</td>
+      <td>2272.8<span class="mk">7</span></td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>1303.1</td>
+      <td>1462.2</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

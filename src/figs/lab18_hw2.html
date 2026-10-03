@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 2 정답. 적응 기간 3개월을 뺀 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">keep = its[~its[&quot;time&quot;].isin([37, 38, 39])]     # 2018년 1-3월 제외
+fit_ph = smf.ols(f, data=keep).fit(cov_type=&quot;HAC&quot;,
+                                   cov_kwds={&quot;maxlags&quot;: 3})
+print(len(keep), &quot;months&quot;)
+print(fit_ph.summary().tables[1])
+print(fit_ph.t_test(&quot;post + 12 * time_after = 0&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>57 months
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     95.6211      0.425    224.896      0.000      94.788      96.454
+time          -0.2421      0.026     -9.185      0.000      -0.294      -0.190
+post          -8.5402      1.053     -8.109      0.000     -10.604      -6.476
+time_after    -0.1572      0.056     -2.828      0.005      -0.266      -0.048
+==============================================================================
+                             Test for Constraints                             
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+c0           -10.4263      1.075     -9.696      0.000     -12.534      -8.319
+==============================================================================</pre></div></div>

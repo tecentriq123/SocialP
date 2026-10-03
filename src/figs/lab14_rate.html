@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">사건 수, 인년, 1,000인년당 발생률과 발생률비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+
+def rate_table(c):
+    t = c.groupby(&quot;arm&quot;).agg(n=(&quot;event&quot;, &quot;size&quot;),
+                             events=(&quot;event&quot;, &quot;sum&quot;),
+                             py=(&quot;time&quot;, &quot;sum&quot;))
+    t[&quot;py&quot;] = t[&quot;py&quot;] / 365.25
+    d = t[&quot;events&quot;]
+    t[&quot;rate&quot;] = 1000 * d / t[&quot;py&quot;]
+    t[&quot;lo&quot;] = 1000 * stats.chi2.ppf(0.025, 2 * d) / 2 / t[&quot;py&quot;]
+    t[&quot;hi&quot;] = 1000 * stats.chi2.ppf(0.975, 2 * d + 2) / 2 / t[&quot;py&quot;]
+    return t
+
+def irr(t):
+    ratio = t.loc[&quot;SGLT2i&quot;, &quot;rate&quot;] / t.loc[&quot;DPP4i&quot;, &quot;rate&quot;]
+    se = np.sqrt((1 / t[&quot;events&quot;]).sum())
+    lo, hi = np.exp(-1.96 * se), np.exp(1.96 * se)
+    return ratio, ratio * lo, ratio * hi
+
+tab = rate_table(cohort)
+print(tab.round(2))
+print(&quot;IRR %.2f (%.2f-%.2f)&quot; % irr(tab))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           n  events       py   rate     lo     hi
+arm                                               
+DPP4i   4524     128  9882.12  12.95<span class="mk">2</span>  10.81  15.40
+SGLT2i  1028      11  1986.20   5.54<span class="mk">1</span>   2.76   9.91<span class="mk">3</span>
+IRR 0.43 (0.23-0.79)<span class="mk">4</span></pre></div></div>

@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">과제 1 정답. E-value</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def evalue(rr):
+    &quot;&quot;&quot;E-value. RR이 1보다 작으면 역수를 먼저 취합니다.&quot;&quot;&quot;
+    rr = 1 / rr if rr &lt; 1 else rr
+    return rr + np.sqrt(rr * (rr - 1))
+
+r = rr.loc[&quot;matched&quot;]                     # RR, lower, upper
+print(&quot;point estimate:&quot;, round(evalue(r[&quot;RR&quot;]), 2))
+print(&quot;rounded 0.91  :&quot;, round(evalue(0.91), 2))
+covers_1 = r[&quot;lower&quot;] &lt;= 1 &lt;= r[&quot;upper&quot;]
+print(&quot;CI limit      :&quot;,
+      1.0 if covers_1 else round(evalue(r[&quot;upper&quot;]), 2))
+c0 = rr.loc[&quot;crude&quot;]
+print(&quot;crude         :&quot;, round(evalue(c0[&quot;RR&quot;]), 2),
+      round(evalue(c0[&quot;lower&quot;]), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>point estimate: 1.44<span class="mk">1</span>
+rounded 0.91  : 1.43<span class="mk">2</span>
+CI limit      : 1.0<span class="mk">3</span>
+crude         : 1.99 1.67<span class="mk">4</span></pre></div></div>

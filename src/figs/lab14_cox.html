@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">보정 전과 보정 후의 Cox 위험비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+
+def hr(c, cols):
+    m = CoxPHFitter().fit(c[[&quot;time&quot;, &quot;event&quot;] + cols],
+                          &quot;time&quot;, &quot;event&quot;)
+    s = m.summary.loc[&quot;sglt2&quot;]
+    return (s[&quot;exp(coef)&quot;], s[&quot;exp(coef) lower 95%&quot;],
+            s[&quot;exp(coef) upper 95%&quot;])
+
+print(&quot;crude HR    %.2f (%.2f-%.2f)&quot; % hr(cohort, [&quot;sglt2&quot;]))
+print(&quot;adjusted HR %.2f (%.2f-%.2f)&quot; % hr(cohort, [&quot;sglt2&quot;] + covs))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>crude HR    0.42 (0.23-0.77)<span class="mk">1</span>
+adjusted HR 0.61 (0.32-1.13)<span class="mk">2</span></pre></div></div>

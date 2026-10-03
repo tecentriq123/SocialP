@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">긴 형식 자료 점검</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = long.groupby(&quot;id&quot;)
+prev_stop = g[&quot;stop&quot;].shift()           # 같은 환자의 앞 줄 stop
+second = long[prev_stop.notna()]        # 둘째 줄만
+print(&quot;둘째 줄&quot;, len(second), &quot;줄, 앞 줄의 끝에서 시작하는가:&quot;,
+      (second[&quot;start&quot;] == prev_stop.dropna()).all())
+print(&quot;길이가 0 이하인 구간&quot;, (long[&quot;stop&quot;] &lt;= long[&quot;start&quot;]).sum(), &quot;줄&quot;)
+last = g.tail(1)                        # 환자마다 마지막 줄
+print(&quot;사망&quot;, long[&quot;died&quot;].sum(), &quot;건, 마지막 줄의 사망&quot;,
+      last[&quot;died&quot;].sum(), &quot;건, 원자료&quot;, d[&quot;died&quot;].sum(), &quot;건&quot;)
+py_long = (long[&quot;stop&quot;] - long[&quot;start&quot;]).sum() / 365
+print(f&quot;인년 합계 {py_long:.0f}, 원자료 {d[&#x27;fu_days&#x27;].sum() / 365:.0f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>둘째 줄 2734 줄<span class="mk">1</span>, 앞 줄의 끝에서 시작하는가: True<span class="mk">2</span>
+길이가 0 이하인 구간 0 줄<span class="mk">3</span>
+사망 1234 건, 마지막 줄의 사망 1234 건, 원자료 1234 건<span class="mk">4</span>
+인년 합계 5312, 원자료 5312<span class="mk">5</span></pre></div></div>

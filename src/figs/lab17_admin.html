@@ -1,0 +1,56 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">중도절단이 자료 마감뿐인지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cens = ckd[&quot;status&quot;] == 0
+same = ckd.loc[cens, &quot;years&quot;] == ckd.loc[cens, &quot;max_years&quot;]
+early = ckd.loc[~cens, &quot;years&quot;] &lt; ckd.loc[~cens, &quot;max_years&quot;]
+print(&quot;중도절단 시점 = 자료 마감:&quot;, same.all())
+print(&quot;사건은 자료 마감 전     :&quot;, early.all())
+ckd.groupby(&quot;drug&quot;)[&quot;max_years&quot;].describe().round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>중도절단 시점 = 자료 마감: True<span class="mk">1</span>
+사건은 자료 마감 전     : True<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>25%</th>
+      <th>50%</th>
+      <th>75%</th>
+      <th>max</th>
+    </tr>
+    <tr>
+      <th>drug</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A</th>
+      <td>1380.0</td>
+      <td>4.63<span class="mk">3</span></td>
+      <td>0.59</td>
+      <td>3.0</td>
+      <td>4.36</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td>2120.0</td>
+      <td>4.60</td>
+      <td>0.60</td>
+      <td>3.0</td>
+      <td>4.26</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

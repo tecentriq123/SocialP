@@ -1,0 +1,495 @@
+<p class="lead">19장의 예제인 가상의 무작위배정 시험 10개를 직접 합쳐 봅니다. 시험마다 로그 오즈비와 표준오차를 구하고, 고정효과 모형과 무작위효과 모형으로 통합한 뒤, 이질성과 예측구간, 하위군 분석, 메타회귀, 깔때기 그림과 Egger 검정, 민감도 분석, NNT·NNH까지 numpy와 pandas로 계산합니다. 계산한 값은 statsmodels로 확인하고 Methods·Results 문장으로 옮깁니다. 이론은 <a href="#ch19">19장</a>을 함께 보세요.</p>
+
+<dl class="glance">
+<div><dt>관련 이론</dt><dd><a href="#ch19">19장 메타분석</a>. 2×2 표의 오즈비는 <a href="#ch05-s1">5장 가 절</a>, Mantel–Haenszel 방법은 <a href="#ch08-s6">8장 바 절</a></dd></div>
+<div><dt>데이터</dt><dd>19장 예제의 가상 자료. <code>acs_trials.csv</code>(시험 10개, 한 줄이 시험 하나)와 <code>acs_trials_subgroup.csv</code>(하위군 결과를 보고한 시험 6개 × 하위군 2개 = 12줄). 급성관상동맥증후군 뒤 표준 항혈소판요법에 약물 X 또는 위약을 더한 시험의 군별 인원, 허혈 사건 수, 주요 출혈 수</dd></div>
+<div><dt>사용 패키지</dt><dd>pandas, numpy, scipy, matplotlib, statsmodels(<code>effectsize_2proportions</code>, <code>combine_effects</code>, <code>StratifiedTable</code>, <code>smf.wls</code>)</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). 따로 설치할 패키지는 없습니다</dd></div>
+</dl>
+<p class="nb-link"><a href="notebooks/lab19.ipynb" download>실습 노트북 내려받기 (lab19.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab19-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>메타분석의 자료는 환자가 아니고 연구입니다. 체계적 문헌고찰에서 논문마다 추출한 숫자를 연구 하나가 한 줄인 표로 정리해 두면 분석은 그 표에서 시작합니다(<a href="#ch19-s1">19장 가 절</a>). 이 실습의 두 파일은 19장의 예제를 그대로 옮긴 것으로, 실제 임상시험의 결과가 아니고 이 사이트가 설명을 위해 만든 가상 자료입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>파일</th><th>한 줄의 단위</th><th class="r">줄 수</th><th>열 이름과 뜻</th></tr></thead>
+<tbody>
+<tr><td><code>acs_trials.csv</code></td><td>시험</td><td class="r">10</td><td><code>trial</code> 시험 이름, <code>year</code> 발표 연도, <code>phase</code> 임상시험 단계(2, 3), <code>followup_mo</code> 추적 기간(개월), <code>stemi_pct</code> STEMI 환자 비율(%), <code>rob</code> 편향 위험 종합 판정(low, some concerns, high), <code>n_x</code>·<code>n_pbo</code> 약물 X군·위약군 인원, <code>mace_x</code>·<code>mace_pbo</code> 허혈 사건(심혈관 사망, 심근경색, 뇌졸중)이 생긴 사람 수, <code>bleed_x</code>·<code>bleed_pbo</code> 주요 출혈이 생긴 사람 수</td></tr>
+<tr><td><code>acs_trials_subgroup.csv</code></td><td>시험 × 기저 진단</td><td class="r">12</td><td><code>trial</code>, <code>subgroup</code>(STEMI, NSTE-ACS), <code>n_x</code>, <code>mace_x</code>, <code>n_pbo</code>, <code>mace_pbo</code> (그 하위군 안의 인원과 허혈 사건 수)</td></tr>
+</tbody></table></div>
+
+<h3>자료 불러오기</h3>
+<p>자료는 이 사이트의 주소에서 읽으므로 인터넷 연결이 필요합니다. 이 실습의 출력은 pandas 3.0, statsmodels 0.15.0으로 실제로 실행해 얻었고, 버전에 따라 표의 모양이 조금 다를 수 있습니다.</p>
+<!--FIG:lab19_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>BASE = "https://…/data/"</code><span>자료 폴더의 주소를 문자열로 저장해 둡니다. <code>BASE + "acs_trials.csv"</code>는 두 문자열을 이어 붙인 전체 주소입니다. <code>pd.read_csv</code>는 <a href="#lab00-s5">실습 0 마 절</a>과 같습니다.</span></li>
+<li><code>tr</code><span>셀의 마지막 줄에 표 이름만 적으면 표 전체가 출력됩니다. 줄이 10개뿐이어서 모두 보입니다. 표가 가로로 길면 출력 칸 안에서 옆으로 밀어 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(10, 12).</b> 시험 10개, 열 12개입니다. 19장 가 절의 표와 같은 시험입니다.</span></li>
+<li><span class="mk">2</span><span><b>rob.</b> Trial C는 일부 우려(some concerns), Trial G는 높음(high), 나머지 여덟 개는 낮음(low)입니다. 라 절의 민감도 분석에 씁니다.</span></li>
+<li><span class="mk">3</span><span><b>Trial I의 mace_x = 122.</b> 약물 X군 1,800명 가운데 122명, 위약군 1,790명 가운데 167명에게 허혈 사건이 생겼습니다. 나 절에서 이 시험을 손으로 계산합니다.</span></li>
+<li><span class="mk">4</span><span><b>Trial C의 bleed_pbo = 0.</b> 위약군에서 주요 출혈이 한 건도 없습니다. 0인 칸이 있으면 오즈비를 그대로 계산할 수 없어 따로 처리합니다(나 절).</span></li>
+</ol>
+<!--FIG:lab19_loadsub-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(12, 6).</b> 결과를 기저 진단별로 나누어 보고한 시험은 A, B, D, F, H, I 여섯 개이고, 시험마다 두 줄입니다.</span></li>
+<li><span class="mk">2</span><span><b>341</b>과 <span class="mk">3</span> <b>279.</b> Trial A의 약물 X군 620명이 STEMI 341명과 NSTE-ACS 279명으로 나뉜 것입니다. 같은 시험의 두 줄을 더하면 첫 파일의 그 시험 줄과 같습니다.</span></li>
+</ol>
+
+<h3>사건 수를 그냥 더하면 안 되는 이유</h3>
+<p>분석에 앞서 전체 규모를 확인하고, 열 개 시험의 사건 수를 단순히 더해 비교하면 어떤 값이 나오는지 봅니다(<a href="#ch19-s2">19장 나 절</a>의 흔한 오해 상자).</p>
+<!--FIG:lab19_naive-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>tot = tr[cols].sum()</code><span>고른 네 열의 세로 합입니다. 결과는 열 이름으로 값을 찾는 Series여서 <code>tot["n_x"]</code>처럼 꺼냅니다.</span></li>
+<li><code>print(tot.to_string())</code><span>Series를 자료형 표시 없이 값만 출력합니다.</span></li>
+<li><code>f"{r_x:.1%}"</code><span><code>.1%</code>는 비율에 100을 곱해 소수 첫째 자리 퍼센트로 적는 형식입니다.</span></li>
+<li><code>short = tr[tr["followup_mo"] &lt; 12]</code><span>추적 기간이 12개월보다 짧은 시험(2상 시험 여섯 개)만 고릅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>약물 X군 16,850명</b>, 위약군 14,875명, 모두 31,725명입니다. 허혈 사건은 1,271건과 1,386건입니다.</span></li>
+<li><span class="mk">2</span><span><b>7.5% 대 9.3%.</b> 더한 숫자로 구한 두 군의 위험입니다.</span></li>
+<li><span class="mk">3</span><span><b>오즈비 0.79.</b> 나 절에서 구할 통합 오즈비 0.83보다 효과가 커 보입니다.</span></li>
+<li><span class="mk">4</span><span><b>짧은 시험의 환자 비중이 약물 X군 22.8%, 위약군 12.9%.</b> 2상 시험은 약물 X군에 두 배 많이 배정했고 추적이 짧아 사건이 적습니다. 그래서 더한 숫자에서는 약물 X군의 위험이 실제보다 낮게 나옵니다. 메타분석은 시험 안에서 구한 비교 결과만 합치므로 이 문제가 없습니다.</span></li>
+</ol>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>메타분석의 자료는 연구 하나가 한 줄인 표입니다. 이분형 결과는 군별 사건 수와 인원 네 숫자가 있으면 됩니다.</li>
+<li>하위군 분석에는 시험 × 하위군이 한 줄인 표를 따로 둡니다. 하위군 결과를 보고한 시험만 들어갑니다.</li>
+<li>시험들의 사건 수를 더해 비교하면 무작위배정이 깨집니다. 이 자료에서는 오즈비가 0.79로 실제보다 좋아 보입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab19-s2">
+<h2><span class="sec-no">나.</span>효과의 통합</h2>
+
+<p>통합은 세 단계입니다. 시험마다 효과와 표준오차를 구하고, 정밀도로 가중치를 주어 평균하고, 연구 간 분산<span class="en">(between-study variance)</span>을 더해 다시 평균합니다(<a href="#ch19-s2">19장 나 절</a> '숫자로 따라가기'). 계산이 단순하므로 먼저 직접 짜고, 그다음 statsmodels의 결과와 맞춰 봅니다. 직접 짜 두면 포레스트 플롯<span class="en">(forest plot)</span>의 숫자가 어디서 오는지 보입니다.</p>
+
+<h3>시험 하나의 로그 오즈비와 표준오차</h3>
+<!--FIG:lab19_trialI-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>t = tr[tr["trial"] == "Trial I"].iloc[0]</code><span>Trial I의 줄을 골라 첫 줄을 Series로 꺼냅니다. <code>t["mace_x"]</code>처럼 열 이름으로 값을 읽습니다.</span></li>
+<li><code>v_i = 1/a + 1/b + 1/c + 1/d</code><span>로그 오즈비의 분산은 2×2 표 네 칸의 역수를 더한 값입니다(<a href="#ch19-s2">19장 나 절</a> '수식으로 보기').</span></li>
+<li><code>Z = stats.norm.ppf(0.975)</code><span>표준정규분포에서 아래쪽 넓이가 0.975인 값 1.959964입니다. 1.96을 직접 적어도 되지만, 본문과 끝자리까지 맞추려고 반올림하지 않은 값을 씁니다. <code>ppf</code>는 <a href="#lab08-s1">실습 8 가 절</a>의 <code>stats.t.ppf</code>와 같은 분위수 함수입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>a, b, c, d = 122, 1678, 167, 1623.</b> 약물 X군의 사건과 비사건, 위약군의 사건과 비사건입니다.</span></li>
+<li><span class="mk">2</span><span><b>오즈비 0.707</b> = (122 × 1,623) ÷ (1,678 × 167).</span></li>
+<li><span class="mk">3</span><span><b>로그 오즈비 −0.3473.</b> 비는 로그 척도에서 합치므로 이 값이 메타분석에 들어갑니다.</span></li>
+<li><span class="mk">4</span><span><b>표준오차 0.1241.</b> 분산 0.0154의 제곱근입니다. 오즈비 0.707의 표준오차가 아니고 로그 오즈비의 표준오차입니다.</span></li>
+<li><span class="mk">5</span><span><b>95% CI 0.55–0.90.</b> 로그 척도에서 ± 1.96 × 표준오차를 구한 뒤 지수로 되돌렸습니다.</span></li>
+<li><span class="mk">6</span><span><b>가중치 64.9.</b> 분산의 역수입니다. 사건 수(a와 c)가 많을수록 분산이 작고 가중치가 큽니다.</span></li>
+</ol>
+
+<h3>열 개 시험의 효과크기 표</h3>
+<p>같은 계산을 함수로 만들어 모든 시험에 한 번에 적용합니다. 0인 칸이 있는 시험은 그 시험의 네 칸에만 0.5를 더하는 본문의 방식을 함수 안에 넣어 둡니다. 이 처리를 연속성 수정<span class="en">(continuity correction)</span>이라고 합니다. 허혈 사건에는 0인 칸이 없어 이 부분이 작동하지 않고, 뒤의 주요 출혈에서 쓰입니다.</p>
+<!--FIG:lab19_es-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def log_or(e1, n1, e0, n0):</code><span>약물 X군의 사건 수와 인원, 위약군의 사건 수와 인원 네 열을 받아 로그 오즈비 열과 분산 열을 돌려주는 함수입니다. 함수 정의는 <a href="#lab05-s1">실습 5 가 절</a>에서 다뤘습니다.</span></li>
+<li><code>a, c = e1.astype(float), e0.astype(float)</code><span>정수 열을 실수로 바꿉니다. 뒤에서 0.5를 더할 수 있게 하기 위해서입니다.</span></li>
+<li><code>zero = (a == 0) | (b == 0) | (c == 0) | (d == 0)</code><span>네 칸 가운데 하나라도 0이면 True인 열입니다. <code>|</code>는 '또는'입니다.</span></li>
+<li><code>[x + 0.5 * zero for x in (a, b, c, d)]</code><span>계산에서 True는 1, False는 0이므로 <code>0.5 * zero</code>는 0인 칸이 있는 시험에서만 0.5입니다. 네 칸에 차례로 더해 다시 a, b, c, d에 담습니다.</span></li>
+<li><code>return np.log(a * d / (b * c)), 1/a + 1/b + 1/c + 1/d</code><span>값 두 개를 돌려줍니다. 바깥에서 <code>es["yi"], es["vi"] = log_or(…)</code>로 두 열에 나눠 받습니다.</span></li>
+<li><code>es = tr[["trial"]].copy()</code><span>시험 이름 열 하나만 있는 새 표입니다. 대괄호를 두 겹으로 써야 표(DataFrame)로 남습니다. 여기에 효과크기 열을 붙여 갑니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<p><code>yi</code>는 로그 오즈비, <code>vi</code>는 분산, <code>se</code>는 표준오차, <code>or</code>, <code>lo</code>, <code>hi</code>는 오즈비와 95% 신뢰구간입니다. 19장 그림 19-2의 오른쪽 열과 같습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Trial C의 표준오차 0.686.</b> 가장 작은 시험(사건 8건과 3건)이어서 가장 불확실합니다.</span></li>
+<li><span class="mk">2</span><span><b>Trial F의 표준오차 0.063.</b> 사건이 가장 많은 시험입니다.</span></li>
+<li><span class="mk">3</span><span><b>Trial I의 −0.347.</b> 앞 셀의 손계산과 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>Trial J의 상한 1.279.</b> 0.71 (0.39–1.28)로 구간이 1을 지납니다. 열 개 가운데 여섯 개가 이렇습니다. 시험 하나하나의 유의성을 세는 것은 의미가 없습니다.</span></li>
+</ol>
+
+<h3>고정효과 모형</h3>
+<!--FIG:lab19_fixed-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>w = 1 / es["vi"]</code><span>시험 10개의 역분산 가중치<span class="en">(inverse-variance weight)</span>입니다.</span></li>
+<li><code>fe = np.sum(w * es["yi"]) / np.sum(w)</code><span>가중치를 곱한 로그 오즈비의 합을 가중치의 합으로 나눈 가중평균입니다.</span></li>
+<li><code>se_fe = 1 / np.sqrt(np.sum(w))</code><span>통합 추정값의 표준오차는 가중치 합의 제곱근의 역수입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Σw = 596.4</b>, <span class="mk">2</span> <b>Σwy = −101.5.</b> 본문의 계산 과정에 나오는 두 합입니다.</span></li>
+<li><span class="mk">3</span><span><b>로그 오즈비 −0.1702</b> = −101.5 ÷ 596.4, <span class="mk">4</span> <b>표준오차 0.0409</b> = 1 ÷ √596.4.</span></li>
+<li><span class="mk">5</span><span><b>오즈비 0.84 (0.78–0.91).</b> 고정효과 모형<span class="en">(fixed-effect model)</span>의 통합 추정값입니다.</span></li>
+</ol>
+
+<h3>연구 간 분산과 무작위효과 모형</h3>
+<p>무작위효과 모형<span class="en">(random-effects model)</span>은 모든 시험의 분산에 연구 간 분산 τ²를 더해 가중치를 다시 구합니다. τ²는 DerSimonian–Laird 방법으로 추정합니다<cite data-ref="dersimonian1986"></cite>. Q와 τ²를 읽는 법은 다 절에서 다룹니다.</p>
+<!--FIG:lab19_random-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>Q = np.sum(w * (es["yi"] - fe)**2)</code><span>각 시험이 고정효과 통합값에서 떨어진 거리의 제곱에 가중치를 곱해 더한 값입니다.</span></li>
+<li><code>C = np.sum(w) - np.sum(w**2) / np.sum(w)</code><span>τ² 추정식의 분모입니다.</span></li>
+<li><code>tau2 = max(0, (Q - (k - 1)) / C)</code><span>Q가 자유도(k − 1)를 넘는 만큼을 C로 나눕니다. <code>max(0, …)</code>는 두 값 가운데 큰 쪽을 고르므로 음수가 나오면 0이 됩니다.</span></li>
+<li><code>ws = 1 / (es["vi"] + tau2)</code><span>무작위효과 가중치입니다. 이후의 가중평균과 표준오차는 고정효과와 같은 식입니다.</span></li>
+<li><code>p_re = 2 * stats.norm.sf(abs(re / se_re))</code><span>z = 추정값 ÷ 표준오차의 양측 P입니다(<a href="#lab04-s3">실습 4 다 절</a>의 <code>norm.sf</code>).</span></li>
+<li><code>es["w_fe"] = 100 * w / np.sum(w)</code><span>가중치가 전체에서 차지하는 비율(%)을 표에 붙입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>τ² = 0.0098.</b> Q − 9 = 4.28을 C = 436.0으로 나눈 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>Σw* = 266.7.</b> 고정효과의 596.4보다 작습니다. 가중치 합이 작아진 만큼 표준오차가 커집니다.</span></li>
+<li><span class="mk">3</span><span><b>로그 오즈비 −0.1921</b>, 표준오차 0.0612.</span></li>
+<li><span class="mk">4</span><span><b>z = −3.14</b>, <span class="mk">5</span> <b>P = 0.0017.</b> 논문에는 P = .002로 적습니다.</span></li>
+<li><span class="mk">6</span><span><b>오즈비 0.83 (0.73–0.93).</b> 주 분석의 결과입니다. 고정효과(0.78–0.91)보다 구간이 넓습니다.</span></li>
+<li><span class="mk">7</span><span><b>Trial C의 비율 0.356% → 0.779%.</b> 작은 시험의 무게가 늘어납니다.</span></li>
+<li><span class="mk">8</span><span><b>Trial F의 비율 42.7%</b> → <span class="mk">9</span> <b>27.3%.</b> 큰 시험의 무게는 줄어듭니다. τ²를 모든 시험에 똑같이 더하므로 가중치가 고르게 됩니다.</span></li>
+</ol>
+
+<h3>통합 계산을 함수로 묶기</h3>
+<p>같은 계산을 하위군, 민감도 분석, 과제에서 여러 번 되풀이하므로 함수로 묶어 둡니다.</p>
+<!--FIG:lab19_pool-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def pool(y, v):</code><span>효과(<code>y</code>)와 분산(<code>v</code>)을 받아 두 모형의 결과를 돌려줍니다. 안의 계산은 앞의 두 셀과 같습니다. 함수 안의 <code>fe</code>, <code>Q</code> 같은 이름은 함수 밖의 같은 이름과 별개여서, 앞 셀에서 만든 값은 바뀌지 않습니다.</span></li>
+<li><code>y, v = np.asarray(y, float), np.asarray(v, float)</code><span>표의 열이든 목록이든 숫자 배열로 바꿉니다. 표에서 일부 줄만 골라 넣어도 줄 번호와 관계없이 계산되게 하려는 것입니다.</span></li>
+<li><code>return {"k": k, "fe": fe, …}</code><span>결과를 사전(dict)으로 돌려줍니다. <code>m["re"]</code>처럼 이름으로 꺼냅니다. <code>se_fe</code>, <code>se_re</code>는 표준오차, <code>I2</code>는 (Q − 자유도) ÷ Q입니다.</span></li>
+<li><code>def orci(est, se):</code><span>로그 척도의 추정값과 표준오차를 받아 "오즈비 (하한-상한)" 문자열을 만듭니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>고정효과 0.84 (0.78–0.91)</b>, <span class="mk">2</span> <b>무작위효과 0.83 (0.73–0.93).</b> 앞의 두 셀과 같은 값입니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">이런 오류가 나면</p>
+<p><code>NameError: name 'pool' is not defined</code>는 이 셀을 실행하지 않고 뒤의 셀을 실행했을 때 납니다. 이 실습은 뒤의 셀이 앞에서 만든 <code>Z</code>, <code>log_or</code>, <code>pool</code>, <code>orci</code>, <code>es</code>를 계속 쓰므로, 런타임이 새로 시작되면 처음부터 차례로 다시 실행합니다.</p></div>
+
+<h3>statsmodels로 확인하기</h3>
+<p>statsmodels의 <code>meta_analysis</code> 모듈로 같은 값이 나오는지 봅니다. 출력의 모양은 <a href="#ch19-s2">19장 나 절</a>의 '파이썬 출력에서는 이렇게 보입니다' 상자와 같습니다.</p>
+<!--FIG:lab19_sm-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from … import (effectsize_2proportions, combine_effects)</code><span>불러올 이름이 길어 괄호로 묶어 두 줄에 적었습니다.</span></li>
+<li><code>args = [tr[c].to_numpy() for c in cols]</code><span>열 네 개를 numpy 배열로 바꿔 목록에 담습니다. 순서는 약물 X군 사건 수, 인원, 위약군 사건 수, 인원입니다.</span></li>
+<li><code>effectsize_2proportions(*args, statistic="odds-ratio")</code><span>함수를 부를 때 목록 앞에 <code>*</code>를 붙이면 목록의 원소를 순서대로 풀어 넣습니다. 시험마다 효과와 그 분산을 돌려줍니다. <code>statistic</code>은 <code>"diff"</code>(위험차, 기본값), <code>"risk-ratio"</code>, <code>"odds-ratio"</code> 가운데 고르고, 두 비는 로그 척도로 나옵니다.</span></li>
+<li><code>combine_effects(eff, var, method_re="chi2", row_names=list(tr["trial"]))</code><span>효과와 분산을 받아 통합합니다. <code>method_re="chi2"</code>가 DerSimonian–Laird 방법입니다. <code>row_names</code>는 출력의 줄 이름입니다.</span></li>
+<li><code>res.summary_frame()</code><span>시험별 값과 통합 결과를 한 표로 줍니다. <code>res.q</code>, <code>res.i2</code>, <code>res.tau2</code>는 이질성 지표입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Trial I의 eff −0.3473, sd_eff 0.1241.</b> 직접 계산한 로그 오즈비와 표준오차입니다. 출력의 모든 값이 로그 척도입니다.</span></li>
+<li><span class="mk">2</span><span><b>Trial F의 w_fe 0.4271, w_re 0.2726.</b> 가중치 비율 42.7%와 27.3%입니다.</span></li>
+<li><span class="mk">3</span><span><b>fixed effect −0.1702 (0.0409)</b>, <span class="mk">4</span> <b>random effect −0.1921 (0.0612).</b> 직접 짠 결과와 소수 넷째 자리까지 같습니다.</span></li>
+<li><span class="mk">5</span><span><b>random effect wls의 표준오차 0.0591.</b> 추정값은 같고 표준오차를 자료의 흩어짐에 맞춰 다시 계산한 줄입니다. 라 절의 Hartung–Knapp 구간에 쓰입니다.</span></li>
+<li><span class="mk">6</span><span><b>Q 13.2849, I² 0.3225, τ² 0.009827.</b> 직접 계산한 값과 같습니다. 다만 <code>method_re="chi2"</code>는 Q가 자유도보다 작을 때 τ²를 0으로 바꾸지 않고 음수 그대로 씁니다(0.15 버전에서 확인). 그러면 random effect 줄이 틀린 값이 됩니다. <code>res.tau2</code>가 음수이면 fixed effect 줄을 읽거나 직접 짠 <code>pool</code>을 씁니다. 뒤의 주요 출혈이 그런 경우입니다.</span></li>
+<li><span class="mk">7</span><span><b>기본값으로 두면 τ² = 0.007689.</b> <code>method_re</code>를 주지 않으면 기본값 <code>"iterated"</code>(Paule–Mandel 방법)로 추정해 τ²가 달라지고, 통합 오즈비는 0.83 (0.74–0.93)이 됩니다. 프로그램마다 기본 추정 방법이 다르므로 Methods에 방법 이름을 적습니다.</span></li>
+</ol>
+
+<h3>Mantel–Haenszel 방법</h3>
+<p>이분형 결과에는 2×2 표의 사건 수로 직접 가중평균하는 Mantel–Haenszel 방법도 널리 씁니다. <a href="#lab08-s3">실습 8 다 절</a>의 <code>StratifiedTable</code>에 시험 10개를 층으로 넣으면 됩니다.</p>
+<!--FIG:lab19_mh-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>tables = [[[…], […]] for r in tr.itertuples()]</code><span>표의 줄을 하나씩 <code>r</code>로 꺼내 [[약물 X군 사건, 비사건], [위약군 사건, 비사건]] 모양의 2×2 표를 만들고 목록에 모읍니다. <code>r.mace_x</code>처럼 열 이름으로 값을 읽습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0.84 (0.78–0.91).</b> 역분산 고정효과 결과와 같습니다. Mantel–Haenszel 방법도 공통의 오즈비 하나를 가정하는 고정효과 방법입니다.</span></li>
+</ol>
+
+<h3>주요 출혈과 0건인 칸</h3>
+<p>안전성 결과인 주요 출혈을 같은 함수로 합칩니다. Trial C의 위약군이 0건이어서 <code>log_or</code>의 연속성 수정이 여기서 작동합니다(<a href="#ch19-s2">19장 나 절</a> '사건이 0건인 연구와 여러 군이 있는 시험').</p>
+<!--FIG:lab19_bleed-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>bl.loc[2, "yi"]</code><span>줄 번호 2가 Trial C입니다. 그 시험의 로그 오즈비와 분산을 꺼내 <code>orci</code>에 넣었습니다.</span></li>
+<li><code>effectsize_2proportions(*args_b, statistic="odds-ratio", zero_correction=0.5)</code><span><code>zero_correction</code>에 숫자를 주면 statsmodels가 연속성 수정을 합니다. 기본값(None)은 수정하지 않습니다. 돌려받은 효과와 분산은 앞에서 만든 <code>pool</code>에 그대로 넣을 수 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Trial C 3.55 (0.18–69.32).</b> 3/240과 0/120의 네 칸에 0.5를 더해 3.5, 237.5, 0.5, 120.5로 계산한 값입니다. 구간이 매우 넓습니다.</span></li>
+<li><span class="mk">2</span><span><b>통합 오즈비 2.28 (1.90–2.74).</b> 본문의 값과 같습니다. Trial C의 가중치가 0.4%여서 통합 결과에 거의 기여하지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>I² = 0%, τ² = 0.</b> Q = 4.06이 자유도 9보다 작습니다. τ²가 0이면 두 모형의 결과가 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>inf inf.</b> statsmodels는 수정 없이 계산하므로 Trial C의 로그 오즈비와 분산이 무한대가 되고, 0으로 나누었다는 경고(RuntimeWarning)가 함께 나옵니다. 이 값은 합칠 수 없습니다.</span></li>
+<li><span class="mk">5</span><span><b>zero_correction=0.5로는 2.24 (1.87–2.68).</b> 직접 짠 결과와 다릅니다. 이 인자는 0인 칸이 없는 시험까지 모든 시험의 사건 수에 0.5를 더하기 때문입니다(0.15 버전에서 확인). 0이 있는 시험에만 더하는 흔한 방식을 따르려면 위의 <code>log_or</code>처럼 직접 계산합니다. 어느 쪽이든 Methods에 처리 방법을 적습니다.</span></li>
+</ol>
+
+<h3>포레스트 플롯 그리기</h3>
+<p>포레스트 플롯은 위에서 만든 숫자를 그대로 그린 그림입니다. 시험별 점과 가로선, 가중치에 비례한 네모, 통합 추정값의 마름모, 예측구간<span class="en">(prediction interval)</span>을 차례로 올립니다. 오차막대로 그리는 방법은 <a href="#lab08-s3">실습 8 다 절</a>에서 썼고, 여기서는 네모의 크기와 마름모가 새로 들어갑니다.</p>
+<!--FIG:lab19_forest-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pi = np.exp([re - pi_half, re + pi_half])</code><span>예측구간의 양 끝입니다. 계산은 다 절에서 설명합니다.</span></li>
+<li><code>ypos = np.arange(k, 0, -1)</code><span>10, 9, …, 1입니다. 첫 시험이 맨 위에 오도록 세로 위치를 큰 값부터 줍니다.</span></li>
+<li><code>ax.hlines(ypos, es["lo"], es["hi"], …)</code><span>높이 <code>ypos</code>에 하한부터 상한까지 가로선 열 개를 긋습니다.</span></li>
+<li><code>ax.scatter(es["or"], ypos, s=es["w_re"] * 12, marker="s", zorder=3)</code><span>오즈비 위치에 네모(<code>"s"</code>)를 찍습니다. <code>s</code>는 점의 넓이여서 가중치 비율에 비례하게 주었고, 12는 보기 좋은 크기로 맞춘 배수입니다. <code>zorder=3</code>은 네모를 선보다 위에 그리라는 뜻입니다.</span></li>
+<li><code>ax.fill([하한, 추정값, 상한, 추정값], [0, 0.3, 0, -0.3], …)</code><span>꼭짓점 네 개를 이은 도형을 칠합니다. 왼쪽 끝이 신뢰구간 하한, 위와 아래 꼭짓점이 추정값, 오른쪽 끝이 상한인 마름모가 높이 0에 그려집니다.</span></li>
+<li><code>ax.hlines(-1, pi[0], pi[1], color="gray", lw=3)</code><span>그 아래 줄에 예측구간을 굵은 회색 선으로 긋습니다.</span></li>
+<li><code>ax.set_xscale("log")</code><span>가로축을 로그 눈금으로 바꾸고 눈금을 정하는 네 줄은 <a href="#lab11-s2">실습 11 나 절</a>과 같습니다.</span></li>
+<li><code>ax.set_yticks(list(ypos) + [0, -1])</code><span>세로 눈금을 열두 줄의 높이에 두고, 다음 줄에서 시험 이름과 두 줄의 이름을 붙입니다.</span></li>
+<li><code>ax.text(6.5, y, …)</code><span>축의 오른쪽 바깥(x = 6.5)에 오즈비와 신뢰구간, 가중치를 글자로 적습니다. <code>va="center"</code>는 글자의 세로 가운데를 그 높이에 맞춥니다.</span></li>
+</ol>
+<h4>그림 읽기</h4>
+<p>가로축(Odds ratio, 로그 눈금)의 1이 '차이 없음'이고 왼쪽이 약물 X에 유리한 쪽입니다. 네모가 큰 D, F, H, I가 결과를 주도하고, 선이 긴 C와 G는 정보가 적습니다. 마름모(Random effects)는 0.83 (0.73–0.93)으로 기준선에 닿지 않고, 회색 선(Prediction interval)은 0.63–1.08로 1을 넘습니다. 19장 그림 19-2와 같은 내용입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Methods의 통계 분석과 Results의 통합 결과</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Trial-level odds ratios (ORs) were calculated from the numbers of events and participants in each group and were pooled on the log scale with <span class="mk">1</span> <span class="hl">inverse-variance weights in a random-effects model (DerSimonian–Laird estimator)</span>. <span class="mk">2</span> <span class="hl">A fixed-effect model and the Mantel–Haenszel method</span> were used in sensitivity analyses. <span class="mk">3</span> <span class="hl">For trials with no events in one group, 0.5 was added to each cell of that trial</span>. Analyses were performed with Python (statsmodels 0.15).</p>
+<p class="excerpt">Ten trials with 31,725 participants were included. Drug X reduced the composite of cardiovascular death, myocardial infarction, or stroke (<span class="mk">4</span> <span class="hl">pooled OR, 0.83; 95% CI, 0.73–0.93; P = .002</span>) and increased major bleeding (<span class="mk">5</span> <span class="hl">pooled OR, 2.28; 95% CI, 1.90–2.74</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>모형과 추정 방법.</b> 가중 방식(역분산), 모형(무작위효과), τ² 추정 방법(DerSimonian–Laird)을 모두 적습니다. 셀 9에서 본 것처럼 추정 방법이 다르면 숫자가 달라집니다.</span></li>
+<li><span class="mk">2</span><span><b>민감도 분석.</b> 셀 6과 셀 10의 0.84 (0.78–0.91)입니다.</span></li>
+<li><span class="mk">3</span><span><b>0건 처리.</b> 셀 11에서 Trial C에 적용한 방식입니다. 모든 시험에 더했는지, 0이 있는 시험에만 더했는지에 따라 결과가 달라질 수 있어 문장을 분명하게 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>유효성 결과.</b> 셀 7의 값입니다. "허혈 사건의 위험을 17% 줄였다"로 옮기지 않습니다. 오즈비는 상대위험도가 아닙니다(과제 2).</span></li>
+<li><span class="mk">5</span><span><b>안전성 결과.</b> 셀 11의 값입니다. 2.28배는 상대적 크기이고, 몇 명에게 더 생기는지는 라 절에서 계산합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>시험마다 로그 오즈비와 분산(네 칸의 역수의 합)을 구하고, 분산의 역수를 가중치로 평균한 것이 고정효과 통합값입니다.</li>
+<li>무작위효과 모형은 분산에 τ²를 더해 가중치를 다시 구합니다. 가중치가 고르게 되고 신뢰구간이 넓어집니다.</li>
+<li><code>effectsize_2proportions</code>와 <code>combine_effects(…, method_re="chi2")</code>가 같은 값을 줍니다. 기본 추정 방법과 0건 처리 방식은 직접 짠 것과 다르므로 확인하고 씁니다.</li>
+<li>포레스트 플롯은 시험별 오즈비와 신뢰구간, 가중치, 통합 추정값을 그대로 그린 그림입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab19-s3">
+<h2><span class="sec-no">다.</span>이질성과 하위군 분석</h2>
+
+<p>통합 추정값은 평균입니다. 그 평균 주위에서 시험들이 우연 이상으로 얼마나 다른지가 이질성<span class="en">(heterogeneity)</span>입니다. 이질성을 재고, 왜 다른지를 하위군 분석<span class="en">(subgroup analysis)</span>과 메타회귀<span class="en">(meta-regression)</span>로 살펴봅니다(<a href="#ch19-s3">19장 다 절</a>).</p>
+
+<h3>이질성 지표와 예측구간</h3>
+<!--FIG:lab19_het-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>p_q = stats.chi2.sf(m["Q"], m["k"] - 1)</code><span>자유도 k − 1인 카이제곱 분포에서 Q 이상이 나올 확률입니다(<a href="#lab05-s4">실습 5 라 절</a>의 <code>chi2.sf</code>).</span></li>
+<li><code>tcrit = stats.t.ppf(0.975, m["k"] - 2)</code><span>예측구간에는 자유도 k − 2인 t 분포의 임계값을 씁니다.</span></li>
+<li><code>half = tcrit * np.sqrt(m["tau2"] + m["se_re"]**2)</code><span>연구 간 분산과 통합 추정값의 분산을 더한 뒤 제곱근을 취합니다. 로그 척도에서 구간의 반쪽 길이입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Q = 13.28, 자유도 9, P = 0.15.</b> 우연만 있다면 Q는 자유도 근처여야 합니다. 시험이 10개여서 이 검정의 검정력은 낮고, P = 0.15를 "이질성이 없다"로 읽지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>I² = 32%.</b> 흩어짐 가운데 우연으로 설명되지 않는 비율입니다. 효과가 32% 다르다는 뜻이 아닙니다. 이 값의 95% 신뢰구간은 0–68%로 넓습니다(19장 다 절의 접힌 상자).</span></li>
+<li><span class="mk">3</span><span><b>τ = 0.099.</b> 로그 오즈비 척도에서 시험별 참효과의 표준편차입니다.</span></li>
+<li><span class="mk">4</span><span><b>0.68–1.00.</b> 평균 ± 1.96 × τ를 오즈비로 옮긴 값으로, 시험별 참 오즈비가 퍼져 있는 대략의 범위입니다.</span></li>
+<li><span class="mk">5</span><span><b>t(8) = 2.306.</b> 반쪽 길이는 2.306 × √(0.00983 + 0.0612²) = 0.269입니다.</span></li>
+<li><span class="mk">6</span><span><b>95% 예측구간 0.63–1.08.</b> 새로운 환경의 시험에서 기대되는 참 오즈비의 범위입니다. 신뢰구간(0.73–0.93)보다 넓고 1을 넘습니다.</span></li>
+</ol>
+
+<h3>하위군별 통합</h3>
+<p>기저 진단(STEMI, NSTE-ACS)별 결과를 보고한 여섯 시험을 하위군마다 따로 합칩니다. 가 절에서 읽은 <code>sub</code> 표에 같은 함수를 씁니다.</p>
+<!--FIG:lab19_subgroup-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>for g in ["STEMI", "NSTE-ACS"]:</code><span>두 하위군을 차례로 돕니다. <code>s</code>는 그 하위군의 여섯 줄입니다.</span></li>
+<li><code>r = pool(s["yi"], s["vi"])</code><span>결과 사전을 받은 뒤 <code>r["subgroup"] = g</code>처럼 새 이름으로 값을 덧붙입니다. 사건 수 합계와 문자열로 만든 오즈비, 소계의 P도 같은 사전에 넣습니다.</span></li>
+<li><code>sg = pd.DataFrame(rows).set_index("subgroup")</code><span>사전 두 개의 목록을 표로 바꾸고 하위군 이름을 줄 이름으로 삼습니다. 사전의 이름이 열 이름이 됩니다(<a href="#lab07-s2">실습 7 나 절</a>과 같은 방식).</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>STEMI의 사건 수 528/7,006 대 636/6,510.</b> 참고용 합계입니다. 통합 오즈비는 이 숫자로 계산한 것이 아닙니다.</span></li>
+<li><span class="mk">2</span><span><b>STEMI 0.78 (0.69–0.89)</b>, P = 0.0001.</span></li>
+<li><span class="mk">3</span><span><b>NSTE-ACS 0.92 (0.81–1.06)</b>, <span class="mk">4</span> <b>P = 0.2393.</b> 유의하지 않지만 "효과 없음"으로 읽지 않습니다. 구간은 오즈를 19% 줄이는 효과부터 6% 늘리는 효과까지 포함합니다.</span></li>
+<li><span class="mk">5</span><span><b>STEMI 하위군의 I² = 0.0312.</b> 3%입니다. 시험 여섯 개로 구한 값이어서 "일관된 효과"의 근거로는 약합니다.</span></li>
+</ol>
+
+<h3>하위군 간 차이 검정</h3>
+<p>한 하위군은 유의하고 다른 하위군은 유의하지 않다는 사실은 두 하위군의 효과가 다르다는 증거가 아닙니다. 두 소계의 차이를 직접 검정합니다(19장 다 절 '수식으로 보기').</p>
+<!--FIG:lab19_interaction-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>d = sg.loc["STEMI", "re"] - sg.loc["NSTE-ACS", "re"]</code><span>두 소계(로그 오즈비)의 차이입니다.</span></li>
+<li><code>se_d = np.sqrt(… **2 + … **2)</code><span>차이의 표준오차는 두 표준오차의 제곱을 더한 값의 제곱근입니다.</span></li>
+<li><code>orci(d, se_d)</code><span>로그 오즈비의 차이를 지수로 되돌리면 오즈비의 비가 됩니다.</span></li>
+<li><code>np.sqrt((sg["se_fe"]**2).sum())</code><span>같은 계산을 열 전체의 합으로 짧게 쓴 것입니다. 줄이 둘뿐이어서 가능합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>차이 −0.164, 표준오차 0.094, z = −1.74.</b></span></li>
+<li><span class="mk">2</span><span><b>Q<sub>between</sub> = 3.03.</b> 하위군이 둘이면 z²와 같고 자유도는 1입니다. 논문 그림의 "Test for subgroup differences" 줄에 적히는 χ²입니다.</span></li>
+<li><span class="mk">3</span><span><b>P for interaction = 0.082.</b> 0.05를 넘으므로 두 하위군의 효과가 다르다고 결론 내릴 수 없습니다. 차이가 없다고 단정할 수도 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>오즈비의 비 0.85 (0.71–1.02).</b> 구간이 '차이 없음'(1)과 꽤 큰 차이(0.71)를 함께 포함합니다.</span></li>
+<li><span class="mk">5</span><span><b>소계를 고정효과로 구하면 P = 0.043.</b> 모형 선택에 따라 0.05의 양쪽을 오가는 결과는 그만큼 불안정합니다.</span></li>
+</ol>
+
+<h3>메타회귀</h3>
+<p>메타회귀는 시험의 효과를 결과변수로, 시험 수준의 특성을 설명변수로 놓은 가중회귀입니다. 10개 시험의 STEMI 환자 비율을 넣어 봅니다. 순서는 두 단계입니다. 설명변수로 설명되지 않고 남은 연구 간 분산을 먼저 구하고, 그 값을 더한 가중치로 다시 적합합니다. 이 계산을 한 번에 해 주는 함수는 statsmodels에 없습니다.</p>
+<!--FIG:lab19_metareg-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>es["stemi10"] = (tr["stemi_pct"] - 50) / 10</code><span>50%를 0으로 옮기고 10%p를 한 단위로 삼습니다. 기울기가 "10%p 높을 때"의 값이 됩니다.</span></li>
+<li><code>smf.wls("yi ~ stemi10", data=es, weights=w).fit()</code><span>가중최소제곱<span class="en">(weighted least squares)</span> 회귀입니다. 공식은 <a href="#lab06-s3">실습 6 다 절</a>의 <code>smf.ols</code>와 같고, <code>weights</code>에 준 값이 큰 줄일수록 직선에 더 큰 영향을 줍니다. 첫 적합은 역분산 가중치만 쓴 고정효과 회귀입니다.</span></li>
+<li><code>QE = np.sum(w * m0.resid**2)</code><span><code>resid</code>는 관측값 − 직선의 예측값입니다. Q와 같은 모양으로, 직선 주위의 흩어짐을 잽니다.</span></li>
+<li><code>X = m0.model.exog</code><span>회귀에 들어간 설명변수 행렬입니다. 10행 2열이고 첫 열은 절편을 위한 1, 둘째 열은 stemi10입니다.</span></li>
+<li><code>W = np.diag(w)</code><span>대각선에 가중치 10개를 놓고 나머지는 0인 10 × 10 행렬입니다.</span></li>
+<li><code>A = np.linalg.inv(X.T @ W @ X)</code><span><code>@</code>는 행렬 곱, <code>.T</code>는 전치, <code>np.linalg.inv</code>는 역행렬입니다.</span></li>
+<li><code>C_reg = np.trace(W) - np.trace(A @ X.T @ W @ W @ X)</code><span><code>np.trace</code>는 대각선의 합입니다. 이 식은 나 절의 C를 회귀로 넓힌 것으로, 설명변수가 없으면 Σw − Σw² ÷ Σw와 같아집니다.</span></li>
+<li><code>tau2_res = max(0, (QE - (k - 2)) / C_reg)</code><span>계수가 둘(절편, 기울기)이어서 자유도는 k − 2입니다.</span></li>
+<li><code>.fit(cov_type="fixed scale")</code><span>가중치를 이미 아는 분산의 역수로 보고, 잔차의 크기로 표준오차를 다시 조정하지 않게 합니다. 메타분석의 표준오차는 이 방식으로 구합니다. 이 인자를 빼면 표준오차가 달라집니다.</span></li>
+<li><code>p_b = 2 * stats.norm.sf(abs(b / se_b))</code><span>기울기의 z 검정입니다. 버전에 따라 <code>mr.pvalues</code>가 쓰는 분포가 다를 수 있어 직접 계산했습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>남은 연구 간 분산 0.0044.</b> 설명변수 없이 구한 0.0098보다 작습니다.</span></li>
+<li><span class="mk">2</span><span><b>기울기 −0.094 (표준오차 0.058).</b> STEMI 비율이 10%p 높은 시험일수록 로그 오즈비가 0.094 낮습니다.</span></li>
+<li><span class="mk">3</span><span><b>P = 0.11.</b> 유의하지 않습니다. 환자는 31,725명이어도 회귀에 들어간 점은 10개입니다.</span></li>
+<li><span class="mk">4</span><span><b>오즈비의 비 0.91 (0.81–1.02).</b> STEMI 비율이 50%인 시험과 60%인 시험을 견주면 뒤 시험의 오즈비가 0.91배라는 뜻입니다. 시험 수준의 관계여서 환자 개인에게 옮겨 말할 수 없습니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 이질성, 하위군 분석, 메타회귀의 Results</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">There was some heterogeneity among trials (<span class="mk">1</span> <span class="hl">Q = 13.28, df = 9, P = .15; I² = 32%; τ² = 0.0098</span>), and the <span class="mk">2</span> <span class="hl">95% prediction interval was 0.63–1.08</span>. In the 6 trials that reported outcomes by index event, the pooled OR was 0.78 (95% CI, 0.69–0.89) in patients with STEMI and 0.92 (95% CI, 0.81–1.06) in those with NSTE-ACS (<span class="mk">3</span> <span class="hl">P for interaction = .08</span>). In an <span class="mk">4</span> <span class="hl">exploratory</span> random-effects meta-regression of all 10 trials, the treatment effect did not vary significantly with the proportion of patients with STEMI (ratio of ORs per 10-percentage-point increase, 0.91; 95% CI, 0.81–1.02; P = .11).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>이질성 지표.</b> 셀 13의 값입니다. Q와 P, I², τ²를 함께 적습니다.</span></li>
+<li><span class="mk">2</span><span><b>예측구간.</b> 구간이 1을 포함한다는 사실이 "어떤 환경에서는 효과가 거의 없을 수 있다"는 정보입니다.</span></li>
+<li><span class="mk">3</span><span><b>차이 검정.</b> 셀 15의 0.082입니다. 하위군별 유의성을 견주지 않고 이 P로 판단하며, 결론 문장은 이 P가 뒷받침하는 만큼만 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>탐색적 분석이라는 표시.</b> 점이 10개뿐이고 시험 사이의 관찰적 비교라는 한계를 밝힌 단어입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Q의 P는 이질성 유무의 검정, I²는 흩어짐 가운데 이질성의 비율, τ와 예측구간은 효과가 실제로 다른 크기입니다.</li>
+<li>하위군 분석은 하위군마다 따로 합친 뒤 두 소계의 차이를 z 검정으로 봅니다. 이 P가 P for interaction입니다.</li>
+<li>메타회귀는 남은 연구 간 분산을 구해 가중치에 더한 가중최소제곱 회귀입니다. <code>cov_type="fixed scale"</code>로 적합합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab19-s4">
+<h2><span class="sec-no">라.</span>깔때기 그림과 민감도 분석</h2>
+
+<p>작은 시험일수록 효과가 크게 나오는 경향이 있는지 깔때기 그림<span class="en">(funnel plot)</span>과 Egger 검정으로 살펴보고, 분석의 선택을 하나씩 바꿔 결론이 유지되는지 확인하는 민감도 분석<span class="en">(sensitivity analysis)</span>을 합니다(<a href="#ch19-s4">19장 라 절</a>). 끝으로 통합 오즈비를 NNT<span class="en">(number needed to treat)</span>와 NNH<span class="en">(number needed to harm)</span>로 바꿉니다(<a href="#ch19-s5">19장 마 절</a>).</p>
+
+<h3>깔때기 그림</h3>
+<!--FIG:lab19_funnel-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ax.scatter(es["yi"], es["se"], zorder=3)</code><span>가로에 로그 오즈비, 세로에 표준오차를 놓은 산점도입니다.</span></li>
+<li><code>ax.plot([fe - Z*s_max, fe, fe + Z*s_max], [s_max, 0, s_max], ls="--")</code><span>세 점을 이은 점선 삼각형입니다. 꼭짓점은 표준오차 0에서의 고정효과 통합값이고, 아래로 갈수록 ± 1.96 × 표준오차만큼 벌어집니다. 편향과 이질성이 없다면 시험의 95%가 이 안에 들어옵니다.</span></li>
+<li><code>ax.annotate(name[-1], (x, y), xytext=(5, 3), textcoords="offset points")</code><span>점 옆에 시험 이름의 마지막 글자(A–J)를 적습니다. 글자 위치는 점에서 오른쪽으로 5, 위로 3포인트입니다.</span></li>
+<li><code>ax.set_ylim(s_max, 0)</code><span>세로축 범위를 큰 값부터 적으면 축이 뒤집힙니다. 표준오차가 작은(정밀한) 시험이 위로 갑니다.</span></li>
+<li><code>ax.set_xticks(np.log([0.25, 0.5, 1, 2, 4]))</code><span>가로 좌표는 로그 오즈비이고, 눈금의 이름표만 오즈비로 붙입니다.</span></li>
+</ol>
+<h4>그림 읽기</h4>
+<p>세로축(Standard error)은 위가 큰 시험입니다. 큰 시험 D, F, H, I는 위쪽에 모여 있고, 작은 시험 여섯 개는 아래에서 좌우로 퍼져 있습니다. 효과가 큰 쪽(E, G)과 반대쪽(A, C)이 섞여 있어, 점 열 개로는 대칭인지 아닌지 가릴 수 없습니다.</p>
+
+<h3>Egger 검정</h3>
+<p>Egger 검정은 효과를 표준오차에 대해 가중회귀시켜 기울기가 0인지 보는 검정입니다<cite data-ref="egger1997"></cite>. 앞 절의 <code>smf.wls</code>를 그대로 씁니다.</p>
+<!--FIG:lab19_egger-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>smf.wls("yi ~ se", data=es, weights=1 / es["vi"]).fit()</code><span>로그 오즈비를 표준오차에 회귀시킵니다. 메타회귀와 달리 <code>cov_type</code>을 주지 않아, 표준오차를 잔차의 크기로 조정하고 자유도 k − 2의 t 검정을 하는 기본 방식입니다. Egger 검정은 이 방식으로 정의되어 있습니다.</span></li>
+<li><code>smf.ols("snd ~ prec", data=es).fit()</code><span>원래 논문의 형태입니다. 효과 ÷ 표준오차를 정밀도(1 ÷ 표준오차)에 가중치 없이 회귀시키고 절편을 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기울기 −0.505 (표준오차 0.667).</b> 표준오차가 1 큰 시험일수록 로그 오즈비가 0.51 낮은 방향, 즉 작은 시험일수록 효과가 큰 방향입니다.</span></li>
+<li><span class="mk">2</span><span><b>t = −0.76, 자유도 8</b>, <span class="mk">3</span> <b>P = 0.47.</b> 비대칭의 증거가 없습니다. 편향이 없다는 증거는 아닙니다. 시험 10개는 이 검정을 쓸 수 있는 최소 수준이고 검정력이 낮습니다.</span></li>
+<li><span class="mk">4</span><span><b>원래 형태의 절편 −0.505.</b> 같은 값, 같은 P입니다. 두 식은 같은 회귀를 다르게 적은 것입니다.</span></li>
+</ol>
+
+<h3>한 시험씩 빼기</h3>
+<!--FIG:lab19_loo-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>rest = es.drop(index=i)</code><span>줄 번호가 <code>i</code>인 시험 하나를 뺀 아홉 줄입니다. 원래의 <code>es</code>는 바뀌지 않습니다.</span></li>
+<li><code>rows.append({…})</code><span>뺀 시험의 이름과 나머지 아홉 개의 통합 결과를 사전으로 모읍니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>범위 0.79–0.85.</b> 어느 시험을 빼도 신뢰구간이 1을 넘지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>Trial D를 빼면 0.79 (0.72–0.87)</b>, <span class="mk">3</span> <b>I² = 0%.</b> 이질성의 대부분이 이 시험 하나에서 나왔습니다. 그렇다고 Trial D를 분석에서 지우지는 않습니다. 결과가 다르다는 이유로 연구를 빼면 그것이 또 하나의 편향입니다.</span></li>
+<li><span class="mk">4</span><span><b>가중치가 가장 큰 Trial F를 빼면 0.81 (0.69–0.96).</b> 추정값은 비슷하고 구간이 넓어집니다.</span></li>
+</ol>
+
+<h3>그 밖의 민감도 분석</h3>
+<!--FIG:lab19_sens-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>low = tr["rob"] == "low"</code><span>편향 위험이 낮은 시험이면 True인 열입니다. <code>es.loc[low, "yi"]</code>는 그 여덟 줄의 로그 오즈비입니다.</span></li>
+<li><code>q_hk = np.sum(ws * (es["yi"] - re)**2) / (k - 1)</code><span>무작위효과 가중치로 잰 흩어짐을 자유도로 나눈 값입니다. 그 제곱근을 표준오차에 곱한 것이 Hartung–Knapp 표준오차이고, 구간에는 자유도 k − 1의 t 분포를 씁니다(19장 나 절 '연구 수가 적을 때의 신뢰구간').</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>고정효과 0.84 (0.78–0.91).</b> 주 분석과 추정값이 거의 같습니다. 두 모형의 추정값이 크게 다르면 작은 시험과 큰 시험의 결과가 다르다는 신호입니다.</span></li>
+<li><span class="mk">2</span><span><b>편향 위험이 낮은 8개만 0.83 (0.73–0.94).</b> 뺀 두 시험(C, G)의 가중치가 합쳐 2.4%여서 거의 변하지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>Hartung–Knapp 표준오차 0.0591.</b> 셀 9의 'random effect wls' 줄과 같은 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>구간 0.72–0.94.</b> 주 분석(0.73–0.93)보다 조금 넓습니다.</span></li>
+</ol>
+
+<h3>NNT와 NNH</h3>
+<p>통합 오즈비는 상대적 효과입니다. 절대적 효과는 기저 위험에 오즈비를 적용해 구합니다. 위험을 오즈로 바꾸고, 오즈비를 곱하고, 다시 위험으로 바꾸는 세 줄입니다(19장 마 절 '숫자로 따라가기'). 기저 위험은 12개월 동안 추적한 세 시험의 위약군에서 가져옵니다.</p>
+<!--FIG:lab19_nnt-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def risk_with(p0, OR):</code><span>기저 위험 <code>p0</code>에 오즈비를 적용한 위험을 돌려줍니다. 오즈비는 위험에 직접 곱하지 않습니다.</span></li>
+<li><code>ORs = np.exp([est, est - Z * se, est + Z * se])</code><span>오즈비의 추정값, 하한, 상한을 배열 하나에 담습니다. 배열을 <code>risk_with</code>에 넣으면 세 값이 한꺼번에 계산됩니다.</span></li>
+<li><code>lo, hi = sorted(1 / np.abs(rd[1:]))</code><span><code>rd[1:]</code>는 위험차의 양 끝입니다. 절댓값의 역수를 작은 순서로 놓아 NNT의 구간으로 삼습니다. 오즈비의 구간이 1을 포함하면 위험차의 구간이 0을 지나므로 이렇게 구한 구간을 쓸 수 없습니다(19장 마 절 'NNT의 신뢰구간').</span></li>
+<li><code>"… {:.2f} ({:.2f}, {:.2f})".format(*(100 * rd))</code><span><code>format</code>은 중괄호 자리에 값을 차례로 넣습니다. <code>*</code>로 배열의 세 값을 풀어 넣었습니다.</span></li>
+<li><code>p0 = round(y12["mace_pbo"].sum() / n_ctl, 3)</code><span>662 ÷ 7,870 = 0.0841을 본문처럼 0.084로 반올림해 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>위약군 662/7,870명.</b> 12개월 허혈 사건 위험 8.4%입니다. 주요 출혈은 93/7,870명, 1.2%입니다.</span></li>
+<li><span class="mk">2</span><span><b>8.4% → 7.04%.</b> 오즈 0.0917에 0.825를 곱해 0.0757, 위험으로 바꿔 7.04%입니다.</span></li>
+<li><span class="mk">3</span><span><b>위험차 −1.36%p (−2.11, −0.54).</b> 괄호 안은 오즈비의 하한과 상한을 넣은 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>1,000명당 14건 감소 (5–21건).</b></span></li>
+<li><span class="mk">5</span><span><b>NNT 73 (47–186).</b> 12개월 허혈 사건 위험이 8.4%인 환자 73명을 12개월 치료하면 1건을 막습니다. 기저 위험과 기간이 빠진 NNT는 해석할 수 없습니다.</span></li>
+<li><span class="mk">6</span><span><b>주요 출혈 1.2% → 2.70%.</b></span></li>
+<li><span class="mk">7</span><span><b>1,000명당 15건 증가 (11–20건)</b>, <span class="mk">8</span> <b>NNH 67 (50–94).</b> NNT에서 NNH를 빼지 않습니다. 이득과 위해는 1,000명당 사건 수로 나란히 놓고 봅니다.</span></li>
+</ol>
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p><code>absolute(0.15, m["re"], m["se_re"])</code>를 실행하면 허혈 사건 위험이 15%인 고위험 환자군의 NNT가 44 (28–112)로 나옵니다. <code>absolute(0.03, mb["re"], mb["se_re"])</code>는 출혈 위험이 3%인 환자군의 NNH 28 (21–39)을 줍니다. 오즈비가 같아도 기저 위험에 따라 절대적 효과가 달라집니다(19장 마 절 '스스로 확인하기' 1번).</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 출판 편향, 민감도 분석, 절대적 효과의 Results</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">The funnel plot did not suggest asymmetry (<span class="mk">1</span> <span class="hl">Egger test, P = .47</span>), although the power of this test is limited with 10 trials. The pooled estimate was similar in the fixed-effect analysis (OR, 0.84; 95% CI, 0.78–0.91) and after exclusion of the 2 trials not at low risk of bias (OR, 0.83; 95% CI, 0.73–0.94). <span class="mk">2</span> <span class="hl">In leave-one-out analyses, the pooled OR ranged from 0.79 to 0.85</span>; omitting Trial D reduced I² from 32% to 0%. <span class="mk">3</span> <span class="hl">Applying the pooled ORs to the 12-month risks in the placebo groups of the trials with 12 months of follow-up (8.4% and 1.2%)</span>, treatment of 1,000 patients for 12 months would prevent <span class="mk">4</span> <span class="hl">14 ischemic events (95% CI, 5–21; NNT, 73)</span> and cause <span class="hl">15 major bleeding events (95% CI, 11–20; NNH, 67)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Egger 검정.</b> 셀 18의 P입니다. 검정력의 한계를 함께 적습니다.</span></li>
+<li><span class="mk">2</span><span><b>한 시험씩 뺀 범위.</b> 셀 19의 가장 낮은 값과 가장 높은 값입니다. 전체 표는 부록에 싣습니다.</span></li>
+<li><span class="mk">3</span><span><b>기저 위험의 출처와 기간.</b> 이 두 가지가 있어야 뒤의 숫자를 다른 환자군에 옮겨 쓸 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>1,000명당 사건 수.</b> 셀 21의 값입니다. 이득과 위해를 같은 분모로 나란히 적습니다. 건수는 비슷하지만 사건의 무게가 달라 이 문장만으로 순이득을 판정하지 않습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>깔때기 그림은 효과와 표준오차의 산점도이고, Egger 검정은 효과를 표준오차에 가중회귀시킨 기울기의 검정입니다. 유의하지 않은 결과는 편향이 없다는 증거가 아닙니다.</li>
+<li>한 시험씩 빼기는 반복문 안에서 통합 함수를 다시 부르면 됩니다. 결론이 한 시험에 달려 있는지 확인하는 분석이고, 시험을 고르는 도구가 아닙니다.</li>
+<li>NNT와 NNH는 기저 위험에 통합 오즈비를 적용해 구합니다. 기저 위험의 출처와 기간을 함께 적습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 과제 -->
+<section class="sec" id="lab19-s5">
+<h2><span class="sec-no">마.</span>과제</h2>
+
+<p>앞에서 만든 <code>es</code>, <code>bl</code>, <code>pool</code>, <code>orci</code>를 그대로 씁니다. 먼저 스스로 풀어 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 임상시험 단계에 따른 하위군 분석</h3>
+<p>10개 시험을 2상과 3상으로 나누어 따로 합치고, 두 소계의 차이 검정 P를 구해 보세요. 다 절의 하위군 분석과 같은 방법이고, 나누는 기준만 <code>tr["phase"]</code>입니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab19_hw1-->
+<p>2상 시험 6개는 <span class="mk">2</span> 0.73 (0.57–0.95), 3상 시험 4개는 <span class="mk">3</span> 0.85 (0.73–0.98)이고 차이 검정의 P는 <span class="mk">1</span> 0.36입니다(19장 다 절 '하위군의 세 가지 수준'). 3상 시험끼리의 I²는 <span class="mk">4</span> 63%로, Trial D가 여기에 들어 있기 때문입니다. 이 분석은 시험과 시험 사이의 비교입니다. 2상 시험은 규모가 작고 추적이 짧으며 환자 구성도 달라서, 차이가 유의했더라도 "2상이어서 효과가 크다"고 말할 수 없습니다.</p>
+</div></details>
+
+<h3>과제 2. 상대위험도와 위험차로 통합</h3>
+<p>효과 지표를 오즈비에서 상대위험도로 바꿔 무작위효과 모형으로 합쳐 보세요. 로그 상대위험도의 분산은 1/a − 1/n₁ + 1/c − 1/n₀입니다. 이어서 위험차를 시험마다 구해 합쳐 보세요. 위험차의 분산은 p₁(1 − p₁)/n₁ + p₀(1 − p₀)/n₀이고 로그를 취하지 않습니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab19_hw2-->
+<p>상대위험도는 <span class="mk">1</span> 0.84 (0.75–0.94)로 오즈비 0.83과 비슷합니다. 허혈 사건이 10% 안팎으로 드물기 때문이고, 결과가 흔할수록 오즈비는 상대위험도보다 1에서 멀어집니다. <code>orci</code>는 로그 척도의 값을 지수로 되돌리는 함수여서 상대위험도에도 그대로 쓸 수 있습니다. 위험차는 <span class="mk">2</span> −1.24%p (−2.02 ~ −0.46)이고 I²는 <span class="mk">3</span> 34%입니다(19장 마 절 '내 연구에 쓸 때'). 기저 위험과 추적 기간이 다른 시험들에서는 위험차가 시험마다 달라지므로, 대개 상대적 효과를 먼저 합치고 라 절처럼 기저 위험에 적용합니다.</p>
+</div></details>
+
+<h3>과제 3. 주요 출혈의 민감도 분석</h3>
+<p>주요 출혈의 통합 오즈비가 0건 처리 방법에 따라 달라지는지 확인해 보세요. Trial C를 뺀 결과와 수정 없이 계산하는 Mantel–Haenszel 결과를 구해 0.5를 더한 결과와 견주고, Trial C와 3상 시험 네 개의 가중치 비율을 구합니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab19_hw3-->
+<p>0.5를 더했을 때 <span class="mk">1</span> 2.28 (1.90–2.74), Trial C를 뺐을 때 <span class="mk">2</span> 2.28 (1.90–2.73), Mantel–Haenszel 방법으로 <span class="mk">3</span> 2.31 (1.93–2.77)입니다. 세 값이 거의 같은 것은 Trial C의 가중치가 <span class="mk">4</span> 0.4%뿐이기 때문입니다. 0건 연구가 많거나 가중치가 크면 처리 방법에 따라 결과가 달라질 수 있어 이런 비교가 필요합니다. 3상 시험 네 개의 가중치 합은 <span class="mk">5</span> 94.2%로 19장 나 절의 값과 같습니다. 포레스트 플롯에 적힌 네 값(22.2, 40.7, 19.0, 12.2)을 더하면 94.1%가 되는데, 반올림한 값을 더해서 생기는 차이입니다. 열 개 시험을 합쳤지만 결과는 사실상 큰 시험 네 개가 정합니다.</p>
+</div></details>
+</section>

@@ -530,7 +530,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 </ul>
 <p>영국 NICE의 의사결정지원단<span class="en">(Decision Support Unit)</span>이 낸 기술지원문서<span class="en">(Technical Support Document, TSD)</span> 19는 상태전이 모형을 함께 만들어 외삽을 검증하고, 상태별 생존 기간이 그럴듯한지를 시험 자료와 외부 자료, 임상 전문가 의견으로 점검하도록 권고합니다<cite data-ref="woods2017tsd19"></cite><cite data-ref="woods2020psm"></cite>.</p>
 <!--FOLD:자세히 보기: 두 곡선이 만나는 경우-->
-<p>공통 예시에서 무진행생존의 와이블 모양 모수는 0.95(위험률이 시간에 따라 조금씩 낮아짐), 전체생존은 1.15(조금씩 높아짐)입니다. 모양이 다른 두 곡선은 충분히 먼 시점에서 만납니다. 기준 분석에서 그 시점은 표준요법 B 3,725개월, 신약 A 1,821개월로 분석기간 240개월보다 한참 뒤여서 결과에 영향이 없습니다. 그러나 24장의 확률적 민감도 분석처럼 모수를 흔들면 분석기간 안에서 만나는 조합이 나옵니다. 공통 예시의 분포에서 입력값을 5,000벌 뽑아 보면 약 22%에서 두 곡선이 20년 안에 만납니다(두 곡선의 모수를 서로 독립으로 뽑기 때문입니다. 그 절반가량은 두 곡선이 모두 0에 가까워진 꼬리에서 만나 영향이 작지만, 더 일찍 만나는 조합도 있습니다). 그래서 공통 예시의 코드는 무진행생존이 전체생존을 넘으면 전체생존 값으로 잘라 진행 상태의 비율이 음수가 되지 않게 합니다. 이 장치가 자주 작동하는 모형은 두 곡선의 외삽이 서로 맞지 않는다는 신호이므로 곡선 선택을 다시 봐야 합니다.</p>
+<p>공통 예시에서 무진행생존의 와이블 모양 모수는 0.95(위험률이 시간에 따라 조금씩 낮아짐), 전체생존은 1.15(조금씩 높아짐)입니다. 모양이 다른 두 곡선은 충분히 먼 시점에서 만납니다. 기준 분석에서 그 시점은 표준요법 B 3,725개월, 신약 A 1,821개월로 분석기간 240개월보다 한참 뒤여서 결과에 영향이 없습니다. 그러나 24장의 확률적 민감도 분석처럼 모수를 흔들면 분석기간 안에서 만나는 조합이 나옵니다. 그래서 24장에서는 무진행생존과 전체생존의 곡선과 위험비를 양의 상관을 주어 함께 뽑고, 그래도 두 곡선이 20년 안에 만나는 벌(뽑은 것의 약 3%)은 버리고 다시 뽑습니다(24장 나 절). 공통 예시의 코드에는 이와 별도로 무진행생존이 전체생존을 넘으면 전체생존 값으로 잘라 진행 상태의 비율이 음수가 되지 않게 하는 장치가 있습니다. 이 장치가 자주 작동하는 모형은 두 곡선의 외삽이 서로 맞지 않는다는 신호이므로 곡선 선택을 다시 봐야 합니다.</p>
 <!--/FOLD-->
 
 <h3>두 모형의 비교</h3>
@@ -596,8 +596,8 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <thead><tr><th>Parameter</th><th class="r">Base case</th><th>Distribution <span class="mk">6</span></th><th>Source</th></tr></thead>
 <tbody>
 <tr class="grp"><td colspan="4">Survival, standard therapy B (Weibull)</td></tr>
-<tr><td class="ind">PFS: scale λ; shape γ</td><td class="r">0.0778; 0.95</td><td>Lognormal</td><td>Pivotal trial</td></tr>
-<tr><td class="ind">OS: scale λ; shape γ</td><td class="r">0.0150; 1.15</td><td>Lognormal</td><td>Pivotal trial</td></tr>
+<tr><td class="ind">PFS: median, months; shape γ</td><td class="r">10.0; 0.95</td><td>Lognormal</td><td>Pivotal trial</td></tr>
+<tr><td class="ind">OS: median, months; shape γ</td><td class="r">28.0; 1.15</td><td>Lognormal</td><td>Pivotal trial</td></tr>
 <tr class="grp"><td colspan="4">Treatment effect, drug A vs B</td></tr>
 <tr><td class="ind">HR for PFS (95% CI)</td><td class="r"><span class="mk">7</span> 0.65 (0.52–0.81)</td><td>Lognormal</td><td>Pivotal trial</td></tr>
 <tr><td class="ind">HR for OS (95% CI)</td><td class="r">0.75 (0.58–0.97)</td><td>Lognormal</td><td>Pivotal trial</td></tr>
@@ -612,7 +612,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <tr><td class="ind">End-of-life care, one-off (SE)</td><td class="r">800 (160)</td><td>Gamma</td><td>Claims data</td></tr>
 <tr><td class="ind">Adverse events, one-off, A; B</td><td class="r">120; 80</td><td>Gamma</td><td>Trial and claims data</td></tr>
 </tbody></table></div>
-<p class="jt-foot">PFS, progression-free survival; OS, overall survival; HR, hazard ratio; SE, standard error. Weibull survival function S(t) = exp(−λt<sup>γ</sup>), t in months.</p>
+<p class="jt-foot">PFS, progression-free survival; OS, overall survival; HR, hazard ratio; SE, standard error. Weibull survival function S(t) = exp(−λt<sup>γ</sup>) with λ = ln 2 ÷ median<sup>γ</sup>, t in months.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>모형의 종류와 상태.</b> 세 상태의 분할생존모형입니다. 전이확률 표가 없는 것이 정상이고, 대신 곡선의 모수가 입력값 표에 있어야 합니다.</span></li>
 <li><span class="mk">2</span><span><b>진행 상태 = OS − PFS.</b> 분할생존모형임을 알려 주는 문장입니다. 진행 후 생존을 따로 모형화하지 않았다는 뜻이기도 합니다.</span></li>

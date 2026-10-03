@@ -1,0 +1,45 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+raw = pd.read_csv(BASE + &quot;sedative_district_month.csv&quot;)
+print(raw.shape)
+raw.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(3600, 5)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>unit</th>
+      <th>treat</th>
+      <th>month</th>
+      <th>n_pat</th>
+      <th>n_sed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>2015-01-01<span class="mk">2</span></td>
+      <td>8000</td>
+      <td>747<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>1</td>
+      <td>2015-02-01</td>
+      <td>8016</td>
+      <td>787</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>1</td>
+      <td>2015-03-01</td>
+      <td>8032</td>
+      <td>777</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

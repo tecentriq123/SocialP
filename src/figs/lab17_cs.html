@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">원인별 Cox 모형 (투석, 투석 전 사망)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+
+cols = [&quot;exp(coef)&quot;, &quot;exp(coef) lower 95%&quot;,
+        &quot;exp(coef) upper 95%&quot;, &quot;p&quot;]
+cs_dial = CoxPHFitter().fit(ckd, &quot;years&quot;, &quot;dial&quot;, formula=&quot;drug_a&quot;)
+cs_death = CoxPHFitter().fit(ckd, &quot;years&quot;, &quot;death&quot;, formula=&quot;drug_a&quot;)
+print(cs_dial.summary[cols].round(3))
+print(cs_death.summary[cols].round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           exp(coef)  exp(coef) lower 95%  exp(coef) upper 95%      p
+covariate                                                            
+drug_a         1.018<span class="mk">1</span>                0.892                1.162  0.787<span class="mk">2</span>
+           exp(coef)  exp(coef) lower 95%  exp(coef) upper 95%    p
+covariate                                                          
+drug_a         0.551<span class="mk">3</span>                0.494                0.614  0.0</pre></div></div>

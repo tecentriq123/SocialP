@@ -1,0 +1,50 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">5년 시점의 세 상태와 합계, 1 − Kaplan-Meier</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for g in [&quot;A&quot;, &quot;B&quot;]:
+    d = ckd[ckd[&quot;drug&quot;] == g]
+    km_any = KaplanMeierFitter().fit(d[&quot;years&quot;], d[&quot;status&quot;] &gt; 0)
+    km_dial = KaplanMeierFitter().fit(d[&quot;years&quot;], d[&quot;status&quot;] == 1)
+    rows.append({&quot;drug&quot;: g,
+                 &quot;dialysis&quot;: cif(d, 1, 5)[0],
+                 &quot;death&quot;: cif(d, 2, 5)[0],
+                 &quot;event_free&quot;: km_any.predict(5),
+                 &quot;km_dialysis&quot;: 1 - km_dial.predict(5)})
+five = pd.DataFrame(rows).set_index(&quot;drug&quot;) * 100
+five[&quot;sum&quot;] = five[&quot;dialysis&quot;] + five[&quot;death&quot;] + five[&quot;event_free&quot;]
+five.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dialysis</th>
+      <th>death</th>
+      <th>event_free</th>
+      <th>km_dialysis</th>
+      <th>sum</th>
+    </tr>
+    <tr>
+      <th>drug</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A</th>
+      <td>30.2<span class="mk">1</span></td>
+      <td>35.2<span class="mk">2</span></td>
+      <td>34.6<span class="mk">3</span></td>
+      <td>39.0<span class="mk">4</span></td>
+      <td>100.0<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td>24.5</td>
+      <td>53.0</td>
+      <td>22.5</td>
+      <td>39.2<span class="mk">6</span></td>
+      <td>100.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

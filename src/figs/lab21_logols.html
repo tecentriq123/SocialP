@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">로그 변환 회귀와 되돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">logm = smf.ols(&quot;np.log(cost) ~ trt + age + male + cci + stage4&quot;,
+               data=df).fit()
+print(&quot;exp(b):&quot;, np.exp(logm.params[&quot;trt&quot;]).round(3),
+      np.exp(logm.conf_int().loc[&quot;trt&quot;]).round(3).tolist())
+
+dA, dB = df.assign(trt=1), df.assign(trt=0)   # 모두 A, 모두 B
+nA = np.exp(logm.predict(dA)).mean()
+nB = np.exp(logm.predict(dB)).mean()
+print(&quot;그대로 되돌림  :&quot;, round(nA, 1), round(nB, 1),
+      round(nA - nB, 1))
+
+s = np.exp(logm.resid).mean()                 # smearing 계수 하나
+print(&quot;smearing 계수  :&quot;, round(s, 3))
+print(&quot;계수 하나로 보정:&quot;, round(nA * s, 1), round(nB * s, 1),
+      round((nA - nB) * s, 1))
+
+sA = np.exp(logm.resid[df[&quot;trt&quot;] == 1]).mean()
+sB = np.exp(logm.resid[df[&quot;trt&quot;] == 0]).mean()
+print(&quot;군별 계수 A, B :&quot;, round(sA, 3), round(sB, 3))
+print(&quot;군별 계수로 보정:&quot;, round(nA * sA, 1), round(nB * sB, 1),
+      round(nA * sA - nB * sB, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>exp(b): 1.295<span class="mk">1</span> [1.247, 1.344]
+그대로 되돌림  : 2508.2 1937.5 570.7<span class="mk">2</span>
+smearing 계수  : 1.127<span class="mk">3</span>
+계수 하나로 보정: 2826.9 2183.7 643.2<span class="mk">4</span>
+군별 계수 A, B : 1.091 1.151<span class="mk">5</span>
+군별 계수로 보정: 2737.3 2230.0 507.3<span class="mk">6</span></pre></div></div>

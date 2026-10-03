@@ -1,0 +1,76 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">시간 변수와 처방률 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d = raw.copy()
+d[&quot;date&quot;] = pd.to_datetime(d[&quot;month&quot;])
+d[&quot;time&quot;] = ((d[&quot;date&quot;].dt.year - 2015) * 12
+             + d[&quot;date&quot;].dt.month)              # 1, 2, ..., 60
+d[&quot;post&quot;] = (d[&quot;time&quot;] &gt; 36).astype(int)        # 2018년 1월부터 1
+d[&quot;time_after&quot;] = np.where(d[&quot;post&quot;] == 1, d[&quot;time&quot;] - 36, 0)
+d[&quot;rate&quot;] = d[&quot;n_sed&quot;] / d[&quot;n_pat&quot;] * 1000      # 1,000명당
+
+cols = [&quot;month&quot;, &quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;,
+        &quot;n_pat&quot;, &quot;n_sed&quot;, &quot;rate&quot;]
+d.loc[d[&quot;unit&quot;] == 1, cols].iloc[[0, 35, 36, 37, 59]].round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>month</th>
+      <th>time</th>
+      <th>post</th>
+      <th>time_after</th>
+      <th>n_pat</th>
+      <th>n_sed</th>
+      <th>rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2015-01-01</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>8000</td>
+      <td>747</td>
+      <td>93.38<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>2017-12-01<span class="mk">1</span></td>
+      <td>36</td>
+      <td>0</td>
+      <td>0</td>
+      <td>8560</td>
+      <td>774</td>
+      <td>90.42</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>2018-01-01<span class="mk">2</span></td>
+      <td>37</td>
+      <td>1</td>
+      <td>1</td>
+      <td>8576</td>
+      <td>716</td>
+      <td>83.49</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>2018-02-01</td>
+      <td>38</td>
+      <td>1</td>
+      <td>2</td>
+      <td>8592</td>
+      <td>718</td>
+      <td>83.57</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>2019-12-01</td>
+      <td>60</td>
+      <td>1</td>
+      <td>24</td>
+      <td>8944</td>
+      <td>674</td>
+      <td>75.36</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

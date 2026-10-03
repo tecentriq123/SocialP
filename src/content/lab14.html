@@ -1,0 +1,473 @@
+<p class="lead">14장의 예제 연구(SGLT2 억제제 대 DPP-4 억제제 신규 사용자의 심부전 입원)를 청구자료 모양의 원자료에서 직접 만들어 봅니다. 자격, 명세서·상병, 처방 세 표를 불러와 신규 사용자 코호트를 고르고, 처방 기록에서 중단일을, 명세서에서 결과와 공변량을 만든 뒤, 추적 기간과 발생률, 위험비까지 구해 Methods·Results 문장으로 옮깁니다. 설계의 이유는 <a href="#ch14">14장</a>에서 설명했으므로 여기서는 코드로 옮기는 과정에 집중합니다.</p>
+
+<dl class="glance">
+<div><dt>관련 이론</dt><dd><a href="#ch14-s1">14장 가 절</a>(청구자료의 구조), <a href="#ch14-s2">나 절</a>(신규 사용자·활성 비교군), <a href="#ch14-s3">다 절</a>(노출·결과·공변량), <a href="#ch14-s4">라 절</a>(추적과 분석 전략)</dd></div>
+<div><dt>데이터</dt><dd>이 사이트가 만든 가상 청구자료. 14장 예제 연구의 30분의 1 표본으로, 자격 표 10,150명, 명세서 표 53,895건, 처방 표 111,405건입니다. 실습을 마치면 5,552명의 분석용 코호트가 만들어집니다. 본문의 전체 코호트 166,548명은 한 사람 한 줄의 분석용 파일로 따로 줍니다.</dd></div>
+<div><dt>사용 패키지</dt><dd>pandas, numpy, scipy, matplotlib, lifelines</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). lifelines는 첫 셀에서 설치</dd></div>
+</dl>
+<p class="nb-link"><a href="notebooks/lab14.ipynb" download>실습 노트북 내려받기 (lab14.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab14-s1">
+<h2><span class="sec-no">가.</span>청구자료의 표 구조</h2>
+
+<p>이론 장의 예제는 환자 한 명이 한 줄인 코호트에서 출발했습니다. 실제 연구는 그 앞 단계에서 시간이 가장 많이 듭니다. 청구자료는 명세서 한 건, 처방 한 건이 한 줄이어서 한 사람이 여러 줄을 가지며(<a href="#ch14-s1">14장 가 절</a>), 이것을 환자 한 명이 한 줄인 표로 모으는 일이 분석의 대부분입니다. 이 절에서는 세 표를 불러와 한 줄이 무엇인지 확인하고, 한 사람의 기록을 세 표에서 따라가 봅니다.</p>
+
+<div class="callout note"><p class="ct">이 실습의 자료</p>
+<p>실제 환자 자료가 아니라 이 사이트가 만든 가상 자료입니다. 14장의 예제 연구는 30만 명에서 출발해 166,548명을 분석하고 처방이 약 270만 건이어서 내려받기에 너무 큽니다. 그래서 30분의 1을 뽑은 표본을 씁니다. 출발 인원은 1만 명, 분석 코호트는 5,552명이고, 코호트에 든 사람은 본문의 시뮬레이션이 만든 사람 그대로입니다.</p>
+<ul>
+<li><b>본문과 같게 나오는 것.</b> 선정 흐름의 단계별 인원은 본문 표 14-3의 30분의 1(반올림)입니다. 기저 특성의 평균과 비율, 1,000인년당 발생률, 발생률비, 위험비의 점 추정값은 본문과 같게 나오도록 표본을 골랐습니다. 30분의 1을 무작위로 뽑았다면 이렇게 되지 않습니다. 사건이 적어 추정값이 뽑을 때마다 크게 달라지기 때문이고, 그 폭을 보여 주는 것이 아래의 넓은 신뢰구간입니다. 점 추정값이 본문과 같은 것은 그렇게 맞춘 표본이어서이지, 30분의 1만 보아도 같은 답이 나온다는 뜻이 아닙니다.</li>
+<li><b>본문과 다르게 나오는 것.</b> 사건 수가 30분의 1(SGLT2 억제제군 320건 대신 11건)이어서 신뢰구간이 본문보다 훨씬 넓습니다. 사건 수가 정수여서 발생률이 본문과 같아지도록 인년을 맞췄고, 그래서 인년은 본문의 30분의 1과 조금 다릅니다(주 분석에서 SGLT2 억제제군 3.1%, DPP-4 억제제군 0.3%). 본문의 신뢰구간까지 그대로 얻는 방법은 라 절 끝에서 전체 코호트 파일로 확인합니다.</li>
+<li><b>구조를 단순하게 한 것.</b> 본문은 HIRA 자료를 가정했고 HIRA 자료에는 자격 파일이 따로 없습니다(<a href="#ch14-s1">14장 가 절</a> 표 14-2). 실제 HIRA 자료에서 성별과 나이는 명세서에 적혀 있고, 사망은 병원 안에서의 사망만 명세서의 진료 결과로 알 수 있습니다. 여기서는 연습하기 쉽게 성별, 출생연도, 사망일(본문 예제의 병원 내 사망)을 사람 단위 표 하나에 모았습니다. 그래서 이 표의 모양은 NHIS 자료의 자격 DB에 더 가깝습니다. 상병은 실제로는 상병내역에 상병 하나가 한 줄로 따로 있지만, 여기서는 명세서 한 줄에 주상병과 부상병 둘까지를 열로 붙였습니다. 처방은 원외처방 내역의 약 한 품목이 한 줄인 것을 계열 하나가 한 줄이 되게 줄이고, 주성분코드 대신 계열 이름을 적었습니다. 진료내역(시술, 검사, 입원 중에 쓴 약)과 비용은 넣지 않았고, 명세서 표에는 처방이 나온 외래 방문 가운데 일부만 넣었습니다.</li>
+</ul></div>
+
+<p class="tbl-cap"><b>표 L14-1.</b> 실습 자료 파일</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>파일</th><th>한 행</th><th class="r">행 수</th><th>열</th></tr></thead>
+<tbody>
+<tr><td>claims_person.csv<br>(자격)</td><td>사람 한 명</td><td class="r">10,150</td><td><code>pid</code> 개인 식별번호, <code>sex</code> 성별(M, F), <code>birth_year</code> 출생연도, <code>elig_start</code>·<code>elig_end</code> 자격 시작일과 종료일, <code>death_date</code> 사망일(없으면 빈칸)</td></tr>
+<tr><td>claims_visit.csv<br>(명세서·상병)</td><td>명세서 한 건<br>(외래 방문 한 번 또는 입원 한 번)</td><td class="r">53,895</td><td><code>pid</code>, <code>visit_date</code> 진료 개시일, <code>setting</code> 입원(I)·외래(O), <code>dx_main</code> 주상병, <code>dx_sub1</code>·<code>dx_sub2</code> 부상병(없으면 빈칸). 상병은 KCD(ICD-10) 코드에서 점을 뺀 모양(I50.0은 I500)</td></tr>
+<tr><td>claims_rx.csv<br>(처방)</td><td>처방 한 건<br>(약 계열 하나)</td><td class="r">111,405</td><td><code>pid</code>, <code>rx_date</code> 처방일, <code>drug</code> 약 계열(SGLT2i, DPP4i, metformin, insulin, sulfonylurea, statin), <code>days</code> 투여일수(공급일수)</td></tr>
+<tr><td>sglt2_cohort.csv<br>(분석용 코호트)</td><td>코호트의 사람 한 명</td><td class="r">5,552</td><td>실습을 끝까지 하면 만들어지는 표. <code>pid</code>, <code>arm</code> index date의 계열, <code>sglt2</code> SGLT2 억제제군이면 1, <code>index_date</code>, <code>age</code>, <code>female</code>, 기저 공변량 <code>htn</code>·<code>ihd</code>·<code>hf</code>·<code>ckd</code>·<code>met</code>·<code>ins</code>(있으면 1), as-treated 추적의 <code>end_date</code>·<code>reason</code>·<code>time</code>(일)·<code>event</code>, ITT 방식 추적의 <code>time_itt</code>·<code>event_itt</code></td></tr>
+<tr><td>sglt2_cohort_full.csv<br>(전체 코호트)</td><td>본문 코호트의 사람 한 명</td><td class="r">166,548</td><td>본문의 전체 코호트를 같은 정의로 정리한 표(5MB). 이 사람들의 원자료 표는 없고, 분석에 쓰는 열만 있습니다. <code>sglt2</code>, <code>age</code>, <code>female</code>, <code>htn</code>, <code>ihd</code>, <code>hf</code>, <code>ckd</code>, <code>met</code>, <code>ins</code>, <code>time</code>, <code>event</code>, <code>time_itt</code>, <code>event_itt</code>. ITT 추적이 as-treated 추적과 같은 사람은 뒤의 두 칸이 비어 있습니다.</td></tr>
+</tbody></table></div>
+
+<h3>lifelines 설치와 자료 불러오기</h3>
+<p>설치는 <a href="#lab07-s1">실습 7 가 절</a>과 같습니다. 자료는 사이트 주소에서 바로 읽으므로 인터넷이 연결되어 있어야 합니다.</p>
+<!--FIG:lab14_install-->
+<!--FIG:lab14_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>BASE = "https://…/data/"</code><span>자료 폴더의 주소를 변수에 담아 두고, 뒤에 파일 이름을 붙여 씁니다.</span></li>
+<li><code>parse_dates=["visit_date"]</code><span>CSV에서 날짜는 "2019-08-21" 같은 글자입니다. 이 인자에 열 이름을 주면 읽을 때 날짜 자료형으로 바꿉니다. 날짜 자료형이어야 날짜끼리 빼서 일수를 구하고, 앞뒤를 비교하고, 연도를 꺼낼 수 있습니다. 이미 읽은 표라면 <code>rx["rx_date"] = pd.to_datetime(rx["rx_date"])</code>로 바꿉니다.</span></li>
+<li><code>print(rx.dtypes)</code><span>열마다 자료형을 보여 줍니다. 날짜 열이 날짜로 읽혔는지 확인하는 습관을 들입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(행 수, 열 수).</b> 자격 표 10,150행, 명세서 표 53,895행, 처방 표 111,405행입니다.</span></li>
+<li><span class="mk">2</span><span><b>datetime64.</b> 날짜 자료형입니다. 대괄호 안의 단위(us, ns)와 글자 열의 표시(str, object)는 pandas 버전에 따라 다르게 보이며 결과에는 영향이 없습니다. 이 페이지의 출력은 pandas 3.0, lifelines 0.30.3으로 얻었습니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">이런 오류가 나면</p>
+<p><code>parse_dates</code>를 빼고 읽으면 날짜가 글자로 남습니다. 그 상태로 날짜를 빼면 <code>TypeError: unsupported operand type(s) for -: 'str' and 'str'</code>, <code>.dt.year</code>를 쓰면 <code>AttributeError: Can only use .dt accessor with datetimelike values</code>가 납니다. 두 오류 모두 날짜 열을 날짜 자료형으로 바꾸면 해결됩니다.</p></div>
+
+<h3>표마다 한 줄이 무엇인지 확인하기</h3>
+<!--FIG:lab14_head-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>NaT.</b> 날짜가 비어 있다는 표시입니다(not a time). 사망일이 NaT이면 자료 기간 안에 사망 기록이 없다는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>setting.</b> O는 외래, I는 입원입니다. 결과(심부전 입원)를 정의할 때 이 열을 씁니다.</span></li>
+<li><span class="mk">3</span><span><b>상병코드.</b> I209는 I20.9(협심증)입니다. 실제 청구자료처럼 점 없이 적혀 있어서, 코드를 찾을 때는 앞 세 글자가 I20인지처럼 앞부분으로 비교합니다.</span></li>
+<li><span class="mk">4</span><span><b>NaN.</b> 부상병이 없는 자리입니다. 글자 열의 빈칸은 뒤에서 코드를 비교할 때 따로 처리해야 합니다(나 절 셀 10).</span></li>
+<li><span class="mk">5</span><span><b>days.</b> 투여일수입니다. 처방일에 이 값을 더한 날이 약이 떨어지는 날입니다(다 절).</span></li>
+</ol>
+<!--FIG:lab14_units-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>person["pid"].nunique()</code><span>서로 다른 값의 개수입니다(<a href="#lab10-s1">실습 10 가 절</a>). 행 수와 같으면 한 사람이 한 줄입니다.</span></li>
+<li><code>person["elig_start"].min().date()</code><span>날짜 열의 가장 이른 값을 구하고, <code>.date()</code>로 시각 부분을 떼어 날짜만 보여 줍니다.</span></li>
+<li><code>rx.groupby("pid").size()</code><span>사람마다 처방 건수를 셉니다. 결과는 pid가 이름표(index)이고 건수가 값인 Series입니다. 여기에 <code>.describe()</code>를 붙여 분포를 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>자격 표는 한 사람이 한 줄.</b> 행 수와 사람 수가 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>처방 표는 한 사람이 여러 줄.</b> 10,150명이 111,405건을 가집니다. 이 표의 행 수를 세면 환자 수가 아니라 처방 건수가 나옵니다.</span></li>
+<li><span class="mk">3</span><span><b>자격 기간.</b> 모든 사람의 자격이 2015-01-01에 시작합니다. index date가 2016년 이후이므로 누구에게나 이전 365일의 기록을 확인할 수 있습니다. 실제 자료에서 자격 시작일이 사람마다 다르면, index date 365일 전부터 자격이 있던 사람만 남기는 단계가 하나 더 들어갑니다(<a href="#ch14-s2">14장 나 절</a> '세척 기간을 정할 때 따질 것').</span></li>
+<li><span class="mk">4</span><span><b>사람마다 건수가 크게 다릅니다.</b> 중앙값은 4건, 최대는 76건입니다. 오래 쓴 사람일수록 줄이 많습니다.</span></li>
+<li><span class="mk">5</span><span><b>약 계열.</b> 연구 약(SGLT2i, DPP4i) 말고도 병용약과 관련 없는 약이 섞여 있습니다. 필요한 계열만 골라 써야 합니다.</span></li>
+<li><span class="mk">6</span><span><b>입원 명세서는 1,277건</b>으로 전체의 약 2%입니다.</span></li>
+</ol>
+
+<h3>한 사람의 기록을 세 표에서 따라가기</h3>
+<p>세 표는 <code>pid</code>로 이어집니다. 한 사람을 골라 세 표에서 꺼내 보면 그림 14-1과 같은 기록이 나옵니다. 이 사람은 실습 끝까지 예시로 씁니다.</p>
+<!--FIG:lab14_one-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>연구 약을 시작하기 전의 메트포르민 처방.</b> index date 90일 전이므로 기저 기간(이전 365일)의 병용약으로 잡힙니다.</span></li>
+<li><span class="mk">2</span><span><b>DPP-4 억제제의 첫 처방 2018-05-18.</b> 이날이 index date이고, 90일분을 모두 열여덟 번 받았습니다.</span></li>
+<li><span class="mk">3</span><span><b>앞 처방과 넉 달 떨어진 처방.</b> 2019-02-26에 받은 90일분이 떨어진 뒤 36일이 지나서야 다음 처방이 나왔습니다. 유예기간을 얼마로 잡느냐에 따라 이 공백에서 중단으로 볼지가 갈립니다(다 절).</span></li>
+<li><span class="mk">4</span><span><b>I200.</b> index date 90일 전 외래의 주상병이 협심증(I20), 부상병이 고혈압(I10)입니다. 기저 공변량 ihd = 1, htn = 1이 됩니다. 2015-01-10의 진료는 index date보다 3년 넘게 앞서 기저 기간에 들지 않습니다.</span></li>
+<li><span class="mk">5</span><span><b>2021-08-22 입원, 주상병 I501.</b> 심부전 입원이며 이 연구의 결과입니다. 2021-09-15의 I509는 외래여서 결과로 세지 않습니다. K297 같은 진료는 연구와 관련이 없습니다.</span></li>
+</ol>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>청구자료는 사람 단위 표와 사건 단위 표(명세서, 처방)로 나뉘어 있고 식별번호로 잇습니다. 표마다 한 줄이 무엇인지부터 확인합니다.</li>
+<li>날짜 열은 읽을 때 <code>parse_dates</code>로 날짜 자료형으로 바꿉니다. 빈 날짜는 NaT, 빈 글자는 NaN으로 보입니다.</li>
+<li>상병코드는 점 없이 적혀 있어 앞부분으로 비교합니다. 약은 필요한 계열만 골라 씁니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab14-s2">
+<h2><span class="sec-no">나.</span>신규 사용자 코호트 만들기</h2>
+
+<p><a href="#ch14-s2">14장 나 절</a> 표 14-3의 선정 흐름을 그대로 코드로 옮깁니다. 순서는 ① 등록 기간(2016–2021년)의 첫 처방일을 index date로 잡고 ② 선정 기준마다 '해당하면 True'인 열을 하나씩 만든 뒤 ③ 그 열들을 차례로 적용하며 인원을 세는 것입니다. 기준을 하나씩 바로 지워 나가지 않고 표지 열을 먼저 만들어 두면, 적용 순서를 바꾸거나 기준을 바꾼 민감도 분석을 쉽게 할 수 있습니다.</p>
+
+<h3>index date 찾기</h3>
+<!--FIG:lab14_index-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>rx[rx["drug"].isin(["SGLT2i", "DPP4i"])]</code><span>약 계열이 목록 안에 있는 처방만 고릅니다(<code>isin</code>은 <a href="#lab11-s3">실습 11 다 절</a>). 실제 자료라면 여기서 주성분코드 목록을 씁니다.</span></li>
+<li><code>study["rx_date"] &gt;= "2016-01-01"</code><span>날짜 열은 날짜 모양의 글자와 바로 비교할 수 있습니다. 두 조건을 <code>&amp;</code>로 묶어 등록 기간의 처방만 남깁니다.</span></li>
+<li><code>enroll.groupby("pid")["rx_date"].min()</code><span>사람마다 처방일의 최솟값, 곧 등록 기간의 첫 처방일을 구합니다. 한 사람 여러 줄을 한 사람 한 줄로 줄이는 기본 문형입니다.</span></li>
+<li><code>.rename("index_date").reset_index()</code><span><code>rename</code>은 값의 이름을 index_date로 바꾸고, <code>reset_index()</code>는 이름표로 올라가 있던 pid를 보통 열로 내립니다. 결과는 pid, index_date 두 열짜리 표입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>10,150명에서 10,000명.</b> 두 계열을 한 번이라도 처방받은 사람은 10,150명이지만 150명은 2015년이나 2022년에만 처방받았습니다. 등록 기간에 처방이 있는 10,000명이 출발 인원이고, 본문 30만 명의 30분의 1입니다.</span></li>
+</ol>
+
+<h3>index date의 계열과 동시 시작</h3>
+<p>index date에 어느 계열을 받았는지가 노출군을 정합니다(<a href="#ch14-s3">14장 다 절</a> 논문 상자의 1번). 그날 두 계열을 함께 받은 사람은 어느 군인지 정할 수 없으므로 표지를 붙여 둡니다.</p>
+<!--FIG:lab14_arm-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>enroll.merge(index, on="pid")</code><span>두 표를 pid가 같은 줄끼리 옆으로 붙입니다. <code>enroll</code>은 한 사람이 여러 줄이고 <code>index</code>는 한 사람이 한 줄이므로, 그 사람의 모든 처방 줄에 같은 index_date가 붙습니다. 줄 수는 <code>enroll</code>과 같습니다.</span></li>
+<li><code>first[first["rx_date"] == first["index_date"]]</code><span>처방일이 index date와 같은 줄만 남깁니다.</span></li>
+<li><code>first.groupby("pid")["drug"].first()</code><span>사람마다 첫 줄의 계열을 가져옵니다(<code>first()</code>는 <a href="#lab12-s1">실습 12 가 절</a>). 결과는 pid가 이름표인 Series입니다.</span></li>
+<li><code>coh["pid"].map(…)</code><span><code>map</code>에 Series를 주면 사전처럼 씁니다. <code>coh</code>의 pid마다 그 Series에서 같은 이름표의 값을 찾아 넣습니다. 사람 단위로 계산한 값을 사람 단위 표에 붙일 때 <code>merge</code>보다 간단합니다.</span></li>
+<li><code>.nunique()</code>, <code>&gt; 1</code><span>index date에 받은 계열의 가짓수가 1보다 크면 두 계열을 함께 시작한 사람입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>77,200줄에서 10,131줄.</b> index date의 처방만 남았습니다. 10,000명보다 131줄 많은 것은 131명이 그날 두 줄(두 계열)을 가졌기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>SGLT2 억제제 1,245명.</b> 본문 37,312명의 30분의 1인 1,244명과 반올림으로 한 명 차이입니다. DPP-4 억제제 8,755명에는 동시 시작 131명이 섞여 있습니다. 이들은 첫 줄의 계열이 임시로 들어간 것이고 뒤에서 제외됩니다.</span></li>
+<li><span class="mk">3</span><span><b>동시 시작 131명</b>은 본문 3,944명의 약 30분의 1입니다.</span></li>
+</ol>
+
+<h3>세척 기간으로 기존 사용자 찾기</h3>
+<p>index date 이전 365일 안에 두 계열 가운데 어느 하나라도 처방받았으면 기존 사용자입니다(<a href="#ch14-s2">14장 나 절</a> '왜 신규 사용자인가'). 날짜끼리 빼서 '며칠 전인가'를 구하는 것이 핵심입니다.</p>
+<!--FIG:lab14_washout-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>study.merge(index, on="pid")</code><span>이번에는 등록 기간으로 자르지 않은 <code>study</code>에 index date를 붙입니다. 2015년의 처방을 봐야 하기 때문입니다. index date가 없는 150명의 줄은 붙을 짝이 없어 빠집니다.</span></li>
+<li><code>(m["index_date"] - m["rx_date"]).dt.days</code><span>날짜에서 날짜를 빼면 기간(Timedelta)이 됩니다. <code>.dt.days</code>로 일수만 정수로 꺼냅니다. <code>.dt</code>는 날짜·기간 열에서 연도, 일수 같은 부분을 꺼내는 접근자입니다. 값이 양수이면 index date보다 앞, 0이면 당일입니다.</span></li>
+<li><code>(m["before"] &gt;= 1) &amp; (m["before"] &lt;= 365)</code><span>1일 전부터 365일 전까지입니다. 0(당일)을 넣으면 index date의 처방 자체가 걸려 모든 사람이 기존 사용자가 됩니다.</span></li>
+<li><code>coh["pid"].isin(prior["pid"])</code><span>그런 처방이 한 건이라도 있는 사람이면 True입니다. '조건에 맞는 줄을 고르고, 그 줄의 pid 목록에 드는지 본다'는 문형을 이 실습 내내 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기존 사용자 4,103명(41.0%).</b> 본문의 123,088명(41.0%)과 같은 비율입니다.</span></li>
+<li><span class="mk">2</span><span><b>before = 38.</b> 이 사람은 index date 38일 전인 2015-12-03에 DPP-4 억제제를 받았습니다.</span></li>
+<li><span class="mk">3</span><span><b>2016년의 첫 처방은 SGLT2 억제제.</b> DPP-4 억제제를 쓰다가 바꾼 사람입니다. SGLT2 억제제의 처방만 확인했다면 신규 사용자로 들어왔을 것입니다. 두 계열을 모두 확인해야 하는 이유입니다.</span></li>
+</ol>
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>자기 계열의 처방만 확인하면 어떻게 될까요. <code>same = prior[prior["drug"] == prior["pid"].map(coh.set_index("pid")["arm"])]</code>로 index date의 계열과 같은 계열의 처방만 남기고 <code>coh["pid"].isin(same["pid"]).sum()</code>을 세면 3,862명입니다. 차이 241명은 다른 계열을 쓰다가 바꾼 사람들이고, 한 계열만 확인하면 이들이 신규 사용자로 섞여 들어옵니다.</p></div>
+
+<h3>나이, 말기신부전, 심부전 입원력</h3>
+<p>남은 세 기준은 자격 표와 명세서 표에서 만듭니다. 나이는 index date의 연도에서 출생연도를 뺍니다. 상병으로 정하는 두 기준은 index date 이전 365일(당일 포함)의 명세서에서 찾습니다.</p>
+<!--FIG:lab14_age-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>coh.merge(info, on="pid", how="left")</code><span><code>how="left"</code>는 왼쪽 표(<code>coh</code>)의 줄을 모두 남기고 오른쪽에서 짝을 찾아 붙이라는 뜻입니다. 기본값(<code>"inner"</code>)은 양쪽에 다 있는 pid만 남깁니다. 사람 단위 표에 정보를 덧붙일 때는 <code>left</code>로 써서 사람이 빠지지 않게 합니다.</span></li>
+<li><code>coh["index_date"].dt.year</code><span>날짜에서 연도를 꺼냅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>가장 어린 사람이 10세.</b> 18세 미만이 섞여 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>18세 미만 14명.</b> 이 가운데 기존 사용자나 동시 시작으로 먼저 빠지는 사람이 있어, 선정 흐름에서 이 단계의 제외 인원은 이보다 적습니다.</span></li>
+</ol>
+<!--FIG:lab14_dxflags-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>base = v[(v["before"] &gt;= 0) &amp; (v["before"] &lt;= 365)]</code><span>기저 기간의 명세서입니다. 처방과 달리 당일(0)을 넣었습니다. index date의 진료에 적힌 상병은 약을 시작하기 전의 상태이기 때문입니다. 이 표는 다 절에서 공변량을 만들 때 다시 씁니다.</span></li>
+<li><code>def has_dx(df, codes, cols=(…))</code><span>상병 열 세 개 가운데 어느 하나라도 주어진 코드로 시작하면 True를 돌려주는 함수입니다. <code>cols</code>에 기본값을 주었으므로 따로 쓰지 않으면 세 열을 모두 보고, <code>cols=["dx_main"]</code>을 주면 주상병만 봅니다.</span></li>
+<li><code>pd.Series(False, index=df.index)</code><span>모두 False인 열에서 시작해, 열을 하나씩 돌며 <code>|</code>(또는)로 결과를 쌓습니다.</span></li>
+<li><code>df[col].str.startswith(codes, na=False)</code><span>글자 열이 주어진 글자로 시작하는지 봅니다. <code>codes</code>가 괄호로 묶은 여러 개면 그중 하나로 시작해도 True입니다. <code>na=False</code>는 빈칸(NaN)을 False로 처리하라는 뜻입니다. 빼면 pandas 버전에 따라 빈칸이 NaN으로 남아 줄을 고를 때 오류가 납니다.</span></li>
+<li><code>(base["setting"] == "I") &amp; has_dx(base, "I50", cols=["dx_main"])</code><span>입원이면서 주상병이 I50인 명세서입니다. 본문의 결과 정의와 같은 조건을 과거력에도 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>말기신부전 또는 투석 194명.</b> N18.5(만성 신장병 5기), Z49(투석 치료), Z99.2(투석 의존) 코드로 찾았습니다.</span></li>
+<li><span class="mk">2</span><span><b>심부전 입원력 234명.</b> 외래에서 I50이 적힌 사람이나 부상병으로만 적힌 사람은 여기에 들지 않습니다.</span></li>
+</ol>
+
+<h3>선정 흐름</h3>
+<!--FIG:lab14_flow-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>keep = pd.Series(True, index=coh.index)</code><span>'아직 남아 있는가'를 나타내는 열입니다. 처음에는 모두 True입니다.</span></li>
+<li><code>out = keep &amp; coh[col]</code><span>아직 남아 있으면서 이번 기준에 해당하는 사람입니다. 앞 단계에서 이미 빠진 사람은 다시 세지 않습니다.</span></li>
+<li><code>keep = keep &amp; ~coh[col]</code><span><code>~</code>는 True와 False를 뒤집습니다. 이번 기준에 해당하지 않는 사람만 남깁니다.</span></li>
+<li><code>rows.append((label, out.sum(), keep.sum()))</code><span>단계 이름, 제외 인원, 남은 인원을 한 줄로 적어 둡니다. True를 더하면 개수가 됩니다.</span></li>
+<li><code>flow.to_string(index=False)</code><span>표를 줄 번호 없이 글자로 찍습니다.</span></li>
+<li><code>cohort = coh[keep].copy()</code><span>모든 기준을 통과한 사람만 남긴 표입니다. 이제부터 이 표에 열을 붙여 갑니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>출발 10,000명.</b> 표 14-3의 300,000명에 해당합니다.</span></li>
+<li><span class="mk">2</span><span><b>기존 사용자 4,103명 제외, 5,897명 남음.</b> 본문은 123,088명 제외, 176,912명 남음입니다. 30으로 나누면 4,103과 5,897입니다. 아래 단계도 90, 9, 110, 136명으로 본문의 2,707, 272, 3,301, 4,084명을 30으로 나눠 반올림한 값과 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>분석 코호트 5,552명.</b> 본문 166,548명의 30분의 1입니다.</span></li>
+<li><span class="mk">4</span><span><b>SGLT2 억제제 1,028명, DPP-4 억제제 4,524명.</b> 본문의 30,826명과 135,722명에 해당합니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">주의 · 기준은 index date까지의 기록으로만</p>
+<p>이 절에서 만든 표지는 모두 index date 당일까지의 기록만 썼습니다. "추적 중에 처방을 두 번 이상 받은 사람"처럼 index date 뒤의 기록으로 대상자를 고르면 불멸시간 편향이 생깁니다(<a href="#ch16">16장</a>). 코드에서는 <code>before</code>의 부호로 확인할 수 있습니다. 선정과 공변량에 쓰는 줄은 모두 <code>before &gt;= 0</code>이어야 합니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Study population</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">We identified <span class="mk">1</span> <span class="hl">10,000 patients who received a prescription for an SGLT2 inhibitor or a DPP-4 inhibitor between January 1, 2016, and December 31, 2021</span>; the date of the first prescription was the index date. We excluded patients with <span class="mk">2</span> <span class="hl">a prescription for either drug class during the 365 days before the index date (n = 4,103)</span>, those who initiated both classes on the index date (n = 90), those younger than 18 years (n = 9), and those with a record of end-stage renal disease or dialysis (n = 110) or a hospitalization for heart failure (n = 136) <span class="mk">3</span> <span class="hl">during the 365 days before or on the index date</span>. The study cohort comprised <span class="mk">4</span> <span class="hl">5,552 new users (1,028 SGLT2 inhibitor and 4,524 DPP-4 inhibitor)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>출발 인원.</b> 셀 6의 10,000명입니다. 이 숫자가 있어야 독자가 얼마나 빠졌는지 계산할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>단계별 제외 인원.</b> 셀 11의 excluded 열입니다. 괄호 안의 숫자를 차례로 빼면 5,552가 됩니다. 실제 논문에서는 흐름도(Figure 1)로 그립니다.</span></li>
+<li><span class="mk">3</span><span><b>기간의 경계.</b> 당일을 넣었는지를 밝힙니다. 처방은 당일을 뺀 이전 365일, 상병은 당일을 넣은 이전 365일을 썼습니다.</span></li>
+<li><span class="mk">4</span><span><b>최종 코호트.</b> 군별 인원이 뒤의 기저 특성 표와 결과표의 n과 같아야 합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>index date는 <code>groupby("pid")["rx_date"].min()</code>으로 구합니다. 한 사람 여러 줄을 한 줄로 줄이는 기본 문형입니다.</li>
+<li><code>merge</code>로 index date를 사건 표에 붙이고, 날짜를 빼서 <code>before</code>(며칠 전인가)를 만들면 세척 기간과 기저 기간을 숫자 조건으로 쓸 수 있습니다.</li>
+<li>선정 기준은 표지 열로 만들어 두고 차례로 적용하며 인원을 셉니다. 단계별 인원이 논문의 흐름도가 됩니다.</li>
+<li>실습의 단계별 인원은 본문 표 14-3의 30분의 1입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab14-s3">
+<h2><span class="sec-no">다.</span>노출·결과·공변량 만들기</h2>
+
+<p>코호트 5,552명에게 분석에 쓸 날짜와 변수를 붙입니다. index date 뒤의 기록에서 약 중단일, 비교약으로 바꾼 날, 심부전 입원일을 만들고, index date 앞의 기록에서 공변량을 만듭니다(<a href="#ch14-s3">14장 다 절</a> 그림 14-3). 사망일은 나 절에서 자격 표를 붙일 때 이미 들어왔습니다.</p>
+<p class="tbl-cap"><b>표 L14-2.</b> 이 실습의 조작적 정의</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>변수</th><th>정의</th><th>기간</th></tr></thead>
+<tbody>
+<tr><td>약 중단일</td><td>index date에 받은 계열의 처방이 떨어진 뒤 60일(유예기간) 안에 다음 처방이 없으면, 약이 떨어진 날 + 60일</td><td>index date 이후</td></tr>
+<tr><td>변경·추가일</td><td>비교 계열의 첫 처방일</td><td>index date 다음 날부터</td></tr>
+<tr><td>결과(심부전 입원)</td><td>입원 명세서의 주상병이 I50인 첫 날짜</td><td>index date 다음 날부터</td></tr>
+<tr><td>고혈압, 허혈성 심질환, 심부전 진단, 만성 신장병</td><td>주상병 또는 부상병에 I10–I13·I15, I20–I25, I50, N18</td><td>이전 365일과 당일</td></tr>
+<tr><td>메트포르민, 인슐린</td><td>해당 계열의 처방</td><td>이전 365일과 당일</td></tr>
+<tr><td>나이, 성별</td><td>index date의 연도 − 출생연도, 자격 표의 성별</td><td>index date</td></tr>
+</tbody></table></div>
+
+<h3>약이 떨어지는 날과 공백</h3>
+<p>본문 다 절의 접힌 코드와 같은 계산을 코호트 전체에 합니다. 처방마다 약이 떨어지는 날을 구하고, 같은 사람의 다음 처방일까지 며칠이 비는지 셉니다.</p>
+<!--FIG:lab14_gap-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>(f["drug"] == f["arm"]) &amp; (f["rx_date"] &gt;= f["index_date"])</code><span>코호트 사람의 처방 가운데 index date에 받은 계열이고 index date 이후인 줄만 남깁니다.</span></li>
+<li><code>own.sort_values(["pid", "rx_date"])</code><span>사람별, 날짜순으로 정렬합니다. 원자료는 날짜순으로 섞여 있고, 아래의 '다음 줄'이 같은 사람의 다음 처방이 되려면 정렬이 먼저입니다.</span></li>
+<li><code>pd.to_timedelta(own["days"], unit="D")</code><span>숫자를 기간으로 바꿉니다. <code>unit="D"</code>는 일 단위입니다. 날짜에 기간을 더하면 날짜가 됩니다. 처방일 + 투여일수 = 약이 떨어지는 날(runout)입니다.</span></li>
+<li><code>own.groupby("pid")["rx_date"].shift(-1)</code><span><code>shift(-1)</code>은 한 줄 아래의 값을 끌어올립니다. <code>groupby("pid")</code>를 붙였으므로 같은 사람 안에서만 끌어올리고, 그 사람의 마지막 처방에는 빈 날짜(NaT)가 들어갑니다.</span></li>
+<li><code>(own["next"] - own["runout"]).dt.days</code><span>공백 일수입니다. 다음 처방일에서 약이 떨어지는 날을 뺍니다.</span></li>
+<li><code>own.loc[own["pid"] == p, [열 이름들]]</code><span>가 절에서 고른 사람의 줄만, 필요한 열만 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>runout.</b> 2018-05-18에 받은 90일분은 2018-08-16에 떨어집니다.</span></li>
+<li><span class="mk">2</span><span><b>gap 12일.</b> 다음 처방이 2018-08-28이므로 12일이 빕니다. 이 정도는 계속 쓰는 것으로 봅니다.</span></li>
+<li><span class="mk">3</span><span><b>gap 36일.</b> 네 번째 처방이 2019-05-27에 떨어지고 다음 처방은 2019-07-02입니다. 유예기간이 30일이면 여기서 중단, 60일이면 계속입니다.</span></li>
+<li><span class="mk">4</span><span><b>NaN.</b> 마지막 처방 뒤에는 다음 처방이 없습니다.</span></li>
+</ol>
+
+<h3>유예기간과 중단일</h3>
+<!--FIG:lab14_stop-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>over = own["gap"].isna() | (own["gap"] &gt; grace)</code><span>다음 처방이 없거나 공백이 유예기간보다 긴 처방에 True를 답니다. 그 처방에서 약이 끊긴 것입니다.</span></li>
+<li><code>own[over].groupby("pid")["runout"].first()</code><span>사람마다 그런 처방 가운데 첫 번째의 약이 떨어지는 날을 가져옵니다. 날짜순으로 정렬해 두었으므로 첫 줄이 가장 이른 것입니다.</span></li>
+<li><code>+ pd.Timedelta(days=grace)</code><span>기간 하나를 만드는 함수입니다. 약이 떨어진 날에 유예기간을 더한 날이 중단일입니다(<a href="#ch14-s3">14장 다 절</a>).</span></li>
+<li><code>stop_date(own, grace)[p]</code><span>결과가 pid를 이름표로 하는 Series이므로 대괄호에 pid를 넣어 한 사람의 값을 꺼냅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>유예 30일.</b> 36일 공백에서 중단으로 보아 2019-05-27 + 30일 = 2019-06-26입니다.</span></li>
+<li><span class="mk">2</span><span><b>유예 60일.</b> 36일 공백은 넘어가고, 마지막 처방이 떨어지는 2023-02-06에 60일을 더한 2023-04-07입니다. 자료 기간의 끝(2022-12-31)보다 뒤이므로 이 환자는 자료가 끝날 때까지 약을 쓰고 있던 사람입니다. 이 실습의 주 분석은 60일을 쓰고, 30일은 과제 1에서 해 봅니다.</span></li>
+</ol>
+
+<h3>비교약으로 바꾸거나 더한 날</h3>
+<!--FIG:lab14_switch-->
+<p>코드는 앞에서 쓴 문형(조건으로 줄 고르기, 사람별 최솟값, <code>map</code>으로 붙이기)의 반복입니다. <code>notna()</code>는 값이 있으면 True이고(<a href="#lab11-s1">실습 11 가 절</a>), 평균을 내면 비율이 됩니다.</p>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>817명</b>이 자료 기간 안에 비교 계열을 처방받았습니다. 해당하지 않는 사람의 switch_date는 NaT입니다.</span></li>
+<li><span class="mk">2</span><span><b>DPP-4 억제제군의 16.0%</b>가 나중에 SGLT2 억제제로 바꾸거나 SGLT2 억제제를 더했습니다. SGLT2 억제제군은 9.2%입니다. 이 가운데 다른 사유보다 먼저 일어난 것만 추적 종료 사유가 됩니다(라 절).</span></li>
+</ol>
+
+<h3>결과</h3>
+<!--FIG:lab14_outcome-->
+<p>index date 다음 날부터의 명세서(<code>after</code>)에서 입원이면서 주상병이 I50인 줄을 고르고, 사람마다 가장 이른 날짜를 붙입니다. 나 절에서 만든 <code>has_dx</code>를 그대로 씁니다. 아래 세 줄은 정의를 넓히면 몇 명이 되는지 세어 본 것입니다.</p>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>주상병 I50 입원 287건, 221명.</b> 건수가 사람 수보다 많은 것은 재입원 때문입니다. <code>groupby("pid")["visit_date"].min()</code>으로 사람마다 첫 입원일만 씁니다. 221명 가운데 약을 쓰는 동안에 입원한 사람만 as-treated 분석의 사건이 됩니다.</span></li>
+<li><span class="mk">2</span><span><b>부상병까지 넣으면 321명.</b> 다른 병으로 입원했는데 심부전이 함께 적힌 경우가 더해집니다.</span></li>
+<li><span class="mk">3</span><span><b>외래까지 넣으면 653명.</b> 정의를 넓히면 사건이 약 세 배가 됩니다. 넓은 정의는 가짜 사건이 섞여 비를 1 쪽으로 움직이기 쉬우므로(<a href="#ch14-s3">14장 다 절</a> '결과의 정의') 좁은 정의를 주 분석에 쓰고 넓은 정의는 민감도 분석으로 둡니다.</span></li>
+</ol>
+
+<h3>공변량</h3>
+<!--FIG:lab14_covs-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>dx_def = {"htn": (…), …}</code><span>변수 이름과 코드 목록을 사전으로 적어 둡니다. 논문 부록의 코드 목록 표가 이 사전입니다.</span></li>
+<li><code>for name, codes in dx_def.items():</code><span>사전의 이름과 값을 하나씩 꺼내 같은 일을 되풀이합니다. 기저 기간의 명세서(<code>b</code>)에서 코드가 있는 줄을 고르고, 그 pid 목록에 드는 사람에게 1을 줍니다.</span></li>
+<li><code>(r["before"] &gt;= 0) &amp; (r["before"] &lt;= 365)</code><span>병용약도 같은 기간의 처방에서 찾습니다. index date 뒤에 시작한 메트포르민은 <code>before</code>가 음수여서 들어오지 않습니다.</span></li>
+</ol>
+<p>출력의 세 사람처럼 0과 1로 된 열이 만들어집니다. 기록이 없으면 0입니다. 병이 없다는 뜻이 아니라 그 기간에 코드가 적히지 않았다는 뜻입니다(<a href="#ch14-s1">14장 가 절</a> 흔한 오해 상자).</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Exposure, outcome, covariates</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Patients were classified according to the drug class prescribed on the index date. <span class="mk">1</span> <span class="hl">Treatment was considered discontinued when no refill was recorded within 60 days after the end of the days' supply; the date of discontinuation was the end of the days' supply plus 60 days.</span> The outcome was the first hospitalization for heart failure, defined as <span class="mk">2</span> <span class="hl">an inpatient claim with a primary diagnosis of heart failure (ICD-10 code I50)</span>. Hypertension, ischemic heart disease, heart failure, chronic kidney disease, and use of metformin and insulin were <span class="mk">3</span> <span class="hl">assessed from diagnosis codes and prescriptions during the 365 days before and including the index date</span> (code lists in Supplementary Table 1).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>유예기간과 중단일.</b> 셀 13의 <code>stop_date(own, 60)</code>입니다. 유예기간의 길이와, 중단일에 유예기간을 더했는지를 모두 적습니다.</span></li>
+<li><span class="mk">2</span><span><b>결과의 세 조건.</b> 입원, 주상병, I50입니다. 셀 15에서 조건을 하나씩 풀면 221명이 321명, 653명으로 늘어났습니다.</span></li>
+<li><span class="mk">3</span><span><b>공변량의 측정 기간.</b> 셀 16의 <code>before</code> 조건입니다. 코드 목록은 표 L14-2처럼 부록으로 냅니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>처방 기록은 사람별, 날짜순으로 정렬한 뒤 <code>groupby().shift(-1)</code>으로 다음 처방일을 붙여 공백을 구합니다.</li>
+<li>중단일은 공백이 유예기간을 넘는 첫 처방의 약이 떨어지는 날에 유예기간을 더한 날입니다. 함수로 만들어 두면 유예기간을 바꿔 다시 계산하기 쉽습니다.</li>
+<li>결과는 조건(입원, 주상병, 코드)을 모두 만족하는 첫 날짜입니다. 조건을 풀면 사건 수가 크게 달라집니다.</li>
+<li>공변량은 기저 기간의 줄만 골라 만들고, 사람 단위 표에는 <code>isin</code>이나 <code>map</code>으로 붙입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab14-s4">
+<h2><span class="sec-no">라.</span>추적 기간과 발생률</h2>
+
+<p>날짜가 모두 모였으므로 추적을 끝내는 날을 정합니다. as-treated 분석에서는 심부전 입원, 사망, 비교약으로의 변경·추가, 약 중단, 자료 기간 종료 가운데 가장 이른 날입니다(<a href="#ch14-s4">14장 라 절</a>).</p>
+<!--FIG:lab14_follow-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>cohort["study_end"] = pd.Timestamp("2022-12-31")</code><span>날짜 하나를 만들어 모든 사람에게 같은 값으로 넣습니다. 자료 기간의 마지막 날입니다.</span></li>
+<li><code>c[ends].min(axis=1)</code><span>여러 날짜 열에서 줄마다(<code>axis=1</code>) 가장 이른 날을 고릅니다. 빈 날짜(NaT)는 건너뜁니다. 입원한 적이 없는 사람의 hhf_date는 NaT여서 후보에서 빠집니다.</span></li>
+<li><code>(c["end_date"] - c["index_date"]).dt.days</code><span>추적 일수입니다.</span></li>
+<li><code>(c["hhf_date"] == c["end_date"]).astype(int)</code><span>가장 이른 날이 심부전 입원일이면 사건(1), 아니면 중도절단(0)입니다. 입원일과 다른 날짜가 같은 날이면 사건으로 셉니다.</span></li>
+<li><code>np.select(hit, ends, default="")</code><span>조건 목록을 앞에서부터 보아 처음으로 True인 조건의 이름을 적습니다. <code>ends</code>에 적은 순서가 같은 날일 때의 우선순위입니다.</span></li>
+<li><code>def follow_up(c, ends)</code><span>후보 날짜의 목록만 바꾸면 다른 추적 규칙이 되도록 함수로 만들었습니다. ITT 방식은 과제 3에서 목록을 줄여 만듭니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>예시 환자는 1,192일째에 사건.</b> 중단일(2023-04-07)과 자료 종료일보다 입원(2021-08-22)이 먼저여서 약을 쓰는 중의 사건이 됩니다.</span></li>
+<li><span class="mk">2</span><span><b>사건 139건.</b> SGLT2 억제제군 11건, DPP-4 억제제군 128건입니다. 본문 표 14-6의 320건과 3,828건에 해당합니다.</span></li>
+<li><span class="mk">3</span><span><b>약 중단 2,693명(48.5%).</b> 절반 가까이가 중단으로 추적이 끝납니다. 군별로는 48.9%와 48.4%로 본문과 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>자료 기간 종료 2,104명.</b> 끝까지 약을 쓰고 있던 사람입니다.</span></li>
+</ol>
+
+<h3>인년과 발생률</h3>
+<p>추적 기간이 사람마다 다르므로 사건 수를 인년으로 나눈 발생률로 비교합니다. 정확 신뢰구간의 식은 <a href="#lab12-s2">실습 12 나 절</a>과 같습니다.</p>
+<!--FIG:lab14_rate-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>.agg(n=("event", "size"), events=("event", "sum"), py=("time", "sum"))</code><span>군마다 여러 요약을 한 번에 구합니다. <code>새 이름=("열", "함수")</code> 꼴로 적으면 결과 열의 이름을 정할 수 있습니다. 사람 수, 사건 수의 합, 추적 일수의 합입니다. <code>"size"</code>는 줄 수를 세므로 어느 열을 적어도 같은 값이 나옵니다. 뒤에서 쓸 전체 코호트 파일에는 pid 열이 없어 event 열을 적었습니다.</span></li>
+<li><code>t["py"] / 365.25</code><span>일수의 합을 연 단위로 바꾸면 인년입니다.</span></li>
+<li><code>t.loc["SGLT2i", "rate"]</code><span>행 이름과 열 이름으로 값 하나를 꺼냅니다.</span></li>
+<li><code>np.sqrt((1 / t["events"]).sum())</code><span>로그 발생률비의 표준오차입니다. 두 군의 사건 수만으로 정해집니다(<a href="#ch14-s4">14장 라 절</a> '수식으로 보기').</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>SGLT2 억제제군 11건 ÷ 1,986인년 = 1,000인년당 5.54건.</b> 본문은 320건 ÷ 57,781인년 = 5.54건입니다.</span></li>
+<li><span class="mk">2</span><span><b>DPP-4 억제제군 128건 ÷ 9,882인년 = 12.95건.</b> 본문은 3,828건 ÷ 295,495인년 = 12.95건입니다. 1인당 평균 추적은 1.93년과 2.18년입니다(본문 1.87년, 2.18년).</span></li>
+<li><span class="mk">3</span><span><b>정확 95% 신뢰구간 2.76–9.91.</b> 본문은 4.95–6.18입니다. 사건이 11건뿐이어서 넓습니다.</span></li>
+<li><span class="mk">4</span><span><b>발생률비 0.43 (0.23–0.79).</b> 5.54 ÷ 12.95입니다. 본문은 0.43 (0.38–0.48)입니다.</span></li>
+</ol>
+
+<h3>기저 특성</h3>
+<!--FIG:lab14_table1-->
+<p><code>g[covs].mean().T</code>는 군별 평균을 구해 행과 열을 바꾼 것입니다(<a href="#lab01-s2">실습 1 나 절</a>). 0과 1로 된 변수는 평균이 비율이므로 100을 곱해 %로 만들고, <code>t1.loc["행 이름"] = 값</code>으로 줄을 덧붙였습니다.</p>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>나이 57.0세 대 61.0세.</b> 본문 표 14-4와 같습니다. DPP-4 억제제군이 네 살 많습니다.</span></li>
+<li><span class="mk">2</span><span><b>만성 신장병 6.8% 대 3.2%.</b> DPP-4 억제제군이 두 배입니다. 나이와 신장병은 심부전의 위험인자이므로 보정하지 않은 비교는 SGLT2 억제제에 유리하게 치우칩니다.</span></li>
+<li><span class="mk">3</span><span><b>메트포르민 86.3% 대 78.8%.</b> 두 군의 차이를 표준화 평균차로 재고 성향점수로 균형을 맞추는 일은 <a href="#ch15">15장</a>과 <a href="#lab15">실습 15</a>에서 합니다.</span></li>
+</ol>
+
+<h3>누적발생 곡선과 위험비</h3>
+<p>Kaplan-Meier 추정은 <a href="#lab07-s2">실습 7 나 절</a>, Cox 모형은 <a href="#lab11-s2">실습 11 나 절</a>과 같습니다. 여기서는 사건이 드물어 생존곡선 대신 1에서 생존확률을 뺀 누적발생 곡선을 그립니다. <code>plot_cumulative_density()</code>가 그 그림을 그립니다.</p>
+<!--FIG:lab14_km-->
+<p>가로축은 index date부터의 연수, 세로축은 심부전 입원의 누적발생 추정값이고 띠는 95% 신뢰구간입니다. 처음 다섯 달쯤은 두 곡선이 거의 겹치고, 그 뒤로는 DPP-4 억제제군의 곡선이 위에 있습니다. SGLT2 억제제군은 사건이 11건이어서 계단이 열한 번뿐이고 띠가 넓습니다. 뒤로 갈수록 남은 사람이 적어 띠가 더 벌어집니다. DPP-4 억제제군 곡선 끝의 큰 계단은 18명만 남은 6.8년째에 사건이 한 건 일어난 것이어서, 그 구간의 값에는 의미를 두지 않습니다. 사망한 사람을 중도절단으로 처리했으므로 이 곡선은 '사망이 없었다면'의 누적발생에 가깝고, 사망을 경쟁위험으로 다루는 방법은 <a href="#ch17">17장</a>에서 다룹니다.</p>
+<!--FIG:lab14_cox-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def hr(c, cols)</code><span>Cox 모형을 적합하고 치료 변수(sglt2)의 위험비와 95% 신뢰구간만 돌려주는 함수입니다. <code>cols</code>에 치료 변수만 주면 보정 전, 공변량까지 주면 보정 후입니다.</span></li>
+<li><code>"%.2f (%.2f-%.2f)" % hr(…)</code><span>함수가 돌려준 세 값을 소수 둘째 자리로 끼워 넣습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정 전 위험비 0.42 (0.23–0.77).</b> 발생률비와 거의 같습니다. 본문은 0.42 (0.38–0.47)입니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 위험비 0.61 (0.32–1.13).</b> 나이, 성별, 동반질환, 병용약을 넣자 0.42에서 0.61로 움직였습니다. 두 군의 기저 위험이 달랐다는 뜻입니다. 본문은 0.61 (0.54–0.68)입니다. 점 추정값은 같지만 이 표본의 신뢰구간은 1을 포함합니다.</span></li>
+</ol>
+
+<h3>분석용 코호트 확인</h3>
+<p>사이트에는 같은 정의로 미리 만들어 둔 분석용 코호트 파일이 있습니다. 내가 만든 표와 사람 수, 군, 추적 일수, 사건 여부, 공변량이 모두 같은지 대조합니다.</p>
+<!--FIG:lab14_check-->
+<p><code>mine[cols] == ref[cols]</code>는 칸마다 같은지를 True, False로 채운 표입니다. <code>.all()</code>을 한 번 붙이면 열마다 모두 True인지, 두 번 붙이면 표 전체가 True인지를 값 하나로 알려 줍니다. 두 표를 pid 순으로 정렬해 줄의 순서를 맞춘 뒤 비교했습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>True.</b> 5,552명의 12개 열이 모두 같습니다. False가 나오면 앞 셀의 조건(기간의 경계, 정렬, 계열 이름의 오타)을 다시 확인합니다. 이 파일은 <code>pd.read_csv(BASE + "sglt2_cohort.csv")</code>로 바로 읽어 다른 분석의 연습에 쓸 수 있습니다. 내가 만든 표는 <code>cohort.to_csv("my_cohort.csv", index=False)</code>로 저장합니다.</span></li>
+</ol>
+
+<h3>전체 코호트로 같은 분석 하기</h3>
+<p>표본의 점 추정값은 본문과 같지만 신뢰구간은 넓습니다. 본문의 숫자는 전체 코호트 166,548명으로 구한 것입니다. 전체 코호트의 원자료 표는 너무 커서 올리지 않았습니다. 대신 같은 정의로 구한 추적 일수, 사건 여부, 공변량을 한 사람 한 줄로 정리한 분석용 파일이 사이트에 있습니다(5MB). 이 파일에 앞에서 만든 함수 <code>rate_table</code>, <code>irr</code>, <code>hr</code>를 그대로 적용해 표본의 결과와 나란히 놓습니다. 이 환경에서는 파일을 읽고 Cox 모형 두 개를 적합하는 데 몇 초가 걸렸습니다. Colab에서는 수십 초까지 걸릴 수 있습니다.</p>
+<!--FIG:lab14_full-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>full["sglt2"].map({1: "SGLT2i", 0: "DPP4i"})</code><span>전체 파일에는 크기를 줄이려고 arm 열이 없습니다. 0과 1을 계열 이름으로 바꿔 arm 열을 만들면(<a href="#lab01-s1">실습 1 가 절</a>의 <code>map</code>) 앞의 함수를 그대로 쓸 수 있습니다. 이 셀은 as-treated 추적인 <code>time</code>, <code>event</code>만 씁니다. 일부가 비어 있는 <code>time_itt</code>, <code>event_itt</code>는 과제 3에서 채워 씁니다.</span></li>
+<li><code>def summary(c)</code><span>한 자료의 결과를 '이름 → 글자' 사전으로 모으는 함수입니다. 군별 사건 수와 인년, 발생률과 정확 신뢰구간, 발생률비, 보정 전과 보정 후의 위험비를 논문 표에 적는 모양으로 만듭니다.</span></li>
+<li><code>"%d / %.0f" % (r["events"], r["py"])</code><span><code>%d</code>는 정수, <code>%.0f</code>는 소수점 아래를 반올림한 수를 끼워 넣습니다.</span></li>
+<li><code>pd.DataFrame({"sample …": summary(cohort), "full …": summary(full)})</code><span>사전 두 개를 열로 삼아 표를 만듭니다. 사전의 이름이 행 이름이 됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>표본.</b> 앞 셀들에서 구한 값과 같습니다. 사건 11건, 1,986인년입니다.</span></li>
+<li><span class="mk">2</span><span><b>전체 코호트 320건, 57,781인년.</b> 본문 표 14-5의 as-treated 분석과 같습니다. DPP-4 억제제군의 3,828건, 295,495인년도 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>발생률 5.54 (4.95–6.18).</b> 본문 라 절 논문 상자의 Table 2와 신뢰구간까지 같습니다. 발생률비 0.43 (0.38–0.48), 보정 전 위험비 0.42 (0.38–0.47)도 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>표본의 보정 위험비 0.61 (0.32–1.13).</b> 신뢰구간이 1을 포함합니다.</span></li>
+<li><span class="mk">5</span><span><b>전체 코호트의 보정 위험비 0.61 (0.54–0.68).</b> 점 추정값은 표본과 같고 신뢰구간만 좁습니다. 본문 표 14-5의 값입니다.</span></li>
+</ol>
+<p>두 열의 점 추정값이 같은데 신뢰구간의 폭이 다른 이유는 사건 수입니다. 로그 발생률비의 표준오차는 전체 코호트에서 √(1/320 + 1/3,828) = 0.058, 표본에서 √(1/11 + 1/128) = 0.314로 약 5.4배입니다. 표본이 30분의 1이면 표준오차는 약 √30 = 5.5배가 됩니다. 5,552명은 적은 수가 아니지만 정밀도를 정하는 것은 SGLT2 억제제군의 사건 11건입니다. 표본만 가지고 있는 실제 연구라면 이 결과로 "효과가 없다"고 쓰지 않고, 추정값과 신뢰구간을 그대로 보고하며 사건 수가 적어 정밀하지 않다고 적습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Follow-up과 Results</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> Follow-up started on the day after the index date and continued until <span class="mk">1</span> <span class="hl">the earliest of hospitalization for heart failure, death, switching to or addition of the comparator drug class, treatment discontinuation, or December 31, 2022 (as-treated analysis)</span>. Incidence rates per 1,000 person-years were calculated with exact Poisson 95% confidence intervals. Hazard ratios were estimated with Cox proportional hazards models adjusted for age, sex, hypertension, ischemic heart disease, heart failure, chronic kidney disease, and use of metformin and insulin.</p>
+<p class="excerpt"><b>Results.</b> During <span class="mk">2</span> <span class="hl">1,986 and 9,882 person-years of follow-up</span>, hospitalization for heart failure occurred in 11 of 1,028 SGLT2 inhibitor users and 128 of 4,524 DPP-4 inhibitor users (<span class="mk">3</span> <span class="hl">5.54 [95% CI, 2.76 to 9.91] and 12.95 [95% CI, 10.81 to 15.40] per 1,000 person-years</span>). The crude hazard ratio was 0.42 (95% CI, 0.23 to 0.77) and <span class="mk">4</span> <span class="hl">the adjusted hazard ratio was 0.61 (95% CI, 0.32 to 1.13)</span>. Treatment discontinuation ended follow-up in <span class="mk">5</span> <span class="hl">48.9% and 48.4% of the two groups</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>추적 종료 규칙.</b> 셀 17의 <code>AT</code> 목록입니다. 목록에 적은 순서가 같은 날일 때의 우선순위였습니다.</span></li>
+<li><span class="mk">2</span><span><b>인년.</b> 셀 18의 py 열입니다. 사건 수와 인년을 함께 적어야 독자가 발생률을 검산할 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>발생률과 정확 신뢰구간.</b> 보정하지 않은 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>보정 위험비.</b> "약을 쓰는 동안 심부전 입원의 위험률이 0.61배였고, 신뢰구간이 넓어 0.32배에서 1.13배까지와 양립한다"로 읽습니다. 입원 위험이 39% 줄었다고 읽지 않습니다(<a href="#ch14-s4">14장 라 절</a> 흔한 오해 상자).</span></li>
+<li><span class="mk">5</span><span><b>중단으로 끝난 비율.</b> 두 군에서 비슷한지 보여 줍니다. 비슷하다고 해서 중단이 예후와 무관하다는 것이 확인되지는 않습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>추적 종료일은 여러 날짜 열의 <code>min(axis=1)</code>입니다. 가장 이른 날이 사건일이면 event = 1입니다.</li>
+<li>발생률은 사건 수 ÷ 인년입니다. 표본의 발생률(5.54, 12.95), 발생률비(0.43), 보정 위험비(0.61)는 본문과 같고, 신뢰구간은 사건 수가 적어 본문보다 넓습니다. 전체 코호트 파일로 같은 함수를 돌리면 본문 표 14-5가 신뢰구간까지 나옵니다.</li>
+<li>보정 전 0.42가 보정 뒤 0.61이 된 것은 두 군의 나이와 동반질환이 달랐기 때문입니다. 교란 보정은 15장으로 이어집니다.</li>
+<li>추적 규칙과 요약을 함수로 만들어 두면 유예기간이나 분석 전략을 바꾼 민감도 분석이 몇 줄로 끝납니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="lab14-s5">
+<h2><span class="sec-no">마.</span>과제</h2>
+<p>앞 절에서 만든 변수와 함수(<code>stop_date</code>, <code>follow_up</code>, <code>rate_table</code>, <code>irr</code>, <code>hr</code>, <code>flow_table</code>, <code>summary</code>)를 그대로 씁니다. 라 절까지 실행한 노트북에서 이어서 풉니다.</p>
+
+<h3>과제 1. 유예기간을 30일로</h3>
+<p>유예기간을 60일에서 30일로 바꿔 as-treated 추적을 다시 만들고, 군별 사건 수, 인년, 발생률, 발생률비, 보정 위험비를 구하세요. 가 절에서 따라가 본 환자의 추적은 어떻게 달라집니까? <code>cohort.copy()</code>에서 stop_date 열만 바꾼 뒤 <code>follow_up</code>을 다시 부르면 됩니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab14_hw1-->
+<p>SGLT2 억제제군은 9건 ÷ 1,649인년 = 5.46건, DPP-4 억제제군은 107건 ÷ 8,135인년 = 13.15건이고, 발생률비는 0.41 (0.21–0.82), 보정 위험비는 0.60 (0.30–1.20)입니다. 본문 라 절 '스스로 확인하기' 1번의 값(5.46, 13.15, 0.41, 보정 위험비 0.60)과 같습니다. 유예기간이 짧아지면 짧은 공백도 중단으로 보아 추적이 일찍 끝나므로 사건(139 → 116건)과 인년이 함께 줄어듭니다. 비는 거의 그대로여서 결론이 유예기간의 선택에 기대고 있지 않다는 근거가 됩니다. 예시 환자는 36일 공백에서 중단으로 처리되어 2019-06-26에 추적이 끝나고(404일), 2년 뒤의 입원은 사건으로 세지 않습니다(event 0). 본문 다 절의 예와 같은 일이 일어났습니다.</p>
+</div></details>
+
+<h3>과제 2. 세척 기간을 180일로</h3>
+<p>세척 기간을 365일에서 180일로 줄이면 기존 사용자로 빠지는 인원과 최종 코호트 인원이 얼마나 달라집니까? 새로 들어온 사람들은 어떤 사람입니까? 나 절의 <code>m</code>에서 <code>before</code> 조건만 바꾸고 <code>flow_table</code>을 다시 부르면 됩니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab14_hw2-->
+<p>기존 사용자가 4,103명에서 3,785명으로 318명 줄고, 최종 코호트는 5,552명에서 5,856명으로 304명 늘어납니다(DPP-4 억제제군 288명, SGLT2 억제제군 16명). 새로 들어온 318명은 마지막 처방이 index date 190–360일 전에 있던 사람들로, 반년 넘게 쉬었다가 다시 시작한 재사용자입니다. 뒤 단계의 제외 인원이 조금씩 늘어난 것(90 → 91명 등)은 앞에서 빠지던 사람이 뒤 단계에서 걸렸기 때문입니다. 세척 기간이 짧을수록 인원은 늘지만 약의 영향을 이미 받은 사람이 섞이고, 길수록 정말 처음 쓰는 사람에 가까워지는 대신 인원과 등록 가능 기간이 줄어듭니다(<a href="#ch14-s2">14장 나 절</a> '세척 기간을 정할 때 따질 것'). 본문에는 이 민감도 분석의 결과가 없으므로 비교할 숫자는 없습니다. 이 가상 자료에서 선정 기준으로 빠지는 사람들의 기록은 선정 흐름을 연습하도록 만든 것이어서 추적 중의 심부전 입원이 들어 있지 않습니다. 그래서 이 5,856명으로 발생률이나 위험비를 다시 구하면 새로 들어온 사람들이 사건 없이 인년만 보태 값이 낮게 나오며, 그 결과에는 의미가 없습니다.</p>
+</div></details>
+
+<h3>과제 3. ITT 방식의 추적</h3>
+<p>약 중단과 비교약으로의 변경을 무시하고, 심부전 입원, 사망, 자료 기간 종료 가운데 가장 이른 날까지 추적하세요. 발생률, 발생률비, 보정 전과 보정 후의 위험비를 구하고 as-treated 분석과 비교하세요. 약을 끊거나 바꾼 뒤의 기간만 따로 보면 발생률이 얼마입니까? 전체 코호트 파일로도 같은 분석을 해 본문 표 14-5의 ITT 유사 분석과 맞는지 확인하세요. 전체 파일의 <code>time_itt</code>, <code>event_itt</code>는 as-treated 추적과 같은 사람에서 비어 있으므로 <code>fillna</code>로 <code>time</code>, <code>event</code>의 값을 채워 씁니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab14_hw3-->
+<p>표본에서 SGLT2 억제제군은 19건 ÷ 3,017인년 = 6.30건, DPP-4 억제제군은 202건 ÷ 16,580인년 = 12.18건입니다. 발생률비 0.52 (0.32–0.83), 보정 전 위험비 0.51 (0.32–0.81), 보정 위험비 0.73 (0.45–1.17)입니다. 가운데 출력은 ITT에만 있는 기간의 발생률입니다. SGLT2 억제제군은 (19 − 11)건 ÷ (3,017 − 1,986)인년 = 1,000인년당 7.76건으로 약을 쓰는 동안(5.54건)보다 높습니다(본문 7.57건. 여덟 건으로 구한 값이어서 본문과 조금 다릅니다). 약의 보호 효과가 사라진 기간이 섞이면서 보정 위험비가 0.61에서 0.73으로 1에 가까워졌습니다.</p>
+<p><code>fillna(값)</code>는 빈칸(NaN)을 주어진 값으로 채웁니다. 전체 파일에서 as-treated 추적이 사건, 사망, 자료 종료로 끝난 사람은 ITT 추적도 같은 날 같은 결과로 끝나므로 빈칸에 <code>time</code>과 <code>event</code>를 넣으면 됩니다. 마지막 표의 오른쪽 열이 전체 코호트의 ITT 결과입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>전체 코호트 582건, 92,403인년.</b> 본문 표 14-5의 ITT 유사 분석과 같습니다. 발생률 6.30 (5.80–6.83)과 12.18 (11.88–12.50), 발생률비 0.52 (0.47–0.56), 보정 전 위험비 0.51 (0.47–0.55)도 본문 라 절 논문 상자의 Table 2와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 위험비 0.73 (0.67–0.79).</b> 표본의 0.73 (0.45–1.17)과 점 추정값이 같고 신뢰구간만 좁습니다. as-treated 분석의 0.61보다 1에 가깝지만 방향은 같습니다. 두 분석은 다른 질문에 답하므로 값이 다른 것이 잘못은 아닙니다(<a href="#ch14-s4">14장 라 절</a> '두 분석 전략이 답하는 질문').</span></li>
+</ol>
+</div></details>
+</section>

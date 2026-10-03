@@ -1,0 +1,66 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">기저 특성 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = cohort.groupby(&quot;arm&quot;)
+t1 = g[covs].mean().T
+t1.loc[covs[1:]] = t1.loc[covs[1:]] * 100      # 0/1 변수는 %
+t1.loc[&quot;age SD&quot;] = g[&quot;age&quot;].std()
+t1.loc[&quot;n&quot;] = g.size()
+t1.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>arm</th>
+      <th>DPP4i</th>
+      <th>SGLT2i</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>age</th>
+      <td>61.0</td>
+      <td>57.0<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>female</th>
+      <td>45.0</td>
+      <td>41.3</td>
+    </tr>
+    <tr>
+      <th>htn</th>
+      <td>63.6</td>
+      <td>59.8</td>
+    </tr>
+    <tr>
+      <th>ihd</th>
+      <td>11.8</td>
+      <td>13.2</td>
+    </tr>
+    <tr>
+      <th>hf</th>
+      <td>5.9</td>
+      <td>4.4</td>
+    </tr>
+    <tr>
+      <th>ckd</th>
+      <td>6.8<span class="mk">2</span></td>
+      <td>3.2</td>
+    </tr>
+    <tr>
+      <th>met</th>
+      <td>78.8</td>
+      <td>86.3<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>ins</th>
+      <td>8.8</td>
+      <td>6.3</td>
+    </tr>
+    <tr>
+      <th>age SD</th>
+      <td>12.5</td>
+      <td>10.9</td>
+    </tr>
+    <tr>
+      <th>n</th>
+      <td>4524.0</td>
+      <td>1028.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

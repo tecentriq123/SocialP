@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">비교약으로 바꾸거나 더한 날</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">other = f[(f[&quot;drug&quot;] != f[&quot;arm&quot;])
+          &amp; (f[&quot;rx_date&quot;] &gt; f[&quot;index_date&quot;])]
+switch = other.groupby(&quot;pid&quot;)[&quot;rx_date&quot;].min()
+cohort[&quot;switch_date&quot;] = cohort[&quot;pid&quot;].map(switch)
+print(&quot;switched or added:&quot;, cohort[&quot;switch_date&quot;].notna().sum())
+print(cohort[&quot;switch_date&quot;].notna().groupby(cohort[&quot;arm&quot;]).mean()
+      .round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>switched or added: 817<span class="mk">1</span>
+arm
+DPP4i     0.160<span class="mk">2</span>
+SGLT2i    0.092
+Name: switch_date, dtype: float64</pre></div></div>

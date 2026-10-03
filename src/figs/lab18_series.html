@@ -1,0 +1,83 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">지역을 합친 월별 계열 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ag = (d.groupby([&quot;treat&quot;, &quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;])
+        [[&quot;n_sed&quot;, &quot;n_pat&quot;]].sum().reset_index())
+ag[&quot;rate&quot;] = ag[&quot;n_sed&quot;] / ag[&quot;n_pat&quot;] * 1000
+
+its = ag[ag[&quot;treat&quot;] == 1].reset_index(drop=True)    # 시범 지역
+comp = ag[ag[&quot;treat&quot;] == 0].reset_index(drop=True)   # 비교 지역
+print(len(ag), len(its), len(comp))
+its.iloc[[0, 1, 35, 36, 37, 59]].round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>120 60 60<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>treat</th>
+      <th>time</th>
+      <th>post</th>
+      <th>time_after</th>
+      <th>n_sed</th>
+      <th>n_pat</th>
+      <th>rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22725<span class="mk">2</span></td>
+      <td>236300</td>
+      <td>96.17<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22576</td>
+      <td>236774</td>
+      <td>95.35</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>1</td>
+      <td>36</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22441</td>
+      <td>252841</td>
+      <td>88.76</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>1</td>
+      <td>37</td>
+      <td>1</td>
+      <td>1</td>
+      <td>20690</td>
+      <td>253315</td>
+      <td>81.68<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>1</td>
+      <td>38</td>
+      <td>1</td>
+      <td>2</td>
+      <td>20278</td>
+      <td>253787</td>
+      <td>79.90</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>1</td>
+      <td>60</td>
+      <td>1</td>
+      <td>24</td>
+      <td>18499</td>
+      <td>264182</td>
+      <td>70.02</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

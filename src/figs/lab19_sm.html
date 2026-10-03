@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">statsmodels로 같은 값 확인하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.meta_analysis import (
+    effectsize_2proportions, combine_effects)
+
+cols = [&quot;mace_x&quot;, &quot;n_x&quot;, &quot;mace_pbo&quot;, &quot;n_pbo&quot;]
+args = [tr[c].to_numpy() for c in cols]     # 열 네 개를 배열로
+eff, var = effectsize_2proportions(*args, statistic=&quot;odds-ratio&quot;)
+res = combine_effects(eff, var, method_re=&quot;chi2&quot;,
+                      row_names=list(tr[&quot;trial&quot;]))
+print(res.summary_frame().round(4))
+print(round(res.q, 4), round(res.i2, 4), round(res.tau2, 6))
+print(&quot;default (iterated) tau2:&quot;,
+      round(combine_effects(eff, var).tau2, 6))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                      eff  sd_eff  ci_low  ci_upp    w_fe    w_re
+Trial A            0.0461  0.3734 -0.6857  0.7779  0.0120  0.0251
+Trial B           -0.1451  0.2470 -0.6293  0.3390  0.0275  0.0529
+Trial C            0.2963  0.6864 -1.0491  1.6417  0.0036  0.0078
+Trial D            0.0332  0.0851 -0.1336  0.2000  0.2314  0.2196
+Trial E           -0.6295  0.2592 -1.1374 -0.1215  0.0250  0.0487
+Trial F           -0.1843  0.0627 -0.3071 -0.0615  0.4271  0.2726<span class="mk">2</span>
+Trial G           -0.6080  0.4677 -1.5246  0.3086  0.0077  0.0164
+Trial H           -0.2331  0.1101 -0.4489 -0.0173  0.1383  0.1708
+Trial I           -0.3473<span class="mk">1</span>  0.1241 -0.5905 -0.1041  0.1089  0.1486
+Trial J           -0.3442  0.3011 -0.9345  0.2460  0.0185  0.0373
+fixed effect      -0.1702  0.0409<span class="mk">3</span> -0.2505 -0.0900  1.0000     NaN
+random effect     -0.1921  0.0612<span class="mk">4</span> -0.3121 -0.0721     NaN  1.0000
+fixed effect wls  -0.1702  0.0497 -0.2677 -0.0727  1.0000     NaN
+random effect wls -0.1921  0.0591<span class="mk">5</span> -0.3080 -0.0762     NaN  1.0000
+13.2849 0.3225 0.009827<span class="mk">6</span>
+default (iterated) tau2:<span class="mk">7</span> 0.007689</pre></div></div>

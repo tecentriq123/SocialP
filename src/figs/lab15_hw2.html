@@ -1,0 +1,72 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 2 정답. caliper 폭 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lg = df[&quot;logit&quot;].to_numpy()
+tr = df[&quot;drugA&quot;].to_numpy()
+rows = []
+for k in [0.05, 0.1, 0.2, 0.5, 1.0, np.inf]:
+    p = match_1to1(lg, tr, k * sd)
+    mk = pd.concat([df.iloc[p[&quot;a_row&quot;]], df.iloc[p[&quot;b_row&quot;]]])
+    worst = max(abs(smd(mk[v], mk[&quot;drugA&quot;])) for v in covs)
+    rows.append([k, len(p), round(len(p) / a.sum(), 3),
+                 round(worst, 3), round(risks(mk)[2], 3)])
+pd.DataFrame(rows, columns=[&quot;caliper (SD)&quot;, &quot;pairs&quot;,
+                            &quot;share of A&quot;, &quot;max SMD&quot;, &quot;RR&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>caliper (SD)</th>
+      <th>pairs</th>
+      <th>share of A</th>
+      <th>max SMD</th>
+      <th>RR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.05</td>
+      <td>3502</td>
+      <td>0.864</td>
+      <td>0.025</td>
+      <td>0.898</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.10</td>
+      <td>3509</td>
+      <td>0.866</td>
+      <td>0.017</td>
+      <td>0.900</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.20</td>
+      <td>3516</td>
+      <td>0.868</td>
+      <td>0.018</td>
+      <td>0.908</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.50</td>
+      <td>3575</td>
+      <td>0.882</td>
+      <td>0.021</td>
+      <td>0.928</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.00</td>
+      <td>3719</td>
+      <td>0.918</td>
+      <td>0.048</td>
+      <td>0.966</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>inf</td>
+      <td>4053</td>
+      <td>1.000</td>
+      <td>0.192</td>
+      <td>1.148</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

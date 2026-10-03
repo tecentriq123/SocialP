@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">분절회귀 (보통의 최소제곱)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+from statsmodels.stats.stattools import durbin_watson
+
+f = &quot;rate ~ time + post + time_after&quot;
+fit0 = smf.ols(f, data=its).fit()
+print(fit0.summary().tables[1])
+print(&quot;Durbin-Watson:&quot;, round(durbin_watson(fit0.resid), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
+                 coef    std err          t      P&gt;|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     95.6211<span class="mk">1</span>      0.517    185.093      0.000      94.586      96.656
+time          -0.2421<span class="mk">2</span>      0.024     -9.944      0.000      -0.291      -0.193
+post          -7.3707<span class="mk">3</span>      0.809     -9.111      0.000      -8.991      -5.750
+time_after    -0.2263<span class="mk">4</span>      0.051     -4.441      0.000      -0.328      -0.124
+==============================================================================
+Durbin-Watson: 0.945<span class="mk">5</span></pre></div></div>

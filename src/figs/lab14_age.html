@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">자격 표를 붙여 index date의 나이 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">info = person[[&quot;pid&quot;, &quot;sex&quot;, &quot;birth_year&quot;, &quot;death_date&quot;]]
+coh = coh.merge(info, on=&quot;pid&quot;, how=&quot;left&quot;)
+coh[&quot;age&quot;] = coh[&quot;index_date&quot;].dt.year - coh[&quot;birth_year&quot;]
+coh[&quot;minor&quot;] = coh[&quot;age&quot;] &lt; 18
+print(coh[&quot;age&quot;].describe().round(1))
+print(&quot;age &lt; 18:&quot;, coh[&quot;minor&quot;].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>count    10000.0
+mean        60.6
+std         12.3
+min         10.0<span class="mk">1</span>
+25%         52.0
+50%         61.0
+75%         69.0
+max         95.0
+Name: age, dtype: float64
+age &lt; 18: 14<span class="mk">2</span></pre></div></div>

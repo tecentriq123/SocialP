@@ -1,0 +1,41 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">입원까지의 시간으로 본 위험비 (Cox 모형)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+
+cols = [&quot;exp(coef)&quot;, &quot;exp(coef) lower 95%&quot;, &quot;exp(coef) upper 95%&quot;]
+c1 = CoxPHFitter().fit(df, &quot;hosp_day&quot;, &quot;hosp_1y&quot;, formula=&quot;drugA&quot;)
+c2 = CoxPHFitter().fit(m, &quot;hosp_day&quot;, &quot;hosp_1y&quot;, formula=&quot;drugA&quot;,
+                       cluster_col=&quot;pair&quot;)
+c3 = CoxPHFitter().fit(df, &quot;hosp_day&quot;, &quot;hosp_1y&quot;, formula=&quot;drugA&quot;,
+                       weights_col=&quot;sw&quot;, robust=True)
+hr = pd.concat([c.summary[cols] for c in (c1, c2, c3)])
+hr.index = [&quot;crude&quot;, &quot;matched&quot;, &quot;IPTW&quot;]
+hr.columns = [&quot;HR&quot;, &quot;lower&quot;, &quot;upper&quot;]
+hr.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>HR</th>
+      <th>lower</th>
+      <th>upper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>crude</th>
+      <td>1.354<span class="mk">1</span></td>
+      <td>1.206</td>
+      <td>1.521</td>
+    </tr>
+    <tr>
+      <th>matched</th>
+      <td>0.903<span class="mk">2</span></td>
+      <td>0.787</td>
+      <td>1.036</td>
+    </tr>
+    <tr>
+      <th>IPTW</th>
+      <td>0.952<span class="mk">3</span></td>
+      <td>0.841</td>
+      <td>1.077</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">고정효과 모형 (역분산 가중평균)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">w = 1 / es[&quot;vi&quot;]                            # 역분산 가중치
+fe = np.sum(w * es[&quot;yi&quot;]) / np.sum(w)       # 가중평균
+se_fe = 1 / np.sqrt(np.sum(w))
+print(f&quot;sum w = {np.sum(w):.1f}, sum wy = {np.sum(w * es[&#x27;yi&#x27;]):.1f}&quot;)
+print(f&quot;log OR {fe:.4f}, SE {se_fe:.4f}&quot;)
+print(f&quot;OR {np.exp(fe):.2f} ({np.exp(fe - Z*se_fe):.2f}&quot;
+      f&quot;-{np.exp(fe + Z*se_fe):.2f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>sum w = 596.4<span class="mk">1</span>, sum wy = -101.5<span class="mk">2</span>
+log OR -0.1702<span class="mk">3</span>, SE 0.0409<span class="mk">4</span>
+OR 0.84 (0.78-0.91)<span class="mk">5</span></pre></div></div>

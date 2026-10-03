@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">표마다 앞의 세 줄 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(person.head(3))
+print(visit.head(3))
+print(rx.head(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     pid sex  birth_year elig_start   elig_end death_date
+0  10001   F        1962 2015-01-01 2022-12-31        NaT<span class="mk">1</span>
+1  10002   M        1933 2015-01-01 2022-12-31        NaT
+2  10003   F        1940 2015-01-01 2022-12-31        NaT
+     pid visit_date setting<span class="mk">2</span> dx_main dx_sub1 dx_sub2
+0  19160 2015-01-01       O    I209<span class="mk">3</span>    E119     NaN<span class="mk">4</span>
+1  10019 2015-01-02       O     J00     NaN     NaN
+2  15868 2015-01-02       O    I251    E116     NaN
+     pid    rx_date       drug  days<span class="mk">5</span>
+0  17780 2015-01-04  metformin    90
+1  16338 2015-01-10  metformin    60
+2  19326 2015-01-10  metformin    60</pre></div></div>

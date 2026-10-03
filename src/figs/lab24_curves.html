@@ -1,0 +1,43 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">곡선과 위험비 한 벌 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pairs = [(&quot;pfs_med&quot;, &quot;os_med&quot;),        # 함께 뽑는 짝 (PFS, OS)
+         (&quot;pfs_gam&quot;, &quot;os_gam&quot;),
+         (&quot;hr_pfs&quot;, &quot;hr_os&quot;)]
+
+def draw_curves(rng, p, rho=0.5):
+    &quot;&quot;&quot;곡선과 위험비 한 벌. 짝마다 로그 척도에서 상관 rho&quot;&quot;&quot;
+    v = {}
+    for k1, k2 in pairs:
+        z1, z2 = rng.normal(size=2)    # 독립인 표준정규 난수 둘
+        z2 = rho * z1 + np.sqrt(1 - rho ** 2) * z2
+        v[k1] = get_input(p, k1) * np.exp(spec[k1][1] * z1)
+        v[k2] = get_input(p, k2) * np.exp(spec[k2][1] * z2)
+    q = dict(p)
+    for k in [&quot;hr_pfs&quot;, &quot;hr_os&quot;, &quot;pfs_gam&quot;, &quot;os_gam&quot;]:
+        q[k] = v[k]
+    q[&quot;pfs_lam&quot;] = weib_lam(v[&quot;pfs_med&quot;], v[&quot;pfs_gam&quot;])
+    q[&quot;os_lam&quot;] = weib_lam(v[&quot;os_med&quot;], v[&quot;os_gam&quot;])
+    return q
+
+def crossed(p, horizon=240):
+    &quot;&quot;&quot;어느 군에서든 PFS 곡선이 OS 곡선을 넘으면 True&quot;&quot;&quot;
+    t = np.arange(0, horizon + 1)
+    for hr_pfs, hr_os in [(p[&quot;hr_pfs&quot;], p[&quot;hr_os&quot;]), (1.0, 1.0)]:
+        s_pfs = np.exp(-p[&quot;pfs_lam&quot;] * hr_pfs * t ** p[&quot;pfs_gam&quot;])
+        s_os = np.exp(-p[&quot;os_lam&quot;] * hr_os * t ** p[&quot;os_gam&quot;])
+        if (s_pfs &gt; s_os).any():
+            return True
+    return False
+
+rng = np.random.default_rng(20261002)
+q = draw_curves(rng, p)
+keys = [k for pair in pairs for k in pair]
+print(pd.DataFrame({&quot;base&quot;: [get_input(p, k) for k in keys],
+                    &quot;draw&quot;: [get_input(q, k) for k in keys]},
+                   index=keys).round(3))
+print(&quot;곡선이 엇갈리는가:&quot;, crossed(q))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          base    draw
+pfs_med  10.00   9.848<span class="mk">1</span>
+os_med   28.00  29.601<span class="mk">2</span>
+pfs_gam   0.95   0.980
+os_gam    1.15   1.151
+hr_pfs    0.65   0.581<span class="mk">3</span>
+hr_os     0.75   0.765
+곡선이 엇갈리는가: False<span class="mk">4</span></pre></div></div>

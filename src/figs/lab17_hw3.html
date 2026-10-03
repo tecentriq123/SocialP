@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 고관절 골절 자료 (17장 나 절 확인 문제)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fx = pd.read_csv(BASE + &quot;dementia_fracture.csv&quot;)
+fx[&quot;drug_c&quot;] = (fx[&quot;drug&quot;] == &quot;C&quot;).astype(int)     # C = 1, D = 0
+fx[&quot;frac&quot;] = (fx[&quot;status&quot;] == 1).astype(int)
+fx[&quot;death&quot;] = (fx[&quot;status&quot;] == 2).astype(int)
+fx[&quot;years_sd&quot;] = np.where(fx[&quot;status&quot;] == 2,
+                          fx[&quot;max_years&quot;], fx[&quot;years&quot;])
+
+for g in [&quot;C&quot;, &quot;D&quot;]:
+    d = fx[fx[&quot;drug&quot;] == g]
+    est, lo, hi = cif(d, 1, 5)
+    km = KaplanMeierFitter().fit(d[&quot;years&quot;], d[&quot;status&quot;] == 1)
+    print(f&quot;{g}: fracture {est*100:.1f} ({lo*100:.1f}-{hi*100:.1f}),&quot;
+          f&quot; death {cif(d, 2, 5)[0]*100:.1f},&quot;
+          f&quot; 1 - KM {(1 - km.predict(5))*100:.1f}&quot;)
+
+m1 = CoxPHFitter().fit(fx, &quot;years&quot;, &quot;frac&quot;, formula=&quot;drug_c&quot;)
+m2 = CoxPHFitter().fit(fx, &quot;years&quot;, &quot;death&quot;, formula=&quot;drug_c&quot;)
+m3 = CoxPHFitter().fit(fx, &quot;years_sd&quot;, &quot;frac&quot;, formula=&quot;drug_c&quot;)
+print(&quot;fracture, cause-specific HR :&quot;, hr_ci(m1, &quot;drug_c&quot;))
+print(&quot;death, cause-specific HR    :&quot;, hr_ci(m2, &quot;drug_c&quot;))
+print(&quot;fracture, subdistribution HR:&quot;, hr_ci(m3, &quot;drug_c&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>C: fracture 8.3 (7.2-9.5)<span class="mk">1</span>, death 66.0, 1 - KM 14.1<span class="mk">2</span>
+D: fracture 10.2 (9.0-11.5), death 48.0, 1 - KM 14.1
+fracture, cause-specific HR : 0.97 (0.80-1.17)<span class="mk">3</span>
+death, cause-specific HR    : 1.65 (1.53-1.78)
+fracture, subdistribution HR: 0.81 (0.67-0.98)<span class="mk">4</span></pre></div></div>

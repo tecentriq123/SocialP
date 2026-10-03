@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">자료 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(&quot;환자&quot;, len(d), &quot;명, id 중복&quot;, d[&quot;id&quot;].duplicated().sum(), &quot;건&quot;)
+print(&quot;사망&quot;, d[&quot;died&quot;].sum(), &quot;명&quot;,
+      f&quot;({d[&#x27;died&#x27;].mean() * 100:.1f}%)&quot;)
+print(&quot;약물 X를 시작한 사람&quot;, d[&quot;rx_day&quot;].notna().sum(), &quot;명&quot;)
+alive = d[d[&quot;died&quot;] == 0]
+print(&quot;생존자의 추적 일수:&quot;, alive[&quot;fu_days&quot;].unique())
+print(&quot;사망자의 추적 일수 최대:&quot;, d.loc[d[&quot;died&quot;] == 1, &quot;fu_days&quot;].max())
+bad = (d[&quot;rx_day&quot;] &gt;= d[&quot;fu_days&quot;]).sum()
+print(&quot;추적이 끝난 뒤의 처방&quot;, bad, &quot;건&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>환자 6000 명, id 중복 0 건
+사망 1234 명 (20.6%)<span class="mk">1</span>
+약물 X를 시작한 사람 2734 명<span class="mk">2</span>
+생존자의 추적 일수: [365.]<span class="mk">3</span>
+사망자의 추적 일수 최대: 363.758483
+추적이 끝난 뒤의 처방 0 건<span class="mk">4</span></pre></div></div>

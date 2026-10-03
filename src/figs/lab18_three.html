@@ -1,0 +1,54 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">세 계열에 같은 분절회귀 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">diff = its[[&quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;]].copy()
+diff[&quot;rate&quot;] = its[&quot;rate&quot;] - comp[&quot;rate&quot;]       # 시범 - 비교
+
+def seg(data):
+    return smf.ols(f, data=data).fit(cov_type=&quot;HAC&quot;,
+                                     cov_kwds={&quot;maxlags&quot;: 3})
+
+fits = {&quot;pilot&quot;: seg(its), &quot;comparison&quot;: seg(comp),
+        &quot;difference&quot;: seg(diff)}
+tab3 = pd.DataFrame({k: v.params for k, v in fits.items()})
+tab3.loc[&quot;effect at 12 months&quot;] = (tab3.loc[&quot;post&quot;]
+                                   + 12 * tab3.loc[&quot;time_after&quot;])
+tab3.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pilot</th>
+      <th>comparison</th>
+      <th>difference</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>95.621</td>
+      <td>84.095</td>
+      <td>11.526</td>
+    </tr>
+    <tr>
+      <th>time</th>
+      <td>-0.242</td>
+      <td>-0.239</td>
+      <td>-0.003</td>
+    </tr>
+    <tr>
+      <th>post</th>
+      <td>-7.371</td>
+      <td>-2.528<span class="mk">1</span></td>
+      <td>-4.843<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>time_after</th>
+      <td>-0.226</td>
+      <td>-0.028</td>
+      <td>-0.198<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>effect at 12 months</th>
+      <td>-10.086</td>
+      <td>-2.863</td>
+      <td>-7.223<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

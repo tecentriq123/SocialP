@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">평균 차이와 Welch t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">diff = a.mean() - b.mean()
+tt = stats.ttest_ind(a, b, equal_var=False)       # Welch t 검정
+ci = tt.confidence_interval()
+se = np.sqrt(a.var(ddof=1) / len(a) + b.var(ddof=1) / len(b))
+
+print(&quot;평균 차이(A - B):&quot;, round(diff, 1))
+print(&quot;SE:&quot;, round(se, 1), &quot; t =&quot;, round(tt.statistic, 2),
+      &quot; df =&quot;, round(tt.df, 1), &quot; p =&quot;, tt.pvalue)
+print(&quot;95% CI:&quot;, round(ci.low, 1), &quot;~&quot;, round(ci.high, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>평균 차이(A - B): 396.1<span class="mk">1</span>
+SE: 51.0<span class="mk">2</span>  t = 7.77<span class="mk">3</span>  df = 2766.8  p = 1.1352742945629719e-14
+95% CI: 296.1 ~ 496.1<span class="mk">4</span></pre></div></div>

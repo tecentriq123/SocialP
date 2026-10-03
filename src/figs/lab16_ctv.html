@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">시간의존 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxTimeVaryingFitter
+
+ctv = CoxTimeVaryingFitter()
+ctv.fit(long, id_col=&quot;id&quot;, event_col=&quot;died&quot;,
+        start_col=&quot;start&quot;, stop_col=&quot;stop&quot;, formula=&quot;drugx&quot;)
+ctv.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.CoxTimeVaryingFitter: fitted with 8734 periods, 6000 subjects, 1234 events&gt;
+         event col = &#x27;died&#x27;
+number of subjects = 6000
+ number of periods = 8734<span class="mk">1</span>
+  number of events = 1234<span class="mk">2</span>
+partial log-likelihood = -10598.599
+  time fit was run = 2026-10-03 16:32:00 UTC
+
+---
+           coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%
+covariate                                                                                                  
+drugx     0.031<span class="mk">3</span>     1.031<span class="mk">4</span>     0.070          -0.105           0.167               0.900<span class="mk">5</span>               1.182<span class="mk">6</span>
+
+           cmp to     z     p  -log2(p)
+covariate                              
+drugx       0.000 0.445 0.656<span class="mk">7</span>     0.608
+---
+Partial AIC = 21199.198
+log-likelihood ratio test = 0.198 on 1 df
+-log2(p) of ll-ratio test = 0.607</pre></div></div>

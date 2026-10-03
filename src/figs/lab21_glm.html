@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">감마 GLM (로그 연결)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fam = sm.families.Gamma(link=sm.families.links.Log())
+glm = smf.glm(f, data=df, family=fam).fit()
+print(glm.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                   cost   No. Observations:                 3000
+Model:                            GLM   Df Residuals:                     2994
+Model Family:                   Gamma<span class="mk">1</span>   Df Model:                            5
+Link Function:                    Log<span class="mk">2</span>   Scale:                         0.31751<span class="mk">3</span>
+Method:                          IRLS   Log-Likelihood:                -25248.
+Date:                Sat, 03 Oct 2026   Deviance:                       714.39
+Time:                        12:00:00   Pearson chi2:                     951.
+No. Iterations:                    11   Pseudo R-squ. (CS):            0.04923
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept      7.6193      0.082     93.419      0.000       7.459       7.779
+trt            0.2159<span class="mk">4</span>      0.022      9.763      0.000       0.173       0.259
+age           -0.0012      0.001     -0.992      0.321      -0.004       0.001
+male           0.0397      0.023      1.726      0.084      -0.005       0.085
+cci            0.0832<span class="mk">5</span>      0.009      9.231      0.000       0.066       0.101
+stage4         0.0251      0.021      1.180      0.238      -0.017       0.067
+==============================================================================</pre></div></div>

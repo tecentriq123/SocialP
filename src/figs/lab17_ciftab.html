@@ -1,0 +1,40 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">두 군의 1·3·5년 투석 누적발생률 (95% 신뢰구간)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def cif(d, event, t):
+    &quot;&quot;&quot;t년 누적발생률, 95% 신뢰구간의 하한과 상한 (0-1)&quot;&quot;&quot;
+    aj = AalenJohansenFitter()
+    aj.fit(d[&quot;years&quot;], d[&quot;status&quot;], event_of_interest=event)
+    lo, hi = sorted(aj.confidence_interval_.loc[:t].iloc[-1])
+    return aj.predict(t), lo, hi
+
+rows = {}
+for g in [&quot;A&quot;, &quot;B&quot;]:
+    d = ckd[ckd[&quot;drug&quot;] == g]
+    for t in [1, 3, 5]:
+        est, lo, hi = cif(d, 1, t)
+        rows[(f&quot;{t}-year&quot;, g)] = (f&quot;{est*100:.1f} &quot;
+                                  f&quot;({lo*100:.1f}-{hi*100:.1f})&quot;)
+pd.Series(rows).unstack()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>A</th>
+      <th>B</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1-year</th>
+      <td>8.5 (7.1-10.0)<span class="mk">1</span></td>
+      <td>7.9 (6.8-9.1)</td>
+    </tr>
+    <tr>
+      <th>3-year</th>
+      <td>21.0 (18.9-23.2)</td>
+      <td>18.2 (16.6-19.8)</td>
+    </tr>
+    <tr>
+      <th>5-year</th>
+      <td>30.2 (27.7-32.7)<span class="mk">2</span></td>
+      <td>24.5 (22.7-26.5)<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

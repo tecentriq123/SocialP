@@ -1,0 +1,11 @@
+trial,year,phase,followup_mo,stemi_pct,rob,n_x,mace_x,bleed_x,n_pbo,mace_pbo,bleed_pbo
+Trial A,2008,2,6,55,low,620,23,7,310,11,2
+Trial B,2009,2,6,52,low,1160,47,12,580,27,2
+Trial C,2010,2,6,68,some concerns,240,8,3,120,3,0
+Trial D,2011,3,12,41,low,3650,306,91,3640,296,37
+Trial E,2011,2,6,60,low,900,33,12,450,30,1
+Trial F,2012,3,18,50,low,5100,532,162,5080,624,69
+Trial G,2013,2,6,47,high,410,10,1,205,9,1
+Trial H,2014,3,12,36,low,2450,161,71,2440,199,33
+Trial I,2016,3,12,63,low,1800,122,39,1790,167,23
+Trial J,2018,2,9,58,low,520,29,12,260,20,2

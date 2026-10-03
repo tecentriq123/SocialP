@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">사이트의 분석용 코호트 파일과 대조하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ref = pd.read_csv(BASE + &quot;sglt2_cohort.csv&quot;)
+mine = cohort.sort_values(&quot;pid&quot;).reset_index(drop=True)
+cols = [&quot;pid&quot;, &quot;sglt2&quot;, &quot;time&quot;, &quot;event&quot;] + covs
+print(len(mine), len(ref))
+print((mine[cols] == ref[cols]).all().all())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>5552 5552
+True<span class="mk">1</span></pre></div></div>

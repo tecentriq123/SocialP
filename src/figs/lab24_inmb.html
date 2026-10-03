@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">증분 순금전편익과 비용효과적일 확률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">first = pd.DataFrame({&quot;d_qaly&quot;: dq[:5], &quot;d_cost&quot;: dc[:5]},
+                     index=[1, 2, 3, 4, 5])
+first[&quot;inmb_5000&quot;] = 5000 * first[&quot;d_qaly&quot;] - first[&quot;d_cost&quot;]
+first[&quot;inmb_6000&quot;] = 6000 * first[&quot;d_qaly&quot;] - first[&quot;d_cost&quot;]
+print(first.round({&quot;d_qaly&quot;: 3, &quot;d_cost&quot;: 0, &quot;inmb_5000&quot;: 0,
+                   &quot;inmb_6000&quot;: 0}))
+
+inmb = 5000 * dq - dc                  # 5,000벌 모두
+print(&quot;양수인 벌:&quot;, int((inmb &gt; 0).sum()), &quot;/&quot;, len(inmb),
+      &quot;=&quot;, np.mean(inmb &gt; 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   d_qaly  d_cost  inmb_5000  inmb_6000
+1   0.570  2709.0      143.0<span class="mk">1</span>      713.0
+2   0.700  4451.0     -949.0<span class="mk">2</span>     -248.0
+3   0.985  4429.0      497.0     1482.0
+4   0.551  3187.0     -433.0      118.0<span class="mk">3</span>
+5   0.317  2101.0     -516.0     -199.0
+양수인 벌: 802 / 5000<span class="mk">4</span> = 0.1604<span class="mk">5</span></pre></div></div>

@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 1 정답: 유예기간 30일</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">c30 = cohort.copy()
+c30[&quot;stop_date&quot;] = c30[&quot;pid&quot;].map(stop_date(own, 30))
+c30 = follow_up(c30, AT)
+t30 = rate_table(c30)
+print(t30.round(2))
+print(&quot;IRR %.2f (%.2f-%.2f)&quot; % irr(t30))
+print(&quot;adjusted HR %.2f (%.2f-%.2f)&quot; % hr(c30, [&quot;sglt2&quot;] + covs))
+print(c30.loc[c30[&quot;pid&quot;] == p, [&quot;end_date&quot;, &quot;time&quot;, &quot;event&quot;]])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           n  events       py   rate     lo     hi
+arm                                               
+DPP4i   4524     107  8134.58  13.15  10.78  15.89
+SGLT2i  1028       9  1649.25   5.46   2.50  10.36
+IRR 0.41 (0.21-0.82)
+adjusted HR 0.60 (0.30-1.20)
+       end_date  time  event
+1858 2019-06-26   404      0</pre></div></div>

@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+d = pd.read_csv(BASE + &quot;ami_cohort.csv&quot;)
+print(d.shape)
+d.head(5)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(6000, 4)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>fu_days</th>
+      <th>died</th>
+      <th>rx_day</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>177.836900<span class="mk">2</span></td>
+      <td>1</td>
+      <td>NaN<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>341.341834</td>
+      <td>1</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>365.000000</td>
+      <td>0</td>
+      <td>249.905124<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>365.000000</td>
+      <td>0</td>
+      <td>48.614645</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>365.000000</td>
+      <td>0</td>
+      <td>49.468897</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

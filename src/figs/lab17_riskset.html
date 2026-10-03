@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">3년 시점 약물 B군의 두 가지 위험집합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t0 = 3
+at_risk = b[&quot;years&quot;] &gt;= t0                 # 3년까지 사건 없이 추적 중
+died_before = ((b[&quot;status&quot;] == 2) &amp; (b[&quot;years&quot;] &lt; t0)
+               &amp; (b[&quot;max_years&quot;] &gt;= t0))   # 3년 전에 사망
+print(&quot;cause-specific risk set :&quot;, at_risk.sum())
+print(&quot;died before, kept       :&quot;, died_before.sum())
+print(&quot;subdistribution risk set:&quot;, (at_risk | died_before).sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>cause-specific risk set : 851<span class="mk">1</span>
+died before, kept       : 884<span class="mk">2</span>
+subdistribution risk set: 1735<span class="mk">3</span></pre></div></div>

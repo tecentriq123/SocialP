@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">EVPI 풀어 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pos = inmb[inmb &gt; 0]                   # 신약 A가 더 나았던 벌
+print(&quot;순금전편익의 평균:&quot;, round(inmb.mean(), 1))
+print(&quot;양수인 비율:&quot;, np.mean(inmb &gt; 0),
+      &quot; 양수인 벌의 평균:&quot;, round(pos.mean(), 1))
+print(&quot;둘의 곱:&quot;, round(np.mean(inmb &gt; 0) * pos.mean(), 1),
+      &quot; evpi():&quot;, round(evpi(dc, dq, 5000), 1))
+
+ev = np.array([evpi(dc, dq, lam) for lam in fine])
+print(&quot;EVPI가 가장 큰 임계값:&quot;, fine[np.argmax(ev)],
+      &quot; 그때의 EVPI:&quot;, round(ev.max(), 1))
+print(&quot;환자 3,000명이면(억원):&quot;,
+      round(evpi(dc, dq, 5000) * 3000 / 10000, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>순금전편익의 평균: -307.7
+양수인 비율: 0.1604  양수인 벌의 평균: 224.1<span class="mk">1</span>
+둘의 곱: 35.9<span class="mk">2</span>  evpi(): 35.9
+EVPI가 가장 큰 임계값: 5590<span class="mk">3</span>  그때의 EVPI: 164.1<span class="mk">4</span>
+환자 3,000명이면(억원): 10.8<span class="mk">5</span></pre></div></div>

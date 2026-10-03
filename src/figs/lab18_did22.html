@@ -1,0 +1,40 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">2×2 평균표와 이중차분 추정값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m = both.groupby([&quot;group&quot;, &quot;post&quot;])[&quot;rate&quot;].mean().unstack(&quot;post&quot;)
+m.columns = [&quot;before&quot;, &quot;after&quot;]
+m[&quot;change&quot;] = m[&quot;after&quot;] - m[&quot;before&quot;]
+m.loc[&quot;difference&quot;] = m.loc[1] - m.loc[0]
+m.round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>before</th>
+      <th>after</th>
+      <th>change</th>
+    </tr>
+    <tr>
+      <th>group</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>79.66</td>
+      <td>69.60</td>
+      <td>-10.06<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>91.14</td>
+      <td>73.68</td>
+      <td>-17.46<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>difference</th>
+      <td>11.48<span class="mk">3</span></td>
+      <td>4.08<span class="mk">4</span></td>
+      <td>-7.40<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

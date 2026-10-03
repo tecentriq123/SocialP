@@ -200,22 +200,16 @@ for arm in ("B", "A"):
     h2 = p["hr_os"] if arm == "A" else 1.0
     CROSS[arm] = ((p["pfs_lam"] * h1) / (p["os_lam"] * h2)) ** (1 / (p["os_gam"] - p["pfs_gam"]))
 print("PFS와 OS 곡선이 만나는 시점(개월):", CROSS)
-# 확률적 민감도 분석의 분포(PSA_SPEC)에서 뽑은 입력값 가운데 두 곡선이 분석기간(240개월) 안에 만나는 비율
-_rng = np.random.default_rng(SEED)
-_hit, _area = 0, []
-for _ in range(5000):
-    q = L.draw(_rng)
-    a_max = 0.0
+# 확률적 민감도 분석(24장 나 절)에서 입력값 5,000벌을 채택하는 동안, 두 곡선이 분석기간(240개월) 안에 만나서 버리고 다시 뽑은 비율.
+# L.draw()는 그런 벌을 버리므로 채택된 5,000벌에서는 곡선이 만나지 않는다(무진행생존을 전체생존 값으로 자르는 장치가 작동하지 않는다).
+_draws, _cnt = L.psa_inputs(5000, SEED)
+assert not any(L.curves_cross(q) for q in _draws)
+for q in _draws:
     for arm in ("A", "B"):
-        h1 = q["hr_pfs"] if arm == "A" else 1.0
-        h2 = q["hr_os"] if arm == "A" else 1.0
-        d = L.surv(q["pfs_lam"] * h1, q["pfs_gam"], T) - L.surv(q["os_lam"] * h2, q["os_gam"], T)
-        if (d > 1e-12).any():
-            a_max = max(a_max, float(d[d > 0].sum() / 12))       # 잘려 나간 면적(년)
-    if a_max > 0:
-        _hit += 1; _area.append(a_max)
-CROSS_PSA = {"share": _hit / 5000, "area_median": float(np.median(_area)), "share_area_gt_0.05y": float(np.mean(np.array(_area) > 0.05)) * _hit / 5000}
-print("PSA 5000벌 가운데 두 곡선이 20년 안에 만나는 비율:", CROSS_PSA)
+        _raw, _ = L.curves_raw(q, arm, T); _cut, _ = L.curves(q, arm, T)
+        assert (_raw == _cut).all()
+CROSS_PSA = {"share": _cnt["share"], "tries": _cnt["tries"], "rejected": _cnt["rejected"]}
+print("PSA 5,000벌을 채택하는 동안 두 곡선이 20년 안에 만나 다시 뽑은 비율:", CROSS_PSA)
 # 중앙값(군별)
 MED = {"B": {"pfs": med_pfs_B, "os": med_os_B},
        "A": {"pfs": L.weib_median(p["pfs_lam"] * p["hr_pfs"], p["pfs_gam"]), "os": L.weib_median(p["os_lam"] * p["hr_os"], p["os_gam"])}}
@@ -225,7 +219,7 @@ print("중앙값 차이: PFS", MED["A"]["pfs"] - MED["B"]["pfs"], "OS", MED["A"]
 # 입력값 표(논문 상자)의 95% 구간: PSA_SPEC의 분포에서
 CI = {}
 for k, (dist, u) in L.PSA_SPEC.items():
-    m = p[k]
+    m = L.get_input(p, k)
     if dist == "lognormal":
         lo, hi = math.exp(math.log(m) - 1.959964 * u), math.exp(math.log(m) + 1.959964 * u)
     elif dist == "beta":

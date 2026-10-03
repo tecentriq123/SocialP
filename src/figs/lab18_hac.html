@@ -1,0 +1,29 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">Newey-West(HAC) 표준오차로 다시 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fit = smf.ols(f, data=its).fit(cov_type=&quot;HAC&quot;,
+                               cov_kwds={&quot;maxlags&quot;: 3})
+print(fit.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:                   rate   R-squared:                       0.974
+Model:                            OLS   Adj. R-squared:                  0.973
+Method:                 Least Squares   F-statistic:                     790.4
+Date:                Sat, 03 Oct 2026   Prob (F-statistic):           8.78e-46
+Time:                        16:32:52   Log-Likelihood:                -108.10
+No. Observations:                  60   AIC:                             224.2
+Df Residuals:                      56   BIC:                             232.6
+Df Model:                           3                                         
+Covariance Type:                  HAC<span class="mk">1</span>                                         
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     95.6211      0.425    224.896      0.000      94.788      96.454
+time          -0.2421      0.026     -9.185      0.000      -0.294      -0.190<span class="mk">2</span>
+post          -7.3707      1.117     -6.601      0.000      -9.559      -5.182<span class="mk">3</span>
+time_after    -0.2263      0.063     -3.605      0.000      -0.349      -0.103<span class="mk">4</span>
+==============================================================================
+Omnibus:                        0.366   Durbin-Watson:                   0.945<span class="mk">5</span>
+Prob(Omnibus):                  0.833   Jarque-Bera (JB):                0.538
+Skew:                          -0.109   Prob(JB):                        0.764
+Kurtosis:                       2.591   Cond. No.                         153.
+==============================================================================
+
+Notes:<span class="mk">6</span>
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 3 lags and without small sample correction</pre></div></div>

@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">전후 평균만 비교하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+
+for name, s in [(&quot;pilot&quot;, its), (&quot;comparison&quot;, comp)]:
+    pre = s.loc[s[&quot;post&quot;] == 0, &quot;rate&quot;]
+    po = s.loc[s[&quot;post&quot;] == 1, &quot;rate&quot;]
+    tt = stats.ttest_ind(po, pre, equal_var=False)
+    ci = tt.confidence_interval()
+    print(f&quot;{name:&lt;10} before {pre.mean():.2f}  after {po.mean():.2f}&quot;
+          f&quot;  diff {po.mean() - pre.mean():.2f}&quot;
+          f&quot; ({ci.low:.2f}, {ci.high:.2f})  p = {tt.pvalue:.0e}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>pilot      before 91.14  after 73.68  diff -17.46 (-19.25, -15.67)<span class="mk">1</span>  p = 5e-23
+comparison before 79.66  after 69.60  diff -10.06 (-11.40, -8.72)<span class="mk">2</span>  p = 2e-21</pre></div></div>

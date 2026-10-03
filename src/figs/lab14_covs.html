@@ -1,0 +1,80 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">기저 기간의 상병과 처방으로 공변량 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b = base[base[&quot;pid&quot;].isin(cohort[&quot;pid&quot;])]
+dx_def = {&quot;htn&quot;: (&quot;I10&quot;, &quot;I11&quot;, &quot;I12&quot;, &quot;I13&quot;, &quot;I15&quot;),
+          &quot;ihd&quot;: (&quot;I20&quot;, &quot;I21&quot;, &quot;I22&quot;, &quot;I23&quot;, &quot;I24&quot;, &quot;I25&quot;),
+          &quot;hf&quot;: &quot;I50&quot;, &quot;ckd&quot;: &quot;N18&quot;}
+for name, codes in dx_def.items():
+    pids = b[has_dx(b, codes)][&quot;pid&quot;]
+    cohort[name] = cohort[&quot;pid&quot;].isin(pids).astype(int)
+
+r = rx.merge(index, on=&quot;pid&quot;)
+r[&quot;before&quot;] = (r[&quot;index_date&quot;] - r[&quot;rx_date&quot;]).dt.days
+rb = r[(r[&quot;before&quot;] &gt;= 0) &amp; (r[&quot;before&quot;] &lt;= 365)]
+for name, drug in [(&quot;met&quot;, &quot;metformin&quot;), (&quot;ins&quot;, &quot;insulin&quot;)]:
+    pids = rb[rb[&quot;drug&quot;] == drug][&quot;pid&quot;]
+    cohort[name] = cohort[&quot;pid&quot;].isin(pids).astype(int)
+
+cohort[&quot;female&quot;] = (cohort[&quot;sex&quot;] == &quot;F&quot;).astype(int)
+cohort[&quot;sglt2&quot;] = (cohort[&quot;arm&quot;] == &quot;SGLT2i&quot;).astype(int)
+covs = [&quot;age&quot;, &quot;female&quot;, &quot;htn&quot;, &quot;ihd&quot;, &quot;hf&quot;, &quot;ckd&quot;, &quot;met&quot;, &quot;ins&quot;]
+cohort[[&quot;pid&quot;, &quot;arm&quot;, &quot;index_date&quot;] + covs].head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pid</th>
+      <th>arm</th>
+      <th>index_date</th>
+      <th>age</th>
+      <th>female</th>
+      <th>htn</th>
+      <th>ihd</th>
+      <th>hf</th>
+      <th>ckd</th>
+      <th>met</th>
+      <th>ins</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>5</th>
+      <td>10007</td>
+      <td>SGLT2i</td>
+      <td>2020-05-26</td>
+      <td>61</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>10008</td>
+      <td>DPP4i</td>
+      <td>2020-08-30</td>
+      <td>79</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>10009</td>
+      <td>DPP4i</td>
+      <td>2018-09-19</td>
+      <td>57</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

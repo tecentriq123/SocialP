@@ -1,0 +1,47 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 1 정답. 임상시험 단계에 따른 하위군 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">es[&quot;phase&quot;] = tr[&quot;phase&quot;]
+rows = []
+for ph in [2, 3]:
+    s = es[es[&quot;phase&quot;] == ph]
+    r = pool(s[&quot;yi&quot;], s[&quot;vi&quot;])
+    r[&quot;phase&quot;] = ph
+    r[&quot;OR (95% CI)&quot;] = orci(r[&quot;re&quot;], r[&quot;se_re&quot;])
+    rows.append(r)
+pg = pd.DataFrame(rows).set_index(&quot;phase&quot;)
+d = pg.loc[2, &quot;re&quot;] - pg.loc[3, &quot;re&quot;]
+se_d = np.sqrt((pg[&quot;se_re&quot;]**2).sum())
+print(&quot;P for subgroup difference:&quot;,
+      round(2 * stats.norm.sf(abs(d / se_d)), 2))
+pg[[&quot;k&quot;, &quot;OR (95% CI)&quot;, &quot;I2&quot;, &quot;tau2&quot;]].round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>P for subgroup difference: 0.36<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k</th>
+      <th>OR (95% CI)</th>
+      <th>I2</th>
+      <th>tau2</th>
+    </tr>
+    <tr>
+      <th>phase</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>6</td>
+      <td>0.73 (0.57-0.95)<span class="mk">2</span></td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>0.85 (0.73-0.98)<span class="mk">3</span></td>
+      <td>0.626<span class="mk">4</span></td>
+      <td>0.014</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

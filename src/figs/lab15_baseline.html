@@ -1,0 +1,63 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">보정 전 두 군의 기저특성과 입원 위험</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">covs = [&quot;age&quot;, &quot;female&quot;, &quot;hf&quot;, &quot;ckd&quot;, &quot;prior_hosp&quot;,
+        &quot;n_drug&quot;, &quot;tertiary&quot;]
+print(df[&quot;drugA&quot;].value_counts())
+
+t1 = df.groupby(&quot;drugA&quot;)[covs + [&quot;hosp_1y&quot;]].mean().T
+t1.columns = [&quot;drug B&quot;, &quot;drug A&quot;]
+print(&quot;crude RR:&quot;,
+      round(t1.loc[&quot;hosp_1y&quot;, &quot;drug A&quot;] / t1.loc[&quot;hosp_1y&quot;, &quot;drug B&quot;], 3))
+t1.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>drugA
+0    5947<span class="mk">1</span>
+1    4053
+Name: count, dtype: int64
+crude RR: 1.328<span class="mk">4</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>drug B</th>
+      <th>drug A</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>age</th>
+      <td>64.467</td>
+      <td>67.855<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>female</th>
+      <td>0.483</td>
+      <td>0.462</td>
+    </tr>
+    <tr>
+      <th>hf</th>
+      <td>0.060</td>
+      <td>0.148<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>ckd</th>
+      <td>0.110</td>
+      <td>0.197</td>
+    </tr>
+    <tr>
+      <th>prior_hosp</th>
+      <td>0.154</td>
+      <td>0.234</td>
+    </tr>
+    <tr>
+      <th>n_drug</th>
+      <td>5.554</td>
+      <td>6.416</td>
+    </tr>
+    <tr>
+      <th>tertiary</th>
+      <td>0.209</td>
+      <td>0.308</td>
+    </tr>
+    <tr>
+      <th>hosp_1y</th>
+      <td>0.101</td>
+      <td>0.134</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

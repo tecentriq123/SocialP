@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">scipy 함수로 확인하고 BCa 구간 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def mean_diff(x, y, axis=-1):
+    return x.mean(axis=axis) - y.mean(axis=axis)
+
+for method in [&quot;percentile&quot;, &quot;BCa&quot;]:
+    res = stats.bootstrap((a, b), mean_diff, n_resamples=9999,
+                          method=method,
+                          random_state=np.random.default_rng(21))
+    bci = res.confidence_interval
+    print(method, round(bci.low, 1), round(bci.high, 1),
+          round(res.standard_error, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>percentile 296.1 496.3<span class="mk">1</span> 51.0
+BCa 298.0 498.9<span class="mk">2</span> 51.0</pre></div></div>

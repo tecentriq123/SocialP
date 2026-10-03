@@ -1,0 +1,58 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">lifelines 함수로 같은 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import to_long_format, add_covariate_to_timeline
+
+base = to_long_format(d[[&quot;id&quot;, &quot;fu_days&quot;, &quot;died&quot;]],
+                      duration_col=&quot;fu_days&quot;)
+rx = d.loc[d[&quot;ever&quot;] == 1, [&quot;id&quot;, &quot;rx_day&quot;]].assign(drugx=1)
+long2 = add_covariate_to_timeline(base, rx, id_col=&quot;id&quot;,
+                                  duration_col=&quot;rx_day&quot;,
+                                  event_col=&quot;died&quot;)
+long2[&quot;drugx&quot;] = long2[&quot;drugx&quot;].fillna(0).astype(int)
+ctv2 = CoxTimeVaryingFitter().fit(long2, id_col=&quot;id&quot;,
+    event_col=&quot;died&quot;, start_col=&quot;start&quot;, stop_col=&quot;stop&quot;)
+print(len(long2), &quot;줄, HR (95% CI):&quot;, hr_ci(ctv2, &quot;drugx&quot;))
+long2.head(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>8734 줄, HR (95% CI): 1.03 (0.90-1.18)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>died</th>
+      <th>start</th>
+      <th>stop</th>
+      <th>drugx</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0.000000</td>
+      <td>177.836900</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0.000000</td>
+      <td>341.341834</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>0</td>
+      <td>0.000000</td>
+      <td>249.905124<span class="mk">2</span></td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2</td>
+      <td>0</td>
+      <td>249.905124</td>
+      <td>365.000000</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

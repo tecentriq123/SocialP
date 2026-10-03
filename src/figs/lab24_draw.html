@@ -1,0 +1,30 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">입력값 한 벌 뽑기와 다시 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def draw_inputs(rng, p, count, rho=0.5, redraw=True):
+    &quot;&quot;&quot;입력값 한 벌을 분포에서 뽑는다 (약값과 할인율은 고정)&quot;&quot;&quot;
+    while True:
+        q = draw_curves(rng, p, rho)   # 1) 곡선과 위험비
+        count[&quot;tries&quot;] += 1
+        if not crossed(q):
+            break                      # 엇갈리지 않으면 채택
+        count[&quot;crossed&quot;] += 1
+        if not redraw:
+            break                      # 다시 뽑기를 끈 경우
+    for key, (dist, u) in spec.items():    # 2) 나머지 입력값
+        if dist == &quot;beta&quot;:
+            a, b = beta_ab(p[key], u)
+            q[key] = rng.beta(a, b)
+        elif dist == &quot;gamma&quot;:
+            k, s = gamma_ks(p[key], p[key] * u)
+            q[key] = rng.gamma(k, s)
+    return q                           # 로그정규는 1)에서 뽑았다
+
+rng = np.random.default_rng(20261002)  # 같은 seed로 처음부터
+count = {&quot;tries&quot;: 0, &quot;crossed&quot;: 0}
+q = draw_inputs(rng, p, count)
+show = [&quot;u_pf&quot;, &quot;u_pd&quot;, &quot;c_pf&quot;, &quot;c_pd&quot;, &quot;c_death&quot;, &quot;c_drug_A&quot;]
+print({k: round(float(q[k]), 3) for k in show})
+r = run_model(q)
+print(&quot;첫 벌: 증분비용&quot;, round(r[&quot;d_cost&quot;]),
+      &quot; 증분 QALY&quot;, round(r[&quot;d_qaly&quot;], 3), &quot; ICER&quot;, round(r[&quot;icer&quot;]))
+print(count)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;u_pf&#x27;: 0.839<span class="mk">1</span>, &#x27;u_pd&#x27;: 0.589, &#x27;c_pf&#x27;: 37.672, &#x27;c_pd&#x27;: 193.297, &#x27;c_death&#x27;: 801.628, &#x27;c_drug_A&#x27;: 190.0<span class="mk">2</span>}
+첫 벌: 증분비용 2709<span class="mk">3</span>  증분 QALY 0.57  ICER 4750
+{&#x27;tries&#x27;: 1, &#x27;crossed&#x27;: 0}<span class="mk">4</span></pre></div></div>

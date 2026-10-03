@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">하위군 간 차이 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d = sg.loc[&quot;STEMI&quot;, &quot;re&quot;] - sg.loc[&quot;NSTE-ACS&quot;, &quot;re&quot;]
+se_d = np.sqrt(sg.loc[&quot;STEMI&quot;, &quot;se_re&quot;]**2
+               + sg.loc[&quot;NSTE-ACS&quot;, &quot;se_re&quot;]**2)
+z = d / se_d
+print(f&quot;difference {d:.3f}, SE {se_d:.3f}, z {z:.2f}&quot;)
+print(f&quot;Q between = z^2 = {z**2:.2f} (df = 1)&quot;)
+print(f&quot;P for interaction = {2 * stats.norm.sf(abs(z)):.3f}&quot;)
+print(&quot;ratio of ORs:&quot;, orci(d, se_d))
+
+d_fe = sg.loc[&quot;STEMI&quot;, &quot;fe&quot;] - sg.loc[&quot;NSTE-ACS&quot;, &quot;fe&quot;]
+se_fe_d = np.sqrt((sg[&quot;se_fe&quot;]**2).sum())
+print(&quot;fixed-effect subtotals: P =&quot;,
+      round(2 * stats.norm.sf(abs(d_fe / se_fe_d)), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>difference -0.164, SE 0.094, z -1.74<span class="mk">1</span>
+Q between = z^2 = 3.03<span class="mk">2</span> (df = 1)
+P for interaction = 0.082<span class="mk">3</span>
+ratio of ORs: 0.85 (0.71-1.02)<span class="mk">4</span>
+fixed-effect subtotals: P = 0.043<span class="mk">5</span></pre></div></div>

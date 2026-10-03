@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">사용군의 불멸 인년 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">u = d[d[&quot;ever&quot;] == 1]                  # 사용군 2,734명
+nu = d[d[&quot;ever&quot;] == 0]                 # 비사용군 3,266명
+py_u = u[&quot;fu_days&quot;].sum() / 365        # 사용군 인년 (퇴원일부터)
+py_nu = nu[&quot;fu_days&quot;].sum() / 365
+immortal = u[&quot;rx_day&quot;].sum() / 365     # 퇴원일부터 첫 처방일까지
+print(f&quot;사용군 {py_u:.0f}인년, 그중 첫 처방 전 {immortal:.0f}인년&quot;
+      f&quot; ({immortal / py_u * 100:.0f}%)&quot;)
+print(f&quot;비사용군 {py_nu:.0f}인년&quot;)
+rate_u = u[&quot;died&quot;].sum() / py_u * 100       # 100인년당 사망률
+rate_nu = nu[&quot;died&quot;].sum() / py_nu * 100
+print(f&quot;사망률 {rate_u:.1f} 대 {rate_nu:.1f},&quot;
+      f&quot; 발생률비 {rate_u / rate_nu:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>사용군 2613인년<span class="mk">1</span>, 그중 첫 처방 전 1142인년 (44%)<span class="mk">2</span>
+비사용군 2699인년<span class="mk">3</span>
+사망률 12.3 대 33.8<span class="mk">4</span>, 발생률비 0.36<span class="mk">5</span></pre></div></div>

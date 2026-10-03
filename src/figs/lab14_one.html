@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">한 사람의 기록을 세 표에서 따라가기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p = 11891
+print(person[person[&quot;pid&quot;] == p])
+print(rx[rx[&quot;pid&quot;] == p].sort_values(&quot;rx_date&quot;))
+print(visit[visit[&quot;pid&quot;] == p].sort_values(&quot;visit_date&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        pid sex  birth_year elig_start   elig_end death_date
+1890  11891   F        1943 2015-01-01 2022-12-31        NaT
+          pid    rx_date       drug  days
+22622   11891 2018-02-17  metformin    60<span class="mk">1</span>
+25144   11891 2018-05-18      DPP4i    90<span class="mk">2</span>
+28278   11891 2018-08-28      DPP4i    90
+31409   11891 2018-11-27      DPP4i    90
+34774   11891 2019-02-26      DPP4i    90
+39885   11891 2019-07-02      DPP4i    90<span class="mk">3</span>
+43900   11891 2019-09-30      DPP4i    90
+48294   11891 2020-01-02      DPP4i    90
+52800   11891 2020-04-03      DPP4i    90
+57857   11891 2020-07-09      DPP4i    90
+63653   11891 2020-10-24      DPP4i    90
+68918   11891 2021-01-24      DPP4i    90
+74531   11891 2021-04-29      DPP4i    90
+80032   11891 2021-07-29      DPP4i    90
+85782   11891 2021-10-29      DPP4i    90
+91918   11891 2022-02-03      DPP4i    90
+97736   11891 2022-05-08      DPP4i    90
+103181  11891 2022-08-08      DPP4i    90
+108431  11891 2022-11-08      DPP4i    90
+         pid visit_date setting dx_main dx_sub1 dx_sub2
+33     11891 2015-01-10       O    J304    E116     NaN
+25667  11891 2018-02-17       O    I200<span class="mk">4</span>     I10     NaN
+26002  11891 2018-03-13       O    E118     NaN     NaN
+26417  11891 2018-04-13       O    E118     NaN     NaN
+26862  11891 2018-05-18       O    E116     I10     NaN
+28351  11891 2018-08-28       O    E119     I10     NaN
+32425  11891 2019-05-11       O    K297     NaN     NaN
+47485  11891 2021-08-22       I    I501<span class="mk">5</span>    E116     I10
+47874  11891 2021-09-15       O    I509    E118     NaN
+53269  11891 2022-11-08       O    E114     I10    I251</pre></div></div>

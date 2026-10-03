@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 2 정답. 상대위험도와 위험차로 통합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">r1 = tr[&quot;mace_x&quot;] / tr[&quot;n_x&quot;]               # 약물 X군의 위험
+r0 = tr[&quot;mace_pbo&quot;] / tr[&quot;n_pbo&quot;]           # 위약군의 위험
+
+y_rr = np.log(r1 / r0)                      # 로그 상대위험도
+v_rr = (1/tr[&quot;mace_x&quot;] - 1/tr[&quot;n_x&quot;]
+        + 1/tr[&quot;mace_pbo&quot;] - 1/tr[&quot;n_pbo&quot;])
+m_rr = pool(y_rr, v_rr)
+print(&quot;RR:&quot;, orci(m_rr[&quot;re&quot;], m_rr[&quot;se_re&quot;]), f&quot;I2 {m_rr[&#x27;I2&#x27;]:.0%}&quot;)
+
+y_rd = r1 - r0                              # 위험차 (로그 없음)
+v_rd = r1 * (1 - r1) / tr[&quot;n_x&quot;] + r0 * (1 - r0) / tr[&quot;n_pbo&quot;]
+m_rd = pool(y_rd, v_rd)
+lo = m_rd[&quot;re&quot;] - Z * m_rd[&quot;se_re&quot;]
+hi = m_rd[&quot;re&quot;] + Z * m_rd[&quot;se_re&quot;]
+print(f&quot;RD: {100 * m_rd[&#x27;re&#x27;]:.2f} ({100 * lo:.2f} to {100 * hi:.2f})&quot;
+      f&quot; %p, I2 {m_rd[&#x27;I2&#x27;]:.0%}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RR: 0.84 (0.75-0.94)<span class="mk">1</span> I2 33%
+RD: -1.24 (-2.02 to -0.46)<span class="mk">2</span> %p, I2 34%<span class="mk">3</span></pre></div></div>

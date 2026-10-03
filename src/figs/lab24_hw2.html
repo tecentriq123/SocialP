@@ -1,0 +1,42 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 2 정답. 약값과 무진행생존 위험비를 함께 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">hr_low = ranges.loc[&quot;hr_pfs&quot;, &quot;low&quot;]     # 95% 구간의 양 끝
+hr_high = ranges.loc[&quot;hr_pfs&quot;, &quot;high&quot;]
+hrs = [hr_low, 0.65, hr_high]
+rows = []
+for price in [190.0, 175.0, 160.0]:
+    row = []
+    for hr in hrs:
+        q = set_input(set_input(p, &quot;c_drug_A&quot;, price), &quot;hr_pfs&quot;, hr)
+        row.append(run_model(q)[&quot;icer&quot;])
+    rows.append(row)
+two = pd.DataFrame(rows, index=[190, 175, 160],
+                   columns=np.round(hrs, 2))
+two.round(0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0.52</th>
+      <th>0.65</th>
+      <th>0.81</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>190</th>
+      <td>4784.0<span class="mk">1</span></td>
+      <td>5621.0<span class="mk">2</span></td>
+      <td>6499.0</td>
+    </tr>
+    <tr>
+      <th>175</th>
+      <td>4090.0</td>
+      <td>4983.0<span class="mk">3</span></td>
+      <td>5922.0</td>
+    </tr>
+    <tr>
+      <th>160</th>
+      <td>3395.0</td>
+      <td>4346.0</td>
+      <td>5345.0<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

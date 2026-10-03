@@ -1,0 +1,32 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">등록 기간의 첫 처방일(index date) 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">study = rx[rx[&quot;drug&quot;].isin([&quot;SGLT2i&quot;, &quot;DPP4i&quot;])]
+enroll = study[(study[&quot;rx_date&quot;] &gt;= &quot;2016-01-01&quot;)
+               &amp; (study[&quot;rx_date&quot;] &lt;= &quot;2021-12-31&quot;)]
+index = enroll.groupby(&quot;pid&quot;)[&quot;rx_date&quot;].min()
+index = index.rename(&quot;index_date&quot;).reset_index()
+print(study[&quot;pid&quot;].nunique(), &quot;-&gt;&quot;, len(index), &quot;people&quot;)
+index.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>10150 -&gt; 10000 people<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pid</th>
+      <th>index_date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>10001</td>
+      <td>2016-01-15</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>10003</td>
+      <td>2016-01-25</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>10004</td>
+      <td>2018-10-26</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

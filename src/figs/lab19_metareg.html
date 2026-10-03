@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">메타회귀 (STEMI 환자 비율)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+
+es[&quot;stemi10&quot;] = (tr[&quot;stemi_pct&quot;] - 50) / 10   # 10%p 단위, 50%가 0
+m0 = smf.wls(&quot;yi ~ stemi10&quot;, data=es, weights=w).fit()
+QE = np.sum(w * m0.resid**2)                  # 직선 주위의 흩어짐
+X = m0.model.exog                             # 10행 x [1, stemi10]
+W = np.diag(w)                                # 대각선이 가중치인 행렬
+A = np.linalg.inv(X.T @ W @ X)
+C_reg = np.trace(W) - np.trace(A @ X.T @ W @ W @ X)
+tau2_res = max(0, (QE - (k - 2)) / C_reg)     # 남은 연구 간 분산
+
+mr = smf.wls(&quot;yi ~ stemi10&quot;, data=es,
+             weights=1 / (es[&quot;vi&quot;] + tau2_res)).fit(
+                 cov_type=&quot;fixed scale&quot;)
+b, se_b = mr.params[&quot;stemi10&quot;], mr.bse[&quot;stemi10&quot;]
+print(f&quot;QE {QE:.2f}, residual tau2 {tau2_res:.4f}&quot;)
+p_b = 2 * stats.norm.sf(abs(b / se_b))
+print(f&quot;slope {b:.3f} (SE {se_b:.3f}), z {b / se_b:.2f}, P {p_b:.2f}&quot;)
+print(&quot;ratio of ORs per 10 %p:&quot;, orci(b, se_b))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>QE 9.56, residual tau2 0.0044<span class="mk">1</span>
+slope -0.094 (SE 0.058)<span class="mk">2</span>, z -1.61, P 0.11<span class="mk">3</span>
+ratio of ORs per 10 %p: 0.91 (0.81-1.02)<span class="mk">4</span></pre></div></div>

@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">5년 투석 누적발생률의 차이와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">est = {}
+for g in [&quot;A&quot;, &quot;B&quot;]:
+    d = ckd[ckd[&quot;drug&quot;] == g]
+    aj = AalenJohansenFitter()
+    aj.fit(d[&quot;years&quot;], d[&quot;status&quot;], event_of_interest=1)
+    est[g] = (aj.predict(5), aj.variance_.loc[:5].iloc[-1])
+(fa, va), (fb, vb) = est[&quot;A&quot;], est[&quot;B&quot;]
+
+rd = fa - fb                                 # 위험차
+se = np.sqrt(va + vb)
+print(f&quot;difference {rd*100:.1f}%p (95% CI {(rd - 1.96*se)*100:.1f}&quot;
+      f&quot; to {(rd + 1.96*se)*100:.1f})&quot;)
+print(&quot;ratio&quot;, round(fa / fb, 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>difference 5.7%p<span class="mk">1</span> (95% CI 2.5 to 8.8<span class="mk">2</span>)
+ratio 1.23<span class="mk">3</span></pre></div></div>

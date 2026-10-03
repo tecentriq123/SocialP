@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">하위군별 통합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sub[&quot;yi&quot;], sub[&quot;vi&quot;] = log_or(sub[&quot;mace_x&quot;], sub[&quot;n_x&quot;],
+                              sub[&quot;mace_pbo&quot;], sub[&quot;n_pbo&quot;])
+rows = []
+for g in [&quot;STEMI&quot;, &quot;NSTE-ACS&quot;]:
+    s = sub[sub[&quot;subgroup&quot;] == g]           # 그 하위군의 6줄
+    r = pool(s[&quot;yi&quot;], s[&quot;vi&quot;])
+    r[&quot;subgroup&quot;] = g
+    r[&quot;drug X&quot;] = f&quot;{s[&#x27;mace_x&#x27;].sum()}/{s[&#x27;n_x&#x27;].sum()}&quot;
+    r[&quot;placebo&quot;] = f&quot;{s[&#x27;mace_pbo&#x27;].sum()}/{s[&#x27;n_pbo&#x27;].sum()}&quot;
+    r[&quot;OR (95% CI)&quot;] = orci(r[&quot;re&quot;], r[&quot;se_re&quot;])
+    r[&quot;P&quot;] = 2 * stats.norm.sf(abs(r[&quot;re&quot;] / r[&quot;se_re&quot;]))
+    rows.append(r)
+sg = pd.DataFrame(rows).set_index(&quot;subgroup&quot;)
+sg[[&quot;k&quot;, &quot;drug X&quot;, &quot;placebo&quot;, &quot;OR (95% CI)&quot;, &quot;P&quot;, &quot;I2&quot;]].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>k</th>
+      <th>drug X</th>
+      <th>placebo</th>
+      <th>OR (95% CI)</th>
+      <th>P</th>
+      <th>I2</th>
+    </tr>
+    <tr>
+      <th>subgroup</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>STEMI</th>
+      <td>6</td>
+      <td>528/7006<span class="mk">1</span></td>
+      <td>636/6510</td>
+      <td>0.78 (0.69-0.89)<span class="mk">2</span></td>
+      <td>0.0001</td>
+      <td>0.0312<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>NSTE-ACS</th>
+      <td>6</td>
+      <td>663/7774</td>
+      <td>688/7330</td>
+      <td>0.92 (0.81-1.06)<span class="mk">3</span></td>
+      <td>0.2393<span class="mk">4</span></td>
+      <td>0.1815</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

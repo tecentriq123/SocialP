@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">index date에 처방받은 계열과 동시 시작 여부</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">first = enroll.merge(index, on=&quot;pid&quot;)
+first = first[first[&quot;rx_date&quot;] == first[&quot;index_date&quot;]]
+print(len(enroll), &quot;-&gt;&quot;, len(first), &quot;rows&quot;)
+
+coh = index.copy()
+coh[&quot;arm&quot;] = coh[&quot;pid&quot;].map(first.groupby(&quot;pid&quot;)[&quot;drug&quot;].first())
+n_class = first.groupby(&quot;pid&quot;)[&quot;drug&quot;].nunique()
+coh[&quot;both&quot;] = coh[&quot;pid&quot;].map(n_class) &gt; 1
+print(coh[&quot;arm&quot;].value_counts())
+print(&quot;both classes on index date:&quot;, coh[&quot;both&quot;].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>77200 -&gt; 10131 rows<span class="mk">1</span>
+arm
+DPP4i     8755
+SGLT2i    1245<span class="mk">2</span>
+Name: count, dtype: int64
+both classes on index date: 131<span class="mk">3</span></pre></div></div>

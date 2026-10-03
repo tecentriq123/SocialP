@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">약물 B군의 누적발생률과 1 − Kaplan-Meier</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import AalenJohansenFitter, KaplanMeierFitter
+
+b = ckd[ckd[&quot;drug&quot;] == &quot;B&quot;]
+ajf = AalenJohansenFitter()
+ajf.fit(b[&quot;years&quot;], b[&quot;status&quot;], event_of_interest=1)
+print(ajf.predict([1, 3, 5]))
+print(ajf.confidence_interval_.loc[:5].tail(1))
+
+kmf = KaplanMeierFitter()
+kmf.fit(b[&quot;years&quot;], b[&quot;status&quot;] == 1)      # 사망도 중도절단이 됨
+print(&quot;1 - KM:&quot;, round(1 - kmf.predict(5), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>1    0.078774<span class="mk">1</span>
+3    0.181604
+5    0.245497<span class="mk">2</span>
+Name: CIF_1, dtype: float64
+          AJ_estimate_upper_0.95<span class="mk">3</span>  AJ_estimate_lower_0.95
+event_at                                                
+5.0                     0.226731<span class="mk">4</span>                0.264687
+1 - KM: 0.3924<span class="mk">5</span></pre></div></div>

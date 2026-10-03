@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">로그 변환, 기하평균, smearing 계수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">la, lb = np.log(a), np.log(b)
+gm_a, gm_b = np.exp(la.mean()), np.exp(lb.mean())
+print(&quot;로그 비용의 SD A, B:&quot;, round(la.std(ddof=1), 2),
+      round(lb.std(ddof=1), 2))
+print(&quot;기하평균 A, B:&quot;, round(gm_a, 1), round(gm_b, 1))
+
+tl = stats.ttest_ind(la, lb, equal_var=False)
+cl = tl.confidence_interval()
+print(&quot;기하평균의 비:&quot;, round(gm_a / gm_b, 3),
+      np.exp([cl.low, cl.high]).round(3))
+print(&quot;산술평균의 비:&quot;, round(a.mean() / b.mean(), 3))
+
+k_a = np.exp(la - la.mean()).mean()      # smearing 계수
+k_b = np.exp(lb - lb.mean()).mean()
+print(&quot;smearing 계수 A, B:&quot;, round(k_a, 3), round(k_b, 3))
+print(&quot;기하평균 x 계수   :&quot;,
+      round(gm_a * k_a, 1), round(gm_b * k_b, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>로그 비용의 SD A, B: 0.43 0.54<span class="mk">1</span>
+기하평균 A, B: 2441.0 1961.7<span class="mk">2</span>
+기하평균의 비: 1.244<span class="mk">3</span> [1.202 1.288]
+산술평균의 비: 1.174<span class="mk">4</span>
+smearing 계수 A, B: 1.093 1.159<span class="mk">5</span>
+기하평균 x 계수   : 2668.9 2272.8<span class="mk">6</span></pre></div></div>

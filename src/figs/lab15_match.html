@@ -1,0 +1,44 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">1:1 최근접 매칭 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def match_1to1(logit, treat, caliper, seed=7):
+    &quot;&quot;&quot;1:1 최근접 매칭 (비복원, caliper 적용).&quot;&quot;&quot;
+    rng = np.random.default_rng(seed)
+    a_rows = np.where(treat == 1)[0]      # A 사용자의 행 번호
+    b_rows = np.where(treat == 0)[0]      # B 사용자의 행 번호
+    b_logit = logit[b_rows].copy()        # 아직 남은 B의 로짓
+    pairs = []
+    for i in rng.permutation(a_rows):     # A를 무작위 순서로
+        dist = np.abs(b_logit - logit[i])     # 모든 B와의 거리
+        j = np.argmin(dist)                   # 가장 가까운 B
+        if dist[j] &lt;= caliper:                # 한계 안이면
+            pairs.append((i, b_rows[j]))      # 짝으로 기록
+            b_logit[j] = np.inf               # 쓴 B는 지움
+    return pd.DataFrame(pairs, columns=[&quot;a_row&quot;, &quot;b_row&quot;])
+
+pairs = match_1to1(df[&quot;logit&quot;].to_numpy(),
+                   df[&quot;drugA&quot;].to_numpy(), caliper)
+print(len(pairs), &quot;pairs&quot;)
+pairs.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3516 pairs<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>a_row</th>
+      <th>b_row</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>8203<span class="mk">2</span></td>
+      <td>332</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3696</td>
+      <td>3072</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4978</td>
+      <td>1429</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

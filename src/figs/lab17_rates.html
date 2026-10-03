@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">군별 사건 수, 인년, 발생률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rate = ckd.groupby(&quot;drug&quot;).agg(
+    n=(&quot;id&quot;, &quot;size&quot;), py=(&quot;years&quot;, &quot;sum&quot;),
+    dial=(&quot;dial&quot;, &quot;sum&quot;), death=(&quot;death&quot;, &quot;sum&quot;))
+rate[&quot;mean_fu&quot;] = rate[&quot;py&quot;] / rate[&quot;n&quot;]
+rate[&quot;dial_100py&quot;] = rate[&quot;dial&quot;] / rate[&quot;py&quot;] * 100
+rate[&quot;death_100py&quot;] = rate[&quot;death&quot;] / rate[&quot;py&quot;] * 100
+print(rate.round(2).T)
+
+ratio = rate.loc[&quot;A&quot;] / rate.loc[&quot;B&quot;]
+print(&quot;A / B:&quot;,
+      ratio[[&quot;dial_100py&quot;, &quot;death_100py&quot;]].round(2).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>drug               A        B
+n            1380.00  2120.00
+py           4049.16<span class="mk">1</span>  5195.51
+dial          396.00   496.00
+death         463.00  1088.00
+mean_fu         2.93<span class="mk">2</span>     2.45
+dial_100py      9.78<span class="mk">3</span>     9.55
+death_100py    11.43<span class="mk">4</span>    20.94
+A / B: [1.02, 0.55]<span class="mk">5</span></pre></div></div>

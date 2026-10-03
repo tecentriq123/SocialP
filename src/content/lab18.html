@@ -1,0 +1,509 @@
+<p class="lead">18장의 예제인 고령자 수면진정제 처방 관리 시범사업(가상)을 시군구 × 월 집계 자료로 직접 분석합니다. 자료를 지역별 월별 계열로 합치고, 분절회귀로 수준 변화와 기울기 변화를 추정하고, 잔차의 자기상관을 확인해 Newey–West 표준오차를 씁니다. 이어서 비교 지역을 더한 중단시계열과 이중차분법을 돌려 18장 본문의 숫자를 그대로 얻고 Methods·Results 문장으로 옮깁니다. 이론은 <a href="#ch18">18장</a>, 선형회귀의 코드는 <a href="#lab06">실습 6</a>, 군집 강건 표준오차는 <a href="#lab10-s3">실습 10 다 절</a>을 함께 보세요.</p>
+
+<dl class="glance">
+<div><dt>관련 이론</dt><dd><a href="#ch18">18장 정책 효과의 평가</a> (가 절 전후 비교, 나 절 중단시계열분석, 다 절 대조군이 있는 중단시계열, 라 절 이중차분법)</dd></div>
+<div><dt>데이터</dt><dd><code>sedative_district_month.csv</code>. 이 사이트가 만든 가상 자료로, 18장의 모의자료와 같은 것입니다. 시군구 60곳(시범 지역 20곳, 비교 지역 40곳)의 2015년 1월–2019년 12월 월별 집계 3,600줄, 열 5개</dd></div>
+<div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, scipy, statsmodels (<code>smf.ols</code>, <code>smf.wls</code>, <code>durbin_watson</code>, <code>acf</code>, <code>plot_acf</code>, <code>GLSAR</code>)</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). 따로 설치할 패키지는 없습니다</dd></div>
+</dl>
+<p class="nb-link"><a href="notebooks/lab18.ipynb" download>실습 노트북 내려받기 (lab18.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab18-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>평가할 정책은 <a href="#ch18-s1">18장 가 절</a>의 예제와 같습니다. 2018년 1월부터 20개 시군구(시범 지역)에서 65세 이상 외래 환자의 수면진정제 장기 처방을 관리하는 시범사업을 시작했고, 사업을 하지 않은 40개 시군구가 비교 지역입니다. 결과 지표는 <b>처방률</b>, 곧 그 달에 외래를 이용한 65세 이상 환자 1,000명 가운데 수면진정제를 원외처방받은 환자 수입니다.</p>
+<p>이 자료는 실제 환자 자료가 아니라 이 사이트가 만든 가상 자료입니다. 실제 연구에서는 청구자료의 명세서와 원외처방 내역을 시군구와 진료 연월로 묶어 환자 수를 세는 집계를 먼저 합니다. 이 실습은 그 집계가 끝난 표에서 시작합니다. 한 줄이 한 시군구의 한 달입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:46rem">
+<thead><tr><th>열</th><th>뜻</th></tr></thead>
+<tbody>
+<tr><td>unit</td><td>시군구 번호(1–60). 행정구역 코드가 아닌 일련번호</td></tr>
+<tr><td>treat</td><td>시범 지역이면 1, 비교 지역이면 0</td></tr>
+<tr><td>month</td><td>진료 연월. 그 달의 첫날을 YYYY-MM-DD 문자열로 적음</td></tr>
+<tr><td>n_pat</td><td>그 달에 외래를 이용한 65세 이상 환자 수(분모)</td></tr>
+<tr><td>n_sed</td><td>그중 수면진정제를 원외처방받은 환자 수(분자)</td></tr>
+</tbody></table></div>
+<p>파일은 <code>sedative_district_month.csv</code> 하나이고 3,600줄(60개 시군구 × 60개월)입니다. 이 실습의 출력은 pandas 3.0, statsmodels 0.15.0으로 실제로 실행해 얻었습니다. Colab의 버전이 달라도 숫자는 같고 출력의 모양만 조금 다를 수 있습니다.</p>
+
+<h3>자료 불러오기</h3>
+<!--FIG:lab18_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>BASE = "https://…/data/"</code><span>이 사이트의 자료 폴더 주소를 문자열로 저장해 둡니다. 인터넷에 연결되어 있어야 합니다.</span></li>
+<li><code>pd.read_csv(BASE + "sedative_district_month.csv")</code><span>문자열 두 개를 <code>+</code>로 이으면 하나의 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(DataFrame)로 만듭니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(3600, 5).</b> 3,600줄, 열 5개입니다.</span></li>
+<li><span class="mk">2</span><span><b>month는 문자열입니다.</b> 날짜처럼 보이지만 아직 글자이므로 계산에 쓰려면 날짜 자료형으로 바꿔야 합니다(셀 3).</span></li>
+<li><span class="mk">3</span><span><b>n_sed 747.</b> 1번 시군구에서 2015년 1월에 외래를 이용한 65세 이상 환자 8,000명 가운데 747명이 수면진정제를 처방받았습니다.</span></li>
+</ol>
+
+<h3>자료 구조 확인</h3>
+<p>긴 형식의 자료는 분석 전에 단위가 몇 개인지, 단위마다 줄 수가 같은지부터 확인합니다(<a href="#lab10-s1">실습 10 가 절</a>).</p>
+<!--FIG:lab18_structure-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>raw.groupby("unit").agg(treat=("treat", "first"), …)</code><span>시군구마다 한 줄로 요약합니다. <code>새 열 이름=("원래 열", "요약 방법")</code> 꼴로 적으면 요약한 열에 이름을 붙일 수 있습니다. <code>"first"</code>는 첫 값, <code>"size"</code>는 줄 수, <code>"mean"</code>은 평균입니다. 결과 <code>units</code>는 60줄짜리 표입니다.</span></li>
+<li><code>units.groupby("treat")["mean_pat"].describe()</code><span>시군구의 평균 환자 수를 시범 지역과 비교 지역으로 나눠 요약합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>60개 시군구, 60개월.</b> 2015년 1월부터 2019년 12월까지이고 60 × 60 = 3,600줄이므로 빠진 달이 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>비교 지역 40곳.</b></span></li>
+<li><span class="mk">3</span><span><b>시범 지역 20곳.</b> 사업은 시군구 단위로 배정되었습니다. 라 절에서 표준오차의 군집 단위가 되는 이유입니다.</span></li>
+<li><span class="mk">4</span><span><b>시군구의 크기가 많이 다릅니다.</b> 시범 지역의 월평균 65세 이상 외래 환자는 3,601명에서 30,076명까지입니다. 그래서 지역 전체의 처방률을 구할 때 시군구를 어떻게 합치느냐에 따라 값이 달라집니다(셀 4).</span></li>
+</ol>
+
+<h3>시간 변수와 처방률</h3>
+<p>분절회귀에 쓰는 변수 세 개를 만듭니다(<a href="#ch18-s2">18장 나 절</a> '자료 만들기'). time은 시작부터 몇 번째 달인지, post는 시행 후면 1, time_after는 시행 후 몇 번째 달인지입니다.</p>
+<!--FIG:lab18_timevars-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>d["date"] = pd.to_datetime(d["month"])</code><span>"2015-01-01" 같은 문자열을 날짜 자료형으로 바꿉니다. 날짜 자료형이 되면 연, 월을 따로 꺼낼 수 있습니다.</span></li>
+<li><code>d["date"].dt.year</code>, <code>d["date"].dt.month</code><span>날짜 열 뒤에 <code>.dt</code>를 붙이면 날짜의 부분을 꺼낼 수 있습니다. 연도(2015–2019)와 월(1–12)입니다.</span></li>
+<li><code>d["time"] = (연도 - 2015) * 12 + 월</code><span>2015년 1월이 1, 2017년 12월이 36, 2018년 1월이 37, 2019년 12월이 60이 됩니다.</span></li>
+<li><code>d["post"] = (d["time"] &gt; 36).astype(int)</code><span>37번째 달(2018년 1월)부터 True이고, <code>astype(int)</code>로 1과 0으로 바꿉니다.</span></li>
+<li><code>d["time_after"] = np.where(d["post"] == 1, d["time"] - 36, 0)</code><span>시행 후면 time − 36(1, 2, …, 24), 시행 전이면 0입니다. <code>np.where(조건, 참일 때, 거짓일 때)</code>는 <a href="#lab05-s3">실습 5 다 절</a>에서 썼습니다.</span></li>
+<li><code>d["rate"] = d["n_sed"] / d["n_pat"] * 1000</code><span>시군구별 월 처방률(1,000명당)입니다. 라 절의 이중차분 회귀에서 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>2017년 12월은 time 36, post 0, time_after 0.</b> 시행 전 마지막 달입니다.</span></li>
+<li><span class="mk">2</span><span><b>2018년 1월은 time 37, post 1, time_after 1.</b> 시행 첫 달의 time_after를 1로 두었습니다. 0으로 두는 논문도 있고, 그러면 수준 변화의 값이 기울기 변화 한 달치만큼 달라집니다(18장 나 절 접힌 상자). 본문과 같게 1로 맞춥니다.</span></li>
+<li><span class="mk">3</span><span><b>93.38</b> = 747 ÷ 8,000 × 1,000입니다.</span></li>
+</ol>
+
+<h3>지역을 합친 월별 계열</h3>
+<p>중단시계열분석의 분석 단위는 달입니다. 시범 지역 20곳과 비교 지역 40곳을 각각 하나로 합쳐 60개월짜리 계열 두 개를 만듭니다. 합칠 때는 처방률을 평균 내지 않고 <b>분자와 분모를 각각 더한 뒤</b> 나눕니다. 그래야 "시범 지역 전체의 65세 이상 외래 환자 1,000명당"이라는 정의와 맞습니다.</p>
+<!--FIG:lab18_series-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>d.groupby(["treat", "time", "post", "time_after"])</code><span>지역 구분과 달이 같은 줄끼리 묶습니다. post와 time_after는 time이 정해지면 따라 정해지므로 묶음의 수는 2 × 60 = 120개 그대로이고, 결과에 이 열들을 남기려고 함께 적었습니다.</span></li>
+<li><code>[["n_sed", "n_pat"]].sum().reset_index()</code><span>묶음마다 분자와 분모를 더합니다. <code>reset_index()</code>는 묶음의 기준이던 네 변수를 다시 보통의 열로 돌려놓습니다.</span></li>
+<li><code>ag["rate"] = ag["n_sed"] / ag["n_pat"] * 1000</code><span>더한 분자를 더한 분모로 나눈 지역 전체의 처방률입니다.</span></li>
+<li><code>its = ag[ag["treat"] == 1].reset_index(drop=True)</code><span>시범 지역의 60줄만 골라 행 번호를 0부터 다시 매깁니다. <code>comp</code>는 비교 지역입니다. 두 표 모두 time 순서로 정렬되어 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>120줄, 60줄, 60줄.</b> 두 지역 × 60개월입니다.</span></li>
+<li><span class="mk">2</span><span><b>분자 22,725명, 분모 236,300명.</b> 18장 나 절의 표와 같은 값입니다.</span></li>
+<li><span class="mk">3</span><span><b>2015년 1월 96.17.</b> 22,725 ÷ 236,300 × 1,000입니다. 시군구 20곳의 처방률을 그냥 평균 내면 97.34로 다른 값이 됩니다. 작은 시군구와 큰 시군구를 같은 비중으로 세기 때문입니다.</span></li>
+<li><span class="mk">4</span><span><b>2018년 1월 81.68.</b> 시행 직전 88.76에서 한 달 만에 내려갔습니다.</span></li>
+</ol>
+
+<h3>두 계열의 그림</h3>
+<p>어떤 분석이든 월별 값을 시간 순서로 그린 그림부터 봅니다. 시행 전 추세, 계절 무늬, 튀는 달이 그림에서 먼저 보입니다.</p>
+<!--FIG:lab18_plot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ax.plot(its["time"], its["rate"], "o-", ms=3, label=…)</code><span><code>"o-"</code>는 점과 선을 함께, <code>"s-"</code>는 네모 점과 선을 그립니다. <code>ms</code>는 점의 크기입니다.</span></li>
+<li><code>ax.axvline(36.5, color="gray", ls="--")</code><span>36번째 달과 37번째 달 사이에 세로 점선을 그어 시행 시점을 표시합니다.</span></li>
+<li><code>ax.set_xticks([…])</code>, <code>ax.set_xticklabels([…])</code><span>가로축 눈금을 둘 위치(해마다 1월)와 그 자리에 적을 글자를 정합니다.</span></li>
+</ol>
+<p>세로축(Patients prescribed per 1,000)은 처방률, 파란 선(Pilot districts)은 시범 지역, 주황 선(Comparison districts)은 비교 지역입니다. 두 지역 모두 2015년부터 이미 내려가고 있었고, 시범 지역이 약 11 높은 채로 나란히 움직이다가 2018년 1월에 시범 지역이 크게 내려갑니다. 비교 지역도 같은 달에 조금 내려간 것이 보입니다.</p>
+
+<h3>전후 평균만 비교하면</h3>
+<p><a href="#ch18-s1">18장 가 절</a>의 단순 전후 비교를 두 계열에 해 봅니다. Welch t 검정은 <a href="#lab02-s2">실습 2 나 절</a>과 같습니다.</p>
+<!--FIG:lab18_naive-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시범 지역 −17.46(95% CI −19.25 ~ −15.67).</b> 시행 전 36개월 평균 91.14, 시행 후 24개월 평균 73.68입니다.</span></li>
+<li><span class="mk">2</span><span><b>비교 지역도 −10.06(−11.40 ~ −8.72).</b> 사업이 없었는데도 P 값이 2 × 10<sup>−21</sup>입니다. 원래 내려가던 추세가 전후 평균의 차이로 나타난 것이고, 유의한 전후 차이가 정책 효과의 증거가 되지 못하는 이유입니다. 나 절부터 이 추세를 모형에 넣습니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Methods의 자료와 결과 지표</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Using claims data aggregated by district and month, we calculated <span class="mk">1</span> <span class="hl">the monthly number of patients aged ≥65 years who were prescribed a sedative-hypnotic per 1,000 outpatients aged ≥65 years</span> from January 2015 to December 2019 (<span class="mk">2</span> <span class="hl">36 months before and 24 months after</span> the programme started in January 2018). Monthly rates for the 20 pilot districts and the 40 comparison districts were obtained by <span class="mk">3</span> <span class="hl">summing numerators and denominators across districts</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>결과 지표의 분자와 분모.</b> 기간 내내 같은 정의여야 합니다. 건수 대신 비율을 쓴 것은 분모(외래 환자 수)가 5년 동안 늘었기 때문입니다(셀 4에서 236,300명 → 264,182명).</span></li>
+<li><span class="mk">2</span><span><b>시점 수.</b> 셀 3에서 만든 post로 나뉘는 36개월과 24개월입니다. 독자는 이 숫자로 시행 전 추세를 추정할 자료가 충분한지 판단합니다.</span></li>
+<li><span class="mk">3</span><span><b>합치는 방법.</b> 셀 4의 방식입니다. 시군구 처방률의 단순 평균을 썼다면 그렇게 적습니다. 두 방법은 값이 다르므로 밝혀 두어야 다른 사람이 재현할 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>시군구 × 월 자료에서 <code>pd.to_datetime</code>과 <code>.dt.year</code>, <code>.dt.month</code>로 time을 만들고, time으로 post와 time_after를 만듭니다.</li>
+<li>지역 전체의 월별 처방률은 <code>groupby([...]).sum()</code>으로 분자와 분모를 각각 더한 뒤 나눕니다.</li>
+<li>분석 전에 두 계열을 그림으로 봅니다. 전후 평균의 차이(−17.46)는 사업이 없었던 비교 지역에서도 −10.06으로 나옵니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab18-s2">
+<h2><span class="sec-no">나.</span>중단시계열분석</h2>
+
+<p>시범 지역의 계열 <code>its</code>에 <a href="#ch18-s2">18장 나 절</a>의 <strong>분절회귀</strong><span class="en">(segmented regression)</span>를 적합합니다. 중단시계열분석<span class="en">(interrupted time series, ITS)</span>에서 가장 널리 쓰는 모형입니다. 모형은 <b>처방률 = 기저 수준 + 기존 추세 × time + 수준 변화 × post + 기울기 변화 × time_after</b>이고, 설명변수 세 개를 넣은 선형회귀입니다.</p>
+
+<h3>분절회귀와 Durbin–Watson 통계량</h3>
+<p>먼저 보통의 최소제곱<span class="en">(ordinary least squares, OLS)</span>으로 적합하고, 이웃한 달의 잔차가 서로 닮는 <strong>자기상관</strong><span class="en">(autocorrelation)</span>이 있는지 봅니다. <code>smf.ols</code>와 <code>summary()</code>는 <a href="#lab06-s3">실습 6 다 절</a>, 계수 표만 꺼내는 <code>tables[1]</code>은 <a href="#lab09-s3">실습 9 다 절</a>과 같습니다.</p>
+<!--FIG:lab18_ols-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>f = "rate ~ time + post + time_after"</code><span>모형식을 문자열로 저장해 둡니다. 이 실습에서 같은 식을 여러 번 쓰기 때문입니다.</span></li>
+<li><code>from statsmodels.stats.stattools import durbin_watson</code><span>Durbin–Watson 통계량을 계산하는 함수를 불러옵니다.</span></li>
+<li><code>durbin_watson(fit0.resid)</code><span><code>fit0.resid</code>는 60개 달의 잔차(관측값 − 적합값)입니다. 이웃한 잔차끼리 얼마나 닮았는지를 0에서 4 사이의 값으로 돌려줍니다. 잔차가 시간 순서로 놓여 있어야 뜻이 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기저 수준 95.62.</b> time = 0(2014년 12월)에서의 추정 처방률입니다.</span></li>
+<li><span class="mk">2</span><span><b>기존 추세 −0.242.</b> 사업 전에도 매달 0.24씩 내려가고 있었습니다.</span></li>
+<li><span class="mk">3</span><span><b>수준 변화 −7.37.</b> 시행 시점에서 적합선이 기존 추세의 연장선보다 7.37 낮게 시작합니다. 이 줄의 신뢰구간 −8.991 ~ −5.750은 60개 달이 서로 독립이라고 보고 계산한 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>기울기 변화 −0.226.</b> 기울기가 달라진 정도입니다. 시행 후 기울기는 −0.242 + (−0.226) = −0.468입니다.</span></li>
+<li><span class="mk">5</span><span><b>Durbin–Watson 0.945.</b> 2 근처면 한 달 간격의 자기상관이 없고, 2보다 작을수록 양의 자기상관이 강합니다. 0.945는 이웃한 달의 잔차가 닮았다는 뜻이고, 위의 표준오차가 너무 작을 수 있습니다. <a href="#lab06-s3">실습 6</a>에서는 환자 순서에 뜻이 없어 이 값을 읽지 않았습니다.</span></li>
+</ol>
+
+<h3>잔차의 자기상관 그림</h3>
+<!--FIG:lab18_acf-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>r = acf(fit0.resid, nlags=12)</code><span>잔차의 자기상관계수를 시차 0부터 12까지 계산합니다. <code>r[1]</code>이 한 달 떨어진 잔차끼리의 상관, <code>r[2]</code>가 두 달 떨어진 잔차끼리의 상관입니다. <code>r[0]</code>은 자기 자신과의 상관이라 항상 1입니다.</span></li>
+<li><code>np.round(r[1:7], 3)</code><span><code>r[1:7]</code>은 1번째부터 6번째까지(7번째 앞까지)의 값입니다.</span></li>
+<li><code>plot_acf(fit0.resid, lags=12, zero=False, ax=axes[1])</code><span>자기상관 그림을 오른쪽 칸에 그립니다. <code>zero=False</code>는 항상 1인 시차 0의 막대를 빼라는 뜻입니다. 옅은 색 띠는 자기상관이 없을 때 막대가 우연히 닿을 수 있는 범위(95%)입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시차 1의 자기상관 0.513.</b> 띠 밖에 있습니다. 2 × (1 − 0.513) = 0.97로 Durbin–Watson 0.945와 거의 같습니다(18장 나 절 '수식으로 보기').</span></li>
+<li><span class="mk">2</span><span><b>시차 6–7에서 약 −0.5, 시차 12에서 0.33.</b> 여섯 달 뒤에는 반대 방향, 열두 달 뒤에는 같은 방향으로 닮았습니다. 1년 주기의 계절 무늬가 잔차에 남아 있다는 표시입니다. 왼쪽 그림(Residual)에서도 잔차가 물결 모양으로 오르내립니다.</span></li>
+</ol>
+
+<h3>Newey–West 표준오차</h3>
+<p>계수는 그대로 두고 표준오차만 자기상관을 감안해 다시 구합니다. 18장 본문의 신뢰구간은 모두 이 방법(시차 3)으로 구한 것입니다.</p>
+<!--FIG:lab18_hac-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>smf.ols(f, data=its).fit(cov_type="HAC", …)</code><span>셀 7과 같은 모형입니다. <code>cov_type</code>은 표준오차를 구하는 방법을 고르는 인자이고, <code>"HAC"</code>(heteroskedasticity and autocorrelation consistent)가 Newey–West 표준오차입니다. 잔차의 분산이 달마다 다르거나 이웃한 달의 잔차가 닮아 있어도 쓸 수 있는 표준오차라는 뜻입니다.</span></li>
+<li><code>cov_kwds={"maxlags": 3}</code><span>몇 달 떨어진 잔차까지 서로 관련 있다고 볼지(시차)를 정합니다. 3이면 석 달 떨어진 달까지 감안하고, 가까운 시차일수록 큰 비중으로 계산에 들어갑니다. HAC에서는 꼭 적어야 하는 값이고 빼면 오류가 납니다(이 버전에서는 <code>KeyError: 'maxlags'</code>). <code>cov_kwds</code>의 쓰임은 <a href="#lab10-s3">실습 10 다 절</a>과 같습니다.</span></li>
+<li><code>print(fit.summary())</code><span>이번에는 요약표 전체를 봅니다. Date와 Time 줄은 실행한 날짜와 시각이라 실행할 때마다 다릅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Covariance Type: HAC.</b> 옵션이 적용되었는지 여기서 확인합니다. 셀 7처럼 아무것도 적지 않으면 nonrobust로 나옵니다.</span></li>
+<li><span class="mk">2</span><span><b>기존 추세 −0.242(95% CI −0.294 ~ −0.190).</b> 계수(coef)는 셀 7과 같고 표준오차만 0.024에서 0.026으로 바뀌었습니다. 통계량 열의 이름이 t에서 z로 바뀐 것은 이 표준오차를 쓸 때 statsmodels가 정규분포로 P 값과 신뢰구간을 구하기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>수준 변화 −7.37(95% CI −9.56 ~ −5.18).</b> 표준오차가 0.809에서 1.117로 커져 신뢰구간의 폭이 1.35배가 되었습니다. 논문에 실을 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>기울기 변화 −0.226(95% CI −0.349 ~ −0.103).</b> P 값은 0.0003이고 표에는 0.000으로 보입니다.</span></li>
+<li><span class="mk">5</span><span><b>Durbin-Watson 0.945.</b> 잔차는 셀 7과 같으므로 값도 같습니다. 표준오차를 바꾼다고 자기상관이 없어지지는 않습니다.</span></li>
+<li><span class="mk">6</span><span><b>Notes.</b> 시차 3을 썼고 소표본 보정은 하지 않았다는 기록입니다. Methods에 "Newey–West standard errors (lag 3)"처럼 적습니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">주의 · 행의 순서</p>
+<p>HAC 표준오차와 Durbin–Watson 통계량은 표의 위아래로 이웃한 줄을 이웃한 달로 봅니다. 자료가 time 순서로 정렬되어 있지 않으면 틀린 값이 나오고 오류 메시지도 없습니다. 확실하지 않으면 적합 전에 <code>its = its.sort_values("time")</code>으로 정렬합니다. 셀 4의 <code>groupby</code> 결과는 time 순서로 나오므로 여기서는 그대로 썼습니다.</p></div>
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p><code>maxlags</code>를 1과 6으로 바꿔 보세요. 수준 변화의 표준오차가 0.987과 1.075로 나옵니다(시차 3에서는 1.117). 계수는 바뀌지 않습니다. 시차는 자기상관 그림에서 상관이 남아 있는 범위를 보고 결과를 보기 전에 정하고, 바꿔도 결론이 같은지 확인합니다. 이미 적합한 <code>fit0</code>에 <code>fit0.get_robustcov_results(cov_type="HAC", maxlags=3)</code>을 써도 같은 표준오차를 얻습니다.</p></div>
+
+<h3>시행 12개월째의 효과</h3>
+<p>"그래서 얼마나 줄었나"에 답하는 값은 특정 시점의 효과입니다. 시행 k개월째의 효과는 수준 변화 + k × 기울기 변화이고, 신뢰구간에는 두 계수의 공분산이 필요하므로 손으로 계산하지 않고 <code>t_test</code>로 구합니다.</p>
+<!--FIG:lab18_eff12-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>fit.t_test("post + 12 * time_after = 0")</code><span>계수의 조합을 문자열로 적으면 그 조합의 추정값, 표준오차, 신뢰구간을 구해 줍니다. 식에는 변수 이름을 그대로 쓰고, <code>= 0</code>은 "이 조합이 0이다"를 귀무가설로 검정하라는 뜻입니다. 표준오차는 <code>fit</code>의 방법(HAC)으로 계산됩니다.</span></li>
+<li><code>fit.t_test("time + time_after = 0")</code><span>기존 추세 + 기울기 변화, 곧 시행 후 기울기입니다.</span></li>
+<li><code>b = fit.params</code><span>계수를 이름으로 꺼낼 수 있는 Series입니다. <code>b["post"]</code>가 −7.37입니다.</span></li>
+<li><code>cf12 = b["Intercept"] + b["time"] * 48</code><span>12개월째(time = 48)의 <strong>반사실</strong><span class="en">(counterfactual)</span>입니다. 시행 전 직선을 그대로 연장한 값입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>12개월째의 효과 −10.09(95% CI −12.16 ~ −8.02).</b> 출력의 c0은 "첫 번째 조합"이라는 이름입니다. 표준오차 1.056은 수준 변화 하나의 표준오차 1.117보다 작습니다. 두 계수의 추정값이 서로 음의 상관을 가지기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>시행 후 기울기 −0.468(95% CI −0.575 ~ −0.362).</b></span></li>
+<li><span class="mk">3</span><span><b>반사실 84.00.</b> 사업이 없었다면 2018년 12월에 보였을 것으로 추정한 처방률입니다.</span></li>
+<li><span class="mk">4</span><span><b>적합값 73.91.</b> 84.00 − 10.09입니다.</span></li>
+<li><span class="mk">5</span><span><b>상대 변화 −12.0%.</b> −10.09 ÷ 84.00입니다. 분모는 같은 달의 반사실입니다.</span></li>
+</ol>
+
+<h3>반사실 선</h3>
+<!--FIG:lab18_cf-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>its["fitted"] = fit.predict(its)</code><span>줄마다 time, post, time_after를 모형에 넣어 적합값을 구합니다.</span></li>
+<li><code>fit.predict(its.assign(post=0, time_after=0))</code><span><code>assign</code>은 post와 time_after를 모두 0으로 바꾼 복사본을 만듭니다. 원래의 <code>its</code>는 바뀌지 않습니다. 이 복사본으로 예측하면 수준 변화와 기울기 변화 항이 사라지므로 "사업이 없었다면"의 선, 곧 반사실이 됩니다.</span></li>
+<li><code>ax.plot(po["time"], po["cf"], "--", color="C1", …)</code><span>시행 후 구간에만 반사실을 점선으로 그립니다. <code>"C0"</code>, <code>"C1"</code>은 matplotlib의 기본 색 가운데 첫째(파랑)와 둘째(주황)입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시행 첫 달(time 37)의 반사실 86.66.</b> 적합값 79.07과의 차이는 −7.60입니다. 수준 변화 −7.37에 기울기 변화 한 달치가 더해진 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>12개월째 −10.09.</b> 셀 10의 값과 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>24개월째 −12.80.</b> 반사실과의 간격이 매달 0.226씩 벌어집니다. <code>fit.t_test("post + 24 * time_after = 0")</code>으로 구한 신뢰구간은 −15.65 ~ −9.95입니다.</span></li>
+</ol>
+<p>그림에서 회색 점(Observed)이 관측값, 파란 선(Fitted)이 적합선, 주황 점선(Counterfactual)이 반사실입니다. 18장의 그림 18-2와 같은 그림입니다.</p>
+
+<h3>계절 항</h3>
+<p>자기상관 그림에서 1년 주기의 무늬가 보였으므로 계절 항을 넣은 모형도 적합합니다(<a href="#ch18-s2">18장 나 절</a> '계절성, 시점 수, 적응 기간'). 1년에 한 바퀴 도는 사인 곡선과 코사인 곡선을 설명변수로 더합니다.</p>
+<!--FIG:lab18_season-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>its["sin12"] = np.sin(2 * np.pi * its["time"] / 12)</code><span><code>np.pi</code>는 원주율입니다. time이 12 늘 때마다 괄호 안의 값이 2π만큼 늘어 사인 곡선이 한 바퀴 돕니다. 사인과 코사인을 함께 넣으면 가장 높은 달이 언제이든 그 모양을 맞출 수 있습니다.</span></li>
+<li><code>smf.ols(f + " + sin12 + cos12", data=its)</code><span>저장해 둔 모형식 뒤에 두 항을 이어 붙였습니다.</span></li>
+<li><code>np.sqrt(fit0.scale)</code><span><code>scale</code>은 잔차의 분산 추정값이고 제곱근이 잔차의 표준편차입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>수준 변화 −7.77(95% CI −9.17 ~ −6.38).</b></span></li>
+<li><span class="mk">2</span><span><b>기울기 변화 −0.215(95% CI −0.294 ~ −0.137).</b> 계절 항이 없는 모형과 결론이 같고 신뢰구간은 더 좁습니다.</span></li>
+<li><span class="mk">3</span><span><b>sin12 0.763, cos12 0.951.</b> 두 계수를 합친 계절 변동의 크기는 √(0.763² + 0.951²) = 1.22입니다. 1–2월에 가장 높고 여름에 가장 낮은, 위아래 약 1.2 크기의 물결입니다.</span></li>
+<li><span class="mk">4</span><span><b>Durbin–Watson 1.296.</b> 0.945에서 올라갔지만 아직 2보다 작습니다. 계절 무늬를 빼고도 자기상관이 남아 있으므로 Newey–West 표준오차를 함께 씁니다.</span></li>
+<li><span class="mk">5</span><span><b>잔차의 표준편차 1.52 → 1.26.</b> 계절 항이 흔들림의 일부를 설명했습니다.</span></li>
+</ol>
+
+<h3>네 가지 방법의 비교</h3>
+<p>자기상관을 다루는 또 하나의 방법은 오차가 지난달 오차에 이어진다는 구조를 모형에 넣는 1차 자기회귀 오차 모형<span class="en">(first-order autoregressive errors, AR(1))</span>입니다. 이것까지 적합해 18장 나 절 접힌 상자의 비교표를 만듭니다.</p>
+<!--FIG:lab18_methods-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>X = sm.add_constant(its[["time", "post", "time_after"]])</code><span><code>GLSAR</code>은 모형식을 쓰지 않고 설명변수의 표를 직접 받습니다. <code>add_constant</code>는 절편을 위한 const 열(모두 1)을 붙입니다(<a href="#lab09-s4">실습 9 라 절</a>).</span></li>
+<li><code>sm.GLSAR(its["rate"], X, rho=1)</code><span>오차가 자기회귀 구조를 가진 회귀모형입니다. 여기서 <code>rho=1</code>은 자기상관의 값을 뜻하지 않고 <b>차수</b>를 뜻합니다. 한 달 전의 오차까지만 쓰는 AR(1)이라는 뜻입니다.</span></li>
+<li><code>.iterative_fit(maxiter=50)</code><span>자기상관 ρ와 회귀계수를 번갈아 추정하기를 값이 더 바뀌지 않을 때까지(최대 50번) 되풀이합니다. 추정된 ρ는 <code>gls.model.rho</code>에 들어 있습니다.</span></li>
+<li><code>def row(res):</code><span>적합 결과 하나를 받아 수준 변화와 기울기 변화의 추정값과 신뢰구간 여섯 숫자를 돌려주는 함수를 만들었습니다. 같은 일을 네 번 하기 때문입니다.</span></li>
+<li><code>*ci.loc["post"]</code><span><code>ci.loc["post"]</code>는 하한과 상한 두 값입니다. 앞의 <code>*</code>는 그 두 값을 풀어서 목록에 하나씩 넣으라는 뜻입니다.</span></li>
+<li><code>pd.DataFrame({…}, index=[…]).T</code><span>네 방법을 열로 모은 표를 만들고 <code>.T</code>로 행과 열을 바꿨습니다(<a href="#lab11-s4">실습 11 라 절</a>).</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>ρ = 0.527.</b> 이번 달 오차의 절반쯤이 다음 달로 이어진다는 추정입니다.</span></li>
+<li><span class="mk">2</span><span><b>보통의 최소제곱 −8.991 ~ −5.750.</b> 자기상관을 무시해 네 줄 가운데 둘째, 셋째 줄보다 좁습니다.</span></li>
+<li><span class="mk">3</span><span><b>Newey–West −9.559 ~ −5.182.</b> 본문과 논문 상자에 쓰는 줄입니다.</span></li>
+<li><span class="mk">4</span><span><b>AR(1) 오차 모형 −7.216.</b> 계수도 조금 달라집니다. 이 함수는 첫 관측값을 빼고 59개로 적합하는 방식이어서 다른 프로그램의 Prais–Winsten 방법과 숫자가 조금 다를 수 있습니다(18장 나 절 '파이썬 출력 읽기').</span></li>
+<li><span class="mk">5</span><span><b>계절 항 + Newey–West −7.772.</b> 어느 방법이든 결론은 같습니다. 방법은 결과를 보기 전에 정하고 나머지는 민감도 분석으로 싣습니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 분절회귀의 Methods와 Results</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">We fitted a <span class="mk">1</span> <span class="hl">segmented linear regression</span> to the monthly prescribing rate in the pilot districts, with terms for the pre-programme trend, a change in level, and a change in trend after January 2018. Because the residuals were positively autocorrelated (<span class="mk">2</span> <span class="hl">Durbin–Watson statistic, 0.95</span>), standard errors were estimated with the <span class="hl">Newey–West method (lag 3)</span>. Before the programme the rate was falling by 0.24 per 1,000 per month (95% CI, −0.29 to −0.19). The start of the programme was associated with a <span class="mk">3</span> <span class="hl">level change of −7.37 per 1,000 (95% CI, −9.56 to −5.18) and a trend change of −0.226 per month (95% CI, −0.349 to −0.103)</span>. Twelve months after the start, the rate was <span class="mk">4</span> <span class="hl">10.09 per 1,000 lower than the counterfactual (95% CI, −12.16 to −8.02; relative change, −12.0%)</span>. <span class="mk">5</span> <span class="hl">Results were similar</span> when harmonic terms for seasonality were added (level change, −7.77; 95% CI, −9.17 to −6.38) and with first-order autoregressive errors (−7.22; 95% CI, −9.51 to −4.92).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>모형.</b> 셀 7과 셀 9의 모형식입니다. 변수 정의(time_after가 시행 첫 달에 1)는 표의 각주나 보충자료에 적습니다.</span></li>
+<li><span class="mk">2</span><span><b>자기상관의 확인과 처리.</b> 셀 7의 0.945와 셀 9의 옵션입니다. 이 문장이 없으면 독자는 신뢰구간이 너무 좁지 않은지 의심합니다.</span></li>
+<li><span class="mk">3</span><span><b>수준 변화와 기울기 변화.</b> 셀 9의 post, time_after 줄입니다. 이 문장은 "associated with"라고 썼습니다. 한 계열만으로는 같은 달의 다른 사건과 사업의 효과를 구분하지 못하기 때문입니다(다 절).</span></li>
+<li><span class="mk">4</span><span><b>특정 시점의 절대·상대 변화.</b> 셀 10의 값입니다. 어느 시점인지와 무엇과 비교했는지(반사실)를 함께 적습니다.</span></li>
+<li><span class="mk">5</span><span><b>민감도 분석.</b> 셀 12와 셀 13의 값입니다. 이 자료처럼 계절 무늬가 보이면 실제 연구에서는 계절 항을 넣은 모형을 주 분석으로 삼습니다(18장 나 절).</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>분절회귀는 <code>smf.ols("rate ~ time + post + time_after", …)</code>입니다. post의 계수가 수준 변화, time_after의 계수가 기울기 변화입니다.</li>
+<li><code>durbin_watson(fit0.resid)</code>와 <code>plot_acf</code>로 자기상관을 확인하고, <code>.fit(cov_type="HAC", cov_kwds={"maxlags": 3})</code>으로 Newey–West 표준오차를 씁니다. 계수는 그대로이고 표준오차만 바뀝니다. 자료는 시간 순서로 정렬되어 있어야 합니다.</li>
+<li>특정 시점의 효과와 신뢰구간은 <code>fit.t_test("post + 12 * time_after = 0")</code>으로 구합니다. 반사실은 post와 time_after를 0으로 놓고 예측한 값입니다.</li>
+<li>계절 항(사인·코사인)과 AR(1) 오차 모형은 민감도 분석으로 함께 봅니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab18-s3">
+<h2><span class="sec-no">다.</span>대조군이 있는 중단시계열</h2>
+
+<p>나 절의 −10.09가 사업의 효과가 되려면 2018년 1월에 처방률을 바꿀 다른 일이 없었어야 합니다. 18장의 예제에서는 같은 달에 전국에 안전성 서한이 배포되었습니다(<a href="#ch18-s3">18장 다 절</a>). 서한은 받았지만 사업은 하지 않은 비교 지역의 계열로 이 부분을 떼어 냅니다. 이 설계가 대조군이 있는 중단시계열<span class="en">(controlled interrupted time series, CITS)</span>입니다.</p>
+
+<h3>세 계열에 같은 모형 적합</h3>
+<p>시범 지역, 비교 지역, 그리고 달마다 '시범 지역 처방률 − 비교 지역 처방률'을 구한 차이의 계열에 나 절의 분절회귀를 각각 적합합니다.</p>
+<!--FIG:lab18_three-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>diff["rate"] = its["rate"] - comp["rate"]</code><span>두 Series를 빼면 행 번호가 같은 값끼리 뺍니다. <code>its</code>와 <code>comp</code>는 셀 4에서 행 번호를 0부터 다시 매겼고 둘 다 time 순서이므로 같은 달끼리 빼게 됩니다.</span></li>
+<li><code>def seg(data): return smf.ols(f, data=data).fit(…)</code><span>자료를 받아 Newey–West 분절회귀의 결과를 돌려주는 함수입니다.</span></li>
+<li><code>fits = {"pilot": seg(its), …}</code><span>세 계열의 적합 결과를 이름을 붙여 사전(dict)에 담았습니다.</span></li>
+<li><code>pd.DataFrame({k: v.params for k, v in fits.items()})</code><span>사전의 이름(k)과 결과(v)를 하나씩 꺼내 계수만 모아 표로 만듭니다. 열이 계열, 행이 계수입니다.</span></li>
+<li><code>tab3.loc["effect at 12 months"] = …</code><span>없는 행 이름에 값을 넣으면 표 아래에 새 행이 추가됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>비교 지역의 수준 변화 −2.53.</b> 사업이 없었던 지역도 같은 달에 내려갔습니다(95% CI −4.71 ~ −0.35). 서한처럼 두 지역이 함께 겪은 변화로 볼 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>수준 변화의 차이 −4.84.</b> 시범 지역의 −7.37에서 비교 지역의 −2.53을 뺀 값과 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>기울기 변화의 차이 −0.198.</b> 비교 지역의 기울기 변화는 −0.028로 뚜렷하지 않았습니다.</span></li>
+<li><span class="mk">4</span><span><b>12개월째의 효과 −7.22.</b> 시범 지역만 본 −10.09 가운데 약 2.9는 비교 지역에서도 일어난 변화였습니다.</span></li>
+</ol>
+
+<h3>차이의 계열 분석</h3>
+<!--FIG:lab18_diff-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시행 전 추세의 차이 −0.003(95% CI −0.027 ~ 0.022).</b> 두 지역은 사업 전에 같은 기울기로 내려가고 있었습니다. 비교 계열이 적절하다는 근거로 논문에 싣는 줄입니다.</span></li>
+<li><span class="mk">2</span><span><b>수준 변화의 차이 −4.84(95% CI −5.63 ~ −4.05).</b></span></li>
+<li><span class="mk">3</span><span><b>기울기 변화의 차이 −0.198(95% CI −0.251 ~ −0.146).</b></span></li>
+<li><span class="mk">4</span><span><b>12개월째 −7.22(95% CI −8.03 ~ −6.41).</b> 모의자료에 넣은 사업의 효과는 수준 변화 −5.0, 기울기 변화 −0.20, 12개월째 −7.4였습니다.</span></li>
+<li><span class="mk">5</span><span><b>Durbin–Watson 1.76, 잔차의 표준편차 0.84.</b> 시범 지역 계열에서는 0.95와 1.52였습니다. 계절 변동이나 전국적인 사건처럼 두 지역이 달마다 함께 오르내리는 부분이 뺄셈에서 지워져 신뢰구간이 좁아졌습니다.</span></li>
+</ol>
+
+<h3>차이의 계열 그림</h3>
+<p>코드는 셀 11과 같고 자료만 <code>diff</code>로 바꿨습니다.</p>
+<!--FIG:lab18_diffplot-->
+<p>세로축(Pilot minus comparison)은 두 지역 처방률의 차이입니다. 시행 전에는 차이가 약 11.5에서 평평하게 유지되다가(추세의 차이 −0.003), 시행과 함께 4.84 내려가고 그 뒤로 매달 0.198씩 더 벌어집니다. 시행 전 구간이 평평하다는 것은 라 절의 평행 추세를 그림으로 본 것이기도 합니다.</p>
+
+<h3>교호작용 모형</h3>
+<p>논문에서는 차이의 계열 대신, 두 계열의 120줄을 한 자료로 쌓고 지역과 세 변수의 교호작용을 넣은 모형을 더 자주 봅니다(18장 다 절 접힌 상자). 같은 값이 나오는지 확인합니다.</p>
+<!--FIG:lab18_cits-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pd.concat([its[cols], comp[cols]], ignore_index=True)</code><span>필요한 열만 골라 두 표를 위아래로 붙입니다(<a href="#lab06-s4">실습 6 라 절</a>). <code>ignore_index=True</code>는 행 번호를 0부터 119까지 새로 매깁니다.</span></li>
+<li><code>both.rename(columns={"treat": "group"})</code><span>열 이름을 바꿉니다. <code>{"옛 이름": "새 이름"}</code> 꼴로 적습니다. 18장의 모형식과 맞추려고 group으로 바꿨습니다.</span></li>
+<li><code>"rate ~ (time + post + time_after) * group"</code><span>모형식에서 <code>a * b</code>는 a, b, 그리고 둘의 곱 <code>a:b</code>를 모두 넣으라는 뜻입니다. 괄호 안의 세 변수 각각에 적용되어 time, post, time_after, group, time:group, post:group, time_after:group의 일곱 항과 절편이 들어갑니다. 교호작용의 뜻은 <a href="#ch08-s6">8장 바 절</a>에 있습니다.</span></li>
+<li><code>cov_type="cluster", cov_kwds={"groups": both["time"]}</code><span>같은 달의 두 줄(시범, 비교)을 한 묶음으로 본 군집 강건 표준오차입니다(<a href="#lab10-s3">실습 10 다 절</a>).</span></li>
+<li><code>smf.ols(f_c, data=both).fit().bse[[…]]</code><span>비교를 위해 같은 모형을 보통의 방법으로 적합해 두 계수의 표준오차만 꺼냈습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>post −2.53.</b> group이 0인 비교 지역의 수준 변화입니다. 위의 네 줄(Intercept, time, post, time_after)이 비교 지역의 분절회귀입니다.</span></li>
+<li><span class="mk">2</span><span><b>time:group −0.003.</b> 시행 전 추세의 차이입니다.</span></li>
+<li><span class="mk">3</span><span><b>post:group −4.84.</b> 수준 변화의 차이로, 셀 15와 계수가 정확히 같습니다. 표준오차는 0.429로 차이의 계열에서 구한 0.402와 비슷합니다.</span></li>
+<li><span class="mk">4</span><span><b>time_after:group −0.198.</b> 기울기 변화의 차이입니다.</span></li>
+<li><span class="mk">5</span><span><b>보통의 표준오차 1.089.</b> 군집을 지정하지 않으면 표준오차가 두 배가 넘게 나옵니다. 두 계열이 같은 달에 함께 오르내린다는 점(두 지역 잔차의 상관계수 0.83)을 무시하고 120줄을 서로 독립으로 보았기 때문입니다. 차이의 계열을 분석하면 이 문제를 따로 신경 쓰지 않아도 됩니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 대조군이 있는 중단시계열의 Methods와 Results</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Because a nationwide safety letter was issued in the same month, <span class="mk">1</span> <span class="hl">40 districts without the programme served as a comparison series</span>. We fitted the segmented regression to the monthly difference between the two series (pilot minus comparison), with Newey–West standard errors (lag 3). <span class="mk">2</span> <span class="hl">Pre-programme trends were similar in the two groups</span> (difference, −0.003 per month; 95% CI, −0.027 to 0.022). In the comparison districts the rate also fell in January 2018 (<span class="mk">3</span> <span class="hl">level change, −2.53</span>; 95% CI, −4.71 to −0.35). Relative to the comparison districts, the programme was associated with a <span class="mk">4</span> <span class="hl">level change of −4.84 per 1,000 (95% CI, −5.63 to −4.05) and a trend change of −0.198 per month (95% CI, −0.251 to −0.146)</span>, corresponding to a difference of <span class="mk">5</span> <span class="hl">−7.22 per 1,000 (95% CI, −8.03 to −6.41) at 12 months</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>비교 계열과 그 이유.</b> 왜 이 계열을 골랐는지 적습니다. 독자는 비교 지역이 사업의 영향을 받을 길이 없는지, 서한을 같은 정도로 겪었는지를 따집니다.</span></li>
+<li><span class="mk">2</span><span><b>시행 전 추세.</b> 셀 15의 time 줄입니다. 신뢰구간으로 적습니다.</span></li>
+<li><span class="mk">3</span><span><b>비교 지역의 변화.</b> 셀 14의 comparison 열입니다. 단일 계열 분석이 이만큼 치우쳐 있었다는 뜻입니다.</span></li>
+<li><span class="mk">4</span><span><b>차이가 결론입니다.</b> 셀 15의 post, time_after 줄입니다. 두 계열의 P 값을 따로 견주지 않고 차이와 그 신뢰구간을 적습니다.</span></li>
+<li><span class="mk">5</span><span><b>12개월째의 효과.</b> 셀 15의 <code>t_test</code> 결과입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>비교 계열이 있으면 달마다의 차이(시범 − 비교)를 만들어 나 절과 같은 분절회귀에 넣습니다. 수준 변화 −4.84, 기울기 변화 −0.198, 12개월째 −7.22입니다.</li>
+<li>차이의 계열에서 time의 계수는 시행 전 추세의 차이입니다. 0에 가까운지 신뢰구간으로 확인합니다.</li>
+<li>교호작용 모형 <code>"rate ~ (time + post + time_after) * group"</code>의 post:group, time_after:group이 같은 값입니다. 표준오차는 같은 달을 군집으로 지정해야 맞습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab18-s4">
+<h2><span class="sec-no">라.</span>이중차분법</h2>
+
+<p><a href="#ch18-s4">18장 라 절</a>의 <strong>이중차분법</strong><span class="en">(difference-in-differences, DID)</span>은 시범 지역의 전후 변화에서 비교 지역의 전후 변화를 뺍니다. 먼저 2×2 평균표로 손계산하듯 구하고, 회귀로 같은 값과 신뢰구간을 구합니다.</p>
+
+<h3>2×2 평균표</h3>
+<!--FIG:lab18_did22-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>both.groupby(["group", "post"])["rate"].mean().unstack("post")</code><span>지역 × 시행 전후의 네 칸마다 월별 처방률의 평균을 구하고, <code>unstack</code>으로 post를 열로 올려 2 × 2 표로 만듭니다(<a href="#lab10-s4">실습 10 라 절</a>).</span></li>
+<li><code>m.columns = ["before", "after"]</code><span>열 이름 0, 1을 읽기 쉽게 바꿉니다.</span></li>
+<li><code>m.loc["difference"] = m.loc[1] - m.loc[0]</code><span>시범 지역 행에서 비교 지역 행을 뺀 새 행을 추가합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시범 지역의 변화 −17.46.</b> 91.14에서 73.68로. 가 절의 전후 비교와 같은 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>비교 지역의 변화 −10.06.</b> 사업이 없었어도 일어난 변화의 크기입니다.</span></li>
+<li><span class="mk">3</span><span><b>시행 전 차이 11.48.</b> 두 지역의 수준은 원래 달랐습니다. 이중차분법에서는 수준이 달라도 됩니다.</span></li>
+<li><span class="mk">4</span><span><b>시행 후 차이 4.08.</b> 시행 후의 두 지역만 비교하면 원래의 차이를 무시하게 됩니다.</span></li>
+<li><span class="mk">5</span><span><b>이중차분 추정값 −7.40.</b> −17.46 − (−10.06)이고, 4.08 − 11.48로 구해도 같습니다.</span></li>
+</ol>
+
+<h3>회귀로 구하기</h3>
+<p>신뢰구간을 구하려면 회귀가 필요합니다. 이번에는 지역을 합친 계열이 아니라 시군구 × 월 자료 3,600줄을 그대로 씁니다. 사업이 시군구 단위로 배정되었으므로 시군구를 군집으로 한 표준오차를 쓰기 위해서입니다.</p>
+<!--FIG:lab18_didreg-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>panel["w"] = panel.groupby("unit")["n_pat"].transform("mean")</code><span>시군구마다 60개월의 평균 환자 수를 구해 그 시군구의 모든 줄에 같은 값으로 넣습니다. <code>agg</code>는 묶음마다 한 줄로 줄이지만 <code>transform</code>은 원래의 줄 수(3,600)를 유지합니다. 이 값이 가중치입니다.</span></li>
+<li><code>smf.wls("rate ~ treat * post", data=panel, weights=panel["w"])</code><span>가중 최소제곱<span class="en">(weighted least squares)</span>입니다. 환자가 많은 시군구의 줄에 더 큰 비중을 줍니다. 그래야 계수가 지역 전체 환자를 기준으로 한 2×2 표의 평균과 맞습니다. <code>treat * post</code>는 treat, post, treat:post 세 항입니다.</span></li>
+<li><code>cov_type="cluster", cov_kwds={"groups": panel["unit"]}</code><span>시군구를 군집으로 한 군집 강건 표준오차<span class="en">(cluster-robust standard error)</span>입니다. 같은 시군구의 60줄이 서로 닮아 있다는 점을 감안합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Intercept 79.66.</b> 비교 지역의 시행 전 평균입니다.</span></li>
+<li><span class="mk">2</span><span><b>treat 11.48.</b> 시행 전 두 지역의 차이입니다.</span></li>
+<li><span class="mk">3</span><span><b>post −10.06.</b> 비교 지역의 전후 변화입니다. 앞의 세 줄을 2×2 표와 맞춰 보면 모형을 제대로 세웠는지 확인할 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>treat:post −7.40(95% CI −7.87 ~ −6.94).</b> 이중차분 추정값이고 군집 강건 표준오차는 0.238입니다. 손계산과는 소수 다섯째 자리에서 다릅니다(−7.401537과 −7.401529). 손계산은 달마다 그 달의 환자 수를 기준으로 시군구를 합쳤고, 회귀는 시군구의 60개월 평균 환자 수를 가중치로 썼기 때문입니다. 가중치를 달마다의 환자 수(<code>panel["n_pat"]</code>)로 바꾼다고 손계산과 같아지지는 않습니다. 환자가 많은 달이 더 큰 비중을 받아 −7.42가 됩니다.</span></li>
+<li><span class="mk">5</span><span><b>3,600줄, 군집 60개.</b> 정밀도를 정하는 것은 시군구의 수입니다. 논문에는 군집 단위와 군집 수를 적습니다.</span></li>
+</ol>
+<div class="callout tip"><p class="ct">직접 바꿔 보기 · 군집을 지정하지 않으면</p>
+<p>셀 19에서 <code>cov_type</code>과 <code>cov_kwds</code>를 지우고 <code>.fit()</code>만 쓰면 treat:post의 표준오차가 0.469, 95% CI가 −8.32 ~ −6.48로 나옵니다. 군집 강건 표준오차(0.238)보다 오히려 큽니다. 이 모형의 잔차에는 시군구마다 다른 수준(시행 전 평균의 시군구 간 표준편차가 약 5)이 들어 있고, 보통의 표준오차는 그 잔차가 3,600줄에서 서로 독립이라고 보고 계산합니다. 그런데 이중차분은 같은 시군구 안에서의 전후 변화를 비교하므로 시군구의 수준 차이는 상쇄됩니다. 군집 강건 표준오차는 이 구조를 반영합니다. 시군구 가변수와 달 가변수를 넣은 모형(<code>"rate ~ treat:post + C(unit) + C(time)"</code>)에서는 추정값이 같은 −7.40이고 표준오차는 보통의 방법 0.219, 군집 0.242로 군집 쪽이 큽니다. 군집 강건 표준오차는 "정책이 배정된 단위에 맞는 표준오차"이고, 보통의 표준오차보다 커질지 작아질지는 모형에 따라 다릅니다.</p></div>
+
+<h3>시행 전 추세의 차이</h3>
+<p>이중차분법의 핵심 가정은 <strong>평행 추세</strong><span class="en">(parallel trends)</span>입니다. 사업이 없었다면 두 지역의 변화가 같았으리라는 가정이고, 직접 확인할 수 없으므로 시행 전 자료로 뒷받침합니다. 그림은 셀 5와 셀 16에서 이미 보았습니다. 여기서는 시행 전 36개월의 기울기가 두 지역에서 얼마나 달랐는지 추정합니다.</p>
+<!--FIG:lab18_pretrend-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pre = panel[panel["post"] == 0]</code><span>시행 전 36개월의 2,160줄만 남깁니다.</span></li>
+<li><code>"rate ~ treat * time"</code><span>treat:time의 계수가 시범 지역의 기울기에서 비교 지역의 기울기를 뺀 값입니다.</span></li>
+<li><code>lo, hi = pt.conf_int().loc["treat:time"]</code><span>신뢰구간의 하한과 상한을 두 변수에 나눠 담습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>treat:time −0.003(95% CI −0.037 ~ 0.032), P = 0.88.</b> 점추정값은 다 절(셀 15)과 같고 신뢰구간이 조금 넓습니다. 표준오차를 구한 방법이 달라서입니다. P = 0.88은 평행하다는 증명이 아니므로 신뢰구간의 폭으로 읽습니다.</span></li>
+<li><span class="mk">2</span><span><b>30개월이면 −1.12 ~ 0.96.</b> 시행 전 기간과 시행 후 기간의 한가운데는 30개월 떨어져 있습니다. 신뢰구간의 끝만큼 실제로 추세가 달랐다 해도 이중차분 추정값은 약 1.0 치우칠 뿐이어서 −7.40이라는 결론을 뒤집지 못합니다.</span></li>
+</ol>
+
+<h3>사건연구</h3>
+<p><strong>사건연구</strong><span class="en">(event study)</span>는 기간을 여러 구간으로 나눠, 구간마다 두 지역의 차이가 시행 직전에 비해 얼마나 달라졌는지 추정합니다. 여기서는 반기(6개월)로 나눕니다(18장 라 절 '평행 추세 가정'). 시행 전 반기의 값이 0 근처에 머물면 평행 추세와 모순되지 않습니다.</p>
+<!--FIG:lab18_event-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>panel["half"] = (panel["time"] - 1) // 6 - 6</code><span><code>//</code>는 나눗셈의 몫만 남기는 연산입니다. time 1–6이 −6, 31–36이 −1, 37–42가 0, 55–60이 3이 됩니다. 음수는 시행 전, 0 이상은 시행 후의 반기입니다.</span></li>
+<li><code>for h in range(-6, 4):</code>, <code>if h == -1: continue</code><span>−6부터 3까지 반기마다 되풀이하되, 시행 직전 반기(−1)는 건너뜁니다. 건너뛴 반기가 기준이 됩니다.</span></li>
+<li><code>name = f"lead{-h}" if h &lt; 0 else f"lag{h + 1}"</code><span>시행 전 반기는 lead6, …, lead2, 시행 후 반기는 lag1, …, lag4라는 이름을 붙입니다.</span></li>
+<li><code>panel[name] = ((panel["half"] == h) &amp; (panel["treat"] == 1)).astype(int)</code><span>"그 반기이면서 시범 지역"인 줄만 1인 가변수입니다. 아홉 개가 만들어집니다.</span></li>
+<li><code>"rate ~ " + " + ".join(terms) + " + C(unit) + C(time)"</code><span>가변수 이름들을 <code>+</code>로 이어 모형식을 만듭니다(<a href="#lab08-s4">실습 8 라 절</a>). <code>C(unit)</code>과 <code>C(time)</code>은 시군구와 달을 범주로 넣어 시군구마다의 수준과 달마다의 공통 변동을 모두 걷어 냅니다.</span></li>
+<li><code>ev = es.conf_int().loc[terms]</code>, <code>ev.insert(0, "coef", es.params[terms])</code><span>계수가 100개가 넘으므로 아홉 가변수의 신뢰구간만 골라내고, 맨 앞 열에 계수를 끼워 넣습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>lead6 −0.34(95% CI −1.54 ~ 0.86).</b> 3년 전 반기에도 두 지역의 차이는 시행 직전과 거의 같았습니다.</span></li>
+<li><span class="mk">2</span><span><b>시행 전 다섯 반기는 −0.44에서 0.30 사이.</b> 신뢰구간이 모두 0을 포함하고, 한쪽으로 기울어 가는 모양도 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>lag1 −6.03.</b> 시행 후 첫 반기의 효과입니다.</span></li>
+<li><span class="mk">4</span><span><b>lag4 −9.60.</b> 효과는 −6.03, −6.83, −7.85, −9.60으로 점점 커졌습니다. 이중차분 추정값 −7.40은 시행 후 기간 전체를 하나로 뭉친 평균이라는 것이 여기서 보입니다.</span></li>
+</ol>
+<p>시행 전 다섯 계수가 모두 0인지를 한꺼번에 검정하고, 아홉 계수를 그림으로 그립니다.</p>
+<!--FIG:lab18_eventplot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>leads = ", ".join(f"{t} = 0" for t in terms if "lead" in t)</code><span>이름에 lead가 들어 있는 가변수만 골라 <code>"lead6 = 0, lead5 = 0, …"</code>이라는 문자열을 만듭니다.</span></li>
+<li><code>es.wald_test(leads, scalar=True)</code><span>쉼표로 나눈 조건 다섯 개가 모두 성립하는지를 한 번에 검정합니다(Wald 검정). 셀 10의 <code>t_test</code>가 조합 하나를 본다면 이쪽은 여러 개를 함께 봅니다. <code>scalar=True</code>는 통계량을 숫자 하나로 돌려받는 옵션이고, 결과의 <code>statistic</code>과 <code>pvalue</code>에 값이 들어 있습니다.</span></li>
+<li><code>ax.errorbar(x, ev["coef"], yerr=err, fmt="o", capsize=3)</code><span>점과 오차 막대를 그립니다(<a href="#lab08-s3">실습 8 다 절</a>). <code>err</code>는 점에서 아래 끝까지, 위 끝까지의 길이 두 줄입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>결합 검정 P = 0.76.</b> 시행 전 계수가 0과 다르다는 증거를 찾지 못했다는 뜻입니다. 가정이 증명된 것은 아닙니다.</span></li>
+</ol>
+<p>가로축(Half-year relative to the programme start)은 반기 번호이고 세로 점선의 오른쪽이 시행 후입니다. 회색 점은 기준인 시행 직전 반기(0으로 고정)입니다. 18장의 그림 18-6과 같은 그림입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 이중차분 분석의 Methods와 Results</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">The effect of the programme was estimated with a difference-in-differences model that included indicators for pilot districts and for the post-programme period and <span class="mk">1</span> <span class="hl">their interaction</span>, <span class="mk">2</span> <span class="hl">weighted by the mean monthly number of outpatients aged ≥65 years in each district</span>. <span class="mk">3</span> <span class="hl">Standard errors were clustered at the district level (60 clusters)</span>. The mean rate fell from 91.14 to 73.68 per 1,000 in the pilot districts and from 79.66 to 69.60 in the comparison districts, giving a <span class="mk">4</span> <span class="hl">difference-in-differences estimate of −7.40 per 1,000 (95% CI, −7.87 to −6.94)</span>. The <span class="mk">5</span> <span class="hl">difference in pre-programme trends was −0.003 per month (95% CI, −0.037 to 0.032)</span>, and event-study estimates for the five half-years before the programme ranged from −0.44 to 0.30 (joint test, P = .76).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>교호작용 항.</b> 셀 19의 treat:post입니다.</span></li>
+<li><span class="mk">2</span><span><b>가중치.</b> 셀 19의 <code>w</code>입니다. 가중치를 주었는지에 따라 추정값이 달라지므로(과제 3) 미리 정해 밝힙니다.</span></li>
+<li><span class="mk">3</span><span><b>군집 단위와 군집 수.</b> 정책이 배정된 단위로 군집합니다. 군집이 몇 개뿐이면 이 표준오차를 믿기 어렵습니다(18장 라 절).</span></li>
+<li><span class="mk">4</span><span><b>이중차분 추정값.</b> 셀 18과 셀 19의 값입니다. 시행 후 24개월의 평균 효과이고, 평행 추세 가정이 맞을 때만 사업의 효과로 읽습니다.</span></li>
+<li><span class="mk">5</span><span><b>평행 추세의 점검.</b> 셀 20, 셀 21, 셀 22의 값입니다. "가정과 모순되는 증거가 없다"까지만 말할 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>2×2 평균표에서 이중차분 추정값은 (73.68 − 91.14) − (69.60 − 79.66) = −7.40입니다.</li>
+<li>회귀에서는 <code>smf.wls("rate ~ treat * post", …, weights=…)</code>의 treat:post 줄이 같은 값이고, <code>cov_type="cluster"</code>로 정책이 배정된 단위(시군구)를 군집으로 지정합니다.</li>
+<li>평행 추세는 시행 전 추세의 차이(treat:time)와 사건연구로 점검합니다. 신뢰구간과 그림으로 읽습니다.</li>
+<li>같은 자료에서 전후 비교 −17.46, 중단시계열 12개월째 −10.09, 대조군이 있는 중단시계열 −7.22, 이중차분 −7.40이 나왔습니다. "정책이 없었다면"을 무엇으로 추정하느냐에 따라 답이 달라집니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 과제 -->
+<section class="sec" id="lab18-s5">
+<h2><span class="sec-no">마.</span>과제</h2>
+
+<p>본문 실습의 변수(<code>its</code>, <code>panel</code>, <code>f</code>)가 만들어진 상태에서 이어서 풉니다. 먼저 스스로 해 보고 정답을 펼치세요. 세 과제 모두 18장 본문에 대응하는 숫자가 있습니다.</p>
+
+<h3>과제 1. 시행 전후 12개월씩만 쓴 분석</h3>
+<p>시범 지역의 계열에서 시행 전 12개월과 시행 후 12개월(time 25–48)만 남겨 나 절의 분절회귀(Newey–West, 시차 3)를 다시 적합하세요. 수준 변화와 기울기 변화의 95% 신뢰구간이 60개월 분석과 어떻게 달라집니까? 힌트는 <code>its[(its["time"] &gt; 24) &amp; (its["time"] &lt;= 48)]</code>입니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab18_hw1-->
+<p>24개월로 줄이면 수준 변화는 −5.67(95% CI −7.72 ~ −3.63), 기울기 변화는 −0.140(95% CI −0.592 ~ 0.312)입니다. 기울기 변화의 신뢰구간이 0을 포함해 기울기가 바뀌었는지 말할 수 없게 됩니다. time 줄을 보면 시행 전 추세도 −0.478로 추정되어 60개월 분석의 −0.242와 많이 다릅니다. 시행 전 시점이 12개뿐이면 몇 달의 우연한 오르내림과 계절 변동이 추세로 읽히고, 그 추세를 연장한 반사실도 함께 흔들립니다. 18장 나 절 '시점 수'의 숫자입니다.</p>
+</div></details>
+
+<h3>과제 2. 적응 기간을 뺀 분석</h3>
+<p>사업이 자리 잡는 데 석 달이 걸렸다고 보고, 시행 직후 3개월(2018년 1–3월, time 37–39)을 빼고 분석하세요. time_after는 다시 만들지 않고 그대로 둡니다. 수준 변화, 기울기 변화, 12개월째의 효과를 구하고 나 절의 결과와 비교하세요. 힌트는 <code>~its["time"].isin([37, 38, 39])</code>이고, 앞의 <code>~</code>는 "아닌 줄"을 뜻합니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab18_hw2-->
+<p>57개월로 적합하면 수준 변화 −8.54(95% CI −10.60 ~ −6.48), 기울기 변화 −0.157(95% CI −0.266 ~ −0.048)입니다. 60개월 분석(−7.37, −0.226)과 비교하면 두 계수가 서로 값을 주고받았습니다. 12개월째의 효과는 −10.43(95% CI −12.53 ~ −8.32)으로 원래의 −10.09와 비슷합니다. 이런 민감도 분석에서는 계수 하나하나보다 특정 시점의 효과를 비교하는 편이 안정적입니다. Intercept와 time 줄이 셀 9와 똑같은 것은 시행 전 36개월의 자료가 그대로이기 때문입니다. 어느 달을 뺄지는 자료를 보기 전에 정책의 내용을 근거로 정합니다(18장 나 절 '적응 기간').</p>
+</div></details>
+
+<h3>과제 3. 가중치 없는 분석과 시군구별 변화량</h3>
+<p>(1) 셀 19의 이중차분 회귀를 가중치 없이(<code>smf.ols</code>) 적합해 추정값과 95% 신뢰구간을 구하세요. (2) 시군구마다 '시행 후 평균 처방률 − 시행 전 평균 처방률'을 하나씩 구해 60개의 변화량을 만들고, 두 지역의 변화량을 요약한 뒤 가중 회귀 <code>"chg ~ treat"</code>로 비교하세요. 표준오차는 <code>cov_type="HC1"</code>을 씁니다. 셀 19의 결과와 무엇이 같고 무엇이 다릅니까?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab18_hw3-->
+<p>(1) 가중치가 없으면 −7.26(95% CI −7.70 ~ −6.82)입니다. 시군구 하나하나를 같은 비중으로 평균한 값이라 환자 수를 기준으로 한 −7.40과 조금 다릅니다. 어느 쪽이 옳다기보다 질문이 다릅니다. "평균적인 시군구에서의 효과"인지 "지역 전체 환자에서의 효과"인지를 미리 정해 밝힙니다.</p>
+<p>(2) 시범 지역 20곳의 변화량은 평균 −17.4(표준편차 0.7, 범위 −19.2 ~ −16.5), 비교 지역 40곳은 평균 −10.2(표준편차 1.0, 범위 −12.9 ~ −7.9)입니다. 두 묶음의 가중 평균 차이는 −7.40(95% CI −7.87 ~ −6.93)으로, 3,600줄에 군집 강건 표준오차를 쓴 셀 19의 결과(−7.87 ~ −6.94)와 거의 같습니다. 줄이 60개뿐인데도 신뢰구간이 같다는 것이 군집의 뜻입니다. 이중차분법의 정밀도는 줄의 수가 아닌 시군구의 수와 시군구 사이의 흔들림에서 나옵니다. <code>groupby([...])["rate"].mean().unstack("post")</code>는 셀 18과 같은 방식이고, <code>"HC1"</code>은 <a href="#lab08-s2">실습 8 나 절</a>의 <code>"HC0"</code>에 소표본 보정을 더한 강건 표준오차입니다.</p>
+</div></details>
+</section>

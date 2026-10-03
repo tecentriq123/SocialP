@@ -177,6 +177,10 @@ def disc_day(runout, g, L, G):
     n, K = runout.shape
     k = np.arange(1, K + 1)[None, :]                 # fill number 1..K
     stop_here = (g > G) | (k >= L[:, None])
+    # A patient with no such fill among the K simulated fills is still on treatment when the simulated record ends
+    # (K fills always run past the end of the data, day END). Without the next line argmax() of an all-False row is 0,
+    # which wrongly stopped these patients after their FIRST fill (fixed 2026-10-04).
+    stop_here[:, -1] = True
     first = stop_here.argmax(axis=1)                 # index of first such fill
     return runout[np.arange(n), first] + G, first + 1
 

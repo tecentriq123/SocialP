@@ -1,0 +1,42 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">사건 코딩 확인과 사건 열 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ckd[&quot;drug_a&quot;] = (ckd[&quot;drug&quot;] == &quot;A&quot;).astype(int)   # A = 1, B = 0
+ckd[&quot;dial&quot;] = (ckd[&quot;status&quot;] == 1).astype(int)     # 투석 시작
+ckd[&quot;death&quot;] = (ckd[&quot;status&quot;] == 2).astype(int)    # 투석 전 사망
+
+tab = pd.crosstab(ckd[&quot;status&quot;], ckd[&quot;drug&quot;], margins=True)
+tab.index = [&quot;0 censored&quot;, &quot;1 dialysis&quot;, &quot;2 death&quot;, &quot;All&quot;]
+tab</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>drug</th>
+      <th>A</th>
+      <th>B</th>
+      <th>All</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0 censored</th>
+      <td>521<span class="mk">1</span></td>
+      <td>536</td>
+      <td>1057</td>
+    </tr>
+    <tr>
+      <th>1 dialysis</th>
+      <td>396<span class="mk">2</span></td>
+      <td>496</td>
+      <td>892</td>
+    </tr>
+    <tr>
+      <th>2 death</th>
+      <td>463<span class="mk">3</span></td>
+      <td>1088</td>
+      <td>1551</td>
+    </tr>
+    <tr>
+      <th>All</th>
+      <td>1380<span class="mk">4</span></td>
+      <td>2120</td>
+      <td>3500</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

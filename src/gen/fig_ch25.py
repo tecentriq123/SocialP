@@ -66,7 +66,8 @@ save("ch25_extrap", figure(
 
 # ====================================================================== 그림 25-2: 학술지 형식의 토네이도 그림
 EN = {"hr_os": "HR for overall survival", "hr_pfs": "HR for progression-free survival", "c_drug_A": "Monthly price of drug A",
-      "c_drug_B": "Monthly price of standard therapy B", "u_pf": "Utility, progression-free", "os_gam": "Weibull shape, overall survival"}
+      "c_drug_B": "Monthly price of standard therapy B", "u_pf": "Utility, progression-free", "os_gam": "Weibull shape, overall survival",
+      "c_pf": "Cost of progression-free state, per month"}
 
 
 def rng_txt(r):

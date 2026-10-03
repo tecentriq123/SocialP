@@ -1,0 +1,63 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 2 정답. 반복 횟수와 구간의 흔들림</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for B_ in [200, 1000, 9999]:
+    lows, highs = [], []
+    for seed in range(1, 11):                 # seed 1~10
+        rng = np.random.default_rng(seed)
+        ia_ = rng.integers(0, len(a), (B_, len(a)))
+        ib_ = rng.integers(0, len(b), (B_, len(b)))
+        bt = a[ia_].mean(axis=1) - b[ib_].mean(axis=1)
+        l_, h_ = np.percentile(bt, [2.5, 97.5])
+        lows.append(l_)
+        highs.append(h_)
+    rows.append([B_, min(lows), max(lows), min(highs), max(highs)])
+
+hw2 = pd.DataFrame(rows, columns=[&quot;B&quot;, &quot;lower_min&quot;, &quot;lower_max&quot;,
+                                  &quot;upper_min&quot;, &quot;upper_max&quot;])
+hw2[&quot;lower_range&quot;] = hw2[&quot;lower_max&quot;] - hw2[&quot;lower_min&quot;]
+hw2[&quot;upper_range&quot;] = hw2[&quot;upper_max&quot;] - hw2[&quot;upper_min&quot;]
+hw2.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>B</th>
+      <th>lower_min</th>
+      <th>lower_max</th>
+      <th>upper_min</th>
+      <th>upper_max</th>
+      <th>lower_range</th>
+      <th>upper_range</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>200</td>
+      <td>280.9</td>
+      <td>317.2</td>
+      <td>476.4</td>
+      <td>509.9</td>
+      <td>36.4</td>
+      <td>33.5</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1000</td>
+      <td>290.4</td>
+      <td>306.0</td>
+      <td>486.4</td>
+      <td>498.7</td>
+      <td>15.6</td>
+      <td>12.3</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>9999</td>
+      <td>295.4</td>
+      <td>299.6</td>
+      <td>494.0</td>
+      <td>498.5</td>
+      <td>4.3</td>
+      <td>4.5</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

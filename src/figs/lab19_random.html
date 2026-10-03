@@ -1,0 +1,102 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">연구 간 분산과 무작위효과 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">k = len(es)                                 # 시험 수
+Q = np.sum(w * (es[&quot;yi&quot;] - fe)**2)
+C = np.sum(w) - np.sum(w**2) / np.sum(w)
+tau2 = max(0, (Q - (k - 1)) / C)            # DerSimonian-Laird
+ws = 1 / (es[&quot;vi&quot;] + tau2)                  # 무작위효과 가중치
+re = np.sum(ws * es[&quot;yi&quot;]) / np.sum(ws)
+se_re = 1 / np.sqrt(np.sum(ws))
+p_re = 2 * stats.norm.sf(abs(re / se_re))
+print(f&quot;Q {Q:.2f}, C {C:.1f}, tau2 {tau2:.4f},&quot;
+      f&quot; sum w* = {np.sum(ws):.1f}&quot;)
+print(f&quot;log OR {re:.4f}, SE {se_re:.4f},&quot;
+      f&quot; z {re / se_re:.2f}, P {p_re:.4f}&quot;)
+print(f&quot;OR {np.exp(re):.2f} ({np.exp(re - Z*se_re):.2f}&quot;
+      f&quot;-{np.exp(re + Z*se_re):.2f})&quot;)
+
+es[&quot;w_fe&quot;] = 100 * w / np.sum(w)            # 가중치 비율(%)
+es[&quot;w_re&quot;] = 100 * ws / np.sum(ws)
+es[[&quot;trial&quot;, &quot;se&quot;, &quot;w_fe&quot;, &quot;w_re&quot;]].round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Q 13.28, C 436.0, tau2 0.0098<span class="mk">1</span>, sum w* = 266.7<span class="mk">2</span>
+log OR -0.1921<span class="mk">3</span>, SE 0.0612, z -3.14<span class="mk">4</span>, P 0.0017<span class="mk">5</span>
+OR 0.83 (0.73-0.93)<span class="mk">6</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>trial</th>
+      <th>se</th>
+      <th>w_fe</th>
+      <th>w_re</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Trial A</td>
+      <td>0.373</td>
+      <td>1.203</td>
+      <td>2.512</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Trial B</td>
+      <td>0.247</td>
+      <td>2.748</td>
+      <td>5.292</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Trial C</td>
+      <td>0.686</td>
+      <td>0.356</td>
+      <td>0.779<span class="mk">7</span></td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Trial D</td>
+      <td>0.085</td>
+      <td>23.145</td>
+      <td>21.963</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Trial E</td>
+      <td>0.259</td>
+      <td>2.496</td>
+      <td>4.870</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Trial F</td>
+      <td>0.063</td>
+      <td>42.712<span class="mk">8</span></td>
+      <td>27.263<span class="mk">9</span></td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Trial G</td>
+      <td>0.468</td>
+      <td>0.767</td>
+      <td>1.641</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Trial H</td>
+      <td>0.110</td>
+      <td>13.835</td>
+      <td>17.084</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Trial I</td>
+      <td>0.124</td>
+      <td>10.890</td>
+      <td>14.865</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Trial J</td>
+      <td>0.301</td>
+      <td>1.849</td>
+      <td>3.730</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

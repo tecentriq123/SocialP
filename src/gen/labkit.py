@@ -47,6 +47,12 @@ plt.rcParams["axes.unicode_minus"] = False
 plt.rcParams["figure.dpi"] = 100
 
 _URL = re.compile(r"https?://vincentarelbundock\.github\.io/Rdatasets/csv/[^/]+/([^/]+\.csv)")
+# Site-hosted synthetic data for PART 5 B labs (2026-10-04): the code shown to students reads
+#   https://socialp-ajou.tecentriq12.workers.dev/data/<name>.csv
+# and the sandbox reads the same file from site/pub/data/<name>.csv (deploy.py publishes pub/data as /data).
+SITE_DATA_URL = "https://socialp-ajou.tecentriq12.workers.dev/data/"
+PUB = os.path.join(ROOT, "pub")
+_URL2 = re.compile(r"https?://socialp-ajou\.tecentriq12\.workers\.dev/data/([^/]+\.csv)")
 _orig_read_csv = pd.read_csv
 
 
@@ -57,6 +63,12 @@ def _read_csv(path, *a, **k):
             local = os.path.join(DATA, m.group(1))
             if not os.path.exists(local):
                 raise FileNotFoundError(f"offline copy missing: {local}")
+            path = local
+        m2 = _URL2.match(path)
+        if m2:
+            local = os.path.join(PUB, "data", m2.group(1))
+            if not os.path.exists(local):
+                raise FileNotFoundError(f"site data file missing: {local}")
             path = local
     return _orig_read_csv(path, *a, **k)
 
@@ -156,6 +168,30 @@ class Notebook:
             outs.append(f'<img class="cell-img" alt="셀 {c.n} 그래프" src="data:image/png;base64,{img}">')
         out = f'<div class="cell-out"><div class="cell-out-h">{out_label}</div>{"".join(outs)}</div>' if outs else ""
         return f'<div class="cell">{head}{inp}{out}</div>'
+
+    def save_ipynb(self, title, intro="", skip=(), notes=None):
+        """Write pub/notebooks/<lab>.ipynb (published as /notebooks/<lab>.ipynb): one markdown title cell, then
+        every executed cell as a code cell WITHOUT outputs, each preceded by a markdown cell '### 셀 n. <title>'.
+        skip: cell numbers to leave out (e.g. expect_error demos). notes: {cell number: markdown text shown
+        before that cell} for short Korean guidance (section headings, exercise text)."""
+        import json as _json
+        notes = notes or {}
+        cells = [{"cell_type": "markdown", "metadata": {},
+                  "source": (f"# {title}\n\n{intro}".strip() + "\n").splitlines(keepends=True)}]
+        for c in self.cells:
+            if c.n in skip:
+                continue
+            md = (notes.get(c.n, "") + "\n\n" if notes.get(c.n) else "") + f"### 셀 {c.n}. {c.title}".rstrip(". ")
+            cells.append({"cell_type": "markdown", "metadata": {}, "source": md.splitlines(keepends=True)})
+            cells.append({"cell_type": "code", "metadata": {}, "execution_count": None, "outputs": [],
+                          "source": c.code.splitlines(keepends=True)})
+        nbj = {"cells": cells, "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python",
+               "name": "python3"}, "language_info": {"name": "python"}}, "nbformat": 4, "nbformat_minor": 5}
+        os.makedirs(os.path.join(PUB, "notebooks"), exist_ok=True)
+        path = os.path.join(PUB, "notebooks", f"{self.lab}.ipynb")
+        with open(path, "w", encoding="utf-8") as f:
+            _json.dump(nbj, f, ensure_ascii=False, indent=1)
+        return path
 
     def save_fragment(self, name, html_str):
         os.makedirs(FIGS, exist_ok=True)

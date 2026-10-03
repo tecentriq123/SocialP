@@ -1,0 +1,479 @@
+<p class="lead">16장의 예제 코호트(급성 심근경색 뒤 퇴원한 환자 6,000명, 가상 자료)로 불멸시간 편향을 직접 만들어 보고 바로잡습니다. 추적 중 약물 X를 시작한 사람을 처음부터 사용군으로 두면 효과 없는 약의 위험비가 0.37로 나오는 것을 확인하고, 같은 자료를 랜드마크 분석과 시간의존 Cox 모형으로 다시 분석합니다. 한 사람 한 줄 자료를 구간별 긴 형식으로 바꾸는 코드를 직접 짜는 것이 이 실습의 중심입니다. 이론은 <a href="#ch16">16장</a>에 있습니다.</p>
+
+<dl class="glance">
+<div><dt>관련 이론</dt><dd><a href="#ch16-s1">16장 가 절</a> 불멸시간 편향, <a href="#ch16-s2">나 절</a> 랜드마크 분석, <a href="#ch16-s3">다 절</a> 시간의존 노출과 시간의존 Cox 모형. Cox 모형의 기초는 <a href="#ch11">11장</a></dd></div>
+<div><dt>데이터</dt><dd><code>ami_cohort.csv</code>. 이 사이트가 만든 가상 자료로 16장의 예제와 같은 코호트입니다. 급성 심근경색으로 입원했다가 살아서 퇴원한 65세 이상 환자 6,000명, 한 사람 한 줄, 열 4개(환자 번호, 추적 일수, 사망 여부, 약물 X 첫 처방일)</dd></div>
+<div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, lifelines (<code>KaplanMeierFitter</code>, <code>CoxPHFitter</code>, <code>CoxTimeVaryingFitter</code>, <code>lifelines.utils</code>의 <code>to_long_format</code>, <code>add_covariate_to_timeline</code>)</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). lifelines는 첫 셀에서 설치</dd></div>
+</dl>
+<p class="nb-link"><a href="notebooks/lab16.ipynb" download>실습 노트북 내려받기 (lab16.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab16-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p>자료는 <a href="#ch16-s1">16장 가 절</a>의 '이 장의 예제'와 같습니다. 퇴원일부터 1년 동안 사망을 추적했고, 일부 환자가 퇴원 뒤 어느 시점에 약물 X를 처음 처방받았습니다. 실제 환자 자료가 아니라 이 사이트가 만든 가상 자료이며, 약물 X가 사망에 <strong>아무 영향이 없도록</strong> 만들었습니다. 따라서 올바른 분석의 위험비는 1 근처여야 합니다. 이 실습의 목표는 어떤 분석이 1에서 벗어나고 어떤 분석이 1로 돌아오는지를 손으로 확인하는 것입니다.</p>
+<p>실제 연구에서는 이런 표를 청구자료에서 만듭니다. 명세서의 퇴원일, 자격 자료의 사망일, 처방 내역의 첫 조제일을 환자별로 모아 날짜의 차이로 일수를 구합니다(<a href="#lab14">실습 14</a>). 여기서는 그 단계가 끝난 분석용 표에서 시작합니다.</p>
+<p class="tbl-cap"><b>자료 설명.</b> <code>ami_cohort.csv</code> (행의 단위는 환자, 6,000행)</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
+<thead><tr><th>열</th><th>뜻</th></tr></thead>
+<tbody>
+<tr><td>id</td><td>환자 번호 (0–5999)</td></tr>
+<tr><td>fu_days</td><td>퇴원일(0일)부터 사망 또는 365일 가운데 이른 날까지의 일수. 추적 중 탈락은 없습니다.</td></tr>
+<tr><td>died</td><td>추적 중 사망 = 1, 365일까지 생존 = 0</td></tr>
+<tr><td>rx_day</td><td>퇴원일부터 약물 X 첫 처방일까지의 일수. 추적 중 처방이 없으면 빈칸(결측)</td></tr>
+</tbody></table></div>
+<p>16장의 모형은 다른 변수를 보정하지 않으므로 공변량 열은 없습니다. 가상 자료라서 일수가 소수점 아래까지 있습니다. 실제 청구자료의 일수는 날짜의 차이이므로 정수입니다.</p>
+
+<h3>lifelines 설치</h3>
+<p><a href="#lab07-s1">실습 7 가 절</a>과 같습니다. Colab에서는 노트북을 새로 열 때마다 한 번 실행합니다.</p>
+<!--FIG:lab16_install-->
+<p>이 실습의 출력은 lifelines 0.30.3, pandas 3.0으로 실제로 실행해 얻었습니다. 버전에 따라 출력의 줄 배치와 자릿수가 조금 다를 수 있습니다.</p>
+
+<h3>자료 불러오기</h3>
+<!--FIG:lab16_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"</code><span>이 사이트의 자료 폴더 주소를 문자열로 저장합니다. 인터넷에 연결되어 있어야 합니다.</span></li>
+<li><code>pd.read_csv(BASE + "ami_cohort.csv")</code><span>문자열 두 개를 <code>+</code>로 이으면 파일의 전체 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(DataFrame) <code>d</code>로 저장합니다. 빈칸은 자동으로 결측값 <code>NaN</code>이 됩니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(6000, 4).</b> 6,000명, 열 4개입니다.</span></li>
+<li><span class="mk">2</span><span><b>0번 환자의 fu_days 177.8, died 1.</b> 퇴원 후 177.8일째에 사망했습니다.</span></li>
+<li><span class="mk">3</span><span><b>rx_day가 NaN.</b> 이 환자는 추적 중 약물 X를 처방받지 않았습니다.</span></li>
+<li><span class="mk">4</span><span><b>2번 환자의 rx_day 249.9.</b> 퇴원 후 249.9일째에 약물 X를 시작했고 365일까지 생존했습니다(fu_days 365, died 0). 이 환자의 처음 249.9일을 어느 쪽 시간으로 세느냐가 이 실습 전체의 주제입니다.</span></li>
+</ol>
+
+<h3>자료 확인</h3>
+<p>분석 전에 자료가 설명과 맞는지 확인합니다. 환자 번호가 겹치지 않는지, 사망과 처방의 수가 본문과 같은지, 추적이 끝난 뒤의 처방이 섞여 있지 않은지를 봅니다.</p>
+<!--FIG:lab16_check-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>d["rx_day"].notna().sum()</code><span><code>notna()</code>는 결측이 아니면 True입니다(<a href="#lab11-s1">실습 11 가 절</a>). True를 1로 세어 더하므로 첫 처방일이 있는 사람의 수가 됩니다.</span></li>
+<li><code>alive["fu_days"].unique()</code><span>생존자의 추적 일수에 어떤 값들이 있는지 중복 없이 보여 줍니다.</span></li>
+<li><code>(d["rx_day"] &gt;= d["fu_days"]).sum()</code><span>첫 처방일이 추적 종료일과 같거나 그보다 늦은 줄의 수입니다. <code>NaN</code>이 들어간 크기 비교(<code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>)는 항상 False가 되므로 처방이 없는 사람은 세지 않습니다. 이 성질은 다 절에서 다시 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사망 1,234명(20.6%).</b> 16장의 숫자와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>약물 X를 시작한 사람 2,734명.</b> 나머지 3,266명은 추적 중 처방이 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>생존자의 추적 일수는 모두 365.</b> 중간에 추적이 끊긴 사람이 없습니다. 사망자는 모두 365일 전에 사망했습니다(최대 363.8일).</span></li>
+<li><span class="mk">4</span><span><b>추적이 끝난 뒤의 처방 0건.</b> 사망한 뒤의 처방 기록 같은 오류가 없습니다. 실제 자료에서는 이런 줄이 나오면 날짜 변수를 다시 확인합니다.</span></li>
+</ol>
+
+<h3>약물 X를 시작한 시점의 분포</h3>
+<p>불멸시간의 크기는 퇴원부터 첫 처방까지 걸린 시간에 달려 있습니다. 16장과 같은 단위로 보려고 일수를 개월로 바꿉니다.</p>
+<!--FIG:lab16_rxdist-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>rx_month = d["rx_day"] / 365 * 12</code><span>일수를 365로 나누면 연, 12를 곱하면 개월입니다. 이 실습에서는 1년을 365일, 1개월을 365 ÷ 12 = 30.4일로 셉니다.</span></li>
+<li><code>rx_month.describe().round(1)</code><span>요약통계입니다. 결측값은 빼고 계산하므로 count가 처방받은 사람의 수입니다.</span></li>
+<li><code>ax.hist(d["rx_day"].dropna(), bins=24)</code><span>결측을 뺀 첫 처방일의 히스토그램입니다. <code>bins=24</code>는 막대 24개로 나눈다는 뜻이고, 1년을 24로 나누므로 막대 하나가 약 15일입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>count 2,734.</b> 약물 X를 시작한 사람의 수입니다.</span></li>
+<li><span class="mk">2</span><span><b>25% 지점 2.1개월.</b></span></li>
+<li><span class="mk">3</span><span><b>중앙값 4.5개월.</b> 시작한 사람의 절반은 퇴원 후 4.5개월이 지나서야 첫 처방을 받았습니다. 16장의 "중앙값 4.5개월"입니다.</span></li>
+<li><span class="mk">4</span><span><b>75% 지점 7.8개월.</b> 사분위범위는 2.1–7.8개월입니다.</span></li>
+</ol>
+<p>그림의 가로축(Days from discharge to first prescription)은 퇴원부터 첫 처방까지의 일수, 세로축(Number of patients)은 환자 수입니다. 첫 처방은 퇴원 직후에 가장 많고 뒤로 갈수록 줄지만, 1년 내내 새로 시작하는 사람이 이어집니다. 퇴원 직후에만 몰려 있지 않다는 점이 중요합니다. 늦게 시작한 사람일수록 '시작 전까지 살아 있었던 시간'이 깁니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Methods의 대상자와 노출</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">The cohort included <span class="mk">1</span> <span class="hl">6,000 patients aged 65 years or older who were discharged alive</span> after hospitalization for acute myocardial infarction. <span class="mk">2</span> <span class="hl">Follow-up started on the day of discharge</span> and ended at death or 365 days, whichever came first. During follow-up, 1,234 patients (20.6%) died. Drug X was initiated after discharge by 2,734 patients (45.6%), <span class="mk">3</span> <span class="hl">a median of 4.5 months (interquartile range, 2.1–7.8) after discharge</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>대상자.</b> 셀 2와 셀 3의 6,000명입니다.</span></li>
+<li><span class="mk">2</span><span><b>time zero.</b> 추적 시작이 퇴원일이라는 문장입니다. 노출(약물 X)은 그 뒤에 정해지므로, 이 두 시점이 어긋난다는 것을 독자가 알 수 있습니다(<a href="#ch16-s1">16장 가 절</a> '논문에서 알아보는 법').</span></li>
+<li><span class="mk">3</span><span><b>첫 처방까지의 시간.</b> 셀 4의 중앙값과 사분위범위입니다. 이 숫자를 적어 두면 불멸시간이 얼마나 생길 수 있는 설계인지 독자가 가늠할 수 있습니다. 45.6%는 2,734 ÷ 6,000입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>자료는 한 사람 한 줄이고, 추적 일수(fu_days), 사망 여부(died), 첫 처방일(rx_day, 없으면 결측)이 있습니다. 약물 X는 효과가 없도록 만든 가상 자료입니다.</li>
+<li>6,000명 가운데 1,234명이 사망했고 2,734명이 약물 X를 시작했습니다. 첫 처방까지 중앙값 4.5개월이 걸렸습니다.</li>
+<li><code>NaN</code>이 들어간 크기 비교는 False가 됩니다. 처방이 없는 사람을 따로 걸러 내지 않아도 조건식에서 자연히 빠집니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab16-s2">
+<h2><span class="sec-no">나.</span>불멸시간 편향 재현하기</h2>
+
+<p>이 절에서는 일부러 틀린 분석을 합니다. 추적 중 한 번이라도 약물 X를 처방받은 사람을 처음부터 사용군으로 두고, 두 군을 퇴원일부터 비교합니다(<a href="#ch16-s1">16장 가 절</a> 표 16-2의 ①). 그런 다음 무엇이 틀렸는지를 자료에서 직접 찾습니다.</p>
+
+<h3>추적 중 사용 여부로 군 나누기</h3>
+<!--FIG:lab16_ever-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>d["ever"] = d["rx_day"].notna().astype(int)</code><span>첫 처방일이 있으면 1, 없으면 0인 열을 만듭니다. '1년 안에 한 번이라도 처방받았는가'로 군을 정하는 것이며, 이 정보는 추적이 끝나야 알 수 있습니다.</span></li>
+<li><code>d.groupby("ever")["died"].agg(["count", "sum", "mean"])</code><span>군별 인원, 사망 수, 사망 비율입니다. 탈락이 없는 자료여서 사망 비율이 곧 1년 사망 위험입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>상대위험도 0.42.</b> 사용군의 1년 사망 위험이 비사용군의 0.42배로 보입니다.</span></li>
+<li><span class="mk">2</span><span><b>비사용군 3,266명, 사용군 2,734명.</b></span></li>
+<li><span class="mk">3</span><span><b>비사용군의 1년 사망 위험 28.0%</b> (913명 사망).</span></li>
+<li><span class="mk">4</span><span><b>사용군 11.7%</b> (321명 사망). 효과 없는 약인데 사망이 절반 아래로 줄어든 것처럼 보입니다.</span></li>
+</ol>
+
+<h3>Kaplan-Meier 곡선</h3>
+<p>같은 분류로 생존곡선을 그립니다. 코드는 <a href="#lab07-s2">실습 7 나 절</a>의 군별 곡선과 같습니다.</p>
+<!--FIG:lab16_naivekm-->
+<h4>그림과 출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사용군(Ever users)의 90일 생존율 0.987.</b> 가로축은 퇴원 후 일수(Days since discharge), 세로축은 생존 확률(Survival probability)이며 차이가 잘 보이도록 세로축을 0.6부터 그렸습니다. 사용군의 곡선은 초반에 거의 내려가지 않습니다. 16장의 그림 16-2와 같은 모양입니다.</span></li>
+<li><span class="mk">2</span><span><b>비사용군(Never users)은 0.884.</b> 퇴원 직후 석 달 동안 가파르게 내려갑니다. 심근경색 뒤의 고위험 시기에 생긴 사망이 대부분 이 군에 들어가 있기 때문입니다. 한 군의 곡선만 초반이 평평하면 설계를 의심합니다.</span></li>
+</ol>
+
+<h3>Cox 모형</h3>
+<p>코드는 <a href="#lab11-s2">실습 11 나 절</a>의 단변수 Cox 모형과 같습니다. 뒤에서 위험비와 신뢰구간을 여러 번 적어야 하므로, 한 줄로 뽑아 주는 함수 <code>hr_ci</code>를 함께 만들어 둡니다.</p>
+<!--FIG:lab16_naivecox-->
+<p>출력의 <code>time fit was run</code> 줄은 모형을 적합한 시각이어서 실행할 때마다 다릅니다.</p>
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>cph.fit(d, duration_col="fu_days", event_col="died", formula="ever")</code><span>추적 일수와 사망 여부를 알려 주고, 모형에 넣을 변수를 <code>formula</code>로 지정합니다. <code>formula</code>를 쓰면 표에 있는 다른 열(id, rx_day)은 모형에 들어가지 않습니다.</span></li>
+<li><code>def hr_ci(model, name):</code><span>적합한 모형과 변수 이름을 받아 "위험비 (하한-상한)" 글자를 돌려주는 함수입니다.</span></li>
+<li><code>r = model.summary.loc[name]</code><span>결과표 <code>summary</code>에서 그 변수의 행을 꺼냅니다. <code>r["exp(coef)"]</code>가 위험비, <code>r["exp(coef) lower 95%"]</code>와 <code>r["exp(coef) upper 95%"]</code>가 95% 신뢰구간의 두 끝입니다.</span></li>
+<li><code>return f"{r['exp(coef)']:.2f} ({lo:.2f}-{hi:.2f})"</code><span>세 숫자를 소수 둘째 자리로 맞춰 한 문자열로 만듭니다. <code>CoxPHFitter</code>와 <code>CoxTimeVaryingFitter</code> 모두 <code>summary</code>의 열 이름이 같아서 두 모형에 함께 쓸 수 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사건 1,234건.</b> 사망 수가 셀 3과 같은지 먼저 봅니다.</span></li>
+<li><span class="mk">2</span><span><b>coef −1.004.</b> 로그 위험비입니다.</span></li>
+<li><span class="mk">3</span><span><b>exp(coef) 0.366.</b> 위험비입니다.</span></li>
+<li><span class="mk">4</span><span><b>95% 신뢰구간의 하한 0.323.</b> 출력 칸을 오른쪽으로 밀면 보입니다.</span></li>
+<li><span class="mk">5</span><span><b>상한 0.416.</b></span></li>
+<li><span class="mk">6</span><span><b>P &lt; 0.0005.</b> 통계적으로는 매우 뚜렷합니다. P값은 설계가 옳은지를 알려 주지 않습니다.</span></li>
+<li><span class="mk">7</span><span><b>HR 0.37 (0.32–0.42).</b> 16장 표 16-2의 ①과 같은 값입니다. 약물 X는 효과가 없으므로 이 숫자는 전부 편향입니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">이런 오류가 나면 · NaNs were detected</p>
+<p><code>formula</code>를 빼면 lifelines는 시간과 사건 열을 뺀 나머지 열을 모두 공변량으로 넣으려 합니다. 이 자료에서는 결측이 있는 rx_day가 들어가 아래 오류가 납니다. <code>formula</code>로 변수를 지정하거나 <code>d[["fu_days", "died", "ever"]]</code>처럼 필요한 열만 골라 넣습니다. 일부러 오류를 내는 셀이어서 노트북 파일에는 넣지 않았습니다. 노트북에서 셀 7 다음이 셀 9인 것은 그 때문입니다.</p>
+<!--FIG:lab16_naerror-->
+</div>
+<div class="callout warn"><p class="ct">흔한 오해 · 이 위험비를 읽을 때</p>
+<p><span class="wrong">HR 0.37이므로 약물 X를 쓰면 사망 위험이 63% 줄어든다.</span> 0.37은 편향으로 만들어진 값입니다. 편향이 없더라도 위험비는 위험률의 비이고 1년 사망 위험의 비가 아닙니다. 같은 분류에서 1년 사망 위험의 비(상대위험도)는 셀 5의 0.42로 위험비와 다릅니다(<a href="#ch16-s1">16장 가 절</a> 흔한 오해).</p></div>
+
+<h3>사용군이 죽을 수 없었던 시간</h3>
+<p>사용군으로 분류되려면 첫 처방일까지 살아 있어야 합니다. 따라서 사용군의 퇴원일부터 첫 처방일까지는 사망이 있을 수 없는 시간, 곧 불멸시간<span class="en">(immortal time)</span>입니다. 사용군의 추적 시간 가운데 이 시간이 얼마나 되는지 계산합니다. 인년은 추적 일수의 합을 365로 나눈 값입니다(<a href="#lab12-s2">실습 12 나 절</a>).</p>
+<!--FIG:lab16_immortal-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>u = d[d["ever"] == 1]</code>, <code>nu = d[d["ever"] == 0]</code><span>사용군과 비사용군의 표를 따로 떼어 둡니다. 라 절에서도 다시 씁니다.</span></li>
+<li><code>py_u = u["fu_days"].sum() / 365</code><span>잘못된 분석이 사용군에 배정한 인년입니다. 퇴원일부터 추적 종료까지 전부를 사용군의 시간으로 셌습니다.</span></li>
+<li><code>immortal = u["rx_day"].sum() / 365</code><span>사용군 한 사람의 불멸시간은 퇴원일(0일)부터 첫 처방일까지이므로 rx_day 그 자체입니다. 모두 더해 인년으로 바꿉니다.</span></li>
+<li><code>rate_u = u["died"].sum() / py_u * 100</code><span>사망 수를 인년으로 나누고 100을 곱한 100인년당 사망률입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사용군 2,613인년.</b></span></li>
+<li><span class="mk">2</span><span><b>그중 1,142인년(44%)이 첫 처방 전.</b> 사용군 분모의 절반 가까이가 사망이 있을 수 없는 시간입니다.</span></li>
+<li><span class="mk">3</span><span><b>비사용군 2,699인년.</b></span></li>
+<li><span class="mk">4</span><span><b>사망률 12.3 대 33.8.</b> 100인년당 사망 수입니다. 16장 표 16-2의 ①과 같습니다.</span></li>
+<li><span class="mk">5</span><span><b>발생률비 0.36.</b> Cox 모형의 0.37과 거의 같습니다. 편향이 모형이 아니라 인년의 배정에서 온다는 뜻입니다.</span></li>
+</ol>
+<p>편향의 다른 절반은 일찍 사망한 사람이 어느 군에 들어갔는가입니다.</p>
+<!--FIG:lab16_early-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>첫 처방 전에 사망한 사용군 0명.</b> 정의상 있을 수 없습니다. 그 전에 사망했다면 처방을 받지 못해 비사용군이 되었을 것입니다.</span></li>
+<li><span class="mk">2</span><span><b>퇴원 후 3개월 안의 사망 417건.</b> 3개월은 365 × 3 ÷ 12 = 91.25일로 셌습니다.</span></li>
+<li><span class="mk">3</span><span><b>그중 380건이 비사용군.</b> 일찍 사망한 환자는 약을 시작할 기회가 없었으므로 거의 모두 비사용군에 들어갑니다.</span></li>
+<li><span class="mk">4</span><span><b>사용군은 37건.</b> 3개월 안에 약을 시작하고 그 뒤 3개월이 되기 전에 사망한 사람들입니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 잘못된 분석과 그 진단</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p>불멸시간 편향을 다룬 방법론 논문이나 민감도 분석에서는 잘못된 분석의 결과를 비교용으로 싣고, 그 분석에 불멸시간이 얼마나 들어 있었는지를 함께 적습니다.</p>
+<p class="excerpt">For comparison, we repeated the analysis with a time-fixed exposure definition: <span class="mk">1</span> <span class="hl">patients who filled at least one prescription for drug X during follow-up were classified as users from the day of discharge</span>. In this analysis, 1-year mortality was 11.7% among users and 28.0% among non-users <span class="mk">2</span> <span class="hl">(HR, 0.37; 95% CI, 0.32–0.42)</span>. However, <span class="mk">3</span> <span class="hl">1,142 of the 2,613 person-years (44%) attributed to users accrued before the first prescription</span>, when no deaths could occur by definition, and <span class="mk">4</span> <span class="hl">380 of the 417 deaths within 3 months of discharge were assigned to non-users</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>추적 중의 정보로 처음부터 분류.</b> 셀 5의 ever 변수입니다. "time-fixed"는 노출을 추적 내내 고정된 군으로 다뤘다는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>잘못된 분석의 위험비.</b> 셀 7의 값입니다. 이 값을 약의 효과로 제시하면 안 됩니다. 여기서는 편향의 크기를 보여 주는 용도입니다.</span></li>
+<li><span class="mk">3</span><span><b>불멸 인년.</b> 셀 9의 계산입니다. 사용군 인년 가운데 첫 처방 전 시간의 비율을 적으면 편향이 어디서 왔는지 한 문장으로 드러납니다.</span></li>
+<li><span class="mk">4</span><span><b>초기 사망의 쏠림.</b> 셀 10의 값입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>추적 중 한 번이라도 처방받은 사람을 처음부터 사용군으로 두면, 효과 없는 약의 위험비가 0.37(0.32–0.42)로 나옵니다.</li>
+<li>사용군 2,613인년 가운데 1,142인년(44%)이 첫 처방 전의 불멸시간이고, 3개월 안의 사망 417건 가운데 380건이 비사용군에 들어가 있습니다.</li>
+<li>진단에는 전용 함수가 필요 없습니다. 사용군의 첫 처방일 합계와 군별 인년을 pandas로 직접 계산합니다.</li>
+<li>lifelines의 <code>fit</code>에는 <code>formula</code>로 변수를 지정합니다. 지정하지 않으면 결측이 있는 열까지 모형에 들어가 오류가 납니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab16-s3">
+<h2><span class="sec-no">다.</span>랜드마크 분석</h2>
+
+<p>첫 번째 해법인 랜드마크 분석<span class="en">(landmark analysis)</span>은 time zero를 옮깁니다(<a href="#ch16-s2">16장 나 절</a>). 미리 정한 시점(랜드마크)에 살아 있는 사람만 남기고, 그 시점까지의 처방 여부로 군을 나눈 뒤, 그 시점부터 추적합니다. 16장과 같이 3개월을 주 분석으로 하고 1개월과 6개월로 바꿔 봅니다.</p>
+
+<h3>3개월 랜드마크 자료 만들기</h3>
+<!--FIG:lab16_lmdata-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>L = 365 * 3 / 12</code><span>랜드마크 시점을 일수로 적습니다. 3개월은 91.25일입니다.</span></li>
+<li><code>lm = d[d["fu_days"] &gt; L].copy()</code><span>추적 일수가 랜드마크보다 긴 사람, 곧 그 시점에 살아서 추적 중인 사람만 남깁니다. <code>.copy()</code>는 원래 표와 분리해 새 열을 추가해도 경고가 나지 않게 합니다.</span></li>
+<li><code>lm["exposed"] = (lm["rx_day"] &lt;= L).astype(int)</code><span>랜드마크까지 첫 처방을 받았으면 1입니다. 처방이 없는 사람의 rx_day는 <code>NaN</code>이라 비교 결과가 False, 곧 0이 됩니다. 랜드마크 뒤에 시작한 사람도 0입니다. 그 뒤의 정보로는 군을 바꾸지 않는다는 규칙이 이 한 줄에 들어 있습니다.</span></li>
+<li><code>lm["t_lm"] = lm["fu_days"] - L</code><span>랜드마크를 새 0일로 삼은 추적 일수입니다.</span></li>
+<li><code>((lm["exposed"] == 0) &amp; (lm["ever"] == 1)).sum()</code><span>비노출군이면서 나중에 약을 시작한 사람의 수입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>대상자 5,583명.</b></span></li>
+<li><span class="mk">2</span><span><b>제외 417명.</b> 3개월 전에 사망한 사람입니다. 셀 10의 417건과 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>비노출군 가운데 1,763명은 3개월 뒤에 시작.</b> 비노출군의 37.9%이며 그대로 비노출군에 남습니다.</span></li>
+<li><span class="mk">4</span><span><b>비노출군 4,649명, 사망 686명.</b></span></li>
+<li><span class="mk">5</span><span><b>노출군 934명, 사망 131명.</b></span></li>
+<li><span class="mk">6</span><span><b>비노출군의 이후 9개월 사망 위험 14.8%.</b></span></li>
+<li><span class="mk">7</span><span><b>노출군 14.0%.</b> 나 절에서 28.0% 대 11.7%이던 차이가 사라졌습니다. 16장 나 절 '숫자로 따라가기'의 표와 같습니다.</span></li>
+</ol>
+
+<h3>랜드마크부터의 곡선과 위험비</h3>
+<!--FIG:lab16_lmfit-->
+<h4>그림과 출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>HR 0.94 (0.78–1.14).</b> 신뢰구간이 1을 포함합니다. 가로축은 3개월 랜드마크 뒤의 일수(Days since the 3-month landmark)이고 0일이 퇴원 후 3개월입니다. 3개월까지 시작한 군(Exposed by 3 months)과 비노출군(Unexposed)의 곡선이 가깝게 붙어 내려갑니다. 나 절의 그림과 세로축 범위가 같으니 두 그림을 나란히 비교해 보세요.</span></li>
+</ol>
+
+<h3>랜드마크 시점 바꿔 보기</h3>
+<p>같은 계산을 시점만 바꿔 반복하므로 함수로 묶습니다. 셀 11과 셀 12의 코드를 그대로 옮기고, 결과를 사전(dict)으로 돌려주게 했습니다.</p>
+<!--FIG:lab16_lmtable-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def landmark(d, months):</code><span>자료와 랜드마크 시점(개월)을 받는 함수입니다. 안의 네 줄은 셀 11과 같고 3이 <code>months</code>로 바뀌었습니다.</span></li>
+<li><code>e, ne = lm[lm["exposed"] == 1], lm[lm["exposed"] == 0]</code><span>노출군과 비노출군의 표를 한 줄에서 두 변수에 나눠 담습니다.</span></li>
+<li><code>round(ne["ever"].mean() * 100, 1)</code><span>비노출군에서 ever가 1인 사람의 비율, 곧 랜드마크 뒤에 약을 시작한 사람의 비율(%)입니다.</span></li>
+<li><code>return {"month": months, "n": len(lm), …}</code><span>결과를 이름표가 붙은 값들의 묶음(사전)으로 돌려줍니다.</span></li>
+<li><code>pd.DataFrame([landmark(d, m) for m in [1, 3, 6]])</code><span>1, 3, 6개월로 함수를 세 번 부르고, 사전 세 개를 표의 세 행으로 만듭니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>n.</b> 랜드마크 시점의 생존자 수입니다. 시점을 늦출수록 줄어듭니다(5,820 → 5,583 → 5,288). excluded는 그 전에 사망해 빠진 사람입니다.</span></li>
+<li><span class="mk">2</span><span><b>exposed.</b> 그 시점까지 약을 시작한 사람입니다. 1개월에는 349명뿐이고 6개월에는 1,580명입니다.</span></li>
+<li><span class="mk">3</span><span><b>late start %.</b> 비노출군 가운데 나중에 약을 시작하는 사람의 비율입니다. 이른 랜드마크일수록 높습니다(43.5%). 약에 실제 효과가 있다면 이 비율만큼 비노출군에도 효과가 섞입니다.</span></li>
+<li><span class="mk">4</span><span><b>deaths.</b> 랜드마크 뒤의 사망 수(노출군 / 비노출군)입니다. 3개월에서 131 + 686 = 817건으로, 전체 1,234건에서 3개월 전 사망 417건이 빠졌습니다.</span></li>
+<li><span class="mk">5</span><span><b>HR (95% CI).</b> 세 시점 모두 신뢰구간이 1을 포함합니다. 16장의 표 16-3과 같습니다.</span></li>
+</ol>
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>마지막 줄의 <code>[1, 3, 6]</code>을 <code>[2, 9]</code>로 바꿔 실행해 보세요. 2개월은 1.03 (0.84–1.26), 9개월은 0.99 (0.77–1.26)입니다. 9개월에서는 973명이 빠지고 남은 사망이 261건(107 + 154)뿐입니다. 시점을 늦출수록 잃는 것이 많아집니다. 실제 연구에서는 결과를 보고 시점을 고르지 않고 분석 전에 정합니다.</p></div>
+<div class="callout warn"><p class="ct">흔한 오해 · 랜드마크 분석의 결과</p>
+<p><span class="wrong">3개월 랜드마크 분석의 위험비는 퇴원 환자 전체에 대한 약의 효과다.</span> 3개월까지 살아남은 5,583명에 대한 결과입니다. 그 전에 사망한 417명에게는 적용되지 않고, 비노출군의 37.9%가 나중에 약을 시작하므로 효과가 있는 약이라면 차이가 희석됩니다(<a href="#ch16-s2">16장 나 절</a> '무엇에 답하고 무엇을 잃는가').</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 랜드마크 분석의 Methods와 Results</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> To avoid immortal time bias, we performed a landmark analysis with <span class="mk">1</span> <span class="hl">the landmark prespecified at 3 months after discharge</span>. Patients who died before the landmark were excluded. Patients who had filled a prescription for drug X by the landmark were classified as exposed; <span class="mk">2</span> <span class="hl">those who initiated drug X after the landmark remained in the unexposed group</span>. Follow-up started at the landmark. Landmarks at 1 and 6 months were used in sensitivity analyses.</p>
+<p class="excerpt"><b>Results.</b> <span class="mk">3</span> <span class="hl">Of 6,000 patients, 5,583 were alive at 3 months</span>, of whom 934 had initiated drug X. Between the landmark and 1 year, 131 exposed patients (14.0%) and 686 unexposed patients (14.8%) died <span class="mk">4</span> <span class="hl">(HR, 0.94; 95% CI, 0.78–1.14)</span>. <span class="mk">5</span> <span class="hl">Results were similar with landmarks at 1 month (HR, 1.06; 95% CI, 0.82–1.36) and 6 months (HR, 1.06; 95% CI, 0.88–1.27)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>미리 정한 시점.</b> 실습에서는 16장을 따라 3개월로 두었습니다. 실제 연구에서 "prespecified"라고 쓰려면 자료를 보기 전에 계획서에 적어 둔 시점이어야 합니다.</span></li>
+<li><span class="mk">2</span><span><b>나중에 시작한 사람은 비노출군.</b> 셀 11의 <code>(lm["rx_day"] &lt;= L)</code> 한 줄이 이 문장입니다.</span></li>
+<li><span class="mk">3</span><span><b>대상자 수와 제외된 수.</b> 셀 11의 5,583명입니다. 6,000 − 5,583 = 417명이 랜드마크 전에 사망했습니다.</span></li>
+<li><span class="mk">4</span><span><b>랜드마크 이후의 위험비.</b> 셀 12의 값입니다. "3개월 생존자에서, 3개월까지 약을 시작한 사람의 이후 사망 위험률이 시작하지 않은 사람의 0.94배"로 읽습니다.</span></li>
+<li><span class="mk">5</span><span><b>시점을 바꾼 민감도 분석.</b> 셀 13의 표입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>랜드마크 분석은 세 줄로 만듭니다. 랜드마크에 살아 있는 사람만 남기고(<code>fu_days &gt; L</code>), 그때까지의 처방으로 군을 정하고(<code>rx_day &lt;= L</code>), 추적 일수에서 랜드마크를 뺍니다.</li>
+<li>3개월 랜드마크의 위험비는 0.94(0.78–1.14)이고 1개월과 6개월도 1과 구별되지 않습니다. 나 절의 0.37과 달리 효과 없음과 맞습니다.</li>
+<li>대가로 랜드마크 전 사망(3개월에서 417건)을 잃고, 나중에 시작한 사람(비노출군의 37.9%)이 비노출군에 남습니다. 결과는 랜드마크 생존자에 대한 것입니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab16-s4">
+<h2><span class="sec-no">라.</span>시간의존 Cox 모형</h2>
+
+<p>두 번째 해법은 사람을 두 군으로 나누지 않고 시간을 두 상태로 나누는 것입니다(<a href="#ch16-s3">16장 다 절</a>). 약을 시작한 환자의 추적 시간을 첫 처방일에서 잘라 앞부분은 비노출, 뒷부분은 노출로 셉니다. 이렇게 시간에 따라 값이 바뀌는 노출이 시간의존 노출<span class="en">(time-varying exposure)</span>입니다. 그러려면 한 사람 한 줄인 자료를 한 사람이 여러 줄인 <strong>긴 형식</strong><span class="en">(long format)</span>으로 바꿔야 합니다. <a href="#lab11-s3">실습 11 다 절</a>에서는 모든 환자를 같은 시점(3년)에서 나눴습니다. 여기서는 환자마다 다른 시점(자기의 첫 처방일)에서 나누고, 나뉜 두 줄의 노출 값이 다릅니다.</p>
+
+<h3>긴 형식으로 바꾸기</h3>
+<p>환자는 두 종류입니다. 약을 시작한 사람은 처방 전과 처방 후의 두 줄이 되고, 시작하지 않은 사람은 한 줄 그대로입니다. 세 가지 줄을 따로 만든 뒤 이어 붙입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:46rem">
+<thead><tr><th>표 이름</th><th>누구의 어느 구간</th><th class="r">start</th><th class="r">stop</th><th class="r">drugx</th><th class="r">died</th></tr></thead>
+<tbody>
+<tr><td>before</td><td>시작한 사람의 처방 전</td><td class="r">0</td><td class="r">rx_day</td><td class="r">0</td><td class="r">0</td></tr>
+<tr><td>after</td><td>시작한 사람의 처방 후</td><td class="r">rx_day</td><td class="r">fu_days</td><td class="r">1</td><td class="r">원래의 died</td></tr>
+<tr><td>never</td><td>시작하지 않은 사람의 전 기간</td><td class="r">0</td><td class="r">fu_days</td><td class="r">0</td><td class="r">원래의 died</td></tr>
+</tbody></table></div>
+<!--FIG:lab16_long-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>u = d[d["ever"] == 1]</code>, <code>nu = d[d["ever"] == 0]</code><span>셀 9와 같습니다. 약을 시작한 2,734명과 시작하지 않은 3,266명입니다.</span></li>
+<li><code>before = pd.DataFrame({"id": u["id"], "start": 0.0, "stop": u["rx_day"], "drugx": 0, "died": 0})</code><span>열 이름과 값을 짝지어 새 표를 만듭니다. <code>u["id"]</code>와 <code>u["rx_day"]</code>는 2,734개 값이 든 열이고, <code>0.0</code>과 <code>0</code>처럼 숫자 하나를 적으면 모든 줄에 같은 값이 채워집니다. 뜻은 "퇴원일(0)부터 첫 처방일까지, 비노출, 이 구간 끝에 사망 없음"입니다. 첫 처방을 받은 날에는 살아 있었으므로 died는 반드시 0입니다.</span></li>
+<li><code>after = pd.DataFrame({…, "start": u["rx_day"], "stop": u["fu_days"], "drugx": 1, "died": u["died"]})</code><span>같은 2,734명의 둘째 줄입니다. 첫 처방일에서 시작해 추적 종료일에 끝나고 노출 상태입니다. 원래의 사망 여부는 이 줄에만 적습니다.</span></li>
+<li><code>never = pd.DataFrame({…, "start": 0.0, "stop": nu["fu_days"], "drugx": 0, "died": nu["died"]})</code><span>약을 시작하지 않은 3,266명은 처음부터 끝까지 비노출인 한 줄입니다.</span></li>
+<li><code>long = pd.concat([before, after, never])</code><span>세 표를 위아래로 이어 붙입니다. 2,734 + 2,734 + 3,266 = 8,734줄입니다.</span></li>
+<li><code>long.sort_values(["id", "start"]).reset_index(drop=True)</code><span>환자 번호, 구간 시작 순으로 정렬해 한 환자의 줄이 시간 순서대로 붙어 있게 합니다. 세 표가 원래의 행 번호를 달고 와서 번호가 겹치므로 <code>reset_index(drop=True)</code>로 0부터 새로 매깁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>6,000명이 8,734줄.</b> 약을 시작한 2,734명이 두 줄씩 되었습니다. 16장 다 절의 8,734줄과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>0번 환자.</b> 약을 시작하지 않고 177.8일째에 사망했습니다. 한 줄이고 drugx 0, died 1입니다.</span></li>
+<li><span class="mk">3</span><span><b>2번 환자의 첫 줄.</b> 0일부터 249.9일까지 비노출이고 died 0입니다. 나 절의 분석은 이 249.9일을 사용군의 시간으로 셌습니다.</span></li>
+<li><span class="mk">4</span><span><b>2번 환자의 둘째 줄.</b> 249.9일부터 365일까지 노출이고, 1년까지 생존했으므로 died 0입니다.</span></li>
+</ol>
+
+<h3>표 16-4의 환자 세 명</h3>
+<p>16장 표 16-4에 실린 환자 A, B, C는 이 자료의 298번, 64번, 3번입니다. 방금 만든 자료에서 꺼내 표와 같은지 확인합니다.</p>
+<!--FIG:lab16_three-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ex = {298: "A", 64: "B", 3: "C"}</code><span>환자 번호와 표 16-4의 이름을 짝지은 사전입니다.</span></li>
+<li><code>long[long["id"].isin(ex)]</code><span>id가 사전의 번호(298, 64, 3) 가운데 하나인 줄만 고릅니다.</span></li>
+<li><code>t["patient"] = t["id"].map(ex)</code><span>번호를 이름으로 바꾼 열을 만듭니다(<a href="#lab02-s1">실습 2 가 절</a>의 <code>map</code>).</span></li>
+<li><code>t[["start", "stop"]] = t[["start", "stop"]].round().astype(int)</code><span>표 16-4처럼 일수를 정수로 반올림해 보여 줍니다. 분석에는 반올림하지 않은 <code>long</code>을 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>환자 A의 첫 줄.</b> 126일째 첫 처방 전까지 비노출입니다.</span></li>
+<li><span class="mk">2</span><span><b>환자 A의 둘째 줄.</b> 노출 상태로 301일째에 사망했습니다. 사망은 이 줄에만 1로 적혀 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>환자 B.</b> 약을 시작하지 않고 44일째에 사망해 한 줄입니다.</span></li>
+<li><span class="mk">4</span><span><b>환자 C.</b> 49일째에 시작해 365일까지 생존했습니다. 다섯 줄 모두 표 16-4와 같습니다.</span></li>
+</ol>
+
+<h3>긴 형식 자료 점검</h3>
+<p>긴 형식 자료의 오류는 모형이 알려 주지 않습니다. 틀린 자료도 오류 없이 적합되어 그럴듯한 위험비를 냅니다. <a href="#ch16-s3">16장 다 절</a> '내 연구에 쓸 때'의 확인 항목을 코드로 옮깁니다. 구간이 겹치거나 비지 않는지, 사망이 마지막 줄에만 있는지, 인년의 합이 원래 자료와 같은지입니다.</p>
+<!--FIG:lab16_longcheck-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>g = long.groupby("id")</code><span>환자별로 묶은 것을 변수에 담아 여러 번 씁니다.</span></li>
+<li><code>prev_stop = g["stop"].shift()</code><span><code>shift()</code>는 값을 한 줄 아래로 밉니다. 환자별로 묶은 뒤에 쓰면 같은 환자 안에서만 밉니다. 환자의 첫 줄은 앞 줄이 없어 <code>NaN</code>, 둘째 줄에는 그 환자 첫 줄의 stop이 들어갑니다.</span></li>
+<li><code>second = long[prev_stop.notna()]</code><span>앞 줄이 있는 줄, 곧 둘째 줄만 고릅니다.</span></li>
+<li><code>(second["start"] == prev_stop.dropna()).all()</code><span>둘째 줄의 start가 앞 줄의 stop과 같은지 줄마다 비교하고, <code>.all()</code>로 전부 True인지 확인합니다. 다른 줄이 있으면 구간이 겹치거나 빈 것입니다.</span></li>
+<li><code>(long["stop"] &lt;= long["start"]).sum()</code><span>길이가 0이거나 음수인 구간의 수입니다. 퇴원 당일 처방처럼 start와 stop이 같은 줄이 있으면 미리 정리해야 합니다.</span></li>
+<li><code>last = g.tail(1)</code><span>환자마다 마지막 한 줄을 뽑습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>둘째 줄 2,734줄.</b> 약을 시작한 사람의 수와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>True.</b> 모든 둘째 줄이 첫 줄이 끝난 시점에서 시작합니다.</span></li>
+<li><span class="mk">3</span><span><b>길이가 0 이하인 구간 0줄.</b></span></li>
+<li><span class="mk">4</span><span><b>사망 1,234건이 모두 마지막 줄에 있고 원자료와 같습니다.</b></span></li>
+<li><span class="mk">5</span><span><b>인년 합계 5,312.</b> 원자료의 전체 추적 시간과 같습니다. 줄을 나눠도 시간의 총량은 변하지 않아야 합니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">주의 · 사망을 두 줄에 모두 적는 실수</p>
+<p>가장 흔한 실수는 <code>before</code>의 died에도 원래의 사망 여부(<code>u["died"]</code>)를 넣는 것입니다. 그러면 사용자의 사망 321건이 두 번 세어져 사건이 1,555건이 되고, 이 자료에서 위험비가 0.81(0.71–0.92)로 나옵니다. 오류 메시지는 없습니다. 셀 16처럼 사망 수를 원자료와 맞춰 보면 바로 드러납니다.</p></div>
+
+<h3>노출 상태별 사망, 인년, 사망률</h3>
+<p>긴 형식 자료에서는 줄마다 구간의 길이가 그 줄의 인년이고, drugx가 그 인년의 노출 상태입니다. 노출 상태별로 더하면 논문의 결과표가 됩니다.</p>
+<!--FIG:lab16_pytable-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>long["py"] = (long["stop"] - long["start"]) / 365</code><span>줄마다 구간의 길이를 연으로 바꾼 열입니다.</span></li>
+<li><code>long.groupby("drugx").agg(deaths=("died", "sum"), py=("py", "sum"))</code><span>노출 상태별로 사망 수와 인년을 더합니다. <code>새 이름=("열", "함수")</code> 형식은 <a href="#lab04-s4">실습 4 라 절</a>에서 쓴 것과 같습니다.</span></li>
+<li><code>t3.round({"py": 0, "rate": 1})</code><span>열마다 반올림 자릿수를 다르게 줍니다. 인년은 정수로, 사망률은 소수 첫째 자리로 보여 줍니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>발생률비 0.92.</b> 21.8 ÷ 23.8입니다. 보정하지 않은 단순한 비입니다.</span></li>
+<li><span class="mk">2</span><span><b>비노출 상태의 사망 913건.</b> 약을 시작하지 않은 사람의 사망입니다. 약을 시작한 사람은 처방 전에 사망할 수 없으므로 여기에 보태는 사망이 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>비노출 3,841인년.</b> 비사용자의 2,699인년에 사용자의 처방 전 1,142인년을 더한 값입니다(셀 9). 나 절에서 사용군에 잘못 들어갔던 시간이 제자리로 왔습니다.</span></li>
+<li><span class="mk">4</span><span><b>비노출 사망률 100인년당 23.8.</b></span></li>
+<li><span class="mk">5</span><span><b>노출 1,471인년.</b> 2,613 − 1,142입니다. 사망은 321건입니다.</span></li>
+<li><span class="mk">6</span><span><b>노출 사망률 21.8.</b> 나 절의 12.3 대 33.8이 21.8 대 23.8이 되었습니다. 사망 수는 그대로이고 분모만 달라졌습니다.</span></li>
+</ol>
+
+<h3>시간의존 Cox 모형</h3>
+<p><code>CoxTimeVaryingFitter</code>의 사용법은 <a href="#lab11-s3">실습 11 다 절</a>과 같습니다. 환자 번호, 사건, 구간의 시작과 끝 열을 알려 주고 <code>formula</code>에 노출 변수를 적습니다.</p>
+<!--FIG:lab16_ctv-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>구간 8,734개, 환자 6,000명.</b> 셀 14의 줄 수와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>사건 1,234건.</b> 원자료의 사망 수와 같은지 여기서도 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>coef 0.031.</b> 로그 위험비입니다.</span></li>
+<li><span class="mk">4</span><span><b>exp(coef) 1.031.</b> 위험비입니다. "퇴원 후 같은 시점에, 이미 약을 시작한 사람의 사망 위험률이 아직 시작하지 않은 사람의 1.03배"로 읽습니다.</span></li>
+<li><span class="mk">5</span><span><b>95% 신뢰구간 하한 0.900.</b> 출력 칸을 오른쪽으로 밀면 보입니다.</span></li>
+<li><span class="mk">6</span><span><b>상한 1.182.</b> 1을 포함합니다. 논문에는 HR 1.03 (95% CI 0.90–1.18)로 적습니다.</span></li>
+<li><span class="mk">7</span><span><b>P = 0.656.</b> 약물 X와 사망 위험률 사이에 관련이 있다는 근거가 없습니다. 16장 다 절의 출력 상자와 숫자가 모두 같습니다.</span></li>
+</ol>
+<p>셀 17의 단순한 발생률비는 0.92인데 Cox 모형의 위험비는 1.03입니다. 사망률은 누구에게나 퇴원 직후에 가장 높고, 노출 시간은 주로 추적 후반에 있기 때문입니다. Cox 모형은 사망이 일어난 시점마다 그 시점에 추적 중인 사람들을 그때의 노출 값으로 비교하므로 이 차이를 걸러 냅니다(<a href="#ch16-s3">16장 다 절</a> '숫자로 따라가기').</p>
+
+<h3>lifelines 함수로 같은 자료 만들기</h3>
+<p>lifelines에는 긴 형식을 만들어 주는 함수가 있습니다. 직접 만든 자료와 결과가 같은지 확인해 둡니다. 과제 3에서 이 함수의 <code>delay</code> 인자를 씁니다.</p>
+<!--FIG:lab16_utils-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>base = to_long_format(d[["id", "fu_days", "died"]], duration_col="fu_days")</code><span>한 사람 한 줄 자료에 start = 0, stop = 추적 일수 열을 만들어 긴 형식의 출발점으로 삼습니다. 필요한 세 열만 골라 넣었습니다.</span></li>
+<li><code>rx = d.loc[d["ever"] == 1, ["id", "rx_day"]].assign(drugx=1)</code><span>약을 시작한 사람의 번호와 첫 처방일만 뽑고, 값이 모두 1인 drugx 열을 붙입니다. "이 사람은 이 시점부터 drugx가 1"이라는 사건 목록입니다.</span></li>
+<li><code>add_covariate_to_timeline(base, rx, id_col="id", duration_col="rx_day", event_col="died")</code><span><code>rx</code>에 적힌 시점(<code>duration_col</code>)에서 그 환자의 줄을 나누고, 그 뒤 구간에 drugx = 1을 넣습니다. <code>event_col</code>은 사건 열의 이름이며 사망은 마지막 줄에만 남습니다.</span></li>
+<li><code>long2["drugx"] = long2["drugx"].fillna(0).astype(int)</code><span>처방 전 구간과 시작하지 않은 사람의 drugx는 비어 있습니다(<code>NaN</code>). <code>fillna(0)</code>은 결측을 0으로 채웁니다. 이 줄을 빼먹으면 적합할 때 셀 8과 같은 결측 오류가 납니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>8,734줄, HR 1.03 (0.90–1.18).</b> 직접 만든 자료와 줄 수도 위험비도 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>2번 환자.</b> 249.9일에서 두 줄로 나뉘었습니다. 셀 14와 같고, 16장 다 절의 출력 상자와도 같습니다.</span></li>
+</ol>
+<p>함수가 있는데도 직접 짜 본 이유가 있습니다. 실제 연구의 노출 정의는 '현재 사용'(공급일수와 유예기간이 끝나면 비노출로 복귀)이나 누적 처방량처럼 더 복잡해서, 줄이 어떻게 나뉘어야 하는지를 스스로 그릴 수 있어야 함수의 결과를 점검할 수 있습니다.</p>
+
+<h3>세 분석 비교</h3>
+<!--FIG:lab16_compare-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>추적 중 사용 여부로 처음부터 분류.</b> 0.37로, 효과 없는 약이 사망을 크게 줄이는 것처럼 보입니다.</span></li>
+<li><span class="mk">2</span><span><b>3개월 랜드마크.</b> 0.94이고 신뢰구간이 1을 포함합니다. 3개월 생존자에 대한 결과입니다.</span></li>
+<li><span class="mk">3</span><span><b>시간의존 노출.</b> 1.03이고 신뢰구간이 1을 포함합니다. 모든 환자와 모든 사망을 씁니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">흔한 오해 · 시간의존 분석</p>
+<p><span class="wrong">시간의존 노출로 분석했으니 편향이 없다.</span> 바로잡은 것은 불멸시간뿐입니다. 이 가상 자료에는 교란이 없어서 1.03이 나왔습니다. 실제 자료에서는 약을 시작한 사람과 그렇지 않은 사람의 예후 차이를 기저 공변량 보정이나 성향점수로 따로 다뤄야 합니다(<a href="#ch16-s3">16장 다 절</a> 흔한 오해, <a href="#lab15">실습 15</a>).</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 시간의존 노출의 Methods와 결과표</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> <span class="mk">1</span> <span class="hl">Use of drug X was treated as a time-varying exposure</span>. <span class="mk">2</span> <span class="hl">Person-time from discharge until the first prescription was classified as unexposed</span>, and person-time thereafter as exposed until the end of follow-up, regardless of discontinuation. Hazard ratios were estimated with a Cox model with time since discharge as the time scale.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> All-cause death according to time-varying use of drug X</caption>
+<thead><tr><th>Exposure status</th><th class="r">Deaths</th><th class="r"><span class="mk">3</span> Person-years</th><th class="r">Rate per 100 person-years</th><th class="r"><span class="mk">4</span> HR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>Unexposed</td><td class="r">913</td><td class="r">3,841</td><td class="r">23.8</td><td class="r">1 (reference)</td></tr>
+<tr><td>Exposed</td><td class="r">321</td><td class="r">1,471</td><td class="r">21.8</td><td class="r">1.03 (0.90–1.18)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">HR, hazard ratio. <span class="mk">5</span> Unexposed person-time includes 1,142 person-years contributed by 2,734 patients before their first prescription of drug X.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시간의존 노출.</b> 셀 14에서 만든 긴 형식 자료와 셀 18의 모형을 한 문장으로 적은 것입니다.</span></li>
+<li><span class="mk">2</span><span><b>첫 처방 전은 비노출.</b> 불멸시간을 어떻게 처리했는지 알려 주는 문장입니다. 셀 14의 <code>before</code> 표가 이 문장입니다. 뒤의 "regardless of discontinuation"은 한번 시작하면 계속 노출로 보았다는 뜻으로, <code>after</code> 표가 추적 종료까지 한 줄인 것과 맞습니다.</span></li>
+<li><span class="mk">3</span><span><b>인년.</b> 셀 17의 표입니다. 군별 환자 수가 아니라 노출 상태별 인년을 싣습니다. 약을 시작한 사람은 두 줄 모두에 시간을 보태기 때문입니다. 3,841 + 1,471 = 5,312인년이 전체 추적 시간입니다.</span></li>
+<li><span class="mk">4</span><span><b>위험비.</b> 셀 18의 값입니다. "약물 X 사용 중의 사망 위험률이 비사용 기간의 1.03배"이며, 약을 쓴 사람의 1년 사망 위험이 몇 % 다르다는 뜻이 아닙니다.</span></li>
+<li><span class="mk">5</span><span><b>각주.</b> 셀 9의 1,142인년입니다. 이 각주가 있으면 독자가 처방 전 시간이 어디로 갔는지 확인할 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>긴 형식은 세 가지 줄을 만들어 이어 붙입니다. 시작한 사람의 처방 전(비노출, 사망 0), 처방 후(노출, 원래의 사망 여부), 시작하지 않은 사람의 전 기간(비노출)입니다. 6,000명이 8,734줄이 됩니다.</li>
+<li>적합하기 전에 구간이 이어지는지, 사망이 마지막 줄에만 있고 수가 원자료와 같은지(1,234건), 인년의 합이 같은지(5,312인년)를 확인합니다. 틀린 자료도 오류 없이 적합됩니다.</li>
+<li>노출 상태별로 사망 913건 ÷ 3,841인년(23.8), 321건 ÷ 1,471인년(21.8)이고, 시간의존 Cox 모형의 위험비는 1.03(0.90–1.18)입니다.</li>
+<li>lifelines의 <code>to_long_format</code>과 <code>add_covariate_to_timeline</code>으로 같은 자료를 만들 수 있습니다. 결측으로 남는 노출 값은 <code>fillna(0)</code>으로 채웁니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="lab16-s5">
+<h2><span class="sec-no">마.</span>과제</h2>
+
+<p>위 셀들을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 코드를 짜 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 랜드마크 뒤의 처방까지 넣어 군을 나누면</h3>
+<p>3개월 랜드마크 분석에서 군을 '3개월까지 시작했는가'(exposed)가 아니라 '1년 안에 한 번이라도 시작했는가'(ever)로 나누고, 3개월부터 추적한 위험비를 구해 보세요. 셀 11과 셀 12에서 한 곳만 바꾸면 됩니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab16_hw1-->
+<p>위험비가 0.53(0.46–0.62) <span class="mk">1</span>으로 다시 크게 치우칩니다. 3개월 생존자만 남겼어도, 랜드마크 뒤에 약을 시작한 1,763명 <span class="mk">2</span>이 처음부터 사용군에 들어갔기 때문입니다. 이들의 3개월부터 첫 처방까지 584인년이 새 불멸시간입니다. 랜드마크 분석이 불멸시간을 막는 것은 군을 랜드마크 시점까지의 정보로만 정할 때에 한합니다(<a href="#ch16-s2">16장 나 절</a> 흔한 오해). 나 절의 0.37보다 덜 치우친 것은 불멸시간이 1,142인년에서 584인년으로 줄었고, 사망률이 가장 높은 첫 3개월이 분석에서 빠졌기 때문입니다.</p>
+</div></details>
+
+<h3>과제 2. 첫 처방 전 시간을 버리기만 하면</h3>
+<p>불멸시간이 문제라면 그 시간을 빼면 될 것 같습니다. 사용군은 첫 처방일부터, 비사용군은 퇴원일부터 추적하는 자료를 만들어 군별 100인년당 사망률, 발생률비, Cox 모형의 위험비를 구해 보세요. 힌트. 사용군의 추적 일수는 <code>fu_days - rx_day</code>입니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab16_hw2-->
+<p>사용군의 인년이 1,471 <span class="mk">1</span>로 줄어 사망률은 21.8로 바로잡히지만, 비사용군은 33.8 그대로여서 발생률비가 0.65 <span class="mk">2</span>, 위험비가 0.58(0.51–0.66) <span class="mk">3</span>입니다. 16장 표 16-2의 ②와 같습니다. 여전히 치우치는 이유는 두 가지입니다. 버린 1,142인년은 사망 없이 지나간 비노출 시간이어서 비노출 쪽 분모에 있어야 하는데 빠졌고, 퇴원 직후의 사망은 여전히 비사용군에만 있습니다. 또 두 군의 0일이 서로 다른 날이어서(사용군은 첫 처방일, 비사용군은 사망률이 가장 높은 퇴원일) Cox 모형이 같은 시기끼리 비교하지 못합니다. 불멸시간은 버리는 것이 아니라 비노출로 옮겨야 합니다(라 절).</p>
+</div></details>
+
+<h3>과제 3. 시차를 둔 노출</h3>
+<p>첫 처방 뒤 30일까지를 비노출로 세는 시차<span class="en">(lag time)</span> 30일의 긴 형식 자료를 만들어, 노출 상태별 사망 수와 인년, 시간의존 Cox 모형의 위험비를 구해 보세요(<a href="#ch16-s3">16장 다 절</a> '노출을 정의하는 여러 방법'의 ③). 셀 14를 시차를 받는 함수로 고치면 됩니다. 힌트. 노출로 바뀌는 날은 <code>rx_day + 30</code>이고, 그날이 추적 종료일보다 늦은 사람은 끝까지 비노출입니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab16_hw3-->
+<p>셀 14와 다른 곳은 처음 세 줄입니다. 노출로 바뀌는 날 <code>sw</code>를 만들고, 그날이 추적 종료일보다 이른 사람(<code>s</code>)만 두 줄로 나눕니다. 처방이 없는 사람은 <code>sw</code>가 <code>NaN</code>이어서 <code>s</code>가 False가 되고, 처방 뒤 30일이 되기 전에 추적이 끝난 179명도 False가 되어 한 줄로 남습니다. 그래서 8,555줄 <span class="mk">1</span>입니다(6,000 + 2,555). 노출 상태의 사망은 321건에서 270건으로, 인년은 1,471에서 1,254 <span class="mk">2</span>로 줄었습니다. 첫 처방 뒤 30일 안의 사망 51건과 그 시간이 비노출로 옮겨졌습니다. 위험비는 1.03(0.89–1.19) <span class="mk">3</span>으로 시차가 없을 때와 거의 같고 신뢰구간만 조금 넓어졌습니다. 이 자료에는 초기 증상 때문에 나간 처방이 없으므로 시차를 두어도 결과가 달라지지 않는 것이 맞습니다. <a href="#ch16-s4">16장 라 절</a>의 PPI 예제처럼 처방 직후에 사건이 몰려 있는 자료에서는 시차에 따라 위험비가 크게 달라집니다.</p>
+<p>lifelines의 <code>add_covariate_to_timeline</code>에 <code>delay=30</code>을 주면 같은 자료가 만들어집니다 <span class="mk">4</span>. 줄 수가 같고, <code>fillna(0)</code>을 한 뒤 적합하면 위험비도 1.03(0.89–1.19)으로 같습니다.</p>
+</div></details>
+</section>

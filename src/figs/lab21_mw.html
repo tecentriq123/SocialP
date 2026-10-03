@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">중앙값 차이와 Mann-Whitney 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">med_diff = np.median(a) - np.median(b)
+mw = stats.mannwhitneyu(a, b)
+print(&quot;중앙값 A, B:&quot;, np.median(a), np.median(b),
+      &quot; 차이:&quot;, round(med_diff, 1))
+print(&quot;Mann-Whitney U =&quot;, mw.statistic, &quot; p =&quot;, mw.pvalue)
+print(&quot;A군 환자의 비용이 더 클 확률:&quot;,
+      round(mw.statistic / (len(a) * len(b)), 3))
+
+print(&quot;총액 차이, 평균 차이 x 1,203명  :&quot;, round(diff * len(a)))
+print(&quot;총액 차이, 중앙값 차이 x 1,203명:&quot;, round(med_diff * len(a)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>중앙값 A, B: 2462.3 1836.4  차이: 625.9<span class="mk">1</span>
+Mann-Whitney U = 1465369.0  p = 2.0<span class="mk">2</span>37715838923188e-61
+A군 환자의 비용이 더 클 확률: 0.678<span class="mk">3</span>
+총액 차이, 평균 차이 x 1,203명  : 476477<span class="mk">4</span>
+총액 차이, 중앙값 차이 x 1,203명: 752958<span class="mk">5</span></pre></div></div>

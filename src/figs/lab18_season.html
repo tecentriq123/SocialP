@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">계절 항을 넣은 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">its[&quot;sin12&quot;] = np.sin(2 * np.pi * its[&quot;time&quot;] / 12)
+its[&quot;cos12&quot;] = np.cos(2 * np.pi * its[&quot;time&quot;] / 12)
+
+fit_s = smf.ols(f + &quot; + sin12 + cos12&quot;, data=its).fit(
+    cov_type=&quot;HAC&quot;, cov_kwds={&quot;maxlags&quot;: 3})
+print(fit_s.summary().tables[1])
+print(&quot;Durbin-Watson:&quot;, round(durbin_watson(fit_s.resid), 3))
+print(&quot;residual SD  :&quot;, round(np.sqrt(fit0.scale), 2), &quot;-&gt;&quot;,
+      round(np.sqrt(fit_s.scale), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     95.4586      0.643    148.385      0.000      94.198      96.719
+time          -0.2333      0.027     -8.658      0.000      -0.286      -0.181
+post          -7.7717      0.712    -10.910      0.000      -9.168      -6.376<span class="mk">1</span>
+time_after    -0.2153      0.040     -5.372      0.000      -0.294      -0.137<span class="mk">2</span>
+sin12          0.7627      0.311      2.455      0.014       0.154       1.372
+cos12          0.9506<span class="mk">3</span>      0.243      3.906      0.000       0.474       1.428
+==============================================================================
+Durbin-Watson: 1.296<span class="mk">4</span>
+residual SD  : 1.52 -&gt; 1.26<span class="mk">5</span></pre></div></div>

@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">누적발생함수의 비교 (Gray 검정의 원리)와 보통의 로그순위 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import logrank_test
+
+a = ckd[&quot;drug_a&quot;] == 1
+gray = logrank_test(ckd.loc[a, &quot;years_sd&quot;], ckd.loc[~a, &quot;years_sd&quot;],
+                    ckd.loc[a, &quot;dial&quot;], ckd.loc[~a, &quot;dial&quot;])
+lr = logrank_test(ckd.loc[a, &quot;years&quot;], ckd.loc[~a, &quot;years&quot;],
+                  ckd.loc[a, &quot;dial&quot;], ckd.loc[~a, &quot;dial&quot;])
+print(f&quot;deaths kept in risk set: chi2 {gray.test_statistic:.2f},&quot;
+      f&quot; P {gray.p_value:.4f}&quot;)
+print(f&quot;deaths censored        : chi2 {lr.test_statistic:.2f},&quot;
+      f&quot; P {lr.p_value:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>deaths kept in risk set: chi2 11.35, P 0.0008<span class="mk">1</span>
+deaths censored        : chi2 0.07, P 0.7873<span class="mk">2</span></pre></div></div>

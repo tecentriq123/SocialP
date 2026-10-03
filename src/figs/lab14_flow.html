@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">선정 기준을 차례로 적용하며 인원 세기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">steps = [(&quot;prevalent&quot;, &quot;Prior use of either class (365 d)&quot;),
+         (&quot;both&quot;, &quot;Both classes on index date&quot;),
+         (&quot;minor&quot;, &quot;Age &lt; 18 years&quot;),
+         (&quot;esrd&quot;, &quot;ESRD or dialysis (365 d)&quot;),
+         (&quot;prior_hhf&quot;, &quot;HF hospitalization (365 d)&quot;)]
+
+def flow_table(coh):
+    keep = pd.Series(True, index=coh.index)
+    rows = [(&quot;Prescribed in 2016-2021&quot;, &quot;&quot;, len(coh))]
+    for col, label in steps:
+        out = keep &amp; coh[col]
+        keep = keep &amp; ~coh[col]
+        rows.append((label, out.sum(), keep.sum()))
+    flow = pd.DataFrame(rows,
+                        columns=[&quot;step&quot;, &quot;excluded&quot;, &quot;remaining&quot;])
+    return flow, keep
+
+flow, keep = flow_table(coh)
+print(flow.to_string(index=False))
+cohort = coh[keep].copy()
+print(cohort[&quot;arm&quot;].value_counts())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                             step excluded  remaining
+          Prescribed in 2016-2021               10000<span class="mk">1</span>
+Prior use of either class (365 d)     4103       5897<span class="mk">2</span>
+       Both classes on index date       90       5807
+                   Age &lt; 18 years        9       5798
+         ESRD or dialysis (365 d)      110       5688
+       HF hospitalization (365 d)      136       5552<span class="mk">3</span>
+arm
+DPP4i     4524
+SGLT2i    1028<span class="mk">4</span>
+Name: count, dtype: int64</pre></div></div>

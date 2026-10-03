@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">평균, 중앙값, 총액</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">a = df.loc[df[&quot;arm&quot;] == &quot;A&quot;, &quot;cost&quot;].to_numpy()   # A군 1,203명의 비용
+b = df.loc[df[&quot;arm&quot;] == &quot;B&quot;, &quot;cost&quot;].to_numpy()   # B군 1,797명의 비용
+
+print(&quot;B군 총액      :&quot;, round(b.sum()))
+print(&quot;평균 x 인원   :&quot;, round(b.mean() * len(b)))
+print(&quot;중앙값 x 인원 :&quot;, round(np.median(b) * len(b)))
+print(&quot;평균보다 적게 쓴 환자(%):&quot;,
+      round((b &lt; b.mean()).mean() * 100, 1))
+k = round(len(b) * 0.05)                          # 상위 5%는 90명
+top = np.sort(b)[::-1][:k]
+print(&quot;상위 5%가 쓴 몫(%)      :&quot;,
+      round(top.sum() / b.sum() * 100, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>B군 총액      : 4084201<span class="mk">1</span>
+평균 x 인원   : 4084201
+중앙값 x 인원 : 3300011<span class="mk">2</span>
+평균보다 적게 쓴 환자(%): 66.5<span class="mk">3</span>
+상위 5%가 쓴 몫(%)      : 15.5<span class="mk">4</span></pre></div></div>

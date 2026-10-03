@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 1 정답. 랜드마크 뒤의 처방까지 넣어 군을 나누면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">L = 365 * 3 / 12
+lm_w = d[d[&quot;fu_days&quot;] &gt; L].copy()          # 3개월 생존자
+lm_w[&quot;t_lm&quot;] = lm_w[&quot;fu_days&quot;] - L
+print(lm_w.groupby(&quot;ever&quot;)[&quot;died&quot;].agg([&quot;count&quot;, &quot;sum&quot;]))
+m1 = CoxPHFitter().fit(lm_w, &quot;t_lm&quot;, &quot;died&quot;, formula=&quot;ever&quot;)
+print(&quot;HR (95% CI):&quot;, hr_ci(m1, &quot;ever&quot;))
+
+late = lm_w[lm_w[&quot;rx_day&quot;] &gt; L]            # 3개월 뒤에 시작한 사람
+print(len(late), &quot;명의 3개월부터 첫 처방까지:&quot;,
+      round((late[&quot;rx_day&quot;] - L).sum() / 365), &quot;인년&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      count  sum
+ever            
+0      2886  533
+1      2697  284
+HR (95% CI): 0.53 (0.46-0.62)<span class="mk">1</span>
+1763 명<span class="mk">2</span>의 3개월부터 첫 처방까지: 584 인년</pre></div></div>

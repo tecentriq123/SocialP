@@ -257,6 +257,12 @@ mjx-container { color: var(--ink); }
 .wrong::after { content: " (X)"; color: var(--warn); font-weight: 700; white-space: nowrap; }
 .lab-link { margin: 26px 0 0 !important; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 14.5px; color: var(--ink-2); }
 .lab-link a { font-weight: 600; }
+.nb-link { margin: 14px 0 18px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: 14.5px; line-height: 1.7; color: var(--ink-2); }
+.nb-link a { font-weight: 600; }
+details.hw-ans { margin: 10px 0 22px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+details.hw-ans > summary { cursor: pointer; padding: 9px 14px; font-weight: 600; font-size: 14.5px; color: var(--accent-ink); }
+details.hw-ans[open] > summary { border-bottom: 1px dashed var(--line); }
+details.hw-ans > div { padding: 10px 14px 12px; }
 
 /* paper reading box */
 .paper { border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); margin: 28px 0; overflow: hidden; }
@@ -595,7 +601,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 <main id="app" class="page"></main>
 <div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
 
-<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 14개 공개, 9개 준비 중"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": null, "status": "준비 중", "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, 의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.", "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]}]}</script>
+<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 21개 공개, 2개 준비 중"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": null, "status": "준비 중", "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, 의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.", "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]}]}</script>
 
 
 <script>

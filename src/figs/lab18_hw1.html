@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 1 정답. 시행 전후 12개월씩만 쓴 분절회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">short = its[(its[&quot;time&quot;] &gt; 24) &amp; (its[&quot;time&quot;] &lt;= 48)]
+fit_12 = smf.ols(f, data=short).fit(cov_type=&quot;HAC&quot;,
+                                    cov_kwds={&quot;maxlags&quot;: 3})
+print(len(short), &quot;months&quot;)
+print(fit_12.summary().tables[1])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>24 months
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept    103.0606      3.854     26.739      0.000      95.506     110.615
+time          -0.4775      0.132     -3.617      0.000      -0.736      -0.219
+post          -5.6749      1.042     -5.444      0.000      -7.718      -3.632
+time_after    -0.1403      0.231     -0.608      0.543      -0.592       0.312
+==============================================================================</pre></div></div>

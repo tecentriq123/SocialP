@@ -1,0 +1,43 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">짝을 못 찾은 A 사용자는 누구인가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;matched&quot;] = df[&quot;id&quot;].isin(m[&quot;id&quot;]).astype(int)
+um = df[a].groupby(&quot;matched&quot;)[[&quot;ps&quot;, &quot;age&quot;, &quot;hf&quot;,
+                               &quot;hosp_1y&quot;]].mean()
+um.insert(0, &quot;n&quot;, df[a][&quot;matched&quot;].value_counts())
+print(&quot;unused B users:&quot;, ((~a) &amp; (df[&quot;matched&quot;] == 0)).sum())
+um.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>unused B users: 2431<span class="mk">4</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>ps</th>
+      <th>age</th>
+      <th>hf</th>
+      <th>hosp_1y</th>
+    </tr>
+    <tr>
+      <th>matched</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>537<span class="mk">1</span></td>
+      <td>0.687<span class="mk">2</span></td>
+      <td>75.747</td>
+      <td>0.527<span class="mk">3</span></td>
+      <td>0.298</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3516</td>
+      <td>0.418</td>
+      <td>66.650</td>
+      <td>0.090</td>
+      <td>0.109</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

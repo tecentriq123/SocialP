@@ -4,6 +4,8 @@
 공통 예시(gen/lib_p4.py)의 기준 분석과 확률적 민감도 분석 L.psa(n=5000, seed=20261002)를 그대로 쓴다.
 이 장에서 lib_p4.py에 덧붙인 함수(dist_params, DSA_RANGES, oneway, twoway, threshold_value, threshold_price,
 run_waning, os_alternatives, scenario_table, CEAC_LAMS, inmb, ceac, evpi, quadrants, psa_summary)를 여기서 검산한다.
+입력값을 뽑는 방법(곡선은 중앙값·모양 모수, 무진행생존과 전체생존의 짝에 상관 0.5, 곡선이 엇갈리면 다시 뽑기)의
+근거가 되는 숫자도 여기서 계산한다('나. 곡선과 위험비를 뽑는 방법' 부분).
 모든 값은 가상의 예시이다. 결과는 gen/_ch24_nums.json(그림용)과 gen/_ch24_cells.html(본문 코드 상자)에 저장한다.
 """
 import contextlib, html, io, json, math, os, sys, warnings
@@ -47,13 +49,19 @@ print("나머지(7번째 이하) 폭의 최댓값:", max(r["swing"] for r in OW[
 for k, (lo, hi) in {"hr_pfs": (0.52, 0.81), "hr_os": (0.58, 0.97)}.items():
     assert round(L.DSA_RANGES[k][0], 2) == lo and round(L.DSA_RANGES[k][1], 2) == hi
 # 로그 척도 표준오차는 신뢰구간에서: (ln 상한 − ln 하한) / (2 × 1.96)
-# 표 24-2의 γ 행 각주: 척도 모수 λ를 고정하고 모양 모수 γ만 바꾸므로 전체생존 곡선의 중앙값도 함께 달라진다
-for _g, _med in zip(L.DSA_RANGES["os_gam"][:2], (42, 19)):
-    _m = L.weib_median(p["os_lam"], _g)
-    print(f"os_gam {_g:.4f}: 표준요법 B의 중앙 전체생존 {_m:.2f}개월 (기준 {L.weib_median(p['os_lam'], p['os_gam']):.1f}개월), "
-          f"신약 A {L.weib_median(p['os_lam'] * p['hr_os'], _g):.2f}개월")
-    assert round(_m) == _med and abs(_m - round(_m)) < 0.45
-assert round(L.weib_median(p["os_lam"], p["os_gam"])) == 28
+# 곡선은 (중앙값, 모양 모수)로 바꾼다: 모양 모수를 바꿀 때 중앙값은 그대로, 중앙값을 바꿀 때 모양 모수는 그대로
+for _k in ("os_gam", "pfs_gam"):
+    for _g in L.DSA_RANGES[_k][:2]:
+        _q = L.set_input(p, _k, _g)
+        _m = L.get_input(_q, _k[:-3] + "med")
+        print(f"{_k} {_g:.4f}: 표준요법 B의 중앙값 {_m:.4f}개월 (그대로), 60개월 생존율 {float(L.surv(_q[_k[:-3] + 'lam'], _g, 60.0)):.4f}"
+              f" (기준 {float(L.surv(p[_k[:-3] + 'lam'], p[_k], 60.0)):.4f})")
+        assert abs(_m - L.get_input(p, _k[:-3] + "med")) < 1e-9
+for _k in ("os_med", "pfs_med"):
+    for _v in L.DSA_RANGES[_k][:2]:
+        _q = L.set_input(p, _k, _v)
+        assert _q[_k[:-3] + "gam"] == p[_k[:-3] + "gam"] and abs(L.get_input(_q, _k) - _v) < 1e-9
+assert abs(L.get_input(p, "os_med") - 28) < 1e-9 and abs(L.get_input(p, "pfs_med") - 10) < 1e-9
 print("hr_os 로그 SE (CI 0.58–0.97에서):", (math.log(0.97) - math.log(0.58)) / (2 * 1.96), " hr_pfs:", (math.log(0.81) - math.log(0.52)) / (2 * 1.96))
 
 show("가. 전체생존 위험비를 바꿀 때 ICER가 덜 내려가는 이유")
@@ -153,7 +161,7 @@ PS = L.psa_summary(DC, DQ)
 print(json.dumps(PS, indent=1, ensure_ascii=False))
 P6000 = L.ceac(DC, DQ, 6000.0)
 print("P(비용효과적) 5,000:", PS["p_ce"], " 6,000:", P6000)
-assert abs(PS["p_ce"] - 0.1762) < 1e-12 and abs(P6000 - 0.6522) < 1e-12
+assert abs(PS["p_ce"] - 0.1604) < 1e-12 and abs(P6000 - 0.6586) < 1e-12
 Q = PS["quadrants"]
 print("사분면별 횟수:", {k: round(v * 5000) for k, v in Q.items()}, " 합", sum(Q.values()))
 print("표준편차: 증분비용", DC.std(ddof=1), "증분QALY", DQ.std(ddof=1), " 상관", np.corrcoef(DC, DQ)[0, 1])
@@ -161,7 +169,7 @@ print("최소·최대 증분QALY", DQ.min(), DQ.max(), " 증분비용", DC.min()
 # 기준 분석과 PSA 평균의 차이
 pm = dict(p)
 for k in L.PSA_SPEC:
-    pm[k] = DP[k]["mean"]
+    pm = L.set_input(pm, k, DP[k]["mean"])
 RM = L.run(pm)
 print(f"기준 분석: 증분비용 {BASE['d_cost']:.0f}, 증분QALY {BASE['d_qaly']:.3f}, ICER {BASE['icer']:.0f}, 순편익 {L.nmb(BASE):.0f}")
 print(f"PSA 평균 : 증분비용 {PS['d_cost']['mean']:.0f}, 증분QALY {PS['d_qaly']['mean']:.3f}, ICER(평균÷평균) {PS['icer']:.0f}, 순편익 {PS['inmb']['mean']:.0f}")
@@ -195,42 +203,150 @@ print(f"  10만 회(seed 1): 확률 {BIG['p_ce']:.4f} (6,000에서 {L.ceac(BIG_D
 print("  평균 순편익의 몬테카를로 표준오차(5,000회):", L.inmb(DC, DQ).std(ddof=1) / math.sqrt(5000))
 N["conv"] = {"run": RUNP[::10].tolist(), "run_n": list(range(1, 5001, 10)), "at": CONV, "seeds": SEEDS, "big_p": BIG["p_ce"]}
 
-show("나. 무진행생존 곡선이 전체생존 곡선을 넘어 잘린 모의실험 (입력값을 독립으로 뽑은 결과)")
+show("나. 곡선과 위험비를 뽑는 방법: 다시 뽑은 비율, 채택된 5,000벌의 점검")
+DRAWS, CNT = L.psa_inputs(5000, SEED)
+_t = np.arange(0, L.HORIZON_MONTHS + 1) * L.CYCLE_MONTHS
+n_changed = 0
+for q in DRAWS:
+    for arm in L.ARMS:
+        _raw, _ = L.curves_raw(q, arm, _t); _cut, _ = L.curves(q, arm, _t)
+        n_changed += int((_raw != _cut).any())
+print(f"  5,000벌을 채택하는 동안 뽑은 횟수 {CNT['tries']}, 곡선이 엇갈려 버린 횟수 {CNT['rejected']} ({CNT['share']:.4f})")
+print(f"  채택된 5,000벌 가운데 np.minimum이 값을 바꾼 벌(군별로 셈): {n_changed}")
+assert n_changed == 0 and CNT["rejected"] == 137 and CNT["tries"] == 5137
+_dc2 = np.array([L.run(q)["d_cost"] for q in DRAWS])
+assert np.allclose(_dc2, DC)                       # psa_inputs()와 psa()가 같은 입력값을 쓴다
+ARR = {k: np.array([L.get_input(q, k) for q in DRAWS]) for k in L.PSA_SPEC}
+for (k1, k2), rho in L.PSA_CORR.items():
+    print(f"  채택된 벌에서 ln {k1}·ln {k2}의 상관 {np.corrcoef(np.log(ARR[k1]), np.log(ARR[k2]))[0, 1]:.3f} (지정 {rho}),"
+          f" 기하평균 {np.exp(np.log(ARR[k1]).mean()):.4f}, {np.exp(np.log(ARR[k2]).mean()):.4f}, ln SD {np.log(ARR[k1]).std(ddof=1):.4f}, {np.log(ARR[k2]).std(ddof=1):.4f}")
+_up = ARR["pfs_med"] > 10.0
+print(f"  중앙 무진행생존이 10개월보다 길게 뽑힌 {int(_up.sum())}벌 가운데 중앙 전체생존도 28개월보다 긴 비율 {np.mean(ARR['os_med'][_up] > 28.0):.4f}"
+      f" (상관 0.5의 이론값 {0.5 + math.asin(0.5) / math.pi:.4f}, 독립이면 0.5)")
 
 
-def cap_stats(n, seed):
-    """L.psa와 같은 난수로 입력값 n벌을 다시 뽑아, 군별로 무진행생존 곡선(자르기 전)이 전체생존 곡선을 넘는지 센다.
-    반환: (A군에서 처음 넘는 개월, 그때의 전체생존, 잘려 나간 무진행 기간(개월), B군에서 넘는지) 배열."""
+def reject_share(n, seed, corr=None, per_arm=False):
+    """L.psa_inputs와 같은 방법으로 n벌을 채택할 때까지 뽑으며 버린 비율. corr을 주면 PSA_CORR을 잠시 바꾼다."""
+    keep = L.PSA_CORR
+    try:
+        if corr is not None:
+            L.PSA_CORR = corr
+        if not per_arm:
+            return L.psa_inputs(n, seed)[1]
+        arm_n = {"A": 0, "B": 0}
+        orig = L.curves_cross
+
+        def counting(q, horizon=L.HORIZON_MONTHS):         # L.curves_cross와 같은 판정을 하면서 군별로 센다
+            hit = {arm: bool((np.subtract(*L.curves_raw(q, arm, _t)) > 0).any()) for arm in L.ARMS}
+            for arm in L.ARMS:
+                arm_n[arm] += hit[arm]
+            assert (hit["A"] or hit["B"]) == orig(q, horizon)
+            return hit["A"] or hit["B"]
+        L.curves_cross = counting
+        try:
+            cnt = L.psa_inputs(n, seed)[1]
+        finally:
+            L.curves_cross = orig
+        return {**cnt, "A": arm_n["A"], "B": arm_n["B"]}
+    finally:
+        L.PSA_CORR = keep
+
+
+ZERO = {k: 0.0 for k in L.PSA_CORR}
+MED_ONLY = {k: (0.5 if k == ("pfs_med", "os_med") else 0.0) for k in L.PSA_CORR}
+NO_HR = {k: (0.0 if k == ("hr_pfs", "hr_os") else 0.5) for k in L.PSA_CORR}
+R_IND = reject_share(5000, SEED, ZERO)
+R_MED = reject_share(5000, SEED, MED_ONLY)
+R_NOHR = reject_share(5000, SEED, NO_HR)
+R_BIG = reject_share(100000, 1)
+R_BIG_IND = reject_share(100000, 1, ZERO)
+R_ARM = reject_share(100000, 1, per_arm=True)
+R_ARM5 = reject_share(5000, SEED, per_arm=True)
+assert R_ARM5["rejected"] == CNT["rejected"] and R_ARM["share"] == R_BIG["share"]
+print(f"  짝을 독립으로 뽑으면(상관 0): 5,000벌 채택에 {R_IND['tries']}번 뽑아 {R_IND['rejected']}번 버림 ({R_IND['share']:.4f}); 10만 벌 {R_BIG_IND['share']:.4f}")
+print(f"  중앙값에만 상관 0.5: {R_MED['share']:.4f}; 중앙값·모양에 상관 0.5(위험비는 독립): {R_NOHR['share']:.4f}")
+print(f"  채택안, 10만 벌(seed 1): {R_BIG['rejected']}/{R_BIG['tries']} = {R_BIG['share']:.4f}; 그 가운데 신약 A군에서 엇갈림 {R_ARM['A']} ({R_ARM['A'] / R_ARM['tries']:.4f}), 표준요법 B군 {R_ARM['B']} ({R_ARM['B'] / R_ARM['tries']:.4f})")
+print(f"  5,000벌(seed {SEED}): 버린 {R_ARM5['rejected']}벌 가운데 신약 A군에서 엇갈림 {R_ARM5['A']}벌, 표준요법 B군 {R_ARM5['B']}벌")
+# 위험비의 상관이 결과에 주는 영향(같은 seed, 위험비만 독립으로)
+_keep = L.PSA_CORR
+L.PSA_CORR = NO_HR
+_c, _q = L.psa(5000, SEED); _ps = L.psa_summary(_c, _q)
+_cb, _qb = L.psa(100000, 1)
+L.PSA_CORR = _keep
+print(f"  위험비를 독립으로 뽑으면(5,000회): 확률 {_ps['p_ce']:.4f} (6,000에서 {L.ceac(_c, _q, 6000.0):.4f}), 증분QALY {_ps['d_qaly']['mean']:.3f} ({_ps['d_qaly']['lo']:.3f}–{_ps['d_qaly']['hi']:.3f}),"
+      f" 증분비용 {_ps['d_cost']['mean']:.0f} ({_ps['d_cost']['lo']:.0f}–{_ps['d_cost']['hi']:.0f}), EVPI {_ps['evpi']:.1f}; 10만 회 확률 {L.ceac(_cb, _qb, LAM):.4f} (6,000에서 {L.ceac(_cb, _qb, 6000.0):.4f})")
+# 다시 뽑기가 남은 벌의 분포를 얼마나 옮기는가: 채택된 5,000벌의 위험비 기하평균(처음 정한 값 0.65, 0.75)
+def hr_geomean(corr):
+    keep = L.PSA_CORR
+    try:
+        L.PSA_CORR = corr
+        dr = L.psa_inputs(5000, SEED)[0]
+    finally:
+        L.PSA_CORR = keep
+    return [float(np.exp(np.mean([math.log(q[k]) for q in dr]))) for k in ("hr_pfs", "hr_os")]
+
+
+HR_GM = {"adopted": hr_geomean(dict(L.PSA_CORR)), "indep": hr_geomean(ZERO)}
+print(f"  채택된 5,000벌의 위험비 기하평균(무진행생존, 전체생존): 채택안 {HR_GM['adopted'][0]:.4f}, {HR_GM['adopted'][1]:.4f}; 짝을 따로 뽑으면 {HR_GM['indep'][0]:.4f}, {HR_GM['indep'][1]:.4f}")
+# 옛 방법(척도 모수 λ와 모양 모수 γ를 독립으로, 로그 표준오차 0.08·0.05·0.10·0.06)에서 곡선이 엇갈리던 비율
+_rng = np.random.default_rng(SEED)
+_old = 0
+for _ in range(5000):
+    q = dict(p)
+    for k, u in (("hr_pfs", 0.113), ("hr_os", 0.131), ("pfs_lam", 0.08), ("pfs_gam", 0.05), ("os_lam", 0.10), ("os_gam", 0.06)):
+        q[k] = float(np.exp(_rng.normal(math.log(p[k]), u)))
+    _old += L.curves_cross(q)
+print(f"  옛 방법(λ, γ, 위험비를 모두 독립으로): 5,000벌 가운데 {_old}벌 ({_old / 5000:.4f})에서 곡선이 엇갈림")
+N["cap"] = {"tries": CNT["tries"], "rejected": CNT["rejected"], "share": CNT["share"], "share_indep": R_IND["share"], "rejected_indep": R_IND["rejected"],
+            "tries_indep": R_IND["tries"], "share_med_only": R_MED["share"], "share_no_hr": R_NOHR["share"], "share_100k": R_BIG["share"],
+            "share_indep_100k": R_BIG_IND["share"], "arm_A": R_ARM5["A"], "arm_B": R_ARM5["B"], "arm_A_100k": R_ARM["A"] / R_ARM["tries"],
+            "arm_B_100k": R_ARM["B"] / R_ARM["tries"], "old_share": _old / 5000, "hr_gm": HR_GM,
+            "same_side": float(np.mean(ARR["os_med"][_up] > 28.0))}
+
+show("나. 표준오차와 상관계수의 근거: 가상 시험을 되풀이해 만든 표집 분포")
+from scipy.optimize import minimize
+
+
+def _fit_ph(tt, ev, arm):
+    """두 군을 함께 적합하는 와이블 비례위험 모형 S(t) = exp(−ln2 × (t/중앙값)^γ × HR^arm). 모수 (ln 중앙값_B, ln γ, ln HR)."""
+    lt = np.log(tt)
+
+    def nll(th):
+        g = math.exp(th[1])
+        lh = math.log(math.log(2)) + g * (lt - th[0]) + th[2] * arm
+        return -(ev * (lh + th[1] - lt)).sum() + np.exp(lh).sum()
+    return minimize(nll, [math.log(np.median(tt)) + 0.3, 0.0, -0.2], method="BFGS").x
+
+
+def trial_sampling(rho, reps=600, n=300, seed=1):
+    """군당 n명, 추적 24–30개월(23장 라 절의 설계)의 시험을 reps번 만들어 무진행생존과 전체생존에 각각 적합한다.
+    진행 시간과 사망 시간은 정규 코퓰라(상관 rho)로 뽑는다(22장의 가상 시험은 rho = 0.7). 반환: reps × 6 배열
+    (ln 중앙값, ln γ, ln HR) × (무진행생존, 전체생존)."""
     rng = np.random.default_rng(seed)
-    t = np.arange(0, L.HORIZON_MONTHS + 1) * L.CYCLE_MONTHS
-    first, os_at, lost, cap_b = np.full(n, np.nan), np.full(n, np.nan), np.zeros(n), np.zeros(n, bool)
-    for i in range(n):
-        q = L.draw(rng)
-        so_a, sp_a = L.surv(q["os_lam"] * q["hr_os"], q["os_gam"], t), L.surv(q["pfs_lam"] * q["hr_pfs"], q["pfs_gam"], t)
-        so_b, sp_b = L.surv(q["os_lam"], q["os_gam"], t), L.surv(q["pfs_lam"], q["pfs_gam"], t)
-        ex = sp_a > so_a
-        if ex.any():
-            k = int(np.argmax(ex))
-            first[i], os_at[i], lost[i] = t[k], so_a[k], np.maximum(sp_a - so_a, 0).sum()
-        cap_b[i] = bool((sp_b > so_b).any())
-    return first, os_at, lost, cap_b
+    arm = np.repeat([1.0, 0.0], n)
+    hp, ho = np.where(arm == 1, p["hr_pfs"], 1.0), np.where(arm == 1, p["hr_os"], 1.0)
+    out = np.empty((reps, 6))
+    for i in range(reps):
+        u = stats.norm.cdf(rng.multivariate_normal([0, 0], [[1, rho], [rho, 1]], size=2 * n))
+        t_os = (-np.log(u[:, 1]) / (p["os_lam"] * ho)) ** (1 / p["os_gam"])
+        t_pfs = np.minimum((-np.log(u[:, 0]) / (p["pfs_lam"] * hp)) ** (1 / p["pfs_gam"]), t_os)
+        c = rng.uniform(24.0, 30.0, size=2 * n)
+        out[i, :3] = _fit_ph(np.minimum(t_pfs, c), (t_pfs <= c).astype(float), arm)
+        out[i, 3:] = _fit_ph(np.minimum(t_os, c), (t_os <= c).astype(float), arm)
+    return out
 
 
-c_first, c_os, c_lost, c_b = cap_stats(5000, SEED)
-c_a = ~np.isnan(c_first)
-c_any = c_a | c_b
-nb_ = L.inmb(DC, DQ)
-print(f"  5,000벌: 적어도 한 군에서 잘림 {int(c_any.sum())}벌 ({c_any.mean():.4f}); 신약 A군 {c_a.mean():.4f}, 표준요법 B군 {c_b.mean():.4f}")
-print(f"  A군에서 잘린 것 가운데 만나는 시점의 전체생존이 5% 미만인 비율 {np.mean(c_os[c_a] < 0.05):.3f}")
-print(f"  전체 모의실험 가운데 A군의 두 곡선이 5년 안에 만나는 비율 {np.mean(c_first < 60):.4f}, 잘려 나간 무진행 기간이 1개월을 넘는 비율 {np.mean(c_lost > 1.0):.4f}")
-print(f"  비용효과적일 확률: 잘린 {int(c_any.sum())}벌 {np.mean(nb_[c_any] > 0):.4f}, 잘리지 않은 {int((~c_any).sum())}벌 {np.mean(nb_[~c_any] > 0):.4f}")
-b_first, _, _, b_b = cap_stats(100000, 1)
-print(f"  10만 벌(seed 1): 적어도 한 군에서 잘림 {np.mean(~np.isnan(b_first) | b_b):.4f}")
-assert int(c_any.sum()) == 1122
-N["cap"] = {"any": float(c_any.mean()), "A": float(c_a.mean()), "B": float(c_b.mean()), "n_any": int(c_any.sum()),
-            "tail_share": float(np.mean(c_os[c_a] < 0.05)), "within5y": float(np.mean(c_first < 60)), "lost_gt1": float(np.mean(c_lost > 1.0)),
-            "p_ce_cap": float(np.mean(nb_[c_any] > 0)), "p_ce_nocap": float(np.mean(nb_[~c_any] > 0)),
-            "any_100k": float(np.mean(~np.isnan(b_first) | b_b))}
+BASIS = {}
+for rho in (0.5, 0.7):
+    R = trial_sampling(rho)
+    sd = R.std(0, ddof=1); cc = np.corrcoef(R.T)
+    BASIS[rho] = {"sd": sd.tolist(), "corr_med": cc[0, 3], "corr_gam": cc[1, 4], "corr_hr": cc[2, 5], "corr_med_gam_pfs": cc[0, 1], "corr_med_gam_os": cc[3, 4]}
+    print(f"  진행·사망 시간의 상관 {rho}: 표집 SD  PFS ln 중앙값 {sd[0]:.3f} ln γ {sd[1]:.3f} ln HR {sd[2]:.3f} | OS ln 중앙값 {sd[3]:.3f} ln γ {sd[4]:.3f} ln HR {sd[5]:.3f}")
+    print(f"     무진행생존·전체생존 추정값 사이의 상관: 중앙값 {cc[0, 3]:.2f}, 모양 {cc[1, 4]:.2f}, 위험비 {cc[2, 5]:.2f};"
+          f" 같은 곡선의 중앙값·모양 사이: PFS {cc[0, 1]:.2f}, OS {cc[3, 4]:.2f}")
+print("  PSA_SPEC의 값: PFS ln 중앙값", L.PSA_SPEC["pfs_med"][1], "ln γ", L.PSA_SPEC["pfs_gam"][1], "ln HR", L.PSA_SPEC["hr_pfs"][1],
+      "| OS ln 중앙값", L.PSA_SPEC["os_med"][1], "ln γ", L.PSA_SPEC["os_gam"][1], "ln HR", L.PSA_SPEC["hr_os"][1], "| 상관", L.PSA_CORR)
+N["basis"] = {str(k): v for k, v in BASIS.items()}
 
 show("나(심화). 와이블 모양·척도 모수의 상관과 촐레스키 분해")
 from lifelines import WeibullFitter
@@ -257,7 +373,30 @@ print("  뽑은 값의 상관(상관 반영):", np.corrcoef(cor_draw.T)[0, 1], "
 CORR = {"sd_lnlam": sd1, "sd_lngam": sd2, "corr": corr, "chol": CH.tolist(),
         "s24_cor": [float(x) for x in np.percentile(s24(cor_draw), [2.5, 97.5])], "s24_ind": [float(x) for x in np.percentile(s24(ind_draw), [2.5, 97.5])],
         "s60_cor": [float(x) for x in np.percentile(s60(cor_draw), [2.5, 97.5])], "s60_ind": [float(x) for x in np.percentile(s60(ind_draw), [2.5, 97.5])]}
-print("  24개월 생존율의 95% 구간: 상관 반영", CORR["s24_cor"], " 독립으로 뽑음", CORR["s24_ind"])
+# 같은 적합 결과를 (ln 중앙값, ln γ)로 바꾸면: ln 중앙값 = ln lambda_ + ln(ln 2) / rho_
+J2 = np.array([[1.0 / lam_, -math.log(math.log(2)) / rho_ ** 2], [0.0, 1.0 / rho_]])
+C_med = J2 @ V @ J2.T
+sdm, sdg = math.sqrt(C_med[0, 0]), math.sqrt(C_med[1, 1]); corr_m = C_med[0, 1] / (sdm * sdg)
+med_hat = lam_ * math.log(2) ** (1 / rho_)
+med_draw = np.column_stack([math.log(med_hat) + sdm * z[:, 0], math.log(rho_) + sdg * z[:, 1]])       # 중앙값과 모양을 독립으로
+def s_med(d, t):
+    return np.exp(-math.log(2) * (t / np.exp(d[:, 0])) ** np.exp(d[:, 1]))
+CORR.update({"sd_lnmed": sdm, "corr_med": corr_m, "median": med_hat,
+             "s24_med": [float(x) for x in np.percentile(s_med(med_draw, 24.0), [2.5, 97.5])],
+             "s60_med": [float(x) for x in np.percentile(s_med(med_draw, 60.0), [2.5, 97.5])]})
+print(f"  (ln 중앙값, ln γ)로 바꾸면: 중앙값 {med_hat:.2f}개월, ln 중앙값의 SE {sdm:.4f}, ln γ의 SE {sdg:.4f}, 상관 {corr_m:.3f}")
+# 같은 설계의 무진행생존 자료(표준요법 B군 300명)를 만들어 적합하면
+_r = np.random.default_rng(SEED)
+_tp = (-np.log(_r.uniform(size=300)) / p["pfs_lam"]) ** (1 / p["pfs_gam"]); _c = _r.uniform(24.0, 30.0, 300)
+wp = WeibullFitter().fit(np.minimum(_tp, _c), (_tp <= _c).astype(int))
+_l, _rh = wp.params_.values; _Vp = wp.variance_matrix_.values
+_Jp = np.array([[1.0 / _l, -math.log(math.log(2)) / _rh ** 2], [0.0, 1.0 / _rh]]); _Cp = _Jp @ _Vp @ _Jp.T
+CORR["pfs"] = {"events": int((_tp <= _c).sum()), "sd_lnmed": math.sqrt(_Cp[0, 0]), "sd_lngam": math.sqrt(_Cp[1, 1]),
+               "corr_med": _Cp[0, 1] / math.sqrt(_Cp[0, 0] * _Cp[1, 1])}
+print("  무진행생존(같은 설계로 만든 300명):", CORR["pfs"])
+print("  24개월 생존율의 95% 구간: 상관 반영", CORR["s24_cor"], " 독립으로 뽑음", CORR["s24_ind"], " 중앙값·모양으로 바꿔 독립으로", CORR["s24_med"])
+print("  60개월 생존율의 95% 구간: 중앙값·모양으로 바꿔 독립으로", CORR["s60_med"])
+print(f"  짝을 함께 뽑는 2 × 2 촐레스키: z2' = {0.5} z1 + {math.sqrt(1 - 0.5 ** 2):.3f} z2")
 print("  60개월 생존율의 95% 구간: 상관 반영", CORR["s60_cor"], " 독립으로 뽑음", CORR["s60_ind"])
 from lifelines import KaplanMeierFitter
 km = KaplanMeierFitter().fit(trial[:, 0], trial[:, 1])
@@ -395,21 +534,39 @@ def gap(price):                                         # 그 가격에서의 IC
     return c / q - 5000
 print("ICER가 5,000이 되는 월 약값:", round(brentq(gap, 100, 190), 2))'''
 
-CODE_PSA = r'''spec = dict(hr_pfs=("lognormal", 0.113), hr_os=("lognormal", 0.131),      # (분포, 불확실성의 크기)
-            pfs_lam=("lognormal", 0.08), pfs_gam=("lognormal", 0.05),
-            os_lam=("lognormal", 0.10), os_gam=("lognormal", 0.06),
-            u_pf=("beta", 0.03), u_pd=("beta", 0.05),
+CODE_PSA = r'''pairs = {("pfs_med", "os_med"): (10, 28, 0.07, 0.08),         # 함께 뽑는 짝: 기준값 둘, 로그 척도의 표준오차 둘
+         ("pfs_gam", "os_gam"): (0.95, 1.15, 0.05, 0.06),    # med = 중앙 생존기간(개월), gam = 모양 모수
+         ("hr_pfs", "hr_os"): (0.65, 0.75, 0.113, 0.131)}
+rho = 0.5                                               # 짝 안의 두 값 사이의 상관계수
+spec = dict(u_pf=("beta", 0.03), u_pd=("beta", 0.05),   # 따로 뽑는 입력값: (분포, 불확실성의 크기)
             du_ae_A=("gamma", 0.25), du_ae_B=("gamma", 0.25),
             c_pf=("gamma", 0.20), c_pd=("gamma", 0.20), c_death=("gamma", 0.20),
             c_ae_A=("gamma", 0.25), c_ae_B=("gamma", 0.25))
+count = {"tries": 0}                                    # 곡선과 위험비를 뽑은 횟수를 센다
+
+def crossed(v):                                         # 어느 군에서든 무진행생존 곡선이 전체생존 곡선을 넘으면 True
+    for hr_pfs, hr_os in ((v["hr_pfs"], v["hr_os"]), (1.0, 1.0)):
+        pfs = np.exp(-v["pfs_lam"] * hr_pfs * t ** v["pfs_gam"])
+        os_ = np.exp(-v["os_lam"] * hr_os * t ** v["os_gam"])
+        if (pfs > os_).any():
+            return True
+    return False
 
 def draw(rng):                                          # 입력값 한 벌을 분포에서 뽑는다
     v = dict(base)                                      # 약값은 base의 값 그대로(고정)
+    while True:                                         # 곡선이 엇갈리면 다시 뽑는다
+        count["tries"] += 1
+        for (k1, k2), (m1, m2, s1, s2) in pairs.items():
+            z1, z2 = rng.normal(size=2)                 # 서로 독립인 표준정규 난수 두 개
+            z2 = rho * z1 + np.sqrt(1 - rho ** 2) * z2  # z2를 z1과 상관 0.5인 값으로 바꾼다
+            v[k1], v[k2] = m1 * np.exp(s1 * z1), m2 * np.exp(s2 * z2)
+        v["pfs_lam"] = np.log(2) / v["pfs_med"] ** v["pfs_gam"]   # 중앙값과 모양 모수에서 척도 모수
+        v["os_lam"] = np.log(2) / v["os_med"] ** v["os_gam"]
+        if not crossed(v):
+            break
     for name, (dist, u) in spec.items():
         m = base[name]
-        if dist == "lognormal":                         # u = 로그 척도의 표준오차
-            v[name] = np.exp(rng.normal(np.log(m), u))
-        elif dist == "beta":                            # u = 표준오차
+        if dist == "beta":                              # u = 표준오차
             n = m * (1 - m) / u ** 2 - 1
             v[name] = rng.beta(m * n, (1 - m) * n)
         else:                                           # gamma: u = 표준오차 / 평균
@@ -422,6 +579,7 @@ rng = np.random.default_rng(20261002)                   # 난수 seed를 고정�
 sims = np.array([model(draw(rng)) for _ in range(5000)])
 dc, dq = sims[:, 0], sims[:, 1]                         # 5,000벌의 증분비용, 증분QALY
 
+print("뽑은 횟수", count["tries"], " 곡선이 엇갈려 버린 횟수", count["tries"] - 5000)
 print("평균 증분비용", round(dc.mean()), " 95% 구간", np.percentile(dc, [2.5, 97.5]).round(0))
 print("평균 증분QALY", round(dq.mean(), 3), " 95% 구간", np.percentile(dq, [2.5, 97.5]).round(3))
 print("ICER(평균 ÷ 평균)", round(dc.mean() / dq.mean()))
@@ -461,7 +619,7 @@ out, ns = run_code(CODE_PSA, ns)
 CODE["psa"] = {"src": CODE_PSA, "out": out, "title": "확률적 민감도 분석 5,000회"}
 show("코드 출력: psa"); print(out)
 assert np.allclose(ns["dc"], DC, atol=1e-6) and np.allclose(ns["dq"], DQ, atol=1e-9), "본문 코드가 L.psa와 다른 결과를 냄"
-assert np.mean(ns["inmb"] > 0) == PS["p_ce"]
+assert np.mean(ns["inmb"] > 0) == PS["p_ce"] and ns["count"]["tries"] == CNT["tries"]
 out, ns = run_code(CODE_CEAC, ns)
 CODE["ceac"] = {"src": CODE_CEAC, "out": out, "title": "임계값별 확률과 EVPI"}
 show("코드 출력: ceac"); print(out)

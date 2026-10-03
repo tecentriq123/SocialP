@@ -1,0 +1,34 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 시차 30일을 둔 노출</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def make_long(d, lag=0):
+    sw = d[&quot;rx_day&quot;] + lag              # 노출로 바뀌는 날
+    s = sw &lt; d[&quot;fu_days&quot;]               # 추적 중에 바뀌는 사람
+    a, b = d[s], d[~s]
+    before = pd.DataFrame({&quot;id&quot;: a[&quot;id&quot;], &quot;start&quot;: 0.0,
+                           &quot;stop&quot;: sw[s], &quot;drugx&quot;: 0, &quot;died&quot;: 0})
+    after = pd.DataFrame({&quot;id&quot;: a[&quot;id&quot;], &quot;start&quot;: sw[s],
+                          &quot;stop&quot;: a[&quot;fu_days&quot;], &quot;drugx&quot;: 1,
+                          &quot;died&quot;: a[&quot;died&quot;]})
+    never = pd.DataFrame({&quot;id&quot;: b[&quot;id&quot;], &quot;start&quot;: 0.0,
+                          &quot;stop&quot;: b[&quot;fu_days&quot;], &quot;drugx&quot;: 0,
+                          &quot;died&quot;: b[&quot;died&quot;]})
+    out = pd.concat([before, after, never])
+    return out.sort_values([&quot;id&quot;, &quot;start&quot;]).reset_index(drop=True)
+
+long30 = make_long(d, lag=30)
+long30[&quot;py&quot;] = (long30[&quot;stop&quot;] - long30[&quot;start&quot;]) / 365
+print(len(long30), &quot;줄&quot;)
+print(long30.groupby(&quot;drugx&quot;).agg(deaths=(&quot;died&quot;, &quot;sum&quot;),
+                                  py=(&quot;py&quot;, &quot;sum&quot;)).round(0))
+m3 = CoxTimeVaryingFitter().fit(long30, id_col=&quot;id&quot;,
+    event_col=&quot;died&quot;, start_col=&quot;start&quot;, stop_col=&quot;stop&quot;,
+    formula=&quot;drugx&quot;)
+print(&quot;시차 30일 HR (95% CI):&quot;, hr_ci(m3, &quot;drugx&quot;))
+
+chk = add_covariate_to_timeline(base, rx, id_col=&quot;id&quot;,
+    duration_col=&quot;rx_day&quot;, event_col=&quot;died&quot;, delay=30)
+print(&quot;lifelines delay=30:&quot;, len(chk), &quot;줄&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>8555 줄<span class="mk">1</span>
+       deaths      py
+drugx                
+0         964  4058.0
+1         270  1254.0<span class="mk">2</span>
+시차 30일 HR (95% CI): 1.03 (0.89-1.19)<span class="mk">3</span>
+lifelines delay=30: 8555 줄<span class="mk">4</span></pre></div></div>

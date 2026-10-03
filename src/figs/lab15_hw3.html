@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 3 정답. 심부전을 뺀 성향점수 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f2 = &quot;drugA ~ age + female + ckd + prior_hosp + n_drug + tertiary&quot;
+ps2 = smf.logit(f2, data=df).fit(disp=0).predict(df)
+df[&quot;sw2&quot;] = np.where(a, pA / ps2, (1 - pA) / (1 - ps2))
+
+for name, w in [(&quot;full model&quot;, &quot;sw&quot;), (&quot;without hf&quot;, &quot;sw2&quot;)]:
+    print(f&quot;hf SMD, {name}: {smd(df[&#x27;hf&#x27;], df[&#x27;drugA&#x27;], df[w]):.3f}&quot;)
+g2 = gee_fit(&quot;hosp_1y ~ drugA&quot;, df, &quot;id&quot;, df[&quot;sw2&quot;])
+print(&quot;IPTW RR, without hf:&quot;, rr_ci(g2).round(3))
+print(&quot;IPTW RR, full model:&quot;, rr.loc[&quot;IPTW&quot;].to_numpy().round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>hf SMD, full model: 0.000
+hf SMD, without hf: 0.206
+IPTW RR, without hf: [0.998 0.89  1.12 ]
+IPTW RR, full model: [0.953 0.848 1.072]</pre></div></div>

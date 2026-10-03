@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">매칭 코호트의 상대위험도와 강건 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def gee_fit(formula, data, groups, weights=None, family=None):
+    &quot;&quot;&quot;독립 작업상관 GEE. 기본은 포아송(상대위험도).&quot;&quot;&quot;
+    if family is None:
+        family = sm.families.Poisson()
+    return smf.gee(formula, groups=groups, data=data,
+                   family=family, weights=weights,
+                   cov_struct=sm.cov_struct.Independence()).fit()
+
+gm = gee_fit(&quot;hosp_1y ~ drugA&quot;, m, &quot;pair&quot;)
+print(gm.summary().tables[1])
+print(&quot;clusters:&quot;, gm.model.num_group,
+      &quot; cov type:&quot;, gm.cov_type)
+ci = gm.conf_int().loc[&quot;drugA&quot;]
+print(&quot;RR:&quot;, round(np.exp(gm.params[&quot;drugA&quot;]), 3),
+      &quot; 95% CI:&quot;, np.exp(ci).round(3).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     -2.1201      0.046    -46.427      0.000      -2.210      -2.031
+drugA         -0.0970<span class="mk">1</span>      0.066<span class="mk">2</span>     -1.468      0.142      -0.226       0.032
+==============================================================================
+clusters: 3516<span class="mk">3</span>  cov type: robust
+RR: 0.908<span class="mk">4</span>  95% CI: [0.797, 1.033]<span class="mk">5</span></pre></div></div>

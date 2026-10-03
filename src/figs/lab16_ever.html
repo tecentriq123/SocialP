@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">추적 중 사용 여부로 군 나누기 (잘못된 분류)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d[&quot;ever&quot;] = d[&quot;rx_day&quot;].notna().astype(int)   # 1년 안에 시작 = 1
+
+t1 = d.groupby(&quot;ever&quot;)[&quot;died&quot;].agg([&quot;count&quot;, &quot;sum&quot;, &quot;mean&quot;])
+t1.columns = [&quot;n&quot;, &quot;deaths&quot;, &quot;risk&quot;]
+print(&quot;상대위험도:&quot;, round(t1.loc[1, &quot;risk&quot;] / t1.loc[0, &quot;risk&quot;], 2))
+t1[&quot;risk&quot;] = (t1[&quot;risk&quot;] * 100).round(1)       # 1년 사망 위험(%)
+t1</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>상대위험도: 0.42<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>deaths</th>
+      <th>risk</th>
+    </tr>
+    <tr>
+      <th>ever</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3266<span class="mk">2</span></td>
+      <td>913</td>
+      <td>28.0<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2734</td>
+      <td>321</td>
+      <td>11.7<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

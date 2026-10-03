@@ -7,6 +7,13 @@
 20–25장은 이 파일의 기준 분석(base case) 숫자를 같이 쓴다. 기준 입력값(base_params)은
 바꾸지 않는다. 함수 추가는 23장(모형)·24장(불확실성) 담당만 한다.
 
+확률적 민감도 분석에서 입력값을 뽑는 방법(2026-10-03 고침. 기준 입력값과 기준 분석 결과는 그대로):
+  곡선의 불확실성은 (중앙 생존기간, 모양 모수)로 적고(PSA_SPEC의 pfs_med, os_med, pfs_gam, os_gam),
+  무진행생존과 전체생존의 중앙값끼리·모양끼리·위험비끼리 상관 0.5로 함께 뽑으며(PSA_CORR),
+  분석기간 안에 무진행생존 곡선이 전체생존 곡선을 넘는 벌은 버리고 다시 뽑는다(draw, curves_cross).
+  쓰는 법: psa(n, seed) → (증분비용, 증분QALY) 배열, psa_inputs(n, seed) → (입력값 n벌, 다시 뽑기 기록),
+           get_input / set_input(p, key, value) → 입력값 표의 표현(중앙값·모양)으로 읽고 바꾸기.
+
 단위: 시간 = 개월(주기 1개월), 비용 = 만원, 할인율 = 연 4.5%(비용·효과 동일).
 생존함수: Weibull 비례위험 꼴 S(t) = exp(-lam * t**gam). 위험비(HR)는 lam에 곱한다.
 """
@@ -47,11 +54,17 @@ def base_params():
 
 # 확률적 민감도 분석용 분포. (분포, 불확실성 크기)
 #   lognormal: 로그 척도의 표준오차 / beta: 표준오차 / gamma: 표준오차 = 평균 × 비율
+# 생존곡선(표준요법 B의 와이블 곡선)의 불확실성은 척도 모수 lam이 아니라 중앙 생존기간과 모양 모수로 적는다.
+#   pfs_med, os_med: 중앙 무진행생존·전체생존기간(개월). base_params()에는 없는 key이고 get_input()이 lam, gam에서 계산한다
+#   (기준값 10, 28개월). 뽑은 중앙값과 모양 모수로 lam = weib_lam(중앙값, 모양)을 다시 계산한다.
+#   표준오차의 근거(gen/nums_ch24.py에서 검산): 23장 라 절의 가상 시험(표준요법 B군 300명, 추적 24–30개월)에 와이블을 적합하면
+#   전체생존은 ln 중앙값의 표준오차 0.074, ln 모양의 표준오차 0.077이고, 같은 설계의 무진행생존은 0.069, 0.053이다.
+#   두 군(각 300명)을 함께 적합하면 모양의 표준오차는 0.058, 0.040으로 줄어든다. 이 사이의 값으로 정했다.
 PSA_SPEC = {
     "hr_pfs": ("lognormal", 0.113),   # 95% CI 약 0.52–0.81
     "hr_os": ("lognormal", 0.131),    # 95% CI 약 0.58–0.97
-    "pfs_lam": ("lognormal", 0.08), "pfs_gam": ("lognormal", 0.05),
-    "os_lam": ("lognormal", 0.10), "os_gam": ("lognormal", 0.06),
+    "pfs_med": ("lognormal", 0.07), "pfs_gam": ("lognormal", 0.05),
+    "os_med": ("lognormal", 0.08), "os_gam": ("lognormal", 0.06),
     "u_pf": ("beta", 0.03), "u_pd": ("beta", 0.05),
     "du_ae_A": ("gamma", 0.25), "du_ae_B": ("gamma", 0.25),
     "c_pf": ("gamma", 0.20), "c_pd": ("gamma", 0.20), "c_death": ("gamma", 0.20),
@@ -59,18 +72,72 @@ PSA_SPEC = {
 }
 # 약값(c_drug_A, c_drug_B)과 할인율은 확률분포를 주지 않고 시나리오·임계값 분석에서 바꾼다.
 
+# 함께 뽑는 짝과 로그 척도에서의 상관계수. 무진행생존과 전체생존은 같은 환자에게서 추정하므로
+# 중앙값끼리, 모양 모수끼리, 위험비끼리 양의 상관이 있다(진행이 늦은 환자가 대체로 오래 산다).
+#   근거(gen/nums_ch24.py에서 검산): 진행 시간과 사망 시간의 상관이 0.5–0.7(22장의 가상 시험은 0.7)인 군당 300명의 시험을
+#   600번씩 만들어 적합하면 추정값 사이의 상관은 중앙값 0.51–0.61, 모양 0.40–0.45, 위험비 0.56–0.64이다. 어림해 모두 0.5로 둔다.
+PSA_CORR = {("pfs_med", "os_med"): 0.5, ("pfs_gam", "os_gam"): 0.5, ("hr_pfs", "hr_os"): 0.5}
+
+_CURVE_MEDIAN = {"pfs_med": ("pfs_lam", "pfs_gam"), "os_med": ("os_lam", "os_gam")}
+_CURVE_SHAPE = {"pfs_gam": "pfs_lam", "os_gam": "os_lam"}
+
+
+def get_input(p, key):
+    """입력값 표의 표현으로 값 하나를 읽는다. pfs_med, os_med(중앙값, 개월)는 lam과 gam에서 계산하고 나머지는 p[key]."""
+    if key in _CURVE_MEDIAN:
+        k_lam, k_gam = _CURVE_MEDIAN[key]
+        return (math.log(2) / p[k_lam]) ** (1.0 / p[k_gam])
+    return p[key]
+
+
+def set_input(p, key, value):
+    """입력값 dict p를 복사해 입력값 표의 표현으로 key 하나를 value로 바꾼 새 dict를 돌려준다(원래 dict는 그대로).
+
+    곡선은 (중앙값, 모양 모수)로 다룬다:
+      pfs_med, os_med : 모양 모수는 그대로 두고 중앙값이 value가 되도록 lam을 다시 계산한다.
+      pfs_gam, os_gam : 중앙값은 그대로 두고 모양 모수를 value로 바꾼다(lam을 다시 계산한다).
+    그 밖의 key는 set_param()과 같다. lam을 직접 바꾸려면 set_param(p, "os_lam", …)을 쓴다.
+    """
+    q = dict(p)
+    if key in _CURVE_MEDIAN:
+        k_lam, k_gam = _CURVE_MEDIAN[key]
+        q[k_lam] = weib_lam(value, q[k_gam])
+    elif key in _CURVE_SHAPE:
+        med = get_input(p, key[:-3] + "med")
+        q[key] = value
+        q[_CURVE_SHAPE[key]] = weib_lam(med, value)
+    else:
+        q[key] = value
+    return q
+
 
 def surv(lam, gam, t):
     return np.exp(-lam * np.asarray(t, float) ** gam)
 
 
-def curves(p, arm, t):
-    """군별 무진행생존 S_PFS(t), 전체생존 S_OS(t). 무진행생존은 전체생존을 넘지 못하게 자른다."""
+def curves_raw(p, arm, t):
+    """군별 무진행생존 S_PFS(t), 전체생존 S_OS(t)를 자르지 않고 돌려준다(두 곡선이 엇갈리는지 볼 때 쓴다)."""
     h_pfs = p["hr_pfs"] if arm == "A" else 1.0
     h_os = p["hr_os"] if arm == "A" else 1.0
     s_os = surv(p["os_lam"] * h_os, p["os_gam"], t)
-    s_pfs = np.minimum(surv(p["pfs_lam"] * h_pfs, p["pfs_gam"], t), s_os)
-    return s_pfs, s_os
+    return surv(p["pfs_lam"] * h_pfs, p["pfs_gam"], t), s_os
+
+
+def curves(p, arm, t):
+    """군별 무진행생존 S_PFS(t), 전체생존 S_OS(t). 무진행생존은 전체생존을 넘지 못하게 자른다."""
+    s_pfs, s_os = curves_raw(p, arm, t)
+    return np.minimum(s_pfs, s_os), s_os
+
+
+def curves_cross(p, horizon=HORIZON_MONTHS):
+    """분석기간 안의 주기 경계 시점(0, 1, …, horizon개월)에서 어느 군에서든 무진행생존 곡선이 전체생존 곡선을 넘으면 True.
+    False이면 curves()의 np.minimum이 값을 하나도 바꾸지 않는다."""
+    t = np.arange(0, horizon + 1) * CYCLE_MONTHS
+    for arm in ARMS:
+        s_pfs, s_os = curves_raw(p, arm, t)
+        if (s_pfs > s_os).any():
+            return True
+    return False
 
 
 def psm(p, arm, horizon=HORIZON_MONTHS, half_cycle=True, disc=None):
@@ -125,10 +192,46 @@ def nmb(res, lam=THRESHOLD):
     return lam * res["d_qaly"] - res["d_cost"]
 
 
-def draw(rng, p=None):
-    """PSA_SPEC에 따라 입력값 한 벌을 뽑는다(모수끼리는 독립으로 가정)."""
+def draw_survival(rng, p=None):
+    """생존곡선과 위험비 한 벌을 뽑는다(곡선이 엇갈리는지는 보지 않는다). 다른 입력값은 p의 값 그대로.
+
+    PSA_CORR의 짝(중앙값, 모양 모수, 위험비)마다 표준정규 난수 두 개 z1, z2를 뽑아
+    둘째를 rho × z1 + sqrt(1 − rho²) × z2로 바꾼 뒤(2 × 2 촐레스키 분해), 로그 척도에서 기준값에 더한다.
+    뽑은 중앙값과 모양 모수로 lam을 다시 계산한다."""
     p = dict(base_params() if p is None else p)
+    val = {}
+    for (k1, k2), rho in PSA_CORR.items():
+        z1, z2 = rng.normal(size=2)
+        z2 = rho * z1 + math.sqrt(1.0 - rho ** 2) * z2
+        val[k1] = get_input(p, k1) * math.exp(PSA_SPEC[k1][1] * z1)
+        val[k2] = get_input(p, k2) * math.exp(PSA_SPEC[k2][1] * z2)
+    for k in ("hr_pfs", "hr_os", "pfs_gam", "os_gam"):
+        p[k] = float(val[k])
+    p["pfs_lam"] = weib_lam(val["pfs_med"], val["pfs_gam"])
+    p["os_lam"] = weib_lam(val["os_med"], val["os_gam"])
+    return p
+
+
+def draw(rng, p=None, count=None):
+    """PSA_SPEC에 따라 입력값 한 벌을 뽑는다.
+
+    1) 생존곡선과 위험비: draw_survival()로 뽑고, 분석기간 안에 어느 군에서든 무진행생존 곡선이 전체생존 곡선을 넘으면
+       (curves_cross) 그 벌을 버리고 다시 뽑는다. count(dict)를 주면 count["tries"](뽑은 횟수)와 count["rejected"](버린 횟수)에 더한다.
+    2) 효용, 비용, QALY 손실: 서로 독립으로 뽑는다.
+    """
+    base = dict(base_params() if p is None else p)
+    while True:
+        p = draw_survival(rng, base)
+        if count is not None:
+            count["tries"] = count.get("tries", 0) + 1
+        if not curves_cross(p):
+            break
+        if count is not None:
+            count["rejected"] = count.get("rejected", 0) + 1
+    paired = {k for pair in PSA_CORR for k in pair}
     for k, (dist, u) in PSA_SPEC.items():
+        if k in paired:
+            continue
         m = p[k]
         if dist == "lognormal":
             p[k] = float(np.exp(rng.normal(math.log(m), u)))
@@ -140,6 +243,16 @@ def draw(rng, p=None):
             shape = (m / se) ** 2
             p[k] = float(rng.gamma(shape, m / shape))
     return p
+
+
+def psa_inputs(n=5000, seed=20261002, p=None):
+    """psa()와 같은 난수로 뽑은 입력값 n벌(dict의 list)과 다시 뽑기 기록을 돌려준다.
+    기록 dict: tries(뽑은 횟수 = n + rejected), rejected(곡선이 엇갈려 버린 횟수), share(= rejected ÷ tries)."""
+    rng = np.random.default_rng(seed)
+    count = {"tries": 0, "rejected": 0}
+    draws = [draw(rng, p, count) for _ in range(n)]
+    count["share"] = count["rejected"] / count["tries"]
+    return draws, count
 
 
 def psa(n=5000, seed=20261002, p=None):
@@ -433,18 +546,19 @@ def lifelines_weibull_to_lib(lambda_, rho_):
 
 
 # ======================================================================================
-# 24장(불확실성 분석)에서 추가한 함수. 위의 함수와 입력값(base_params, PSA_SPEC)은 그대로 두고 덧붙인 것이다.
+# 24장(불확실성 분석)에서 추가한 함수. 위의 기준 분석 함수와 입력값(base_params)은 그대로 두고 덧붙인 것이다.
 #   분포와 범위    : dist_params, DSA_LABELS, dsa_ranges, DSA_RANGES
 #   결정론적 분석  : set_param, oneway, twoway, threshold_value, threshold_price
+#                    (oneway, twoway, threshold_value는 위의 set_input()으로 값을 바꾼다. 곡선은 중앙값·모양 모수로 다룬다)
 #   시나리오       : run_waning, os_alternatives, scenario_table
 #   확률적 분석 요약: CEAC_LAMS, inmb, ceac, evpi, quadrants, psa_summary
-# 확률적 민감도 분석 자체는 위의 psa(n=5000, seed=20261002)를 그대로 쓴다.
+# 확률적 민감도 분석 자체는 위의 psa(n=5000, seed=20261002)를 그대로 쓴다. 뽑힌 입력값과 다시 뽑은 비율은 psa_inputs().
 # ======================================================================================
 
 DSA_LABELS = {
     "hr_os": "전체생존 위험비", "hr_pfs": "무진행생존 위험비",
-    "os_lam": "전체생존 곡선의 척도 모수 λ", "os_gam": "전체생존 곡선의 모양 모수 γ",
-    "pfs_lam": "무진행생존 곡선의 척도 모수 λ", "pfs_gam": "무진행생존 곡선의 모양 모수 γ",
+    "os_med": "중앙 전체생존기간, 표준요법 B", "os_gam": "전체생존 곡선의 모양 모수 γ",
+    "pfs_med": "중앙 무진행생존기간, 표준요법 B", "pfs_gam": "무진행생존 곡선의 모양 모수 γ",
     "u_pf": "무진행 상태의 효용", "u_pd": "진행 상태의 효용",
     "du_ae_A": "이상반응 QALY 손실, 신약 A", "du_ae_B": "이상반응 QALY 손실, 표준요법 B",
     "c_drug_A": "신약 A의 월 약값", "c_drug_B": "표준요법 B의 월 약값",
@@ -456,6 +570,7 @@ DSA_LABELS = {
 
 def dist_params(key, p=None):
     """PSA_SPEC에 있는 입력값 하나의 분포 정보를 dict로 돌려준다(draw()가 쓰는 것과 같은 모수화).
+    pfs_med, os_med(중앙 생존기간)의 기준값은 get_input()으로 lam, gam에서 계산한다. 함께 뽑는 짝과 상관계수는 PSA_CORR에 있다.
 
     공통 key: dist("lognormal" | "beta" | "gamma"), base(기준값), se(자연 척도의 표준오차; 로그정규는 근사),
               mean(분포의 평균), lo, hi(분포의 2.5, 97.5 백분위수).
@@ -466,7 +581,7 @@ def dist_params(key, p=None):
     from scipy import stats
     p = base_params() if p is None else p
     dist, u = PSA_SPEC[key]
-    m = p[key]
+    m = get_input(p, key)
     if dist == "lognormal":
         lo, hi = (math.exp(math.log(m) + z * u) for z in (-1.959963984540054, 1.959963984540054))
         return {"dist": dist, "base": m, "mu": math.log(m), "sigma": u, "se": m * u,
@@ -492,6 +607,7 @@ def dsa_ranges(p=None, pm=0.20, price_cut=0.20):
     근거 "scenario": 신약 A의 약값. 표시 가격에서 price_cut(기본 20%) 인하한 값부터 표시 가격까지(가격 협상 시나리오).
     근거 "pm"      : 표준요법 B의 약값. 불확실성의 크기를 알려 주는 자료가 없어 기준값 ±pm(기본 ±20%)으로 임의로 정함.
     할인율과 분석기간은 여기에 넣지 않고 scenario_table()에서 바꾼다.
+    곡선은 PSA_SPEC과 같은 표현(중앙값 pfs_med·os_med와 모양 모수 pfs_gam·os_gam)으로 들어 있고, oneway()가 set_input()으로 바꿔 넣는다.
     """
     p = base_params() if p is None else p
     out = {}
@@ -507,7 +623,8 @@ DSA_RANGES = dsa_ranges()
 
 
 def set_param(p, key, value):
-    """입력값 dict p를 복사해 key 하나만 value로 바꾼 새 dict를 돌려준다(원래 dict는 그대로)."""
+    """입력값 dict p를 복사해 key 하나만 value로 바꾼 새 dict를 돌려준다(원래 dict는 그대로).
+    dict의 값을 그대로 바꿀 뿐이다. 곡선을 중앙값·모양 모수로 바꾸려면 set_input()을 쓴다."""
     q = dict(p)
     q[key] = value
     return q
@@ -515,6 +632,7 @@ def set_param(p, key, value):
 
 def oneway(p=None, ranges=None, lam=THRESHOLD):
     """일원 민감도 분석(one-way sensitivity analysis). 입력값을 하나씩 범위의 양 끝으로 바꾸고 나머지는 기준값에 둔다.
+    곡선은 set_input()으로 바꾼다: 중앙값을 바꿀 때는 모양 모수를, 모양 모수를 바꿀 때는 중앙값을 기준값에 둔다.
 
     ranges는 dsa_ranges()와 같은 꼴(기본 DSA_RANGES). 반환: ICER가 움직인 폭(swing)이 큰 순서로 정렬한 dict의 list
     (토네이도 그림의 위에서 아래 순서). 각 dict의 key:
@@ -527,10 +645,10 @@ def oneway(p=None, ranges=None, lam=THRESHOLD):
     ranges = DSA_RANGES if ranges is None else ranges
     rows = []
     for k, (lo, hi, label, basis) in ranges.items():
-        r_lo, r_hi = run(set_param(p, k, lo)), run(set_param(p, k, hi))
+        r_lo, r_hi = run(set_input(p, k, lo)), run(set_input(p, k, hi))
         i_lo, i_hi = r_lo["icer"], r_hi["icer"]
         rows.append({
-            "key": k, "label": label, "basis": basis, "base": p[k], "low": lo, "high": hi,
+            "key": k, "label": label, "basis": basis, "base": get_input(p, k), "low": lo, "high": hi,
             "icer_low": i_lo, "icer_high": i_hi, "icer_min": min(i_lo, i_hi), "icer_max": max(i_lo, i_hi),
             "swing": abs(i_hi - i_lo),
             "nmb_low": nmb(r_lo, lam), "nmb_high": nmb(r_hi, lam),
@@ -549,7 +667,7 @@ def twoway(key1, values1, key2, values2, p=None):
     out = np.empty((len(values1), len(values2)))
     for i, v1 in enumerate(values1):
         for j, v2 in enumerate(values2):
-            out[i, j] = run(set_param(set_param(p, key1, v1), key2, v2))["icer"]
+            out[i, j] = run(set_input(set_input(p, key1, v1), key2, v2))["icer"]
     return out
 
 
@@ -558,7 +676,7 @@ def threshold_value(key, lo, hi, lam=THRESHOLD, p=None):
     (증분 QALY가 양수이면 ICER = lam이 되는 값). scipy.optimize.brentq로 푼다. 구간 안에 그런 값이 없으면 None."""
     from scipy.optimize import brentq
     p = base_params() if p is None else p
-    f = lambda v: nmb(run(set_param(p, key, v)), lam)
+    f = lambda v: nmb(run(set_input(p, key, v)), lam)
     f_lo, f_hi = f(lo), f(hi)
     if f_lo == 0:
         return float(lo)

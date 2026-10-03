@@ -1,0 +1,147 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">처방 기록에서 약이 떨어지는 날과 공백 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = study.merge(cohort[[&quot;pid&quot;, &quot;index_date&quot;, &quot;arm&quot;]], on=&quot;pid&quot;)
+own = f[(f[&quot;drug&quot;] == f[&quot;arm&quot;])
+        &amp; (f[&quot;rx_date&quot;] &gt;= f[&quot;index_date&quot;])].copy()
+own = own.sort_values([&quot;pid&quot;, &quot;rx_date&quot;])
+own[&quot;runout&quot;] = own[&quot;rx_date&quot;] + pd.to_timedelta(own[&quot;days&quot;],
+                                                 unit=&quot;D&quot;)
+own[&quot;next&quot;] = own.groupby(&quot;pid&quot;)[&quot;rx_date&quot;].shift(-1)
+own[&quot;gap&quot;] = (own[&quot;next&quot;] - own[&quot;runout&quot;]).dt.days
+own.loc[own[&quot;pid&quot;] == p, [&quot;rx_date&quot;, &quot;days&quot;, &quot;runout&quot;, &quot;gap&quot;]]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rx_date</th>
+      <th>days</th>
+      <th>runout</th>
+      <th>gap</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>11319</th>
+      <td>2018-05-18</td>
+      <td>90</td>
+      <td>2018-08-16<span class="mk">1</span></td>
+      <td>12.0<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>14119</th>
+      <td>2018-08-28</td>
+      <td>90</td>
+      <td>2018-11-26</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>16890</th>
+      <td>2018-11-27</td>
+      <td>90</td>
+      <td>2019-02-25</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>19915</th>
+      <td>2019-02-26</td>
+      <td>90</td>
+      <td>2019-05-27</td>
+      <td>36.0<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>24520</th>
+      <td>2019-07-02</td>
+      <td>90</td>
+      <td>2019-09-30</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>28177</th>
+      <td>2019-09-30</td>
+      <td>90</td>
+      <td>2019-12-29</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>32162</th>
+      <td>2020-01-02</td>
+      <td>90</td>
+      <td>2020-04-01</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>36280</th>
+      <td>2020-04-03</td>
+      <td>90</td>
+      <td>2020-07-02</td>
+      <td>7.0</td>
+    </tr>
+    <tr>
+      <th>40871</th>
+      <td>2020-07-09</td>
+      <td>90</td>
+      <td>2020-10-07</td>
+      <td>17.0</td>
+    </tr>
+    <tr>
+      <th>46200</th>
+      <td>2020-10-24</td>
+      <td>90</td>
+      <td>2021-01-22</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>51052</th>
+      <td>2021-01-24</td>
+      <td>90</td>
+      <td>2021-04-24</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>56347</th>
+      <td>2021-04-29</td>
+      <td>90</td>
+      <td>2021-07-28</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>61654</th>
+      <td>2021-07-29</td>
+      <td>90</td>
+      <td>2021-10-27</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>67251</th>
+      <td>2021-10-29</td>
+      <td>90</td>
+      <td>2022-01-27</td>
+      <td>7.0</td>
+    </tr>
+    <tr>
+      <th>73238</th>
+      <td>2022-02-03</td>
+      <td>90</td>
+      <td>2022-05-04</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>78943</th>
+      <td>2022-05-08</td>
+      <td>90</td>
+      <td>2022-08-06</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>84283</th>
+      <td>2022-08-08</td>
+      <td>90</td>
+      <td>2022-11-06</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>89444</th>
+      <td>2022-11-08</td>
+      <td>90</td>
+      <td>2023-02-06</td>
+      <td>NaN<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

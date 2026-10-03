@@ -1,0 +1,125 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">하위군 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sub = pd.read_csv(BASE + &quot;acs_trials_subgroup.csv&quot;)
+print(sub.shape)
+sub</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(12, 6)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>trial</th>
+      <th>subgroup</th>
+      <th>n_x</th>
+      <th>mace_x</th>
+      <th>n_pbo</th>
+      <th>mace_pbo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Trial A</td>
+      <td>STEMI</td>
+      <td>341<span class="mk">2</span></td>
+      <td>10</td>
+      <td>170</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Trial A</td>
+      <td>NSTE-ACS</td>
+      <td>279<span class="mk">3</span></td>
+      <td>13</td>
+      <td>140</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Trial B</td>
+      <td>STEMI</td>
+      <td>603</td>
+      <td>28</td>
+      <td>302</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Trial B</td>
+      <td>NSTE-ACS</td>
+      <td>557</td>
+      <td>19</td>
+      <td>278</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Trial D</td>
+      <td>STEMI</td>
+      <td>1496</td>
+      <td>112</td>
+      <td>1492</td>
+      <td>120</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Trial D</td>
+      <td>NSTE-ACS</td>
+      <td>2154</td>
+      <td>194</td>
+      <td>2148</td>
+      <td>176</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Trial F</td>
+      <td>STEMI</td>
+      <td>2550</td>
+      <td>249</td>
+      <td>2540</td>
+      <td>313</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Trial F</td>
+      <td>NSTE-ACS</td>
+      <td>2550</td>
+      <td>283</td>
+      <td>2540</td>
+      <td>311</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Trial H</td>
+      <td>STEMI</td>
+      <td>882</td>
+      <td>54</td>
+      <td>878</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Trial H</td>
+      <td>NSTE-ACS</td>
+      <td>1568</td>
+      <td>107</td>
+      <td>1562</td>
+      <td>121</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Trial I</td>
+      <td>STEMI</td>
+      <td>1134</td>
+      <td>75</td>
+      <td>1128</td>
+      <td>108</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Trial I</td>
+      <td>NSTE-ACS</td>
+      <td>666</td>
+      <td>47</td>
+      <td>662</td>
+      <td>59</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

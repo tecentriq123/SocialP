@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">5,000벌 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def run_psa(p, n=5000, seed=20261002, rho=0.5, redraw=True):
+    &quot;&quot;&quot;입력값 n벌을 뽑아 모형을 n번 돌린다&quot;&quot;&quot;
+    rng = np.random.default_rng(seed)
+    count = {&quot;tries&quot;: 0, &quot;crossed&quot;: 0}
+    dc, dq = np.empty(n), np.empty(n)  # 결과를 담을 빈 배열
+    for i in range(n):
+        r = run_model(draw_inputs(rng, p, count, rho, redraw))
+        dc[i], dq[i] = r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;]
+    return dc, dq, count
+
+t0 = time.time()
+dc, dq, count = run_psa(p)
+print(&quot;걸린 시간(초):&quot;, round(time.time() - t0, 1))
+print(&quot;뽑은 횟수&quot;, count[&quot;tries&quot;], &quot; 버린 횟수&quot;, count[&quot;crossed&quot;],
+      &quot; 비율&quot;, round(count[&quot;crossed&quot;] / count[&quot;tries&quot;], 4))
+print(dc.shape, dq.shape)
+print(&quot;처음 세 벌의 증분비용:&quot;, dc[:3].round(1))
+print(&quot;처음 세 벌의 증분 QALY:&quot;, dq[:3].round(4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>걸린 시간(초):<span class="mk">1</span> 0.7
+뽑은 횟수 5137<span class="mk">2</span>  버린 횟수 137<span class="mk">3</span>  비율 0.0267
+(5000,) (5000,)<span class="mk">4</span>
+처음 세 벌의 증분비용: [2709.5 4450.7 4428.8]<span class="mk">5</span>
+처음 세 벌의 증분 QALY: [0.5704 0.7004 0.9851]</pre></div></div>

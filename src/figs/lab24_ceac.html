@@ -1,0 +1,87 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def p_ce(dc, dq, lam):
+    &quot;&quot;&quot;임계값 lam에서 순금전편익이 양수인 벌의 비율&quot;&quot;&quot;
+    return np.mean(lam * dq - dc &gt; 0)
+
+def evpi(dc, dq, lam):
+    &quot;&quot;&quot;1인당 완전정보의 기대가치 (대안이 둘일 때)&quot;&quot;&quot;
+    nb = lam * dq - dc
+    return np.maximum(nb, 0).mean() - max(nb.mean(), 0)
+
+rows = []
+for lam in [3000, 4000, 5000, 5500, 6000, 7000, 8000, 10000, 12000]:
+    rows.append([lam, (lam * dq - dc).mean(),
+                 p_ce(dc, dq, lam), evpi(dc, dq, lam)])
+cols = [&quot;threshold&quot;, &quot;mean_inmb&quot;, &quot;p_ce&quot;, &quot;evpi&quot;]
+tab = pd.DataFrame(rows, columns=cols).set_index(&quot;threshold&quot;)
+tab.round({&quot;mean_inmb&quot;: 0, &quot;p_ce&quot;: 4, &quot;evpi&quot;: 1})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean_inmb</th>
+      <th>p_ce</th>
+      <th>evpi</th>
+    </tr>
+    <tr>
+      <th>threshold</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>3000</th>
+      <td>-1359.0</td>
+      <td>0.0022<span class="mk">1</span></td>
+      <td>0.5</td>
+    </tr>
+    <tr>
+      <th>4000</th>
+      <td>-833.0</td>
+      <td>0.0072</td>
+      <td>1.3</td>
+    </tr>
+    <tr>
+      <th>5000</th>
+      <td>-308.0<span class="mk">2</span></td>
+      <td>0.1604<span class="mk">3</span></td>
+      <td>35.9<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>5500</th>
+      <td>-45.0</td>
+      <td>0.4200</td>
+      <td>139.1<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>6000</th>
+      <td>218.0</td>
+      <td>0.6586<span class="mk">6</span></td>
+      <td>100.7</td>
+    </tr>
+    <tr>
+      <th>7000</th>
+      <td>743.0</td>
+      <td>0.8670</td>
+      <td>42.6</td>
+    </tr>
+    <tr>
+      <th>8000</th>
+      <td>1269.0</td>
+      <td>0.9300<span class="mk">7</span></td>
+      <td>27.0</td>
+    </tr>
+    <tr>
+      <th>10000</th>
+      <td>2319.0</td>
+      <td>0.9654</td>
+      <td>18.4</td>
+    </tr>
+    <tr>
+      <th>12000</th>
+      <td>3370.0</td>
+      <td>0.9752<span class="mk">8</span></td>
+      <td>16.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

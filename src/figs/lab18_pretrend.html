@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">시행 전 추세의 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pre = panel[panel[&quot;post&quot;] == 0]
+pt = smf.wls(&quot;rate ~ treat * time&quot;, data=pre,
+             weights=pre[&quot;w&quot;]).fit(
+    cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: pre[&quot;unit&quot;]})
+print(pt.summary().tables[1])
+lo, hi = pt.conf_int().loc[&quot;treat:time&quot;]
+print(f&quot;x 30 months: {30 * lo:.2f} ~ {30 * hi:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     84.0951      0.937     89.796      0.000      82.260      85.931
+treat         11.5260      1.515      7.607      0.000       8.556      14.496
+time          -0.2395      0.010    -24.791      0.000      -0.258      -0.221
+treat:time    -0.0026      0.018     -0.150      0.881      -0.037       0.032<span class="mk">1</span>
+==============================================================================
+x 30 months: -1.12 ~ 0.96<span class="mk">2</span></pre></div></div>

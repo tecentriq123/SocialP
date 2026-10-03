@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">차이의 계열 분석 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fit_d = fits[&quot;difference&quot;]
+print(fit_d.summary().tables[1])
+print(fit_d.t_test(&quot;post + 12 * time_after = 0&quot;))
+print(&quot;Durbin-Watson:&quot;, round(durbin_watson(fit_d.resid), 2),
+      &quot; residual SD:&quot;, round(np.sqrt(fit_d.scale), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     11.5260      0.282     40.944      0.000      10.974      12.078
+time          -0.0026      0.013     -0.210      0.834      -0.027       0.022<span class="mk">1</span>
+post          -4.8426      0.402    -12.040      0.000      -5.631      -4.054<span class="mk">2</span>
+time_after    -0.1984      0.027     -7.379      0.000      -0.251      -0.146<span class="mk">3</span>
+==============================================================================
+                             Test for Constraints                             
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+c0            -7.2230      0.412    -17.516      0.000      -8.031      -6.415<span class="mk">4</span>
+==============================================================================
+Durbin-Watson: 1.76<span class="mk">5</span>  residual SD: 0.84</pre></div></div>

@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">입력값의 분포와 적률법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">spec = {   # 이름: (분포, 불확실성의 크기)
+    &quot;hr_pfs&quot;: (&quot;lognormal&quot;, 0.113), &quot;hr_os&quot;: (&quot;lognormal&quot;, 0.131),
+    &quot;pfs_med&quot;: (&quot;lognormal&quot;, 0.07), &quot;pfs_gam&quot;: (&quot;lognormal&quot;, 0.05),
+    &quot;os_med&quot;: (&quot;lognormal&quot;, 0.08), &quot;os_gam&quot;: (&quot;lognormal&quot;, 0.06),
+    &quot;u_pf&quot;: (&quot;beta&quot;, 0.03), &quot;u_pd&quot;: (&quot;beta&quot;, 0.05),
+    &quot;du_ae_A&quot;: (&quot;gamma&quot;, 0.25), &quot;du_ae_B&quot;: (&quot;gamma&quot;, 0.25),
+    &quot;c_pf&quot;: (&quot;gamma&quot;, 0.20), &quot;c_pd&quot;: (&quot;gamma&quot;, 0.20),
+    &quot;c_death&quot;: (&quot;gamma&quot;, 0.20),
+    &quot;c_ae_A&quot;: (&quot;gamma&quot;, 0.25), &quot;c_ae_B&quot;: (&quot;gamma&quot;, 0.25),
+}
+
+def beta_ab(m, se):
+    &quot;&quot;&quot;평균, 표준오차 -&gt; 베타분포의 alpha, beta&quot;&quot;&quot;
+    n = m * (1 - m) / se ** 2 - 1
+    return m * n, (1 - m) * n
+
+def gamma_ks(m, se):
+    &quot;&quot;&quot;평균, 표준오차 -&gt; 감마분포의 모양, 척도&quot;&quot;&quot;
+    shape = (m / se) ** 2
+    return shape, m / shape
+
+print(len(spec), &quot;개 입력값에 분포&quot;)
+print(&quot;무진행 효용 0.78 (SE 0.03):&quot;, np.round(beta_ab(0.78, 0.03), 2))
+print(&quot;진행 상태 비용 250 (SE 50):&quot;, gamma_ks(250, 250 * 0.20))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>15 개 입력값에 분포<span class="mk">1</span>
+무진행 효용 0.78 (SE 0.03): [147.94  41.73]<span class="mk">2</span>
+진행 상태 비용 250 (SE 50): (25.0, 10.0)<span class="mk">3</span></pre></div></div>

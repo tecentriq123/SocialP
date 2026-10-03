@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">표준화 평균차(SMD) 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def smd(x, treat, w=None):
+    &quot;&quot;&quot;표준화 평균차. w를 주면 가중 평균과 가중 분산으로.&quot;&quot;&quot;
+    x = np.asarray(x, dtype=float)
+    t = np.asarray(treat) == 1
+    w = np.ones(len(x)) if w is None else np.asarray(w)
+    m1 = np.average(x[t], weights=w[t])           # A군 평균
+    m0 = np.average(x[~t], weights=w[~t])         # B군 평균
+    v1 = np.average((x[t] - m1) ** 2, weights=w[t])     # 분산
+    v0 = np.average((x[~t] - m0) ** 2, weights=w[~t])
+    return (m1 - m0) / np.sqrt((v1 + v0) / 2)
+
+print(&quot;hf, before:&quot;, round(smd(df[&quot;hf&quot;], df[&quot;drugA&quot;]), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>hf, before: 0.292<span class="mk">1</span></pre></div></div>

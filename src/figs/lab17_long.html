@@ -1,0 +1,133 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">사망자를 위험집합에 남긴 긴 자료와 가중치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ev_t = np.sort(ckd.loc[ckd[&quot;dial&quot;] == 1, &quot;years&quot;].unique())
+dead = ckd.loc[died, [&quot;id&quot;, &quot;drug_a&quot;, &quot;years&quot;]]
+
+# 사망자마다, 사망 뒤에 투석이 일어난 시점들을 한 줄씩 붙임
+ext = dead.merge(pd.DataFrame({&quot;stop&quot;: ev_t}), how=&quot;cross&quot;)
+ext = ext[ext[&quot;stop&quot;] &gt; ext[&quot;years&quot;]].copy()
+ext[&quot;w&quot;] = (kmc.predict(ext[&quot;stop&quot;]).values
+            / kmc.predict(ext[&quot;years&quot;]).values)
+# 가중치가 같은 이웃 줄은 마지막 줄만 남겨 한 줄로 합침
+nxt = ext.groupby(&quot;id&quot;)[&quot;w&quot;].shift(-1)     # 같은 환자의 다음 줄 w
+ext = ext[ext[&quot;w&quot;] != nxt].copy()
+prev = ext.groupby(&quot;id&quot;)[&quot;stop&quot;].shift()   # 같은 환자의 앞 줄 stop
+ext[&quot;start&quot;] = prev.fillna(ext[&quot;years&quot;])   # 첫 줄은 사망 시점부터
+ext[&quot;dial&quot;] = 0
+
+own = ckd.assign(start=0.0, stop=ckd[&quot;years&quot;], w=1.0)
+keep = [&quot;id&quot;, &quot;drug_a&quot;, &quot;start&quot;, &quot;stop&quot;, &quot;dial&quot;, &quot;w&quot;]
+long = pd.concat([own[keep], ext[keep]], ignore_index=True)
+print(len(ckd), &quot;명 -&gt;&quot;, len(long), &quot;줄&quot;)
+long[long[&quot;id&quot;] == 1].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3500 명 -&gt; 224833 줄<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>drug_a</th>
+      <th>start</th>
+      <th>stop</th>
+      <th>dial</th>
+      <th>w</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0.0000</td>
+      <td>0.9609</td>
+      <td>0</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <th>3500</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0.9609</td>
+      <td>2.9957<span class="mk">2</span></td>
+      <td>0</td>
+      <td>1.0000</td>
+    </tr>
+    <tr>
+      <th>3501</th>
+      <td>1</td>
+      <td>1</td>
+      <td>2.9957</td>
+      <td>3.0033</td>
+      <td>0</td>
+      <td>0.9987</td>
+    </tr>
+    <tr>
+      <th>3502</th>
+      <td>1</td>
+      <td>1</td>
+      <td>3.0033</td>
+      <td>3.0158</td>
+      <td>0</td>
+      <td>0.9975</td>
+    </tr>
+    <tr>
+      <th>3503</th>
+      <td>1</td>
+      <td>1</td>
+      <td>3.0158</td>
+      <td>3.0207</td>
+      <td>0</td>
+      <td>0.9968</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>3652</th>
+      <td>1</td>
+      <td>1</td>
+      <td>4.8691</td>
+      <td>4.9049</td>
+      <td>0</td>
+      <td>0.6296</td>
+    </tr>
+    <tr>
+      <th>3653</th>
+      <td>1</td>
+      <td>1</td>
+      <td>4.9049</td>
+      <td>4.9194</td>
+      <td>0</td>
+      <td>0.6285</td>
+    </tr>
+    <tr>
+      <th>3654</th>
+      <td>1</td>
+      <td>1</td>
+      <td>4.9194</td>
+      <td>4.9412</td>
+      <td>0</td>
+      <td>0.6275</td>
+    </tr>
+    <tr>
+      <th>3655</th>
+      <td>1</td>
+      <td>1</td>
+      <td>4.9412</td>
+      <td>4.9946</td>
+      <td>0</td>
+      <td>0.6181</td>
+    </tr>
+    <tr>
+      <th>3656</th>
+      <td>1</td>
+      <td>1</td>
+      <td>4.9946</td>
+      <td>4.9986</td>
+      <td>0</td>
+      <td>0.6171<span class="mk">3</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

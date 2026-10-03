@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">로짓 성향점수와 caliper</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;logit&quot;] = np.log(df[&quot;ps&quot;] / (1 - df[&quot;ps&quot;]))   # 로짓 성향점수
+sd = df[&quot;logit&quot;].std()
+caliper = 0.2 * sd                        # 허용 한계
+print(&quot;SD of logit PS:&quot;, round(sd, 3))
+print(&quot;caliper       :&quot;, round(caliper, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>SD of logit PS: 0.616<span class="mk">1</span>
+caliper       : 0.123<span class="mk">2</span></pre></div></div>

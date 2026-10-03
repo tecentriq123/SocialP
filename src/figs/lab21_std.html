@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">모두 A일 때와 모두 B일 때의 예측 평균</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pA = glm.predict(df.assign(trt=1))   # 모두 A를 썼다고 놓은 예측
+pB = glm.predict(df.assign(trt=0))   # 모두 B를 썼다고 놓은 예측
+print(&quot;모두 A, 모두 B, 차이:&quot;, round(pA.mean(), 1),
+      round(pB.mean(), 1), round(pA.mean() - pB.mean(), 1))
+print(&quot;비:&quot;, round(pA.mean() / pB.mean(), 3))
+
+d_i = pA - pB                        # 환자 한 명 한 명의 예측 차이
+print(&quot;환자별 차이의 범위:&quot;, round(d_i.min(), 1), &quot;~&quot;,
+      round(d_i.max(), 1))
+
+two = pd.DataFrame({&quot;trt&quot;: [1, 0, 1, 0], &quot;age&quot;: [64, 64, 75, 75],
+                    &quot;male&quot;: 1, &quot;cci&quot;: [1, 1, 4, 4], &quot;stage4&quot;: 1})
+print(glm.predict(two).round(1).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>모두 A, 모두 B, 차이: 2759.8 2223.8 536.0<span class="mk">1</span>
+비: 1.241<span class="mk">2</span>
+환자별 차이의 범위: 445.1 ~ 795.5<span class="mk">3</span>
+[2712.5, 2185.7, 3435.1, 2768.0]<span class="mk">4</span></pre></div></div>

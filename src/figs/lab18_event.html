@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">사건연구 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">panel[&quot;half&quot;] = (panel[&quot;time&quot;] - 1) // 6 - 6   # -6..-1 전, 0..3 후
+terms = []
+for h in range(-6, 4):
+    if h == -1:                 # 시행 직전 반기 = 기준
+        continue
+    name = f&quot;lead{-h}&quot; if h &lt; 0 else f&quot;lag{h + 1}&quot;
+    panel[name] = ((panel[&quot;half&quot;] == h)
+                   &amp; (panel[&quot;treat&quot;] == 1)).astype(int)
+    terms.append(name)
+
+f_es = &quot;rate ~ &quot; + &quot; + &quot;.join(terms) + &quot; + C(unit) + C(time)&quot;
+es = smf.wls(f_es, data=panel, weights=panel[&quot;w&quot;]).fit(
+    cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: panel[&quot;unit&quot;]})
+ev = es.conf_int().loc[terms]
+ev.columns = [&quot;lower&quot;, &quot;upper&quot;]
+ev.insert(0, &quot;coef&quot;, es.params[terms])
+print(ev.round(2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       coef  lower  upper
+lead6 -0.34  -1.54   0.86<span class="mk">1</span>
+lead5  0.30  -0.66   1.26
+lead4 -0.30  -1.27   0.67
+lead3 -0.44  -1.47   0.59
+lead2 -0.29  -1.30   0.73<span class="mk">2</span>
+lag1  -6.03  -7.02  -5.05<span class="mk">3</span>
+lag2  -6.83  -7.73  -5.94
+lag3  -7.85  -8.91  -6.78
+lag4  -9.60 -10.60  -8.60<span class="mk">4</span></pre></div></div>

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">회귀로 구하는 이중차분 추정값 (군집 강건 표준오차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">panel = d.copy()
+panel[&quot;w&quot;] = panel.groupby(&quot;unit&quot;)[&quot;n_pat&quot;].transform(&quot;mean&quot;)
+
+did = smf.wls(&quot;rate ~ treat * post&quot;, data=panel,
+              weights=panel[&quot;w&quot;]).fit(
+    cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: panel[&quot;unit&quot;]})
+print(did.summary().tables[1])
+print(&quot;rows:&quot;, int(did.nobs), &quot; clusters:&quot;, panel[&quot;unit&quot;].nunique())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     79.6646<span class="mk">1</span>      0.977     81.523      0.000      77.749      81.580
+treat         11.4771<span class="mk">2</span>      1.513      7.588      0.000       8.513      14.442
+post         -10.0615<span class="mk">3</span>      0.153    -65.839      0.000     -10.361      -9.762
+treat:post    -7.4015      0.238    -31.102      0.000      -7.868      -6.935<span class="mk">4</span>
+==============================================================================
+rows: 3600  clusters: 60<span class="mk">5</span></pre></div></div>

@@ -1,0 +1,93 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">한 시험씩 빼기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for i in es.index:
+    rest = es.drop(index=i)                 # i번 시험을 뺀 9개
+    r = pool(rest[&quot;yi&quot;], rest[&quot;vi&quot;])
+    rows.append({&quot;left out&quot;: es.loc[i, &quot;trial&quot;],
+                 &quot;OR (95% CI)&quot;: orci(r[&quot;re&quot;], r[&quot;se_re&quot;]),
+                 &quot;OR&quot;: round(np.exp(r[&quot;re&quot;]), 3),
+                 &quot;I2 (%)&quot;: int(round(100 * r[&quot;I2&quot;]))})
+loo = pd.DataFrame(rows)
+print(f&quot;range: {loo[&#x27;OR&#x27;].min():.2f}-{loo[&#x27;OR&#x27;].max():.2f}&quot;)
+loo</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>range: 0.79-0.85<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>left out</th>
+      <th>OR (95% CI)</th>
+      <th>OR</th>
+      <th>I2 (%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Trial A</td>
+      <td>0.82 (0.72-0.93)</td>
+      <td>0.818</td>
+      <td>38</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Trial B</td>
+      <td>0.82 (0.72-0.93)</td>
+      <td>0.819</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Trial C</td>
+      <td>0.82 (0.72-0.93)</td>
+      <td>0.820</td>
+      <td>38</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Trial D</td>
+      <td>0.79 (0.72-0.87)<span class="mk">2</span></td>
+      <td>0.793</td>
+      <td>0<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Trial E</td>
+      <td>0.85 (0.76-0.94)</td>
+      <td>0.848</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Trial F</td>
+      <td>0.81 (0.69-0.96)<span class="mk">4</span></td>
+      <td>0.810</td>
+      <td>39</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Trial G</td>
+      <td>0.83 (0.74-0.94)</td>
+      <td>0.831</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Trial H</td>
+      <td>0.83 (0.71-0.96)</td>
+      <td>0.826</td>
+      <td>38</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Trial I</td>
+      <td>0.85 (0.75-0.96)</td>
+      <td>0.850</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Trial J</td>
+      <td>0.83 (0.73-0.94)</td>
+      <td>0.828</td>
+      <td>38</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

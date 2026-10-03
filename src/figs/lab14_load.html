@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">세 표 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+person = pd.read_csv(BASE + &quot;claims_person.csv&quot;,
+    parse_dates=[&quot;elig_start&quot;, &quot;elig_end&quot;, &quot;death_date&quot;])
+visit = pd.read_csv(BASE + &quot;claims_visit.csv&quot;,
+                    parse_dates=[&quot;visit_date&quot;])
+rx = pd.read_csv(BASE + &quot;claims_rx.csv&quot;, parse_dates=[&quot;rx_date&quot;])
+print(person.shape, visit.shape, rx.shape)
+print(rx.dtypes)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(10150, 6)<span class="mk">1</span> (53895, 6) (111405, 4)
+pid                 int64
+rx_date    datetime64[us]<span class="mk">2</span>
+drug                  str
+days                int64
+dtype: object</pre></div></div>

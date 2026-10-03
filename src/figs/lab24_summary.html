@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">결과 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">inmb = threshold * dq - dc             # 벌마다의 증분 순금전편익
+rows = []
+for name, x in [(&quot;d_cost&quot;, dc), (&quot;d_qaly&quot;, dq), (&quot;inmb&quot;, inmb)]:
+    lo, hi = np.percentile(x, [2.5, 97.5])
+    rows.append([name, x.mean(), lo, hi])
+summ = pd.DataFrame(rows, columns=[&quot;result&quot;, &quot;mean&quot;, &quot;p2.5&quot;,
+                                   &quot;p97.5&quot;]).set_index(&quot;result&quot;)
+print(summ.round(3))
+print(&quot;ICER (평균 / 평균):&quot;, round(dc.mean() / dq.mean()))
+p_ce5 = np.mean(inmb &gt; 0)
+print(&quot;비용효과적일 확률:&quot;, p_ce5,
+      &quot; 몬테카를로 표준오차:&quot;,
+      round(np.sqrt(p_ce5 * (1 - p_ce5) / len(dc)), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            mean      p2.5     p97.5
+result                              
+d_cost  2934.924<span class="mk">1</span>  1060.857<span class="mk">2</span>  5102.166
+d_qaly     0.525<span class="mk">3</span>     0.101     1.008
+inmb    -307.745<span class="mk">4</span>  -918.899   412.274
+ICER (평균 / 평균): 5586<span class="mk">5</span>
+비용효과적일 확률: 0.1604<span class="mk">6</span>  몬테카를로 표준오차: 0.0052<span class="mk">7</span></pre></div></div>

@@ -1,0 +1,163 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">입력값별 범위 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">z = stats.norm.ppf(0.975)              # 1.96
+
+def range95(p, key):
+    &quot;&quot;&quot;분포의 2.5, 97.5 백분위수&quot;&quot;&quot;
+    dist, u = spec[key]
+    m = get_input(p, key)
+    if dist == &quot;lognormal&quot;:            # u = 로그 척도의 표준오차
+        return np.exp(np.log(m) - z * u), np.exp(np.log(m) + z * u)
+    if dist == &quot;beta&quot;:                 # u = 표준오차
+        a, b = beta_ab(m, u)
+        return tuple(stats.beta.ppf([0.025, 0.975], a, b))
+    k, s = gamma_ks(m, m * u)          # u = 표준오차 / 평균
+    return tuple(stats.gamma.ppf([0.025, 0.975], k, scale=s))
+
+rows = []
+for key in spec:
+    low, high = range95(p, key)
+    rows.append([key, get_input(p, key), low, high, &quot;95% 구간&quot;])
+a, b = p[&quot;c_drug_A&quot;], p[&quot;c_drug_B&quot;]
+rows.append([&quot;c_drug_A&quot;, a, a * (1 - 0.20), a, &quot;20% 인하까지&quot;])
+rows.append([&quot;c_drug_B&quot;, b, b * (1 - 0.20), b * (1 + 0.20),
+             &quot;±20% (임의)&quot;])
+ranges = pd.DataFrame(rows, columns=[&quot;key&quot;, &quot;base&quot;, &quot;low&quot;, &quot;high&quot;,
+                                     &quot;basis&quot;]).set_index(&quot;key&quot;)
+ranges.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>base</th>
+      <th>low</th>
+      <th>high</th>
+      <th>basis</th>
+    </tr>
+    <tr>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>hr_pfs</th>
+      <td>0.650</td>
+      <td>0.521<span class="mk">1</span></td>
+      <td>0.811</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>hr_os</th>
+      <td>0.750</td>
+      <td>0.580</td>
+      <td>0.970</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>pfs_med</th>
+      <td>10.000</td>
+      <td>8.718<span class="mk">2</span></td>
+      <td>11.471</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>pfs_gam</th>
+      <td>0.950</td>
+      <td>0.861</td>
+      <td>1.048</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>os_med</th>
+      <td>28.000</td>
+      <td>23.937</td>
+      <td>32.753</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>os_gam</th>
+      <td>1.150</td>
+      <td>1.022</td>
+      <td>1.294</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>u_pf</th>
+      <td>0.780</td>
+      <td>0.719<span class="mk">3</span></td>
+      <td>0.836</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>u_pd</th>
+      <td>0.620</td>
+      <td>0.520</td>
+      <td>0.715</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>du_ae_A</th>
+      <td>0.012</td>
+      <td>0.007</td>
+      <td>0.019</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>du_ae_B</th>
+      <td>0.008</td>
+      <td>0.005</td>
+      <td>0.012</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>c_pf</th>
+      <td>40.000</td>
+      <td>25.886</td>
+      <td>57.136</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>c_pd</th>
+      <td>250.000</td>
+      <td>161.787<span class="mk">4</span></td>
+      <td>357.101</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>c_death</th>
+      <td>800.000</td>
+      <td>517.718</td>
+      <td>1142.723</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>c_ae_A</th>
+      <td>120.000</td>
+      <td>68.590</td>
+      <td>185.552</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>c_ae_B</th>
+      <td>80.000</td>
+      <td>45.727</td>
+      <td>123.701</td>
+      <td>95% 구간</td>
+    </tr>
+    <tr>
+      <th>c_drug_A</th>
+      <td>190.000</td>
+      <td>152.000<span class="mk">5</span></td>
+      <td>190.000</td>
+      <td>20% 인하까지</td>
+    </tr>
+    <tr>
+      <th>c_drug_B</th>
+      <td>120.000</td>
+      <td>96.000<span class="mk">6</span></td>
+      <td>144.000</td>
+      <td>±20% (임의)</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

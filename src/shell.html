@@ -256,6 +256,12 @@ mjx-container { color: var(--ink); }
 .wrong::after { content: " (X)"; color: var(--warn); font-weight: 700; white-space: nowrap; }
 .lab-link { margin: 26px 0 0 !important; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: 10px; font-size: 14.5px; color: var(--ink-2); }
 .lab-link a { font-weight: 600; }
+.nb-link { margin: 14px 0 18px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: 14.5px; line-height: 1.7; color: var(--ink-2); }
+.nb-link a { font-weight: 600; }
+details.hw-ans { margin: 10px 0 22px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+details.hw-ans > summary { cursor: pointer; padding: 9px 14px; font-weight: 600; font-size: 14.5px; color: var(--accent-ink); }
+details.hw-ans[open] > summary { border-bottom: 1px dashed var(--line); }
+details.hw-ans > div { padding: 10px 14px 12px; }
 
 /* paper reading box */
 .paper { border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); margin: 28px 0; overflow: hidden; }

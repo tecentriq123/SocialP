@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">표준화한 차이의 부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(2101)
+n = len(df)
+R = 1000                                  # 반복 횟수
+bs = np.empty((R, 3))                     # 1,000행 x 3열의 빈 상자
+for i in range(R):
+    ix = rng.integers(0, n, n)            # 환자 3,000명을 다시 뽑음
+    d = df.iloc[ix]
+    m = smf.glm(f, data=d, family=fam).fit()
+    mA = m.predict(d.assign(trt=1)).mean()
+    mB = m.predict(d.assign(trt=0)).mean()
+    bs[i] = [mA, mB, mA - mB]
+
+ci3 = np.percentile(bs, [2.5, 97.5], axis=0).round(1)
+print(&quot;모두 A :&quot;, ci3[:, 0])
+print(&quot;모두 B :&quot;, ci3[:, 1])
+print(&quot;차이   :&quot;, ci3[:, 2], &quot; SE:&quot;, round(bs[:, 2].std(ddof=1), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>모두 A : [2684.6 2849.8]<span class="mk">1</span>
+모두 B : [2161.8 2288.3]
+차이   : [437.4 642.1]<span class="mk">2</span>  SE: 52.6<span class="mk">3</span></pre></div></div>

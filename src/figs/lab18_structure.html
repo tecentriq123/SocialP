@@ -1,0 +1,63 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">자료 구조 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(raw[&quot;unit&quot;].nunique(), &quot;개 시군구,&quot;,
+      raw[&quot;month&quot;].nunique(), &quot;개월&quot;)
+print(raw[&quot;month&quot;].min(), &quot;~&quot;, raw[&quot;month&quot;].max())
+
+units = raw.groupby(&quot;unit&quot;).agg(treat=(&quot;treat&quot;, &quot;first&quot;),
+                                months=(&quot;month&quot;, &quot;size&quot;),
+                                mean_pat=(&quot;n_pat&quot;, &quot;mean&quot;))
+print(units[&quot;treat&quot;].value_counts())
+units.groupby(&quot;treat&quot;)[&quot;mean_pat&quot;].describe().round(0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>60 개 시군구, 60 개월<span class="mk">1</span>
+2015-01-01 ~ 2019-12-01
+treat
+0    40<span class="mk">2</span>
+1    20<span class="mk">3</span>
+Name: count, dtype: int64</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>25%</th>
+      <th>50%</th>
+      <th>75%</th>
+      <th>max</th>
+    </tr>
+    <tr>
+      <th>treat</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>40.0</td>
+      <td>10635.0</td>
+      <td>4446.0</td>
+      <td>5401.0</td>
+      <td>7069.0</td>
+      <td>8949.0</td>
+      <td>13343.0</td>
+      <td>20545.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>20.0</td>
+      <td>12512.0</td>
+      <td>7443.0</td>
+      <td>3601.0</td>
+      <td>7042.0</td>
+      <td>10961.0</td>
+      <td>15461.0</td>
+      <td>30076.0<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

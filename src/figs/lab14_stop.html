@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">유예기간으로 중단일 정하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def stop_date(own, grace):
+    over = own[&quot;gap&quot;].isna() | (own[&quot;gap&quot;] &gt; grace)
+    runout = own[over].groupby(&quot;pid&quot;)[&quot;runout&quot;].first()
+    return runout + pd.Timedelta(days=grace)
+
+cohort[&quot;stop_date&quot;] = cohort[&quot;pid&quot;].map(stop_date(own, 60))
+for grace in [30, 60, 90]:
+    print(&quot;grace&quot;, grace, &quot;-&gt;&quot;, stop_date(own, grace)[p].date())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>grace 30 -&gt; 2019-06-26<span class="mk">1</span>
+grace 60 -&gt; 2023-04-07<span class="mk">2</span>
+grace 90 -&gt; 2023-05-07</pre></div></div>

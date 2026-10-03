@@ -1,0 +1,44 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">치료군 변수 만들기, 결측값과 0원 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;trt&quot;] = (df[&quot;arm&quot;] == &quot;A&quot;).astype(int)   # 신약 A = 1, B = 0
+print(df[&quot;arm&quot;].value_counts())
+print(&quot;결측값:&quot;, df.isna().sum().sum(), &quot;개&quot;)
+
+items = [&quot;cost_drug&quot;, &quot;cost_op&quot;, &quot;cost_inp&quot;, &quot;cost&quot;]
+zero = (df[items] == 0).groupby(df[&quot;arm&quot;]).mean() * 100
+zero.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>arm
+B    1797<span class="mk">1</span>
+A    1203<span class="mk">2</span>
+Name: count, dtype: int64
+결측값: 0 개<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cost_drug</th>
+      <th>cost_op</th>
+      <th>cost_inp</th>
+      <th>cost</th>
+    </tr>
+    <tr>
+      <th>arm</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>43.6<span class="mk">4</span></td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>35.7<span class="mk">5</span></td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

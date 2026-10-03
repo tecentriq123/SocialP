@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">Mantel–Haenszel 방법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.contingency_tables import StratifiedTable
+
+tables = [[[r.mace_x, r.n_x - r.mace_x],
+           [r.mace_pbo, r.n_pbo - r.mace_pbo]]
+          for r in tr.itertuples()]
+mh = StratifiedTable(tables)
+lo, hi = mh.oddsratio_pooled_confint()
+print(f&quot;Mantel-Haenszel OR {mh.oddsratio_pooled:.2f}&quot;
+      f&quot; ({lo:.2f}-{hi:.2f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Mantel-Haenszel OR 0.84 (0.78-0.91)<span class="mk">1</span></pre></div></div>

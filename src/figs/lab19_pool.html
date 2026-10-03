@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">통합 계산을 함수로 묶기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def pool(y, v):
+    &quot;&quot;&quot;역분산 고정효과(fe)와 DerSimonian-Laird 무작위효과(re)&quot;&quot;&quot;
+    y, v = np.asarray(y, float), np.asarray(v, float)
+    k, w = len(y), 1 / v
+    fe = np.sum(w * y) / np.sum(w)
+    Q = np.sum(w * (y - fe)**2)
+    C = np.sum(w) - np.sum(w**2) / np.sum(w)
+    tau2 = max(0, (Q - (k - 1)) / C)
+    ws = 1 / (v + tau2)
+    re = np.sum(ws * y) / np.sum(ws)
+    return {&quot;k&quot;: k, &quot;fe&quot;: fe, &quot;se_fe&quot;: 1 / np.sqrt(np.sum(w)),
+            &quot;re&quot;: re, &quot;se_re&quot;: 1 / np.sqrt(np.sum(ws)),
+            &quot;Q&quot;: Q, &quot;I2&quot;: max(0, (Q - (k - 1)) / Q), &quot;tau2&quot;: tau2}
+
+def orci(est, se):
+    &quot;&quot;&quot;로그 척도의 추정값과 표준오차 -&gt; &#x27;OR (하한-상한)&#x27;&quot;&quot;&quot;
+    lo, hi = np.exp(est - Z * se), np.exp(est + Z * se)
+    return f&quot;{np.exp(est):.2f} ({lo:.2f}-{hi:.2f})&quot;
+
+m = pool(es[&quot;yi&quot;], es[&quot;vi&quot;])
+print(&quot;fixed  :&quot;, orci(m[&quot;fe&quot;], m[&quot;se_fe&quot;]))
+print(&quot;random :&quot;, orci(m[&quot;re&quot;], m[&quot;se_re&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>fixed  : 0.84 (0.78-0.91)<span class="mk">1</span>
+random : 0.83 (0.73-0.93)<span class="mk">2</span></pre></div></div>

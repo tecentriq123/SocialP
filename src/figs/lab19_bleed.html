@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">주요 출혈과 0건인 칸</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">bl = tr[[&quot;trial&quot;]].copy()
+bl[&quot;yi&quot;], bl[&quot;vi&quot;] = log_or(tr[&quot;bleed_x&quot;], tr[&quot;n_x&quot;],
+                            tr[&quot;bleed_pbo&quot;], tr[&quot;n_pbo&quot;])
+mb = pool(bl[&quot;yi&quot;], bl[&quot;vi&quot;])
+print(&quot;Trial C:&quot;, orci(bl.loc[2, &quot;yi&quot;], np.sqrt(bl.loc[2, &quot;vi&quot;])))
+print(&quot;pooled :&quot;, orci(mb[&quot;re&quot;], mb[&quot;se_re&quot;]),
+      f&quot;Q {mb[&#x27;Q&#x27;]:.2f}, I2 {mb[&#x27;I2&#x27;]:.0%}, tau2 {mb[&#x27;tau2&#x27;]:.4f}&quot;)
+
+cols_b = [&quot;bleed_x&quot;, &quot;n_x&quot;, &quot;bleed_pbo&quot;, &quot;n_pbo&quot;]
+args_b = [tr[c].to_numpy() for c in cols_b]
+e0, v0 = effectsize_2proportions(*args_b, statistic=&quot;odds-ratio&quot;)
+print(&quot;statsmodels, Trial C, no correction:&quot;, e0[2], v0[2])
+e5, v5 = effectsize_2proportions(*args_b, statistic=&quot;odds-ratio&quot;,
+                                 zero_correction=0.5)
+m5 = pool(e5, v5)
+print(&quot;statsmodels, zero_correction=0.5  :&quot;,
+      orci(m5[&quot;re&quot;], m5[&quot;se_re&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Trial C: 3.55 (0.18-69.32)<span class="mk">1</span>
+pooled : 2.28 (1.90-2.74)<span class="mk">2</span> Q 4.06, I2 0%<span class="mk">3</span>, tau2 0.0000
+statsmodels, Trial C, no correction: inf inf<span class="mk">4</span>
+statsmodels, zero_correction=0.5  : 2.24 (1.87-2.68)<span class="mk">5</span></pre><pre class="warn-out">RuntimeWarning: divide by zero encountered in log</pre><pre class="warn-out">RuntimeWarning: divide by zero encountered in divide</pre></div></div>

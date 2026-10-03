@@ -1,0 +1,30 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">NNT와 NNH</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def risk_with(p0, OR):
+    odds = p0 / (1 - p0) * OR               # 위험 -&gt; 오즈, x 오즈비
+    return odds / (1 + odds)                # 오즈 -&gt; 위험
+
+def absolute(p0, est, se):
+    ORs = np.exp([est, est - Z * se, est + Z * se])
+    rd = risk_with(p0, ORs) - p0            # 위험차 [추정값, 양 끝]
+    lo, hi = sorted(1 / np.abs(rd[1:]))     # NNT의 양 끝
+    print(f&quot;  risk {p0:.1%} -&gt; {risk_with(p0, ORs[0]):.2%}&quot;)
+    print(&quot;  RD %p   : {:.2f} ({:.2f}, {:.2f})&quot;.format(*(100 * rd)))
+    print(&quot;  per 1000: {:.0f} ({:.0f}, {:.0f})&quot;.format(*(1000 * rd)))
+    print(f&quot;  NNT/NNH : {1 / abs(rd[0]):.0f} ({lo:.0f}-{hi:.0f})&quot;)
+
+y12 = tr[tr[&quot;followup_mo&quot;] == 12]           # 12개월 추적 시험 D, H, I
+n_ctl = y12[&quot;n_pbo&quot;].sum()
+p0 = round(y12[&quot;mace_pbo&quot;].sum() / n_ctl, 3)
+pb0 = round(y12[&quot;bleed_pbo&quot;].sum() / n_ctl, 3)
+print(&quot;MACE, placebo:&quot;, y12[&quot;mace_pbo&quot;].sum(), &quot;/&quot;, n_ctl)
+absolute(p0, m[&quot;re&quot;], m[&quot;se_re&quot;])
+print(&quot;Major bleeding, placebo:&quot;, y12[&quot;bleed_pbo&quot;].sum(), &quot;/&quot;, n_ctl)
+absolute(pb0, mb[&quot;re&quot;], mb[&quot;se_re&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MACE, placebo: 662 / 7870<span class="mk">1</span>
+  risk 8.4% -&gt; 7.04%<span class="mk">2</span>
+  RD %p   : -1.36 (-2.11, -0.54)<span class="mk">3</span>
+  per 1000: -14 (-21, -5)<span class="mk">4</span>
+  NNT/NNH : 73 (47-186)<span class="mk">5</span>
+Major bleeding, placebo: 93 / 7870
+  risk 1.2% -&gt; 2.70%<span class="mk">6</span>
+  RD %p   : 1.50 (1.06, 2.02)
+  per 1000: 15 (11, 20)<span class="mk">7</span>
+  NNT/NNH : 67 (50-94)<span class="mk">8</span></pre></div></div>

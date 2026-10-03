@@ -49,21 +49,39 @@ c_drug_A 범위 152.0 - 190.0  ICER [4006, 5621]
 u_pf 범위 0.719 - 0.836  ICER [6076, 5262]
 ICER가 5,000이 되는 월 약값: 175.39</pre></div></div>
 <!-- psa -->
-<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">확률적 민감도 분석 5,000회</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">spec = dict(hr_pfs=(&quot;lognormal&quot;, 0.113), hr_os=(&quot;lognormal&quot;, 0.131),      # (분포, 불확실성의 크기)
-            pfs_lam=(&quot;lognormal&quot;, 0.08), pfs_gam=(&quot;lognormal&quot;, 0.05),
-            os_lam=(&quot;lognormal&quot;, 0.10), os_gam=(&quot;lognormal&quot;, 0.06),
-            u_pf=(&quot;beta&quot;, 0.03), u_pd=(&quot;beta&quot;, 0.05),
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">확률적 민감도 분석 5,000회</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pairs = {(&quot;pfs_med&quot;, &quot;os_med&quot;): (10, 28, 0.07, 0.08),         # 함께 뽑는 짝: 기준값 둘, 로그 척도의 표준오차 둘
+         (&quot;pfs_gam&quot;, &quot;os_gam&quot;): (0.95, 1.15, 0.05, 0.06),    # med = 중앙 생존기간(개월), gam = 모양 모수
+         (&quot;hr_pfs&quot;, &quot;hr_os&quot;): (0.65, 0.75, 0.113, 0.131)}
+rho = 0.5                                               # 짝 안의 두 값 사이의 상관계수
+spec = dict(u_pf=(&quot;beta&quot;, 0.03), u_pd=(&quot;beta&quot;, 0.05),   # 따로 뽑는 입력값: (분포, 불확실성의 크기)
             du_ae_A=(&quot;gamma&quot;, 0.25), du_ae_B=(&quot;gamma&quot;, 0.25),
             c_pf=(&quot;gamma&quot;, 0.20), c_pd=(&quot;gamma&quot;, 0.20), c_death=(&quot;gamma&quot;, 0.20),
             c_ae_A=(&quot;gamma&quot;, 0.25), c_ae_B=(&quot;gamma&quot;, 0.25))
+count = {&quot;tries&quot;: 0}                                    # 곡선과 위험비를 뽑은 횟수를 센다
+
+def crossed(v):                                         # 어느 군에서든 무진행생존 곡선이 전체생존 곡선을 넘으면 True
+    for hr_pfs, hr_os in ((v[&quot;hr_pfs&quot;], v[&quot;hr_os&quot;]), (1.0, 1.0)):
+        pfs = np.exp(-v[&quot;pfs_lam&quot;] * hr_pfs * t ** v[&quot;pfs_gam&quot;])
+        os_ = np.exp(-v[&quot;os_lam&quot;] * hr_os * t ** v[&quot;os_gam&quot;])
+        if (pfs &gt; os_).any():
+            return True
+    return False
 
 def draw(rng):                                          # 입력값 한 벌을 분포에서 뽑는다
     v = dict(base)                                      # 약값은 base의 값 그대로(고정)
+    while True:                                         # 곡선이 엇갈리면 다시 뽑는다
+        count[&quot;tries&quot;] += 1
+        for (k1, k2), (m1, m2, s1, s2) in pairs.items():
+            z1, z2 = rng.normal(size=2)                 # 서로 독립인 표준정규 난수 두 개
+            z2 = rho * z1 + np.sqrt(1 - rho ** 2) * z2  # z2를 z1과 상관 0.5인 값으로 바꾼다
+            v[k1], v[k2] = m1 * np.exp(s1 * z1), m2 * np.exp(s2 * z2)
+        v[&quot;pfs_lam&quot;] = np.log(2) / v[&quot;pfs_med&quot;] ** v[&quot;pfs_gam&quot;]   # 중앙값과 모양 모수에서 척도 모수
+        v[&quot;os_lam&quot;] = np.log(2) / v[&quot;os_med&quot;] ** v[&quot;os_gam&quot;]
+        if not crossed(v):
+            break
     for name, (dist, u) in spec.items():
         m = base[name]
-        if dist == &quot;lognormal&quot;:                         # u = 로그 척도의 표준오차
-            v[name] = np.exp(rng.normal(np.log(m), u))
-        elif dist == &quot;beta&quot;:                            # u = 표준오차
+        if dist == &quot;beta&quot;:                              # u = 표준오차
             n = m * (1 - m) / u ** 2 - 1
             v[name] = rng.beta(m * n, (1 - m) * n)
         else:                                           # gamma: u = 표준오차 / 평균
@@ -76,26 +94,28 @@ rng = np.random.default_rng(20261002)                   # 난수 seed를 고정�
 sims = np.array([model(draw(rng)) for _ in range(5000)])
 dc, dq = sims[:, 0], sims[:, 1]                         # 5,000벌의 증분비용, 증분QALY
 
+print(&quot;뽑은 횟수&quot;, count[&quot;tries&quot;], &quot; 곡선이 엇갈려 버린 횟수&quot;, count[&quot;tries&quot;] - 5000)
 print(&quot;평균 증분비용&quot;, round(dc.mean()), &quot; 95% 구간&quot;, np.percentile(dc, [2.5, 97.5]).round(0))
 print(&quot;평균 증분QALY&quot;, round(dq.mean(), 3), &quot; 95% 구간&quot;, np.percentile(dq, [2.5, 97.5]).round(3))
 print(&quot;ICER(평균 ÷ 평균)&quot;, round(dc.mean() / dq.mean()))
 print(&quot;더 비싸고 더 효과적인 비율&quot;, np.mean((dc &gt; 0) &amp; (dq &gt; 0)))
 inmb = 5000 * dq - dc                                   # 임계값 5,000에서의 증분 순금전편익
-print(&quot;비용효과적일 확률&quot;, np.mean(inmb &gt; 0), &quot; 몬테카를로 표준오차&quot;, round(np.sqrt(np.mean(inmb &gt; 0) * np.mean(inmb &lt;= 0) / 5000), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>평균 증분비용 2935  95% 구간 [ 919. 5500.]
-평균 증분QALY 0.524  95% 구간 [0.112 1.041]
-ICER(평균 ÷ 평균) 5597
-더 비싸고 더 효과적인 비율 0.9956
-비용효과적일 확률 0.1762  몬테카를로 표준오차 0.0054</pre></div></div>
+print(&quot;비용효과적일 확률&quot;, np.mean(inmb &gt; 0), &quot; 몬테카를로 표준오차&quot;, round(np.sqrt(np.mean(inmb &gt; 0) * np.mean(inmb &lt;= 0) / 5000), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>뽑은 횟수 5137  곡선이 엇갈려 버린 횟수 137
+평균 증분비용 2935  95% 구간 [1061. 5102.]
+평균 증분QALY 0.525  95% 구간 [0.101 1.008]
+ICER(평균 ÷ 평균) 5586
+더 비싸고 더 효과적인 비율 0.9916
+비용효과적일 확률 0.1604  몬테카를로 표준오차 0.0052</pre></div></div>
 <!-- ceac -->
 <div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lams = np.array([3000, 4000, 5000, 6000, 7000, 8000, 10000])
 for lam in lams:
     inmb = lam * dq - dc                                # 모의실험마다의 증분 순금전편익
     p_ce = np.mean(inmb &gt; 0)                            # 양수인 비율 = 비용효과적일 확률
     evpi = np.maximum(inmb, 0).mean() - max(inmb.mean(), 0)
-    print(lam, &quot; 확률&quot;, round(p_ce, 3), &quot; 평균 순편익&quot;, round(inmb.mean()), &quot; EVPI&quot;, round(evpi, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3000  확률 0.007  평균 순편익 -1362  EVPI 1.9
-4000  확률 0.022  평균 순편익 -837  EVPI 5.5
-5000  확률 0.176  평균 순편익 -313  EVPI 47.0
-6000  확률 0.652  평균 순편익 211  EVPI 101.8
-7000  확률 0.876  평균 순편익 736  EVPI 37.6
-8000  확률 0.936  평균 순편익 1260  EVPI 21.3
-10000  확률 0.97  평균 순편익 2309  EVPI 11.7</pre></div></div>
+    print(lam, &quot; 확률&quot;, round(p_ce, 3), &quot; 평균 순편익&quot;, round(inmb.mean()), &quot; EVPI&quot;, round(evpi, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3000  확률 0.002  평균 순편익 -1359  EVPI 0.5
+4000  확률 0.007  평균 순편익 -833  EVPI 1.3
+5000  확률 0.16  평균 순편익 -308  EVPI 35.9
+6000  확률 0.659  평균 순편익 218  EVPI 100.7
+7000  확률 0.867  평균 순편익 743  EVPI 42.6
+8000  확률 0.93  평균 순편익 1269  EVPI 27.0
+10000  확률 0.965  평균 순편익 2319  EVPI 18.4</pre></div></div>

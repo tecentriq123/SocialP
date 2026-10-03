@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">사건 수를 그냥 더하면 안 되는 이유</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cols = [&quot;n_x&quot;, &quot;mace_x&quot;, &quot;n_pbo&quot;, &quot;mace_pbo&quot;]
+tot = tr[cols].sum()
+print(tot.to_string())
+r_x = tot[&quot;mace_x&quot;] / tot[&quot;n_x&quot;]
+r_p = tot[&quot;mace_pbo&quot;] / tot[&quot;n_pbo&quot;]
+print(f&quot;summed risk: {r_x:.1%} vs {r_p:.1%}&quot;)
+print(f&quot;crude OR   : {(r_x / (1 - r_x)) / (r_p / (1 - r_p)):.2f}&quot;)
+
+short = tr[tr[&quot;followup_mo&quot;] &lt; 12]          # 추적이 짧은 2상 시험
+sh_x = short[&quot;n_x&quot;].sum() / tot[&quot;n_x&quot;]
+sh_p = short[&quot;n_pbo&quot;].sum() / tot[&quot;n_pbo&quot;]
+print(f&quot;short trials: {sh_x:.1%} of drug X, {sh_p:.1%} of placebo&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>n_x         16850<span class="mk">1</span>
+mace_x       1271
+n_pbo       14875
+mace_pbo     1386
+summed risk: 7.5% vs 9.3%<span class="mk">2</span>
+crude OR   : 0.79<span class="mk">3</span>
+short trials: 22.8% of drug X<span class="mk">4</span>, 12.9% of placebo</pre></div></div>

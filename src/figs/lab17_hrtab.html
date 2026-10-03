@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">위험비를 한 표로 정리</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def hr_ci(m, var=&quot;drug_a&quot;):
+    s = m.summary.loc[var]
+    return (f&quot;{s[&#x27;exp(coef)&#x27;]:.2f} ({s[&#x27;exp(coef) lower 95%&#x27;]:.2f}&quot;
+            f&quot;-{s[&#x27;exp(coef) upper 95%&#x27;]:.2f})&quot;)
+
+pd.DataFrame({&quot;HR (95% CI), A vs B&quot;: {
+    &quot;dialysis: cause-specific&quot;: hr_ci(cs_dial),
+    &quot;dialysis: subdistribution&quot;: hr_ci(fg),
+    &quot;dialysis: subdistribution (weighted)&quot;: hr_ci(fgw),
+    &quot;death: cause-specific&quot;: hr_ci(cs_death)}})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>HR (95% CI), A vs B</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>dialysis: cause-specific</th>
+      <td>1.02 (0.89-1.16)<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>dialysis: subdistribution</th>
+      <td>1.25 (1.10-1.43)<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>dialysis: subdistribution (weighted)</th>
+      <td>1.26 (1.10-1.43)<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>death: cause-specific</th>
+      <td>0.55 (0.49-0.61)<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

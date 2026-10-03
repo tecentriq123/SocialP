@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">Fine–Gray 모형 (가중치를 쓰는 일반적인 방법)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxTimeVaryingFitter
+
+fgw = CoxTimeVaryingFitter()
+fgw.fit(long, id_col=&quot;id&quot;, event_col=&quot;dial&quot;, start_col=&quot;start&quot;,
+        stop_col=&quot;stop&quot;, weights_col=&quot;w&quot;, formula=&quot;drug_a&quot;)
+print(fgw.summary[cols].round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           exp(coef)  exp(coef) lower 95%  exp(coef) upper 95%      p
+covariate                                                            
+drug_a         1.257<span class="mk">1</span>                1.102                1.435  0.001</pre></div></div>

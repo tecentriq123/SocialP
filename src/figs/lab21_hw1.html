@@ -1,0 +1,59 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 1 정답. 항목별 평균 차이와 부트스트랩 구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def boot_diff(col, B=9999, seed=21):
+    x = df.loc[df[&quot;arm&quot;] == &quot;A&quot;, col].to_numpy()
+    y = df.loc[df[&quot;arm&quot;] == &quot;B&quot;, col].to_numpy()
+    rng = np.random.default_rng(seed)
+    ix = rng.integers(0, len(x), (B, len(x)))
+    iy = rng.integers(0, len(y), (B, len(y)))
+    bt = x[ix].mean(axis=1) - y[iy].mean(axis=1)
+    lo, hi = np.percentile(bt, [2.5, 97.5])
+    return [x.mean(), y.mean(), x.mean() - y.mean(), lo, hi]
+
+hw1 = pd.DataFrame([boot_diff(col) for col in items], index=items,
+                   columns=[&quot;mean_A&quot;, &quot;mean_B&quot;, &quot;diff&quot;,
+                            &quot;lower&quot;, &quot;upper&quot;])
+hw1.round(0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean_A</th>
+      <th>mean_B</th>
+      <th>diff</th>
+      <th>lower</th>
+      <th>upper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>cost_drug</th>
+      <td>1559.0</td>
+      <td>819.0</td>
+      <td>740.0<span class="mk">1</span></td>
+      <td>695.0</td>
+      <td>785.0</td>
+    </tr>
+    <tr>
+      <th>cost_op</th>
+      <td>525.0</td>
+      <td>694.0</td>
+      <td>-169.0<span class="mk">2</span></td>
+      <td>-217.0</td>
+      <td>-121.0</td>
+    </tr>
+    <tr>
+      <th>cost_inp</th>
+      <td>585.0</td>
+      <td>760.0</td>
+      <td>-175.0<span class="mk">3</span></td>
+      <td>-264.0</td>
+      <td>-85.0</td>
+    </tr>
+    <tr>
+      <th>cost</th>
+      <td>2669.0</td>
+      <td>2273.0</td>
+      <td>396.0<span class="mk">4</span></td>
+      <td>296.0</td>
+      <td>496.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

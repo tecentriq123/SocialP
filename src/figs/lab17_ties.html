@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">일 단위 자료에서 나오는 동점 경고</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.duration.survfunc import CumIncidenceRight
+
+days = np.ceil(b[&quot;years&quot;] * 365.25)          # 일 단위로 바꿈
+aj_d = AalenJohansenFitter(seed=1)
+aj_d.fit(days, b[&quot;status&quot;], event_of_interest=1)
+print(&quot;lifelines (jitter) :&quot;, round(aj_d.predict(1827), 4))
+
+cir = CumIncidenceRight(days, b[&quot;status&quot;])
+print(&quot;statsmodels        :&quot;, round(cir.cinc[0][-1], 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>lifelines (jitter) : 0.2455<span class="mk">1</span>
+statsmodels        : 0.2455<span class="mk">2</span></pre><pre class="warn-out">Warning: Tied event times were detected. The Aalen-Johansen estimator cannot handle tied event times.
+                To resolve ties, data is randomly jittered.</pre></div></div>

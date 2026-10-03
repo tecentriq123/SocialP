@@ -1,0 +1,59 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">랜드마크 시점을 1, 3, 6개월로 바꿔 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def landmark(d, months):
+    L = 365 * months / 12
+    lm = d[d[&quot;fu_days&quot;] &gt; L].copy()
+    lm[&quot;exposed&quot;] = (lm[&quot;rx_day&quot;] &lt;= L).astype(int)
+    lm[&quot;t_lm&quot;] = lm[&quot;fu_days&quot;] - L
+    m = CoxPHFitter().fit(lm, &quot;t_lm&quot;, &quot;died&quot;, formula=&quot;exposed&quot;)
+    e, ne = lm[lm[&quot;exposed&quot;] == 1], lm[lm[&quot;exposed&quot;] == 0]
+    return {&quot;month&quot;: months, &quot;n&quot;: len(lm),
+            &quot;excluded&quot;: len(d) - len(lm), &quot;exposed&quot;: len(e),
+            &quot;late start %&quot;: round(ne[&quot;ever&quot;].mean() * 100, 1),
+            &quot;deaths&quot;: f&quot;{e[&#x27;died&#x27;].sum()} / {ne[&#x27;died&#x27;].sum()}&quot;,
+            &quot;HR (95% CI)&quot;: hr_ci(m, &quot;exposed&quot;)}
+
+pd.DataFrame([landmark(d, m) for m in [1, 3, 6]])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>month</th>
+      <th>n</th>
+      <th>excluded</th>
+      <th>exposed</th>
+      <th>late start %</th>
+      <th>deaths</th>
+      <th>HR (95% CI)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>5820<span class="mk">1</span></td>
+      <td>180</td>
+      <td>349<span class="mk">2</span></td>
+      <td>43.5<span class="mk">3</span></td>
+      <td>66 / 988</td>
+      <td>1.06 (0.82-1.36)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3</td>
+      <td>5583</td>
+      <td>417</td>
+      <td>934</td>
+      <td>37.9</td>
+      <td>131 / 686<span class="mk">4</span></td>
+      <td>0.94 (0.78-1.14)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6</td>
+      <td>5288</td>
+      <td>712</td>
+      <td>1580</td>
+      <td>28.3</td>
+      <td>162 / 360</td>
+      <td>1.06 (0.88-1.27)<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

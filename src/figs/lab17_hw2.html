@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 2 정답. 복합 결과(투석 또는 사망)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ckd[&quot;any&quot;] = (ckd[&quot;status&quot;] &gt; 0).astype(int)   # 투석 또는 사망
+comp = CoxPHFitter().fit(ckd, &quot;years&quot;, &quot;any&quot;, formula=&quot;drug_a&quot;)
+print(&quot;composite HR:&quot;, hr_ci(comp))
+
+for g in [&quot;A&quot;, &quot;B&quot;]:
+    d = ckd[ckd[&quot;drug&quot;] == g]
+    km = KaplanMeierFitter().fit(d[&quot;years&quot;], d[&quot;any&quot;])
+    both = cif(d, 1, 5)[0] + cif(d, 2, 5)[0]
+    print(f&quot;{g}: 1 - KM {(1 - km.predict(5))*100:.1f},&quot;
+          f&quot; CIF dialysis + CIF death {both*100:.1f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>composite HR: 0.70 (0.64-0.76)<span class="mk">1</span>
+A: 1 - KM 65.4<span class="mk">2</span>, CIF dialysis + CIF death 65.4
+B: 1 - KM 77.5, CIF dialysis + CIF death 77.5</pre></div></div>

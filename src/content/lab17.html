@@ -1,0 +1,440 @@
+<p class="lead">17장의 예제(고령 만성콩팥병 환자에서 약물 A 대 약물 B, 관심 사건은 투석 시작, 경쟁 사건은 투석 전 사망)를 같은 자료로 직접 돌려 봅니다. 사건 코딩과 발생률을 확인하고, 누적발생함수를 구해 1 − Kaplan-Meier와 겹쳐 그린 뒤, 원인별 위험비와 Fine–Gray 하위분포 위험비를 구해 Methods·Results 문장으로 옮깁니다. 이론은 <a href="#ch17">17장</a>, Kaplan-Meier와 Cox 모형의 코드는 <a href="#lab07">실습 7</a>과 <a href="#lab11">실습 11</a>을 함께 보세요.</p>
+
+<dl class="glance">
+<div><dt>관련 이론</dt><dd><a href="#ch17-s1">17장 가 절</a> (경쟁위험과 누적발생함수), <a href="#ch17-s2">17장 나 절</a> (원인별 위험비와 Fine–Gray 위험비)</dd></div>
+<div><dt>데이터</dt><dd>17장의 예제 코호트 <code>ckd_competing.csv</code>. 75세 이상 만성콩팥병 4기 환자 3,500명(약물 A 1,380명, 약물 B 2,120명), 최대 5년 추적, 변수 5개. 이 사이트가 만든 가상 자료입니다. 과제 3에는 17장 나 절 확인 문제의 자료 <code>dementia_fracture.csv</code>(5,000명)를 씁니다</dd></div>
+<div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, lifelines (<code>AalenJohansenFitter</code>, <code>KaplanMeierFitter</code>, <code>CoxPHFitter</code>, <code>CoxTimeVaryingFitter</code>), statsmodels(동점 처리 비교에만)</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). lifelines는 첫 셀에서 설치</dd></div>
+</dl>
+<p class="nb-link"><a href="notebooks/lab17.ipynb" download>실습 노트북 내려받기 (lab17.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab17-s1">
+<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+
+<p><a href="#lab11-s1">실습 11 가 절</a>에서는 간이식을 받은 환자를 이식일에 중도절단하고, 그 위험비를 원인별 위험률의 비로 읽는다는 데까지 다뤘습니다. 이 실습은 그 뒤를 잇습니다. 경쟁 사건을 중도절단과 구분해 세 값으로 코딩한 자료에서 출발해, "실제로 사건을 겪는 비율"과 두 가지 위험비를 차례로 구합니다. 이 절에서는 자료를 읽고, 사건이 어떻게 코딩되어 있는지와 중도절단의 성격을 확인한 뒤 <a href="#ch17-s2">17장</a> 표 17-3의 발생률을 다시 만듭니다.</p>
+
+<h3>lifelines 설치</h3>
+<p><a href="#lab07-s1">실습 7 가 절</a>과 같습니다. 이 실습의 출력은 lifelines 0.30.3, pandas 3.0, statsmodels 0.15로 실제로 실행해 얻었습니다. 버전에 따라 출력의 모양이 조금 다를 수 있습니다.</p>
+<!--FIG:lab17_install-->
+
+<h3>자료 불러오기</h3>
+<p>자료는 이 사이트에 올려 둔 CSV 파일이고, 실제 환자 자료가 아닌 가상 자료입니다. 사망일이 연계된 건강보험 자료에서 약물 시작일부터 투석 시작, 사망, 자료 마감 가운데 가장 이른 날까지를 추적한 분석용 자료를 흉내 냈습니다. 원자료(자격, 명세서, 처방)에서 이런 한 사람 한 줄 자료를 만드는 과정은 <a href="#lab14">실습 14</a>에서 다룹니다.</p>
+<!--FIG:lab17_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"</code><span>이 사이트의 자료 폴더 주소를 문자열로 저장합니다. 뒤에 파일 이름만 붙이면 주소가 완성됩니다. 인터넷 연결이 필요합니다.</span></li>
+<li><code>ckd = pd.read_csv(BASE + "ckd_competing.csv")</code><span>문자열 두 개를 <code>+</code>로 이어 붙인 주소에서 CSV를 읽어 데이터프레임 <code>ckd</code>로 저장합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(3500, 5).</b> 환자 3,500명, 열 5개입니다.</span></li>
+<li><span class="mk">2</span><span><b>환자 1의 years 0.96, status 2.</b> 약을 시작하고 0.96년에 투석을 하지 않은 채 사망했습니다.</span></li>
+<li><span class="mk">3</span><span><b>환자 1의 max_years 4.72.</b> 사망하지 않았다면 자료 마감까지 4.72년을 추적할 수 있었던 환자입니다. 다 절의 Fine–Gray 모형에서 이 열을 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>환자 2의 years 5.00, status 0.</b> 5년 동안 투석도 사망도 없이 추적이 끝났습니다(중도절단).</span></li>
+</ol>
+<p class="tbl-cap"><b>자료 설명.</b> ckd_competing.csv (환자 한 명이 한 줄, 3,500줄, 약 120KB)</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:46rem">
+<thead><tr><th>열</th><th>뜻</th></tr></thead>
+<tbody>
+<tr><td>id</td><td>환자 번호 (1–3500)</td></tr>
+<tr><td>drug</td><td>처음 시작한 약물. "A" 또는 "B"</td></tr>
+<tr><td>years</td><td>약물 시작일부터 투석 시작, 사망, 자료 마감 중 가장 이른 날까지의 연수</td></tr>
+<tr><td>status</td><td>추적이 끝난 이유. 0 = 중도절단(자료 마감까지 사건 없음), 1 = 투석 시작(관심 사건), 2 = 투석 전 사망(경쟁 사건)</td></tr>
+<tr><td>max_years</td><td>약물 시작일부터 자료 마감일까지의 연수(3–5년). 사건과 관계없이 모든 환자에서 알 수 있는 값</td></tr>
+</tbody></table></div>
+<p>17장의 접힌 '파이썬 출력 읽기'에서는 같은 자료의 열을 grp, t, ev, C로 불렀습니다. 값은 같습니다. 실제 청구자료에서는 날짜의 차이로 일수를 구하지만, 여기서는 본문의 숫자를 그대로 재현하려고 연 단위 소수로 두었습니다.</p>
+
+<h3>사건 코딩 확인</h3>
+<p>보통의 생존분석에서는 사건 열이 0과 1 두 값입니다. 경쟁위험 분석에서는 세 값이 필요합니다. 0과 1로 줄이는 순간 투석 전 사망과 중도절단을 구분할 수 없게 됩니다(<a href="#ch17-s1">17장 가 절</a> '경쟁 사건과 중도절단').</p>
+<!--FIG:lab17_events-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ckd["drug_a"] = (ckd["drug"] == "A").astype(int)</code><span>약물 A이면 1, B이면 0인 열입니다. B가 기준범주가 되어 위험비가 "A 대 B"로 나옵니다(<a href="#lab11-s1">실습 11 가 절</a>의 dpca와 같은 방식).</span></li>
+<li><code>ckd["dial"]</code>, <code>ckd["death"]</code><span>투석이면 1인 열과 투석 전 사망이면 1인 열을 따로 만듭니다. 발생률 계산과 다 절의 Cox 모형에서 씁니다.</span></li>
+<li><code>tab.index = ["0 censored", "1 dialysis", "2 death", "All"]</code><span>교차표의 행 이름(0, 1, 2, All)을 읽기 쉬운 이름으로 바꿉니다. 행의 개수와 같은 길이의 목록을 넣습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>중도절단 521명과 536명.</b> 자료 마감까지 투석도 사망도 없던 환자입니다.</span></li>
+<li><span class="mk">2</span><span><b>투석 396명과 496명.</b> 관심 사건입니다.</span></li>
+<li><span class="mk">3</span><span><b>투석 전 사망 463명과 1,088명.</b> 경쟁 사건이 관심 사건보다 많습니다. B군은 절반이 넘습니다.</span></li>
+<li><span class="mk">4</span><span><b>1,380명과 2,120명.</b> 본문 표 17-1과 같습니다.</span></li>
+</ol>
+<div class="callout warn"><p class="ct">이런 실수가 나면 · 오류 없이 틀린 결과</p>
+<p><code>KaplanMeierFitter().fit(ckd["years"], ckd["status"])</code>처럼 세 값짜리 status를 그대로 넣으면 오류가 나지 않고, 0이 아닌 값(1과 2)이 모두 사건으로 처리됩니다. 그 결과는 '투석 또는 사망'의 곡선입니다(<a href="#lab07-s1">실습 7 가 절</a> '부호화를 잘못하면'). 사건 열은 <code>ckd["status"] == 1</code>처럼 분명히 지정합니다.</p></div>
+
+<h3>중도절단의 성격 확인</h3>
+<p>이 코호트의 중도절단은 자료 마감뿐입니다. 늦게 약을 시작한 환자는 추적할 수 있는 기간이 5년보다 짧습니다. 중도절단된 환자의 years가 max_years와 같은지, 사건은 모두 그 전에 일어났는지 확인합니다.</p>
+<!--FIG:lab17_admin-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>True.</b> 중도절단된 1,057명 모두 추적 시간이 자료 마감까지의 시간과 같습니다. <code>.all()</code>은 모든 행이 True일 때만 True를 돌려줍니다.</span></li>
+<li><span class="mk">2</span><span><b>True.</b> 투석과 사망은 모두 자료 마감 전에 일어났습니다.</span></li>
+<li><span class="mk">3</span><span><b>max_years의 평균 4.63년.</b> 최솟값 3.0, 중앙값과 최댓값 5.0입니다. 중앙값이 5.0이므로 절반이 넘는 환자가 5년을 모두 추적할 수 있었고(세어 보면 60%), 나머지는 3–5년입니다. 두 군의 분포가 비슷합니다.</span></li>
+</ol>
+<p>자격 상실이나 이민처럼 예정에 없던 중도절단이 섞여 있는 자료라면 첫 줄이 False가 되고, 사망한 환자가 언제까지 추적될 수 있었는지 알 수 없습니다. 이 차이가 다 절에서 Fine–Gray 모형을 구하는 방법을 가릅니다.</p>
+
+<h3>사건 수, 인년, 발생률</h3>
+<p>누적발생함수를 구하기 전에 <a href="#ch12-s1">12장 가 절</a>의 발생률(사건 ÷ 인년)로 사건의 '속도'를 먼저 봅니다. 인년은 각 환자가 투석도 사망도 없이 추적된 기간의 합입니다.</p>
+<!--FIG:lab17_rates-->
+<p>이름을 붙인 <code>agg</code>는 <a href="#lab04-s4">실습 4 라 절</a>과 <a href="#lab12-s1">실습 12 가 절</a>에서 쓴 형식 그대로이고, <code>.T</code>는 행과 열을 바꿔 약물이 열로 오게 합니다.</p>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>A군 4,049인년.</b> B군은 5,196인년입니다.</span></li>
+<li><span class="mk">2</span><span><b>1인당 평균 추적 2.93년 대 2.45년.</b> A군 환자가 투석의 위험에 놓여 있는 기간이 더 깁니다. 사망이 적기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>투석 발생률 100인년당 9.78 대 9.55.</b> 396 ÷ 4,049와 496 ÷ 5,196입니다. 살아 있는 환자가 투석으로 넘어가는 속도는 두 군이 거의 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>투석 전 사망 발생률 11.43 대 20.94.</b> 사망 속도는 A군이 B군의 절반 남짓입니다.</span></li>
+<li><span class="mk">5</span><span><b>발생률비 1.02와 0.55.</b> 본문 표 17-3의 'A ÷ B' 열입니다. 다 절에서 구할 두 원인별 위험비가 이 값과 같게 나옵니다.</span></li>
+</ol>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Methods의 추적과 사건 정의, Results의 첫 문장</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Patients were followed from the first prescription until dialysis initiation, death, or <span class="mk">1</span> <span class="hl">the end of the study period</span> (maximum 5 years), whichever came first. <span class="mk">2</span> <span class="hl">Death before dialysis was treated as a competing event.</span> During <span class="mk">3</span> <span class="hl">9,245 person-years</span> of follow-up, 892 patients (25.5%) started dialysis and <span class="hl">1,551 (44.3%) died before dialysis</span>. The incidence of dialysis was <span class="mk">4</span> <span class="hl">9.78 and 9.55 per 100 person-years</span> in the drug A and drug B groups, and that of death before dialysis was 11.43 and 20.94 per 100 person-years, respectively.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>중도절단의 정의.</b> 자료 마감만이 중도절단이라는 것을 밝힙니다. 셀 4에서 확인한 내용입니다.</span></li>
+<li><span class="mk">2</span><span><b>경쟁 사건의 정의.</b> 사망을 중도절단이 아닌 별도의 사건으로 다뤘다는 문장입니다. 사망이 많은 집단의 논문에서 이 문장이 없으면 사망을 어떻게 처리했는지 확인해야 합니다.</span></li>
+<li><span class="mk">3</span><span><b>인년과 사건 종류별 인원.</b> 4,049 + 5,196 = 9,245인년, 셀 3의 All 열(892명, 1,551명)입니다. 괄호 안의 25.5%는 892 ÷ 3,500의 단순 비율이고 누적발생률이 아닙니다.</span></li>
+<li><span class="mk">4</span><span><b>사건별 발생률.</b> 셀 5의 값입니다. 관심 사건과 경쟁 사건의 속도를 함께 적어 두면 뒤에 나올 두 위험비의 차이를 독자가 이해할 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>경쟁위험 자료의 사건 열은 세 값(0 중도절단, 1 관심 사건, 2 경쟁 사건)입니다. 분석마다 어느 값을 사건으로 볼지 분명히 지정합니다.</li>
+<li>중도절단이 자료 마감뿐인지 먼저 확인합니다. 그렇다면 모든 환자의 추적 종료 예정 시점(max_years)을 압니다.</li>
+<li>투석의 속도는 두 군이 같고(100인년당 9.78 대 9.55) 사망의 속도는 A군이 절반입니다(11.43 대 20.94). 본문 표 17-3과 같습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab17-s2">
+<h2><span class="sec-no">나.</span>누적발생함수</h2>
+
+<p>"약을 시작한 환자 가운데 5년 안에 실제로 투석을 시작하는 비율"을 구합니다. 사망을 경쟁 사건으로 다루는 <strong>누적발생함수</strong><span class="en">(cumulative incidence function, CIF)</span>를 Aalen–Johansen 추정량으로 구하고, 사망을 중도절단으로 처리한 1 − Kaplan-Meier와 비교합니다(<a href="#ch17-s1">17장 가 절</a>). 먼저 약물 B군 하나로 출력을 읽고, 이어서 두 군의 표와 그림을 만듭니다.</p>
+
+<h3>약물 B군의 누적발생률</h3>
+<!--FIG:lab17_aj-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from lifelines import AalenJohansenFitter, KaplanMeierFitter</code><span><code>AalenJohansenFitter</code>는 경쟁위험이 있는 자료에서 누적발생함수를 추정하는 도구입니다. 사용법은 <code>KaplanMeierFitter</code>(<a href="#lab07-s2">실습 7 나 절</a>)와 거의 같습니다.</span></li>
+<li><code>b = ckd[ckd["drug"] == "B"]</code><span>약물 B군 2,120명만 골라 둡니다.</span></li>
+<li><code>ajf.fit(b["years"], b["status"], event_of_interest=1)</code><span>시간 열과 사건 열을 차례로 넘깁니다. 사건 열은 0, 1, 2 세 값을 <em>그대로</em> 넣습니다. <code>event_of_interest=1</code>은 누적발생함수를 구할 사건의 코드이고, 0이 아닌 나머지 값(2)은 자동으로 경쟁 사건이 됩니다.</span></li>
+<li><code>ajf.predict([1, 3, 5])</code><span>1년, 3년, 5년 시점의 누적발생률을 돌려줍니다. 시점 하나만 넣으면(<code>predict(5)</code>) 숫자 하나가 나옵니다. <code>KaplanMeierFitter</code>의 <code>predict</code>는 같은 방식으로 그 시점의 생존확률을 줍니다.</span></li>
+<li><code>ajf.confidence_interval_.loc[:5].tail(1)</code><span>신뢰구간 표에서 시간이 5 이하인 행만 고르고(<code>.loc[:5]</code>) 그 마지막 한 줄을 봅니다. 계단 함수이므로 5년 이전의 마지막 값이 5년의 값입니다(<a href="#lab07-s2">실습 7 나 절</a> '시점별 생존율').</span></li>
+<li><code>kmf.fit(b["years"], b["status"] == 1)</code><span>비교용 Kaplan-Meier입니다. <code>b["status"] == 1</code>은 투석이면 True, 사망과 중도절단이면 False인 열이고, True가 사건으로 쓰입니다. 사망을 중도절단으로 처리한 것입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1년 누적발생률 0.0788.</b> 3년 0.1816, 5년 값과 함께 본문 표 17-2의 7.9%, 18.2%, 24.5%입니다. 결과의 이름 CIF_1은 사건 1의 누적발생함수라는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>5년 누적발생률 0.2455.</b> 약물 B를 시작한 환자 100명 가운데 약 25명이 5년 안에 투석을 시작한다고 읽습니다. 단순 비율 496 ÷ 2,120 = 23.4%보다 조금 큰 것은 5년을 다 채우지 못하고 추적이 끝난 환자를 반영했기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>열 이름이 뒤바뀌어 있습니다.</b> 이 버전에서는 upper 열에 작은 값이, lower 열에 큰 값이 들어 있습니다. 이름이 아니라 값의 크기로 하한과 상한을 정합니다. 다음 셀에서는 <code>sorted</code>로 정렬해 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>95% 신뢰구간 22.7–26.5%.</b> 본문의 "24.5% (95% CI 22.7–26.5)"입니다.</span></li>
+<li><span class="mk">5</span><span><b>1 − Kaplan-Meier 0.3924.</b> 같은 환자, 같은 시점인데 39.2%입니다. 누적발생률 24.5%의 1.6배입니다. 사망한 1,088명을 "남은 사람과 같은 속도로 언젠가 투석할 사람"으로 계산한 값이어서 실제로 일어나는 비율보다 큽니다.</span></li>
+</ol>
+
+<h3>두 군의 누적발생률 표</h3>
+<p>군과 시점을 바꿔 가며 같은 계산을 반복하므로 함수로 묶어 둡니다. 이 함수는 과제에서도 씁니다.</p>
+<!--FIG:lab17_ciftab-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def cif(d, event, t):</code><span>자료 <code>d</code>, 사건 코드 <code>event</code>, 시점 <code>t</code>를 받아 누적발생률과 신뢰구간을 돌려주는 함수입니다(함수 정의는 <a href="#lab07-s2">실습 7 나 절</a>의 rmst_se와 같은 문법).</span></li>
+<li><code>lo, hi = sorted(aj.confidence_interval_.loc[:t].iloc[-1])</code><span>t 이전 마지막 행의 두 값을 꺼내 <code>sorted</code>로 작은 값부터 정렬한 뒤, 작은 값을 <code>lo</code>, 큰 값을 <code>hi</code>에 담습니다. 열 이름이 뒤바뀐 문제를 피하는 방법입니다.</span></li>
+<li><code>return aj.predict(t), lo, hi</code><span>값 세 개를 한꺼번에 돌려줍니다. 받는 쪽에서 <code>est, lo, hi = cif(d, 1, t)</code>처럼 세 변수로 나눠 받습니다.</span></li>
+<li><code>rows[(f"{t}-year", g)] = …</code><span>사전(dict)의 열쇠를 (시점, 군) 두 값의 묶음으로 썼습니다. 값은 "30.2 (27.7-32.7)" 형식의 문자열입니다.</span></li>
+<li><code>pd.Series(rows).unstack()</code><span>열쇠가 두 값의 묶음인 사전을 Series로 만들면 두 단계 색인이 됩니다. <code>unstack()</code>은 안쪽 단계(군)를 열로 펼쳐 시점 × 군 표로 만듭니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>A군 1년 8.5% (7.1–10.0).</b> 1년에는 두 군이 거의 같습니다(B군 7.9%).</span></li>
+<li><span class="mk">2</span><span><b>A군 5년 30.2% (27.7–32.7).</b></span></li>
+<li><span class="mk">3</span><span><b>B군 5년 24.5% (22.7–26.5).</b> 시간이 갈수록 A군이 더 높아집니다. 세 줄 모두 본문의 논문 상자 Table 2와 같습니다.</span></li>
+</ol>
+
+<h3>세 상태의 합은 100%</h3>
+<p>5년 시점에 환자는 세 상태 가운데 하나에 있습니다. 투석을 시작했거나, 투석 전에 사망했거나, 둘 다 없이 지내고 있습니다. 사건별 누적발생률과 무사건 비율을 더해 100%가 되는지 검산하고, 1 − Kaplan-Meier를 옆에 놓습니다.</p>
+<!--FIG:lab17_sum-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>KaplanMeierFitter().fit(d["years"], d["status"] &gt; 0)</code><span>투석과 사망을 모두 사건으로 본 Kaplan-Meier입니다. 이 곡선의 값이 "어느 사건도 없이 남아 있을 확률"입니다.</span></li>
+<li><code>cif(d, 2, 5)[0]</code><span>사건 코드를 2로 바꾸면 투석 전 사망의 누적발생률입니다. <code>[0]</code>은 함수가 돌려준 세 값 가운데 첫째(추정값)만 꺼냅니다.</span></li>
+<li><code>five = pd.DataFrame(rows).set_index("drug") * 100</code><span>사전의 목록을 표로 만들고 drug를 행 이름으로 옮긴 뒤, 모든 값에 100을 곱해 %로 바꿉니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>A군 투석 30.2%.</b></span></li>
+<li><span class="mk">2</span><span><b>A군 투석 전 사망 35.2%.</b> B군은 53.0%입니다. A군에서 투석까지 간 환자가 더 많은 이유가 이 열에 있습니다. 덜 사망하므로 투석을 맞을 때까지 살아 있는 사람이 많습니다.</span></li>
+<li><span class="mk">3</span><span><b>A군 무사건 34.6%.</b> B군은 22.5%입니다.</span></li>
+<li><span class="mk">4</span><span><b>A군의 1 − Kaplan-Meier 39.0%.</b> 누적발생률 30.2%의 1.3배입니다.</span></li>
+<li><span class="mk">5</span><span><b>합계 100.0.</b> 30.2 + 35.2 + 34.6, 24.5 + 53.0 + 22.5 모두 100입니다. 투석 자리에 1 − Kaplan-Meier를 넣으면 A군 108.8, B군 114.7로 100을 넘습니다.</span></li>
+<li><span class="mk">6</span><span><b>B군의 1 − Kaplan-Meier 39.2%.</b> 두 군의 1 − Kaplan-Meier는 39.0%와 39.2%로 같아 보이지만 실제 비율은 30.2%와 24.5%입니다. 사망이 더 많은 B군에서 과대추정이 더 커서(1.6배 대 1.3배) 군 사이의 비교까지 틀어집니다.</span></li>
+</ol>
+
+<h3>누적발생함수와 1 − Kaplan-Meier 겹쳐 그리기</h3>
+<!--FIG:lab17_overlay-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>one_minus_km = 1 - km.survival_function_["KM_estimate"]</code><span>Kaplan-Meier 생존확률 열을 1에서 빼 "사건이 일어난 비율"로 바꿉니다. 행 이름(index)이 시간입니다.</span></li>
+<li><code>ax.step(x, y, where="post", ls="--", label=…)</code><span>계단 모양의 선을 그립니다. <code>where="post"</code>는 각 시점에서 값이 바뀐 뒤 다음 시점까지 수평으로 이어지게 하고, <code>ls="--"</code>는 점선입니다.</span></li>
+<li><code>aj.cumulative_density_["CIF_1"]</code><span>적합한 누적발생함수 전체가 들어 있는 표입니다. 행 이름은 시간, 열 이름은 "CIF_" 뒤에 사건 코드를 붙인 것입니다.</span></li>
+</ol>
+<p>그림 읽기. 가로축(Years since first prescription)은 약물 시작 후 연수, 세로축(Proportion starting dialysis)은 그때까지 투석을 시작한 비율입니다. 점선이 사망을 중도절단한 1 − Kaplan-Meier, 실선이 누적발생함수입니다. 두 선은 처음에는 붙어 있다가 사망이 쌓일수록 벌어지고, 사망이 많은 B군(오른쪽)에서 더 크게 벌어집니다. 점선의 5년 값은 두 그림에서 같고(39%), 실선은 A군 30%, B군 25%입니다.</p>
+
+<h3>세 상태를 쌓아 그리기</h3>
+<!--FIG:lab17_stack-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>grid = np.linspace(0, 5, 251)</code><span>0부터 5까지를 같은 간격으로 나눈 숫자 251개(0, 0.02, 0.04, …, 5)를 만듭니다. 곡선을 그릴 시점들입니다.</span></li>
+<li><code>f1 = AalenJohansenFitter().fit(…, event_of_interest=1).predict(grid)</code><span>적합과 예측을 한 줄로 이었습니다. <code>f1</code>은 251개 시점의 투석 누적발생률, <code>f2</code>는 투석 전 사망의 누적발생률입니다.</span></li>
+<li><code>ax.stackplot(grid, f1, f2, 1 - f1 - f2, labels=[…])</code><span>세 값을 아래에서부터 차례로 쌓아 면적으로 그립니다. 셋째 값은 1에서 두 누적발생률을 뺀 무사건 비율입니다.</span></li>
+</ol>
+<p>그림 읽기. 아래 띠가 투석(Dialysis), 가운데가 투석 전 사망(Death before dialysis), 위가 투석 없이 생존(Alive without dialysis)이고, 어느 시점에서나 세 띠의 두께를 더하면 1입니다. B군은 가운데 띠가 빠르게 두꺼워지면서 아래 띠가 자랄 자리를 줄입니다. 본문 그림 17-1 (나)와 같은 그림입니다.</p>
+
+<h3>두 군의 차이와 신뢰구간</h3>
+<p>누적발생률은 절대위험이므로 두 군의 차이(위험차)를 그대로 보고할 수 있습니다. 두 군이 독립이므로 차이의 분산은 두 분산의 합입니다.</p>
+<!--FIG:lab17_rd-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>aj.variance_.loc[:5].iloc[-1]</code><span><code>variance_</code>에는 시점마다 누적발생률의 분산(표준오차의 제곱)이 들어 있습니다. 5년 이전의 마지막 값을 꺼냅니다.</span></li>
+<li><code>(fa, va), (fb, vb) = est["A"], est["B"]</code><span>군마다 (추정값, 분산) 묶음으로 저장해 둔 것을 네 변수로 풀어 받습니다.</span></li>
+<li><code>se = np.sqrt(va + vb)</code><span>차이의 표준오차입니다. 95% 신뢰구간은 차이 ± 1.96 × 표준오차입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>차이 5.7%p.</b> 30.2 − 24.5입니다. A군 환자 100명 가운데 약 6명이 더 투석까지 갑니다.</span></li>
+<li><span class="mk">2</span><span><b>95% 신뢰구간 2.5–8.8%p.</b> 0을 포함하지 않습니다. 본문 '두 군의 비교'의 값과 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>누적발생률의 비 1.23.</b> 5년 시점의 상대위험도입니다. 다 절에서 구할 하위분포 위험비 1.25와 비슷하지만 같은 양이 아닙니다.</span></li>
+</ol>
+
+<h3>일 단위 자료의 동점 경고</h3>
+<p>이 자료는 시간이 소수여서 같은 시각에 두 사건이 겹치지 않습니다. 청구자료는 시간이 일 단위이므로 같은 날에 투석을 시작한 환자와 사망한 환자가 함께 있는 일이 흔합니다. <code>AalenJohansenFitter</code>는 서로 다른 종류의 사건이 같은 시점에 있으면 경고를 내고, 사건 시간을 아주 조금씩 무작위로 흔들어(jitter) 동점을 없앤 뒤 계산합니다. 시간을 일 단위로 올림해 이 상황을 만들어 봅니다.</p>
+<!--FIG:lab17_ties-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>days = np.ceil(b["years"] * 365.25)</code><span>연수를 일수로 바꾸고 <code>np.ceil</code>로 올림해 정수 일수로 만듭니다. 5년은 1,827일이 됩니다.</span></li>
+<li><code>aj_d = AalenJohansenFitter(seed=1)</code><span>흔드는 양은 난수이므로 돌릴 때마다 결과의 끝자리가 달라집니다. <code>seed</code>에 정수를 지정하면 같은 결과가 다시 나옵니다.</span></li>
+<li><code>cir = CumIncidenceRight(days, b["status"])</code><span>statsmodels의 누적발생함수 추정기입니다. 동점을 흔들지 않고 그대로 계산합니다.</span></li>
+<li><code>cir.cinc[0][-1]</code><span><code>cinc</code>는 사건 종류별 누적발생함수의 목록입니다. <code>[0]</code>이 사건 코드 1(투석), <code>[-1]</code>이 마지막 시점(1,827일)의 값입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>lifelines 0.2455.</b> 출력 아래의 "Tied event times were detected … data is randomly jittered"가 동점 경고입니다. 오류가 아니고 계산은 끝까지 됩니다. 흔드는 크기가 0.0001일 이내여서 결과는 소수 넷째 자리까지 원래 값과 같습니다. seed를 2, 3, 4로 바꿔도 0.2455입니다.</span></li>
+<li><span class="mk">2</span><span><b>statsmodels 0.2455.</b> 흔들지 않고 계산한 값도 같습니다. 논문에는 seed를 지정한 lifelines 결과나 statsmodels 결과 어느 쪽을 써도 되고, 어떤 방법으로 계산했는지만 적어 둡니다.</span></li>
+</ol>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>① 셀 6에서 <code>event_of_interest=2</code>로 바꾸면 B군의 투석 전 사망 누적발생률(5년 0.5296)이 나옵니다. ② 셀 6의 <code>ajf.fit</code>에 <code>b</code> 대신 <code>ckd</code>의 두 열을 넣으면 두 군을 합친 5년 투석 누적발생률 26.8%가 나옵니다. ③ 셀 12에서 <code>seed=1</code>을 지우고 두 번 실행하면 다섯째 자리 아래가 달라지는 것을 볼 수 있습니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Methods 문장과 누적발생률 표</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Cumulative incidence functions for dialysis initiation and for death before dialysis were estimated with <span class="mk">1</span> <span class="hl">the Aalen–Johansen estimator</span>, treating the other event as a competing event. The difference in 5-year cumulative incidence was reported with a 95% confidence interval.</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Cumulative incidence of dialysis initiation and death before dialysis</caption>
+<thead><tr><th></th><th class="r">Drug A (n = 1,380)</th><th class="r">Drug B (n = 2,120)</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3">Dialysis initiation</td></tr>
+<tr><td class="ind">1-year cumulative incidence</td><td class="r">8.5 (7.1–10.0)</td><td class="r">7.9 (6.8–9.1)</td></tr>
+<tr><td class="ind">3-year cumulative incidence</td><td class="r">21.0 (18.9–23.2)</td><td class="r">18.2 (16.6–19.8)</td></tr>
+<tr><td class="ind">5-year cumulative incidence</td><td class="r"><span class="mk">2</span> 30.2 (27.7–32.7)</td><td class="r">24.5 (22.7–26.5)</td></tr>
+<tr class="grp"><td colspan="3">Death before dialysis</td></tr>
+<tr><td class="ind">5-year cumulative incidence</td><td class="r"><span class="mk">3</span> 35.2 (32.6–37.8)</td><td class="r">53.0 (50.7–55.1)</td></tr>
+<tr class="grp"><td colspan="3">Alive without dialysis</td></tr>
+<tr><td class="ind">At 5 years</td><td class="r"><span class="mk">4</span> 34.6</td><td class="r">22.5</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Values are % (95% CI). The 5-year cumulative incidence of dialysis was 5.7 percentage points higher with drug A (95% CI 2.5–8.8).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>추정 방법.</b> <code>AalenJohansenFitter</code>가 계산하는 추정량의 이름입니다. "1 − Kaplan-Meier"로 구했다면 이 문장을 쓸 수 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>5년 투석 누적발생률.</b> 셀 7의 값입니다. 차이 5.7%p와 신뢰구간은 셀 11에서 구했습니다. 군 사이의 검정(Gray 검정)은 다 절에서 덧붙입니다.</span></li>
+<li><span class="mk">3</span><span><b>경쟁 사건의 누적발생률.</b> 셀 8의 death 열이고 신뢰구간은 과제 1에서 구합니다. 관심 사건만 보고하면 A군의 투석이 왜 더 많은지 독자가 알 수 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>검산용 줄.</b> 셀 8의 event_free 열입니다. 세 줄을 더하면 100입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>AalenJohansenFitter().fit(시간, 세 값짜리 사건, event_of_interest=코드)</code>로 누적발생함수를 구합니다. 신뢰구간의 열 이름이 뒤바뀌어 있으므로 값의 크기로 하한과 상한을 정합니다.</li>
+<li>5년 투석 누적발생률은 A군 30.2%, B군 24.5%이고, 사망을 중도절단한 1 − Kaplan-Meier는 39.0%와 39.2%입니다. 사망이 많을수록 과대추정이 큽니다.</li>
+<li>사건별 누적발생률과 무사건 비율의 합은 100%입니다. 논문 표를 만들 때 이 검산을 해 둡니다.</li>
+<li>일 단위 자료에서는 동점 경고가 납니다. <code>seed</code>를 지정해 재현할 수 있게 하고, statsmodels의 <code>CumIncidenceRight</code>로 확인할 수 있습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab17-s3">
+<h2><span class="sec-no">다.</span>원인별 위험비와 Fine–Gray 위험비</h2>
+
+<p>경쟁위험이 있으면 위험비가 두 가지입니다(<a href="#ch17-s2">17장 나 절</a>). <strong>원인별 위험비</strong><span class="en">(cause-specific hazard ratio)</span>는 실습 11에서 배운 Cox 모형 그대로 구합니다. Fine–Gray 모형의 <strong>하위분포 위험비</strong><span class="en">(subdistribution hazard ratio)</span>는 lifelines에 전용 함수가 없어서, 모형이 하는 일을 자료 가공으로 직접 옮겨 구합니다. 실제 연구에서는 R의 cmprsk 패키지나 survival 패키지의 finegray 함수가 표준 도구이고, 이 절의 구현은 그 도구들이 안에서 하는 일의 원리를 보여 주기 위한 것입니다.</p>
+
+<h3>원인별 위험비</h3>
+<p>경쟁 사건을 중도절단으로 두고 보통의 Cox 모형을 적합합니다. 가 절에서 만든 dial 열(투석 1, 사망과 중도절단 0)을 사건 열로 쓰면 그것이 곧 "사망 시점에 중도절단"입니다. 코드는 <a href="#lab11-s2">실습 11 나 절</a>과 같고, 출력에서 볼 열만 <code>cols</code>로 골랐습니다.</p>
+<!--FIG:lab17_cs-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>투석의 원인별 위험비 1.018.</b> 95% 신뢰구간 0.892–1.162입니다. 살아 있고 아직 투석하지 않은 환자가 투석으로 넘어가는 속도는 두 군이 같습니다. 셀 5의 발생률비 1.02와 같은 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>P = 0.787.</b> 약물 A가 신기능이 나빠지는 속도를 바꾼다는 근거는 이 자료에 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>사망의 원인별 위험비 0.551.</b> 95% 신뢰구간 0.494–0.614입니다. 사건 열을 death로 바꾸면 이번에는 투석이 중도절단으로 들어갑니다. P 열의 0.0은 반올림 때문이고 P &lt; 0.001로 적습니다. 셀 5의 발생률비 0.55와 같습니다.</span></li>
+</ol>
+
+<h3>Fine–Gray 모형이 하는 일</h3>
+<p>두 모형의 차이는 위험집합 하나입니다. 원인별 Cox 모형은 사망한 환자를 사망 시점에 위험집합에서 뺍니다. 그래서 각 시점의 "투석 건수 ÷ 위험집합"은 살아 있는 사람 가운데에서의 속도가 됩니다. Fine–Gray 모형은 투석 전에 사망한 환자를 '투석을 영영 하지 않을 사람'으로 위험집합에 남겨 둡니다. 분모가 "약을 시작한 사람 가운데 아직 투석하지 않은 모든 사람"이 되므로, 각 시점의 "투석 건수 ÷ 위험집합"을 쌓아 가면 전체 환자 가운데 투석까지 간 비율, 곧 누적발생함수가 됩니다. 사망한 사람은 투석할 수 없습니다. 그래도 분모에 남기는 이유는 답하려는 질문이 "처음 약을 시작한 사람 가운데 몇 명이 투석까지 가는가"이기 때문입니다. 3년 시점의 B군으로 두 위험집합을 세어 봅니다.</p>
+<!--FIG:lab17_riskset-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>원인별 위험집합 851명.</b> 3년까지 투석도 사망도 없이 추적 중인 환자입니다.</span></li>
+<li><span class="mk">2</span><span><b>3년 전에 사망한 884명.</b> 조건 <code>b["max_years"] &gt;= t0</code>는 "사망하지 않았다면 3년에도 추적 중이었을 사람"만 남긴다는 뜻입니다. 이 자료에서는 모든 환자의 max_years가 3년 이상이어서 884명이 모두 해당합니다.</span></li>
+<li><span class="mk">3</span><span><b>하위분포 위험집합 1,735명.</b> 851 + 884입니다. 본문 '두 가지 위험비'의 숫자와 같습니다. 분모의 절반이 이미 사망한 사람이므로, 이 위험집합으로 구한 위험비를 '살아 있는 사람에서의 속도'로 읽을 수 없습니다.</span></li>
+</ol>
+
+<h3>자료 마감 시점을 모두 알 때</h3>
+<p>사망한 환자를 언제까지 위험집합에 남겨 둘지가 남은 문제입니다. 사망하지 않았더라도 자료 마감에는 추적이 끝났을 것이므로 그때까지만 남깁니다. 이 코호트는 가 절에서 확인한 대로 모든 환자의 자료 마감 시점(max_years)을 알기 때문에 방법이 단순합니다. 투석 전에 사망한 환자의 추적 시간을 사망 시점 대신 max_years로 바꾸고 보통의 Cox 모형을 적합하면 Fine–Gray 모형이 됩니다<cite data-ref="fine1999"></cite>. 본문의 하위분포 위험비도 이 방법으로 구했습니다.</p>
+<!--FIG:lab17_fg-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>died = ckd["status"] == 2</code><span>투석 전에 사망한 환자이면 True인 열입니다.</span></li>
+<li><code>ckd["years_sd"] = np.where(died, ckd["max_years"], ckd["years"])</code><span>사망한 환자는 max_years를, 나머지는 원래 years를 넣은 새 시간 열입니다(<code>np.where</code>는 <a href="#lab11-s3">실습 11 다 절</a>). 환자 1은 0.96년에서 4.72년으로 늘어납니다. 사건 열 dial은 그대로 0이므로 이 환자는 4.72년까지 '투석하지 않은 사람'으로 위험집합에 남습니다.</span></li>
+<li><code>CoxPHFitter().fit(ckd, "years_sd", "dial", formula="drug_a")</code><span>시간 열만 years_sd로 바꾼 Cox 모형입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>하위분포 위험비 1.254.</b> 1보다 크므로 A군의 누적발생함수가 더 높다는 뜻입니다. 나 절의 30.2% 대 24.5%와 방향이 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>95% 신뢰구간 1.099–1.431.</b> 본문 표 17-4의 1.25 (1.10–1.43)입니다.</span></li>
+<li><span class="mk">3</span><span><b>P = 0.0008.</b> 같은 환자, 같은 사건인데 원인별 위험비는 1.02(P = 0.79)였습니다. 한쪽이 틀린 것이 아니고 묻는 것이 다릅니다.</span></li>
+</ol>
+
+<h3>가중치를 쓰는 일반적인 방법</h3>
+<p>자격 상실처럼 예정에 없던 중도절단이 있는 자료에서는 사망한 환자가 언제까지 추적될 수 있었는지 알 수 없습니다. 이때는 사망한 환자를 끝까지 위험집합에 남기되, 시간이 갈수록 가중치를 줄입니다. 가중치는 "이 환자가 살아 있었다면 그 시점까지 중도절단되지 않고 남아 있었을 확률"이고, 중도절단을 사건으로 놓은 Kaplan-Meier(<a href="#lab07-s1">실습 7 가 절</a>의 역 Kaplan-Meier)로 추정합니다. 한 사람이 어느 날 한꺼번에 빠지는 대신 모든 사망자가 조금씩 옅어지는 셈입니다. 표준 소프트웨어가 쓰는 방법이 이것입니다. 먼저 추적이 이어질 확률 G(t)를 구합니다.</p>
+<!--FIG:lab17_g-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>3년까지 G = 1.000.</b> 3년 전에는 중도절단이 없습니다. 가장 늦게 약을 시작한 환자도 3년은 추적할 수 있었기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>4년 G = 0.820.</b> 4년까지 자료 마감에 걸리지 않고 추적이 이어질 확률입니다.</span></li>
+<li><span class="mk">3</span><span><b>4.99년 G = 0.618.</b> 5년 직전에는 약 62%입니다. 5년을 모두 추적할 수 있었던 환자가 60%쯤이라는 셀 4의 내용과 맞습니다.</span></li>
+</ol>
+<p>이제 사망한 환자의 추적을 사망 뒤로 이어 붙인 긴 자료를 만듭니다. Cox 모형은 사건(투석)이 일어난 시점마다 위험집합을 봅니다. 그래서 사망 뒤의 기간을 투석이 일어난 시점마다 잘라 한 줄씩 만들고, 줄마다 그 시점의 가중치 G(그 시점) ÷ G(사망 시점)를 붙입니다. 가중치가 같은 이웃한 줄들은 한 줄로 합쳐도 각 투석 시점의 위험집합이 그대로이므로, 합쳐서 줄 수를 줄입니다. (시작, 끝] 형식의 긴 자료는 <a href="#lab11-s3">실습 11 다 절</a>에서 만든 것과 같은 구조입니다.</p>
+<!--FIG:lab17_long-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ev_t = np.sort(ckd.loc[ckd["dial"] == 1, "years"].unique())</code><span>투석이 일어난 시점들을 중복 없이 뽑아 작은 값부터 정렬합니다. 892개입니다.</span></li>
+<li><code>dead = ckd.loc[died, ["id", "drug_a", "years"]]</code><span>투석 전에 사망한 1,551명의 번호, 약물, 사망 시점만 골라 둡니다.</span></li>
+<li><code>ext = dead.merge(pd.DataFrame({"stop": ev_t}), how="cross")</code><span><code>merge</code>는 두 표를 옆으로 붙입니다. <code>how="cross"</code>는 왼쪽 표의 모든 행과 오른쪽 표의 모든 행을 짝지으므로, 사망자 1,551명 × 투석 시점 892개 = 약 138만 줄이 만들어집니다. 새 열 stop이 그 줄의 투석 시점입니다.</span></li>
+<li><code>ext = ext[ext["stop"] &gt; ext["years"]].copy()</code><span>그 환자의 사망 시점보다 <em>뒤</em>의 투석 시점만 남깁니다. 사망 전에는 원래 자료의 줄이 이미 그 환자를 대표하기 때문입니다.</span></li>
+<li><code>ext["w"] = kmc.predict(ext["stop"]).values / kmc.predict(ext["years"]).values</code><span>가중치입니다. 분자는 그 줄의 끝 시점까지 추적이 이어질 확률, 분모는 사망 시점까지 이어질 확률입니다. <code>.values</code>는 행 이름을 떼고 숫자만 꺼내 줄 순서대로 나누게 합니다.</span></li>
+<li><code>nxt = ext.groupby("id")["w"].shift(-1)</code><span><code>shift(-1)</code>은 값을 한 줄씩 위로 당깁니다. 환자별로 묶어 당겼으므로 각 줄에 "같은 환자의 바로 다음 줄 가중치"가 들어가고, 환자의 마지막 줄은 결측(NaN)이 됩니다.</span></li>
+<li><code>ext = ext[ext["w"] != nxt].copy()</code><span>다음 줄과 가중치가 다른 줄만 남깁니다. 가중치가 같은 줄이 이어지면 그 가운데 마지막 줄만 남습니다. 결측과의 비교는 "다르다"로 처리되므로 환자의 마지막 줄은 남습니다. 두 투석 시점 사이에 중도절단이 없으면 G가 바뀌지 않아 가중치가 같습니다. 그런 줄들을 하나의 긴 구간으로 합쳐도 투석 시점마다 이 환자가 위험집합에 들어가는 가중치는 그대로입니다.</span></li>
+<li><code>prev = ext.groupby("id")["stop"].shift()</code><span>인자 없는 <code>shift()</code>는 반대로 값을 한 줄씩 아래로 밉니다. 각 줄에 "같은 환자의 바로 앞 줄 stop"이 들어가고, 환자의 첫 줄은 결측이 됩니다.</span></li>
+<li><code>ext["start"] = prev.fillna(ext["years"])</code><span>구간의 시작은 앞 줄의 끝입니다. 결측인 첫 줄은 <code>fillna</code>로 사망 시점을 채웁니다. 이렇게 (사망 시점, 첫 줄의 끝], (첫 줄의 끝, 둘째 줄의 끝], …으로 이어집니다.</span></li>
+<li><code>ext["dial"] = 0</code><span>덧붙인 줄에서는 투석이 일어나지 않습니다.</span></li>
+<li><code>own = ckd.assign(start=0.0, stop=ckd["years"], w=1.0)</code><span>원래 자료의 한 사람 한 줄입니다. 0부터 years까지, 가중치 1입니다.</span></li>
+<li><code>long = pd.concat([own[keep], ext[keep]], ignore_index=True)</code><span>원래 줄과 덧붙인 줄을 위아래로 이어 붙입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>3,500명이 224,833줄.</b> 사망자 한 명에 평균 143줄이 덧붙었습니다. 가중치가 같은 줄을 합치지 않으면 742,467줄이 되고, 추정값은 같지만 다음 셀의 적합이 세 배쯤 오래 걸립니다. 합친 뒤에도 줄 수가 많아 다음 셀은 10초 넘게 걸릴 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>환자 1의 둘째 줄.</b> 첫 줄 (0, 0.9609]은 원래 자료의 줄이고, 이 환자는 0.96년에 사망했습니다. 둘째 줄부터가 사망 뒤에 덧붙인 줄입니다. 3년 전에는 중도절단이 없어 G가 1이므로, 사망 시점부터 3년 직전의 마지막 투석 시점(2.9957년)까지가 가중치 1인 한 줄로 합쳐졌습니다.</span></li>
+<li><span class="mk">3</span><span><b>마지막 줄의 가중치 0.6171.</b> 환자 1은 모두 158줄이고, 마지막 투석 시점(4.9986년)까지 위험집합에 남되 가중치가 0.62로 줄었습니다. 앞의 방법에서는 이 환자가 자신의 max_years인 4.72년에 한꺼번에 빠졌습니다.</span></li>
+</ol>
+<!--FIG:lab17_fgw-->
+<p><code>CoxTimeVaryingFitter</code>는 <a href="#lab11-s3">실습 11 다 절</a>과 같고, <code>weights_col="w"</code>로 줄마다의 가중치 열을 알려 준 것만 다릅니다.</p>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>하위분포 위험비 1.257.</b> 95% 신뢰구간 1.102–1.435로, 앞의 방법(1.254, 1.099–1.431)과 거의 같습니다. 본문이 "이 방법을 적용하면 1.26(1.10–1.43)"이라고 적은 값입니다. 이 셀의 신뢰구간은 가중치를 고정된 값으로 본 보통의 표준오차로 구했습니다(<code>CoxTimeVaryingFitter</code>의 <code>robust=True</code>는 이 버전에서 구현되어 있지 않습니다). 가중치도 추정한 값이므로 표준 소프트웨어는 그 불확실성을 반영한 강건 분산을 써서 신뢰구간이 조금 다를 수 있습니다. 이 자료처럼 중도절단이 사건과 동점이 아닌 경우의 구현이고, 일 단위 자료에서는 같은 날의 중도절단을 사건 뒤로 놓는 처리가 더 필요합니다. 논문에 실을 결과는 검증된 도구로 계산합니다.</span></li>
+</ol>
+
+<h3>누적발생함수의 검정</h3>
+<p>두 군의 누적발생함수가 같은지는 Gray 검정으로 검정합니다<cite data-ref="gray1988"></cite>. lifelines에는 이 함수가 없습니다. 모든 환자의 자료 마감 시점을 아는 자료에서는 셀 15의 years_sd에 로그순위 검정(<a href="#lab07-s3">실습 7 다 절</a>)을 적용하면 같은 원리의 검정이 되고, 본문 표의 P도 이렇게 계산했습니다. 사망을 중도절단으로 둔 보통의 로그순위 검정과 나란히 봅니다.</p>
+<!--FIG:lab17_gray-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사망자를 위험집합에 남긴 검정 χ² = 11.35, P = 0.0008.</b> "투석까지 가는 환자의 비율이 두 군에서 같은가"에 대한 검정입니다. 셀 15의 Fine–Gray 모형과 짝을 이룹니다. R의 cmprsk가 계산하는 Gray 검정은 위험집합과 분산을 추정하는 방식이 조금 달라 통계량이 정확히 같지는 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>보통의 로그순위 검정 χ² = 0.07, P = 0.79.</b> "살아 있는 환자가 투석으로 넘어가는 속도가 같은가"에 대한 검정입니다. 셀 13의 원인별 Cox 모형(P = 0.787)과 짝을 이룹니다.</span></li>
+</ol>
+
+<h3>결과 정리</h3>
+<!--FIG:lab17_hrtab-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>투석의 원인별 위험비 1.02 (0.89–1.16).</b> 원인의 질문에 답합니다. 약물 A가 투석으로 넘어가는 속도를 바꾸는가. 바꾸지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>투석의 하위분포 위험비 1.25 (1.10–1.43).</b> 예후의 질문에 답합니다. A군에서 투석까지 가는 환자의 비율이 더 높은가. 더 높습니다.</span></li>
+<li><span class="mk">3</span><span><b>가중치 방법 1.26 (1.10–1.43).</b> 같은 양을 일반적인 방법으로 추정한 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>사망의 원인별 위험비 0.55 (0.49–0.61).</b> 1번과 2번이 다른 이유입니다. A군은 덜 사망하므로 같은 속도로 더 오래 투석의 위험에 놓여 있습니다.</span></li>
+</ol>
+<p>1번, 2번, 4번은 본문 표 17-4의 마지막 줄과 논문 상자 Table 3의 값이고, 3번은 본문의 접힌 '파이썬 출력 읽기'에 적힌 값입니다. 어느 위험비를 주 분석으로 할지는 연구 질문이 정합니다. 약물이 신장에 해로운지를 묻는다면 1번을, 5년 안에 투석이 필요해질 환자의 규모를 묻는다면 나 절의 누적발생함수와 2번을 씁니다. 어느 쪽이든 관심 사건과 경쟁 사건 양쪽의 원인별 위험비와 누적발생함수를 함께 보고합니다<cite data-ref="latouche2013"></cite>.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해 · 하위분포 위험비를 읽을 때</p>
+<p><span class="wrong">하위분포 위험비가 1.25이므로 약물 A는 신기능 악화를 앞당긴다.</span> 투석으로 넘어가는 속도는 같습니다(원인별 위험비 1.02). A군이 오래 살아 투석까지 가는 사람이 많을 뿐입니다.</p>
+<p><span class="wrong">하위분포 위험비 1.25는 5년 투석 위험이 1.25배라는 뜻이다.</span> 5년 누적발생률의 비는 셀 11의 1.23이고 시점마다 다릅니다. Fine–Gray 모형이 두 군의 누적발생률을 잇는 식은 1 − F<sub>A</sub> = (1 − F<sub>B</sub>)<sup>sHR</sup>입니다. <code>1 - (1 - fb) ** 1.254</code>를 계산하면 0.298로, 셀 11의 실제 추정값 0.302와 가깝습니다. 크기는 누적발생률의 차이나 비로 읽습니다(<a href="#ch17-s2">17장 나 절</a> 흔한 오해).</p></div>
+
+<div class="callout tip"><p class="ct">직접 바꿔 보기</p>
+<p>사망자를 위험집합에 남긴 자료가 누적발생함수와 이어져 있는지 직접 확인할 수 있습니다. <code>KaplanMeierFitter().fit(b["years_sd"], b["dial"])</code>을 적합하고(먼저 <code>b = ckd[ckd["drug"] == "B"]</code>를 다시 실행해 새 열을 받아 옵니다) <code>1 - predict(3)</code>을 구하면 0.1816으로 셀 6의 3년 누적발생률과 같습니다. 5년 값은 0.2465로 누적발생률 0.2455와 조금 다른데, 3년 뒤부터 중도절단이 섞이면서 두 추정 방법이 조금 달라지기 때문입니다. 사망을 중도절단한 1 − Kaplan-Meier(0.3924)와는 전혀 다른 값입니다.</p></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · Methods의 통계분석 문단과 위험비 표</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<p class="excerpt">Cumulative incidence functions were compared between groups with <span class="mk">1</span> <span class="hl">Gray's test</span>. We fitted <span class="mk">2</span> <span class="hl">cause-specific Cox models, in which the competing event was censored</span>, and <span class="mk">3</span> <span class="hl">Fine–Gray subdistribution hazard models</span> for dialysis initiation and for death before dialysis. The 5-year cumulative incidence of dialysis was higher with drug A than with drug B (30.2% vs 24.5%; <span class="hl">P &lt; 0.001</span>).</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 3.</b> Hazard ratios for dialysis initiation and death before dialysis, drug A versus drug B</caption>
+<thead><tr><th>Outcome</th><th class="r">5-year cumulative incidence</th><th class="r">Cause-specific HR (95% CI)</th><th class="r">Subdistribution HR (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>Dialysis initiation</td><td class="r">30.2% vs 24.5%</td><td class="r"><span class="mk">4</span> 1.02 (0.89–1.16)</td><td class="r"><span class="mk">5</span> 1.25 (1.10–1.43)</td></tr>
+<tr><td>Death before dialysis</td><td class="r">35.2% vs 53.0%</td><td class="r">0.55 (0.49–0.61)</td><td class="r"><span class="mk">6</span> 0.56 (0.50–0.62)</td></tr>
+</tbody></table></div>
+<p class="jt-foot">HR, hazard ratio. Cumulative incidence was estimated with the Aalen–Johansen estimator.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Gray 검정.</b> 셀 19의 첫 줄(P = 0.0008)입니다. 이 실습에서는 같은 원리의 검정으로 계산했고, 논문에는 cmprsk 같은 검증된 도구의 결과를 싣습니다.</span></li>
+<li><span class="mk">2</span><span><b>원인별 Cox 모형.</b> 셀 13입니다. 투석을 분석할 때는 사망을, 사망을 분석할 때는 투석을 중도절단했다는 뜻입니다.</span></li>
+<li><span class="mk">3</span><span><b>Fine–Gray 모형.</b> 셀 15입니다. 논문에 따라 subdistribution HR, sHR, Fine–Gray HR로 적습니다.</span></li>
+<li><span class="mk">4</span><span><b>1.02 (0.89–1.16).</b> 살아 있는 환자에서 투석으로 넘어가는 속도의 비입니다.</span></li>
+<li><span class="mk">5</span><span><b>1.25 (1.10–1.43).</b> 투석까지 가는 환자의 비율이 A군에서 높다는 뜻이고, 크기는 왼쪽 열의 30.2% 대 24.5%에서 읽습니다.</span></li>
+<li><span class="mk">6</span><span><b>0.56 (0.50–0.62).</b> 사망의 하위분포 위험비는 과제 1에서 구합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>원인별 위험비는 경쟁 사건을 중도절단으로 둔 보통의 Cox 모형으로 구합니다. 투석 1.02 (0.89–1.16), 사망 0.55 (0.49–0.61).</li>
+<li>Fine–Gray 모형은 경쟁 사건을 겪은 사람을 위험집합에 남깁니다. 자료 마감 시점을 모두 알면 그때까지 남기고, 모르면 중도절단되지 않았을 확률로 가중치를 줄여 가며 남깁니다. 투석의 하위분포 위험비는 1.25 (1.10–1.43)입니다.</li>
+<li>두 위험비가 다른 이유는 경쟁 사건의 결과에 있습니다. 그래서 관심 사건과 경쟁 사건의 원인별 위험비와 누적발생함수를 모두 보고합니다.</li>
+<li>두 위험비 모두 상대위험도가 아닙니다. 절대위험은 나 절의 누적발생률로 읽습니다.</li>
+<li>lifelines에는 Fine–Gray 모형과 Gray 검정이 없습니다. 이 절의 코드는 원리를 보여 주는 것이고, 논문용 결과는 표준 도구로 확인합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab17-s4">
+<h2><span class="sec-no">라.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 노트북에서 이어서 풉니다. 가 절에서 만든 열(drug_a, dial, death), 나 절의 함수 <code>cif</code>, 다 절의 <code>hr_ci</code>를 그대로 쓸 수 있습니다. 세 과제 모두 본문에 대응하는 결과가 있으므로 답을 스스로 맞춰 볼 수 있습니다.</p>
+
+<h3>과제 1. 투석 전 사망을 관심 사건으로</h3>
+<p>이번에는 투석 전 사망이 관심 사건이고 투석 시작이 경쟁 사건입니다. 두 군의 5년 사망 누적발생률(95% 신뢰구간)과, 투석을 중도절단으로 둔 1 − Kaplan-Meier를 구하세요. 이어서 사망의 하위분포 위험비를 셀 15의 방법으로 구해 셀 13의 원인별 위험비와 비교하세요. 이번에 위험집합에 남길 사람은 투석을 시작한 환자라는 점이 힌트입니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab17_hw1-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>5년 사망 누적발생률 A군 35.2% (32.6–37.8), B군 53.0% (50.7–55.1).</b> 본문의 논문 상자 Table 2와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>1 − Kaplan-Meier 43.2%와 63.0%.</b> 사망에서도 과대추정이 일어납니다. 투석을 시작한 환자를 "언젠가 투석 전에 사망할 사람"으로 계산했기 때문입니다. 투석이 사망보다 드물어서 과대추정의 크기는 투석 쪽보다 작습니다(1.2배).</span></li>
+<li><span class="mk">3</span><span><b>하위분포 위험비 0.56 (0.50–0.62).</b> 원인별 위험비 0.55 (0.49–0.61)와 거의 같습니다. 약물 A가 경쟁 사건인 투석의 속도를 바꾸지 않기 때문입니다. 노출이 경쟁 사건에 영향을 주지 않으면 두 위험비가 비슷해지고, 영향을 주면 투석의 경우(1.02 대 1.25)처럼 벌어집니다.</span></li>
+</ol>
+</div></details>
+
+<h3>과제 2. 복합 결과</h3>
+<p>'투석 또는 사망 가운데 먼저 일어난 것'을 하나의 사건으로 놓으면 경쟁 사건이 없어집니다. 이 복합 결과의 위험비를 Cox 모형으로 구하고, 두 군의 5년 1 − Kaplan-Meier를 구하세요. 이 값이 나 절에서 구한 투석과 사망의 누적발생률을 더한 값과 같은지 확인하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab17_hw2-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>복합 결과의 위험비 0.70 (0.64–0.76).</b> 본문 '무엇을 보고하나'의 값입니다. "A군에서 투석 또는 사망이 30% 느리게 일어난다"는 요약은 틀리지 않지만, 더 많이 일어나는 사망이 이 값을 좌우하고 투석이 A군에서 오히려 많다는 사실은 가려집니다.</span></li>
+<li><span class="mk">2</span><span><b>1 − Kaplan-Meier 65.4%와 77.5%.</b> 두 누적발생률의 합(30.2 + 35.2, 24.5 + 53.0)과 같습니다. 경쟁 사건이 없는 결과에서는 1 − Kaplan-Meier가 곧 누적발생률입니다. 복합 결과를 쓴 논문에서는 구성 사건별 결과를 따로 확인합니다.</span></li>
+</ol>
+</div></details>
+
+<h3>과제 3. 고관절 골절 자료</h3>
+<p><a href="#ch17-s2">17장 나 절</a> 확인 문제 2번의 자료입니다. 치매가 있는 고령 환자에서 약물 C와 D의 신규 사용자 각 2,500명을 최대 5년 추적했습니다. 파일은 <code>dementia_fracture.csv</code>이고 열은 실습 자료와 같습니다(drug는 "C" 또는 "D", status는 0 = 중도절단, 1 = 고관절 골절, 2 = 골절 전 사망). 두 군의 5년 골절 누적발생률(95% 신뢰구간), 사망 누적발생률, 사망을 중도절단한 1 − Kaplan-Meier, 골절과 사망의 원인별 위험비, 골절의 하위분포 위험비를 구하고, "약물 C는 골절을 예방한다"는 결론이 맞는지 판단하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab17_hw3-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>5년 골절 누적발생률 C군 8.3% (7.2–9.5), D군 10.2% (9.0–11.5).</b> 골절까지 간 환자의 비율은 C군이 낮습니다. 사망 누적발생률은 66.0% 대 48.0%로 C군이 훨씬 높습니다.</span></li>
+<li><span class="mk">2</span><span><b>1 − Kaplan-Meier는 두 군 모두 14.1%.</b> 실제 비율(8.3%, 10.2%)보다 크고, 두 군의 차이도 보이지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>골절의 원인별 위험비 0.97 (0.80–1.17).</b> 살아 있는 환자에서 골절이 일어나는 속도는 두 군이 같습니다. 사망의 원인별 위험비는 1.65 (1.53–1.78)입니다.</span></li>
+<li><span class="mk">4</span><span><b>골절의 하위분포 위험비 0.81 (0.67–0.98).</b> 1보다 작고 신뢰구간이 1을 포함하지 않지만 골절 예방 효과가 아닙니다. C군의 사망 속도가 1.65배여서 골절을 겪기 전에 사망한 환자가 많았을 뿐입니다. 본문 표 17-5의 넷째 줄(사망만 늘림)과 같은 상황이고, 실습 본문의 예와는 방향이 반대입니다. 결론은 "C군의 낮은 골절 누적발생률은 높은 사망률을 반영한다"로 고쳐야 합니다.</span></li>
+</ol>
+<p><code>hr_ci(m1, "drug_c")</code>의 둘째 인자는 요약표에서 읽을 행의 이름입니다. 이 자료에서는 약물 C를 1로 둔 열의 이름이 drug_c이므로 그 이름을 넘겼습니다.</p>
+</div></details>
+</section>

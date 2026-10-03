@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">그 밖의 민감도 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">low = tr[&quot;rob&quot;] == &quot;low&quot;                    # 편향 위험 &#x27;낮음&#x27; 8개
+m_low = pool(es.loc[low, &quot;yi&quot;], es.loc[low, &quot;vi&quot;])
+q_hk = np.sum(ws * (es[&quot;yi&quot;] - re)**2) / (k - 1)
+se_hk = se_re * np.sqrt(q_hk)               # Hartung-Knapp 표준오차
+t9 = stats.t.ppf(0.975, k - 1)
+print(&quot;main (random effects):&quot;, orci(m[&quot;re&quot;], m[&quot;se_re&quot;]))
+print(&quot;fixed effect         :&quot;, orci(m[&quot;fe&quot;], m[&quot;se_fe&quot;]))
+print(f&quot;low risk of bias, k={m_low[&#x27;k&#x27;]}:&quot;,
+      orci(m_low[&quot;re&quot;], m_low[&quot;se_re&quot;]))
+print(f&quot;Hartung-Knapp        : SE {se_hk:.4f}, 95% CI&quot;
+      f&quot; {np.exp(re - t9*se_hk):.2f}-{np.exp(re + t9*se_hk):.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>main (random effects): 0.83 (0.73-0.93)
+fixed effect         : 0.84 (0.78-0.91)<span class="mk">1</span>
+low risk of bias, k=8: 0.83 (0.73-0.94)<span class="mk">2</span>
+Hartung-Knapp        : SE 0.0591<span class="mk">3</span>, 95% CI 0.72-0.94<span class="mk">4</span></pre></div></div>

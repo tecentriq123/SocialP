@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">세척 기간 365일의 처방으로 기존 사용자 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m = study.merge(index, on=&quot;pid&quot;)
+m[&quot;before&quot;] = (m[&quot;index_date&quot;] - m[&quot;rx_date&quot;]).dt.days
+prior = m[(m[&quot;before&quot;] &gt;= 1) &amp; (m[&quot;before&quot;] &lt;= 365)]
+coh[&quot;prevalent&quot;] = coh[&quot;pid&quot;].isin(prior[&quot;pid&quot;])
+print(&quot;prevalent users:&quot;, coh[&quot;prevalent&quot;].sum())
+m[m[&quot;pid&quot;] == 10111]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>prevalent users: 4103<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pid</th>
+      <th>rx_date</th>
+      <th>drug</th>
+      <th>days</th>
+      <th>index_date</th>
+      <th>before</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2770</th>
+      <td>10111</td>
+      <td>2015-12-03</td>
+      <td>DPP4i</td>
+      <td>30</td>
+      <td>2016-01-10</td>
+      <td>38<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>5182</th>
+      <td>10111</td>
+      <td>2016-01-10</td>
+      <td>SGLT2i<span class="mk">3</span></td>
+      <td>30</td>
+      <td>2016-01-10</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

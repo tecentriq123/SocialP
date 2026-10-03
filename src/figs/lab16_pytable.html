@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">노출 상태별 사망, 인년, 사망률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">long[&quot;py&quot;] = (long[&quot;stop&quot;] - long[&quot;start&quot;]) / 365
+t3 = long.groupby(&quot;drugx&quot;).agg(deaths=(&quot;died&quot;, &quot;sum&quot;),
+                               py=(&quot;py&quot;, &quot;sum&quot;))
+t3[&quot;rate&quot;] = t3[&quot;deaths&quot;] / t3[&quot;py&quot;] * 100      # 100인년당 사망률
+print(&quot;발생률비:&quot;, round(t3.loc[1, &quot;rate&quot;] / t3.loc[0, &quot;rate&quot;], 2))
+t3.round({&quot;py&quot;: 0, &quot;rate&quot;: 1})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>발생률비: 0.92<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>deaths</th>
+      <th>py</th>
+      <th>rate</th>
+    </tr>
+    <tr>
+      <th>drugx</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>913<span class="mk">2</span></td>
+      <td>3841.0<span class="mk">3</span></td>
+      <td>23.8<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>321</td>
+      <td>1471.0<span class="mk">5</span></td>
+      <td>21.8<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">과제 1 정답. 반복 횟수와 몬테카를로 오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ok = (5000 * dq - dc) &gt; 0              # 벌마다 비용효과적인가
+for n in [500, 1000, 5000]:
+    pr = ok[:n].mean()                 # 처음 n벌만 쓴 확률
+    se = np.sqrt(pr * (1 - pr) / n)    # 몬테카를로 표준오차
+    print(n, &quot; 확률&quot;, round(pr, 4), &quot; 표준오차&quot;, round(se, 4),
+          &quot; 범위&quot;, round(pr - 1.96 * se, 3), &quot;-&quot;,
+          round(pr + 1.96 * se, 3))
+
+for seed in [1, 2, 3]:
+    c2, q2, n2 = run_psa(p, seed=seed)
+    print(&quot;seed&quot;, seed, &quot; 확률&quot;, np.mean(5000 * q2 - c2 &gt; 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>500  확률 0.142<span class="mk">1</span>  표준오차 0.0156  범위 0.111 - 0.173
+1000  확률 0.152  표준오차 0.0114  범위 0.13 - 0.174
+5000  확률 0.1604  표준오차 0.0052<span class="mk">2</span>  범위 0.15 - 0.171
+seed 1  확률 0.1544<span class="mk">3</span>
+seed 2  확률 0.1594
+seed 3  확률 0.1596</pre></div></div>

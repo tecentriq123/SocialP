@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">Egger 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">eg = smf.wls(&quot;yi ~ se&quot;, data=es, weights=1 / es[&quot;vi&quot;]).fit()
+print(f&quot;slope {eg.params[&#x27;se&#x27;]:.3f} (SE {eg.bse[&#x27;se&#x27;]:.3f}),&quot;
+      f&quot; t {eg.tvalues[&#x27;se&#x27;]:.2f}, df {eg.df_resid:.0f},&quot;
+      f&quot; P {eg.pvalues[&#x27;se&#x27;]:.2f}&quot;)
+
+es[&quot;snd&quot;] = es[&quot;yi&quot;] / es[&quot;se&quot;]             # 표준화한 효과
+es[&quot;prec&quot;] = 1 / es[&quot;se&quot;]                   # 정밀도
+eg2 = smf.ols(&quot;snd ~ prec&quot;, data=es).fit()
+print(f&quot;original form: intercept {eg2.params[&#x27;Intercept&#x27;]:.3f},&quot;
+      f&quot; P {eg2.pvalues[&#x27;Intercept&#x27;]:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>slope -0.505 (SE 0.667)<span class="mk">1</span>, t -0.76, df 8<span class="mk">2</span>, P 0.47<span class="mk">3</span>
+original form: intercept -0.505<span class="mk">4</span>, P 0.47</pre></div></div>

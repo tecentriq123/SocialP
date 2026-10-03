@@ -1,0 +1,71 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">추적 종료일, 추적 일수, 사건 여부</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cohort[&quot;study_end&quot;] = pd.Timestamp(&quot;2022-12-31&quot;)
+
+def follow_up(c, ends):
+    c = c.copy()
+    c[&quot;end_date&quot;] = c[ends].min(axis=1)
+    c[&quot;time&quot;] = (c[&quot;end_date&quot;] - c[&quot;index_date&quot;]).dt.days
+    c[&quot;event&quot;] = (c[&quot;hhf_date&quot;] == c[&quot;end_date&quot;]).astype(int)
+    hit = [c[col] == c[&quot;end_date&quot;] for col in ends]
+    c[&quot;reason&quot;] = np.select(hit, ends, default=&quot;&quot;)
+    return c
+
+AT = [&quot;hhf_date&quot;, &quot;death_date&quot;, &quot;switch_date&quot;, &quot;stop_date&quot;,
+      &quot;study_end&quot;]
+cohort = follow_up(cohort, AT)
+print(cohort.loc[cohort[&quot;pid&quot;] == p,
+                 [&quot;index_date&quot;, &quot;end_date&quot;, &quot;time&quot;, &quot;event&quot;]])
+pd.crosstab(cohort[&quot;reason&quot;], cohort[&quot;arm&quot;], margins=True)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     index_date   end_date  time  event
+1858 2018-05-18 2021-08-22  1192      1<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>arm</th>
+      <th>DPP4i</th>
+      <th>SGLT2i</th>
+      <th>All</th>
+    </tr>
+    <tr>
+      <th>reason</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>death_date</th>
+      <td>105</td>
+      <td>10</td>
+      <td>115</td>
+    </tr>
+    <tr>
+      <th>hhf_date</th>
+      <td>128</td>
+      <td>11</td>
+      <td>139<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>stop_date</th>
+      <td>2190</td>
+      <td>503</td>
+      <td>2693<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>study_end</th>
+      <td>1658</td>
+      <td>446</td>
+      <td>2104<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>switch_date</th>
+      <td>443</td>
+      <td>58</td>
+      <td>501</td>
+    </tr>
+    <tr>
+      <th>All</th>
+      <td>4524</td>
+      <td>1028</td>
+      <td>5552</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

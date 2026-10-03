@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">군 안에서 9,999번 다시 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">B = 9999                                     # 반복 횟수
+rng = np.random.default_rng(21)              # 난수를 처음부터 다시
+ia = rng.integers(0, len(a), (B, len(a)))    # A군 번호표
+ib = rng.integers(0, len(b), (B, len(b)))    # B군 번호표
+print(ia.shape, ib.shape)
+
+boot = a[ia].mean(axis=1) - b[ib].mean(axis=1)
+print(boot.shape, boot[:4].round(1))
+
+lo, hi = np.percentile(boot, [2.5, 97.5])
+print(&quot;95% CI (percentile):&quot;, round(lo, 1), &quot;~&quot;, round(hi, 1))
+print(&quot;bootstrap SE:&quot;, round(boot.std(ddof=1), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(9999, 1203)<span class="mk">1</span> (9999, 1797)
+(9999,)<span class="mk">2</span> [381.5 396.7 340.6 432.1]
+95% CI (percentile): 296.1 ~ 496.3<span class="mk">3</span>
+bootstrap SE: 51.0<span class="mk">4</span></pre></div></div>
