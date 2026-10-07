@@ -7159,7 +7159,7 @@ print(round(chi2, 2), round(p, 3))</code></pre><div class="cell-out"><div class=
 
 <details class="deep-box"><summary><span class="ds-t">신뢰구간이 0을 포함하는 위험차의 NNT</span> <span class="lv deep">심화</span></summary><div class="deep-body">
 <div class="callout note"><p class="ct">참고 · 신뢰구간이 0을 포함하는 위험차의 NNT</p>
-<p>같은 약물 검토 시험에서 응급실 방문은 20.0% 대 25.0%로 위험차 −5.0%p(−11.7 to 1.7)였습니다. NNT는 1/0.05 = 20이지만, 구간의 한쪽 끝은 이득(−11.7%p → 8.6명)이고 다른 쪽 끝은 해(+1.7%p → 59.9명)입니다. 위험차 구간이 0을 지나므로 NNT 구간은 무한대를 지나게 되어, 보통 "NNTB 20 (NNTB 8.6 to ∞ to NNTH 59.9)"처럼 씁니다. NNTB<span class="en">(number needed to treat to benefit)</span>는 1명이 이득을 보는 데 필요한 치료 인원, NNTH<span class="en">(number needed to treat to harm)</span>는 1명이 해를 입는 데 필요한 인원입니다<a class="cite" href="#ap02-ref-altman1998nnt" title="Altman DG. Confidence intervals for the number needed to treat. BMJ. 1998;317(7168):1309-1312.">[100]</a>. "NNT 20 (8.6 to −59.9)"처럼 쓰면 읽기 어렵고 오해를 부릅니다.</p></div>
+<p>같은 약물 검토 시험에서 응급실 방문은 20.0% 대 25.0%로 위험차 −5.0%p(−11.7 to 1.7)였습니다. NNT는 1/0.05 = 20이지만, 구간의 한쪽 끝은 이득(−11.7%p → 8.6명)이고 다른 쪽 끝은 해(+1.7%p → 59.9명)입니다. 위험차 구간이 0을 지나므로 NNT 구간은 무한대를 지나게 되어, 보통 "NNTB 20 (NNTB 8.6 to ∞ to NNTH 59.9)"처럼 씁니다. NNTB<span class="en">(number needed to treat to benefit)</span>는 1명이 이득을 보는 데 필요한 치료 인원, NNTH<span class="en">(number needed to treat to harm)</span>는 1명이 해를 입는 데 필요한 인원입니다<a class="cite" href="#ap02-ref-altman1998nnt" title="Altman DG. Confidence intervals for the number needed to treat. BMJ. 1998;317(7168):1309-1312.">[100]</a>. "NNT 20 (8.6 to −59.9)"처럼 쓰면 읽기 어렵고 오해를 부릅니다. NNTB/NNTH 표기도 익숙하지 않은 독자에게는 쉽지 않습니다. 그래서 구간이 0을 지나는 결과는 NNT로 바꾸지 않고 위험차 자체(−5.0%p, 95% CI −11.7 to 1.7)로 제시하는 편이 읽기 쉽고 오해가 적습니다.</p></div>
 </div></details>
 
 <h3>연구 설계가 지표를 정합니다</h3>
@@ -7243,7 +7243,7 @@ print(round(chi2, 2), round(p, 3))</code></pre><div class="cell-out"><div class=
 <div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
 <li><strong>고르는 기준</strong>: 코호트·임상시험처럼 위험을 직접 구할 수 있으면 RR과 위험차를 함께 보고합니다. 결과가 흔하면(대략 10% 이상) 로지스틱 회귀의 OR만 제시하지 말고 보정 RR(수정 포아송·로그-이항, 라 절)이나 표준화한 위험차를 함께 추정합니다. 환자-대조군 연구는 OR, 추적기간이 사람마다 다르고 사건 시점이 중요하면 HR(11장), 반복 사건과 인년 자료는 IRR(12장)을 씁니다.</li>
 <li><strong>교란과 보정</strong>: 관찰연구에서 2×2 표의 RR·OR은 보정 전(crude) 값이라 노출 말고 두 군의 다른 차이까지 섞여 있습니다. 교란변수가 한두 개면 층화(Mantel–Haenszel, 바 절), 여러 개면 다변수 회귀(9·11·12장)나 성향점수(15장)로 보정합니다. 짝지은 환자-대조군 연구는 짝을 고려한 조건부 로지스틱 회귀(9장)를 씁니다. 어떤 방법으로 보정해도 청구자료에 없는 정보(허약, 흡연, 검사 수치)로 생기는 교란은 남습니다.</li>
-<li><strong>보고할 것</strong>: 군별 n/N (%), 비(RR 또는 OR)와 위험차, 각각의 95% CI, 추적 기간(90일, 1년), 보정 여부와 보정 변수. NNT를 쓰면 구간도 함께 쓰고, 위험차 구간이 0을 지나면 NNTB/NNTH로 표기합니다(위 '상대적 지표와 절대적 지표'의 접힌 '심화' 상자).</li>
+<li><strong>보고할 것</strong>: 군별 n/N (%), 비(RR 또는 OR)와 위험차, 각각의 95% CI, 추적 기간(90일, 1년), 보정 여부와 보정 변수. NNT를 쓰면 구간도 함께 씁니다. 위험차 구간이 0을 지나면 NNT 없이 위험차와 구간만 제시하거나 NNTB/NNTH로 표기합니다(위 '상대적 지표와 절대적 지표'의 접힌 상자).</li>
 </ul></div>
 
 <h3>논문에서 읽어 보기</h3>
