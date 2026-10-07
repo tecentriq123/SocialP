@@ -7181,22 +7181,22 @@ print(round(chi2, 2), round(p, 3))</code></pre><div class="cell-out"><div class=
 <details class="deep-box"><summary><span class="ds-t">논문에서는 이렇게 보입니다 · 코호트 내 환자-대조군 연구의 표 가상의 예시</span> <span class="lv deep">심화</span></summary><div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 코호트 내 환자-대조군 연구의 표 <span class="lv deep">심화</span></b><span>가상의 예시</span></div>
 <div class="paper-b">
-<p>청구자료 코호트에서 고관절 골절 환자 1,200명마다 같은 나이·성별이면서 그 시점까지 골절이 없던 대조군 4명을 위험집합 표본추출로 뽑아, 벤조디아제핀 사용을 비교한 연구의 표입니다.</p>
+<p>청구자료 코호트 안에서 고관절 골절이 생긴 환자 1,200명을 모두 찾고, 환자 한 명마다 대조군 4명을 뽑은 연구의 표입니다. 대조군은 그 환자가 골절된 날까지 골절이 없던 사람 가운데 나이와 성별이 같은 사람입니다(위험집합 표본추출). 두 집단에서 벤조디아제핀을 쓰던 사람의 비율을 비교합니다.</p>
 <div class="tbl-wrap"><table class="jt">
 <caption><b>Table 2.</b> Benzodiazepine use among cases of hip fracture and matched controls</caption>
-<thead><tr><th><span class="mk">3</span> Benzodiazepine use</th><th class="r"><span class="mk">1</span> Cases<br>(n = 1,200)</th><th class="r">Controls<br>(n = 4,800)</th><th class="r"><span class="mk">2</span> Crude OR (95% CI)</th></tr></thead>
+<thead><tr><th>Benzodiazepine use</th><th class="r"><span class="mk">1</span> Cases<br>(n = 1,200)</th><th class="r">Controls<br>(n = 4,800)</th><th class="r"><span class="mk">2</span> Crude OR (95% CI)</th></tr></thead>
 <tbody>
 <tr><td>Nonuse</td><td class="r">870 (72.5)</td><td class="r">3,620 (75.4)</td><td class="r">1 (Reference)</td></tr>
-<tr><td>Current use (≤30 days)</td><td class="r">180 (15.0)</td><td class="r">520 (10.8)</td><td class="r">1.44 (1.20 to 1.73)</td></tr>
+<tr><td><span class="mk">3</span> Current use (≤30 days)</td><td class="r">180 (15.0)</td><td class="r">520 (10.8)</td><td class="r">1.44 (1.20 to 1.73)</td></tr>
 <tr><td>Recent use (31–180 days)</td><td class="r">60 (5.0)</td><td class="r">260 (5.4)</td><td class="r">0.96 (0.72 to 1.28)</td></tr>
 <tr><td>Past use (&gt;180 days)</td><td class="r">90 (7.5)</td><td class="r">400 (8.3)</td><td class="r">0.94 (0.74 to 1.19)</td></tr>
 </tbody></table></div>
 <p class="jt-foot">Values are n (%). <span class="mk">4</span> Controls were selected by risk-set sampling and matched on age, sex, and calendar time.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>열의 퍼센트는 노출의 분포입니다.</b> 환자 중 15.0%, 대조군 중 10.8%가 현재 사용자였다는 뜻이지 "현재 사용자의 15%가 골절됐다"는 뜻이 아닙니다. 행 방향으로 180/(180 + 520) = 25.7%를 계산해 '위험'이라고 부르면 안 됩니다. 이 값은 대조군을 1:4로 뽑았기 때문에 생긴 숫자이고, 1:2로 뽑았다면 전혀 다른 값이 나옵니다.</span></li>
-<li><span class="mk">2</span><span><b>OR의 계산.</b> 현재 사용: (180 × 3,620)/(520 × 870) = 1.44. SE = √(1/180 + 1/520 + 1/870 + 1/3,620) = 0.094이고 1.44 × e<sup>±1.96 × 0.094</sup> = 1.20–1.73입니다. 위험집합 표본추출을 썼으므로 이 OR은 골절 발생률의 비에 대한 추정값으로 읽습니다(위 접힌 '환자-대조군 연구의 오즈비는 정확히 무엇을 추정하나' 상자, 심화).</span></li>
-<li><span class="mk">3</span><span><b>노출을 시기별로 나눈 이유.</b> 현재 사용자에게서만 OR이 높고 과거 사용자에게서는 1에 가깝다면, 약물의 급성 효과(진정, 낙상)와 맞는 양상입니다. 모든 범주가 같은 기준범주(Nonuse)와 비교된다는 점도 확인합니다(사 절).</span></li>
-<li><span class="mk">4</span><span><b>짝지은 설계는 짝을 고려해 분석합니다.</b> 이 표의 crude OR은 짝짓기를 무시한 보정 전 값이라 치우칠 수 있습니다. 논문의 본 결과는 짝을 층으로 쓰는 조건부 로지스틱 회귀(9장)로 다른 교란변수까지 보정한 adjusted OR이어야 하며, 보통 이 표의 오른쪽 열에 함께 제시됩니다.</span></li>
+<li><span class="mk">1</span><span><b>퍼센트는 세로로 읽습니다.</b> 골절 환자 1,200명 중 180명(15.0%), 대조군 4,800명 중 520명(10.8%)이 현재 사용자였다는 뜻입니다. 골절 환자 쪽에 현재 사용자가 더 많이 섞여 있다는 것이 이 두 열이 보여 주는 내용입니다. 가로로 읽어 180 ÷ (180 + 520) = 25.7%를 "현재 사용자의 골절 위험"이라고 하면 안 됩니다. 이 숫자는 대조군을 4명씩 뽑아서 나온 값이고, 2명씩 뽑았다면 180 ÷ (180 + 260) = 40.9%가 됩니다.</span></li>
+<li><span class="mk">2</span><span><b>OR은 두 집단의 '사용자 대 비사용자' 비를 견준 값입니다.</b> 골절 환자에서는 현재 사용자 180명 대 비사용자 870명(0.207), 대조군에서는 520명 대 3,620명(0.144)이고, 둘을 나누면 0.207 ÷ 0.144 = 1.44입니다. 신뢰구간은 로그 척도에서 구합니다. SE = √(1/180 + 1/520 + 1/870 + 1/3,620) = 0.094이고 1.44 × e<sup>±1.96 × 0.094</sup> = 1.20–1.73입니다. 대조군을 위험집합에서 뽑았으므로 이 값은 "현재 사용자의 골절 발생률이 비사용자의 1.44배"라는 뜻으로 읽습니다(위 접힌 '환자-대조군 연구의 오즈비는 정확히 무엇을 추정하나' 상자). 다만 아직 보정 전 값입니다.</span></li>
+<li><span class="mk">3</span><span><b>노출을 시기별로 나눈 이유.</b> 지금 약을 쓰는 사람(최근 30일 이내)에서만 OR이 1.44로 높고, 끊은 지 한 달이 넘은 사람은 0.96과 0.94로 비사용자와 차이가 없습니다. 약을 먹는 동안의 진정과 낙상 때문이라는 설명과 맞는 양상입니다. 과거 사용자에서도 똑같이 높았다면 약보다 그 약을 처방받는 환자의 특성(교란)을 의심해 볼 수 있습니다. 세 범주 모두 비사용자(Nonuse)와 비교한 값이라는 점도 확인합니다(사 절).</span></li>
+<li><span class="mk">4</span><span><b>이 표의 OR은 본 결과가 아닙니다.</b> 대조군을 나이, 성별, 시점이 같은 사람으로 짝지어 뽑았으므로 분석도 짝 안에서 비교해야 합니다. crude OR은 짝을 무시하고 전체를 한 표로 합쳐 계산한 값이라 치우칠 수 있습니다. 논문의 본 결과는 짝을 층으로 쓰는 조건부 로지스틱 회귀(9장)로 다른 교란변수까지 보정한 adjusted OR이고, 보통 이 표의 오른쪽 열에 함께 실립니다.</span></li>
 </ol>
 </div></div></details>
 
