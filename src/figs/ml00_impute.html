@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">결측 대체 (SimpleImputer)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.impute import SimpleImputer
+
+imp = SimpleImputer(strategy=&quot;median&quot;)
+imp.fit(X_train[[&quot;bmi&quot;, &quot;egfr&quot;]])        # 학습 자료에서 중앙값 계산
+print(&quot;medians:&quot;, imp.statistics_)
+
+four = X_train[[&quot;bmi&quot;, &quot;egfr&quot;]].iloc[:4]
+print(four)
+print(imp.transform(four))               # 결측을 중앙값으로 채움</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>medians: [24.4 89. ]<span class="mk">1</span>
+        bmi   egfr
+471    28.5   95.0
+632     NaN    NaN<span class="mk">2</span>
+5359   21.4  103.0
+13461  27.3   74.0
+[[ 28.5  95. ]
+ [ 24.4  89. ]<span class="mk">3</span>
+ [ 21.4 103. ]
+ [ 27.3  74. ]]</pre></div></div>

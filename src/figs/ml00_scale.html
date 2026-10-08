@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">표준화 (StandardScaler)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.preprocessing import StandardScaler
+
+sc = StandardScaler().fit(X_train[[&quot;age&quot;, &quot;n_outpt&quot;]])
+print(&quot;mean:&quot;, sc.mean_.round(2), &quot; SD:&quot;, sc.scale_.round(2))
+three = X_train[[&quot;age&quot;, &quot;n_outpt&quot;]].iloc[:3]
+print(three)
+print(sc.transform(three).round(2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>mean: [59.01 18.17]<span class="mk">1</span>  SD: [12.94 23.72]<span class="mk">2</span>
+      age  n_outpt
+471    44        1
+632    66       36
+5359   52        1
+[[-1.16 -0.72]<span class="mk">3</span>
+ [ 0.54  0.75]
+ [-0.54 -0.72]]</pre></div></div>

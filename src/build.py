@@ -137,6 +137,8 @@ def ch_label(cid):
         return "부록 " + "AB"[int(cid[-2:]) - 1]
     if cid.startswith("rv"):
         return "분석 고르기 연습"
+    if cid == "ml90":
+        return "부록 A"
     return f"{int(cid[-2:])}장"
 
 
@@ -435,7 +437,8 @@ def build():
         chs = ", ".join(f'<a href="#{i}">{ch_label(i)}</a>' for i in used_in[k])
         items.append(f'<li id="{REFS_ID}-ref-{k}"><span class="rn">{num[k]}.</span><span>{r["text"]}{link}'
                      f'<span class="used">인용: {chs}</span></span></li>')
-    books = [k for k, r in REFS.items() if r.get("book") and k not in num]
+    pool = BOOKS if BOOKS is not None else [k for k, r in REFS.items() if r.get("book") and r.get("course", "stats") == "stats"]
+    books = [k for k in pool if k not in num]
     book_items = "".join(f'<li id="{REFS_ID}-ref-{k}"><span class="rn">·</span><span>{REFS[k]["text"]}</span></li>' for k in books)
     ref_body = (
         '<p class="lead">본문에서 [번호]로 인용한 문헌을 인용 순서대로 모았습니다. '
@@ -464,25 +467,29 @@ def build():
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     open(dst, "w", encoding="utf-8").write(out)
     print(f"built {dst}: {len(out) / 1024:.0f} KB, chapters ready: {[c['id'] for c in ready]}, refs: {len(order)}")
-    if OUT is None and ONLY is None:
-        build_home(shell, meta)
+    return shell, meta
 
 
-def build_home(shell, meta):
+def build_home(shell, meta, ml_meta=None):
     """dist/index.html: the small home page that lists the courses (same shell, META.mode = "home")."""
     theory = [c for c in meta if not c["lab"] and not c.get("refs")]
+    stats_course = (STATS_CFG or {}).get("COURSE", COURSE)
+    ml_ch = [c for c in (ml_meta or []) if not c.get("refs")]
+    ml_ready = sum(c["ready"] for c in ml_ch)
     labs = [c for c in meta if c["lab"]]
     courses = [
-        {"tag": "과목 · 통계", "title": COURSE["title"], "href": COURSE["file"],
+        {"tag": "과목 · 통계", "title": stats_course["title"], "href": stats_course["file"],
          "status": ("0–25장 공개" if all(c["ready"] for c in theory) else f"{sum(c['ready'] for c in theory)}/{len(theory)}장 공개"),
          "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. "
                  "논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.",
          "meta": ["이론 0–25장 + 종합 연습 + 부록",
                   f"파이썬 실습 {sum(c['ready'] for c in labs)}개 공개" + (f", {sum(not c['ready'] for c in labs)}개 준비 중" if any(not c['ready'] for c in labs) else "")]},
-        {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": None, "status": "준비 중",
-         "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, "
-                 "의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.",
-         "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]},
+        {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": "ml.html" if ml_ready else None,
+         "status": (f"{ml_ready}/{len(ml_ch)}장 공개" if ml_ready else "준비 중"),
+         "desc": "정답이 있는 자료로 예측모형을 만드는 지도학습. 사이킷런으로 자료 나누기와 교차검증을 익힌 뒤 "
+                 "결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. "
+                 "모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.",
+         "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]},
     ]
     meta_json = json.dumps({"mode": "home", "courses": courses}, ensure_ascii=False)
     out = (shell.replace("{{META}}", meta_json.replace("</", "<\\/")).replace("{{TEMPLATES}}", "")
@@ -496,6 +503,25 @@ def build_home(shell, meta):
 
 OUT = None
 NOFOLD = False
+STATS_CFG = None
+BOOKS = None
+
+
+def use_course(name):
+    """Switch the module-level course configuration (stats: defined above, ml: course_ml.py)."""
+    global COURSE, GROUPS, CHAPTERS, GUIDE, REFS_ID, STATS_CFG, BOOKS
+    if STATS_CFG is None:
+        STATS_CFG = dict(COURSE=COURSE, GROUPS=GROUPS, CHAPTERS=CHAPTERS, GUIDE=GUIDE, REFS_ID=REFS_ID, BOOKS=None)
+    if name == "stats":
+        cfg = STATS_CFG
+    else:
+        import importlib
+        m = importlib.import_module("course_" + name)
+        cfg = dict(COURSE=dict(m.COURSE, intro=m.INTRO), GROUPS=m.GROUPS, CHAPTERS=m.CHAPTERS, GUIDE=m.GUIDE,
+                   REFS_ID=m.REFS_ID, BOOKS=getattr(m, "BOOKS", []))
+    COURSE, GROUPS, CHAPTERS, GUIDE, REFS_ID = (cfg["COURSE"], cfg["GROUPS"], cfg["CHAPTERS"], cfg["GUIDE"],
+                                                cfg["REFS_ID"])
+    BOOKS = cfg["BOOKS"]
 
 if __name__ == "__main__":
     import argparse
@@ -503,11 +529,26 @@ if __name__ == "__main__":
     ap.add_argument("--only", nargs="*", help="chapter ids to include, e.g. ch02 ch03")
     ap.add_argument("--out", help="output html path (default dist/index.html)")
     ap.add_argument("--nofold", action="store_true", help="do not collapse 심화 parts")
+    ap.add_argument("--course", default=None, help="stats | ml | all (default: all; with --only/--out: stats)")
     a = ap.parse_args()
+    if a.course is None:
+        a.course = "stats" if (a.only or a.out) else "all"
     if a.only:
         ONLY = set(a.only)
     if a.out:
         OUT = a.out
     if a.nofold:
         NOFOLD = True
-    build()
+    if a.course != "all":
+        use_course(a.course)
+        build()
+    else:
+        use_course("stats")
+        shell, stats_meta = build()
+        use_course("ml")
+        ml_meta = chapter_meta()
+        if any(c["ready"] for c in ml_meta if not c.get("refs")):
+            build()
+        elif os.path.exists(os.path.join(ROOT, "dist", COURSE["file"])):
+            os.remove(os.path.join(ROOT, "dist", COURSE["file"]))   # no chapter ready: do not deploy a stale page
+        build_home(shell, stats_meta, ml_meta)

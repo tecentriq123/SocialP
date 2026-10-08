@@ -1,0 +1,309 @@
+{
+ "seed": 3,
+ "n": 15000,
+ "csv_md5": "88574b4067719b208455433b2aac0aa6",
+ "split": {
+  "test_size": 0.25,
+  "random_state": 2026,
+  "stratify": "admit_2023"
+ },
+ "admit_logit": {
+  "intercept": -4.45,
+  "linear": {
+   "female": -0.1,
+   "medaid": 0.25,
+   "income_q_per_step": -0.03,
+   "htn": 0.03,
+   "dm": 0.06,
+   "ckd": 0.12,
+   "hf": 0.25,
+   "af": 0.1,
+   "cad": 0.1,
+   "stroke": 0.1,
+   "copd": 0.2,
+   "asthma": 0.08,
+   "depress": 0.08,
+   "dementia": 0.15,
+   "cancer": 0.3,
+   "liver": 0.15,
+   "n_admit_per_admission_max3": 0.06,
+   "los_days_per_day_max60": 0.002,
+   "log1p_n_outpt": 0.02,
+   "n_drugs_per_drug": 0.01,
+   "anticoag": 0.08,
+   "opioid": 0.1,
+   "benzo": 0.08,
+   "antipsych": 0.1,
+   "diuretic": 0.05,
+   "sbp_per_mmHg_above_140": 0.004,
+   "fbg_per_mgdl_above_126": 0.002,
+   "egfr_per_unit_below_60": 0.01,
+   "smoking_former": 0.05,
+   "smoking_current": 0.15,
+   "alcohol_heavy": 0.12,
+   "no_screening": 0.35
+  },
+  "nonlinear_and_interactions": {
+   "age": "0.005*(age-60) + 0.085*min(max(age-70, 0), 22)",
+   "n_ed": "+0.1 if n_ed == 1, +1.2 if n_ed >= 2",
+   "n_drugs": "0.01*n_drugs + 0.8*(n_drugs >= 10)",
+   "bmi": "min(0.09*(23.0-bmi)^2, 1.8) below 23.0, min(0.03*(bmi-25.0)^2, 1.8) above 25.0, 0 between (U shape)",
+   "hf_x_ckd": "+0.8 when hf == 1 and ckd == 1",
+   "insulin_x_age": "insulin * (0.2 + 0.06*max(age-60, 0))"
+  },
+  "no_effect_features": [
+   "dyslip",
+   "oa",
+   "region",
+   "n_prescribers"
+  ],
+  "unobserved": "z_latent (건강 상태) does NOT enter the outcome directly; it only makes features correlated. Screening values enter through their full (true) values, which are missing in the public file for non-attenders."
+ },
+ "cost_2023": {
+  "params": {
+   "use0": 0.2,
+   "use_outpt": 3.6,
+   "use_age": 0.03,
+   "use_chronic": 0.5,
+   "mu0": 1.7,
+   "mu_lcost": 0.62,
+   "mu_age": 0.005,
+   "mu_dm": 0.2,
+   "mu_ckd": 0.3,
+   "mu_hf": 0.25,
+   "mu_cancer": 0.55,
+   "mu_dementia": 0.2,
+   "mu_ndrugs": 0.04,
+   "mu_copd": 0.15,
+   "sigma": 0.75,
+   "hosp0": 400,
+   "hosp_age": 6,
+   "hosp_cancer": 260,
+   "hosp_hf": 160,
+   "hosp_ckd": 120,
+   "hosp_shape": 1.6
+  },
+  "any_use": "logistic(use0 + use_outpt*(n_outpt>0) + use_age*(age-60) + use_chronic*(any chronic dx)); anyone with admit_2023 = 1 has use",
+  "log_cost_if_use": "mu0 + mu_lcost*log1p(cost_2022) + mu_age*(age-60) + mu_dm*dm + mu_ckd*ckd + mu_hf*hf + mu_cancer*cancer + mu_dementia*dementia + mu_ndrugs*n_drugs + mu_copd*copd, normal error SD sigma",
+  "admission_cost": "admit_2023 * Gamma(shape hosp_shape, mean hosp0 + hosp_age*max(age-50,0) + hosp_cancer*cancer + hosp_hf*hf + hosp_ckd*ckd)",
+  "cost_true": "P(any use)*exp(mu + sigma^2/2) + p_true*admission mean, P(any use) = p_use + (1-p_use)*p_true"
+ },
+ "describe": {
+  "n": 15000,
+  "admit_2023_rate": 0.0408,
+  "admit_2023_events": 612,
+  "cost_2023": {
+   "mean": 284.8,
+   "median": 116.3,
+   "p90": 634.3,
+   "p99": 2583.4,
+   "max": 35695.3,
+   "zero_share": 0.0289
+  },
+  "cost_2022": {
+   "mean": 235.4,
+   "median": 111.8,
+   "zero_share": 0.0189
+  },
+  "missing_share": {
+   "bmi": 0.3067,
+   "sbp": 0.3073,
+   "fbg": 0.3127,
+   "egfr": 0.3145,
+   "smoking": 0.3203,
+   "alcohol": 0.3236
+  },
+  "screening_attended": 0.6961,
+  "age_mean": 59.0,
+  "prevalence": {
+   "htn": 0.2775,
+   "dm": 0.1441,
+   "dyslip": 0.2579,
+   "ckd": 0.0305,
+   "hf": 0.0157,
+   "af": 0.0116,
+   "cad": 0.0303,
+   "stroke": 0.0188,
+   "copd": 0.0208,
+   "asthma": 0.0361,
+   "depress": 0.0515,
+   "dementia": 0.0219,
+   "cancer": 0.0253,
+   "liver": 0.0391,
+   "oa": 0.1453,
+   "anticoag": 0.011,
+   "insulin": 0.0173,
+   "opioid": 0.0427,
+   "benzo": 0.065,
+   "antipsych": 0.0119,
+   "diuretic": 0.0461,
+   "female": 0.5439
+  },
+  "p_true_mean": 0.0414,
+  "by_age": {
+   "40-49": {
+    "n": 4231,
+    "admit": 0.0184,
+    "cost_2023_mean": 128.9,
+    "screening_missing": 0.276,
+    "n_drugs_ge10": 0.002
+   },
+   "50-59": {
+    "n": 4361,
+    "admit": 0.0234,
+    "cost_2023_mean": 185.9,
+    "screening_missing": 0.275,
+    "n_drugs_ge10": 0.007
+   },
+   "60-69": {
+    "n": 3265,
+    "admit": 0.0288,
+    "cost_2023_mean": 270.5,
+    "screening_missing": 0.264,
+    "n_drugs_ge10": 0.022
+   },
+   "70-74": {
+    "n": 965,
+    "admit": 0.0301,
+    "cost_2023_mean": 367.8,
+    "screening_missing": 0.315,
+    "n_drugs_ge10": 0.04
+   },
+   "75-79": {
+    "n": 981,
+    "admit": 0.0642,
+    "cost_2023_mean": 509.6,
+    "screening_missing": 0.384,
+    "n_drugs_ge10": 0.092
+   },
+   "80-84": {
+    "n": 665,
+    "admit": 0.1233,
+    "cost_2023_mean": 694.3,
+    "screening_missing": 0.49,
+    "n_drugs_ge10": 0.137
+   },
+   "85+": {
+    "n": 532,
+    "admit": 0.3083,
+    "cost_2023_mean": 1346.3,
+    "screening_missing": 0.682,
+    "n_drugs_ge10": 0.276
+   }
+  },
+  "admit_rate_by_group": {
+   "n_ed 0 / 1 / 2+": [
+    0.0369,
+    0.0503,
+    0.2213
+   ],
+   "n_drugs <10 / >=10": [
+    0.0327,
+    0.2854
+   ],
+   "hf0ckd0 / hf0ckd1 / hf1ckd0 / hf1ckd1": [
+    0.0338,
+    0.1679,
+    0.153,
+    0.5962
+   ],
+   "bmi(full) <18.5 / 18.5-23 / 23-25 / 25-30 / 30+": [
+    0.132,
+    0.0448,
+    0.0286,
+    0.032,
+    0.0928
+   ],
+   "screening observed / missing": [
+    0.0282,
+    0.0693
+   ],
+   "null features, marginal (0 / 1): dyslip": [
+    0.0322,
+    0.0657
+   ],
+   "null features, marginal (0 / 1): oa": [
+    0.0324,
+    0.0904
+   ],
+   "null features, marginal: region metro / city / rural": [
+    0.0351,
+    0.0428,
+    0.0517
+   ],
+   "null features, marginal: n_prescribers <=2 / 3-4 / 5+": [
+    0.0308,
+    0.059,
+    0.1052
+   ]
+  },
+  "shares": {
+   "n_ed>=1": 0.0912,
+   "n_ed>=2": 0.0157,
+   "n_admit>=1": 0.0785,
+   "n_drugs>=5": 0.1928,
+   "n_drugs>=10": 0.032,
+   "n_outpt==0": 0.0226
+  }
+ },
+ "check": {
+  "n_train": 11250,
+  "n_test": 3750,
+  "events_train": 459,
+  "events_test": 153,
+  "classification_test_auc": {
+   "logistic (median impute + scale + one-hot, C=1)": 0.7335,
+   "decision tree (max_depth=5, min_samples_leaf=50)": 0.7115,
+   "random forest (500 trees, min_samples_leaf=20)": 0.7719,
+   "HistGradientBoosting (defaults)": 0.7573,
+   "HistGradientBoosting (learning_rate=0.05, max_leaf_nodes=8, min_samples_leaf=50, l2=1, max_iter=500)": 0.7821,
+   "true probability (ceiling)": 0.8101,
+   "true probability, whole file": 0.8001
+  },
+  "regression_test": {
+   "linear regression (raw cost)": {
+    "rmse": 430.0,
+    "mae": 182.7,
+    "r2": 0.4448
+   },
+   "decision tree (max_depth=6, min_samples_leaf=50)": {
+    "rmse": 451.5,
+    "mae": 178.6,
+    "r2": 0.3879
+   },
+   "random forest (500 trees, min_samples_leaf=20)": {
+    "rmse": 424.4,
+    "mae": 170.4,
+    "r2": 0.4591
+   },
+   "HistGradientBoosting (defaults)": {
+    "rmse": 414.6,
+    "mae": 171.8,
+    "r2": 0.484
+   },
+   "true expected cost (ceiling)": {
+    "rmse": 379.3,
+    "mae": 164.1,
+    "r2": 0.5681
+   }
+  }
+ },
+ "population_reference": {
+  "auc": {
+   "logistic (median impute + scale + one-hot, C=1)": 0.7381,
+   "decision tree (max_depth=5, min_samples_leaf=50)": 0.717,
+   "random forest (500 trees, min_samples_leaf=20)": 0.7602,
+   "HistGradientBoosting (defaults)": 0.754,
+   "HistGradientBoosting (learning_rate=0.05, max_leaf_nodes=8, min_samples_leaf=50, l2=1, max_iter=500)": 0.7722,
+   "true probability (ceiling)": 0.7938
+  },
+  "r2": {
+   "linear regression (raw cost)": 0.3402,
+   "decision tree (max_depth=6, min_samples_leaf=50)": 0.2908,
+   "random forest (500 trees, min_samples_leaf=20)": 0.3367,
+   "HistGradientBoosting (defaults)": 0.3558,
+   "true expected cost (ceiling)": 0.4733
+  },
+  "note": "seed 777, n=100000; train 11,250 x 3 disjoint draws, test = last 50000"
+ }
+}

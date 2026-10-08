@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">배운 자료로 시험하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import roc_auc_score
+
+cols = [&quot;age&quot;, &quot;female&quot;, &quot;n_outpt&quot;, &quot;n_ed&quot;, &quot;n_admit&quot;,
+        &quot;n_drugs&quot;, &quot;cost_2022&quot;]
+tree = DecisionTreeClassifier(random_state=0)   # 깊이 제한 없음
+tree.fit(X_train[cols], y_train)
+
+p_tr = tree.predict_proba(X_train[cols])[:, 1]
+p_te = tree.predict_proba(X_test[cols])[:, 1]
+print(&quot;train AUC:&quot;, round(roc_auc_score(y_train, p_tr), 3))
+print(&quot;test AUC :&quot;, round(roc_auc_score(y_test, p_te), 3))
+print(&quot;leaves:&quot;, tree.get_n_leaves())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>train AUC: 1.0<span class="mk">1</span>
+test AUC : 0.558<span class="mk">2</span>
+leaves: 838<span class="mk">3</span></pre></div></div>

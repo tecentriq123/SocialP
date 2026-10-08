@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">표준화하지 않으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">raw = Pipeline([(&quot;impute&quot;, SimpleImputer(strategy=&quot;median&quot;)),
+                (&quot;model&quot;, LogisticRegression())])   # 표준화 없음
+raw.fit(X_train[num_cols], y_train)
+print(&quot;iterations, no scaling:&quot;, raw.named_steps[&quot;model&quot;].n_iter_)
+print(&quot;iterations, scaled    :&quot;, pipe.named_steps[&quot;model&quot;].n_iter_)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>iterations, no scaling: [100]<span class="mk">1</span>
+iterations, scaled    : [33]<span class="mk">2</span></pre><pre class="warn-out">ConvergenceWarning: lbfgs failed to converge after 100 iteration(s) (status=1):
+STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT
+
+Increase the number of iterations to improve the convergence (max_iter=100).
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression</pre></div></div>

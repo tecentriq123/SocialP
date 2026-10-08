@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">정확도의 함정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.metrics import accuracy_score
+
+all0 = np.zeros(len(y_test), dtype=int)     # 모두 &#x27;입원 안 함&#x27;
+pred05 = final.predict(X_test)              # 임계값 0.5
+print(&quot;accuracy, all 0  :&quot;, round(accuracy_score(y_test, all0), 4))
+print(&quot;accuracy, model  :&quot;, round(accuracy_score(y_test, pred05), 4))
+print(&quot;predicted 1 (0.5):&quot;, pred05.sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>accuracy, all 0  : 0.9592<span class="mk">1</span>
+accuracy, model  : 0.9632<span class="mk">2</span>
+predicted 1 (0.5): 29<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">자료 누수: 결과 뒤의 정보가 섞이면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(0)
+# 2023년(결과 기간)의 응급실 방문 수를 흉내 낸 열. 실제로는 쓰면 안 됨
+ed_2023 = np.where(y == 1, rng.poisson(1.5, len(y)) + 1,
+                   rng.poisson(0.08, len(y)))
+X_leak = X.assign(n_ed_2023=ed_2023)
+
+XL_train, XL_test = train_test_split(
+    X_leak, test_size=0.25, stratify=y, random_state=2026)
+leaky = make_pipe(LogisticRegression(max_iter=1000),
+                  num=num_cols + [&quot;n_ed_2023&quot;])
+leaky.fit(XL_train, y_train)
+p_leak = leaky.predict_proba(XL_test)[:, 1]
+print(&quot;test AUC with n_ed_2023:&quot;, round(roc_auc_score(y_test, p_leak), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>test AUC with n_ed_2023: 0.996<span class="mk">1</span></pre></div></div>

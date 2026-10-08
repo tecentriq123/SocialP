@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">혼동행렬과 정밀도·재현율·F1</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.metrics import (confusion_matrix, precision_score,
+                             recall_score, f1_score)
+
+pred10 = (p_final &gt;= 0.10).astype(int)      # 임계값 0.10
+print(confusion_matrix(y_test, pred10))
+print(&quot;precision:&quot;, round(precision_score(y_test, pred10), 3))
+print(&quot;recall   :&quot;, round(recall_score(y_test, pred10), 3))
+print(&quot;F1       :&quot;, round(f1_score(y_test, pred10), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[[3419  178]<span class="mk">1</span>
+ [ 100   53]]<span class="mk">2</span>
+precision: 0.229<span class="mk">3</span>
+recall   : 0.346<span class="mk">4</span>
+F1       : 0.276<span class="mk">5</span></pre></div></div>

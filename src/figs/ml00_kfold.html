@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">5겹으로 나누기 (StratifiedKFold)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import StratifiedKFold
+
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)
+for k, (tr, va) in enumerate(skf.split(X_train, y_train), start=1):
+    print(&quot;fold&quot;, k, &quot; train:&quot;, len(tr), &quot; valid:&quot;, len(va),
+          &quot; events in valid:&quot;, y_train.iloc[va].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>fold 1  train: 9000  valid: 2250<span class="mk">1</span>  events in valid: 91<span class="mk">2</span>
+fold 2  train: 9000  valid: 2250  events in valid: 92
+fold 3  train: 9000  valid: 2250  events in valid: 92
+fold 4  train: 9000  valid: 2250  events in valid: 92
+fold 5  train: 9000  valid: 2250  events in valid: 92</pre></div></div>

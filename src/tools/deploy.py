@@ -7,7 +7,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = "/home/claude/socialp"
 subprocess.run([sys.executable, os.path.join(ROOT, "build.py")], check=True, cwd=ROOT)
 head = open(os.path.join(ROOT, "tools", "deploy_head.html"), encoding="utf-8").read()
-for name in ("index.html", "stats.html"):   # home page + one page per course
+for name in ("index.html", "stats.html", "ml.html"):   # home page + one page per course
+    if not os.path.exists(os.path.join(ROOT, "dist", name)):
+        continue
     body = open(os.path.join(ROOT, "dist", name), encoding="utf-8").read()
     open(os.path.join(REPO, name), "w", encoding="utf-8").write(head + body + "\n</body></html>\n")
 import shutil

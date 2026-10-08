@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">원-핫 인코딩 (OneHotEncoder)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.preprocessing import OneHotEncoder
+
+smk = X_train[[&quot;smoking&quot;]].fillna(&quot;missing&quot;)   # 결측도 한 범주로
+ohe = OneHotEncoder(handle_unknown=&quot;ignore&quot;, sparse_output=False)
+ohe.fit(smk)
+print(ohe.get_feature_names_out())
+print(smk.head(4))
+print(ohe.transform(smk.head(4)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[&#x27;smoking_current&#x27; &#x27;smoking_former&#x27; &#x27;smoking_missing&#x27;<span class="mk">1</span> &#x27;smoking_never&#x27;]
+       smoking
+471    current
+632    missing<span class="mk">2</span>
+5359     never
+13461    never
+[[1. 0. 0. 0.]
+ [0. 0. 1. 0.]<span class="mk">3</span>
+ [0. 0. 0. 1.]
+ [0. 0. 0. 1.]]</pre></div></div>

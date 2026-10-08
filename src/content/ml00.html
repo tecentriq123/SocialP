@@ -1,0 +1,614 @@
+<p class="lead">분류와 회귀 장에서 계속 쓸 도구를 이 장에서 한 번에 익힙니다. 과목 전체가 쓰는 가상 청구자료(40세 이상 15,000명)를 불러와 학습 자료와 시험 자료로 나누고, 결측 대체·원-핫 인코딩·표준화를 모형과 하나의 파이프라인으로 묶고, 교차검증으로 조절값을 고른 뒤, 2023년 응급 입원(분류)과 2023년 의료비(회귀)의 성능을 지표로 잽니다. 로지스틱 회귀와 선형회귀의 원리는 <a href="stats.html#ch09">통계 9장</a>과 <a href="stats.html#ch06">6장</a>에 있으므로 여기서는 쓰는 법에 집중합니다.</p>
+
+<p class="nb-link"><a href="notebooks/ml00.ipynb" download>이 장의 노트북 내려받기 (ml00.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요. 출력은 scikit-learn 1.9.1, pandas 3.0.5로 실제로 실행해 얻었고, 코드는 scikit-learn 1.3 이상과 pandas 2.x에서도 돌아가게 썼습니다. 버전이 다르면 출력의 모양이나 마지막 자리가 조금 다를 수 있습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>셀 실행과 pandas 기초(<a href="stats.html#lab00">실습 0</a>), 예측 확률과 C 통계량(<a href="stats.html#ch09-s1">통계 9장</a>의 '원인 모형과 예측모형'), scikit-learn으로 예측모형을 만들어 본 <a href="stats.html#lab09-s4">실습 9 라 절</a>. 실습 9 라 절을 해 보았다면 이 장의 절반은 아는 내용입니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>절마다 '쉽게 말하면'과 '숫자로 따라가기'를 먼저 읽고 셀을 차례로 실행합니다. 가 절의 자료 설명 표와 나 절의 분할(셀 6)은 1–6장이 모두 그대로 쓰므로 꼭 봅니다.</dd>
+<dt>나중에 읽을 부분</dt><dd>접힌 '코드 한 줄씩'은 처음에는 모르는 줄만 펼칩니다. 마 절의 정밀도-재현율 곡선과 회귀 지표는 분류 장(1–4장)을 마치고 5장에 들어가기 전에 다시 읽어도 됩니다. 과제는 1장을 읽으며 풀어도 됩니다. 다 절의 <code>make_pipe</code>와 라 절의 교차검증은 이후 모든 장의 셀이 그대로 가져다 씁니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 공통 자료를 불러와 특성과 목표를 나누고 이 과목의 분할로 학습 자료와 시험 자료를 만들 수 있다 ② 결측 대체, 원-핫 인코딩, 표준화를 모형과 하나의 파이프라인으로 묶고 자료 누수가 생기는 경우를 설명할 수 있다 ③ 교차검증으로 조절값을 고르고 시험 자료로 한 번 평가한 뒤, 분류는 AUC와 정밀도·재현율로, 회귀는 MAE·RMSE·R²로 결과를 읽을 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ml00-s1">
+<h2><span class="sec-no">가.</span>지도학습이란</h2>
+
+<h3>쉽게 말하면</h3>
+<p><strong>지도학습</strong><span class="en">(supervised learning)</span>은 정답이 붙은 자료로 규칙을 배우는 일입니다. 처방전 수백 장과 각각의 처방 감사 결과를 보며 "이런 조합이면 문제가 생긴다"는 감을 익히는 것과 비슷합니다. 컴퓨터는 이 감을 숫자로 된 규칙, 곧 <strong>모형</strong><span class="en">(model)</span>으로 만들고, 정답을 모르는 새 사람에게 적용해 답을 냅니다.</p>
+<ul>
+<li><b>특성과 목표.</b> 예측에 쓰는 변수를 <strong>특성</strong><span class="en">(feature)</span>, 맞히려는 변수를 <strong>목표</strong><span class="en">(target)</span>라고 합니다. 통계 과목의 설명변수와 결과변수입니다. 이 과목에서는 2022년의 나이, 진단, 의료이용, 처방, 검진 결과 39개가 특성이고 2023년의 결과가 목표입니다.</li>
+<li><b>분류와 회귀.</b> 목표가 범주이면 <strong>분류</strong><span class="en">(classification)</span>, 숫자이면 <strong>회귀</strong><span class="en">(regression)</span>입니다. 분류 목표는 2023년 응급 입원 여부(<code>admit_2023</code>, 0/1), 회귀 목표는 2023년 총 의료비(<code>cost_2023</code>, 만원)입니다.</li>
+<li><b>학습과 예측.</b> 정답이 있는 자료로 규칙을 찾는 단계가 <strong>학습</strong><span class="en">(fitting, training)</span>, 그 규칙을 새 사람에게 적용하는 단계가 <strong>예측</strong><span class="en">(prediction)</span>입니다. scikit-learn에서는 <code>fit</code>과 <code>predict</code>라는 두 함수입니다.</li>
+</ul>
+
+<h3>숫자로 따라가기</h3>
+<p>환자 10명으로 가장 단순한 규칙을 배워 봅니다(가상의 숫자).</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
+<thead><tr><th>환자</th><th class="r">나이</th><th class="r">2022년 응급실 방문</th><th class="r">2023년 응급 입원</th></tr></thead>
+<tbody>
+<tr><td>A</td><td class="r">52</td><td class="r">0</td><td class="r">0</td></tr>
+<tr><td>B</td><td class="r">61</td><td class="r">0</td><td class="r">0</td></tr>
+<tr><td>C</td><td class="r">47</td><td class="r">1</td><td class="r">0</td></tr>
+<tr class="hi"><td>D</td><td class="r">78</td><td class="r">2</td><td class="r">1</td></tr>
+<tr><td>E</td><td class="r">83</td><td class="r">0</td><td class="r">0</td></tr>
+<tr><td>F</td><td class="r">69</td><td class="r">0</td><td class="r">0</td></tr>
+<tr class="hi"><td>G</td><td class="r">88</td><td class="r">3</td><td class="r">1</td></tr>
+<tr><td>H</td><td class="r">58</td><td class="r">1</td><td class="r">0</td></tr>
+<tr class="hi"><td>I</td><td class="r">74</td><td class="r">2</td><td class="r">0</td></tr>
+<tr><td>J</td><td class="r">81</td><td class="r">0</td><td class="r">1</td></tr>
+</tbody></table></div>
+<ol>
+<li>특성은 나이와 응급실 방문, 목표는 응급 입원입니다. 10명 모두 목표의 정답이 있습니다.</li>
+<li>응급실 방문 2회를 기준으로 둘로 나눕니다. 2회 이상은 D, G, I의 3명(색칠한 줄), 2회 미만은 7명입니다.</li>
+<li>쪽마다 입원 비율을 셉니다. 2회 이상은 3명 중 2명(67%), 2회 미만은 7명 중 1명(14%)입니다. 이것이 이 자료에서 배운 규칙입니다.</li>
+<li>정답을 모르는 새 환자 K(2022년 응급실 2회)에게 규칙을 적용하면 예측 확률은 67%입니다.</li>
+</ol>
+<p>이것은 1장 결정트리가 하는 일의 가장 작은 형태입니다. 같은 일을 공통 자료의 학습 자료(나 절)로 하면 응급실 2회 이상인 184명의 입원 비율은 20.7%, 2회 미만인 11,066명은 3.8%입니다. 10명으로 배운 67%가 얼마나 불안정한 값인지 알 수 있습니다.</p>
+
+<h3>통계 과목의 회귀와 무엇이 다른가</h3>
+<p>로지스틱 회귀와 선형회귀는 통계 과목에서도 썼습니다. 식은 같고 목적이 다릅니다(<a href="stats.html#ch09-s1">통계 9장 가 절</a>의 '원인 모형과 예측모형').</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th></th><th>통계 과목 (원인 모형)</th><th>이 과목 (예측모형)</th></tr></thead>
+<tbody>
+<tr><td>질문</td><td>SGLT2 억제제가 입원 오즈를 몇 배로 바꾸는가</td><td>이 사람의 내년 응급 입원 확률은 얼마인가</td></tr>
+<tr><td>보는 결과</td><td>계수 하나의 크기, 신뢰구간, p 값</td><td>모형을 만들 때 쓰지 않은 사람에서 예측이 얼마나 맞는가</td></tr>
+<tr><td>변수</td><td>인과 구조로 고른 교란변수</td><td>예측 시점에 얻을 수 있고 예측에 도움이 되는 것</td></tr>
+<tr><td>쓰는 모형</td><td>벌점 없는 회귀 (statsmodels)</td><td>벌점이 있는 회귀(계수가 지나치게 커지지 않게 누르는 회귀, 라 절), 결정트리, 앙상블 (scikit-learn)</td></tr>
+</tbody></table></div>
+
+<h3>자료 불러오기</h3>
+<p>사이트 주소에서 CSV를 읽는 방법은 <a href="stats.html#lab15-s1">실습 15 가 절</a>과 같습니다. 열이 42개라서 앞 세 사람을 <code>.T</code>로 세로로 돌려 보았습니다(이 쪽의 출력은 가운데 줄을 생략해 <code>...</code>로 보이고, Colab에서는 보통 42줄이 모두 보입니다).</p>
+<!--FIG:ml00_load-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(15000, 42).</b> 15,000명, 열 42개(사람 번호 1, 특성 39, 결과 2)입니다.</span></li>
+<li><span class="mk">2</span><span><b>NaN.</b> 2번 사람(인덱스 1)은 2022년 건강검진을 받지 않아 검진 여섯 열이 모두 비어 있습니다. NaN은 결측(not a number)의 표시입니다.</span></li>
+</ol>
+<p>열의 뜻은 다음과 같습니다. 이 사이트가 만든 가상 자료이며 실제 환자 자료가 아닙니다. 만들 때 정해 둔 참 구조가 있어서, 뒤의 장에서 모형이 무엇을 잡아내고 무엇을 놓치는지 견주어 볼 수 있습니다. 같은 생성식으로 자료를 여러 벌(seed 22개) 만들어 본 뒤, 이 과목의 분할에서 모형들의 성능 순서가 같은 생성식으로 만든 큰 모의 집단의 평균적인 순서와 같게 나온 한 벌을 골라 공개했습니다. 그래서 뒤의 장에서 보는 모형 사이의 순서는 이 생성식에서 전형적인 순서이지만, 차이가 작은 곳은 다른 분할이나 다른 자료에서 뒤집힐 수 있습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>열</th><th>뜻</th><th>값</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="3"><b>인구학적 특성</b></td></tr>
+<tr><td><code>age</code></td><td>2022년 나이</td><td>세, 40–99</td></tr>
+<tr><td><code>female</code></td><td>여성</td><td>여성 = 1</td></tr>
+<tr><td><code>insurance</code></td><td>보험 종류</td><td><code>nhi</code> 건강보험, <code>medaid</code> 의료급여</td></tr>
+<tr><td><code>income_q</code></td><td>소득 분위</td><td>1(가장 낮음)–5</td></tr>
+<tr><td><code>region</code></td><td>거주 지역</td><td><code>metro</code> 대도시, <code>city</code> 중소도시, <code>rural</code> 농촌</td></tr>
+<tr class="grp"><td colspan="3"><b>2022년 진단</b> (있으면 1)</td></tr>
+<tr><td><code>htn</code> <code>dm</code> <code>dyslip</code> <code>ckd</code> <code>hf</code> <code>af</code> <code>cad</code> <code>stroke</code></td><td>고혈압, 당뇨병, 이상지질혈증, 만성콩팥병, 심부전, 심방세동, 관상동맥질환, 뇌졸중 병력</td><td>0/1</td></tr>
+<tr><td><code>copd</code> <code>asthma</code> <code>depress</code> <code>dementia</code> <code>cancer</code> <code>liver</code> <code>oa</code></td><td>COPD, 천식, 우울증, 치매, 암, 만성 간질환, 골관절염</td><td>0/1</td></tr>
+<tr class="grp"><td colspan="3"><b>2022년 의료이용</b></td></tr>
+<tr><td><code>n_outpt</code> <code>n_ed</code> <code>n_admit</code></td><td>외래 방문 수, 응급실 방문 수, 입원 횟수</td><td>횟수</td></tr>
+<tr><td><code>los_days</code></td><td>입원 일수</td><td>일</td></tr>
+<tr><td><code>n_drugs</code></td><td>처방 약 가짓수 (90일 이상 처방받은 성분 수)</td><td>개</td></tr>
+<tr><td><code>n_prescribers</code></td><td>처방한 의사 수</td><td>명</td></tr>
+<tr><td><code>cost_2022</code></td><td>2022년 총 의료비</td><td>만원</td></tr>
+<tr class="grp"><td colspan="3"><b>2022년 처방</b> (있으면 1)</td></tr>
+<tr><td><code>anticoag</code> <code>insulin</code> <code>opioid</code> <code>benzo</code> <code>antipsych</code> <code>diuretic</code></td><td>항응고제, 인슐린, 오피오이드, 벤조디아제핀, 항정신병약, 이뇨제</td><td>0/1</td></tr>
+<tr class="grp"><td colspan="3"><b>2022년 건강검진</b> (받지 않은 사람은 결측, 약 31%)</td></tr>
+<tr><td><code>bmi</code> <code>sbp</code> <code>fbg</code> <code>egfr</code></td><td>체질량지수, 수축기 혈압, 공복 혈당, eGFR</td><td>kg/m², mmHg, mg/dL, mL/min/1.73 m²</td></tr>
+<tr><td><code>smoking</code> <code>alcohol</code></td><td>흡연, 음주</td><td><code>never</code> <code>former</code> <code>current</code> / <code>none</code> <code>moderate</code> <code>heavy</code></td></tr>
+<tr class="grp"><td colspan="3"><b>결과 (2023년)</b></td></tr>
+<tr><td><code>admit_2023</code></td><td>응급 입원</td><td>있으면 1 (분류의 목표)</td></tr>
+<tr><td><code>cost_2023</code></td><td>총 의료비</td><td>만원 (회귀의 목표)</td></tr>
+</tbody></table></div>
+
+<h3>두 결과와 결측</h3>
+<!--FIG:ml00_outcomes-->
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>입원 612명.</b> 15,000명 가운데 612명이 2023년에 응급 입원했습니다.</span></li>
+<li><span class="mk">2</span><span><b>4.08%.</b> 드문 결과입니다. 마 절의 정확도 함정과 나 절의 층화가 모두 이 숫자에서 나옵니다.</span></li>
+<li><span class="mk">3</span><span><b>평균 284.8만원.</b></span></li>
+<li><span class="mk">4</span><span><b>중앙값 116.3만원.</b> 평균이 중앙값의 2.4배입니다. 그림처럼 대부분은 수백만 원 아래에 몰려 있고 오른쪽 꼬리가 깁니다.</span></li>
+<li><span class="mk">5</span><span><b>최댓값 35,695.3만원.</b> 약 3.6억 원을 쓴 한 사람입니다. 이런 몇 사람이 마 절의 RMSE를 크게 움직입니다.</span></li>
+<li><span class="mk">6</span><span><b>0원 2.9%.</b> 2023년 1년 동안 의료 이용이 없었던 사람입니다.</span></li>
+</ol>
+<!--FIG:ml00_missing-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>df.isna().mean()</code><span><code>isna()</code>는 결측이면 True인 같은 크기의 표를 만들고(<a href="stats.html#lab11-s1">실습 11 가 절</a>), <code>.mean()</code>은 열마다 True의 비율을 냅니다. True는 1, False는 0으로 계산되기 때문입니다.</span></li>
+<li><code>miss[miss &gt; 0]</code><span>결측 비율이 0보다 큰 열만 고릅니다. 조건으로 고르기는 <a href="stats.html#lab00-s6">실습 0 바 절</a>과 같습니다.</span></li>
+<li><code>pd.cut(df["age"], [39, 64, 79, 99])</code><span>나이를 40–64, 65–79, 80–99세의 세 구간으로 나눈 열입니다(<a href="stats.html#lab04-s4">실습 4 라 절</a>). <code>(39, 64]</code>는 39 초과 64 이하라는 뜻입니다.</span></li>
+<li><code>df["bmi"].isna().groupby(age_grp, observed=True).mean()</code><span>BMI의 결측 여부(True/False)를 나이 구간별로 묶어 비율을 냅니다. <code>groupby</code>에는 열 이름 대신 같은 길이의 다른 열을 넣을 수도 있습니다. <code>observed=True</code>는 사람이 없는 구간을 빼라는 뜻이고, pandas 2에서 경고가 나오지 않게 해 줍니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>bmi 0.307.</b> 검진 수치 네 열은 30.7–31.4%가 비어 있습니다. 나머지 36개 열은 결측이 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>alcohol 0.324.</b> 문진 문항은 검진을 받았어도 답하지 않은 사람이 있어 조금 더 비어 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>80세 이상 57.6%.</b> 40–64세 27.3%, 65–79세 31.3%와 다릅니다. 결측이 아무에게나 생긴 것이 아니라 나이와 관련되어 있으므로, 결측 자체가 위험에 대한 정보일 수 있습니다(다 절).</span></li>
+</ol>
+
+<h3>특성 X와 목표 y</h3>
+<!--FIG:ml00_xy-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>y = df["admit_2023"]</code><span>분류의 목표를 <code>y</code>에 담습니다. 특성을 대문자 <code>X</code>, 목표를 소문자 <code>y</code>로 쓰는 관례는 <a href="stats.html#lab09-s4">실습 9 라 절</a>과 같습니다.</span></li>
+<li><code>X = df.drop(columns=["id", "admit_2023", "cost_2023"])</code><span>세 열을 뺀 나머지 39개 열이 특성입니다. <code>id</code>는 번호일 뿐이고, <code>cost_2023</code>은 2023년의 값이라 2022년 말에는 알 수 없으므로 특성에 넣으면 안 됩니다(다 절의 자료 누수).</span></li>
+<li><code>X.dtypes.value_counts()</code><span>열의 자료형별 개수입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(15000, 39) (15000,).</b> X는 15,000행 39열의 표, y는 15,000개 값의 한 줄입니다. 두 행의 순서가 같아 n번째 행의 특성과 n번째 목표가 한 사람의 것입니다.</span></li>
+<li><span class="mk">2</span><span><b>str 4.</b> 글자 열이 4개(<code>insurance</code>, <code>region</code>, <code>smoking</code>, <code>alcohol</code>)입니다. pandas 2에서는 <code>object</code>로 표시됩니다. 숫자 열 35개 가운데 소수점이 있는 <code>cost_2022</code>와 결측이 섞인 검진 수치 네 열이 실수(float64)이고 나머지는 정수입니다.</span></li>
+</ol>
+
+<h3>fit과 predict</h3>
+<p>scikit-learn의 모든 모형은 같은 순서로 씁니다. 모형을 고르고(만들고), <code>fit</code>으로 배우고, <code>predict</code>나 <code>predict_proba</code>로 예측합니다. 결측이 없는 특성 3개로 해 봅니다.</p>
+<!--FIG:ml00_fit-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>model = LogisticRegression()</code><span>로지스틱 회귀 모형을 하나 만듭니다. 아직 아무것도 배우지 않은 빈 틀이며, 이런 모형 객체를 scikit-learn에서는 <strong>추정기</strong><span class="en">(estimator)</span>라고 부릅니다. 괄호 안에는 조절값, 곧 사람이 미리 정해 주는 설정을 넣습니다(라 절).</span></li>
+<li><code>model.fit(X[cols3], y)</code><span>15,000행 × 3열의 특성과 15,000개의 정답으로 계수를 찾아 <code>model</code> 안에 저장합니다(<code>model.coef_</code>, <code>model.intercept_</code>). 결과를 다른 이름에 담지 않아도 <code>model</code> 자체가 바뀝니다.</span></li>
+<li><code>new = pd.DataFrame({…})</code><span>예측할 새 두 사람입니다. 열 이름과 순서를 학습 때와 같게 맞춥니다.</span></li>
+<li><code>model.predict(new)</code><span>사람마다 0 또는 1을 돌려줍니다. 입원 확률이 0.5 이상이면 1입니다.</span></li>
+<li><code>model.predict_proba(new)</code><span>사람마다 [입원 안 할 확률, 입원할 확률]의 두 열을 돌려줍니다. 열의 순서와 <code>[:, 1]</code>의 뜻은 <a href="stats.html#lab09-s4">실습 9 라 절</a>에 자세히 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>[0 0].</b> 두 사람 모두 '입원 안 함'으로 예측했습니다.</span></li>
+<li><span class="mk">2</span><span><b>0.022.</b> 55세, 응급실 0회, 약 3가지인 사람의 입원 확률은 2.2%입니다.</span></li>
+<li><span class="mk">3</span><span><b>0.36.</b> 85세, 응급실 2회, 약 11가지인 사람은 36%로 평균(4%)의 9배인데도 0.5에 못 미쳐 0으로 예측됩니다. 드문 결과에서는 <code>predict</code>의 0/1이 거의 언제나 0이라서 확률을 직접 씁니다(마 절).</span></li>
+</ol>
+<p>이 셀은 15,000명 전체로 배웠습니다. 쓰는 법을 보이려는 것이고, 성능을 재려면 배울 자료와 시험할 자료를 나눠야 합니다(나 절).</p>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<p><span class="wrong">예측을 잘하는 모형에 들어간 특성은 결과의 원인이다.</span> 예측모형은 함께 움직이는 관계를 이용할 뿐입니다. 이 자료를 만들 때 처방한 의사 수(<code>n_prescribers</code>)는 입원에 아무 영향도 주지 않게 했지만, 아픈 사람일수록 의사를 많이 만나므로 의사 5명 이상인 사람의 입원 비율은 10.5%로 2명 이하(3.1%)보다 높습니다. 특성이 원인인지는 통계 과목의 원인 모형과 연구 설계로 따집니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>지도학습은 특성과 정답(목표)이 함께 있는 자료로 규칙을 배워, 정답을 모르는 새 사람의 목표를 예측하는 일입니다. 목표가 범주이면 분류, 숫자이면 회귀입니다.</li>
+<li>이 과목의 자료는 15,000명, 특성 39개, 목표 두 개(<code>admit_2023</code> 4.08%, <code>cost_2023</code> 중앙값 116만원)입니다. 검진 여섯 열은 약 31%가 비어 있고 나이가 많을수록 더 비어 있습니다.</li>
+<li>scikit-learn은 모형 만들기 → <code>fit(X, y)</code> → <code>predict</code>/<code>predict_proba</code>의 순서로 씁니다. 드문 결과에서는 0/1 예측보다 확률을 봅니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ml00-s2">
+<h2><span class="sec-no">나.</span>자료 나누기</h2>
+
+<h3>쉽게 말하면</h3>
+<p>국가시험 기출문제로 공부한 뒤 같은 기출문제로 모의고사를 보면 점수가 높게 나오지만, 그 점수는 실력이 아니라 기억력입니다. 실력을 재려면 처음 보는 문제가 필요합니다. 모형도 같습니다.</p>
+<ul>
+<li><b>학습 자료와 시험 자료.</b> 자료를 미리 둘로 나눠 한쪽으로만 배우고(<strong>학습 자료</strong><span class="en">, training set</span>, 실습 9의 '훈련 자료'), 다른 쪽은 성능을 잴 때까지 손대지 않습니다(<strong>시험 자료</strong><span class="en">, test set</span>).</li>
+<li><b>과적합.</b> 모형이 학습 자료의 우연한 무늬까지 외워 학습 자료에서는 잘 맞고 새 자료에서는 못 맞히는 상태를 <strong>과적합</strong><span class="en">(overfitting)</span>이라고 합니다.</li>
+<li><b>층화.</b> 드문 결과는 무작위로 나누면 한쪽에 몰릴 수 있습니다. 결과의 비율이 두 자료에서 같도록 나누는 것을 <strong>층화</strong><span class="en">(stratification)</span>라고 합니다.</li>
+</ul>
+
+<h3>숫자로 따라가기</h3>
+<p>40명 가운데 4명에게 사건이 있고, 10명(25%)을 시험 자료로 뽑는다고 해 봅시다.</p>
+<ol>
+<li>층화하지 않으면 40명 가운데 10명을 아무렇게나 뽑습니다.</li>
+<li>사건이 있는 4명이 한 명도 뽑히지 않을 확률은 (사건 없는 36명에서 10명을 뽑는 경우의 수) ÷ (40명에서 10명을 뽑는 경우의 수) = <sub>36</sub>C<sub>10</sub> ÷ <sub>40</sub>C<sub>10</sub> = 0.300입니다.</li>
+<li>열 번에 세 번은 시험 자료에 사건이 없어 민감도도 AUC도 계산할 수 없습니다.</li>
+<li>층화하면 사건 있는 4명과 없는 36명에서 따로 25%씩 뽑으므로 시험 자료에 사건 1명, 사건 없는 9명이 들어갑니다.</li>
+</ol>
+<p>공통 자료처럼 15,000명에 사건 612명이면 이렇게 극단적이지는 않지만, 셀 7에서 보듯 층화하지 않은 분할 다섯 번에서 시험 자료의 사건 수가 138–160명으로 흔들립니다.</p>
+
+<h3>이 과목의 분할</h3>
+<!--FIG:ml00_split-->
+<p><code>train_test_split</code>의 쓰는 법과 네 개를 돌려받는 순서는 <a href="stats.html#lab09-s4">실습 9 라 절</a>과 같습니다. 이 과목은 시험 자료 25%(<code>test_size=0.25</code>), 입원 여부로 층화(<code>stratify=y</code>), seed 2026(<code>random_state=2026</code>)으로 나눕니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(11250, 39) (3750, 39).</b> 학습 자료 11,250명, 시험 자료 3,750명입니다. 열(특성 39개)은 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>입원 459명과 153명.</b> 612명이 3 대 1로 나뉘었습니다.</span></li>
+<li><span class="mk">3</span><span><b>0.0408과 0.0408.</b> 층화 덕분에 두 자료의 입원 비율이 전체(4.08%)와 같습니다.</span></li>
+</ol>
+<div class="callout note"><p class="ct">참고 · 이 과목의 약속</p>
+<p>1–6장은 모두 이 셀과 똑같은 코드로 같은 사람들을 나눕니다. 그래야 장마다 다른 모형의 시험 성능을 같은 3,750명에서 비교할 수 있습니다. 회귀의 목표(<code>cost_2023</code>)도 같은 사람들로 나눕니다(셀 23). 시험 자료는 장마다 모형을 다 고른 뒤 마지막에 한 번만 씁니다(라 절).</p></div>
+
+<!--FIG:ml00_nostrat-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>for seed in [1, 2, 3, 4, 5]:</code><span>seed를 다섯 번 바꿔 가며 아래 줄을 반복합니다. <code>stratify</code>는 주지 않았습니다.</span></li>
+<li><code>_, _, _, yt = train_test_split(…)</code><span>돌려받는 네 개 가운데 마지막(시험 자료의 y)만 <code>yt</code>에 담고, 쓰지 않을 셋은 관례상 밑줄 <code>_</code>에 담아 버립니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>seed 5에서 138명(3.68%).</b></span></li>
+<li><span class="mk">2</span><span><b>seed 4에서 160명(4.27%).</b> 층화하지 않으면 어떤 seed를 고르느냐에 따라 시험 자료의 사건이 22명이나 달라집니다. 시험 자료의 사건이 적을수록 그 자료로 잰 성능도 흔들립니다.</span></li>
+</ol>
+
+<h3>배운 자료로 시험하면</h3>
+<p>깊이 제한이 없는 결정트리는 학습 자료를 끝까지 쪼개 사람들을 거의 외울 수 있습니다. 1장에서 다룰 모형이지만 과적합을 보이기에 가장 좋아서 먼저 씁니다. 결측이 없는 특성 7개만 썼습니다.</p>
+<!--FIG:ml00_overfit-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>DecisionTreeClassifier(random_state=0)</code><span>결정트리 분류 모형입니다. 깊이를 정하는 조절값을 주지 않았으므로 잎마다 한 범주만 남을 때까지 나눕니다. <code>random_state</code>는 같은 결과가 나오게 하는 seed입니다.</span></li>
+<li><code>p_tr = tree.predict_proba(X_train[cols])[:, 1]</code><span>배운 자료인 학습 자료에서의 입원 확률입니다. <code>p_te</code>는 처음 보는 시험 자료에서의 확률입니다.</span></li>
+<li><code>roc_auc_score(y_train, p_tr)</code><span>AUC(C 통계량)입니다. 실제 결과와 확률을 이 순서로 넣습니다(<a href="stats.html#lab09-s4">실습 9 라 절</a>).</span></li>
+<li><code>tree.get_n_leaves()</code><span>트리 끝에 있는 잎의 수입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>학습 자료 AUC 1.0.</b> 학습 자료 11,250명의 입원자와 비입원자를 완벽하게 갈랐습니다.</span></li>
+<li><span class="mk">2</span><span><b>시험 자료 AUC 0.558.</b> 처음 보는 3,750명에서는 동전 던지기(0.5)보다 조금 나은 정도입니다. 학습 자료의 점수가 실력이 아니었습니다.</span></li>
+<li><span class="mk">3</span><span><b>잎 838개.</b> 잎 하나에 평균 13명 정도입니다. 트리가 일반적인 규칙을 배운 것이 아니라 작은 무리를 하나하나 외웠습니다. 1장에서 깊이와 잎의 크기를 제한해 이 차이를 줄입니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">학습 자료에서 AUC가 1.0이 나왔으니 아주 좋은 모형이다.</span> 셀 8의 트리는 학습 자료에서 1.0, 시험 자료에서 0.558이었습니다. 모형의 성능은 배우지 않은 자료에서 잽니다.</li>
+<li><span class="wrong">한 번 나눠 얻은 시험 AUC는 그 모형의 정확한 성능이다.</span> 시험 자료의 사건이 153명뿐이라 시험 AUC도 표본 변동이 있습니다. 라 절에서 고른 모형의 시험 AUC 0.742는 95% 부트스트랩 신뢰구간이 0.695–0.785입니다(구한 방법은 마 절 논문 상자의 해설 1). 표본이 크지 않으면 자료를 나누기보다 전체로 만들고 부트스트랩으로 검증하는 편이 낫다는 점은 <a href="stats.html#ch09-s1">통계 9장</a>의 '내부 검증과 외부 검증'에 있습니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>같은 자료로 배우고 시험하면 점수가 부풀려집니다. 깊이 제한 없는 트리는 학습 자료 AUC 1.0, 시험 자료 0.558이었습니다(과적합).</li>
+<li>드문 결과는 <code>stratify=y</code>로 층화해 나눕니다. 이 과목의 분할은 <code>test_size=0.25, stratify=y, random_state=2026</code>이고 1–6장이 모두 같은 분할을 씁니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ml00-s3">
+<h2><span class="sec-no">다.</span>전처리와 파이프라인</h2>
+
+<h3>쉽게 말하면</h3>
+<p>자료를 모형이 받을 수 있는 모양으로 바꾸는 일을 <strong>전처리</strong><span class="en">(preprocessing)</span>라고 합니다. 조제 과정이 정해진 순서대로 매번 똑같이 이루어져야 하듯, 전처리도 학습 자료에서 정한 기준을 시험 자료와 새 환자에게 그대로 적용해야 합니다.</p>
+<ul>
+<li><b>결측 대체.</b> 빈칸을 값으로 채웁니다(<strong>결측 대체</strong><span class="en">, imputation</span>). 숫자 열은 학습 자료의 중앙값으로, 글자 열은 'missing'이라는 범주로 채웁니다.</li>
+<li><b>원-핫 인코딩.</b> 글자 범주를 범주마다 0/1 열 하나씩으로 바꿉니다(<strong>원-핫 인코딩</strong><span class="en">, one-hot encoding</span>). 통계 과목의 가변수(<a href="stats.html#ch08-s7">통계 8장 사 절</a>)와 같은 생각이고, 기준범주를 빼지 않고 범주마다 열을 만든다는 점만 다릅니다.</li>
+<li><b>표준화.</b> 숫자 열마다 평균을 빼고 표준편차로 나눠 평균 0, 표준편차 1로 맞춥니다(<strong>표준화</strong><span class="en">, standardization</span>). 단위가 다른 특성에 벌점(라 절의 규제)을 공평하게 주고 계산을 빨리 끝내게 합니다.</li>
+<li><b>파이프라인.</b> 위 단계와 모형을 하나로 묶은 것이 <strong>파이프라인</strong><span class="en">(pipeline)</span>입니다. <code>fit</code> 한 번에 학습 자료로만 기준을 정하고, <code>predict</code> 때 같은 기준을 적용합니다.</li>
+</ul>
+
+<h3>숫자로 따라가기</h3>
+<p>학습 자료의 첫 세 사람(행 번호 471, 632, 5359)으로 세 단계를 따라갑니다. 기준값(중앙값, 평균, 표준편차)은 모두 학습 자료 11,250명에서 구한 값이고 셀 10–12의 출력과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>행</th><th class="r">나이</th><th class="r">BMI</th><th>흡연</th><th class="r">나이 (표준화)</th><th class="r">BMI (대체)</th><th>흡연 4열 (current, former, missing, never)</th></tr></thead>
+<tbody>
+<tr><td>471</td><td class="r">44</td><td class="r">28.5</td><td>current</td><td class="r">−1.16</td><td class="r">28.5</td><td>1, 0, 0, 0</td></tr>
+<tr class="hi"><td>632</td><td class="r">66</td><td class="r">(결측)</td><td>(결측)</td><td class="r">0.54</td><td class="r">24.4</td><td>0, 0, 1, 0</td></tr>
+<tr><td>5359</td><td class="r">52</td><td class="r">21.4</td><td>never</td><td class="r">−0.54</td><td class="r">21.4</td><td>0, 0, 0, 1</td></tr>
+</tbody></table></div>
+<ol>
+<li><b>결측 대체.</b> 632번은 검진을 받지 않았습니다. BMI 빈칸을 학습 자료 BMI의 중앙값 24.4로 채웁니다.</li>
+<li><b>원-핫 인코딩.</b> 흡연의 네 범주(current, former, missing, never)마다 열을 만들어 해당하면 1을 넣습니다. 632번은 흡연도 비어 있어 'missing' 열이 1입니다. 결측을 범주 하나로 남기면 "검진을 받지 않았다"는 정보가 모형에 들어갑니다.</li>
+<li><b>표준화.</b> 471번의 나이 44세는 (44 − 59.01) ÷ 12.94 = −1.16입니다. 59.01과 12.94는 학습 자료 나이의 평균과 표준편차입니다.</li>
+</ol>
+
+<h3>단계별로 해 보기</h3>
+<!--FIG:ml00_cols-->
+<p><code>[c for c in X.columns if c not in cat_cols]</code>는 X의 열 이름 가운데 <code>cat_cols</code>에 없는 것만 모은 목록입니다(대괄호 안에 <code>for</code>를 쓰는 문법은 <a href="stats.html#lab15-s4">실습 15 라 절</a>). 출력 <span class="mk">1</span>처럼 숫자 열 35개, 글자 열 4개이고, <span class="mk">2</span> 632번은 흡연과 음주가 NaN입니다. 행 번호(471, 632, …)는 원래 자료의 인덱스가 섞인 채로 남은 것입니다.</p>
+<!--FIG:ml00_impute-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>imp = SimpleImputer(strategy="median")</code><span>중앙값으로 채우는 대체기를 만듭니다. <code>"mean"</code>(평균), <code>"most_frequent"</code>(최빈값), <code>"constant"</code>(정한 값)도 있습니다.</span></li>
+<li><code>imp.fit(X_train[["bmi", "egfr"]])</code><span>학습 자료에서 열마다 중앙값을 계산해 기억합니다. 결측은 빼고 계산합니다. 모형의 <code>fit</code>과 같은 이름이지만 여기서 배우는 것은 중앙값입니다.</span></li>
+<li><code>imp.statistics_</code><span>기억한 중앙값입니다. 이름 끝의 밑줄은 <code>fit</code>으로 얻은 값이라는 scikit-learn의 표시입니다.</span></li>
+<li><code>imp.transform(four)</code><span>기억한 중앙값으로 빈칸을 채운 결과를 numpy 배열로 돌려줍니다. 결측이 아닌 값은 그대로입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>중앙값 24.4와 89.</b> BMI 24.4 kg/m², eGFR 89 mL/min/1.73 m²입니다.</span></li>
+<li><span class="mk">2</span><span><b>632번의 NaN 두 칸</b>이 <span class="mk">3</span> 24.4와 89로 채워졌습니다.</span></li>
+</ol>
+<!--FIG:ml00_onehot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>X_train[["smoking"]].fillna("missing")</code><span><code>fillna</code>는 결측을 정한 값으로 채웁니다. 대괄호를 두 겹 써서 한 열짜리 표(DataFrame)로 꺼냈습니다. scikit-learn의 전처리기는 2차원(행 × 열)을 받기 때문입니다. 파이프라인에서는 같은 일을 <code>SimpleImputer(strategy="constant", fill_value="missing")</code>이 합니다.</span></li>
+<li><code>OneHotEncoder(handle_unknown="ignore", sparse_output=False)</code><span><code>handle_unknown="ignore"</code>는 학습 자료에 없던 범주가 새 자료에 나오면 오류 대신 모든 열을 0으로 두라는 뜻입니다. <code>sparse_output=False</code>는 결과를 보통의 배열로 달라는 뜻입니다(기본은 0을 생략해 저장하는 희소 행렬). 이 인자 이름은 scikit-learn 1.2부터 쓰며, 그보다 오래된 버전은 <code>sparse=False</code>입니다.</span></li>
+<li><code>ohe.get_feature_names_out()</code><span>만들어질 열의 이름입니다. 범주는 알파벳 순서로 정렬됩니다.</span></li>
+<li><code>ohe.transform(smk.head(4))</code><span>네 사람을 0/1 네 열로 바꿉니다. 한 행에 1은 하나뿐입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>smoking_missing.</b> 결측이 하나의 범주가 되었습니다.</span></li>
+<li><span class="mk">2</span><span><b>632번 missing</b>은 <span class="mk">3</span> 세 번째 열(smoking_missing)만 1인 행이 되었습니다.</span></li>
+</ol>
+<!--FIG:ml00_scale-->
+<p><code>StandardScaler</code>의 쓰는 법은 <a href="stats.html#lab09-s4">실습 9 라 절</a>과 같습니다. 출력 <span class="mk">1</span>의 <code>mean_</code>은 학습 자료의 평균(나이 59.01세, 외래 18.17회), <span class="mk">2</span>의 <code>scale_</code>은 표준편차입니다. <code>StandardScaler</code>는 n − 1이 아니라 n으로 나눈 표준편차를 써서 pandas의 <code>.std()</code>와 끝자리가 조금 다를 수 있습니다. <span class="mk">3</span> 471번은 나이가 평균보다 1.16 표준편차 적고, 외래 방문이 1회로 0.72 표준편차 적습니다.</p>
+
+<h3>ColumnTransformer와 Pipeline</h3>
+<p>숫자 열과 글자 열은 처리 방법이 다릅니다. 열 종류마다 다른 단계를 거친 뒤 옆으로 이어 붙이는 도구가 <code>ColumnTransformer</code>이고, 전처리와 모형을 차례로 묶는 도구가 <code>Pipeline</code>입니다. 이 장의 파이프라인은 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>열</th><th>1단계 · 결측 대체</th><th>2단계 · 변환</th><th class="r">결과 열</th></tr></thead>
+<tbody>
+<tr><td>숫자 35개</td><td>학습 자료의 중앙값 (<code>SimpleImputer</code>)</td><td>표준화 (<code>StandardScaler</code>)</td><td class="r">35</td></tr>
+<tr><td>글자 4개</td><td>"missing" 범주 (<code>SimpleImputer</code>)</td><td>원-핫 (<code>OneHotEncoder</code>)</td><td class="r">13</td></tr>
+<tr class="hi"><td colspan="3">이어 붙인 48열 → 로지스틱 회귀</td><td class="r">48</td></tr>
+</tbody></table></div>
+<p>이 묶음을 장마다 다시 쓰도록 함수로 만듭니다.</p>
+<!--FIG:ml00_pipe-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def make_pipe(model, num=num_cols, cat=cat_cols):</code><span>파이프라인을 만들어 돌려주는 함수를 정의합니다. <code>model</code>에는 모형 객체를 받고, <code>num</code>과 <code>cat</code>에는 숫자 열과 글자 열의 이름 목록을 받습니다. 둘은 기본값이 있어서 생략하면 셀 9의 <code>num_cols</code>, <code>cat_cols</code>를 씁니다. 모형만 바꿔 <code>make_pipe(LinearRegression())</code>처럼 부르면 같은 전처리를 거친 다른 모형이 됩니다(셀 23).</span></li>
+<li><code>Pipeline([("impute", …), ("scale", …)])</code><span>(이름, 단계) 짝의 목록입니다. 앞 단계의 출력이 다음 단계의 입력이 됩니다. 이름은 마음대로 짓되, 라 절에서 조절값을 부를 때 씁니다.</span></li>
+<li><code>SimpleImputer(strategy="constant", fill_value="missing")</code><span>글자 열의 결측을 "missing"이라는 글자로 채웁니다.</span></li>
+<li><code>ColumnTransformer([("num", num_steps, num), ("cat", cat_steps, cat)])</code><span>(이름, 처리, 열 목록)의 짝마다 그 열들만 꺼내 처리한 뒤 결과를 옆으로 이어 붙입니다. 목록에 없는 열은 버립니다. 그래서 과제 1처럼 열 목록만 바꿔 특성 묶음을 바꿀 수 있습니다.</span></li>
+<li><code>return Pipeline([("prep", prep), ("model", model)])</code><span>전처리(<code>"prep"</code>)와 모형(<code>"model"</code>)을 묶어 돌려줍니다.</span></li>
+<li><code>pipe.fit(X_train, y_train)</code><span>학습 자료로 ① 숫자 열의 중앙값을 구해 채우고 ② 평균과 표준편차를 구해 표준화하고 ③ 글자 열의 범주 목록을 기억해 원-핫으로 바꾼 뒤 ④ 48열로 로지스틱 회귀를 학습합니다.</span></li>
+<li><code>pipe.named_steps["prep"].transform(X_test)</code><span>파이프라인 안의 단계를 이름으로 꺼내 전처리만 해 본 것입니다. 시험 자료에는 학습 자료에서 구한 기준이 그대로 쓰입니다.</span></li>
+<li><code>pipe.predict_proba(X_test)[:, 1]</code><span>시험 자료를 같은 전처리에 통과시킨 뒤 입원 확률을 냅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(3750, 48).</b> 숫자 35열과 원-핫 13열(보험 2, 지역 3, 흡연 4, 음주 4)입니다.</span></li>
+<li><span class="mk">2</span><span><b>시험 AUC 0.740.</b> 출력의 0.74는 <code>round(…, 3)</code>의 결과 0.740에서 끝자리 0이 생략된 것입니다. 셀 8의 깊은 트리(0.558)보다 훨씬 낫습니다. 이 장에서는 현상을 보여 주려고 시험 자료를 여러 번 들여다보지만, 실제 분석에서는 라 절의 순서를 따릅니다.</span></li>
+</ol>
+<!--FIG:ml00_converge-->
+<p>로지스틱 회귀는 계수를 한 번에 계산하지 못하고 조금씩 고쳐 가는 반복 계산으로 찾습니다. 더 고칠 것이 없는 상태에 이르는 것을 <strong>수렴</strong><span class="en">(convergence)</span>이라고 합니다. 셀 14는 표준화를 빼고 같은 모형을 적합한 것입니다. <code>n_iter_</code>는 실제로 반복한 횟수입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>표준화하지 않으면 [100].</b> 기본 한도 100회를 다 쓰고도 수렴하지 못해 노란 상자의 <code>ConvergenceWarning</code>이 나왔습니다. 2022년 의료비(0–7,950)와 여성(0/1)처럼 크기가 크게 다른 열이 섞이면 계산이 더딥니다. 경고 문구는 버전에 따라 다릅니다.</span></li>
+<li><span class="mk">2</span><span><b>표준화하면 [33].</b> 33회 만에 끝났습니다. 해결 방법은 표준화(권장)나 <code>max_iter</code>를 늘리는 것입니다. <code>make_pipe</code>에 넣은 로지스틱 회귀에 모두 <code>max_iter=1000</code>을 준 것은 여유를 두려는 것입니다. 경고를 무시하고 넘어가면 덜 계산된 계수로 예측하게 됩니다.</span></li>
+</ol>
+
+<h3>자료 누수</h3>
+<p>예측하는 시점에는 알 수 없는 정보가 학습에 섞여 들어가는 것을 <strong>자료 누수</strong><span class="en">(data leakage)</span>라고 합니다. 2022년 말에 2023년을 예측하는 모형이라면 특성은 모두 2022년 12월 31일까지의 기록이어야 합니다. 응급 입원은 대개 응급실을 거치므로 '2023년 응급실 방문 수'는 결과와 거의 같은 정보입니다. 이 열을 실수로 넣었다고 해 봅시다. 공개 자료에는 없으므로 결과를 이용해 흉내 낸 열을 만듭니다.</p>
+<!--FIG:ml00_leak-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>np.where(y == 1, rng.poisson(1.5, len(y)) + 1, rng.poisson(0.08, len(y)))</code><span>입원한 사람은 1회 이상(평균 2.5회), 입원하지 않은 사람은 대부분 0회인 가짜 열입니다. <code>np.where(조건, 참일 때, 거짓일 때)</code>는 <a href="stats.html#lab05-s3">실습 5 다 절</a>, <code>rng.poisson(평균, 개수)</code>는 포아송 분포의 난수입니다.</span></li>
+<li><code>X_leak = X.assign(n_ed_2023=ed_2023)</code><span>새 열을 붙인 복사본입니다(<a href="stats.html#lab09-s2">실습 9 나 절</a>의 <code>assign</code>).</span></li>
+<li><code>train_test_split(X_leak, test_size=0.25, stratify=y, random_state=2026)</code><span>y를 넘기지 않아 두 개만 돌려받습니다. 같은 y, 같은 비율, 같은 seed이므로 셀 6과 같은 사람들이 나뉩니다.</span></li>
+<li><code>make_pipe(…, num=num_cols + ["n_ed_2023"])</code><span>숫자 열 목록에 새 열을 더해 같은 파이프라인을 만듭니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시험 AUC 0.996.</b> 0.740에서 갑자기 거의 완벽해졌습니다. 모형이 좋아진 것이 아니라 답을 보고 푼 것입니다. 실제 연구에서 이런 숫자가 나오면 먼저 특성의 측정 시점을 의심합니다. 입원 중 처방, 퇴원 요약의 진단, 결과 기간의 의료비가 흔한 예입니다.</span></li>
+</ol>
+<p>누수는 전처리에서도 생깁니다. 결측 대체나 표준화의 기준을 시험 자료까지 포함한 전체 자료로 구한 뒤 나누면 시험 자료의 정보가 학습에 들어갑니다. 이 자료에서는 BMI 중앙값이 전체와 학습 자료 모두 24.4라서 시험 AUC가 0.7396과 0.7398로 거의 같지만, 결과와 상관이 큰 특성 고르기나 사건을 복제해 늘리는 처리처럼 결과를 쓰는 전처리를 나누기 전에 하면 차이가 커집니다. 파이프라인으로 묶어 두면 <code>fit</code>이 언제나 학습 자료로만 기준을 정하고, 라 절의 교차검증에서도 겹마다 다시 정하므로 이 실수를 막아 줍니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">결측을 중앙값으로 채웠으니 결측 문제는 해결되었다.</span> 대체는 모형이 돌아가게 해 줄 뿐입니다. 이 자료의 검진 결측은 80세 이상에서 58%로 나이와 관련되어 있습니다. 숫자 열을 중앙값으로 채우면 "검진을 받지 않았다"는 정보가 사라지므로, 이 장에서는 글자 열의 'missing' 범주로 그 정보를 남겼습니다. 결측의 종류와 다중대체는 <a href="stats.html#ap01-s4">통계 부록 A 라 절</a>에 있습니다.</li>
+<li><span class="wrong">특성 하나를 더했더니 시험 AUC가 0.99가 되었으니 중요한 위험인자를 찾았다.</span> 너무 좋은 결과는 누수부터 의심합니다. 행정자료로 만든 입원 예측모형의 C 통계량은 0.6–0.7대인 경우가 많습니다(통계 9장).</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>숫자 열은 중앙값 대체 후 표준화, 글자 열은 'missing' 범주로 채운 뒤 원-핫 인코딩합니다. 기준값은 모두 학습 자료에서 구합니다.</li>
+<li><code>ColumnTransformer</code>로 열 종류마다 다른 처리를 하고 <code>Pipeline</code>으로 모형과 묶습니다. 이 장의 <code>make_pipe(model)</code>을 이후 장에서도 씁니다.</li>
+<li>표준화하지 않은 로지스틱 회귀는 수렴 경고가 나기 쉽습니다. 경고를 그냥 넘기지 않습니다.</li>
+<li>예측 시점 이후의 정보가 특성에 섞이면 시험 AUC가 0.996처럼 비현실적으로 높아집니다(자료 누수).</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ml00-s4">
+<h2><span class="sec-no">라.</span>교차검증과 조절값 탐색</h2>
+
+<h3>쉽게 말하면</h3>
+<p>모형에는 자료에서 배우는 값(로지스틱 회귀의 계수)과 사람이 미리 정해 주는 값이 있습니다. 미리 정해 주는 값을 <strong>조절값</strong><span class="en">(hyperparameter, 하이퍼파라미터)</span>이라고 합니다. 로지스틱 회귀의 <code>C</code>는 계수를 0 쪽으로 줄이는 벌점, 곧 <strong>규제</strong><span class="en">(regularization)</span>의 세기를 정하며, 작을수록 규제가 강합니다(<a href="stats.html#lab09-s4">실습 9 라 절</a>, 자세히는 6장). 좋은 C를 고르려면 여러 값을 비교해야 하는데, 시험 자료로 비교하면 시험 자료가 더 이상 처음 보는 자료가 아니게 됩니다. 그래서 학습 자료 안에서 다시 나눠 점수를 매깁니다.</p>
+<ul>
+<li><b>검증 자료.</b> 학습 자료 안에서 조절값을 고르는 데 쓰려고 떼어 둔 부분을 <strong>검증 자료</strong><span class="en">(validation set)</span>라고 합니다.</li>
+<li><b>k겹 교차검증.</b> 학습 자료를 k개의 <strong>겹</strong><span class="en">(fold)</span>으로 나눠 한 겹씩 돌아가며 검증 자료로 쓰고 k개의 점수를 평균합니다(<strong>교차검증</strong><span class="en">, cross-validation</span>). 모든 사람이 한 번씩 검증에 쓰이므로, 검증 자료를 한 번 떼어 내는 것보다 덜 흔들립니다.</li>
+<li><b>시험 자료는 마지막에 한 번.</b> 조절값과 모형을 모두 정한 뒤에 시험 자료로 한 번 평가합니다.</li>
+</ul>
+<!--FIG:ml00_fig_kfold-->
+
+<h3>숫자로 따라가기</h3>
+<ol>
+<li>학습 자료 11,250명을 입원 비율이 같게 다섯 겹(2,250명씩)으로 나눕니다(셀 16).</li>
+<li>1회차에는 1겹을 검증 자료로 두고 나머지 4겹(9,000명)으로 C = 1인 모형을 학습해 1겹에서 AUC 0.739를 얻습니다.</li>
+<li>2–5회차도 같은 방식으로 0.787, 0.756, 0.727, 0.732를 얻습니다(셀 17).</li>
+<li>평균 (0.739 + 0.787 + 0.756 + 0.727 + 0.732) ÷ 5 = 0.748이 C = 1의 교차검증 AUC입니다. 겹 사이의 표준편차 0.022는 같은 모형도 누구로 평가하느냐에 따라 이만큼 달라진다는 뜻입니다.</li>
+<li>C 후보 6개마다 1–4를 반복하면 30번 학습합니다. 평균이 가장 높은 C로 학습 자료 전체를 한 번 더 학습하고(31번째), 그 모형을 시험 자료에 한 번 적용합니다(셀 18, 19).</li>
+</ol>
+
+<h3>겹 나누기와 교차검증</h3>
+<!--FIG:ml00_kfold-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)</code><span>층화 k겹 분할기입니다. <code>n_splits</code>는 겹의 수, <code>shuffle=True</code>는 나누기 전에 순서를 섞으라는 뜻이고(자료가 어떤 순서로 정렬되어 있어도 겹이 고르게 됩니다), <code>random_state</code>는 그 섞는 순서의 seed입니다. 이 과목의 교차검증은 모두 이 설정을 씁니다.</span></li>
+<li><code>skf.split(X_train, y_train)</code><span>회차마다 (학습할 행의 위치, 검증할 행의 위치) 한 쌍을 차례로 내놓습니다. 위치는 0부터 센 행의 순서이고 인덱스가 아닙니다.</span></li>
+<li><code>for k, (tr, va) in enumerate(…, start=1):</code><span><code>enumerate</code>는 반복할 때마다 번호를 붙여 줍니다. <code>start=1</code>로 1부터 셉니다. 번호는 <code>k</code>에, 위치 한 쌍은 <code>tr</code>과 <code>va</code>에 담깁니다.</span></li>
+<li><code>y_train.iloc[va].sum()</code><span><code>.iloc</code>은 위치로 고르는 방법입니다. 검증 겹의 입원자 수입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>학습 9,000명, 검증 2,250명.</b> 다섯 회차 모두 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>검증 겹의 입원 91–92명.</b> 층화 덕분에 겹마다 4.1% 안팎입니다.</span></li>
+</ol>
+<!--FIG:ml00_cv-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>cross_val_score(make_pipe(…), X_train, y_train, cv=skf, scoring="roc_auc")</code><span>모형(파이프라인), 특성, 목표, 겹 나누는 법, 점수의 종류를 받아 다섯 번 학습하고 다섯 개의 점수를 numpy 배열로 돌려줍니다. 파이프라인을 넘겼으므로 회차마다 중앙값과 표준화 기준도 그 회차의 학습 겹으로만 다시 구합니다. <code>scoring</code>에는 <code>"accuracy"</code>, <code>"neg_mean_squared_error"</code> 같은 이름도 쓸 수 있으며, 회귀의 오차 지표는 '클수록 좋다'로 맞추려고 음수(neg)로 돌려줍니다.</span></li>
+<li><code>auc5.std()</code><span>numpy의 표준편차는 n으로 나눕니다. 겹 사이의 흔들림을 보려는 값입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>겹별 AUC</b> 0.727–0.787입니다. 그림 0-1 오른쪽의 숫자입니다.</span></li>
+<li><span class="mk">2</span><span><b>평균 0.748, SD 0.022.</b></span></li>
+</ol>
+
+<h3>조절값 고르기</h3>
+<!--FIG:ml00_grid-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>grid = {"model__C": [0.001, 0.01, 0.1, 1, 10, 100]}</code><span>시험해 볼 조절값의 목록입니다. 파이프라인 안의 조절값은 '단계 이름 + 밑줄 두 개 + 인자 이름'으로 부릅니다. <code>"model"</code>은 <code>make_pipe</code>에서 붙인 단계 이름입니다. 10배 간격으로 넓게 잡았습니다.</span></li>
+<li><code>GridSearchCV(make_pipe(…), grid, cv=skf, scoring="roc_auc")</code><span>목록의 값마다 교차검증을 하는 <strong>격자 탐색</strong><span class="en">(grid search)</span>입니다. 조절값이 둘 이상이면 모든 조합을 시험합니다.</span></li>
+<li><code>gs.fit(X_train, y_train)</code><span>6 × 5 = 30번 학습한 뒤, 평균 점수가 가장 높은 C로 학습 자료 전체를 다시 학습해 둡니다(기본값 <code>refit=True</code>).</span></li>
+<li><code>gs.best_params_</code>, <code>gs.best_score_</code><span>고른 조절값과 그 교차검증 평균 점수입니다.</span></li>
+<li><code>pd.DataFrame(gs.cv_results_)</code><span>조절값마다의 결과를 표로 바꿉니다. <code>mean_test_score</code>는 다섯 검증 겹의 평균(이름에 test가 들어 있지만 시험 자료가 아니라 검증 겹입니다), <code>std_test_score</code>는 SD, <code>rank_test_score</code>는 순위입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>C = 0.1, 교차검증 AUC 0.7486.</b> 여섯 값 가운데 가장 높습니다.</span></li>
+<li><span class="mk">2</span><span><b>C = 0.001에서 0.7415.</b> 규제가 너무 강하면 계수가 지나치게 줄어 성능이 떨어집니다.</span></li>
+<li><span class="mk">3</span><span><b>C = 1에서 0.7480.</b> 1등과의 차이가 0.0006입니다.</span></li>
+<li><span class="mk">4</span><span><b>SD 0.0220.</b> C = 0.01부터 100까지의 차이(0.7475–0.7486)는 겹 사이 SD의 20분의 1입니다. 이 자료에서는 사건 459명에 열 48개라 규제가 큰 차이를 만들지 않습니다. 특성이 많고 사건이 적을수록 C가 중요해집니다(6장).</span></li>
+</ol>
+
+<h4>조절값 표</h4>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>조절값</th><th>뜻</th><th>값을 키우면</th><th>흔히 쓰는 범위</th></tr></thead>
+<tbody>
+<tr><td><code>C</code> (LogisticRegression)</td><td>규제 세기의 역수. 기본값 1.0</td><td>규제가 약해져 계수가 커지고 학습 자료에 더 맞춥니다(과적합 쪽)</td><td>0.001–100, 10배 간격으로 탐색</td></tr>
+<tr><td><code>class_weight</code></td><td>범주별 가중치. <code>"balanced"</code>면 드문 범주(입원)에 큰 가중치</td><td>(None → "balanced") 이 자료에서 교차검증 AUC는 0.748로 같지만 평균 예측 확률이 0.041에서 0.393으로 커져 확률을 그대로 믿을 수 없게 됩니다</td><td>None(기본) 또는 "balanced"</td></tr>
+<tr><td><code>max_iter</code></td><td>반복 계산의 최대 횟수. 성능을 고르는 조절값이 아니라 계산 설정</td><td>수렴할 여유가 생기고 시간이 조금 더 걸립니다</td><td>기본 100, 경고가 나면 1000 이상</td></tr>
+<tr><td><code>n_splits</code> (StratifiedKFold)</td><td>교차검증의 겹 수 k</td><td>학습 겹이 커지고 검증 겹은 작아지며 계산이 k배</td><td>5 또는 10 (과제 2)</td></tr>
+</tbody></table></div>
+<p>벌점의 종류(L1, L2)는 6장에서 다룹니다. scikit-learn 1.8부터 벌점 종류를 정하는 인자가 <code>penalty</code>에서 <code>l1_ratio</code>로 바뀌는 중이므로, 이 장에서는 어느 버전에서나 같은 기본값(L2)만 씁니다.</p>
+
+<h3>시험 자료로 한 번 평가</h3>
+<!--FIG:ml00_final-->
+<p><code>gs.best_estimator_</code>는 고른 C = 0.1로 학습 자료 11,250명 전체에 다시 맞춘 파이프라인입니다. 출력 <span class="mk">1</span>의 시험 AUC 0.742는 교차검증 평균 0.7486과 비슷합니다. 둘의 차이는 시험 자료 153명의 사건에서 오는 우연 변동(95% 신뢰구간 0.695–0.785) 안에 있습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">교차검증 AUC가 가장 높은 C = 0.1이 C = 1보다 확실히 낫다.</span> 차이는 0.0006이고 겹 사이 SD는 0.022입니다. 순위는 같은 겹에서의 비교라 SD보다는 덜 흔들리지만, 이 정도 차이는 겹을 다르게 나누면 뒤집힐 수 있습니다. 비슷하면 단순한 쪽이나 규제가 강한 쪽을 택해도 됩니다.</li>
+<li><span class="wrong">조절값은 시험 자료 성능을 보고 골라도 된다.</span> 시험 자료로 고르면 C = 0.01(시험 AUC 0.746)이 뽑힙니다. 그 0.746은 여섯 번 가운데 운이 가장 좋았던 값이라 새 환자에서의 성능보다 부풀려 있습니다. 같은 이유로 교차검증으로 고른 C의 교차검증 점수(0.7486)도 조금 낙관적입니다. 그래서 한 번도 쓰지 않은 시험 자료로 마지막 평가를 하고, 시험 자료가 따로 없을 때는 바깥 교차검증 안에서 조절값 탐색을 되풀이하는 중첩 교차검증<span class="en">(nested cross-validation)</span>을 씁니다<cite data-ref="varma2006"></cite>.</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 예측모형의 Methods</b><span>이 장의 결과로 만든 가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">We randomly split the cohort (n = 15,000; 612 emergency admissions) into a training set (75%; n = 11,250; 459 events) and a test set (25%; n = 3,750; 153 events), <span class="hl">stratified by the outcome</span> <span class="mk">1</span>. Missing values of health-screening variables (31% to 32%) were <span class="hl">imputed with the training-set median for continuous variables and coded as a separate category for categorical variables</span> <span class="mk">2</span>; continuous predictors were standardized and categorical predictors were one-hot encoded. <span class="hl">All preprocessing steps were fitted within the training data</span> <span class="mk">3</span>. The inverse regularization strength (C) of an L2-penalized logistic regression model was selected from six values (0.001 to 100) by <span class="hl">stratified 5-fold cross-validation in the training set</span>, maximizing the area under the receiver operating characteristic curve (AUC) <span class="mk">4</span>. The final model was refitted on the entire training set and <span class="hl">evaluated once in the test set</span> <span class="mk">5</span>. Analyses were performed with scikit-learn 1.9.1<cite data-ref="pedregosa2011"></cite>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>나눈 방법과 사건 수.</b> 셀 6의 출력입니다. 비율, 층화 여부, 자료마다의 사건 수를 적어야 독자가 시험 성능이 몇 명의 사건에 기댄 것인지 압니다. 이 예처럼 무작위로 나눈 시험 자료는 같은 시기·같은 기관의 자료라서 외부 검증이 아니라 내부 검증입니다.</span></li>
+<li><span class="mk">2</span><span><b>결측의 비율과 처리.</b> 셀 3과 셀 13입니다. 어떤 값으로 채웠는지, 결측을 범주로 남겼는지를 적습니다. 결측이 많으면 다중대체 같은 다른 처리와 비교한 민감도 분석을 덧붙이기도 합니다.</span></li>
+<li><span class="mk">3</span><span><b>전처리를 학습 자료 안에서.</b> 셀 15 아래 문단의 누수를 피했다는 문장입니다. 파이프라인을 썼다면 교차검증의 겹마다 다시 맞췄다는 뜻도 됩니다. 이 문장이 없으면 시험 성능이 부풀려졌는지 독자가 판단할 수 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>조절값 탐색.</b> 셀 18입니다. 무엇을(C), 어떤 후보에서(6개), 어떤 방법으로(층화 5겹), 어떤 기준으로(AUC) 골랐는지 적고, 고른 값(C = 0.1)은 Results나 부록에 씁니다.</span></li>
+<li><span class="mk">5</span><span><b>시험 자료는 한 번.</b> 셀 19입니다. 예측모형 보고 지침 TRIPOD<cite data-ref="collins2015"></cite>와 머신러닝까지 포함한 개정판 TRIPOD+AI<cite data-ref="collins2024"></cite>는 자료 분할, 결측 처리, 조절값 탐색, 성능 지표를 이런 수준으로 적도록 요구합니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>조절값은 학습 자료 안의 교차검증으로 고릅니다. <code>StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)</code>로 나누고 <code>cross_val_score</code>나 <code>GridSearchCV</code>에 파이프라인째 넘깁니다.</li>
+<li>파이프라인 안의 조절값 이름은 <code>"model__C"</code>처럼 '단계 이름 + 밑줄 두 개 + 인자 이름'입니다.</li>
+<li>이 자료에서 C는 0.01–100 사이에서 교차검증 AUC가 거의 같았고(0.7475–0.7486), 고른 C = 0.1 모형의 시험 AUC는 0.742였습니다. 차이를 해석할 때는 겹 사이 SD(0.022)와 함께 봅니다.</li>
+<li>시험 자료는 모든 결정을 끝낸 뒤 한 번만 씁니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="ml00-s5">
+<h2><span class="sec-no">마.</span>성능을 재는 지표</h2>
+
+<h3>쉽게 말하면</h3>
+<ul>
+<li><b>분류.</b> 확률을 내는 모형은 두 가지로 평가합니다. 사람들의 순서를 잘 매기는가(AUC), 그리고 기준선을 정해 고위험군을 골랐을 때 몇 명을 맞히고 놓치는가(혼동행렬과 정밀도·재현율)입니다. 기준선을 <strong>임계값</strong><span class="en">(threshold)</span>이라고 합니다.</li>
+<li><b>회귀.</b> 사람마다 실제 값과 예측값의 차이(오차)를 구해, 그 크기를 평균하는 방식에 따라 MAE와 RMSE가 나오고, 평균만으로 예측할 때보다 얼마나 나아졌는지가 R²입니다.</li>
+</ul>
+
+<h3>숫자로 따라가기</h3>
+<p>라 절에서 고른 모형으로 시험 자료 3,750명을 예측하고, 입원 확률 0.10 이상을 고위험으로 분류한 결과입니다(셀 21). 실제 입원은 153명입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
+<thead><tr><th>임계값 0.10</th><th class="r">실제 입원</th><th class="r">입원 안 함</th><th class="r">합계</th></tr></thead>
+<tbody>
+<tr><td>고위험 (예측 ≥ 0.10)</td><td class="r">참양성 TP 53</td><td class="r">위양성 FP 178</td><td class="r">231</td></tr>
+<tr><td>저위험 (예측 &lt; 0.10)</td><td class="r">위음성 FN 100</td><td class="r">참음성 TN 3,419</td><td class="r">3,519</td></tr>
+<tr><td>합계</td><td class="r">153</td><td class="r">3,597</td><td class="r">3,750</td></tr>
+</tbody></table></div>
+<ol>
+<li><strong>정밀도</strong><span class="en">(precision)</span> = TP ÷ (TP + FP) = 53 ÷ 231 = 0.229. 고위험으로 고른 사람 가운데 실제로 입원한 비율이며 통계 과목의 양성예측도(PPV)입니다.</li>
+<li><strong>재현율</strong><span class="en">(recall)</span> = TP ÷ (TP + FN) = 53 ÷ 153 = 0.346. 실제로 입원한 사람 가운데 고위험으로 잡아낸 비율이며 민감도입니다.</li>
+<li><strong>F1 점수</strong><span class="en">(F1 score)</span> = 2 × 정밀도 × 재현율 ÷ (정밀도 + 재현율) = 2 × 0.229 × 0.346 ÷ 0.575 = 0.276. 두 값의 조화평균이라 둘 가운데 작은 쪽으로 끌립니다.</li>
+<li>특이도는 3,419 ÷ 3,597 = 0.951, <strong>정확도</strong><span class="en">(accuracy)</span>는 맞게 분류한 비율 (53 + 3,419) ÷ 3,750 = 0.926입니다. 그런데 모두를 '입원 안 함'으로 분류하면 한 명도 잡아내지 못하는데도 정확도가 3,597 ÷ 3,750 = 0.959로 더 높습니다.</li>
+</ol>
+<p>회귀는 다섯 사람의 오차(실제 − 예측)가 10, 20, 30, 40, 900만원인 예로 봅니다.</p>
+<ol>
+<li><strong>평균절대오차</strong><span class="en">(mean absolute error, MAE)</span> = 오차 크기의 평균 = (10 + 20 + 30 + 40 + 900) ÷ 5 = 200만원.</li>
+<li><strong>평균제곱근오차</strong><span class="en">(root mean squared error, RMSE)</span> = 오차 제곱의 평균의 제곱근 = √[(10² + 20² + 30² + 40² + 900²) ÷ 5] = √162,600 = 403.2만원.</li>
+<li>900만원 틀린 한 사람을 빼면 MAE는 25만원, RMSE는 27.4만원입니다. 제곱을 하므로 RMSE는 큰 오차 하나에 크게 끌립니다.</li>
+<li><strong>결정계수</strong><span class="en">(R²)</span> = 1 − (모형의 오차 제곱합 ÷ 모두를 평균으로 예측했을 때의 오차 제곱합). 통계 6장의 R²(<a href="stats.html#ch06-s3">6장 다 절</a>)와 같은 식이지만 시험 자료에서 계산하므로 평균보다 못한 모형이면 음수도 나옵니다.</li>
+</ol>
+
+<h3>정확도의 함정</h3>
+<!--FIG:ml00_acc-->
+<p><code>np.zeros(n, dtype=int)</code>는 0이 n개인 정수 배열, <code>accuracy_score(실제, 예측)</code>은 정확도, <code>final.predict</code>는 확률 0.5를 임계값으로 쓴 0/1 예측입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>모두 0으로 예측하면 0.9592.</b> 모형 없이도 95.9%를 맞힙니다.</span></li>
+<li><span class="mk">2</span><span><b>모형은 0.9632.</b> 0.4%p 높을 뿐입니다.</span></li>
+<li><span class="mk">3</span><span><b>1로 예측한 사람 29명.</b> 임계값 0.5에서는 3,750명 가운데 29명만 고위험이 됩니다. 입원할 153명 대부분을 놓치는데도 정확도는 높습니다. 드문 결과에서는 정확도로 모형을 고르지 않습니다.</span></li>
+</ol>
+
+<h3>혼동행렬과 정밀도·재현율·F1</h3>
+<!--FIG:ml00_cm-->
+<p>임계값을 정해 0/1로 바꾸는 법과 <strong>혼동행렬</strong><span class="en">(confusion matrix, 교재에 따라 오차 행렬)</span>의 배치(행은 실제, 열은 예측, 0이 먼저)는 <a href="stats.html#lab09-s4">실습 9 라 절</a>과 같습니다. 새로 쓴 것은 <code>precision_score</code>, <code>recall_score</code>, <code>f1_score</code>이고, 모두 (실제, 0/1 예측) 순서로 넣으며 1을 관심 사건으로 봅니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>첫 줄 [3419 178].</b> 실제로 입원하지 않은 3,597명 가운데 3,419명은 저위험(참음성), 178명은 고위험(위양성)입니다.</span></li>
+<li><span class="mk">2</span><span><b>둘째 줄 [100 53].</b> 실제 입원 153명 가운데 100명을 놓쳤고(위음성) 53명을 잡았습니다(참양성).</span></li>
+<li><span class="mk">3</span><span><b>정밀도 0.229.</b> 고위험 231명(6.2%) 가운데 실제 입원은 4–5명 중 1명입니다. 그래도 전체 입원 비율 4.1%의 5.6배입니다.</span></li>
+<li><span class="mk">4</span><span><b>재현율 0.346.</b> 입원할 사람의 3분의 1을 잡아냅니다.</span></li>
+<li><span class="mk">5</span><span><b>F1 0.276.</b> 임계값을 낮추면 재현율은 오르고 정밀도는 대개 내려갑니다. 0.10은 "6%를 골라 퇴원 후 약사 상담을 한다"처럼 쓰임새를 가정한 예시이고, 임계값을 고르는 방법과 예측 확률이 실제 비율과 맞는지 보는 교정<span class="en">(calibration)</span>은 나중에 다룹니다.</span></li>
+</ol>
+
+<h3>ROC 곡선과 정밀도-재현율 곡선</h3>
+<!--FIG:ml00_curves-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>roc_curve(y_test, p_final)</code><span>임계값을 1에서 0까지 내리며 1 − 특이도와 민감도를 계산합니다(<a href="stats.html#lab09-s4">실습 9 라 절</a>). 세 번째로 돌려주는 임계값 배열은 쓰지 않아 <code>_</code>에 담았습니다.</span></li>
+<li><code>precision_recall_curve(y_test, p_final)</code><span>같은 방식으로 임계값마다 정밀도와 재현율을 계산해 (정밀도, 재현율, 임계값) 순서로 돌려줍니다. ROC와 순서가 달라 이름을 바꿔 담지 않도록 주의합니다.</span></li>
+<li><code>average_precision_score(y_test, p_final)</code><span><strong>평균 정밀도</strong><span class="en">(average precision, AP)</span>입니다. 정밀도-재현율 곡선 아래 넓이를 계단 모양으로 더한 값으로, 0과 1 사이이고 클수록 좋습니다.</span></li>
+<li><code>fig, ax = plt.subplots(1, 2, figsize=(9, 3.8))</code><span>한 줄에 그림 두 칸을 만듭니다. <code>ax[0]</code>이 왼쪽, <code>ax[1]</code>이 오른쪽입니다.</span></li>
+<li><code>ax[1].axhline(y_test.mean(), ls="--")</code><span>오른쪽 그림에 입원 비율(0.041) 높이의 가로 점선을 긋습니다. 아무렇게나 고르는 모형의 정밀도입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>AUC 0.742.</b> 입원한 사람과 입원하지 않은 사람을 한 명씩 뽑았을 때 입원한 사람의 예측 확률이 더 높을 확률이 74.2%라는 뜻입니다. 왼쪽 그림의 곡선 아래 넓이입니다. ROC 곡선의 해석은 <a href="stats.html#ap01-s2">통계 부록 A 나 절</a>과 통계 9장에 자세히 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>AP 0.268.</b> 오른쪽 그림의 기준선(입원 비율 0.041)의 6.6배입니다. 곡선의 왼쪽(재현율이 낮은 곳)은 위험이 가장 높은 소수만 고른 경우라 정밀도가 높고, 오른쪽으로 갈수록 더 많은 사람을 고위험으로 잡으면서 정밀도가 기준선 쪽으로 떨어집니다. 드문 결과에서는 ROC 곡선이 무난해 보여도 정밀도가 낮을 수 있다는 점을 이 그림이 바로 보여 줍니다. AP는 사건 비율에 따라 크기가 달라지므로 다른 자료의 AP와 직접 비교하지 않습니다.</span></li>
+</ol>
+
+<h3>회귀의 지표</h3>
+<!--FIG:ml00_reg-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>c_train = df.loc[X_train.index, "cost_2023"]</code><span><code>train_test_split</code>는 원래 행 번호(인덱스)를 그대로 가져가므로, 그 번호로 같은 사람들의 2023년 의료비를 꺼냅니다. 회귀도 분류와 같은 분할을 씁니다.</span></li>
+<li><code>reg = make_pipe(LinearRegression())</code><span>다 절의 전처리에 선형회귀를 붙였습니다.</span></li>
+<li><code>mean_absolute_error(c_test, c_pred)</code><span>MAE입니다. (실제, 예측) 순서로 넣습니다.</span></li>
+<li><code>np.sqrt(mean_squared_error(c_test, c_pred))</code><span>평균제곱오차(MSE)에 제곱근을 씌운 RMSE입니다. 최신 버전에는 <code>root_mean_squared_error</code>가 따로 있지만(1.4부터) 어느 버전에서나 되도록 이렇게 씁니다.</span></li>
+<li><code>r2_score(c_test, c_pred)</code><span>시험 자료에서 계산한 R²입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>MAE 183.0만원.</b> 시험 자료 한 사람당 예측이 평균 183만원쯤 빗나갑니다.</span></li>
+<li><span class="mk">2</span><span><b>RMSE 430.1만원.</b> MAE의 2.4배입니다. 아래 셀에서 이유를 봅니다.</span></li>
+<li><span class="mk">3</span><span><b>R² 0.445.</b> 모두에게 평균 의료비를 예측할 때보다 제곱오차의 합을 44.5% 줄였다는 뜻입니다.</span></li>
+<li><span class="mk">4</span><span><b>음수 예측 196명(5.2%).</b> 선형회귀는 직선이라 의료비가 0원보다 작다고 예측하기도 합니다. 5장에서 다룹니다.</span></li>
+</ol>
+<!--FIG:ml00_maerms-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>err = (c_test - c_pred).to_numpy()</code><span>사람마다의 오차(실제 − 예측)를 numpy 배열로 만듭니다.</span></li>
+<li><code>np.argsort(np.abs(err))[-10:]</code><span><code>argsort</code>는 값을 작은 순서로 늘어놓았을 때의 자리 번호를 돌려줍니다. 끝의 10개(<code>[-10:]</code>)가 오차가 가장 큰 10명의 자리입니다.</span></li>
+<li><code>np.setdiff1d(np.arange(len(err)), top)</code><span>0부터 3,749까지의 자리 가운데 <code>top</code>에 없는 것, 곧 나머지 3,740명의 자리입니다.</span></li>
+<li><code>mae = lambda e: np.abs(e).mean()</code><span>한 줄짜리 함수입니다(<a href="stats.html#lab06-s4">실습 6 라 절</a>). <code>rmse</code>도 같은 방식입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>MAE 183.0 → 170.4.</b> 10명을 빼도 7% 줄 뿐입니다.</span></li>
+<li><span class="mk">2</span><span><b>RMSE 430.1 → 324.5.</b> 25% 줄었습니다.</span></li>
+<li><span class="mk">3</span><span><b>0.432.</b> 3,750명 가운데 10명(0.3%)이 제곱오차 합의 43%를 차지합니다. 의료비처럼 치우친 결과에서 RMSE는 소수의 고비용 환자를 얼마나 맞히느냐에 크게 좌우되고, MAE는 전형적인 사람의 오차를 보여 줍니다. 총액이나 예산을 맞히는 것이 목적이면 RMSE가, 개인별 예측의 전형적인 오차가 관심이면 MAE가 더 알맞으므로 두 값을 함께 보고합니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">정확도가 96.3%이므로 이 모형은 입원을 잘 예측한다.</span> 모두를 '입원 안 함'으로 예측해도 95.9%입니다. 드문 결과에서는 AUC, 정밀도, 재현율을 봅니다.</li>
+<li><span class="wrong">AUC 0.742는 환자의 74.2%를 맞게 분류한다는 뜻이다.</span> AUC는 입원자와 비입원자 한 쌍의 순서를 맞게 매길 확률입니다. 몇 명을 맞히는지는 임계값에 따라 다르며, 임계값 0.10에서 정확도는 92.6%, 0.5에서는 96.3%였습니다(<a href="stats.html#ch09-s1">통계 9장</a>의 흔한 오해 상자).</li>
+</ul></div>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 예측모형의 Results</b><span>이 장의 결과로 만든 가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">In the test set (n = 3,750; 153 emergency admissions [4.1%]), the model had an <span class="hl">AUC of 0.742 (95% bootstrap CI, 0.695 to 0.785)</span> <span class="mk">1</span> and an <span class="hl">average precision of 0.27</span> <span class="mk">2</span>. At a predicted-risk threshold of 0.10, 231 patients (6.2%) were classified as high risk, with a <span class="hl">precision (positive predictive value) of 22.9% (53/231) and a recall (sensitivity) of 34.6% (53/153)</span> <span class="mk">3</span>. For medical costs in 2023, the linear regression model had a <span class="hl">mean absolute error of 1.83 million KRW, a root mean squared error of 4.30 million KRW, and an R² of 0.445</span> <span class="mk">4</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>AUC와 신뢰구간.</b> 셀 19와 22의 0.742입니다. 신뢰구간은 시험 자료 3,750명을 1,000번 복원추출해 AUC를 다시 계산하고 2.5와 97.5 백분위수를 취한 것으로, 시험 자료 153명의 사건에서 오는 불확실성만 반영합니다. 이 장의 셀에는 넣지 않았지만 <a href="stats.html#lab09-s4">실습 9 라 절</a>의 부트스트랩 셀(seed 2026)에서 <code>p_test</code>를 <code>p_final</code>로 바꿔 실행하면 같은 구간이 나옵니다. 두 모형의 AUC가 0.01–0.02 다를 때 이 폭(약 ±0.045)을 함께 보면 과대해석을 피할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>평균 정밀도.</b> 셀 22의 0.268입니다. 사건 비율(4.1%)을 함께 적어야 크기를 읽을 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>임계값을 밝힌 정밀도와 재현율.</b> 셀 21입니다. 분자와 분모를 함께 적으면 독자가 혼동행렬을 다시 만들 수 있습니다. 임계값이 바뀌면 두 값이 모두 바뀌므로 임계값 없이 적힌 정밀도·재현율은 읽을 수 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>회귀 지표와 단위.</b> 셀 23의 183.0만원과 430.1만원을 원 단위로 옮겼습니다(183.0만원 = 1,830,000원). MAE와 RMSE는 결과와 같은 단위이므로 단위를 꼭 적고, R²는 단위가 없습니다. 치우친 비용에서 RMSE가 MAE보다 훨씬 큰 것은 정상이며 셀 24처럼 소수의 고비용 환자 때문입니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>드문 결과에서 정확도는 쓸모가 적습니다(모두 0으로 예측해도 95.9%). 순서를 보는 AUC와, 임계값을 밝힌 정밀도(양성예측도)·재현율(민감도)·F1을 함께 봅니다.</li>
+<li>정밀도-재현율 곡선과 AP는 드문 결과에서 고위험군의 정밀도가 얼마나 낮은지 보여 줍니다. 기준선은 사건 비율입니다.</li>
+<li>회귀는 MAE(전형적인 오차), RMSE(큰 오차에 민감), R²(평균 예측 대비 개선)를 함께 보고합니다. 치우친 비용에서는 오차가 가장 큰 10명이 제곱오차의 43%를 차지했습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 바 -->
+<section class="sec" id="ml00-s6">
+<h2><span class="sec-no">바.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 특성 묶음 바꾸기</h3>
+<p>의료이용과 건강검진 없이 나이, 성별, 소득 분위, 진단 15개, 처방 6개(숫자 열)와 보험 종류, 지역(글자 열)만 쓰는 파이프라인을 <code>make_pipe</code>의 <code>num</code>, <code>cat</code> 인자로 만드세요. 셀 16의 <code>skf</code>로 교차검증 AUC를 구해 모든 특성을 쓴 파이프라인과 비교하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml00_hw1-->
+<p><code>ColumnTransformer</code>는 목록에 없는 열을 버리므로 <code>X_train</code>을 그대로 넘겨도 됩니다. 진단·처방과 인구학적 특성만 쓴 모형의 교차검증 AUC는 0.731, 모든 특성은 0.748입니다. 같은 다섯 겹에서 겹마다 비교하면 다섯 겹 모두 모든 특성 쪽이 높았습니다(0.722 대 0.739 … 0.716 대 0.732). 차이 0.017은 겹 사이 SD(0.02)와 비슷한 크기이지만, 같은 사람들로 짝지어 비교한 차이가 다섯 번 모두 같은 방향이므로 우연만으로 생긴 차이로 보기는 어렵습니다. 의료이용과 검진이 진단·처방 목록에 더해 주는 정보가 있다는 뜻입니다. 시험 자료는 쓰지 않았습니다. 특성 묶음을 고르는 것도 모형을 고르는 일이기 때문입니다.</p>
+</div></details>
+
+<h3>과제 2. k 바꾸기</h3>
+<p>C = 1인 파이프라인(<code>make_pipe(LogisticRegression(max_iter=1000))</code>)의 교차검증을 k = 3, 5, 10으로 해서 AUC의 평균, 겹 사이 SD, 최솟값, 최댓값을 비교하세요. 힌트. <code>StratifiedKFold</code>의 <code>n_splits</code>만 바꿉니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml00_hw2-->
+<p>평균은 0.746, 0.748, 0.745로 거의 같습니다. 겹 사이 SD는 0.013, 0.022, 0.029로 k가 클수록 커지고 최솟값과 최댓값의 폭도 넓어집니다(k = 10에서 0.701–0.799). k가 크면 검증 겹이 작아지기 때문입니다. k = 10의 검증 겹은 1,125명에 입원이 46명 안팎이라 겹 하나의 AUC가 크게 흔들립니다. 반대로 학습 겹은 7,500명(k = 3)에서 10,125명(k = 10)으로 커져 최종 모형(11,250명)에 가까워지고, 계산은 k번 합니다. 흔히 5나 10을 쓰며, 결과가 흔들리면 겹 나누기를 seed만 바꿔 여러 번 되풀이한 평균을 씁니다. 겹 사이 SD는 평균의 표준오차가 아니라는 점도 기억해 둡니다.</p>
+</div></details>
+
+<h3>과제 3. 로그 변환한 목표</h3>
+<p>2023년 의료비를 log(1 + 비용)으로 바꿔 선형회귀를 다시 맞추세요. 치우친 특성 세 개(<code>n_outpt</code>, <code>los_days</code>, <code>cost_2022</code>)도 <code>np.log1p</code>로 바꿉니다. 원래 단위(만원)에서 MAE, RMSE, R²와 예측값의 평균을 셀 23의 모형과 비교하세요. 힌트. <code>TransformedTargetRegressor(regressor=LinearRegression(), func=np.log1p, inverse_func=np.expm1)</code>은 목표를 <code>func</code>로 바꿔 학습하고 예측값을 <code>inverse_func</code>로 되돌려 줍니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml00_hw3-->
+<p>특성 변환은 사람마다 따로 계산하고 학습 자료에서 구하는 기준값이 없으므로 나누기 전에 해도 누수가 없지만, 학습 자료와 시험 자료에 똑같이 적용해야 합니다(<code>.copy()</code>로 원본은 그대로 둡니다). 로그 모형은 MAE 183.0 → 156.7, RMSE 430.1 → 414.7, R² 0.445 → 0.484로 세 지표가 모두 나아졌습니다. 2023년 의료비가 2022년 의료비에 비례해 곱하기 꼴로 움직이는 구조를 로그 척도의 직선이 더 잘 잡기 때문입니다. 그러나 예측의 평균은 197.6만원으로 실제 평균 281.5만원보다 30% 낮습니다. 로그 척도의 예측을 되돌리면 산술평균이 아니라 기하평균에 가까운 값이 나오기 때문이며, 환자 수를 곱해 총 의료비나 예산을 추정하면 크게 모자랍니다. 이 재변환 문제와 smearing 보정은 <a href="stats.html#ch21-s2">통계 21장 나 절</a>에 있고 5장에서 다시 다룹니다. 특성 세 개를 원래대로 두고 목표만 로그로 바꾸면, 2022년 의료비가 큰 사람에서 로그 척도의 직선이 지수함수로 되돌려지며 한 사람의 예측이 56.6억 원(565,704만원)까지 커지고 R²가 −256이 됩니다. 목표를 바꾸면 특성의 척도도 함께 살펴야 합니다.</p>
+</div></details>
+</section>

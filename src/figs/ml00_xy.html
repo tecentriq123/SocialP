@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">특성 X와 목표 y</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">y = df[&quot;admit_2023&quot;]                                  # 목표
+X = df.drop(columns=[&quot;id&quot;, &quot;admit_2023&quot;, &quot;cost_2023&quot;])  # 특성
+print(X.shape, y.shape)
+print(X.dtypes.value_counts())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(15000, 39) (15000,)<span class="mk">1</span>
+int64      30
+float64     5
+str         4<span class="mk">2</span>
+Name: count, dtype: int64</pre></div></div>

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">이 과목의 분할 (모든 장이 같은 분할)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=2026)
+print(X_train.shape, X_test.shape)
+print(&quot;events:&quot;, y_train.sum(), y_test.sum())
+print(&quot;rate  :&quot;, round(y_train.mean(), 4), round(y_test.mean(), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(11250, 39) (3750, 39)<span class="mk">1</span>
+events: 459 153<span class="mk">2</span>
+rate  : 0.0408 0.0408<span class="mk">3</span></pre></div></div>

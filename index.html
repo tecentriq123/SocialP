@@ -138,6 +138,7 @@ a.part-card:hover { border-color: var(--accent); }
 .part-head h1 { font-family: var(--f-serif); font-size: clamp(28px, 4.5vw, 38px); margin: 0 0 12px; letter-spacing: -.02em; }
 .part-head p { color: var(--ink-2); margin: 0 0 8px; }
 .part-grid { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 40px; align-items: start; }
+.part-grid.one { grid-template-columns: minmax(0, 46rem); }
 .toc-part { margin-bottom: 36px; }
 .toc-part > h2 { font-size: 13px; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
 .toc-part > .tp-title { font-family: var(--f-serif); font-size: 22px; font-weight: 600; margin: 0 0 14px; }
@@ -601,7 +602,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 <main id="app" class="page"></main>
 <div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
 
-<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 23개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": null, "status": "준비 중", "desc": "넘파이·판다스 기초에서 시작해 사이킷런으로 분류, 회귀, 평가, 군집화를 다루고, 의료 자료로 예측모형을 만들고 논문의 예측모형을 읽는 법까지 이어집니다.", "meta": ["파이썬 기초 · 분류 · 회귀 · 평가 · 군집화", "의료 예측모형"]}]}</script>
+<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 23개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": "ml.html", "status": "1/7장 공개", "desc": "정답이 있는 자료로 예측모형을 만드는 지도학습. 사이킷런으로 자료 나누기와 교차검증을 익힌 뒤 결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. 모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.", "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]}]}</script>
 
 
 <script>
@@ -720,6 +721,18 @@ function typesetNow() {
         }
       } else toc += list.map(row).join("");
       toc += "</section>";
+    }
+    if (COURSE.intro) {
+      app.innerHTML = `<div class="wrap">
+      <header class="part-head">
+        <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>${esc(COURSE.title)}</span></p>
+        <h1>${esc(COURSE.title)}</h1>
+        ${COURSE.intro.head}
+      </header>
+      <div class="start-grid">${COURSE.intro.start}</div>
+      <div class="part-grid one"><div>${toc}</div></div>
+    </div>`;
+      return;
     }
     app.innerHTML = `<div class="wrap">
       <header class="part-head">
@@ -984,6 +997,7 @@ function typesetNow() {
     let cur = null;
     if (HOME) {
       // old links such as index.html#ch11-s1 pointed at the single-file site: send them to the course page
+      if (/^ml\d\d/.test(h) || h === "ml") { location.replace("ml.html#" + (h === "ml" ? "toc" : h)); return; }
       if (/^(?:(?:ch|lab|rv|ap)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
       renderHome(); window.scrollTo(0, 0);
     }
@@ -991,7 +1005,7 @@ function typesetNow() {
     else if (!h || h === "toc" || h === COURSE.key) { renderPart(); window.scrollTo(0, 0); }
     else if (h.startsWith("search")) { renderSearch(h.slice(7)); window.scrollTo(0, 0); }
     else {
-      const m = h.match(/^((?:ch|lab|rv|ap)\d\d)(?:-(.+))?$/);
+      const m = h.match(/^((?:ch|lab|rv|ap|ml)\d\d)(?:-(.+))?$/);
       if (m) {
         cur = m[1];
         const already = app.dataset.ch === cur && document.getElementById("article");

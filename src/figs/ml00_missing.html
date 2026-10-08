@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">결측이 있는 열과 나이별 검진 결측</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">miss = df.isna().mean().round(3)          # 열마다 결측 비율
+print(miss[miss &gt; 0])
+
+age_grp = pd.cut(df[&quot;age&quot;], [39, 64, 79, 99])
+print(df[&quot;bmi&quot;].isna().groupby(age_grp, observed=True)
+      .mean().round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bmi        0.307<span class="mk">1</span>
+sbp        0.307
+fbg        0.313
+egfr       0.314
+smoking    0.320
+alcohol    0.324<span class="mk">2</span>
+dtype: float64
+age
+(39, 64]    0.273
+(64, 79]    0.313
+(79, 99]    0.576<span class="mk">3</span>
+Name: bmi, dtype: float64</pre></div></div>

@@ -1,0 +1,44 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">숫자 열과 범주 열</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cat_cols = [&quot;insurance&quot;, &quot;region&quot;, &quot;smoking&quot;, &quot;alcohol&quot;]
+num_cols = [c for c in X.columns if c not in cat_cols]
+print(len(num_cols), &quot;numeric,&quot;, len(cat_cols), &quot;categorical&quot;)
+X_train[cat_cols].head(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>35 numeric, 4 categorical<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>insurance</th>
+      <th>region</th>
+      <th>smoking</th>
+      <th>alcohol</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>471</th>
+      <td>nhi</td>
+      <td>metro</td>
+      <td>current</td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <th>632</th>
+      <td>nhi</td>
+      <td>city</td>
+      <td>NaN<span class="mk">2</span></td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5359</th>
+      <td>nhi</td>
+      <td>metro</td>
+      <td>never</td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <th>13461</th>
+      <td>nhi</td>
+      <td>rural</td>
+      <td>never</td>
+      <td>none</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

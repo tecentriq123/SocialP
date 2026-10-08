@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">과제 3 정답. 로그 변환한 목표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.compose import TransformedTargetRegressor
+
+skewed = [&quot;n_outpt&quot;, &quot;los_days&quot;, &quot;cost_2022&quot;]
+Xtr_log, Xte_log = X_train.copy(), X_test.copy()
+for col in skewed:                       # 치우친 특성도 log(1 + x)로
+    Xtr_log[col] = np.log1p(Xtr_log[col])
+    Xte_log[col] = np.log1p(Xte_log[col])
+
+log_model = TransformedTargetRegressor(
+    regressor=LinearRegression(),
+    func=np.log1p, inverse_func=np.expm1)    # 목표도 log(1 + 비용)
+reg_log = make_pipe(log_model)
+reg_log.fit(Xtr_log, c_train)
+c_pred_log = reg_log.predict(Xte_log)        # 만원 단위로 되돌린 예측
+
+for name, pr in [(&quot;raw&quot;, c_pred), (&quot;log&quot;, c_pred_log)]:
+    print(f&quot;{name}  MAE {mean_absolute_error(c_test, pr):5.1f}&quot;
+          f&quot;  RMSE {np.sqrt(mean_squared_error(c_test, pr)):5.1f}&quot;
+          f&quot;  R2 {r2_score(c_test, pr):.3f}&quot;
+          f&quot;  mean of predictions {pr.mean():5.1f}&quot;)
+print(&quot;mean of actual cost:&quot;, round(c_test.mean(), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>raw  MAE 183.0  RMSE 430.1  R2 0.445  mean of predictions 285.9
+log  MAE 156.7  RMSE 414.7  R2 0.484  mean of predictions 197.6
+mean of actual cost: 281.5</pre></div></div>

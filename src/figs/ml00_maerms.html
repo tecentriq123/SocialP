@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">치우친 비용에서 MAE와 RMSE</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">err = (c_test - c_pred).to_numpy()
+top = np.argsort(np.abs(err))[-10:]        # 오차가 가장 큰 10명
+rest = np.setdiff1d(np.arange(len(err)), top)
+mae = lambda e: np.abs(e).mean()
+rmse = lambda e: np.sqrt((e ** 2).mean())
+print(&quot;MAE  all / without top 10:&quot;,
+      round(mae(err), 1), round(mae(err[rest]), 1))
+print(&quot;RMSE all / without top 10:&quot;,
+      round(rmse(err), 1), round(rmse(err[rest]), 1))
+print(&quot;share of squared error from top 10:&quot;,
+      round((err[top] ** 2).sum() / (err ** 2).sum(), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MAE  all / without top 10: 183.0 170.4<span class="mk">1</span>
+RMSE all / without top 10: 430.1 324.5<span class="mk">2</span>
+share of squared error from top 10: 0.432<span class="mk">3</span></pre></div></div>

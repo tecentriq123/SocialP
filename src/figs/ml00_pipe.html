@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">ColumnTransformer와 Pipeline</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+def make_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;전처리(결측 대체, 표준화, 원-핫)와 모형을 묶습니다.&quot;&quot;&quot;
+    num_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;median&quot;)),
+        (&quot;scale&quot;, StandardScaler())])
+    cat_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;constant&quot;,
+                                 fill_value=&quot;missing&quot;)),
+        (&quot;onehot&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;,
+                                 sparse_output=False))])
+    prep = ColumnTransformer([(&quot;num&quot;, num_steps, num),
+                              (&quot;cat&quot;, cat_steps, cat)])
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
+
+pipe = make_pipe(LogisticRegression(max_iter=1000))
+pipe.fit(X_train, y_train)
+Z = pipe.named_steps[&quot;prep&quot;].transform(X_test)
+print(&quot;after prep:&quot;, Z.shape)
+p_test = pipe.predict_proba(X_test)[:, 1]
+print(&quot;test AUC:&quot;, round(roc_auc_score(y_test, p_test), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>after prep: (3750, 48)<span class="mk">1</span>
+test AUC: 0.74<span class="mk">2</span></pre></div></div>

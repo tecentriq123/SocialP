@@ -1,0 +1,66 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">조절값 C 고르기 (GridSearchCV)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import GridSearchCV
+
+grid = {&quot;model__C&quot;: [0.001, 0.01, 0.1, 1, 10, 100]}
+gs = GridSearchCV(make_pipe(LogisticRegression(max_iter=1000)),
+                  grid, cv=skf, scoring=&quot;roc_auc&quot;)
+gs.fit(X_train, y_train)
+print(&quot;best:&quot;, gs.best_params_, round(gs.best_score_, 4))
+
+res = pd.DataFrame(gs.cv_results_)
+show = [&quot;param_model__C&quot;, &quot;mean_test_score&quot;, &quot;std_test_score&quot;,
+        &quot;rank_test_score&quot;]
+res[show].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>best: {&#x27;model__C&#x27;: 0.1} 0.7486<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>param_model__C</th>
+      <th>mean_test_score</th>
+      <th>std_test_score</th>
+      <th>rank_test_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.001</td>
+      <td>0.7415<span class="mk">2</span></td>
+      <td>0.0244</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.010</td>
+      <td>0.7475</td>
+      <td>0.0223</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.100</td>
+      <td>0.7486</td>
+      <td>0.0220<span class="mk">4</span></td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.000</td>
+      <td>0.7480<span class="mk">3</span></td>
+      <td>0.0219</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.000</td>
+      <td>0.7481</td>
+      <td>0.0220</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>100.000</td>
+      <td>0.7481</td>
+      <td>0.0220</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

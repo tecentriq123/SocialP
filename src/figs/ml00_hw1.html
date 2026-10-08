@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 1 정답. 특성 묶음 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">comorb = [&quot;htn&quot;, &quot;dm&quot;, &quot;dyslip&quot;, &quot;ckd&quot;, &quot;hf&quot;, &quot;af&quot;, &quot;cad&quot;, &quot;stroke&quot;,
+          &quot;copd&quot;, &quot;asthma&quot;, &quot;depress&quot;, &quot;dementia&quot;, &quot;cancer&quot;,
+          &quot;liver&quot;, &quot;oa&quot;]
+drugs = [&quot;anticoag&quot;, &quot;insulin&quot;, &quot;opioid&quot;, &quot;benzo&quot;, &quot;antipsych&quot;,
+         &quot;diuretic&quot;]
+small = make_pipe(LogisticRegression(max_iter=1000),
+                  num=[&quot;age&quot;, &quot;female&quot;, &quot;income_q&quot;] + comorb + drugs,
+                  cat=[&quot;insurance&quot;, &quot;region&quot;])
+full = make_pipe(LogisticRegression(max_iter=1000))
+for name, p in [(&quot;dx + drugs only&quot;, small), (&quot;all features&quot;, full)]:
+    s = cross_val_score(p, X_train, y_train, cv=skf,
+                        scoring=&quot;roc_auc&quot;)
+    print(f&quot;{name:16s} CV AUC {s.mean():.3f} (SD {s.std():.3f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>dx + drugs only  CV AUC 0.731 (SD 0.019)
+all features     CV AUC 0.748 (SD 0.022)</pre></div></div>

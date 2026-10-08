@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">과제 2 정답. k 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for k in [3, 5, 10]:
+    cv_k = StratifiedKFold(n_splits=k, shuffle=True,
+                           random_state=2026)
+    s = cross_val_score(make_pipe(LogisticRegression(max_iter=1000)),
+                        X_train, y_train, cv=cv_k, scoring=&quot;roc_auc&quot;)
+    print(f&quot;k={k:2d}  train per fold {len(X_train) * (k - 1) // k:5d}&quot;
+          f&quot;  mean {s.mean():.3f}  SD {s.std():.3f}&quot;
+          f&quot;  min {s.min():.3f}  max {s.max():.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>k= 3  train per fold  7500  mean 0.746  SD 0.013  min 0.732  max 0.764
+k= 5  train per fold  9000  mean 0.748  SD 0.022  min 0.727  max 0.787
+k=10  train per fold 10125  mean 0.745  SD 0.029  min 0.701  max 0.799</pre></div></div>

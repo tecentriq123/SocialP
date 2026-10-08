@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">회귀: 2023년 의료비 예측</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.linear_model import LinearRegression
+from sklearn.metrics import (mean_absolute_error,
+                             mean_squared_error, r2_score)
+
+c_train = df.loc[X_train.index, &quot;cost_2023&quot;]    # 같은 사람들의 비용
+c_test = df.loc[X_test.index, &quot;cost_2023&quot;]
+reg = make_pipe(LinearRegression())
+reg.fit(X_train, c_train)
+c_pred = reg.predict(X_test)
+
+print(&quot;MAE :&quot;, round(mean_absolute_error(c_test, c_pred), 1))
+print(&quot;RMSE:&quot;, round(np.sqrt(mean_squared_error(c_test, c_pred)), 1))
+print(&quot;R2  :&quot;, round(r2_score(c_test, c_pred), 3))
+print(&quot;negative predictions:&quot;, (c_pred &lt; 0).sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MAE : 183.0<span class="mk">1</span>
+RMSE: 430.1<span class="mk">2</span>
+R2  : 0.445<span class="mk">3</span>
+negative predictions: 196<span class="mk">4</span></pre></div></div>

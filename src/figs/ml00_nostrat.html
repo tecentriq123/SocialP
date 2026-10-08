@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">stratify 없이 나누면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for seed in [1, 2, 3, 4, 5]:
+    _, _, _, yt = train_test_split(X, y, test_size=0.25,
+                                   random_state=seed)
+    print(&quot;seed&quot;, seed, &quot;events in test:&quot;, yt.sum(),
+          &quot; rate:&quot;, round(yt.mean(), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>seed 1 events in test: 152  rate: 0.0405
+seed 2 events in test: 159  rate: 0.0424
+seed 3 events in test: 154  rate: 0.0411
+seed 4 events in test: 160<span class="mk">2</span>  rate: 0.0427
+seed 5 events in test: 138<span class="mk">1</span>  rate: 0.0368</pre></div></div>

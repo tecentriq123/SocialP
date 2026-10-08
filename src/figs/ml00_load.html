@@ -1,0 +1,97 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">공통 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+df = pd.read_csv(BASE + &quot;ml_claims.csv&quot;)
+print(df.shape)
+df.head(3).T                     # 앞 3명을 세로로 돌려 보기</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(15000, 42)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>id</th>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>45</td>
+      <td>40</td>
+      <td>72</td>
+    </tr>
+    <tr>
+      <th>female</th>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>insurance</th>
+      <td>nhi</td>
+      <td>nhi</td>
+      <td>nhi</td>
+    </tr>
+    <tr>
+      <th>income_q</th>
+      <td>4</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>region</th>
+      <td>city</td>
+      <td>metro</td>
+      <td>rural</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>fbg</th>
+      <td>92.0</td>
+      <td>NaN<span class="mk">2</span></td>
+      <td>95.0</td>
+    </tr>
+    <tr>
+      <th>egfr</th>
+      <td>96.0</td>
+      <td>NaN</td>
+      <td>105.0</td>
+    </tr>
+    <tr>
+      <th>smoking</th>
+      <td>former</td>
+      <td>NaN</td>
+      <td>never</td>
+    </tr>
+    <tr>
+      <th>alcohol</th>
+      <td>none</td>
+      <td>NaN</td>
+      <td>none</td>
+    </tr>
+    <tr>
+      <th>admit_2023</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>cost_2023</th>
+      <td>7.2</td>
+      <td>63.0</td>
+      <td>251.5</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

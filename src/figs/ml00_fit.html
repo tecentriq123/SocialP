@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">fit과 predict</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.linear_model import LogisticRegression
+
+cols3 = [&quot;age&quot;, &quot;n_ed&quot;, &quot;n_drugs&quot;]       # 결측이 없는 특성 3개
+model = LogisticRegression()             # (1) 모형을 고른다
+model.fit(X[cols3], y)                   # (2) 정답이 있는 자료로 배운다
+
+new = pd.DataFrame({&quot;age&quot;: [55, 85], &quot;n_ed&quot;: [0, 2],
+                    &quot;n_drugs&quot;: [3, 11]})  # 새로운 두 사람
+print(model.predict(new))                # (3) 예측: 0 또는 1
+print(model.predict_proba(new).round(3)) #     예측: 확률</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[0 0]<span class="mk">1</span>
+[[0.978 0.022]<span class="mk">2</span>
+ [0.64  0.36 ]<span class="mk">3</span>]</pre></div></div>
