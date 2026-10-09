@@ -1,0 +1,85 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">무작위 탐색 결과를 표로 (cv_results_)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = pd.DataFrame(rs.cv_results_)
+show = res[[&quot;param_model__max_features&quot;,
+            &quot;param_model__min_samples_leaf&quot;,
+            &quot;param_model__max_samples&quot;, &quot;param_model__criterion&quot;,
+            &quot;mean_test_score&quot;, &quot;std_test_score&quot;, &quot;rank_test_score&quot;]]
+show.columns = [&quot;max_feat&quot;, &quot;min_leaf&quot;, &quot;max_samp&quot;, &quot;criterion&quot;,
+                &quot;mean AUC&quot;, &quot;SD&quot;, &quot;rank&quot;]
+print(&quot;best of the first 16 draws:&quot;,
+      round(res[&quot;mean_test_score&quot;][:16].max(), 4))
+show.sort_values(&quot;rank&quot;).head(6).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>best of the first 16 draws: 0.7597<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>max_feat</th>
+      <th>min_leaf</th>
+      <th>max_samp</th>
+      <th>criterion</th>
+      <th>mean AUC</th>
+      <th>SD</th>
+      <th>rank</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>9</th>
+      <td>7</td>
+      <td>50</td>
+      <td>0.692</td>
+      <td>entropy</td>
+      <td>0.760<span class="mk">2</span></td>
+      <td>0.013</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>4</td>
+      <td>33</td>
+      <td>0.331</td>
+      <td>gini</td>
+      <td>0.759</td>
+      <td>0.012</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>15</td>
+      <td>69</td>
+      <td>0.568</td>
+      <td>gini</td>
+      <td>0.758</td>
+      <td>0.017</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>3</td>
+      <td>11</td>
+      <td>0.352</td>
+      <td>entropy</td>
+      <td>0.758</td>
+      <td>0.014</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>19</td>
+      <td>92</td>
+      <td>0.838</td>
+      <td>entropy</td>
+      <td>0.758</td>
+      <td>0.014</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>41</td>
+      <td>0.352</td>
+      <td>entropy</td>
+      <td>0.758</td>
+      <td>0.013</td>
+      <td>6</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

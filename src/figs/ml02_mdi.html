@@ -1,0 +1,56 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">불순도 기반 중요도 (feature_importances_)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">names = final[:-1].get_feature_names_out()   # 전처리 뒤 48열의 이름
+print(names[:3], names[-3:])
+
+def original(name):
+    &quot;&quot;&quot;원-핫 열 이름을 원래 열로: &#x27;region_metro&#x27; → &#x27;region&#x27;&quot;&quot;&quot;
+    for c in cat_cols:
+        if name.startswith(c + &quot;_&quot;):
+            return c
+    return name
+
+mdi = pd.Series(final[-1].feature_importances_, index=names)
+mdi = mdi.groupby([original(nm) for nm in names]).sum()  # 39개로
+print(len(mdi), round(mdi.sum(), 3))
+mdi.sort_values(ascending=False).head(8).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[&#x27;age&#x27; &#x27;female&#x27; &#x27;income_q&#x27;]<span class="mk">1</span> [&#x27;alcohol_missing&#x27; &#x27;alcohol_moderate&#x27; &#x27;alcohol_none&#x27;]
+39 1.0<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>age</th>
+      <td>0.380</td>
+    </tr>
+    <tr>
+      <th>n_drugs</th>
+      <td>0.234</td>
+    </tr>
+    <tr>
+      <th>dementia</th>
+      <td>0.081</td>
+    </tr>
+    <tr>
+      <th>cost_2022</th>
+      <td>0.077<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>n_outpt</th>
+      <td>0.040</td>
+    </tr>
+    <tr>
+      <th>bmi</th>
+      <td>0.034</td>
+    </tr>
+    <tr>
+      <th>ckd</th>
+      <td>0.025</td>
+    </tr>
+    <tr>
+      <th>smoking</th>
+      <td>0.022</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

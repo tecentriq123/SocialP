@@ -28,7 +28,17 @@
   6. 논문 상자(`<div class="paper">`, 통계 과목 장과 같은 마크업): 실제 결과 숫자로 만든 영어 Methods·Results 문장과 번호 해설. 절마다 필수는 아님(장에 한두 개)
   7. `<div class="keypoints">` 정리
 - 마지막 절 '과제': 과제 세 개(쉬운 것부터), `<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>…</div></details>`(LAB_B_BRIEF와 같음). 정답도 실제로 돌린 셀.
-- 장 하나의 `content/mlNN.html`은 80KB 안쪽, 셀 15–30개.
+- 장 하나의 `content/mlNN.html`은 0장은 80KB 안쪽, 알고리즘 장(1–6장)은 110KB 안쪽, 셀 20–35개. 길어지는 세부는 접는다.
+
+## 알고리즘 장(1–6장)에 반드시 들어갈 것 (주인의 요청, 2026-10-09)
+주인의 말: "개념, 하이퍼파라미터 종류와 튜닝 방법, 튜닝하는 프로그램, 돌린 내용을 그래프 또는 표로 표시하는 법 등 실제 사용하는 데 필요한 모든 내용." 장마다 아래를 빠짐없이 다룬다(앞 장에서 다룬 도구는 링크로 넘기고 새 내용만 자세히).
+1. **개념**: 알고리즘이 자료를 처리하는 과정을 작은 표로 단계별로. 예측값(확률)이 어디서 나오는지.
+2. **조절값(하이퍼파라미터) 전체 표**: 그 모형의 사이킷런(또는 XGBoost 등) 인자 가운데 실제로 쓰이는 것을 **빠짐없이**. 열: 인자 이름(영어), 뜻, 기본값, 키우면 어떻게 되나(과적합 쪽인지 과소적합 쪽인지), 흔히 탐색하는 범위, 튜닝 우선순위(먼저 / 다음 / 보통 기본값). 드문 결과(4%)에 관련된 `class_weight` 같은 인자의 영향도.
+3. **튜닝 방법**: 하나씩 바꿔 보기(검증 곡선), 격자 탐색, 무작위 탐색, 단계적 탐색(successive halving), 베이즈 최적화, 조기 종료(부스팅). 각각 언제 쓰는지, 몇 번 돌리는지, 시간이 얼마나 드는지. 무엇을 최적화하는가(AUC, 로그 손실 등)와 시험 자료를 튜닝에 쓰지 않는 원칙, 파이프라인 안의 인자 이름(`model__max_depth`).
+4. **튜닝 프로그램**: `validation_curve`, `GridSearchCV`, `RandomizedSearchCV`, `HalvingGridSearchCV`/`HalvingRandomSearchCV`(실험 기능, `from sklearn.experimental import enable_halving_search_cv`), **Optuna**, **HyperOpt**(연구실 교재가 쓰는 도구). 장마다 새로 나오는 도구만 자세히. Colab에는 Optuna·HyperOpt가 없을 수 있으므로 설치 셀(`!pip install optuna hyperopt`)을 둔다.
+5. **결과를 표와 그림으로**: `cv_results_`를 DataFrame으로 정리한 표(정렬, 필요한 열만), 두 조절값의 격자를 열지도(heatmap)로, 검증 곡선(학습 점수 대 교차검증 점수), 학습 곡선(learning curve), Optuna 그림(최적화 이력, 조절값 중요도, 조각 그림. `optuna.visualization.matplotlib`), HyperOpt의 `Trials`를 표와 그림으로, 나무 그림(`plot_tree`), 변수 중요도 막대(불순도 기반과 순열 중요도), 부분 의존 그림(PartialDependenceDisplay), 모형 비교 표와 ROC 곡선. 그림은 matplotlib(축과 제목 영어).
+6. **실제로 쓸 때 필요한 것**: 재현성(`random_state`), 걸린 시간 재기와 `n_jobs`, 최종 모형을 학습 자료 전체로 다시 맞추기(`refit`), 시험 자료로 한 번 평가하고 신뢰구간 붙이기, 모형 저장과 불러오기(`joblib`), 논문 Methods에 튜닝 절차를 적는 법(탐색 범위, 방법, 횟수, 교차검증, 최적화 지표).
+7. **참 구조와 견주기**: 이 자료는 참 구조를 알고 있다(`gen/_ml_truth.json`). 변수 중요도나 부분 의존 그림이 참 구조(나이 70세 이후 가팔라짐, BMI U자, 응급실 2회 계단, 효과 없는 변수 `dyslip`·`oa`·`region`·`n_prescribers`)를 얼마나 잡는지 보여 준다. 학생에게는 "만든 사람이 알려 주는 정답"으로 소개하고, 실제 자료에서는 정답을 모른다는 점을 분명히 한다.
 
 ## 공통 자료 (0장 작업자가 만들고 이후 장이 그대로 씀)
 `gen/data_ml.py`가 `pub/data/ml_claims.csv`(학생 코드는 `https://socialp-ajou.tecentriq12.workers.dev/data/ml_claims.csv`에서 읽음, labkit이 오프라인 파일로 바꿔 줌)를 만든다. 자료 설명은 `ML_DATA.md`(열 이름, 뜻, 단위, 결측, 만든 방법의 요약)에 적고, **참 구조**(사건 확률과 비용을 만든 식, 넣어 둔 비선형·교호작용, 효과 없는 변수)는 `gen/_ml_truth.json`과 `gen/_ml_truth.csv`(사람별 참 확률·참 기대비용, 공개하지 않음)에 저장한다.
@@ -46,7 +56,7 @@
 - 결정적(고정 seed). 학습·시험 분할은 0장에서 `train_test_split(..., test_size=0.25, stratify=y, random_state=2026)`으로 정하고 이후 모든 장이 같은 분할을 쓴다(`ML_DATA.md`에 적음).
 
 ## 환경과 파일
-- `cd /home/claude/site && source /home/claude/pylibs/env.sh`. 이 환경: scikit-learn 1.9.1, numpy 2.5, pandas 3.0, matplotlib. Colab은 scikit-learn·pandas가 더 낮은 버전일 수 있으니 **scikit-learn 1.3 이상, pandas 2.x에서도 도는 코드**만 쓴다(새 버전에만 있는 인자 금지. 예: `OneHotEncoder(handle_unknown="ignore", sparse_output=False)`는 1.2부터 됨).
+- `cd /home/claude/site && source /home/claude/pylibs/env.sh`. 이 환경: scikit-learn 1.9.1, numpy 2.5, pandas 3.0, matplotlib, xgboost 3.4.2, optuna 4.5.0, hyperopt 0.2.7. **LightGBM은 없다**(설치 불가). LightGBM이 필요한 셀은 출력 없이 코드만 모아 `pub/colab/` 아래의 주인 실행용 노트북으로 따로 만들고 보고한다(3장). Colab은 scikit-learn·pandas가 더 낮은 버전일 수 있으니 **scikit-learn 1.3 이상, pandas 2.x에서도 도는 코드**만 쓴다(새 버전에만 있는 인자 금지. 예: `OneHotEncoder(handle_unknown="ignore", sparse_output=False)`는 1.2부터 됨).
 - 셀은 `gen/labkit.py`의 `Notebook("mlNN")`로 실제 실행하고 `nb.save_fragment("mlNN_xxx", nb.html(c, marks={...}))`로 `figs/mlNN_xxx.html`을 만든다. 끝에서 `nb.save_ipynb(...)`로 `pub/notebooks/mlNN.ipynb`. 생성 스크립트 이름은 `gen/ml_mlNN.py`. 출력을 손으로 적지 않는다. 실행할 때마다 달라지는 출력(시각, 걸린 시간)은 생성 스크립트에서 고정하고 본문에 안내.
 - 생성 스크립트 끝에 대조 블록: 본문에 적은 핵심 숫자(10개 안팎)를 실행 결과와 `assert`로 맞춘다.
 - 참고문헌이 필요하면 `refs_add/ml.py`(같은 형식, 기존 key와 겹치지 않게, PubMed 도구나 출판사 페이지로 서지사항 확인). 교재는 `"book": True, "course": "ml"`을 붙이고 `course_ml.py`의 `BOOKS`에 key를 넣는다(이 한 줄만 `course_ml.py` 수정 허용).

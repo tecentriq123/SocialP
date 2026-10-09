@@ -1,0 +1,613 @@
+<p class="lead">결정트리 한 그루는 학습 자료가 조금만 달라져도 모양이 크게 바뀝니다. 이 장에서는 자료를 여러 벌 만들어 나무를 여러 그루 키우고 예측 확률을 평균 내는 배깅과 랜덤 포레스트를 공통 자료로 만들고, 조절값을 무작위 탐색, 단계적 탐색, 베이즈 최적화(Optuna, HyperOpt)로 튜닝한 뒤, 변수 중요도와 부분 의존 그림으로 결과를 정리합니다. 자료를 만든 사람이 알려 주는 참 구조와 견주어 모형이 무엇을 잡고 무엇을 놓치는지도 봅니다.</p>
+
+<p class="nb-link"><a href="notebooks/ml02.ipynb" download>이 장의 노트북 내려받기 (ml02.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요. 출력은 scikit-learn 1.9.1, pandas 3.0.5, Optuna 4.5.0, HyperOpt 0.2.7로 실제로 실행해 얻었고, 코드는 scikit-learn 1.3 이상과 pandas 2.x에서도 돌아가게 썼습니다. 탐색 셀은 몇 분씩 걸리며, 출력에 적힌 걸린 시간(초)은 이 사이트를 만든 컴퓨터(코어 2개)에서 잰 값이라 환경마다 다릅니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>0장 전체, 특히 <a href="#ml00-s3">다 절</a>의 <code>make_pipe</code>와 <a href="#ml00-s4">라 절</a>의 교차검증. 1장의 <a href="#ml01-s1">가 절</a>(지니 불순도로 나누기), <a href="#ml01-s2">나 절</a>(나무의 조절값과 과적합), <a href="#ml01-s4">라 절</a>(<code>GridSearchCV</code>와 <code>cv_results_</code>).</dd>
+<dt>먼저 읽을 부분</dt><dd>가 절 전체(셀 1–5), 나 절의 조절값 표와 셀 7의 열지도, 라 절의 Optuna 기본 사용(셀 14–17), 마 절의 두 가지 중요도(셀 22–25)와 참 구조와 견주기.</dd>
+<dt>나중에 읽을 부분</dt><dd>다 절의 단계적 탐색(셀 12), 라 절의 TPE 원리(그림 2-2와 접힌 설명)와 HyperOpt 세부(셀 18–19), 접힌 '코드 한 줄씩', 버전에 따라 달라지는 동작(나 절의 <code>class_weight="balanced"</code>, 마 절의 부분 의존 그림). 탐색 셀은 Colab에서 몇 분씩 걸리므로 처음에는 출력만 읽고 넘어가도 됩니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 배깅과 랜덤 포레스트가 예측 확률을 만드는 과정을 작은 표로 설명하고 OOB AUC를 구할 수 있다 ② 랜덤 포레스트의 조절값을 무작위 탐색, 단계적 탐색, Optuna, HyperOpt로 튜닝하고 결과를 표와 그림으로 비교할 수 있다 ③ 불순도 기반 중요도, 순열 중요도, 부분 의존 그림을 읽고, 그것이 원인을 뜻하지 않는 이유를 설명할 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ml02-s1">
+<h2><span class="sec-no">가.</span>여러 나무를 평균 내는 이유</h2>
+
+<h3>쉽게 말하면</h3>
+<p>처방 감사의 기준을 약사 한 명이 처방전 한 묶음으로 익히면, 그 묶음에 우연히 어떤 처방이 많았느냐에 따라 기준이 흔들립니다. 약사 100명이 각자 무작위로 뽑은 묶음으로 기준을 익힌 뒤 같은 환자에 대해 낸 의견을 평균하면 한 사람의 치우침이 서로 상쇄됩니다.</p>
+<ul>
+<li><b>앙상블.</b> 여러 모형의 예측을 합쳐 하나의 예측을 내는 방법을 <strong>앙상블</strong><span class="en">(ensemble)</span>이라고 합니다. 이 장과 3장(부스팅), 4장(스태킹)이 모두 앙상블입니다.</li>
+<li><b>부트스트랩.</b> n명에서 한 명을 뽑아 기록하고 다시 넣는 일을 n번 되풀이해 만든 한 벌을 <strong>부트스트랩</strong><span class="en">(bootstrap)</span> 표본이라고 합니다. 이렇게 뽑는 것을 <strong>복원추출</strong><span class="en">(sampling with replacement)</span>이라고 하며, 같은 사람이 여러 번 뽑히고 평균 37%는 한 번도 뽑히지 않습니다.</li>
+<li><b>배깅.</b> 부트스트랩 표본마다 나무를 한 그루씩 키우고 예측 확률을 평균하는 방법이 <strong>배깅</strong><span class="en">(bagging, bootstrap aggregating)</span>입니다<cite data-ref="breiman1996"></cite>.</li>
+<li><b>랜덤 포레스트.</b> 배깅에 한 가지를 더해, 나무가 가지를 나눌 때마다 특성 일부만 제비뽑기로 후보에 올리는 방법이 <strong>랜덤 포레스트</strong><span class="en">(random forest)</span>입니다<cite data-ref="breiman2001"></cite>. 나무끼리 덜 닮게 만들려는 것입니다.</li>
+</ul>
+
+<h3>숫자로 따라가기</h3>
+<p><a href="#ml00-s1">0장 가 절</a>의 환자 10명을 다시 씁니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
+<thead><tr><th>환자</th><th class="c">A</th><th class="c">B</th><th class="c">C</th><th class="c">D</th><th class="c">E</th><th class="c">F</th><th class="c">G</th><th class="c">H</th><th class="c">I</th><th class="c">J</th></tr></thead>
+<tbody>
+<tr><td>나이</td><td class="c">52</td><td class="c">61</td><td class="c">47</td><td class="c">78</td><td class="c">83</td><td class="c">69</td><td class="c">88</td><td class="c">58</td><td class="c">74</td><td class="c">81</td></tr>
+<tr><td>응급실 방문</td><td class="c">0</td><td class="c">0</td><td class="c">1</td><td class="c">2</td><td class="c">0</td><td class="c">0</td><td class="c">3</td><td class="c">1</td><td class="c">2</td><td class="c">0</td></tr>
+<tr><td>2023년 입원</td><td class="c">0</td><td class="c">0</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">0</td><td class="c">1</td></tr>
+</tbody></table></div>
+<p>10명 전체로 한 번만 나누는 나무를 키우면 <a href="#ml01-s1">1장 가 절</a>에서 본 대로 '나이 76세 초과'(4명 중 3명 입원, 나머지 6명 중 0명)로 나눕니다. 72세에 응급실을 2회 방문한 새 환자 L은 76세 이하 쪽에 떨어지므로 예측 확률이 0입니다. 이제 배깅으로 해 봅니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>주머니</th><th>뽑힌 10명 (중복 포함)</th><th>한 번도 안 뽑힌 사람</th><th>나무가 고른 기준과 그쪽의 입원 비율</th><th class="r">L의 확률</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>A B C C D E F G H H</td><td>I J</td><td>응급실 2회 이상 → 2명 중 2명</td><td class="r">1.00</td></tr>
+<tr><td>2</td><td>A B B B D D F H H I</td><td>C E G J</td><td>나이 76세 초과 → 2명 중 2명 (L은 72세라 반대쪽 8명 중 0명)</td><td class="r">0.00</td></tr>
+<tr><td>3</td><td>B C C C D E G G H J</td><td>A F I</td><td>나이 69.5세 초과 → 5명 중 4명</td><td class="r">0.80</td></tr>
+<tr class="hi"><td colspan="4">세 나무의 평균</td><td class="r">0.60</td></tr>
+</tbody></table></div>
+<ol>
+<li><b>복원추출.</b> 10명이 든 주머니에서 한 명을 뽑아 적고 다시 넣는 일을 10번 합니다. 1번 주머니에는 C와 H가 두 번씩 들어갔고 I와 J는 한 번도 들어가지 않았습니다.</li>
+<li><b>나무 키우기.</b> 주머니마다 <a href="#ml01-s1">1장 가 절</a>의 방법으로 가장 좋은 기준 하나를 고릅니다. 같은 10명에서 나왔는데도 1번은 응급실, 2번과 3번은 나이를 골랐고 나이의 기준도 76세와 69.5세로 다릅니다. 3번 주머니에는 62–77세가 없어서 61세와 78세의 가운데에 선이 그어졌습니다.</li>
+<li><b>평균.</b> L에 대한 세 나무의 확률은 1.00, 0.00, 0.80으로 크게 다르고 평균은 0.60입니다. 나무 하나의 답은 기준을 어디에 그었느냐에 따라 0과 1 사이를 오가지만, 평균은 그 사이의 값을 냅니다. 나무를 수백 그루로 늘리면 평균은 거의 움직이지 않는 값에 모입니다.</li>
+<li><b>표본 밖 예측.</b> 1번 주머니에 들어가지 않은 I와 J는 1번 나무에게 처음 보는 사람입니다. J(81세, 응급실 0회, 실제로 입원)는 1번과 2번 주머니에 없었으므로 두 나무의 예측 0.00과 1.00의 평균 0.50이 J의 <strong>표본 밖</strong><span class="en">(out-of-bag, OOB)</span> 예측입니다. 모든 사람의 표본 밖 예측으로 AUC를 구한 것이 OOB AUC이고, 교차검증처럼 '배우지 않은 사람에서의 성능'을 따로 자료를 떼지 않고 잽니다.</li>
+<li><b>랜덤 포레스트.</b> 가지를 나눌 때마다 특성 일부만 후보로 올립니다. 3번 주머니에서 제비뽑기로 응급실만 후보가 되었다면 나이를 쓸 수 없어 '응급실 2회 이상'(D, G, G의 3명 중 3명)으로 나누고 L의 확률은 1.00이 됩니다. 가장 강한 특성이 모든 나무의 첫 가지를 차지하지 못하게 해서 나무마다 다른 길을 가게 하는 것입니다.</li>
+</ol>
+
+<h3>실제 자료로 해 보기</h3>
+<p>먼저 0장의 자료 불러오기와 분할, 전처리 함수 <code>make_pipe</code>(<a href="#ml00-s3">0장 다 절</a>, 로지스틱 회귀용), 5겹 분할기 <code>skf</code>와 1장의 나무용 전처리 함수 <code>make_tree_pipe</code>(<a href="#ml01-s1">1장 가 절</a>, 표준화 없이 결측 대체와 원-핫만)를 한 셀에 모읍니다. 0장, 1장 노트북에 이어서 실행한다면 건너뛰어도 됩니다. 이 장의 나무 모형은 모두 <code>make_tree_pipe</code>로 묶습니다.</p>
+<!--FIG:ml02_setup-->
+<p>출력 <span class="mk">1</span>은 0장 셀 6과 같은 학습 자료 11,250명(입원 459명)과 시험 자료 3,750명(입원 153명)입니다. 다음 셀은 배깅의 ①②③을 반복문으로 직접 합니다. 사이킷런의 배깅 모형은 셀 5에서 씁니다.</p>
+<!--FIG:ml02_boot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>prep = make_tree_pipe(None).named_steps["prep"]</code><span><code>make_tree_pipe</code>에 모형 대신 <code>None</code>을 넣고 전처리 단계(<code>ColumnTransformer</code>)만 꺼냅니다. 나무 100그루가 같은 전처리 결과를 쓰도록 한 번만 해 두려는 것입니다.</span></li>
+<li><code>Z_train = prep.fit_transform(X_train)</code><span>학습 자료로 기준을 정하고(<code>fit</code>) 바로 바꿉니다(<code>transform</code>). 결과는 11,250행 × 48열의 numpy 배열입니다. 시험 자료는 <code>transform</code>만 합니다.</span></li>
+<li><code>rng = np.random.default_rng(2026)</code><span>seed를 정한 난수 발생기입니다(<a href="#ml00-s3">0장 다 절</a>의 누수 예와 같은 함수).</span></li>
+<li><code>idx = rng.integers(0, n, size=n)</code><span>0부터 n − 1까지의 정수를 n개 뽑습니다. 같은 번호가 여러 번 나올 수 있으므로 복원추출, 곧 ①입니다.</span></li>
+<li><code>tree.fit(Z_train[idx], y_arr[idx])</code><span>뽑힌 번호의 행을 그 순서대로 꺼내 나무를 학습합니다(②). 두 번 뽑힌 사람은 두 줄로 들어갑니다. <code>y_arr</code>는 위치로 고르려고 <code>y_train</code>을 numpy 배열로 바꾼 것입니다.</span></li>
+<li><code>DecisionTreeClassifier(min_samples_leaf=20, random_state=b)</code><span>잎마다 최소 20명인 나무입니다(<a href="#ml01-s2">1장 나 절</a>). 깊이는 제한하지 않았습니다. 배깅은 깊고 흔들리는 나무를 평균해 흔들림을 줄이는 방법이기 때문입니다.</span></li>
+<li><code>probs = np.array(probs)</code><span>나무마다 쌓은 확률 100줄을 (100, 3750) 배열로 만듭니다. 행이 나무, 열이 시험 자료의 사람입니다.</span></li>
+<li><code>p_avg = probs.mean(axis=0)</code><span><code>axis=0</code>은 행 방향으로, 곧 나무들을 따라 평균하라는 뜻입니다. 사람마다 100그루의 평균 확률이 나옵니다(③).</span></li>
+<li><code>who = np.argsort(p_avg)[[1874, 3599, 3749]]</code><span><code>argsort</code>(<a href="#ml00-s5">0장 마 절</a>)로 평균 확률이 작은 순서의 자리를 얻은 뒤 1,875번째(가운데), 3,600번째(위에서 4%), 3,750번째(가장 높음) 사람의 자리를 고릅니다.</span></li>
+<li><code>probs[:, who].std(axis=0)</code><span>세 사람마다 100그루 예측의 표준편차, 곧 나무에 따라 얼마나 흔들리는지입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(100, 3750).</b> 나무 100그루 × 시험 자료 3,750명의 확률입니다.</span></li>
+<li><span class="mk">2</span><span><b>마지막 주머니의 서로 다른 사람 7,021명.</b> 11,250명의 62.4%입니다. 복원추출에서 한 사람이 한 번이라도 뽑힐 확률은 1 − (1 − 1/n)<sup>n</sup>으로 n이 크면 약 63.2%입니다.</span></li>
+<li><span class="mk">3</span><span><b>나무 5그루의 확률.</b> 가운데 열(위에서 4%인 사람)은 나무에 따라 0에서 0.41까지 달라집니다. 잎에 20명 안팎이 모이므로 나무 하나의 확률은 0, 0.05, 0.1처럼 거친 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>SD 0.044, 0.201, 0.198.</b> 100그루 사이의 표준편차입니다. 가운데 사람은 평균(0.18)보다 SD(0.201)가 큽니다.</span></li>
+<li><span class="mk">5</span><span><b>평균 0.019, 0.18, 0.745.</b> 셋의 순서가 분명히 갈립니다. 평균에 쓴 나무가 100그루이므로, 같은 방식으로 다른 100그루를 키워 다시 평균해도 값은 거의 같습니다.</span></li>
+<li><span class="mk">6</span><span><b>나무 하나의 시험 AUC 0.616–0.714.</b> 어느 부트스트랩 표본을 받았느냐에 따라 0.1가량 흔들립니다.</span></li>
+<li><span class="mk">7</span><span><b>평균의 시험 AUC 0.774.</b> 가장 좋은 나무 하나보다도 높습니다. 시험 자료는 현상을 보이려고 썼을 뿐이며, 모형을 고르는 데는 쓰지 않습니다(마 절에서 한 번).</span></li>
+</ol>
+
+<h3>나무끼리 덜 닮게</h3>
+<p>평균이 흔들림을 줄이려면 나무들이 서로 달라야 합니다. 100그루가 모두 같은 실수를 하면 평균해도 그 실수는 그대로 남습니다. 나무 두 그루가 얼마나 닮았는지를 시험 자료 3,750명에 대한 두 나무의 예측 확률의 상관계수로 재고, 모든 짝의 평균을 냅니다. 사이킷런의 <code>RandomForestClassifier</code>에서 <code>max_features=None</code>은 모든 특성을 후보로 쓰는 배깅, <code>"sqrt"</code>는 분할마다 √48 ≈ 6개만 후보로 쓰는 랜덤 포레스트입니다.</p>
+<!--FIG:ml02_corr-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def mean_corr(P):</code><span>나무 × 사람 배열 <code>P</code>를 받아 나무끼리의 상관계수 평균 하나를 돌려주는 함수입니다.</span></li>
+<li><code>C = np.corrcoef(P)</code><span>행(나무)끼리의 상관계수 행렬, 곧 200 × 200 표입니다. 대각선은 자기 자신과의 상관이라 1입니다.</span></li>
+<li><code>C[np.triu_indices_from(C, k=1)]</code><span>대각선 위쪽 칸만 꺼냅니다. 서로 다른 두 나무의 짝 19,900개입니다.</span></li>
+<li><code>RandomForestClassifier(n_estimators=200, …, oob_score=True, n_jobs=-1)</code><span><code>n_estimators</code>는 나무 수, <code>oob_score=True</code>는 표본 밖 예측을 계산해 두라는 뜻, <code>n_jobs=-1</code>은 컴퓨터의 코어를 모두 쓰라는 뜻입니다. 코어를 몇 개 쓰든 <code>random_state</code>가 같으면 결과는 같고 시간만 줄어듭니다.</span></li>
+<li><code>rf.estimators_</code><span>학습한 나무 200그루의 목록입니다. 나무마다 <code>predict_proba</code>를 불러 사람별 확률을 얻습니다.</span></li>
+<li><code>rf.oob_decision_function_[:, 1]</code><span>학습 자료의 사람마다, 그 사람이 주머니에 들어가지 않은 나무들만의 평균 확률입니다(④). 열 두 개는 [입원 안 할 확률, 입원할 확률]입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>상관 0.525와 0.449.</b> 후보를 6개로 줄이자 나무끼리 덜 닮았습니다.</span></li>
+<li><span class="mk">2</span><span><b>나무 하나의 AUC 0.688과 0.681.</b> 후보가 적으면 가장 좋은 기준을 놓칠 때가 있어 나무 하나는 오히려 조금 약해집니다.</span></li>
+<li><span class="mk">3</span><span><b>OOB AUC 0.738과 0.750.</b> 나무 하나는 약해졌지만 덜 닮은 나무들의 평균은 더 좋아졌습니다. 랜덤 포레스트는 나무 하나의 강함과 나무 사이의 닮음 사이에서 균형을 잡는 방법이고, 그 균형을 정하는 조절값이 <code>max_features</code>입니다(나 절).</span></li>
+</ol>
+<!--FOLD:평균의 분산과 나무 사이의 상관-->
+<p>나무 하나의 예측 분산을 σ², 두 나무 예측 사이의 상관을 ρ, 나무 수를 B라고 하면 B그루 평균의 분산은 다음과 같습니다.</p>
+<div class="eq">\[ \operatorname{Var}(\bar p) = \rho\,\sigma^2 + \frac{1-\rho}{B}\,\sigma^2 \]<p>둘째 항은 나무를 늘리면 0으로 줄지만 첫째 항 ρσ²는 나무를 아무리 늘려도 남습니다. 그래서 나무를 늘리는 것만으로는 한계가 있고, ρ를 줄이는 것(랜덤 포레스트)이 의미가 있습니다. 나무가 서로 독립이면(ρ = 0) 평균의 분산은 σ²/B, 곧 평균의 표준오차가 σ/√B인 익숙한 꼴이 됩니다.</p></div>
+<!--/FOLD-->
+
+<h3>표본 밖 점수</h3>
+<!--FIG:ml02_oob-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>rf_pipe.named_steps["model"]</code><span>파이프라인 안의 랜덤 포레스트를 이름으로 꺼냅니다(<a href="#ml00-s3">0장 다 절</a>).</span></li>
+<li><code>rf.oob_score_</code><span><code>oob_score=True</code>로 학습하면 생기는 값인데, 분류에서는 <strong>정확도</strong>입니다. 함수를 넘겨 다른 지표로 바꿀 수 있는 버전에서도 그 함수에는 확률이 아니라 0/1 예측이 들어가므로 AUC를 구할 수 없습니다.</span></li>
+<li><code>roc_auc_score(y_train, p_oob)</code><span>OOB 확률과 학습 자료의 실제 결과로 AUC를 직접 계산합니다. 학습 자료로 계산하지만 사람마다 그 사람을 배우지 않은 나무의 예측만 쓰므로 과적합된 점수가 아닙니다.</span></li>
+<li><code>time.perf_counter()</code><span>초 단위 시계입니다. 시작과 끝의 차이가 걸린 시간입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>oob_score_ 0.9596.</b> 학습 자료에서 모두를 '입원 안 함'으로 예측한 정확도(1 − 459 ÷ 11,250 = 0.9592)와 거의 같습니다. 드문 결과에서 정확도는 쓸모가 없다는 <a href="#ml00-s5">0장 마 절</a>의 이야기 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>OOB AUC 0.7498, 1초.</b></span></li>
+<li><span class="mk">3</span><span><b>5겹 교차검증 AUC 0.7567, 5초.</b> OOB가 0.007 낮습니다. 사람마다 표본 밖 예측에 쓰이는 나무가 200그루의 약 37%(74그루 안팎)뿐이라 예측이 조금 더 거친 것이 한 가지 이유입니다. 대신 한 번 학습으로 끝나 다섯 배 빠릅니다. 나 절처럼 조절값을 많이 훑어볼 때는 OOB AUC를, 탐색 방법끼리 견줄 때는 같은 겹을 쓰는 교차검증을 씁니다.</span></li>
+</ol>
+
+<h3>네 모형 비교</h3>
+<p>0장의 로지스틱 회귀(C = 0.1), 결정트리 한 그루, 사이킷런의 배깅(<code>BaggingClassifier</code>), 랜덤 포레스트를 같은 5겹 교차검증과 시험 자료로 비교합니다. 결정트리는 <a href="#ml01-s4">1장 라 절</a>에서 격자 탐색으로 고른 깊이 6, 잎 300명의 나무입니다.</p>
+<!--FIG:ml02_cmp1-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>BaggingClassifier(estimator=DecisionTreeClassifier(min_samples_leaf=20), n_estimators=200)</code><span><code>estimator</code>에 넣은 모형을 부트스트랩 표본 200벌에 하나씩 학습하고 확률을 평균합니다. 나무가 아닌 모형도 넣을 수 있습니다. 인자 이름 <code>estimator</code>는 scikit-learn 1.2부터이고, 그 전에는 <code>base_estimator</code>였습니다.</span></li>
+<li><code>models = {"이름": 모형, …}</code><span>이름과 모형의 짝을 담은 딕셔너리입니다. <code>for name, m in models.items():</code>로 짝을 하나씩 꺼냅니다.</span></li>
+<li><code>fitted[name] = make_pipe(m).fit(X_train, y_train)</code><span>학습 자료 전체로 맞춘 파이프라인을 마 절에서 다시 쓰려고 이름별로 담아 둡니다. <code>fit</code>은 맞춘 파이프라인 자신을 돌려주므로 한 줄에 쓸 수 있습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>교차검증 AUC.</b> 랜덤 포레스트 0.757, 1장의 나무 0.754, 로지스틱 회귀 0.749, 배깅 0.734의 순서입니다. 1장의 나무는 잎을 300명으로 크게 묶어 흔들림을 이미 줄인 나무이고, 배깅은 잎 20명의 깊은 나무를 평균한 것이라 그보다 낮습니다. 깊은 나무의 흔들림을 평균으로 줄이는 것만으로는 모자라고, 나무 사이의 닮음(<code>max_features</code>)과 잎의 크기를 함께 조절해야 한다는 뜻입니다(나 절).</span></li>
+<li><span class="mk">2</span><span><b>시험 AUC.</b> 배깅 0.784, 랜덤 포레스트 0.772, 1장의 나무 0.771, 로지스틱 회귀 0.742로 순서가 바뀌었습니다. 시험 자료의 입원은 153명뿐이라 AUC 하나의 표준오차가 약 0.02이고(95% 신뢰구간이 ±0.045 안팎, <a href="#ml00-s5">0장 마 절</a>의 논문 상자), 0.012 차이는 그 안에 있습니다. 교차검증의 겹 사이 SD도 0.02 안팎입니다. 시험 자료로 모형을 골랐다면 배깅을 골랐겠지만, 모형은 교차검증으로 고르고 시험 자료는 확인에만 씁니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">나무를 많이 평균하면 나무 하나의 약점이 무엇이든 사라진다.</span> 평균은 나무마다 다르게 틀리는 부분(분산)을 줄일 뿐, 모든 나무가 똑같이 틀리는 부분(편향)은 줄이지 못합니다. 셀 3에서 나무끼리의 상관이 0.45–0.53이었듯 같은 자료에서 자란 나무들은 상당히 닮았습니다. 편향을 줄이는 쪽은 3장의 부스팅입니다.</li>
+<li><span class="wrong">OOB 점수가 있으니 시험 자료가 필요 없다.</span> OOB AUC는 조절값을 고르는 데 쓰는 교차검증의 대용입니다. OOB로 조절값을 고르면 그 OOB 점수도 고른 만큼 낙관적이 되므로(<a href="#ml00-s4">0장 라 절</a>의 흔한 오해) 최종 평가는 여전히 시험 자료로 합니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>배깅은 ① 부트스트랩 표본을 여러 벌 만들고 ② 벌마다 나무를 키워 ③ 예측 확률을 평균합니다. 나무 하나의 시험 AUC는 0.62–0.71로 흔들렸고 100그루 평균은 0.77이었습니다.</li>
+<li>랜덤 포레스트는 분할마다 특성 일부(<code>max_features</code>)만 후보로 써서 나무끼리 덜 닮게 합니다. 나무 사이 상관이 0.525에서 0.449로 줄고 OOB AUC가 0.738에서 0.750으로 올랐습니다.</li>
+<li>주머니에 들어가지 않은 나무들만의 예측이 OOB 예측입니다. <code>oob_score_</code>는 정확도이므로 AUC는 <code>oob_decision_function_[:, 1]</code>로 직접 계산합니다. OOB AUC는 교차검증과 비슷하고 훨씬 빠릅니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ml02-s2">
+<h2><span class="sec-no">나.</span>랜덤 포레스트의 조절값</h2>
+
+<h3>쉽게 말하면</h3>
+<p>랜덤 포레스트의 조절값은 다섯 가지 질문으로 묶입니다. ① 나무를 몇 그루 키울까(<code>n_estimators</code>) ② 가지를 나눌 때 특성을 몇 개나 후보로 올릴까(<code>max_features</code>) ③ 나무를 얼마나 크게 키울까(<code>min_samples_leaf</code>, <code>max_depth</code> 등 <a href="#ml01-s2">1장 나 절</a>의 조절값) ④ 나무마다 자료를 얼마나 뽑을까(<code>max_samples</code>) ⑤ 드문 범주에 가중치를 줄까(<code>class_weight</code>). ③의 조절값들은 1장의 결정트리와 이름과 뜻이 같고, 나무 한 그루 한 그루에 똑같이 적용됩니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<ol>
+<li>전처리 뒤의 열은 48개이므로 <code>max_features="sqrt"</code>는 분할마다 √48 = 6.9에서 소수점을 버린 6개를 제비뽑기로 후보에 올립니다. 정수 12를 주면 12개, 실수 0.25를 주면 48 × 0.25 = 12개입니다.</li>
+<li><code>min_samples_leaf=20</code>이면 잎마다 20명 이상이 남아야 하므로, 사건 비율 4%인 이 자료에서 잎 하나의 확률은 0, 1/20, 2/20처럼 0.05 단위 근처의 값이 됩니다. 기본값 1이면 잎이 한두 명까지 쪼개져 나무 하나의 확률이 대부분 0 아니면 1이 됩니다.</li>
+<li><code>max_samples=0.5</code>이면 나무마다 11,250명 가운데 5,625명을 복원추출합니다. 나무 하나가 보는 자료가 줄어 나무끼리 덜 닮고 계산도 빨라집니다.</li>
+</ol>
+
+<h3>조절값 전체 표</h3>
+<p><code>RandomForestClassifier</code>의 인자 가운데 scikit-learn 1.3 이상에 있는 것을 모두 모았습니다. '이 자료에서'의 숫자는 200그루, <code>max_features="sqrt"</code>, <code>min_samples_leaf=20</code>(OOB AUC 0.750, 평균 OOB 확률 0.040)을 기준으로 그 인자 하나만 바꾼 OOB AUC입니다. 파이프라인 안에서는 <code>model__max_features</code>처럼 부릅니다(<a href="#ml01-s4">1장 라 절</a>).</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>인자</th><th>뜻</th><th>기본값</th><th>값을 키우면 (이 자료에서)</th><th>흔한 탐색 범위</th><th>우선순위</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="6"><b>나무의 모양과 다양성</b></td></tr>
+<tr><td><code>max_features</code></td><td>분할마다 후보로 올리는 특성 수. 정수(개수), 실수(비율), <code>"sqrt"</code>, <code>"log2"</code>, <code>None</code>(전부, 곧 배깅)</td><td><code>"sqrt"</code></td><td>나무 하나는 강해지고 나무끼리 닮아 감. 잎 20명에서 2–4개 0.750–0.755, 48개(배깅) 0.738 (셀 7)</td><td>2부터 특성 수의 절반, 또는 0.05–0.5</td><td>먼저</td></tr>
+<tr><td><code>min_samples_leaf</code></td><td>잎에 남아야 할 최소 인원(실수면 비율)</td><td>1</td><td>나무가 얕아지고 확률이 매끄러워짐(과소적합 쪽). 1명이면 0.706–0.724, 20명 이상이면 0.738–0.757 (셀 7)</td><td>1–100. 드문 결과에서는 10 이상을 꼭 포함</td><td>먼저</td></tr>
+<tr><td><code>max_samples</code></td><td>나무마다 뽑는 부트스트랩 표본 크기(실수면 비율, 정수면 인원)</td><td><code>None</code>(n명)</td><td>나무끼리 닮아 가고 시간이 늚. 0.5로 줄이면 0.754</td><td>0.3–1.0</td><td>다음</td></tr>
+<tr><td><code>max_depth</code></td><td>나무의 최대 깊이</td><td><code>None</code>(제한 없음)</td><td>깊어짐(과적합 쪽). 잎 크기 제한과 역할이 겹침. 6이면 0.755, 12면 0.755</td><td><code>None</code> 또는 5–30</td><td>다음 (<code>min_samples_leaf</code>와 둘 중 하나)</td></tr>
+<tr><td><code>class_weight</code></td><td>범주별 가중치. <code>"balanced"</code>는 학습 자료 전체의 비율로, <code>"balanced_subsample"</code>은 나무마다 부트스트랩 표본의 비율로 드문 범주에 큰 가중치</td><td><code>None</code></td><td><code>"balanced_subsample"</code>은 AUC가 비슷(0.755)하지만 평균 OOB 확률이 0.040에서 0.264로 커져 확률을 그대로 쓸 수 없음. <code>"balanced"</code>는 표 아래 글 참고</td><td><code>None</code>, <code>"balanced_subsample"</code></td><td>목적에 따라 (과제 1)</td></tr>
+<tr><td><code>criterion</code></td><td>불순도 기준. <code>"gini"</code>, <code>"entropy"</code>, <code>"log_loss"</code>(분류에서 entropy와 같음)</td><td><code>"gini"</code></td><td>(범주) <code>"entropy"</code>로 바꾸면 0.746</td><td>gini, entropy</td><td>보통 기본값</td></tr>
+<tr><td><code>min_samples_split</code></td><td>마디를 나누려면 있어야 할 최소 인원</td><td>2</td><td>얕아짐. 잎 크기 제한과 겹침. 잎 1명인 채로 100으로 하면 0.747 (기본값 0.708)</td><td>2–200</td><td>보통 기본값</td></tr>
+<tr><td><code>max_leaf_nodes</code></td><td>나무 하나의 잎 수 상한</td><td><code>None</code></td><td>깊어짐. 64로 제한하면 0.755</td><td><code>None</code> 또는 16–1024</td><td>보통 기본값</td></tr>
+<tr><td><code>min_impurity_decrease</code></td><td>분할로 줄어야 할 불순도(사람 수 가중)의 최솟값</td><td>0.0</td><td>얕아짐. 0.0001이면 0.751</td><td>0–0.001</td><td>보통 기본값</td></tr>
+<tr><td><code>ccp_alpha</code></td><td>비용 복잡도 가지치기의 세기(<a href="#ml01-s2">1장 나 절</a>)</td><td>0.0</td><td>얕아짐. 0.0005면 0.740</td><td>0–0.01</td><td>보통 기본값</td></tr>
+<tr><td><code>min_weight_fraction_leaf</code></td><td>잎에 남아야 할 가중치 합의 비율</td><td>0.0</td><td>얕아짐</td><td>거의 쓰지 않음</td><td>기본값</td></tr>
+<tr class="grp"><td colspan="6"><b>숲 전체와 계산</b></td></tr>
+<tr><td><code>n_estimators</code></td><td>나무 수</td><td>100</td><td>OOB AUC가 안정되고 시간은 비례해 늘어남. 과적합 쪽으로 가지 않음 (셀 6)</td><td>200–1000. OOB 곡선이 평평해지는 수</td><td>튜닝하지 않고 넉넉히</td></tr>
+<tr><td><code>bootstrap</code></td><td>복원추출 여부</td><td><code>True</code></td><td><code>False</code>면 모든 나무가 같은 자료를 써서 다양성은 <code>max_features</code>에서만 나오고 OOB를 계산할 수 없음</td><td><code>True</code></td><td>기본값</td></tr>
+<tr><td><code>oob_score</code></td><td>OOB 점수 계산 여부. 분류의 <code>oob_score_</code>는 정확도</td><td><code>False</code></td><td><code>True</code>면 <code>oob_score_</code>와 <code>oob_decision_function_</code>이 생기고 학습이 조금 느려짐</td><td>점검할 때 <code>True</code></td><td>계산 설정</td></tr>
+<tr><td><code>warm_start</code></td><td><code>True</code>면 다시 <code>fit</code>할 때 있던 나무를 두고 늘어난 수만큼만 더 키움</td><td><code>False</code></td><td>(켜고 끄기)</td><td>나무 수 곡선을 그릴 때</td><td>계산 설정</td></tr>
+<tr><td><code>n_jobs</code></td><td>쓰는 코어 수. -1이면 전부</td><td><code>None</code>(1개)</td><td>빨라짐. 결과는 같음</td><td>-1</td><td>계산 설정</td></tr>
+<tr><td><code>random_state</code></td><td>부트스트랩과 특성 뽑기의 seed</td><td><code>None</code></td><td>(정수로 고정하면 다시 돌려도 같은 숲)</td><td>정수 하나</td><td>재현성</td></tr>
+<tr><td><code>verbose</code></td><td>진행 상황 출력</td><td>0</td><td>출력이 많아짐</td><td>0</td><td>계산 설정</td></tr>
+</tbody></table></div>
+<p>scikit-learn 1.4부터는 특성별로 확률이 커지기만 하거나 작아지기만 하도록 묶는 <code>monotonic_cst</code>도 있습니다. <code>class_weight="balanced"</code>는 버전에 따라 동작이 다릅니다. 이 쪽을 만든 1.9.1에서는(1.9부터) 가중치가 부트스트랩 표본을 뽑는 확률에도 쓰입니다. 가중치가 12.25인 입원한 사람(<a href="#ml01-s2">1장 나 절</a>)은 한 주머니에 평균 12번쯤 뽑혀 200개 주머니 모두에 들어갔고, 459명 모두 OOB 예측이 생기지 않아 "Some inputs do not have OOB scores" 경고가 나고 OOB AUC를 쓸 수 없었습니다. 1.8 이하에서는 표본을 고르게 뽑은 뒤 가중치를 곱하므로 이 문제가 없습니다. 나무마다 표본을 뽑은 뒤에 가중치를 정하는 <code>"balanced_subsample"</code>은 어느 버전에서도 그런 문제가 없습니다. 잎을 20명으로 정해 둔 뒤 다른 인자를 하나씩 바꾸면 OOB AUC가 0.740–0.755로 기준(0.750)에서 ±0.01 안쪽입니다. 나무 크기를 묶는 인자(<code>max_depth</code>, <code>max_leaf_nodes</code>, <code>min_samples_split</code>)는 서로 역할이 겹쳐서, 잎 크기를 이미 정했으면 더해도 얻는 것이 작습니다. 거꾸로 잎 1명인 기본값에서는 <code>min_samples_split=100</code>만으로도 0.708이 0.747로 오릅니다. 다 절과 라 절의 탐색은 <code>max_features</code>, <code>min_samples_leaf</code>, <code>max_samples</code>, <code>criterion</code> 네 개를 다룹니다.</p>
+
+<h3>나무 수는 튜닝하지 않습니다</h3>
+<p>나무를 늘리면 평균이 안정될 뿐 나무 하나하나는 그대로이므로, 나무 수가 많아서 과적합되지는 않습니다. 늘릴수록 좋아지다가 어느 수부터 평평해지고 시간만 듭니다. <code>warm_start=True</code>로 나무를 25그루씩 늘려 가며 OOB AUC를 봅니다.</p>
+<!--FIG:ml02_warm-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>warm_start=True</code><span>다시 <code>fit</code>할 때 이미 키운 나무를 버리지 않고, <code>n_estimators</code>가 늘어난 만큼만 새로 키웁니다. 500그루까지 곡선을 그리는 데 나무를 모두 500그루만 키웁니다(매번 처음부터 키우면 1,800그루).</span></li>
+<li><code>forest.set_params(model__n_estimators=k)</code><span>파이프라인 안 모형의 인자를 바꿉니다. 이름 규칙은 '단계 이름 + 밑줄 두 개 + 인자 이름'입니다(<a href="#ml00-s4">0장 라 절</a>, <a href="#ml01-s4">1장 라 절</a>).</span></li>
+<li><code>oob_auc.append(…)</code><span>나무 수마다 OOB AUC를 목록에 쌓습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>25그루 0.738.</b> 사람마다 표본 밖 나무가 9그루 안팎이라 거칩니다.</span></li>
+<li><span class="mk">2</span><span><b>500그루 0.7514.</b> 100그루(0.7503) 뒤로는 0.7496–0.7514 사이에서 오르내릴 뿐입니다. 이 흔들림은 나무를 바꿔 뽑은 데서 오는 우연이고 조절값의 효과가 아닙니다. 이 장의 탐색은 200그루, 최종 모형은 500그루로 합니다.</span></li>
+</ol>
+
+<h3>가장 중요한 두 조절값</h3>
+<p><code>max_features</code> 6가지와 <code>min_samples_leaf</code> 5가지의 30개 조합을 OOB AUC로 훑어봅니다. 교차검증이면 150번 학습할 것을 30번으로 끝냅니다. 열지도를 그리는 줄은 <a href="#ml01-s5">1장 마 절</a>과 같은 방식입니다.</p>
+<!--FIG:ml02_heat-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>heat = pd.DataFrame(index=leaf_list, columns=mf_list, dtype=float)</code><span>행이 잎 크기, 열이 후보 특성 수인 빈 표를 먼저 만들고, 반복문에서 <code>heat.loc[행, 열] = 값</code>으로 한 칸씩 채웁니다.</span></li>
+<li><code>ax.imshow(heat.to_numpy(), cmap="viridis")</code><span>표의 숫자를 색으로 칠합니다. 밝을수록 높은 값입니다. <code>ax.text(j, i, …)</code>는 j번째 열, i번째 행 칸에 숫자를 씁니다.</span></li>
+<li><code>ax.set_xticks(range(len(mf_list)), mf_list)</code><span>눈금 위치와 이름을 함께 줍니다(matplotlib 3.5부터).</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기본값(잎 1명, 6개) 0.708.</b> 기본값 그대로의 랜덤 포레스트는 셀 5의 로지스틱 회귀(0.749)보다 못합니다. 잎이 한두 명까지 쪼개지면 나무 하나의 확률이 0 아니면 1이 되어 입원 위험의 순서를 잘 매기지 못합니다.</span></li>
+<li><span class="mk">2</span><span><b>가장 높은 칸 0.757(잎 50명, 4개).</b> 잎 1명 줄은 0.706–0.724, 잎 20명 이상 줄은 0.738–0.757입니다. 줄 사이의 차이(잎 크기)가 한 줄 안의 차이(후보 수)보다 큽니다.</span></li>
+<li><span class="mk">3</span><span><b>배깅(48개, 잎 20명) 0.738.</b> 셀 3의 배깅과 같은 설정이고 같은 값입니다. 잎이 20–50명인 줄에서는 후보가 적을수록 조금씩 나아지고, 잎 100명 줄에서는 후보 수에 따른 차이가 0.006 안쪽으로 줄어듭니다. 두 조절값이 서로 영향을 주므로 하나씩 따로 고르기보다 함께 탐색합니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">랜덤 포레스트는 기본값으로도 잘 되므로 튜닝이 필요 없다.</span> 결과가 흔한 자료에서는 대체로 맞는 말이지만, 사건이 4%인 이 자료에서 기본값(잎 1명)의 OOB AUC는 0.708로 가장 좋은 조합(0.757)보다 0.05 낮고 로지스틱 회귀보다도 낮았습니다. 적어도 <code>min_samples_leaf</code>는 확인합니다.</li>
+<li><span class="wrong">나무 수도 다른 조절값처럼 교차검증으로 골라야 한다.</span> 나무 수는 많을수록 평균이 안정될 뿐 과적합 쪽으로 가지 않으므로, 곡선이 평평해지는 수 이상으로 정해 두고 다른 조절값을 탐색합니다. 탐색 결과 1등 조합의 나무 수가 300이고 2등이 500이라면 그 차이는 우연입니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>랜덤 포레스트의 조절값은 나무 수, 후보 특성 수, 나무 크기, 표본 크기, 범주 가중치로 나뉩니다. 이 자료에서 가장 크게 움직인 것은 <code>min_samples_leaf</code>(잎 1명 0.706–0.724, 20명 이상 0.738–0.757)였고 다음이 <code>max_features</code>였습니다.</li>
+<li>나무 수는 튜닝하지 않고 OOB AUC 곡선이 평평해지는 수(이 자료에서 100–200그루) 이상으로 넉넉히 정합니다. <code>warm_start=True</code>로 곡선을 싸게 그립니다.</li>
+<li><code>class_weight="balanced_subsample"</code>은 AUC를 거의 바꾸지 않고 예측 확률을 위로 밀어 올립니다. 확률 자체를 쓸 모형에서는 쓰지 않거나 다시 보정합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ml02-s3">
+<h2><span class="sec-no">다.</span>무작위 탐색과 단계적 탐색</h2>
+
+<h3>쉽게 말하면</h3>
+<ul>
+<li><b>격자 탐색의 약점.</b> <a href="#ml01-s4">1장 라 절</a>의 격자 탐색은 조절값마다 정한 값들의 모든 조합을 시험합니다. 조절값 두 개를 4가지씩 보면 16개 조합인데, 그중 한 조절값만 결과를 좌우한다면 실제로는 그 조절값의 4가지 값만 본 셈입니다. 조절값이 네 개로 늘면 4 × 4 × 4 × 4 = 256개가 됩니다.</li>
+<li><b>무작위 탐색.</b> 조절값마다 범위(분포)만 정해 두고 조합을 정한 횟수만큼 무작위로 뽑아 시험합니다(<strong>무작위 탐색</strong><span class="en">, random search</span>). 16개를 뽑으면 중요한 조절값도 16가지 값을 보게 되고, 조절값을 더해도 시험 횟수는 그대로입니다. 같은 횟수라면 격자 탐색보다 좋은 조합을 찾는 경우가 많다는 것이 알려져 있습니다<cite data-ref="bergstra2012"></cite>.</li>
+<li><b>단계적 탐색.</b> 예선과 본선이 있는 대회처럼, 후보를 많이 뽑아 적은 자원(나무 몇 그루나 일부 표본)으로 거칠게 평가하고 위쪽 일부만 남겨 자원을 늘려 가며 다시 평가합니다(<strong>단계적 탐색</strong><span class="en">, successive halving</span>). 가망 없는 후보에 시간을 덜 씁니다.</li>
+</ul>
+
+<h3>분포 지정하기</h3>
+<p>무작위 탐색에는 값의 목록 대신 <code>scipy.stats</code>의 분포를 줍니다. 분포마다 <code>.rvs(개수)</code>로 값을 뽑아 보면 무엇이 나오는지 알 수 있습니다.</p>
+<!--FIG:ml02_dists-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>randint(2, 25)</code><span>2 이상 25 <b>미만</b>의 정수를 고르게 뽑는 분포입니다. 끝값은 들어가지 않으므로 2–24입니다. <code>max_features</code>, <code>min_samples_leaf</code>처럼 정수인 조절값에 씁니다.</span></li>
+<li><code>uniform(0.3, 0.7)</code><span>두 인자는 시작점(loc)과 <b>폭</b>(scale)입니다. 0.3에서 0.3 + 0.7 = 1.0까지 고르게 뽑습니다. <code>uniform(0.3, 1.0)</code>이라고 쓰면 0.3–1.3이 되어 <code>max_samples</code>에 1보다 큰 값이 들어갑니다. scikit-learn 1.8 이하에서는 오류가 나고, 1.9부터는 오류 없이 학습 자료의 인원보다 많이 뽑으므로 뜻하지 않은 탐색이 됩니다.</span></li>
+<li><code>loguniform(0.001, 100)</code><span>로그 척도에서 고르게 뽑습니다. 0.001–0.01, 0.01–0.1, …, 10–100의 다섯 구간에 같은 확률이 갑니다. 로지스틱 회귀의 <code>C</code>나 3장 부스팅의 학습률처럼 10배 단위로 효과가 달라지는 조절값에 씁니다.</span></li>
+<li><code>.rvs(8, random_state=0)</code><span>값 8개를 뽑습니다. 목록(<code>["gini", "entropy"]</code>)을 주면 그 가운데 하나를 같은 확률로 고릅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>2–24의 정수.</b> 5가 두 번 나왔듯 같은 값이 다시 뽑힐 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>0.3–1.0의 실수.</b></span></li>
+<li><span class="mk">3</span><span><b>0.13–3.8.</b> 0.001–100을 그냥 고르게(<code>uniform</code>) 뽑으면 1보다 작은 값이 나올 확률이 1%뿐이지만, 로그 척도에서는 다섯 구간 가운데 세 구간이 1 아래라 60%입니다.</span></li>
+</ol>
+
+<h3>격자 탐색과 무작위 탐색</h3>
+<p>먼저 비교의 기준으로 격자 탐색을 합니다. 쓰는 법은 <a href="#ml01-s4">1장 라 절</a>과 같습니다. 이 장의 탐색은 시간을 줄이려고 모두 같은 3겹 교차검증(<code>skf3</code>)을 쓰고 나무는 200그루로 고정합니다.</p>
+<!--FIG:ml02_grid-->
+<p>출력 <span class="mk">1</span>은 고른 조합(<code>max_features</code> 6, <code>min_samples_leaf</code> 100)과 3겹 교차검증 AUC 0.759, <span class="mk">2</span>는 16개 조합 × 3겹 = 48번 학습에 걸린 시간입니다. 같은 범위에 <code>max_samples</code>와 <code>criterion</code>을 더해 무작위로 40개를 뽑습니다.</p>
+<!--FIG:ml02_random-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>space = {"model__max_features": randint(2, 25), …}</code><span>조절값 이름(파이프라인 안이므로 <code>model__</code>)과 분포 또는 목록의 짝입니다. 격자 탐색의 <code>grid</code>와 같은 모양이고 값 자리에 분포가 들어갑니다.</span></li>
+<li><code>RandomizedSearchCV(rf_base, space, n_iter=40, cv=skf3, scoring="roc_auc", random_state=2026)</code><span><code>n_iter</code>는 뽑을 조합 수, <code>random_state</code>는 어떤 조합이 뽑힐지를 정하는 seed입니다. 나머지 인자와 결과(<code>best_params_</code>, <code>best_score_</code>, <code>cv_results_</code>, <code>refit</code>)는 <code>GridSearchCV</code>와 같습니다(<a href="#ml01-s4">1장 라 절</a>).</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>고른 조합.</b> entropy, 후보 7개, 표본 69%, 잎 50명입니다. numpy 2 이상에서는 실수가 <code>np.float64(0.69…)</code>처럼 감싸여 보이고, 그보다 낮은 버전에서는 <code>0.69…</code>만 보입니다.</span></li>
+<li><span class="mk">2</span><span><b>0.7597, 120번 학습.</b> 40개 조합 × 3겹입니다. 학습 횟수는 격자 탐색의 2.5배인데 시간은 1.8배였습니다. <code>max_samples</code>가 1보다 작은 조합은 나무 하나가 보는 자료가 적어 빨리 끝나는 것이 주된 이유로 보입니다.</span></li>
+</ol>
+<!--FIG:ml02_randres-->
+<p><code>cv_results_</code>를 표로 바꾸고 열 이름을 줄여 순위대로 6개를 보았습니다(표 만들기는 <a href="#ml01-s5">1장 마 절</a>). <span class="mk">1</span> 가장 좋은 조합은 10번째로 뽑힌 것이어서, 처음 16개만 뽑았어도 격자 탐색(0.7590)과 같은 수준(0.7597)이었습니다. <span class="mk">2</span> 1등과 6등의 차이는 0.002이고 각 조합의 겹 사이 SD는 0.012–0.017입니다. 잎 11–92명, 후보 3–19개의 서로 꽤 다른 조합이 거의 같은 점수를 냅니다. 이 자료에서는 꼭대기가 뾰족한 산이 아니라 넓은 고원이라는 뜻이고, 그 안에서 1등을 가리는 것은 큰 의미가 없습니다.</p>
+<!--FIG:ml02_fig_gridrand-->
+
+<h3>단계적 탐색</h3>
+<p><code>HalvingRandomSearchCV</code>는 다음 순서로 후보를 줄여 갑니다. <code>factor=3</code>은 단계마다 위쪽 3분의 1만 남기고 자원을 3배로 늘린다는 뜻입니다.</p>
+<div class="flow">
+<div><div><b>예선</b><p>무작위로 뽑은 후보 81개를 나무 22그루로 3겹 교차검증합니다.</p></div></div>
+<div><div><b>준결승</b><p>점수 위쪽 27개만 남겨 나무 66그루로 다시 평가합니다.</p></div></div>
+<div><div><b>결승</b><p>위쪽 9개를 나무 198그루로 평가해 가장 높은 조합을 고릅니다.</p></div></div>
+<div><div><b>다시 맞추기</b><p>고른 조합으로 학습 자료 전체를 다시 학습합니다(<code>refit=True</code>).</p></div></div>
+</div>
+<!--FIG:ml02_halving-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from sklearn.experimental import enable_halving_search_cv  # noqa</code><span>단계적 탐색은 아직 실험 기능이라 이 줄을 먼저 실행해야 다음 줄의 import가 됩니다. 이 줄이 없으면 <code>ImportError</code>가 납니다. <code># noqa</code>는 '쓰지 않는 import'라는 검사 도구의 경고를 끄는 주석일 뿐입니다.</span></li>
+<li><code>n_candidates=81, factor=3</code><span>첫 단계의 후보 수와 줄이는 비율입니다. 81 → 27 → 9로 줄어듭니다.</span></li>
+<li><code>resource="model__n_estimators", min_resources=22, max_resources=200</code><span>단계마다 늘릴 자원을 나무 수로 정했습니다. 22 → 66 → 198그루입니다. 기본값 <code>resource="n_samples"</code>는 학습에 쓰는 사람 수를 늘려 가는데, 사건이 4%인 자료에서 첫 단계를 수백 명으로 하면 검증 겹마다 입원이 몇 명뿐이라 점수가 너무 거칩니다. 자원으로 쓴 조절값은 <code>space</code>에 넣지 않습니다.</span></li>
+<li><code>pd.DataFrame(hs.cv_results_).groupby("iter").agg(…)</code><span><code>cv_results_</code>에는 <code>iter</code>(몇 번째 단계)와 <code>n_resources</code>(그 단계의 나무 수) 열이 더 있습니다. 단계별로 후보 수, 나무 수, 최고 점수를 모았습니다. <code>agg(이름=("열", "함수"))</code>는 새 열 이름과 계산을 짝지어 주는 문법입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>무작위 탐색과 같은 조합.</b> 같은 <code>random_state</code>로 뽑았으므로 처음 40개 후보가 셀 10과 같고, 그중 1등이 결승까지 살아남았습니다. 나무 수는 결승의 198그루로 정해졌습니다.</span></li>
+<li><span class="mk">2</span><span><b>0.7597.</b> 81개를 보고도 무작위 탐색(40개)과 비슷한 시간이 들었습니다.</span></li>
+<li><span class="mk">3</span><span><b>준결승의 최고 0.7626.</b> 결승(0.7597)보다 높습니다. 나무 66그루의 점수는 더 거칠고, 거친 점수 27개 가운데 최댓값은 운이 좋은 쪽으로 치우치기 때문입니다. 적은 자원의 점수는 순위를 거르는 데만 쓰고 최종 점수로 보고하지 않습니다.</span></li>
+</ol>
+
+<h3>세 방법 비교</h3>
+<!--FIG:ml02_cmp3-->
+<p><span class="mk">1</span> 세 방법의 최고 점수는 0.7590–0.7597로 0.001 안쪽입니다. 고원이 넓은 이 자료에서는 어느 방법으로도 비슷한 곳에 닿았습니다. <span class="mk">2</span> 무작위 탐색은 격자 탐색보다 2.5배 많은 조합을 1.8배 시간에, 단계적 탐색은 다시 그 두 배의 조합을 무작위 탐색과 비슷한 시간에 보았습니다. 단계적 탐색이 키운 나무는 무작위 탐색의 3분의 2입니다. 차이는 조절값이 많고 좋은 조합이 좁은 곳에 몰려 있을수록 커집니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>방법</th><th>언제 쓰나</th><th>몇 번 학습하나</th><th>주의</th></tr></thead>
+<tbody>
+<tr><td>격자 (<code>GridSearchCV</code>)</td><td>조절값 1–2개, 후보 값이 분명할 때</td><td>값 수의 곱 × k</td><td>조절값이 늘면 곱으로 불어남</td></tr>
+<tr><td>무작위 (<code>RandomizedSearchCV</code>)</td><td>조절값 3개 이상, 범위만 알 때</td><td><code>n_iter</code> × k (보통 30–100개)</td><td>분포를 잘 정하기(10배 단위로 움직이면 로그 척도)</td></tr>
+<tr><td>단계적 (<code>HalvingRandomSearchCV</code>, <code>HalvingGridSearchCV</code>)</td><td>후보가 많고 한 번 학습이 오래 걸릴 때</td><td>첫 단계 후보 수 × 단계 수 × k보다 적음</td><td>적은 자원의 순위가 큰 자원의 순위와 비슷해야 함. 실험 기능</td></tr>
+<tr><td>베이즈 최적화 (라 절)</td><td>한 번 평가가 비싸고 조절값이 여럿일 때</td><td>보통 30–200번</td><td>앞 결과를 보고 다음을 정하므로 차례로 돌아감</td></tr>
+</tbody></table></div>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">무작위 탐색은 운에 맡기는 방법이라 빠짐없이 보는 격자 탐색보다 못하다.</span> 격자 탐색이 빠짐없이 보는 것은 사람이 정한 몇 개의 값뿐입니다. 같은 횟수로 각 조절값을 더 많은 값에서 보는 쪽은 무작위 탐색이고, 이 자료에서도 처음 16개만으로 격자 16개와 같은 수준(0.7597 대 0.7590)에 닿았습니다.</li>
+<li><span class="wrong">탐색 결과의 1등 조합이 확실히 가장 좋은 조합이다.</span> 셀 11의 위쪽 6개는 0.002 안쪽이고 겹 사이 SD는 0.013 안팎이었습니다. 1등은 그 겹 나누기에서 운이 조금 더 좋았던 조합일 수 있습니다. 비슷하면 더 단순하거나 빠른 조합(작은 <code>max_features</code>, 큰 잎)을 골라도 됩니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>무작위 탐색은 조절값마다 분포(<code>randint</code>, <code>uniform(시작, 폭)</code>, <code>loguniform</code>)나 목록을 주고 <code>n_iter</code>개 조합을 뽑아 교차검증합니다. 조절값을 더해도 시험 횟수는 그대로입니다.</li>
+<li>단계적 탐색은 많은 후보를 적은 자원으로 거르고 위쪽만 자원을 늘려 다시 봅니다. 실험 기능이라 <code>enable_halving_search_cv</code>를 먼저 import하고, 드문 결과에서는 자원으로 표본 수보다 나무 수가 낫습니다.</li>
+<li>이 자료에서 격자 16개, 무작위 40개, 단계적 81개의 최고 교차검증 AUC는 0.759–0.760으로 같았습니다. 좋은 조합이 넓게 퍼져 있으면 탐색 방법보다 범위(특히 잎 크기)를 제대로 잡는 것이 중요합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ml02-s4">
+<h2><span class="sec-no">라.</span>베이즈 최적화와 Optuna·HyperOpt</h2>
+
+<h3>쉽게 말하면</h3>
+<p>격자 탐색과 무작위 탐색은 앞의 결과를 보지 않고 다음 조합을 정합니다. 용량을 적정할 때 첫 용량의 반응을 보고 다음 용량을 정하듯, 지금까지 시험한 조합과 점수를 보고 '좋은 점수가 나올 것 같은 곳'을 추정해 다음 조합을 고르는 방법이 <strong>베이즈 최적화</strong><span class="en">(Bayesian optimization)</span>입니다. 연구실 교재가 쓰는 HyperOpt<cite data-ref="bergstra2013"></cite>와 요즘 많이 쓰는 Optuna<cite data-ref="akiba2019"></cite>는 둘 다 기본으로 <strong>TPE</strong><span class="en">(tree-structured Parzen estimator)</span>라는 방법을 씁니다. 순서는 다음과 같습니다.</p>
+<ol>
+<li><b>처음 몇 번은 무작위.</b> 아직 아는 것이 없으므로 범위 안에서 무작위로 고릅니다. Optuna는 처음 10번, HyperOpt는 처음 20번이 무작위입니다(기본값).</li>
+<li><b>두 무리로 나누기.</b> 지금까지의 시도를 점수로 줄 세워 위쪽 일부를 '좋은 무리', 나머지를 '다른 무리'로 나눕니다. 위쪽의 비율은 Optuna가 10%(최대 25번), HyperOpt가 25%입니다.</li>
+<li><b>어디에 몰려 있나.</b> 조절값마다 두 무리의 값이 어디에 몰려 있는지를 밀도로 그립니다(그림 2-2의 B). 시험한 값마다 종 모양을 하나씩 얹어 더한 것이며, 이것이 이름의 Parzen 추정입니다. 그림 2-2는 Optuna의 시도로 그렸지만 보기 쉽게 HyperOpt의 비율인 25%로 나눴습니다.</li>
+<li><b>다음 후보 고르기.</b> 좋은 무리의 밀도를 따라 후보 여럿(Optuna는 24개)을 뽑고, '좋은 무리 밀도 ÷ 다른 무리 밀도'가 가장 큰 후보를 다음에 시험합니다. 결과가 나오면 ②로 돌아갑니다.</li>
+</ol>
+<!--FIG:ml02_fig_tpe-->
+<!--FOLD:TPE가 고르는 기준-->
+<p>점수가 기준 y* 위인 시도들의 조절값 밀도를 l(x), 나머지의 밀도를 g(x)라고 하면 TPE는 다음 값이 가장 큰 x를 고릅니다.</p>
+<div class="eq">\[ \frac{l(x)}{g(x)} \]<p>Bergstra 등은 이 비가 클수록 '지금의 최고보다 나아질 기대량'(expected improvement)도 커진다는 것을 보였습니다. 좋은 무리에서 자주 나왔고 다른 무리에서는 드물게 나온 값을 고른다는 뜻입니다. 조절값을 하나씩 따로 다루는 것이 기본이라(Optuna의 <code>TPESampler(multivariate=True)</code>로 바꿀 수 있음) 조절값 사이의 영향은 덜 반영합니다.</p>
+<!--/FOLD-->
+
+<h3>설치</h3>
+<p>Colab에는 Optuna가 없으므로 설치 셀부터 실행합니다. 설치 방법과 <code>!</code>의 뜻은 <a href="stats.html#lab00-s4">실습 0 라 절</a>과 같습니다. HyperOpt가 이미 깔려 있는 환경이면 그 줄은 <code>Requirement already satisfied</code>로 나옵니다. 이 셀은 그때의 최신판을 설치하는데, Optuna나 HyperOpt의 버전이 다르면 seed가 같아도 다른 조합을 고를 수 있고 그러면 라 절과 마 절의 숫자도 조금 달라집니다. 출력과 가까운 결과를 보려면 <code>!pip install optuna==4.5.0 hyperopt==0.2.7</code>처럼 버전을 정해 설치합니다(scikit-learn 버전이 달라도 끝자리가 다를 수 있습니다).</p>
+<!--FIG:ml02_pip-->
+
+<h3>Optuna</h3>
+<p>Optuna에서는 '조합 하나를 받아 점수 하나를 돌려주는 함수'를 직접 씁니다. 이 함수를 <strong>목적 함수</strong><span class="en">(objective function)</span>, 한 번의 시험을 <strong>시도</strong><span class="en">(trial)</span>, 시도들을 모은 기록을 <strong>study</strong>라고 부릅니다. 탐색 범위는 다 절의 무작위 탐색과 같습니다.</p>
+<!--FIG:ml02_optuna-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def objective(trial):</code><span>Optuna가 시도마다 넘겨주는 <code>trial</code>을 받아, 그 시도에서 쓸 조절값을 고르고 교차검증 AUC 하나를 돌려주는 함수를 정의합니다. Optuna는 이 함수를 <code>n_trials</code>번 부릅니다.</span></li>
+<li><code>trial.suggest_int("max_features", 2, 24)</code><span>이름, 최솟값, 최댓값을 주면 정수 하나를 골라 줍니다. <code>randint</code>와 달리 끝값 24도 들어갑니다. <code>log=True</code>를 더하면 로그 척도로 고릅니다.</span></li>
+<li><code>trial.suggest_float("max_samples", 0.3, 1.0)</code><span>0.3–1.0의 실수 하나입니다. 학습률처럼 10배 단위로 움직이는 값은 <code>log=True</code>로 씁니다(<code>loguniform</code>에 해당).</span></li>
+<li><code>trial.suggest_categorical("criterion", ["gini", "entropy"])</code><span>목록에서 하나를 고릅니다.</span></li>
+<li><code>RandomForestClassifier(…, max_features=trial.suggest_int(…), …)</code><span>고른 값을 바로 인자로 넣었습니다. 조절값 이름을 모형의 인자 이름과 똑같이 지어 두면 나중에 <code>**study.best_params</code>로 한 번에 넘길 수 있습니다(셀 21).</span></li>
+<li><code>cross_val_score(make_tree_pipe(model), X_train, y_train, cv=skf3, scoring="roc_auc")</code><span>셀 9에서 만든 <code>skf3</code>는 <code>random_state</code>를 정한 분할기라 시도마다 똑같은 세 겹으로 나눕니다. 그래야 시도 사이의 점수 차이가 겹 나누기의 운이 아니라 조절값에서 옵니다. 숲의 <code>random_state=2026</code>을 고정한 것도 같은 이유입니다.</span></li>
+<li><code>optuna.logging.set_verbosity(optuna.logging.WARNING)</code><span>Optuna는 시도가 끝날 때마다 <code>Trial 0 finished with value: …</code> 같은 기록을 한 줄씩 찍습니다. 40줄이 쌓이지 않게 경고만 보이도록 했습니다. 진행을 보고 싶으면 이 줄을 빼면 됩니다.</span></li>
+<li><code>optuna.create_study(direction="maximize", sampler=TPESampler(seed=2026))</code><span>AUC는 클수록 좋으므로 <code>"maximize"</code>입니다(손실이면 <code>"minimize"</code>). <code>sampler</code>는 다음 조합을 고르는 방법이고 TPE가 기본입니다. seed를 주어야 다시 돌려도 같은 조합을 같은 순서로 고릅니다.</span></li>
+<li><code>study.optimize(objective, n_trials=40)</code><span>목적 함수를 40번 부릅니다. 같은 study에 다시 부르면 기록에 이어서 시도합니다(과제 2).</span></li>
+<li><code>study.best_params</code>, <code>study.best_value</code>, <code>study.best_trial.number</code><span>가장 좋은 조합(딕셔너리), 그 점수, 그 시도의 번호(0부터 셈)입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>고른 조합.</b> 후보 20개, 잎 85명, 표본 73%, gini입니다. 무작위 탐색(후보 7개, 잎 50명)과 꽤 다르지만 다 절에서 본 넓은 고원의 다른 자리입니다.</span></li>
+<li><span class="mk">2</span><span><b>0.7594, 16번 시도.</b> 0부터 세므로 17번째 시도입니다. 무작위로 고르는 처음 10번이 끝난 뒤 7번 만에 찾았습니다.</span></li>
+<li><span class="mk">3</span><span><b>걸린 시간.</b> 무작위 탐색 40번보다 깁니다. 이번 탐색에서는 TPE가 시간이 오래 걸리는 쪽(큰 <code>max_features</code>, 큰 표본)을 많이 골랐습니다.</span></li>
+</ol>
+<!--FIG:ml02_optuna_df-->
+<p><code>trials_dataframe</code>은 시도마다 한 줄인 표를 돌려줍니다. <code>attrs</code>로 번호, 점수, 조절값 열만 골랐고, 빼면 시작·끝 시각과 걸린 시간 열도 붙습니다. 조절값 열 이름에는 <code>params_</code>가 붙고 알파벳 순서로 놓입니다. <span class="mk">1</span> 40번 × 6열이고, <span class="mk">2</span> 위쪽 5개는 모두 잎 82–100명, gini였고 후보 수(18–20개)와 표본 비율(73–89%)도 좁은 곳에 모였습니다. 위쪽이 한곳에 모인 것은 TPE가 좋은 시도 근처를 되풀이해 시험했기 때문이므로, 이것만으로 네 조절값이 모두 중요하다고 읽지는 않습니다. 40번 전체에서 점수와 함께 움직인 것은 잎 크기였고(셀 17의 조각 그림과 조절값 중요도), 나 절의 결과와 같습니다.</p>
+<!--FIG:ml02_optuna_plots-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>from optuna.visualization.matplotlib import …</code><span>matplotlib으로 그리는 Optuna 그림들입니다. <code>optuna.visualization</code>(matplotlib이 빠진 이름)에도 같은 이름의 함수가 있는데, 마우스로 움직이는 plotly 그림이 나옵니다. Colab에서는 둘 다 됩니다.</span></li>
+<li><code>plot_optimization_history(study)</code><span>시도 번호에 따른 점수(점)와 그때까지의 최고 점수(선)입니다.</span></li>
+<li><code>plot_param_importances(study, evaluator=FanovaImportanceEvaluator(seed=2026))</code><span>조절값마다 점수의 변동을 얼마나 설명하는지입니다. 시도 기록으로 작은 랜덤 포레스트를 학습해 계산하므로(fANOVA) seed를 주지 않으면 그릴 때마다 막대가 조금씩 달라집니다.</span></li>
+<li><code>plot_slice(study)</code><span>조절값마다 가로축에 값, 세로축에 점수를 찍은 그림입니다. 점의 색은 시도 번호로, 진할수록 나중 시도입니다.</span></li>
+<li><code>ax1 = …</code><span>함수들은 그림의 축(Axes)을 돌려줍니다. 셀의 마지막 줄이 값이면 그 값이 출력에 찍히므로 이름에 담아 두었습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<p>노란 상자의 <code>ExperimentalWarning</code> 세 줄은 matplotlib판 Optuna 그림이 '실험 기능이라 인자가 나중에 바뀔 수 있다'는 안내이고, 오류가 아닙니다. 버전에 따라 문구가 다르거나 나오지 않을 수 있습니다.</p>
+<ul>
+<li><b>최적화 이력(첫째 그림).</b> 처음 10번(무작위)은 0.741–0.759로 흩어지고, 뒤의 30번은 28번이 0.75 위에 모입니다. TPE가 좋은 곳 근처를 주로 시험한다는 뜻입니다.</li>
+<li><b>조절값 중요도(둘째 그림).</b> <code>min_samples_leaf</code>가 0.73으로 점수 변동의 대부분을 설명하고, <code>max_features</code> 0.13, <code>max_samples</code> 0.09, <code>criterion</code> 0.06의 순서입니다. 셀 7의 열지도와 같은 결론입니다.</li>
+<li><b>조각 그림(셋째 그림).</b> 점수가 가장 낮은 세 시도는 잎이 1명, 20명, 36명이었고, 11번째 이후 30번 가운데 25번이 잎 73–100명을 시험했습니다. 다른 조절값은 범위 전체에 점수가 비슷하게 퍼져 있습니다.</li>
+</ul>
+
+<h3>HyperOpt</h3>
+<p>HyperOpt는 범위를 함수 밖의 딕셔너리로 정하고, 손실을 <b>최소화</b>만 합니다. 같은 범위, 같은 3겹 교차검증, 같은 40번으로 돌립니다.</p>
+<!--FIG:ml02_hyperopt-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>hp.quniform("max_features", 2, 24, 1)</code><span>2–24의 실수를 뽑아 1 단위로 반올림합니다. 결과가 12.0처럼 <b>실수</b>이므로, 정수만 받는 인자에 넘길 때 <code>int()</code>로 바꿉니다. 바꾸지 않으면 <code>max_features=12.0</code>이 '비율'로 해석되어 오류가 납니다.</span></li>
+<li><code>hp.uniform("max_samples", 0.3, 1.0)</code><span>0.3–1.0의 실수입니다. 로그 척도는 <code>hp.loguniform</code>인데, 범위를 자연로그 값으로 줍니다(예를 들어 <code>hp.loguniform("lr", np.log(0.001), np.log(0.3))</code>).</span></li>
+<li><code>hp.choice("criterion", ["gini", "entropy"])</code><span>목록에서 하나를 고릅니다. 목적 함수에는 값("gini")이 들어가지만, <code>fmin</code>이 돌려주는 결과에는 목록의 <b>번호</b>(0, 1)가 들어갑니다.</span></li>
+<li><code>def hp_objective(params):</code><span>뽑힌 조절값 딕셔너리를 받아 <code>{"loss": 손실, "status": STATUS_OK}</code>를 돌려줍니다. AUC는 클수록 좋으므로 손실로 <code>-auc</code>를 줍니다.</span></li>
+<li><code>trials = Trials()</code><span>시도마다의 조절값과 결과를 담을 빈 기록입니다. <code>fmin</code>이 채웁니다.</span></li>
+<li><code>fmin(hp_objective, hp_space, algo=tpe.suggest, max_evals=40, trials=trials, rstate=np.random.default_rng(2026))</code><span><code>algo=tpe.suggest</code>가 TPE(무작위 탐색은 <code>rand.suggest</code>), <code>max_evals</code>가 시도 수, <code>rstate</code>가 seed입니다. HyperOpt 0.2.7은 numpy의 <code>default_rng</code>를 받고, 이보다 오래된 버전은 <code>np.random.RandomState(2026)</code>를 받습니다. 실행하는 동안 진행 막대가 한 줄로 계속 바뀌며 시도 수, 걸린 시간, 그때까지의 최고 손실을 보여 줍니다. 진행 막대를 끄려면 <code>show_progressbar=False</code>를 줍니다.</span></li>
+<li><code>space_eval(hp_space, best)</code><span>번호로 된 결과를 실제 값으로 바꿉니다.</span></li>
+<li><code>trials.losses()</code><span>시도마다의 손실 목록입니다. 가장 작은 손실에 마이너스를 붙이면 최고 AUC입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>fmin의 결과.</b> 첫 줄은 진행 막대의 마지막 모습이고, 최고 손실 −0.7598이 곧 최고 AUC입니다. 그 아래 <code>print(best)</code>에서 <code>criterion</code>이 0, <code>max_features</code>가 16.0처럼 나옵니다. 0은 목록의 첫 값 "gini"라는 뜻입니다. numpy 2 이상에서는 숫자가 <code>np.int64(0)</code>, <code>np.float64(16.0)</code>처럼 감싸여 보입니다.</span></li>
+<li><span class="mk">2</span><span><b>space_eval의 결과.</b> 'gini', 후보 16개, 표본 41%, 잎 73명입니다. 정수 조절값이 여전히 16.0처럼 실수이므로 모형에 넣을 때 <code>int()</code>로 바꿉니다.</span></li>
+<li><span class="mk">3</span><span><b>최고 AUC 0.7598.</b> 31번째 시도에서 나왔습니다.</span></li>
+</ol>
+<!--FIG:ml02_hyperopt_df-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pd.DataFrame(trials.vals)</code><span><code>trials.vals</code>는 조절값 이름마다 40번의 값을 담은 딕셔너리라 바로 표가 됩니다. <code>hp.choice</code>의 열은 번호이므로 <code>.map({0: "gini", 1: "entropy"})</code>로 바꿨습니다.</span></li>
+<li><code>[-r["loss"] for r in trials.results]</code><span><code>trials.results</code>는 목적 함수가 돌려준 딕셔너리 40개의 목록입니다. 손실에 마이너스를 붙여 AUC로 되돌립니다.</span></li>
+<li><code>hdf["AUC"].cummax()</code><span>누적 최댓값, 곧 그때까지의 최고 점수입니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span>은 40번 × 5열입니다. <span class="mk">2</span> 위쪽 5개 가운데 4개는 30번째 이후의 시도이고, 다섯 모두 잎 68–75명, 표본 31–58%에 몰려 있습니다. HyperOpt는 처음 20번을 무작위로 고르므로 TPE가 고른 시도는 21번째부터이고, 위쪽 5개에 든 12번째 시도는 무작위로 뽑힌 것입니다. 같은 고원에서 Optuna(잎 82–100명)와는 다른 쪽을 파고들었습니다.</p>
+
+<h3>무작위 탐색, Optuna, HyperOpt 비교</h3>
+<!--FIG:ml02_cmp_bayes-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>res["mean_test_score"].cummax()</code><span>무작위 탐색의 <code>cv_results_</code>는 뽑힌 순서대로이므로 누적 최댓값이 '시도 n번까지의 최고'입니다. Optuna(<code>tdf["value"]</code>)와 HyperOpt(<code>hdf["AUC"]</code>)도 같습니다.</span></li>
+<li><code>so_far.plot(drawstyle="steps-post")</code><span>pandas 표의 열마다 선을 그리고 범례를 붙입니다. 계단 모양으로 그렸습니다.</span></li>
+<li><code>so_far.idxmax()</code><span>열마다 최댓값이 처음 나온 행 이름, 곧 최고 점수에 처음 닿은 시도 번호(1부터)입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>최고 교차검증 AUC.</b> 무작위 0.7597, Optuna 0.7594, HyperOpt 0.7598입니다. 셋의 차이(0.0004)는 한 조합의 겹 사이 SD(0.013 안팎)의 30분의 1입니다.</span></li>
+<li><span class="mk">2</span><span><b>처음 닿은 시도.</b> 무작위 10번째, Optuna 17번째, HyperOpt 31번째입니다. 이 자료처럼 좋은 조합이 넓게 퍼져 있으면 무작위 탐색도 금방 고원에 닿습니다.</span></li>
+<li><span class="mk">3</span><span><b>걸린 시간.</b> 시도 하나의 시간은 고른 조합(후보 수, 표본 비율)에 따라 달라서, 베이즈 최적화가 더 큰 조합을 많이 고르면 같은 40번이라도 더 오래 걸립니다.</span></li>
+</ol>
+<p>베이즈 최적화가 확실히 앞서는 경우는 조절값이 많고 좋은 조합이 좁은 곳에 있을 때, 그리고 시도 하나가 비싸 몇십 번밖에 못 돌릴 때입니다. 3장의 부스팅은 조절값이 더 많고 서로 얽혀 있어 차이가 더 잘 보입니다. 이 장의 최종 모형에는 Optuna의 조합을 씁니다. 세 점수가 같은 수준이고, 조절값 이름을 모형 인자와 같게 지어 바로 넘길 수 있기 때문입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>하는 일</th><th>Optuna</th><th>HyperOpt</th></tr></thead>
+<tbody>
+<tr><td>범위 정하기</td><td>목적 함수 안에서 <code>trial.suggest_int</code>, <code>suggest_float</code>, <code>suggest_categorical</code></td><td>함수 밖의 딕셔너리에 <code>hp.quniform</code>, <code>hp.uniform</code>, <code>hp.loguniform</code>, <code>hp.choice</code></td></tr>
+<tr><td>정수와 범주</td><td>정수는 정수로, 범주는 값으로</td><td>정수도 실수로(<code>int()</code> 필요), 범주는 결과에 번호로(<code>space_eval</code>)</td></tr>
+<tr><td>방향</td><td><code>direction="maximize"</code> 또는 <code>"minimize"</code></td><td>최소화만(<code>-AUC</code>를 손실로)</td></tr>
+<tr><td>목적 함수가 돌려주는 것</td><td>숫자 하나</td><td><code>{"loss": …, "status": STATUS_OK}</code></td></tr>
+<tr><td>시도 수와 seed</td><td><code>n_trials</code>, <code>TPESampler(seed=…)</code></td><td><code>max_evals</code>, <code>rstate=np.random.default_rng(…)</code></td></tr>
+<tr><td>처음 무작위 시도 / 좋은 무리</td><td>10번 / 위쪽 10%(최대 25번)</td><td>20번 / 위쪽 25%</td></tr>
+<tr><td>결과 보기</td><td><code>best_params</code>, <code>trials_dataframe()</code>, <code>optuna.visualization</code></td><td><code>fmin</code>의 반환값, <code>Trials</code>의 <code>vals</code>, <code>results</code>, <code>losses()</code>. 그림은 직접</td></tr>
+</tbody></table></div>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">베이즈 최적화는 언제나 무작위 탐색보다 더 좋은 조합을 찾는다.</span> 앞선 결과를 이용하는 만큼 평균적으로 빨리 좋은 곳에 가지만, 처음 10–20번은 무작위와 같고 시도 수가 적으면 순서가 운에 좌우됩니다. 이 자료에서는 40번 안에서 셋의 최고 점수가 0.0004 안쪽이었고 Optuna는 무작위보다 조금 낮았습니다.</li>
+<li><span class="wrong">Optuna가 고른 조합의 교차검증 AUC 0.7594가 이 모형의 성능이다.</span> 40번 가운데 가장 높은 값을 고른 것이므로 낙관적으로 치우칩니다(<a href="#ml00-s4">0장 라 절</a>). 성능은 고른 조합으로 다시 맞춘 모형을 시험 자료로 한 번 평가해 보고합니다(마 절).</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>베이즈 최적화(TPE)는 시도를 점수로 두 무리로 나누고, 좋은 무리에서 자주 나온 값을 다음에 시험합니다. Optuna와 HyperOpt의 기본 방법입니다.</li>
+<li>Optuna는 <code>objective(trial)</code> 안에서 <code>trial.suggest_*</code>로 범위를 정하고 점수를 돌려주며, <code>create_study(direction="maximize", sampler=TPESampler(seed=…))</code>와 <code>optimize(n_trials=…)</code>로 돌립니다. <code>trials_dataframe()</code>과 이력·중요도·조각 그림으로 결과를 봅니다.</li>
+<li>HyperOpt는 <code>hp.*</code>로 범위를, <code>fmin(…, algo=tpe.suggest, max_evals=…, trials=Trials(), rstate=…)</code>로 탐색을 하며 손실(<code>-AUC</code>)을 최소화합니다. <code>hp.quniform</code>의 정수는 <code>int()</code>로, <code>hp.choice</code>의 번호는 <code>space_eval</code>로 바꿉니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="ml02-s5">
+<h2><span class="sec-no">마.</span>변수 중요도와 결과 정리</h2>
+
+<h3>최종 모형</h3>
+<p>라 절에서 Optuna가 고른 조합으로 나무 500그루의 숲을 학습 자료 전체에 다시 맞추고, 시험 자료로 한 번 평가합니다. 신뢰구간을 구하는 반복문은 <a href="#ml01-s5">1장 마 절</a>의 <code>boot_auc</code>와 같은 방법이고, 이 장에서는 구간 두 끝만 돌려주도록 줄였습니다.</p>
+<!--FIG:ml02_final-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>RandomForestClassifier(n_estimators=500, …, **best_rf)</code><span><code>**</code>는 딕셔너리를 '이름=값' 인자들로 풀어 넣습니다. <code>best_rf</code>가 <code>{"max_features": 20, "min_samples_leaf": 85, …}</code>이므로 <code>max_features=20, min_samples_leaf=85, …</code>를 쓴 것과 같습니다. 나무 수는 나 절의 곡선에 따라 넉넉히 500으로 정했습니다.</span></li>
+<li><code>def boot_ci(y_true, p, n_boot=1000, seed=2026):</code><span>실제 결과와 예측 확률을 받아, 시험 자료를 <code>n_boot</code>번 복원추출해 다시 구한 AUC들의 2.5와 97.5 백분위수(95% 신뢰구간의 두 끝)를 돌려주는 함수입니다. 셀 27에서 다섯 모형에 같은 seed로 씁니다.</span></li>
+<li><code>joblib.dump(final, "rf_final.joblib")</code><span>맞춘 파이프라인 전체를 파일로 저장합니다. 출력의 <code>['rf_final.joblib']</code>는 저장한 파일 이름의 목록입니다. 불러오기(<code>joblib.load</code>)와 주의할 점은 <a href="#ml01-s5">1장 마 절</a>과 같습니다. 이 숲의 파일은 4MB 안팎이지만, 잎을 1명까지 키우는 기본값의 숲은 나무 하나하나가 커서 수십 MB가 되기도 합니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span>의 시험 AUC는 0.770(95% 신뢰구간 0.722–0.815)입니다. 튜닝하지 않은 셀 5의 숲(잎 20명, 0.772)과 1장의 나무(0.771)와 사실상 같습니다. 셀 27에서 다시 봅니다.</p>
+
+<h3>두 가지 변수 중요도</h3>
+<p>랜덤 포레스트는 계수가 없으므로 '어떤 특성이 예측에 많이 쓰였나'를 따로 잽니다. 방법이 둘이고 답이 꽤 다릅니다.</p>
+<ul>
+<li><b>불순도 기반 중요도.</b> 나무마다 그 특성으로 가지를 나눌 때 줄어든 지니 불순도(사람 수로 가중)를 모두 더해 숲 전체에서 평균하고 합이 1이 되게 맞춘 값입니다(<strong>불순도 기반 중요도</strong><span class="en">, impurity-based importance, mean decrease in impurity</span>). 나무 한 그루의 같은 값은 <a href="#ml01-s5">1장 마 절</a>에서 보았습니다. 학습할 때 저절로 계산되어 빠르지만 <b>학습 자료</b>에서 잰 값입니다.</li>
+<li><b>순열 중요도.</b> 시험 자료에서 한 열만 사람들 사이에서 무작위로 뒤섞어 그 열의 정보만 끊은 뒤 AUC가 얼마나 떨어지는지를 잰 값입니다(<strong>순열 중요도</strong><span class="en">, permutation importance</span>)<cite data-ref="breiman2001"></cite>. 셀 21의 시험 AUC가 0.770이고 나이 열을 섞으면 0.72 안팎으로 떨어진다면 나이의 순열 중요도는 0.05입니다. 섞는 방법에 따라 값이 흔들리므로 여러 번(<code>n_repeats</code>) 섞어 평균과 SD를 냅니다.</li>
+</ul>
+<!--FIG:ml02_mdi-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>final[:-1].get_feature_names_out()</code><span><code>final[:-1]</code>은 파이프라인의 마지막 단계(모형)를 뺀 전처리 부분이고, <code>get_feature_names_out()</code>은 전처리 뒤 48열의 이름입니다. 숫자 열은 원래 이름 그대로, 원-핫 열은 <code>region_metro</code>처럼 '원래 열_범주'입니다.</span></li>
+<li><code>def original(name):</code><span>열 이름 하나를 받아 원-핫 열이면 원래 글자 열 이름(<code>region</code>)을, 아니면 그대로 돌려주는 함수입니다.</span></li>
+<li><code>final[-1].feature_importances_</code><span>마지막 단계(숲)의 불순도 기반 중요도 48개입니다.</span></li>
+<li><code>mdi.groupby([original(nm) for nm in names]).sum()</code><span>원래 열 이름이 같은 것끼리 더해 39개로 줄입니다. 지역의 원-핫 3열이 <code>region</code> 하나가 됩니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span>은 전처리 뒤 열 이름의 처음과 끝, <span class="mk">2</span>는 39개로 합친 중요도의 개수와 합(1.0)입니다. 위쪽은 나이 0.380, 약 가짓수 0.234이고 <span class="mk">3</span> 2022년 의료비가 0.077로 4위입니다.</p>
+<!--FIG:ml02_perm-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>permutation_importance(final, X_test, y_test, scoring="roc_auc", n_repeats=10, random_state=2026)</code><span>파이프라인째 넘기면 전처리 <b>전</b>의 39개 열을 하나씩 섞으므로 원-핫 열을 합칠 필요가 없습니다. <code>scoring</code>은 떨어짐을 잴 지표, <code>n_repeats</code>는 열마다 섞는 횟수, <code>random_state</code>는 섞는 순서의 seed입니다. 39열 × 10번 = 390번 예측하므로 시간이 조금 걸립니다.</span></li>
+<li><code>perm.importances_mean</code>, <code>perm.importances_std</code><span>열마다 10번 떨어진 AUC의 평균과 SD입니다. 순서는 <code>X_test.columns</code>와 같습니다.</span></li>
+<li><code>imp["impurity"].rank(ascending=False)</code><span>값이 큰 것을 1위로 하는 순위입니다.</span></li>
+<li><code>ax[1].barh(b.index, b["perm"], xerr=b["perm_sd"])</code><span>가로 막대에 <code>xerr</code>로 SD만큼의 오차 막대를 붙입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>나이 0.0507.</b> 두 방법 모두 1위입니다.</span></li>
+<li><span class="mk">2</span><span><b>BMI 0.0329.</b> 순열로는 2위, 불순도로는 6위입니다. BMI 열을 섞으면 비어 있던 칸(검진을 받지 않은 사람)도 함께 섞이므로, U자 관계와 함께 '검진을 받지 않았다'는 정보 일부까지 끊긴 값입니다.</span></li>
+<li><span class="mk">3</span><span><b>심부전 −0.0002.</b> 섞어도 AUC가 떨어지지 않았습니다(34위). 음수는 섞은 쪽이 우연히 조금 더 좋았다는 뜻이고 0으로 읽습니다.</span></li>
+<li><span class="mk">4</span><span><b>지역 0.0001.</b> 효과 없게 만든 네 특성은 순열로 15–29위입니다. 지역은 불순도로는 11위였습니다.</span></li>
+</ol>
+<p>그림의 왼쪽(불순도)과 오른쪽(순열)을 견주면 위쪽 몇 개를 빼고 순서가 크게 다릅니다. 불순도로 3위인 치매가 순열로 8위, 4위인 2022년 의료비가 39위(맨 아래), 9위인 eGFR이 38위입니다.</p>
+
+<h3>중요도가 틀리게 보이는 두 경우</h3>
+<p>첫째, <b>서로 상관된 특성은 중요도를 나눠 갖습니다.</b> 외래 방문, 약 가짓수, 처방 의사 수, 2022년 의료비는 모두 '얼마나 아팠나'를 다르게 잰 것입니다. 하나를 섞어도 나머지가 그 정보를 대신 주므로 하나씩 섞은 값은 작게 나옵니다.</p>
+<!--FIG:ml02_group-->
+<p><code>X_test.copy()</code>로 복사본을 만들고, <code>rng.permutation(len(Xs))</code>로 뽑은 한 가지 순서로 네 열을 <b>함께</b> 섞었습니다(<code>.to_numpy()</code>로 바꿔야 행 번호에 맞춰 되돌아가지 않고 섞인 순서대로 들어갑니다). 출력 <span class="mk">1</span>처럼 네 열의 스피어만 상관은 0.39–0.73입니다. <span class="mk">2</span> 하나씩 섞으면 외래 0.0023, 약 가짓수 0.009, 처방 의사 수 0, 2022년 의료비 −0.0022로 합이 0.0091인데, <span class="mk">3</span> 함께 섞으면 0.0101이 떨어집니다. 이 자료에서는 차이가 크지 않지만, 상관이 더 크면 '각각은 중요하지 않은데 함께 빼면 크게 떨어지는' 일이 생깁니다. 상관된 특성은 묶어서 해석합니다.</p>
+<p>둘째, <b>불순도 기반 중요도는 값의 종류가 많은 특성을 부풀립니다.</b> 연속형 특성은 나눌 수 있는 기준이 수백 개라 학습 자료의 우연한 차이에 맞는 기준을 찾기 쉽고, 그렇게 나눈 만큼 불순도가 줄어든 것으로 계산되기 때문입니다<cite data-ref="strobl2007"></cite>. 결과와 아무 관계없는 난수 열 두 개(연속형 하나, 0/1 하나)를 더해 확인합니다.</p>
+<!--FIG:ml02_noise-->
+<p><code>X_train.assign(noise_num=…, noise_bin=…)</code>는 두 열을 붙인 복사본이고(<a href="#ml00-s3">0장 다 절</a>의 누수 예와 같은 방법), 숫자 열 목록에 두 열을 더해 같은 조합의 숲(시간을 줄이려고 200그루)을 맞췄습니다. 출력 <span class="mk">1</span> 아무 의미 없는 연속형 열의 불순도 중요도가 0.0248로 41개 가운데 8위입니다. 실제로 위험을 높이도록 만든 심부전(15위)과 인슐린(18위)보다 위입니다. <span class="mk">2</span> 순열 중요도는 −0.0028로 0 근처입니다. 0/1 난수 열은 불순도로도 19위에 그쳤습니다. 원-핫 열을 합친 지역(3열)이 불순도로 11위에 오른 것도 같은 이유입니다.</p>
+
+<h3>참 구조와 견주기</h3>
+<p>이 자료는 만든 사람이 정답(참 구조)을 알려 줄 수 있습니다. 아래 표는 그 정답과 셀 23의 두 순위, 셀 26의 부분 의존 그림을 나란히 놓은 것입니다. 실제 자료에서는 이 왼쪽 열을 아무도 모르므로, 중요도와 그림은 '모형이 무엇을 썼는가'로만 읽습니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>만든 사람이 넣은 구조</th><th class="r">불순도 순위</th><th class="r">순열 순위</th><th>부분 의존 그림 (셀 26)</th><th>판단</th></tr></thead>
+<tbody>
+<tr><td>나이. 70세 이후 기울기가 18배</td><td class="r">1</td><td class="r">1</td><td>70세 0.027 → 75세 0.032 → 80세 0.068 → 87세 0.124</td><td>잡았음. 꺾이는 곳이 75세 무렵으로 조금 늦음</td></tr>
+<tr><td>약 10가지 이상에서 계단</td><td class="r">2</td><td class="r">3</td><td>9가지 0.045 → 10가지 0.115</td><td>잡았음</td></tr>
+<tr><td>BMI U자 (23 미만, 25 초과에서 위험 증가)</td><td class="r">6</td><td class="r">2</td><td>18에서 0.065, 24에서 0.025, 32에서 0.045</td><td>잡았음</td></tr>
+<tr><td>응급실 2회 이상에서 큰 계단 (2회 이상 1.6%)</td><td class="r">23</td><td class="r">14</td><td>0회 0.029, 1회 0.030, 2회 0.032</td><td>거의 놓침</td></tr>
+<tr><td>심부전(단독 효과는 작음), 심부전 × 만성콩팥병 (심부전 1.6%, 둘 다 0.3%)</td><td class="r">21</td><td class="r">34</td><td>(그리지 않음)</td><td>놓침</td></tr>
+<tr><td>인슐린 × 나이 (1.7%)</td><td class="r">16</td><td class="r">6</td><td>(그리지 않음)</td><td>일부</td></tr>
+<tr class="hi"><td>효과 없게 만든 넷, <code>dyslip</code>, <code>oa</code>, <code>region</code>, <code>n_prescribers</code></td><td class="r">20, 22, 11, 17</td><td class="r">29, 15, 19, 21</td><td></td><td>순열로는 모두 0 근처(0.0007 이하). 불순도로는 지역이 11위</td></tr>
+<tr><td>2022년 의료비 (결과에 직접 들어가지 않음, 이용량과 상관)</td><td class="r">4</td><td class="r">39</td><td></td><td>불순도에서 크게 부풀려짐</td></tr>
+</tbody></table></div>
+<p>흔하고 큰 구조(나이, 약 가짓수, BMI)는 잘 잡았고, 드문 특성의 큰 효과(응급실 2회 이상, 심부전 × 만성콩팥병)는 놓쳤습니다. 고른 조합의 잎이 85명 이상이고 분할마다 48열 가운데 20개만 후보로 쓰므로, 학습 자료에서 184명(응급실 2회 이상)이나 41명(심부전과 만성콩팥병이 함께 있는 사람)인 작은 무리를 따로 떼어 내는 가지가 잘 생기지 않고, 그 위험의 일부는 나이와 약 가짓수 같은 상관된 특성이 대신 가져갑니다. 3장의 부스팅은 앞 나무가 틀린 사람에 집중하므로 이런 무리를 더 잘 잡는지 같은 표로 다시 봅니다.</p>
+
+<h3>부분 의존 그림</h3>
+<p>중요도는 '얼마나'만 알려 주고 '어떤 모양으로'는 알려 주지 않습니다. <strong>부분 의존 그림</strong><span class="en">(partial dependence plot)</span>은 한 특성의 값에 따라 예측 확률이 평균적으로 어떻게 변하는지를 그립니다<cite data-ref="friedman2001"></cite>.</p>
+<ol>
+<li>시험해 볼 나이 하나(예를 들어 80세)를 정합니다.</li>
+<li>자료의 1,000명 모두의 나이를 80으로 바꾸고, 나머지 특성은 그대로 둔 채 입원 확률을 예측합니다.</li>
+<li>1,000개 확률의 평균이 80세의 부분 의존 값입니다. 나이를 바꿔 가며 되풀이해 이으면 곡선이 됩니다.</li>
+</ol>
+<!--FIG:ml02_pdp-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>screened = X_train[X_train["bmi"].notna()]</code><span>BMI가 있는 사람만 고릅니다. 그림의 가로축 범위는 그 특성 값의 백분위수로 정하는데, BMI에 결측이 섞여 있으면 백분위수가 NaN이 되어 그릴 수 없기 때문입니다. 그래서 네 그림 모두 검진을 받은 사람 1,000명의 평균입니다.</span></li>
+<li><code>X_pdp.astype({c: float for c in num_cols})</code><span>정수 열을 실수로 바꿉니다. scikit-learn 1.7부터는 정수 열의 부분 의존을 오류로 막습니다(격자의 값을 바꿔 넣을 때 소수점이 잘리거나 pandas에서 오류가 날 수 있어서). 1.6 이하에서는 오류가 나지 않지만 같은 문제가 생길 수 있으므로 버전과 상관없이 바꿔 둡니다.</span></li>
+<li><code>PartialDependenceDisplay.from_estimator(final, X_pdp, ["age", "bmi", "n_ed", "n_drugs"], ax=ax, percentiles=(0.01, 0.99), grid_resolution=40)</code><span>파이프라인째 넘기면 원래 단위(세, kg/m², 회, 개)로 그려집니다. 서로 다른 값이 40개보다 적은 특성(응급실, 약 가짓수)은 그 값들을 모두 쓰고, 많은 특성은 1–99 백분위수 사이를 40칸으로 나눕니다. 세로축은 입원 확률입니다. <code>from_estimator</code>는 scikit-learn 1.0부터 있습니다.</span></li>
+<li><code>sharey=True</code><span>네 그림의 세로축을 같게 해 크기를 견줄 수 있게 합니다.</span></li>
+</ol>
+<p>나이 곡선은 70세까지 0.022–0.027로 거의 평평하다가 75세 무렵부터 가팔라져 그림의 오른쪽 끝인 87세(99번째 백분위수)에 0.124입니다(공개 자료의 나이대별 입원율 70–74세 3.0%, 75–79세 6.4%, 80–84세 12.3%와 같은 모양). BMI는 18에서 0.065, 24–25에서 0.025, 오른쪽 끝(32)에서 0.045인 U자이고, 약 가짓수는 9가지 0.045에서 10가지 0.115로 계단입니다. 응급실 곡선은 0회 0.029에서 2회 0.032로 거의 평평해서, 참 구조의 계단(입원율 3.7%에서 22.1%)을 모형이 거의 쓰지 않았음을 보여 줍니다. 오른쪽 끝(응급실 3회 이상, 약 15가지 이상)은 사람이 몇 명뿐이라 믿기 어렵고, 약 15가지에 외래 0회 같은 있을 수 없는 조합도 평균에 들어간다는 점이 부분 의존 그림의 한계입니다.</p>
+
+<h3>모형 비교와 보고</h3>
+<!--FIG:ml02_cmp_final-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>{name: m.predict_proba(X_test)[:, 1] for name, m in fitted.items()}</code><span>셀 5에서 학습 자료 전체로 맞춰 둔 네 모형의 시험 자료 확률을 이름별로 모읍니다(딕셔너리를 만드는 한 줄 문법).</span></li>
+<li><code>cross_val_score(final, X_train, y_train, cv=skf, …)</code><span>최종 모형도 셀 5의 네 모형과 같은 5겹으로 교차검증합니다. 탐색에 쓴 3겹 점수와 섞어 비교하지 않으려는 것입니다.</span></li>
+<li><code>plt.plot(fpr, tpr, label=…)</code><span>모형마다 ROC 곡선을 한 그림에 겹쳐 그립니다. 범례의 숫자가 시험 AUC입니다.</span></li>
+</ol>
+<p><span class="mk">1</span> 튜닝한 숲의 시험 AUC는 0.770(0.722–0.815)이고, 5겹 교차검증 AUC는 튜닝하지 않은 숲(잎 20명)과 같은 0.757입니다. 이 자료에서 튜닝이 준 이득은 '기본값 잎 1명(OOB 0.708)을 피한 것'이 대부분이었고, 고원 안에서 1등 조합을 찾는 데 든 시간은 성능으로 거의 돌아오지 않았습니다. <span class="mk">2</span> 시험 AUC가 가장 높은 것은 배깅(0.784)이지만 교차검증으로는 가장 낮았고, 다섯 모형의 신뢰구간이 모두 겹칩니다. 두 모형의 차이를 말하려면 <a href="#ml01-s5">1장 마 절</a>처럼 같은 복원추출에서 AUC 차이의 구간을 구합니다. 랜덤 포레스트와 로지스틱 회귀의 차이(0.03 안팎)도 시험 자료 153명의 사건으로는 확실히 가르기 어렵습니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 랜덤 포레스트의 튜닝과 결과</b><span>이 장의 결과로 만든 가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">Random forest hyperparameters were tuned in the training set by <span class="hl">Bayesian optimization with the tree-structured Parzen estimator (Optuna 4.5.0; 40 trials)</span> <span class="mk">1</span> over the number of candidate predictors at each split (2 to 24 of 48 encoded predictors), the minimum terminal node size (1 to 100 patients), the bootstrap sample fraction (0.3 to 1.0), and the split criterion (Gini or entropy), <span class="hl">maximizing the mean AUC in stratified 3-fold cross-validation</span> <span class="mk">2</span>. The number of trees was <span class="hl">fixed at 200 during tuning and at 500 for the final model, after the out-of-bag AUC had plateaued</span> <span class="mk">3</span>. Predictor importance was assessed by <span class="hl">permutation importance in the test set (mean decrease in AUC over 10 permutations)</span> <span class="mk">4</span>, and associations were described with partial dependence plots.</p>
+<p class="excerpt">The selected model used 20 candidate predictors per split, a minimum terminal node size of 85, a bootstrap fraction of 0.73, and the Gini criterion. In the test set (n = 3,750; 153 admissions), the AUC was <span class="hl">0.770 (95% bootstrap CI, 0.722 to 0.815)</span> <span class="mk">5</span>, compared with 0.742 (0.695 to 0.785) for logistic regression and 0.771 (0.726 to 0.810) for a single decision tree. Age, body mass index, and the number of prescribed drugs had the largest permutation importance; <span class="hl">predicted risk increased steeply after approximately 75 years of age and at 10 or more drugs</span> <span class="mk">6</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>튜닝 방법과 횟수.</b> 셀 15입니다. 방법(TPE), 도구와 버전, 시도 수, 조절값마다의 범위를 모두 적어야 다른 사람이 같은 탐색을 되풀이할 수 있습니다. 범위의 '48개'는 원-핫 뒤의 열 수라는 점도 밝혔습니다. 고른 값만 적고 범위를 빼면 독자는 그 값이 범위의 가장자리였는지 알 수 없습니다.</span></li>
+<li><span class="mk">2</span><span><b>무엇을 최대화했나.</b> 탐색의 기준(AUC)과 교차검증의 방식(층화 3겹)입니다. 시험 자료를 탐색에 쓰지 않았다는 뜻도 들어 있습니다. 기준을 로그 손실로 했다면 다른 조합이 뽑혔을 수 있습니다(<a href="#ml01-s4">1장 라 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>튜닝하지 않은 조절값.</b> 셀 6입니다. 나무 수처럼 고정한 값과 그 이유도 적습니다. 탐색에서는 시간을 줄이려고 200그루를, 최종 모형에는 500그루를 썼으므로 둘 다 적었습니다.</span></li>
+<li><span class="mk">4</span><span><b>중요도의 종류.</b> 셀 23입니다. 불순도 기반인지 순열인지, 어느 자료에서 무슨 지표로 쟀는지에 따라 순위가 크게 다르므로(2022년 의료비 4위 대 39위) 반드시 밝힙니다.</span></li>
+<li><span class="mk">5</span><span><b>시험 AUC와 신뢰구간.</b> 셀 21과 27입니다. 비교 모형의 구간도 함께 적으면 독자가 차이의 크기를 불확실성과 함께 봅니다. 이 세 구간은 크게 겹치므로 Results에 '더 좋았다'고 쓰지 않았습니다.</span></li>
+<li><span class="mk">6</span><span><b>모양에 대한 서술.</b> 셀 26의 부분 의존 그림입니다. '위험이 높아졌다'가 아니라 '예측 위험이 높아졌다'로 써서 모형의 예측을 서술한 것임을 분명히 합니다. 나이나 약 가짓수를 바꾸면 위험이 바뀐다는 인과 해석은 이 문장에서 나오지 않습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">변수 중요도가 높은 특성은 입원의 원인이고, 그 특성을 바꾸면 위험이 줄어든다.</span> 중요도는 모형이 예측에 그 특성을 얼마나 썼는지일 뿐입니다. 2022년 의료비는 결과에 직접 들어가지 않게 만들었는데도 불순도 중요도 4위였고, 효과 없는 특성도 다른 특성과 상관되면 중요도를 받습니다. 원인을 묻는 질문은 교란을 따지는 원인 모형으로 답합니다(<a href="stats.html#ch08-s6">통계 8장 바 절</a>, <a href="stats.html#ch09-s1">9장 가 절</a>의 '원인 모형과 예측모형'). <a href="#ml00-s1">0장 가 절</a>의 처방 의사 수 예도 같은 이야기입니다.</li>
+<li><span class="wrong">불순도 기반 중요도가 0에 가까우면 그 특성은 결과와 관계없다.</span> 심부전은 실제로 위험을 높이도록(만성콩팥병과 함께 있으면 크게) 만들었지만 잎을 크게 묶은 숲은 그 작은 무리를 따로 쓰지 않았습니다. 중요도는 '이 모형이 썼는가'이지 '결과와 관계있는가'가 아닙니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>최종 모형은 고른 조합으로 학습 자료 전체에 다시 맞추고 시험 자료로 한 번 평가합니다. 튜닝한 숲의 시험 AUC는 0.770(0.722–0.815)으로, 튜닝하지 않은 숲(0.772), 1장의 나무(0.771)와 구간이 겹쳤습니다.</li>
+<li>불순도 기반 중요도는 학습 자료에서 재고 연속형·범주가 많은 특성과 상관된 대리 특성을 부풀립니다(난수 열 8위, 2022년 의료비 4위). 순열 중요도는 시험 자료에서 AUC가 떨어지는 양이며, 상관된 특성끼리는 나눠 가지므로 묶어서 봅니다.</li>
+<li>참 구조와 견주면 흔한 구조(나이 70세 이후, BMI U자, 약 10가지 계단)는 잡았고 드문 큰 효과(응급실 2회 이상, 심부전 × 만성콩팥병)는 놓쳤습니다. 중요도와 부분 의존 그림은 예측에 쓰인 모양이며 원인을 뜻하지 않습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 바 -->
+<section class="sec" id="ml02-s6">
+<h2><span class="sec-no">바.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 과제 1과 2는 Colab에서 몇 분씩 걸립니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. class_weight를 바꿔 다시 튜닝</h3>
+<p>셀 15의 목적 함수에 <code>class_weight="balanced_subsample"</code>을 더해 Optuna로 20번 다시 탐색하고(seed 2026), 고른 조합으로 500그루를 맞추세요. 셀 21의 최종 모형과 시험 AUC, 시험 자료의 평균 예측 확률, 임계값 0.10에서의 혼동행렬(<a href="#ml00-s5">0장 마 절</a>)을 비교하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml02_hw1-->
+<p>가중치를 준 탐색의 최고 교차검증 AUC는 0.7589로 셀 15(0.7594)와 같은 수준이고 고른 조합은 다릅니다(잎 42명, 후보 7개, entropy). 시험 AUC도 0.756과 0.770으로 구간 안의 차이입니다. 크게 달라진 것은 확률의 크기입니다. 평균 예측 확률이 0.040(실제 입원 비율 0.041과 같음)에서 0.302로 일곱 배가 되어, 임계값 0.10에서 기본 모형은 305명을 고위험으로 골라 입원 153명 가운데 68명을 잡는데(재현율 0.44, 정밀도 0.22), 가중치 모형은 3,654명(97%)을 고위험으로 골라 사실상 아무도 거르지 못합니다. 가중치는 입원한 사람을 여러 번 센 것과 같아서 순서(AUC)는 거의 그대로이고 확률만 위로 밀어 올립니다. 확률을 그대로 쓰거나 정해진 임계값으로 고위험군을 고르는 모형이라면 가중치를 쓰지 않거나, 쓴다면 임계값을 다시 정합니다.</p>
+</div></details>
+
+<h3>과제 2. 시도 수에 따른 최고 점수</h3>
+<p>셀 15의 <code>study</code>에 <code>optimize</code>를 한 번 더 불러 40번을 더 돌리고(모두 80번), 시도 10, 20, 40, 80번째까지의 최고 교차검증 AUC를 출력하세요. 힌트. <code>study.trials_dataframe()["value"].cummax()</code>.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml02_hw2-->
+<p>최고 점수는 10번 0.7585, 20번 0.7594, 40번 0.7594, 80번 0.7605였습니다. 시도를 두 배로 늘려 얻은 0.0011은 한 조합의 겹 사이 SD(0.013 안팎)보다 훨씬 작고, 새 1등(잎 98명, 후보 19개)도 같은 고원 안에 있습니다. 같은 study에 이어서 돌리므로 처음 40번은 셀 15의 시도 그대로이고, 이 셀을 다시 실행할 때마다 40번씩 더 쌓인다는 점에 주의합니다. 처음부터 하려면 셀 15를 다시 실행해 새 study를 만듭니다. 시도 수에는 정해진 규칙이 없으므로 최적화 이력(셀 17)의 최고 점수 선이 평평해졌는지를 보고 더 돌릴지 정합니다.</p>
+</div></details>
+
+<h3>과제 3. 나무 수에 따른 시험 AUC와 시간</h3>
+<p>최종 조합(<code>best_rf</code>)으로 <code>n_estimators</code>를 10, 50, 100, 200, 500, 1000으로 바꿔 가며 학습 자료에 맞추고, 시험 AUC와 학습에 걸린 초를 표로 만드세요. 시험 자료는 연습으로만 봅니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml02_hw3-->
+<p>시험 AUC는 10그루 0.7695에서 50–100그루 0.775 안팎이 된 뒤 200–1000그루에서 0.770–0.772로 오르내립니다. 50그루 뒤의 차이(0.006 안쪽)는 어떤 나무가 뽑혔느냐에 따른 우연이고 나무가 많아서 나빠진 것이 아닙니다. 걸린 시간은 나무 수에 거의 비례합니다(이 환경에서 1000그루 7.5초). 시험 AUC가 가장 높은 50그루를 고르면 시험 자료로 조절값을 고르는 셈이 되므로, 나무 수는 셀 6의 OOB 곡선으로 정하고 예측이 다시 돌려도 흔들리지 않도록 넉넉히 둡니다.</p>
+</div></details>
+</section>

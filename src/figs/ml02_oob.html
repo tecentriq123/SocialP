@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">표본 밖 점수(OOB)와 5겹 교차검증</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rf_pipe = make_tree_pipe(RandomForestClassifier(
+    n_estimators=200, min_samples_leaf=20, oob_score=True,
+    random_state=2026, n_jobs=-1))
+t0 = time.perf_counter()
+rf_pipe.fit(X_train, y_train)
+t_oob = time.perf_counter() - t0
+rf = rf_pipe.named_steps[&quot;model&quot;]
+print(&quot;oob_score_ (accuracy):&quot;, round(rf.oob_score_, 4))
+p_oob = rf.oob_decision_function_[:, 1]       # 사람마다 OOB 확률
+print(&quot;OOB AUC:&quot;, round(roc_auc_score(y_train, p_oob), 4),
+      f&quot; ({t_oob:.0f} s)&quot;)
+
+t0 = time.perf_counter()
+cv5 = cross_val_score(rf_pipe, X_train, y_train, cv=skf,
+                      scoring=&quot;roc_auc&quot;)
+t_cv5 = time.perf_counter() - t0
+print(&quot;5-fold CV AUC:&quot;, round(cv5.mean(), 4), f&quot; ({t_cv5:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>oob_score_ (accuracy): 0.9596<span class="mk">1</span>
+OOB AUC: 0.7498<span class="mk">2</span>  (1 s)
+5-fold CV AUC: 0.7567<span class="mk">3</span>  (5 s)</pre></div></div>

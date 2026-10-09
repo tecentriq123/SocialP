@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">나무용 파이프라인 make_tree_pipe</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def make_tree_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;나무용: 결측 대체와 원-핫만 하고 표준화는 하지 않습니다.&quot;&quot;&quot;
+    cat_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;constant&quot;,
+                                 fill_value=&quot;missing&quot;)),
+        (&quot;onehot&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;,
+                                 sparse_output=False))])
+    prep = ColumnTransformer(
+        [(&quot;num&quot;, SimpleImputer(strategy=&quot;median&quot;), num),
+         (&quot;cat&quot;, cat_steps, cat)],
+        verbose_feature_names_out=False)
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
+
+prep = make_tree_pipe(DecisionTreeClassifier()).named_steps[&quot;prep&quot;]
+names = prep.fit(X_train).get_feature_names_out()
+print(len(names))
+print(names[:3], names[-4:])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>48<span class="mk">1</span>
+[&#x27;age&#x27; &#x27;female&#x27; &#x27;income_q&#x27;]<span class="mk">2</span> [&#x27;alcohol_heavy&#x27; &#x27;alcohol_missing&#x27;<span class="mk">3</span> &#x27;alcohol_moderate&#x27; &#x27;alcohol_none&#x27;]</pre></div></div>

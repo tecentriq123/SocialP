@@ -1,0 +1,174 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">격자를 사전의 목록으로, 지표를 둘로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">grid_list = [
+    {&quot;model__max_depth&quot;: [5, 6, 7],
+     &quot;model__min_samples_leaf&quot;: [150, 300]},
+    {&quot;model__max_leaf_nodes&quot;: [8, 10, 12, 16],
+     &quot;model__min_samples_leaf&quot;: [150, 300]}]
+gs_two = GridSearchCV(
+    make_tree_pipe(DecisionTreeClassifier(random_state=2026)),
+    grid_list, cv=skf, n_jobs=-1,
+    scoring={&quot;auc&quot;: &quot;roc_auc&quot;, &quot;logloss&quot;: &quot;neg_log_loss&quot;},
+    refit=&quot;auc&quot;)
+gs_two.fit(X_train, y_train)
+r2 = pd.DataFrame(gs_two.cv_results_)
+print(&quot;combinations:&quot;, len(r2), &quot; best:&quot;, gs_two.best_params_)
+show = r2[[&quot;param_model__max_depth&quot;, &quot;param_model__max_leaf_nodes&quot;,
+           &quot;param_model__min_samples_leaf&quot;, &quot;mean_test_auc&quot;,
+           &quot;rank_test_auc&quot;, &quot;mean_test_logloss&quot;, &quot;rank_test_logloss&quot;]]
+show.columns = [&quot;depth&quot;, &quot;max_leaves&quot;, &quot;min_leaf&quot;, &quot;auc&quot;, &quot;auc_rank&quot;,
+                &quot;logloss&quot;, &quot;ll_rank&quot;]
+show.sort_values(&quot;auc_rank&quot;).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>combinations: 14<span class="mk">1</span>  best: {&#x27;model__max_leaf_nodes&#x27;: 10, &#x27;model__min_samples_leaf&#x27;: 300}</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>depth</th>
+      <th>max_leaves</th>
+      <th>min_leaf</th>
+      <th>auc</th>
+      <th>auc_rank</th>
+      <th>logloss</th>
+      <th>ll_rank</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>9</th>
+      <td>NaN</td>
+      <td>10.0</td>
+      <td>300</td>
+      <td>0.7546</td>
+      <td>1</td>
+      <td>-0.1491</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>6.0</td>
+      <td>NaN</td>
+      <td>300</td>
+      <td>0.7544</td>
+      <td>2</td>
+      <td>-0.1491</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6.0</td>
+      <td>NaN</td>
+      <td>150</td>
+      <td>0.7538</td>
+      <td>3</td>
+      <td>-0.1498</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>NaN</td>
+      <td>12.0</td>
+      <td>150</td>
+      <td>0.7534</td>
+      <td>4</td>
+      <td>-0.1498</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>7.0</td>
+      <td>NaN</td>
+      <td>300</td>
+      <td>0.7501</td>
+      <td>5</td>
+      <td>-0.1501</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>300</td>
+      <td>0.7494</td>
+      <td>6</td>
+      <td>-0.1492</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>NaN</td>
+      <td>8.0</td>
+      <td>300</td>
+      <td>0.7485</td>
+      <td>7</td>
+      <td>-0.1493</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>NaN</td>
+      <td>16.0</td>
+      <td>150</td>
+      <td>0.7482</td>
+      <td>8</td>
+      <td>-0.1507</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>NaN</td>
+      <td>10.0</td>
+      <td>150</td>
+      <td>0.7482</td>
+      <td>9</td>
+      <td>-0.1502</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>150</td>
+      <td>0.7474</td>
+      <td>10</td>
+      <td>-0.1501</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>NaN</td>
+      <td>12.0</td>
+      <td>300</td>
+      <td>0.7473</td>
+      <td>11</td>
+      <td>-0.1500</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7.0</td>
+      <td>NaN</td>
+      <td>150</td>
+      <td>0.7447</td>
+      <td>12</td>
+      <td>-0.1511</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>NaN</td>
+      <td>16.0</td>
+      <td>300</td>
+      <td>0.7416</td>
+      <td>13</td>
+      <td>-0.1570</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>NaN</td>
+      <td>8.0</td>
+      <td>150</td>
+      <td>0.7353</td>
+      <td>14</td>
+      <td>-0.1502</td>
+      <td>10</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

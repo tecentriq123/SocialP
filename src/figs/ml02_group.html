@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">서로 상관된 특성은 중요도를 나눠 갖는다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">util = [&quot;n_outpt&quot;, &quot;n_drugs&quot;, &quot;n_prescribers&quot;, &quot;cost_2022&quot;]
+print(X_train[util].corr(method=&quot;spearman&quot;).round(2))
+
+rng = np.random.default_rng(2026)
+base = roc_auc_score(y_test, p_final)
+drops = []
+for _ in range(10):
+    Xs = X_test.copy()
+    order = rng.permutation(len(Xs))       # 네 열을 같은 순서로 섞기
+    Xs[util] = X_test[util].to_numpy()[order]
+    drops.append(base - roc_auc_score(
+        y_test, final.predict_proba(Xs)[:, 1]))
+print(&quot;alone   :&quot;, imp.loc[util, &quot;perm&quot;].round(4).tolist())
+print(&quot;together:&quot;, round(np.mean(drops), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               n_outpt  n_drugs  n_prescribers  cost_2022
+n_outpt           1.00     0.45           0.49       0.73<span class="mk">1</span>
+n_drugs           0.45     1.00           0.39       0.70
+n_prescribers     0.49     0.39           1.00       0.43
+cost_2022         0.73     0.70           0.43       1.00
+alone   : [0.0023, 0.009, 0.0, -0.0022]<span class="mk">2</span>
+together: 0.0101<span class="mk">3</span></pre></div></div>

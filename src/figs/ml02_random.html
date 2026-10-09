@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">무작위 탐색 40개 조합 (RandomizedSearchCV)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import RandomizedSearchCV
+
+space = {&quot;model__max_features&quot;: randint(2, 25),
+         &quot;model__min_samples_leaf&quot;: randint(1, 101),
+         &quot;model__max_samples&quot;: uniform(0.3, 0.7),
+         &quot;model__criterion&quot;: [&quot;gini&quot;, &quot;entropy&quot;]}
+rs = RandomizedSearchCV(rf_base, space, n_iter=40, cv=skf3,
+                        scoring=&quot;roc_auc&quot;, random_state=2026)
+t0 = time.perf_counter()
+rs.fit(X_train, y_train)
+t_rand = time.perf_counter() - t0
+print(rs.best_params_)
+print(round(rs.best_score_, 4), &quot; fits: 40 x 3 =&quot;, 40 * 3,
+      f&quot; ({t_rand:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;model__criterion&#x27;: &#x27;entropy&#x27;<span class="mk">1</span>, &#x27;model__max_features&#x27;: 7, &#x27;model__max_samples&#x27;: np.float64(0.6924501771428868), &#x27;model__min_samples_leaf&#x27;: 50}
+0.7597  fits: 40 x 3 = 120<span class="mk">2</span>  (96 s)</pre></div></div>

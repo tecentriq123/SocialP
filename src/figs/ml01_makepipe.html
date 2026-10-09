@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">0장의 make_pipe</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+def make_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;0장 셀 13과 같습니다 (로지스틱 회귀와 비교할 때 씀).&quot;&quot;&quot;
+    num_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;median&quot;)),
+        (&quot;scale&quot;, StandardScaler())])
+    cat_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;constant&quot;,
+                                 fill_value=&quot;missing&quot;)),
+        (&quot;onehot&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;,
+                                 sparse_output=False))])
+    prep = ColumnTransformer([(&quot;num&quot;, num_steps, num),
+                              (&quot;cat&quot;, cat_steps, cat)])
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])</code></pre></div>

@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">지니 불순도와 나누기 전후의 감소량</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+
+toy = pd.DataFrame({
+    &quot;age&quot;:   [52, 61, 47, 78, 83, 69, 88, 58, 74, 81],
+    &quot;n_ed&quot;:  [0, 0, 1, 2, 0, 0, 3, 1, 2, 0],
+    &quot;admit&quot;: [0, 0, 0, 1, 0, 0, 1, 0, 0, 1]},
+    index=list(&quot;ABCDEFGHIJ&quot;))           # 0장 가 절의 환자 10명
+
+def gini(y):
+    &quot;&quot;&quot;입원 비율 p에서 지니 불순도 1 - p² - (1 - p)²&quot;&quot;&quot;
+    p = np.mean(y)
+    return 1 - p**2 - (1 - p)**2
+
+def split_gini(col, cut):
+    &quot;&quot;&quot;col &lt;= cut과 col &gt; cut으로 나눈 뒤 불순도의 가중 평균&quot;&quot;&quot;
+    left = toy[&quot;admit&quot;][toy[col] &lt;= cut]
+    right = toy[&quot;admit&quot;][toy[col] &gt; cut]
+    return (len(left) * gini(left)
+            + len(right) * gini(right)) / len(toy)
+
+g0 = gini(toy[&quot;admit&quot;])
+print(&quot;before split:&quot;, round(g0, 3))
+for col, cut in [(&quot;n_ed&quot;, 1.5), (&quot;age&quot;, 76)]:
+    g = split_gini(col, cut)
+    print(f&quot;{col} &lt;= {cut}: after {g:.3f}, decrease {g0 - g:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>before split: 0.42<span class="mk">1</span>
+n_ed &lt;= 1.5: after 0.305, decrease 0.115<span class="mk">2</span>
+age &lt;= 76: after 0.150, decrease 0.270<span class="mk">3</span></pre></div></div>

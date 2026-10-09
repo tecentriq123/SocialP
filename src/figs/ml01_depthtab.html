@@ -1,0 +1,131 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">깊이를 늘리면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import cross_validate
+
+rows = []
+for d in [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, None]:
+    m = make_tree_pipe(DecisionTreeClassifier(max_depth=d,
+                                              random_state=2026))
+    cv = cross_validate(m, X_train, y_train, cv=skf,
+                        scoring=&quot;roc_auc&quot;, return_train_score=True)
+    m.fit(X_train, y_train)
+    p_te = m.predict_proba(X_test)[:, 1]    # 현상을 보려고만 계산
+    rows.append({&quot;max_depth&quot;: str(d),
+                 &quot;leaves&quot;: m.named_steps[&quot;model&quot;].get_n_leaves(),
+                 &quot;train&quot;: cv[&quot;train_score&quot;].mean(),
+                 &quot;cv&quot;: cv[&quot;test_score&quot;].mean(),
+                 &quot;cv_sd&quot;: cv[&quot;test_score&quot;].std(),
+                 &quot;test&quot;: roc_auc_score(y_test, p_te)})
+depth_tab = pd.DataFrame(rows)
+depth_tab.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>max_depth</th>
+      <th>leaves</th>
+      <th>train</th>
+      <th>cv</th>
+      <th>cv_sd</th>
+      <th>test</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>2</td>
+      <td>0.599</td>
+      <td>0.590</td>
+      <td>0.035</td>
+      <td>0.621</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>4</td>
+      <td>0.688</td>
+      <td>0.678</td>
+      <td>0.034</td>
+      <td>0.702</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>8</td>
+      <td>0.711</td>
+      <td>0.697</td>
+      <td>0.037</td>
+      <td>0.712</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>15</td>
+      <td>0.720</td>
+      <td>0.689</td>
+      <td>0.041</td>
+      <td>0.707</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>27</td>
+      <td>0.750</td>
+      <td>0.706<span class="mk">1</span></td>
+      <td>0.052</td>
+      <td>0.722</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>48</td>
+      <td>0.771</td>
+      <td>0.694</td>
+      <td>0.051</td>
+      <td>0.729<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>8</td>
+      <td>98</td>
+      <td>0.800</td>
+      <td>0.675</td>
+      <td>0.063</td>
+      <td>0.695</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>10</td>
+      <td>159</td>
+      <td>0.833</td>
+      <td>0.627</td>
+      <td>0.014</td>
+      <td>0.578</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>12</td>
+      <td>210</td>
+      <td>0.873</td>
+      <td>0.576</td>
+      <td>0.009</td>
+      <td>0.506</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>15</td>
+      <td>294</td>
+      <td>0.927</td>
+      <td>0.503</td>
+      <td>0.034</td>
+      <td>0.513</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>None</td>
+      <td>674<span class="mk">3</span></td>
+      <td>1.000<span class="mk">4</span></td>
+      <td>0.578</td>
+      <td>0.028</td>
+      <td>0.581</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

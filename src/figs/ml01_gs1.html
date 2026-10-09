@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">격자 탐색 1. 처음 정한 범위</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import GridSearchCV
+
+grid1 = {&quot;model__max_depth&quot;: [3, 4, 5, 6, 8, 10],
+         &quot;model__min_samples_leaf&quot;: [10, 20, 50, 100, 200]}
+gs1 = GridSearchCV(
+    make_tree_pipe(DecisionTreeClassifier(random_state=2026)),
+    grid1, cv=skf, scoring=&quot;roc_auc&quot;, n_jobs=-1,
+    return_train_score=True)
+t0 = time.perf_counter()
+gs1.fit(X_train, y_train)
+print(&quot;seconds:&quot;, round(time.perf_counter() - t0, 1))
+n_comb = len(gs1.cv_results_[&quot;params&quot;])
+print(&quot;combinations:&quot;, n_comb, &quot; fits:&quot;, n_comb * skf.get_n_splits())
+print(&quot;best:&quot;, gs1.best_params_, round(gs1.best_score_, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>seconds: 9.6<span class="mk">1</span>
+combinations: 30<span class="mk">2</span>  fits: 150<span class="mk">3</span>
+best: {&#x27;model__max_depth&#x27;: 6, &#x27;model__min_samples_leaf&#x27;: 200} 0.7478<span class="mk">4</span></pre></div></div>

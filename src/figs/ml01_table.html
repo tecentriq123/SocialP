@@ -1,0 +1,98 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">cv_results_를 표로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = pd.DataFrame(gs.cv_results_)
+table = (res[[&quot;rank_test_score&quot;, &quot;param_model__max_depth&quot;,
+              &quot;param_model__min_samples_leaf&quot;, &quot;mean_test_score&quot;,
+              &quot;std_test_score&quot;, &quot;mean_train_score&quot;]]
+         .rename(columns={&quot;rank_test_score&quot;: &quot;rank&quot;,
+                          &quot;param_model__max_depth&quot;: &quot;max_depth&quot;,
+                          &quot;param_model__min_samples_leaf&quot;: &quot;min_leaf&quot;,
+                          &quot;mean_test_score&quot;: &quot;cv_auc&quot;,
+                          &quot;std_test_score&quot;: &quot;cv_sd&quot;,
+                          &quot;mean_train_score&quot;: &quot;train_auc&quot;})
+         .sort_values(&quot;rank&quot;))
+table.head(8).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rank</th>
+      <th>max_depth</th>
+      <th>min_leaf</th>
+      <th>cv_auc</th>
+      <th>cv_sd</th>
+      <th>train_auc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>15</th>
+      <td>1</td>
+      <td>6</td>
+      <td>300</td>
+      <td>0.7544<span class="mk">1</span></td>
+      <td>0.0251<span class="mk">3</span></td>
+      <td>0.7766<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>2</td>
+      <td>6</td>
+      <td>150</td>
+      <td>0.7538<span class="mk">2</span></td>
+      <td>0.0278</td>
+      <td>0.7830</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>3</td>
+      <td>7</td>
+      <td>300</td>
+      <td>0.7501</td>
+      <td>0.0229</td>
+      <td>0.7854</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>4</td>
+      <td>5</td>
+      <td>300</td>
+      <td>0.7494</td>
+      <td>0.0266</td>
+      <td>0.7668</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>5</td>
+      <td>6</td>
+      <td>200</td>
+      <td>0.7478</td>
+      <td>0.0202</td>
+      <td>0.7806</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>6</td>
+      <td>5</td>
+      <td>150</td>
+      <td>0.7474</td>
+      <td>0.0245</td>
+      <td>0.7727</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>7</td>
+      <td>5</td>
+      <td>200</td>
+      <td>0.7451</td>
+      <td>0.0222</td>
+      <td>0.7716</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>8</td>
+      <td>7</td>
+      <td>150</td>
+      <td>0.7447</td>
+      <td>0.0298</td>
+      <td>0.7941</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

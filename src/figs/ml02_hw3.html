@@ -1,0 +1,57 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">과제 3 정답. 나무 수에 따른 시험 AUC와 시간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">out = []
+for k in [10, 50, 100, 200, 500, 1000]:
+    m = make_tree_pipe(RandomForestClassifier(
+        n_estimators=k, random_state=2026, n_jobs=-1, **best_rf))
+    t0 = time.perf_counter()
+    m.fit(X_train, y_train)
+    sec = time.perf_counter() - t0
+    auc = roc_auc_score(y_test, m.predict_proba(X_test)[:, 1])
+    out.append([k, round(auc, 4), round(sec, 1)])
+pd.DataFrame(out, columns=[&quot;n_estimators&quot;, &quot;test AUC&quot;, &quot;seconds&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n_estimators</th>
+      <th>test AUC</th>
+      <th>seconds</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>10</td>
+      <td>0.7695</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>50</td>
+      <td>0.7753</td>
+      <td>0.5</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>100</td>
+      <td>0.7755</td>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>200</td>
+      <td>0.7720</td>
+      <td>1.6</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>500</td>
+      <td>0.7696</td>
+      <td>3.8</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1000</td>
+      <td>0.7704</td>
+      <td>7.5</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

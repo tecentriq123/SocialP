@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">과제 3 정답. class_weight와 임계값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.metrics import confusion_matrix
+
+best = dict(max_depth=6, min_samples_leaf=300, random_state=2026)
+rate = y_train.mean()                        # 학습 자료의 입원 비율
+for cw, thr in [(None, 0.5), (&quot;balanced&quot;, 0.5), (None, rate)]:
+    m = make_tree_pipe(
+        DecisionTreeClassifier(class_weight=cw, **best))
+    p = cross_val_predict(m, X_train, y_train, cv=skf,
+                          method=&quot;predict_proba&quot;)[:, 1]
+    print(f&quot;class_weight={cw}, threshold {thr:.3f}&quot;)
+    print(confusion_matrix(y_train, (p &gt;= thr).astype(int)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>class_weight=None, threshold 0.500
+[[10791     0]
+ [  459     0]]
+class_weight=balanced, threshold 0.500
+[[7800 2991]
+ [ 162  297]]
+class_weight=None, threshold 0.041
+[[8023 2768]
+ [ 167  292]]</pre></div></div>

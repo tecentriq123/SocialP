@@ -1,0 +1,52 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">0장 로지스틱 회귀와 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.linear_model import LogisticRegression
+
+# 0장 라 절에서 고른 C = 0.1
+lr = make_pipe(LogisticRegression(C=0.1, max_iter=1000))
+cv_lr = cross_val_score(lr, X_train, y_train, cv=skf,
+                        scoring=&quot;roc_auc&quot;)
+lr.fit(X_train, y_train)
+p_lr = lr.predict_proba(X_test)[:, 1]
+b_lr = boot_auc(y_test, p_lr)           # 같은 seed, 같은 복원추출
+
+i_best = gs.best_index_
+comp = pd.DataFrame({
+    &quot;cv_auc&quot;: [res.loc[i_best, &quot;mean_test_score&quot;], cv_lr.mean()],
+    &quot;cv_sd&quot;: [res.loc[i_best, &quot;std_test_score&quot;], cv_lr.std()],
+    &quot;test_auc&quot;: [roc_auc_score(y_test, p_tree),
+                 roc_auc_score(y_test, p_lr)],
+    &quot;ci_low&quot;: [np.percentile(b_tree, 2.5), np.percentile(b_lr, 2.5)],
+    &quot;ci_high&quot;: [np.percentile(b_tree, 97.5),
+                np.percentile(b_lr, 97.5)]},
+    index=[&quot;decision tree&quot;, &quot;logistic (C=0.1)&quot;])
+print(&quot;difference 95% CI:&quot;,
+      np.percentile(b_tree - b_lr, [2.5, 97.5]).round(3))
+comp.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>difference 95% CI: [-0.002  0.061]<span class="mk">6</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cv_auc</th>
+      <th>cv_sd</th>
+      <th>test_auc</th>
+      <th>ci_low</th>
+      <th>ci_high</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>decision tree</th>
+      <td>0.754<span class="mk">1</span></td>
+      <td>0.025</td>
+      <td>0.771<span class="mk">3</span></td>
+      <td>0.726</td>
+      <td>0.810</td>
+    </tr>
+    <tr>
+      <th>logistic (C=0.1)</th>
+      <td>0.749<span class="mk">2</span></td>
+      <td>0.022</td>
+      <td>0.742<span class="mk">4</span></td>
+      <td>0.695<span class="mk">5</span></td>
+      <td>0.785</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

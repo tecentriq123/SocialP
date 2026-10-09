@@ -1,0 +1,37 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">부트스트랩으로 나무 100그루를 키워 평균 내기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.tree import DecisionTreeClassifier
+
+prep = make_tree_pipe(None).named_steps[&quot;prep&quot;]  # 전처리만
+Z_train = prep.fit_transform(X_train)          # 11250 × 48 배열
+Z_test = prep.transform(X_test)                # 3750 × 48
+y_arr = y_train.to_numpy()
+
+rng = np.random.default_rng(2026)
+n = len(Z_train)
+probs = []                                     # 나무마다 시험 자료 확률
+for b in range(100):
+    idx = rng.integers(0, n, size=n)           # ① 복원추출로 한 벌
+    tree = DecisionTreeClassifier(min_samples_leaf=20,
+                                  random_state=b)
+    tree.fit(Z_train[idx], y_arr[idx])         # ② 나무 한 그루
+    probs.append(tree.predict_proba(Z_test)[:, 1])
+probs = np.array(probs)                        # (100, 3750)
+p_avg = probs.mean(axis=0)                     # ③ 사람마다 평균
+
+print(probs.shape, &quot; people in the last bag:&quot;, len(np.unique(idx)))
+who = np.argsort(p_avg)[[1874, 3599, 3749]]    # 중간, 상위 4%, 최고
+print(probs[:5, who].round(3))                 # 나무 5그루 × 3명
+print(&quot;SD over trees:&quot;, probs[:, who].std(axis=0).round(3))
+print(&quot;average      :&quot;, p_avg[who].round(3))
+aucs = [roc_auc_score(y_test, p) for p in probs]
+print(&quot;AUC, one tree:&quot;, round(min(aucs), 3), &quot;to&quot;,
+      round(max(aucs), 3))
+print(&quot;AUC, average :&quot;, round(roc_auc_score(y_test, p_avg), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(100, 3750)<span class="mk">1</span>  people in the last bag: 7021<span class="mk">2</span>
+[[0.091 0.    0.762]<span class="mk">3</span>
+ [0.    0.41  0.615]
+ [0.    0.045 0.757]
+ [0.077 0.2   0.731]
+ [0.    0.162 1.   ]]
+SD over trees: [0.044 0.201 0.198]<span class="mk">4</span>
+average      : [0.019 0.18  0.745]<span class="mk">5</span>
+AUC, one tree: 0.616 to 0.714<span class="mk">6</span>
+AUC, average : 0.774<span class="mk">7</span></pre></div></div>

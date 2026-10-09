@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">0장의 준비 (자료, 분할, 교차검증 겹)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import (train_test_split,
+                                     StratifiedKFold, cross_val_score)
+from sklearn.metrics import roc_auc_score
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+df = pd.read_csv(BASE + &quot;ml_claims.csv&quot;)
+y = df[&quot;admit_2023&quot;]
+X = df.drop(columns=[&quot;id&quot;, &quot;admit_2023&quot;, &quot;cost_2023&quot;])
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=2026)
+cat_cols = [&quot;insurance&quot;, &quot;region&quot;, &quot;smoking&quot;, &quot;alcohol&quot;]
+num_cols = [c for c in X.columns if c not in cat_cols]
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)
+print(X_train.shape, X_test.shape, y_train.sum(), y_test.sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(11250, 39) (3750, 39) 459 153<span class="mk">1</span></pre></div></div>

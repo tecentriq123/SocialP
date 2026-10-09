@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">과제 2 정답. 가지치기한 나무와 크기를 제한한 나무</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">alpha_grid = [0, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4, 7e-4, 1e-3, 1.5e-3]
+tr, va = validation_curve(
+    make_tree_pipe(DecisionTreeClassifier(random_state=2026)),
+    X_train, y_train, param_name=&quot;model__ccp_alpha&quot;,
+    param_range=alpha_grid, cv=skf, scoring=&quot;roc_auc&quot;, n_jobs=-1)
+for a, m in zip(alpha_grid, va.mean(axis=1)):
+    t = DecisionTreeClassifier(ccp_alpha=a, random_state=2026)
+    t.fit(prep.transform(X_train), y_train)
+    print(f&quot;ccp_alpha {a:&lt;7}  leaves {t.get_n_leaves():4d}&quot;
+          f&quot;  CV AUC {m:.3f}&quot;)
+print(&quot;depth/leaf tuned tree: leaves 11, CV AUC&quot;,
+      round(gs.best_score_, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ccp_alpha 0        leaves  674  CV AUC 0.578
+ccp_alpha 0.0001   leaves  257  CV AUC 0.521
+ccp_alpha 0.0002   leaves   35  CV AUC 0.633
+ccp_alpha 0.0003   leaves   13  CV AUC 0.684
+ccp_alpha 0.0004   leaves    8  CV AUC 0.686
+ccp_alpha 0.0005   leaves    8  CV AUC 0.692
+ccp_alpha 0.0007   leaves    4  CV AUC 0.678
+ccp_alpha 0.001    leaves    4  CV AUC 0.678
+ccp_alpha 0.0015   leaves    4  CV AUC 0.646
+depth/leaf tuned tree: leaves 11, CV AUC 0.754</pre></div></div>

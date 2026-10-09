@@ -1,0 +1,540 @@
+<p class="lead">결정트리는 "나이가 76세 이하인가"처럼 예와 아니오로 답하는 질문을 차례로 던져 사람들을 작은 무리로 나누고, 무리마다의 입원 비율을 예측 확률로 씁니다. 이 장에서는 나무가 질문을 고르는 방법을 환자 10명으로 손계산한 뒤, 나무의 크기를 정하는 조절값을 검증 곡선과 격자 탐색으로 고르고, 결과를 표와 그림으로 정리해 0장의 로지스틱 회귀와 비교합니다. 자료, 분할, 교차검증은 0장과 같습니다.</p>
+
+<p class="nb-link"><a href="notebooks/ml01.ipynb" download>이 장의 노트북 내려받기 (ml01.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요. 출력은 scikit-learn 1.9.1, pandas 3.0.5로 실제로 실행해 얻었고, 코드는 scikit-learn 1.3 이상과 pandas 2.x에서도 돌아가게 썼습니다. 격자 탐색 셀은 Colab에서 셀마다 10–60초쯤 걸립니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>0장 전체, 특히 <a href="#ml00-s3">다 절</a>의 <code>make_pipe</code>, <a href="#ml00-s4">라 절</a>의 교차검증과 <code>GridSearchCV</code>, <a href="#ml00-s5">마 절</a>의 AUC와 혼동행렬. 이 장은 0장의 코드 이름(<code>X_train</code>, <code>skf</code>, <code>make_pipe</code>)을 그대로 씁니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>가 절의 '숫자로 따라가기'(지니 불순도로 기준을 고르는 네 단계)와 셀 7–9, 나 절의 깊이 표(셀 10)와 class_weight(셀 12), 라 절의 셀 16–17(격자 탐색과 범위 넓히기), 마 절의 결과 표(셀 19)와 로지스틱 회귀와의 비교(셀 22).</dd>
+<dt>나중에 읽을 부분</dt><dd>조절값 전체 표 아래의 세부, 엔트로피, 비용 복잡도 가지치기는 접혀 있으니 처음에는 건너뛰어도 됩니다. 라 절의 셀 18(사전의 목록으로 준 격자와 로그 손실)과 마 절의 저장·불러오기는 내 자료로 모형을 만들 때 다시 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 지니 불순도로 나누기 기준을 고르는 과정을 작은 표로 계산하고, 잎의 입원 비율이 예측 확률이 된다는 것을 설명할 수 있다 ② 결정트리의 조절값이 나무의 크기와 과적합을 어떻게 바꾸는지 검증 곡선으로 보이고, 드문 결과에서 class_weight가 무엇을 바꾸는지 설명할 수 있다 ③ GridSearchCV로 조절값을 고르고 결과 표, 열지도, 시험 AUC와 신뢰구간, 변수 중요도로 정리해 논문 Methods에 튜닝 절차를 적을 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ml01-s1">
+<h2><span class="sec-no">가.</span>나무가 자료를 나누는 방법</h2>
+
+<h3>쉽게 말하면</h3>
+<p>응급실 환자 분류는 "의식이 있는가", "호흡이 불안정한가" 같은 질문을 정해진 순서로 던져 환자를 무리로 나눕니다. <strong>결정트리</strong><span class="en">(decision tree)</span>도 같은 방식으로 예측합니다. 다른 점은 질문과 순서를 사람이 정하지 않고 자료에서 찾는다는 것입니다<cite data-ref="breiman1984"></cite>.</p>
+<ul>
+<li><b>마디와 나누기.</b> 사람들이 모여 있는 곳이 <strong>마디</strong><span class="en">(node)</span>이고, 한 특성의 한 기준(예를 들어 나이 76세)으로 마디를 둘로 가르는 것이 <strong>나누기</strong><span class="en">(split)</span>입니다. 기준 이하는 왼쪽, 초과는 오른쪽으로 갑니다.</li>
+<li><b>뿌리, 잎, 깊이.</b> 모든 사람이 모인 맨 위 마디가 <strong>뿌리</strong><span class="en">(root)</span>, 더 나누지 않은 마지막 마디가 <strong>잎</strong><span class="en">(leaf)</span>입니다. 뿌리에서 잎까지 거친 나누기의 횟수가 <strong>깊이</strong><span class="en">(depth)</span>입니다.</li>
+<li><b>불순도.</b> 한 마디 안에 입원한 사람과 입원하지 않은 사람이 얼마나 섞여 있는지를 재는 수가 <strong>불순도</strong><span class="en">(impurity)</span>입니다. 나무는 나눈 뒤 불순도가 가장 많이 줄어드는 질문을 고릅니다.</li>
+</ul>
+<!--FIG:ml01_fig_toytree-->
+
+<h3>숫자로 따라가기</h3>
+<p><a href="#ml00-s1">0장 가 절</a>의 환자 10명(입원한 사람은 D, G, J의 3명)으로 나무가 첫 질문을 고르는 과정을 따라갑니다. 불순도는 <strong>지니 불순도</strong><span class="en">(Gini impurity)</span>로 잽니다.</p>
+<div class="eq">\[ \text{Gini} = 1 - p^2 - (1-p)^2 = 2p(1-p) \]<p>p는 마디 안의 입원 비율입니다. 모두 같은 결과이면(p = 0 또는 1) 0이고, 반반 섞이면(p = 0.5) 가장 큰 0.5입니다. 마디에서 두 사람을 복원추출로 뽑았을 때 두 사람의 결과가 다를 확률로 읽어도 됩니다.</p></div>
+<ol>
+<li><b>나누기 전.</b> 10명 가운데 3명이 입원했으므로 p = 0.3, 지니 = 1 − 0.3² − 0.7² = 0.42입니다.</li>
+<li><b>후보 하나를 잽니다.</b> 0장에서 쓴 기준인 응급실 2회로 나누면 2회 미만 7명 가운데 1명(p = 1/7, 지니 0.245), 2회 이상 3명 가운데 2명(p = 2/3, 지니 0.444)이 입원했습니다. 두 쪽의 지니를 사람 수로 가중 평균하면 0.7 × 0.245 + 0.3 × 0.444 = 0.305이고, 줄어든 양은 0.42 − 0.305 = 0.115입니다.</li>
+<li><b>다른 후보와 비교합니다.</b> 나이 76세 이하(A, B, C, F, H, I의 6명, 입원 0명, 지니 0)와 초과(D, E, G, J의 4명, 입원 3명, 지니 0.375)로 나누면 0.6 × 0 + 0.4 × 0.375 = 0.150, 줄어든 양은 0.270입니다. 나무는 특성마다 가능한 모든 기준을 이렇게 재서 줄어든 양이 가장 큰 것을 고릅니다. 나이의 기준 아홉 개 가운데 76세가 가장 크고(셀 2), 응급실의 어떤 기준보다도 큽니다.</li>
+<li><b>같은 일을 되풀이합니다.</b> 왼쪽 6명은 모두 입원하지 않아 더 나눌 것이 없으므로 잎이 됩니다. 오른쪽 4명(지니 0.375) 안에서 다시 모든 기준을 재면 응급실 1회 이하(E, J, 1명 입원)와 2회 이상(D, G, 모두 입원)으로 나눌 때 가중 지니가 0.25로 줄어듭니다. 나이 82세 기준도 0.25로 같은 동점이며, 이때 사이킷런은 특성을 살펴보는 순서에 따라 하나를 고르고 그 순서는 <code>random_state</code>로 정해집니다. 마디에 한 결과만 남거나 사람이 정한 한계(깊이, 잎의 최소 인원 등, 나 절)에 닿으면 멈춥니다.</li>
+</ol>
+<p>새 환자 K(80세, 응급실 2회)의 예측은 K를 뿌리에서부터 질문에 따라 내려보내 도착한 잎의 입원 비율입니다. 한 번만 나눈 나무라면 K는 '76세 초과' 잎(4명 중 3명 입원)에 도착해 예측 확률이 0.75이고, 그림 1-1처럼 한 번 더 나눈 나무라면 'D, G' 잎에 도착해 1.00입니다. 4명, 2명으로 정한 확률이 얼마나 불안정한지는 나 절에서 봅니다.</p>
+
+<h3>파이썬으로 계산하기</h3>
+<!--FIG:ml01_gini-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>toy = pd.DataFrame({...}, index=list("ABCDEFGHIJ"))</code><span>환자 10명의 표를 만듭니다. 사전의 열쇠가 열 이름, 목록이 그 열의 값이고, <code>index</code>로 행 이름을 A–J로 붙였습니다.</span></li>
+<li><code>def gini(y):</code><span>0/1 값의 묶음 <code>y</code>를 받아 지니 불순도 숫자 하나를 돌려주는 함수입니다. <code>np.mean(y)</code>가 입원 비율 p이고 <code>p**2</code>는 p의 제곱입니다.</span></li>
+<li><code>def split_gini(col, cut):</code><span>열 이름과 기준값을 받아 그 기준으로 나눈 뒤의 가중 지니를 돌려줍니다. <code>toy["admit"][toy[col] &lt;= cut]</code>는 조건이 참인 사람의 입원 여부만 고른 것입니다(<a href="stats.html#lab00-s6">실습 0 바 절</a>). 두 쪽의 지니에 사람 수를 곱해 더하고 전체 인원으로 나눕니다.</span></li>
+<li><code>for col, cut in [("n_ed", 1.5), ("age", 76)]:</code><span>(열, 기준) 두 쌍을 차례로 꺼내 계산합니다. 응급실 1.5회 이하는 '2회 미만'과 같습니다.</span></li>
+<li><code>f"{g:.3f}"</code><span>f-문자열 안의 <code>:.3f</code>는 소수 셋째 자리까지 찍으라는 뜻입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0.42.</b> 나누기 전 뿌리의 지니입니다(①).</span></li>
+<li><span class="mk">2</span><span><b>응급실 기준의 감소량 0.115</b>(②).</span></li>
+<li><span class="mk">3</span><span><b>나이 76세 기준의 감소량 0.270</b>(③). 더 큰 쪽인 나이 기준을 고릅니다.</span></li>
+</ol>
+<!--FIG:ml01_cuts-->
+<p><code>ages[:-1] + ages[1:]</code>는 정렬한 나이를 한 칸씩 어긋나게 더한 것이라(<code>[:-1]</code>은 마지막을 뺀 것, <code>[1:]</code>은 처음을 뺀 것) 2로 나누면 이웃한 두 나이의 가운데 아홉 개가 됩니다. 출력에서 <span class="mk">1</span> 기준 76.0의 감소량이 <span class="mk">2</span> 0.270으로 가장 큽니다. 74세와 78세 사이 어디에 선을 그어도 같은 사람들이 나뉘므로 가운데를 기준으로 씁니다.</p>
+<!--FIG:ml01_stump-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>DecisionTreeClassifier(max_depth=1, random_state=2026)</code><span>분류 나무를 만듭니다. <code>max_depth=1</code>은 한 번만 나누라는 조절값이고(나 절의 표), <code>random_state</code>는 ④의 동점 처리 같은 무작위 순서를 고정합니다. 이 장의 나무에는 모두 2026을 줍니다.</span></li>
+<li><code>stump.fit(toy[["age", "n_ed"]], toy["admit"])</code><span>특성 두 열과 목표로 배웁니다. 대괄호 두 겹은 열을 고른 표(DataFrame)입니다.</span></li>
+<li><code>export_text(stump, feature_names=[...], show_weights=True)</code><span>배운 나무를 글자로 그립니다. <code>|---</code> 한 단이 깊이 1이고, <code>show_weights=True</code>는 잎마다 [입원 안 함, 입원] 인원을 보여 줍니다. <code>feature_names</code>를 주지 않으면 특성 이름이 <code>feature_0</code>처럼 번호로 나옵니다.</span></li>
+<li><code>stump.predict_proba(new)</code><span>새 환자 K의 [입원하지 않을 확률, 입원할 확률]입니다(<a href="#ml00-s1">0장 가 절</a>).</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>age &lt;= 76.00.</b> 손으로 고른 기준과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>weights: [1.00, 3.00].</b> 76세 초과 잎에 입원하지 않은 1명과 입원한 3명이 있습니다. 뒤의 <code>class: 1</code>은 이 잎에서 더 많은 쪽이 입원이라는 뜻이고, <code>predict</code>가 내는 0/1입니다.</span></li>
+<li><span class="mk">3</span><span><b>[[0.25 0.75]].</b> K는 그 잎에 도착하므로 입원 확률이 3/4 = 0.75입니다.</span></li>
+</ol>
+<!--FOLD:엔트로피로 재면-->
+<p>불순도를 재는 다른 방법이 <strong>엔트로피</strong><span class="en">(entropy)</span>입니다. 입원 비율이 p일 때 \( -p\log_2 p - (1-p)\log_2(1-p) \)이고, 지니처럼 한 결과만 있으면 0, 반반이면 가장 큰 1입니다. 나눈 뒤 줄어든 엔트로피를 <strong>정보 이득</strong><span class="en">(information gain)</span>이라고 합니다. 환자 10명에서는 나누기 전 0.881, 나이 76세로 나눈 뒤 0.4 × 0.811 = 0.325(정보 이득 0.557), 응급실 2회로 나눈 뒤 0.690(정보 이득 0.192)이어서 지니와 같은 기준을 고릅니다. 사이킷런에서는 <code>criterion="entropy"</code>로 바꾸며 <code>"log_loss"</code>도 같은 기준입니다(1.1부터). 두 기준은 대개 같은 나누기를 고르고 성능 차이도 작습니다(과제 1).</p>
+<!--/FOLD-->
+
+<h3>공통 자료로 작은 나무</h3>
+<p>이제 0장의 자료로 갑니다. 셀 4와 5는 0장의 셀 1, 4, 6, 9, 13, 16을 한 번에 다시 실행하는 것이므로 설명은 0장 <a href="#ml00-s2">나 절</a>, <a href="#ml00-s3">다 절</a>, <a href="#ml00-s4">라 절</a>을 봅니다. 출력 <span class="mk">1</span>처럼 학습 자료 11,250명(입원 459명)과 시험 자료 3,750명(입원 153명)으로 0장과 같습니다. <code>make_pipe</code>는 마 절에서 로지스틱 회귀와 비교할 때 씁니다.</p>
+<!--FIG:ml01_setup-->
+<!--FIG:ml01_makepipe-->
+<p>나무에는 표준화가 필요 없습니다. 나누기는 "나이가 76.5 이하인가"처럼 값의 순서만 쓰므로, 나이를 표준화하거나 로그를 씌워도 같은 사람들이 같은 쪽으로 갑니다(기준 숫자만 바뀝니다). 마 절의 최종 나무를 표준화가 들어 있는 <code>make_pipe</code>로 맞춰도 시험 자료의 예측 확률이 하나도 다르지 않았습니다. 다만 기준이 표준화된 단위로 적혀 나무를 읽기 어려우므로 표준화를 뺀 함수를 따로 만듭니다.</p>
+<!--FIG:ml01_treepipe-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def make_tree_pipe(model, num=num_cols, cat=cat_cols):</code><span>0장 <code>make_pipe</code>와 같은 모양으로, 모형과 숫자·글자 열 목록을 받아 파이프라인을 돌려줍니다. 숫자 열은 중앙값 대체만 하고(<code>StandardScaler</code> 없음), 글자 열은 0장처럼 'missing' 범주로 채운 뒤 원-핫으로 바꿉니다. 숫자 열의 단계가 하나뿐이라 <code>Pipeline</code>으로 감싸지 않고 <code>SimpleImputer</code>를 바로 넣었습니다.</span></li>
+<li><code>verbose_feature_names_out=False</code><span>전처리 뒤의 열 이름에 단계 이름을 붙이지 말라는 뜻입니다. <code>num__age</code> 대신 <code>age</code>, <code>cat__smoking_missing</code> 대신 <code>smoking_missing</code>이 되어 나무 그림을 읽기 쉽습니다(scikit-learn 1.0부터).</span></li>
+<li><code>make_tree_pipe(DecisionTreeClassifier()).named_steps["prep"]</code><span>파이프라인에서 전처리 단계만 꺼냅니다. 모형은 맞추지 않습니다.</span></li>
+<li><code>prep.fit(X_train).get_feature_names_out()</code><span>학습 자료로 전처리 기준(중앙값, 범주 목록)을 정한 뒤 전처리 뒤 48열의 이름을 배열로 돌려줍니다. 나무를 글자나 그림으로 볼 때 이 이름을 넘깁니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>48.</b> 숫자 35열과 원-핫 13열로 0장과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>앞의 세 열</b>은 숫자 열입니다. <code>insurance</code>는 글자 열이라 뒤로 갔습니다. <code>ColumnTransformer</code>는 단계의 순서대로 결과를 이어 붙입니다.</span></li>
+<li><span class="mk">3</span><span><b>alcohol_missing.</b> 검진 문진을 받지 않았다는 정보가 열 하나로 남았습니다.</span></li>
+</ol>
+<div class="callout note"><p class="ct">참고 · 결정트리와 결측</p>
+<p>scikit-learn 1.3부터 결정트리는 결측(NaN)이 있는 특성을 그대로 받을 수 있습니다. 나누기마다 결측인 사람을 왼쪽과 오른쪽 가운데 불순도가 더 줄어드는 쪽으로 보내는 방식이며, 지원 범위가 버전마다 넓어지고 있습니다(랜덤 포레스트는 1.4부터). 이 과목은 Colab의 버전과 상관없이 같은 결과가 나오도록 0장처럼 결측을 먼저 대체하는 파이프라인을 씁니다. 숫자 열을 중앙값으로 채우면 '검진을 받지 않았다'는 정보가 흐려지지만 흡연과 음주의 'missing' 열이 그 정보를 전하며, 마 절의 최종 나무가 실제로 이 열을 씁니다.</p></div>
+
+<!--FIG:ml01_depth3-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>make_tree_pipe(DecisionTreeClassifier(max_depth=3, random_state=2026))</code><span>깊이 3까지만 나누는 나무를 파이프라인에 넣었습니다. 잎은 많아야 2³ = 8개입니다.</span></li>
+<li><code>tree3 = small.named_steps["model"]</code><span>파이프라인 안의 나무만 꺼냅니다. <code>export_text</code>와 <code>plot_tree</code>는 파이프라인이 아니라 나무를 받습니다.</span></li>
+<li><code>decimals=1</code><span>기준값과 인원을 소수 첫째 자리까지 보여 줍니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>age &lt;= 87.5.</b> 11,250명에서 고른 첫 질문입니다. 87세 이하 11,018명(입원 373명, 3.4%)과 88세 이상 232명(86명, 37.1%)으로 나뉩니다(셀 8의 그림).</span></li>
+<li><span class="mk">2</span><span><b>age &lt;= 76.5.</b> 87세 이하를 다시 나이로 나눴습니다. 나이를 두 번 써서 위험이 계단 두 개로 오르는 모양을 만듭니다.</span></li>
+<li><span class="mk">3</span><span><b>n_drugs &lt;= 9.5.</b> 처방 약 9가지 이하와 10가지 이상의 경계입니다.</span></li>
+<li><span class="mk">4</span><span><b>n_ed &lt;= 1.5.</b> 응급실 1회 이하와 2회 이상의 경계입니다. 88세 이상이고 약이 8가지 이하인 139명 안에서 2회 이상인 7명 가운데 6명이 입원했습니다.</span></li>
+<li><span class="mk">5</span><span><b>insulin &gt; 0.5.</b> 88세 이상이고 약 9가지 이상이면서 인슐린을 처방받은 17명은 모두 입원했습니다.</span></li>
+</ol>
+<!--FIG:ml01_plot3-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>plot_tree(tree3, feature_names=..., class_names=["no", "admit"], filled=True, impurity=True, fontsize=8, ax=ax)</code><span>나무를 상자 그림으로 그립니다. <code>class_names</code>는 0과 1에 붙일 이름, <code>filled=True</code>는 더 많은 쪽 범주의 색(주황 = no, 파랑 = admit)으로 칠하되 한쪽으로 치우칠수록 진하게 칠하라는 뜻, <code>impurity=True</code>는 상자에 지니를 적으라는 뜻입니다. <code>ax=ax</code>로 앞 줄에서 만든 넓은 그림판(13 × 5.5인치)에 그립니다.</span></li>
+</ol>
+<p>상자의 첫 줄은 질문이고(왼쪽 화살표 True가 '예'), 그 아래는 지니, 사람 수(<code>samples</code>), [입원 안 함, 입원] 인원(<code>value</code>), 더 많은 쪽(<code>class</code>)입니다. 뿌리의 지니 0.078은 입원 비율 4.08%의 2p(1 − p)입니다. 88세 이상 쪽(오른쪽)으로 가면 지니가 0.467로 커지는데, 입원 비율이 0.5에 가까워져 더 섞였다는 뜻이지 나누기가 실패했다는 뜻은 아닙니다. 나무는 두 자식 마디의 지니를 사람 수로 가중 평균한 값이 줄어드는지를 봅니다.</p>
+<!--FIG:ml01_leafprob-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>Z_train = small.named_steps["prep"].transform(X_train)</code><span>나무가 실제로 받는 48열 배열을 만듭니다. <code>apply</code>는 파이프라인이 아니라 나무의 함수라 전처리를 먼저 합니다.</span></li>
+<li><code>leaf = tree3.apply(Z_train)</code><span>사람마다 도착한 잎의 번호를 돌려줍니다(길이 11,250). 번호는 나무 안 모든 마디에 붙인 번호라서 3, 4, 6처럼 띄엄띄엄입니다.</span></li>
+<li><code>.groupby("leaf").agg(n=("admit", "size"), admit_rate=("admit", "mean"), proba=("proba", "first"))</code><span>잎별로 묶어 세 값을 냅니다. <code>새 이름=(열, 계산)</code> 꼴로 쓰면 결과 열의 이름을 정할 수 있습니다. <code>"size"</code>는 사람 수, <code>"mean"</code>은 0/1의 평균이므로 입원 비율, <code>"first"</code>는 잎 안 첫 사람의 예측 확률입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>9,769명.</b> 학습 자료의 87%가 한 잎(76세 이하, 약 9가지 이하)에 모였습니다.</span></li>
+<li><span class="mk">2</span><span><b>입원 비율 0.0229 = 예측 확률 0.0229.</b> 모든 잎에서 두 열이 같습니다. 결정트리의 <code>predict_proba</code>는 그 사람이 도착한 잎의 학습 자료 입원 비율입니다. 같은 잎의 사람은 모두 같은 확률을 받으므로 이 나무가 내는 확률은 8가지뿐입니다.</span></li>
+<li><span class="mk">3</span><span><b>7명 중 6명, 0.8571.</b> 셀 7에서 응급실 2회 이상으로 떼어 낸 잎입니다.</span></li>
+<li><span class="mk">4</span><span><b>1.0000.</b> 17명이 모두 입원한 잎이라, 이 잎에 도착하는 새 사람은 입원 확률 100%를 받습니다. 17명으로 정한 확신입니다.</span></li>
+</ol>
+
+<h3>참 구조와 견주기</h3>
+<p>이 자료는 만든 사람이 위험을 정한 식(참 구조)을 알고 있어 나무가 고른 질문을 정답과 견주어 볼 수 있습니다. 실제 청구자료에서는 이런 정답이 없으므로 여기서만 할 수 있는 확인입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>깊이 3의 나무가 고른 질문 (셀 7)</th><th>자료를 만든 식 (자료 전체의 입원율)</th></tr></thead>
+<tbody>
+<tr><td>나이 87.5세, 그 아래에서 76.5세</td><td>나이의 효과가 70세 이후 가팔라짐. 70–74세 3.0%, 75–79세 6.4%, 80–84세 12.3%, 85세 이상 30.8%</td></tr>
+<tr><td>약 9.5가지 (88세 이상에서는 8.5가지)</td><td>약 10가지 이상에서 위험이 계단처럼 뜀. 10가지 미만 3.3%, 이상 28.5%</td></tr>
+<tr><td>응급실 1.5회 (88세 이상, 약 8가지 이하에서)</td><td>응급실 2회 이상에서 계단. 2회 이상 22.1%</td></tr>
+<tr><td>인슐린 (88세 이상, 약 9가지 이상에서)</td><td>인슐린의 효과가 나이가 많을수록 커지는 교호작용</td></tr>
+</tbody></table></div>
+<p>나무는 계단의 위치(약 10가지, 응급실 2회)를 정확히 찾았고, 인슐린을 고령의 일부 무리 안에서만 써서 교호작용을 따로 지정하지 않고도 표현했습니다. 선형 항만 넣은 로지스틱 회귀는 이런 계단과 교호작용을 분석자가 식에 넣어 주어야 잡습니다. 반면 나이처럼 서서히 가팔라지는 관계는 계단 두 개(76.5, 87.5)로 거칠게 흉내 냈고, 응급실과 인슐린을 찾은 잎은 7명, 17명이라 그 비율을 믿기 어렵습니다. 이 작은 잎들이 새 자료에서 어떻게 되는지가 나 절의 주제입니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">나무가 첫 질문으로 나이 87.5세를 골랐으니 88세가 위험이 갑자기 뛰는 문턱이다.</span> 참 구조에서 나이의 위험은 70세 이후 서서히 가팔라집니다. 나무는 한 번에 한 기준만 쓸 수 있어서 지니를 가장 많이 줄이는 자리, 곧 위험이 가장 높은 소수를 떼어 내는 자리를 먼저 고를 뿐입니다. 나누기 기준은 문턱의 증거가 아닙니다.</li>
+<li><span class="wrong">잎의 확률이 1.0이면 그 잎에 해당하는 환자는 반드시 입원한다.</span> 1.0은 학습 자료에서 그 잎에 들어간 17명이 모두 입원했다는 기록입니다. 새 환자에게는 지나친 확신이며, 나 절의 잎 크기 조절값이 이런 잎을 막습니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>결정트리는 특성마다 가능한 모든 기준으로 나눠 보고, 나눈 뒤 지니 불순도(사람 수로 가중 평균)가 가장 많이 줄어드는 기준을 고르는 일을 마디마다 되풀이합니다.</li>
+<li>예측 확률은 그 사람이 도착한 잎의 학습 자료 입원 비율입니다. 잎이 몇 개면 확률도 몇 가지뿐입니다.</li>
+<li>나무는 값의 순서만 쓰므로 표준화가 필요 없습니다. 이 과목은 결측을 대체하는 <code>make_tree_pipe</code>를 씁니다.</li>
+<li>깊이 3의 나무는 참 구조의 계단(약 10가지, 응급실 2회)과 인슐린 × 나이 교호작용을 찾았지만, 응급실과 인슐린을 찾은 잎은 7명, 17명뿐이었습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ml01-s2">
+<h2><span class="sec-no">나.</span>나무의 크기와 과적합</h2>
+
+<h3>쉽게 말하면</h3>
+<p>나무는 멈추라는 말이 없으면 모든 잎에 한 결과만 남을 때까지 나눕니다. 잎이 작을수록 학습 자료에는 잘 맞지만 잎의 입원 비율은 몇 사람의 우연에 좌우됩니다. 나무의 크기를 정하는 조절값으로 '자세히 나누기'와 '안정된 확률' 사이의 균형을 잡습니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<p>입원 비율이 4%인 무리에서 잎을 만든다고 해 봅시다.</p>
+<ol>
+<li>잎이 20명이면 기대 입원은 0.8명입니다. 한 명도 입원하지 않을 확률이 0.96²⁰ = 0.442라서 이런 잎의 절반 가까이는 예측 확률 0을 받고, 한두 명이 입원하면 0.05나 0.10으로 뜁니다.</li>
+<li>잎 비율의 표준오차는 √(0.04 × 0.96 ÷ 20) = 0.044로 비율 자체(0.04)만큼 큽니다.</li>
+<li>잎이 300명이면 기대 입원은 12명이고 표준오차는 √(0.04 × 0.96 ÷ 300) = 0.011로 4분의 1이 됩니다.</li>
+<li>대신 잎이 크면 가 절의 7명, 17명 같은 작은 고위험 무리를 따로 떼어 낼 수 없습니다. 이 두 가지를 저울질하는 것이 나무 튜닝의 핵심입니다.</li>
+</ol>
+
+<h3>깊이를 늘리면</h3>
+<!--FIG:ml01_depthtab-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>for d in [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, None]:</code><span>깊이 후보를 차례로 넣습니다. <code>None</code>은 깊이 제한이 없다는 뜻입니다.</span></li>
+<li><code>cross_validate(m, X_train, y_train, cv=skf, scoring="roc_auc", return_train_score=True)</code><span>0장의 <code>cross_val_score</code>와 같은 일을 하되 결과를 사전으로 돌려줍니다. <code>cv["test_score"]</code>는 다섯 검증 겹의 AUC, <code>return_train_score=True</code>를 주면 생기는 <code>cv["train_score"]</code>는 회차마다 배운 네 겹(9,000명)에서 잰 AUC입니다.</span></li>
+<li><code>p_te = m.predict_proba(X_test)[:, 1]</code><span>과적합이 시험 자료에서도 보이는지 확인하려고 계산했습니다. 0장처럼 현상을 보이려는 것이며, 조절값을 고르는 데는 쓰지 않습니다.</span></li>
+<li><code>rows.append({...})</code><span>반복마다 사전 하나(표의 한 줄)를 목록에 쌓고, 반복이 끝나면 <code>pd.DataFrame(rows)</code>로 표를 만듭니다. <code>str(d)</code>로 깊이를 글자로 바꾼 것은 <code>None</code>이 표에 그대로 보이게 하려는 것입니다.</span></li>
+<li><code>m.named_steps["model"].get_n_leaves()</code><span>학습 자료 전체로 맞춘 나무의 잎 수입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>교차검증 AUC는 깊이 5의 0.706이 가장 높습니다.</b> 그보다 깊어지면 떨어져 깊이 15에서는 0.503으로 동전 던지기 수준입니다.</span></li>
+<li><span class="mk">2</span><span><b>시험 AUC는 깊이 6의 0.729가 가장 높습니다.</b> 오르다가 떨어지는 모양은 같고, 꼭대기의 위치가 한 칸 다른 것은 우연으로 볼 수 있습니다. 깊이 5와 6의 차이(교차검증 0.012, 시험 0.007)는 겹 사이 SD(0.05)나 사건 153명의 시험 자료가 주는 흔들림보다 작습니다.</span></li>
+<li><span class="mk">3</span><span><b>잎 674개.</b> 제한이 없으면 잎 하나에 평균 17명입니다.</span></li>
+<li><span class="mk">4</span><span><b>학습 AUC 1.000</b>, 교차검증 0.578, 시험 0.581. 학습 자료는 외웠고 새 자료에서는 거의 맞히지 못합니다.</span></li>
+</ol>
+<!--FIG:ml01_depthfig-->
+<p>그림에서 학습 겹의 AUC(파랑)는 깊이와 함께 계속 오르고, 교차검증(주황)과 시험(회색 점선)은 깊이 5–6 근처에서 꺾여 내려갑니다. 두 선이 벌어지기 시작하는 곳부터가 과적합입니다. <code>depth_tab.iloc[:-1]</code>은 마지막 줄(None)을 뺀 것이고, <code>"o-"</code>는 점과 실선, <code>"o--"</code>는 점과 점선입니다.</p>
+
+<h3>결정트리의 조절값</h3>
+<p><code>DecisionTreeClassifier</code>의 인자 가운데 실제로 쓰는 것을 모두 모았습니다. '키우면'은 값을 키울 때 나무가 과적합 쪽(더 크고 자세하게)으로 가는지 과소적합 쪽(더 작고 단순하게)으로 가는지입니다. 범위의 '이 자료'는 이 장에서 찾은 값입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>인자 (기본값)</th><th>뜻</th><th>키우면</th><th>흔히 탐색하는 범위</th><th>우선순위</th></tr></thead>
+<tbody>
+<tr class="hi"><td><code>max_depth</code><br>(None, 제한 없음)</td><td>뿌리에서 잎까지 나누는 최대 횟수</td><td>과적합 쪽</td><td>2–12 (이 자료 5–7)</td><td>먼저</td></tr>
+<tr class="hi"><td><code>min_samples_leaf</code><br>(1)</td><td>잎 하나의 최소 인원. 0–1의 소수는 학습 자료 인원에 대한 비율</td><td>과소적합 쪽. 잎의 확률이 안정됨</td><td>1–1000. 드문 결과는 큰 값까지 (이 자료 150–300)</td><td>먼저</td></tr>
+<tr><td><code>max_leaf_nodes</code><br>(None)</td><td>잎의 최대 개수. 주면 불순도를 가장 많이 줄이는 마디부터 나눔</td><td>과적합 쪽</td><td>4–64 (이 자료 10)</td><td>다음 (깊이 대신)</td></tr>
+<tr><td><code>min_samples_split</code><br>(2)</td><td>마디를 나누는 데 필요한 최소 인원</td><td>과소적합 쪽</td><td>2–1000</td><td>다음</td></tr>
+<tr><td><code>ccp_alpha</code><br>(0.0)</td><td>비용 복잡도 가지치기의 세기(아래 접힌 절)</td><td>과소적합 쪽</td><td>가지치기 경로의 값 (이 자료 0–0.005)</td><td>다음 (크기 제한 대신)</td></tr>
+<tr><td><code>class_weight</code><br>(None)</td><td>범주별 가중치. "balanced"면 드문 범주에 큰 가중치</td><td>"balanced"면 AUC는 거의 그대로, 확률이 커지고 0.5에서의 재현율이 오름</td><td>None, "balanced"</td><td>목적에 따라</td></tr>
+<tr><td><code>min_impurity_decrease</code><br>(0.0)</td><td>나눌 때 줄어드는 가중 불순도의 최솟값</td><td>과소적합 쪽</td><td>0–0.0005 (이 자료의 나누기 0.00004–0.0045)</td><td>보통 기본값</td></tr>
+<tr><td><code>min_weight_fraction_leaf</code><br>(0.0)</td><td>잎의 가중치 합의 최소 비율. 가중치를 줄 때의 min_samples_leaf</td><td>과소적합 쪽</td><td>0–0.05</td><td>보통 기본값</td></tr>
+<tr><td><code>max_features</code><br>(None, 전부)</td><td>마디마다 후보로 살펴볼 특성 수</td><td>과적합 쪽. 줄이면 무작위성이 커짐</td><td>None, "sqrt", 0.3–1.0</td><td>보통 기본값 (2장에서 핵심)</td></tr>
+<tr><td><code>criterion</code><br>("gini")</td><td>불순도를 재는 방법</td><td>(크기와 무관)</td><td>"gini", "entropy"</td><td>보통 기본값</td></tr>
+<tr><td><code>splitter</code><br>("best")</td><td>"best"는 모든 기준을, "random"은 특성마다 무작위 기준 하나만 잼</td><td>(크기와 무관)</td><td>"best"</td><td>보통 기본값</td></tr>
+<tr><td><code>random_state</code><br>(None)</td><td>특성을 살펴보는 순서 등의 seed</td><td>(성능과 무관)</td><td>아무 정수</td><td>항상 고정</td></tr>
+</tbody></table></div>
+<p>먼저 조절할 것은 나무의 크기를 정하는 <code>max_depth</code>와 <code>min_samples_leaf</code> 두 개입니다. 드문 결과에서는 특히 <code>min_samples_leaf</code>가 중요합니다(다 절). <code>max_leaf_nodes</code>와 <code>ccp_alpha</code>는 크기를 정하는 다른 길이어서, 깊이 대신 쓰거나 비교할 때 씁니다(라 절의 셀 18, 과제 2).</p>
+<!--FOLD:조절값 표의 세부-->
+<ul>
+<li><b>min_samples_split과 min_samples_leaf.</b> 마디는 인원이 <code>min_samples_split</code> 이상이고 나눈 두 자식이 모두 <code>min_samples_leaf</code> 이상일 때만 나뉩니다. 그래서 <code>min_samples_leaf=300</code>이면 600명 미만의 마디는 어차피 나뉘지 않고, <code>min_samples_split</code>을 600 이하로 주는 것은 효과가 없습니다. 둘 가운데 하나만 탐색해도 됩니다.</li>
+<li><b>random_state가 필요한 이유.</b> <code>splitter="best"</code>, <code>max_features=None</code>이어도 나무는 마디마다 특성을 섞은 순서로 살펴보고, 가 절 ④처럼 감소량이 같은 기준이 여럿이면 먼저 만난 것을 고릅니다. 고정하지 않으면 실행마다 다른 나무가 나올 수 있습니다.</li>
+<li><b>min_impurity_decrease의 단위.</b> 감소량은 마디의 인원 비율을 곱한 값입니다. 학습 자료 11,250명 가운데 1,125명(10%)인 마디에서 지니가 0.01 줄면 0.1 × 0.01 = 0.001로 계산합니다. 뿌리의 지니가 0.078뿐인 드문 결과에서는 아주 작은 값도 큰 제한이 됩니다.</li>
+<li><b>monotonic_cst.</b> scikit-learn 1.4부터 특성마다 예측이 한 방향으로만 변하도록 제약을 거는 인자가 있습니다. 1.3에는 없으므로 이 과목에서는 쓰지 않습니다.</li>
+<li><b>회귀 나무.</b> 의료비 같은 숫자 목표를 예측하는 <code>DecisionTreeRegressor</code>는 지니 대신 제곱오차를 줄이는 기준으로 나누고 잎의 평균을 예측합니다. 조절값은 위 표와 거의 같고 6장에서 다룹니다.</li>
+</ul>
+<!--/FOLD-->
+
+<h3>드문 결과와 class_weight</h3>
+<p><code>class_weight="balanced"</code>는 범주마다 '전체 인원 ÷ (범주 수 × 그 범주의 인원)'의 가중치를 줍니다. 학습 자료에서 입원한 사람은 11,250 ÷ (2 × 459) = 12.25, 입원하지 않은 사람은 11,250 ÷ (2 × 10,791) = 0.521이라 입원 한 명이 비입원 23.5명의 무게를 갖습니다. 나무는 지니와 잎의 비율을 이 가중치로 계산하므로, 실제 입원 비율이 4%인 잎의 확률은 0.04 × 12.25 ÷ (0.04 × 12.25 + 0.96 × 0.521) = 0.495로 바뀝니다.</p>
+<!--FIG:ml01_cw-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>cross_val_predict(m, X_train, y_train, cv=skf, method="predict_proba")</code><span>교차검증의 다섯 회차마다 검증 겹 사람들의 예측을 모아, 학습 자료 11,250명 모두의 예측을 돌려줍니다(11,250행 × 2열). 한 사람의 예측은 그 사람을 빼고 배운 모형에서 나왔으므로 학습 자료 안에서 '처음 보는 사람'의 확률처럼 쓸 수 있습니다. 이런 예측을 <strong>겹 밖 예측</strong><span class="en">(out-of-fold prediction)</span>이라고 하며, 시험 자료를 쓰지 않고 임계값의 효과를 볼 때 씁니다.</span></li>
+<li><code>max_depth=5, min_samples_leaf=50</code><span>튜닝하기 전이라 중간 크기로 정해 둔 나무입니다. 가중치의 효과만 보려고 두 나무의 다른 조절값을 똑같이 두었습니다. 라 절에서 고른 나무로는 과제 3에서 다시 봅니다.</span></li>
+<li><code>(p_oof &gt;= 0.5).astype(int)</code><span>임계값 0.5로 0/1을 만듭니다(<a href="#ml00-s5">0장 마 절</a>). <code>recall_score</code>도 0장과 같습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>가중치 없이 교차검증 AUC 0.718.</b></span></li>
+<li><span class="mk">2</span><span><b>평균 예측 확률 0.041.</b> 실제 입원 비율 4.08%와 같습니다. 잎마다 실제 비율을 쓰니 평균이 맞습니다.</span></li>
+<li><span class="mk">3</span><span><b>0.5 이상 89명</b>, <span class="mk">4</span> <b>재현율 0.089.</b> 입원 459명 가운데 41명만 잡습니다.</span></li>
+<li><span class="mk">5</span><span><b>"balanced"의 AUC 0.724.</b> 거의 같습니다. 가중치가 바뀌면 나무가 고르는 기준도 조금 바뀌어 0.006 달라졌을 뿐, 사람들의 순서는 크게 변하지 않았습니다.</span></li>
+<li><span class="mk">6</span><span><b>평균 예측 확률 0.369.</b> 실제 4.1%의 9배입니다. 이 확률을 그대로 "입원 위험 37%"로 읽으면 안 됩니다.</span></li>
+<li><span class="mk">7</span><span><b>0.5 이상 2,466명</b>, <span class="mk">8</span> <b>재현율 0.560.</b> 확률이 커져 0.5를 넘는 사람이 늘었기 때문입니다. 같은 일은 가중치 없이 임계값을 낮춰도 얻을 수 있습니다(과제 3).</span></li>
+</ol>
+<p>확률 자체를 쓸 모형(위험 점수, 비용 계산)이면 가중치 없이 맞추고 임계값을 목적에 맞게 고르는 편이 안전합니다. 0.5에서 0/1만 내는 도구를 그대로 써야 하거나, 가중치가 나누기 기준을 바꿔 순서가 나아지는지 보고 싶을 때 "balanced"를 격자에 넣어 교차검증으로 비교합니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">class_weight="balanced"로 맞춘 나무에서 0.37이 나온 환자의 입원 위험은 37%이다.</span> 셀 12에서 평균 예측 확률이 0.369로 실제 입원 비율(0.041)의 9배였습니다. 가중치는 확률의 크기를 바꾸므로, 확률을 위험으로 읽을 때는 가중치 없이 맞춘 모형을 씁니다.</li>
+<li><span class="wrong">깊이만 제한하면 과적합이 막힌다.</span> 깊이 6의 나무도 잎이 48개이고 그중에는 몇 명뿐인 잎이 있어 교차검증 AUC가 0.694였습니다. 같은 깊이 6에서 잎을 300명 이상으로 묶자 0.754가 되었습니다(마 절). 드문 결과에서는 잎의 크기를 함께 제한합니다.</li>
+</ul></div>
+
+<h3>비용 복잡도 가지치기 <span class="lv deep">심화</span></h3>
+<p>깊이나 잎 크기로 미리 멈추는 대신, 끝까지 키운 나무에서 가장 쓸모없는 가지부터 잘라 내는 방법이 <strong>비용 복잡도 가지치기</strong><span class="en">(cost-complexity pruning)</span>입니다<cite data-ref="breiman1984"></cite>. 나무 T를 잎들의 불순도 합 R(T)와 잎의 수 |T|로 평가합니다.</p>
+<div class="eq">\[ R_\alpha(T) = R(T) + \alpha\,|T| \]<p>R(T)는 잎마다의 불순도에 그 잎의 인원 비율을 곱해 더한 값, α는 잎 하나를 더 둘 때 내는 벌점입니다. α가 0이면 끝까지 키운 나무가 가장 좋고, α를 키울수록 불순도를 조금 줄이는 가지가 잘려 나갑니다.</p></div>
+<!--FIG:ml01_ccp-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>DecisionTreeClassifier(random_state=2026).cost_complexity_pruning_path(Zt, y_train)</code><span>끝까지 키운 나무에서 가지가 하나씩 잘려 나가는 α 값들(<code>path.ccp_alphas</code>)과 그때 잎들의 불순도 합(<code>path.impurities</code>)을 돌려줍니다. 파이프라인이 아니라 나무의 함수라서 전처리한 배열 <code>Zt</code>를 넣었고, 줄 끝의 <code>\</code>는 다음 줄로 이어진다는 표시입니다.</span></li>
+<li><code>DecisionTreeClassifier(ccp_alpha=a, ...).fit(Zt, y_train).get_n_leaves()</code><span>α마다 가지친 나무를 맞춰 잎 수를 셉니다. 대괄호 안 <code>for</code>(<a href="stats.html#lab15-s4">실습 15 라 절</a>)로 30개쯤만 골라 맞췄습니다.</span></li>
+<li><code>a.set_xscale("log"), sharex=True</code><span>α가 0.00004에서 0.005까지 넓게 퍼져 있어 가로축을 로그로 그렸고, 두 그림이 같은 가로축을 쓰게 했습니다. 로그 축에 0을 그릴 수 없어 첫 값(0)은 뺐습니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span>의 179는 잘라 낼 수 있는 단계의 수입니다. 오른쪽 그림처럼 α가 0.0001 근처를 지나며 잎이 670여 개에서 수십 개로 빠르게 줄고, 왼쪽 그림처럼 잎들의 불순도 합은 0에서 뿌리의 지니(0.078)까지 오릅니다. 쓸 α는 교차검증으로 고르며, 이 자료에서는 α만으로 가지친 나무의 교차검증 AUC가 가장 높아도 0.692여서 잎 크기를 제한한 나무(0.754)보다 낮았습니다. 이유는 과제 2에서 봅니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>깊이를 늘리면 학습 AUC는 계속 오르고(제한 없으면 1.000, 잎 674개), 교차검증 AUC는 깊이 5의 0.706에서 꺾여 떨어집니다.</li>
+<li>입원 비율 4%에서 20명짜리 잎은 확률이 크게 흔들리고(표준오차 0.044), 300명짜리 잎은 안정됩니다(0.011). 크기 조절값은 <code>max_depth</code>와 <code>min_samples_leaf</code>를 먼저 봅니다.</li>
+<li><code>class_weight="balanced"</code>는 AUC를 거의 바꾸지 않고(0.718 → 0.724) 확률을 부풀려(평균 0.041 → 0.369) 0.5에서의 재현율을 올립니다(0.089 → 0.560).</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ml01-s3">
+<h2><span class="sec-no">다.</span>조절값 하나씩 바꿔 보기</h2>
+
+<h3>쉽게 말하면</h3>
+<p>약 하나의 용량만 바꿔 가며 반응을 보듯, 다른 조절값은 그대로 두고 하나만 여러 값으로 바꿔 학습 점수와 교차검증 점수를 나란히 그린 것이 <strong>검증 곡선</strong><span class="en">(validation curve)</span>입니다. 나 절의 반복문과 같은 일을 사이킷런의 함수 하나로 하고, 겹 사이의 흔들림을 띠로 함께 그립니다.</p>
+
+<h3>max_depth</h3>
+<!--FIG:ml01_vc_depth-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>validation_curve(estimator, X_train, y_train, param_name="model__max_depth", param_range=depths, cv=skf, scoring="roc_auc", n_jobs=-1)</code><span>파이프라인, 자료, 바꿀 조절값의 이름과 값 목록, 겹, 점수를 받아 값마다 교차검증을 합니다. 파이프라인 안의 조절값은 0장처럼 <code>model__max_depth</code>로 부릅니다. 돌려주는 두 배열은 학습 겹의 점수와 검증 겹의 점수입니다.</span></li>
+<li><code>n_jobs=-1</code><span>컴퓨터의 CPU 코어를 모두 써서 여러 겹을 동시에 맞추라는 뜻입니다. 결과는 같고 시간만 줄어듭니다. Colab 무료 환경은 코어가 2개입니다.</span></li>
+<li><code>va.mean(axis=1)</code><span><code>axis=1</code>은 가로 방향, 곧 한 줄(한 깊이)의 다섯 겹을 평균하라는 뜻입니다. 결과는 깊이 15개의 평균입니다. <code>.argmax()</code>는 가장 큰 값의 위치입니다.</span></li>
+<li><code>ax.fill_between(depths, m - sd, m + sd, alpha=0.2)</code><span>평균 ± 표준편차 사이를 옅은 색으로 칠합니다. <code>alpha</code>는 여기서 투명도입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(15, 5) (15, 5).</b> 깊이 15개 × 겹 5개의 점수표가 두 개입니다.</span></li>
+<li><span class="mk">2</span><span><b>깊이 5</b>, <span class="mk">3</span> <b>0.706.</b> 셀 10의 깊이 5와 같은 값입니다. 같은 겹(<code>skf</code>)과 같은 <code>random_state</code>를 썼기 때문입니다.</span></li>
+</ol>
+<h4>그림 읽는 법</h4>
+<ol>
+<li><b>두 선의 간격이 과적합의 정도입니다.</b> 깊이 1–4에서는 두 선이 붙어 있고, 깊이 5부터 벌어져 15에서는 0.93 대 0.50입니다.</li>
+<li><b>교차검증 선의 꼭대기가 고를 후보입니다.</b> 여기서는 깊이 5입니다.</li>
+<li><b>띠의 폭은 겹 사이의 흔들림입니다.</b> 깊이 3–6에서 교차검증의 SD가 0.04–0.05라서 이 범위의 차이(0.689–0.706)는 띠 안에 있습니다. 꼭대기 근처가 평평하면 그중 단순한 값(작은 깊이)을 골라도 됩니다.</li>
+<li><b>두 선이 모두 낮고 붙어 있으면 과소적합입니다.</b> 깊이 1의 학습 0.599, 교차검증 0.590이 그렇습니다.</li>
+</ol>
+
+<h3>min_samples_leaf</h3>
+<!--FIG:ml01_vc_leaf-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>for d in [None, 4]:</code><span>깊이 제한이 없을 때와 깊이 4일 때 두 번 검증 곡선을 그립니다. 한 조절값의 좋은 값이 다른 조절값에 따라 달라지는지 보려는 것입니다.</span></li>
+<li><code>ax.set_xscale("log")</code><span>잎 크기 후보가 1에서 1,200까지 곱절로 늘어나므로 가로축을 로그로 그립니다.</span></li>
+<li><code>if d is None:</code><span>학습 겹의 선은 깊이 제한이 없을 때만 그려 그림을 덜 복잡하게 했습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>깊이 제한 없이 잎 300명</b>, <span class="mk">2</span> <b>0.741.</b> 잎 1명(0.578)에서 300명까지 잎 크기 하나만으로 교차검증 AUC가 0.16 올랐습니다. 학습 겹의 AUC(회색)는 1.0에서 0.80으로 내려와 교차검증 선과 가까워집니다.</span></li>
+<li><span class="mk">3</span><span><b>깊이 4에서는 잎 800명</b>, <span class="mk">4</span> <b>0.739.</b> 깊이 4의 곡선(주황)은 0.69–0.74로 평평합니다. 깊이 4가 이미 나무를 작게 묶어 두어 잎 크기가 할 일이 적기 때문입니다.</span></li>
+</ol>
+<p>가장 좋은 잎 크기가 깊이에 따라 300명이 되기도 800명이 되기도 합니다. 조절값끼리 서로 영향을 주므로 하나씩 바꿔 얻은 최적값을 모아도 함께 바꿨을 때의 최적이 되지 않습니다. 검증 곡선은 조절값마다 어느 범위를 탐색할지 정하는 데 쓰고, 고르는 일은 라 절의 격자 탐색으로 합니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<p><span class="wrong">검증 곡선 두 개에서 각각 가장 좋았던 max_depth = 5와 min_samples_leaf = 300을 합치면 최적의 나무다.</span> 셀 14는 잎 크기 1에서, 셀 15는 깊이 제한 없이 그린 곡선입니다. 둘을 함께 바꾼 마 절의 열지도에서 (깊이 5, 잎 300)은 0.749로 1위가 아니고, (깊이 6, 잎 300)이 0.754로 1위입니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>validation_curve</code>는 조절값 하나를 바꿔 가며 학습 겹과 검증 겹의 점수를 (값의 수 × 겹 수) 배열로 돌려줍니다. 평균 ± SD의 띠로 그립니다.</li>
+<li>두 선이 벌어지면 과적합, 둘 다 낮으면 과소적합, 띠보다 작은 차이는 구별하지 않습니다.</li>
+<li>잎 크기 하나로 교차검증 AUC가 0.578에서 0.741로 올랐지만, 가장 좋은 잎 크기는 깊이에 따라 달랐습니다(300명, 800명). 함께 고르려면 격자 탐색을 씁니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ml01-s4">
+<h2><span class="sec-no">라.</span>격자 탐색으로 튜닝하기</h2>
+
+<h3>쉽게 말하면</h3>
+<p>조절값마다 후보 목록을 정하면 모든 조합이 바둑판(격자)을 이룹니다. <strong>격자 탐색</strong><span class="en">(grid search)</span>은 칸마다 교차검증을 해서 평균 점수가 가장 높은 칸을 고르고, 그 조합으로 학습 자료 전체에 다시 맞춥니다(<a href="#ml00-s4">0장 라 절</a>). 시험 자료는 이 과정 어디에도 쓰지 않습니다.</p>
+
+<h3>숫자로 따라가기</h3>
+<ol>
+<li>깊이 후보 6개(3, 4, 5, 6, 8, 10)와 잎 크기 후보 5개(10, 20, 50, 100, 200)의 조합은 6 × 5 = 30개입니다.</li>
+<li>조합마다 5겹 교차검증을 하므로 맞추는 횟수는 30 × 5 = 150번입니다.</li>
+<li>가장 좋은 조합으로 학습 자료 전체를 한 번 더 맞추므로 모두 151번입니다(<code>refit=True</code>).</li>
+<li>후보를 조절값마다 두 배로 늘리면 조합은 네 배가 됩니다. 조절값이 셋이면 여덟 배입니다. 이 셀은 이 환경에서 150번에 10초쯤 걸렸으니, 같은 크기의 나무로 조절값 넷에 후보 10개씩이면 10,000조합, 5만 번 맞추기로 한 시간 가까이 걸립니다.</li>
+</ol>
+
+<h3>처음 정한 범위</h3>
+<!--FIG:ml01_gs1-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>grid1 = {"model__max_depth": [...], "model__min_samples_leaf": [...]}</code><span>조절값 이름(파이프라인 안의 이름)을 열쇠, 후보 목록을 값으로 하는 사전입니다. 사전에 든 목록들의 모든 조합을 시험합니다.</span></li>
+<li><code>GridSearchCV(..., cv=skf, scoring="roc_auc", n_jobs=-1, return_train_score=True)</code><span>0장과 같고 두 인자가 더해졌습니다. <code>n_jobs=-1</code>은 다 절과 같이 코어를 모두 쓰라는 뜻, <code>return_train_score=True</code>는 결과에 학습 겹의 점수(<code>mean_train_score</code>)도 남기라는 뜻입니다. 학습 점수와 교차검증 점수의 차이로 과적합을 봅니다(마 절).</span></li>
+<li><code>time.perf_counter() - t0</code><span><code>perf_counter()</code>는 초 단위로 가는 초시계의 현재 값입니다. 앞뒤에서 한 번씩 불러 빼면 걸린 시간입니다.</span></li>
+<li><code>len(gs1.cv_results_["params"])</code><span><code>cv_results_["params"]</code>는 시험한 조합의 목록이라 그 길이가 조합의 수입니다. <code>skf.get_n_splits()</code>는 겹의 수 5입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>9.6초.</b> 걸린 시간은 실행할 때마다, 컴퓨터마다 다릅니다. 이 쪽의 값은 이 환경(코어 2개)에서 한 번 잰 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>조합 30개</b>, <span class="mk">3</span> <b>맞추기 150번</b>(다시 맞추는 1번은 빼고 셈).</span></li>
+<li><span class="mk">4</span><span><b>잎 200명, 교차검증 AUC 0.7478.</b> 200은 후보 목록의 가장 큰 값, 곧 격자의 가장자리입니다. 가장자리에서 최적이 나오면 목록 밖에 더 좋은 값이 있을 수 있으므로 그쪽으로 범위를 넓혀 다시 탐색합니다.</span></li>
+</ol>
+
+<h3>범위를 넓혀 다시</h3>
+<!--FIG:ml01_gs2-->
+<p>잎 크기를 100–600으로, 깊이를 4–12로 옮겼습니다. 출력 <span class="mk">1</span>은 걸린 시간 11.2초, <span class="mk">2</span>는 7 × 6 = 42조합 × 5겹 = 210번입니다. 출력 <span class="mk">3</span>의 최적 조합 (깊이 6, 잎 300)은 두 목록 모두의 안쪽(깊이 5와 7 사이, 잎 200과 400 사이)에 있으므로 여기서 멈춥니다. 잎 크기처럼 효과가 곱절 단위로 나타나는 조절값은 100, 150, 200, 300, 400, 600처럼 비율이 일정한 간격으로 후보를 잡습니다. 이 탐색 결과(<code>gs</code>)를 마 절에서 표와 그림으로 정리합니다.</p>
+
+<h3>격자를 여러 개로, 지표를 둘로</h3>
+<p><code>max_depth</code>와 <code>max_leaf_nodes</code>는 둘 다 나무의 크기를 정하므로 한 격자에 함께 넣으면 의미가 겹치는 조합만 늘어납니다. 이럴 때 사전 여러 개를 목록으로 주면 사전마다 따로 격자를 만들어 합칩니다. 아래 셀은 3 × 2 + 4 × 2 = 14조합입니다(한 격자에 넣었다면 3 × 4 × 2 = 24조합).</p>
+<!--FIG:ml01_gs3-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>grid_list = [{...}, {...}]</code><span>첫 사전은 깊이 × 잎 크기, 둘째 사전은 잎 수 × 잎 크기의 격자입니다. 첫 격자의 조합에서는 <code>max_leaf_nodes</code>가 기본값(None)이고, 둘째에서는 <code>max_depth</code>가 기본값입니다.</span></li>
+<li><code>scoring={"auc": "roc_auc", "logloss": "neg_log_loss"}</code><span>점수를 둘 이상 주면 사전으로 이름을 붙입니다. 결과 표에 <code>mean_test_auc</code>, <code>mean_test_logloss</code>처럼 이름별 열이 생깁니다.</span></li>
+<li><code>refit="auc"</code><span>지표가 여럿이면 어느 지표로 최적 조합을 고르고 다시 맞출지 정해야 합니다. <code>best_params_</code>와 <code>best_estimator_</code>는 이 지표를 따릅니다. 다시 맞출 필요가 없으면 <code>refit=False</code>로 시간을 줄입니다.</span></li>
+<li><code>show.columns = [...]</code><span>열 이름을 짧게 바꿉니다. 해당 격자에 없는 조절값의 칸은 NaN으로 보입니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span>처럼 14조합을 시험해 (잎 수 10, 잎 300)이 0.7546으로 1위, (깊이 6, 잎 300)이 0.7544로 2위입니다. 잎이 10개인 나무와 11개인 나무로, 크기를 정하는 두 길이 거의 같은 나무에 닿았습니다.</p>
+<p>오른쪽 두 열이 <strong>로그 손실</strong><span class="en">(log loss)</span>입니다. 사람마다 실제 결과에 준 예측 확률의 로그를 구해 부호를 바꿔 평균한 값으로, 작을수록 좋습니다. 사이킷런은 '클수록 좋다'로 맞추려고 음수(<code>neg_log_loss</code>)로 돌려주므로 표의 −0.149가 로그 손실 0.149입니다. AUC는 확률의 순서만 보고, 로그 손실은 확률의 크기까지 봅니다. 예를 들어 깊이 제한 없는 나무는 입원한 사람에게 확률 0을 준 잎이 많아 교차검증 로그 손실이 2.80이었고(사이킷런은 확률 0을 아주 작은 수로 바꿔 계산합니다), 모두에게 입원 비율 4.08%를 예측해도 0.170, 고른 나무는 0.149였습니다. 두 지표의 순위는 위쪽에서는 같고 아래로 가면 어긋납니다. (깊이 5, 잎 300)은 AUC로 6위, 로그 손실로 3위입니다. 확률을 그대로 위험 점수나 비용 계산에 쓸 모형이면 로그 손실로 고르는 것도 생각합니다.</p>
+<p>조합이 많아지면 정해진 횟수만 무작위로 뽑는 무작위 탐색, 적은 자원(나무 수나 자료 수)으로 많은 후보를 먼저 걸러 내는 단계적 탐색(<a href="#ml02-s3">2장 다 절</a>), 앞의 결과를 보고 다음 후보를 고르는 베이즈 최적화(Optuna, HyperOpt, <a href="#ml02-s4">2장 라 절</a>)가 격자 탐색보다 적은 횟수로 좋은 조합을 찾습니다.</p>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">격자 탐색이 고른 조합이 이 모형의 진짜 최적 조절값이다.</span> 고른 것은 내가 준 후보 가운데 가장 좋은 조합입니다. 처음 격자의 최적(잎 200)이 가장자리였던 것처럼 범위를 잘못 잡으면 더 좋은 값을 놓치고, 1위(0.7544)와 2위(0.7538)의 차이는 겹 사이 SD(0.025)보다 훨씬 작습니다.</li>
+<li><span class="wrong">n_jobs=-1로 돌리면 결과가 달라진다.</span> 여러 겹을 동시에 맞출 뿐 계산은 같습니다. 이 장의 모든 탐색은 <code>n_jobs</code>와 상관없이 같은 결과가 나옵니다. 결과를 바꾸는 것은 <code>random_state</code>와 겹 나누기(<code>skf</code>)입니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>맞추는 횟수는 조합 수 × 겹 수(+ 다시 맞추기 1번)입니다. 첫 격자는 30 × 5 = 150번, 넓힌 격자는 42 × 5 = 210번이었습니다.</li>
+<li>최적 조합이 격자의 가장자리(잎 200)에 걸리면 범위를 넓혀 다시 탐색합니다. 넓힌 격자에서 (깊이 6, 잎 300), 교차검증 AUC 0.7544를 골랐습니다.</li>
+<li>함께 넣으면 의미가 겹치는 조절값은 사전의 목록으로 격자를 나누고, 지표가 여럿이면 <code>refit</code>으로 고르는 지표를 정합니다. AUC는 순서를, 로그 손실은 확률의 크기까지 평가합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="ml01-s5">
+<h2><span class="sec-no">마.</span>결과를 표와 그림으로 보기</h2>
+
+<h3>탐색 결과 표</h3>
+<!--FIG:ml01_table-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>res = pd.DataFrame(gs.cv_results_)</code><span>42조합 × 22열의 표입니다(<a href="#ml00-s4">0장 라 절</a>). 겹별 점수(<code>split0_test_score</code> …)와 시간 열까지 있어 필요한 열만 고릅니다.</span></li>
+<li><code>.rename(columns={...})</code><span>{옛 이름: 새 이름} 사전대로 열 이름을 바꿉니다.</span></li>
+<li><code>.sort_values("rank").head(8)</code><span>순위대로 정렬해 위의 8줄만 봅니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span> 1위 (깊이 6, 잎 300)의 교차검증 AUC는 0.7544, <span class="mk">2</span> 2위 (깊이 6, 잎 150)는 0.7538로 차이가 0.0006입니다. 8위까지가 0.745–0.754 안에 있고 1위의 겹 사이 SD가 <span class="mk">3</span> 0.0251이므로 이 8개는 사실상 구별되지 않습니다. 1위의 학습 AUC <span class="mk">4</span> 0.7766과 교차검증 AUC의 차이는 0.022로, 깊이 제한 없는 나무의 1.000 대 0.578과 비교하면 과적합이 거의 없습니다.</p>
+
+<h3>두 조절값의 열지도</h3>
+<!--FIG:ml01_heat-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>res.pivot(index="param_model__min_samples_leaf", columns="param_model__max_depth", values="mean_test_score")</code><span>한 줄에 한 조합이 있는 긴 표를, 행이 잎 크기이고 열이 깊이인 6 × 7의 넓은 표로 바꿉니다. 칸의 값은 교차검증 평균 AUC입니다.</span></li>
+<li><code>ax.imshow(heat.to_numpy(), cmap="Blues", aspect="auto")</code><span>2차원 배열을 색 칸으로 그립니다. <code>cmap="Blues"</code>는 값이 클수록 진한 파랑, <code>aspect="auto"</code>는 칸을 그림 크기에 맞춰 늘리라는 뜻입니다.</span></li>
+<li><code>ax.set_xticks(range(heat.shape[1]), heat.columns)</code><span>칸의 위치(0, 1, 2 …)에 깊이 값을 이름표로 붙입니다. 이름표를 두 번째 인자로 주는 방식은 matplotlib 3.5부터 됩니다.</span></li>
+<li><code>for i …: for j …: ax.text(j, i, f"{v:.3f}", …)</code><span>칸마다 숫자를 적습니다. <code>text</code>는 (가로, 세로) 순서라 열 번호 j가 먼저입니다. 진한 칸(0.745 초과)에는 흰 글씨를 씁니다.</span></li>
+<li><code>fig.colorbar(im, ax=ax)</code><span>오른쪽에 색과 값의 대응 막대를 붙입니다.</span></li>
+</ol>
+<p>가장 진한 칸은 깊이 6의 잎 150명과 300명(0.754)이고, 깊이 5–7, 잎 150–300명에 진한 띠가 있습니다. 깊이 10–12는 잎이 100명일 때 0.70대 초반이지만 잎을 300명으로 묶으면 0.741까지 올라와, 잎 크기가 깊이의 과적합을 상당 부분 막는다는 것을 보여 줍니다. 깊이 4는 어느 잎 크기에서도 0.716–0.729로 낮아 나무가 너무 작습니다. 한 줄이나 한 열만 보면 다 절의 검증 곡선과 같고, 열지도는 두 조절값이 서로 주고받는 영향을 한눈에 보여 줍니다.</p>
+
+<h3>시험 자료로 한 번 평가</h3>
+<!--FIG:ml01_final-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def boot_auc(y_true, p, n_boot=1000, seed=2026):</code><span>실제 결과와 예측 확률을 받아, 시험 자료를 <code>n_boot</code>번 복원추출해 다시 구한 AUC들을 배열로 돌려주는 함수입니다. 안의 줄은 <a href="stats.html#lab09-s4">실습 9 라 절</a>의 부트스트랩 셀과 같고(0장의 신뢰구간 0.695–0.785도 이 방법), 같은 일을 여러 모형에 쓰려고 함수로 묶었습니다. <code>np.asarray</code>는 pandas 열을 numpy 배열로 바꿔 위치로 고를 수 있게 합니다.</span></li>
+<li><code>final = gs.best_estimator_</code><span>고른 조합으로 학습 자료 11,250명 전체에 다시 맞춘 파이프라인입니다(<code>refit=True</code>).</span></li>
+<li><code>np.percentile(b_tree, [2.5, 97.5])</code><span>1,000개 AUC의 2.5와 97.5 백분위수, 곧 95% 부트스트랩 신뢰구간입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>잎 11개.</b> 셀 10의 깊이 6 나무(잎 48개)보다 훨씬 작습니다. 깊이보다 잎 크기 300명이 나무를 묶었습니다.</span></li>
+<li><span class="mk">2</span><span><b>시험 AUC 0.771.</b> 교차검증 AUC 0.754보다 0.017 높습니다.</span></li>
+<li><span class="mk">3</span><span><b>95% 신뢰구간 0.726–0.810.</b> 시험 자료의 입원 153명에서 오는 불확실성입니다. 교차검증 값 0.754가 구간 안에 있으므로 시험 AUC가 더 높은 것은 우연의 범위로 볼 수 있습니다.</span></li>
+</ol>
+
+<h3>0장 로지스틱 회귀와 비교</h3>
+<!--FIG:ml01_compare-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>lr = make_pipe(LogisticRegression(C=0.1, max_iter=1000))</code><span>0장 라 절에서 교차검증으로 고른 C = 0.1의 파이프라인입니다.</span></li>
+<li><code>b_lr = boot_auc(y_test, p_lr)</code><span>seed가 같으므로 나무의 <code>b_tree</code>와 똑같은 1,000벌의 복원추출에서 로지스틱 회귀의 AUC를 구합니다.</span></li>
+<li><code>np.percentile(b_tree - b_lr, [2.5, 97.5])</code><span>복원추출 한 벌마다 두 AUC의 차이를 구해 그 백분위수를 냅니다. 같은 사람들로 두 모형을 짝지어 비교하므로 두 신뢰구간이 겹치는지 보는 것보다 정확합니다.</span></li>
+<li><code>res.loc[i_best, "mean_test_score"]</code><span><code>gs.best_index_</code>는 1위 조합의 줄 번호입니다. 그 줄의 교차검증 평균과 SD를 꺼냅니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>나무의 교차검증 AUC 0.754</b>와 <span class="mk">2</span> <b>로지스틱 회귀의 0.749.</b> 차이는 0.005이고 겹별로는 다섯 겹 가운데 세 겹에서 나무가 높았습니다.</span></li>
+<li><span class="mk">3</span><span><b>시험 AUC 0.771과</b> <span class="mk">4</span> <b>0.742.</b> 로지스틱 회귀의 값과 <span class="mk">5</span> 신뢰구간 하한 0.695는 0장과 같습니다.</span></li>
+<li><span class="mk">6</span><span><b>차이의 95% 신뢰구간 −0.002–0.061.</b> 시험 자료에서 나무가 0.029 높았지만 구간이 0을 포함합니다. 이 자료만으로는 어느 쪽이 낫다고 말하기 어렵고, 차이가 없다고 말할 수도 없습니다.</span></li>
+</ol>
+<!--FIG:ml01_roc-->
+<p>나무의 ROC 곡선은 꺾은선입니다. 잎이 11개라 예측 확률이 11가지뿐이어서 곡선의 꼭짓점도 11개이기 때문입니다. 같은 확률을 받은 수백에서 수천 명 안에서는 순서를 매기지 못하므로, 위험이 가장 높은 몇 %를 골라내는 용도라면 이 계단이 걸림돌이 됩니다.</p>
+<div class="callout note"><p class="ct">참고 · 만든 사람이 알려 주는 정답</p>
+<p>같은 생성식으로 만든 큰 모의 집단(100,000명)에서 11,250명으로 학습해 50,000명으로 평가하기를 세 번 되풀이하면, 셀 17과 같은 격자로 고른 나무의 AUC는 평균 0.747, C = 0.1의 로지스틱 회귀는 0.743으로 거의 같습니다. 이번 분할의 시험 자료에서 나무가 0.03 앞선 것은 우연이 일부 섞인 결과로 보입니다. 참 확률로 예측하면 이 시험 자료의 AUC가 0.810이어서 두 모형 모두 이 이론상의 상한보다 0.04–0.07 낮습니다. 참 확률은 검진을 받지 않은 사람의 가려진 검진 값까지 쓰므로 어떤 모형도 이 값에 완전히 닿을 수는 없습니다. 실제 연구에서는 이런 정답이 없으므로 교차검증 SD와 시험 AUC의 신뢰구간으로 판단합니다.</p></div>
+
+<h3>변수 중요도</h3>
+<p>나무의 <strong>불순도 기반 변수 중요도</strong><span class="en">(impurity-based feature importance)</span>는 특성마다 그 특성으로 나눈 곳에서 줄어든 가중 불순도를 모두 더하고, 전체의 합이 1이 되도록 나눈 값입니다. <code>feature_importances_</code>에 들어 있습니다.</p>
+<!--FIG:ml01_imp-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>deep = make_tree_pipe(DecisionTreeClassifier(random_state=2026))</code><span>비교하려고 깊이 제한 없는 나무를 맞췄습니다.</span></li>
+<li><code>pd.Series(...feature_importances_, index=names).sort_values(ascending=False)</code><span>48개 중요도에 열 이름을 붙이고 큰 것부터 정렬합니다.</span></li>
+<li><code>list(imp_deep.index).index(f) + 1</code><span>정렬한 이름 목록에서 특성 f가 몇 번째인지 찾습니다. <code>.index</code>는 0부터 세므로 1을 더해 순위로 만듭니다.</span></li>
+<li><code>a.barh(top.index, top.to_numpy())</code><span>가로 막대를 그립니다. 앞 줄의 <code>imp[imp &gt; 0].head(12)</code>는 0보다 큰 것 가운데 위의 12개이고, <code>barh</code>는 첫 항목을 아래에 그리므로 <code>[::-1]</code>로 순서를 뒤집어 큰 것이 위로 오게 했습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0보다 큰 특성 7개.</b> 고른 나무는 10번 나누면서 특성 7개만 썼습니다. 나이가 0.864, 약 가짓수가 0.079로, 이 둘과 BMI가 중요도의 97%를 차지합니다.</span></li>
+<li><span class="mk">2</span><span><b>[17, 25, 10, 13].</b> 효과가 없도록 만든 이상지질혈증, 골관절염, 처방 의사 수, 지역(중소도시)의 순위입니다. 깊이 제한 없는 나무에서는 처방 의사 수가 10위, 효과 없는 여섯 열(지역 세 열 포함)이 중요도의 8.9%를 받았습니다. 고른 나무에서는 모두 0입니다.</span></li>
+</ol>
+<p>불순도 기반 중요도는 세 가지를 조심해서 읽습니다. ① 학습 자료에서 계산하므로 과적합한 나무에서는 우연한 나누기도 중요도로 쌓입니다(제한 없는 나무의 처방 의사 수). ② 값의 종류가 많은 연속 특성은 나눌 기준이 많아 우연히 고를 기회도 많으므로 부풀려지기 쉽습니다<cite data-ref="strobl2007"></cite>. 제한 없는 나무에서 2022년 의료비, 외래 방문 수, 혈압, 혈당이 위에 오른 것이 그 예입니다. ③ 중요도 0은 효과가 없다는 뜻이 아니라 이 나무가 쓰지 않았다는 뜻입니다. 고른 나무는 참 구조에서 큰 효과인 응급실 2회 이상을 쓰지 않았습니다. 학습 자료에서 응급실 2회 이상은 184명뿐이라 한쪽 잎이 300명 이상이어야 하는 이 나무로는 따로 떼어 낼 수 없습니다. 같은 자료에서 상관된 특성(외래 방문, 약 가짓수, 의료비)은 중요도를 나눠 갖거나 한쪽이 독차지하기도 합니다. 시험 자료나 교차검증 자료에서 특성을 섞어 성능이 얼마나 떨어지는지 재는 순열 중요도는 <a href="#ml02-s5">2장 마 절</a>에서 다룹니다.</p>
+
+<h3>최종 나무 그림</h3>
+<!--FIG:ml01_finaltree-->
+<p><code>proportion=True</code>는 사람 수 대신 학습 자료에 대한 비율(<code>samples</code>)과 [입원 안 함, 입원]의 비율(<code>value</code>)을 보여 주고, <code>impurity=False</code>는 지니를 빼고, <code>precision=3</code>은 소수 셋째 자리까지 적으라는 뜻입니다. 각 잎 <code>value</code>의 둘째 값이 그 잎의 예측 확률입니다. 가 절의 깊이 3 나무와 견주어 읽으면 다음과 같습니다.</p>
+<ol>
+<li><b>나이 85.5세, 76.5세.</b> 85세 초과 잎(학습 자료의 3.0%)의 확률이 0.313으로 가장 높습니다. 참 구조의 '70세 이후 가팔라짐'을 계단 두 개로 표현했습니다.</li>
+<li><b>BMI 19.45 이하와 29.05 초과.</b> 76세 이하이고 약 6가지 이하인 사람 가운데 BMI 19.45 이하(0.056)와, 검진을 받은 사람 중 29.05 초과(0.041)가 가운데(0.013)보다 높습니다. 참 구조의 U자 관계를 양쪽에서 잡았습니다.</li>
+<li><b>smoking_missing과 eGFR 88.5.</b> 검진을 받지 않은 사람을 두 가지 길로 따로 묶었습니다. ① 76세 이하에서는 흡연의 'missing' 열(<code>smoking_missing</code>)로 나눴습니다. 흡연 문항이 비어 있는 사람(학습 자료의 32%)은 95%가 BMI도 비어 있는 미수검자이고, 이 무리의 입원 비율(고혈압 여부로 다시 나뉘어 0.028, 0.052)은 검진을 받았고 BMI가 가운데인 무리(0.013)보다 높습니다. ② 77–85세에서는 eGFR 88.5로 나눴는데, 88.5 초과 쪽 300명 가운데 272명은 eGFR이 비어 있어 학습 자료의 중앙값 89로 채워진 사람입니다. 숫자 열을 중앙값으로 채우면 결측인 사람이 모두 한 값에 모이므로, 나무는 그 값 바로 아래에 선을 그어 결측 여부를 가를 수 있습니다. 그래서 이 나누기(입원 비율 0.097 대 0.056)는 'eGFR이 높을수록 위험하다'는 뜻이 아니라 사실상 '검진을 받지 않았다'를 가려낸 것입니다. 참 구조에서 검진 미수검은 위험을 높이고 가려진 BMI의 양끝도 이 무리에 섞여 있어, 나무가 이 정보를 쓴 것입니다.</li>
+<li><b>약 6.5가지, 5.5가지.</b> 참 구조의 계단은 10가지인데 더 낮은 곳에서 나눴습니다. 학습 자료에서 10가지 이상은 366명이지만 나이로 먼저 나눈 마디 안에서는 139명, 124명, 103명으로 흩어져, 잎이 300명 이상이어야 하는 이 나무로는 그 계단을 따로 떼어 낼 수 없습니다.</li>
+<li><b>잡지 못한 것.</b> 응급실 2회 이상, 심부전 × 만성콩팥병, 인슐린 × 나이. 모두 학습 자료에서 300명보다 적은 무리입니다(응급실 2회 이상 184명, 인슐린 203명, 심부전과 만성콩팥병이 함께 있는 사람 41명). 가 절의 작은 나무는 이런 무리를 찾았지만 잎이 7–17명이라 믿을 수 없었고, 큰 잎으로 묶은 나무는 안정되었지만 이들을 놓쳤습니다. 나무 하나로는 둘을 함께 얻기 어렵고, 여러 나무를 모으는 2장의 방법이 이 한계를 줄입니다.</li>
+</ol>
+<p>모든 잎이 주황(class = no)입니다. 가장 높은 잎도 0.313이라 <code>predict</code>의 0/1은 모두 0이므로, 이 나무도 확률을 써서 평가합니다(<a href="#ml00-s5">0장 마 절</a>의 정확도 함정).</p>
+
+<h3>학습 곡선</h3>
+<p>다 절의 검증 곡선은 사람 수를 고정하고 조절값을 바꿨습니다. <strong>학습 곡선</strong><span class="en">(learning curve)</span>은 반대로 조절값을 고정하고 학습에 쓰는 사람 수를 늘려 가며 학습 점수와 교차검증 점수를 그린 것입니다. '자료를 더 모으면 나아질까'에 답하는 그림입니다.</p>
+<!--FIG:ml01_lc-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>learning_curve(..., X_train, y_train, train_sizes=[0.1, 0.2, 0.4, 0.6, 0.8, 1.0], cv=skf, scoring="roc_auc", n_jobs=-1)</code><span>교차검증의 다섯 회차마다 학습 겹 9,000명 가운데 앞에서부터 10%, 20% … 100%만 써서 나무를 맞추고, 그 사람들에서 잰 점수와 검증 겹 2,250명에서 잰 점수를 구합니다. 돌려주는 세 값은 실제로 쓴 사람 수, 학습 점수, 검증 점수이고, 두 점수는 (크기 6개 × 겹 5개) 배열입니다. 조절값은 셀 17에서 고른 깊이 6, 잎 300명으로 고정했습니다.</span></li>
+<li><code>for s, lab in [(tr, ...), (va, ...)]:</code><span>그림을 그리는 줄은 셀 14와 같고, 가로축만 사람 수입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>900–9,000명.</b> 학습 겹 9,000명의 10%–100%입니다.</span></li>
+<li><span class="mk">2</span><span><b>교차검증 AUC 0.666</b>에서 <span class="mk">3</span> <b>0.754</b>까지 사람이 늘수록 계속 올랐습니다. 9,000명의 값은 셀 17의 교차검증 AUC와 같습니다(같은 조절값, 같은 겹).</span></li>
+<li><span class="mk">4</span><span><b>학습 AUC 0.777.</b> 9,000명에서 교차검증과의 차이가 0.023으로 좁습니다. 900명에서 학습 AUC가 0.715로 낮은 것은 900명으로는 300명짜리 잎을 많아야 세 개만 만들 수 있어 나무가 아주 단순하기 때문입니다.</span></li>
+</ol>
+<p>두 선 사이가 넓으면 과적합이라 자료를 늘리거나 나무를 작게 묶으면 나아지고, 두 선이 모두 낮은 채 붙어서 평평하면 자료를 늘려도 이 모형으로는 나아지기 어려워 더 유연한 모형이 필요합니다. 고른 나무는 두 선이 가깝고 교차검증 선이 끝까지 오르고 있어, 같은 방식으로 자료를 더 모으면 조금 더 나아질 여지가 있습니다. 잎 300명이라는 조건이 같아도 사람이 많으면 300명짜리 잎을 더 많이 만들 수 있기 때문입니다. 다만 학습 자료의 크기가 바뀌면 가장 좋은 잎 크기도 바뀌므로, 자료를 늘렸다면 조절값을 다시 고릅니다.</p>
+
+<h3>모형 저장과 불러오기</h3>
+<!--FIG:ml01_joblib-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>joblib.dump(final, "tree_admit_2023.joblib")</code><span>파이프라인 전체(중앙값, 범주 목록, 나무)를 파일 하나로 저장합니다. <code>joblib</code>은 scikit-learn과 함께 설치되는 패키지입니다. Colab에서는 왼쪽 파일 창의 <code>/content</code>에 생기고 세션이 끝나면 지워지므로, 내려받거나 Google Drive에 저장합니다.</span></li>
+<li><code>loaded = joblib.load("tree_admit_2023.joblib")</code><span>파일을 읽어 맞춘 상태 그대로의 파이프라인을 되살립니다. 다시 학습하지 않고 바로 <code>predict_proba</code>를 쓸 수 있습니다.</span></li>
+<li><code>np.array_equal(p_again, p_tree)</code><span>두 배열의 값이 모두 같으면 True입니다.</span></li>
+</ol>
+<p>출력 <span class="mk">1</span>처럼 불러온 모형의 예측이 저장 전과 같고, <span class="mk">2</span> 조절값(잎 300명)도 그대로입니다. 저장할 때와 다른 scikit-learn 버전에서 불러오면 경고가 나거나 결과가 달라질 수 있으므로 저장한 버전(<code>sklearn.__version__</code>)을 함께 적어 둡니다. joblib 파일은 불러올 때 안의 코드가 실행될 수 있으므로 믿을 수 있는 곳에서 받은 파일만 엽니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 결정트리 튜닝의 Methods와 Results</b><span>이 장의 결과로 만든 가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> We developed a classification tree with the Gini impurity criterion. Continuous predictors were imputed with the training-set median and categorical predictors were one-hot encoded with missing values as a separate category; no scaling was applied. <span class="hl">The maximum tree depth and the minimum number of patients per leaf were tuned by grid search with stratified 5-fold cross-validation in the training set, maximizing the AUC</span> <span class="mk">1</span>. <span class="hl">Because the initial grid (depth 3 to 10; minimum leaf size 10 to 200; 30 combinations) selected a value at its boundary, the grid was extended (depth 4 to 12; leaf size 100 to 600; 42 combinations, 210 model fits)</span> <span class="mk">2</span>. The selected tree was refitted on the entire training set and evaluated once in the test set; 95% CIs for the AUC and for the difference in AUC from the logistic regression model were obtained by 1,000 bootstrap resamples of the test set. Analyses used scikit-learn 1.9.1<cite data-ref="pedregosa2011"></cite>.</p>
+<p class="excerpt"><b>Results.</b> The selected tree had <span class="hl">a maximum depth of 6, a minimum leaf size of 300, and 11 leaves</span> <span class="mk">3</span>, with <span class="hl">a cross-validated AUC of 0.754 (SD across folds, 0.025)</span> <span class="mk">4</span>. In the test set (n = 3,750; 153 admissions), the <span class="hl">AUC was 0.771 (95% CI, 0.726 to 0.810), compared with 0.742 (0.695 to 0.785) for the L2-penalized logistic regression model (difference, 0.029; 95% CI, −0.002 to 0.061)</span> <span class="mk">5</span>. <span class="hl">Age, the number of prescribed drugs, and BMI accounted for 97% of the impurity-based importance</span> <span class="mk">6</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>무엇을, 어떻게, 무엇으로.</b> 튜닝한 조절값의 이름, 탐색 방법(격자 탐색), 교차검증의 종류와 겹 수, 최적화 지표(AUC)입니다. 셀 16–17에 해당하며, TRIPOD+AI<cite data-ref="collins2024"></cite>는 조절값을 어떻게 골랐는지 적도록 요구합니다. 사이킷런의 기본값을 그대로 쓴 조절값이 있으면 "other hyperparameters were set to default values"처럼 밝힙니다.</span></li>
+<li><span class="mk">2</span><span><b>탐색 범위와 횟수.</b> 처음 격자에서 가장자리가 골라져 넓힌 과정까지 그대로 적었습니다. 결과를 보고 범위를 바꾼 것도 탐색의 일부이므로, 최종 격자만 적으면 실제로 시험한 조합의 수가 줄어 보입니다. 시험한 조합이 많을수록 1위의 교차검증 점수는 낙관적이 됩니다(<a href="#ml00-s4">0장 라 절</a>의 흔한 오해).</span></li>
+<li><span class="mk">3</span><span><b>고른 값과 나무의 크기.</b> 셀 17과 21입니다. 다른 연구자가 같은 모형을 다시 만들 수 있게 최종 조절값을 모두 적고, 나무라면 잎의 수도 적습니다. 조절값 전체는 부록 표로 내기도 합니다.</span></li>
+<li><span class="mk">4</span><span><b>교차검증 평균과 SD.</b> 셀 19입니다. 이 SD는 겹 사이의 흔들림이고 평균의 표준오차가 아닙니다(<a href="#ml00-s6">0장 과제 2</a>).</span></li>
+<li><span class="mk">5</span><span><b>시험 AUC와 짝지은 차이.</b> 셀 21–22입니다. 두 모형의 신뢰구간이 겹친다는 것만으로 비교하지 않고, 같은 부트스트랩 표본에서 구한 차이의 신뢰구간을 적었습니다. 구간이 0을 포함하므로 "the tree outperformed logistic regression"이라고 쓰면 과장이고, "similar discrimination"으로 쓰는 편이 맞습니다. 다만 차이가 없다는 증거도 아닙니다.</span></li>
+<li><span class="mk">6</span><span><b>변수 중요도의 종류.</b> 셀 24입니다. 0.864 + 0.079 + 0.022 = 0.965입니다. 어떤 중요도(불순도 기반, 순열)인지 밝혀야 하고, 불순도 기반 중요도는 학습 자료에서 계산되며 연속 특성에 유리하다는 한계를 Discussion에 적습니다. 중요도가 높다는 것은 이 모형이 예측에 많이 썼다는 뜻이지 원인이라는 뜻이 아닙니다(<a href="#ml00-s1">0장 가 절</a>의 흔한 오해).</span></li>
+</ol>
+</div></div>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">시험 AUC가 0.771 대 0.742이므로 결정트리가 로지스틱 회귀보다 낫다.</span> 짝지은 차이의 95% 신뢰구간이 −0.002–0.061로 0을 포함하고, 교차검증에서는 0.754 대 0.749로 차이가 0.005였습니다. 같은 생성식의 큰 모의 집단에서는 두 모형이 거의 같았습니다.</li>
+<li><span class="wrong">변수 중요도가 0인 특성은 결과와 관계가 없다.</span> 고른 나무에서 응급실 방문 수의 중요도는 0이지만 참 구조에서는 2회 이상의 입원율이 22.1%인 큰 효과입니다. 잎 크기 제한 때문에 쓰이지 못했을 뿐입니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>cv_results_</code>는 순위, 교차검증 평균, SD, 학습 평균만 골라 표로 보고, 두 조절값은 <code>pivot</code>과 <code>imshow</code>로 열지도를 그립니다. 1위와 비슷한 조합이 여럿이면 SD와 함께 읽습니다.</li>
+<li>고른 나무(깊이 6, 잎 300, 잎 11개)의 시험 AUC는 0.771(0.726–0.810)이고, 0장 로지스틱 회귀(0.742)와의 차이는 신뢰구간이 0을 포함했습니다.</li>
+<li>불순도 기반 중요도는 학습 자료에서 계산되고 연속 특성에 유리하며, 0이 '효과 없음'을 뜻하지 않습니다. 모형은 <code>joblib.dump</code>로 저장하고 버전을 함께 적습니다.</li>
+<li><code>learning_curve</code>는 사람 수를 늘려 가며 두 점수를 봅니다. 고른 나무는 9,000명까지 교차검증 AUC가 계속 올라(0.666 → 0.754) 자료가 더 있으면 조금 나아질 여지가 있었습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 바 -->
+<section class="sec" id="ml01-s6">
+<h2><span class="sec-no">바.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 엔트로피로 다시 튜닝</h3>
+<p><code>criterion="entropy"</code>인 나무로 셀 17과 같은 격자(<code>grid</code>)를 다시 탐색해, 고른 조합, 교차검증 AUC, 잎의 수를 지니로 고른 결과와 비교하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml01_hw1-->
+<p>엔트로피는 (깊이 5, 잎 300), 교차검증 AUC 0.7528로 지니의 (깊이 6, 잎 300), 0.7544와 거의 같고 잎도 11개로 같습니다. 차이 0.0016은 겹 사이 SD(0.025)의 15분의 1입니다. 불순도를 재는 방법보다 나무의 크기가 성능을 훨씬 크게 좌우하므로 <code>criterion</code>은 보통 기본값으로 두고, 시간이 남을 때 격자에 넣어 봅니다.</p>
+</div></details>
+
+<h3>과제 2. 가지치기한 나무와 크기를 제한한 나무</h3>
+<p>깊이와 잎 크기는 제한하지 않고 <code>ccp_alpha</code>만 0, 0.0001, 0.0002, 0.0003, 0.0004, 0.0005, 0.0007, 0.001, 0.0015로 바꿔 <code>validation_curve</code>로 교차검증 AUC를 구하고, 값마다 학습 자료 전체로 맞춘 나무의 잎 수를 세어 셀 17의 나무(잎 11개, 0.754)와 비교하세요. 힌트. 잎 수는 셀 6의 <code>prep</code>으로 전처리한 배열에 나무를 맞춰 <code>get_n_leaves()</code>로 셉니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml01_hw2-->
+<p>α = 0.0005에서 잎 8개, 교차검증 AUC 0.692가 가장 높고, 잎 수가 비슷한 셀 17의 나무(0.754)보다 0.06 낮습니다. α = 0.0001(잎 257개)에서는 0.521로 가지치기 전(0.578)보다 오히려 낮습니다. 가지치기는 학습 자료의 불순도만 보고 가지를 자르므로 교차검증 AUC가 α를 따라 고르게 오르리라는 보장이 없습니다. α = 0.0005의 나무를 <code>export_text</code>로 보면 76세 이하 9,908명(학습 자료의 88%)이 한 잎에 모여 있고, 나머지 잎 몇 개를 7명, 14명, 17명 같은 작은 고위험 무리에 썼습니다. 대부분의 사람 사이에서는 순서를 매기지 못하니 AUC가 낮습니다. 잎 크기를 제한하면 모든 나누기가 큰 무리를 둘로 가르게 되어(BMI, 검진 여부로 76세 이하를 더 나눔) 다수의 순서를 매깁니다. 드문 결과에서 가지치기를 쓴다면 <code>min_samples_leaf</code>와 함께 격자에 넣는 편이 낫습니다.</p>
+</div></details>
+
+<h3>과제 3. class_weight와 임계값</h3>
+<p>셀 17에서 고른 조절값(깊이 6, 잎 300)의 나무를 <code>class_weight</code> 없이, 그리고 <code>"balanced"</code>로 맞춰 겹 밖 예측 확률(<code>cross_val_predict</code>)을 구하세요. 가중치 없는 나무는 임계값 0.5와 학습 자료의 입원 비율(0.041)에서, "balanced" 나무는 0.5에서 혼동행렬을 만들어 비교하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml01_hw3-->
+<p>가중치 없는 나무를 0.5로 자르면 한 명도 입원으로 예측하지 않습니다. 잎의 확률이 모두 0.5보다 낮기 때문입니다(학습 자료 전체로 맞춘 나무에서 가장 높은 잎이 0.313). "balanced" 나무는 0.5에서 3,288명을 고위험으로 골라 입원 297명을 잡고(재현율 0.647, 정밀도 0.090), 가중치 없는 나무를 0.041로 자르면 3,060명을 골라 292명을 잡습니다(재현율 0.636, 정밀도 0.095). 두 결과가 거의 같으므로, 이 자료에서 "balanced"가 한 일은 주로 임계값을 낮춘 것과 같습니다. 가중치 없는 나무는 확률을 실제 비율 그대로 유지하면서 같은 분류를 얻을 수 있으므로, 확률이 필요하면 가중치 없이 맞추고 임계값을 고릅니다. 임계값은 모형을 고른 뒤 정하며, 여기서처럼 겹 밖 예측으로 정하고 시험 자료에서 한 번 확인합니다.</p>
+</div></details>
+</section>

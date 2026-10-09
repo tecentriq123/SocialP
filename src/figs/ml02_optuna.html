@@ -1,0 +1,27 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">Optuna로 40번 시도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import optuna
+from optuna.samplers import TPESampler
+
+def objective(trial):
+    &quot;&quot;&quot;조합 하나를 골라 3겹 교차검증 AUC를 돌려준다&quot;&quot;&quot;
+    model = RandomForestClassifier(
+        n_estimators=200, random_state=2026, n_jobs=-1,
+        max_features=trial.suggest_int(&quot;max_features&quot;, 2, 24),
+        min_samples_leaf=trial.suggest_int(&quot;min_samples_leaf&quot;,
+                                           1, 100),
+        max_samples=trial.suggest_float(&quot;max_samples&quot;, 0.3, 1.0),
+        criterion=trial.suggest_categorical(&quot;criterion&quot;,
+                                            [&quot;gini&quot;, &quot;entropy&quot;]))
+    auc = cross_val_score(make_tree_pipe(model), X_train, y_train,
+                          cv=skf3, scoring=&quot;roc_auc&quot;)
+    return auc.mean()
+
+optuna.logging.set_verbosity(optuna.logging.WARNING)  # 시도별 로그 끄기
+study = optuna.create_study(direction=&quot;maximize&quot;,
+                            sampler=TPESampler(seed=2026))
+t0 = time.perf_counter()
+study.optimize(objective, n_trials=40)
+t_optuna = time.perf_counter() - t0
+print(study.best_params)
+print(round(study.best_value, 4), &quot; trial&quot;, study.best_trial.number,
+      f&quot; ({t_optuna:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;max_features&#x27;: 20<span class="mk">1</span>, &#x27;min_samples_leaf&#x27;: 85, &#x27;max_samples&#x27;: 0.7339919539656937, &#x27;criterion&#x27;: &#x27;gini&#x27;}
+0.7594  trial 16<span class="mk">2</span>  (119 s)<span class="mk">3</span></pre></div></div>

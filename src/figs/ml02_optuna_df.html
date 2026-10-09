@@ -1,0 +1,62 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">시도 기록을 표로 (trials_dataframe)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tdf = study.trials_dataframe(attrs=(&quot;number&quot;, &quot;value&quot;, &quot;params&quot;))
+print(tdf.shape)
+tdf.sort_values(&quot;value&quot;, ascending=False).head(5).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(40, 6)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>number</th>
+      <th>value</th>
+      <th>params_criterion</th>
+      <th>params_max_features</th>
+      <th>params_max_samples</th>
+      <th>params_min_samples_leaf</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>16</th>
+      <td>16</td>
+      <td>0.7594<span class="mk">2</span></td>
+      <td>gini</td>
+      <td>20</td>
+      <td>0.7340</td>
+      <td>85</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>10</td>
+      <td>0.7591</td>
+      <td>gini</td>
+      <td>18</td>
+      <td>0.7831</td>
+      <td>98</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>21</td>
+      <td>0.7589</td>
+      <td>gini</td>
+      <td>19</td>
+      <td>0.7692</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>11</td>
+      <td>0.7589</td>
+      <td>gini</td>
+      <td>18</td>
+      <td>0.7790</td>
+      <td>99</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>14</td>
+      <td>0.7589</td>
+      <td>gini</td>
+      <td>18</td>
+      <td>0.8878</td>
+      <td>82</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">사이킷런으로 같은 일 하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.tree import DecisionTreeClassifier, export_text
+
+stump = DecisionTreeClassifier(max_depth=1, random_state=2026)
+stump.fit(toy[[&quot;age&quot;, &quot;n_ed&quot;]], toy[&quot;admit&quot;])
+print(export_text(stump, feature_names=[&quot;age&quot;, &quot;n_ed&quot;],
+                  show_weights=True))
+new = pd.DataFrame({&quot;age&quot;: [80], &quot;n_ed&quot;: [2]})    # 새 환자 K
+print(stump.predict_proba(new))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>|--- age &lt;= 76.00<span class="mk">1</span>
+|   |--- weights: [6.00, 0.00] class: 0
+|--- age &gt;  76.00
+|   |--- weights: [1.00, 3.00]<span class="mk">2</span> class: 1
+
+[[0.25 0.75]]<span class="mk">3</span></pre></div></div>

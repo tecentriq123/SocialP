@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">최종 나무를 시험 자료로 한 번 평가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def boot_auc(y_true, p, n_boot=1000, seed=2026):
+    &quot;&quot;&quot;시험 자료를 n_boot번 복원추출해 AUC를 다시 구한 값들&quot;&quot;&quot;
+    rng = np.random.default_rng(seed)
+    yt, p = np.asarray(y_true), np.asarray(p)
+    aucs = []
+    for _ in range(n_boot):
+        i = rng.integers(0, len(yt), len(yt))
+        if yt[i].min() == yt[i].max():      # 한 범주만 뽑히면 건너뜀
+            continue
+        aucs.append(roc_auc_score(yt[i], p[i]))
+    return np.array(aucs)
+
+final = gs.best_estimator_              # 학습 자료 전체로 다시 맞춤
+p_tree = final.predict_proba(X_test)[:, 1]
+b_tree = boot_auc(y_test, p_tree)
+print(&quot;leaves:&quot;, final.named_steps[&quot;model&quot;].get_n_leaves())
+print(&quot;test AUC:&quot;, round(roc_auc_score(y_test, p_tree), 3),
+      &quot; 95% CI:&quot;, np.percentile(b_tree, [2.5, 97.5]).round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>leaves: 11<span class="mk">1</span>
+test AUC: 0.771<span class="mk">2</span>  95% CI: [0.726 0.81 ]<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">class_weight를 바꾸면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import cross_val_predict
+from sklearn.metrics import recall_score
+
+for cw in [None, &quot;balanced&quot;]:
+    m = make_tree_pipe(DecisionTreeClassifier(
+        max_depth=5, min_samples_leaf=50, class_weight=cw,
+        random_state=2026))
+    auc = cross_val_score(m, X_train, y_train, cv=skf,
+                          scoring=&quot;roc_auc&quot;).mean()
+    p_oof = cross_val_predict(m, X_train, y_train, cv=skf,
+                              method=&quot;predict_proba&quot;)[:, 1]
+    pred = (p_oof &gt;= 0.5).astype(int)
+    print(f&quot;{str(cw):8s}  CV AUC {auc:.3f}  mean prob &quot;
+          f&quot;{p_oof.mean():.3f}  predicted 1: {pred.sum():4d}  &quot;
+          f&quot;recall {recall_score(y_train, pred):.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>None      CV AUC 0.718<span class="mk">1</span>  mean prob 0.041<span class="mk">2</span>  predicted 1:   89<span class="mk">3</span>  recall 0.089<span class="mk">4</span>
+balanced  CV AUC 0.724<span class="mk">5</span>  mean prob 0.369<span class="mk">6</span>  predicted 1: 2466<span class="mk">7</span>  recall 0.560<span class="mk">8</span></pre></div></div>

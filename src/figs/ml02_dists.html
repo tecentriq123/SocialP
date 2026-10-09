@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">분포에서 조절값 뽑아 보기 (randint, uniform, loguniform)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy.stats import randint, uniform, loguniform
+
+print(randint(2, 25).rvs(8, random_state=0))       # 2–24의 정수
+print(uniform(0.3, 0.7).rvs(5, random_state=0).round(2))  # 0.3–1.0
+print(loguniform(0.001, 100).rvs(5, random_state=0).round(4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[14 17 23  2  5  5  9 11]<span class="mk">1</span>
+[0.68 0.8  0.72 0.68 0.6 ]<span class="mk">2</span>
+[0.5547 3.7666 1.0323 0.5302 0.1313]<span class="mk">3</span></pre></div></div>

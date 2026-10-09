@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">HyperOpt로 40번 시도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from hyperopt import fmin, tpe, hp, Trials, STATUS_OK, space_eval
+
+hp_space = {
+    &quot;max_features&quot;: hp.quniform(&quot;max_features&quot;, 2, 24, 1),
+    &quot;min_samples_leaf&quot;: hp.quniform(&quot;min_samples_leaf&quot;, 1, 100, 1),
+    &quot;max_samples&quot;: hp.uniform(&quot;max_samples&quot;, 0.3, 1.0),
+    &quot;criterion&quot;: hp.choice(&quot;criterion&quot;, [&quot;gini&quot;, &quot;entropy&quot;])}
+
+def hp_objective(params):
+    &quot;&quot;&quot;조합 하나를 받아 손실(-AUC)을 돌려준다&quot;&quot;&quot;
+    model = RandomForestClassifier(
+        n_estimators=200, random_state=2026, n_jobs=-1,
+        max_features=int(params[&quot;max_features&quot;]),      # 12.0 → 12
+        min_samples_leaf=int(params[&quot;min_samples_leaf&quot;]),
+        max_samples=params[&quot;max_samples&quot;],
+        criterion=params[&quot;criterion&quot;])
+    auc = cross_val_score(make_tree_pipe(model), X_train, y_train,
+                          cv=skf3, scoring=&quot;roc_auc&quot;).mean()
+    return {&quot;loss&quot;: -auc, &quot;status&quot;: STATUS_OK}   # 작을수록 좋게
+
+trials = Trials()
+t0 = time.perf_counter()
+best = fmin(hp_objective, hp_space, algo=tpe.suggest, max_evals=40,
+            trials=trials, rstate=np.random.default_rng(2026))
+t_hyperopt = time.perf_counter() - t0
+print(best)                          # hp.choice는 번호로 나온다
+print(space_eval(hp_space, best))    # 실제 값으로 바꾼 것
+print(round(-min(trials.losses()), 4), f&quot; ({t_hyperopt:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>100%|##########| 40/40 [01:43&lt;00:00,  2.58s/trial, best loss: -0.7597965019263814]
+{&#x27;criterion&#x27;: np.int64(0)<span class="mk">1</span>, &#x27;max_features&#x27;: np.float64(16.0), &#x27;max_samples&#x27;: np.float64(0.4081252052967028), &#x27;min_samples_leaf&#x27;: np.float64(73.0)}
+{&#x27;criterion&#x27;: &#x27;gini&#x27;<span class="mk">2</span>, &#x27;max_features&#x27;: 16.0, &#x27;max_samples&#x27;: 0.4081252052967028, &#x27;min_samples_leaf&#x27;: 73.0}
+0.7598<span class="mk">3</span>  (103 s)</pre></div></div>

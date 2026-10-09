@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">나무끼리 얼마나 닮았나 (배깅과 랜덤 포레스트)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.ensemble import RandomForestClassifier
+
+def mean_corr(P):
+    &quot;&quot;&quot;나무 두 그루씩 짝지은 예측(행)의 상관계수 평균&quot;&quot;&quot;
+    C = np.corrcoef(P)
+    return C[np.triu_indices_from(C, k=1)].mean()
+
+for mf in [None, &quot;sqrt&quot;]:           # None = 모든 특성 = 배깅
+    rf = RandomForestClassifier(n_estimators=200, max_features=mf,
+                                min_samples_leaf=20, oob_score=True,
+                                random_state=2026, n_jobs=-1)
+    rf.fit(Z_train, y_train)
+    P = np.array([t.predict_proba(Z_test)[:, 1]
+                  for t in rf.estimators_])      # (200, 3750)
+    one = np.mean([roc_auc_score(y_test, p) for p in P])
+    oob = roc_auc_score(y_train, rf.oob_decision_function_[:, 1])
+    print(f&quot;max_features={mf}: corr {mean_corr(P):.3f}, &quot;
+          f&quot;one tree AUC {one:.3f}, OOB AUC {oob:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>max_features=None: corr 0.525, one tree AUC 0.688, OOB AUC 0.738
+max_features=sqrt: corr 0.449<span class="mk">1</span>, one tree AUC 0.681<span class="mk">2</span>, OOB AUC 0.750<span class="mk">3</span></pre></div></div>

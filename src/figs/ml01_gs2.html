@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">격자 탐색 2. 범위를 넓혀 다시</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">grid = {&quot;model__max_depth&quot;: [4, 5, 6, 7, 8, 10, 12],
+        &quot;model__min_samples_leaf&quot;: [100, 150, 200, 300, 400, 600]}
+gs = GridSearchCV(
+    make_tree_pipe(DecisionTreeClassifier(random_state=2026)),
+    grid, cv=skf, scoring=&quot;roc_auc&quot;, n_jobs=-1,
+    return_train_score=True)
+t0 = time.perf_counter()
+gs.fit(X_train, y_train)
+print(&quot;seconds:&quot;, round(time.perf_counter() - t0, 1))
+print(&quot;fits:&quot;, len(gs.cv_results_[&quot;params&quot;]) * 5)
+print(&quot;best:&quot;, gs.best_params_, round(gs.best_score_, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>seconds: 11.2<span class="mk">1</span>
+fits: 210<span class="mk">2</span>
+best: {&#x27;model__max_depth&#x27;: 6, &#x27;model__min_samples_leaf&#x27;: 300} 0.7544<span class="mk">3</span></pre></div></div>

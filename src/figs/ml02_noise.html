@@ -1,0 +1,57 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">아무 의미 없는 열을 더해 보면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(7)
+Xn_train = X_train.assign(noise_num=rng.normal(size=len(X_train)),
+                          noise_bin=rng.integers(0, 2, len(X_train)))
+Xn_test = X_test.assign(noise_num=rng.normal(size=len(X_test)),
+                        noise_bin=rng.integers(0, 2, len(X_test)))
+noisy = make_tree_pipe(RandomForestClassifier(
+    n_estimators=200, random_state=2026, n_jobs=-1, **best_rf),
+    num=num_cols + [&quot;noise_num&quot;, &quot;noise_bin&quot;])
+noisy.fit(Xn_train, y_train)
+
+nm = noisy[:-1].get_feature_names_out()
+mdi_n = pd.Series(noisy[-1].feature_importances_, index=nm)
+mdi_n = mdi_n.groupby([original(x) for x in nm]).sum()
+perm_n = permutation_importance(noisy, Xn_test, y_test,
+                                scoring=&quot;roc_auc&quot;, n_repeats=10,
+                                random_state=2026)
+out = pd.DataFrame({
+    &quot;impurity&quot;: mdi_n,
+    &quot;rank_imp&quot;: mdi_n.rank(ascending=False).astype(int),
+    &quot;perm&quot;: pd.Series(perm_n.importances_mean,
+                      index=Xn_test.columns)})
+out.loc[[&quot;noise_num&quot;, &quot;noise_bin&quot;, &quot;hf&quot;, &quot;insulin&quot;]].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>impurity</th>
+      <th>rank_imp</th>
+      <th>perm</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>noise_num</th>
+      <td>0.0248<span class="mk">1</span></td>
+      <td>8</td>
+      <td>-0.0028<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>noise_bin</th>
+      <td>0.0048</td>
+      <td>19</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>hf</th>
+      <td>0.0085</td>
+      <td>15</td>
+      <td>-0.0007</td>
+    </tr>
+    <tr>
+      <th>insulin</th>
+      <td>0.0053</td>
+      <td>18</td>
+      <td>0.0013</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

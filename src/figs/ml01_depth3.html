@@ -1,0 +1,27 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">공통 자료로 깊이 3의 나무</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">small = make_tree_pipe(
+    DecisionTreeClassifier(max_depth=3, random_state=2026))
+small.fit(X_train, y_train)
+tree3 = small.named_steps[&quot;model&quot;]
+print(export_text(tree3, feature_names=list(names),
+                  show_weights=True, decimals=1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>|--- age &lt;= 87.5<span class="mk">1</span>
+|   |--- age &lt;= 76.5<span class="mk">2</span>
+|   |   |--- n_drugs &lt;= 9.5<span class="mk">3</span>
+|   |   |   |--- weights: [9545.0, 224.0] class: 0
+|   |   |--- n_drugs &gt;  9.5
+|   |   |   |--- weights: [121.0, 18.0] class: 0
+|   |--- age &gt;  76.5
+|   |   |--- n_drugs &lt;= 9.5
+|   |   |   |--- weights: [870.0, 93.0] class: 0
+|   |   |--- n_drugs &gt;  9.5
+|   |   |   |--- weights: [109.0, 38.0] class: 0
+|--- age &gt;  87.5
+|   |--- n_drugs &lt;= 8.5
+|   |   |--- n_ed &lt;= 1.5<span class="mk">4</span>
+|   |   |   |--- weights: [109.0, 23.0] class: 0
+|   |   |--- n_ed &gt;  1.5
+|   |   |   |--- weights: [1.0, 6.0] class: 1
+|   |--- n_drugs &gt;  8.5
+|   |   |--- insulin &lt;= 0.5
+|   |   |   |--- weights: [36.0, 40.0] class: 1
+|   |   |--- insulin &gt;  0.5<span class="mk">5</span>
+|   |   |   |--- weights: [0.0, 17.0] class: 1</pre></div></div>

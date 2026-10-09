@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">과제 2 정답. 시도 수에 따른 최고 점수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">study.optimize(objective, n_trials=40)       # 40번을 더 (모두 80번)
+best_by = study.trials_dataframe()[&quot;value&quot;].cummax()
+for n_t in [10, 20, 40, 80]:
+    print(f&quot;after {n_t:2d} trials:&quot;,
+          f&quot;best CV AUC {best_by[n_t - 1]:.4f}&quot;)
+print(study.best_params)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>after 10 trials: best CV AUC 0.7585
+after 20 trials: best CV AUC 0.7594
+after 40 trials: best CV AUC 0.7594
+after 80 trials: best CV AUC 0.7605
+{&#x27;max_features&#x27;: 19, &#x27;min_samples_leaf&#x27;: 98, &#x27;max_samples&#x27;: 0.7224022356471002, &#x27;criterion&#x27;: &#x27;gini&#x27;}</pre></div></div>

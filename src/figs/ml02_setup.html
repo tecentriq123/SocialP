@@ -1,0 +1,51 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">0장과 1장의 준비를 한 번에 (자료, 분할, 파이프라인, skf)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import (train_test_split,
+                                     StratifiedKFold, cross_val_score)
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.metrics import roc_auc_score
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+df = pd.read_csv(BASE + &quot;ml_claims.csv&quot;)
+y = df[&quot;admit_2023&quot;]
+X = df.drop(columns=[&quot;id&quot;, &quot;admit_2023&quot;, &quot;cost_2023&quot;])
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=2026)
+
+cat_cols = [&quot;insurance&quot;, &quot;region&quot;, &quot;smoking&quot;, &quot;alcohol&quot;]
+num_cols = [c for c in X.columns if c not in cat_cols]
+
+def make_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;0장 다 절과 같은 전처리(결측 대체, 표준화, 원-핫) + 모형&quot;&quot;&quot;
+    num_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;median&quot;)),
+        (&quot;scale&quot;, StandardScaler())])
+    cat_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;constant&quot;,
+                                 fill_value=&quot;missing&quot;)),
+        (&quot;onehot&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;,
+                                 sparse_output=False))])
+    prep = ColumnTransformer([(&quot;num&quot;, num_steps, num),
+                              (&quot;cat&quot;, cat_steps, cat)])
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
+
+def make_tree_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;1장 가 절과 같은 나무용: 결측 대체와 원-핫만 (표준화 없음)&quot;&quot;&quot;
+    cat_steps = Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;constant&quot;,
+                                 fill_value=&quot;missing&quot;)),
+        (&quot;onehot&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;,
+                                 sparse_output=False))])
+    prep = ColumnTransformer(
+        [(&quot;num&quot;, SimpleImputer(strategy=&quot;median&quot;), num),
+         (&quot;cat&quot;, cat_steps, cat)],
+        verbose_feature_names_out=False)
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
+
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)
+print(X_train.shape, X_test.shape, y_train.sum(), y_test.sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(11250, 39) (3750, 39) 459 153<span class="mk">1</span></pre></div></div>

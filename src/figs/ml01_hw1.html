@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">과제 1 정답. 엔트로피로 다시 튜닝</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">gs_ent = GridSearchCV(
+    make_tree_pipe(DecisionTreeClassifier(criterion=&quot;entropy&quot;,
+                                          random_state=2026)),
+    grid, cv=skf, scoring=&quot;roc_auc&quot;, n_jobs=-1)
+gs_ent.fit(X_train, y_train)
+print(&quot;entropy best:&quot;, gs_ent.best_params_,
+      round(gs_ent.best_score_, 4))
+print(&quot;gini best   :&quot;, gs.best_params_, round(gs.best_score_, 4))
+print(&quot;leaves:&quot;, gs_ent.best_estimator_.named_steps[&quot;model&quot;]
+      .get_n_leaves())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>entropy best: {&#x27;model__max_depth&#x27;: 5, &#x27;model__min_samples_leaf&#x27;: 300} 0.7528
+gini best   : {&#x27;model__max_depth&#x27;: 6, &#x27;model__min_samples_leaf&#x27;: 300} 0.7544
+leaves: 11</pre></div></div>

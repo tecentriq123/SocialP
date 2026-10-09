@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">격자 탐색 16개 조합 (비교의 기준)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import GridSearchCV
+
+skf3 = StratifiedKFold(n_splits=3, shuffle=True, random_state=2026)
+rf_base = make_tree_pipe(RandomForestClassifier(
+    n_estimators=200, random_state=2026, n_jobs=-1))
+grid = {&quot;model__max_features&quot;: [3, 6, 12, 24],
+        &quot;model__min_samples_leaf&quot;: [5, 20, 50, 100]}
+gs = GridSearchCV(rf_base, grid, cv=skf3, scoring=&quot;roc_auc&quot;)
+t0 = time.perf_counter()
+gs.fit(X_train, y_train)
+t_grid = time.perf_counter() - t0
+print(gs.best_params_, round(gs.best_score_, 4))
+print(&quot;candidates: 16, fits: 16 x 3 =&quot;, 16 * 3, f&quot; ({t_grid:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;model__max_features&#x27;: 6, &#x27;model__min_samples_leaf&#x27;: 100} 0.759<span class="mk">1</span>
+candidates: 16, fits: 16 x 3 = 48<span class="mk">2</span>  (53 s)</pre></div></div>

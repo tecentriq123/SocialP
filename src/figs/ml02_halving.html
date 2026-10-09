@@ -1,0 +1,54 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">단계적 탐색 (HalvingRandomSearchCV)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.experimental import enable_halving_search_cv  # noqa
+from sklearn.model_selection import HalvingRandomSearchCV
+
+hs = HalvingRandomSearchCV(
+    rf_base, space, n_candidates=81, factor=3,
+    resource=&quot;model__n_estimators&quot;, min_resources=22,
+    max_resources=200, cv=skf3, scoring=&quot;roc_auc&quot;,
+    random_state=2026)
+t0 = time.perf_counter()
+hs.fit(X_train, y_train)
+t_halv = time.perf_counter() - t0
+print(hs.best_params_)
+print(round(hs.best_score_, 4), f&quot; ({t_halv:.0f} s)&quot;)
+steps = pd.DataFrame(hs.cv_results_).groupby(&quot;iter&quot;).agg(
+    candidates=(&quot;mean_test_score&quot;, &quot;size&quot;),
+    trees=(&quot;n_resources&quot;, &quot;first&quot;),
+    best_AUC=(&quot;mean_test_score&quot;, &quot;max&quot;))
+steps.round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;model__criterion&#x27;: &#x27;entropy&#x27;<span class="mk">1</span>, &#x27;model__max_features&#x27;: 7, &#x27;model__max_samples&#x27;: np.float64(0.6924501771428868), &#x27;model__min_samples_leaf&#x27;: 50, &#x27;model__n_estimators&#x27;: 198}
+0.7597<span class="mk">2</span>  (93 s)</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>candidates</th>
+      <th>trees</th>
+      <th>best_AUC</th>
+    </tr>
+    <tr>
+      <th>iter</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>81</td>
+      <td>22</td>
+      <td>0.7585</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>27</td>
+      <td>66</td>
+      <td>0.7626<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>9</td>
+      <td>198</td>
+      <td>0.7597</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

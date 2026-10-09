@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">최종 모형: 학습 자료 전체로 맞추고 시험 자료로 한 번 평가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import joblib
+
+best_rf = study.best_params                  # 라 절에서 Optuna가 찾은 조합
+final = make_tree_pipe(RandomForestClassifier(
+    n_estimators=500, random_state=2026, n_jobs=-1, **best_rf))
+final.fit(X_train, y_train)                  # 학습 자료 전체로 다시 맞춤
+p_final = final.predict_proba(X_test)[:, 1]  # 시험 자료는 여기서 한 번
+
+def boot_ci(y_true, p, n_boot=1000, seed=2026):
+    &quot;&quot;&quot;시험 자료를 복원추출해 AUC의 95% 백분위수 구간&quot;&quot;&quot;
+    rng = np.random.default_rng(seed)
+    yt, out = np.asarray(y_true), []
+    for _ in range(n_boot):
+        i = rng.integers(0, len(yt), len(yt))
+        out.append(roc_auc_score(yt[i], p[i]))
+    return np.percentile(out, [2.5, 97.5])
+
+lo, hi = boot_ci(y_test, p_final)
+print(f&quot;test AUC {roc_auc_score(y_test, p_final):.3f}&quot;
+      f&quot; (95% CI {lo:.3f} to {hi:.3f})&quot;)
+joblib.dump(final, &quot;rf_final.joblib&quot;)        # 저장 (1장 마 절과 같음)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>test AUC 0.770 (95% CI 0.722 to 0.815)<span class="mk">1</span>
+[&#x27;rf_final.joblib&#x27;]</pre></div></div>

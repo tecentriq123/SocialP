@@ -1,0 +1,47 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">세 방법의 결과와 시간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">hres = pd.DataFrame(hs.cv_results_)
+trees_per_fold = [16 * 200, 40 * 200, hres[&quot;n_resources&quot;].sum()]
+summary = pd.DataFrame({
+    &quot;best CV AUC&quot;: [gs.best_score_, rs.best_score_, hs.best_score_],
+    &quot;candidates&quot;: [16, 40, hs.n_candidates_[0]],
+    &quot;fits&quot;: [16 * 3, 40 * 3, len(hres) * 3],
+    &quot;trees grown&quot;: [t * 3 for t in trees_per_fold],
+    &quot;seconds&quot;: np.round([t_grid, t_rand, t_halv]).astype(int)},
+    index=[&quot;grid&quot;, &quot;random&quot;, &quot;halving&quot;])
+summary.round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>best CV AUC</th>
+      <th>candidates</th>
+      <th>fits</th>
+      <th>trees grown</th>
+      <th>seconds</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>grid</th>
+      <td>0.7590<span class="mk">1</span></td>
+      <td>16</td>
+      <td>48</td>
+      <td>9600</td>
+      <td>53</td>
+    </tr>
+    <tr>
+      <th>random</th>
+      <td>0.7597</td>
+      <td>40</td>
+      <td>120</td>
+      <td>24000</td>
+      <td>96</td>
+    </tr>
+    <tr>
+      <th>halving</th>
+      <td>0.7597</td>
+      <td>81<span class="mk">2</span></td>
+      <td>351</td>
+      <td>16038</td>
+      <td>93</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

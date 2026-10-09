@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">모형 저장과 불러오기 (joblib)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import joblib
+
+joblib.dump(final, &quot;tree_admit_2023.joblib&quot;)       # 파일로 저장
+loaded = joblib.load(&quot;tree_admit_2023.joblib&quot;)     # 다시 불러오기
+p_again = loaded.predict_proba(X_test)[:, 1]
+print(&quot;same predictions:&quot;, np.array_equal(p_again, p_tree))
+print(loaded.named_steps[&quot;model&quot;].get_params()[&quot;min_samples_leaf&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>same predictions: True<span class="mk">1</span>
+300<span class="mk">2</span></pre></div></div>
