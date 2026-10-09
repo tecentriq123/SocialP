@@ -1,0 +1,30 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">중첩 교차검증 (XGBoost, 작은 격자 9개)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import cross_validate
+
+grid_x = {&quot;model__max_depth&quot;: [1, 2, 3],
+          &quot;model__learning_rate&quot;: [0.03, 0.1, 0.3]}
+xgb200 = make_nan_pipe(XGBClassifier(n_estimators=200,
+                                     random_state=2026))
+usual = GridSearchCV(xgb200, grid_x, cv=skf, scoring=&quot;roc_auc&quot;)
+usual.fit(X_train, y_train)
+print(&quot;usual :&quot;, usual.best_params_, round(usual.best_score_, 4))
+
+inner = StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)
+nested = cross_validate(
+    GridSearchCV(xgb200, grid_x, cv=inner, scoring=&quot;roc_auc&quot;),
+    X_train, y_train, cv=skf, scoring=&quot;roc_auc&quot;, return_estimator=True)
+for k, (s, g) in enumerate(zip(nested[&quot;test_score&quot;],
+                               nested[&quot;estimator&quot;])):
+    print(f&quot;outer fold {k + 1}: {g.best_params_}&quot;)
+    print(f&quot;     inner best {g.best_score_:.4f}, outer {s:.4f}&quot;)
+print(f&quot;nested: {nested[&#x27;test_score&#x27;].mean():.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>usual : {&#x27;model__learning_rate&#x27;: 0.03, &#x27;model__max_depth&#x27;: 2} 0.7717<span class="mk">1</span>
+outer fold 1: {&#x27;model__learning_rate&#x27;: 0.03, &#x27;model__max_depth&#x27;: 1}
+     inner best 0.7709, outer 0.7448
+outer fold 2: {&#x27;model__learning_rate&#x27;: 0.03, &#x27;model__max_depth&#x27;: 2}
+     inner best 0.7728, outer 0.7850
+outer fold 3: {&#x27;model__learning_rate&#x27;: 0.03, &#x27;model__max_depth&#x27;: 2}
+     inner best 0.7632, outer 0.7925
+outer fold 4: {&#x27;model__learning_rate&#x27;: 0.03, &#x27;model__max_depth&#x27;: 2}
+     inner best 0.7746, outer 0.7601
+outer fold 5: {&#x27;model__learning_rate&#x27;: 0.03, &#x27;model__max_depth&#x27;: 1}
+     inner best 0.7685, outer 0.7677
+nested: 0.7700<span class="mk">2</span></pre></div></div>

@@ -60,6 +60,11 @@
 <h3>자료 불러오기</h3>
 <p>사이트 주소에서 CSV를 읽는 방법은 <a href="stats.html#lab15-s1">실습 15 가 절</a>과 같습니다. 열이 42개라서 앞 세 사람을 <code>.T</code>로 세로로 돌려 보았습니다(이 쪽의 출력은 가운데 줄을 생략해 <code>...</code>로 보이고, Colab에서는 보통 42줄이 모두 보입니다).</p>
 <!--FIG:ml00_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트에서 자료를 받으려면 이 줄과 <code>storage_options=UA</code>가 함께 필요합니다. ① <code>pd.read_csv</code>에 인터넷 주소를 주면 파이썬이 그 주소로 파일을 보내 달라는 요청을 보냅니다. 이 사이트는 파이썬이 기본 모양으로 보낸 요청을 막기 때문에, <code>storage_options=UA</code> 없이 읽으면 <code>HTTP Error 403: Forbidden</code>(접근 거부) 오류가 납니다. ② 요청에는 <b>머리글</b><span class="en">(header)</span>이라는 짧은 정보가 함께 붙어 갑니다. 그 가운데 <code>User-Agent</code>는 요청을 보낸 프로그램이 무엇인지 적는 칸이고, 파이썬은 따로 정하지 않으면 <code>Python-urllib/3.13</code>처럼 적습니다. <code>UA</code>는 이 칸에 웹 브라우저가 쓰는 값 <code>Mozilla/5.0</code>을 적은 사전(<a href="stats.html#lab00-s5">실습 0 마 절</a>)입니다. 줄 끝의 <code>#</code> 뒤는 실행되지 않는 주석입니다.</span></li>
+<li><code>storage_options=UA</code><span>③ 이 머리글을 요청에 붙여 보내라는 인자입니다. 사이트는 브라우저에서 온 요청으로 보고 파일을 보내 줍니다. <code>storage_options</code>는 원래 클라우드 저장소의 접속 설정을 넘기는 인자이고, http나 https 주소를 읽을 때는 그 내용을 요청의 머리글로 씁니다(pandas 1.2부터). 뒤의 장에서도 자료를 읽을 때 같은 <code>UA</code>를 붙입니다. 실습 1–13의 Rdatasets 주소는 이런 요청을 막지 않아서 이 인자 없이 읽었습니다.</span></li>
+</ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>(15000, 42).</b> 15,000명, 열 42개(사람 번호 1, 특성 39, 결과 2)입니다.</span></li>

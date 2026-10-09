@@ -65,7 +65,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
-d = pd.read_csv(BASE + "ami_cohort.csv")
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+d = pd.read_csv(BASE + "ami_cohort.csv", storage_options=UA)
 print(d.shape)
 d.head(5)
 ''', title="자료 불러오기")

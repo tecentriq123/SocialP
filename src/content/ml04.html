@@ -1,0 +1,511 @@
+<p class="lead">앞 장에서 만든 모형들을 투표, 확률 평균, 스태킹으로 합쳐 보고, 여러 모형을 같은 겹과 같은 시험 자료에서 공정하게 비교한 뒤, 성능이 비슷한 모형 가운데 최종 모형 하나를 골라 보고하는 방법을 다룹니다. 이 자료에서는 합친 모형이 XGBoost 하나보다 뚜렷이 낫지 않았고, 시험 자료의 입원 153명으로는 대부분의 차이가 우연의 범위 안에 있었습니다. 그 결과를 부풀리지 않고 읽는 법이 이 장의 중심입니다.</p>
+
+<p class="nb-link"><a href="notebooks/ml04.ipynb" download>이 장의 노트북 내려받기 (ml04.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요. 출력은 scikit-learn 1.9.1, pandas 3.0.5, XGBoost 3.4.2로 실제로 실행해 얻었고, 코드는 scikit-learn 1.3 이상, pandas 2.x, XGBoost 2.x 이상에서 돌아가게 썼습니다. 셀 2와 셀 9는 Colab에서 몇 분씩 걸리며, 출력에 적힌 걸린 시간(초)은 이 사이트를 만든 컴퓨터(코어 2개)에서 잰 값이라 환경마다 다릅니다. <a href="#ml03-s3">3장 다 절</a>의 LightGBM은 이 쪽을 만든 환경에 없어서 이 장의 계산에 넣지 않았습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>0장 <a href="#ml00-s4">라 절</a>(교차검증, <code>GridSearchCV</code>)과 <a href="#ml00-s5">마 절</a>(AUC, 로그 손실은 <a href="#ml01-s4">1장 라 절</a>), 1장 <a href="#ml01-s2">나 절</a>의 겹 밖 예측(<code>cross_val_predict</code>)과 <a href="#ml01-s5">마 절</a>의 <code>boot_auc</code>, 짝지은 차이, 저장. 2장 <a href="#ml02-s1">가 절</a>(배깅과 랜덤 포레스트), 3장 <a href="#ml03-s2">나 절</a>과 <a href="#ml03-s5">마 절</a>(XGBoost와 그 튜닝).</dd>
+<dt>먼저 읽을 부분</dt><dd>가 절의 셀 2–5, 나 절의 '숫자로 따라가기'와 셀 6–7, 다 절의 셀 11과 셀 15, 라 절의 셀 16–17과 논문 상자.</dd>
+<dt>나중에 읽을 부분</dt><dd>나 절의 메타 모형 입력과 조절(셀 8–9), 다 절의 반복 교차검증과 보정한 t 검정(셀 12), 중첩 교차검증(셀 13), DeLong 검정의 계산, 접힌 세부. 셀 2, 9, 12–14는 오래 걸리므로 처음에는 출력만 읽고 넘어가도 됩니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 하드 투표, 소프트 투표, 스태킹이 예측 확률을 만드는 과정을 작은 표로 설명하고, 메타 모형을 겹 밖 예측으로 배워야 하는 이유를 숫자로 보일 수 있다 ② <code>VotingClassifier</code>와 <code>StackingClassifier</code>의 인자를 정하고 메타 모형을 조절해, 스태킹을 바깥 교차검증으로 평가할 수 있다 ③ 같은 겹의 짝지은 차이, 중첩 교차검증, 짝지은 부트스트랩으로 모형을 비교하고, 한 표준오차 규칙으로 최종 모형을 골라 Methods·Results에 적을 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="ml04-s1">
+<h2><span class="sec-no">가.</span>여러 모형을 합치는 방법</h2>
+
+<h3>쉽게 말하면</h3>
+<p>퇴원 환자의 재입원 위험을 의사, 약사, 간호사 세 사람이 각자 판단했다고 합시다. 세 의견을 하나로 만드는 방법은 여러 가지입니다.</p>
+<ol>
+<li><b>다수결.</b> 각자 '위험하다, 아니다'로 답하고 많은 쪽을 따릅니다. 여러 모형이 낸 0/1 예측의 다수결을 <strong>하드 투표</strong><span class="en">(hard voting)</span>라고 합니다.</li>
+<li><b>확률의 평균.</b> 각자 '입원할 확률 20%'처럼 숫자로 말하고 그 평균을 씁니다. <strong>소프트 투표</strong><span class="en">(soft voting)</span>입니다.</li>
+<li><b>가중 평균.</b> 더 믿을 만한 사람의 숫자에 무게를 더 줍니다(<strong>가중 평균</strong><span class="en">, weighted average</span>).</li>
+<li><b>회의 진행자.</b> 지난 회의 기록을 보고 '누구의 말을 얼마나 믿을지'를 배우는 진행자를 따로 둡니다. 세 사람의 예측을 입력으로 받아 최종 예측을 내는 모형을 하나 더 학습하는 방법이 <strong>스태킹</strong><span class="en">(stacking, stacked generalization)</span>입니다<cite data-ref="wolpert1992"></cite><cite data-ref="breiman1996stack"></cite>. 처음의 모형들을 <strong>기본 모형</strong><span class="en">(base model)</span>, 진행자 역할의 모형을 <strong>메타 모형</strong><span class="en">(meta model, final estimator)</span>이라고 합니다.</li>
+</ol>
+<p>여러 모형의 예측을 합치는 방법을 통틀어 앙상블이라고 했습니다(<a href="#ml02-s1">2장 가 절</a>). 배깅과 부스팅은 같은 종류의 나무를 여러 그루 합쳤고, 이 장은 종류가 다른 모형을 합칩니다. 세 사람이 같은 교재로 배워 같은 실수를 한다면 모여도 나아질 것이 없습니다. 합쳐서 이득을 보려면 기본 모형이 <b>서로 다른 곳에서 틀려야</b> 합니다.</p>
+
+<h3>앞 장의 모형 다시 만들기</h3>
+<p>먼저 0–3장의 자료 불러오기, 분할, 전처리 함수 네 가지, 5겹 분할기 <code>skf</code>, 1장의 <code>boot_auc</code>를 한 셀에 모읍니다. 3장 노트북에 이어서 실행한다면 건너뛰어도 됩니다. 자료를 읽는 줄의 <code>storage_options=UA</code>는 사이트가 파이썬의 기본 요청을 막기 때문에 브라우저의 머리글을 붙이려고 넣은 것입니다(<a href="#ml00-s1">0장 가 절</a>).</p>
+<!--FIG:ml04_setup-->
+<p>출력 <span class="mk">1</span>은 0장과 같은 학습 자료 11,250명(입원 459명)과 시험 자료 3,750명(입원 153명)입니다.</p>
+<p>다음 셀은 앞 장에서 고른 모형 일곱 개를 그대로 다시 만듭니다. 로지스틱 회귀의 C = 0.1은 <a href="#ml00-s4">0장 라 절</a>, 나무(깊이 6, 잎 300명)는 <a href="#ml01-s4">1장 라 절</a>, 배깅은 <a href="#ml02-s1">2장 가 절</a>, 랜덤 포레스트는 <a href="#ml02-s4">2장 라 절</a>의 Optuna, XGBoost 기본값과 튜닝한 조합은 <a href="#ml03-s2">3장 나 절</a>과 <a href="#ml03-s5">마 절</a>, 히스토그램 부스팅은 <a href="#ml03-s4">3장 라 절</a>에서 고른 값입니다. 이 장에서는 조절값을 다시 길게 튜닝하지 않습니다. 모형마다 두 가지를 만들어 둡니다. 하나는 학습 자료 11,250명 각자에 대해 그 사람이 빠진 겹으로 배운 모형의 확률인 <strong>겹 밖 예측</strong><span class="en">(out-of-fold prediction)</span>이고(<a href="#ml01-s2">1장 나 절</a>), 다른 하나는 학습 자료 전체로 맞춘 모형이 시험 자료 3,750명에게 준 확률입니다. 이 두 표가 이 장의 거의 모든 계산의 재료입니다. <a href="#ml03-s3">3장 다 절</a>의 LightGBM 모형도 같은 방법으로 <code>base</code>에 한 줄 더하면 목록에 넣을 수 있습니다.</p>
+<!--FIG:ml04_base-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>best_xgb = {"n_estimators": 200, "learning_rate": 0.08296006039772535, …}</code><span>3장 마 절의 Optuna가 고른 값을 소수점까지 그대로 옮겼습니다. 0.083으로 반올림하면 결과가 끝자리에서 조금 달라집니다. 랜덤 포레스트의 <code>max_samples</code>도 같습니다.</span></li>
+<li><code>base = {"logistic": make_pipe(…), …}</code><span>이름과 파이프라인의 짝을 담은 사전입니다. 이 장에서는 이 이름(<code>forest</code>, <code>xgb</code> 등)으로 모형을 부릅니다. <code>xgb</code>는 튜닝한 XGBoost, <code>xgb_default</code>는 기본값입니다.</span></li>
+<li><code>oof = pd.DataFrame(index=X_train.index)</code><span>행 이름만 있는 빈 표를 만들고 <code>oof[name] = …</code>로 모형마다 한 열씩 채웁니다. 다 채우면 11,250행 × 7열입니다. <code>test_p</code>는 같은 모양의 3,750행 × 7열입니다.</span></li>
+<li><code>cross_val_predict(m, X_train, y_train, cv=skf, method="predict_proba")[:, 1]</code><span>다섯 회차마다 검증 겹 사람들의 확률을 모아 11,250명 모두의 겹 밖 예측을 돌려줍니다. 겹을 나누는 방법(<code>skf</code>)이 같으므로 0–3장의 <code>cross_val_score</code>와 같은 다섯 모형을 맞춘 셈입니다.</span></li>
+<li><code>m.fit(X_train, y_train)</code><span><code>cross_val_predict</code>는 모형의 복사본을 맞추고 원래 <code>m</code>은 그대로 두므로, 학습 자료 전체로 따로 한 번 맞춥니다. 이 줄이 끝나면 <code>base</code>의 모형들은 모두 맞춘 상태입니다.</span></li>
+<li><code>folds = list(skf.split(X_train, y_train))</code><span>다섯 겹의 (학습 행 번호, 검증 행 번호) 짝을 목록으로 꺼내 둡니다. <code>skf</code>는 seed가 정해져 있어 몇 번을 불러도 같은 겹이 나옵니다.</span></li>
+<li><code>def fold_aucs(p):</code><span>겹 밖 예측 한 열을 받아 다섯 겹 각각의 AUC 다섯 개를 돌려주는 함수입니다. 겹마다 그 겹 사람들의 예측과 실제 결과로 AUC를 구하므로 <code>cross_val_score(…, scoring="roc_auc")</code>와 같은 값이 나옵니다. 모형을 다시 맞추지 않고 겹 밖 예측만으로 교차검증 점수를 얻을 수 있어, 이 장에서 여러 번 씁니다.</span></li>
+<li><code>fold_auc.std(ddof=0)</code><span>겹 사이의 표준편차입니다. 0–3장의 <code>cv.std()</code>와 같게 n으로 나누는 표준편차(<code>ddof=0</code>)를 썼습니다. pandas의 <code>.std()</code>는 기본이 n − 1로 나누는 것(<code>ddof=1</code>)이라 값이 조금 큽니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>앞 장의 숫자 그대로.</b> 교차검증 AUC는 로지스틱 회귀 0.749, 나무 0.754, 배깅 0.734, 랜덤 포레스트 0.757, XGBoost 기본값 0.698, 히스토그램 부스팅 0.768, 튜닝한 XGBoost 0.776이고, 시험 AUC는 0.742, 0.771, 0.784, 0.770, 0.717, 0.783, 0.784입니다. 0–3장의 표와 셋째 자리까지 같습니다. 같은 자료, 같은 분할, 같은 겹, 같은 조절값과 seed를 썼기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>배깅은 교차검증 0.734, 시험 0.784.</b> 교차검증으로는 일곱 가운데 여섯째인데 시험 자료로는 공동 1위입니다. 시험 자료의 입원 153명에서 오는 우연이 이 정도로 큽니다. 모형은 교차검증으로 고르고 시험 자료는 확인에만 쓴다는 원칙(<a href="#ml02-s1">2장 가 절</a>)이 이 장 내내 이어집니다.</span></li>
+<li><span class="mk">3</span><span><b>XGBoost 기본값 0.698.</b> 3장에서 본 대로 깊이 6, 학습률 0.3의 기본값은 이 자료에 맞지 않습니다. 합칠 후보로 넣어 두고 가 절과 나 절에서 이 모형이 어떤 영향을 주는지 봅니다.</span></li>
+<li><span class="mk">4</span><span><b>튜닝한 XGBoost 0.776.</b> 교차검증으로는 이 모형이 가장 높습니다. 이 장의 질문은 '이 모형에 다른 모형을 합치면 더 나아지는가'입니다. 오른쪽 열은 겹 밖 예측과 전체 학습에 걸린 초로, 배깅과 랜덤 포레스트가 수십 초, 나머지는 몇 초 안쪽입니다.</span></li>
+</ol>
+
+<h3>숫자로 따라가기</h3>
+<p>서로 다른 집안의 세 모형(로지스틱 회귀, 랜덤 포레스트, 튜닝한 XGBoost)이 시험 자료의 환자 여섯 명에게 준 확률로 세 가지 합치는 방법을 손으로 해 봅니다.</p>
+<!--FIG:ml04_toy6-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>votes = (P &gt;= 0.5).sum(axis=1)</code><span>사람마다 세 확률을 0.5와 비교해 참(1)과 거짓(0)으로 바꾼 뒤 가로로 더합니다. '입원할 것'이라고 답한 모형의 수(0–3)입니다.</span></li>
+<li><code>P.assign(votes=…, hard=…, soft=…, weighted=…, admit=y_test)</code><span>원래 세 열 옆에 새 열들을 붙인 표를 만듭니다. <code>hard</code>는 두 모형 이상이 1이라고 한 다수결, <code>soft</code>는 세 확률의 평균, <code>weighted</code>는 XGBoost에 두 배의 무게를 준 평균((로지스틱 + 숲 + 2 × XGBoost) ÷ 4)입니다.</span></li>
+<li><code>toy["soft"].sort_values(ascending=False).index</code><span>소프트 투표 확률이 큰 순서로 사람의 행 이름을 늘어놓습니다. <code>order[[0, 2, 5, 10, 150, 1875]]</code>는 그 가운데 1, 3, 6, 11, 151, 1,876번째 사람입니다(위험이 가장 큰 사람부터 가운데 사람까지).</span></li>
+</ol>
+<ol>
+<li><b>하드 투표.</b> 첫 줄의 환자는 로지스틱 0.891, 숲 0.374, XGBoost 0.797이라 0.5를 넘은 모형이 둘이고 다수결은 1입니다. 넷째 줄의 환자는 로지스틱만 0.825로 높고 두 나무 모형은 0.290과 0.351이라 표가 하나뿐이고 다수결은 0입니다. 이 사람은 실제로 입원했습니다.</li>
+<li><b>소프트 투표.</b> 같은 넷째 줄은 (0.825 + 0.290 + 0.351) ÷ 3 = 0.489입니다. 한 모형만 강하게 위험하다고 해도 그 크기가 평균에 남습니다.</li>
+<li><b>가중 평균.</b> (0.825 + 0.290 + 2 × 0.351) ÷ 4 = 0.454입니다. XGBoost에 무게를 더 주었으니 XGBoost의 0.351 쪽으로 끌려옵니다.</li>
+<li><b>드문 결과와 다수결.</b> 출력 <span class="mk">1</span>처럼 3,750명 가운데 다수결이 1인 사람은 14명뿐입니다(그 가운데 11명이 입원). 랜덤 포레스트는 가장 높은 확률도 <span class="mk">3</span> 0.383이라 0.5를 넘는 일이 한 번도 없었습니다. 입원이 4%인 자료에서 0.5라는 기준은 너무 높아서, 투표 수는 거의 모두 0이 됩니다. <span class="mk">2</span> 투표 수(0–3)로 AUC를 구하면 0.577로, 확률 평균의 0.772보다 크게 낮습니다. 하드 투표는 0/1만 남기므로 사람들 사이의 순서를 잃고, 다수결의 0/1 자체는 순서가 두 칸뿐이라 투표 수보다도 순서 정보가 적습니다.</li>
+</ol>
+
+<h3>VotingClassifier</h3>
+<p>사이킷런의 <code>VotingClassifier</code>는 위의 일을 모형 하나처럼 묶어 줍니다. <code>fit</code>을 부르면 기본 모형마다 복사본을 학습 자료 전체로 맞추고, <code>predict_proba</code>는 그 확률들을 평균합니다.</p>
+<!--FIG:ml04_vote-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>members = [(nm, base[nm]) for nm in three]</code><span><code>VotingClassifier</code>와 <code>StackingClassifier</code>는 모형을 (이름, 모형) 짝의 목록으로 받습니다. 이름은 나중에 조절값을 부를 때(<code>forest__model__max_depth</code>)와 맞춘 모형을 꺼낼 때(<code>vote_soft.named_estimators_["forest"]</code>) 씁니다.</span></li>
+<li><code>VotingClassifier(members, voting="soft")</code><span><code>voting="soft"</code>는 확률 평균, <code>"hard"</code>(기본값)는 다수결입니다. 기본값이 하드 투표라는 점에 주의합니다.</span></li>
+<li><code>np.allclose(p_soft, toy["soft"])</code><span>두 배열이 컴퓨터의 반올림 오차 안에서 같으면 True입니다. <code>np.array_equal</code>은 완전히 같아야 True입니다.</span></li>
+<li><code>try: … except AttributeError as e:</code><span>오류가 날 수 있는 줄을 <code>try</code> 아래에 두고, 그 종류의 오류가 나면 멈추지 않고 <code>except</code> 아래를 실행합니다. <code>e</code>에 오류 내용이 담깁니다.</span></li>
+<li><code>fold_aucs(oof[three].mean(axis=1))</code><span>소프트 투표를 교차검증하면 겹마다 세 모형을 그 겹의 학습 부분으로 맞춰 확률을 평균하므로, 셀 2의 겹 밖 예측 세 열을 평균한 것과 같습니다. 그래서 다시 맞추지 않고 교차검증 AUC를 얻습니다. 이 쪽을 만들 때 <code>cross_val_score(vote_soft, …)</code>를 따로 돌려 다섯 겹의 값이 끝자리까지 같음을 확인했습니다.</span></li>
+</ol>
+<p>출력처럼 <code>VotingClassifier</code>의 확률은 손으로 낸 평균과 같고, 하드 투표 모형에는 <span class="mk">1</span> <code>predict_proba</code>가 없어 AUC를 구할 수 없습니다. <span class="mk">2</span> 소프트 투표의 교차검증 AUC는 0.7677, 시험 AUC는 0.7721로, 셋 가운데 가장 좋은 XGBoost 하나(0.776, 0.784)보다 낮습니다. 로지스틱 회귀(0.749)와 랜덤 포레스트(0.757)가 XGBoost보다 뚜렷이 약해서 평균이 아래로 끌려온 것입니다.</p>
+
+<div class="tbl-wrap"><table class="tbl">
+<caption><code>VotingClassifier</code>의 인자 (scikit-learn 1.3 이상에서 같음)</caption>
+<thead><tr><th>인자</th><th>뜻</th><th>기본값</th><th>바꾸면 (이 자료에서)</th><th>흔한 선택</th><th>우선순위</th></tr></thead>
+<tbody>
+<tr><td><code>estimators</code></td><td>(이름, 모형) 짝의 목록. 모형 자리에 <code>"drop"</code>을 넣으면 그 모형을 뺌</td><td>(꼭 줘야 함)</td><td>무엇을 넣느냐가 결과를 가장 크게 정함. 약한 모형을 넣으면 평균이 내려감(셀 5)</td><td>서로 다른 집안의 강한 모형 2–5개</td><td>먼저</td></tr>
+<tr><td><code>voting</code></td><td><code>"hard"</code> 다수결(0/1만), <code>"soft"</code> 확률 평균(<code>predict_proba</code>가 생김)</td><td><code>"hard"</code></td><td>드문 결과에서 하드는 순서를 잃음. 투표 수의 AUC 0.577, 소프트 0.772(셀 3)</td><td><code>"soft"</code></td><td>먼저</td></tr>
+<tr><td><code>weights</code></td><td>모형별 무게. 소프트는 확률의 가중 평균, 하드는 표의 무게</td><td><code>None</code>(같은 무게)</td><td>무게가 큰 모형 쪽으로 감. XGBoost 무게 1, 2, 4에서 교차검증 0.768, 0.771, 0.773(과제 1)</td><td>겹 밖 예측으로 몇 가지를 비교</td><td>다음</td></tr>
+<tr><td><code>flatten_transform</code></td><td><code>voting="soft"</code>일 때 <code>transform</code> 결과의 모양. True면 (사람 수, 모형 수 × 범주 수), False면 (모형 수, 사람 수, 범주 수)</td><td>True</td><td>예측에는 영향 없음</td><td>그대로</td><td>기본값</td></tr>
+<tr><td><code>n_jobs</code></td><td>기본 모형을 동시에 맞출 작업 수</td><td><code>None</code>(1개)</td><td>빨라지고 결과는 같음. 기본 모형 안에서도 <code>n_jobs=-1</code>이면 코어보다 많은 일이 돌 수 있음</td><td>둘 중 한쪽만 병렬</td><td>계산 설정</td></tr>
+<tr><td><code>verbose</code></td><td>모형마다 맞추는 데 걸린 시간을 출력</td><td>False</td><td>출력만 늘어남</td><td>False</td><td>계산 설정</td></tr>
+</tbody></table></div>
+
+<h3>서로 다른 곳에서 틀리는가</h3>
+<p>두 모형이 얼마나 닮았는지를 겹 밖 예측끼리의 스피어만 순위 상관(<a href="stats.html#ch06-s2">통계 6장 나 절</a>)으로 잽니다. AUC는 확률의 크기가 아니라 사람들의 순서만 보므로, 순서의 닮음을 보는 순위 상관이 알맞습니다. 그리고 모형 두 개씩 짝지어 확률을 평균했을 때 둘 가운데 나은 쪽보다 교차검증 AUC가 얼마나 오르는지(이득)를 21개 짝 모두에서 구합니다.</p>
+<!--FIG:ml04_corr-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>oof.corr(method="spearman")</code><span>열(모형)끼리의 스피어만 상관행렬, 곧 7 × 7 표입니다. 열지도를 그리는 줄은 <a href="#ml02-s2">2장 나 절</a>과 같습니다.</span></li>
+<li><code>itertools.combinations(base, 2)</code><span>일곱 모형에서 두 개씩 뽑는 모든 짝(7 × 6 ÷ 2 = 21개)을 차례로 내놓습니다. <code>itertools</code>는 파이썬에 들어 있는 반복 도구 모음입니다.</span></li>
+<li><code>both - max(auc[a], auc[b])</code><span>두 모형을 평균한 교차검증 AUC에서 둘 가운데 높은 쪽의 AUC를 뺀 값입니다. 양수면 합쳐서 더 나아진 것입니다.</span></li>
+<li><code>close = pairs["AUC gap"] &lt; 0.01</code><span>두 모형의 교차검증 AUC 차이가 0.01보다 작은, 곧 실력이 비슷한 짝만 고르는 참·거짓 열입니다. 오른쪽 그림에서 색칠한 점이고, 마지막 표가 그 네 짝입니다.</span></li>
+</ol>
+<p>왼쪽 열지도에서 부스팅끼리(XGBoost와 히스토그램 부스팅 0.91)와 랜덤 포레스트와 XGBoost(0.91)가 가장 닮았고, 로지스틱 회귀와 XGBoost 기본값은 다른 모형들과 덜 닮았습니다. 오른쪽 그림과 표에서 실력이 비슷한 네 짝만 보면 대체로 상관이 낮을수록 이득이 큽니다. 상관이 0.59로 가장 낮은 로지스틱 회귀와 나무는 각자 0.749, 0.754인데 평균은 0.769로 0.014 올랐고, 0.91로 가장 닮은 히스토그램 부스팅과 XGBoost는 평균이 오히려 0.003 내려갔습니다. 다만 가운데 두 짝(상관 0.74와 0.80)은 이득의 순서가 뒤바뀌어 있고 점이 네 개뿐이라, 이 표는 경향을 보여 줄 뿐 규칙을 증명하지는 않습니다. 회색 점(실력 차이가 큰 짝)은 대부분 0 아래에 있습니다. 약한 모형을 같은 무게로 섞으면 강한 모형의 점수가 깎이기 때문입니다. 이 자료에서 합쳐서 이득을 보기 어려운 이유가 여기 있습니다. 가장 강한 XGBoost와 덜 닮은 모형(로지스틱 회귀, 나무)은 XGBoost보다 0.02 넘게 약하고, 실력이 가장 가까운 히스토그램 부스팅(0.768)은 순위 상관 0.91로 XGBoost와 많이 닮았습니다.</p>
+<!--FOLD:평균이 나아지는 조건-->
+<p>두 모형의 예측을 평균하면 둘이 다르게 틀린 부분이 서로 상쇄됩니다. 2장 가 절의 식에서 보았듯이 평균의 흔들림은 둘 사이의 상관 ρ가 낮을수록 작아집니다. 그러나 평균은 두 모형의 체계적인 치우침(편향)도 반씩 섞습니다. 한쪽이 뚜렷이 약하면 그 약점이 절반만큼 들어오므로, 상관이 낮아서 얻는 이득보다 약한 쪽에서 오는 손해가 클 수 있습니다. 그래서 같은 무게의 평균은 '비슷하게 강하고 덜 닮은' 모형끼리일 때 잘 듣고, 실력이 다른 모형을 합칠 때는 무게를 자료에서 정하는 스태킹(나 절)이 필요합니다. AUC는 순서만 보는 지표라 이 설명은 대략적인 그림이고, 정확한 이득은 셀 5처럼 겹 밖 예측으로 직접 잽니다.</p>
+<!--/FOLD-->
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">모형을 많이 합칠수록 성능이 좋아진다.</span> 이 자료에서 로지스틱 회귀, 랜덤 포레스트, XGBoost의 확률 평균은 교차검증 0.768로 XGBoost 하나(0.776)보다 낮았습니다. 합친 모형이 나아지려면 기본 모형들이 비슷하게 강하면서 서로 다른 곳에서 틀려야 합니다. 어느 쪽인지는 셀 5처럼 겹 밖 예측으로 확인합니다.</li>
+<li><span class="wrong">하드 투표와 소프트 투표는 이름만 다를 뿐 결과가 비슷하다.</span> 결과가 흔하고 0.5가 적당한 기준일 때는 비슷할 수 있지만, 입원이 4%인 이 자료에서 하드 투표는 3,750명 가운데 14명만 1로 남겼고, 0/1 대신 투표 수(0–3)로 순서를 매겨도 AUC가 0.577로 소프트 투표(0.772)보다 크게 낮았습니다. 확률을 내는 모형이라면 소프트 투표를 씁니다. <code>VotingClassifier</code>의 기본값이 하드라는 점도 기억합니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>여러 모형을 합치는 방법은 다수결(하드 투표), 확률 평균(소프트 투표), 가중 평균, 메타 모형이 무게를 배우는 스태킹이 있습니다. 드문 결과에서는 0/1로 바꾸는 하드 투표가 순서를 잃습니다.</li>
+<li>교차검증 AUC는 겹 밖 예측(<code>cross_val_predict</code>)만 있으면 모형을 다시 맞추지 않고 구할 수 있고, 소프트 투표의 교차검증은 겹 밖 예측의 평균과 같습니다. 앞 장의 일곱 모형은 이 방법으로 0–3장의 숫자를 그대로 다시 냈습니다.</li>
+<li>합쳐서 이득을 보려면 기본 모형이 비슷하게 강하고 덜 닮아야 합니다. 이 자료에서 로지스틱 회귀와 나무의 평균은 0.014 올랐지만, 가장 강한 XGBoost에 약한 모형을 같은 무게로 섞으면 내려갔습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="ml04-s2">
+<h2><span class="sec-no">나.</span>스태킹 만들기</h2>
+
+<h3>쉽게 말하면</h3>
+<p>스태킹은 두 층으로 된 모형입니다. 1층의 기본 모형들이 저마다 확률을 내고, 2층의 메타 모형이 그 확률들을 입력으로 받아 최종 확률을 냅니다. 메타 모형은 보통 로지스틱 회귀라서, 기본 모형마다 계수(무게) 하나와 절편을 배웁니다. 가 절의 가중 평균과 다른 점은 무게를 사람이 정하지 않고 자료에서 배운다는 것입니다.</p>
+<p>문제는 메타 모형을 무엇으로 가르치느냐입니다. 회의 진행자가 '누구를 믿을지' 배우려면, 각자가 <b>처음 보는 환자</b>에 대해 낸 의견과 실제 결과를 봐야 합니다. 각자가 이미 답을 아는 환자(학습 자료)에 대한 의견을 보여 주면, 답을 외운 사람이 늘 맞는 것처럼 보여 그 사람만 믿게 됩니다. 그래서 메타 모형의 학습 자료는 겹 밖 예측으로 만듭니다(그림 4-1).</p>
+<!--FIG:ml04_fig_stack-->
+
+<h3>숫자로 따라가기</h3>
+<p>환자 8명을 두 겹(A–D, E–H)으로 나누고, 손으로 계산할 수 있는 기본 모형 셋을 씁니다. ① <b>나이 규칙</b>은 배운 환자 가운데 75세 이상과 미만 각각의 입원 비율을 확률로 냅니다. ② <b>응급실 규칙</b>은 응급실 방문 1회 이상과 0회 각각의 입원 비율입니다. ③ <b>외우는 모형</b>은 배운 환자 가운데 나이가 가장 가까운 한 명의 결과(0 또는 1)를 그대로 냅니다. ③은 학습 자료를 통째로 외우는, 과적합이 가장 심한 모형입니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:42rem">
+<thead><tr><th>환자</th><th class="c">A</th><th class="c">B</th><th class="c">C</th><th class="c">D</th><th class="c">E</th><th class="c">F</th><th class="c">G</th><th class="c">H</th></tr></thead>
+<tbody>
+<tr><td>나이</td><td class="c">52</td><td class="c">78</td><td class="c">66</td><td class="c">83</td><td class="c">71</td><td class="c">88</td><td class="c">59</td><td class="c">80</td></tr>
+<tr><td>응급실 방문</td><td class="c">0</td><td class="c">2</td><td class="c">0</td><td class="c">0</td><td class="c">0</td><td class="c">1</td><td class="c">1</td><td class="c">2</td></tr>
+<tr><td>2023년 입원</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">0</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">1</td></tr>
+<tr><td>겹</td><td class="c">1</td><td class="c">1</td><td class="c">1</td><td class="c">1</td><td class="c">2</td><td class="c">2</td><td class="c">2</td><td class="c">2</td></tr>
+<tr class="grp"><td colspan="9"><b>안쪽 예측</b> (8명 모두로 배워 같은 8명을 예측)</td></tr>
+<tr><td>① 나이 규칙</td><td class="c">0</td><td class="c">0.75</td><td class="c">0</td><td class="c">0.75</td><td class="c">0</td><td class="c">0.75</td><td class="c">0</td><td class="c">0.75</td></tr>
+<tr><td>② 응급실 규칙</td><td class="c">0</td><td class="c">0.75</td><td class="c">0</td><td class="c">0</td><td class="c">0</td><td class="c">0.75</td><td class="c">0.75</td><td class="c">0.75</td></tr>
+<tr><td>③ 외우는 모형</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">0</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">1</td></tr>
+<tr><td>세 모형의 평균</td><td class="c">0</td><td class="c">0.83</td><td class="c">0</td><td class="c">0.25</td><td class="c">0</td><td class="c">0.83</td><td class="c">0.25</td><td class="c">0.83</td></tr>
+<tr class="grp"><td colspan="9"><b>겹 밖 예측</b> (다른 겹으로 배워 이 겹을 예측)</td></tr>
+<tr><td>① 나이 규칙</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">0.5</td><td class="c">0</td><td class="c">0.5</td></tr>
+<tr><td>② 응급실 규칙</td><td class="c">0</td><td class="c">0.67</td><td class="c">0</td><td class="c">0</td><td class="c">0</td><td class="c">1</td><td class="c">1</td><td class="c">1</td></tr>
+<tr><td>③ 외우는 모형</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">1</td><td class="c">0</td><td class="c">0</td><td class="c">0</td><td class="c">1</td></tr>
+</tbody></table></div>
+<ol>
+<li><b>기본 모형 셋의 확률(안쪽 예측).</b> 8명 모두로 배우면 75세 이상 B, D, F, H 가운데 3명이 입원했으므로 나이 규칙은 75세 이상에 0.75, 미만에 0을 냅니다. 응급실 규칙도 1회 이상인 B, F, G, H 가운데 3명이라 0.75입니다. 외우는 모형은 자기 자신이 가장 가까운 환자이므로 8명 모두의 결과를 그대로 맞힙니다.</li>
+<li><b>평균.</b> 세 확률의 평균은 B, F, H가 (0.75 + 0.75 + 1) ÷ 3 = 0.83, D와 G가 0.25입니다. 가 절의 소프트 투표입니다.</li>
+<li><b>겹 밖 예측 만들기.</b> 1겹(A–D)의 예측은 2겹(E–H)만으로 배운 모형이 냅니다. 2겹에서 75세 이상(F, H)은 둘 다 입원했으므로 나이 규칙은 B와 D에 1을 줍니다. 응급실 1회 이상(F, G, H) 가운데 2명이 입원했으므로 응급실 규칙은 B에 0.67을 줍니다. 외우는 모형은 D(83세)와 가장 가까운 H(80세)의 결과 1을 D에 줍니다. D는 입원하지 않았으므로 틀렸습니다. 2겹의 예측은 반대로 1겹만으로 배운 모형이 냅니다. 외우는 모형은 F(88세)에 D(83세)의 결과 0을 주어 또 틀립니다.</li>
+<li><b>메타 모형이 무게를 배우는 과정.</b> 세 모형에 줄 무게(0–1, 합 1)를 0.1 간격으로 바꿔 가며 66가지 조합마다 '무게를 곱해 더한 확률'과 실제 결과의 차이를 제곱해 평균한 값(Brier 점수, 라 절)을 구하고, 가장 작은 조합을 고릅니다. 아래 표가 그 일부입니다.</li>
+</ol>
+<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
+<thead><tr><th>무게 (① 나이, ② 응급실, ③ 외우기)</th><th class="r">안쪽 예측으로 잰 Brier</th><th class="r">겹 밖 예측으로 잰 Brier</th></tr></thead>
+<tbody>
+<tr><td>(1, 0, 0) 나이 규칙만</td><td class="r">0.094</td><td class="r">0.188</td></tr>
+<tr><td>(0, 1, 0) 응급실 규칙만</td><td class="r">0.094</td><td class="r">0.139</td></tr>
+<tr><td>(0, 0, 1) 외우는 모형만</td><td class="r">0</td><td class="r">0.250</td></tr>
+<tr><td>(⅓, ⅓, ⅓) 같은 무게</td><td class="r">0.026</td><td class="r">0.106</td></tr>
+<tr class="hi"><td>(0.4, 0.6, 0) 겹 밖 예측으로 고른 무게</td><td class="r">0.060</td><td class="r">0.080</td></tr>
+</tbody></table></div>
+<p>안쪽 예측으로 무게를 고르면 외우는 모형이 Brier 0으로 완벽해 보여 무게 (0, 0, 1), 곧 외우는 모형만 쓰게 됩니다. 그런데 처음 보는 환자에서 외우는 모형은 셋 가운데 가장 나쁩니다(겹 밖 Brier 0.250). 겹 밖 예측으로 고르면 무게가 (0.4, 0.6, 0)이 되어 외우는 모형을 버리고 두 규칙을 섞으며, 이 조합의 겹 밖 Brier 0.080은 어느 한 규칙보다도, 같은 무게의 평균(0.106)보다도 작습니다. 학습 자료를 많이 외운 모형일수록 안쪽 예측에서 실제보다 좋아 보여 메타 모형이 그 모형에 무게를 몰아줍니다. 학습 자료의 정보가 평가에 새어 들어가는 이 문제를 <strong>누설</strong><span class="en">(leakage)</span>이라고 하며 <a href="#ml00-s3">0장 다 절</a>의 누수와 같은 이야기입니다. 위 계산은 Breiman의 스태킹처럼 음수가 아닌 무게의 가중 평균을 고른 것이고<cite data-ref="breiman1996stack"></cite>, 사이킷런의 <code>StackingClassifier</code>는 이 자리에 로지스틱 회귀를 씁니다. 생각은 같습니다.</p>
+
+<h3>실제 자료에서 누설</h3>
+<p>셀 2의 일곱 모형으로 확인합니다. 학습 자료 전체로 맞춘 모형이 같은 학습 자료에 준 확률(안쪽 예측)과 셀 2의 겹 밖 예측을 나란히 놓고, 각각으로 메타 모형을 배운 뒤 시험 자료에서 비교합니다. <code>StackingClassifier</code>의 <code>cv="prefit"</code>은 이미 맞춘 기본 모형을 그대로 받아 그 안쪽 예측으로 메타 모형을 가르치는 설정이라 누설을 그대로 재현합니다.</p>
+<!--FIG:ml04_leak-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>{nm: m.predict_proba(X_train)[:, 1] for nm, m in base.items()}</code><span>셀 2에서 학습 자료 전체로 맞춘 모형으로 같은 학습 자료를 예측합니다. 사전을 만드는 한 줄 문법이고, <code>pd.DataFrame</code>으로 11,250행 × 7열의 표가 됩니다.</span></li>
+<li><code>.T</code><span>표를 뒤집어 행과 열을 바꿉니다. 모형이 열로 가서 두 줄로 나란히 비교됩니다.</span></li>
+<li><code>StackingClassifier(list(base.items()), cv="prefit", final_estimator=LogisticRegression(max_iter=1000))</code><span><code>list(base.items())</code>는 일곱 개의 (이름, 맞춘 모형) 짝입니다. <code>cv="prefit"</code>이면 기본 모형을 다시 맞추지 않고, <code>fit</code>에 받은 자료에 대한 기본 모형의 예측으로 메타 모형만 학습합니다(scikit-learn 1.1부터). 여기서는 기본 모형을 같은 학습 자료로 맞췄으므로 그 예측이 안쪽 예측입니다. 문서도 기본 모형을 같은 자료로 맞췄다면 과적합 위험이 매우 크다고 적고 있습니다.</span></li>
+<li><code>LogisticRegression(max_iter=1000).fit(oof, y_train)</code><span>겹 밖 예측 일곱 열로 메타 모형을 직접 맞춥니다. <code>StackingClassifier(cv=skf)</code>가 안에서 하는 일과 같습니다(셀 7에서 확인).</span></li>
+<li><code>leaky.final_estimator_.coef_[0]</code><span>맞춘 메타 모형(로지스틱 회귀)의 계수, 곧 일곱 모형의 무게입니다. 입력이 확률(0–1)이므로 계수 1은 '그 모형의 확률이 0.1 오르면 메타 모형의 로그 오즈가 0.1 오른다'는 뜻입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>안쪽 AUC.</b> XGBoost 기본값은 학습 자료에서 0.998, 배깅은 0.953으로 거의 완벽하지만 겹 밖 AUC는 0.698과 0.734입니다. 잎을 크게 묶은 나무(0.775 대 0.754)나 로지스틱 회귀(0.762 대 0.749)는 두 값의 차이가 작습니다. 안쪽 AUC가 겹 밖 AUC보다 높은 만큼이 그 모형이 학습 자료를 외운 정도입니다.</span></li>
+<li><span class="mk">2</span><span><b>안쪽 예측으로 배운 메타 모형의 시험 AUC 0.690.</b> 일곱 기본 모형 가운데 가장 나쁜 XGBoost 기본값(0.717)보다도 낮습니다.</span></li>
+<li><span class="mk">3</span><span><b>겹 밖 예측으로 배운 메타 모형 0.777.</b> 같은 일곱 모형, 같은 메타 모형인데 학습 자료만 다릅니다.</span></li>
+<li><span class="mk">4</span><span><b>세 모형만이면 0.774 대 0.772.</b> 덜 외운 세 모형(로지스틱 회귀, 랜덤 포레스트, XGBoost)만 넣으면 두 방법의 시험 AUC가 거의 같습니다. 누설의 피해는 기본 모형이 학습 자료를 얼마나 외웠느냐에 달려 있습니다. 실제로는 어떤 모형이 얼마나 외웠는지 미리 알 수 없으므로 늘 겹 밖 예측을 씁니다.</span></li>
+<li><span class="mk">5</span><span><b>XGBoost 기본값의 계수 14.70.</b> 안쪽 예측으로 배운 메타 모형은 학습 자료를 가장 많이 외운 모형에 무게를 몰아주고 나머지 여섯 모형에는 대부분 음수를 줍니다. 겹 밖 예측으로 배운 쪽은 같은 모형에 0.38만 줍니다. 그림의 막대가 이 차이를 보여 줍니다.</span></li>
+</ol>
+
+<h3>StackingClassifier</h3>
+<p><code>StackingClassifier</code>는 ① <code>cv</code>로 기본 모형마다 겹 밖 예측을 만들고 ② 그것으로 메타 모형을 맞추고 ③ 예측에 쓸 기본 모형은 학습 자료 전체로 한 번 더 맞추는 일(그림 4-1)을 한 번에 합니다. 메타 모형의 입력이 셀 2의 겹 밖 예측과 같아지도록 <code>cv</code>에 <code>skf</code>를 넘깁니다.</p>
+<!--FIG:ml04_stack-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>final_estimator=LogisticRegression(max_iter=1000)</code><span>메타 모형입니다. 주지 않으면 <code>LogisticRegression()</code>(C = 1, L2 규제)이 쓰입니다. 반복 상한만 늘렸습니다.</span></li>
+<li><code>cv=skf, stack_method="predict_proba"</code><span>겹 밖 예측을 <code>skf</code>의 다섯 겹으로 만들고, 기본 모형마다 <code>predict_proba</code>를 부릅니다. 이진 분류에서는 두 열 가운데 입원 확률 한 열만 메타 모형에 넘깁니다(두 열의 합이 1이라 하나는 군더더기).</span></li>
+<li><code>stack.fit(X_train, y_train)</code><span>세 모형 × (다섯 겹 + 전체 한 번) = 18번 맞추고 메타 모형을 한 번 맞춥니다. 숲이 대부분의 시간을 씁니다.</span></li>
+<li><code>stack.final_estimator_</code><span>맞춘 메타 모형입니다. 이름 끝의 밑줄은 <code>fit</code>으로 생긴 속성이라는 표시입니다(<code>estimators_</code>, <code>named_estimators_</code>도 같음).</span></li>
+<li><code>stack.get_params()["forest__model__min_samples_leaf"]</code><span>스태킹 안의 조절값 이름은 '기본 모형 이름__파이프라인 단계 이름__인자 이름'처럼 밑줄 두 개로 이어집니다. 메타 모형은 <code>final_estimator__C</code>입니다. <code>set_params</code>나 <code>GridSearchCV</code>의 격자에 이 이름을 씁니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>계수 3.65, 2.46, 3.84, 절편 −3.83.</b> 로지스틱 회귀, 랜덤 포레스트, XGBoost의 확률에 곱하는 무게입니다. 교차검증 AUC가 가장 낮은 로지스틱 회귀가 XGBoost와 비슷한 무게를 받았습니다. 다른 두 나무 모형과 덜 닮았기 때문입니다(셀 5). 메타 모형은 실력과 다름을 함께 봅니다.</span></li>
+<li><span class="mk">2</span><span><b>셀 2의 겹 밖 예측으로 직접 맞춘 계수와의 차이 0.0.</b> <code>StackingClassifier</code> 안에서 만든 겹 밖 예측이 셀 2의 것과 같다는 뜻입니다.</span></li>
+<li><span class="mk">3</span><span><b>시험 AUC 0.772.</b> 소프트 투표(0.772)와 같고 XGBoost 하나(0.784)보다 낮습니다.</span></li>
+<li><span class="mk">4</span><span><b>85, 1.0, skf.</b> 중첩된 이름으로 꺼낸 숲의 잎 크기, 메타 모형의 C, 겹 밖 예측에 쓴 분할기입니다. 시간은 이 환경에서 40초 안팎이었습니다.</span></li>
+</ol>
+
+<h3>스태킹의 조절값</h3>
+<p>scikit-learn 1.3 이상에서 같은 인자입니다. 기본 모형의 조절값은 그 모형의 장(0–3장)에서 고르고, 여기서는 스태킹 자체와 메타 모형의 인자만 다룹니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>인자</th><th>뜻</th><th>기본값</th><th>바꾸면 (이 자료에서)</th><th>흔한 선택</th><th>우선순위</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="6"><b><code>StackingClassifier</code></b></td></tr>
+<tr><td><code>estimators</code></td><td>기본 모형의 (이름, 모형) 목록. <code>"drop"</code>으로 뺄 수 있음</td><td>(꼭 줘야 함)</td><td>일곱 모형을 다 넣으면 계수가 흩어지고 음수가 늘며 시험 AUC 0.774로 세 모형(0.778)보다 낫지 않음(과제 2)</td><td>서로 다른 집안의 강한 모형 3–5개</td><td>먼저</td></tr>
+<tr><td><code>final_estimator</code></td><td>메타 모형</td><td><code>None</code>(로지스틱 회귀)</td><td>복잡한 메타 모형(나무, 부스팅)은 열 몇 개짜리 입력에 과적합하기 쉬움. 입력을 로그 오즈로 바꾸면 교정이 나아짐(셀 8)</td><td>규제한 로지스틱 회귀</td><td>먼저</td></tr>
+<tr><td><code>cv</code></td><td>겹 밖 예측을 만드는 분할. <code>None</code>은 5겹(분류는 층화, 섞지 않음), 정수, 분할기 객체, <code>"prefit"</code>(이미 맞춘 모형을 그대로 씀. 같은 학습 자료로 맞춘 모형이면 안쪽 예측이 되어 누설)</td><td><code>None</code></td><td>겹을 늘리면 시간이 비례해 늘고 이득은 작음. <code>"prefit"</code>은 시험 AUC 0.690(셀 6)</td><td><code>skf</code>처럼 seed를 정한 분할기</td><td>재현성</td></tr>
+<tr><td><code>stack_method</code></td><td>기본 모형마다 부를 메서드. <code>"auto"</code>는 확률, 결정 함수, 0/1 예측 가운데 있는 것을 이 순서로</td><td><code>"auto"</code></td><td>이진 분류에서 확률은 입원 확률 한 열만 넘김</td><td>확률</td><td>보통 기본값</td></tr>
+<tr><td><code>passthrough</code></td><td>True면 메타 모형이 기본 모형의 예측과 함께 원래 특성도 받음</td><td>False</td><td>원래 특성이 전처리 없이 붙으므로 이 자료(글자 열, 결측)에서는 로지스틱 회귀가 "could not convert string to float" 오류. 쓰려면 스태킹 앞에 전처리를 둠</td><td>False</td><td>다음</td></tr>
+<tr><td><code>n_jobs</code></td><td>기본 모형을 동시에 맞출 작업 수</td><td><code>None</code>(1개)</td><td>빨라지고 결과는 같음</td><td>기본 모형이 이미 병렬이면 None</td><td>계산 설정</td></tr>
+<tr><td><code>verbose</code></td><td>진행 출력의 양</td><td>0</td><td>출력만 늘어남</td><td>0</td><td>계산 설정</td></tr>
+<tr class="grp"><td colspan="6"><b>메타 모형 <code>LogisticRegression</code></b> (스태킹 안에서는 <code>final_estimator__C</code>처럼 부름)</td></tr>
+<tr><td><code>C</code></td><td>규제 세기의 역수. 작을수록 계수를 0 쪽으로 강하게 줄임</td><td>1.0</td><td>확률 입력에서 0.01로 줄이면 계수가 작아져 예측이 평평해지고 로그 손실 0.143 → 0.165, AUC는 그대로(셀 8)</td><td>0.01–100을 로그 간격으로</td><td>다음</td></tr>
+<tr><td>규제의 종류</td><td>L2(기본), L1, 둘의 섞음. scikit-learn 1.7 이하(Colab의 1.6 포함)는 <code>penalty="l1"</code>처럼 쓰고, 1.8부터는 <code>l1_ratio=1</code>처럼 쓰며 <code>penalty</code>는 폐기 예정(1.10에서 삭제). L1이나 섞음은 <code>solver="saga"</code>(L1은 <code>"liblinear"</code>도)와 함께 씀</td><td>L2</td><td>L1은 덜 쓸모 있는 기본 모형의 계수를 0으로 만들 수 있음</td><td>L2</td><td>보통 기본값</td></tr>
+<tr><td><code>class_weight</code></td><td>범주별 가중치</td><td><code>None</code></td><td><code>"balanced"</code>는 순서는 거의 그대로 두고 확률을 위로 밀어 올림(<a href="#ml01-s2">1장 나 절</a>)</td><td><code>None</code></td><td>목적에 따라</td></tr>
+<tr><td><code>max_iter</code></td><td>최적화 반복 상한</td><td>100</td><td>수렴 경고가 나면 늘림</td><td>1000</td><td>계산 설정</td></tr>
+</tbody></table></div>
+
+<h3>튜닝하는 순서와 메타 모형 조절</h3>
+<p>스태킹은 ① 기본 모형을 각자의 장에서 먼저 튜닝하고 ② 그 조절값을 고정한 채 메타 모형만 조절하는 순서로 합니다. 메타 모형의 학습 자료(겹 밖 예측)는 메타 모형의 조절값과 상관없이 정해지므로, 셀 2의 겹 밖 예측을 한 번 만들어 두면 메타 모형의 격자 탐색은 몇 초면 끝납니다. 여기서 두 가지를 함께 봅니다. 하나는 C이고, 다른 하나는 메타 모형에 확률을 그대로 넣을지 로그 오즈로 바꿔 넣을지입니다. 세 기본 모형이 모두 '확률 0.1'이라고 할 때 최종 확률도 0.1 근처여야 자연스러운데, 확률을 그대로 넣은 로지스틱 회귀는 그렇게 맞추기 어렵습니다.</p>
+<!--FIG:ml04_meta-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def to_logit(P):</code><span>확률 배열을 받아 로그 오즈 log(p ÷ (1 − p))를 돌려주는 함수입니다(<a href="stats.html#ch09-s1">통계 9장</a>). 확률이 정확히 0이나 1이면 무한대가 되므로 <code>np.clip</code>으로 10<sup>−6</sup>과 1 − 10<sup>−6</sup> 사이로 먼저 자릅니다.</span></li>
+<li><code>Pipeline([("input", "passthrough"), ("lr", LogisticRegression(max_iter=1000))])</code><span>입력을 바꾸는 단계와 로지스틱 회귀 두 단계의 파이프라인입니다. <code>"passthrough"</code>는 아무것도 하지 않고 넘기는 자리 표시입니다.</span></li>
+<li><code>"input": ["passthrough", FunctionTransformer(to_logit)]</code><span>격자에 단계 이름을 열쇠로 주면 그 단계 자체를 바꿔 가며 시험합니다. <code>FunctionTransformer</code>는 보통 함수를 파이프라인의 한 단계로 만들어 줍니다. 조절값은 <code>lr__C</code>처럼 '단계 이름__인자 이름'입니다.</span></li>
+<li><code>scoring={"AUC": "roc_auc", "log loss": "neg_log_loss"}, refit="log loss"</code><span>두 지표를 함께 재고, 마지막에 다시 맞출 조합은 로그 손실로 고릅니다(<a href="#ml01-s4">1장 라 절</a>). 메타 모형은 순서보다 확률의 크기를 맞추는 일이 중요해서 로그 손실을 기준으로 했습니다. 사이킷런은 클수록 좋은 점수를 쓰므로 로그 손실에 음수를 붙인 값을 돌려주고, 표에서는 다시 부호를 바꿨습니다.</span></li>
+<li><code>gs_meta.fit(oof[three], y_train)</code><span>입력은 세 모형의 겹 밖 예측(11,250행 × 3열)입니다. 10가지 조합 × 5겹 = 50번 맞추는 데 몇 초 걸립니다.</span></li>
+<li><code>pd.DataFrame([[v] * 3 for v in [0.02, …]], columns=three)</code><span>세 모형이 모두 같은 확률을 낸 가상의 다섯 사람입니다. <code>meta.predict_proba(same_p.to_numpy())</code>는 셀 7의 메타 모형이 열 이름 없는 배열로 학습되었기 때문에 배열로 넘긴 것입니다.</span></li>
+<li><code>res.pivot_table(index="param_lr__C", columns="input", values=["AUC", "log loss"])</code><span>긴 결과 표를 C가 행, 입력 방식이 열인 표로 접습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>고른 조합은 로그 오즈 입력, C = 10.</b> 계수는 로지스틱 회귀 0.20, 랜덤 포레스트 −0.49, XGBoost 1.24, 절편 −0.14입니다. 로그 오즈 단위라 'XGBoost의 로그 오즈를 1.24배 하고, 로지스틱 회귀를 0.2배 더하고, 숲을 0.49배 뺀다'로 읽습니다.</span></li>
+<li><span class="mk">2</span><span><b>확률을 그대로 넣은 메타 모형은 세 모형이 모두 0.10이라고 해도 0.056을 냅니다.</b> 0.02는 0.026으로, 0.4는 0.539로 올리고 그 사이(0.05–0.2)는 크게 낮춥니다. 확률에 계수를 곱해 더한 뒤 로지스틱 곡선을 씌우는 꼴이라, 세 모형이 같은 말을 해도 그 확률을 그대로 내기 어렵습니다.</span></li>
+<li><span class="mk">3</span><span><b>로그 오즈 입력은 0.097.</b> 0.02 → 0.021, 0.4 → 0.371로 입력과 거의 같은 확률을 냅니다. 라 절의 교정 그림에서 이 차이가 다시 보입니다.</span></li>
+<li><span class="mk">4</span><span><b>확률 입력에 C = 0.01이면 로그 손실 0.1653.</b> 강한 규제가 계수를 줄여 모든 사람의 예측이 평균 쪽으로 몰립니다. AUC는 0.768로 다른 C와 같습니다. 순서는 계수의 비율로만 정해지기 때문입니다. 로그 오즈 입력은 C = 0.1–100에서 AUC 0.774–0.775, 로그 손실 0.1398–0.1400으로 거의 평평한 고원입니다. 메타 모형의 C는 크게 신경 쓰지 않아도 되고, 입력의 척도가 더 중요했습니다.</span></li>
+</ol>
+<p>이 탐색은 <code>GridSearchCV(stack, {"final_estimator__C": […]})</code>처럼 스태킹 전체에 걸 수도 있습니다. 그러면 조합과 겹마다 기본 모형까지 처음부터 다시 맞춥니다. 이 쪽에서는 실제로 돌리지 않았고, 아래 셀에서 잰 바깥 교차검증 시간으로 어림하면(셀 9 출력의 마지막 줄) 이 환경에서 25분쯤 걸립니다. 메타 모형만 조절할 때는 위처럼 겹 밖 예측 위에서 하는 편이 같은 일을 몇 초에 합니다. 다만 엄밀히는 메타 모형의 C를 고른 겹 밖 예측이 아래 바깥 교차검증의 검증 겹 사람들도 포함하므로, 아래의 바깥 교차검증 점수는 아주 조금 낙관적일 수 있습니다(고른 것이 10가지 가운데 하나이고 점수가 평평해 크기는 작습니다). 기본 모형의 조절값까지 다시 찾아야 한다면 <a href="#ml02-s4">2장 라 절</a>과 <a href="#ml03-s5">3장 마 절</a>의 Optuna를 기본 모형마다 따로 돌리고, 스태킹에서는 그 결과를 고정합니다.</p>
+
+<h3>스태킹의 교차검증은 겹 속의 겹</h3>
+<p>고른 메타 모형으로 바꾼 스태킹을 바깥 교차검증으로 평가합니다. 스태킹의 <code>cv</code>는 메타 모형의 학습 자료를 만드는 분할일 뿐 성능 평가가 아닙니다. 스태킹의 성능은 스태킹 전체를 다른 모형과 같은 다섯 겹(<code>skf</code>)에 넣어 잽니다. 바깥 겹마다 그 겹의 학습 부분(9,000명)을 다시 안쪽 다섯 겹으로 나눠 겹 밖 예측을 만드므로, 맞추는 횟수가 곱으로 늘어납니다.</p>
+<!--FIG:ml04_stack_lo-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>clone(stack).set_params(final_estimator=gs_meta.best_estimator_)</code><span><code>clone</code>은 같은 설정의 맞추지 않은 복사본을 만듭니다. <code>set_params</code>로 메타 모형 자리만 셀 8이 고른 파이프라인으로 바꿉니다. <code>fit</code>할 때 메타 모형도 복사해 새로 맞추므로 이미 맞춘 것을 넘겨도 됩니다.</span></li>
+<li><code>cross_val_score(stack_lo, X_train, y_train, cv=skf, scoring="roc_auc")</code><span>바깥 다섯 겹마다 스태킹 전체(안쪽 다섯 겹의 겹 밖 예측 + 메타 모형 + 기본 모형 다시 맞추기)를 학습 부분으로 맞추고 검증 겹에서 AUC를 잽니다.</span></li>
+<li><code>stack_lo.final_estimator_["lr"].coef_[0]</code><span>메타 모형이 파이프라인이므로 단계 이름 <code>"lr"</code>로 로지스틱 회귀를 꺼내 계수를 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>맞추는 횟수.</b> 스태킹 한 번이 3 × (5 + 1) = 18번이고, 바깥 다섯 겹이면 그 다섯 배인 90번입니다. 이 환경에서 바깥 교차검증에 2분 30초 안팎, 한 번 맞추기에 40초 안팎이 걸렸습니다. XGBoost 하나는 같은 교차검증과 전체 학습에 몇 초면 됩니다(셀 2).</span></li>
+<li><span class="mk">2</span><span><b>바깥 교차검증 AUC 0.7773.</b> XGBoost 하나(0.7761)보다 0.0013 높습니다. 확률 입력의 스태킹을 겹 밖 예측 위에서 잰 값(셀 8의 0.7685)보다 높습니다.</span></li>
+<li><span class="mk">3</span><span><b>시험 AUC 0.778.</b> XGBoost 하나(0.784)보다 낮습니다. 교차검증으로는 조금 높고 시험 자료로는 조금 낮아서, 어느 쪽이 낫다고 말하기 어려운 크기입니다(다 절).</span></li>
+<li><span class="mk">4</span><span><b>랜덤 포레스트의 계수 −0.49.</b> 그림의 막대처럼 숲은 음수입니다. 숲과 XGBoost는 매우 닮아서(셀 5의 순위 상관 0.91), 메타 모형이 XGBoost에 1보다 큰 무게를 주고 숲으로 그 일부를 빼는 식으로 둘의 차이를 이용한 것입니다. 숲이 해로운 모형이라는 뜻이 아니며, 닮은 입력끼리는 계수가 서로 크게 흔들립니다.</span></li>
+</ol>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">StackingClassifier의 <code>cv=5</code>가 교차검증이므로 그 결과가 스태킹의 성능이다.</span> 스태킹 안의 <code>cv</code>는 메타 모형의 학습 자료를 만드는 데만 쓰입니다. 스태킹의 성능은 셀 9처럼 스태킹 전체를 바깥 교차검증에 넣거나 시험 자료로 잽니다. 메타 모형의 계수를 맞춘 바로 그 겹 밖 예측에서 잰 점수는 낙관적입니다.</li>
+<li><span class="wrong">메타 모형의 계수가 음수인 기본 모형은 빼야 한다.</span> 기본 모형의 예측은 서로 강하게 상관되어 있어서 계수의 부호와 크기는 함께 들어간 다른 모형에 따라 바뀝니다. 셀 7(확률 입력)에서 숲의 계수는 2.46이었고 셀 9(로그 오즈 입력)에서는 −0.49였습니다. 빼고 넣는 판단은 계수가 아니라 바깥 교차검증 점수로 합니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>스태킹의 메타 모형은 겹 밖 예측으로 배웁니다. 안쪽 예측으로 배우면 학습 자료를 외운 모형에 무게가 몰려(XGBoost 기본값 계수 14.70) 시험 AUC가 0.777에서 0.690으로 떨어졌습니다.</li>
+<li><code>StackingClassifier(estimators, final_estimator, cv=skf)</code>는 겹 밖 예측, 메타 모형, 기본 모형 다시 맞추기를 한 번에 합니다. 조절값 이름은 <code>forest__model__min_samples_leaf</code>, <code>final_estimator__C</code>처럼 밑줄 두 개로 잇습니다.</li>
+<li>기본 모형은 각자의 장에서 먼저 튜닝하고, 메타 모형은 겹 밖 예측 위에서 작은 격자로 조절합니다. 이 자료에서는 C보다 입력의 척도(로그 오즈)가 중요했고, 고친 스태킹의 바깥 교차검증 AUC는 0.7773으로 XGBoost 하나(0.7761)와 비슷했습니다. 바깥 교차검증은 90번을 맞춰야 해서 시간이 많이 듭니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="ml04-s3">
+<h2><span class="sec-no">다.</span>모형을 공정하게 비교하기</h2>
+
+<h3>쉽게 말하면</h3>
+<p>두 약의 효과를 비교할 때 같은 환자에게 두 약을 모두 써 보는 교차 설계가 있으면, 환자마다 다른 체질의 영향이 빠져 적은 인원으로도 차이가 잘 보입니다(<a href="stats.html#ch03-s1">통계 3장 가 절</a>의 대응표본 t 검정). 모형 비교도 같습니다. 어떤 겹은 예측하기 쉬운 사람들이 모여 모든 모형의 점수가 높고, 어떤 겹은 모두 낮습니다. 두 모형을 같은 겹에서 재고 겹마다 차이를 보면 이 겹의 운이 빠집니다. 이 절에서는 공정한 비교에 필요한 여섯 가지를 차례로 봅니다.</p>
+<div class="flow">
+<div><div><b>같은 겹</b><p>모든 모형에 같은 분할기 객체를 씁니다(셀 10).</p></div></div>
+<div><div><b>짝지은 차이</b><p>겹마다 AUC 차이를 구해 그 평균과 흔들림을 봅니다(셀 11).</p></div></div>
+<div><div><b>반복과 보정한 t 검정</b><p>겹 사이 점수가 독립이 아니라는 점을 감안합니다(셀 12).</p></div></div>
+<div><div><b>중첩 교차검증</b><p>조절값을 고른 점수와 성능을 잰 점수를 떼어 놓습니다(셀 13).</p></div></div>
+<div><div><b>1등 고르기의 낙관</b><p>여럿 가운데 가장 높은 점수는 부풀려져 있습니다(셀 14).</p></div></div>
+<div><div><b>시험 자료의 짝지은 차이</b><p>같은 부트스트랩 표본과 DeLong 검정으로 차이의 신뢰구간을 냅니다(셀 15).</p></div></div>
+</div>
+
+<h3>같은 겹을 써야 하는 이유</h3>
+<p>겹을 나누는 seed만 0–9로 바꿔 로지스틱 회귀와 XGBoost의 5겹 교차검증 AUC를 열 번 구합니다. 모형과 자료는 그대로입니다.</p>
+<!--FIG:ml04_seeds-->
+<p><code>StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)</code>는 seed마다 다른 다섯 겹을 만들고, 같은 seed의 분할기를 두 모형에 똑같이 넘겼습니다. 표처럼 로지스틱 회귀의 교차검증 AUC는 겹 나누기만으로 0.7397–0.7475, XGBoost는 0.7643–0.7756을 오갑니다. 두 모형을 서로 다른 분할에서 쟀다면 <span class="mk">1</span> 그 차이가 0.017에서 0.036까지 나올 수 있었습니다. 같은 겹에서 잰 차이(XGBoost − 로지스틱)는 0.0215–0.0316으로 좁고, 열 번의 SD는 <span class="mk">2</span> 0.0033입니다. 한 논문 안에서 어떤 모형은 이 분할, 다른 모형은 저 분할로 교차검증하면 모형의 차이에 분할의 운이 섞입니다. 그래서 이 과목은 0장부터 모든 모형에 같은 <code>skf</code> 객체를 넘겼습니다. 정수(<code>cv=5</code>)만 넘기면 섞지 않는 분할(<code>shuffle=False</code>)이 쓰여 모형끼리는 같은 겹이 되지만, 자료의 행 순서에 따라 겹이 정해진다는 점을 알고 씁니다.</p>
+
+<h3>짝지은 비교</h3>
+<p>다섯 겹 각각의 AUC를 모형마다 선으로 이어 봅니다. 소프트 투표는 셀 4, 스태킹은 셀 9의 바깥 교차검증 값입니다.</p>
+<!--FIG:ml04_folds-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ax.plot(show, fold_auc.loc[i, show], marker="o")</code><span>가로축에 모형 이름(글자)을 그대로 주면 matplotlib가 이름마다 한 칸씩 늘어놓습니다. 겹 하나가 선 하나입니다.</span></li>
+<li><code>fold_auc[show].sub(fold_auc["xgb"], axis=0)</code><span>각 열에서 XGBoost 열을 행끼리(같은 겹끼리) 뺍니다. 결과는 겹마다 'XGBoost와의 차이'입니다.</span></li>
+<li><code>(diff &lt; 0).sum()</code><span>차이가 음수인, 곧 XGBoost가 더 높았던 겹의 수입니다.</span></li>
+</ol>
+<p>그림에서 다섯 선은 대체로 나란히 움직입니다. 2겹은 모든 모형이 0.78–0.80으로 높고, 1겹과 4겹은 모두 낮습니다. 표의 첫 열(겹 사이 SD)과 셋째 열(차이의 SD)을 견주면, 로지스틱 회귀의 AUC는 겹 사이 SD가 <span class="mk">1</span> 0.022인데 XGBoost와의 차이는 SD가 0.011로 절반입니다. 소프트 투표는 0.019 대 <span class="mk">2</span> 0.004로 훨씬 더 줄어, 평균 차이 −0.008이 작아도 다섯 겹 모두에서 XGBoost가 높았습니다. 스태킹은 <span class="mk">3</span> 평균 +0.0013, 다섯 겹 가운데 두 겹에서만 XGBoost가 높아 어느 쪽이라고 하기 어렵습니다. 같은 겹에서 짝지어 보는 것만으로 비교가 훨씬 날카로워집니다.</p>
+
+<h3>겹을 반복하고 t 검정을 보정하기</h3>
+<p>다섯 겹의 차이 다섯 개로는 평균도 흔들립니다. 겹 나누기를 seed만 바꿔 여러 번 되풀이하는 <strong>반복 교차검증</strong><span class="en">(repeated cross-validation)</span>을 쓰면 점수가 25개, 50개로 늘어납니다. 그런데 이 점수들로 보통의 짝지은 t 검정을 하면 p 값이 지나치게 작게 나옵니다. 5겹에서 두 회차의 학습 부분은 사람의 4분의 3이 같고, 반복마다 같은 사람들이 다시 쓰이므로 점수끼리 독립이 아니기 때문입니다. Nadeau와 Bengio는 이 상관을 감안해 분산을 키우는 보정을 제안했습니다<cite data-ref="nadeau2003"></cite>.</p>
+<!--FIG:ml04_repeat-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=2026)</code><span>층화 5겹을 섞는 방법만 바꿔 다섯 번 되풀이하는 분할기입니다. 모두 25번의 (학습, 검증) 짝을 내놓습니다. 네 모형에 같은 객체를 넘겨 같은 25겹을 씁니다.</span></li>
+<li><code>def paired_t(d, corrected=True, ratio=1 / 4):</code><span>겹마다의 차이 <code>d</code>를 받아 t와 양측 p를 글자로 돌려주는 함수입니다. <code>corrected=False</code>면 보통의 짝지은 t(분산 ÷ 겹 수), True면 Nadeau–Bengio 보정입니다. <code>ratio</code>는 검증 겹 크기 ÷ 학습 겹 크기로, 5겹이면 1/4입니다.</span></li>
+<li><code>stats.t.sf(abs(t), J - 1)</code><span>자유도 J − 1인 t 분포에서 |t|보다 클 확률(한쪽 꼬리)입니다. 2를 곱해 양측 p를 냅니다(<a href="stats.html#ch01-s5">통계 1장 마 절</a>).</span></li>
+<li><code>rep.plot.box()</code><span>열(모형)마다 25개 점수의 상자 그림을 그립니다. 상자는 사분위 범위, 가운데 선은 중앙값입니다(<a href="stats.html#ch01-s8">통계 1장 아 절</a>).</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>XGBoost − 로지스틱 회귀, 보통의 t 8.81(p = 5.5 × 10<sup>−9</sup>).</b> 25개 차이의 평균 0.027, SD 0.015입니다.</span></li>
+<li><span class="mk">2</span><span><b>보정하면 t 3.27(p = 0.0032).</b> t가 2.7배 작아졌지만 여전히 차이가 있다고 볼 만합니다.</span></li>
+<li><span class="mk">3</span><span><b>XGBoost − 히스토그램 부스팅, 보통의 t 3.44(p = 0.0022).</b> 차이는 평균 0.006입니다. 보통의 t 검정만 보면 '유의하게 낫다'고 쓰게 됩니다.</span></li>
+<li><span class="mk">4</span><span><b>보정하면 t 1.28(p = 0.21).</b> 0.006의 차이는 겹 나누기의 우연으로 충분히 설명됩니다. 상자 그림에서도 두 부스팅의 상자가 거의 겹칩니다.</span></li>
+</ol>
+<!--FOLD:Nadeau–Bengio 보정의 식-->
+<p>겹(또는 반복한 겹) J개에서 두 모형 점수의 차이 d<sub>1</sub>, …, d<sub>J</sub>를 얻었고 그 평균이 d̄, 표본 분산이 s²라고 합시다. 보통의 짝지은 t는 d̄ ÷ √(s²/J)입니다. 보정한 t는 다음과 같습니다.</p>
+<div class="eq">\[ t = \frac{\bar d}{\sqrt{\left(\dfrac{1}{J} + \dfrac{n_{\text{test}}}{n_{\text{train}}}\right) s^2}} \]<p>n<sub>test</sub>/n<sub>train</sub>은 검증 겹과 학습 겹의 크기 비(5겹이면 2,250 ÷ 9,000 = 1/4)이고, 자유도 J − 1의 t 분포로 p를 구합니다. J = 25이면 괄호 안이 1/25 = 0.04에서 0.04 + 0.25 = 0.29로 7배가 되어 t가 √7.25 ≈ 2.7배 작아집니다. J를 아무리 늘려도 1/4 항은 남으므로, 반복을 늘려 p를 작게 만들 수는 없습니다. 이 보정은 Nadeau와 Bengio가 제안한 근사이고 반복 교차검증에 맞춰 쓰는 방식(corrected repeated k-fold cv test)이 널리 쓰이지만, 정확한 분산을 구한 것은 아니므로 p 값은 대략의 근거로 봅니다.</p>
+<!--/FOLD-->
+
+<h3>조절값을 고른 점수는 낙관적이다</h3>
+<p><a href="#ml00-s4">0장 라 절</a>에서 교차검증으로 고른 조합의 교차검증 점수는 조금 낙관적이라고 했습니다. 여러 조합 가운데 운 좋게 높게 나온 것을 고른 점수이기 때문입니다. <strong>중첩 교차검증</strong><span class="en">(nested cross-validation)</span>은 바깥 겹마다 그 학습 부분 안에서만 격자 탐색을 다시 하고, 고른 조합을 바깥 검증 겹에서 잽니다<cite data-ref="varma2006"></cite><cite data-ref="cawley2010"></cite>. 바깥 검증 겹은 조절값을 고르는 데 한 번도 쓰이지 않으므로 '고르는 과정까지 포함한 방법'의 성능을 잽니다. 시간이 많이 들어 XGBoost 하나와 작은 격자(깊이 1–3 × 학습률 0.03, 0.1, 0.3, 나무 200그루)로 해 봅니다.</p>
+<!--FIG:ml04_nested-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>usual = GridSearchCV(xgb200, grid_x, cv=skf, …)</code><span>보통의 방법입니다. 학습 자료 전체에서 9개 조합을 5겹으로 재고(45번 맞춤, 고른 조합 다시 맞추기 1번) 가장 높은 <code>best_score_</code>를 봅니다.</span></li>
+<li><code>inner = StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)</code><span>안쪽 탐색용 분할기입니다. <code>skf</code>와 설정은 같지만, 바깥 겹의 학습 부분(9,000명)을 나누므로 실제로 나뉘는 사람들은 다릅니다.</span></li>
+<li><code>cross_validate(GridSearchCV(…, cv=inner), X_train, y_train, cv=skf, return_estimator=True)</code><span><code>GridSearchCV</code> 자체를 하나의 모형처럼 바깥 교차검증에 넣습니다. 바깥 겹마다 안쪽 격자 탐색(9 × 5 = 45번)과 고른 조합 다시 맞추기(1번)를 하므로 모두 5 × 46 = 230번 맞춥니다. <code>return_estimator=True</code>면 바깥 겹마다 맞춘 <code>GridSearchCV</code>를 돌려주어 무엇을 골랐는지 볼 수 있습니다. <code>cross_validate</code>는 <a href="#ml01-s2">1장 나 절</a>에서 썼습니다.</span></li>
+</ol>
+<p>출력처럼 보통의 방법은 학습률 0.03, 깊이 2를 고르고 그 교차검증 AUC가 <span class="mk">1</span> 0.7717입니다. 중첩 교차검증에서는 바깥 겹마다 깊이 1이나 2를 골랐고, 안쪽의 최고 점수(0.763–0.775)와 바깥 검증 겹의 점수(0.745–0.792)가 겹마다 다릅니다. 바깥 점수의 평균 <span class="mk">2</span> 0.7700이 이 탐색 방법의 덜 낙관적인 성능이고, 보통의 방법보다 0.0017 낮습니다. 조합이 9개뿐이고 점수가 고원이라 낙관의 크기는 작았습니다. 3장 마 절처럼 조절값 8개를 60번 탐색하면 고를 기회가 많아 낙관도 커질 수 있습니다. 시험 자료가 따로 있으면 그것이 이 역할을 하고, 자료가 작아 시험 자료를 떼기 어려울 때 중첩 교차검증이 특히 필요합니다.</p>
+
+<h3>1등을 고르는 일 자체가 낙관적이다</h3>
+<p>여러 모형 가운데 점수가 가장 높은 것을 고르면, 그 점수에는 실력과 함께 운도 들어 있습니다. 실력이 똑같은 모형 20개를 만들어 확인합니다. 3장의 XGBoost 조합에서 <code>random_state</code>만 0–19로 바꾸면 <code>subsample</code>과 <code>colsample_bytree</code>가 뽑는 사람과 특성만 달라지고 실력은 같습니다.</p>
+<!--FIG:ml04_winner-->
+<p><code>{**best_xgb, "random_state": seed}</code>는 <code>best_xgb</code>의 모든 짝에 <code>random_state</code> 하나를 더한(있으면 바꾼) 새 사전을 만드는 문법입니다. 출력처럼 스무 개의 교차검증 AUC는 0.770–0.776이고, 그 가운데 1등인 <span class="mk">1</span> seed 5(0.7763)의 시험 AUC는 <span class="mk">2</span> 스무 개 가운데 10위로 딱 중간입니다. 교차검증 1등의 이점은 시험 자료에서 사라졌습니다. 스무 개의 평균은 <span class="mk">3</span> 교차검증 0.7733, 시험 0.7857입니다. 3장에서 보고한 <span class="mk">4</span> 0.7761은 seed 2026에서 60번 탐색해 고른 1등의 점수라서, 같은 조합의 평균적인 교차검증 성능(0.7733)보다 0.003쯤 높습니다. 나 절과 이 절에서 '스태킹 0.7773 대 XGBoost 0.7761'처럼 1등끼리 견주는 비교도 같은 이유로 조금씩 부풀어 있습니다. 비교한 모형과 조합이 많을수록 1등의 점수는 더 부풀므로 무엇을 몇 개나 견주었는지 함께 적습니다<cite data-ref="cawley2010"></cite>.</p>
+
+<h3>시험 자료에서 두 모형의 차이</h3>
+<p>마지막으로 시험 자료입니다. 두 모형의 신뢰구간이 겹치는지만 보면 안 되고, 같은 사람들에게 두 모형이 낸 예측으로 <b>차이</b>의 신뢰구간을 구합니다. <code>boot_auc</code>는 seed가 정해져 있어 어떤 모형에 쓰든 같은 1,000벌의 복원추출 표본을 뽑으므로, 벌마다 두 AUC를 빼면 짝지은 부트스트랩이 됩니다(<a href="#ml01-s5">1장 마 절</a>, <a href="#ml03-s6">3장 바 절</a>). 함께 <strong>DeLong 검정</strong><span class="en">(DeLong test)</span>을 구합니다<cite data-ref="delong1988"></cite>. 같은 사람들로 구한 두 AUC의 차이에 표준오차를 붙이는 공식이고, 부트스트랩 없이 바로 계산되어 논문에서 'P for comparison of AUCs'로 흔히 보입니다.</p>
+<!--FIG:ml04_boot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>boots = {nm: boot_auc(y_test, test_p[nm]) for nm in test_p}</code><span>모형마다 같은 1,000벌에서 구한 AUC 1,000개입니다. <code>boots["stack"] - boots["xgb"]</code>가 짝지은 차이 1,000개입니다.</span></li>
+<li><code>def delong(y, p1, p2):</code><span>실제 결과와 두 모형의 확률을 받아 AUC 차이, 그 표준오차, 양측 p를 돌려주는 함수입니다.</span></li>
+<li><code>win = (pos[:, None] &gt; neg) + 0.5 * (pos[:, None] == neg)</code><span>입원한 153명(행) × 입원하지 않은 3,597명(열)의 모든 짝에서, 입원한 사람의 확률이 더 크면 1, 같으면 0.5, 작으면 0인 표입니다. 이 표 전체의 평균이 AUC입니다(<a href="#ml00-s5">0장 마 절</a>).</span></li>
+<li><code>win.mean(axis=1)</code>, <code>win.mean(axis=0)</code><span>행 평균은 입원한 사람마다 '자기보다 확률이 낮은 비입원자의 비율', 열 평균은 비입원자마다 '자기보다 확률이 높은 입원자의 비율'입니다. DeLong은 이 사람별 몫의 흔들림으로 AUC의 분산을 구합니다.</span></li>
+<li><code>np.var(v1 - v2, ddof=1) / len(v1) + np.var(w1 - w2, ddof=1) / len(w1)</code><span>두 모형의 사람별 몫의 차이에서 분산을 구해 더한 것이 AUC 차이의 분산입니다. 같은 사람의 몫을 빼므로 두 AUC 사이의 상관이 저절로 들어갑니다.</span></li>
+<li><code>stats.norm.sf(abs(d) / se)</code><span>표준정규분포에서 |차이 ÷ 표준오차|보다 클 확률입니다. 2를 곱해 양측 p입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>스태킹 − XGBoost −0.006(−0.019 to 0.005), DeLong p = 0.322.</b> 시험 자료에서 스태킹이 조금 낮지만 구간이 0을 포함합니다. 교차검증에서는 반대로 +0.0013이었으니 두 모형은 구별되지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>소프트 투표 − XGBoost −0.012(−0.021 to −0.003), p = 0.010.</b> 구간이 0을 포함하지 않고, 교차검증에서도 다섯 겹 모두 XGBoost가 높았습니다(셀 11). 가장 강한 모형에 약한 모형을 같은 무게로 섞은 손해가 두 자료에서 같은 방향으로 나타났습니다. 랜덤 포레스트 − XGBoost(−0.015, −0.028 to −0.002)도 비슷합니다.</span></li>
+<li><span class="mk">3</span><span><b>로지스틱 회귀 − XGBoost −0.042(−0.066 to −0.019), p = 0.001.</b> 3장 바 절의 구간(0.019 to 0.066)과 같습니다. 히스토그램 부스팅과 배깅은 차이가 0.002 안쪽이고 구간이 ±0.02에 걸쳐 있습니다.</span></li>
+</ol>
+<p>부트스트랩 표준오차와 DeLong 표준오차는 모든 짝에서 0.001 안쪽으로 같았습니다. 이 시험 자료에서 AUC 차이의 표준오차는 짝에 따라 0.005–0.013이므로, 95% 신뢰구간의 반폭이 0.01–0.025입니다. 그보다 작은 차이는 입원 153명으로 가를 수 없습니다. 또 표의 여섯 비교를 한꺼번에 했으므로, 여러 번 검정할 때의 보정(<a href="stats.html#ch01-s3">통계 1장 다 절</a>)을 적용하면 기준이 엄격해집니다. 본페로니로 0.05 ÷ 6 = 0.0083을 쓰면 로지스틱 회귀와의 차이(p = 0.001)만 남습니다.</p>
+<div class="callout note"><p class="ct">참고 · DeLong 검정을 쓸 때</p>
+<p>DeLong 검정은 같은 사람들에게 두 모형이 낸 예측으로 두 AUC를 비교할 때 씁니다(짝지은 자료). 서로 다른 사람들에서 구한 두 AUC에는 맞지 않습니다. 계산이 빠르고 부트스트랩처럼 난수에 따라 끝자리가 바뀌지 않으며, 이 자료에서는 부트스트랩과 거의 같은 답을 냈습니다. 표준오차가 정규분포 근사에 기대므로 사건이 아주 적거나 AUC가 1에 가까우면 부트스트랩을 함께 봅니다. 모형을 학습한 자료에서는 쓰지 않고, 시험 자료처럼 모형을 만드는 데 쓰지 않은 사람들에서 씁니다. 이 함수는 위의 공식을 그대로 옮긴 것이고, 같은 공식을 빠르게 계산하는 방법이나 패키지도 있습니다.</p></div>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">두 모형의 95% 신뢰구간이 겹치므로 성능 차이가 없다.</span> 소프트 투표(0.725–0.814)와 XGBoost(0.738–0.825)의 구간은 크게 겹치지만, 같은 사람들에서 짝지어 구한 차이의 구간(−0.021 to −0.003)은 0을 포함하지 않았습니다. 두 AUC는 같은 환자들에서 나와 강하게 상관되므로 차이는 짝지은 방법으로 봅니다. 반대로 구간이 겹치지 않는다고 해서 '이 모형이 늘 낫다'는 뜻도 아닙니다.</li>
+<li><span class="wrong">반복 교차검증으로 점수를 50개 모아 t 검정하면 p가 작으니 확실한 차이다.</span> 같은 사람들을 되풀이해 쓴 점수끼리는 독립이 아니어서 보통의 t 검정은 p를 지나치게 작게 냅니다. 셀 12에서 두 부스팅의 차이는 보통의 t로 p = 0.0022, 보정하면 0.21이었습니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>모든 모형에 같은 분할기 객체를 쓰고, 겹마다 차이를 구해 짝지어 비교합니다. 로지스틱 회귀와 XGBoost의 차이는 겹 사이 SD가 0.022에서 0.011로 줄었고, 소프트 투표는 다섯 겹 모두 XGBoost보다 낮았습니다.</li>
+<li>겹 점수는 독립이 아니므로 반복 교차검증의 t 검정은 Nadeau–Bengio 보정을 씁니다. 조절값을 고른 점수와 여럿 가운데 1등의 점수는 낙관적이므로 중첩 교차검증이나 따로 떼어 둔 시험 자료로 성능을 잽니다(이 자료에서 0.0017–0.003).</li>
+<li>시험 자료의 비교는 같은 부트스트랩 표본의 차이나 DeLong 검정으로 합니다. 입원 153명에서 AUC 차이의 95% 구간 반폭은 0.01–0.025였고, 스태킹, 히스토그램 부스팅, 배깅과 XGBoost의 차이는 그 안에 있었습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="ml04-s4">
+<h2><span class="sec-no">라.</span>최종 모형 고르기와 보고</h2>
+
+<h3>모형 비교 표</h3>
+<p>지금까지의 결과를 한 표와 한 그림으로 모읍니다. 교차검증 AUC의 평균과 SD, 시험 AUC와 부트스트랩 95% 신뢰구간, 시험 자료의 로그 손실과 Brier 점수, 교차검증과 전체 학습에 걸린 시간입니다.</p>
+<!--FIG:ml04_table-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>secs["soft vote"] = sum(secs[nm] for nm in three)</code><span>소프트 투표는 세 모형의 겹 밖 예측과 전체 학습을 그대로 쓰므로 세 모형의 시간을 더했습니다. 스태킹은 셀 9의 바깥 교차검증과 한 번 맞추기의 합입니다.</span></li>
+<li><code>brier_score_loss(y_test, p)</code><span><strong>Brier 점수</strong><span class="en">(Brier score)</span>, 곧 예측 확률과 실제 결과(0/1)의 차이를 제곱해 평균한 값입니다(<a href="stats.html#ch09-s1">통계 9장</a>). 작을수록 좋고, 순서와 확률의 크기를 함께 봅니다.</span></li>
+<li><code>roc_curve(y_test, p)</code><span>ROC 곡선의 점들입니다(<a href="#ml00-s5">0장 마 절</a>). 아홉 모형을 한 그림에 겹쳐 그렸습니다.</span></li>
+</ol>
+<p>교차검증 AUC는 <span class="mk">1</span> 스태킹 0.7773, XGBoost 0.7761, 히스토그램 부스팅 0.7679, 소프트 투표 0.7677의 순서이고, 시험 AUC는 XGBoost 0.7843, <span class="mk">2</span> 배깅 0.7837, 히스토그램 부스팅 0.7828이 위쪽입니다. 두 자료의 순서가 다르고 위쪽 모형들의 시험 신뢰구간(0.73–0.82 안팎)이 거의 같습니다. ROC 곡선도 XGBoost 기본값을 빼면 서로 얽혀 있습니다. 로그 손실과 Brier 점수는 히스토그램 부스팅(0.1384, 0.0331), 스태킹(0.1391, 0.0332), XGBoost(0.1387, 0.0334)가 가장 작고, XGBoost 기본값(0.1696, 0.0360)이 가장 큽니다. 걸린 시간은 XGBoost가 몇 초, 스태킹이 3분 남짓입니다.</p>
+
+<h3>성능이 비슷하면 단순한 모형을</h3>
+<p>교차검증 점수가 가장 높은 모형을 그대로 고를 수도 있지만, 다 절에서 보았듯 1등의 점수에는 운이 섞여 있습니다. 흔히 쓰는 기준이 <strong>한 표준오차 규칙</strong><span class="en">(one-standard-error rule)</span>입니다<cite data-ref="breiman1984"></cite>. ① 교차검증 점수가 가장 높은 모형을 찾고 ② 그 점수의 표준오차(겹 사이 SD ÷ √겹 수)를 구해 ③ 1등 점수에서 표준오차 하나를 뺀 값 이상인 모형들을 '1등과 구별되지 않는 모형'으로 보고 ④ 그 가운데 가장 단순한 것을 고릅니다.</p>
+<!--FIG:ml04_onese-->
+<p>출력 <span class="mk">1</span>처럼 1등은 스태킹(0.7773)이고 표준오차는 0.0068이라 기준은 0.7705입니다. 이 표준오차는 겹 다섯 개의 SD를 n − 1로 나눠(<code>ddof=1</code>) 구한 뒤 √5로 나눈 값이라, 표의 CV SD(n으로 나눈 값, 스태킹 0.0136)로 계산한 것보다 조금 큽니다. 이 안에 드는 모형은 스태킹과 XGBoost 둘입니다. 둘 가운데 단순한 쪽은 XGBoost입니다. 이 장의 최종 모형은 3장에서 고른 XGBoost(깊이 1, 200그루) 그대로입니다. 판단의 근거는 모두 학습 자료(교차검증)와 모형의 성질에서 왔습니다.</p>
+<ul>
+<li><b>성능.</b> 교차검증 차이 +0.0013(스태킹 쪽)은 표준오차의 5분의 1이고 다섯 겹 가운데 세 겹에서만 스태킹이 높았습니다.</li>
+<li><b>단순함과 설명.</b> 깊이 1의 XGBoost는 특성마다의 곡선을 더한 모형이라 3장 바 절처럼 SHAP 값과 부분 의존 그림으로 바로 설명됩니다. 스태킹은 세 모형과 메타 모형을 함께 설명해야 하고, 메타 계수에는 음수도 있습니다.</li>
+<li><b>비용과 관리.</b> 스태킹은 학습에 수십 배의 시간이 들고, 저장하고 다시 쓸 때 세 모형의 패키지 버전을 모두 맞춰야 하며, 자료가 바뀌면 세 모형을 모두 다시 맞춰야 합니다.</li>
+</ul>
+<p>고른 뒤 시험 자료에서 확인한 결과도 같은 쪽을 가리킵니다. 스태킹 − XGBoost의 차이(−0.006, −0.019 to 0.005)는 0을 포함하고, Brier 점수(0.0332 대 0.0334)와 로그 손실(0.1391 대 0.1387)도 비슷했습니다(아래 교정 그림). 이 확인은 고르는 근거가 아니며, 결과가 달랐더라도 선택을 바꾸지 않습니다.</p>
+<p>로지스틱 회귀(0.7486)는 기준에서 0.022 아래입니다. 교차검증의 보정한 t 검정(p = 0.0032, 셀 12)과 시험 자료의 차이(0.042, 0.019 to 0.066)가 같은 방향이어서, 이 자료에서는 우연으로 보기 어려운 차이입니다. 그래도 0.03–0.04의 AUC 차이가 실제 쓰임새에서 의미 있는지, 계수로 설명되는 모형을 포기할 만한지는 별개의 판단입니다. 임상 예측모형 연구들을 모은 체계적 고찰에서는 치우침 위험이 낮은 비교에서 머신러닝이 로지스틱 회귀보다 평균적으로 낫지 않았습니다<cite data-ref="christodoulou2019"></cite>. 이 가상 자료는 나이의 꺾임, 응급실과 약 가짓수의 계단처럼 선형 항이 놓치는 구조를 일부러 넣어 만들었다는 점도 기억합니다.</p>
+
+<h3>교정 맛보기</h3>
+<p>AUC는 순서만 보므로 '입원 확률 20%'라는 숫자가 실제로 맞는지는 따로 봅니다. 예측 확률이 실제 사건 비율과 맞는지를 이 사이트에서는 <strong>교정</strong><span class="en">(calibration)</span>이라고 부릅니다(보정은 교란변수 보정의 뜻으로 씁니다, <a href="stats.html#ch09-s1">통계 9장</a>의 '예측모형의 교정'). 시험 자료를 예측 확률 순서로 열 무리(375명 안팎씩, 예측 확률이 같은 사람이 많으면 조금 달라짐)로 나눠 무리마다 평균 예측 확률과 실제 입원 비율을 점으로 찍습니다. 점이 대각선 위에 있으면 교정이 잘 된 것입니다. 교정 그림, 교정 절편과 기울기, 다시 교정하는 방법은 뒤의 장에서 자세히 다룹니다.</p>
+<!--FIG:ml04_calib-->
+<p><code>calibration_curve(y_test, p, n_bins=10, strategy="quantile")</code>는 실제 비율과 평균 예측 확률의 배열 두 개를 돌려줍니다(<code>"quantile"</code>은 같은 인원씩 나누기, <a href="stats.html#lab09-s4">실습 9 라 절</a>). 모두에게 학습 자료의 입원 비율 4.08%를 똑같이 예측하면 Brier 점수가 <span class="mk">1</span> 0.0391이고, 네 모형은 0.0332–0.0340으로 그보다 작습니다. 오른쪽 그림은 0.08 아래를 확대한 것입니다. 로지스틱 회귀, XGBoost, 로그 오즈 입력의 스태킹은 대각선 근처에 흩어져 있습니다. 확률을 그대로 넣은 셀 7의 스태킹은 아래 아홉 무리의 예측이 0.024–0.036으로 거의 평평하고 실제 비율(0.008–0.059)보다 폭이 좁습니다. 셀 8에서 본 것처럼 0.05–0.2 사이의 확률을 낮추는 모양이 그대로 나타난 것이고, AUC(0.772)로는 드러나지 않았습니다. 가장 위 무리(입원 70명 안팎)를 빼면 무리마다 입원이 2–27명뿐이라 점 하나하나는 크게 흔들린다는 점도 감안해 읽습니다.</p>
+
+<h3>최종 모형을 맞추고 저장하기</h3>
+<p>고른 조합으로 학습 자료 전체에 다시 맞추고, 시험 자료로 한 번 평가한 뒤 저장합니다. 교차검증에서 겹마다 만든 다섯 모형은 성능을 재는 데만 쓰고 버립니다.</p>
+<!--FIG:ml04_final-->
+<p><code>clone(base["xgb"]).fit(X_train, y_train)</code>은 셀 2와 같은 설정의 새 복사본을 학습 자료 전체로 맞춥니다. 출력 <span class="mk">1</span>의 시험 AUC 0.784(0.738–0.825)는 3장과 같습니다. <code>joblib.dump</code>와 <code>joblib.load</code>는 <a href="#ml01-s5">1장 마 절</a>과 같고, <span class="mk">2</span> 불러온 모형의 예측이 저장 전과 같습니다. 파이프라인 전체가 저장되므로 원래 39개 열의 표를 그대로 넣어 예측합니다. 버전이 다르면 불러오지 못하거나 결과가 달라질 수 있으므로 마지막 줄처럼 버전을 함께 적어 둡니다. 셀 8의 <code>to_logit</code>처럼 직접 정의한 함수가 든 모형(로그 오즈 입력의 스태킹)을 저장했다면, 불러오는 쪽에서도 같은 이름의 함수를 먼저 정의해야 합니다.</p>
+<p>이 장에서는 비교 방법을 보이려고 아홉 모형의 시험 AUC를 모두 보았습니다. 실제 연구에서는 모형 고르기를 교차검증으로 끝낸 뒤 고른 모형(과 미리 정해 둔 비교 모형)만 시험 자료로 한 번 평가하고, 그 결과를 보고 모형을 바꾸지 않습니다. 시험 자료를 보고 다시 고르면 시험 자료도 고르는 데 쓴 자료가 되어 다 절의 낙관이 그대로 들어옵니다.</p>
+
+<h3>참 구조와 견주기</h3>
+<p>이 자료는 만든 사람이 정답(참 구조)을 알려 줄 수 있습니다. 스태킹의 메타 모형은 XGBoost에 가장 큰 무게(로그 오즈 1.24)를 주고 로지스틱 회귀를 조금 더하고(0.20) 숲을 뺐습니다(−0.49). 이렇게 합친 모형이 참 구조를 개별 모형보다 잘 잡는지 부분 의존 그림(<a href="#ml02-s5">2장 마 절</a>)으로 봅니다. <code>partial_dependence</code>는 그림 대신 숫자를 돌려주는 함수로, 1,000명의 나이(또는 응급실 방문 수)만 격자의 값으로 바꿔 평균 예측 확률을 구합니다.</p>
+<!--FIG:ml04_pdp-->
+<p><code>r["grid_values"][0]</code>은 바꿔 넣은 값의 격자, <code>r["average"][0]</code>은 그 값마다의 평균 확률입니다(<code>"grid_values"</code>는 scikit-learn 1.3부터의 이름). 아래 표의 나이 줄은 30칸 격자 사이를 직선으로 이어 읽은 값입니다. '정답'은 같은 1,000명의 참 확률을 생성식에서 나이(또는 응급실 방문)만 바꿔 다시 계산해 평균한 것입니다. 실제 자료에서는 이 열을 아무도 모르며, 여기서만 할 수 있는 확인입니다.</p>
+<div class="tbl-wrap"><table class="tbl">
+<thead><tr><th>평균 예측 확률</th><th class="r">정답</th><th class="r">로지스틱</th><th class="r">랜덤 포레스트</th><th class="r">XGBoost</th><th class="r">스태킹</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="6"><b>나이</b> (정답은 70세까지 거의 평평하다가 그 뒤 가팔라짐)</td></tr>
+<tr><td>60세</td><td class="r">0.027</td><td class="r">0.035</td><td class="r">0.032</td><td class="r">0.029</td><td class="r">0.030</td></tr>
+<tr><td>75세</td><td class="r">0.045</td><td class="r">0.052</td><td class="r">0.042</td><td class="r">0.034</td><td class="r">0.034</td></tr>
+<tr><td>80세</td><td class="r">0.068</td><td class="r">0.059</td><td class="r">0.079</td><td class="r">0.071</td><td class="r">0.065</td></tr>
+<tr><td>85세</td><td class="r">0.100</td><td class="r">0.068</td><td class="r">0.114</td><td class="r">0.090</td><td class="r">0.076</td></tr>
+<tr><td>90세</td><td class="r">0.144</td><td class="r">0.077</td><td class="r">0.182</td><td class="r">0.125</td><td class="r">0.094</td></tr>
+<tr class="hi"><td>격자 전체의 평균 절대 차이</td><td class="r"></td><td class="r">0.013</td><td class="r">0.009</td><td class="r">0.005</td><td class="r">0.009</td></tr>
+<tr class="grp"><td colspan="6"><b>응급실 방문</b> (정답은 2회 이상에서 큰 계단)</td></tr>
+<tr><td>0회</td><td class="r">0.038</td><td class="r">0.039</td><td class="r">0.041</td><td class="r">0.040</td><td class="r">0.039</td></tr>
+<tr><td>1회</td><td class="r">0.041</td><td class="r">0.048</td><td class="r">0.042</td><td class="r">0.040</td><td class="r">0.040</td></tr>
+<tr><td>2회</td><td class="r">0.100</td><td class="r">0.060</td><td class="r">0.044</td><td class="r">0.067</td><td class="r">0.078</td></tr>
+<tr><td>3회</td><td class="r">0.100</td><td class="r">0.074</td><td class="r">0.044</td><td class="r">0.067</td><td class="r">0.081</td></tr>
+<tr class="hi"><td>격자 전체의 평균 절대 차이</td><td class="r"></td><td class="r">0.017</td><td class="r">0.035</td><td class="r">0.020</td><td class="r">0.011</td></tr>
+</tbody></table></div>
+<p>응급실 방문에서는 합친 모형이 정답에 가장 가까웠습니다. 랜덤 포레스트는 계단을 거의 놓쳤고(0.041 → 0.044), XGBoost는 2회에서 계단을 찾았지만 높이가 정답의 절반쯤이며, 로지스틱 회귀는 계단 대신 직선으로 올라갑니다. 스태킹은 XGBoost의 계단에 로지스틱 회귀의 기울기가 더해져 2회 0.078, 3회 0.081로 정답(0.100)에 더 다가갔습니다. 메타 모형이 XGBoost의 로그 오즈에 1보다 큰 무게(1.24)를 주므로 XGBoost의 계단이 커지고, 숲은 계단이 거의 없어 빼도 줄어들 것이 없기 때문입니다. 나이에서는 반대입니다. XGBoost가 70세까지 평평하다가 꺾이는 모양을 가장 잘 따라갔고, 스태킹은 85–90세에서 XGBoost보다도 낮아(90세 0.094, 정답 0.144) 덜 가파릅니다. 숲은 고령에서 크게 올라가는데(0.182) 메타 모형이 숲의 로그 오즈를 빼기(−0.49) 때문입니다. 메타 모형의 무게 세 개는 모든 특성에 똑같이 걸리므로, 합친 모형은 개별 모형의 장점을 고르게 가져오지 않고 어떤 모양은 나아지고 어떤 모양은 나빠집니다.</p>
+<div class="callout note"><p class="ct">참고 · 만든 사람이 알려 주는 정답</p>
+<p>시험 자료 3,750명의 참 확률로 구한 AUC는 0.810으로, 이 시험 자료에서 모형이 넘기 어려운 이론상의 상한입니다. 사람마다 모형의 예측 확률과 참 확률의 차이를 절댓값으로 평균하면 XGBoost 0.0144, 로그 오즈 입력의 스태킹 0.0147, 히스토그램 부스팅 0.0153, 소프트 투표 0.0163, 확률 입력의 스태킹 0.0182, 랜덤 포레스트 0.0196, 로지스틱 회귀 0.0200입니다. 합친 모형이 XGBoost 하나보다 참 확률에 더 가깝지는 않았고, 이것은 교차검증과 시험 자료의 결론과 같습니다. 이 확인은 정답을 아는 가상 자료에서만 할 수 있습니다.</p></div>
+
+<h3>논문에 적는 법</h3>
+<p>TRIPOD+AI<cite data-ref="collins2024"></cite>는 회귀나 머신러닝으로 예측모형을 만들거나 평가한 연구의 보고 지침입니다. 모형을 만들고 견주는 일과 관련된 항목의 요지를 우리말로 정리하면 다음과 같습니다(항목 번호는 지침의 체크리스트 번호).</p>
+<ul>
+<li><b>자료를 어떻게 썼나(12a).</b> 개발과 성능 평가에 자료를 어떻게 나눴는지, 표본 크기를 어떻게 고려했는지.</li>
+<li><b>예측 변수의 처리(12b).</b> 변수의 함수 꼴, 변환, 표준화. 결측의 처리는 따로(11).</li>
+<li><b>모형의 종류와 만드는 모든 단계(12c).</b> 왜 그 모형인지, 조절값 튜닝을 포함한 모든 단계, 내부 검증의 방법. 스태킹이라면 기본 모형, 메타 모형, 겹 밖 예측을 만든 방법이 여기에 들어갑니다.</li>
+<li><b>성능 지표와 그림(12e).</b> 판별, 교정 등을 무엇으로 재는지와 그 이유, 여러 모형을 견주었다면 견준 방법.</li>
+<li><b>드문 결과의 처리(13).</b> 가중치나 표본 조정을 썼다면 왜, 어떻게, 그리고 확률을 다시 교정했는지.</li>
+<li><b>분석마다의 인원과 사건 수(21).</b> 개발, 조절값 튜닝, 평가에 쓰인 사람 수와 사건 수.</li>
+<li><b>모형을 다시 쓸 수 있게(22, 18f).</b> 식, 코드, 저장한 모형 같은 모형의 세부와 접근 방법, 분석 코드를 공유하는지.</li>
+<li><b>성능과 신뢰구간(23a).</b> 성능 추정값에 신뢰구간을 붙이고(주요 하위군이 있으면 하위군마다), 그림으로 보이는 것을 생각할 것.</li>
+</ul>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 모형 비교와 최종 모형의 Methods와 Results</b><span>이 장의 결과로 만든 가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> We compared seven candidate models (L2-penalized logistic regression, a classification tree, bagged trees, a random forest, and three gradient-boosted tree models, one of which used default settings), with hyperparameters tuned in the training set as described in Supplementary Methods, and two ensembles of logistic regression, random forest, and XGBoost: <span class="hl">a soft-voting ensemble (unweighted mean of predicted probabilities) and a stacked ensemble whose meta-learner was a logistic regression fitted to the log odds of out-of-fold predictions from 5-fold cross-validation</span> <span class="mk">1</span>. <span class="hl">All models were evaluated on the same stratified 5-fold split of the training set (n = 11,250; 459 admissions); the stacked ensemble was evaluated as a whole within the outer folds</span> <span class="mk">2</span>. We selected the final model with the one-standard-error rule, choosing the simplest model whose cross-validated AUC was within one standard error of the best. <span class="hl">Differences in test-set AUC were estimated with 1,000 paired bootstrap resamples and the DeLong test</span> <span class="mk">3</span>. Calibration was assessed with calibration plots, and overall accuracy with the Brier score. Analyses used scikit-learn 1.9.1 and XGBoost 3.4.2.</p>
+<p class="excerpt"><b>Results.</b> Cross-validated AUCs ranged from 0.698 (XGBoost with default settings) to 0.777 (stacked ensemble); <span class="hl">the tuned XGBoost model (0.776; SD across folds, 0.016) was within one standard error (0.007) of the stacked ensemble</span> <span class="mk">4</span> and was selected as the final model. In the test set (n = 3,750; 153 admissions), its AUC was <span class="hl">0.784 (95% CI, 0.738 to 0.825)</span> <span class="mk">5</span>. The difference from the stacked ensemble was <span class="hl">0.006 (95% CI, −0.005 to 0.019; DeLong P = 0.32)</span> <span class="mk">6</span>, and the AUC of logistic regression was lower by 0.042 (95% CI, 0.019 to 0.066). The Brier score was 0.033, compared with 0.039 for a constant prediction of the training-set admission rate.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>합친 방법을 구체적으로.</b> 셀 4와 셀 8–9입니다. 어떤 기본 모형을 넣었는지, 무게를 같게 했는지 배웠는지, 메타 모형의 종류와 입력(확률인지 로그 오즈인지), 메타 모형의 학습 자료를 겹 밖 예측으로 만들었다는 점을 적습니다. 마지막 것이 빠지면 독자는 셀 6의 누설이 있었는지 알 수 없습니다. 기본 모형마다의 튜닝은 길어서 부록으로 보냈습니다.</span></li>
+<li><span class="mk">2</span><span><b>같은 겹과 바깥 교차검증.</b> 셀 2, 9, 11입니다. 모든 모형을 같은 분할에서 쟀다는 것과, 스태킹은 안쪽 교차검증까지 포함해 바깥 겹에서 평가했다는 것을 밝힙니다. 분석마다의 인원과 사건 수(TRIPOD+AI 21)도 함께 적었습니다.</span></li>
+<li><span class="mk">3</span><span><b>짝지은 비교 방법.</b> 셀 15입니다. 신뢰구간이 겹치는지가 아니라 같은 표본에서의 차이로 비교했다는 뜻입니다. 여러 모형을 시험 자료에서 견주었다면 몇 개를 견주었는지도 적고, p 값을 여러 번 보았다는 점을 Discussion에서 다룹니다.</span></li>
+<li><span class="mk">4</span><span><b>고른 기준과 그 숫자.</b> 셀 16–17입니다. 1등이 아닌 모형을 고른 이유(한 표준오차 규칙)와 그 표준오차 0.0068(반올림 0.007)을 적었습니다. 스태킹의 0.777과 XGBoost의 0.776은 반올림 전 0.7773과 0.7761입니다.</span></li>
+<li><span class="mk">5</span><span><b>시험 AUC와 신뢰구간.</b> 셀 19입니다. 고른 모형을 학습 자료 전체로 다시 맞춰 시험 자료로 한 번 평가한 값이고 3장과 같습니다.</span></li>
+<li><span class="mk">6</span><span><b>차이의 구간과 해석.</b> 셀 15의 스태킹 − XGBoost(−0.006, −0.019 to 0.005)를 부호를 바꿔 XGBoost − 스태킹(0.006, −0.005 to 0.019)으로 적었습니다. 구간이 0을 포함하므로 Results에는 '차이가 없었다'고 단정하지 않고 숫자만 적고, Discussion에서 "the stacked ensemble did not improve discrimination over a single tuned model in our data"처럼 이 자료의 범위로 한정해 씁니다. 시험 자료의 사건이 153명이라 0.02보다 작은 차이는 가를 수 없다는 점도 한계로 적습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="callout warn"><p class="ct">흔한 오해</p>
+<ul>
+<li><span class="wrong">교차검증 점수가 가장 높은 모형을 최종 모형으로 골라야 한다.</span> 1등의 점수는 운이 섞여 부풀어 있고(셀 14), 0.001 차이로 1등이 바뀝니다. 1등과 구별되지 않는 모형 가운데 단순하고 설명하기 쉬우며 관리하기 쉬운 모형을 고르는 것이 흔한 기준이고, 그 기준을 미리 정해 Methods에 적습니다.</li>
+<li><span class="wrong">AUC가 같으면 확률도 똑같이 믿을 만하다.</span> 확률을 그대로 넣은 스태킹은 AUC 0.772로 소프트 투표와 같았지만 아래 아홉 무리의 예측이 거의 평평했습니다. 확률을 환자에게 설명하거나 정해진 임계값으로 고위험군을 고르는 모형이라면 교정을 함께 봅니다.</li>
+</ul></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>모형 비교 표에는 교차검증 AUC의 평균과 SD, 시험 AUC와 신뢰구간, 로그 손실과 Brier 점수, 걸린 시간을 함께 적고, ROC 곡선은 한 그림에 겹쳐 그립니다. 시험 자료는 모형을 다 고른 뒤 한 번 씁니다.</li>
+<li>한 표준오차 규칙으로 스태킹(0.7773)과 구별되지 않는 XGBoost(0.7761)를 골랐습니다. 교차검증 점수와 단순함, 설명, 비용을 함께 따진 판단이고, 고른 뒤 한 번 평가한 시험 AUC는 0.784(0.738–0.825)였습니다.</li>
+<li>참 구조와 견주면 스태킹은 응급실 계단을 더 잘, 나이의 꺾임은 덜 잘 잡았고 참 확률과의 거리는 XGBoost와 거의 같았습니다(0.0147 대 0.0144). 보고할 때는 합친 방법, 같은 겹과 바깥 교차검증, 짝지은 비교, 고른 기준을 적습니다(TRIPOD+AI).</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="ml04-s5">
+<h2><span class="sec-no">마.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 과제 3은 Colab에서 몇 분 걸립니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 가중치를 바꾼 소프트 투표</h3>
+<p>셀 3의 세 모형(<code>three</code>)에 무게 [1, 1, 1], [1, 1, 2], [1, 1, 4], [0, 0, 1]을 주어 가중 평균한 확률의 교차검증 AUC와 시험 AUC를 구하세요. 힌트. 겹 밖 예측의 가중 평균에 <code>fold_aucs</code>를 쓰면 다시 맞추지 않고 교차검증 AUC를 얻습니다. <code>VotingClassifier(…, voting="soft", weights=[1, 1, 2])</code>와 같은 계산입니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml04_hw1-->
+<p>XGBoost의 무게를 1, 2, 4로 늘리면 교차검증 AUC가 0.7677, 0.7706, 0.7731로 오르고, XGBoost만 쓰면(무게 [0, 0, 1]) 0.7761로 가장 높습니다. 시험 AUC도 같은 순서입니다. 약한 모형을 덜 섞을수록 좋아진다는 뜻이고, 이 세 모형에서는 가중 평균이 가장 강한 모형 하나를 넘지 못했습니다. 무게를 이렇게 여러 개 시험해 고르면 그것도 조절값 탐색이므로, 고른 무게의 교차검증 점수는 다 절의 이유로 조금 낙관적입니다. 무게를 자료에서 한 번에 배우는 것이 나 절의 스태킹입니다.</p>
+</div></details>
+
+<h3>과제 2. 기본 모형 일곱 개로 스태킹</h3>
+<p>셀 2의 일곱 모형 모두의 겹 밖 예측으로 셀 8이 고른 메타 모형(로그 오즈 입력, C = 10)을 맞추고, 계수, 겹 밖 예측 위에서 잰 교차검증 AUC, 시험 AUC를 세 모형의 스태킹과 비교하세요. 힌트. <code>clone(gs_meta.best_estimator_)</code>로 맞추지 않은 복사본을 만듭니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml04_hw2-->
+<p>일곱 모형의 계수는 XGBoost 1.06이 가장 크고, 숲 −0.39, 배깅 −0.16이 음수이며, XGBoost 기본값은 0.01로 거의 쓰이지 않았습니다. 겹 밖 예측 위의 교차검증 AUC는 0.7729로 세 모형(0.7743)보다 낮고, 시험 AUC도 0.7744로 세 모형(0.7779)보다 낮습니다. 새로 넣은 네 모형은 이미 있는 세 모형과 닮아서(셀 5) 더해 줄 정보가 적었고, 서로 닮은 입력이 늘자 메타 모형의 계수가 서로 상쇄하며 흩어졌을 뿐 이득이 없었습니다. 기본 모형은 많이 넣기보다 덜 닮은 강한 모형 몇 개를 고릅니다. 여기의 교차검증 AUC는 메타 모형만 겹 밖 예측 위에서 잰 것이라 셀 9의 바깥 교차검증보다 조금 낙관적일 수 있습니다.</p>
+</div></details>
+
+<h3>과제 3. 다른 세 모형으로 스태킹하고 공정하게 비교</h3>
+<p>로지스틱 회귀, 히스토그램 부스팅, XGBoost를 기본 모형으로 하고 셀 8의 메타 모형을 쓰는 스태킹을 만들어, ① <code>skf</code>로 바깥 교차검증 AUC와 겹마다 XGBoost와의 차이를 구하고 ② 학습 자료 전체로 맞춰 시험 AUC, XGBoost와의 짝지은 부트스트랩 차이와 DeLong p를 구하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:ml04_hw3-->
+<p>바깥 교차검증 AUC는 0.7727로, 다섯 겹 가운데 네 겹에서 XGBoost보다 낮고(평균 차이 −0.0033) 숲을 넣은 셀 9의 스태킹(0.7773)보다도 낮습니다. 시험 AUC는 0.7825, XGBoost와의 차이는 −0.0018(95% CI −0.008 to 0.004), DeLong p = 0.53입니다. 메타 계수는 XGBoost 0.65, 히스토그램 부스팅 0.20, 로지스틱 회귀 0.19로 셋 모두 양수입니다. 두 부스팅이 매우 닮아서(순위 상관 0.91) 셋을 섞어도 XGBoost 하나와 거의 같은 예측이 되었고, 차이의 신뢰구간이 셀 15의 다른 짝보다 좁은 것도 그 때문입니다. 어떤 세 모형을 합치든 이 자료에서는 XGBoost 하나와 구별되는 이득을 얻지 못했습니다. 기본 모형을 바꿔 가며 여러 스태킹을 만들고 가장 좋은 것을 고른다면 그 선택 자체가 다 절의 낙관을 낳는다는 점도 기억합니다.</p>
+</div></details>
+</section>

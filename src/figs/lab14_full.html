@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">전체 코호트 166,548명으로 같은 분석 하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">full = pd.read_csv(BASE + &quot;sglt2_cohort_full.csv&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">전체 코호트 166,548명으로 같은 분석 하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">full = pd.read_csv(BASE + &quot;sglt2_cohort_full.csv&quot;, storage_options=UA)
 full[&quot;arm&quot;] = full[&quot;sglt2&quot;].map({1: &quot;SGLT2i&quot;, 0: &quot;DPP4i&quot;})
 
 def summary(c):

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 고관절 골절 자료 (17장 나 절 확인 문제)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fx = pd.read_csv(BASE + &quot;dementia_fracture.csv&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 고관절 골절 자료 (17장 나 절 확인 문제)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fx = pd.read_csv(BASE + &quot;dementia_fracture.csv&quot;, storage_options=UA)
 fx[&quot;drug_c&quot;] = (fx[&quot;drug&quot;] == &quot;C&quot;).astype(int)     # C = 1, D = 0
 fx[&quot;frac&quot;] = (fx[&quot;status&quot;] == 1).astype(int)
 fx[&quot;death&quot;] = (fx[&quot;status&quot;] == 2).astype(int)

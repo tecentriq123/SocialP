@@ -1,0 +1,99 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">메타 모형 조절: 입력의 척도와 C를 GridSearchCV로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import FunctionTransformer
+
+def to_logit(P):
+    &quot;&quot;&quot;확률을 로그 오즈로 (0과 1은 아주 조금 안쪽으로 당긴 뒤)&quot;&quot;&quot;
+    P = np.clip(P, 1e-6, 1 - 1e-6)
+    return np.log(P / (1 - P))
+
+meta_pipe = Pipeline([(&quot;input&quot;, &quot;passthrough&quot;),
+                      (&quot;lr&quot;, LogisticRegression(max_iter=1000))])
+grid = {&quot;input&quot;: [&quot;passthrough&quot;, FunctionTransformer(to_logit)],
+        &quot;lr__C&quot;: [0.01, 0.1, 1, 10, 100]}
+gs_meta = GridSearchCV(meta_pipe, grid, cv=skf, refit=&quot;log loss&quot;,
+                       scoring={&quot;AUC&quot;: &quot;roc_auc&quot;,
+                                &quot;log loss&quot;: &quot;neg_log_loss&quot;})
+gs_meta.fit(oof[three], y_train)   # 메타 모형의 학습 자료 = 겹 밖 예측
+best_lr = gs_meta.best_estimator_[&quot;lr&quot;]
+print(&quot;best C:&quot;, gs_meta.best_params_[&quot;lr__C&quot;], &quot;| coef:&quot;,
+      best_lr.coef_.round(2), &quot;| intercept:&quot;, best_lr.intercept_.round(2))
+
+same_p = pd.DataFrame([[v] * 3 for v in [0.02, 0.05, 0.1, 0.2, 0.4]],
+                      columns=three)    # 세 모형이 같은 확률을 낼 때
+print(pd.DataFrame({
+    &quot;all three&quot;: same_p[&quot;xgb&quot;],
+    &quot;probability input&quot;: meta.predict_proba(same_p.to_numpy())[:, 1],
+    &quot;log-odds input&quot;: gs_meta.predict_proba(same_p)[:, 1]}).round(3))
+
+res = pd.DataFrame(gs_meta.cv_results_)
+res[&quot;input&quot;] = [&quot;probability&quot; if p == &quot;passthrough&quot; else &quot;log odds&quot;
+                for p in res[&quot;param_input&quot;]]
+res[&quot;AUC&quot;] = res[&quot;mean_test_AUC&quot;]
+res[&quot;log loss&quot;] = -res[&quot;mean_test_log loss&quot;]
+res.pivot_table(index=&quot;param_lr__C&quot;, columns=&quot;input&quot;,
+                values=[&quot;AUC&quot;, &quot;log loss&quot;]).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>best C: 10<span class="mk">1</span> | coef: [[ 0.2  -0.49  1.24]] | intercept: [-0.14]
+   all three  probability input  log-odds input
+0       0.02              0.026           0.021
+1       0.05              0.035           0.050
+2       0.10              0.056<span class="mk">2</span>           0.097<span class="mk">3</span>
+3       0.20              0.138           0.189
+4       0.40              0.539           0.371</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="2" halign="left">AUC</th>
+      <th colspan="2" halign="left">log loss</th>
+    </tr>
+    <tr>
+      <th>input</th>
+      <th>log odds</th>
+      <th>probability</th>
+      <th>log odds</th>
+      <th>probability</th>
+    </tr>
+    <tr>
+      <th>param_lr__C</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0.01</th>
+      <td>0.7695</td>
+      <td>0.7683</td>
+      <td>0.1410</td>
+      <td>0.1653<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>0.10</th>
+      <td>0.7752</td>
+      <td>0.7683</td>
+      <td>0.1400</td>
+      <td>0.1479</td>
+    </tr>
+    <tr>
+      <th>1.00</th>
+      <td>0.7746</td>
+      <td>0.7685</td>
+      <td>0.1398</td>
+      <td>0.1431</td>
+    </tr>
+    <tr>
+      <th>10.00</th>
+      <td>0.7743</td>
+      <td>0.7682</td>
+      <td>0.1398</td>
+      <td>0.1430</td>
+    </tr>
+    <tr>
+      <th>100.00</th>
+      <td>0.7743</td>
+      <td>0.7681</td>
+      <td>0.1398</td>
+      <td>0.1430</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

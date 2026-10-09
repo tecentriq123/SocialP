@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">교차검증 안의 조기 종료: 검증 겹을 두 번 쓰면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def fit_es(Z_a, y_a, Z_b, y_b, metric):
+    &quot;&quot;&quot;Z_b로 멈출 곳을 정하는 XGBoost (깊이 2, 학습률 0.05)&quot;&quot;&quot;
+    m = XGBClassifier(n_estimators=2000, learning_rate=0.05, max_depth=2,
+                      early_stopping_rounds=50, eval_metric=metric,
+                      random_state=2026)
+    return m.fit(Z_a, y_a, eval_set=[(Z_b, y_b)], verbose=False)
+
+for metric in [&quot;logloss&quot;, &quot;auc&quot;]:
+    leak, clean = [], []
+    for tr, va in skf.split(Z_train, y_train):
+        Zb, yb = Z_train.iloc[va], y_train.iloc[va]   # 검증 겹
+        Za, Zs, ya, ys = train_test_split(            # 학습 겹을 8 대 2로
+            Z_train.iloc[tr], y_train.iloc[tr], test_size=0.2,
+            stratify=y_train.iloc[tr], random_state=2026)
+        m = fit_es(Za, ya, Zb, yb, metric)            # 검증 겹으로 멈춤
+        leak.append(roc_auc_score(yb, m.predict_proba(Zb)[:, 1]))
+        m = fit_es(Za, ya, Zs, ys, metric)            # 떼어 둔 20%로 멈춤
+        clean.append(roc_auc_score(yb, m.predict_proba(Zb)[:, 1]))
+    d = np.array(leak) - np.array(clean)
+    print(f&quot;stop on {metric:7s}: leaky {np.mean(leak):.4f},&quot;
+          f&quot; clean {np.mean(clean):.4f}, leaky higher in&quot;
+          f&quot; {(d &gt; 0).sum()} of 5 folds&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>stop on logloss: leaky 0.7707, clean 0.7698, leaky higher in 4 of 5 folds<span class="mk">1</span>
+stop on auc    : leaky 0.7770, clean 0.7719, leaky higher in 5 of 5 folds<span class="mk">2</span></pre></div></div>

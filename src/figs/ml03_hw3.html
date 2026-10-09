@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 33</span><span class="cell-t">과제 3 정답. 히스토그램 부스팅을 Optuna로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def hgb_objective(trial):
+    model = make_hgb_pipe(HistGradientBoostingClassifier(
+        categorical_features=[0, 1, 2, 3], early_stopping=False,
+        random_state=2026,
+        learning_rate=trial.suggest_float(&quot;learning_rate&quot;, 0.01, 0.3,
+                                          log=True),
+        max_iter=trial.suggest_int(&quot;max_iter&quot;, 50, 1000, step=50),
+        max_leaf_nodes=trial.suggest_int(&quot;max_leaf_nodes&quot;, 2, 32,
+                                         log=True),
+        min_samples_leaf=trial.suggest_int(&quot;min_samples_leaf&quot;, 5, 200,
+                                           log=True),
+        l2_regularization=trial.suggest_float(&quot;l2_regularization&quot;,
+                                              0.001, 10, log=True)))
+    return cross_val_score(model, X_train, y_train, cv=skf,
+                           scoring=&quot;roc_auc&quot;).mean()
+
+study_hgb = optuna.create_study(direction=&quot;maximize&quot;,
+                                sampler=TPESampler(seed=2026))
+study_hgb.optimize(hgb_objective, n_trials=30)
+print({k: round(v, 4) for k, v in study_hgb.best_params.items()})
+print(round(study_hgb.best_value, 4), &quot; trial&quot;,
+      study_hgb.best_trial.number)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;learning_rate&#x27;: 0.0169, &#x27;max_iter&#x27;: 850, &#x27;max_leaf_nodes&#x27;: 2, &#x27;min_samples_leaf&#x27;: 80, &#x27;l2_regularization&#x27;: 0.3282}
+0.7717  trial 15</pre></div></div>

@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">같은 조합을 seed만 바꿔 20번 (1등을 고르는 일의 낙관)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for seed in range(20):
+    m = make_nan_pipe(XGBClassifier(**{**best_xgb, &quot;random_state&quot;: seed}))
+    cv_auc = cross_val_score(m, X_train, y_train, cv=skf,
+                             scoring=&quot;roc_auc&quot;).mean()
+    m.fit(X_train, y_train)
+    rows.append([seed, cv_auc,
+                 roc_auc_score(y_test, m.predict_proba(X_test)[:, 1])])
+runs = pd.DataFrame(rows, columns=[&quot;seed&quot;, &quot;CV AUC&quot;, &quot;test AUC&quot;])
+top = runs.loc[runs[&quot;CV AUC&quot;].idxmax()]
+print(&quot;best of 20 by CV: seed&quot;, int(top[&quot;seed&quot;]),
+      top[[&quot;CV AUC&quot;, &quot;test AUC&quot;]].round(4).to_dict())
+print(&quot;its test AUC ranks&quot;, int(runs[&quot;test AUC&quot;].rank(ascending=False)
+                                [top.name]), &quot;of 20&quot;)
+print(&quot;mean of 20      :&quot;,
+      runs[[&quot;CV AUC&quot;, &quot;test AUC&quot;]].mean().round(4).to_dict())
+print(&quot;seed 2026 (ch 3):&quot;, summary.loc[&quot;xgb&quot;, [&quot;CV AUC&quot;, &quot;test AUC&quot;]]
+      .astype(float).round(4).to_dict())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>best of 20 by CV: seed 5<span class="mk">1</span> {&#x27;CV AUC&#x27;: 0.7763, &#x27;test AUC&#x27;: 0.7853}
+its test AUC ranks 10 of 20<span class="mk">2</span>
+mean of 20      : {&#x27;CV AUC&#x27;: 0.7733<span class="mk">3</span>, &#x27;test AUC&#x27;: 0.7857}
+seed 2026 (ch 3): {&#x27;CV AUC&#x27;: 0.7761<span class="mk">4</span>, &#x27;test AUC&#x27;: 0.7843}</pre></div></div>

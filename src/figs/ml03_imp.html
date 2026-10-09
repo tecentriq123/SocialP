@@ -1,0 +1,158 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">XGBoost의 중요도 네 가지와 순열 중요도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.inspection import permutation_importance
+
+booster = xgb_final[-1].get_booster()
+imp = pd.DataFrame({t: pd.Series(booster.get_score(importance_type=t))
+                    for t in [&quot;weight&quot;, &quot;gain&quot;, &quot;cover&quot;, &quot;total_gain&quot;]})
+imp = imp.reindex(Z_train.columns).fillna(0)  # 쓰이지 않은 열은 0
+perm = permutation_importance(xgb_final, X_test, y_test,
+                              scoring=&quot;roc_auc&quot;, n_repeats=10,
+                              random_state=2026)
+perm = pd.Series(perm.importances_mean, index=X_test.columns)
+print(&quot;features used:&quot;, (imp[&quot;weight&quot;] &gt; 0).sum(), &quot;of&quot;, len(imp))
+show = [&quot;age&quot;, &quot;n_drugs&quot;, &quot;bmi&quot;, &quot;cost_2022&quot;, &quot;insulin&quot;, &quot;n_ed&quot;, &quot;ckd&quot;,
+        &quot;hf&quot;, &quot;dyslip&quot;, &quot;oa&quot;, &quot;n_prescribers&quot;]
+out = imp.loc[show].round(1)
+out[&quot;rank_weight&quot;] = imp[&quot;weight&quot;].rank(ascending=False,
+                                        method=&quot;min&quot;).loc[show]
+out[&quot;rank_gain&quot;] = imp[&quot;gain&quot;].rank(ascending=False,
+                                    method=&quot;min&quot;).loc[show]
+out[&quot;perm&quot;] = perm.loc[show].round(4)
+out[&quot;rank_perm&quot;] = perm.rank(ascending=False, method=&quot;min&quot;).loc[show]
+out.astype({c: int for c in [&quot;rank_weight&quot;, &quot;rank_gain&quot;, &quot;rank_perm&quot;]})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>features used: 26 of 48</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>weight</th>
+      <th>gain</th>
+      <th>cover</th>
+      <th>total_gain</th>
+      <th>rank_weight</th>
+      <th>rank_gain</th>
+      <th>perm</th>
+      <th>rank_perm</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>age</th>
+      <td>22.0</td>
+      <td>59.4<span class="mk">2</span></td>
+      <td>266.3<span class="mk">3</span></td>
+      <td>1307.2</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0.0519</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>n_drugs</th>
+      <td>16.0</td>
+      <td>35.4</td>
+      <td>265.5</td>
+      <td>565.9</td>
+      <td>4</td>
+      <td>2</td>
+      <td>0.0067</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>bmi</th>
+      <td>52.0<span class="mk">1</span></td>
+      <td>10.7</td>
+      <td>254.8</td>
+      <td>557.6</td>
+      <td>1</td>
+      <td>7</td>
+      <td>0.0528<span class="mk">4</span></td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>cost_2022</th>
+      <td>13.0</td>
+      <td>27.3</td>
+      <td>257.8</td>
+      <td>354.5</td>
+      <td>6</td>
+      <td>3</td>
+      <td>0.0022</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>insulin</th>
+      <td>17.0</td>
+      <td>7.9</td>
+      <td>256.0</td>
+      <td>133.6</td>
+      <td>3</td>
+      <td>10</td>
+      <td>0.0065</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>n_ed</th>
+      <td>15.0</td>
+      <td>5.8</td>
+      <td>252.3</td>
+      <td>87.4</td>
+      <td>5</td>
+      <td>12</td>
+      <td>0.0060</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>ckd</th>
+      <td>5.0</td>
+      <td>14.7</td>
+      <td>261.4</td>
+      <td>73.4</td>
+      <td>9</td>
+      <td>5</td>
+      <td>0.0004</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>hf</th>
+      <td>4.0</td>
+      <td>5.2</td>
+      <td>253.2</td>
+      <td>20.8</td>
+      <td>13</td>
+      <td>13</td>
+      <td>-0.0003</td>
+      <td>34</td>
+    </tr>
+    <tr>
+      <th>dyslip</th>
+      <td>1.0</td>
+      <td>2.3</td>
+      <td>248.8</td>
+      <td>2.3</td>
+      <td>22</td>
+      <td>23</td>
+      <td>-0.0003</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <th>oa</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>27</td>
+      <td>27</td>
+      <td>0.0000</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <th>n_prescribers</th>
+      <td>5.0</td>
+      <td>4.8</td>
+      <td>251.8</td>
+      <td>24.2</td>
+      <td>9</td>
+      <td>16</td>
+      <td>-0.0006</td>
+      <td>36</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,117 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">앞 장의 모형 일곱 개: 겹 밖 예측, 전체 학습, 시험 예측</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import (BaggingClassifier, RandomForestClassifier,
+                              HistGradientBoostingClassifier)
+from xgboost import XGBClassifier
+
+best_xgb = {&quot;n_estimators&quot;: 200,            # 3장 마 절 Optuna가 고른 값
+            &quot;learning_rate&quot;: 0.08296006039772535,
+            &quot;max_depth&quot;: 1,
+            &quot;min_child_weight&quot;: 1.2474747561630017,
+            &quot;subsample&quot;: 0.6464876912292634,
+            &quot;colsample_bytree&quot;: 0.39626241159839404,
+            &quot;reg_lambda&quot;: 13.846707712074963,
+            &quot;reg_alpha&quot;: 0.0021251668855702768}
+base = {
+    &quot;logistic&quot;: make_pipe(LogisticRegression(C=0.1, max_iter=1000)),
+    &quot;tree&quot;: make_tree_pipe(DecisionTreeClassifier(
+        max_depth=6, min_samples_leaf=300, random_state=2026)),
+    &quot;bagging&quot;: make_tree_pipe(BaggingClassifier(
+        estimator=DecisionTreeClassifier(min_samples_leaf=20),
+        n_estimators=200, random_state=2026, n_jobs=-1)),
+    &quot;forest&quot;: make_tree_pipe(RandomForestClassifier(
+        n_estimators=500, max_features=20, min_samples_leaf=85,
+        max_samples=0.7339919539656937, random_state=2026, n_jobs=-1)),
+    &quot;xgb_default&quot;: make_nan_pipe(XGBClassifier(random_state=2026)),
+    &quot;hgb&quot;: make_hgb_pipe(HistGradientBoostingClassifier(
+        categorical_features=[0, 1, 2, 3], learning_rate=0.05,
+        max_leaf_nodes=4, min_samples_leaf=50, max_iter=1000,
+        early_stopping=True, n_iter_no_change=30, random_state=2026)),
+    &quot;xgb&quot;: make_nan_pipe(XGBClassifier(random_state=2026, **best_xgb))}
+
+oof = pd.DataFrame(index=X_train.index)     # 겹 밖 예측 (학습 자료)
+test_p = pd.DataFrame(index=X_test.index)   # 시험 자료 예측
+secs = {}
+for name, m in base.items():
+    t0 = time.perf_counter()
+    oof[name] = cross_val_predict(m, X_train, y_train, cv=skf,
+                                  method=&quot;predict_proba&quot;)[:, 1]
+    m.fit(X_train, y_train)                  # 학습 자료 전체로
+    test_p[name] = m.predict_proba(X_test)[:, 1]
+    secs[name] = time.perf_counter() - t0
+
+folds = list(skf.split(X_train, y_train))   # 다섯 겹의 (학습, 검증) 번호
+
+def fold_aucs(p):
+    &quot;&quot;&quot;겹 밖 예측 p로 겹마다 AUC (cross_val_score와 같은 값)&quot;&quot;&quot;
+    p = np.asarray(p)
+    return np.array([roc_auc_score(y_train.iloc[va], p[va])
+                     for tr, va in folds])
+
+fold_auc = pd.DataFrame({nm: fold_aucs(oof[nm]) for nm in base})
+summary = pd.DataFrame({
+    &quot;CV AUC&quot;: fold_auc.mean(), &quot;CV SD&quot;: fold_auc.std(ddof=0),
+    &quot;test AUC&quot;: [roc_auc_score(y_test, test_p[nm]) for nm in base],
+    &quot;seconds&quot;: pd.Series(secs).round().astype(int)})
+summary.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CV AUC</th>
+      <th>CV SD</th>
+      <th>test AUC</th>
+      <th>seconds</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>logistic</th>
+      <td>0.749<span class="mk">1</span></td>
+      <td>0.022</td>
+      <td>0.742</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>tree</th>
+      <td>0.754</td>
+      <td>0.025</td>
+      <td>0.771</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>bagging</th>
+      <td>0.734<span class="mk">2</span></td>
+      <td>0.020</td>
+      <td>0.784</td>
+      <td>61</td>
+    </tr>
+    <tr>
+      <th>forest</th>
+      <td>0.757</td>
+      <td>0.025</td>
+      <td>0.770</td>
+      <td>36</td>
+    </tr>
+    <tr>
+      <th>xgb_default</th>
+      <td>0.698<span class="mk">3</span></td>
+      <td>0.023</td>
+      <td>0.717</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>hgb</th>
+      <td>0.768</td>
+      <td>0.012</td>
+      <td>0.783</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>xgb</th>
+      <td>0.776<span class="mk">4</span></td>
+      <td>0.016</td>
+      <td>0.784</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

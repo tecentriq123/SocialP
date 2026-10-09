@@ -1,0 +1,78 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">한 표준오차 규칙</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">best = table[&quot;CV AUC&quot;].idxmax()
+se = fold_auc[best].std(ddof=1) / np.sqrt(5)  # 겹 5개 평균의 표준오차
+cut = table.loc[best, &quot;CV AUC&quot;] - se
+print(f&quot;best: {best}, CV AUC {table.loc[best, &#x27;CV AUC&#x27;]:.4f},&quot;,
+      f&quot;SE {se:.4f} -&gt; keep models with CV AUC &gt;= {cut:.4f}&quot;)
+table.assign(within_1SE=table[&quot;CV AUC&quot;] &gt;= cut).sort_values(
+    &quot;CV AUC&quot;, ascending=False)[[&quot;CV AUC&quot;, &quot;CV SD&quot;, &quot;within_1SE&quot;]].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>best: stack, CV AUC 0.7773, SE 0.0068 -&gt; keep models with CV AUC &gt;= 0.7705<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CV AUC</th>
+      <th>CV SD</th>
+      <th>within_1SE</th>
+    </tr>
+    <tr>
+      <th>model</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>stack</th>
+      <td>0.7773</td>
+      <td>0.0136</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>xgb</th>
+      <td>0.7761</td>
+      <td>0.0158</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>hgb</th>
+      <td>0.7679</td>
+      <td>0.0120</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>soft vote</th>
+      <td>0.7677</td>
+      <td>0.0191</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>forest</th>
+      <td>0.7573</td>
+      <td>0.0245</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>tree</th>
+      <td>0.7544</td>
+      <td>0.0251</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>logistic</th>
+      <td>0.7486</td>
+      <td>0.0220</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>bagging</th>
+      <td>0.7337</td>
+      <td>0.0203</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>xgb_default</th>
+      <td>0.6977</td>
+      <td>0.0233</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

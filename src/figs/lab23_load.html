@@ -3,7 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-trial = pd.read_csv(BASE + &quot;rcc_trial.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+trial = pd.read_csv(BASE + &quot;rcc_trial.csv&quot;, storage_options=UA)
 print(trial.shape)
 print(trial[&quot;event&quot;].value_counts().to_dict())
 trial.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(300, 3)<span class="mk">1</span>

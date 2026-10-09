@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 2 정답. 기본 모형 일곱 개로 스태킹</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">seven = list(base)
+meta7 = clone(gs_meta.best_estimator_).fit(oof[seven], y_train)
+cv7 = cross_val_score(clone(gs_meta.best_estimator_), oof[seven],
+                      y_train, cv=skf, scoring=&quot;roc_auc&quot;)
+p7 = meta7.predict_proba(test_p[seven])[:, 1]
+print(pd.Series(meta7[&quot;lr&quot;].coef_[0], index=seven).round(2).to_dict())
+print(&quot;meta-level CV AUC: 7 models&quot;, round(cv7.mean(), 4),
+      &quot;| 3 models&quot;, round(gs_meta.cv_results_[&quot;mean_test_AUC&quot;]
+                           [gs_meta.best_index_], 4))
+print(&quot;test AUC: 7 models&quot;, round(roc_auc_score(y_test, p7), 4),
+      &quot;| 3 models&quot;, round(roc_auc_score(y_test, p_stack_lo), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;logistic&#x27;: 0.21, &#x27;tree&#x27;: 0.13, &#x27;bagging&#x27;: -0.16, &#x27;forest&#x27;: -0.39, &#x27;xgb_default&#x27;: 0.01, &#x27;hgb&#x27;: 0.16, &#x27;xgb&#x27;: 1.06}
+meta-level CV AUC: 7 models 0.7729 | 3 models 0.7743
+test AUC: 7 models 0.7744 | 3 models 0.7779</pre></div></div>

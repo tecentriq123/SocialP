@@ -1,4 +1,5 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">하위군 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sub = pd.read_csv(BASE + &quot;acs_trials_subgroup.csv&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">하위군 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sub = pd.read_csv(BASE + &quot;acs_trials_subgroup.csv&quot;,
+                  storage_options=UA)
 print(sub.shape)
 sub</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(12, 6)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>

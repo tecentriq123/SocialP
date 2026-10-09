@@ -24,7 +24,8 @@
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"</code><span>이 사이트의 자료 폴더 주소를 문자열로 저장합니다. 뒤에 파일 이름만 붙이면 주소가 완성됩니다. 인터넷 연결이 필요합니다.</span></li>
-<li><code>ckd = pd.read_csv(BASE + "ckd_competing.csv")</code><span>문자열 두 개를 <code>+</code>로 이어 붙인 주소에서 CSV를 읽어 데이터프레임 <code>ckd</code>로 저장합니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
+<li><code>ckd = pd.read_csv(BASE + "ckd_competing.csv", storage_options=UA)</code><span>문자열 두 개를 <code>+</code>로 이어 붙인 주소에서 CSV를 읽어 데이터프레임 <code>ckd</code>로 저장합니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">

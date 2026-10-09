@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">과제 1 정답. 학습률과 조기 종료</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for lr in [0.3, 0.1, 0.03]:
+    m = XGBClassifier(n_estimators=5000, learning_rate=lr, max_depth=2,
+                      early_stopping_rounds=50, eval_metric=&quot;logloss&quot;,
+                      random_state=2026)
+    m.fit(Z_tr, y_tr, eval_set=[(Z_val, y_val)], verbose=False)
+    auc = roc_auc_score(y_val, m.predict_proba(Z_val)[:, 1])
+    print(f&quot;learning_rate {lr}: trees {m.best_iteration + 1},&quot;
+          f&quot; log loss {m.best_score:.4f}, validation AUC {auc:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>learning_rate 0.3: trees 13, log loss 0.1415, validation AUC 0.7994
+learning_rate 0.1: trees 80, log loss 0.1374, validation AUC 0.7975
+learning_rate 0.03: trees 273, log loss 0.1370, validation AUC 0.7975</pre></div></div>

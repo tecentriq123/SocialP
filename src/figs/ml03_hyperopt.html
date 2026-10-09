@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">HyperOpt로 같은 일 (교재의 방식, 30번)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
+
+hp_space = {
+    &quot;max_depth&quot;: hp.quniform(&quot;max_depth&quot;, 1, 6, 1),
+    &quot;n_estimators&quot;: hp.quniform(&quot;n_estimators&quot;, 100, 1000, 50),
+    &quot;learning_rate&quot;: hp.loguniform(&quot;learning_rate&quot;,
+                                   np.log(0.01), np.log(0.3)),
+    &quot;colsample_bytree&quot;: hp.uniform(&quot;colsample_bytree&quot;, 0.3, 1.0)}
+
+def hp_objective(params):
+    model = make_nan_pipe(XGBClassifier(
+        random_state=2026, max_depth=int(params[&quot;max_depth&quot;]),
+        n_estimators=int(params[&quot;n_estimators&quot;]),
+        learning_rate=params[&quot;learning_rate&quot;],
+        colsample_bytree=params[&quot;colsample_bytree&quot;]))
+    auc = cross_val_score(model, X_train, y_train, cv=skf,
+                          scoring=&quot;roc_auc&quot;).mean()
+    return {&quot;loss&quot;: -auc, &quot;status&quot;: STATUS_OK}
+
+trials = Trials()
+t0 = time.perf_counter()
+best_hp = fmin(hp_objective, hp_space, algo=tpe.suggest, max_evals=30,
+               trials=trials, rstate=np.random.default_rng(2026),
+               show_progressbar=False)
+t_hyperopt = time.perf_counter() - t0
+print({k: round(float(v), 4) for k, v in best_hp.items()})
+print(round(-min(trials.losses()), 4), f&quot; ({t_hyperopt:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;colsample_bytree&#x27;: 0.6965, &#x27;learning_rate&#x27;: 0.0187, &#x27;max_depth&#x27;: 2.0<span class="mk">1</span>, &#x27;n_estimators&#x27;: 350.0}
+0.7735<span class="mk">2</span>  (68 s)</pre></div></div>

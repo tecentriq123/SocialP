@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">XGBoost를 파이프라인 안에서: 결측 대체와 NaN 그대로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import xgboost as xgb
+from xgboost import XGBClassifier
+print(&quot;xgboost&quot;, xgb.__version__)
+
+shallow = dict(max_depth=2, learning_rate=0.05, n_estimators=300)
+rows = []
+for how, maker in [(&quot;median imputed&quot;, make_tree_pipe),
+                   (&quot;NaN as is&quot;, make_nan_pipe)]:
+    for name, params in [(&quot;default&quot;, {}), (&quot;shallow&quot;, shallow)]:
+        model = maker(XGBClassifier(random_state=2026, **params))
+        auc = cross_val_score(model, X_train, y_train, cv=skf,
+                              scoring=&quot;roc_auc&quot;)
+        rows.append([how, name, auc.mean(), auc.std()])
+pd.DataFrame(rows, columns=[&quot;missing&quot;, &quot;setting&quot;, &quot;CV AUC&quot;, &quot;SD&quot;]
+             ).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>xgboost 3.4.2</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>missing</th>
+      <th>setting</th>
+      <th>CV AUC</th>
+      <th>SD</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>median imputed</td>
+      <td>default</td>
+      <td>0.6904<span class="mk">1</span></td>
+      <td>0.0253</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>median imputed</td>
+      <td>shallow</td>
+      <td>0.7682</td>
+      <td>0.0105</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>NaN as is</td>
+      <td>default</td>
+      <td>0.6977</td>
+      <td>0.0233</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN as is</td>
+      <td>shallow</td>
+      <td>0.7697<span class="mk">2</span></td>
+      <td>0.0107</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

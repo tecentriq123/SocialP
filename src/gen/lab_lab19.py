@@ -53,7 +53,8 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
-tr = pd.read_csv(BASE + "acs_trials.csv")
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+tr = pd.read_csv(BASE + "acs_trials.csv", storage_options=UA)
 print(tr.shape)
 tr
 ''', title="시험 수준 자료 불러오기")
@@ -61,7 +62,8 @@ save("lab19_load", c, marks={"(10, 12)": 1},
      dfmarks={"some concerns": 2, "<td>122</td>": 3, "<td>0</td>": 4})
 
 c = nb.cell('''
-sub = pd.read_csv(BASE + "acs_trials_subgroup.csv")
+sub = pd.read_csv(BASE + "acs_trials_subgroup.csv",
+                  storage_options=UA)
 print(sub.shape)
 sub
 ''', title="하위군 자료 불러오기", max_rows=12)

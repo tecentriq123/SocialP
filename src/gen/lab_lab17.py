@@ -55,7 +55,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
-ckd = pd.read_csv(BASE + "ckd_competing.csv")
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+ckd = pd.read_csv(BASE + "ckd_competing.csv", storage_options=UA)
 print(ckd.shape)
 ckd.head()
 ''', title="자료 불러오기")
@@ -363,7 +364,7 @@ for g in ["A", "B"]:
 save("lab17_hw2", c, marks={"composite HR: 0.70 (0.64-0.76)": 1, "A: 1 - KM 65.4": 2})
 
 c = nb.cell('''
-fx = pd.read_csv(BASE + "dementia_fracture.csv")
+fx = pd.read_csv(BASE + "dementia_fracture.csv", storage_options=UA)
 fx["drug_c"] = (fx["drug"] == "C").astype(int)     # C = 1, D = 0
 fx["frac"] = (fx["status"] == 1).astype(int)
 fx["death"] = (fx["status"] == 2).astype(int)

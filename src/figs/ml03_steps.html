@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">튜닝 순서의 실전 요령을 격자 탐색으로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import GridSearchCV
+
+params = {&quot;learning_rate&quot;: 0.1, &quot;n_estimators&quot;: 200}   # 학습률을 크게
+steps = [{&quot;max_depth&quot;: [1, 2, 3, 4],                  # 1 나무 구조
+          &quot;min_child_weight&quot;: [1, 5, 20]},
+         {&quot;subsample&quot;: [0.6, 0.8, 1.0],               # 2 표본·특성 비율
+          &quot;colsample_bytree&quot;: [0.4, 0.7, 1.0]},
+         {&quot;reg_lambda&quot;: [0.1, 1, 10, 50]}]            # 3 규제
+t0 = time.perf_counter()
+for k, grid in enumerate(steps, start=1):
+    gs = GridSearchCV(
+        make_nan_pipe(XGBClassifier(random_state=2026, **params)),
+        {&quot;model__&quot; + name: v for name, v in grid.items()},
+        cv=skf, scoring=&quot;roc_auc&quot;)
+    gs.fit(X_train, y_train)
+    params.update({name.replace(&quot;model__&quot;, &quot;&quot;): v
+                   for name, v in gs.best_params_.items()})
+    print(f&quot;step {k}: CV AUC {gs.best_score_:.4f}&quot;, gs.best_params_)
+params.update(learning_rate=0.02, n_estimators=1000)  # 4 학습률 ÷ 5, 나무 × 5
+cv4 = cross_val_score(make_nan_pipe(XGBClassifier(random_state=2026,
+                                                  **params)),
+                      X_train, y_train, cv=skf, scoring=&quot;roc_auc&quot;)
+t_steps = time.perf_counter() - t0
+print(f&quot;step 4: CV AUC {cv4.mean():.4f}  ({t_steps:.0f} s)&quot;)
+step_params = params</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>step 1: CV AUC 0.7713<span class="mk">1</span> {&#x27;model__max_depth&#x27;: 1, &#x27;model__min_child_weight&#x27;: 1}
+step 2: CV AUC 0.7728<span class="mk">2</span> {&#x27;model__colsample_bytree&#x27;: 0.4, &#x27;model__subsample&#x27;: 1.0}
+step 3: CV AUC 0.7728 {&#x27;model__reg_lambda&#x27;: 1}
+step 4: CV AUC 0.7713<span class="mk">3</span>  (23 s)</pre></div></div>

@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">Optuna로 XGBoost 튜닝 (60번 시도)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import optuna
+from optuna.samplers import TPESampler
+
+def objective(trial):
+    &quot;&quot;&quot;조합 하나를 골라 5겹 교차검증 AUC를 돌려준다 (겹은 늘 skf)&quot;&quot;&quot;
+    params = dict(
+        n_estimators=trial.suggest_int(&quot;n_estimators&quot;, 100, 1000,
+                                       step=50),
+        learning_rate=trial.suggest_float(&quot;learning_rate&quot;, 0.01, 0.3,
+                                          log=True),
+        max_depth=trial.suggest_int(&quot;max_depth&quot;, 1, 6),
+        min_child_weight=trial.suggest_float(&quot;min_child_weight&quot;, 0.5,
+                                             50, log=True),
+        subsample=trial.suggest_float(&quot;subsample&quot;, 0.5, 1.0),
+        colsample_bytree=trial.suggest_float(&quot;colsample_bytree&quot;, 0.3,
+                                             1.0),
+        reg_lambda=trial.suggest_float(&quot;reg_lambda&quot;, 0.1, 100,
+                                       log=True),
+        reg_alpha=trial.suggest_float(&quot;reg_alpha&quot;, 0.001, 10,
+                                      log=True))
+    model = make_nan_pipe(XGBClassifier(random_state=2026, **params))
+    return cross_val_score(model, X_train, y_train, cv=skf,
+                           scoring=&quot;roc_auc&quot;).mean()
+
+optuna.logging.set_verbosity(optuna.logging.WARNING)
+study = optuna.create_study(direction=&quot;maximize&quot;,
+                            sampler=TPESampler(seed=2026))
+t0 = time.perf_counter()
+study.optimize(objective, n_trials=60)
+t_optuna = time.perf_counter() - t0
+best_xgb = study.best_params
+print({k: round(v, 4) for k, v in best_xgb.items()})
+print(round(study.best_value, 4), &quot; trial&quot;, study.best_trial.number,
+      f&quot; ({t_optuna:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;n_estimators&#x27;: 200, &#x27;learning_rate&#x27;: 0.083, &#x27;max_depth&#x27;: 1<span class="mk">1</span>, &#x27;min_child_weight&#x27;: 1.2475, &#x27;subsample&#x27;: 0.6465, &#x27;colsample_bytree&#x27;: 0.3963, &#x27;reg_lambda&#x27;: 13.8467, &#x27;reg_alpha&#x27;: 0.0021}
+0.7761  trial 53<span class="mk">2</span>  (104 s)</pre></div></div>

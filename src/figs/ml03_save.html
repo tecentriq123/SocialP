@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">모형 저장과 불러오기 (save_model과 joblib)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import os
+import joblib
+
+xgb_final[-1].save_model(&quot;xgb_admit_2023.json&quot;)  # XGBoost 형식: 나무만
+joblib.dump(xgb_final, &quot;xgb_admit_2023.joblib&quot;)  # 전처리까지 통째로
+
+only_trees = XGBClassifier()
+only_trees.load_model(&quot;xgb_admit_2023.json&quot;)
+p1 = only_trees.predict_proba(xgb_final[:-1].transform(X_test))[:, 1]
+p2 = joblib.load(&quot;xgb_admit_2023.joblib&quot;).predict_proba(X_test)[:, 1]
+print(&quot;max difference:&quot;, np.abs(p1 - p_xgb).max(),
+      np.abs(p2 - p_xgb).max())
+print({f: f&quot;{os.path.getsize(f) / 1024:.0f} KB&quot;
+       for f in [&quot;xgb_admit_2023.json&quot;, &quot;xgb_admit_2023.joblib&quot;]})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>max difference: 0.0 0.0<span class="mk">1</span>
+{&#x27;xgb_admit_2023.json&#x27;: &#x27;106 KB&#x27;<span class="mk">2</span>, &#x27;xgb_admit_2023.joblib&#x27;: &#x27;166 KB&#x27;}</pre></div></div>

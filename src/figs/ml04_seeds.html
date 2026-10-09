@@ -1,0 +1,50 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">겹 나누기만 바꿔 보기 (seed 10개)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for seed in range(10):
+    cv_s = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
+    a = cross_val_score(base[&quot;logistic&quot;], X_train, y_train, cv=cv_s,
+                        scoring=&quot;roc_auc&quot;).mean()
+    b = cross_val_score(base[&quot;xgb&quot;], X_train, y_train, cv=cv_s,
+                        scoring=&quot;roc_auc&quot;).mean()
+    rows.append([seed, a, b, b - a])
+seeds = pd.DataFrame(rows, columns=[&quot;fold seed&quot;, &quot;logistic&quot;, &quot;xgb&quot;,
+                                    &quot;xgb - logistic&quot;])
+print(&quot;unpaired (each model on its own split):&quot;,
+      round(seeds[&quot;xgb&quot;].min() - seeds[&quot;logistic&quot;].max(), 4), &quot;to&quot;,
+      round(seeds[&quot;xgb&quot;].max() - seeds[&quot;logistic&quot;].min(), 4))
+seeds.drop(columns=&quot;fold seed&quot;).describe().loc[
+    [&quot;mean&quot;, &quot;std&quot;, &quot;min&quot;, &quot;max&quot;]].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>unpaired (each model on its own split): 0.0168 to 0.0359<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>logistic</th>
+      <th>xgb</th>
+      <th>xgb - logistic</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.7436</td>
+      <td>0.7704</td>
+      <td>0.0268</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.0028</td>
+      <td>0.0039</td>
+      <td>0.0033<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>0.7397</td>
+      <td>0.7643</td>
+      <td>0.0215</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>0.7475</td>
+      <td>0.7756</td>
+      <td>0.0316</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

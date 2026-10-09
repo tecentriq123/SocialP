@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">StackingClassifier (기본 모형 셋, 메타 모형은 로지스틱 회귀)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">stack = StackingClassifier(
+    estimators=[(nm, base[nm]) for nm in three],
+    final_estimator=LogisticRegression(max_iter=1000),
+    cv=skf, stack_method=&quot;predict_proba&quot;)
+t0 = time.perf_counter()
+stack.fit(X_train, y_train)        # 3 모형 × (5겹 + 전체 1번) = 18번
+t_stack = time.perf_counter() - t0
+meta = stack.final_estimator_
+print(&quot;coef:&quot;, meta.coef_.round(2), &quot; intercept:&quot;,
+      meta.intercept_.round(2), f&quot; ({t_stack:.0f} s)&quot;)
+same = LogisticRegression(max_iter=1000).fit(oof[three], y_train)
+print(&quot;largest difference from fitting cell 2&#x27;s oof:&quot;,
+      np.abs(same.coef_ - meta.coef_).max().round(6))
+p_stack = stack.predict_proba(X_test)[:, 1]
+print(&quot;test AUC:&quot;, round(roc_auc_score(y_test, p_stack), 3))
+params = stack.get_params()        # 바깥 이름__안쪽 이름
+print(params[&quot;forest__model__min_samples_leaf&quot;],
+      params[&quot;final_estimator__C&quot;], params[&quot;cv&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>coef: [[3.65 2.46 3.84]]<span class="mk">1</span>  intercept: [-3.83]  (39 s)
+largest difference from fitting cell 2&#x27;s oof: 0.0<span class="mk">2</span>
+test AUC: 0.772<span class="mk">3</span>
+85 1.0<span class="mk">4</span> StratifiedKFold(n_splits=5, random_state=2026, shuffle=True)</pre></div></div>

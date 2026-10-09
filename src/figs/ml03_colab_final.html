@@ -1,0 +1,54 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">LightGBM과 CatBoost의 시험 AUC (비교 표에 더할 줄)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lgb_final = make_nan_pipe(LGBMClassifier(
+    subsample_freq=1, random_state=2026, verbose=-1,
+    **study_lgb.best_params)).fit(X_train, y_train)
+cat_final = CatBoostClassifier(cat_features=cat_cols, random_seed=2026,
+                               verbose=0).fit(Xk_train, y_train)
+b_xgb = boot_auc(y_test, p_xgb)
+rows = []
+for name, p, cv in [
+        (&quot;LightGBM tuned&quot;, lgb_final.predict_proba(X_test)[:, 1],
+         study_lgb.best_value),
+        (&quot;CatBoost default&quot;, cat_final.predict_proba(Xk_test)[:, 1],
+         cv_cat_default)]:
+    b = boot_auc(y_test, p)
+    lo, hi = np.percentile(b, [2.5, 97.5])
+    d_lo, d_hi = np.percentile(b - b_xgb, [2.5, 97.5])
+    rows.append([name, cv, roc_auc_score(y_test, p), lo, hi, d_lo, d_hi])
+pd.DataFrame(rows, columns=[&quot;model&quot;, &quot;CV AUC&quot;, &quot;test AUC&quot;, &quot;CI low&quot;,
+                            &quot;CI high&quot;, &quot;vs XGB low&quot;, &quot;vs XGB high&quot;]
+             ).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table border="0" class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>model</th>
+      <th>CV AUC</th>
+      <th>test AUC</th>
+      <th>CI low</th>
+      <th>CI high</th>
+      <th>vs XGB low</th>
+      <th>vs XGB high</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>LightGBM tuned</td>
+      <td>0.775</td>
+      <td>0.785</td>
+      <td>0.741</td>
+      <td>0.826</td>
+      <td>-0.004</td>
+      <td>0.007</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>CatBoost default</td>
+      <td>0.744</td>
+      <td>0.750</td>
+      <td>0.700</td>
+      <td>0.792</td>
+      <td>-0.060</td>
+      <td>-0.011</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

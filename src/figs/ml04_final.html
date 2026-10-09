@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">최종 모형: 학습 자료 전체로 다시 맞추고 저장하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import joblib
+import sklearn
+import xgboost
+
+final = clone(base[&quot;xgb&quot;]).fit(X_train, y_train)  # 학습 자료 전체로 다시
+p_final = final.predict_proba(X_test)[:, 1]       # 시험 자료는 한 번
+lo, hi = np.percentile(boot_auc(y_test, p_final), [2.5, 97.5])
+print(f&quot;test AUC {roc_auc_score(y_test, p_final):.3f}&quot;
+      f&quot; (95% CI {lo:.3f} to {hi:.3f})&quot;)
+joblib.dump(final, &quot;admit_model_final.joblib&quot;)
+again = joblib.load(&quot;admit_model_final.joblib&quot;)
+print(&quot;same after loading:&quot;,
+      np.array_equal(again.predict_proba(X_test)[:, 1], p_final))
+print(&quot;scikit-learn&quot;, sklearn.__version__, &quot;| xgboost&quot;, xgboost.__version__)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>test AUC 0.784 (95% CI 0.738 to 0.825)<span class="mk">1</span>
+same after loading: True<span class="mk">2</span>
+scikit-learn 1.9.1 | xgboost 3.4.2</pre></div></div>

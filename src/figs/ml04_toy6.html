@@ -1,0 +1,99 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">환자 여섯 명으로 하드 투표, 소프트 투표, 가중 평균</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">three = [&quot;logistic&quot;, &quot;forest&quot;, &quot;xgb&quot;]     # 서로 다른 집안의 세 모형
+P = test_p[three]                         # 시험 자료 3,750명 × 3
+votes = (P &gt;= 0.5).sum(axis=1)            # 0.5 이상이라고 한 모형 수
+toy = P.assign(votes=votes,
+               hard=(votes &gt;= 2).astype(int),          # 다수결
+               soft=P.mean(axis=1),                    # 확률 평균
+               weighted=(P * [1, 1, 2]).sum(axis=1) / 4,  # xgb 두 배
+               admit=y_test)
+print(&quot;hard vote = 1:&quot;, toy[&quot;hard&quot;].sum(), &quot;of&quot;, len(toy),
+      &quot;| admitted among them:&quot;, toy.loc[toy[&quot;hard&quot;] == 1, &quot;admit&quot;].sum())
+print(&quot;AUC  soft:&quot;, round(roc_auc_score(y_test, toy[&quot;soft&quot;]), 3),
+      &quot;| number of votes:&quot;, round(roc_auc_score(y_test, votes), 3))
+print(&quot;largest probability:&quot;, P.max().round(3).to_dict())
+order = toy[&quot;soft&quot;].sort_values(ascending=False).index
+toy.loc[order[[0, 2, 5, 10, 150, 1875]]].round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>hard vote = 1: 14 of 3750<span class="mk">1</span> | admitted among them: 11
+AUC  soft: 0.772 | number of votes: 0.577<span class="mk">2</span>
+largest probability: {&#x27;logistic&#x27;: 0.891, &#x27;forest&#x27;: 0.383<span class="mk">3</span>, &#x27;xgb&#x27;: 0.797}</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>logistic</th>
+      <th>forest</th>
+      <th>xgb</th>
+      <th>votes</th>
+      <th>hard</th>
+      <th>soft</th>
+      <th>weighted</th>
+      <th>admit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>4496</th>
+      <td>0.891</td>
+      <td>0.374</td>
+      <td>0.797</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0.687</td>
+      <td>0.714</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4709</th>
+      <td>0.705</td>
+      <td>0.383</td>
+      <td>0.718</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0.602</td>
+      <td>0.631</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1429</th>
+      <td>0.638</td>
+      <td>0.375</td>
+      <td>0.679</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0.564</td>
+      <td>0.592</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>12748</th>
+      <td>0.825</td>
+      <td>0.290</td>
+      <td>0.351</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.489</td>
+      <td>0.454</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>8911</th>
+      <td>0.079</td>
+      <td>0.196</td>
+      <td>0.188</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.154</td>
+      <td>0.163</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>10360</th>
+      <td>0.029</td>
+      <td>0.024</td>
+      <td>0.015</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.023</td>
+      <td>0.021</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

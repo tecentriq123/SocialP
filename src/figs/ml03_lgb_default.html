@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">LightGBM 기본값과 잎을 줄인 설정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import lightgbm as lgb
+from lightgbm import LGBMClassifier
+print(&quot;lightgbm&quot;, lgb.__version__)
+
+few = dict(num_leaves=4, learning_rate=0.05, n_estimators=300,
+           min_child_samples=50)
+for name, params in [(&quot;default&quot;, {}), (&quot;4 leaves&quot;, few)]:
+    model = make_nan_pipe(LGBMClassifier(random_state=2026, verbose=-1,
+                                         **params))
+    t0 = time.perf_counter()
+    auc = cross_val_score(model, X_train, y_train, cv=skf,
+                          scoring=&quot;roc_auc&quot;)
+    print(f&quot;{name:9s} CV AUC {auc.mean():.4f} (SD {auc.std():.4f}),&quot;
+          f&quot; {time.perf_counter() - t0:.1f} s&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>lightgbm 4.6.0
+default   CV AUC 0.7273 (SD 0.0235), 4.5 s
+4 leaves  CV AUC 0.7591 (SD 0.0141), 3.3 s</pre></div></div>

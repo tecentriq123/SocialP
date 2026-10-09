@@ -1,0 +1,58 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">기본값, 단계별 격자, Optuna의 교차검증과 시험 AUC</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cands = {&quot;default&quot;: {},
+         &quot;stepwise grid&quot;: step_params,
+         &quot;Optuna&quot;: best_xgb}
+rows, fitted = [], {}
+for name, params in cands.items():
+    model = make_nan_pipe(XGBClassifier(random_state=2026, **params))
+    cv = cross_val_score(model, X_train, y_train, cv=skf,
+                         scoring=&quot;roc_auc&quot;)
+    fitted[name] = model.fit(X_train, y_train)    # 학습 자료 전체로
+    p = fitted[name].predict_proba(X_test)[:, 1]
+    lo, hi = np.percentile(boot_auc(y_test, p), [2.5, 97.5])
+    rows.append([name, cv.mean(), cv.std(), roc_auc_score(y_test, p),
+                 lo, hi])
+xgb_final = fitted[&quot;Optuna&quot;]                       # 교차검증으로 고른 모형
+p_xgb = xgb_final.predict_proba(X_test)[:, 1]
+pd.DataFrame(rows, columns=[&quot;XGBoost&quot;, &quot;CV AUC&quot;, &quot;CV SD&quot;, &quot;test AUC&quot;,
+                            &quot;CI low&quot;, &quot;CI high&quot;]).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>XGBoost</th>
+      <th>CV AUC</th>
+      <th>CV SD</th>
+      <th>test AUC</th>
+      <th>CI low</th>
+      <th>CI high</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>default</td>
+      <td>0.698</td>
+      <td>0.023</td>
+      <td>0.717<span class="mk">1</span></td>
+      <td>0.673</td>
+      <td>0.761</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>stepwise grid</td>
+      <td>0.771</td>
+      <td>0.014</td>
+      <td>0.792<span class="mk">2</span></td>
+      <td>0.746</td>
+      <td>0.831</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Optuna</td>
+      <td>0.776<span class="mk">3</span></td>
+      <td>0.016</td>
+      <td>0.784<span class="mk">4</span></td>
+      <td>0.738</td>
+      <td>0.825</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

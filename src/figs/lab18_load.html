@@ -3,7 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-raw = pd.read_csv(BASE + &quot;sedative_district_month.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+raw = pd.read_csv(BASE + &quot;sedative_district_month.csv&quot;,
+                  storage_options=UA)
 print(raw.shape)
 raw.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(3600, 5)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>

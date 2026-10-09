@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">CatBoost: 범주형 열을 그대로, 기본값으로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import catboost
+from catboost import CatBoostClassifier
+print(&quot;catboost&quot;, catboost.__version__)
+
+Xk_train, Xk_test = X_train.copy(), X_test.copy()
+Xk_train[cat_cols] = Xk_train[cat_cols].fillna(&quot;missing&quot;)  # 글자 열의 NaN은
+Xk_test[cat_cols] = Xk_test[cat_cols].fillna(&quot;missing&quot;)    # 글자로 바꿔야 함
+
+def cv_catboost(**params):
+    &quot;&quot;&quot;CatBoost의 5겹 교차검증 AUC (겹은 skf와 같음)&quot;&quot;&quot;
+    aucs = []
+    for tr, va in skf.split(Xk_train, y_train):
+        m = CatBoostClassifier(cat_features=cat_cols, random_seed=2026,
+                               verbose=0, **params)
+        m.fit(Xk_train.iloc[tr], y_train.iloc[tr])
+        p = m.predict_proba(Xk_train.iloc[va])[:, 1]
+        aucs.append(roc_auc_score(y_train.iloc[va], p))
+    return np.mean(aucs), np.std(aucs), m
+
+for name, params in [(&quot;default&quot;, {}),
+                     (&quot;ordered&quot;, {&quot;boosting_type&quot;: &quot;Ordered&quot;})]:
+    t0 = time.perf_counter()
+    mean, sd, m = cv_catboost(**params)
+    if name == &quot;default&quot;:
+        cv_cat_default = mean
+    used = m.get_all_params()
+    print(f&quot;{name:8s} CV AUC {mean:.4f} (SD {sd:.4f}),&quot;
+          f&quot; {time.perf_counter() - t0:.0f} s&quot;)
+    print(&quot;   &quot;, {k: used[k] for k in [&quot;boosting_type&quot;, &quot;iterations&quot;,
+                                       &quot;learning_rate&quot;, &quot;depth&quot;,
+                                       &quot;l2_leaf_reg&quot;]})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>catboost 1.2.10
+default  CV AUC 0.7436 (SD 0.0210), 81 s
+    {&#x27;boosting_type&#x27;: &#x27;Plain&#x27;, &#x27;iterations&#x27;: 1000, &#x27;learning_rate&#x27;: 0.026327000930905346, &#x27;depth&#x27;: 6, &#x27;l2_leaf_reg&#x27;: 3}
+ordered  CV AUC 0.7481 (SD 0.0152), 172 s
+    {&#x27;boosting_type&#x27;: &#x27;Ordered&#x27;, &#x27;iterations&#x27;: 1000, &#x27;learning_rate&#x27;: 0.026327000930905346, &#x27;depth&#x27;: 6, &#x27;l2_leaf_reg&#x27;: 3}</pre></div></div>

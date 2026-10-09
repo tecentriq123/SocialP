@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">VotingClassifier로 같은 일 하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.ensemble import VotingClassifier
+
+members = [(nm, base[nm]) for nm in three]   # (이름, 모형) 짝의 목록
+vote_soft = VotingClassifier(members, voting=&quot;soft&quot;)
+vote_hard = VotingClassifier(members, voting=&quot;hard&quot;)
+vote_soft.fit(X_train, y_train)
+vote_hard.fit(X_train, y_train)
+p_soft = vote_soft.predict_proba(X_test)[:, 1]
+print(&quot;soft = manual average :&quot;, np.allclose(p_soft, toy[&quot;soft&quot;]))
+print(&quot;hard = manual majority:&quot;,
+      np.array_equal(vote_hard.predict(X_test), toy[&quot;hard&quot;]))
+try:
+    vote_hard.predict_proba(X_test)
+except AttributeError as e:
+    print(&quot;AttributeError:&quot;, e)
+cv_soft = fold_aucs(oof[three].mean(axis=1))  # 겹 밖 예측의 평균으로
+print(&quot;soft vote: CV AUC&quot;, round(cv_soft.mean(), 4),
+      &quot;| test AUC&quot;, round(roc_auc_score(y_test, p_soft), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>soft = manual average : True
+hard = manual majority: True
+AttributeError<span class="mk">1</span>: This &#x27;VotingClassifier&#x27; has no attribute &#x27;predict_proba&#x27;
+soft vote: CV AUC 0.7677<span class="mk">2</span> | test AUC 0.7721</pre></div></div>

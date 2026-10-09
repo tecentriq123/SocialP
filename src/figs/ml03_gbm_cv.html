@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">사이킷런 그레이디언트 부스팅의 기본값으로 5겹 교차검증</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t0 = time.perf_counter()
+cv_gbm = cross_val_score(
+    make_tree_pipe(GradientBoostingClassifier(random_state=2026)),
+    X_train, y_train, cv=skf, scoring=&quot;roc_auc&quot;)
+t_gbm = time.perf_counter() - t0
+print(f&quot;CV AUC {cv_gbm.mean():.4f} (SD {cv_gbm.std():.4f}),&quot;
+      f&quot; {t_gbm:.0f} s&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>CV AUC 0.7658 (SD 0.0154)<span class="mk">1</span>, 8 s</pre></div></div>

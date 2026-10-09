@@ -41,7 +41,13 @@
 7. **참 구조와 견주기**: 이 자료는 참 구조를 알고 있다(`gen/_ml_truth.json`). 변수 중요도나 부분 의존 그림이 참 구조(나이 70세 이후 가팔라짐, BMI U자, 응급실 2회 계단, 효과 없는 변수 `dyslip`·`oa`·`region`·`n_prescribers`)를 얼마나 잡는지 보여 준다. 학생에게는 "만든 사람이 알려 주는 정답"으로 소개하고, 실제 자료에서는 정답을 모른다는 점을 분명히 한다.
 
 ## 공통 자료 (0장 작업자가 만들고 이후 장이 그대로 씀)
-`gen/data_ml.py`가 `pub/data/ml_claims.csv`(학생 코드는 `https://socialp-ajou.tecentriq12.workers.dev/data/ml_claims.csv`에서 읽음, labkit이 오프라인 파일로 바꿔 줌)를 만든다. 자료 설명은 `ML_DATA.md`(열 이름, 뜻, 단위, 결측, 만든 방법의 요약)에 적고, **참 구조**(사건 확률과 비용을 만든 식, 넣어 둔 비선형·교호작용, 효과 없는 변수)는 `gen/_ml_truth.json`과 `gen/_ml_truth.csv`(사람별 참 확률·참 기대비용, 공개하지 않음)에 저장한다.
+`gen/data_ml.py`가 `pub/data/ml_claims.csv`(학생 코드는 `https://socialp-ajou.tecentriq12.workers.dev/data/ml_claims.csv`에서 읽음, labkit이 오프라인 파일로 바꿔 줌)를 만든다. **자료를 읽는 코드는 모든 장에서 아래 모양 그대로 쓴다**(2026-10-09. 사이트가 파이썬의 기본 요청을 막아 Colab에서 `HTTP Error 403: Forbidden`이 나므로 브라우저 User-Agent 머리글을 붙인다. 규칙 전체는 `LAB_B_BRIEF.md`의 '자료'. `BASE` 바로 아래 줄에 `UA`, 사이트 주소를 읽는 모든 `pd.read_csv`에 `storage_options=UA`, 빠뜨리면 labkit이 오류를 냄. '코드 한 줄씩'에는 한 줄로 짧게 쓰고 `<a href="#ml00-s1">0장 가 절</a>`로 링크).
+```python
+BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + "ml_claims.csv", storage_options=UA)
+```
+자료 설명은 `ML_DATA.md`(열 이름, 뜻, 단위, 결측, 만든 방법의 요약)에 적고, **참 구조**(사건 확률과 비용을 만든 식, 넣어 둔 비선형·교호작용, 효과 없는 변수)는 `gen/_ml_truth.json`과 `gen/_ml_truth.csv`(사람별 참 확률·참 기대비용, 공개하지 않음)에 저장한다.
 - 단위: 한 사람 한 줄. 40세 이상 건강보험 가입자(가상). 기준 연도 2022년의 자료로 2023년 결과를 예측.
 - 인원: 15,000명 안팎(파일 3MB 이하).
 - 결과 두 개: `admit_2023`(2023년 안에 응급 입원이 있었는가, 0/1, 3–5%로 드묾) / `cost_2023`(2023년 총 의료비, 만원. 오른쪽으로 크게 치우침, 0원인 사람 일부).

@@ -17,6 +17,11 @@ What it does
 - Executes cells in ONE shared namespace, in order (like a Jupyter kernel).
 - Rewrites Rdatasets URLs (…/Rdatasets/csv/<pkg>/<name>.csv) to the offline copies in site/data/<name>.csv,
   so the code shown to students keeps the real URL while the sandbox runs offline.
+- Site data URLs (https://socialp-ajou.tecentriq12.workers.dev/data/<name>.csv) are read from site/pub/data/<name>.csv.
+  The site answers Python's default request (User-Agent "Python-urllib/3.x", e.g. in Colab) with HTTP 403, so every
+  such read MUST pass a browser User-Agent:  UA = {"User-Agent": "Mozilla/5.0"} right below BASE, then
+  pd.read_csv(BASE + "<name>.csv", storage_options=UA). Without it _read_csv raises. storage_options is dropped
+  before the local copy is read (pandas rejects storage_options for a local path).
 - Captures print() output, the value of the last expression (like Jupyter's Out[]), warnings, and every
   matplotlib figure the cell creates (embedded as PNG data URIs).
 - DataFrames / Series shown as the last expression are rendered as an HTML table (as Jupyter does).
@@ -54,6 +59,14 @@ SITE_DATA_URL = "https://socialp-ajou.tecentriq12.workers.dev/data/"
 PUB = os.path.join(ROOT, "pub")
 _URL2 = re.compile(r"https?://socialp-ajou\.tecentriq12\.workers\.dev/data/([^/]+\.csv)")
 _orig_read_csv = pd.read_csv
+# The site (Cloudflare) answers urllib's default User-Agent with 403 Forbidden (seen in Colab, 2026-10-09), so student
+# code must send a browser User-Agent. pandas (>= 1.2) sends storage_options as HTTP request headers for http(s) URLs.
+SITE_UA_FIX = ('UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함\n'
+               'df = pd.read_csv(BASE + "<file>.csv", storage_options=UA)')
+
+
+def _has_user_agent(so):
+    return isinstance(so, dict) and any(str(key).lower() == "user-agent" and val for key, val in so.items())
 
 
 def _read_csv(path, *a, **k):
@@ -63,9 +76,16 @@ def _read_csv(path, *a, **k):
             local = os.path.join(DATA, m.group(1))
             if not os.path.exists(local):
                 raise FileNotFoundError(f"offline copy missing: {local}")
+            k.pop("storage_options", None)          # headers are meaningless for the local copy (pandas would raise)
             path = local
         m2 = _URL2.match(path)
         if m2:
+            if not _has_user_agent(k.get("storage_options")):
+                raise ValueError(
+                    f"site data URL read without a User-Agent header: {path}\n"
+                    "The site returns HTTP Error 403: Forbidden to Python's default request (Colab). Define UA right "
+                    "below BASE and pass it to every read of a site URL, e.g.\n" + SITE_UA_FIX)
+            k.pop("storage_options")
             local = os.path.join(PUB, "data", m2.group(1))
             if not os.path.exists(local):
                 raise FileNotFoundError(f"site data file missing: {local}")

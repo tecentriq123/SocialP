@@ -34575,11 +34575,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 person = pd.read_csv(BASE + &quot;claims_person.csv&quot;,
-    parse_dates=[&quot;elig_start&quot;, &quot;elig_end&quot;, &quot;death_date&quot;])
+    parse_dates=[&quot;elig_start&quot;, &quot;elig_end&quot;, &quot;death_date&quot;],
+    storage_options=UA)
 visit = pd.read_csv(BASE + &quot;claims_visit.csv&quot;,
-                    parse_dates=[&quot;visit_date&quot;])
-rx = pd.read_csv(BASE + &quot;claims_rx.csv&quot;, parse_dates=[&quot;rx_date&quot;])
+                    parse_dates=[&quot;visit_date&quot;], storage_options=UA)
+rx = pd.read_csv(BASE + &quot;claims_rx.csv&quot;, parse_dates=[&quot;rx_date&quot;],
+                 storage_options=UA)
 print(person.shape, visit.shape, rx.shape)
 print(rx.dtypes)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(10150, 6)<span class="mk">1</span> (53895, 6) (111405, 4)
 pid                 int64
@@ -34587,8 +34590,10 @@ rx_date    datetime64[us]<span class="mk">2</span>
 drug                  str
 days                int64
 dtype: object</pre></div></div>
-<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">3개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
+<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">5개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
 <li><code>BASE = "https://…/data/"</code><span>자료 폴더의 주소를 변수에 담아 두고, 뒤에 파일 이름을 붙여 씁니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트에서 자료를 받으려면 이 줄과 <code>storage_options=UA</code>가 함께 필요합니다. ① <code>pd.read_csv</code>에 인터넷 주소를 주면 파이썬이 그 주소로 파일을 보내 달라는 요청을 보냅니다. 이 사이트는 파이썬이 기본 모양으로 보낸 요청을 막기 때문에, <code>storage_options=UA</code> 없이 읽으면 <code>HTTP Error 403: Forbidden</code>(접근 거부) 오류가 납니다. ② 요청에는 <b>머리글</b><span class="en">(header)</span>이라는 짧은 정보가 함께 붙어 갑니다. 그 가운데 <code>User-Agent</code>는 요청을 보낸 프로그램이 무엇인지 적는 칸이고, 파이썬은 따로 정하지 않으면 <code>Python-urllib/3.13</code>처럼 적습니다. <code>UA</code>는 이 칸에 웹 브라우저가 쓰는 값 <code>Mozilla/5.0</code>을 적은 사전(<a href="#lab00-s5">실습 0 마 절</a>)입니다. 줄 끝의 <code>#</code> 뒤는 실행되지 않는 주석입니다.</span></li>
+<li><code>storage_options=UA</code><span>③ 이 머리글을 요청에 붙여 보내라는 인자입니다. 사이트는 브라우저에서 온 요청으로 보고 파일을 보내 줍니다. <code>storage_options</code>는 원래 클라우드 저장소의 접속 설정을 넘기는 인자이고, http나 https 주소를 읽을 때는 그 내용을 요청의 머리글로 씁니다(pandas 1.2부터). 이 셀의 세 파일과 뒤의 셀에서 읽는 파일에 모두 같은 <code>UA</code>를 붙입니다. 실습 1–13의 Rdatasets 주소는 이런 요청을 막지 않아서 이 인자 없이 읽었습니다.</span></li>
 <li><code>parse_dates=["visit_date"]</code><span>CSV에서 날짜는 "2019-08-21" 같은 글자입니다. 이 인자에 열 이름을 주면 읽을 때 날짜 자료형으로 바꿉니다. 날짜 자료형이어야 날짜끼리 빼서 일수를 구하고, 앞뒤를 비교하고, 연도를 꺼낼 수 있습니다. 이미 읽은 표라면 <code>rx["rx_date"] = pd.to_datetime(rx["rx_date"])</code>로 바꿉니다.</span></li>
 <li><code>print(rx.dtypes)</code><span>열마다 자료형을 보여 줍니다. 날짜 열이 날짜로 읽혔는지 확인하는 습관을 들입니다.</span></li>
 </ol></details>
@@ -35590,7 +35595,7 @@ adjusted HR 0.61 (0.32-1.13)<span class="mk">2</span></pre></div></div>
 
 <h3>분석용 코호트 확인</h3>
 <p>사이트에는 같은 정의로 미리 만들어 둔 분석용 코호트 파일이 있습니다. 내가 만든 표와 사람 수, 군, 추적 일수, 사건 여부, 공변량이 모두 같은지 대조합니다.</p>
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">사이트의 분석용 코호트 파일과 대조하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ref = pd.read_csv(BASE + &quot;sglt2_cohort.csv&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">사이트의 분석용 코호트 파일과 대조하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ref = pd.read_csv(BASE + &quot;sglt2_cohort.csv&quot;, storage_options=UA)
 mine = cohort.sort_values(&quot;pid&quot;).reset_index(drop=True)
 cols = [&quot;pid&quot;, &quot;sglt2&quot;, &quot;time&quot;, &quot;event&quot;] + covs
 print(len(mine), len(ref))
@@ -35598,12 +35603,12 @@ print((mine[cols] == ref[cols]).all().all())</code></pre><div class="cell-out"><
 True<span class="mk">1</span></pre></div></div>
 <p><code>mine[cols] == ref[cols]</code>는 칸마다 같은지를 True, False로 채운 표입니다. <code>.all()</code>을 한 번 붙이면 열마다 모두 True인지, 두 번 붙이면 표 전체가 True인지를 값 하나로 알려 줍니다. 두 표를 pid 순으로 정렬해 줄의 순서를 맞춘 뒤 비교했습니다.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>True.</b> 5,552명의 12개 열이 모두 같습니다. False가 나오면 앞 셀의 조건(기간의 경계, 정렬, 계열 이름의 오타)을 다시 확인합니다. 이 파일은 <code>pd.read_csv(BASE + "sglt2_cohort.csv")</code>로 바로 읽어 다른 분석의 연습에 쓸 수 있습니다. 내가 만든 표는 <code>cohort.to_csv("my_cohort.csv", index=False)</code>로 저장합니다.</span></li>
+<li><span class="mk">1</span><span><b>True.</b> 5,552명의 12개 열이 모두 같습니다. False가 나오면 앞 셀의 조건(기간의 경계, 정렬, 계열 이름의 오타)을 다시 확인합니다. 이 파일은 <code>pd.read_csv(BASE + "sglt2_cohort.csv", storage_options=UA)</code>로 바로 읽어 다른 분석의 연습에 쓸 수 있습니다. 내가 만든 표는 <code>cohort.to_csv("my_cohort.csv", index=False)</code>로 저장합니다.</span></li>
 </ol>
 
 <h3>전체 코호트로 같은 분석 하기</h3>
 <p>표본의 점 추정값은 본문과 같지만 신뢰구간은 넓습니다. 본문의 숫자는 전체 코호트 166,548명으로 구한 것입니다. 전체 코호트의 원자료 표는 너무 커서 올리지 않았습니다. 대신 같은 정의로 구한 추적 일수, 사건 여부, 공변량을 한 사람 한 줄로 정리한 분석용 파일이 사이트에 있습니다(5MB). 이 파일에 앞에서 만든 함수 <code>rate_table</code>, <code>irr</code>, <code>hr</code>를 그대로 적용해 표본의 결과와 나란히 놓습니다. 이 환경에서는 파일을 읽고 Cox 모형 두 개를 적합하는 데 몇 초가 걸렸습니다. Colab에서는 수십 초까지 걸릴 수 있습니다.</p>
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">전체 코호트 166,548명으로 같은 분석 하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">full = pd.read_csv(BASE + &quot;sglt2_cohort_full.csv&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">전체 코호트 166,548명으로 같은 분석 하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">full = pd.read_csv(BASE + &quot;sglt2_cohort_full.csv&quot;, storage_options=UA)
 full[&quot;arm&quot;] = full[&quot;sglt2&quot;].map({1: &quot;SGLT2i&quot;, 0: &quot;DPP4i&quot;})
 
 def summary(c):
@@ -35876,7 +35881,8 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-df = pd.read_csv(BASE + &quot;ps_cohort.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + &quot;ps_cohort.csv&quot;, storage_options=UA)
 print(df.shape)
 df.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(10000, 13)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
@@ -35948,9 +35954,10 @@ df.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div
     </tr>
   </tbody>
 </table></div></div></div>
-<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">2개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
+<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">3개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
 <li><code>BASE = "https://…/data/"</code><span>이 사이트의 실습 자료가 놓인 주소입니다. 인터넷에 연결되어 있어야 합니다. 주소를 변수에 담아 두면 파일 이름만 바꿔 다른 자료도 읽을 수 있습니다.</span></li>
-<li><code>df = pd.read_csv(BASE + "ps_cohort.csv")</code><span>문자열 두 개를 <code>+</code>로 이으면 전체 주소가 됩니다. 그 주소의 CSV를 읽어 데이터프레임 <code>df</code>로 저장합니다. 한 행이 환자 한 명입니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
+<li><code>df = pd.read_csv(BASE + "ps_cohort.csv", storage_options=UA)</code><span>문자열 두 개를 <code>+</code>로 이으면 전체 주소가 됩니다. 그 주소의 CSV를 읽어 데이터프레임 <code>df</code>로 저장합니다. 한 행이 환자 한 명입니다.</span></li>
 </ol></details>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -36994,7 +37001,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-d = pd.read_csv(BASE + &quot;ami_cohort.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+d = pd.read_csv(BASE + &quot;ami_cohort.csv&quot;, storage_options=UA)
 print(d.shape)
 d.head(5)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(6000, 4)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
@@ -37044,9 +37052,10 @@ d.head(5)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div>
     </tr>
   </tbody>
 </table></div></div></div>
-<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">2개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
+<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">3개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
 <li><code>BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"</code><span>이 사이트의 자료 폴더 주소를 문자열로 저장합니다. 인터넷에 연결되어 있어야 합니다.</span></li>
-<li><code>pd.read_csv(BASE + "ami_cohort.csv")</code><span>문자열 두 개를 <code>+</code>로 이으면 파일의 전체 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(DataFrame) <code>d</code>로 저장합니다. 빈칸은 자동으로 결측값 <code>NaN</code>이 됩니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
+<li><code>pd.read_csv(BASE + "ami_cohort.csv", storage_options=UA)</code><span>문자열 두 개를 <code>+</code>로 이으면 파일의 전체 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(DataFrame) <code>d</code>로 저장합니다. 빈칸은 자동으로 결측값 <code>NaN</code>이 됩니다.</span></li>
 </ol></details>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -38099,7 +38108,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-ckd = pd.read_csv(BASE + &quot;ckd_competing.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+ckd = pd.read_csv(BASE + &quot;ckd_competing.csv&quot;, storage_options=UA)
 print(ckd.shape)
 ckd.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(3500, 5)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
@@ -38155,9 +38165,10 @@ ckd.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div
     </tr>
   </tbody>
 </table></div></div></div>
-<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">2개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
+<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">3개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
 <li><code>BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"</code><span>이 사이트의 자료 폴더 주소를 문자열로 저장합니다. 뒤에 파일 이름만 붙이면 주소가 완성됩니다. 인터넷 연결이 필요합니다.</span></li>
-<li><code>ckd = pd.read_csv(BASE + "ckd_competing.csv")</code><span>문자열 두 개를 <code>+</code>로 이어 붙인 주소에서 CSV를 읽어 데이터프레임 <code>ckd</code>로 저장합니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
+<li><code>ckd = pd.read_csv(BASE + "ckd_competing.csv", storage_options=UA)</code><span>문자열 두 개를 <code>+</code>로 이어 붙인 주소에서 CSV를 읽어 데이터프레임 <code>ckd</code>로 저장합니다.</span></li>
 </ol></details>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -39074,7 +39085,7 @@ B: 1 - KM 77.5, CIF dialysis + CIF death 77.5</pre></div></div>
 <h3>과제 3. 고관절 골절 자료</h3>
 <p><a href="#ch17-s2">17장 나 절</a> 확인 문제 2번의 자료입니다. 치매가 있는 고령 환자에서 약물 C와 D의 신규 사용자 각 2,500명을 최대 5년 추적했습니다. 파일은 <code>dementia_fracture.csv</code>이고 열은 실습 자료와 같습니다(drug는 "C" 또는 "D", status는 0 = 중도절단, 1 = 고관절 골절, 2 = 골절 전 사망). 두 군의 5년 골절 누적발생률(95% 신뢰구간), 사망 누적발생률, 사망을 중도절단한 1 − Kaplan-Meier, 골절과 사망의 원인별 위험비, 골절의 하위분포 위험비를 구하고, "약물 C는 골절을 예방한다"는 결론이 맞는지 판단하세요.</p>
 <details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 고관절 골절 자료 (17장 나 절 확인 문제)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fx = pd.read_csv(BASE + &quot;dementia_fracture.csv&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 고관절 골절 자료 (17장 나 절 확인 문제)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fx = pd.read_csv(BASE + &quot;dementia_fracture.csv&quot;, storage_options=UA)
 fx[&quot;drug_c&quot;] = (fx[&quot;drug&quot;] == &quot;C&quot;).astype(int)     # C = 1, D = 0
 fx[&quot;frac&quot;] = (fx[&quot;status&quot;] == 1).astype(int)
 fx[&quot;death&quot;] = (fx[&quot;status&quot;] == 2).astype(int)
@@ -39142,7 +39153,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-raw = pd.read_csv(BASE + &quot;sedative_district_month.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+raw = pd.read_csv(BASE + &quot;sedative_district_month.csv&quot;,
+                  storage_options=UA)
 print(raw.shape)
 raw.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(3600, 5)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
@@ -39182,9 +39195,10 @@ raw.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</di
     </tr>
   </tbody>
 </table></div></div></div>
-<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">2개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
+<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">3개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
 <li><code>BASE = "https://…/data/"</code><span>이 사이트의 자료 폴더 주소를 문자열로 저장해 둡니다. 인터넷에 연결되어 있어야 합니다.</span></li>
-<li><code>pd.read_csv(BASE + "sedative_district_month.csv")</code><span>문자열 두 개를 <code>+</code>로 이으면 하나의 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(DataFrame)로 만듭니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
+<li><code>pd.read_csv(BASE + "sedative_district_month.csv", storage_options=UA)</code><span>문자열 두 개를 <code>+</code>로 이으면 하나의 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(DataFrame)로 만듭니다.</span></li>
 </ol></details>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -40406,7 +40420,8 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-tr = pd.read_csv(BASE + &quot;acs_trials.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+tr = pd.read_csv(BASE + &quot;acs_trials.csv&quot;, storage_options=UA)
 print(tr.shape)
 tr</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(10, 12)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
@@ -40579,8 +40594,9 @@ tr</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(1
     </tr>
   </tbody>
 </table></div></div></div>
-<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">2개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
+<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">3개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
 <li><code>BASE = "https://…/data/"</code><span>자료 폴더의 주소를 문자열로 저장해 둡니다. <code>BASE + "acs_trials.csv"</code>는 두 문자열을 이어 붙인 전체 주소입니다. <code>pd.read_csv</code>는 <a href="#lab00-s5">실습 0 마 절</a>과 같습니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
 <li><code>tr</code><span>셀의 마지막 줄에 표 이름만 적으면 표 전체가 출력됩니다. 줄이 10개뿐이어서 모두 보입니다. 표가 가로로 길면 출력 칸 안에서 옆으로 밀어 봅니다.</span></li>
 </ol></details>
 <h4>출력 읽기</h4>
@@ -40590,7 +40606,8 @@ tr</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(1
 <li><span class="mk">3</span><span><b>Trial I의 mace_x = 122.</b> 약물 X군 1,800명 가운데 122명, 위약군 1,790명 가운데 167명에게 허혈 사건이 생겼습니다. 나 절에서 이 시험을 손으로 계산합니다.</span></li>
 <li><span class="mk">4</span><span><b>Trial C의 bleed_pbo = 0.</b> 위약군에서 주요 출혈이 한 건도 없습니다. 0인 칸이 있으면 오즈비를 그대로 계산할 수 없어 따로 처리합니다(나 절).</span></li>
 </ol>
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">하위군 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sub = pd.read_csv(BASE + &quot;acs_trials_subgroup.csv&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">하위군 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sub = pd.read_csv(BASE + &quot;acs_trials_subgroup.csv&quot;,
+                  storage_options=UA)
 print(sub.shape)
 sub</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(12, 6)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
@@ -41896,7 +41913,8 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-df = pd.read_csv(BASE + &quot;rcc_cost.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + &quot;rcc_cost.csv&quot;, storage_options=UA)
 print(df.shape)
 df.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(3000, 10)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
@@ -41982,9 +42000,10 @@ df.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div>
     </tr>
   </tbody>
 </table></div></div></div>
-<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">2개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
+<details class="lines-box"><summary>코드 한 줄씩 설명<span class="cnt">3개 항목 · 눌러서 펼치기</span></summary><ol class="lines">
 <li><code>BASE = "https://…/data/"</code><span>이 사이트의 실습 자료가 놓인 주소를 문자열로 저장해 둡니다. 실습 1–13에서 쓴 Rdatasets 대신 이 사이트에서 읽습니다. 인터넷 연결이 필요합니다.</span></li>
-<li><code>pd.read_csv(BASE + "rcc_cost.csv")</code><span>문자열 두 개를 <code>+</code>로 이으면 하나의 긴 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(<code>df</code>)로 만듭니다. 나머지 줄은 <a href="#lab00">실습 0</a>과 같습니다.</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
+<li><code>pd.read_csv(BASE + "rcc_cost.csv", storage_options=UA)</code><span>문자열 두 개를 <code>+</code>로 이으면 하나의 긴 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(<code>df</code>)로 만듭니다. 나머지 줄은 <a href="#lab00">실습 0</a>과 같습니다.</span></li>
 </ol></details>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -43158,7 +43177,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-trial = pd.read_csv(BASE + &quot;rcc_trial.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+trial = pd.read_csv(BASE + &quot;rcc_trial.csv&quot;, storage_options=UA)
 print(trial.shape)
 print(trial[&quot;event&quot;].value_counts().to_dict())
 trial.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(300, 3)<span class="mk">1</span>
@@ -43204,7 +43224,7 @@ trial.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</d
     </tr>
   </tbody>
 </table></div></div></div>
-<p>사이트 주소에서 CSV를 읽는 방법은 <a href="#lab21-s1">실습 21 가 절</a>과 같습니다. 인터넷 연결이 필요합니다.</p>
+<p>사이트 주소에서 CSV를 읽는 방법은 <a href="#lab21-s1">실습 21 가 절</a>과 같습니다. 인터넷 연결이 필요합니다. <code>storage_options=UA</code>는 사이트가 파이썬의 기본 요청을 막기 때문에 브라우저의 머리글을 붙이려고 넣은 인자입니다(<a href="#lab14-s1">실습 14 가 절</a>).</p>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>(300, 3).</b> 환자 300명, 열 3개입니다. 한 사람이 한 줄입니다.</span></li>

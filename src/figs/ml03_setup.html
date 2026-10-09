@@ -1,0 +1,64 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">0–2장의 준비를 한 번에 (자료, 분할, 파이프라인 세 가지, skf)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import (train_test_split, StratifiedKFold,
+                                     cross_val_score, cross_validate)
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.metrics import roc_auc_score, log_loss
+
+BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + &quot;ml_claims.csv&quot;, storage_options=UA)
+y = df[&quot;admit_2023&quot;]
+X = df.drop(columns=[&quot;id&quot;, &quot;admit_2023&quot;, &quot;cost_2023&quot;])
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=2026)
+cat_cols = [&quot;insurance&quot;, &quot;region&quot;, &quot;smoking&quot;, &quot;alcohol&quot;]
+num_cols = [c for c in X.columns if c not in cat_cols]
+
+def cat_steps():
+    &quot;&quot;&quot;글자 열: 결측을 &#x27;missing&#x27; 범주로 채운 뒤 원-핫 (0-2장과 같음)&quot;&quot;&quot;
+    return Pipeline([
+        (&quot;impute&quot;, SimpleImputer(strategy=&quot;constant&quot;,
+                                 fill_value=&quot;missing&quot;)),
+        (&quot;onehot&quot;, OneHotEncoder(handle_unknown=&quot;ignore&quot;,
+                                 sparse_output=False))])
+
+def make_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;0장: 중앙값 대체 + 표준화 + 원-핫&quot;&quot;&quot;
+    num_steps = Pipeline([(&quot;impute&quot;, SimpleImputer(strategy=&quot;median&quot;)),
+                          (&quot;scale&quot;, StandardScaler())])
+    prep = ColumnTransformer([(&quot;num&quot;, num_steps, num),
+                              (&quot;cat&quot;, cat_steps(), cat)])
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
+
+def make_tree_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;1장: 중앙값 대체 + 원-핫 (표준화 없음)&quot;&quot;&quot;
+    prep = ColumnTransformer(
+        [(&quot;num&quot;, SimpleImputer(strategy=&quot;median&quot;), num),
+         (&quot;cat&quot;, cat_steps(), cat)],
+        verbose_feature_names_out=False)
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
+
+def make_nan_pipe(model, num=num_cols, cat=cat_cols):
+    &quot;&quot;&quot;3장: 숫자 열은 결측(NaN) 그대로, 글자 열만 원-핫&quot;&quot;&quot;
+    prep = ColumnTransformer(
+        [(&quot;num&quot;, &quot;passthrough&quot;, num), (&quot;cat&quot;, cat_steps(), cat)],
+        verbose_feature_names_out=False).set_output(transform=&quot;pandas&quot;)
+    return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
+
+def boot_auc(y_true, p, n_boot=1000, seed=2026):
+    &quot;&quot;&quot;1장 마 절: 시험 자료를 복원추출해 다시 구한 AUC n_boot개&quot;&quot;&quot;
+    rng = np.random.default_rng(seed)
+    yt, p, out = np.asarray(y_true), np.asarray(p), []
+    for _ in range(n_boot):
+        i = rng.integers(0, len(yt), len(yt))
+        out.append(roc_auc_score(yt[i], p[i]))
+    return np.array(out)
+
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=2026)
+print(X_train.shape, X_test.shape, y_train.sum(), y_test.sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(11250, 39) (3750, 39) 459 153<span class="mk">1</span></pre></div></div>

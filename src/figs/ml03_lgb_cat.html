@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">범주형 열을 그대로 넘기기 (pandas category)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">Xl_train = X_train.astype({c: &quot;category&quot; for c in cat_cols})
+print([str(t) for t in Xl_train[cat_cols].dtypes])
+for name, model, data in [
+        (&quot;one-hot (make_nan_pipe)&quot;,
+         make_nan_pipe(LGBMClassifier(random_state=2026, verbose=-1,
+                                      **few)), X_train),
+        (&quot;category dtype, no pipeline&quot;,
+         LGBMClassifier(random_state=2026, verbose=-1, **few), Xl_train)]:
+    auc = cross_val_score(model, data, y_train, cv=skf,
+                          scoring=&quot;roc_auc&quot;)
+    print(f&quot;{name:28s} CV AUC {auc.mean():.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[&#x27;category&#x27;, &#x27;category&#x27;, &#x27;category&#x27;, &#x27;category&#x27;]
+one-hot (make_nan_pipe)      CV AUC 0.7591
+category dtype, no pipeline  CV AUC 0.7597</pre></div></div>

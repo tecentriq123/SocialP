@@ -1,0 +1,27 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">XGBoost 안을 들여다보기: 실제 기본값과 결측의 방향</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import json
+
+prep_nan = make_nan_pipe(None).named_steps[&quot;prep&quot;]
+Z_train = prep_nan.fit_transform(X_train)   # DataFrame, NaN 그대로
+Z_test = prep_nan.transform(X_test)
+small = XGBClassifier(n_estimators=50, max_depth=2, learning_rate=0.1,
+                      random_state=2026).fit(Z_train, y_train)
+
+cfg = json.loads(small.get_booster().save_config())   # 실제로 쓴 설정
+tp = cfg[&quot;learner&quot;][&quot;gradient_booster&quot;][&quot;tree_train_param&quot;]
+print({k: tp[k] for k in [&quot;eta&quot;, &quot;max_depth&quot;, &quot;min_child_weight&quot;,
+                          &quot;lambda&quot;, &quot;alpha&quot;, &quot;gamma&quot;, &quot;max_bin&quot;]})
+trees = small.get_booster().trees_to_dataframe()
+cols = [&quot;Tree&quot;, &quot;ID&quot;, &quot;Feature&quot;, &quot;Split&quot;, &quot;Yes&quot;, &quot;No&quot;, &quot;Missing&quot;, &quot;Gain&quot;]
+print(trees.loc[trees[&quot;Tree&quot;] == 0, cols].to_string(index=False))
+bmi = trees[trees[&quot;Feature&quot;] == &quot;bmi&quot;]
+print(&quot;bmi splits:&quot;, len(bmi), &quot; NaN sent to the &#x27;Yes&#x27; side:&quot;,
+      (bmi[&quot;Missing&quot;] == bmi[&quot;Yes&quot;]).sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;eta&#x27;: &#x27;0.100000001&#x27;, &#x27;max_depth&#x27;: &#x27;2&#x27;, &#x27;min_child_weight&#x27;: &#x27;1&#x27;<span class="mk">1</span>, &#x27;lambda&#x27;: &#x27;1&#x27;, &#x27;alpha&#x27;: &#x27;0&#x27;, &#x27;gamma&#x27;: &#x27;0&#x27;, &#x27;max_bin&#x27;: &#x27;256&#x27;}
+ Tree  ID Feature  Split  Yes   No Missing       Gain
+    0 0-0     age   84.0<span class="mk">2</span>  0-1  0-2     0-2   615.3932
+    0 0-1     age   77.0  0-3  0-4     0-4  128.17503
+    0 0-2 n_drugs    9.0  0-5  0-6     0-6   165.5177
+    0 0-3    Leaf   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;    &lt;NA&gt;  -0.041735
+    0 0-4    Leaf   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;    &lt;NA&gt;   0.157782
+    0 0-5    Leaf   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;    &lt;NA&gt;   0.306594
+    0 0-6    Leaf   &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;    &lt;NA&gt;   0.962585<span class="mk">3</span>
+bmi splits: 43  NaN sent to the &#x27;Yes&#x27; side: 24<span class="mk">4</span></pre></div></div>

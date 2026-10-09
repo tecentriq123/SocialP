@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 다른 세 모형으로 스태킹하고 공정하게 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">stack_b = StackingClassifier(
+    [(nm, base[nm]) for nm in [&quot;logistic&quot;, &quot;hgb&quot;, &quot;xgb&quot;]],
+    final_estimator=gs_meta.best_estimator_, cv=skf)
+cv_b = cross_val_score(stack_b, X_train, y_train, cv=skf,
+                       scoring=&quot;roc_auc&quot;)
+d_cv = cv_b - fold_auc[&quot;xgb&quot;].to_numpy()          # 같은 겹에서의 차이
+print(&quot;outer CV AUC&quot;, round(cv_b.mean(), 4), &quot;| diff vs xgb by fold&quot;,
+      d_cv.round(4), &quot;mean&quot;, round(d_cv.mean(), 4))
+p_b = stack_b.fit(X_train, y_train).predict_proba(X_test)[:, 1]
+d = boot_auc(y_test, p_b) - boots[&quot;xgb&quot;]
+diff, se, p = delong(y_test, p_b, test_p[&quot;xgb&quot;])
+print(&quot;test AUC&quot;, round(roc_auc_score(y_test, p_b), 4),
+      &quot;| diff&quot;, round(diff, 4), &quot;boot 95% CI&quot;,
+      np.percentile(d, [2.5, 97.5]).round(3), &quot;| DeLong p&quot;, round(p, 3))
+print(pd.Series(stack_b.final_estimator_[&quot;lr&quot;].coef_[0],
+                index=[&quot;logistic&quot;, &quot;hgb&quot;, &quot;xgb&quot;]).round(2).to_dict())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>outer CV AUC 0.7727 | diff vs xgb by fold [ 0.0014 -0.0111 -0.0031 -0.0017 -0.0023] mean -0.0033
+test AUC 0.7825 | diff -0.0018 boot 95% CI [-0.008  0.004] | DeLong p 0.528
+{&#x27;logistic&#x27;: 0.19, &#x27;hgb&#x27;: 0.2, &#x27;xgb&#x27;: 0.65}</pre></div></div>

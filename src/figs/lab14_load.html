@@ -3,11 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 person = pd.read_csv(BASE + &quot;claims_person.csv&quot;,
-    parse_dates=[&quot;elig_start&quot;, &quot;elig_end&quot;, &quot;death_date&quot;])
+    parse_dates=[&quot;elig_start&quot;, &quot;elig_end&quot;, &quot;death_date&quot;],
+    storage_options=UA)
 visit = pd.read_csv(BASE + &quot;claims_visit.csv&quot;,
-                    parse_dates=[&quot;visit_date&quot;])
-rx = pd.read_csv(BASE + &quot;claims_rx.csv&quot;, parse_dates=[&quot;rx_date&quot;])
+                    parse_dates=[&quot;visit_date&quot;], storage_options=UA)
+rx = pd.read_csv(BASE + &quot;claims_rx.csv&quot;, parse_dates=[&quot;rx_date&quot;],
+                 storage_options=UA)
 print(person.shape, visit.shape, rx.shape)
 print(rx.dtypes)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(10150, 6)<span class="mk">1</span> (53895, 6) (111405, 4)
 pid                 int64

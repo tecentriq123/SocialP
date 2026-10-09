@@ -5,7 +5,7 @@
 | 항목 | 내용 |
 |---|---|
 | 파일 | `pub/data/ml_claims.csv` (1.6 MB, UTF-8, 쉼표 구분) |
-| 학생 코드의 주소 | `https://socialp-ajou.tecentriq12.workers.dev/data/ml_claims.csv` (labkit이 `pub/data/`의 파일로 바꿔 읽음) |
+| 학생 코드의 주소 | `https://socialp-ajou.tecentriq12.workers.dev/data/ml_claims.csv` (labkit이 `pub/data/`의 파일로 바꿔 읽음). 읽을 때 `storage_options=UA`(브라우저 User-Agent)를 반드시 붙임. 아래 '모든 장이 같은 분할을 씁니다'의 코드 |
 | 만드는 스크립트 | `gen/data_ml.py` (`SEED = 3`, 결정적: 다시 돌려도 md5가 같음, CSV md5 `88574b4067719b208455433b2aac0aa6`) |
 | 행의 단위 | 한 사람 한 줄. 40세 이상 건강보험 가입자(가상) |
 | 행 수 · 열 수 | 15,000행 · 42열 (번호 1 + 특성 39 + 결과 2) |
@@ -73,7 +73,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
-df = pd.read_csv(BASE + "ml_claims.csv")
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + "ml_claims.csv", storage_options=UA)
 
 y = df["admit_2023"]                                      # 분류의 목표
 X = df.drop(columns=["id", "admit_2023", "cost_2023"])    # 특성 39개

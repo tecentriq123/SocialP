@@ -143,11 +143,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 person = pd.read_csv(BASE + "claims_person.csv",
-    parse_dates=["elig_start", "elig_end", "death_date"])
+    parse_dates=["elig_start", "elig_end", "death_date"],
+    storage_options=UA)
 visit = pd.read_csv(BASE + "claims_visit.csv",
-                    parse_dates=["visit_date"])
-rx = pd.read_csv(BASE + "claims_rx.csv", parse_dates=["rx_date"])
+                    parse_dates=["visit_date"], storage_options=UA)
+rx = pd.read_csv(BASE + "claims_rx.csv", parse_dates=["rx_date"],
+                 storage_options=UA)
 print(person.shape, visit.shape, rx.shape)
 print(rx.dtypes)
 ''', title="세 표 불러오기")
@@ -438,7 +441,7 @@ print("adjusted HR %.2f (%.2f-%.2f)" % hr(cohort, ["sglt2"] + covs))
 save("lab14_cox", c, marks=M.get("cox"))
 
 c = nb.cell('''
-ref = pd.read_csv(BASE + "sglt2_cohort.csv")
+ref = pd.read_csv(BASE + "sglt2_cohort.csv", storage_options=UA)
 mine = cohort.sort_values("pid").reset_index(drop=True)
 cols = ["pid", "sglt2", "time", "event"] + covs
 print(len(mine), len(ref))
@@ -447,7 +450,7 @@ print((mine[cols] == ref[cols]).all().all())
 save("lab14_check", c, marks=M.get("check"))
 
 c = nb.cell('''
-full = pd.read_csv(BASE + "sglt2_cohort_full.csv")
+full = pd.read_csv(BASE + "sglt2_cohort_full.csv", storage_options=UA)
 full["arm"] = full["sglt2"].map({1: "SGLT2i", 0: "DPP4i"})
 
 def summary(c):

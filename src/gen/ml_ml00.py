@@ -51,7 +51,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
-df = pd.read_csv(BASE + "ml_claims.csv")
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + "ml_claims.csv", storage_options=UA)
 print(df.shape)
 df.head(3).T                     # 앞 3명을 세로로 돌려 보기
 ''', title="공통 자료 불러오기", max_rows=12)

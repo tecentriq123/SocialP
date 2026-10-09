@@ -1,0 +1,133 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">환자 8명으로 그레이디언트 부스팅 두 번 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.tree import DecisionTreeRegressor
+
+toy = pd.DataFrame({
+    &quot;age&quot;:   [52, 61, 47, 78, 83, 69, 88, 74],
+    &quot;n_ed&quot;:  [0, 0, 1, 2, 0, 2, 1, 1],
+    &quot;admit&quot;: [0, 0, 0, 1, 0, 1, 1, 0]}, index=range(1, 9))
+lr = 0.5                                   # 학습률 (보기 쉽게 크게)
+p = np.full(8, toy[&quot;admit&quot;].mean())        # ① 모두 같은 출발 확률
+for r in [1, 2]:
+    resid = toy[&quot;admit&quot;] - p               # ② 남은 오차
+    stump = DecisionTreeRegressor(max_depth=1, random_state=2026)
+    stump.fit(toy[[&quot;age&quot;, &quot;n_ed&quot;]], resid) # ③ 작은 나무가 오차를 배움
+    step = stump.predict(toy[[&quot;age&quot;, &quot;n_ed&quot;]])
+    p = p + lr * step                      # ④ 학습률만큼만 고침
+    f = [&quot;age&quot;, &quot;n_ed&quot;][stump.tree_.feature[0]]
+    print(f&quot;round {r}: {f} &lt;= {stump.tree_.threshold[0]}&quot;)
+    toy[f&quot;resid{r}&quot;], toy[f&quot;tree{r}&quot;] = resid, step
+    toy[f&quot;p{r}&quot;] = p
+toy.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>round 1: n_ed &lt;= 1.5<span class="mk">1</span>
+round 2: age &lt;= 85.5<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>n_ed</th>
+      <th>admit</th>
+      <th>resid1</th>
+      <th>tree1</th>
+      <th>p1</th>
+      <th>resid2</th>
+      <th>tree2</th>
+      <th>p2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>52</td>
+      <td>0</td>
+      <td>0</td>
+      <td>-0.375</td>
+      <td>-0.208</td>
+      <td>0.271</td>
+      <td>-0.271</td>
+      <td>-0.104</td>
+      <td>0.219</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>61</td>
+      <td>0</td>
+      <td>0</td>
+      <td>-0.375</td>
+      <td>-0.208</td>
+      <td>0.271</td>
+      <td>-0.271</td>
+      <td>-0.104</td>
+      <td>0.219</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>47</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.375</td>
+      <td>-0.208</td>
+      <td>0.271</td>
+      <td>-0.271</td>
+      <td>-0.104</td>
+      <td>0.219</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>78</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0.625</td>
+      <td>0.625</td>
+      <td>0.688<span class="mk">3</span></td>
+      <td>0.312</td>
+      <td>-0.104</td>
+      <td>0.635<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>83</td>
+      <td>0</td>
+      <td>0</td>
+      <td>-0.375</td>
+      <td>-0.208</td>
+      <td>0.271</td>
+      <td>-0.271</td>
+      <td>-0.104</td>
+      <td>0.219</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>69</td>
+      <td>2</td>
+      <td>1</td>
+      <td>0.625</td>
+      <td>0.625</td>
+      <td>0.688</td>
+      <td>0.312</td>
+      <td>-0.104</td>
+      <td>0.635</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>88</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.625</td>
+      <td>-0.208</td>
+      <td>0.271</td>
+      <td>0.729<span class="mk">4</span></td>
+      <td>0.729</td>
+      <td>0.635</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>74</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.375</td>
+      <td>-0.208</td>
+      <td>0.271</td>
+      <td>-0.271</td>
+      <td>-0.104</td>
+      <td>0.219</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

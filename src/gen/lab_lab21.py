@@ -49,7 +49,8 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
-df = pd.read_csv(BASE + "rcc_cost.csv")
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + "rcc_cost.csv", storage_options=UA)
 print(df.shape)
 df.head()
 ''', title="패키지와 자료 불러오기")

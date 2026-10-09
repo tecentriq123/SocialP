@@ -1,0 +1,30 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">Optuna로 LightGBM 튜닝 (40번 시도)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def lgb_objective(trial):
+    params = dict(
+        n_estimators=trial.suggest_int(&quot;n_estimators&quot;, 100, 1000,
+                                       step=50),
+        learning_rate=trial.suggest_float(&quot;learning_rate&quot;, 0.01, 0.3,
+                                          log=True),
+        num_leaves=trial.suggest_int(&quot;num_leaves&quot;, 2, 64, log=True),
+        min_child_samples=trial.suggest_int(&quot;min_child_samples&quot;, 5, 200,
+                                            log=True),
+        subsample=trial.suggest_float(&quot;subsample&quot;, 0.5, 1.0),
+        colsample_bytree=trial.suggest_float(&quot;colsample_bytree&quot;, 0.3,
+                                             1.0),
+        reg_lambda=trial.suggest_float(&quot;reg_lambda&quot;, 0.01, 100,
+                                       log=True),
+        reg_alpha=trial.suggest_float(&quot;reg_alpha&quot;, 0.001, 10,
+                                      log=True))
+    model = make_nan_pipe(LGBMClassifier(
+        subsample_freq=1, random_state=2026, verbose=-1, **params))
+    return cross_val_score(model, X_train, y_train, cv=skf,
+                           scoring=&quot;roc_auc&quot;).mean()
+
+study_lgb = optuna.create_study(direction=&quot;maximize&quot;,
+                                sampler=TPESampler(seed=2026))
+t0 = time.perf_counter()
+study_lgb.optimize(lgb_objective, n_trials=40)
+print({k: round(v, 4) for k, v in study_lgb.best_params.items()})
+print(round(study_lgb.best_value, 4), &quot; trial&quot;,
+      study_lgb.best_trial.number,
+      f&quot; ({time.perf_counter() - t0:.0f} s)&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;n_estimators&#x27;: 900, &#x27;learning_rate&#x27;: 0.011, &#x27;num_leaves&#x27;: 2, &#x27;min_child_samples&#x27;: 78, &#x27;subsample&#x27;: 0.5206, &#x27;colsample_bytree&#x27;: 0.5271, &#x27;reg_lambda&#x27;: 3.4927, &#x27;reg_alpha&#x27;: 1.976}
+0.7754  trial 29  (211 s)</pre></div></div>

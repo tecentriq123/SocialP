@@ -165,7 +165,8 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.metrics import roc_auc_score
 
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
-df = pd.read_csv(BASE + "ml_claims.csv")
+UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + "ml_claims.csv", storage_options=UA)
 y = df["admit_2023"]
 X = df.drop(columns=["id", "admit_2023", "cost_2023"])
 X_train, X_test, y_train, y_test = train_test_split(

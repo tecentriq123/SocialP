@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">과제 2 정답. scale_pos_weight와 확률, 혼동행렬</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.model_selection import cross_val_predict
+from sklearn.metrics import confusion_matrix
+
+spw = (y_train == 0).sum() / (y_train == 1).sum()   # 10791 / 459
+for w in [1, spw]:
+    m = make_nan_pipe(XGBClassifier(random_state=2026,
+                                    scale_pos_weight=w, **best_xgb))
+    p = cross_val_predict(m, X_train, y_train, cv=skf,
+                          method=&quot;predict_proba&quot;)[:, 1]
+    print(f&quot;scale_pos_weight={w:.1f}: AUC {roc_auc_score(y_train, p):.4f},&quot;
+          f&quot; mean prob {p.mean():.3f}&quot;)
+    print(confusion_matrix(y_train, (p &gt;= 0.5).astype(int)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>scale_pos_weight=1.0: AUC 0.7747, mean prob 0.041
+[[10775    16]
+ [  416    43]]
+scale_pos_weight=23.5: AUC 0.7681, mean prob 0.378
+[[8832 1959]
+ [ 185  274]]</pre></div></div>

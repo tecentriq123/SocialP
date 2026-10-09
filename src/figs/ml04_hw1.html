@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 1 정답. 가중치를 바꾼 소프트 투표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for w in [[1, 1, 1], [1, 1, 2], [1, 1, 4], [0, 0, 1]]:
+    p_cv = (oof[three] * w).sum(axis=1) / sum(w)    # 겹 밖 예측의 가중 평균
+    p_te = (test_p[three] * w).sum(axis=1) / sum(w)
+    print(w, &quot;CV AUC&quot;, round(fold_aucs(p_cv).mean(), 4),
+          &quot;| test AUC&quot;, round(roc_auc_score(y_test, p_te), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1, 1, 1] CV AUC 0.7677 | test AUC 0.7721
+[1, 1, 2] CV AUC 0.7706 | test AUC 0.7755
+[1, 1, 4] CV AUC 0.7731 | test AUC 0.7783
+[0, 0, 1] CV AUC 0.7761 | test AUC 0.7843</pre></div></div>

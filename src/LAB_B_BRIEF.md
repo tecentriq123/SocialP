@@ -13,7 +13,18 @@
 5. **과제와 접힌 정답.** 마지막 절 '과제'에 과제 세 개(쉬운 것부터)를 두고 정답 코드와 풀이를 접어 둔다(아래 '과제').
 
 ## 자료
-- 학생 코드는 사이트 주소에서 읽는다: `BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"`, `pd.read_csv(BASE + "파일이름.csv")`. `gen/labkit.py`가 이 주소를 `pub/data/파일이름.csv`로 바꿔 읽으므로(오프라인) 그 폴더에 파일을 만들어 둔다.
+- 학생 코드는 사이트 주소에서 읽고, **읽을 때마다 브라우저 User-Agent 머리글을 붙인다**(2026-10-09). 사이트(Cloudflare)가 파이썬의 기본 요청(`Python-urllib/3.x`)을 막아 Colab에서 `HTTP Error 403: Forbidden`이 났기 때문이다. pandas 1.2 이상은 http(s) 주소의 `storage_options`를 요청 머리글로 보낸다. 모든 실습에서 똑같은 모양으로 쓴다.
+  ```python
+  BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
+  UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+  df = pd.read_csv(BASE + "파일이름.csv", storage_options=UA)
+  ```
+  - `UA`는 `BASE`를 정의하는 셀에서 바로 아래 줄에 둔다(주석 문구도 위와 같게). `BASE` 없이 전체 주소를 쓰는 셀이면 그 셀에 `UA`를 정의한다.
+  - 사이트 주소를 읽는 **모든** `pd.read_csv`에 `storage_options=UA`를 붙인다. `url = BASE + "…"` 다음 `pd.read_csv(url)`, `parse_dates=` 같은 다른 인자가 있는 경우, 뒤 셀과 과제 정답에서 다시 읽는 경우도 같다(뒤 셀은 앞 셀의 `UA`를 써도 된다). 줄이 70자를 넘으면 `storage_options=UA)`를 다음 줄로 내린다.
+  - 사이트 밖 주소(Rdatasets 등)에는 붙이지 않는다.
+  - `gen/labkit.py`는 사이트 주소를 읽는데 `storage_options`에 `User-Agent`가 없으면 오류를 낸다(빠뜨리면 생성 스크립트가 멈춘다).
+  - '코드 한 줄씩'에는 `UA` 줄을 한 줄로 짧게 쓰고 처음 설명한 곳으로 링크한다(`<a href="#lab14-s1">실습 14 가 절</a>`).
+- `gen/labkit.py`가 이 주소를 `pub/data/파일이름.csv`로 바꿔 읽으므로(오프라인, `storage_options`는 빼고 넘긴다) 그 폴더에 파일을 만들어 둔다.
 - 자료 파일은 `gen/data_labNN.py`가 만든다(결정적: 고정 seed, 다시 돌리면 같은 파일). 가능하면 `gen/nums_chNN.py`의 생성 코드를 불러 쓰거나 그 스크립트가 이미 저장한 `gen/_chNN_*.csv`를 가공한다. **`gen/nums_chNN.py`, `gen/lib_p4.py`와 이론 장은 고치지 않는다.**
 - 파일 이름은 `labNN_` 접두어 없이 내용이 드러나게(프롬프트가 지정한 이름을 쓴다). CSV, UTF-8, 한 파일 3MB 이하, 열 이름은 영문 소문자와 밑줄. 날짜는 `YYYY-MM-DD` 문자열. 범주는 사람이 읽을 수 있는 값(예: `SGLT2i`, `DPP4i`)이나 0/1.
 - 가 절에 자료 설명 표(파일, 행의 단위, 행 수, 열 이름과 뜻)를 둔다.

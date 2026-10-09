@@ -1,0 +1,227 @@
+{
+ "chapter": "ml03",
+ "colab_notebook": "pub/colab/ml03_colab.ipynb",
+ "how_to_fill": "1) 실행된 노트북을 받아 COLAB_NB=<그 파일> python3 gen/ml_ml03.py (REPLAY=1 ML03_CACHE=<캐시>와 함께 쓰면 다른 셀은 다시 돌리지 않음)로 figs/<name>.html을 실제 출력으로 바꾼다. 마크다운의 <!-- ml03_xxx --> 표시로 셀을 찾고, 코드가 본문과 다르면 MARK ERRORS에 적는다. 2) content/ml03.html의 [[COLAB:키]]를 아래 markers의 source가 가리키는 출력의 숫자로 바꾼다. 3) 출력 읽기의 표식(marks)은 colab_cell(..., marks=)로 더한다.",
+ "cells": [
+  {
+   "name": "ml03_lgb_default",
+   "site_cell": 9,
+   "title": "LightGBM 기본값과 잎을 줄인 설정",
+   "section": "ml03-s3",
+   "needs": "LightGBM",
+   "fig": "figs/ml03_lgb_default.html",
+   "colab_cell_index": 9,
+   "code_sha1": "7bc455d456dbb7c2e9079b1da78a2a60e50d4b49"
+  },
+  {
+   "name": "ml03_lgb_leaves",
+   "site_cell": 10,
+   "title": "num_leaves의 검증 곡선",
+   "section": "ml03-s3",
+   "needs": "LightGBM",
+   "fig": "figs/ml03_lgb_leaves.html",
+   "colab_cell_index": 11,
+   "code_sha1": "3f6a740ebdd9de578ee54fa0888c230406cbe16c"
+  },
+  {
+   "name": "ml03_lgb_cat",
+   "site_cell": 11,
+   "title": "범주형 열을 그대로 넘기기 (pandas category)",
+   "section": "ml03-s3",
+   "needs": "LightGBM",
+   "fig": "figs/ml03_lgb_cat.html",
+   "colab_cell_index": 13,
+   "code_sha1": "eaa515b9f86da4e4e52d3379bed1b144197862af"
+  },
+  {
+   "name": "ml03_cat",
+   "site_cell": 13,
+   "title": "CatBoost: 범주형 열을 그대로, 기본값으로",
+   "section": "ml03-s4",
+   "needs": "CatBoost",
+   "fig": "figs/ml03_cat.html",
+   "colab_cell_index": 15,
+   "code_sha1": "7a6c4f92e37eb15ac0eb2ed2bd34d2c62b2f7e98"
+  },
+  {
+   "name": "ml03_lgb_es",
+   "site_cell": 15,
+   "title": "LightGBM의 조기 종료 (callbacks)",
+   "section": "ml03-s5",
+   "needs": "LightGBM",
+   "fig": "figs/ml03_lgb_es.html",
+   "colab_cell_index": 17,
+   "code_sha1": "290c9f1b55fb8f1e2d396d60ec13f1a4b45b56d2"
+  },
+  {
+   "name": "ml03_lgb_optuna",
+   "site_cell": 22,
+   "title": "Optuna로 LightGBM 튜닝 (40번 시도)",
+   "section": "ml03-s5",
+   "needs": "LightGBM",
+   "fig": "figs/ml03_lgb_optuna.html",
+   "colab_cell_index": 19,
+   "code_sha1": "7439119ba558a7b0db6e2fc8cddde534d0635551"
+  },
+  {
+   "name": "ml03_colab_final",
+   "site_cell": 30,
+   "title": "LightGBM과 CatBoost의 시험 AUC (비교 표에 더할 줄)",
+   "section": "ml03-s6",
+   "needs": "LightGBM, CatBoost",
+   "fig": "figs/ml03_colab_final.html",
+   "colab_cell_index": 21,
+   "code_sha1": "9e10b002c54eab21cfd0eec3bf37c74099e21461"
+  },
+  {
+   "name": "ml03_shap_pkg",
+   "site_cell": 29,
+   "title": "shap 패키지로 같은 그림",
+   "section": "ml03-s6",
+   "needs": "shap",
+   "fig": "figs/ml03_shap_pkg.html",
+   "colab_cell_index": 23,
+   "code_sha1": "3cfa5a04746caa07966a48b3836683d81f209b6b"
+  }
+ ],
+ "markers": [
+  {
+   "key": "lgb_default_cv",
+   "section": "ml03-s3",
+   "source": "ml03_lgb_default: default 줄의 CV AUC",
+   "context": "00그루, 잎마다 최소 50명입니다. 나 절에서 XGBoost를 얕고 느리게 바꾼 것과 같은 방향입니다.\n\n기본값(잎 31개, 학습률 0.1, 100그루, 잎마다 최소 20명)의 교차검증 AUC는"
+  },
+  {
+   "key": "lgb_few_cv",
+   "section": "ml03-s3",
+   "source": "ml03_lgb_default: 4 leaves 줄의 CV AUC",
+   "context": "리게 바꾼 것과 같은 방향입니다.\n\n기본값(잎 31개, 학습률 0.1, 100그루, 잎마다 최소 20명)의 교차검증 AUC는 [[COLAB:lgb_default_cv]], 잎을 4개로 줄인 설정은"
+  },
+  {
+   "key": "lgb_time",
+   "section": "ml03-s3",
+   "source": "ml03_lgb_default: 두 줄의 걸린 초 (5겹)",
+   "context": "루, 잎마다 최소 20명)의 교차검증 AUC는 [[COLAB:lgb_default_cv]], 잎을 4개로 줄인 설정은 [[COLAB:lgb_few_cv]]입니다. 다섯 겹을 맞추는 데 걸린 시간은"
+  },
+  {
+   "key": "lgb_leaves_best",
+   "section": "ml03-s3",
+   "source": "ml03_lgb_leaves: CV AUC가 가장 높은 num_leaves와 그 CV AUC",
+   "context": "와 return_train_score=True는 1장 나 절과 같고, ax.set_xscale(\"log\", base=2)는 가로축을 2배 간격으로 그립니다. 교차검증 AUC가 가장 높은 잎의 수는"
+  },
+  {
+   "key": "lgb_leaves_31",
+   "section": "ml03-s3",
+   "source": "ml03_lgb_leaves: num_leaves 31의 CV AUC",
+   "context": "x.set_xscale(\"log\", base=2)는 가로축을 2배 간격으로 그립니다. 교차검증 AUC가 가장 높은 잎의 수는 [[COLAB:lgb_leaves_best]]이고, 기본값 31개에서는"
+  },
+  {
+   "key": "lgb_cat_cv",
+   "section": "ml03-s3",
+   "source": "ml03_lgb_cat: 두 줄의 CV AUC (one-hot / category)",
+   "context": "나누기를 찾지만, 이 자료의 글자 열은 범주가 2–3개뿐이라(4개 이하이면 하나 대 나머지로 나눔, max_cat_to_onehot) 원-핫과 거의 같은 일을 합니다. 두 방법의 교차검증 AUC는"
+  },
+  {
+   "key": "cat_default_cv",
+   "section": "ml03-s4",
+   "source": "ml03_cat: default 줄의 CV AUC",
+   "context": "않으면 나무마다 한 줄씩 찍힙니다.\nm.get_all_params()실제로 쓴 설정 전체입니다. 스스로 정한 학습률과 순서 부스팅 여부를 여기서 확인합니다.\n\n기본값의 교차검증 AUC는"
+  },
+  {
+   "key": "cat_ordered_cv",
+   "section": "ml03-s4",
+   "source": "ml03_cat: ordered 줄의 CV AUC",
+   "context": "l_params()실제로 쓴 설정 전체입니다. 스스로 정한 학습률과 순서 부스팅 여부를 여기서 확인합니다.\n\n기본값의 교차검증 AUC는 [[COLAB:cat_default_cv]], 순서 부스팅은"
+  },
+  {
+   "key": "cat_lr",
+   "section": "ml03-s4",
+   "source": "ml03_cat: default 줄 아래 learning_rate (자동으로 정한 값)",
+   "context": "기서 확인합니다.\n\n기본값의 교차검증 AUC는 [[COLAB:cat_default_cv]], 순서 부스팅은 [[COLAB:cat_ordered_cv]]이고, CatBoost가 스스로 정한 학습률은"
+  },
+  {
+   "key": "cat_time",
+   "section": "ml03-s4",
+   "source": "ml03_cat: default와 ordered의 걸린 초",
+   "context": "[[COLAB:cat_default_cv]], 순서 부스팅은 [[COLAB:cat_ordered_cv]]이고, CatBoost가 스스로 정한 학습률은 [[COLAB:cat_lr]], 걸린 시간은"
+  },
+  {
+   "key": "lgb_time",
+   "section": "ml03-s4",
+   "source": "ml03_lgb_default: 두 줄의 걸린 초 (5겹)",
+   "context": "td>조절값이 많고 기본값이 공격적조절값이 많고 num_leaves 중심조절값이 적음기본값이 무난, 조절값이 적은 편\n속도 (이 자료, 5겹)1초 안팎"
+  },
+  {
+   "key": "cat_time",
+   "section": "ml03-s4",
+   "source": "ml03_cat: default와 ordered의 걸린 초",
+   "context": ">num_leaves 중심조절값이 적음기본값이 무난, 조절값이 적은 편\n속도 (이 자료, 5겹)1초 안팎[[COLAB:lgb_time]]2초 안팎"
+  },
+  {
+   "key": "lgb_default_cv",
+   "section": "ml03-s4",
+   "source": "ml03_lgb_default: default 줄의 CV AUC",
+   "context": "1초 안팎[[COLAB:lgb_time]]2초 안팎[[COLAB:cat_time]]\n교차검증 AUC (기본값 → 조절)0.698 → 0.776 (Optuna)"
+  },
+  {
+   "key": "lgb_opt_cv",
+   "section": "ml03-s4",
+   "source": "ml03_lgb_optuna: 최고 CV AUC와 그 시도의 조합",
+   "context": "LAB:lgb_time]]2초 안팎[[COLAB:cat_time]]\n교차검증 AUC (기본값 → 조절)0.698 → 0.776 (Optuna)[[COLAB:lgb_default_cv]] →"
+  },
+  {
+   "key": "cat_default_cv",
+   "section": "ml03-s4",
+   "source": "ml03_cat: default 줄의 CV AUC",
+   "context": ".698 → 0.776 (Optuna)[[COLAB:lgb_default_cv]] → [[COLAB:lgb_opt_cv]] (Optuna)0.724 → 0.768 (손으로), 0.772 (과제 3)"
+  },
+  {
+   "key": "lgb_es_best",
+   "section": "ml03-s5",
+   "source": "ml03_lgb_es: best_iteration_",
+   "context": "ionWarning)가 나올 수 있습니다. 4.6 이하에는 eval_X가 없어서 두 버전에서 모두 도는 eval_set으로 적었고, 경고가 나와도 결과는 같습니다. Colab에서 LightGBM은"
+  },
+  {
+   "key": "lgb_es_auc",
+   "section": "ml03-s5",
+   "source": "ml03_lgb_es: validation AUC",
+   "context": "X가 없어서 두 버전에서 모두 도는 eval_set으로 적었고, 경고가 나와도 결과는 같습니다. Colab에서 LightGBM은 [[COLAB:lgb_es_best]]그루에서 멈췄고 검증 AUC는"
+  },
+  {
+   "key": "lgb_opt_cv",
+   "section": "ml03-s5",
+   "source": "ml03_lgb_optuna: 최고 CV AUC와 그 시도의 조합",
+   "context": "을 40번 튜닝했습니다. num_leaves를 2–64에서 로그 척도로 고르고, subsample이 실제로 쓰이도록 subsample_freq=1을 고정했습니다. 최고 교차검증 AUC와 그 조합은"
+  },
+  {
+   "key": "lgb_test",
+   "section": "ml03-s6",
+   "source": "ml03_colab_final: LightGBM tuned 줄의 test AUC와 CI",
+   "context": "모형 가운데 가장 낮습니다.\n\n\nColab에서 LightGBM(셀 22의 조합)과 CatBoost(기본값)를 학습 자료 전체로 맞춰 같은 시험 자료로 평가했습니다. 시험 AUC는 LightGBM"
+  },
+  {
+   "key": "cat_test",
+   "section": "ml03-s6",
+   "source": "ml03_colab_final: CatBoost default 줄의 test AUC와 CI",
+   "context": "ghtGBM(셀 22의 조합)과 CatBoost(기본값)를 학습 자료 전체로 맞춰 같은 시험 자료로 평가했습니다. 시험 AUC는 LightGBM [[COLAB:lgb_test]], CatBoost"
+  },
+  {
+   "key": "lgb_vs_xgb",
+   "section": "ml03-s6",
+   "source": "ml03_colab_final: LightGBM tuned 줄의 vs XGB low–high",
+   "context": "료로 평가했습니다. 시험 AUC는 LightGBM [[COLAB:lgb_test]], CatBoost [[COLAB:cat_test]]이고, 튜닝한 XGBoost와의 차이의 95% 신뢰구간은 각각"
+  },
+  {
+   "key": "cat_vs_xgb",
+   "section": "ml03-s6",
+   "source": "ml03_colab_final: CatBoost default 줄의 vs XGB low–high",
+   "context": "htGBM [[COLAB:lgb_test]], CatBoost [[COLAB:cat_test]]이고, 튜닝한 XGBoost와의 차이의 95% 신뢰구간은 각각 [[COLAB:lgb_vs_xgb]],"
+  },
+  {
+   "key": "shap_diff",
+   "section": "ml03-s6",
+   "source": "ml03_shap_pkg: largest difference from pred_contribs",
+   "context": "plots.bar는 셀 24의 왼쪽 막대, beeswarm은 오른쪽 점 그림, waterfall은 셀 25의 한 사람 쪼개기와 같은 그림입니다. 셀 24의 pred_contribs와의 최대 차이는"
+  }
+ ]
+}

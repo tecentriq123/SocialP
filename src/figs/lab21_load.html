@@ -6,7 +6,8 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-df = pd.read_csv(BASE + &quot;rcc_cost.csv&quot;)
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + &quot;rcc_cost.csv&quot;, storage_options=UA)
 print(df.shape)
 df.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(3000, 10)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>

@@ -1,0 +1,101 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">시험 자료에서 짝지은 부트스트랩과 DeLong 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">test_p[&quot;soft vote&quot;] = p_soft
+test_p[&quot;stack&quot;] = p_stack_lo
+boots = {nm: boot_auc(y_test, test_p[nm]) for nm in test_p}  # 같은 1,000벌
+
+def delong(y, p1, p2):
+    &quot;&quot;&quot;DeLong(1988): 같은 사람들로 구한 두 AUC의 차이, 표준오차, p&quot;&quot;&quot;
+    y = np.asarray(y)
+    parts = []
+    for p in (np.asarray(p1), np.asarray(p2)):
+        pos, neg = p[y == 1], p[y == 0]
+        win = (pos[:, None] &gt; neg) + 0.5 * (pos[:, None] == neg)
+        parts.append((win.mean(axis=1), win.mean(axis=0)))
+    (v1, w1), (v2, w2) = parts     # v: 입원한 사람별, w: 안 한 사람별
+    se = np.sqrt(np.var(v1 - v2, ddof=1) / len(v1)
+                 + np.var(w1 - w2, ddof=1) / len(w1))
+    d = v1.mean() - v2.mean()
+    return d, se, 2 * stats.norm.sf(abs(d) / se)
+
+rows = []
+for a in [&quot;stack&quot;, &quot;soft vote&quot;, &quot;hgb&quot;, &quot;bagging&quot;, &quot;forest&quot;, &quot;logistic&quot;]:
+    d = boots[a] - boots[&quot;xgb&quot;]          # 같은 표본에서의 차이
+    diff, se, p = delong(y_test, test_p[a], test_p[&quot;xgb&quot;])
+    rows.append([a + &quot; - xgb&quot;, diff, *np.percentile(d, [2.5, 97.5]),
+                 d.std(ddof=1), se, p])
+pd.DataFrame(rows, columns=[&quot;pair&quot;, &quot;diff&quot;, &quot;boot low&quot;, &quot;boot high&quot;,
+                            &quot;boot SE&quot;, &quot;DeLong SE&quot;, &quot;DeLong p&quot;]).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pair</th>
+      <th>diff</th>
+      <th>boot low</th>
+      <th>boot high</th>
+      <th>boot SE</th>
+      <th>DeLong SE</th>
+      <th>DeLong p</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>stack - xgb</td>
+      <td>-0.006</td>
+      <td>-0.019</td>
+      <td>0.005</td>
+      <td>0.007</td>
+      <td>0.006</td>
+      <td>0.322<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>soft vote - xgb</td>
+      <td>-0.012</td>
+      <td>-0.021</td>
+      <td>-0.003</td>
+      <td>0.005</td>
+      <td>0.005</td>
+      <td>0.010<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>hgb - xgb</td>
+      <td>-0.002</td>
+      <td>-0.020</td>
+      <td>0.016</td>
+      <td>0.009</td>
+      <td>0.009</td>
+      <td>0.868</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>bagging - xgb</td>
+      <td>-0.001</td>
+      <td>-0.020</td>
+      <td>0.021</td>
+      <td>0.010</td>
+      <td>0.010</td>
+      <td>0.956</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>forest - xgb</td>
+      <td>-0.015</td>
+      <td>-0.028</td>
+      <td>-0.002</td>
+      <td>0.007</td>
+      <td>0.006</td>
+      <td>0.020</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>logistic - xgb</td>
+      <td>-0.042</td>
+      <td>-0.066<span class="mk">3</span></td>
+      <td>-0.019</td>
+      <td>0.012</td>
+      <td>0.013</td>
+      <td>0.001</td>
+    </tr>
+  </tbody>
+</table></div></div></div>
