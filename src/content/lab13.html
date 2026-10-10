@@ -82,7 +82,7 @@
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
 <ul>
 <li>시드를 바꿔 보세요. 참값이 같아도 표본마다 결과가 달라집니다. <code>default_rng(13)</code>에서는 차이 0.259, 95% CI 0.036–0.482로 상한이 0.4를 넘어 비열등성을 입증하지 못하고, 하한이 0보다 커서 신약이 유의하게 덜 낮춘 것으로 나옵니다(13장 그림 13-1의 E를 좌우로 뒤집은 모양). 참 차이(0.09)가 한계보다 작아도 이렇게 입증에 실패할 확률이 1 − 검정력입니다.</li>
-<li><code>size</code>를 군당 60명으로 줄이면 신뢰구간이 넓어져 같은 참값에서도 비열등성을 입증하기 어려워집니다(13장 나 절 '표본크기').</li>
+<li><code>size</code>를 군당 60명으로 줄이면 신뢰구간이 넓어져 같은 참값에서도 비열등성을 입증하기 어려워집니다(13장 나 절 '더 알아보기'의 '표본크기 계산과 가정에 따른 변화').</li>
 </ul></div>
 
 <div class="paper">
@@ -91,7 +91,7 @@
 <p class="excerpt">The mean change in HbA1c from baseline to week 24 was <span class="mk">1</span> <span class="hl">−0.75% with drug X (n = 185) and −0.89% with the comparator (n = 183)</span>. The <span class="mk">2</span> <span class="hl">difference (drug X minus comparator) was 0.14 percentage points (95% CI, −0.06 to 0.35)</span>; because the <span class="mk">3</span> <span class="hl">upper limit of the CI was below the prespecified noninferiority margin of 0.4 percentage points</span>, drug X was noninferior to the comparator (<span class="hl">one-sided P = .008 for noninferiority</span>). Drug X was <span class="mk">4</span> <span class="hl">not superior to the comparator (P = .17)</span>.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>군별 평균.</b> 표본평균 −0.749와 −0.893을 반올림했습니다. 군별 값을 함께 쓰면 독자가 차이의 방향(−0.75 − (−0.89) = +0.14)을 직접 확인할 수 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>차이의 정의와 95% CI.</b> 0.1447(−0.063 to 0.353)을 반올림했습니다. "drug X minus comparator"를 밝혀야 양수가 신약에 불리한 방향이라는 것이 분명해집니다(13장 다 절 '부호가 뒤집힌 논문 읽기').</span></li>
+<li><span class="mk">2</span><span><b>차이의 정의와 95% CI.</b> 0.1447(−0.063 to 0.353)을 반올림했습니다. "drug X minus comparator"를 밝혀야 양수가 신약에 불리한 방향이라는 것이 분명해집니다(13장 다 절 '결과 읽기').</span></li>
 <li><span class="mk">3</span><span><b>상한과 한계를 비교, 단측 P.</b> 낮을수록 좋은 결과이므로 상한(0.35)을 +0.4와 비교했습니다. P = 0.0081은 귀무가설 "차이 ≥ 0.4"에 대한 단측 p입니다.</span></li>
 <li><span class="mk">4</span><span><b>우월성.</b> 차이 = 0에 대한 양측 P = 0.172입니다. 비열등성을 먼저 입증한 뒤 우월성을 보는 순서는 다중성 보정 없이 허용됩니다(13장 가 절). 실제 당뇨병 시험이라면 기저 HbA1c를 보정한 ANCOVA나 MMRM(10장 다 절)의 최소제곱 평균 차이로 이 문장을 채웁니다.</span></li>
 </ol>
@@ -124,7 +124,7 @@
 <li><code>pd.DataFrame(rows, columns=[...])</code><span>네 줄을 표로 만듭니다.</span></li>
 <li><code>tab["lower"] &gt; -0.10</code><span>하한이 −0.10보다 큰지(비열등성 입증) True/False로 판정한 열을 붙입니다.</span></li>
 </ol>
-<p>본 시험(main)에서는 두 방법이 거의 같습니다. Wald −0.0859 ~ 0.0501, Newcombe −0.0862 ~ 0.0506으로 13장의 −8.59 ~ 5.01%p, −8.62 ~ 5.06%p와 같고, 둘 다 하한이 −10%p보다 커서 비열등성이 입증됩니다. 소규모 시험(small)에서는 결론이 갈립니다. Wald 하한 −0.0943은 한계를 통과하지만 Newcombe 하한 −0.1346은 통과하지 못합니다. 표준치료군이 50명 모두 성공해 Wald 표준오차에서 그 군의 몫이 0이 되기 때문입니다(13장 라 절 'Wald 구간이 틀리는 곳').</p>
+<p>본 시험(main)에서는 두 방법이 거의 같습니다. Wald −0.0859 ~ 0.0501, Newcombe −0.0862 ~ 0.0506으로 13장의 −8.59 ~ 5.01%p, −8.62 ~ 5.06%p와 같고, 둘 다 하한이 −10%p보다 커서 비열등성이 입증됩니다. 소규모 시험(small)에서는 결론이 갈립니다. Wald 하한 −0.0943은 한계를 통과하지만 Newcombe 하한 −0.1346은 통과하지 못합니다. 표준치료군이 50명 모두 성공해 Wald 표준오차에서 그 군의 몫이 0이 되기 때문입니다(13장 라 절 '결과 읽기').</p>
 
 <!--FIG:lab13_prop_plot-->
 <h4>코드 한 줄씩</h4>
@@ -172,7 +172,7 @@
 <li><span class="mk">3</span><span><b>단측 P = 0.0098.</b> 13장의 값과 같습니다.</span></li>
 </ol>
 <div class="callout warn"><p class="ct">주의 · 프로그램마다 다른 결과가 나오면</p>
-<p>이 사이트에서 확인한 statsmodels 0.15.0의 <code>method="score"</code>는 귀무가설 아래의 비율을 77.52%, 87.52%로 계산했는데, 이 값에서의 로그우도(−200.162)는 직접 찾은 77.95%, 87.95%에서의 로그우도(−200.128)보다 작아 최대우도 추정값이 아닙니다. 그래서 z가 2.309로 조금 작게 나왔습니다. 같은 계산을 쓰는 <code>confint_proportions_2indep(..., method="score")</code>도 이 자료에서 −8.73 ~ 5.10%p를 주어 13장의 Miettinen–Nurminen 구간(−8.67 ~ 5.08%p)과 조금 다릅니다. 이 예에서는 결론이 바뀌지 않지만, 한계에 가까운 결과라면 직접 계산값이나 다른 통계 프로그램의 결과와 비교해 보세요. 다른 버전에서는 결과가 다를 수 있습니다. 비열등성 판단 자체는 미리 정한 신뢰구간(여기서는 Newcombe)으로 하는 것이 13장 라 절 Methods 상자의 방식입니다.</p></div>
+<p>이 사이트에서 확인한 statsmodels 0.15.0의 <code>method="score"</code>는 귀무가설 아래의 비율을 77.52%, 87.52%로 계산했는데, 이 값에서의 로그우도(−200.162)는 직접 찾은 77.95%, 87.95%에서의 로그우도(−200.128)보다 작아 최대우도 추정값이 아닙니다. 그래서 z가 2.309로 조금 작게 나왔습니다. 같은 계산을 쓰는 <code>confint_proportions_2indep(..., method="score")</code>도 이 자료에서 −8.73 ~ 5.10%p를 주어 13장의 Miettinen–Nurminen 구간(−8.67 ~ 5.08%p)과 조금 다릅니다. 이 예에서는 결론이 바뀌지 않지만, 한계에 가까운 결과라면 직접 계산값이나 다른 통계 프로그램의 결과와 비교해 보세요. 다른 버전에서는 결과가 다를 수 있습니다. 비열등성 판단 자체는 미리 정한 신뢰구간(여기서는 Newcombe)으로 하는 것이 13장 라 절 '논문에 쓰기' 예문의 방식입니다.</p></div>
 
 <div class="paper">
 <div class="paper-h"><b>논문에는 이렇게 씁니다 · 비율의 비열등성 Results</b><span>실습 결과(13장 가상 자료)</span></div>
@@ -233,10 +233,10 @@
 <li><code>g["conc"].max()</code>, <code>g.loc[g["conc"].idxmax(), "Time"]</code><span>최고 농도(Cmax)와, 최고 농도가 나온 행(<code>idxmax</code>)의 시간(Tmax)입니다.</span></li>
 <li><code>rows.append({...})</code>, <code>pd.DataFrame(rows)</code><span>대상자마다 사전 하나를 목록에 추가하고, 마지막에 표로 만듭니다.</span></li>
 </ol>
-<p>대상자 1의 AUC<sub>0–t</sub>는 148.92 mg·h/L, Cmax는 10.50 mg/L(1.12시간)입니다. AUC는 73.78–148.92로 대상자마다 두 배 넘게 다릅니다. 실제 생물학적 동등성 시험에서는 여기에 마지막 농도 이후의 넓이를 소실 속도로 외삽한 AUC<sub>0–∞</sub>도 함께 보고합니다(13장 가 절 Table 2).</p>
+<p>대상자 1의 AUC<sub>0–t</sub>는 148.92 mg·h/L, Cmax는 10.50 mg/L(1.12시간)입니다. AUC는 73.78–148.92로 대상자마다 두 배 넘게 다릅니다. 실제 생물학적 동등성 시험에서는 여기에 마지막 농도 이후의 넓이를 소실 속도로 외삽한 AUC<sub>0–∞</sub>도 함께 보고합니다(13장 가 절 '더 알아보기'의 '생물학적 동등성 시험' Table 2).</p>
 
 <h3>기하평균비와 90% 신뢰구간</h3>
-<p>이제 시험약(T)과 대조약(R)의 AUC로 판정합니다. 13장 가 절 '숫자로 따라가기'의 가상 자료(12명)를 그대로 씁니다. 두 가지를 기억합니다. 첫째, <b>로그 척도</b>에서 계산합니다. 약동학 지표는 로그정규분포에 가깝고 관심이 비(T/R)이므로, 로그를 취하면 비가 차이로 바뀌어 t 분포를 쓸 수 있고 결과를 지수로 되돌리면 기하평균비가 됩니다. 둘째, 동등성은 두 번의 단측 검정(각 α = 0.05)이므로 <b>90% 신뢰구간</b>을 씁니다. 판정 범위 80.00–125.00%는 로그 척도에서 ±0.2231로 0을 중심으로 대칭입니다.</p>
+<p>이제 시험약(T)과 대조약(R)의 AUC로 판정합니다. 13장 가 절 '더 알아보기'의 '생물학적 동등성 시험'에 있는 가상 자료(12명)를 그대로 씁니다. 두 가지를 기억합니다. 첫째, <b>로그 척도</b>에서 계산합니다. 약동학 지표는 로그정규분포에 가깝고 관심이 비(T/R)이므로, 로그를 취하면 비가 차이로 바뀌어 t 분포를 쓸 수 있고 결과를 지수로 되돌리면 기하평균비가 됩니다. 둘째, 동등성은 두 번의 단측 검정(각 α = 0.05)이므로 <b>90% 신뢰구간</b>을 씁니다. 판정 범위 80.00–125.00%는 로그 척도에서 ±0.2231로 0을 중심으로 대칭입니다.</p>
 <!--FIG:lab13_be-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -291,7 +291,7 @@
 <li><code>t = "C(form)[T.T]"</code><span>제제 계수의 이름입니다. 알파벳 순서로 R이 기준범주가 되어 계수는 ln T − ln R, 즉 로그 기하평균비입니다.</span></li>
 <li><code>fit.conf_int(alpha=0.10).loc[t]</code><span><code>alpha=0.10</code>이면 90% 신뢰구간입니다. 제제 행의 하한과 상한을 꺼냅니다.</span></li>
 <li><code>fit.df_resid</code>, <code>fit.mse_resid</code><span>잔차 자유도와 잔차 평균제곱(MSE)입니다.</span></li>
-<li><code>np.sqrt(np.exp(fit.mse_resid) - 1)</code><span>개체내 변동계수 CV = √(e<sup>MSE</sup> − 1)입니다(13장 가 절 Table 2 해설 4번).</span></li>
+<li><code>np.sqrt(np.exp(fit.mse_resid) - 1)</code><span>개체내 변동계수 CV = √(e<sup>MSE</sup> − 1)입니다(13장 가 절 '더 알아보기'의 '생물학적 동등성 시험' Table 2 해설 4번).</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -303,7 +303,7 @@
 
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
 <ul>
-<li>시뮬레이션의 <code>rng.normal(0, 0.13)</code>을 <code>0.30</code>으로 바꿔 변동이 큰 약을 흉내 내 보세요. 같은 24명으로는 90% CI가 넓어져 80–125%를 벗어나기 쉽습니다(13장 가 절 '변동이 큰 약').</li>
+<li>시뮬레이션의 <code>rng.normal(0, 0.13)</code>을 <code>0.30</code>으로 바꿔 변동이 큰 약을 흉내 내 보세요. 같은 24명으로는 90% CI가 넓어져 80–125%를 벗어나기 쉽습니다(13장 가 절 '더 알아보기'의 '생물학적 동등성 시험').</li>
 <li><code>np.log(0.97)</code>을 <code>np.log(0.85)</code>로 바꾸면 참 기하평균비가 85%인 시험약이 됩니다. 점추정값이 80–125% 안이어도 구간 하한이 80%를 밑돌 수 있습니다.</li>
 <li>Theoph의 Cmax로도 같은 계산을 할 수 있습니다. 실제 판정은 AUC와 Cmax 모두에서 90% CI가 범위 안이어야 합니다.</li>
 </ul></div>
@@ -316,7 +316,7 @@
 <li><span class="mk">1</span><span><b>분석 모형.</b> 로그 척도에서 대상자, 기간, 제제를 넣은 교차설계의 표준 분석입니다. 교과서와 규제 지침에는 순서군과 순서군 안의 대상자로 적는 경우가 많으며, 제제 효과의 추정은 같습니다.</span></li>
 <li><span class="mk">2</span><span><b>기하평균비와 90% CI.</b> 제제 계수와 90% 신뢰한계를 지수로 되돌린 값입니다. 95%가 아니라 90%인 이유(각 α = 0.05인 두 단측 검정)를 Methods에 적습니다.</span></li>
 <li><span class="mk">3</span><span><b>판정 범위.</b> 80.00–125.00%는 로그 척도에서 0을 중심으로 대칭입니다(ln 0.8 = −ln 1.25). 소수 둘째 자리까지 쓰는 것이 관례입니다.</span></li>
-<li><span class="mk">4</span><span><b>개체내 CV.</b> 잔차 평균제곱 0.0177로 계산했습니다. 실제 논문에서는 AUC와 Cmax 각각의 GMR, 90% CI, CV를 한 표로 보고합니다(13장 가 절 Table 2).</span></li>
+<li><span class="mk">4</span><span><b>개체내 CV.</b> 잔차 평균제곱 0.0177로 계산했습니다. 실제 논문에서는 AUC와 Cmax 각각의 GMR, 90% CI, CV를 한 표로 보고합니다(13장 가 절 '더 알아보기'의 '생물학적 동등성 시험' Table 2).</span></li>
 </ol>
 </div></div>
 

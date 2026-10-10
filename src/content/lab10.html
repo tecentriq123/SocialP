@@ -162,12 +162,12 @@
 <ol class="lines">
 <li><code>from statsmodels.stats.anova import AnovaRM</code><span>statsmodels에서 반복측정 분산분석 도구를 불러옵니다.</span></li>
 <li><code>AnovaRM(sleep, depvar="Reaction",
-       subject="Subject", within=["Days"])</code><span>긴 형식 자료, 결과변수(<code>depvar</code>), 사람을 구별하는 열(<code>subject</code>), 개체내 요인(<code>within</code>)을 지정합니다. <code>within</code>은 목록으로 받으므로 요인이 하나여도 대괄호로 감쌉니다. Days는 숫자지만 여기서는 10개 수준의 범주로 취급됩니다. 시간을 순서 없는 범주로 다루는 것이 반복측정 분산분석의 특징입니다(10장 나 절).</span></li>
+       subject="Subject", within=["Days"])</code><span>긴 형식 자료, 결과변수(<code>depvar</code>), 사람을 구별하는 열(<code>subject</code>), 개체내 요인(<code>within</code>)을 지정합니다. <code>within</code>은 목록으로 받으므로 요인이 하나여도 대괄호로 감쌉니다. Days는 숫자지만 여기서는 10개 수준의 범주로 취급됩니다. 시간을 순서 없는 범주로 다루는 것이 반복측정 분산분석의 특징입니다(10장 가 절 '가정과 대안').</span></li>
 <li><code>.fit()</code>, <code>print(aov)</code><span>계산을 실행하고 분산분석표를 출력합니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>F = 18.70.</b> 날짜 사이의 평균 차이(날짜 평균제곱)를 참가자 안의 오차 평균제곱으로 나눈 값입니다. 참가자마다 반응시간 수준이 다른 부분은 오차에서 빠져 있습니다(10장 가 절 '환자 간 차이를 떼어 내기').</span></li>
+<li><span class="mk">1</span><span><b>F = 18.70.</b> 날짜 사이의 평균 차이(날짜 평균제곱)를 참가자 안의 오차 평균제곱으로 나눈 값입니다. 참가자마다 반응시간 수준이 다른 부분은 오차에서 빠져 있습니다(10장 가 절 '숫자로 따라가기').</span></li>
 <li><span class="mk">2</span><span><b>분자 자유도 9</b> = 시점 수 − 1 = 10 − 1.</span></li>
 <li><span class="mk">3</span><span><b>분모 자유도 153</b> = (시점 수 − 1) × (참가자 수 − 1) = 9 × 17.</span></li>
 <li><span class="mk">4</span><span><b>Pr &gt; F 0.0000.</b> p가 0이라는 뜻이 아니라 소수 넷째 자리에서 반올림한 결과입니다. 다음 셀에서 보듯 실제 p는 9.0 × 10<sup>−21</sup>이므로 논문에는 P &lt; .001로 씁니다. "10일의 평균이 모두 같다"는 귀무가설이 기각되었다는 뜻일 뿐, 하루에 얼마나 느려지는지는 이 표에 없습니다. 효과의 크기는 다 절의 혼합모형 계수로 봅니다.</span></li>
@@ -186,7 +186,7 @@
      - S.mean(axis=1)[:, None] + S.mean()</code><span>이중 중심화입니다. <code>S.mean(axis=0)</code>은 열 평균 10개, <code>S.mean(axis=1)[:, None]</code>은 행 평균 10개를 세로로 세운 (10, 1) 모양입니다. 모양이 다른 배열을 빼면 numpy가 칸마다 맞춰 계산합니다(broadcasting).</span></li>
 <li><code>eps = np.trace(Sc)**2 / ((k - 1) * np.sum(Sc**2))</code><span>위 식 그대로입니다. <code>np.trace</code>는 대각합, <code>np.sum(Sc**2)</code>는 모든 칸의 제곱합으로, 대칭 행렬에서는 \(\operatorname{tr}(\tilde S^2)\)와 같습니다.</span></li>
 <li><code>aov.anova_table.loc["Days", "F Value"]</code><span>앞 셀 결과의 분산분석표(<code>anova_table</code>, DataFrame)에서 Days 행, F Value 열의 값 18.70을 꺼냅니다.</span></li>
-<li><code>stats.f.sf(F, eps * df1, eps * df2)</code><span>F 분포의 오른쪽 꼬리 넓이, 즉 p입니다. F는 그대로 두고 자유도에만 ε을 곱합니다(10장 가 절의 파이썬 출력 상자와 같은 계산). 하한 보정은 ε = 1/(k − 1)이므로 자유도가 (1, n − 1)이 됩니다.</span></li>
+<li><code>stats.f.sf(F, eps * df1, eps * df2)</code><span>F 분포의 오른쪽 꼬리 넓이, 즉 p입니다. F는 그대로 두고 자유도에만 ε을 곱합니다(10장 가 절 '더 알아보기'의 '보정한 자유도로 p 다시 구하기'와 같은 계산). 하한 보정은 ε = 1/(k − 1)이므로 자유도가 (1, n − 1)이 됩니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -243,7 +243,7 @@
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>Method: REML.</b> 분산성분을 제한최대우도로 추정했습니다(10장 다 절 '추정 방법'). ML과의 차이는 아래에서 직접 비교합니다.</span></li>
+<li><span class="mk">1</span><span><b>Method: REML.</b> 분산성분을 제한최대우도로 추정했습니다(10장 다 절 '더 알아보기'의 '최대우도와 제한최대우도'). ML과의 차이는 아래에서 직접 비교합니다.</span></li>
 <li><span class="mk">2</span><span><b>No. Groups: 18.</b> <code>groups</code>로 준 군집, 즉 참가자 수입니다. statsmodels는 군집을 'Group'이라고 부릅니다. Min·Max group size가 모두 10이므로 모든 참가자가 10번 측정되었습니다.</span></li>
 <li><span class="mk">3</span><span><b>Scale = 960.46.</b> 잔차 분산 σ²입니다. 참가자 자신의 평균 수준 주변에서 날마다 흔들리는 정도로, SD는 √960.46 = 31.0 ms입니다.</span></li>
 <li><span class="mk">4</span><span><b>Log-Likelihood = −893.23.</b> REML 로그우도입니다. 혼자서는 의미가 없고, 무작위 기울기 모형과 비교할 때 씁니다.</span></li>
@@ -281,7 +281,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>Scale이 960.46에서 654.94로 줄었습니다.</b> 사람마다 기울기가 다른 부분이 잔차에서 빠져나가 무작위효과로 옮겨 갔기 때문입니다. 잔차 SD는 25.6 ms입니다.</span></li>
 <li><span class="mk">2</span><span><b>Log-Likelihood = −871.81.</b> 무작위 절편 모형(−893.23)보다 큽니다(덜 음수). 다음 셀에서 검정합니다.</span></li>
-<li><span class="mk">3</span><span><b>Days = 10.467, SE 1.546.</b> 점추정값은 같지만 표준오차가 두 배 가까이 커졌습니다. 95% CI 7.44–13.50입니다. SAS PROC MIXED나 R lmerTest처럼 Satterthwaite 근사로 t 분포의 자유도를 구하는 프로그램에서는 이 계수의 자유도가 17 정도로 계산되어 신뢰구간이 조금 넓게(약 7.2–13.7) 나옵니다(10장 다 절 파이썬 출력 상자 6번).</span></li>
+<li><span class="mk">3</span><span><b>Days = 10.467, SE 1.546.</b> 점추정값은 같지만 표준오차가 두 배 가까이 커졌습니다. 95% CI 7.44–13.50입니다. SAS PROC MIXED나 R lmerTest처럼 Satterthwaite 근사로 t 분포의 자유도를 구하는 프로그램에서는 이 계수의 자유도가 17 정도로 계산되어 신뢰구간이 조금 넓게(약 7.2–13.7) 나옵니다(10장 다 절 '더 알아보기'의 '파이썬 출력 읽기' 6번).</span></li>
 <li><span class="mk">4</span><span><b>Group Var = 612.10.</b> 이제는 '0일 시점'의 무작위 절편 분산입니다. SD 24.7 ms. 무작위 절편 모형의 1378과 뜻이 달라 직접 비교하지 않습니다.</span></li>
 <li><span class="mk">5</span><span><b>Group x Days Cov = 9.605.</b> 절편과 기울기의 공분산입니다. 상관계수로 바꾸면 9.605 ÷ (24.74 × 5.922) = 0.07로, 출발점이 높은 사람이 조금 더 가파르다는 경향이 있지만 거의 0입니다.</span></li>
 <li><span class="mk">6</span><span><b>Days Var = 35.07.</b> 기울기의 분산입니다. SD는 √35.07 = 5.92 ms/일이므로 참가자의 약 95%가 10.47 ± 1.96 × 5.92, 즉 하루 −1.1 ms에서 22.1 ms 사이의 기울기를 가진다고 추정됩니다. 수면 제한에 거의 영향을 받지 않는 사람부터 하루 20 ms 넘게 느려지는 사람까지 있다는 뜻입니다.</span></li>
@@ -441,7 +441,7 @@
 <div class="paper-b">
 <p class="excerpt">Seizure counts in the four 2-week periods were analyzed with <span class="mk">1</span> <span class="hl">generalized estimating equations with a Poisson distribution and log link, an exchangeable working correlation structure, and robust standard errors, with patients as clusters</span>. The model included <span class="mk">2</span> <span class="hl">treatment group, the logarithm of the baseline seizure rate per 2 weeks, the logarithm of age, and period</span>. The adjusted <span class="mk">3</span> <span class="hl">rate ratio for progabide versus placebo was 0.99 (95% CI, 0.68 to 1.44; P = .96)</span>. The estimated <span class="mk">4</span> <span class="hl">within-patient working correlation was 0.40</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>GEE의 네 요소.</b> 분포와 연결함수, 작업상관 구조, 강건 표준오차, 군집 단위를 모두 적었습니다. 이 중 하나라도 빠지면 독자가 분석을 재현하거나 평가하기 어렵습니다(10장 라 절 Methods 상자).</span></li>
+<li><span class="mk">1</span><span><b>GEE의 네 요소.</b> 분포와 연결함수, 작업상관 구조, 강건 표준오차, 군집 단위를 모두 적었습니다. 이 중 하나라도 빠지면 독자가 분석을 재현하거나 평가하기 어렵습니다(10장 라 절 '논문에서 읽기'의 Methods 상자).</span></li>
 <li><span class="mk">2</span><span><b>보정 변수.</b> 모두 무작위배정 이전 값(기저 발작률, 나이)이거나 설계 변수(기간)입니다. 기저 건수를 기간 길이에 맞춰 2주당으로 바꾸고 로그를 취했다는 점을 밝히면 계수를 해석할 수 있습니다.</span></li>
 <li><span class="mk">3</span><span><b>발생률비와 95% CI.</b> 발생률비 표의 0.989(0.679–1.442)와 요약표의 P = 0.956을 반올림했습니다. 신뢰구간이 넓다는 점을 Discussion에서 다뤄야 하며, "no effect"라고 쓰지 않습니다.</span></li>
 <li><span class="mk">4</span><span><b>작업상관.</b> <code>cov_struct.summary()</code>의 0.400입니다. 보고하지 않는 논문도 많지만, 같은 환자의 건수가 얼마나 닮았는지 알려 주어 다음 연구의 표본크기 계산(설계효과)에 쓸 수 있습니다.</span></li>
