@@ -242,7 +242,7 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <h4>출력 읽기 · 위쪽 블록(모형 전체)</h4>
 <p>위쪽 블록의 왼쪽 열은 모형과 자료에 대한 정보, 오른쪽 열은 모형 전체의 적합도입니다. Date와 Time은 실행한 날짜와 시각이라 사람마다 다릅니다.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>Dep. Variable: target.</b> 결과변수(dependent variable)가 무엇인지 확인합니다. 공식을 거꾸로 써서 <code>"bmi ~ target"</code>으로 적합하면 전혀 다른 직선이 나옵니다(6장 다 절 참고 상자).</span></li>
+<li><span class="mk">1</span><span><b>Dep. Variable: target.</b> 결과변수(dependent variable)가 무엇인지 확인합니다. 공식을 거꾸로 써서 <code>"bmi ~ target"</code>으로 적합하면 전혀 다른 직선이 나옵니다(6장 다 절 '더 알아보기'의 'x와 y를 바꾸면 다른 직선이 나옵니다').</span></li>
 <li><span class="mk">2</span><span><b>R-squared 0.344.</b> 결정계수입니다. 평균 하나로 예측할 때보다 잔차 제곱합이 34.4% 줄었다는 뜻이고, 단순회귀에서는 r²(0.586² = 0.344)과 같습니다.</span></li>
 <li><span class="mk">3</span><span><b>Adj. R-squared 0.342.</b> 수정 결정계수 = 1 − (1 − 0.344) × (442 − 1)/(442 − 1 − 1). 설명변수가 하나라 R²와 거의 같고, 다중회귀에서 의미가 커집니다(라 절).</span></li>
 <li><span class="mk">4</span><span><b>F-statistic 230.7.</b> "모든 기울기가 0"이라는 귀무가설에 대한 모형 전체의 F 검정 통계량입니다. 설명변수가 하나면 F = t² = 15.187² = 230.7입니다.</span></li>
@@ -442,7 +442,7 @@ model_all.bse["s5"]</code><span><code>bse</code>는 계수의 표준오차입니
 <li><span class="mk">1</span><span><b>bmi β = 0.0409 (로그 척도).</b> "BMI 1당 ln(점수)가 0.0409 높다"는 값이라 그대로는 읽기 어렵습니다.</span></li>
 <li><span class="mk">2</span><span><b>4.2% = (e<sup>0.0409</sup> − 1) × 100.</b> 다른 변수가 같을 때 BMI가 1 kg/m² 높으면 진행 점수가 4.2% 높습니다. β가 작아서 β × 100 = 4.1%로 어림해도 비슷합니다. 효과는 곱으로 쌓이므로 BMI 5 차이는 1.0418⁵ − 1 = 22.7%입니다(5 × 4.2 = 21%가 아님).</span></li>
 <li><span class="mk">3</span><span><b>95% CI 3.1%–5.2%.</b> 로그 척도의 구간 양 끝을 각각 변환한 값입니다.</span></li>
-<li><span class="mk">4</span><span><b>sex 2군 −8.7% (−15.8% to −1.0%).</b> 이분형 변수도 같은 방식입니다. 2군의 점수가 1군보다 8.7% 낮습니다. 정확히는 기하평균의 비가 0.913이라는 뜻입니다(6장 라 절의 약물경제학 상자).</span></li>
+<li><span class="mk">4</span><span><b>sex 2군 −8.7% (−15.8% to −1.0%).</b> 이분형 변수도 같은 방식입니다. 2군의 점수가 1군보다 8.7% 낮습니다. 정확히는 기하평균의 비가 0.913이라는 뜻입니다(6장 라 절 '더 알아보기'의 '로그 변환한 결과변수'에 있는 약물경제학 상자).</span></li>
 </ol>
 
 <h3>로그 변환이 필요했는지 확인</h3>

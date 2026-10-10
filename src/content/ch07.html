@@ -1,28 +1,23 @@
-<p class="lead">생존분석은 "사건이 일어나기까지 걸린 시간"을 다룹니다. 연구가 끝날 때까지 사건을 겪지 않은 사람(중도절단)의 정보를 버리지도, 사건으로 잘못 세지도 않는 것이 핵심입니다. 이 장에서는 시작 시점·사건·추적 종료를 정의하는 법, Kaplan-Meier 방법으로 생존곡선과 중앙생존기간을 추정하는 법, 로그순위법으로 생존곡선을 비교하는 법을 다루고, 각각이 논문의 Methods, Results, 그림에서 어떻게 보이는지 번호를 따라 읽어 봅니다.</p>
+<p class="lead">생존분석은 "사건이 일어나기까지 걸린 시간"을 다룹니다. 연구가 끝날 때까지 사건을 겪지 않은 사람(중도절단)의 정보를 버리지도, 사건으로 잘못 세지도 않는 것이 핵심입니다. 이 장에서는 시작 시점·사건·추적 종료를 정의하고, Kaplan-Meier 방법으로 생존곡선을 추정하고, 로그순위법으로 두 곡선을 비교합니다. 세 절 모두 환자 12명의 작은 예로 계산을 한 단계씩 따라간 뒤, 논문에서 결과를 읽고 내 결과를 Methods와 Results 문장으로 쓰는 데까지 갑니다.</p>
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>미리 알아 둘 것</dt><dd><a href="#ch00-s6">0장 바 절</a>의 신뢰구간과 p값. 다 절의 표 7-3 계산을 볼 때는 <a href="#ch05-s1">5장 가 절</a>의 관측빈도와 기대빈도.</dd>
-<dt>먼저 읽을 부분</dt><dd>가 절과 나 절의 펼쳐진 본문(시간-사건 자료, 중도절단, 인년과 발생률, Kaplan-Meier 곡선, 중앙생존기간, 위험집합 표가 붙은 생존 그림 읽기). 다 절은 '쉽게 말하면', '로그순위법이 알려 주지 않는 것', 그 아래 흔한 오해 상자(위험비)와 확인 문제 1·2번까지 읽습니다. 다 절의 나머지(표 7-3 계산, 층화 로그순위법, Methods 문단)는 논문에서 만났을 때 읽습니다. 8장은 위험비를, 23·24장은 나 절의 생존곡선을 씁니다.</dd>
-<dt>나중에 읽을 부분</dt><dd>접힌 '심화' 부분은 모두 나중에 읽습니다. 논문에서 RMST, 경쟁위험, 가중 로그순위 검정을 만나면 나·다 절의 접힌 상자를 폅니다.</dd>
-<dt>이 장을 마치면</dt><dd>① 논문 Methods에서 시작 시점, 사건, 추적 종료 규칙을 찾을 수 있다(예: "whichever came first"). ② 중도절단을 무시한 단순 비율(사망자 ÷ 환자 수)이 왜 틀리는지 설명할 수 있다. ③ Kaplan-Meier 곡선과 위험집합 표에서 시점별 생존율과 중앙생존기간을 읽을 수 있다(도달하지 않음, "NR" 포함). ④ 로그순위 P와 위험비가 각각 무엇을 말하는지 구분하고, 위험비가 누적 위험의 비가 아닌 이유를 설명할 수 있다.</dd>
-<dt>직접 분석할 때</dt><dd>가 절의 접힌 '청구자료에서 코호트 만들기'(가 절의 '내 연구에 쓸 때'도 그 안에 있음), 나·다 절의 '내 연구에 쓸 때', 접힌 lifelines 출력 상자와 <a href="#lab07">실습 7</a>.</dd>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch00-s6">0장 바 절</a>의 신뢰구간과 p값. 다 절은 <a href="#ch05-s1">5장 가 절</a>의 관측빈도와 기대빈도도 씁니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>가 절과 나 절은 첫 독해 경로에 있으므로 가 절은 1–5단계, 나 절은 1–6단계를 차례로 읽습니다. 다 절은 1단계와 4단계 '결과 읽기'를 먼저 읽고, 나머지는 논문에서 로그순위 P를 만났을 때 읽습니다.</dd>
+<dt>나중에 읽을 부분</dt><dd>각 절 끝의 '더 알아보기'는 처음에는 건너뛰고, 논문에서 그 내용을 만났을 때 펼쳐 읽습니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 논문 Methods에서 시작 시점, 사건, 추적 종료 규칙을 찾고, 중도절단을 무시한 비율이 왜 틀리는지 설명할 수 있다 ② Kaplan-Meier 곡선과 위험집합 표에서 시점별 생존율과 중앙생존기간을 읽을 수 있다 ③ 중도절단, 추적기간의 중앙값, Kaplan-Meier 결과를 Methods와 Results 문장으로 쓸 수 있다 ④ 로그순위 P와 위험비를 구분하고, 위험비가 누적 위험의 비가 아닌 이유를 설명할 수 있다 ⑤ 두 군 비교 결과를 중앙생존기간, 위험비와 95% CI, P로 쓸 수 있다</dd>
+<dt>직접 분석할 때</dt><dd><a href="#lab07">실습 7</a>에서 lifelines로 세 절의 분석을 해 봅니다. 청구자료로 코호트를 만드는 법과 파이썬 출력을 읽는 법은 각 절 '더 알아보기'에 있습니다.</dd>
 </dl></div>
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="ch07-s1">
 <h2><span class="sec-no">가.</span>생존 연구의 준비</h2>
 
-<div class="easy">
-<p class="et">쉽게 말하면</p>
-<p class="big">생존분석은 "사건이 일어났는가"와 "언제 일어났는가"를 함께 다루는 방법입니다. 이 절은 그 분석에 넣을 자료를 만드는 법, 즉 언제부터 시간을 재고, 무엇을 사건으로 세고, 언제 관찰을 멈추는지를 다룹니다.</p>
-<ul>
-<li><b>왜 '사망자 ÷ 환자 수'로는 안 되나.</b> 환자마다 지켜본 기간이 다르기 때문입니다. 3년 넘게 추적한 환자와 1년밖에 보지 못한 환자를 같은 분모에 넣으면, "12명 중 7명 사망(58%)" 같은 숫자는 병이 얼마나 나쁜지뿐 아니라 연구를 얼마나 오래 했는지에도 좌우됩니다.</li>
-<li><b>비유.</b> 마라톤 중계가 출발 4시간 뒤에 끝나면 아직 달리는 선수의 완주 기록은 모르지만 "4시간보다 길다"는 것은 압니다. 연구가 끝날 때 살아 있던 환자, 중간에 추적이 끊긴 환자도 같습니다. 이런 관측을 중도절단이라고 하며, 생존분석은 이 사람들을 버리지도 생존자로 세지도 않고 "이 시점까지는 사건이 없었다"는 만큼만 씁니다.</li>
-<li><b>논문에서는.</b> Methods에 "follow-up continued until the outcome, death, or the end of the study period, whichever came first"처럼 적힙니다. "사건이 먼저 오면 사건으로, 다른 일이 먼저 오면 그날 중도절단으로 처리했다"는 규칙입니다. Results에는 "median follow-up, 51.4 months"처럼 추적이 얼마나 이어졌는지가 나옵니다.</li>
-<li><b>기억할 한 가지.</b> 중도절단은 예후와 관계없이 일어나야 합니다. 상태가 나빠진 환자가 다른 병원으로 옮겨 추적이 끊기면, 그 환자는 '살아서 떠난 사람'으로 남아 생존율이 실제보다 좋게 나옵니다.</li>
-</ul>
-</div>
+<h3>1. 왜 알아야 하나</h3>
+<p>먼저 이 절이 답하는 연구 질문을 봅니다. "1차 표적치료를 시작한 신세포암 환자는 얼마나 오래 사는가?"가 한 예입니다. "SGLT2 억제제를 새로 시작한 환자는 DPP-4 억제제를 시작한 환자보다 심부전 입원이 늦게 오는가?"도 같은 꼴입니다.</p>
+<p>두 질문 모두 환자마다 "사건이 일어났는가"와 "언제 일어났는가"를 함께 기록합니다. 이런 자료를 <strong>시간-사건 자료</strong><span class="en">(time-to-event data)</span>라고 합니다. 이 자료를 분석하는 방법을 통틀어 <strong>생존분석</strong><span class="en">(survival analysis)</span>이라고 부릅니다. 사건이 꼭 사망일 필요는 없습니다. 질병 진행, 재입원, 약물 중단처럼 한 번 일어나는 사건까지 걸린 시간이면 같은 방법을 씁니다<cite data-ref="altman1998tte"></cite>.</p>
+<p>연구가 끝날 때까지 사건을 겪지 않은 사람도 있습니다. 이 사람의 사건 시간은 "마지막 관찰 시점보다 길다"는 것만 압니다. 이런 관측을 <strong>중도절단</strong><span class="en">(censoring)</span>되었다고 합니다. 마라톤 중계가 출발 4시간 뒤에 끝나면 아직 달리는 선수의 기록은 모르지만 4시간보다 길다는 것은 압니다. 중도절단된 관측도 불완전하지만 쓸모없는 정보는 아닙니다. 생존분석은 이 사람을 버리지도 생존자로 세지도 않고, "이 시점까지는 사건이 없었다"는 만큼만 씁니다.</p>
+<p>이 절은 그 분석에 넣을 자료를 만드는 법을 다룹니다. 언제부터 시간을 재고, 무엇을 사건으로 세고, 언제 관찰을 멈추는지 정하는 일입니다.</p>
 
 <dl class="glance">
 <div><dt>무엇을 정하나</dt><dd>시작 시점(time 0), 사건, 추적 종료. 이 세 가지로 환자마다 (time, status) 한 쌍이 만들어짐</dd></div>
@@ -31,23 +26,16 @@
 <div><dt>논문 보고 형식</dt><dd>사건 수, 총 인년과 발생률, 중앙 추적기간(역 Kaplan-Meier 방법), 군별 추적 종료 사유. 청구자료 연구는 index date, 세척 기간, 유예기간의 정의</dd></div>
 </dl>
 
-<h3>개념</h3>
-<p>신세포암 환자가 1차 표적치료를 시작한 뒤 얼마나 오래 사는지 알고 싶다고 합시다. 환자마다 기록할 것은 "사망했는가"와 "언제 사망했는가" 두 가지입니다. 이렇게 사건 발생 여부와 사건까지의 시간이 한 쌍을 이루는 자료를 <strong>시간-사건 자료</strong><span class="en">(time-to-event data)</span>라고 하고, 이를 분석하는 방법을 통틀어 <strong>생존분석</strong><span class="en">(survival analysis)</span>이라고 부릅니다. 사건이 꼭 사망일 필요는 없습니다. 질병 진행, 재입원, 심부전 입원, 약물 중단처럼 '한 번 일어나는 사건까지 걸린 시간'이면 모두 같은 방법을 씁니다<cite data-ref="altman1998tte"></cite>.</p>
-<p>연구가 끝날 때까지 사건을 겪지 않은 사람에 대해서는 사건 시간이 "마지막 관찰 시점보다 길다"는 것만 압니다. 이런 관측을 <strong>중도절단</strong><span class="en">(censoring)</span>되었다고 합니다. 중도절단된 관측은 불완전하지만 쓸모없는 정보가 아닙니다. 생존분석은 이 부분적인 정보를 그대로 활용하는 방법입니다.</p>
-
-<h3>시간-사건 자료를 정의하는 세 가지</h3>
+<h3>2. 숫자로 따라가기</h3>
+<p>이제 작은 예로 생존분석용 자료를 직접 만들어 봅니다. 한 병원에서 2019–2020년에 1차 표적치료를 시작한 신세포암 환자 12명을 2023년 1월 자료 마감일까지 추적했습니다. 환자마다 다음 세 가지를 정합니다.</p>
 <div class="flow">
-<div><div><b>시작 시점 <span class="en">time origin, time zero</span></b><p>모든 대상자의 시계가 0에서 출발하는 시점입니다. 임상시험은 무작위배정일, 종양 코호트는 진단일이나 치료 시작일, 청구자료 연구는 보통 첫 처방일(index date)을 씁니다. 대상자 선정 조건을 만족하고 비교할 치료가 정해지는 시점이 곧 추적을 시작하는 시점이어야 합니다.</p></div></div>
-<div><div><b>사건 <span class="en">event</span></b><p>무엇을 사건으로 셀지 미리 정합니다. 모든 원인의 사망(overall survival, OS), 진행 또는 사망(progression-free survival, PFS), 주진단이 심부전인 입원 등입니다. 같은 자료라도 사건 정의가 바뀌면 결과가 달라집니다.</p></div></div>
-<div><div><b>추적 종료 <span class="en">end of follow-up</span></b><p>사건이 일어나거나, 사건 없이 관찰이 끝나는 시점입니다. 사건 없이 끝났다면 그 시점에서 중도절단합니다. 자료 마감일, 추적 소실, 건강보험 자격 상실(NHIS 자료)이나 자료 기간 종료가 여기에 해당합니다.</p></div></div>
+<div><div><b>시작 시점 <span class="en">time origin, time zero</span></b><p>모든 대상자의 시계가 0에서 출발하는 날입니다. 이 예에서는 1차 표적치료를 시작한 날입니다. 임상시험은 무작위배정일, 종양 코호트는 진단일이나 치료 시작일을 씁니다. 청구자료 연구는 보통 첫 처방일을 쓰며, 이를 index date라고 합니다. 대상자 선정 조건을 만족하고 비교할 치료가 정해지는 날이 곧 추적을 시작하는 날이어야 합니다.</p></div></div>
+<div><div><b>사건 <span class="en">event</span></b><p>무엇을 사건으로 셀지 미리 정합니다. 이 예에서는 모든 원인의 사망이며, 이 결과를 전체 생존(overall survival, OS)이라고 합니다. 진행 또는 사망을 세면 무진행 생존(progression-free survival, PFS)입니다. 주진단이 심부전인 입원도 사건이 될 수 있습니다. 같은 자료라도 사건 정의가 바뀌면 결과가 달라집니다.</p></div></div>
+<div><div><b>추적 종료 <span class="en">end of follow-up</span></b><p>사건이 일어나거나, 사건 없이 관찰이 끝나는 날입니다. 사건 없이 끝났다면 그날 중도절단합니다. 자료 마감일, 전원 같은 추적 소실, 자료 기간 종료가 여기에 해당합니다. 국민건강보험공단 자료에서는 건강보험 자격 상실도 해당합니다.</p></div></div>
 </div>
-<p>세 가지를 정하면 환자 한 명은 두 값으로 요약됩니다. <b>time</b>은 시작 시점부터 추적 종료까지의 기간이고, <b>status</b>는 추적 종료가 사건이면 1, 중도절단이면 0입니다. 통계 프로그램은 거의 모두 이 (time, status) 형식을 입력으로 받습니다.</p>
-
-<h3>숫자로 따라가기</h3>
-<p>이제 작은 예로 자료를 직접 만들어 봅니다. 한 병원에서 2019–2020년에 1차 표적치료를 시작한 신세포암 환자 12명을 2023년 1월 자료 마감일까지 추적했습니다.</p>
+<p>세 가지를 정하면 환자 한 명은 두 값으로 요약됩니다. <b>time</b>은 시작 시점부터 추적 종료까지의 기간입니다. <b>status</b>는 추적 종료가 사건이면 1, 중도절단이면 0입니다. 통계 프로그램은 거의 모두 이 (time, status) 형식을 입력으로 받습니다. 그림 7-1은 12명의 추적 과정입니다.</p>
 <!--FIG:ch07_swimmer-->
-
-<p>그림 7-1의 환자 12명을 (time, status) 형식으로 정리하면 표 7-1이 됩니다. 이 장에서는 이 12명의 자료를 계속 사용합니다.</p>
+<p>그림 7-1의 12명을 이 형식으로 정리하면 표 7-1이 됩니다. 이 장에서는 이 12명의 자료를 계속 씁니다.</p>
 <p class="tbl-cap"><b>표 7-1.</b> 가상의 신세포암 환자 12명의 생존 자료 (자료 마감 2023년 1월)</p>
 <div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
 <thead><tr><th>환자</th><th class="r">치료 시작</th><th class="r">마지막 관찰</th><th>관찰 종료 사유</th><th class="r">time (개월)</th><th class="r">status</th></tr></thead>
@@ -65,10 +53,8 @@
 <tr><td>#11</td><td class="r">2019.08</td><td class="r">2022.10</td><td>사망</td><td class="r">38</td><td class="r">1</td></tr>
 <tr><td>#12</td><td class="r">2019.05</td><td class="r">2023.01</td><td>자료 마감</td><td class="r">44</td><td class="r">0</td></tr>
 </tbody></table></div>
-<p>7명이 사망했고 5명이 중도절단되었습니다. #2와 #6은 다른 병원으로 옮겨 추적이 끊겼고, #8, #10, #12는 자료 마감일까지 살아 있었습니다. 다섯 명 모두 status = 0이지만 중도절단된 이유가 다르고, 이 차이가 아래의 가정과 관련됩니다.</p>
-
-<h3>중도절단을 무시하면 생기는 일</h3>
-<p>중도절단을 무시하고 흔히 떠올리는 계산을 해 보면 왜 별도의 방법이 필요한지 알 수 있습니다. 표 7-1에서 2년(24개월) 전에 사망한 환자는 5명(#1, #3, #4, #5, #7)이고, 2년 전에 중도절단된 환자는 2명(#2, #6)입니다.</p>
+<p>7명이 사망했고 5명이 중도절단되었습니다. #2와 #6은 다른 병원으로 옮겨 추적이 끊겼습니다. #8, #10, #12는 자료 마감일까지 살아 있었습니다. 다섯 명 모두 status = 0이지만 중도절단된 이유가 다릅니다. 이 차이는 3단계의 가정과 관련됩니다.</p>
+<p>이 자료로 흔히 떠올리는 계산을 해 보면 왜 별도의 방법이 필요한지 보입니다. 24개월, 즉 2년 전에 사망한 환자는 #1, #3, #4, #5, #7의 5명입니다. 2년 전에 중도절단된 환자는 #2와 #6의 2명입니다.</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>구하려는 값</th><th>계산 방법</th><th class="r">결과</th><th>문제점</th></tr></thead>
 <tbody>
@@ -79,84 +65,138 @@
 <tr><td>생존기간 요약</td><td>사망자 7명 time의 중앙값</td><td class="r">12개월</td><td>오래 산 사람을 뺌 → 과소추정</td></tr>
 <tr class="hi"><td>생존기간 요약</td><td>Kaplan-Meier 중앙생존기간 (나 절)</td><td class="r">28개월</td><td></td></tr>
 </tbody></table></div>
-<p>강조한 두 줄(Kaplan-Meier)의 계산 방법은 나 절에서 배웁니다. 지금은 2년 생존율이 두 단순 계산(58.3%, 50.0%) 사이에 온다는 것만 보고, 나 절을 읽은 뒤 다시 확인하세요.</p>
-<p>단순 계산값은 질병의 예후뿐 아니라 "연구를 얼마나 오래 했는가"에도 좌우됩니다. 같은 환자를 1년 더 추적하면 중도절단된 사람들의 time이 길어져 평균도 따라 늘어납니다. 또 중도절단된 5명의 실제 생존시간을 모르므로 이 자료로는 보통의 평균 생존기간을 구할 수 없습니다. 평균 대신 쓸 수 있는 값이 나 절의 제한평균생존시간입니다.</p>
+<p>강조한 두 줄은 나 절에서 배우는 Kaplan-Meier 방법의 값입니다. 지금은 2년 생존율이 두 단순 계산 58.3%와 50.0% 사이에 온다는 것만 봅니다. 나 절을 읽은 뒤 다시 확인하세요.</p>
+<p>단순 계산값은 병의 예후뿐 아니라 연구를 얼마나 오래 했는지에도 좌우됩니다. 같은 환자를 1년 더 추적하면 중도절단된 사람들의 time이 길어져 평균도 따라 늘어납니다. 중도절단된 5명의 실제 생존시간은 모르므로, 이 자료로는 보통의 평균 생존기간을 구할 수 없습니다. 평균 대신 쓸 수 있는 값은 나 절의 제한평균생존시간입니다.</p>
+<p>그러면 사건이 얼마나 자주 일어나는지는 어떻게 요약할까요? 사건 수를 사람 수가 아니라 관찰한 시간의 합으로 나눕니다.</p>
+<div class="flow">
+<div><div><b>인년</b><p>모든 대상자의 추적 기간을 더한 값을 <strong>인년</strong><span class="en">(person-years)</span>이라고 합니다. 표 7-1의 time을 모두 더하면 243인월<span class="en">(person-months)</span>이고, 243 ÷ 12 = 20.25인년입니다.</p></div></div>
+<div><div><b>발생률</b><p>20.25인년 동안 7명이 사망했습니다. 발생률 = 사건 수 ÷ 총 추적 인년 = 7 ÷ 20.25 = 0.346/인년입니다. 흔히 쓰는 단위로 바꾸면 <strong>100인년당 34.6명</strong>입니다.</p></div></div>
+<div><div><b>뜻</b><p>100명을 1년씩 관찰하는 것처럼 100인년을 관찰하는 동안 약 35명이 사망하는 속도라는 뜻입니다. 사망자 수를 환자 수로 나눈 7/12 = 58.3%와 달리, 각자 관찰된 기간의 차이를 반영합니다.</p></div></div>
+</div>
+<p>청구자료 연구의 결과표에서도 "events, person-years, incidence rate per 1,000 person-years"를 흔히 봅니다.</p>
+<p>그래서 이 12명의 자료는 사망 7명, 중도절단 5명, 총 20.25인년, 100인년당 34.6명의 사망률로 요약됩니다. 시점별 생존율과 생존기간은 나 절의 Kaplan-Meier 방법으로 구합니다.</p>
 
-<h3>중도절단의 종류</h3>
-<p>의학 연구의 중도절단은 대부분 <strong>우측 중도절단</strong><span class="en">(right censoring)</span>입니다. "사건 시간은 이 시점보다 뒤"라는 것만 아는 경우로, 생기는 이유는 세 가지입니다.</p>
-<ul>
-<li><strong>행정적 중도절단</strong><span class="en">(administrative censoring)</span>: 자료 마감일(data cutoff)까지 사건이 없었던 경우. 늦게 등록한 환자일수록 관찰할 수 있는 기간이 짧습니다.</li>
-<li><strong>추적 소실</strong><span class="en">(loss to follow-up)</span>: 전원, 연락 두절, 연구 참여 철회. 국민건강보험공단(NHIS) 자료에서는 보험 자격 상실(해외 이주 등)이 여기에 해당합니다. 건강보험심사평가원(HIRA) 청구자료에는 자격 파일이 따로 없어 자격 상실 시점을 알 수 없으므로, 연구마다 마지막 의료이용일이나 자료 기간 종료를 추적 종료로 정의합니다.</li>
-<li><strong>연구 설계에 따른 중도절단</strong>: 약을 실제로 쓰는 동안만 추적하는 as-treated 분석에서 약을 중단하거나 다른 약으로 바꾼 경우입니다(아래 접힌 '청구자료에서 코호트 만들기').</li>
-</ul>
-<p>청구자료에서는 이처럼 추적 종료를 연구자가 직접 정의해야 하므로, 논문의 Methods에서 어떤 정의를 썼는지와 사망 자료를 연계했는지 확인합니다(<a href="#ch14-s4">14장 라 절</a>, 정의에 따라 편향의 방향이 달라지는 이유는 아래 접힌 '청구자료에서 코호트 만들기').</p>
-<!--FOLD:자세히 보기: 다른 형태의 중도절단, 연속 자격, 지연 진입-->
-<p>다른 형태도 있습니다. <strong>좌측 중도절단</strong><span class="en">(left censoring)</span>은 관찰을 시작하기 전에 이미 사건이 일어났지만 언제인지 모르는 경우이고, <strong>구간 중도절단</strong><span class="en">(interval censoring)</span>은 두 검사 사이 어딘가에서 사건이 일어났다는 것만 아는 경우입니다. 8주마다 CT를 찍어 진행을 판정하는 PFS는 엄밀히 말하면 구간 중도절단 자료지만, 보통 진행이 확인된 검사일을 사건 시점으로 놓고 우측 중도절단 자료처럼 분석합니다. 이 장은 우측 중도절단만 다룹니다.</p>
-<p>청구자료에서는 관찰이 시작되는 쪽도 확인합니다. 세척 기간(아래 접힌 '청구자료에서 코호트 만들기')에 처방이 없다는 것이 '약을 쓰지 않았다'는 뜻이 되려면 그 기간 내내 자료 안에 있어야(건강보험 자격 유지) 하는데, 해외 체류처럼 자격이 없던 기간에는 약을 썼어도 청구가 남지 않기 때문입니다. NHIS 자료는 자격 DB로 이런 <strong>연속 자격</strong><span class="en">(continuous enrollment)</span>을 확인할 수 있지만, HIRA 청구자료는 자격 정보가 없어 직접 확인하기 어렵습니다. 비슷하게, time 0보다 늦게 자료에 들어온 사람도 있습니다. 이를 <strong>지연 진입</strong><span class="en">(delayed entry, left truncation)</span>이라고 하며 좌측 중도절단과는 다른 문제입니다. 이런 사람을 time 0부터 관찰한 것처럼 세면, 들어오기 전에 사망한 사람은 애초에 자료에 없으므로 생존이 좋게 보입니다. 그래서 자료에 들어온 시점부터 위험집합에 넣어 분석합니다.</p>
-<!--/FOLD-->
+<h3>3. 헷갈리는 점</h3>
+<p>다음으로 생존 자료를 처음 다룰 때 자주 헷갈리는 점을 봅니다.</p>
+<ol>
+<li><strong>중도절단은 예후와 관계없이 일어나야 합니다.</strong> 생존분석의 가장 중요한 가정은 <strong>비정보적 중도절단</strong><span class="en">(non-informative censoring, 독립적 중도절단)</span>입니다. 중도절단된 환자가 그 뒤에 사건을 겪을 위험이, 같은 시점까지 살아서 관찰 중인 환자와 같다는 뜻입니다. 자료 마감에 의한 중도절단은 보통 이 가정을 만족합니다. 누가 마감일에 걸리는지는 등록 시기로 정해지기 때문입니다. 추적 소실은 더 조심합니다. 상태가 나빠진 환자가 호스피스나 집 가까운 병원으로 옮기면, 전원 직후 사망해도 자료에는 '살아서 떠난 사람'으로 남습니다. 이런 <strong>정보적 중도절단</strong><span class="en">(informative censoring)</span>이 있으면 생존율이 과대추정됩니다. 표 7-1의 #2와 #6이 실제로는 전원 한 달 뒤에 사망했다고 합시다. 그러면 나 절의 방법으로 구한 2년 생존율이 53.5%에서 41.7%로 떨어집니다. 12명 중 2명을 어떻게 처리하느냐에 따라 이만큼 달라집니다. 이 가정은 중도절단된 뒤의 사건을 관찰할 수 없으므로 자료로 검정하지 못합니다. 연구 설계와 중도절단 사유를 보고 판단합니다.</li>
+<li><strong>중도절단은 이유에 따라 나뉩니다.</strong> 의학 연구의 중도절단은 대부분 <strong>우측 중도절단</strong><span class="en">(right censoring)</span>입니다. 사건 시간이 이 시점보다 뒤라는 것만 아는 경우입니다. 자료 마감일까지 사건이 없으면 <strong>행정적 중도절단</strong><span class="en">(administrative censoring)</span>입니다. 늦게 등록한 환자일수록 관찰할 수 있는 기간이 짧습니다. 전원, 연락 두절, 연구 참여 철회는 <strong>추적 소실</strong><span class="en">(loss to follow-up)</span>입니다. 약을 쓰는 동안만 추적하는 as-treated 분석에서는 약을 끊거나 바꾼 날에 중도절단하며, 이는 연구 설계에 따른 중도절단입니다.</li>
+<li><strong>추적기간의 중앙값은 계산 방법에 따라 다릅니다.</strong> 논문은 보통 "median follow-up, ○○ months"처럼 중앙 추적기간으로 추적이 충분했는지 보고합니다. 표 7-1에서 전체 환자 time의 중앙값은 18개월입니다. 중도절단된 환자만의 중앙값은 25개월입니다. <strong>역 Kaplan-Meier 방법</strong><span class="en">(reverse Kaplan-Meier)</span>으로는 32개월입니다. 사망과 중도절단을 뒤바꿔 '관찰이 얼마나 이어질 수 있었는가'를 구하는 방법이며, 지금 가장 널리 권합니다<cite data-ref="schemper1996"></cite>. 그래서 논문에서는 어떤 방법으로 구한 값인지 확인합니다. 역 Kaplan-Meier 방법의 계산은 나 절을 읽은 뒤 '더 알아보기'에서 봅니다.</li>
+<li><strong>발생률 하나로는 부족할 때가 있습니다.</strong> 발생률 하나로 요약하는 것은 위험이 시간에 따라 대략 일정할 때 자연스럽습니다. 치료 초기에만 이상반응이 몰리는 경우처럼 위험이 크게 변하면 생존곡선을 함께 봐야 합니다. 발생률을 한 달처럼 아주 짧은 구간마다 구한 것이 생존분석의 <strong>위험률</strong><span class="en">(hazard)</span>입니다. 그 시점까지 사건 없이 관찰 중인 사람 가운데 지금 사건이 생기는 속도입니다. 위험이 일정하다면 100인년당 34.6명은 0.346 ÷ 12 = 0.029/월입니다. 살아 있는 100명당 한 달에 약 2.9명이 사망하는 속도입니다. 두 군의 위험률의 비가 <strong>위험비</strong><span class="en">(hazard ratio, HR)</span>입니다. 두 군 모두 위험률이 크게 변하지 않으면 전체 기간의 발생률비<span class="en">(incidence rate ratio, IRR)</span>가 위험비와 비슷해집니다. 발생률의 비교와 포아송 회귀는 12장, 위험비는 11장에서 다룹니다.</li>
+</ol>
 
-<h3>비정보적 중도절단 가정</h3>
-<p>생존분석에서 가장 중요한 가정은 <strong>비정보적 중도절단</strong><span class="en">(non-informative censoring, 독립적 중도절단)</span>입니다. "중도절단된 환자가 그 뒤에 사건을 겪을 위험이, 같은 시점까지 살아서 계속 관찰 중인 환자와 같다"는 뜻입니다. 다시 말해 중도절단이 예후와 관계없이 일어나야 합니다.</p>
-<p>자료 마감에 의한 행정적 중도절단은 보통 이 가정을 만족합니다. 누가 마감일에 걸리는지는 등록 시기로 정해지기 때문입니다. 다만 연구 기간 중에 치료가 발전해 늦게 등록한 환자의 예후가 더 좋다면 이 경우에도 문제가 생깁니다. 추적 소실은 더 조심해야 합니다. 상태가 나빠진 환자가 호스피스나 집 가까운 병원으로 옮기면, 전원 직후 사망하더라도 연구 자료에는 '살아서 떠난 사람'으로 남습니다. 이런 <strong>정보적 중도절단</strong><span class="en">(informative censoring)</span>이 있으면 생존율이 과대추정됩니다.</p>
-<p>표 7-1에서 전원된 #2와 #6이 실제로는 전원 한 달 뒤에 사망했다고 가정하고 다시 계산하면, 2년 생존율(나 절의 Kaplan-Meier 추정값)은 53.5%에서 41.7%로 떨어집니다. 12명 중 2명을 어떻게 처리하느냐에 따라 이만큼 달라집니다.</p>
+<h3>4. 논문에서 읽기</h3>
+<p>이제 지금까지 본 정의가 논문에 어떻게 적히는지 봅니다. 먼저 Methods입니다. 건강보험 청구자료로 SGLT2 억제제와 DPP-4 억제제를 새로 쓰기 시작한 환자의 심부전 입원을 비교한 연구입니다. 1장 Table 1의 신규 사용자 연구를 이어서 씁니다. 시작 시점·사건·추적 종료가 어디에 적혀 있는지 번호를 따라 찾아보세요. 신규 사용자 설계, 세척 기간, 유예기간 같은 용어는 번호 해설에서 풉니다. 자세한 설명과 계산 예제는 '더 알아보기'의 '청구자료에서 코호트 만들기'에 있습니다.</p>
 
-<div class="callout warn"><p class="ct">주의 · 이 가정은 자료로 검정할 수 없습니다</p>
-<p>중도절단된 뒤의 사건은 관찰되지 않으므로, 비정보적 중도절단 가정이 맞는지는 자료만으로 확인할 수 없습니다. 연구 설계와 중도절단 사유로 판단합니다. 좋은 논문은 ① 중도절단 사유를 군별로 보고하고(추적 소실 비율이 한 군에서만 높지 않은지), ② 추적 소실자를 모두 사건으로 가정하는 식의 극단적 민감도 분석을 하고, ③ 중도절단을 예측하는 변수를 측정했다면 역확률 중도절단 가중치<span class="en">(inverse probability of censoring weighting, IPCW)</span>로 보정하기도 합니다.</p></div>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 코호트 정의</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">We conducted a retrospective cohort study <span class="mk">1</span> <span class="hl">using the Health Insurance Review and Assessment Service (HIRA) database from January 1, 2015, to December 31, 2022</span>. We identified new users of SGLT2 inhibitors or DPP-4 inhibitors, defined as patients <span class="mk">2</span> <span class="hl">without a prescription for either drug class during the 365 days</span> before their first prescription; the date of the first prescription was defined as the <span class="mk">3</span> <span class="hl">index date</span>. Baseline characteristics were assessed during the 365-day look-back period. The outcome was <span class="mk">4</span> <span class="hl">hospitalization for heart failure, defined as an inpatient claim with a primary diagnosis of heart failure (ICD-10 code I50)</span>. <span class="mk">5</span> <span class="hl">Patients with a hospitalization for heart failure during the look-back period were excluded</span>. <span class="mk">6</span> <span class="hl">Follow-up started on the day after the index date</span> and continued until the occurrence of the outcome, death, treatment discontinuation, switching to or adding the comparator drug, or the end of the study period, <span class="mk">7</span> <span class="hl">whichever came first</span>. Treatment discontinuation was defined as <span class="mk">8</span> <span class="hl">no refill within 60 days after the end of the days' supply</span> of the last prescription. In sensitivity analyses, <span class="mk">9</span> <span class="hl">we followed patients regardless of treatment discontinuation or switching (intention-to-treat–like analysis)</span> and varied the grace period to 30 and 90 days.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>자료원과 연구 기간.</b> 연구 기간의 끝(2022년 12월 31일)이 가장 늦은 추적 종료일, 즉 자료 기간이 끝나서 생기는 행정적 중도절단 시점입니다. 세척 기간 365일이 필요하므로 실제 index date는 2016년 1월 1일 이후만 가능합니다. 꼼꼼한 논문은 "index dates between January 1, 2016, and ..."처럼 대상자 등록 기간을 따로 밝힙니다.</span></li>
+<li><span class="mk">2</span><span><b>신규 사용자 정의(세척 기간, washout period).</b> 비교하는 두 계열 어느 쪽도 365일 동안 처방이 없어야 '새로 시작한 사람'으로 봅니다. 기간이 길수록 진짜 신규 사용자일 가능성이 높지만 자료가 짧은 환자는 제외됩니다. 한쪽 계열만 확인하면 다른 계열을 쓰다가 바꾼 환자가 섞이므로 두 계열 모두 확인했는지 봅니다.</span></li>
+<li><span class="mk">3</span><span><b>시작 시점(time 0).</b> 첫 처방일 하루에 대상자 선정(신규 사용 확인), 치료군 결정(어느 약인지), 추적 시작이 모두 일어납니다. 이 세 가지가 어긋나면 편향이 생깁니다. 예를 들어 "처방을 두 번 이상 받은 사람"을 사용군으로 정하면서 추적은 첫 처방일부터 시작하면, 두 번째 처방 전까지 사용군 환자는 정의상 사망할 수 없는 기간(불멸시간<span class="en">(immortal time)</span>)을 갖게 되어 사용군이 유리해집니다(불멸시간 편향, 아래 '더 알아보기'의 '청구자료에서 코호트 만들기'에 있는 주의 상자, 16장).</span></li>
+<li><span class="mk">4</span><span><b>사건 정의.</b> '입원 청구의 주상병'으로 제한하면 외래에서 코드만 입력된 경우를 제외해 양성예측도가 높아지는 대신 일부 사건을 놓칩니다. 정의를 바꾼 민감도 분석이 있는지 확인합니다.</span></li>
+<li><span class="mk">5</span><span><b>과거 사건 제외.</b> 세척 기간(look-back period)에 이미 심부전으로 입원한 환자를 뺍니다. 이들이 추적 중 다시 입원하면 약을 시작한 뒤 새로 생긴 사건인지 기존 심부전의 재입원인지 섞이기 때문입니다. 그래서 이 연구는 "심부전 입원력이 없는 환자에게 처음 생기는 심부전 입원"을 본 것이고, 결과도 그런 환자에게 적용된다는 점을 함께 읽습니다.</span></li>
+<li><span class="mk">6</span><span><b>추적 시작일.</b> index date 당일의 입원은 약의 효과로 볼 수 없어 다음 날부터 셉니다. 일부 연구는 약효가 나타나기까지의 유도기간(예: 30일)을 두고 추적을 시작하는데, 이때는 그 기간의 사건이 분석에서 빠진다는 점을 고려해야 합니다.</span></li>
+<li><span class="mk">7</span><span><b>"whichever came first"(가장 먼저 일어난 날).</b> 사건(심부전 입원)만 status = 1이고, 나머지(사망, 중단, 변경, 연구 기간 종료)는 모두 그 날짜에 중도절단(status = 0)됩니다. HIRA 청구자료는 병원 밖에서의 사망이 기록되지 않으므로, 사망 정보를 어디서 얻었는지(사망자료 연계 여부) 확인해야 합니다(<a href="#ch14-s4">14장 라 절</a>, 아래 '더 알아보기'의 '청구자료에서 코호트 만들기'에 있는 추적 종료 정의 표). 또 사망은 심부전 입원을 원천적으로 막는 경쟁위험입니다(나 절 '더 알아보기'의 주의 상자, 17장).</span></li>
+<li><span class="mk">8</span><span><b>유예기간.</b> 재처방이 조금 늦어도 계속 복용 중으로 보는 여유 기간입니다. 아래 '더 알아보기'의 '청구자료에서 코호트 만들기'에 있는 그림 7-2 환자는 마지막 90일분이 295일째에 끝났고 60일 안에 재처방이 없어 355일째에 중도절단됩니다. 논문마다 중단 시점을 '공급일수 종료일'로 할지 '종료일 + 유예기간'으로 할지 다르므로 정의를 확인합니다.</span></li>
+<li><span class="mk">9</span><span><b>as-treated와 ITT 유사 분석.</b> 주 분석(as-treated)은 약을 쓰는 동안의 효과를 보지만, 약을 끊는 이유가 부작용이나 건강 악화라면 중단에 의한 중도절단이 정보적일 수 있습니다. ITT 유사 분석은 이 문제를 피하는 대신 약을 끊은 기간까지 '사용 중'으로 세어 효과가 희석됩니다. 두 분석의 결과가 같은 방향인지, 유예기간을 30일·90일로 바꿔도 결과가 비슷한지 봅니다.</span></li>
+</ol>
+</div></div>
 
-<h3>인년과 발생률</h3>
-<p>추적 기간이 환자마다 다를 때 사건이 얼마나 자주 일어나는지 요약하는 가장 간단한 방법은, 사건 수를 사람 수가 아니라 <strong>관찰한 시간의 합</strong>으로 나누는 것입니다. 모든 대상자의 추적 기간을 더한 값을 <strong>인년</strong><span class="en">(person-years)</span>이라고 합니다.</p>
-<ul>
-<li>표 7-1의 time을 모두 더하면 243인월<span class="en">(person-months)</span>, 즉 243 ÷ 12 = 20.25인년이고, 이 동안 7명이 사망했습니다.</li>
-<li>발생률 = 사건 수 ÷ 총 추적 인년 = 7 ÷ 20.25 = 0.346/인년, 흔히 쓰는 단위로 바꾸면 <strong>100인년당 34.6명</strong>입니다.</li>
-<li>"100인년(예: 100명을 1년씩)을 관찰하는 동안 약 35명이 사망하는 속도"라는 뜻입니다. 사망자 수를 환자 수로 나눈 7/12 = 58.3%와 달리, 각자 관찰된 기간의 차이를 반영합니다.</li>
-</ul>
-<p>청구자료 연구의 결과표에서 "events, person-years, incidence rate per 1,000 person-years"를 흔히 봅니다. 발생률 하나로 요약하는 것은 위험이 시간에 따라 대략 일정하다는 가정 아래에서 자연스럽습니다. 치료 초기에만 이상반응이 몰리는 경우처럼 위험이 시간에 따라 크게 변하면 한 숫자로는 충분하지 않고 생존곡선을 함께 봐야 합니다. 발생률의 비교와 포아송 회귀는 12장에서 다룹니다.</p>
-<p>이 발생률을 전체 기간이 아니라 아주 짧은 구간(예: 한 달)마다 구한 것이 생존분석의 <strong>위험률</strong><span class="en">(hazard)</span>입니다. '그 시점까지 사건 없이 관찰 중인 사람 가운데 지금 사건이 생기는 속도'로, 위험이 일정하다면 100인년당 34.6명은 0.346 ÷ 12 = 0.029/월, 즉 살아 있는 100명당 한 달에 약 2.9명이 사망하는 속도입니다. 두 군의 위험률의 비가 <strong>위험비</strong><span class="en">(hazard ratio, HR)</span>이고, 두 군 모두 위험률이 시간에 따라 크게 변하지 않으면 전체 기간의 발생률비<span class="en">(incidence rate ratio, IRR)</span>가 위험비와 비슷해집니다. 위험률과 위험비는 11장에서 자세히 다룹니다.</p>
-
-<h3>추적기간의 중앙값</h3>
-<p>논문은 보통 "중앙 추적기간(median follow-up) ○○개월"로 추적이 충분했는지 보고합니다. 그런데 계산 방법에 따라 값이 크게 다릅니다. 표 7-1에서 전체 환자 time의 중앙값은 18개월, 중도절단된 환자만의 중앙값은 25개월, <strong>역 Kaplan-Meier 방법</strong><span class="en">(reverse Kaplan-Meier)</span>으로는 32개월입니다. 현재 가장 널리 권하는 방법은 역 Kaplan-Meier 방법이므로<cite data-ref="schemper1996"></cite>, 논문에서는 어떤 방법으로 구한 값인지 확인합니다. 역 Kaplan-Meier 방법의 원리는 나 절에서 Kaplan-Meier 방법을 읽은 뒤 아래 접힌 상자에서 봅니다.</p>
-<!--FOLD:자세히 보기: 세 가지 계산 방법의 차이-->
-<ul>
-<li><strong>전체 환자 time의 중앙값</strong>: 18개월. 사망한 환자는 사망과 함께 추적이 끝나므로, 사망이 많을수록 '추적기간'이 짧아 보입니다. 연구를 얼마나 오래 했는지와 병이 얼마나 치명적인지가 섞인 값입니다.</li>
-<li><strong>생존자(중도절단된 환자)만의 time 중앙값</strong>: 25개월. 사망자의 정보를 버리고, 전원으로 일찍 추적이 끊긴 환자가 섞여 있습니다.</li>
-<li><strong>역 Kaplan-Meier 방법</strong>: 32개월. 사망한 환자를 "사망하지 않았다면 그보다 오래 관찰되었을 사람"으로 취급해, 병의 치명도와 관계없이 '관찰이 얼마나 이어질 수 있었는가'를 추정합니다<cite data-ref="schemper1996"></cite>. 현재 가장 널리 권하는 방법입니다.</li>
-</ul>
-<!--/FOLD-->
-
-<div class="callout deep"><p class="ct">심화 · 역 Kaplan-Meier 방법의 계산</p>
-<p>나 절의 Kaplan-Meier 계산(표 7-2)을 읽은 뒤 다시 보면 쉽습니다. status를 뒤집어 중도절단을 '사건'으로, 사망을 '중도절단'으로 놓고 나 절의 Kaplan-Meier 계산을 그대로 합니다. 표 7-1에 적용하면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
-<thead><tr><th class="r">time</th><th>'사건' (= 중도절단)</th><th class="r">위험집합</th><th class="r">역 KM 곡선 G(t)</th></tr></thead>
-<tbody>
-<tr><td class="r">5</td><td>#2</td><td class="r">11</td><td class="r">10/11 = 0.909</td></tr>
-<tr><td class="r">16</td><td>#6</td><td class="r">7</td><td class="r">0.909 × 6/7 = 0.779</td></tr>
-<tr><td class="r">25</td><td>#8</td><td class="r">5</td><td class="r">0.779 × 4/5 = 0.623</td></tr>
-<tr class="hi"><td class="r">32</td><td>#10</td><td class="r">3</td><td class="r">0.623 × 2/3 = 0.416</td></tr>
-<tr><td class="r">44</td><td>#12</td><td class="r">1</td><td class="r">0</td></tr>
-</tbody></table></div>
-<p>G(t)가 처음 0.5 이하가 되는 32개월이 역 Kaplan-Meier 방법의 중앙 추적기간입니다. 같은 방식으로 0.75 이하, 0.25 이하가 되는 시점을 읽으면 사분위범위(25–44개월)를 얻습니다. 5개월의 위험집합이 12가 아니라 11인 이유는 3개월에 사망한 #1이 이 계산에서는 '중도절단'되어 빠졌기 때문입니다.</p></div>
-
-<p>나 절과 다 절에서는 조금 더 큰 가상의 코호트도 함께 씁니다. 한 상급종합병원에서 2016–2020년에 전이성 신세포암으로 1차 표적치료를 시작한 환자 300명(약물 A 152명, 약물 B 148명)을 2022년 12월 31일까지 추적했고, 결과변수는 전체 생존입니다. 무작위배정이 아니므로 두 군의 IMDC 위험군 분포가 다릅니다(favorable/intermediate/poor 환자가 약물 A에서 34.2/50.7/15.1%, 약물 B에서 18.9/56.8/24.3%). 논문의 Results는 보통 대상자 수와 추적 정보로 시작합니다.</p>
+<p>다음은 Results입니다. 나 절과 다 절에서는 조금 더 큰 가상의 코호트도 함께 씁니다. 한 상급종합병원에서 2016–2020년에 전이성 신세포암으로 1차 표적치료를 시작한 환자 300명입니다. 이들을 2022년 12월 31일까지 추적했습니다. 약물 A가 152명, 약물 B가 148명이고, 결과변수는 전체 생존입니다. 무작위배정이 아니므로 두 군의 IMDC 위험군 분포가 다릅니다. favorable, intermediate, poor 환자의 비율은 약물 A에서 34.2, 50.7, 15.1%입니다. 약물 B에서는 18.9, 56.8, 24.3%입니다. 논문의 Results는 보통 대상자 수와 추적 정보로 시작합니다.</p>
 
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · Results 첫 문단의 추적 정보</b><span>가상의 예시</span></div>
 <div class="paper-b">
 <p class="excerpt">Of the 300 patients included, 152 received drug A and 148 received drug B as first-line therapy. The median follow-up, <span class="mk">1</span> <span class="hl">estimated with the reverse Kaplan–Meier method, was 51.4 months (interquartile range [IQR], 40.6 to 66.4)</span>. <span class="mk">2</span> <span class="hl">During 648.9 person-years of follow-up, 210 patients died</span> (100 in the drug A group and 110 in the drug B group); the crude mortality rates were <span class="mk">3</span> <span class="hl">27.5 and 38.6 per 100 person-years</span>, respectively. A total of 17 patients (5.7%) were lost to follow-up (<span class="mk">4</span> <span class="hl">12 [7.9%] in the drug A group and 5 [3.4%] in the drug B group</span>).</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>역 Kaplan-Meier 중앙 추적기간.</b> 같은 자료에서 전체 환자 time의 중앙값을 구하면 20.5개월, 생존자만의 중앙값은 45.9개월입니다. 방법에 따라 두 배 넘게 차이가 나므로 어떤 방법인지 반드시 확인합니다. IQR 40.6–66.4개월도 같은 방법으로 구한 사분위범위입니다(구하는 법은 위 접힌 '역 Kaplan-Meier 방법의 계산'(심화)). 추적의 절반이 약 51개월 이상 이어질 수 있었다는 뜻이므로, 5년(60개월) 이후 생존곡선은 적은 수의 환자에 근거한다고 예상할 수 있습니다.</span></li>
+<li><span class="mk">1</span><span><b>역 Kaplan-Meier 중앙 추적기간.</b> 같은 자료에서 전체 환자 time의 중앙값을 구하면 20.5개월, 생존자만의 중앙값은 45.9개월입니다. 방법에 따라 두 배 넘게 차이가 나므로 어떤 방법인지 반드시 확인합니다. IQR 40.6–66.4개월도 같은 방법으로 구한 사분위범위입니다(구하는 법은 아래 '더 알아보기'의 '역 Kaplan-Meier 방법의 계산'). 추적의 절반이 약 51개월 이상 이어질 수 있었다는 뜻이므로, 5년(60개월) 이후 생존곡선은 적은 수의 환자에 근거한다고 예상할 수 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>총 인년과 사망자 수.</b> 648.9인년은 300명의 time(개월)을 모두 더해 12로 나눈 값입니다. 300명 중 210명(70%)이 사망했다는 비율은 특정 시점의 사망 위험이 아닙니다. 추적을 더 하면 계속 커지는 값입니다.</span></li>
-<li><span class="mk">3</span><span><b>조사망률.</b> 약물 A는 100명 ÷ 363.9인년 = 100인년당 27.5명, 약물 B는 110명 ÷ 284.9인년 = 38.6명입니다. 약물 B의 인년이 적은 것은 환자 수가 약간 적고 더 일찍 사망했기 때문입니다. 두 발생률의 비(IRR)는 0.71로 뒤에 나올 Cox 모형의 위험비(HR) 0.73과 비슷합니다(위 '인년과 발생률'). 다만 어느 쪽도 IMDC 위험군 같은 교란변수를 보정하지 않은 값입니다(다 절).</span></li>
+<li><span class="mk">3</span><span><b>조사망률.</b> 약물 A는 100명 ÷ 363.9인년 = 100인년당 27.5명, 약물 B는 110명 ÷ 284.9인년 = 38.6명입니다. 약물 B의 인년이 적은 것은 환자 수가 약간 적고 더 일찍 사망했기 때문입니다. 두 발생률의 비(IRR)는 0.71로 뒤에 나올 Cox 모형의 위험비(HR) 0.73과 비슷합니다(위 '헷갈리는 점'). 다만 어느 쪽도 IMDC 위험군 같은 교란변수를 보정하지 않은 값입니다(다 절).</span></li>
 <li><span class="mk">4</span><span><b>군별 추적 소실.</b> 추적 소실 비율이 약물 A에서 두 배 이상 높습니다. 소실된 환자가 상태가 나빠져 전원된 사람들이라면 약물 A의 생존율이 과대추정됩니다. 좋은 논문은 소실자의 기저 특성을 비교하거나 소실자를 사건으로 가정한 민감도 분석을 함께 보고합니다.</span></li>
 </ol>
 </div></div>
 
+<h3>5. 논문에 쓰기</h3>
+<p>마지막으로 내 연구의 추적 정보를 Methods와 Results 문장으로 옮깁니다. 관찰연구 보고 지침인 STROBE도 코호트 연구에서는 추적 기간을 요약해 보고하라고 권합니다<cite data-ref="vonelm2007"></cite>.</p>
+<p>보고할 것은 다음 여섯 가지입니다.</p>
+<ol>
+<li>시작 시점, 사건, 추적 종료의 정의. 여러 사유 가운데 먼저 일어난 날에 끝냈다면 그 사유를 모두 씁니다.</li>
+<li>대상자 수, 사건 수, 중도절단 수. 비교 연구라면 군별로 씁니다.</li>
+<li>중도절단 사유별 인원. 추적 소실이 몇 명인지 군별로 씁니다.</li>
+<li>총 추적 인년과 발생률. 단위를 함께 씁니다.</li>
+<li>추적기간의 중앙값과 그 계산 방법.</li>
+<li>청구자료 연구라면 사망 정보의 출처. 사망 자료를 연계했는지 씁니다.</li>
+</ol>
+<p>아래는 이 절의 12명 자료로 만든 예문입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results</b><span>이 절의 예로 쓴 예문</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> Overall survival was defined as the time <span class="mk">1</span> <span class="hl">from the initiation of first-line targeted therapy to death from any cause</span>. <span class="mk">2</span> <span class="hl">Patients who were alive were censored at the data cutoff (January 2023), and those lost to follow-up were censored at the date of last contact</span>. The median follow-up was estimated with <span class="mk">3</span> <span class="hl">the reverse Kaplan–Meier method</span>.</p>
+<p class="excerpt"><b>Results.</b> Of the 12 patients, <span class="mk">4</span> <span class="hl">7 died and 5 were censored</span>; <span class="mk">5</span> <span class="hl">3 were alive at the data cutoff and 2 were lost to follow-up after transfer to another hospital</span>. During <span class="mk">6</span> <span class="hl">20.25 person-years of follow-up, the mortality rate was 34.6 per 100 person-years</span>. The median follow-up was <span class="mk">7</span> <span class="hl">32 months (interquartile range, 25 to 44)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시작 시점과 사건을 한 문장에.</b> 시작 시점이 진단일인지 치료 시작일인지에 따라 같은 환자의 생존기간이 달라집니다. "from any cause"는 사건이 모든 원인의 사망이라는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>중도절단 규칙.</b> 사건 없이 관찰이 끝난 사람을 언제 중도절단했는지 씁니다. 이 문장이 없으면 독자는 마감일에 살아 있던 사람을 어떻게 처리했는지 알 수 없습니다. 청구자료 연구라면 4단계 Methods 상자의 7번처럼 "whichever came first"로 추적 종료 사유를 모두 나열합니다.</span></li>
+<li><span class="mk">3</span><span><b>추적기간의 계산 방법.</b> 같은 자료에서 18, 25, 32개월이 모두 나올 수 있습니다. 방법을 밝혀야 독자가 숫자를 바르게 읽습니다.</span></li>
+<li><span class="mk">4</span><span><b>사건 수와 중도절단 수.</b> 결과의 정밀도는 환자 수보다 사건 수에 좌우됩니다. 독자는 이 숫자로 신뢰구간이 얼마나 넓을지 가늠합니다.</span></li>
+<li><span class="mk">5</span><span><b>중도절단 사유.</b> 자료 마감인지 추적 소실인지 나눠 씁니다. 추적 소실이 많거나 한 군에 몰리면 독자가 정보적 중도절단을 의심할 수 있습니다.</span></li>
+<li><span class="mk">6</span><span><b>총 인년과 발생률.</b> "7 of 12 patients (58.3%) died"만 쓰면 추적 기간이 다른 사람을 같은 분모에 넣은 비율이 됩니다. 발생률은 "per 100 person-years" 같은 단위를 꼭 붙입니다.</span></li>
+<li><span class="mk">7</span><span><b>중앙 추적기간과 사분위범위.</b> 역 Kaplan-Meier 방법으로 구한 32개월과 그 사분위범위입니다. 독자는 이 값으로 몇 년 생존율까지 믿을 만한지 가늠합니다.</span></li>
+</ol>
+</div></div>
+
+<p>자주 하는 실수는 다음 세 가지입니다.</p>
+<ul>
+<li><b>사망 비율을 위험으로 쓰기.</b> 추적 기간이 다르면 "58.3% died"는 사망 위험이 아닙니다. Kaplan-Meier 추정값이나 발생률로 씁니다.</li>
+<li><b>전체 환자 time의 중앙값을 추적기간으로 쓰기.</b> 18개월로 쓰면 사망이 많을수록 추적이 짧았던 것처럼 보입니다.</li>
+<li><b>추적이 짧은 환자를 빼기.</b> "6개월 이상 추적된 환자만 분석했다"는 일찍 사망한 사람을 빼는 셈입니다. 아래 스스로 확인하기 2번에서 숫자로 봅니다.</li>
+</ul>
+
+<p class="lab-link">파이썬 실습 · 관련 실습: <a href="#lab07">실습 7</a>에서 공개 생존 데이터를 (time, status) 형식으로 준비해 Kaplan-Meier 분석과 로그순위법을 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>생존분석의 자료는 (time, status) 한 쌍이고, 시작 시점·사건·추적 종료 세 가지 정의로 만들어집니다.</li>
+<li>추적 기간이 사람마다 다르므로 "사망자 ÷ 환자 수"는 사망 위험이 아닙니다. 중도절단은 "사건 시간이 이보다 길다"는 부분 정보이며, 생존자로 세거나 버리면 생존율과 생존기간이 치우칩니다.</li>
+<li>Kaplan-Meier, 로그순위법, Cox 모형 같은 표준 생존분석은 비정보적 중도절단을 가정합니다. 자료로 검정할 수 없으므로 중도절단 사유를 군별로 확인하고 민감도 분석을 봅니다.</li>
+<li>인년 기반 발생률은 추적 기간의 차이를 반영한 빈도 요약입니다. 중앙 추적기간은 역 Kaplan-Meier 방법으로 구하는 것이 표준입니다.</li>
+<li>청구자료 연구에서는 time 0인 index date, 세척 기간, 유예기간, 추적 종료 사유를 Methods에서 확인합니다. time 0이 어긋난 불멸시간이 없는지도 봅니다. 두 군 비교의 교란 보정은 Cox 모형(11장)이나 성향점수 방법(15장)으로 합니다.</li>
+<li>논문에는 시작 시점·사건·추적 종료의 정의와 사건 수, 중도절단 사유를 씁니다. 총 인년과 발생률, 역 Kaplan-Meier 방법으로 구한 중앙 추적기간도 씁니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">논문 읽기</span>as-treated 분석의 추적 종료 사유 표입니다(약물 X 1,000명, 약물 Y 1,000명, n (%)). 본문에는 "Discontinuation in the drug X group was most often due to adverse events"라고 적혀 있습니다. 비정보적 중도절단 가정을 의심할 근거를 찾고, 어떤 추가 분석을 찾아봐야 하는지 말해 보세요.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
+<thead><tr><th>Reason</th><th class="r">Drug X</th><th class="r">Drug Y</th></tr></thead>
+<tbody>
+<tr><td>Hospitalization for heart failure</td><td class="r">40 (4.0)</td><td class="r">45 (4.5)</td></tr>
+<tr><td>Death</td><td class="r">12 (1.2)</td><td class="r">30 (3.0)</td></tr>
+<tr><td>Treatment discontinuation</td><td class="r">380 (38.0)</td><td class="r">250 (25.0)</td></tr>
+<tr><td>End of study period</td><td class="r">568 (56.8)</td><td class="r">675 (67.5)</td></tr>
+</tbody></table></div>
+<details><summary>답과 풀이</summary><div><p>가장 큰 근거는 약 중단에 의한 중도절단이 약물 X에서 38.0%로 Y(25.0%)보다 13%p 많고, 그 주된 이유가 이상반응이라는 점입니다. 이상반응으로 약을 끊는 환자는 남은 환자보다 상태가 나쁠 수 있어, 이들이 빠지면 X군의 심부전 입원 위험이 과소추정될 수 있습니다. 사망(1.2% 대 3.0%)도 중도절단으로 처리되지만, 사망은 이후 입원을 막는 경쟁위험이라 성격이 다릅니다(17장). 4.0% 대 4.5%는 추적 기간이 다른 두 군의 사건 비율이라 이것만으로 두 약을 비교하면 안 됩니다. ITT 유사 분석, 유예기간을 바꾼 분석, IPCW 분석이 주 분석과 같은 방향인지 찾아봅니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"추적기간이 짧은 환자는 정보가 부족하므로 6개월 이상 추적된 환자만 분석했다." 표 7-1 자료에 이 기준을 적용하면 사망 발생률이 어떻게 바뀌며, 무엇이 틀렸고 어떻게 고쳐 써야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>3개월에 사망한 #1과 5개월에 전원된 #2가 빠져 10명, 사망 6명, 235인월(19.58인년)이 남고, 사망 발생률은 100인년당 34.6명에서 30.6명으로 줄어듭니다(나 절의 Kaplan-Meier 2년 생존율도 53.5%에서 58.3%로 올라갑니다). 추적기간은 time 0 이후에 정해지는 결과이므로 이것으로 대상자를 고르면 일찍 사망한 사람을 골라내게 되고, 예후가 실제보다 좋아 보입니다. '더 알아보기'의 '청구자료에서 코호트 만들기'에 있는 주의 상자 'time 0은 하나의 시점이어야 합니다'와 같은 문제입니다. 고쳐 쓰면 "모든 환자를 time 0부터 추적했고, 추적이 짧은 환자는 마지막 관찰 시점에 중도절단했다"가 됩니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>같은 '입원' 주제에서 연구 상황만 다릅니다. 무엇을 먼저 구분해야 하고, 각각 어떤 요약과 분석이 맞습니까? (가) 심부전으로 입원했다 퇴원한 환자 500명을 모두 퇴원 후 30일 동안 빠짐없이 관찰해 두 퇴원 교육 방식의 30일 재입원 여부를 비교 (나) 2016–2022년 청구자료에서 SGLT2 억제제와 DPP-4 억제제를 새로 시작한 환자의 심부전 입원까지의 시간을 비교(시작 시기에 따라 추적이 몇 달에서 6년까지) (다) (나)와 같지만 as-treated 분석이라 한 군의 45%가 약 중단으로 추적이 끝남</p>
+<details><summary>답과 풀이</summary><div><p>먼저 모든 사람을 같은 기간 동안 끝까지 관찰했는지, 즉 중도절단이 있는지를 구분합니다. (가)는 모두 30일을 채워 관찰했으므로 30일 재입원 비율을 두 군에서 비교하는 위험차·상대위험도와 카이제곱 검정(<a href="#ch05-s1">5장 가 절</a>)이 맞습니다. 다만 30일 안의 사망은 재입원을 막으므로 따로 보고합니다. (나)는 추적 기간이 제각각이라 '입원 환자 수 ÷ 환자 수'가 위험이 아니므로, 인년당 발생률과 Kaplan-Meier 누적발생률, 로그순위법(나·다 절)을 씁니다. (다)도 생존분석이지만 중도절단의 대부분이 약 중단이라 비정보적 중도절단 가정이 핵심 쟁점이 되므로, 군별 추적 종료 사유를 보고하고 ITT 유사 분석이나 IPCW를 민감도 분석으로 함께 봅니다.</p></div></details></li>
+<li><p><span class="qt">계산</span><span class="lv do">직접 분석</span>접힌 '청구자료에서 코호트 만들기'(심화)의 '청구 기록을 (time, status)로 바꾸기'를 읽은 뒤 푸는 문항입니다. 그 예제와 같은 규칙(유예기간 60일, 자료 기간 종료 2022-12-31)으로 환자 마의 as-treated (time, status)를 구하세요. 처방은 2021-10-05, 2021-12-06, 2022-02-03(모두 60일분)이고 그 뒤로는 없습니다. 심부전 입원은 2022-05-20이고 사망은 없습니다.</p>
+<details><summary>답과 풀이</summary><div><p>time = 227일(0.621인년), status = 1입니다. 처방 사이의 간격(2일, −1일)은 유예기간 안이고, 마지막 처방 2022-02-03 + 60일 = 2022-04-04에 약이 떨어지지만 중단일은 여기에 유예 60일을 더한 2022-06-03입니다. 심부전 입원(2022-05-20)이 중단일보다 먼저 왔으므로 as-treated에서도 사건이고, time = 2022-05-20 − 2021-10-05 = 227일입니다. 공급이 끝난 2022-04-04에 바로 중도절단하면 time 181일, status 0으로 사건을 놓치는데, 유예기간 동안은 '계속 복용 중'으로 본다는 규칙을 빠뜨리기 쉽습니다. 논문마다 중단 시점을 어떻게 잡았는지 Methods에서 확인하는 이유입니다.</p></div></details></li>
+<li><p><span class="qt">논문 쓰기</span>1번 문항의 추적 종료 사유 표를 Results 문장으로 써 보세요. 사건인 심부전 입원과 중도절단 사유를 나눠 쓰고, 군별 인원과 비율을 함께 씁니다.</p>
+<details><summary>답과 풀이</summary><div><p>모범 문장은 “Hospitalization for heart failure occurred in 40 patients (4.0%) in the drug X group and 45 (4.5%) in the drug Y group. Follow-up was censored at the end of the study period in 568 (56.8%) and 675 (67.5%) patients, at treatment discontinuation in 380 (38.0%) and 250 (25.0%), and at death in 12 (1.2%) and 30 (3.0%), respectively.”입니다.</p>
+<p>확인할 점은 네 가지입니다. ① 사건과 중도절단 사유를 구분해 씁니다. ② 4.0% 대 4.5%를 두 약의 위험으로 비교하는 문장을 쓰지 않습니다. 추적 기간이 다르므로 위험은 발생률이나 Kaplan-Meier 누적발생률로 씁니다. ③ 약 중단이 X군에서 13%p 많았다는 점과, ITT 유사 분석 같은 민감도 분석의 결과를 함께 씁니다. ④ 사유별 인원을 더해 각 군이 1,000명이 되는지 확인합니다. X군은 40 + 12 + 380 + 568 = 1,000명, Y군은 45 + 30 + 250 + 675 = 1,000명입니다.</p></div></details></li>
+</ol></div>
+
+<h3>더 알아보기</h3>
+<p>아래 상자는 처음 읽을 때 건너뛰어도 됩니다. 논문에서 그 내용을 만났을 때 펼쳐 읽습니다.</p>
+
 <h3>청구자료에서 코호트 만들기 <span class="lv deep">심화</span></h3>
 <p class="cmd-note">이 주제는 <a href="#ch14">14장 청구자료 코호트 연구의 설계</a>에서 자세히 다룹니다. 아래는 생존분석에 필요한 부분만 간추린 내용입니다.</p>
-<p>건강보험 청구자료로 두 약을 비교할 때는 시작 시점·사건·추적 종료를 연구자가 처방과 진단 기록으로부터 직접 만들어야 합니다. 논문에서는 이 과정이 Methods의 몇 문장으로 압축되는데, 그 문단은 이 절 끝의 '논문에서 읽어 보기'에서 번호를 따라 읽습니다. 가장 많이 쓰는 틀은 <strong>활성 비교약 신규 사용자 설계</strong><span class="en">(active-comparator new-user design)</span>입니다<cite data-ref="ray2003"></cite><cite data-ref="lund2015"></cite>.</p>
+<p>건강보험 청구자료로 두 약을 비교할 때는 시작 시점·사건·추적 종료를 연구자가 처방과 진단 기록으로부터 직접 만들어야 합니다. 논문에서는 이 과정이 Methods의 몇 문장으로 압축됩니다. 그 문단은 위 '논문에서 읽기'의 Methods 상자에서 번호를 따라 읽었습니다. 가장 많이 쓰는 틀은 <strong>활성 비교약 신규 사용자 설계</strong><span class="en">(active-comparator new-user design)</span>입니다<cite data-ref="ray2003"></cite><cite data-ref="lund2015"></cite>.</p>
 <!--FIG:ch07_claims-->
 <ul>
 <li><strong>Index date</strong>: 두 약 중 하나를 처음 처방받은 날입니다. 이날이 time 0입니다.</li>
-<li><strong>세척 기간</strong><span class="en">(washout, look-back period)</span>: index date 이전 일정 기간(흔히 365일) 동안 비교하는 두 약의 처방이 없어야 '신규' 사용자로 봅니다. 이미 오래 복용해 온 사용자(prevalent user)를 섞으면 두 가지 문제가 생깁니다. 첫째, 초기 부작용을 견디고 남은 사람들이라 비교가 왜곡됩니다. 둘째, 이들의 혈압·HbA1c 같은 기저 공변량은 이미 약의 영향을 받은 값이라, 그것을 보정하면 약 효과의 일부를 지우게 됩니다(<a href="#ch06-s4">6장 라 절</a>의 주의 상자 '기저값을 잰 시점과 약을 쓰기 시작한 시점'과 같은 이유). 같은 기간을 동반질환·병용약 같은 기저 공변량 측정에도 씁니다.</li>
+<li><strong>세척 기간</strong><span class="en">(washout, look-back period)</span>: index date 이전 일정 기간(흔히 365일) 동안 비교하는 두 약의 처방이 없어야 '신규' 사용자로 봅니다. 이미 오래 복용해 온 사용자(prevalent user)를 섞으면 두 가지 문제가 생깁니다. 첫째, 초기 부작용을 견디고 남은 사람들이라 비교가 왜곡됩니다. 둘째, 이들의 혈압·HbA1c 같은 기저 공변량은 이미 약의 영향을 받은 값이라, 그것을 보정하면 약 효과의 일부를 지우게 됩니다(<a href="#ch06-s4">6장 라 절</a> '더 알아보기'의 '기저값을 잰 시점과 약을 쓰기 시작한 시점'과 같은 이유). 같은 기간을 동반질환·병용약 같은 기저 공변량 측정에도 씁니다.</li>
 <li><strong>사건 정의</strong>: 상병코드와 청구 유형으로 정의합니다(예: 입원 청구의 주상병이 I50). 정의의 타당도를 검증한 선행연구가 있는지 확인합니다.</li>
 <li><strong>추적 종료</strong>: 사건, 사망, 자격 상실(NHIS 자료), 자료 기간 종료 중 가장 이른 날입니다. as-treated 분석에서는 약 중단과 비교약으로의 변경·추가도 추적 종료 사유입니다. 반대로 약을 끊거나 바꿔도 처음 시작한 약의 군으로 계속 추적하는 방식은 <strong>ITT 유사 분석</strong><span class="en">(intention-to-treat–like analysis)</span>이라고 하며, 민감도 분석으로 함께 제시하는 경우가 많습니다.</li>
 <li><strong>유예기간</strong><span class="en">(grace period)</span>: 재처방이 며칠 늦어지는 일은 흔하므로, 마지막 처방의 공급일수가 끝난 뒤 30–90일 정도는 계속 복용 중으로 봅니다. 유예기간을 바꿔도 결과가 비슷한지 민감도 분석을 합니다.</li>
@@ -249,6 +289,7 @@ dtype: float64</pre></div></div>
 <div class="callout warn"><p class="ct">주의 · time 0은 하나의 시점이어야 합니다</p>
 <p>대상자 선정 조건 충족, 치료군 배정, 추적 시작이 모두 같은 날(index date)에 일어나야 합니다. 예를 들어 "첫 처방 뒤 6개월 안에 처방을 두 번 이상 받은 사람"을 사용군으로 정하면서 추적은 첫 처방일부터 시작하면, 두 번째 처방을 받기 전까지 사용군 환자는 사망할 수 없습니다. 그 전에 사망했다면 사용군이 되지 못했을 것이기 때문입니다. 이 기간을 <strong>불멸시간</strong><span class="en">(immortal time)</span>이라고 하며, 사용군을 인위적으로 유리하게 만드는 대표적인 편향입니다(16장). 무작위배정 임상시험을 흉내 내어 관찰연구를 설계하는 목표시험 모방<span class="en">(target trial emulation)</span>은 이런 문제를 체계적으로 피하게 해 주는 틀입니다<cite data-ref="hernan2016"></cite>.</p></div>
 
+<p>아래 Table S3는 4단계 Methods 상자와 같은 연구의 보충 자료입니다.</p>
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 추적 종료 사유 표</b><span>가상의 예시</span></div>
 <div class="paper-b">
@@ -272,76 +313,50 @@ dtype: float64</pre></div></div>
 </ol>
 </div></div>
 
+<h3>청구자료의 추적 소실과 다른 형태의 중도절단 <span class="lv deep">심화</span></h3>
+<p>국민건강보험공단(NHIS) 자료에서는 보험 자격 상실도 추적 소실에 해당합니다. 해외 이주가 그 예입니다. 건강보험심사평가원(HIRA) 청구자료에는 자격 파일이 따로 없어 자격 상실 시점을 알 수 없습니다. 그래서 연구마다 마지막 의료이용일이나 자료 기간 종료를 추적 종료로 정의합니다. 청구자료에서는 이처럼 추적 종료를 연구자가 직접 정의해야 합니다. 논문의 Methods에서 어떤 정의를 썼는지와 사망 자료를 연계했는지 확인합니다(<a href="#ch14-s4">14장 라 절</a>). 정의에 따라 편향의 방향이 달라지는 이유는 위 '청구자료에서 코호트 만들기'의 추적 종료 정의 표에 있습니다.</p>
+<p>다른 형태도 있습니다. <strong>좌측 중도절단</strong><span class="en">(left censoring)</span>은 관찰을 시작하기 전에 이미 사건이 일어났지만 언제인지 모르는 경우이고, <strong>구간 중도절단</strong><span class="en">(interval censoring)</span>은 두 검사 사이 어딘가에서 사건이 일어났다는 것만 아는 경우입니다. 8주마다 CT를 찍어 진행을 판정하는 PFS는 엄밀히 말하면 구간 중도절단 자료지만, 보통 진행이 확인된 검사일을 사건 시점으로 놓고 우측 중도절단 자료처럼 분석합니다. 이 장은 우측 중도절단만 다룹니다.</p>
+<p>청구자료에서는 관찰이 시작되는 쪽도 확인합니다. 세척 기간(위 '청구자료에서 코호트 만들기')에 처방이 없다는 것이 '약을 쓰지 않았다'는 뜻이 되려면 그 기간 내내 자료 안에 있어야(건강보험 자격 유지) 하는데, 해외 체류처럼 자격이 없던 기간에는 약을 썼어도 청구가 남지 않기 때문입니다. NHIS 자료는 자격 DB로 이런 <strong>연속 자격</strong><span class="en">(continuous enrollment)</span>을 확인할 수 있지만, HIRA 청구자료는 자격 정보가 없어 직접 확인하기 어렵습니다. 비슷하게, time 0보다 늦게 자료에 들어온 사람도 있습니다. 이를 <strong>지연 진입</strong><span class="en">(delayed entry, left truncation)</span>이라고 하며 좌측 중도절단과는 다른 문제입니다. 이런 사람을 time 0부터 관찰한 것처럼 세면, 들어오기 전에 사망한 사람은 애초에 자료에 없으므로 생존이 좋게 보입니다. 그래서 자료에 들어온 시점부터 위험집합에 넣어 분석합니다.</p>
+
+<h3>비정보적 중도절단 가정을 판단하는 법 <span class="lv deep">심화</span></h3>
+<p>자료 마감에 의한 행정적 중도절단도 늘 안전하지는 않습니다. 연구 기간 중에 치료가 발전해 늦게 등록한 환자의 예후가 더 좋다면 이 경우에도 문제가 생깁니다.</p>
+<p>좋은 논문은 이 가정을 판단할 근거를 함께 보고합니다. ① 중도절단 사유를 군별로 보고합니다. 추적 소실 비율이 한 군에서만 높지 않은지 봅니다. ② 추적 소실자를 모두 사건으로 가정하는 식의 극단적 민감도 분석을 합니다. ③ 중도절단을 예측하는 변수를 측정했다면 역확률 중도절단 가중치<span class="en">(inverse probability of censoring weighting, IPCW)</span>로 보정하기도 합니다.</p>
+
+<h3>역 Kaplan-Meier 방법의 계산 <span class="lv deep">심화</span></h3>
+<p>3단계에서 본 세 가지 계산 방법은 다음과 같이 다릅니다.</p>
+<ul>
+<li><strong>전체 환자 time의 중앙값</strong>: 18개월. 사망한 환자는 사망과 함께 추적이 끝나므로, 사망이 많을수록 '추적기간'이 짧아 보입니다. 연구를 얼마나 오래 했는지와 병이 얼마나 치명적인지가 섞인 값입니다.</li>
+<li><strong>생존자(중도절단된 환자)만의 time 중앙값</strong>: 25개월. 사망자의 정보를 버리고, 전원으로 일찍 추적이 끊긴 환자가 섞여 있습니다.</li>
+<li><strong>역 Kaplan-Meier 방법</strong>: 32개월. 사망한 환자를 "사망하지 않았다면 그보다 오래 관찰되었을 사람"으로 취급해, 병의 치명도와 관계없이 '관찰이 얼마나 이어질 수 있었는가'를 추정합니다.</li>
+</ul>
+<p>나 절의 Kaplan-Meier 계산(표 7-2)을 읽은 뒤 다시 보면 쉽습니다. status를 뒤집어 중도절단을 '사건'으로, 사망을 '중도절단'으로 놓고 나 절의 Kaplan-Meier 계산을 그대로 합니다. 표 7-1에 적용하면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
+<thead><tr><th class="r">time</th><th>'사건' (= 중도절단)</th><th class="r">위험집합</th><th class="r">역 KM 곡선 G(t)</th></tr></thead>
+<tbody>
+<tr><td class="r">5</td><td>#2</td><td class="r">11</td><td class="r">10/11 = 0.909</td></tr>
+<tr><td class="r">16</td><td>#6</td><td class="r">7</td><td class="r">0.909 × 6/7 = 0.779</td></tr>
+<tr><td class="r">25</td><td>#8</td><td class="r">5</td><td class="r">0.779 × 4/5 = 0.623</td></tr>
+<tr class="hi"><td class="r">32</td><td>#10</td><td class="r">3</td><td class="r">0.623 × 2/3 = 0.416</td></tr>
+<tr><td class="r">44</td><td>#12</td><td class="r">1</td><td class="r">0</td></tr>
+</tbody></table></div>
+<p>G(t)가 처음 0.5 이하가 되는 32개월이 역 Kaplan-Meier 방법의 중앙 추적기간입니다. 같은 방식으로 0.75 이하, 0.25 이하가 되는 시점을 읽으면 사분위범위(25–44개월)를 얻습니다. 5개월의 위험집합이 12가 아니라 11인 이유는 3개월에 사망한 #1이 이 계산에서는 '중도절단'되어 빠졌기 때문입니다.</p>
+
+<h3>내 연구에 쓸 때 <span class="lv deep">심화</span></h3>
 <div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
 <li><strong>time 0 정하기</strong>: 대상자 선정 조건 충족, 비교할 치료의 결정, 추적 시작을 같은 날로 맞춥니다. 청구자료의 약물 비교라면 보통 첫 처방일(index date), 병원 종양 코호트라면 진단일이나 1차 치료 시작일입니다. "처방을 두 번 이상 받은 사람"이나 "치료에 반응한 사람"처럼 time 0 이후에야 알 수 있는 정보로 군을 나누면 불멸시간 편향이 생깁니다(16장, 나 절 랜드마크 분석).</li>
 <li><strong>중도절단 규칙 정하기</strong>: 사건 외에 추적을 끝내는 사유(사망, 자격 상실, 자료 기간 종료, as-treated 분석이라면 약 중단과 변경)를 미리 정하고 "가장 먼저 일어난 날"에 끝냅니다. HIRA 청구자료만으로는 자격 상실과 병원 밖 사망을 알 수 없으므로, 사망자료 연계 여부와 추적 종료 정의를 Methods에 밝힙니다. 사건은 타당도가 검증된 코드 정의를 쓰고, 유예기간과 사건 정의를 바꾼 민감도 분석을 계획합니다.</li>
 <li><strong>교란과 보정</strong>: 이 절의 발생률·사건 비율과 나·다 절의 Kaplan-Meier 곡선, 로그순위법은 모두 <strong>보정하지 않은 비교</strong>입니다. 관찰연구에서 두 약을 비교하려면 index date 이전(세척 기간)에 측정한 공변량으로 교란을 보정해야 하며, 층화(다 절 층화 로그순위법, 8장 바 절), 다변수 Cox 모형(11장), 성향점수 매칭·역확률 가중치(15장)를 씁니다. time 0 설정 오류나 정보적 중도절단은 공변량 보정으로 고쳐지지 않으므로 설계 단계에서 막아야 합니다.</li>
-<li><strong>보고할 것</strong>: 군별 대상자 수와 사건 수, 총 인년과 발생률, 중앙 추적기간과 그 계산 방법(역 Kaplan-Meier), 군별 추적 종료 사유와 추적 소실 비율.</li>
 </ul></div>
-
-<h3>논문에서 읽어 보기</h3>
-<p>지금까지 본 time 0, 사건 정의, 중도절단 규칙이 청구자료 연구의 Methods에서 어떻게 적히는지 확인합니다. 신규 사용자 설계, 세척 기간, 유예기간 같은 용어는 번호 해설에서 하나씩 풀고, 자세한 설명과 계산 예제는 위 접힌 '청구자료에서 코호트 만들기'에 있습니다. 건강보험 청구자료로 SGLT2 억제제와 DPP-4 억제제를 새로 쓰기 시작한 환자의 심부전 입원을 비교한 연구의 Methods입니다(1장 Table 1의 신규 사용자 연구를 이어서 쓰며, 위 접힌 부분의 Table S3와 같은 연구입니다). 시작 시점·사건·추적 종료가 어디에 적혀 있는지 번호를 따라 찾아보세요.</p>
-
-<div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 코호트 정의</b><span>가상의 예시</span></div>
-<div class="paper-b">
-<p class="excerpt">We conducted a retrospective cohort study <span class="mk">1</span> <span class="hl">using the Health Insurance Review and Assessment Service (HIRA) database from January 1, 2015, to December 31, 2022</span>. We identified new users of SGLT2 inhibitors or DPP-4 inhibitors, defined as patients <span class="mk">2</span> <span class="hl">without a prescription for either drug class during the 365 days</span> before their first prescription; the date of the first prescription was defined as the <span class="mk">3</span> <span class="hl">index date</span>. Baseline characteristics were assessed during the 365-day look-back period. The outcome was <span class="mk">4</span> <span class="hl">hospitalization for heart failure, defined as an inpatient claim with a primary diagnosis of heart failure (ICD-10 code I50)</span>. <span class="mk">5</span> <span class="hl">Patients with a hospitalization for heart failure during the look-back period were excluded</span>. <span class="mk">6</span> <span class="hl">Follow-up started on the day after the index date</span> and continued until the occurrence of the outcome, death, treatment discontinuation, switching to or adding the comparator drug, or the end of the study period, <span class="mk">7</span> <span class="hl">whichever came first</span>. Treatment discontinuation was defined as <span class="mk">8</span> <span class="hl">no refill within 60 days after the end of the days' supply</span> of the last prescription. In sensitivity analyses, <span class="mk">9</span> <span class="hl">we followed patients regardless of treatment discontinuation or switching (intention-to-treat–like analysis)</span> and varied the grace period to 30 and 90 days.</p>
-<ol class="marks">
-<li><span class="mk">1</span><span><b>자료원과 연구 기간.</b> 연구 기간의 끝(2022년 12월 31일)이 가장 늦은 추적 종료일, 즉 자료 기간이 끝나서 생기는 행정적 중도절단 시점입니다. 세척 기간 365일이 필요하므로 실제 index date는 2016년 1월 1일 이후만 가능합니다. 꼼꼼한 논문은 "index dates between January 1, 2016, and ..."처럼 대상자 등록 기간을 따로 밝힙니다.</span></li>
-<li><span class="mk">2</span><span><b>신규 사용자 정의(세척 기간, washout period).</b> 비교하는 두 계열 어느 쪽도 365일 동안 처방이 없어야 '새로 시작한 사람'으로 봅니다. 기간이 길수록 진짜 신규 사용자일 가능성이 높지만 자료가 짧은 환자는 제외됩니다. 한쪽 계열만 확인하면 다른 계열을 쓰다가 바꾼 환자가 섞이므로 두 계열 모두 확인했는지 봅니다.</span></li>
-<li><span class="mk">3</span><span><b>시작 시점(time 0).</b> 첫 처방일 하루에 대상자 선정(신규 사용 확인), 치료군 결정(어느 약인지), 추적 시작이 모두 일어납니다. 이 세 가지가 어긋나면 편향이 생깁니다. 예를 들어 "처방을 두 번 이상 받은 사람"을 사용군으로 정하면서 추적은 첫 처방일부터 시작하면, 두 번째 처방 전까지 사용군 환자는 정의상 사망할 수 없는 기간(불멸시간<span class="en">(immortal time)</span>)을 갖게 되어 사용군이 유리해집니다(불멸시간 편향, 위 접힌 '청구자료에서 코호트 만들기'의 주의 상자, 16장).</span></li>
-<li><span class="mk">4</span><span><b>사건 정의.</b> '입원 청구의 주상병'으로 제한하면 외래에서 코드만 입력된 경우를 제외해 양성예측도가 높아지는 대신 일부 사건을 놓칩니다. 정의를 바꾼 민감도 분석이 있는지 확인합니다.</span></li>
-<li><span class="mk">5</span><span><b>과거 사건 제외.</b> 세척 기간(look-back period)에 이미 심부전으로 입원한 환자를 뺍니다. 이들이 추적 중 다시 입원하면 약을 시작한 뒤 새로 생긴 사건인지 기존 심부전의 재입원인지 섞이기 때문입니다. 그래서 이 연구는 "심부전 입원력이 없는 환자에게 처음 생기는 심부전 입원"을 본 것이고, 결과도 그런 환자에게 적용된다는 점을 함께 읽습니다.</span></li>
-<li><span class="mk">6</span><span><b>추적 시작일.</b> index date 당일의 입원은 약의 효과로 볼 수 없어 다음 날부터 셉니다. 일부 연구는 약효가 나타나기까지의 유도기간(예: 30일)을 두고 추적을 시작하는데, 이때는 그 기간의 사건이 분석에서 빠진다는 점을 고려해야 합니다.</span></li>
-<li><span class="mk">7</span><span><b>"whichever came first"(가장 먼저 일어난 날).</b> 사건(심부전 입원)만 status = 1이고, 나머지(사망, 중단, 변경, 연구 기간 종료)는 모두 그 날짜에 중도절단(status = 0)됩니다. HIRA 청구자료는 병원 밖에서의 사망이 기록되지 않으므로, 사망 정보를 어디서 얻었는지(사망자료 연계 여부) 확인해야 합니다(<a href="#ch14-s4">14장 라 절</a>, 위 접힌 '청구자료에서 코호트 만들기'의 추적 종료 정의 표). 또 사망은 심부전 입원을 원천적으로 막는 경쟁위험입니다(나 절의 접힌 주의 상자, 17장).</span></li>
-<li><span class="mk">8</span><span><b>유예기간.</b> 재처방이 조금 늦어도 계속 복용 중으로 보는 여유 기간입니다. 위 접힌 '청구자료에서 코호트 만들기'의 그림 7-2 환자는 마지막 90일분이 295일째에 끝났고 60일 안에 재처방이 없어 355일째에 중도절단됩니다. 논문마다 중단 시점을 '공급일수 종료일'로 할지 '종료일 + 유예기간'으로 할지 다르므로 정의를 확인합니다.</span></li>
-<li><span class="mk">9</span><span><b>as-treated와 ITT 유사 분석.</b> 주 분석(as-treated)은 약을 쓰는 동안의 효과를 보지만, 약을 끊는 이유가 부작용이나 건강 악화라면 중단에 의한 중도절단이 정보적일 수 있습니다. ITT 유사 분석은 이 문제를 피하는 대신 약을 끊은 기간까지 '사용 중'으로 세어 효과가 희석됩니다. 두 분석의 결과가 같은 방향인지, 유예기간을 30일·90일로 바꿔도 결과가 비슷한지 봅니다.</span></li>
-</ol>
-</div></div>
-
-<p class="lab-link">파이썬 실습 · 관련 실습: <a href="#lab07">실습 7</a>에서 공개 생존 데이터를 (time, status) 형식으로 준비해 Kaplan-Meier 분석과 로그순위법을 직접 해 봅니다.</p>
-<div class="keypoints"><p class="kt">정리</p><ul>
-<li>생존분석의 자료는 (time, status) 한 쌍이고, 시작 시점·사건·추적 종료 세 가지 정의로 만들어집니다.</li>
-<li>추적 기간이 사람마다 다르므로 "사망자 ÷ 환자 수"는 사망 위험이 아닙니다. 중도절단은 "사건 시간이 이보다 길다"는 부분 정보이며, 생존자로 세거나 버리면 생존율과 생존기간이 치우칩니다.</li>
-<li>Kaplan-Meier, 로그순위법, Cox 모형 같은 표준 생존분석은 비정보적 중도절단을 가정합니다. 자료로 검정할 수 없으므로 중도절단 사유를 군별로 확인하고 민감도 분석을 봅니다.</li>
-<li>인년 기반 발생률은 추적 기간의 차이를 반영한 빈도 요약입니다. 중앙 추적기간은 역 Kaplan-Meier 방법으로 구하는 것이 표준입니다.</li>
-<li>청구자료 연구에서는 index date(time 0), 세척 기간, 유예기간, 추적 종료 사유를 Methods에서 확인하고, time 0이 어긋난 불멸시간이 없는지 봅니다. 두 군 비교의 교란 보정은 Cox 모형(11장)이나 성향점수 방법(15장)으로 합니다.</li>
-</ul></div>
-<div class="practice"><p class="pt">스스로 확인하기</p>
-<ol>
-<li><p><span class="qt">논문 읽기</span>as-treated 분석의 추적 종료 사유 표입니다(약물 X 1,000명, 약물 Y 1,000명, n (%)). 본문에는 "Discontinuation in the drug X group was most often due to adverse events"라고 적혀 있습니다. 비정보적 중도절단 가정을 의심할 근거를 찾고, 어떤 추가 분석을 찾아봐야 하는지 말해 보세요.</p>
-<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
-<thead><tr><th>Reason</th><th class="r">Drug X</th><th class="r">Drug Y</th></tr></thead>
-<tbody>
-<tr><td>Hospitalization for heart failure</td><td class="r">40 (4.0)</td><td class="r">45 (4.5)</td></tr>
-<tr><td>Death</td><td class="r">12 (1.2)</td><td class="r">30 (3.0)</td></tr>
-<tr><td>Treatment discontinuation</td><td class="r">380 (38.0)</td><td class="r">250 (25.0)</td></tr>
-<tr><td>End of study period</td><td class="r">568 (56.8)</td><td class="r">675 (67.5)</td></tr>
-</tbody></table></div>
-<details><summary>답과 풀이</summary><div><p>가장 큰 근거는 약 중단에 의한 중도절단이 약물 X에서 38.0%로 Y(25.0%)보다 13%p 많고, 그 주된 이유가 이상반응이라는 점입니다. 이상반응으로 약을 끊는 환자는 남은 환자보다 상태가 나쁠 수 있어, 이들이 빠지면 X군의 심부전 입원 위험이 과소추정될 수 있습니다. 사망(1.2% 대 3.0%)도 중도절단으로 처리되지만, 사망은 이후 입원을 막는 경쟁위험이라 성격이 다릅니다(17장). 4.0% 대 4.5%는 추적 기간이 다른 두 군의 사건 비율이라 이것만으로 두 약을 비교하면 안 됩니다. ITT 유사 분석, 유예기간을 바꾼 분석, IPCW 분석이 주 분석과 같은 방향인지 찾아봅니다.</p></div></details></li>
-<li><p><span class="qt">해석 고치기</span>"추적기간이 짧은 환자는 정보가 부족하므로 6개월 이상 추적된 환자만 분석했다." 표 7-1 자료에 이 기준을 적용하면 사망 발생률이 어떻게 바뀌며, 무엇이 틀렸고 어떻게 고쳐 써야 합니까?</p>
-<details><summary>답과 풀이</summary><div><p>3개월에 사망한 #1과 5개월에 전원된 #2가 빠져 10명, 사망 6명, 235인월(19.58인년)이 남고, 사망 발생률은 100인년당 34.6명에서 30.6명으로 줄어듭니다(나 절의 Kaplan-Meier 2년 생존율도 53.5%에서 58.3%로 올라갑니다). 추적기간은 time 0 이후에 정해지는 결과이므로 이것으로 대상자를 고르면 일찍 사망한 사람을 골라내게 되고, 예후가 실제보다 좋아 보입니다. 접힌 '청구자료에서 코호트 만들기'의 주의 상자 'time 0은 하나의 시점이어야 합니다'와 같은 문제입니다. 고쳐 쓰면 "모든 환자를 time 0부터 추적했고, 추적이 짧은 환자는 마지막 관찰 시점에 중도절단했다"가 됩니다.</p></div></details></li>
-<li><p><span class="qt">분석 고르기</span>같은 '입원' 주제에서 연구 상황만 다릅니다. 무엇을 먼저 구분해야 하고, 각각 어떤 요약과 분석이 맞습니까? (가) 심부전으로 입원했다 퇴원한 환자 500명을 모두 퇴원 후 30일 동안 빠짐없이 관찰해 두 퇴원 교육 방식의 30일 재입원 여부를 비교 (나) 2016–2022년 청구자료에서 SGLT2 억제제와 DPP-4 억제제를 새로 시작한 환자의 심부전 입원까지의 시간을 비교(시작 시기에 따라 추적이 몇 달에서 6년까지) (다) (나)와 같지만 as-treated 분석이라 한 군의 45%가 약 중단으로 추적이 끝남</p>
-<details><summary>답과 풀이</summary><div><p>먼저 모든 사람을 같은 기간 동안 끝까지 관찰했는지, 즉 중도절단이 있는지를 구분합니다. (가)는 모두 30일을 채워 관찰했으므로 30일 재입원 비율을 두 군에서 비교하는 위험차·상대위험도와 카이제곱 검정(<a href="#ch05-s1">5장 가 절</a>)이 맞습니다. 다만 30일 안의 사망은 재입원을 막으므로 따로 보고합니다. (나)는 추적 기간이 제각각이라 '입원 환자 수 ÷ 환자 수'가 위험이 아니므로, 인년당 발생률과 Kaplan-Meier 누적발생률, 로그순위법(나·다 절)을 씁니다. (다)도 생존분석이지만 중도절단의 대부분이 약 중단이라 비정보적 중도절단 가정이 핵심 쟁점이 되므로, 군별 추적 종료 사유를 보고하고 ITT 유사 분석이나 IPCW를 민감도 분석으로 함께 봅니다.</p></div></details></li>
-<li><p><span class="qt">계산</span><span class="lv do">직접 분석</span>접힌 '청구자료에서 코호트 만들기'(심화)의 '청구 기록을 (time, status)로 바꾸기'를 읽은 뒤 푸는 문항입니다. 그 예제와 같은 규칙(유예기간 60일, 자료 기간 종료 2022-12-31)으로 환자 마의 as-treated (time, status)를 구하세요. 처방은 2021-10-05, 2021-12-06, 2022-02-03(모두 60일분)이고 그 뒤로는 없습니다. 심부전 입원은 2022-05-20이고 사망은 없습니다.</p>
-<details><summary>답과 풀이</summary><div><p>time = 227일(0.621인년), status = 1입니다. 처방 사이의 간격(2일, −1일)은 유예기간 안이고, 마지막 처방 2022-02-03 + 60일 = 2022-04-04에 약이 떨어지지만 중단일은 여기에 유예 60일을 더한 2022-06-03입니다. 심부전 입원(2022-05-20)이 중단일보다 먼저 왔으므로 as-treated에서도 사건이고, time = 2022-05-20 − 2021-10-05 = 227일입니다. 공급이 끝난 2022-04-04에 바로 중도절단하면 time 181일, status 0으로 사건을 놓치는데, 유예기간 동안은 '계속 복용 중'으로 본다는 규칙을 빠뜨리기 쉽습니다. 논문마다 중단 시점을 어떻게 잡았는지 Methods에서 확인하는 이유입니다.</p></div></details></li>
-</ol></div>
 </section>
 
 <!-- ============================================================ 나 -->
 <section class="sec" id="ch07-s2">
 <h2><span class="sec-no">나.</span>Kaplan-Meier 생존분석</h2>
 
-<div class="easy">
-<p class="et">쉽게 말하면</p>
-<p class="big">Kaplan-Meier 방법은 중도절단이 있는 자료에서 "시작 후 t까지 사건 없이 지낼 확률"을 계단 모양의 곡선으로 추정합니다. 논문에서 보는 생존곡선은 대부분 이 방법으로 그린 것입니다.</p>
-<ul>
-<li><b>계단 한 칸의 뜻.</b> 곡선은 사망이 일어난 시점에만 내려갑니다. 얼마나 내려가는지는 "그 순간 아직 관찰 중이던 사람 가운데 몇 명이 사망했는가"로 정해집니다. 10명이 남아 있을 때 1명이 사망하면 곡선은 직전 높이의 9/10이 됩니다. 중도절단된 사람은 곡선을 내리지 않고, 떠나기 전까지 분모에만 들어갑니다.</li>
-<li><b>비유.</b> 관문을 차례로 통과하는 게임과 같습니다. 관문(사망 시점)마다 "그 관문 앞까지 온 사람 중 몇 %가 통과했는가"를 구하고, 처음부터 t까지 살아남을 확률은 그때까지의 통과율을 모두 곱한 값입니다.</li>
-<li><b>논문에서는.</b> "median overall survival, 32.4 months (95% CI, 21.7 to 39.7); 2-year overall survival, 56.6%"처럼 나옵니다. "환자의 절반이 사망하기까지 약 32개월이 걸렸고(불확실성을 고려하면 22–40개월 정도), 2년 시점에 약 57%가 살아 있을 것으로 추정된다"라고 읽습니다.</li>
-<li><b>기억할 한 가지.</b> 곡선의 오른쪽 끝은 남은 사람이 적어 한두 명의 사망으로 크게 움직입니다. 곡선 아래의 위험집합 표(number at risk)를 함께 보고, 끝이 평평하다고 완치로 읽지 않습니다.</li>
-</ul>
-</div>
+<h3>1. 언제 쓰나</h3>
+<p>먼저 이 방법이 답하는 연구 질문을 봅니다. "1차 표적치료를 시작한 신세포암 환자의 2년 생존율은 얼마인가?"가 한 예입니다. "환자의 절반이 사망하기까지 얼마나 걸리는가?"도 같은 꼴입니다.</p>
+<p><strong>Kaplan-Meier 방법</strong>은 중도절단이 있는 자료에서 "시작 후 t까지 사건 없이 지낼 확률"을 계단 모양의 곡선으로 추정합니다<cite data-ref="kaplan1958"></cite>. 논문에서 보는 생존곡선은 대부분 이 방법으로 그린 것입니다.</p>
+<p>2년 생존율을 한 번에 구하기 어려운 이유는 2년을 다 채워 관찰하지 못한 사람이 있기 때문입니다. Kaplan-Meier 방법은 2년이라는 긴 구간을 사망이 일어난 시점마다 잘게 나눕니다. 관문을 차례로 통과하는 게임과 같습니다. 관문인 사망 시점마다 그 앞까지 온 사람 중 몇 %가 통과했는지 구합니다. t까지 살아남을 확률은 그때까지의 통과율을 모두 곱한 값입니다<cite data-ref="bland1998km"></cite>. 그래서 Kaplan-Meier 추정량을 <strong>곱셈-극한 추정량</strong><span class="en">(product-limit estimator)</span>이라고도 부릅니다. 정확한 식은 '더 알아보기'의 '수식으로 보기'에 있습니다.</p>
 
 <dl class="glance">
 <div><dt>언제 쓰나</dt><dd>중도절단이 있는 시간-사건 자료에서 시점별 생존확률(생존곡선)과 중앙생존기간을 추정할 때</dd></div>
@@ -350,12 +365,9 @@ dtype: float64</pre></div></div>
 <div><dt>논문 보고 형식</dt><dd>Kaplan-Meier 곡선과 위험집합 표, 중앙생존기간(95% CI), 1·2·5년 생존율(95% CI)</dd></div>
 </dl>
 
-<h3>개념</h3>
-<p>2년 생존율을 한 번에 구하기 어려운 이유는 2년을 다 채워 관찰하지 못한 사람이 있기 때문입니다. Kaplan-Meier 방법은 2년이라는 긴 구간을 사망이 일어난 시점마다 잘게 나눕니다<cite data-ref="kaplan1958"></cite><cite data-ref="bland1998km"></cite>. 각 사망 시점에서는 "그 직전까지 관찰 중이던 사람 중 몇 %가 살아남았는가"만 계산하는데, 이 비율을 <strong>조건부 생존확률</strong><span class="en">(conditional survival probability)</span>이라고 합니다. 처음부터 t까지 살아남을 확률은 t 이전의 조건부 생존확률을 모두 곱한 값입니다. 그래서 Kaplan-Meier 추정량을 <strong>곱셈-극한 추정량</strong><span class="en">(product-limit estimator)</span>이라고도 부릅니다. 정확한 식은 '수식으로 보기'에 있습니다.</p>
-<p>각 시점에 아직 사건도 중도절단도 없이 관찰 중인 사람들을 <strong>위험집합</strong><span class="en">(risk set, number at risk)</span>이라고 합니다. 조건부 생존확률의 분모가 바로 위험집합의 크기입니다. 중도절단된 환자는 떠나기 전까지의 모든 사망 시점에서 위험집합에 들어가 '그때까지 살아 있었다'는 정보를 보태고, 떠난 뒤부터는 빠집니다. 가 절의 단순 계산처럼 끝까지 생존자로 세지도, 처음부터 버리지도 않습니다.</p>
-
-<h3>숫자로 따라가기</h3>
-<p>가 절의 12명 자료(표 7-1)로 곡선을 직접 계산해 봅니다. 사건이나 중도절단이 있었던 시점마다 한 줄씩 적습니다. 마지막 열의 95% CI는 아래 '신뢰구간'에서 설명합니다.</p>
+<h3>2. 숫자로 따라가기</h3>
+<p>가 절의 12명 자료인 표 7-1로 곡선을 직접 계산해 봅니다. 먼저 두 용어를 봅니다. 각 시점에 아직 사건도 중도절단도 없이 관찰 중인 사람들을 <strong>위험집합</strong><span class="en">(risk set, number at risk)</span>이라고 합니다. 사망 시점마다 그 직전까지 관찰 중이던 사람 가운데 살아남은 비율을 <strong>조건부 생존확률</strong><span class="en">(conditional survival probability)</span>이라고 합니다. 이 비율의 분모가 위험집합의 크기입니다. 중도절단된 환자는 떠나기 전까지 모든 사망 시점에서 위험집합에 들어가 '그때까지 살아 있었다'는 정보를 보탭니다. 떠난 뒤부터는 빠집니다.</p>
+<p>사건이나 중도절단이 있었던 시점마다 한 줄씩 적으면 표 7-2가 됩니다. 마지막 열의 95% CI는 4단계에서 봅니다.</p>
 <p class="tbl-cap"><b>표 7-2.</b> 표 7-1 자료의 Kaplan-Meier 계산 (95% CI는 log-log 변환)</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th class="r">시점 t (개월)</th><th>환자</th><th class="r">위험집합 n</th><th class="r">사망 d</th><th class="r">중도절단 c</th><th class="r">조건부 생존확률 1 − d/n</th><th class="r">누적 생존확률 S(t)</th><th class="r">95% CI</th></tr></thead>
@@ -372,42 +384,50 @@ dtype: float64</pre></div></div>
 <tr><td class="r">38</td><td>#11</td><td class="r">2</td><td class="r">1</td><td class="r">0</td><td class="r">1/2 = 0.500</td><td class="r">0.201</td><td class="r">0.013–0.552</td></tr>
 <tr><td class="r">44</td><td>#12</td><td class="r">1</td><td class="r">0</td><td class="r">1</td><td class="r">1 (변화 없음)</td><td class="r">0.201</td><td class="r">〃</td></tr>
 </tbody></table></div>
-<p>사망이 있었던 시점마다 조건부 생존확률을 곱해 가면 S(t)는 0.917, 0.825, 0.642, 0.535, 0.401, 0.201로 내려갑니다. 예를 들어 8개월에는 위험집합 10명 중 1명이 사망해 S(8) = 0.917 × 9/10 = 0.825입니다. 중도절단 시점에는 곡선이 그대로이고 다음 시점의 위험집합만 줄어듭니다. 마지막 환자(#12)가 중도절단되었으므로 곡선은 0까지 떨어지지 않고 0.201에서 끝납니다.</p>
-<!--FOLD:계산 과정 보기: 시점별 계산-->
-<ul>
-<li><b>3개월</b>: 12명 모두 관찰 중이고 1명(#1)이 사망했습니다. 조건부 생존확률 11/12 = 0.917이므로 S(3) = 0.917입니다.</li>
-<li><b>5개월</b>: #2가 전원되어 중도절단되었습니다. 사망이 아니므로 S는 0.917 그대로이고, 다음 관문의 분모만 하나 줄어듭니다.</li>
-<li><b>8개월</b>: 위험집합은 12 − 1(사망) − 1(중도절단) = 10명이고 1명이 사망해 9/10 = 0.900입니다. S(8) = 0.917 × 0.900 = 0.825.</li>
-<li><b>12개월</b>: 9명 중 2명(#4, #5)이 사망해 7/9 = 0.778, S(12) = 0.825 × 0.778 = 0.642입니다. 같은 시점에 사망과 중도절단이 함께 있으면 사망이 먼저 일어난 것으로 보고, 그 시점에 중도절단된 사람도 분모에 넣는 것이 관례입니다.</li>
-<li><b>20, 28, 38개월</b>: 같은 방식으로 5/6, 3/4, 1/2을 차례로 곱해 0.535, 0.401, 0.201이 됩니다.</li>
-<li><b>44개월</b>: 마지막 환자(#12)가 중도절단되어 곡선은 0.201에서 끝납니다. 0까지 떨어지지 않습니다.</li>
-</ul>
-<!--/FOLD-->
+<div class="flow">
+<div><div><b>3개월</b><p>12명 모두 관찰 중이고 #1이 사망했습니다. 조건부 생존확률은 11/12 = 0.917이므로 S(3) = 0.917입니다.</p></div></div>
+<div><div><b>5개월</b><p>#2가 전원되어 중도절단되었습니다. 사망이 아니므로 S는 0.917 그대로입니다. 다음 시점의 분모만 하나 줄어듭니다.</p></div></div>
+<div><div><b>8개월</b><p>위험집합은 12 − 1 − 1 = 10명입니다. 앞에서 사망한 #1과 중도절단된 #2가 빠졌습니다. 1명이 사망해 9/10 = 0.900이고, S(8) = 0.917 × 0.900 = 0.825입니다.</p></div></div>
+<div><div><b>12개월</b><p>9명 중 #4와 #5가 사망해 7/9 = 0.778이고, S(12) = 0.825 × 0.778 = 0.642입니다. 같은 시점에 사망과 중도절단이 함께 있으면 사망이 먼저 일어난 것으로 봅니다. 그 시점에 중도절단된 사람도 분모에 넣는 것이 관례입니다.</p></div></div>
+<div><div><b>20, 28, 38개월</b><p>같은 방식으로 5/6, 3/4, 1/2을 차례로 곱합니다. S는 0.535, 0.401, 0.201이 됩니다. 16, 25, 32개월의 중도절단에서는 곡선이 그대로이고 다음 위험집합만 줄어듭니다.</p></div></div>
+<div><div><b>44개월</b><p>마지막 환자 #12가 중도절단되었습니다. 그래서 곡선은 0까지 떨어지지 않고 0.201에서 끝납니다.</p></div></div>
+</div>
 <!--FIG:ch07_km12-->
+<p>이제 곡선에서 값을 읽습니다. 2년 생존율은 x축 24개월에서 곡선의 높이입니다. 20개월과 24개월 사이에는 사망이 없으므로 S(24) = S(20) = 0.535입니다. <strong>중앙생존기간</strong><span class="en">(median survival time)</span>은 곡선이 처음으로 0.5 이하가 되는 시점입니다. 28개월에 0.535에서 0.401로 떨어지므로 28개월이며, 표 7-2의 강조 행입니다.</p>
+<p>그래서 이 12명의 2년 생존율은 53.5%, 중앙생존기간은 28개월입니다.</p>
 <div class="widget" data-widget="ch07_km"></div>
-<p>위젯에서 #12(44개월)를 사망으로 바꾸면 곡선이 0까지 떨어지고, #2(5개월)를 사망으로 바꾸면 그 뒤의 모든 계단이 10/11배로 낮아져 2년 생존율이 48.6%가 됩니다. 중도절단자 한 명의 처리가 곡선 전체에 영향을 준다는 것, 뒤쪽 계단일수록 한 사람의 영향이 크다는 것을 확인해 보세요.</p>
+<p>위젯에서 44개월의 #12를 사망으로 바꾸면 곡선이 0까지 떨어집니다. 5개월의 #2를 사망으로 바꾸면 그 뒤의 모든 계단이 10/11배로 낮아져 2년 생존율이 48.6%가 됩니다. 중도절단자 한 명의 처리가 곡선 전체에 영향을 준다는 것, 뒤쪽 계단일수록 한 사람의 영향이 크다는 것을 확인해 보세요.</p>
 
-<h3>생존곡선에서 읽는 값</h3>
-<ul>
-<li><strong>특정 시점의 생존율</strong>: 2년 생존율은 x축 24개월에서 곡선의 높이입니다. 20개월과 24개월 사이에는 사망이 없으므로 S(24) = S(20) = 0.535, 즉 53.5%입니다. "24개월에 아직 관찰 중인 5명 ÷ 12명 = 41.7%"로 계산하면 안 됩니다. 위험집합에서는 사망자뿐 아니라 중도절단된 사람도 빠지기 때문입니다.</li>
-<li><strong>중앙생존기간</strong><span class="en">(median survival time)</span>: 곡선이 처음으로 0.5 이하가 되는 시점입니다. 28개월에 0.535에서 0.401로 떨어지므로 중앙생존기간은 28개월입니다(표 7-2의 강조 행). 같은 방식으로 곡선이 처음 0.75 이하가 되는 12개월은 '4명 중 1명이 사망하는 시점'입니다.</li>
-<li><strong>도달하지 않음</strong><span class="en">(not reached, NR)</span>: 추적이 끝날 때까지 곡선이 0.5 아래로 내려가지 않으면 중앙생존기간을 추정할 수 없습니다. 예후가 좋다는 뜻일 수도 있지만 추적기간이 짧거나 사건이 적다는 뜻이기도 합니다. 'NR'을 '무한대'나 '매우 길다'로 읽으면 안 됩니다.</li>
-</ul>
+<h3>3. 가정과 대안</h3>
+<p>다음으로 이 방법이 기대는 가정과, 맞지 않을 때 쓰는 방법을 봅니다.</p>
+<ol>
+<li><strong>비정보적 중도절단.</strong> 중도절단된 사람의 이후 사망 위험이 계속 관찰 중인 사람과 같아야 합니다. <a href="#ch07-s1">가 절</a>에서 본 가정이며, 중도절단 사유를 보고 판단합니다. 그림에서는 곡선 초반에 중도절단 표시가 몰려 있지 않은지 봅니다.</li>
+<li><strong>등록 시기와 관계없이 같은 생존 경험.</strong> 일찍 등록한 환자와 늦게 등록한 환자를 한 곡선에 섞기 때문입니다. 연구 기간 중에 치료가 크게 바뀌었다면 이 가정이 흔들립니다.</li>
+<li><strong>정확히 기록된 사건 시점.</strong> 사건 날짜가 정확해야 계단이 제자리에 놓입니다. 8주마다 영상으로 진행을 판정하는 PFS는 이 점이 느슨하며, 그 처리 방법은 가 절 '더 알아보기'의 '청구자료의 추적 소실과 다른 형태의 중도절단'에 있습니다.</li>
+<li><strong>관심 사건을 막는 다른 사건이 없음.</strong> 다른 원인의 사망이 심부전 입원이나 골절을 원천적으로 막을 때가 있습니다. 이런 상황을 <strong>경쟁위험</strong><span class="en">(competing risks)</span>이라고 합니다. 이때 1 − Kaplan-Meier는 누적발생률을 과대추정하므로 경쟁 사건을 고려한 누적발생함수를 쓰며, <a href="#ch17-s1">17장 가 절</a>에서 다룹니다. 숫자 예는 '더 알아보기'의 '경쟁위험이 있을 때'에 있습니다.</li>
+<li><strong>보정하지 않은 비교.</strong> 관찰연구에서 두 군의 Kaplan-Meier 곡선은 교란을 보정하지 않은 비교입니다. 처방 의사가 환자 상태를 보고 약을 고르므로 곡선의 차이에 약의 효과와 환자 구성의 차이가 섞입니다. 보정한 곡선은 성향점수 역확률 가중치 IPTW를 적용한 가중 Kaplan-Meier 곡선이나 Cox 모형의 보정 생존곡선으로 그립니다. 각각 15장과 11장에서 다룹니다. 측정하지 않은 교란, 정보적 중도절단, time 0 설정 오류는 이런 보정으로 해결되지 않습니다.</li>
+</ol>
 
-<h3>신뢰구간</h3>
-<p>Kaplan-Meier 추정값의 표준오차는 보통 <strong>Greenwood 공식</strong><span class="en">(Greenwood's formula)</span>으로 구하고, 신뢰구간은 0–1 범위를 벗어나지 않도록 <strong>log-log 변환</strong><span class="en">(log(−log S) 변환)</span>한 척도에서 만든 뒤 되돌리는 방법이 널리 쓰입니다. 12명 자료의 2년 생존율 53.5%는 95% CI가 21.2–77.7%로 넓고 비대칭입니다(표 7-2의 95% CI 열). 중앙생존기간의 신뢰구간은 신뢰구간 띠가 0.5를 지나는 시점에서 읽고, 위쪽 띠가 0.5 아래로 내려가지 않으면 상한을 "NR"로 적습니다(이 자료에서는 28개월, 95% CI 8개월–NR).</p>
-<!--FOLD:자세히 보기: Greenwood 표준오차와 신뢰구간 계산-->
-<p>환자 12명으로 추정한 53.5%는 불확실성이 큽니다. Kaplan-Meier 추정값의 표준오차는 보통 Greenwood 공식으로 계산합니다<cite data-ref="greenwood1926"></cite>. 사망 시점마다 '그 관문의 통과율이 얼마나 불확실한가'를 구해 더하는 방식으로, 남은 사람이 적은 뒤쪽 관문일수록 더 많이 더해집니다. 24개월 생존율 53.5%의 표준오차는 0.155입니다.</p>
-<p>표준오차로 신뢰구간을 만드는 가장 단순한 방법은 "추정값 ± 1.96 × 표준오차"입니다. 24개월에는 0.535 ± 1.96 × 0.155 = 0.231–0.838이 됩니다. 그런데 이 방식은 생존율이 0이나 1에 가깝거나 표본이 작으면 0–1 범위를 벗어납니다. 38개월(S = 0.201, 표준오차 0.164)에서는 −0.120–0.522가 되어 음수의 생존율이라는 불가능한 값이 나옵니다. 그래서 생존율을 한 번 변환한 척도에서 구간을 구한 뒤 되돌리는데, 가장 널리 권하는 것이 log-log 변환입니다. 이렇게 구한 구간은 항상 0과 1 사이에 있습니다. 24개월에는 21.2–77.7%로 점추정값 53.5%를 중심으로 비대칭이고, 38개월에는 0.013–0.552입니다. 표 7-2의 95% CI 열이 이 방법으로 구한 값입니다. 계산 과정과 프로그램별 기본값은 '수식으로 보기'에 있습니다.</p>
-<p>중앙생존기간의 신뢰구간은 생존곡선의 신뢰구간 띠가 0.5를 지나는 시점에서 읽습니다<cite data-ref="brookmeyer1982"></cite>. 아래쪽 띠가 처음 0.5 이하가 되는 시점이 하한, 위쪽 띠가 처음 0.5 이하가 되는 시점이 상한입니다. 표 7-2에서 아래쪽 띠는 8개월에 0.461로 처음 0.5 아래가 되지만, 위쪽 띠는 마지막 사망 시점(38개월)에도 0.552로 0.5 아래로 내려가지 않습니다. 따라서 중앙생존기간은 "28개월(95% CI 8개월–추정 불가)"로 보고하며, 논문에서는 이런 상한을 "NR" 또는 "not estimable"로 씁니다. log 변환을 쓰면 하한이 12개월이 되어, 표본이 작을수록 변환 방법의 영향이 큽니다.</p>
-<!--/FOLD-->
+<h3>4. 결과 읽기</h3>
+<p>이제 결과를 말로 옮깁니다. 12명 자료의 2년 생존율과 중앙생존기간을 네 단계로 풉니다.</p>
+<ol>
+<li><strong>생존율과 중앙생존기간.</strong> 2년 시점에 약 54%가 살아 있을 것으로 추정됩니다. 환자의 절반이 사망하기까지는 28개월이 걸린 것으로 추정됩니다. 같은 방식으로 곡선이 처음 0.75 이하가 되는 12개월은 4명 중 1명이 사망하는 시점입니다. 추적이 끝날 때까지 곡선이 0.5 아래로 내려가지 않으면 중앙생존기간을 추정할 수 없습니다. 이를 <strong>도달하지 않음</strong><span class="en">(not reached, NR)</span>이라고 씁니다.</li>
+<li><strong>95% 신뢰구간.</strong> Kaplan-Meier 추정값의 표준오차는 보통 <strong>Greenwood 공식</strong><span class="en">(Greenwood's formula)</span>으로 구합니다<cite data-ref="greenwood1926"></cite>. 신뢰구간은 0–1 범위를 벗어나지 않도록 <strong>log-log 변환</strong><span class="en">(log(−log S) 변환)</span>한 척도에서 만든 뒤 되돌리는 방법이 널리 쓰입니다. 12명 자료의 2년 생존율은 95% CI가 21.2–77.7%로 넓고 비대칭입니다. 중앙생존기간의 신뢰구간은 신뢰구간 띠가 0.5를 지나는 시점에서 읽습니다<cite data-ref="brookmeyer1982"></cite>. 위쪽 띠가 0.5 아래로 내려가지 않으면 상한도 "NR"로 적습니다. 이 자료의 중앙생존기간은 28개월이고 95% CI는 8개월–NR입니다.</li>
+<li><strong>위험집합의 크기.</strong> 한 사망 시점에서 곡선이 떨어지는 폭은 직전 생존율에 그 시점 위험집합 중 사망한 비율을 곱한 값입니다. 그래서 남은 사람이 적을수록 한 명의 사망이 큰 계단을 만듭니다. 3개월의 사망 1명은 곡선을 8.3%p 낮췄지만, 38개월의 사망 1명은 곡선을 40.1%에서 20.1%로 절반 떨어뜨렸습니다. 곡선 끝의 평평한 꼬리를 완치로 읽지 않고 신뢰구간과 함께 봅니다.</li>
+<li><strong>NR의 뜻.</strong> 중앙생존기간이 NR이면 예후가 좋다는 뜻일 수도 있지만 추적기간이 짧거나 사건이 적다는 뜻이기도 합니다. 'NR'을 '무한대'나 '매우 길다'로 읽으면 안 됩니다. 이때는 미리 정한 시점의 생존율로 말합니다.</li>
+</ol>
 <!--FIG:ch07_ci-->
+<p>두 군의 곡선이 다른지 묻는 P는 Kaplan-Meier 방법에서 나오지 않습니다. 다 절의 로그순위법이 그 일을 합니다. 평균 생존기간은 생존곡선 아래 전체 넓이와 같습니다. 그러나 곡선이 0까지 내려가지 않으면 넓이를 끝까지 구할 수 없습니다. 대신 쓰는 <strong>제한평균생존시간</strong><span class="en">(restricted mean survival time, RMST)</span>은 미리 정한 시점 τ(타우)까지 곡선 아래 넓이입니다<cite data-ref="royston2013"></cite>. "처음 τ 기간 가운데 평균적으로 살아 있던 기간"을 뜻합니다<cite data-ref="uno2014"></cite>.</p>
+<!--FOLD:자세히 보기: RMST의 계산과 쓰임-->
+<!--FIG:ch07_rmst-->
+<p>표 7-2의 곡선으로 τ = 36개월의 RMST를 구하면, 계단마다 높이 × 폭을 더해 1.000 × 3 + 0.917 × 5 + 0.825 × 4 + 0.642 × 8 + 0.535 × 8 + 0.401 × 8 = 23.5개월입니다(95% CI 16.2–30.8). 이 신뢰구간은 사망 시점마다 'τ까지 남은 곡선 아래 넓이'의 불확실성을 Greenwood 공식과 같은 방식으로 더해 구한 표준오차 3.71개월로 만든 것입니다(23.5 ± 1.96 × 3.71, 식은 '수식으로 보기'). "치료 시작 후 36개월 동안 이 환자들은 평균 23.5개월을 살아 있었다"는 뜻입니다. 36개월 내내 모두 살아 있었다면 36개월이고, 모두 곧바로 사망했다면 0에 가까워집니다. 38개월 이후의 불안정한 꼬리는 τ 밖에 있어 계산에 들어가지 않습니다.</p>
+<p>RMST는 두 군의 차이를 '개월'이라는 절대 척도로 표현할 수 있고(300명 코호트에서 48개월 RMST는 약물 A 28.8개월, 약물 B 23.5개월로 차이 5.4개월), 위험비처럼 비례위험 가정이 필요하지 않다는 장점이 있습니다. 다만 결과가 τ에 따라 달라지므로 τ는 자료를 보기 전에, 두 군 모두 위험집합이 충분히 남아 있는 범위에서 정해야 합니다. 비례위험이 깨졌을 때의 쓰임은 다 절에서 다시 봅니다.</p>
+<!--/FOLD-->
+<div class="callout warn"><p class="ct">흔한 오해 · 위험집합의 숫자로 생존율 구하기</p>
+<p><span class="wrong">24개월에 아직 관찰 중인 사람이 12명 중 5명이므로 2년 생존율은 41.7%이다.</span> 위험집합에서는 사망자뿐 아니라 중도절단된 사람도 빠집니다. #2와 #6은 24개월 전에 중도절단되었지만 사망한 것은 아닙니다. 2년 생존율은 곡선의 높이인 53.5%입니다.</p></div>
 
-<h3>곡선의 꼬리는 불안정합니다 <span class="lv deep">심화</span></h3>
-<p>한 사망 시점에서 곡선이 떨어지는 폭은 "직전 생존율 × 그 시점 위험집합 중 사망한 비율"이므로, 위험집합이 작아질수록 한 명의 사망이 만드는 계단이 커집니다. 표 7-2에서 3개월의 사망 1명은 곡선을 8.3%p 낮췄지만, 38개월의 사망 1명은 2명 중 1명이라 곡선을 절반(40.1% → 20.1%)으로 떨어뜨렸습니다. 마지막 환자가 중도절단되었기 때문에 곡선이 20.1%에서 평평하게 끝났을 뿐, 그 환자가 사망했다면 곡선은 0이 됩니다. 실제로 그림 7-4 (나)의 152명 코호트에서는 마지막까지 남은 1명이 79.9개월에 사망해 곡선이 17.2%에서 0으로 떨어집니다. 곡선 끝의 평평한 '꼬리'를 완치나 장기 생존의 증거로 읽으면 안 되고, 위험집합이 작아진 구간은 신뢰구간과 함께 조심스럽게 해석해야 합니다. 그래서 논문 그림은 위험집합이 너무 작아지는 지점에서 x축을 자르고, 곡선 아래에 위험집합 표를 붙이는 것이 권장됩니다<cite data-ref="pocock2002"></cite>.</p>
-
-<h3>논문의 Kaplan-Meier 그림 읽기</h3>
-<p>논문의 Kaplan-Meier 그림 한 장에는 많은 정보가 들어 있습니다. 다음 순서로 확인하는 습관을 들이면 좋습니다<cite data-ref="pocock2002"></cite><cite data-ref="clark2003"></cite>. 이 절 끝의 '논문에서 읽어 보기'에서 실제 형식의 그림(그림 7-6)으로 하나씩 확인합니다.</p>
+<h3>5. 논문에서 읽기</h3>
+<p>이제 논문의 Kaplan-Meier 그림을 읽습니다. 그림 한 장에 많은 정보가 들어 있으므로 다음 순서로 확인하는 습관을 들이면 좋습니다<cite data-ref="pocock2002"></cite><cite data-ref="clark2003"></cite>.</p>
 <ol>
 <li>y축이 0%부터 시작하는가. 60–100%만 보여 주면 작은 차이도 크게 보입니다.</li>
 <li>곡선 아래에 위험집합 표(number at risk)가 있는가. 곡선의 각 부분이 몇 명에 근거하는지 알려 줍니다.</li>
@@ -416,36 +436,133 @@ dtype: float64</pre></div></div>
 <li>곡선이 교차하는가. 교차하면 로그순위법과 위험비의 해석이 달라집니다(다 절, 11장).</li>
 <li>보정하지 않은 곡선인가, 보정한 곡선인가. 관찰연구의 Kaplan-Meier 곡선은 교란을 보정하지 않은 비교입니다(다 절, 11장).</li>
 </ol>
+<p>아래는 가 절 4단계에서 소개한 신세포암 코호트 300명의 전체 생존을 종양학 논문의 전형적인 형식으로 그린 그림입니다. 약물 A가 152명, 약물 B가 148명입니다. 위 순서를 떠올리며 번호를 따라가 보세요.</p>
 
-<h3>제한평균생존시간</h3>
-<p>평균 생존기간은 생존곡선 아래 전체 넓이와 같습니다. 그러나 마지막 환자가 중도절단되어 곡선이 0까지 내려가지 않으면 넓이를 끝까지 구할 수 없습니다. <strong>제한평균생존시간</strong><span class="en">(restricted mean survival time, RMST)</span>은 미리 정한 시점 τ(타우)까지만 곡선 아래 넓이를 구한 값으로, "처음 τ 기간 가운데 평균적으로 살아 있던 기간"을 뜻합니다<cite data-ref="royston2013"></cite><cite data-ref="uno2014"></cite>.</p>
-<!--FOLD:자세히 보기: RMST의 계산과 쓰임-->
-<!--FIG:ch07_rmst-->
-<p>표 7-2의 곡선으로 τ = 36개월의 RMST를 구하면, 계단마다 높이 × 폭을 더해 1.000 × 3 + 0.917 × 5 + 0.825 × 4 + 0.642 × 8 + 0.535 × 8 + 0.401 × 8 = 23.5개월입니다(95% CI 16.2–30.8). 이 신뢰구간은 사망 시점마다 'τ까지 남은 곡선 아래 넓이'의 불확실성을 Greenwood 공식과 같은 방식으로 더해 구한 표준오차 3.71개월로 만든 것입니다(23.5 ± 1.96 × 3.71, 식은 '수식으로 보기'). "치료 시작 후 36개월 동안 이 환자들은 평균 23.5개월을 살아 있었다"는 뜻입니다. 36개월 내내 모두 살아 있었다면 36개월이고, 모두 곧바로 사망했다면 0에 가까워집니다. 38개월 이후의 불안정한 꼬리는 τ 밖에 있어 계산에 들어가지 않습니다.</p>
-<p>RMST는 두 군의 차이를 '개월'이라는 절대 척도로 표현할 수 있고(300명 코호트에서 48개월 RMST는 약물 A 28.8개월, 약물 B 23.5개월로 차이 5.4개월), 위험비처럼 비례위험 가정이 필요하지 않다는 장점이 있습니다. 다만 결과가 τ에 따라 달라지므로 τ는 자료를 보기 전에, 두 군 모두 위험집합이 충분히 남아 있는 범위에서 정해야 합니다. 비례위험이 깨졌을 때의 쓰임은 다 절에서 다시 봅니다.</p>
-<!--/FOLD-->
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Kaplan-Meier 그림</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<!--FIG:ch07_paperkm-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>y축 범위.</b> 0–100%를 모두 보여 주고 있습니다. 일부 논문은 y축을 50–100%처럼 잘라 차이를 크게 보이게 하는데, 그럴 때는 축에 끊김 표시가 있는지, 실제 차이가 몇 %p인지 숫자로 확인합니다. 반대로 사건이 드물어 곡선이 90% 위에 머무는 연구에서는 y축을 확대하거나, 아래에서 위로 올라가는 누적발생률(1 − S) 그림을 쓰는 편이 차이를 읽기 쉬워 권장되기도 합니다<cite data-ref="pocock2002"></cite>. 어느 경우든 축의 범위를 먼저 봅니다.</span></li>
+<li><span class="mk">2</span><span><b>중도절단 표시(+ 또는 |).</b> 곡선 위의 작은 세로 눈금 하나가 중도절단된 환자 한 명입니다. 오른쪽으로 갈수록 눈금이 많은 것은 늦게 등록한 환자들이 자료 마감일에 중도절단되었기 때문으로, 정상적인 모습입니다. 초반부터 눈금이 촘촘하다면 추적 소실이 많다는 뜻이므로 가 절의 비정보적 중도절단 가정을 떠올립니다.</span></li>
+<li><span class="mk">3</span><span><b>중앙생존기간.</b> 50% 수평 점선이 각 곡선과 만나는 곳에서 내린 수직선이 중앙생존기간입니다. 약물 B 19.3개월, 약물 A 32.4개월입니다. 두 중앙값의 차이 13.1개월은 곡선 위 한 점의 비교일 뿐이고, 곡선의 모양에 따라 이보다 훨씬 크거나 작은 차이가 다른 시점에 있을 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>위험집합 표.</b> 각 시점에 아직 사건도 중도절단도 없이 관찰 중인 환자 수입니다. 36개월에 약물 A 53명, 약물 B 32명이 남아 있습니다. 이 숫자는 사망과 중도절단 두 가지 이유로 줄어들므로, "152명 중 53명만 살아 있다"로 읽으면 안 됩니다. 60개월에는 15명과 8명뿐이라 그 부근의 곡선은 한두 명의 사망으로 크게 움직입니다.</span></li>
+<li><span class="mk">5</span><span><b>위험비(HR).</b> Kaplan-Meier 곡선 자체에서 나온 값이 아니라 Cox 비례위험모형으로 따로 추정한 값입니다(11장). 약물 A의 순간 사망 속도가 약물 B의 0.73배라는 뜻이며, 전 기간에 걸쳐 이 비가 일정하다고 가정합니다. 관찰연구에서 보정 없이 구한 값이라는 점도 기억해 둡니다(다 절).</span></li>
+<li><span class="mk">6</span><span><b>로그순위 P.</b> "두 곡선 전체가 같다"는 귀무가설에 대한 검정입니다. 차이의 크기는 알려 주지 않습니다(다 절).</span></li>
+<li><span class="mk">7</span><span><b>x축의 끝.</b> 실제 추적은 79.9개월까지 있었지만 위험집합이 15명과 8명으로 줄어드는 60개월에서 그림을 잘랐습니다. 마지막 환자까지 곡선을 그리면 꼬리의 큰 계단이나 긴 수평선이 과대해석되기 쉽습니다.</span></li>
+</ol>
+</div></div>
 
-<div class="callout tip"><p class="ct">약물경제학 연구에서는</p>
-<p>비용효과분석의 생존 이득은 중앙값이 아니라 <strong>평균</strong>, 즉 평생에 걸친 곡선 아래 넓이로 계산합니다. "평균 × 환자 수 = 총량"이 성립하는 것은 평균뿐이기 때문입니다(1장 바 절의 의료비 평균과 같은 이유). 임상시험의 Kaplan-Meier 곡선은 추적 종료 시점에서 끊겨 있으므로 Weibull, 로그정규 같은 모수적 생존모형을 적합해 곡선을 연장(extrapolation)하며, 어떤 모형을 고르느냐가 결과를 크게 바꿉니다<cite data-ref="latimer2013"></cite>.</p>
-<!--FOLD:자세히 보기: 분할생존모형과 Kaplan-Meier 그림의 자료 재구성-->
-<p>분할생존모형(partitioned survival model)에서는 PFS 곡선 아래 넓이가 무진행 상태로 지낸 기간, OS 곡선과 PFS 곡선 사이의 넓이가 진행 후 상태로 지낸 기간이 됩니다. 개별 환자 자료가 없으면 논문의 Kaplan-Meier 그림과 위험집합 표로 개별 자료를 근사적으로 재구성하는 방법을 흔히 씁니다<cite data-ref="guyot2012"></cite>. 위험집합 표가 있는 그림이 중요한 또 하나의 이유입니다.</p>
-<!--/FOLD-->
-</div>
+<h3>6. 논문에 쓰기</h3>
+<p>마지막으로 내 Kaplan-Meier 결과를 Methods와 Results 문장으로 옮깁니다. 생존 그림은 위험집합 표와 함께 싣고, 위험집합이 너무 작아지기 전에 x축을 자르는 것이 권장됩니다<cite data-ref="pocock2002"></cite>.</p>
+<p>보고할 것은 다음 여섯 가지입니다.</p>
+<ol>
+<li>추정 방법과 신뢰구간 계산 방법. Greenwood 공식과 log-log 변환처럼 씁니다.</li>
+<li>군별 대상자 수와 사건 수.</li>
+<li>중앙생존기간과 95% CI. 도달하지 않았으면 "not reached"로 씁니다.</li>
+<li>미리 정한 시점의 생존율과 95% CI.</li>
+<li>위험집합 표와 중도절단 표시가 있는 곡선.</li>
+<li>중앙 추적기간과 계산 방법, 보정 여부. 관찰연구라면 곡선이 unadjusted, weighted, adjusted 가운데 무엇인지 밝힙니다.</li>
+</ol>
+<p>아래는 이 절의 12명 자료로 만든 예문입니다.</p>
 
-<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
-<li><strong>고르는 기준</strong>: 한 군의 생존 경험을 기술하거나 두 군의 곡선을 나란히 보여 줄 때 Kaplan-Meier 곡선을 씁니다. 사망이 관심 사건(심부전 입원, 골절, 암 특이 사망 등)을 원천적으로 막는 상황이면 1 − Kaplan-Meier 대신 경쟁위험을 고려한 누적발생함수를 씁니다(아래 접힌 주의 상자, <a href="#ch17-s1">17장 가 절</a>). 평균적인 생존기간의 차이를 말하고 싶으면 τ를 미리 정해 RMST를 씁니다.</li>
-<li><strong>교란과 보정</strong>: 관찰연구(청구자료, 병원 코호트)에서 두 군의 Kaplan-Meier 곡선은 <strong>보정하지 않은 비교</strong>입니다. 처방 의사가 환자 상태를 보고 약을 고르므로 곡선의 차이에는 약의 효과와 환자 구성의 차이가 섞여 있습니다. 보정한 곡선은 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선(15장)이나 Cox 모형에서 구한 보정 생존곡선(11장)으로 그립니다. 교란변수가 하나라면 그 변수의 층마다 곡선을 따로 그려 보는 것도 방법입니다. 측정하지 않은 교란, 정보적 중도절단, time 0 설정 오류는 이런 보정으로 해결되지 않습니다.</li>
-<li><strong>보고할 것</strong>: 위험집합 표와 중도절단 표시가 있는 곡선, 군별 사건 수, 중앙생존기간(95% CI), 미리 정한 시점의 생존율(95% CI), 신뢰구간 계산 방법(예: Greenwood, log-log 변환), 중앙 추적기간과 계산 방법, 보정 여부(unadjusted, weighted, adjusted).</li>
+<div class="paper">
+<div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results</b><span>이 절의 예로 쓴 예문</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> Overall survival was estimated with <span class="mk">1</span> <span class="hl">the Kaplan–Meier method</span>, and <span class="mk">2</span> <span class="hl">95% CIs were calculated with Greenwood's formula using a log-log transformation</span>. <span class="mk">3</span> <span class="hl">The 2-year overall survival rate was prespecified as a summary measure</span>.</p>
+<p class="excerpt"><b>Results.</b> Of the 12 patients, <span class="mk">4</span> <span class="hl">7 died during follow-up</span>. The median overall survival was <span class="mk">5</span> <span class="hl">28 months (95% CI, 8 to not reached)</span>, and <span class="mk">6</span> <span class="hl">the 2-year overall survival rate was 53.5% (95% CI, 21.2 to 77.7)</span> (<span class="mk">7</span> <span class="hl">Figure 1</span>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>추정 방법.</b> 생존곡선과 시점별 생존율을 어떤 방법으로 구했는지 씁니다. 관찰연구에서 가중 곡선을 그렸다면 "weighted Kaplan–Meier"처럼 밝힙니다.</span></li>
+<li><span class="mk">2</span><span><b>신뢰구간 계산 방법.</b> 프로그램마다 기본 변환이 달라 같은 자료로도 구간이 다릅니다. 이 자료에서 log 변환을 쓰면 중앙생존기간의 하한이 8개월이 아니라 12개월이 됩니다. 방법을 적어 두면 다른 사람이 결과를 재현할 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>미리 정한 시점.</b> 곡선을 본 뒤 차이가 커 보이는 시점을 고르면 다중비교 문제가 됩니다. 어느 시점의 생존율을 보고할지 분석 전에 정합니다.</span></li>
+<li><span class="mk">4</span><span><b>사건 수.</b> 사망이 7건뿐이라 신뢰구간이 넓습니다. 사건 수를 함께 쓰면 독자가 정밀도를 가늠합니다.</span></li>
+<li><span class="mk">5</span><span><b>중앙생존기간과 NR 상한.</b> 위쪽 신뢰구간 띠가 0.5 아래로 내려가지 않아 상한을 추정할 수 없었다는 뜻입니다. "not estimable"로 쓰는 학술지도 있습니다.</span></li>
+<li><span class="mk">6</span><span><b>시점별 생존율과 신뢰구간.</b> 53.5%만 쓰면 환자 12명 자료의 큰 불확실성이 보이지 않습니다. 신뢰구간 21.2–77.7%를 함께 씁니다.</span></li>
+<li><span class="mk">7</span><span><b>그림.</b> 위험집합 표와 중도절단 표시가 있는 곡선을 함께 싣습니다. 독자는 곡선의 각 부분이 몇 명에 근거하는지 그 표로 확인합니다.</span></li>
+</ol>
+</div></div>
+
+<p>자주 하는 실수는 다음 세 가지입니다.</p>
+<ul>
+<li><b>NR을 긴 생존으로 쓰기.</b> "Median survival was not reached, indicating long survival"은 틀린 해석입니다. 추적이 짧거나 사건이 적어도 NR이 나옵니다.</li>
+<li><b>곡선을 마지막 환자까지 그리기.</b> 위험집합이 몇 명뿐인 꼬리의 큰 계단이나 긴 수평선이 과대해석됩니다.</li>
+<li><b>보정하지 않은 곡선을 효과처럼 쓰기.</b> 관찰연구의 곡선은 "unadjusted"라고 밝히고, 보정한 곡선이나 추정값을 함께 씁니다.</li>
+</ul>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab07">실습 7</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>Kaplan-Meier 방법은 사망 시점마다 조건부 생존확률 1 − d/n을 구해 곱합니다. 중도절단된 환자는 떠나기 전까지 분모(위험집합)에 들어갑니다.</li>
+<li>특정 시점 생존율은 그 시점의 곡선 높이, 중앙생존기간은 곡선이 처음 0.5 이하가 되는 시점입니다. 0.5 아래로 내려가지 않으면 "not reached"입니다.</li>
+<li>신뢰구간은 Greenwood 분산에 log-log 변환을 적용하는 방법이 흔하고, 위험집합이 작아지는 꼬리에서는 구간이 넓어집니다.</li>
+<li>논문 그림에서는 y축 범위, 위험집합 표, 중도절단 표시, x축의 끝, 곡선 교차 여부, 보정 여부를 확인합니다. 관찰연구의 단순 Kaplan-Meier 곡선은 보정 전 비교이며, 보정 곡선은 IPTW 가중(15장)이나 Cox 모형(11장)으로 그립니다.</li>
+<li>경쟁위험이 있으면 1 − Kaplan-Meier가 누적발생률을 과대추정합니다('더 알아보기'의 주의 상자, 17장).</li>
+<li>RMST는 τ까지의 곡선 아래 넓이로, 비례위험 가정 없이 생존기간의 차이를 개월 단위로 보여 줍니다.</li>
+<li>논문에는 추정 방법과 신뢰구간 계산 방법, 사건 수를 씁니다. 중앙생존기간과 미리 정한 시점의 생존율을 95% CI와 함께 쓰고, 위험집합 표가 있는 곡선을 싣습니다.</li>
 </ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>환자 5명의 (time 개월, status)가 (3, 1), (6, 0), (9, 1), (14, 1), (24, 0)입니다. Kaplan-Meier 방법으로 12개월 생존율과 중앙생존기간을 구하고, 가 절의 방법으로 100인년당 사망률도 구하세요.</p>
+<details><summary>답과 풀이</summary><div><p>12개월 생존율 53.3%, 중앙생존기간 14개월, 100인년당 64.3명입니다. 3개월에는 5명 중 1명이 사망해 4/5 = 0.800이고, 6개월의 중도절단은 곡선을 내리지 않은 채 위험집합만 줄입니다. 9개월에는 위험집합 3명 중 1명이 사망해 0.800 × 2/3 = 0.533, 14개월에는 2명 중 1명이 사망해 0.267이 되므로, 12개월 생존율은 0.533이고 곡선이 처음 0.5 이하가 되는 14개월이 중앙생존기간입니다. '12개월에 관찰 중인 2명 ÷ 5명 = 40%'로 계산하면 6개월에 중도절단된 사람을 사망자처럼 뺀 셈이라 틀립니다. 인년은 (3 + 6 + 9 + 14 + 24) ÷ 12 = 4.67인년이고, 사망 3명이므로 3 ÷ 4.67 = 0.643/인년입니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>중앙 추적기간이 14개월인 연구의 Results에 "Median overall survival was not reached (NR) in the drug X group and was 18.2 months in the drug Y group"이라고 적혀 있습니다. 발표자가 "약물 X 환자는 절반 이상이 사실상 평생 산다"라고 요약했습니다. 무엇이 틀렸고 어떻게 고쳐 말해야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>NR은 추적이 끝날 때까지 곡선이 0.5 아래로 내려가지 않아 중앙값을 추정할 수 없었다는 뜻이지, 생존기간이 무한하다는 뜻이 아닙니다. 중앙 추적기간이 14개월이므로 그 뒤의 생존은 이 자료로 거의 알 수 없고, 추적이 짧거나 사건이 적어도 NR이 나옵니다. 두 약의 차이는 중앙값끼리가 아니라 미리 정한 시점(예: 12개월)의 생존율과 95% CI, 위험비나 RMST로 비교합니다. 고쳐 말하면 "중앙 14개월의 추적 동안 약물 X군의 생존곡선은 50% 아래로 내려가지 않아 중앙생존기간을 추정할 수 없었다"이고, 효과의 크기는 시점별 생존율의 차이 같은 값으로 따로 말합니다.</p></div></details></li>
+<li><p><span class="qt">계산</span><span class="lv deep">심화</span>접힌 '자세히 보기: RMST의 계산과 쓰임' 상자의 계산 방법(계단마다 높이 × 폭을 더함)을 씁니다. 1번 문항의 5명 자료로 τ = 12개월의 RMST를 구하고 뜻을 말해 보세요. τ를 24개월로 잡으면 어떤 문제가 있습니까?</p>
+<details><summary>답과 풀이</summary><div><p>RMST(12) = 1.000 × 3 + 0.800 × 6 + 0.533 × 3 = 3 + 4.8 + 1.6 = 9.4개월입니다. "처음 12개월 가운데 이 환자들은 평균 9.4개월을 살아 있었다"는 뜻이고, 12개월 내내 모두 살아 있었다면 12개월이 됩니다. 곡선의 높이는 사망 시점(3, 9개월)에서만 바뀌고 6개월의 중도절단에서는 바뀌지 않는다는 점이 틀리기 쉽습니다. τ = 24개월로 잡으면 14개월 이후 위험집합이 1명뿐이라, 그 한 사람의 경과가 넓이의 상당 부분(0.267 × 10 = 2.7개월)을 정하므로 값이 불안정합니다. τ는 두 군 모두 위험집합이 충분히 남는 범위에서 자료를 보기 전에 정합니다.</p></div></details></li>
+<li><p><span class="qt">논문 쓰기</span>300명 코호트의 약물 B군 결과를 Results 문장으로 써 보세요. 148명 중 110명이 사망했고, 중앙생존기간은 19.3개월(95% CI 15.7–23.7)입니다. 1년 생존율은 65.6%(95% CI 57.3–72.7), 2년 생존율은 40.4%(95% CI 32.3–48.3)입니다. 24개월의 위험집합은 58명입니다.</p>
+<details><summary>답과 풀이</summary><div><p>모범 문장은 “Of the 148 patients in the drug B group, 110 died. The median overall survival was 19.3 months (95% CI, 15.7 to 23.7), and the 1- and 2-year overall survival rates were 65.6% (95% CI, 57.3 to 72.7) and 40.4% (95% CI, 32.3 to 48.3), respectively.”입니다.</p>
+<p>확인할 점은 세 가지입니다. ① 2년 생존율을 위험집합으로 계산한 58/148 = 39.2%로 쓰지 않습니다. 24개월 전에 중도절단된 환자도 위험집합에서 빠졌기 때문입니다. ② 110/148 = 74.3%를 사망 위험으로 쓰지 않습니다. 추적 기간이 다른 사람들의 사망 비율입니다. ③ Methods에 신뢰구간 계산 방법과, 보정하지 않은 곡선이라는 점을 씁니다.</p></div></details></li>
+</ol></div>
 
-<div class="callout warn"><p class="ct">주의 · 1 − Kaplan-Meier는 경쟁위험이 있으면 누적발생률을 과대추정합니다 <span class="lv deep">심화</span></p>
+<h3>더 알아보기</h3>
+<p>아래 상자는 처음 읽을 때 건너뛰어도 됩니다. 논문에서 그 내용을 만났을 때 펼쳐 읽습니다.</p>
+
+<h3>Results 문단의 생존 요약 <span class="lv deep">심화</span></h3>
+<p>그림 7-6과 같은 결과를 Results 본문에서는 보통 다음처럼 요약합니다. 중앙생존기간, 시점별 생존율, RMST가 한 문단에 들어갑니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Results의 생존 요약</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">The median overall survival was <span class="mk">1</span> <span class="hl">32.4 months (95% CI, 21.7 to 39.7)</span> in the drug A group and 19.3 months (95% CI, 15.7 to 23.7) in the drug B group. The <span class="mk">2</span> <span class="hl">2-year overall survival rates were 56.6% (95% CI, 48.1 to 64.1) and 40.4% (95% CI, 32.3 to 48.3)</span>, respectively (Fig. 2). The <span class="mk">3</span> <span class="hl">restricted mean survival time at 48 months</span> was 28.8 months with drug A and 23.5 months with drug B (difference, 5.4 months; 95% CI, 1.3 to 9.4).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>중앙생존기간과 95% CI.</b> 곡선이 0.5를 지나는 시점(32.4개월)과, 신뢰구간 띠가 0.5를 지나는 시점(21.7, 39.7개월)입니다. 곡선이 0.5 근처에서 완만하게 내려가면 띠가 0.5를 지나는 시점들이 멀리 떨어져 구간이 넓고 비대칭이 됩니다. 위쪽 띠가 끝까지 0.5 아래로 내려가지 않으면 상한은 "NR"로 적힙니다(표 7-2의 28개월, 95% CI 8–NR).</span></li>
+<li><span class="mk">2</span><span><b>2년 생존율.</b> 24개월에서 Kaplan-Meier 곡선의 높이입니다. 위 그림 7-6의 위험집합 표에서 24개월에 남은 약물 A 환자는 81명이지만 81/152 = 53.3%는 2년 생존율이 아닙니다. 24개월 전에 중도절단된 환자도 위험집합에서 빠졌기 때문입니다. 신뢰구간(48.1–64.1%)이 56.6%를 중심으로 약간 비대칭인 것은 log-log 변환 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>제한평균생존시간(RMST).</b> 곡선 아래 넓이를 48개월까지 구한 값으로(위 '결과 읽기'), "처음 4년 가운데 평균적으로 약물 A 환자가 5.4개월 더 살아 있었다"는 절대적 차이입니다. 위험비와 달리 비례위험 가정이 필요 없지만 48개월이라는 τ를 미리 정해 두었는지 Methods에서 확인합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>Greenwood 표준오차와 신뢰구간 계산 <span class="lv deep">심화</span></h3>
+<p>Greenwood 공식은 사망 시점마다 '그 관문의 통과율이 얼마나 불확실한가'를 구해 더하는 방식입니다. 남은 사람이 적은 뒤쪽 관문일수록 더 많이 더해집니다. 환자 12명으로 추정한 24개월 생존율 53.5%의 표준오차는 0.155입니다.</p>
+<p>표준오차로 신뢰구간을 만드는 가장 단순한 방법은 "추정값 ± 1.96 × 표준오차"입니다. 24개월에는 0.535 ± 1.96 × 0.155 = 0.231–0.838이 됩니다. 그런데 이 방식은 생존율이 0이나 1에 가깝거나 표본이 작으면 0–1 범위를 벗어납니다. 38개월(S = 0.201, 표준오차 0.164)에서는 −0.120–0.522가 되어 음수의 생존율이라는 불가능한 값이 나옵니다. 그래서 생존율을 한 번 변환한 척도에서 구간을 구한 뒤 되돌리는데, 가장 널리 권하는 것이 log-log 변환입니다. 이렇게 구한 구간은 항상 0과 1 사이에 있습니다. 24개월에는 21.2–77.7%로 점추정값 53.5%를 중심으로 비대칭이고, 38개월에는 0.013–0.552입니다. 표 7-2의 95% CI 열이 이 방법으로 구한 값입니다. 계산 과정과 프로그램별 기본값은 '수식으로 보기'에 있습니다.</p>
+<p>중앙생존기간의 신뢰구간에서는 아래쪽 띠가 처음 0.5 이하가 되는 시점이 하한, 위쪽 띠가 처음 0.5 이하가 되는 시점이 상한입니다. 표 7-2에서 아래쪽 띠는 8개월에 0.461로 처음 0.5 아래가 되지만, 위쪽 띠는 마지막 사망 시점(38개월)에도 0.552로 0.5 아래로 내려가지 않습니다. 따라서 중앙생존기간은 "28개월(95% CI 8개월–추정 불가)"로 보고하며, 논문에서는 이런 상한을 "NR" 또는 "not estimable"로 씁니다. log 변환을 쓰면 하한이 12개월이 되어, 표본이 작을수록 변환 방법의 영향이 큽니다.</p>
+
+<h3>곡선의 꼬리는 불안정합니다 <span class="lv deep">심화</span></h3>
+<p>표 7-2에서 38개월의 사망 1명은 위험집합 2명 중 1명이라 곡선을 절반으로 떨어뜨렸습니다. 마지막 환자가 중도절단되었기 때문에 곡선이 20.1%에서 평평하게 끝났을 뿐, 그 환자가 사망했다면 곡선은 0이 됩니다. 실제로 그림 7-4 (나)의 152명 코호트에서는 마지막까지 남은 1명이 79.9개월에 사망해 곡선이 17.2%에서 0으로 떨어집니다. 그래서 논문 그림은 위험집합이 너무 작아지는 지점에서 x축을 자르고, 곡선 아래에 위험집합 표를 붙이는 것이 권장됩니다<cite data-ref="pocock2002"></cite>.</p>
+
+<h3>경쟁위험이 있을 때 <span class="lv deep">심화</span></h3>
+<div class="callout warn"><p class="ct">주의 · 1 − Kaplan-Meier는 경쟁위험이 있으면 누적발생률을 과대추정합니다</p>
 <p>생존곡선을 뒤집은 1 − S(t)는 't까지 사건이 일어날 누적 확률', 즉 <strong>누적발생률</strong><span class="en">(cumulative incidence)</span>입니다. 표 7-2에서 2년 누적 사망률은 1 − 0.535 = 46.5%입니다. 그런데 관심 사건이 '신세포암으로 인한 사망'이고 다른 원인의 사망을 중도절단으로 처리하면 문제가 생깁니다. 다른 원인으로 사망한 사람은 이후 암으로 사망할 수 없는데, Kaplan-Meier는 이들을 '나중에 암으로 사망할 수도 있는 사람'으로 취급하기 때문입니다.</p>
 <p>극단적인 예로 100명 중 40명이 먼저 다른 원인으로 사망하고, 남은 60명 중 30명이 암으로 사망했다고 합시다. 실제로 암으로 사망한 비율은 30/100 = 30%입니다. 그런데 다른 원인 사망을 중도절단으로 처리하면 1 − Kaplan-Meier = 1 − (1 − 30/60) = 50%가 됩니다. 이런 <strong>경쟁위험</strong><span class="en">(competing risks)</span> 상황에서는 경쟁 사건을 고려한 누적발생함수를 따로 추정합니다(<a href="#ch17-s1">17장 가 절</a>). 고령 환자가 많은 약물역학 연구에서 심부전 입원, 골절 같은 사건을 볼 때 특히 중요합니다.</p></div>
 
+<h3>약물경제학 연구에서는 <span class="lv deep">심화</span></h3>
+<div class="callout tip"><p class="ct">약물경제학 연구에서는</p>
+<p>비용효과분석의 생존 이득은 중앙값이 아니라 <strong>평균</strong>, 즉 평생에 걸친 곡선 아래 넓이로 계산합니다. "평균 × 환자 수 = 총량"이 성립하는 것은 평균뿐이기 때문입니다(1장 바 절의 의료비 평균과 같은 이유). 임상시험의 Kaplan-Meier 곡선은 추적 종료 시점에서 끊겨 있으므로 Weibull, 로그정규 같은 모수적 생존모형을 적합해 곡선을 연장(extrapolation)하며, 어떤 모형을 고르느냐가 결과를 크게 바꿉니다<cite data-ref="latimer2013"></cite>.</p>
+<p>분할생존모형(partitioned survival model)에서는 PFS 곡선 아래 넓이가 무진행 상태로 지낸 기간, OS 곡선과 PFS 곡선 사이의 넓이가 진행 후 상태로 지낸 기간이 됩니다. 개별 환자 자료가 없으면 논문의 Kaplan-Meier 그림과 위험집합 표로 개별 자료를 근사적으로 재구성하는 방법을 흔히 씁니다<cite data-ref="guyot2012"></cite>. 위험집합 표가 있는 그림이 중요한 또 하나의 이유입니다.</p>
+</div>
+
+<h3>내 연구에 쓸 때 <span class="lv deep">심화</span></h3>
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 한 군의 생존 경험을 기술하거나 두 군의 곡선을 나란히 보여 줄 때 Kaplan-Meier 곡선을 씁니다. 사망이 관심 사건(심부전 입원, 골절, 암 특이 사망 등)을 원천적으로 막는 상황이면 1 − Kaplan-Meier 대신 경쟁위험을 고려한 누적발생함수를 씁니다(위 '경쟁위험이 있을 때'의 주의 상자, <a href="#ch17-s1">17장 가 절</a>). 평균적인 생존기간의 차이를 말하고 싶으면 τ를 미리 정해 RMST를 씁니다.</li>
+<li><strong>교란변수가 하나일 때</strong>: 3단계의 보정 곡선 대신, 그 변수의 층마다 곡선을 따로 그려 보는 것도 방법입니다.</li>
+</ul></div>
+
+<h3>랜드마크 분석 <span class="lv deep">심화</span></h3>
+<p class="cmd-note">랜드마크 분석과 불멸시간 편향은 <a href="#ch16-s2">16장 나 절</a>에서 자세히 다룹니다.</p>
+<p>치료 반응(종양 크기 감소)이 있었던 환자와 없었던 환자의 생존을 비교하고 싶다고 합시다. 반응은 치료 시작 뒤 몇 달이 지나야 판정되므로 '반응군'에 속하려면 적어도 첫 평가 때까지 살아 있어야 합니다. 치료 시작일을 time 0으로 두고 두 군의 Kaplan-Meier 곡선을 비교하면, 반응군은 첫 평가 전에는 사망할 수 없었던 셈이라 부당하게 유리해집니다(불멸시간 편향, 16장). <strong>랜드마크 분석</strong><span class="en">(landmark analysis)</span>은 미리 정한 시점(예: 3개월)을 새로운 time 0으로 두고, 그 시점에 살아서 추적 중인 환자만 대상으로, 그 시점까지의 반응 여부로 군을 나눠 곡선을 비교합니다<cite data-ref="anderson1983"></cite>. 랜드마크 이전에 사망한 환자는 분석에서 빠지고 랜드마크 이후에 반응한 환자는 무반응군에 남으므로, 랜드마크 시점을 자료를 보기 전에 정하고 그 근거를 밝혀야 합니다.</p>
+
+<h3>lifelines의 KaplanMeierFitter 출력 <span class="lv deep">심화</span></h3>
 <div class="paper">
 <div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · lifelines의 KaplanMeierFitter <span class="lv deep">심화</span></b><span>가상의 예시</span></div>
 <div class="paper-b">
-<p>가 절에서 소개한 300명 코호트의 Kaplan-Meier 결과를 파이썬 lifelines 패키지로 구하면 다음과 같습니다. 이 절 끝 '논문에서 읽어 보기'의 그림과 Results 문장의 숫자가 여기서 나옵니다. rcc는 환자 한 명이 한 줄인 데이터프레임이고, time(개월), status(1 = 사망, 0 = 중도절단), drug(A/B) 열이 있습니다. 숫자는 예제 자료로 계산한 값이며(lifelines 0.30, pandas 3.0), 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<p>가 절에서 소개한 300명 코호트의 Kaplan-Meier 결과를 파이썬 lifelines 패키지로 구하면 다음과 같습니다. 위 '논문에서 읽기'의 그림과 'Results 문단의 생존 요약' 상자의 숫자가 여기서 나옵니다. rcc는 환자 한 명이 한 줄인 데이터프레임이고, time(개월), status(1 = 사망, 0 = 중도절단), drug(A/B) 열이 있습니다. 숫자는 예제 자료로 계산한 값이며(lifelines 0.30, pandas 3.0), 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
 <p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
 <pre class="out"><span class="cm"># import pandas as pd
 # from lifelines import KaplanMeierFitter
@@ -490,42 +607,7 @@ dtype: float64</pre></div></div>
 <li><span class="mk">2</span><span><b>median_survival_time_ = 32.4개월.</b> 곡선이 처음으로 0.5 이하가 되는 시점입니다. 곡선이 끝까지 0.5 아래로 내려가지 않으면 inf(무한대)가 출력되는데, 이것은 "not reached"라는 뜻이지 생존기간이 무한하다는 뜻이 아닙니다.</span></li>
 <li><span class="mk">3</span><span><b>중앙생존기간의 95% 신뢰구간 21.7–39.7개월.</b> <code>confidence_interval_</code>은 시점마다의 아래쪽·위쪽 신뢰구간 띠이고, <code>median_survival_times()</code>는 각 띠가 처음 0.5 이하가 되는 시점을 읽어 줍니다. 앞에서 설명한 방법 그대로입니다. lifelines의 띠는 log-log 변환으로 계산하므로 표 7-2, Table 2와 같은 방식이고, log 변환을 기본으로 쓰는 프로그램(R의 survfit 등)으로 계산하면 약물 A의 구간이 22.0–41.6개월로 조금 달라집니다. 위쪽 띠가 끝까지 0.5 아래로 내려가지 않으면 상한이 inf로 나오고, 논문에는 "NR"로 씁니다.</span></li>
 <li><span class="mk">4</span><span><b>시점별 생존율과 95% CI.</b> <code>survival_function_at_times()</code>는 지정한 시점의 S(t)를, <code>confidence_interval_.asof(t)</code>는 각 시점과 같거나 그 이전의 마지막 값, 즉 계단 함수의 그 시점 값을 가져옵니다. 24개월 행의 0.566(0.481–0.641)이 논문 Results에는 "56.6% (95% CI, 48.1 to 64.1)"로 적힙니다. Greenwood 표준오차 자체는 출력하지 않지만 신뢰구간 계산에 쓰였습니다.</span></li>
-<li><span class="mk">5</span><span><b>위험집합 크기.</b> 각 시점에 아직 사건도 중도절단도 없이 관찰 중인 환자 수(time ≥ 12, 24, 36인 환자 수)로, 이 절 끝 그림 7-6 아래 위험집합 표에 그대로 옮겨집니다. 두 시점 사이에 새로 생긴 사망 수는 <code>kmf.event_table</code>(시점별 위험집합 at_risk, 사망 observed, 중도절단 censored 표)의 observed 열을 구간별로 더해 구합니다. 약물 A는 0–12개월 42명, 12–24개월 22명, 24–36개월 16명이 사망해 36개월까지 80명, 그 뒤에 20명이 사망했습니다.</span></li>
-</ol>
-</div></div>
-
-<h3>랜드마크 분석 <span class="lv deep">심화</span></h3>
-<p class="cmd-note">랜드마크 분석과 불멸시간 편향은 <a href="#ch16-s2">16장 나 절</a>에서 자세히 다룹니다.</p>
-<p>치료 반응(종양 크기 감소)이 있었던 환자와 없었던 환자의 생존을 비교하고 싶다고 합시다. 반응은 치료 시작 뒤 몇 달이 지나야 판정되므로 '반응군'에 속하려면 적어도 첫 평가 때까지 살아 있어야 합니다. 치료 시작일을 time 0으로 두고 두 군의 Kaplan-Meier 곡선을 비교하면, 반응군은 첫 평가 전에는 사망할 수 없었던 셈이라 부당하게 유리해집니다(불멸시간 편향, 16장). <strong>랜드마크 분석</strong><span class="en">(landmark analysis)</span>은 미리 정한 시점(예: 3개월)을 새로운 time 0으로 두고, 그 시점에 살아서 추적 중인 환자만 대상으로, 그 시점까지의 반응 여부로 군을 나눠 곡선을 비교합니다<cite data-ref="anderson1983"></cite>. 랜드마크 이전에 사망한 환자는 분석에서 빠지고 랜드마크 이후에 반응한 환자는 무반응군에 남으므로, 랜드마크 시점을 자료를 보기 전에 정하고 그 근거를 밝혀야 합니다.</p>
-
-<h3>논문에서 읽어 보기</h3>
-<p>12명 자료로 계산해 본 곡선, 중도절단 표시, 위험집합, 중앙생존기간이 논문에서는 어떻게 보이는지 확인합니다. 가 절에서 소개한 신세포암 코호트 300명(약물 A 152명, 약물 B 148명)의 전체 생존을 종양학 논문의 전형적인 형식으로 그린 그림으로, 위 접힌 파이썬 출력과 같은 자료입니다. 위 '논문의 Kaplan-Meier 그림 읽기'의 순서를 떠올리며 번호를 따라가 보세요.</p>
-
-<div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Kaplan-Meier 그림</b><span>가상의 예시</span></div>
-<div class="paper-b">
-<!--FIG:ch07_paperkm-->
-<ol class="marks">
-<li><span class="mk">1</span><span><b>y축 범위.</b> 0–100%를 모두 보여 주고 있습니다. 일부 논문은 y축을 50–100%처럼 잘라 차이를 크게 보이게 하는데, 그럴 때는 축에 끊김 표시가 있는지, 실제 차이가 몇 %p인지 숫자로 확인합니다. 반대로 사건이 드물어 곡선이 90% 위에 머무는 연구에서는 y축을 확대하거나, 아래에서 위로 올라가는 누적발생률(1 − S) 그림을 쓰는 편이 차이를 읽기 쉬워 권장되기도 합니다<cite data-ref="pocock2002"></cite>. 어느 경우든 축의 범위를 먼저 봅니다.</span></li>
-<li><span class="mk">2</span><span><b>중도절단 표시(+ 또는 |).</b> 곡선 위의 작은 세로 눈금 하나가 중도절단된 환자 한 명입니다. 오른쪽으로 갈수록 눈금이 많은 것은 늦게 등록한 환자들이 자료 마감일에 중도절단되었기 때문으로, 정상적인 모습입니다. 초반부터 눈금이 촘촘하다면 추적 소실이 많다는 뜻이므로 가 절의 비정보적 중도절단 가정을 떠올립니다.</span></li>
-<li><span class="mk">3</span><span><b>중앙생존기간.</b> 50% 수평 점선이 각 곡선과 만나는 곳에서 내린 수직선이 중앙생존기간입니다. 약물 B 19.3개월, 약물 A 32.4개월입니다. 두 중앙값의 차이 13.1개월은 곡선 위 한 점의 비교일 뿐이고, 곡선의 모양에 따라 이보다 훨씬 크거나 작은 차이가 다른 시점에 있을 수 있습니다.</span></li>
-<li><span class="mk">4</span><span><b>위험집합 표.</b> 각 시점에 아직 사건도 중도절단도 없이 관찰 중인 환자 수입니다. 36개월에 약물 A 53명, 약물 B 32명이 남아 있습니다. 이 숫자는 사망과 중도절단 두 가지 이유로 줄어들므로, "152명 중 53명만 살아 있다"로 읽으면 안 됩니다. 60개월에는 15명과 8명뿐이라 그 부근의 곡선은 한두 명의 사망으로 크게 움직입니다.</span></li>
-<li><span class="mk">5</span><span><b>위험비(HR).</b> Kaplan-Meier 곡선 자체에서 나온 값이 아니라 Cox 비례위험모형으로 따로 추정한 값입니다(11장). 약물 A의 순간 사망 속도가 약물 B의 0.73배라는 뜻이며, 전 기간에 걸쳐 이 비가 일정하다고 가정합니다. 관찰연구에서 보정 없이 구한 값이라는 점도 기억해 둡니다(다 절).</span></li>
-<li><span class="mk">6</span><span><b>로그순위 P.</b> "두 곡선 전체가 같다"는 귀무가설에 대한 검정입니다. 차이의 크기는 알려 주지 않습니다(다 절).</span></li>
-<li><span class="mk">7</span><span><b>x축의 끝.</b> 실제 추적은 79.9개월까지 있었지만 위험집합이 15명과 8명으로 줄어드는 60개월에서 그림을 잘랐습니다. 마지막 환자까지 곡선을 그리면 꼬리의 큰 계단이나 긴 수평선이 과대해석되기 쉽습니다.</span></li>
-</ol>
-</div></div>
-
-<p>같은 결과를 Results 본문에서는 보통 다음처럼 요약합니다. 중앙생존기간, 시점별 생존율, RMST가 한 문단에 들어갑니다.</p>
-
-<div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Results의 생존 요약</b><span>가상의 예시</span></div>
-<div class="paper-b">
-<p class="excerpt">The median overall survival was <span class="mk">1</span> <span class="hl">32.4 months (95% CI, 21.7 to 39.7)</span> in the drug A group and 19.3 months (95% CI, 15.7 to 23.7) in the drug B group. The <span class="mk">2</span> <span class="hl">2-year overall survival rates were 56.6% (95% CI, 48.1 to 64.1) and 40.4% (95% CI, 32.3 to 48.3)</span>, respectively (Fig. 2). The <span class="mk">3</span> <span class="hl">restricted mean survival time at 48 months</span> was 28.8 months with drug A and 23.5 months with drug B (difference, 5.4 months; 95% CI, 1.3 to 9.4).</p>
-<ol class="marks">
-<li><span class="mk">1</span><span><b>중앙생존기간과 95% CI.</b> 곡선이 0.5를 지나는 시점(32.4개월)과, 신뢰구간 띠가 0.5를 지나는 시점(21.7, 39.7개월)입니다. 곡선이 0.5 근처에서 완만하게 내려가면 띠가 0.5를 지나는 시점들이 멀리 떨어져 구간이 넓고 비대칭이 됩니다. 위쪽 띠가 끝까지 0.5 아래로 내려가지 않으면 상한은 "NR"로 적힙니다(표 7-2의 28개월, 95% CI 8–NR).</span></li>
-<li><span class="mk">2</span><span><b>2년 생존율.</b> 24개월에서 Kaplan-Meier 곡선의 높이입니다. 위 그림 7-6의 위험집합 표에서 24개월에 남은 약물 A 환자는 81명이지만 81/152 = 53.3%는 2년 생존율이 아닙니다. 24개월 전에 중도절단된 환자도 위험집합에서 빠졌기 때문입니다. 신뢰구간(48.1–64.1%)이 56.6%를 중심으로 약간 비대칭인 것은 log-log 변환 때문입니다.</span></li>
-<li><span class="mk">3</span><span><b>제한평균생존시간(RMST).</b> 곡선 아래 넓이를 48개월까지 구한 값으로(위 '제한평균생존시간'), "처음 4년 가운데 평균적으로 약물 A 환자가 5.4개월 더 살아 있었다"는 절대적 차이입니다. 위험비와 달리 비례위험 가정이 필요 없지만 48개월이라는 τ를 미리 정해 두었는지 Methods에서 확인합니다.</span></li>
+<li><span class="mk">5</span><span><b>위험집합 크기.</b> 각 시점에 아직 사건도 중도절단도 없이 관찰 중인 환자 수(time ≥ 12, 24, 36인 환자 수)로, 위 '논문에서 읽기'의 그림 7-6 아래 위험집합 표에 그대로 옮겨집니다. 두 시점 사이에 새로 생긴 사망 수는 <code>kmf.event_table</code>(시점별 위험집합 at_risk, 사망 observed, 중도절단 censored 표)의 observed 열을 구간별로 더해 구합니다. 약물 A는 0–12개월 42명, 12–24개월 22명, 24–36개월 16명이 사망해 36개월까지 80명, 그 뒤에 20명이 사망했습니다.</span></li>
 </ol>
 </div></div>
 
@@ -548,40 +630,15 @@ dtype: float64</pre></div></div>
 <p>RMST의 분산은 Greenwood 공식에서 각 사망 시점의 항에 '그 시점부터 τ까지 곡선 아래 넓이' \(A_j\)의 제곱을 곱해 더합니다.</p>
 <div class="eq">\[ \widehat{\mathrm{Var}}\big[\widehat{\text{RMST}}(\tau)\big] = \sum_{t_j \le \tau} A_j^2\, \frac{d_j}{n_j (n_j - d_j)}, \qquad A_j = \int_{t_j}^{\tau} \hat S(t)\,dt \]
 <p>표 7-2 자료(τ = 36)에서는 합이 13.78이라 표준오차는 \(\sqrt{13.78} = 3.71\)개월이고, 95% CI는 23.5 ± 1.96 × 3.71 = 16.2–30.8개월입니다. 파이썬 lifelines의 <code>restricted_mean_survival_time(kmf, t=36, return_variance=True)</code>도 분산을 돌려주지만, 이 값(이 자료에서 148.0)은 환자마다의 제한 생존시간 min(T, 36)이 환자 사이에 흩어진 정도를 나타내는 분산(제곱근 12.2개월은 그 표준편차)이라, RMST 추정값의 표준오차의 제곱이 아닙니다(lifelines 0.30 기준). 신뢰구간에는 위 식의 분산을 씁니다.</p></div>
-
-<p class="lab-link">파이썬 실습 · <a href="#lab07">실습 7</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
-<div class="keypoints"><p class="kt">정리</p><ul>
-<li>Kaplan-Meier 방법은 사망 시점마다 조건부 생존확률 1 − d/n을 구해 곱합니다. 중도절단된 환자는 떠나기 전까지 분모(위험집합)에 들어갑니다.</li>
-<li>특정 시점 생존율은 그 시점의 곡선 높이, 중앙생존기간은 곡선이 처음 0.5 이하가 되는 시점입니다. 0.5 아래로 내려가지 않으면 "not reached"입니다.</li>
-<li>신뢰구간은 Greenwood 분산에 log-log 변환을 적용하는 방법이 흔하고, 위험집합이 작아지는 꼬리에서는 구간이 넓어집니다.</li>
-<li>논문 그림에서는 y축 범위, 위험집합 표, 중도절단 표시, x축의 끝, 곡선 교차 여부, 보정 여부를 확인합니다. 관찰연구의 단순 Kaplan-Meier 곡선은 보정 전 비교이며, 보정 곡선은 IPTW 가중(15장)이나 Cox 모형(11장)으로 그립니다.</li>
-<li>경쟁위험이 있으면 1 − Kaplan-Meier가 누적발생률을 과대추정합니다(접힌 주의 상자, 17장).</li>
-<li>RMST는 τ까지의 곡선 아래 넓이로, 비례위험 가정 없이 생존기간의 차이를 개월 단위로 보여 줍니다.</li>
-</ul></div>
-<div class="practice"><p class="pt">스스로 확인하기</p>
-<ol>
-<li><p><span class="qt">계산</span>환자 5명의 (time 개월, status)가 (3, 1), (6, 0), (9, 1), (14, 1), (24, 0)입니다. Kaplan-Meier 방법으로 12개월 생존율과 중앙생존기간을 구하고, 가 절의 방법으로 100인년당 사망률도 구하세요.</p>
-<details><summary>답과 풀이</summary><div><p>12개월 생존율 53.3%, 중앙생존기간 14개월, 100인년당 64.3명입니다. 3개월에는 5명 중 1명이 사망해 4/5 = 0.800이고, 6개월의 중도절단은 곡선을 내리지 않은 채 위험집합만 줄입니다. 9개월에는 위험집합 3명 중 1명이 사망해 0.800 × 2/3 = 0.533, 14개월에는 2명 중 1명이 사망해 0.267이 되므로, 12개월 생존율은 0.533이고 곡선이 처음 0.5 이하가 되는 14개월이 중앙생존기간입니다. '12개월에 관찰 중인 2명 ÷ 5명 = 40%'로 계산하면 6개월에 중도절단된 사람을 사망자처럼 뺀 셈이라 틀립니다. 인년은 (3 + 6 + 9 + 14 + 24) ÷ 12 = 4.67인년이고, 사망 3명이므로 3 ÷ 4.67 = 0.643/인년입니다.</p></div></details></li>
-<li><p><span class="qt">해석 고치기</span>중앙 추적기간이 14개월인 연구의 Results에 "Median overall survival was not reached (NR) in the drug X group and was 18.2 months in the drug Y group"이라고 적혀 있습니다. 발표자가 "약물 X 환자는 절반 이상이 사실상 평생 산다"라고 요약했습니다. 무엇이 틀렸고 어떻게 고쳐 말해야 합니까?</p>
-<details><summary>답과 풀이</summary><div><p>NR은 추적이 끝날 때까지 곡선이 0.5 아래로 내려가지 않아 중앙값을 추정할 수 없었다는 뜻이지, 생존기간이 무한하다는 뜻이 아닙니다. 중앙 추적기간이 14개월이므로 그 뒤의 생존은 이 자료로 거의 알 수 없고, 추적이 짧거나 사건이 적어도 NR이 나옵니다. 두 약의 차이는 중앙값끼리가 아니라 미리 정한 시점(예: 12개월)의 생존율과 95% CI, 위험비나 RMST로 비교합니다. 고쳐 말하면 "중앙 14개월의 추적 동안 약물 X군의 생존곡선은 50% 아래로 내려가지 않아 중앙생존기간을 추정할 수 없었다"이고, 효과의 크기는 시점별 생존율의 차이 같은 값으로 따로 말합니다.</p></div></details></li>
-<li><p><span class="qt">계산</span><span class="lv deep">심화</span>접힌 '자세히 보기: RMST의 계산과 쓰임' 상자의 계산 방법(계단마다 높이 × 폭을 더함)을 씁니다. 1번 문항의 5명 자료로 τ = 12개월의 RMST를 구하고 뜻을 말해 보세요. τ를 24개월로 잡으면 어떤 문제가 있습니까?</p>
-<details><summary>답과 풀이</summary><div><p>RMST(12) = 1.000 × 3 + 0.800 × 6 + 0.533 × 3 = 3 + 4.8 + 1.6 = 9.4개월입니다. "처음 12개월 가운데 이 환자들은 평균 9.4개월을 살아 있었다"는 뜻이고, 12개월 내내 모두 살아 있었다면 12개월이 됩니다. 곡선의 높이는 사망 시점(3, 9개월)에서만 바뀌고 6개월의 중도절단에서는 바뀌지 않는다는 점이 틀리기 쉽습니다. τ = 24개월로 잡으면 14개월 이후 위험집합이 1명뿐이라, 그 한 사람의 경과가 넓이의 상당 부분(0.267 × 10 = 2.7개월)을 정하므로 값이 불안정합니다. τ는 두 군 모두 위험집합이 충분히 남는 범위에서 자료를 보기 전에 정합니다.</p></div></details></li>
-</ol></div>
 </section>
 
 <!-- ============================================================ 다 -->
 <section class="sec" id="ch07-s3">
 <h2><span class="sec-no">다.</span>로그순위법</h2>
 
-<div class="easy">
-<p class="et">쉽게 말하면</p>
-<p class="big">로그순위법은 두 군(또는 세 군 이상)의 생존곡선 전체가 같은지를 검정하는 방법입니다. 사망이 일어날 때마다 "두 곡선이 같다면 이 군에서 몇 명이 사망했어야 하는가"를 계산해 실제 사망 수와 비교합니다.</p>
-<ul>
-<li><b>무엇을 비교하나.</b> 어느 순간 약물 A 환자 6명과 약물 B 환자 3명이 관찰 중이고 그중 2명이 사망했다고 합시다. 두 약이 같다면 사망자는 인원에 비례해 나뉠 것이므로, A에서 기대되는 사망은 2 × 6/9 = 1.33명입니다. 이런 '기대 사망'을 모든 사망 시점에 걸쳐 더해 '실제 사망'과 비교합니다. A의 실제 사망이 기대보다 훨씬 적으면 A의 생존이 더 좋다는 증거입니다.</li>
-<li><b>논문에서는.</b> "log-rank P = 0.022"처럼 그림이나 표에 P 하나로 적힙니다. "두 곡선이 우연만으로 이만큼 벌어지기는 어렵다"라고 읽습니다. 차이가 얼마나 큰지는 옆에 적힌 위험비(HR 0.73, 95% CI 0.55–0.96), 중앙생존기간, RMST의 차이로 봅니다.</li>
-<li><b>기억할 한 가지.</b> 관찰연구에서 로그순위 P는 교란을 보정하지 않은 비교입니다. 이 장의 코호트에서도 예후가 좋은 환자가 약물 A에 많아, 같은 위험군끼리 비교하면 P가 0.022에서 0.31로 바뀝니다.</li>
-</ul>
-</div>
+<h3>1. 언제 쓰나</h3>
+<p>먼저 이 검정이 답하는 연구 질문을 봅니다. "약물 A와 약물 B로 1차 치료를 시작한 환자의 생존곡선이 다른가?"가 한 예입니다. "IMDC 위험군 세 군의 생존이 다른가?"도 같은 꼴입니다.</p>
+<p><strong>로그순위법</strong><span class="en">(log-rank test)</span>은 두 군 또는 세 군 이상의 생존곡선 전체가 같은지 검정합니다<cite data-ref="mantel1966"></cite>. 사망이 일어날 때마다 "두 곡선이 같다면 이 군에서 몇 명이 사망했어야 하는가"를 계산해 실제 사망 수와 비교합니다<cite data-ref="bland2004logrank"></cite>.</p>
 
 <dl class="glance">
 <div><dt>언제 쓰나</dt><dd>두 군(또는 세 군 이상)의 생존곡선이 같은지 검정할 때</dd></div>
@@ -590,13 +647,10 @@ dtype: float64</pre></div></div>
 <div><dt>논문 보고 형식</dt><dd>"log-rank P = 0.022". 차이의 크기는 위험비(11장), 중앙생존기간, t년 생존율, RMST 차이로 따로 제시</dd></div>
 </dl>
 
-<h3>개념</h3>
-<p>두 약의 생존곡선이 같다면(귀무가설), 어느 사망 시점에서든 사망자는 그 순간 두 군의 위험집합 크기에 비례해 나뉘어야 합니다. <strong>로그순위법</strong><span class="en">(log-rank test)</span>은 사망 시점마다 <strong>관찰 사망 수</strong>(observed, O)와 이 비례 배분으로 구한 <strong>기대 사망 수</strong>(expected, E)를 비교하고, 그 차이 O − E를 모든 사망 시점에 걸쳐 더합니다<cite data-ref="mantel1966"></cite><cite data-ref="bland2004logrank"></cite>. 차이가 한쪽으로 쌓이면 곡선이 다르다는 증거가 됩니다.</p>
-<p>사망 시점마다 만든 2 × 2 표(군 × 사망 여부)를 층으로 보고 하나로 합치는 것이므로, 5장의 카이제곱 검정을 시간 축을 따라 반복해 모은 검정이라고 생각할 수 있습니다. 여러 층의 2 × 2 표를 합치는 Mantel-Haenszel 방법(8장 바 절)과 같은 구조입니다.</p>
-
-<h3>숫자로 따라가기</h3>
-<p>표 7-1의 12명은 사실 두 가지 약으로 치료받았습니다. #4, #6, #8, #9, #10, #12는 약물 A, 나머지 6명은 약물 B입니다.</p>
+<h3>2. 숫자로 따라가기</h3>
+<p>이제 12명 자료로 두 약의 곡선을 비교해 봅니다. 표 7-1의 12명은 사실 두 가지 약으로 치료받았습니다. #4, #6, #8, #9, #10, #12는 약물 A, 나머지 6명은 약물 B입니다. 그림 7-7은 두 군의 Kaplan-Meier 곡선입니다.</p>
 <!--FIG:ch07_km2-->
+<p>두 약의 생존곡선이 같다면, 어느 사망 시점에서든 사망자는 그 순간 두 군의 위험집합 크기에 비례해 나뉘어야 합니다. 이 비례 배분으로 구한 사망 수를 <strong>기대 사망 수</strong><span class="en">(expected, E)</span>라고 합니다. 실제로 관찰된 사망 수는 <strong>관찰 사망 수</strong><span class="en">(observed, O)</span>입니다. 사망 시점마다 군 × 사망 여부의 2 × 2 표를 만들고 <a href="#ch05-s1">5장 가 절</a>처럼 관측빈도와 기대빈도를 비교하는 셈입니다. 사망이 있었던 시점마다 한 줄씩 적으면 표 7-3이 됩니다.</p>
 <p class="tbl-cap"><b>표 7-3.</b> 로그순위 검정의 계산 (사망이 있었던 시점만). V는 그 시점의 O<sub>A</sub> − E<sub>A</sub>가 우연히 흔들리는 정도(분산)입니다.</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th class="r">t</th><th class="r">n<sub>A</sub></th><th class="r">n<sub>B</sub></th><th class="r">n</th><th class="r">d<sub>A</sub> (= O<sub>A</sub>)</th><th class="r">d<sub>B</sub></th><th class="r">d</th><th class="r">E<sub>A</sub> = d × n<sub>A</sub>/n</th><th class="r">O<sub>A</sub> − E<sub>A</sub></th><th class="r">V</th></tr></thead>
@@ -609,31 +663,139 @@ dtype: float64</pre></div></div>
 <tr><td class="r">38</td><td class="r">1</td><td class="r">1</td><td class="r">2</td><td class="r">0</td><td class="r">1</td><td class="r">1</td><td class="r">0.500</td><td class="r">−0.500</td><td class="r">0.250</td></tr>
 <tr><td colspan="4"><b>합계</b></td><td class="r"><b>2</b></td><td class="r"><b>5</b></td><td class="r"><b>7</b></td><td class="r"><b>4.350</b></td><td class="r"><b>−2.350</b></td><td class="r"><b>1.539</b></td></tr>
 </tbody></table></div>
-<ul>
-<li><b>합계</b>: 약물 A의 관찰 사망은 2명, 기대 사망은 4.35명입니다. 곡선이 같다고 가정했을 때보다 2.35명 적게 사망했습니다. 약물 B는 반대로 관찰 5명, 기대 7 − 4.35 = 2.65명입니다.</li>
-<li><b>검정통계량</b>: O − E의 합이 우연으로 생길 만한 크기인지 봅니다. 신호(O − E)를 그 흔들림(V)과 비교하는 방식으로, (−2.35)² ÷ 1.539 = 3.59이고 자유도 1인 χ² 분포에서 <b>P = 0.058</b>입니다(<code>stats.chi2.sf(3.59, 1)</code>, <a href="#ch01-s5">1장 마 절 검산 도구</a>). 자유도는 군의 수 − 1입니다. 정확한 식은 '수식으로 보기'에 있습니다.</li>
-</ul>
-<!--FOLD:계산 과정 보기: 한 행의 기대 사망과 V-->
-<ul>
-<li><b>12개월 행</b>: 약물 A 6명, 약물 B 3명이 관찰 중이고 2명(A 1명, B 1명)이 사망했습니다. 차이가 없다면 A의 기대 사망은 2 × 6/9 = 1.333명인데 실제로는 1명이므로 O − E = −0.333입니다.</li>
-<li><b>V</b>: 각 시점에서 사망자가 두 군에 어떻게 나뉠지가 우연히 흔들리는 정도(분산)입니다. 두 군의 위험집합 크기가 비슷하고 사망자가 많을수록 커집니다.</li>
-</ul>
-<!--/FOLD-->
-<p>그림 7-7의 두 곡선은 꽤 벌어져 있지만(2년 생존율 83.3% 대 20.8%) 환자가 12명, 사망이 7건뿐이라 P = 0.058로 유의수준 5%에 미치지 못합니다. 이것을 "두 약의 생존에 차이가 없다"로 읽으면 안 됩니다(1장 나 절). 로그순위법의 검정력은 환자 수보다 <strong>사건 수</strong>에 좌우되므로, 생존 연구의 표본크기 계산도 필요한 사건 수를 먼저 구하고 거기서 환자 수를 역산합니다(부록 A 마 절).</p>
+<div class="flow">
+<div><div><b>한 시점의 기대 사망</b><p>12개월 행을 봅니다. 약물 A 6명, 약물 B 3명이 관찰 중이고 A에서 1명, B에서 1명이 사망했습니다. 두 약이 같다면 A의 기대 사망은 2 × 6/9 = 1.333명입니다. 실제로는 1명이므로 O − E = −0.333입니다.</p></div></div>
+<div><div><b>모든 시점의 O − E</b><p>다른 시점도 같은 방식으로 계산합니다. 사망이 있었던 6개 시점 가운데 5개에서 약물 A의 사망이 기대보다 적습니다. 이렇게 차이가 한쪽으로 쌓이면 곡선이 다르다는 증거가 됩니다.</p></div></div>
+<div><div><b>합계</b><p>약물 A의 관찰 사망은 2명, 기대 사망은 4.35명입니다. 곡선이 같다고 가정했을 때보다 2.35명 적게 사망했습니다. 약물 B는 반대로 관찰 5명, 기대 7 − 4.35 = 2.65명입니다.</p></div></div>
+<div><div><b>흔들림 V</b><p>V는 각 시점에서 사망자가 두 군에 어떻게 나뉠지가 우연히 흔들리는 정도, 즉 분산입니다. 두 군의 위험집합 크기가 비슷하고 사망자가 많을수록 커집니다. 6개 시점의 V를 더하면 1.539입니다.</p></div></div>
+<div><div><b>검정통계량</b><p>신호인 O − E를 흔들림 V와 비교합니다. (−2.35)² ÷ 1.539 = 3.59입니다. 자유도는 군의 수 − 1 = 1입니다. 정확한 식은 '더 알아보기'의 '수식으로 보기'에 있습니다.</p></div></div>
+<div><div><b>p-value</b><p>자유도 1인 χ² 분포에서 3.59 이상이 나올 확률은 0.058입니다. 파이썬으로는 <code>stats.chi2.sf(3.59, 1)</code>로 구하며, 이런 검산 도구는 <a href="#ch01-s5-check">1장 마 절</a>에 있습니다.</p></div></div>
+</div>
+<p>그래서 χ² = 3.59, 자유도 1, <b>P = 0.058</b>입니다. 그림 7-7의 두 곡선은 꽤 벌어져 있어 2년 생존율이 83.3% 대 20.8%입니다. 그래도 환자가 12명, 사망이 7건뿐이라 유의수준 5%에 미치지 못합니다. 1장 나 절에서 본 것처럼, 이것을 "두 약의 생존에 차이가 없다"로 읽으면 안 됩니다.</p>
 
-<h3>로그순위법이 알려 주지 않는 것</h3>
-<p>로그순위법의 결과는 P 값 하나입니다. "두 생존곡선이 전체적으로 같다"는 귀무가설에 반하는 증거가 있는지를 알려 줄 뿐, 차이가 얼마나 큰지는 알려 주지 않습니다. 효과의 크기는 따로 제시해야 합니다.</p>
-<ul>
-<li><strong>위험비</strong><span class="en">(hazard ratio, HR)</span>: Cox 비례위험모형으로 추정합니다(11장). 로그순위 검정은 Cox 모형에 군 변수 하나만 넣었을 때의 검정과 사실상 같아서, 논문 그림에 "HR 0.73; log-rank P = 0.022"처럼 나란히 적힙니다.</li>
-<li><strong>O/E 비</strong>: 군마다 관찰 사망 수(O)를 기대 사망 수(E)로 나눈 값의 비 (O<sub>A</sub>/E<sub>A</sub>) ÷ (O<sub>B</sub>/E<sub>B</sub>)는 로그순위 계산에서 바로 나오는 위험비의 간단한 근사입니다. 12명 자료에서는 (2/4.35) ÷ (5/2.65) = 0.24(Cox 모형 0.23), 300명 코호트에서는 0.73(Cox 모형 0.73)입니다. 효과가 크거나 두 군의 중도절단 양상이 다르면 부정확해질 수 있어 참고용입니다.</li>
-<li><strong>그 밖의 척도</strong>: 중앙생존기간의 차이, 특정 시점 생존율의 차이, RMST의 차이.</li>
-</ul>
+<h3>3. 가정과 대안</h3>
+<p>다음으로 로그순위법이 기대는 가정과, 맞지 않을 때 쓰는 방법을 봅니다.</p>
+<ol>
+<li><strong>비정보적 중도절단.</strong> Kaplan-Meier 방법과 같은 가정입니다. 중도절단 사유가 한 군에 몰리지 않았는지 봅니다.</li>
+<li><strong>비례위험일 때 가장 강력.</strong> 로그순위법은 모든 사망 시점의 O − E를 똑같은 무게로 더합니다. 그래서 위험비가 시간에 관계없이 일정한 <strong>비례위험</strong><span class="en">(proportional hazards)</span> 상황에서 검정력이 가장 높습니다<cite data-ref="peto1972"></cite>. 곡선이 교차하거나 차이가 늦게 나타나면 시기마다 다른 차이가 상쇄되거나 묻힙니다. 이때는 곡선 자체와 여러 시점의 생존율, RMST를 함께 봅니다. 초반이나 후반의 차이에 무게를 두는 <strong>가중 로그순위 검정</strong><span class="en">(weighted log-rank test)</span>도 있습니다. 다만 어떤 검정을 쓸지는 자료를 보기 전에 정합니다.</li>
+<li><strong>교란이 없는 비교.</strong> 두 군의 예후 요인 분포가 다르면 로그순위법은 약의 차이와 환자 구성의 차이를 구분하지 못합니다. 300명 코호트에서 IMDC poor 위험군은 약물 A의 15.1%, 약물 B의 24.3%였습니다. <strong>층화 로그순위법</strong><span class="en">(stratified log-rank test)</span>은 IMDC 위험군별로 O − E와 V를 따로 계산한 뒤 더합니다. 같은 위험군 안에서만 두 약을 비교하는 셈이며, 이 코호트의 P는 0.022에서 0.31로 바뀝니다. 층화는 층으로 쓴 변수만 보정하며, 범주형 변수 한두 개까지가 현실적입니다. 여러 교란변수를 함께 보정하고 위험비를 추정하려면 다변수 Cox 모형이나 성향점수 방법을 쓰며, 11장과 15장에서 다룹니다.</li>
+<li><strong>충분한 사건 수.</strong> 로그순위법의 검정력은 환자 수보다 <strong>사건 수</strong>에 좌우됩니다. 그래서 생존 연구의 표본크기 계산도 필요한 사건 수를 먼저 구하고 거기서 환자 수를 역산하며, 부록 A 마 절에서 다룹니다.</li>
+<li><strong>세 군 이상.</strong> 계산은 그대로 확장되고 자유도는 군의 수 − 1입니다. 군에 순서가 있으면 추세 검정을 고려합니다.</li>
+</ol>
+<p>가중 검정의 종류, 층화 로그순위법의 계산, 세 군 비교는 '더 알아보기'에 있습니다.</p>
+<div class="callout tip"><p class="ct">사회약학 연구에서는</p>
+<p>청구자료로 두 약을 비교한 논문의 첫 그림이 단순 Kaplan-Meier 곡선과 로그순위 P라면, 그것은 교란을 보정하지 않은 비교입니다. 처방 의사는 환자의 상태를 보고 약을 고르므로(적응증에 의한 교란, confounding by indication) 두 군의 예후가 처음부터 다를 가능성이 큽니다. 최근 약물역학 논문은 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이나 보정 생존곡선을 함께 제시합니다(11장, 15장). 그림 범례에 "unadjusted", "weighted", "adjusted" 중 무엇이 적혀 있는지 확인하세요.</p></div>
 
+<h3>4. 결과 읽기</h3>
+<p>이제 결과를 말로 옮깁니다. 로그순위법의 결과는 P 하나입니다. "두 생존곡선이 전체적으로 같다"는 귀무가설에 반하는 증거가 있는지 알려 줄 뿐, 차이가 얼마나 큰지는 알려 주지 않습니다. 그래서 효과의 크기를 따로 제시합니다. 300명 코호트의 결과를 네 단계로 풉니다.</p>
+<ol>
+<li><strong>효과의 크기와 방향.</strong> 중앙생존기간은 약물 A 32.4개월, 약물 B 19.3개월입니다. 효과의 크기로 가장 흔히 쓰는 값은 Cox 비례위험모형으로 추정한 <strong>위험비</strong><span class="en">(hazard ratio, HR)</span>입니다. Cox 모형은 11장에서 다룹니다. HR 0.73은 약물 A의 순간 사망 속도가 약물 B의 0.73배라는 뜻입니다. 특정 시점 생존율의 차이와 RMST의 차이도 효과의 크기로 씁니다.</li>
+<li><strong>95% 신뢰구간.</strong> HR의 95% CI는 0.55–0.96으로 1을 포함하지 않습니다. 약물 A의 순간 사망 속도가 4%에서 45%까지 낮을 수 있다는 뜻입니다.</li>
+<li><strong>P.</strong> 두 곡선이 같다면 이만큼 또는 더 크게 벌어질 확률이 2.2%입니다. 로그순위 검정은 Cox 모형에 군 변수 하나만 넣었을 때의 검정과 사실상 같습니다. 그래서 논문 그림에 "HR 0.73; log-rank P = 0.022"처럼 나란히 적힙니다.</li>
+<li><strong>임상적 의미.</strong> 보정하지 않은 결과로는 중앙생존기간이 13개월 길어 임상적으로 큰 차이처럼 보입니다. 그러나 관찰연구라서 보정하지 않은 비교입니다. IMDC 위험군으로 층화하면 HR은 0.86, 95% CI는 0.65–1.14, P는 0.31이 됩니다. 결론은 교란을 보정한 추정값으로 내립니다.</li>
+</ol>
+<p>한 문장으로는 "약물 A의 순간 사망 속도는 약물 B의 0.73배로 추정되지만, 보정하지 않은 비교이고 IMDC 위험군 안에서 비교하면 차이가 크게 줄어든다"입니다.</p>
 <div class="callout warn"><p class="ct">흔한 오해 · 위험비를 '위험의 비'로 읽기</p>
-<p><span class="wrong">HR 0.73이므로 약물 A는 3년 사망 위험을 27% 줄인다.</span> 위험비는 매 순간의 사망 속도(<strong>위험률</strong><span class="en">(hazard)</span>)의 비입니다. t까지 사망할 누적 확률의 비(상대위험도, risk ratio)와는 다릅니다. 비례위험이 성립해 HR 0.73이 계속 유지되고 약물 B의 3년 사망 위험이 72.2%라면, 약물 A의 3년 사망 위험은 1 − (1 − 0.722)<sup>0.73</sup> = 60.7%이고 3년 누적 사망위험의 비(상대위험도)는 60.7 ÷ 72.2 = 0.84입니다(비례위험을 가정한 설명용 계산이므로 표에서 직접 구한 3년 사망 비율과는 다를 수 있습니다). 3년 사망 위험은 27%가 아니라 약 16% 줄어듭니다. 사건이 흔할수록 두 값의 차이가 커집니다. 위험률의 정의와 위험비의 해석은 11장에서 자세히 다룹니다.</p></div>
+<p><span class="wrong">HR 0.73이므로 약물 A는 3년 사망 위험을 27% 줄인다.</span> 위험비는 매 순간의 사망 속도인 <strong>위험률</strong><span class="en">(hazard)</span>의 비입니다. t까지 사망할 누적 확률의 비인 상대위험도와는 다릅니다. 비례위험이 성립해 HR 0.73이 계속 유지되고 약물 B의 3년 사망 위험이 72.2%라고 합시다. 그러면 약물 A의 3년 사망 위험은 1 − (1 − 0.722)<sup>0.73</sup> = 60.7%입니다. 3년 누적 사망위험의 비인 상대위험도는 60.7 ÷ 72.2 = 0.84입니다. 3년 사망 위험은 27%가 아니라 약 16% 줄어듭니다. 사건이 흔할수록 두 값의 차이가 커집니다. 이 값은 비례위험을 가정한 설명용 계산이므로 표에서 직접 구한 3년 사망 비율과는 다를 수 있습니다. 위험률의 정의와 위험비의 해석은 11장에서 자세히 다룹니다.</p></div>
 
-<h3>층화 로그순위법</h3>
-<p>관찰연구에서 두 군의 예후 요인 분포가 다르면 로그순위법은 약의 차이와 환자 구성의 차이를 구분하지 못합니다. 300명 코호트에서 IMDC poor 위험군은 약물 A의 15.1%, 약물 B의 24.3%였습니다. <strong>층화 로그순위법</strong><span class="en">(stratified log-rank test)</span>은 IMDC 위험군별로 O − E와 V를 따로 계산한 뒤 더합니다. 같은 위험군 안에서만 두 약을 비교하는 셈입니다. 각 층 안에서는 표 7-3과 똑같이 계산합니다.</p>
+<h3>5. 논문에서 읽기</h3>
+<p>이 절에서 계산한 로그순위 P와 층화 분석이 논문의 결과표에서는 어떻게 함께 보고되는지 봅니다. 300명 코호트의 전체 생존 결과를 정리한 Table 2입니다. 로그순위 P가 어디에 적혀 있는지, 보정하지 않은 결과와 IMDC 위험군으로 층화한 결과가 어떻게 다른지 보세요.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 생존 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Overall survival according to first-line treatment</caption>
+<thead><tr><th>Outcome</th><th class="r">Drug A<br>(n = 152)</th><th class="r">Drug B<br>(n = 148)</th></tr></thead>
+<tbody>
+<tr><td><span class="mk">1</span> Deaths, n (%)</td><td class="r">100 (65.8)</td><td class="r">110 (74.3)</td></tr>
+<tr><td><span class="mk">2</span> Median OS, months (95% CI)</td><td class="r">32.4 (21.7–39.7)</td><td class="r">19.3 (15.7–23.7)</td></tr>
+<tr><td>OS rate, % (95% CI)</td><td class="r"></td><td class="r"></td></tr>
+<tr><td class="ind">1 year</td><td class="r">71.8 (63.8–78.3)</td><td class="r">65.6 (57.3–72.7)</td></tr>
+<tr><td class="ind">2 years</td><td class="r">56.6 (48.1–64.1)</td><td class="r">40.4 (32.3–48.3)</td></tr>
+<tr><td class="ind">3 years</td><td class="r">44.0 (35.6–52.1)</td><td class="r">27.8 (20.6–35.5)</td></tr>
+<tr class="grp"><td colspan="3">Unadjusted</td></tr>
+<tr><td class="ind"><span class="mk">3</span> Hazard ratio (95% CI)<sup>a</sup></td><td class="r">0.73 (0.55–0.96)</td><td class="r">1 (reference)</td></tr>
+<tr><td class="ind"><span class="mk">4</span> P value<sup>b</sup></td><td class="c" colspan="2">0.022</td></tr>
+<tr class="grp"><td colspan="3">Stratified by IMDC risk group</td></tr>
+<tr><td class="ind">Hazard ratio (95% CI)<sup>c</sup></td><td class="r">0.86 (0.65–1.14)</td><td class="r">1 (reference)</td></tr>
+<tr><td class="ind"><span class="mk">5</span> P value<sup>d</sup></td><td class="c" colspan="2">0.31</td></tr>
+</tbody></table></div>
+<p class="jt-foot">OS, overall survival; IMDC, International Metastatic Renal Cell Carcinoma Database Consortium. Survival rates were estimated with the Kaplan–Meier method, and CIs were calculated with a log-log transformation. <sup>a</sup> Cox proportional-hazards model. <sup>b</sup> Log-rank test. <sup>c</sup> Cox model stratified by IMDC risk group. <sup>d</sup> Stratified log-rank test.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>사망자 수와 비율.</b> 65.8% 대 74.3%는 추적 기간 전체에서 사망이 관찰된 비율입니다. 환자마다 추적 기간이 다르므로 이 비율을 '사망 위험'으로 비교하면 안 되고, 아래의 Kaplan-Meier 생존율이나 인년당 사망률로 봐야 합니다. 다만 사건 수(100, 110)는 결과의 정밀도를 가늠하는 데 중요합니다.</span></li>
+<li><span class="mk">2</span><span><b>중앙생존기간과 시점별 생존율.</b> 모두 Kaplan-Meier 곡선(그림 7-6)에서 읽은 값입니다. 1년 생존율은 71.8% 대 65.6%로 차이가 작지만 2·3년에는 16%p 정도로 벌어집니다. 어느 한 시점만 골라 보고하면 인상이 크게 달라진다는 뜻입니다(아래 '더 알아보기'의 '생존 비교에서 자주 보는 잘못' 상자).</span></li>
+<li><span class="mk">3</span><span><b>위험비.</b> Cox 모형에서 나온 효과의 크기입니다(11장). 약물 B가 기준(1)이며, HR 0.73은 약물 A의 순간 사망 속도가 0.73배라는 뜻입니다. 3년 사망 위험이 27% 낮다는 뜻은 아닙니다(위 '위험비를 위험의 비로 읽기' 상자).</span></li>
+<li><span class="mk">4</span><span><b>로그순위 P.</b> 두 곡선 전체가 같은지에 대한 검정입니다. Cox 모형 HR의 Wald 검정 P(0.023)와 거의 같아서, 많은 논문이 두 값 중 하나만 표에 적습니다. P가 두 열에 걸쳐 하나만 적힌 것은 군 사이의 비교에 대한 값이기 때문입니다.</span></li>
+<li><span class="mk">5</span><span><b>층화 분석.</b> IMDC 위험군 안에서 비교하면 HR은 0.86으로 1에 가까워지고 P는 0.31이 됩니다. 보정하지 않은 차이의 상당 부분이 위험군 분포의 차이에서 왔다는 뜻입니다(아래 '더 알아보기'의 '층화 로그순위법'). 저자가 보정 전 결과만 강조했다면 결론을 조심스럽게 읽어야 합니다. 반대로 층화 결과가 유의하지 않다고 효과가 없다는 증거도 아닙니다. 신뢰구간(0.65–1.14)이 의미 있는 이득과 해로움을 모두 포함합니다.</span></li>
+</ol>
+</div></div>
+
+<h3>6. 논문에 쓰기</h3>
+<p>마지막으로 두 군 비교 결과를 Methods와 Results 문장으로 옮깁니다. 관찰연구 보고 지침인 STROBE는 보정하지 않은 추정값을 쓰고, 해당되면 교란을 보정한 추정값을 함께 쓰라고 권합니다. 둘 다 95% 신뢰구간 같은 정밀도와 함께 씁니다<cite data-ref="vonelm2007"></cite>.</p>
+<p>보고할 것은 다음 여섯 가지입니다.</p>
+<ol>
+<li>군별 대상자 수와 사건 수.</li>
+<li>군별 중앙생존기간이나 미리 정한 시점의 생존율과 95% CI.</li>
+<li>효과의 크기와 95% CI. 위험비라면 기준군을 밝히고, RMST 차이나 시점별 생존율 차이를 쓸 수도 있습니다.</li>
+<li>로그순위 P. 층화했다면 층 변수를 씁니다.</li>
+<li>미리 정한 주 검정. 가중 검정을 썼다면 그 이름과 이유를 씁니다.</li>
+<li>보정 여부. unadjusted, stratified, weighted, adjusted 가운데 무엇인지 밝힙니다.</li>
+</ol>
+<p>아래는 이 절의 300명 코호트 숫자로 만든 예문입니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results</b><span>이 절의 예로 쓴 예문</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Methods.</b> Overall survival was compared between groups using <span class="mk">1</span> <span class="hl">the log-rank test</span>, and <span class="mk">2</span> <span class="hl">hazard ratios (drug A vs drug B) were estimated with a Cox proportional-hazards model</span>. <span class="mk">3</span> <span class="hl">A log-rank test stratified by IMDC risk group was performed as a sensitivity analysis</span>.</p>
+<p class="excerpt"><b>Results.</b> <span class="mk">4</span> <span class="hl">Death occurred in 100 of 152 patients in the drug A group and 110 of 148 in the drug B group</span>. The median overall survival was <span class="mk">5</span> <span class="hl">32.4 months (95% CI, 21.7 to 39.7) and 19.3 months (95% CI, 15.7 to 23.7)</span>, respectively. <span class="mk">6</span> <span class="hl">The unadjusted hazard ratio for death was 0.73 (95% CI, 0.55 to 0.96; log-rank P = 0.022)</span>. <span class="mk">7</span> <span class="hl">After stratification by IMDC risk group, the hazard ratio was 0.86 (95% CI, 0.65 to 1.14; stratified log-rank P = 0.31)</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>검정 이름.</b> 가중치 없는 로그순위 검정이 기본입니다. Peto-Peto 같은 가중 검정을 주 검정으로 썼다면 이름을 쓰고, 미리 정했다는 점도 밝힙니다.</span></li>
+<li><span class="mk">2</span><span><b>효과의 추정 방법과 비교 방향.</b> "drug A vs drug B"로 기준군을 밝혀야 0.73이 약물 A에 유리하다는 뜻으로 읽힙니다. 비례위험 가정을 어떻게 확인했는지도 함께 쓰며, 그 방법은 11장에서 다룹니다.</span></li>
+<li><span class="mk">3</span><span><b>층화 분석.</b> 관찰연구에서 교란 가능성을 다룬 분석입니다. 층으로 쓴 변수를 이름으로 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>군별 사건 수.</b> 사건 수는 결과의 정밀도를 가늠하게 해 줍니다. 다만 100/152 = 65.8%는 추적 기간이 다른 사람들의 사망 비율이라 사망 위험이 아닙니다.</span></li>
+<li><span class="mk">5</span><span><b>군별 중앙생존기간과 95% CI.</b> P만으로는 생존이 얼마나 다른지 알 수 없습니다. 중앙값의 차이 13.1개월은 곡선 위 한 점의 비교이므로 위험비와 함께 씁니다.</span></li>
+<li><span class="mk">6</span><span><b>위험비, 신뢰구간, 로그순위 P.</b> "hazard ratio"로 쓰고 "27% lower risk of death"로 쓰지 않습니다. 위험비는 순간 사망 속도의 비이기 때문입니다. 보정하지 않은 값이라는 뜻의 "unadjusted"를 붙입니다.</span></li>
+<li><span class="mk">7</span><span><b>층화 결과.</b> "no difference"로 쓰지 않습니다. 신뢰구간 0.65–1.14가 의미 있는 이득과 해로움을 모두 포함하므로, 이 자료로는 판단하기 어렵다는 뜻입니다.</span></li>
+</ol>
+</div></div>
+
+<p>자주 하는 실수는 다음 세 가지입니다.</p>
+<ul>
+<li><b>P만 쓰기.</b> "Survival differed significantly (log-rank P = 0.022)"만으로는 차이의 크기와 방향을 알 수 없습니다.</li>
+<li><b>위험비를 위험의 비로 쓰기.</b> "a 27% reduction in the risk of death" 대신 "hazard ratio, 0.73"으로 씁니다.</li>
+<li><b>결과를 본 뒤 검정 고르기.</b> 여러 가중 검정을 해 보고 가장 작은 P를 보고하면 다중비교 문제가 됩니다.</li>
+</ul>
+
+<p class="lab-link">파이썬 실습 · <a href="#lab07">실습 7</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>로그순위법은 사망 시점마다 관찰 사망(O)과 기대 사망(E)을 비교해 더하고, χ² = (O − E)²/V(자유도 = 군의 수 − 1)로 곡선 전체가 같은지 검정합니다.</li>
+<li>결과는 P 값뿐입니다. 차이의 크기는 위험비(Cox 모형, 11장), 생존율·중앙생존기간·RMST의 차이로 따로 제시하며, 위험비는 누적 위험의 비가 아닙니다.</li>
+<li>관찰연구의 단순 Kaplan-Meier 곡선과 로그순위 P는 교란을 보정하지 않은 결과입니다. 층화 로그순위법은 층 변수 하나 안에서 비교하고, 여러 교란변수의 보정과 효과 크기는 Cox 모형(11장)이나 성향점수 방법(15장)으로 구합니다.</li>
+<li>로그순위법은 비례위험일 때 검정력이 가장 높습니다. 곡선이 교차하거나 차이가 늦게 나타나면 로그순위 P 하나로 요약되지 않으므로 곡선과 여러 시점의 생존율을 함께 봅니다. 어떤 검정을 쓸지는 미리 정합니다.</li>
+<li>한 시점의 χ² 비교, 짧게 추적된 환자 제외는 피합니다.</li>
+<li>가중 로그순위 검정(Peto-Peto, Fleming-Harrington)과 세 군 이상의 추세 검정은 '더 알아보기'에서 다룹니다.</li>
+<li>논문에는 군별 사건 수와 중앙생존기간, 위험비와 95% CI, 로그순위 P, 보정 여부를 함께 씁니다. 위험비를 "위험이 몇 % 줄었다"로 쓰지 않습니다.</li>
+</ul></div>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">계산</span>비례위험이 성립하고 HR = 0.8이며, 대조군의 5년 사망 위험이 30%라고 합시다. 치료군의 5년 사망 위험과 5년 사망 위험의 비(상대위험도)는 얼마입니까? 비례위험이면 치료군의 생존확률은 대조군 생존확률을 HR만큼 거듭제곱한 값이고, 0.70<sup>0.8</sup> = 0.752입니다.</p>
+<details><summary>답과 풀이</summary><div><p>치료군의 5년 사망 위험은 1 − (1 − 0.30)<sup>0.8</sup> = 1 − 0.752 = 24.8%이고, 상대위험도는 24.8 ÷ 30 = 0.83입니다. 비례위험이면 치료군의 생존확률이 대조군 생존확률의 HR제곱(0.7<sup>0.8</sup>)이 되기 때문입니다. 따라서 5년 사망 위험은 20%가 아니라 약 17% 줄고, 위험차는 5.2%p입니다. HR을 그대로 위험의 비로 읽으면 효과를 과장하게 되며, 본문의 예(대조군 72.2%에서 HR 0.73이 상대위험도 0.84)처럼 사건이 흔할수록 두 값의 차이가 커집니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>"로그순위 P = 0.03이므로 HR은 0.03이고, 치료군의 사망 위험이 97% 줄었다." 무엇이 틀렸고 어떻게 고쳐 써야 합니까?</p>
+<details><summary>답과 풀이</summary><div><p>P 값과 위험비는 다른 숫자입니다. 로그순위 P = 0.03은 "두 생존곡선이 같다면 이만큼 이상의 차이가 우연히 나올 확률이 3%"라는 뜻일 뿐 차이의 크기를 말하지 않습니다. 위험비는 Cox 모형으로 따로 추정하며, 이 장의 300명 코호트도 로그순위 P는 0.022였지만 HR은 0.73이었습니다. 또 HR은 순간 사망 속도의 비라서 "사망 위험이 몇 % 줄었다"로 바로 옮기면 안 됩니다(1번 문항). 고쳐 쓰면 "두 생존곡선의 차이는 로그순위 P = 0.03으로 우연으로 보기 어려웠고, 효과의 크기는 Cox 모형의 위험비와 95% CI, 미리 정한 시점의 생존율 차이로 제시했다"가 됩니다.</p></div></details></li>
+<li><p><span class="qt">분석 고르기</span>같은 '두 약의 전체 생존 비교' 주제에서 연구 상황만 다릅니다. 무엇을 먼저 구분해야 하고, 주 분석을 어떻게 정해야 합니까? (가) 무작위배정 3상 시험이고, 효과의 차이가 추적 기간 내내 비슷하게 유지될 것으로 예상 (나) 한 병원의 후향적 코호트이고, 예후가 나쁜 IMDC poor 환자가 한쪽 약에 더 많음 (다) 무작위배정 시험이지만 면역항암제라 처음 몇 달은 차이가 없다가 나중에 벌어질 것으로 예상</p>
+<details><summary>답과 풀이</summary><div><p>먼저 군 배정이 무작위인지(교란이 있는지)와 효과가 시간에 따라 일정할 것으로 예상하는지(비례위험)를 구분합니다. (가)는 가중치 없는 로그순위 검정을 주 검정으로 미리 정하고, 효과의 크기는 Cox 모형의 위험비로 제시합니다. (나)는 단순 로그순위 P에 IMDC 위험군 분포의 차이가 섞이므로, 교란변수가 IMDC 하나라면 층화 로그순위법, 여러 개라면 다변수 Cox 모형이나 성향점수 방법(11장, 15장)을 씁니다. (다)는 늦게 벌어지는 차이에 민감한 Fleming-Harrington(0,1) 같은 가중 검정('더 알아보기'의 '가중치의 종류')이나 RMST 차이를 계획서에 주 분석으로 미리 정합니다. 어느 경우든 곡선을 본 뒤 가장 작은 P를 주는 검정을 고르면 다중비교 문제가 됩니다.</p></div></details></li>
+<li><p><span class="qt">논문 쓰기</span>2단계의 12명 결과를 Results 문장으로 써 보세요. 약물 A는 6명 중 2명, 약물 B는 6명 중 5명이 사망했습니다. 중앙생존기간은 약물 A에서 도달하지 않았고 약물 B에서 12개월입니다. 2년 생존율은 83.3%(95% CI 27.3–97.5)와 20.8%(95% CI 0.9–59.5)입니다. 두 신뢰구간은 나 절처럼 Greenwood 공식과 log-log 변환으로 구했습니다. Cox 모형의 위험비(약물 A 대 약물 B)는 0.23(95% CI 0.04–1.21)이고, 로그순위 P = 0.058입니다.</p>
+<details><summary>답과 풀이</summary><div><p>모범 문장은 “Death occurred in 2 of 6 patients in the drug A group and 5 of 6 in the drug B group. The median overall survival was not reached in the drug A group and was 12 months in the drug B group. The 2-year overall survival rates were 83.3% (95% CI, 27.3 to 97.5) and 20.8% (95% CI, 0.9 to 59.5), respectively. The hazard ratio for death with drug A as compared with drug B was 0.23 (95% CI, 0.04 to 1.21; log-rank P = 0.058).”입니다.</p>
+<p>확인할 점은 세 가지입니다. ① "There was no difference in survival"로 쓰지 않습니다. 사망 7건으로는 검정력이 낮고, 위험비의 신뢰구간 0.04–1.21은 큰 이득부터 약간의 해로움까지 걸쳐 있습니다. ② P만 쓰지 않고 차이의 크기인 위험비와 95% CI를 함께 씁니다. 위험비는 Cox 모형에서, P는 로그순위 검정에서 나왔으므로 Methods에 두 방법을 모두 밝힙니다. ③ 중앙값에 도달하지 않은 군은 "not reached"로 씁니다. 신뢰구간 계산 방법(Greenwood 공식과 log-log 변환)은 Results가 아니라 Methods에 씁니다.</p></div></details></li>
+</ol></div>
+<p style="margin-top:1.2rem">PART 1의 방법은 여기까지입니다. 다음의 <a href="#rv01">분석 고르기 연습</a>에서 0–7장의 방법을 연구 상황에 맞춰 골라 봅니다.</p>
+
+<h3>더 알아보기</h3>
+<p>아래 상자는 처음 읽을 때 건너뛰어도 됩니다. 논문에서 그 내용을 만났을 때 펼쳐 읽습니다.</p>
+
+<h3>층화 로그순위법 <span class="lv deep">심화</span></h3>
+<p>각 층 안에서는 표 7-3과 똑같이 계산합니다. 세 IMDC 위험군의 결과를 모으면 표 7-4가 됩니다.</p>
 <p class="tbl-cap"><b>표 7-4.</b> IMDC 위험군으로 층화한 로그순위 검정 (약물 A 기준)</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>IMDC 위험군</th><th class="r">약물 A (n)</th><th class="r">약물 B (n)</th><th class="r">O<sub>A</sub></th><th class="r">E<sub>A</sub></th><th class="r">O<sub>A</sub> − E<sub>A</sub></th><th class="r">V</th></tr></thead>
@@ -646,13 +808,11 @@ dtype: float64</pre></div></div>
 </tbody></table></div>
 <p style="font-size:14px;color:var(--ink-2)">각 값을 반올림했으므로 세 층의 합과 끝자리가 다를 수 있습니다.</p>
 <p>세 층의 O − E를 더하면 −7.11, V를 더하면 48.97이므로 층화 χ² = (−7.11)² ÷ 48.97 = 1.03, P = 0.31입니다. 층화하지 않으면 약물 A의 사망이 기대보다 16.4명 적었지만(χ² = 5.24, P = 0.022), 같은 IMDC 위험군끼리 비교하면 7.1명 적을 뿐입니다. 층화하지 않은 비교에서는 예후가 좋은 favorable 환자가 약물 A에 많았기 때문에, 약 때문이 아닌 차이까지 약물 A의 이득처럼 보였던 것입니다. 이것이 <strong>교란</strong><span class="en">(confounding)</span>입니다(8장).</p>
-<p>층화 로그순위법은 층으로 쓴 변수 하나만 보정하고 효과의 크기도 주지 않습니다. 여러 교란변수를 함께 보정하고 위험비를 추정하려면 다변수 Cox 모형(11장)이나 성향점수 방법(15장)을 씁니다. 이 코호트에서 IMDC로 층화한 Cox 모형의 HR은 0.86(95% CI 0.65–1.14)입니다.</p>
+<p>층화 로그순위법도 P만 주고 효과의 크기는 주지 않습니다. 이 코호트에서 IMDC로 층화한 Cox 모형의 HR은 0.86(95% CI 0.65–1.14)입니다.</p>
 
-<div class="callout tip"><p class="ct">사회약학 연구에서는</p>
-<p>청구자료로 두 약을 비교한 논문의 첫 그림이 단순 Kaplan-Meier 곡선과 로그순위 P라면, 그것은 교란을 보정하지 않은 비교입니다. 처방 의사는 환자의 상태를 보고 약을 고르므로(적응증에 의한 교란, confounding by indication) 두 군의 예후가 처음부터 다를 가능성이 큽니다. 최근 약물역학 논문은 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이나 보정 생존곡선을 함께 제시합니다(11장, 15장). 그림 범례에 "unadjusted", "weighted", "adjusted" 중 무엇이 적혀 있는지 확인하세요.</p></div>
+<h3>O/E 비로 위험비 어림하기 <span class="lv deep">심화</span></h3>
+<p>군마다 관찰 사망 수(O)를 기대 사망 수(E)로 나눈 값의 비 (O<sub>A</sub>/E<sub>A</sub>) ÷ (O<sub>B</sub>/E<sub>B</sub>)는 로그순위 계산에서 바로 나오는 위험비의 간단한 근사입니다. 12명 자료에서는 (2/4.35) ÷ (5/2.65) = 0.24(Cox 모형 0.23), 300명 코호트에서는 0.73(Cox 모형 0.73)입니다. 효과가 크거나 두 군의 중도절단 양상이 다르면 부정확해질 수 있어 참고용입니다.</p>
 
-<h3>비례위험과 가중 로그순위 검정</h3>
-<p>로그순위법은 모든 사망 시점의 O − E를 똑같은 무게로 더합니다. 그래서 위험비가 시간에 관계없이 일정한 <strong>비례위험</strong><span class="en">(proportional hazards)</span> 상황에서 검정력이 가장 높습니다<cite data-ref="peto1972"></cite>. 곡선이 교차하거나 차이가 늦게 나타나면 사정이 달라집니다. 시기마다 다른 차이가 서로 상쇄되거나 묻혀서 로그순위 P나 위험비 같은 요약값 하나로는 부족하므로, 곡선 자체와 여러 시점의 생존율, RMST를 함께 봅니다. 초반이나 후반의 차이에 무게를 두는 <strong>가중 로그순위 검정</strong><span class="en">(weighted log-rank test)</span>도 있지만, 어떤 검정을 쓸지는 자료를 보기 전에 정합니다.</p>
 <h3>가중치의 종류 <span class="lv deep">심화</span></h3>
 <p>차이가 초반에만 있거나 후반에만 있을 때는 시점마다 O − E에 가중치를 곱해 더하는 가중 로그순위 검정을 쓸 수 있습니다. 가중치가 모두 1이면 보통의 로그순위 검정이고, 초반 사건에 큰 가중치를 주면 초반 차이에, 후반 사건에 큰 가중치를 주면 후반 차이에 민감해집니다(식은 '수식으로 보기'). 검정 이름은 가중치를 두는 방식의 차이이므로, '초반에 무게'(Gehan-Breslow, Tarone-Ware, Peto-Peto)와 '후반에 무게'(Fleming-Harrington(0,1))로만 구분해도 충분합니다.</p>
 <div class="tbl-wrap"><table class="tbl">
@@ -714,7 +874,7 @@ dtype: float64</pre></div></div>
 </ol>
 </div></div>
 
-<h3>Methods의 생존분석 문단</h3>
+<h3>Methods의 생존분석 문단 <span class="lv deep">심화</span></h3>
 <p>지금까지 다룬 방법은 논문의 Methods에서 보통 한 문단으로 정리됩니다. 300명 코호트 연구라면 다음과 같습니다.</p>
 
 <div class="paper">
@@ -732,21 +892,22 @@ dtype: float64</pre></div></div>
 </ol>
 </div></div>
 
-<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
-<li><strong>고르는 기준</strong>: 두 군 이상의 생존곡선을 비교하는 주 검정은 보통 가중치 없는 로그순위법입니다. 효과가 늦게 나타나거나 초반에 몰릴 근거가 있으면 가중 로그순위 검정이나 RMST 차이를 계획서에 미리 주 분석으로 정합니다. 로그순위법은 효과의 크기를 주지 않으므로 위험비(11장)나 RMST 차이를 함께 계획합니다. 순서가 있는 세 군 이상이면 추세 검정을 고려합니다(접힌 '세 군 이상의 비교와 추세 검정').</li>
-<li><strong>교란과 보정</strong>: 관찰연구(청구자료, 병원 코호트)에서 로그순위 P는 보정하지 않은 비교입니다. 교란변수가 한두 개의 범주형 변수라면 층화 로그순위법으로 확인할 수 있지만, 여러 변수를 함께 보정하고 효과의 크기까지 얻으려면 다변수 Cox 모형(11장)이나 성향점수 매칭·역확률 가중치(IPTW, 15장)를 씁니다. IPTW를 썼다면 가중 Kaplan-Meier 곡선을 그리고 가중 Cox 모형으로 위험비를 추정합니다. 측정하지 않은 교란, 불멸시간, 정보적 중도절단은 어떤 보정으로도 해결되지 않으므로 설계 단계에서 막고 한계로 적습니다.</li>
-<li><strong>보고할 것</strong>: 군별 대상자 수와 사건 수, 로그순위 P(층화했다면 층 변수), 효과의 크기와 95% CI(위험비, RMST 차이, 미리 정한 시점의 생존율 차이), 미리 정한 주 검정, 보정 여부(unadjusted, stratified, weighted, adjusted).</li>
-</ul></div>
-
+<h3>생존 비교에서 자주 보는 잘못 <span class="lv deep">심화</span></h3>
 <div class="callout warn"><p class="ct">흔한 오해 · 생존 비교에서 자주 보는 잘못</p>
 <ul>
 <li><span class="wrong">한 시점의 생존 여부를 카이제곱 검정으로 비교하면 충분하다.</span> "2년 시점의 생존/사망"을 2 × 2 표로 만들면 2년 전에 중도절단된 환자를 빼거나 생존자로 세야 해서 가 절의 편향이 생깁니다. 게다가 어느 시점을 고르느냐에 따라 결론이 바뀝니다. 300명 코호트에서 Kaplan-Meier 생존율 차이를 시점별로 검정하면 12개월 P = 0.25, 24개월 P = 0.005, 48개월 P = 0.058입니다. 특정 시점 비교가 필요하면 그 시점을 미리 정하고 Kaplan-Meier 추정값과 표준오차로 비교하며, 곡선 전체는 로그순위법으로 비교합니다.</li>
 <li><span class="wrong">로그순위 P &lt; 0.001이므로 생존 차이가 크다.</span> P는 차이의 크기와 사건 수를 함께 반영합니다. 300명 코호트와 똑같은 곡선이라도 환자가 10배 많으면 χ²가 약 10배(52.8)가 되어 P &lt; 0.001이 됩니다. 청구자료처럼 큰 자료에서는 임상적으로 의미 없는 차이도 매우 작은 P를 냅니다. 효과의 크기(생존율 차이, RMST 차이, 위험비)를 봅니다.</li>
-<li><span class="wrong">로그순위 검정이 유의하지 않으므로 두 치료의 생존은 같다.</span> 12명 자료처럼 사건이 적으면 검정력이 부족하고, 접힌 그림 7-9 (나)처럼 곡선이 교차하면 차이가 상쇄됩니다. 곡선의 모양과 신뢰구간을 함께 봅니다.</li>
+<li><span class="wrong">로그순위 검정이 유의하지 않으므로 두 치료의 생존은 같다.</span> 12명 자료처럼 사건이 적으면 검정력이 부족하고, 위 그림 7-9 (나)처럼 곡선이 교차하면 차이가 상쇄됩니다. 곡선의 모양과 신뢰구간을 함께 봅니다.</li>
 <li><span class="wrong">추적기간이 짧은 환자는 정보가 부족하니 분석에서 뺀다.</span> "6개월 이상 추적된 환자만 포함"하면 6개월 안에 사망한 환자가 빠져 생존율이 과대추정됩니다. 추적기간은 결과이므로 대상자 선정 기준으로 쓰면 안 됩니다. 짧게 추적된 환자도 중도절단 전까지의 정보를 Kaplan-Meier와 로그순위법에 보탭니다.</li>
 </ul></div>
 
-<!--FOLD:파이썬 출력에서는 이렇게 보입니다 · lifelines의 logrank_test-->
+<h3>내 연구에 쓸 때 <span class="lv deep">심화</span></h3>
+<div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
+<li><strong>고르는 기준</strong>: 두 군 이상의 생존곡선을 비교하는 주 검정은 보통 가중치 없는 로그순위법입니다. 효과가 늦게 나타나거나 초반에 몰릴 근거가 있으면 가중 로그순위 검정이나 RMST 차이를 계획서에 미리 주 분석으로 정합니다. 로그순위법은 효과의 크기를 주지 않으므로 위험비(11장)나 RMST 차이를 함께 계획합니다. 순서가 있는 세 군 이상이면 추세 검정을 고려합니다(위 '세 군 이상의 비교와 추세 검정').</li>
+<li><strong>교란과 보정</strong>: IPTW를 썼다면 가중 Kaplan-Meier 곡선을 그리고 가중 Cox 모형으로 위험비를 추정합니다. 측정하지 않은 교란, 불멸시간, 정보적 중도절단은 어떤 보정으로도 해결되지 않으므로 설계 단계에서 막고 한계로 적습니다.</li>
+</ul></div>
+
+<h3>lifelines의 logrank_test 출력 <span class="lv deep">심화</span></h3>
 <div class="paper">
 <div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · lifelines의 logrank_test</b><span>가상의 예시</span></div>
 <div class="paper-b">
@@ -801,46 +962,13 @@ chi2_300 = (100 - 116.36) ** 2 / 51.10
 print(round(chi2_300, 2), round(stats.chi2.sf(chi2_300, df=1), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>2 4.35 1.539 3.59 0.058
 5.24 0.0221</pre></div></div>
 <p>첫 줄은 표 7-3의 합계(관찰 사망 2, 기대 사망 4.35, V 1.539, χ² 3.59, P 0.058)와 같고, 둘째 줄은 lifelines 출력의 5.24와 0.0221을 요약값만으로 다시 구한 것입니다. <code>time &gt;= t</code>는 "t 시점까지 사건도 중도절단도 없던 사람"을 True로 표시해 위험집합을 만들고, <code>&amp;</code>는 두 조건을 모두 만족하는 사람만 고릅니다.</p>
-<!--/FOLD-->
-
-<h3>논문에서 읽어 보기</h3>
-<p>이 절에서 계산한 로그순위 P와 층화 분석이 논문의 결과표에서는 어떻게 함께 보고되는지 확인합니다. 300명 코호트의 전체 생존 결과를 정리한 Table 2입니다. 로그순위 P가 어디에 적혀 있는지, 그리고 보정하지 않은 결과와 IMDC 위험군으로 층화한 결과가 어떻게 다른지 보세요.</p>
-
-<div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 생존 결과표</b><span>가상의 예시</span></div>
-<div class="paper-b">
-<div class="tbl-wrap"><table class="jt">
-<caption><b>Table 2.</b> Overall survival according to first-line treatment</caption>
-<thead><tr><th>Outcome</th><th class="r">Drug A<br>(n = 152)</th><th class="r">Drug B<br>(n = 148)</th></tr></thead>
-<tbody>
-<tr><td><span class="mk">1</span> Deaths, n (%)</td><td class="r">100 (65.8)</td><td class="r">110 (74.3)</td></tr>
-<tr><td><span class="mk">2</span> Median OS, months (95% CI)</td><td class="r">32.4 (21.7–39.7)</td><td class="r">19.3 (15.7–23.7)</td></tr>
-<tr><td>OS rate, % (95% CI)</td><td class="r"></td><td class="r"></td></tr>
-<tr><td class="ind">1 year</td><td class="r">71.8 (63.8–78.3)</td><td class="r">65.6 (57.3–72.7)</td></tr>
-<tr><td class="ind">2 years</td><td class="r">56.6 (48.1–64.1)</td><td class="r">40.4 (32.3–48.3)</td></tr>
-<tr><td class="ind">3 years</td><td class="r">44.0 (35.6–52.1)</td><td class="r">27.8 (20.6–35.5)</td></tr>
-<tr class="grp"><td colspan="3">Unadjusted</td></tr>
-<tr><td class="ind"><span class="mk">3</span> Hazard ratio (95% CI)<sup>a</sup></td><td class="r">0.73 (0.55–0.96)</td><td class="r">1 (reference)</td></tr>
-<tr><td class="ind"><span class="mk">4</span> P value<sup>b</sup></td><td class="c" colspan="2">0.022</td></tr>
-<tr class="grp"><td colspan="3">Stratified by IMDC risk group</td></tr>
-<tr><td class="ind">Hazard ratio (95% CI)<sup>c</sup></td><td class="r">0.86 (0.65–1.14)</td><td class="r">1 (reference)</td></tr>
-<tr><td class="ind"><span class="mk">5</span> P value<sup>d</sup></td><td class="c" colspan="2">0.31</td></tr>
-</tbody></table></div>
-<p class="jt-foot">OS, overall survival; IMDC, International Metastatic Renal Cell Carcinoma Database Consortium. Survival rates were estimated with the Kaplan–Meier method, and CIs were calculated with a log-log transformation. <sup>a</sup> Cox proportional-hazards model. <sup>b</sup> Log-rank test. <sup>c</sup> Cox model stratified by IMDC risk group. <sup>d</sup> Stratified log-rank test.</p>
-<ol class="marks">
-<li><span class="mk">1</span><span><b>사망자 수와 비율.</b> 65.8% 대 74.3%는 추적 기간 전체에서 사망이 관찰된 비율입니다. 환자마다 추적 기간이 다르므로 이 비율을 '사망 위험'으로 비교하면 안 되고, 아래의 Kaplan-Meier 생존율이나 인년당 사망률로 봐야 합니다. 다만 사건 수(100, 110)는 결과의 정밀도를 가늠하는 데 중요합니다.</span></li>
-<li><span class="mk">2</span><span><b>중앙생존기간과 시점별 생존율.</b> 모두 Kaplan-Meier 곡선(그림 7-6)에서 읽은 값입니다. 1년 생존율은 71.8% 대 65.6%로 차이가 작지만 2·3년에는 16%p 정도로 벌어집니다. 어느 한 시점만 골라 보고하면 인상이 크게 달라진다는 뜻입니다(위 '생존 비교에서 자주 보는 잘못' 상자).</span></li>
-<li><span class="mk">3</span><span><b>위험비.</b> Cox 모형에서 나온 효과의 크기입니다(11장). 약물 B가 기준(1)이며, HR 0.73은 약물 A의 순간 사망 속도가 0.73배라는 뜻입니다. 3년 사망 위험이 27% 낮다는 뜻은 아닙니다(위 '위험비를 위험의 비로 읽기' 상자).</span></li>
-<li><span class="mk">4</span><span><b>로그순위 P.</b> 두 곡선 전체가 같은지에 대한 검정입니다. Cox 모형 HR의 Wald 검정 P(0.023)와 거의 같아서, 많은 논문이 두 값 중 하나만 표에 적습니다. P가 두 열에 걸쳐 하나만 적힌 것은 군 사이의 비교에 대한 값이기 때문입니다.</span></li>
-<li><span class="mk">5</span><span><b>층화 분석.</b> IMDC 위험군 안에서 비교하면 HR은 0.86으로 1에 가까워지고 P는 0.31이 됩니다. 보정하지 않은 차이의 상당 부분이 위험군 분포의 차이에서 왔다는 뜻입니다(위 '층화 로그순위법'). 저자가 보정 전 결과만 강조했다면 결론을 조심스럽게 읽어야 합니다. 반대로 층화 결과가 유의하지 않다고 효과가 없다는 증거도 아닙니다. 신뢰구간(0.65–1.14)이 의미 있는 이득과 해로움을 모두 포함합니다.</span></li>
-</ol>
-</div></div>
 
 <h3>수식으로 보기 <span class="lv deep">심화</span></h3>
 <p class="math-note">계산 원리가 궁금할 때 읽는 부분입니다. 건너뛰어도 논문을 읽는 데는 지장이 없습니다.</p>
 <p>두 군 로그순위 검정의 통계량은 O − E의 합을 그 분산으로 표준화해 제곱한 것입니다.</p>
 <div class="eq">\[ \chi^2 = \frac{(O_A - E_A)^2}{V} = \frac{(2 - 4.350)^2}{1.539} = 3.59, \qquad \text{자유도 } 1,\quad P = 0.058 \]
 <p>\(E_{A,j} = d_j \cdot n_{A,j}/n_j\), \(V_j = d_j \cdot \frac{n_{A,j}}{n_j} \cdot \frac{n_{B,j}}{n_j} \cdot \frac{n_j - d_j}{n_j - 1}\)이고, \(E_A = \sum_j E_{A,j}\), \(V = \sum_j V_j\)입니다(\(V_j\)는 초기하분포의 분산). 자유도는 군의 수 − 1입니다. O<sub>A</sub> − E<sub>A</sub>와 O<sub>B</sub> − E<sub>B</sub>는 부호만 반대이므로 한쪽만 계산하면 됩니다.</p></div>
+<p>사망 시점마다 만든 2 × 2 표를 층으로 보고 하나로 합친다는 점에서, 여러 층의 2 × 2 표를 합치는 Mantel-Haenszel 방법(8장 바 절)과 같은 구조입니다.</p>
 <p>로그순위 검정은 Cox 모형에 군 변수 하나만 넣었을 때의 점수 검정<span class="en">(score test)</span>과 사실상 같은 검정입니다(동점이 없으면 정확히 같음, 점수 검정은 <a href="#ch08-s5">8장 마 절</a>). 그래서 논문은 Cox 모형의 위험비와 로그순위 P를 나란히 적습니다.</p>
 <p>교과서와 오래된 논문에는 분산 대신 기대값을 쓰는 근사식 \(\sum (O-E)^2/E = (2-4.35)^2/4.35 + (5-2.65)^2/2.65 = 1.27 + 2.08 = 3.35\)(P = 0.067)도 나옵니다<cite data-ref="bland2004logrank"></cite>. 손으로 계산하기 쉽지만 χ²가 약간 작게 나오는 보수적인 근사이고, 통계 프로그램은 분산을 쓴 앞의 식으로 계산합니다.</p>
 <p>층화 로그순위법은 층마다 구한 O − E와 V를 더한 뒤 같은 형태로 계산합니다.</p>
@@ -850,24 +978,4 @@ print(round(chi2_300, 2), round(stats.chi2.sf(chi2_300, df=1), 4))</code></pre><
 <div class="eq">\[ \chi^2_w = \frac{\left(\sum_j w_j\,(O_{A,j} - E_{A,j})\right)^2}{\sum_j w_j^2\, V_j} \]
 <p>\(w_j = 1\)이면 보통의 로그순위 검정입니다.</p></div>
 <p>파이썬 lifelines의 <code>weightings="peto"</code>는 S(t<sub>j</sub>−) 대신 Peto와 Peto가 제안한 수정 추정값 \(\tilde S(t_j) = \prod_{t_k \le t_j} \{1 - d_k/(n_k + 1)\}\)을 가중치로 씁니다. 두 가중치는 거의 같아 결론이 달라지는 일은 드물지만 끝자리가 조금 다를 수 있습니다(표 7-5 (나)에서 P = 0.164 대 0.165). 이 장의 Peto-Peto 값은 S(t<sub>j</sub>−)를 쓴 것이고, lifelines에서는 Fleming-Harrington(1, 0)으로 지정하면 같은 값을 얻습니다. ρ 하나로 된 가중치 계열은 Harrington과 Fleming이 1982년에 제안했고<cite data-ref="harrington1982"></cite>, ρ와 γ 두 모수로 확장한 형태는 이후 교과서에서 정리되었습니다<cite data-ref="fleming1991"></cite>.</p>
-
-<p class="lab-link">파이썬 실습 · <a href="#lab07">실습 7</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
-<div class="keypoints"><p class="kt">정리</p><ul>
-<li>로그순위법은 사망 시점마다 관찰 사망(O)과 기대 사망(E)을 비교해 더하고, χ² = (O − E)²/V(자유도 = 군의 수 − 1)로 곡선 전체가 같은지 검정합니다.</li>
-<li>결과는 P 값뿐입니다. 차이의 크기는 위험비(Cox 모형, 11장), 생존율·중앙생존기간·RMST의 차이로 따로 제시하며, 위험비는 누적 위험의 비가 아닙니다.</li>
-<li>관찰연구의 단순 Kaplan-Meier 곡선과 로그순위 P는 교란을 보정하지 않은 결과입니다. 층화 로그순위법은 층 변수 하나 안에서 비교하고, 여러 교란변수의 보정과 효과 크기는 Cox 모형(11장)이나 성향점수 방법(15장)으로 구합니다.</li>
-<li>로그순위법은 비례위험일 때 검정력이 가장 높습니다. 곡선이 교차하거나 차이가 늦게 나타나면 로그순위 P 하나로 요약되지 않으므로 곡선과 여러 시점의 생존율을 함께 봅니다. 어떤 검정을 쓸지는 미리 정합니다.</li>
-<li>한 시점의 χ² 비교, 짧게 추적된 환자 제외는 피합니다.</li>
-<li>가중 로그순위 검정(Peto-Peto, Fleming-Harrington)과 세 군 이상의 추세 검정은 접힌 심화에서 다룹니다.</li>
-</ul></div>
-<div class="practice"><p class="pt">스스로 확인하기</p>
-<ol>
-<li><p><span class="qt">계산</span>비례위험이 성립하고 HR = 0.8이며, 대조군의 5년 사망 위험이 30%라고 합시다. 치료군의 5년 사망 위험과 5년 사망 위험의 비(상대위험도)는 얼마입니까? 비례위험이면 치료군의 생존확률은 대조군 생존확률을 HR만큼 거듭제곱한 값이고, 0.70<sup>0.8</sup> = 0.752입니다.</p>
-<details><summary>답과 풀이</summary><div><p>치료군의 5년 사망 위험은 1 − (1 − 0.30)<sup>0.8</sup> = 1 − 0.752 = 24.8%이고, 상대위험도는 24.8 ÷ 30 = 0.83입니다. 비례위험이면 치료군의 생존확률이 대조군 생존확률의 HR제곱(0.7<sup>0.8</sup>)이 되기 때문입니다. 따라서 5년 사망 위험은 20%가 아니라 약 17% 줄고, 위험차는 5.2%p입니다. HR을 그대로 위험의 비로 읽으면 효과를 과장하게 되며, 본문의 예(대조군 72.2%에서 HR 0.73이 상대위험도 0.84)처럼 사건이 흔할수록 두 값의 차이가 커집니다.</p></div></details></li>
-<li><p><span class="qt">해석 고치기</span>"로그순위 P = 0.03이므로 HR은 0.03이고, 치료군의 사망 위험이 97% 줄었다." 무엇이 틀렸고 어떻게 고쳐 써야 합니까?</p>
-<details><summary>답과 풀이</summary><div><p>P 값과 위험비는 다른 숫자입니다. 로그순위 P = 0.03은 "두 생존곡선이 같다면 이만큼 이상의 차이가 우연히 나올 확률이 3%"라는 뜻일 뿐 차이의 크기를 말하지 않습니다. 위험비는 Cox 모형으로 따로 추정하며, 이 장의 300명 코호트도 로그순위 P는 0.022였지만 HR은 0.73이었습니다. 또 HR은 순간 사망 속도의 비라서 "사망 위험이 몇 % 줄었다"로 바로 옮기면 안 됩니다(1번 문항). 고쳐 쓰면 "두 생존곡선의 차이는 로그순위 P = 0.03으로 우연으로 보기 어려웠고, 효과의 크기는 Cox 모형의 위험비와 95% CI, 미리 정한 시점의 생존율 차이로 제시했다"가 됩니다.</p></div></details></li>
-<li><p><span class="qt">분석 고르기</span>같은 '두 약의 전체 생존 비교' 주제에서 연구 상황만 다릅니다. 무엇을 먼저 구분해야 하고, 주 분석을 어떻게 정해야 합니까? (가) 무작위배정 3상 시험이고, 효과의 차이가 추적 기간 내내 비슷하게 유지될 것으로 예상 (나) 한 병원의 후향적 코호트이고, 예후가 나쁜 IMDC poor 환자가 한쪽 약에 더 많음 (다) 무작위배정 시험이지만 면역항암제라 처음 몇 달은 차이가 없다가 나중에 벌어질 것으로 예상</p>
-<details><summary>답과 풀이</summary><div><p>먼저 군 배정이 무작위인지(교란이 있는지)와 효과가 시간에 따라 일정할 것으로 예상하는지(비례위험)를 구분합니다. (가)는 가중치 없는 로그순위 검정을 주 검정으로 미리 정하고, 효과의 크기는 Cox 모형의 위험비로 제시합니다. (나)는 단순 로그순위 P에 IMDC 위험군 분포의 차이가 섞이므로, 교란변수가 IMDC 하나라면 층화 로그순위법, 여러 개라면 다변수 Cox 모형이나 성향점수 방법(11장, 15장)을 씁니다. (다)는 늦게 벌어지는 차이에 민감한 Fleming-Harrington(0,1) 같은 가중 검정(접힌 '가중치의 종류')이나 RMST 차이를 계획서에 주 분석으로 미리 정합니다. 어느 경우든 곡선을 본 뒤 가장 작은 P를 주는 검정을 고르면 다중비교 문제가 됩니다.</p></div></details></li>
-</ol></div>
-<p style="margin-top:1.2rem">PART 1의 방법은 여기까지입니다. 다음의 <a href="#rv01">분석 고르기 연습</a>에서 0–7장의 방법을 연구 상황에 맞춰 골라 봅니다.</p>
 </section>

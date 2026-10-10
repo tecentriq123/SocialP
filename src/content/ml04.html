@@ -312,7 +312,7 @@
 <ol class="lines">
 <li><code>RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=2026)</code><span>층화 5겹을 섞는 방법만 바꿔 다섯 번 되풀이하는 분할기입니다. 모두 25번의 (학습, 검증) 짝을 내놓습니다. 네 모형에 같은 객체를 넘겨 같은 25겹을 씁니다.</span></li>
 <li><code>def paired_t(d, corrected=True, ratio=1 / 4):</code><span>겹마다의 차이 <code>d</code>를 받아 t와 양측 p를 글자로 돌려주는 함수입니다. <code>corrected=False</code>면 보통의 짝지은 t(분산 ÷ 겹 수), True면 Nadeau–Bengio 보정입니다. <code>ratio</code>는 검증 겹 크기 ÷ 학습 겹 크기로, 5겹이면 1/4입니다.</span></li>
-<li><code>stats.t.sf(abs(t), J - 1)</code><span>자유도 J − 1인 t 분포에서 |t|보다 클 확률(한쪽 꼬리)입니다. 2를 곱해 양측 p를 냅니다(<a href="stats.html#ch01-s5">통계 1장 마 절</a>).</span></li>
+<li><code>stats.t.sf(abs(t), J - 1)</code><span>자유도 J − 1인 t 분포에서 |t|보다 클 확률(한쪽 꼬리)입니다. 2를 곱해 양측 p를 냅니다(<a href="stats.html#ch01-s5-check">통계 1장 마 절</a>).</span></li>
 <li><code>rep.plot.box()</code><span>열(모형)마다 25개 점수의 상자 그림을 그립니다. 상자는 사분위 범위, 가운데 선은 중앙값입니다(<a href="stats.html#ch01-s8">통계 1장 아 절</a>).</span></li>
 </ol>
 <h4>출력 읽기</h4>

@@ -128,7 +128,7 @@ import matplotlib.pyplot as plt</code><span>이 실습에 쓸 패키지를 모�
 </ol>
 
 <h3>잘못된 분석과 비교하기</h3>
-<p>같은 자료를 서로 다른 20명의 두 군처럼 독립표본 t 검정에 넣으면 어떻게 되는지 봅니다. 3장 가 절 '같은 자료를 독립표본으로 분석하면'과 같은 비교입니다.</p>
+<p>같은 자료를 서로 다른 20명의 두 군처럼 독립표본 t 검정에 넣으면 어떻게 되는지 봅니다. 3장 가 절 2단계 '숫자로 따라가기'의 끝에서 한 것과 같은 비교입니다.</p>
 <!--FIG:lab03_wrong-->
 <ol class="lines">
 <li><code>stats.ttest_ind(wide["drug2"], wide["drug1"])</code><span>독립표본 t 검정(scipy 기본값인 Student)입니다. 두 열이 서로 다른 사람들이라고 보고 짝 정보를 버립니다.</span></li>
@@ -176,9 +176,9 @@ import matplotlib.pyplot as plt</code><span>이 실습에 쓸 패키지를 모�
 <div class="paper-b">
 <p class="excerpt">In the 10 patients who received both drugs, mean extra sleep was <span class="mk">1</span> <span class="hl">0.75 ± 1.79 h with drug 1 and 2.33 ± 2.00 h with drug 2</span>. Drug 2 increased sleep by a mean of <span class="mk">2</span> <span class="hl">1.58 h more than drug 1 (95% CI, 0.70 to 2.46)</span>; <span class="mk">3</span> <span class="hl">paired t-test, t(9) = 4.06, P = .003</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>약별 평균 ± SD.</b> 각 약에서 환자 간 흩어짐입니다. 이 두 SD로는 차이의 신뢰구간을 계산할 수 없습니다. 두 값의 상관(0.795)이나 차이의 SD(1.23)가 필요합니다(3장 가 절의 Results 상자 3번).</span></li>
+<li><span class="mk">1</span><span><b>약별 평균 ± SD.</b> 각 약에서 환자 간 흩어짐입니다. 이 두 SD로는 차이의 신뢰구간을 계산할 수 없습니다. 두 값의 상관(0.795)이나 차이의 SD(1.23)가 필요합니다(3장 가 절 5단계 '논문에서 읽기'의 Results 상자 3번).</span></li>
 <li><span class="mk">2</span><span><b>환자 내 차이의 평균과 95% CI.</b> "drug 2 − drug 1" 방향이므로 양수는 약 2가 더 효과적이라는 뜻입니다. 신뢰구간은 <code>res.confidence_interval()</code>의 값입니다.</span></li>
-<li><span class="mk">3</span><span><b>t(9)와 P.</b> 자유도 9에서 분석된 쌍이 10개임을 알 수 있습니다. p = 0.0028을 반올림했습니다. 이 자료처럼 한 사람이 두 약을 모두 받는 교차설계는 복용 순서에 따른 시기 효과가 섞일 수 있어 순서군을 고려해 분석하는 것이 표준인데(3장 가 절 참고 상자), sleep 자료에는 복용 순서 정보가 없어 단순 대응 비교만 했습니다.</span></li>
+<li><span class="mk">3</span><span><b>t(9)와 P.</b> 자유도 9에서 분석된 쌍이 10개임을 알 수 있습니다. p = 0.0028을 반올림했습니다. 이 자료처럼 한 사람이 두 약을 모두 받는 교차설계는 복용 순서에 따른 시기 효과가 섞일 수 있어 순서군을 고려해 분석하는 것이 표준인데(3장 가 절 '더 알아보기'의 '교차설계를 분석할 때'), sleep 자료에는 복용 순서 정보가 없어 단순 대응 비교만 했습니다.</span></li>
 </ol>
 </div></div>
 

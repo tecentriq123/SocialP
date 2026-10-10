@@ -110,7 +110,7 @@
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>사망 165명, 중도절단 63명.</b> 논문의 Results 첫 문단에 들어가는 숫자입니다.</span></li>
-<li><span class="mk">2</span><span><b>72.4%는 '사망 위험'이 아닙니다.</b> 환자마다 추적 기간이 다르므로 이 비율은 추적을 오래 할수록 커집니다. 특정 시점의 사망 위험은 나 절의 Kaplan-Meier 추정값으로 봅니다(<a href="#ch07-s1">7장 가 절</a> '중도절단을 무시하면 생기는 일').</span></li>
+<li><span class="mk">2</span><span><b>72.4%는 '사망 위험'이 아닙니다.</b> 환자마다 추적 기간이 다르므로 이 비율은 추적을 오래 할수록 커집니다. 특정 시점의 사망 위험은 나 절의 Kaplan-Meier 추정값으로 봅니다(<a href="#ch07-s1">7장 가 절</a> 2단계 '숫자로 따라가기').</span></li>
 <li><span class="mk">3</span><span><b>총 190.5인년.</b> 228명이 평균 약 10개월씩 관찰된 양입니다.</span></li>
 <li><span class="mk">4</span><span><b>100인년당 86.6명.</b> 관찰한 시간 100인년마다 약 87명이 사망하는 속도로, 추적 기간의 차이를 반영한 빈도입니다. "100명을 1년 관찰하면 87명이 사망한다"는 뜻은 아닙니다. 사망한 환자는 그 뒤로 인년을 보태지 않으므로, 위험률이 일정하다고 가정해도 1년 안에 사망할 확률은 1 − e<sup>−0.866</sup> = 58%입니다(나 절 Kaplan-Meier의 1년 사망 59%와 비슷). 위험률이 시간에 따라 일정하다고 볼 때 이 값은 그 위험률(연 0.866)의 추정값이기도 합니다(<a href="#ch11-s1">11장</a> '위험률').</span></li>
 </ol>
@@ -257,7 +257,7 @@
 </ol>
 
 <h3>생존곡선 그리기</h3>
-<p>논문용 Kaplan-Meier 그림에는 신뢰구간, 중도절단 표시, 위험집합 표가 들어가는 것이 권장됩니다(<a href="#ch07-s2">7장 나 절</a> '논문의 Kaplan-Meier 그림 읽기'). lifelines는 세 가지를 모두 그릴 수 있습니다. 그림 안의 글자는 영어로 씁니다. Colab에는 한글 글꼴이 없어 한글이 네모로 보이기 때문입니다.</p>
+<p>논문용 Kaplan-Meier 그림에는 신뢰구간, 중도절단 표시, 위험집합 표가 들어가는 것이 권장됩니다(<a href="#ch07-s2">7장 나 절</a> 5단계 '논문에서 읽기'). lifelines는 세 가지를 모두 그릴 수 있습니다. 그림 안의 글자는 영어로 씁니다. Colab에는 한글 글꼴이 없어 한글이 네모로 보이기 때문입니다.</p>
 <!--FIG:lab07_kmplot-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -359,7 +359,7 @@
 </div></div>
 
 <div class="callout tip"><p class="ct">사회약학 연구에서는</p>
-<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(15장). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 가 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 가 절 '추적 종료 사유 표').</p></div>
+<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(15장). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 가 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 가 절 '더 알아보기'의 '청구자료에서 코호트 만들기'에 있는 '추적 종료 사유 표' 상자).</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>KaplanMeierFitter().fit(시간, 사건, label=…)</code> 한 번으로 <code>survival_function_</code>(곡선), <code>event_table</code>(위험집합·사망·중도절단), <code>median_survival_time_</code>, <code>confidence_interval_</code>을 얻습니다.</li>
@@ -472,7 +472,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>로그순위 χ² 10.33, P = 0.0013.</b> 앞의 결과와 같습니다.</span></li>
 <li><span class="mk">2</span><span><b>Peto-Peto χ² 12.71, P = 0.0004.</b> 초반에 무게를 두는 세 검정(Gehan-Breslow, Tarone-Ware, Peto-Peto)의 χ²가 모두 로그순위보다 큽니다. 두 곡선의 차이가 주로 추적 초중반에 있다는 뜻으로, 나 절 그림과 맞습니다.</span></li>
-<li><span class="mk">3</span><span><b>Fleming-Harrington(0,1) χ² 3.46, P = 0.063.</b> 후반에 무게를 두면 차이가 약해집니다. 곡선이 24개월 이후 가까워지고, 그 구간에는 환자가 몇 명 남지 않았기 때문입니다. 같은 자료라도 검정에 따라 P가 0.0004에서 0.063까지 달라지므로, 결과를 보고 검정을 고르면 다중비교 문제가 됩니다(<a href="#ch07-s3">7장 다 절</a> 주의 상자). 가중치의 세부 정의(예: Peto-Peto의 생존 추정값)는 프로그램마다 조금씩 달라, 같은 이름의 검정이라도 다른 프로그램과 끝자리가 다를 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>Fleming-Harrington(0,1) χ² 3.46, P = 0.063.</b> 후반에 무게를 두면 차이가 약해집니다. 곡선이 24개월 이후 가까워지고, 그 구간에는 환자가 몇 명 남지 않았기 때문입니다. 같은 자료라도 검정에 따라 P가 0.0004에서 0.063까지 달라지므로, 결과를 보고 검정을 고르면 다중비교 문제가 됩니다(<a href="#ch07-s3">7장 다 절</a> '더 알아보기'의 '검정에 따라 달라지는 결론'에 있는 주의 상자). 가중치의 세부 정의(예: Peto-Peto의 생존 추정값)는 프로그램마다 조금씩 달라, 같은 이름의 검정이라도 다른 프로그램과 끝자리가 다를 수 있습니다.</span></li>
 </ol>
 
 <div class="paper">
