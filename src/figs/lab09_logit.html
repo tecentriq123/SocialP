@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">다변수 로지스틱 회귀 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">다변수 로지스틱 회귀 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
 
 f = &quot;low ~ age + lwt + C(race) + smoke + ptd + ht + ui&quot;
 logit_m = smf.logit(f, data=bw).fit()     # 최대우도추정
@@ -10,8 +10,8 @@ print(logit_m.summary())</code></pre><div class="cell-out"><div class="cell-out-
 Dep. Variable:                    low   No. Observations:                  189       <span class="mk">3</span>
 Model:                          Logit   Df Residuals:                      180       <span class="mk">4</span>
 Method:                           MLE   Df Model:                            8       <span class="mk">5</span>
-Date:                Wed, 30 Sep 2026   Pseudo R-squ.:                  0.1612       <span class="mk">6</span>
-Time:                        02:24:55   Log-Likelihood:                -98.417       <span class="mk">7</span>
+Date:                Mon, 12 Oct 2026   Pseudo R-squ.:                  0.1612       <span class="mk">6</span>
+Time:                        09:10:59   Log-Likelihood:                -98.417       <span class="mk">7</span>
 converged:                       True   LL-Null:                       -117.34       <span class="mk">8</span><span class="mk">9</span>
 Covariance Type:            nonrobust   LLR p-value:                 8.064e-06       <span class="mk">10</span>
 ====================================================================================

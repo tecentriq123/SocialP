@@ -105,6 +105,7 @@ class Cell:
         self.images = []
         self.warns = []
         self.error = None
+        self.shell_out = ""
 
 
 class Notebook:
@@ -139,7 +140,8 @@ class Notebook:
                 if not expect_error:
                     raise
                 c.error = "".join(traceback.format_exception_only(type(e), e)).strip()
-        c.stdout = (shell_output.rstrip() + "\n" if shell_output else "") + buf.getvalue()
+        c.shell_out = (shell_output.rstrip() + "\n" if shell_output else "")
+        c.stdout = c.shell_out + buf.getvalue()
         if show_warnings:
             seen = set()
             for w in wl:
@@ -211,12 +213,25 @@ class Notebook:
         path = os.path.join(PUB, "notebooks", f"{self.lab}.ipynb")
         with open(path, "w", encoding="utf-8") as f:
             _json.dump(nbj, f, ensure_ascii=False, indent=1)
+        # 노트북 점검용 기대 출력 (tools/nbcheck.py가 새 프로세스에서 노트북만 돌려 이 값과 비교한다, 2026-10-12)
+        exp = [{"n": c.n, "title": c.title, "out": _expected_text(c)} for c in self.cells if c.n not in skip]
+        os.makedirs(os.path.join(ROOT, "checks"), exist_ok=True)
+        with open(os.path.join(ROOT, "checks", f"{self.lab}.expected.json"), "w", encoding="utf-8") as f:
+            _json.dump(exp, f, ensure_ascii=False, indent=1)
         return path
 
     def save_fragment(self, name, html_str):
         os.makedirs(FIGS, exist_ok=True)
         with open(os.path.join(FIGS, name + ".html"), "w", encoding="utf-8") as f:
             f.write(html_str)
+
+
+def _expected_text(c):
+    """셀이 화면에 낸 글(print 출력 + 마지막 식의 repr). 노트북 실행에서는 !pip 같은 셸 줄의 출력이 없으므로 뺀다."""
+    text = c.stdout[len(c.shell_out):]
+    if c.value_repr is not None:
+        text = text + ("\n" if text and not text.endswith("\n") else "") + c.value_repr
+    return text
 
 
 def _dedent(code):

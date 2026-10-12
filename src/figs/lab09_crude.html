@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">보정 전후 오즈비 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_ci(m):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">보정 전후 오즈비 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_ci(m):
     ci = np.exp(m.conf_int())
     f2 = &quot;{:.2f}&quot;.format
     return (np.exp(m.params).map(f2) + &quot; (&quot; + ci[0].map(f2)

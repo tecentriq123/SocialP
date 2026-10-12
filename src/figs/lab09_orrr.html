@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">흔한 결과에서 오즈비와 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = pd.crosstab(bw[&quot;smoke&quot;], bw[&quot;low&quot;])   # 행 smoke, 열 low
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">흔한 결과에서 오즈비와 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = pd.crosstab(bw[&quot;smoke&quot;], bw[&quot;low&quot;])   # 행 smoke, 열 low
 risk = tab[1] / tab.sum(axis=1)             # 저체중아 비율(위험)
 odds = tab[1] / tab[0]                      # 오즈
 print(tab)

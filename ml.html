@@ -207,6 +207,8 @@ details.rail-sub > ol { margin-left: 6px; padding-left: 6px; border-left: 1px so
 .onpage a { display: block; padding: 4px 0 4px 12px; margin-left: -1px; border-left: 2px solid transparent; color: var(--muted); text-decoration: none; line-height: 1.45; }
 .onpage a:hover { color: var(--ink); }
 .onpage a.on { color: var(--accent-ink); border-left-color: var(--accent); }
+.onpage ol.steps { border-left: 0; margin: 2px 0 6px; }
+.onpage ol.steps a { padding: 2px 0 2px 24px; font-size: 12.5px; }
 
 /* chapter header */
 .ch-head { margin-bottom: 36px; padding-bottom: 26px; border-bottom: 1px solid var(--line); }
@@ -288,6 +290,7 @@ table.tbl { border-collapse: collapse; width: 100%; font-size: 14.5px; line-heig
 .tbl td.r, .tbl th.r { text-align: right; font-variant-numeric: tabular-nums; }
 .tbl td.c, .tbl th.c { text-align: center; }
 .tbl .hi td { background: color-mix(in srgb, var(--s1) 8%, transparent); }
+@media (max-width: 620px) { .tbl.tight th, .tbl.tight td { padding: 8px 6px; } }
 .tbl-cap { font-size: 14px; color: var(--ink-2); margin: 0 0 8px; }
 .tbl-cap b { color: var(--ink); }
 /* journal-style table */
@@ -566,6 +569,9 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .route dl { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 6px 14px; margin: 0 0 10px; }
 .route dt { color: var(--muted); font-size: 13.5px; font-weight: 600; padding-top: 2px; }
 .route dd { margin: 0; color: var(--ink-2); }
+.route details.route-more { margin: -2px 0 12px; }
+.route details.route-more > summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent-ink); width: fit-content; }
+.route details.route-more > dl { margin: 10px 0 0; }
 .practice { margin-top: 26px; border: 1px solid var(--line); border-left: 3px solid var(--good); border-radius: 10px; background: var(--surface); padding: 14px 18px 6px; }
 .practice .pt { font-size: 13.5px; font-weight: 700; letter-spacing: .04em; color: var(--good); margin: 0 0 10px; }
 .article .practice ol { margin: 0 0 8px; padding-left: 1.3em; }
@@ -609,7 +615,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>미리 알아 둘 것</dt><dd>셀 실행과 pandas 기초(<a href="stats.html#lab00">실습 0</a>), 예측 확률과 C 통계량(<a href="stats.html#ch09-s1">통계 9장</a>의 '원인 모형과 예측모형'), scikit-learn으로 예측모형을 만들어 본 <a href="stats.html#lab09-s4">실습 9 라 절</a>. 실습 9 라 절을 해 보았다면 이 장의 절반은 아는 내용입니다.</dd>
+<dt>미리 알아 둘 것</dt><dd>셀 실행과 pandas 기초(<a href="stats.html#lab00">실습 0</a>), 예측 확률과 C 통계량(<a href="stats.html#ch09-s1">통계 9장</a> '더 알아보기'의 '예측모형의 판별'), scikit-learn으로 예측모형을 만들어 본 <a href="stats.html#lab09-s4">실습 9 라 절</a>. 실습 9 라 절을 해 보았다면 이 장의 절반은 아는 내용입니다.</dd>
 <dt>먼저 읽을 부분</dt><dd>절마다 '쉽게 말하면'과 '숫자로 따라가기'를 먼저 읽고 셀을 차례로 실행합니다. 가 절의 자료 설명 표와 나 절의 분할(셀 6)은 1–6장이 모두 그대로 쓰므로 꼭 봅니다.</dd>
 <dt>나중에 읽을 부분</dt><dd>접힌 '코드 한 줄씩'은 처음에는 모르는 줄만 펼칩니다. 마 절의 정밀도-재현율 곡선과 회귀 지표는 분류 장(1–4장)을 마치고 5장에 들어가기 전에 다시 읽어도 됩니다. 과제는 1장을 읽으며 풀어도 됩니다. 다 절의 <code>make_pipe</code>와 라 절의 교차검증은 이후 모든 장의 셀이 그대로 가져다 씁니다.</dd>
 <dt>이 장을 마치면</dt><dd>① 공통 자료를 불러와 특성과 목표를 나누고 이 과목의 분할로 학습 자료와 시험 자료를 만들 수 있다 ② 결측 대체, 원-핫 인코딩, 표준화를 모형과 하나의 파이프라인으로 묶고 자료 누수가 생기는 경우를 설명할 수 있다 ③ 교차검증으로 조절값을 고르고 시험 자료로 한 번 평가한 뒤, 분류는 AUC와 정밀도·재현율로, 회귀는 MAE·RMSE·R²로 결과를 읽을 수 있다</dd>
@@ -1625,7 +1631,7 @@ share of squared error from top 10: 0.432<span class="mk">3</span></pre></div></
 <div class="callout warn"><p class="ct">흔한 오해</p>
 <ul>
 <li><span class="wrong">정확도가 96.3%이므로 이 모형은 입원을 잘 예측한다.</span> 모두를 '입원 안 함'으로 예측해도 95.9%입니다. 드문 결과에서는 AUC, 정밀도, 재현율을 봅니다.</li>
-<li><span class="wrong">AUC 0.742는 환자의 74.2%를 맞게 분류한다는 뜻이다.</span> AUC는 입원자와 비입원자 한 쌍의 순서를 맞게 매길 확률입니다. 몇 명을 맞히는지는 임계값에 따라 다르며, 임계값 0.10에서 정확도는 92.6%, 0.5에서는 96.3%였습니다(<a href="stats.html#ch09-s1">통계 9장</a> '결과 읽기'의 '원인 모형과 예측모형').</li>
+<li><span class="wrong">AUC 0.742는 환자의 74.2%를 맞게 분류한다는 뜻이다.</span> AUC는 입원자와 비입원자 한 쌍의 순서를 맞게 매길 확률입니다. 몇 명을 맞히는지는 임계값에 따라 다르며, 임계값 0.10에서 정확도는 92.6%, 0.5에서는 96.3%였습니다(<a href="stats.html#ch09-s1">통계 9장</a> '더 알아보기'의 '예측모형의 판별').</li>
 </ul></div>
 
 <div class="paper">
@@ -9031,7 +9037,7 @@ function typesetNow() {
     return _idx;
   }
 
-  let spy = null;
+  let spy = null, stepSpy = null;
   function renderChapter(id, anchor, keepScroll) {
     const c = byId[id];
     if (!c || !c.ready) {
@@ -9054,7 +9060,8 @@ function typesetNow() {
           <p class="ch-no">${c.appendix ? "APPENDIX " + c.no : (c.lab ? "PYTHON LAB " + c.no : (c.review ? "PART 1 REVIEW" : "CHAPTER " + c.no))}</p>
           <h1>${esc(c.title)}</h1>
           <div id="leadSlot"></div>
-          ${secs.length > 1 ? `<nav class="ch-map" aria-label="이 장의 절">${secs.map(s => `<a href="#${s.id}">${esc(s.no)}. ${esc(s.title)}</a>`).join("")}</nav>` : ""}
+          ${secs.length > 1 ? `<nav class="ch-map" aria-label="이 장의 절">${secs.map(s => `<a href="#${s.id}">${esc(s.no)}. ${esc(s.title)}</a>`).join("")}</nav>`
+            : (secs.length === 1 && (secs[0].steps || []).length ? `<nav class="ch-map" aria-label="이 장의 단계">${secs[0].steps.map(t => `<a href="#${t.id}">${esc(t.title)}</a>`).join("")}</nav>` : "")}
         </header>
         <div id="body"></div>
         <nav class="pager" aria-label="이전·다음 장">
@@ -9062,7 +9069,7 @@ function typesetNow() {
           ${next ? `<a class="nx" href="#${next.id}"><small>다음 →</small><span>${numLabel(next)} ${esc(next.title)}</span></a>` : ""}
         </nav>
       </article>
-      <aside class="onpage">${secs.length ? `<h4>이 장의 구성</h4><ol>${secs.map(s => `<li><a href="#${s.id}" data-sec="${s.id}">${esc(s.no)}. ${esc(s.title)}</a></li>`).join("")}</ol>` : ""}</aside>
+      <aside class="onpage">${secs.length ? `<h4>이 장의 구성</h4><ol>${secs.map(s => `<li><a href="#${s.id}" data-sec="${s.id}">${esc(s.no)}. ${esc(s.title)}</a>${(s.steps || []).length ? `<ol class="steps">${s.steps.map(t => `<li><a href="#${t.id}" data-step="${t.id}">${esc(t.title)}</a></li>`).join("")}</ol>` : ""}</li>`).join("")}</ol>` : ""}</aside>
     </div>`;
     const body = document.getElementById("body");
     body.appendChild(tpl.content.cloneNode(true));
@@ -9080,6 +9087,17 @@ function typesetNow() {
         }
       }, { rootMargin: "-20% 0px -70% 0px" });
       body.querySelectorAll("section.sec").forEach(s => spy.observe(s));
+    }
+    // 절이 하나뿐인 장: 지금 읽는 단계도 표시한다
+    const stepLinks = [...document.querySelectorAll(".onpage a[data-step]")];
+    if (stepSpy) { stepSpy.disconnect(); stepSpy = null; }
+    if (stepLinks.length && "IntersectionObserver" in window) {
+      stepSpy = new IntersectionObserver(entries => {
+        for (const e of entries) if (e.isIntersecting) {
+          stepLinks.forEach(l => l.classList.toggle("on", l.dataset.step === e.target.id));
+        }
+      }, { rootMargin: "-10% 0px -80% 0px" });
+      stepLinks.forEach(l => { const h = document.getElementById(l.dataset.step); if (h) stepSpy.observe(h); });
     }
     if (keepScroll) return;
     if (anchor) {

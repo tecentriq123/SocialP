@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">영향력이 큰 관측값 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">영향력이 큰 관측값 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
 
 glm_m = smf.glm(f, data=bw, family=sm.families.Binomial()).fit()
 print(&quot;same coefficients:&quot;, np.allclose(glm_m.params, logit_m.params))

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">결과변수와 설명변수 코딩</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(bw[&quot;low&quot;].value_counts())                   # 1 = 저체중아
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">결과변수와 설명변수 코딩</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(bw[&quot;low&quot;].value_counts())                   # 1 = 저체중아
 print((bw[&quot;bwt&quot;] &lt; 2500).equals(bw[&quot;low&quot;] == 1))  # 정의 확인
 bw[&quot;race&quot;] = pd.Categorical(
     bw[&quot;race&quot;].map({1: &quot;white&quot;, 2: &quot;black&quot;, 3: &quot;other&quot;}),

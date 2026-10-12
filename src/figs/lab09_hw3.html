@@ -1,0 +1,54 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 34</span><span class="cell-t">과제 3 정답. 단변수 P로 변수를 고른 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">keep = []
+for t in terms:                                 # 셀 8의 일곱 변수
+    m1 = smf.logit(f&quot;low ~ {t}&quot;, data=bw).fit(disp=0)
+    p1 = m1.pvalues.drop(&quot;Intercept&quot;).min()     # 가변수가 둘이면 작은 쪽
+    print(f&quot;{t:8} univariable P = {p1:.3f}&quot;)
+    if p1 &lt; 0.05:
+        keep.append(t)
+
+f_sel = &quot;low ~ &quot; + &quot; + &quot;.join(keep)            # 동료가 고른 모형
+m_sel = smf.logit(f_sel, data=bw).fit(disp=0)
+print(f_sel)
+print(&quot;smoke, selected     :&quot;, or_per(m_sel, &quot;smoke&quot;, 1),
+      &quot; P =&quot;, round(m_sel.pvalues[&quot;smoke&quot;], 3))
+print(&quot;smoke, prespecified :&quot;, or_per(logit_m, &quot;smoke&quot;, 1))
+bw.groupby(&quot;race&quot;, observed=True)[[&quot;smoke&quot;, &quot;low&quot;]].mean().round(3)  # 인종별 비율</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>age      univariable P = 0.105
+lwt      univariable P = 0.023
+C(race)  univariable P = 0.067<span class="mk">1</span>
+smoke    univariable P = 0.028
+ptd      univariable P = 0.000
+ht       univariable P = 0.046
+ui       univariable P = 0.023
+low ~ lwt + smoke + ptd + ht + ui<span class="mk">2</span>
+smoke, selected     : [1.648 0.833 3.259]<span class="mk">3</span>  P = 0.151<span class="mk">4</span>
+smoke, prespecified : [2.331 1.048 5.187]<span class="mk">5</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>smoke</th>
+      <th>low</th>
+    </tr>
+    <tr>
+      <th>race</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>white</th>
+      <td>0.542<span class="mk">6</span></td>
+      <td>0.240<span class="mk">7</span></td>
+    </tr>
+    <tr>
+      <th>black</th>
+      <td>0.385</td>
+      <td>0.423</td>
+    </tr>
+    <tr>
+      <th>other</th>
+      <td>0.179</td>
+      <td>0.373</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

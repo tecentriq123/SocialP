@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">오즈비와 95% 신뢰구간 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = logit_m.conf_int()                  # 로그 오즈비의 95% CI
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">오즈비와 95% 신뢰구간 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = logit_m.conf_int()                  # 로그 오즈비의 95% CI
 or_tab = pd.DataFrame({
     &quot;OR&quot;: np.exp(logit_m.params),        # e^β = 오즈비
     &quot;lower&quot;: np.exp(ci[0]),

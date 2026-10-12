@@ -1,0 +1,112 @@
+[
+ {
+  "n": 1,
+  "title": "lifelines 설치",
+  "out": ""
+ },
+ {
+  "n": 2,
+  "title": "코호트 자료 불러오기",
+  "out": "(10000, 13)\n   id  drugA        age  female  ...  hosp_1y  hosp_day  injury_ed  frail\n0   1      0  72.366034       1  ...        0       365          0      0\n1   2      0  53.744701       0  ...        0       365          0      0\n2   3      0  68.328752       1  ...        1       349          0      0\n\n[3 rows x 13 columns]"
+ },
+ {
+  "n": 3,
+  "title": "보정 전 두 군의 기저특성과 입원 위험",
+  "out": "drugA\n0    5947\n1    4053\nName: count, dtype: int64\ncrude RR: 1.328\n            drug B  drug A\nage         64.467  67.855\nfemale       0.483   0.462\nhf           0.060   0.148\nckd          0.110   0.197\nprior_hosp   0.154   0.234\nn_drug       5.554   6.416\ntertiary     0.209   0.308\nhosp_1y      0.101   0.134"
+ },
+ {
+  "n": 4,
+  "title": "성향점수 모형 (로지스틱 회귀)",
+  "out": "                           Logit Regression Results                           \n==============================================================================\nDep. Variable:                  drugA   No. Observations:                10000\nModel:                          Logit   Df Residuals:                     9992\nMethod:                           MLE   Df Model:                            7\nDate:                Mon, 12 Oct 2026   Pseudo R-squ.:                 0.06109\nTime:                        09:04:54   Log-Likelihood:                -6338.6\nconverged:                       True   LL-Null:                       -6751.0\nCovariance Type:            nonrobust   LLR p-value:                8.337e-174\n==============================================================================\n                 coef    std err          z      P>|z|      [0.025      0.975]\n------------------------------------------------------------------------------\nIntercept     -2.9134      0.152    -19.167      0.000      -3.211      -2.616\nage            0.0265      0.002     11.590      0.000       0.022       0.031\nfemale        -0.0757      0.043     -1.779      0.075      -0.159       0.008\nhf             0.7566      0.074     10.209      0.000       0.611       0.902\nckd            0.4791      0.061      7.900      0.000       0.360       0.598\nprior_hosp     0.4717      0.054      8.711      0.000       0.366       0.578\nn_drug         0.0731      0.009      8.330      0.000       0.056       0.090\ntertiary       0.5593      0.048     11.554      0.000       0.464       0.654\n==============================================================================\n"
+ },
+ {
+  "n": 5,
+  "title": "환자별 성향점수와 C 통계량",
+  "out": "        mean    min    max\ndrugA                     \n0      0.372  0.130  0.896\n1      0.454  0.149  0.932\nC statistic: 0.658\ntwo patients: [0.881, 0.253]\n"
+ },
+ {
+  "n": 6,
+  "title": "두 군의 성향점수 분포와 겹침",
+  "out": "common range 0.149-0.896, outside: 13\n"
+ },
+ {
+  "n": 7,
+  "title": "로짓 성향점수와 caliper",
+  "out": "SD of logit PS: 0.616\ncaliper       : 0.123\n"
+ },
+ {
+  "n": 8,
+  "title": "1:1 최근접 매칭 함수",
+  "out": "3516 pairs\n   a_row  b_row\n0   8203    332\n1   3696   3072\n2   4978   1429"
+ },
+ {
+  "n": 9,
+  "title": "매칭 코호트 만들기",
+  "out": "matched A: 3516 of 4053 (86.8%)\nlargest distance in a pair: 0.122\n      pair    id  drugA     age  hf     ps\n332      0   333      0  61.397   0  0.315\n8203     0  8204      1  64.058   0  0.315\n3072     1  3073      0  65.210   0  0.435\n3696     1  3697      1  68.365   0  0.435"
+ },
+ {
+  "n": 10,
+  "title": "짝을 못 찾은 A 사용자는 누구인가",
+  "out": "unused B users: 2431\n            n     ps     age     hf  hosp_1y\nmatched                                     \n0         537  0.687  75.747  0.527    0.298\n1        3516  0.418  66.650  0.090    0.109"
+ },
+ {
+  "n": 11,
+  "title": "역확률 가중치와 안정화 가중치",
+  "out": "          w     sw\nmean  2.001  1.000\nmin   1.072  0.435\nmax   9.583  5.699\n             w      sw\ndrugA                 \n0       9975.0  5932.0\n1      10040.0  4069.0\n"
+ },
+ {
+  "n": 12,
+  "title": "표준화 평균차(SMD) 함수",
+  "out": "hf, before: 0.292\n"
+ },
+ {
+  "n": 13,
+  "title": "보정 전, 매칭 뒤, 가중 뒤의 균형 표",
+  "out": "before     0.346\nmatched    0.018\nIPTW       0.006\ndtype: float64\n            before  matched   IPTW\nage          0.346    0.004  0.006\nfemale       0.042    0.006  0.005\nhf           0.292    0.010  0.000\nckd          0.241    0.010  0.002\nprior_hosp   0.203    0.003  0.002\nn_drug       0.331    0.005  0.001\ntertiary     0.229    0.018  0.001"
+ },
+ {
+  "n": 14,
+  "title": "Love plot",
+  "out": ""
+ },
+ {
+  "n": 15,
+  "title": "세 분석의 입원 위험과 상대위험도",
+  "out": "         risk A  risk B      RR      RD\ncrude    0.1340  0.1009  1.3279  0.0331\nmatched  0.1089  0.1200  0.9076 -0.0111\nIPTW     0.1104  0.1158  0.9535 -0.0054"
+ },
+ {
+  "n": 16,
+  "title": "매칭 코호트의 상대위험도와 강건 신뢰구간",
+  "out": "==============================================================================\n                 coef    std err          z      P>|z|      [0.025      0.975]\n------------------------------------------------------------------------------\nIntercept     -2.1201      0.046    -46.427      0.000      -2.210      -2.031\ndrugA         -0.0970      0.066     -1.468      0.142      -0.226       0.032\n==============================================================================\nclusters: 3516  cov type: robust\nRR: 0.908  95% CI: [0.797, 1.033]\n"
+ },
+ {
+  "n": 17,
+  "title": "세 분석의 상대위험도와 매칭 코호트의 위험차",
+  "out": "            RR  lower  upper\ncrude    1.328  1.191  1.481\nmatched  0.908  0.797  1.033\nIPTW     0.953  0.848  1.072\nmatched RD (%p): -1.1 (-2.6, 0.4)\n"
+ },
+ {
+  "n": 18,
+  "title": "입원까지의 시간으로 본 위험비 (Cox 모형)",
+  "out": "            HR  lower  upper\ncrude    1.354  1.206  1.521\nmatched  0.903  0.787  1.036\nIPTW     0.952  0.841  1.077"
+ },
+ {
+  "n": 19,
+  "title": "측정하지 않은 변수와 음성 대조 결과",
+  "out": "frailty SMD (before, matched, IPTW): [0.4  0.34 0.33]\n       frail  injury_ed\ndrugA                  \n0      0.119      0.062\n1      0.249      0.080\nnegative control RR: [1.29 1.09 1.53]\n"
+ },
+ {
+  "n": 20,
+  "title": "과제 1 정답. E-value",
+  "out": "point estimate: 1.44\nrounded 0.91  : 1.43\nCI limit      : 1.0\ncrude         : 1.99 1.67\n"
+ },
+ {
+  "n": 21,
+  "title": "과제 2 정답. caliper 폭 바꾸기",
+  "out": "   caliper (SD)  pairs  share of A  max SMD     RR\n0          0.05   3502       0.864    0.025  0.898\n1          0.10   3509       0.866    0.017  0.900\n2          0.20   3516       0.868    0.018  0.908\n3          0.50   3575       0.882    0.021  0.928\n4          1.00   3719       0.918    0.048  0.966\n5           inf   4053       1.000    0.192  1.148"
+ },
+ {
+  "n": 22,
+  "title": "과제 3 정답. 심부전을 뺀 성향점수 모형",
+  "out": "hf SMD, full model: 0.000\nhf SMD, without hf: 0.206\nIPTW RR, without hf: [0.998 0.89  1.12 ]\nIPTW RR, full model: [0.953 0.848 1.072]\n"
+ }
+]

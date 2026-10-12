@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 33</span><span class="cell-t">과제 2 정답. 기준범주와 단위 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">bw[&quot;race_b&quot;] = pd.Categorical(bw[&quot;race&quot;],
+                              categories=[&quot;black&quot;, &quot;white&quot;, &quot;other&quot;])
+bw[&quot;lwt10&quot;] = bw[&quot;lwt&quot;] / 10                 # 체중을 10 lb 단위로
+f_b = &quot;low ~ age + lwt10 + C(race_b) + smoke + ptd + ht + ui&quot;
+m_b = smf.logit(f_b, data=bw).fit(disp=0)
+print(&quot;log-likelihood:&quot;, round(logit_m.llf, 3), round(m_b.llf, 3))
+print(&quot;same predictions:&quot;,
+      np.allclose(logit_m.predict(bw), m_b.predict(bw)))
+np.exp(m_b.params).round(3).rename(&quot;OR&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>log-likelihood: -98.417 -98.417<span class="mk">1</span>
+same predictions: True<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>6.358</td>
+    </tr>
+    <tr>
+      <th>C(race_b)[T.white]</th>
+      <td>0.297<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>C(race_b)[T.other]</th>
+      <td>0.665<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>0.963</td>
+    </tr>
+    <tr>
+      <th>lwt10</th>
+      <td>0.861<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <td>2.331<span class="mk">6</span></td>
+    </tr>
+    <tr>
+      <th>ptd</th>
+      <td>3.393</td>
+    </tr>
+    <tr>
+      <th>ht</th>
+      <td>6.288</td>
+    </tr>
+    <tr>
+      <th>ui</th>
+      <td>2.036</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

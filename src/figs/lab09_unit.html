@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">임상적으로 의미 있는 단위의 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_per(m, var, c):                  # c 단위당 오즈비와 95% CI
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">임상적으로 의미 있는 단위의 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_per(m, var, c):                  # c 단위당 오즈비와 95% CI
     est = m.params[var]                 # 1단위당 로그 오즈비
     lo, hi = m.conf_int().loc[var]      # 그 95% 신뢰구간
     return np.round(np.exp([c * est, c * lo, c * hi]), 3)

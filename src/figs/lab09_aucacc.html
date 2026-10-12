@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">AUC와 정확도는 다른 것을 잽니다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p_half = p_test / 2                        # 모든 확률을 절반으로
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">AUC와 정확도는 다른 것을 잽니다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p_half = p_test / 2                        # 모든 확률을 절반으로
 acc = lambda p: ((p &gt;= 0.5).astype(int) == y_test).mean()
 print(&quot;AUC     :&quot;, round(roc_auc_score(y_test, p_test), 4), &quot;-&gt;&quot;,
       round(roc_auc_score(y_test, p_half), 4))

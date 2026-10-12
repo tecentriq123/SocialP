@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">임계값별 민감도, 특이도, 정확도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def classify(t):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">임계값별 민감도, 특이도, 정확도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def classify(t):
     pred = (p_test &gt;= t).astype(int)         # 임계값 t 이상 = 악성
     tn, fp, fn, tp = confusion_matrix(y_test, pred).ravel()
     return {&quot;threshold&quot;: t, &quot;TP&quot;: tp, &quot;FN&quot;: fn, &quot;FP&quot;: fp, &quot;TN&quot;: tn,

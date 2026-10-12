@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">lwt의 로짓 선형성: 스플라인과 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">lwt의 로짓 선형성: 스플라인과 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
 
 f_sp = &quot;low ~ age + bs(lwt, df=4) + C(race) + smoke + ptd + ht + ui&quot;
 spline_m = smf.logit(f_sp, data=bw).fit(disp=0)

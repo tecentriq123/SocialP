@@ -410,6 +410,24 @@ def build():
         for s in c["sections"]:
             if f'id="{s["id"]}"' not in src:
                 print(f"WARNING: section {s['id']} missing in {c['id']}")
+        # 절이 하나뿐인 장(9장, 11장 등): 단계 소제목('1. …')과 '더 알아보기'에 id를 달고
+        # 오른쪽 '이 장의 구성'에 단계 링크로 보여 준다 (2026-10-12)
+        if len(c["sections"]) == 1:
+            sec = c["sections"][0]
+            steps = []
+
+            def step_id(m):
+                attrs, inner = m.group(1), m.group(2)
+                text = re.sub(r"<[^>]+>", "", inner).strip()
+                if "id=" in attrs or not (re.match(r"\d+\.\s", text) or text == "더 알아보기"):
+                    return m.group(0)
+                sid = f'{sec["id"]}-st{len(steps) + 1}'
+                steps.append({"id": sid, "title": text})
+                return f'<h3{attrs} id="{sid}">{inner}</h3>'
+
+            src = re.sub(r"<h3((?:\s[^>]*)?)>(.*?)</h3>", step_id, src, flags=re.S)
+            if steps:
+                sec["steps"] = steps
         body = collapse_lines(inject_real(c["id"], src))
         bodies[c["id"]] = body if NOFOLD else fold_deep(body)
     # refs flagged "append" are numbered after all others (keeps already published numbers stable)

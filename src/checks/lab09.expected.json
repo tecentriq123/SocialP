@@ -1,0 +1,167 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nstatsmodels  0.15.0\nscipy        1.18.1\nmatplotlib   3.11.2\nscikit-learn 1.9.1\n"
+ },
+ {
+  "n": 2,
+  "title": "출생체중 자료 불러오기",
+  "out": "(189, 11)\n   rownames  low  age  lwt  race  smoke  ptl  ht  ui  ftv   bwt\n0        85    0   19  182     2      0    0   0   1    0  2523\n1        86    0   33  155     3      0    0   0   0    3  2551\n2        87    0   20  105     1      1    0   0   0    1  2557\n3        88    0   21  108     1      1    0   0   1    2  2594\n4        89    0   18  107     1      1    0   0   1    0  2600"
+ },
+ {
+  "n": 3,
+  "title": "결과변수와 설명변수 코딩",
+  "out": "low\n0    130\n1     59\nName: count, dtype: int64\nTrue\nlow    0   1  All\nptl              \n0    118  41  159\n1      8  16   24\n2      3   2    5\n3      1   0    1\nAll  130  59  189"
+ },
+ {
+  "n": 4,
+  "title": "사건 수와 EPV",
+  "out": "events: 59  non-events: 130\nproportion: 0.312\nEPV = 7.4\n"
+ },
+ {
+  "n": 5,
+  "title": "다변수 로지스틱 회귀 적합",
+  "out": "Optimization terminated successfully.\n         Current function value: 0.520724\n         Iterations 6\n                           Logit Regression Results                           \n==============================================================================\nDep. Variable:                    low   No. Observations:                  189\nModel:                          Logit   Df Residuals:                      180\nMethod:                           MLE   Df Model:                            8\nDate:                Mon, 12 Oct 2026   Pseudo R-squ.:                  0.1612\nTime:                        09:52:21   Log-Likelihood:                -98.417\nconverged:                       True   LL-Null:                       -117.34\nCovariance Type:            nonrobust   LLR p-value:                 8.064e-06\n====================================================================================\n                       coef    std err          z      P>|z|      [0.025      0.975]\n------------------------------------------------------------------------------------\nIntercept            0.6369      1.230      0.518      0.605      -1.774       3.048\nC(race)[T.black]     1.2127      0.532      2.277      0.023       0.169       2.256\nC(race)[T.other]     0.8041      0.448      1.793      0.073      -0.075       1.683\nage                 -0.0377      0.038     -0.998      0.318      -0.112       0.036\nlwt                 -0.0149      0.007     -2.118      0.034      -0.029      -0.001\nsmoke                0.8464      0.408      2.074      0.038       0.047       1.646\nptd                  1.2218      0.463      2.639      0.008       0.314       2.129\nht                   1.8387      0.703      2.615      0.009       0.460       3.217\nui                   0.7111      0.463      1.536      0.125      -0.197       1.619\n====================================================================================\n"
+ },
+ {
+  "n": 6,
+  "title": "오즈비와 95% 신뢰구간 표",
+  "out": "                     OR  lower   upper      P\nC(race)[T.black]  3.363  1.184   9.549  0.023\nC(race)[T.other]  2.235  0.928   5.382  0.073\nage               0.963  0.894   1.037  0.318\nlwt               0.985  0.972   0.999  0.034\nsmoke             2.331  1.048   5.187  0.038\nptd               3.393  1.369   8.409  0.008\nht                6.288  1.585  24.954  0.009\nui                2.036  0.822   5.047  0.125"
+ },
+ {
+  "n": 7,
+  "title": "임상적으로 의미 있는 단위의 오즈비",
+  "out": "lwt per 10 lb, adjusted: [0.861 0.75  0.989]\nlwt per 10 lb, crude   : [0.869 0.77  0.981]\nage per 5 yr,  adjusted: [0.828 0.572 1.199]\nage per 5 yr,  crude   : [0.774 0.569 1.054]\n"
+ },
+ {
+  "n": 8,
+  "title": "보정 전후 오즈비 비교",
+  "out": "                     crude OR (95% CI)  adjusted OR (95% CI)\nage                0.95 (0.89 to 1.01)   0.96 (0.89 to 1.04)\nlwt                0.99 (0.97 to 1.00)   0.99 (0.97 to 1.00)\nC(race)[T.black]   2.33 (0.94 to 5.77)   3.36 (1.18 to 9.55)\nC(race)[T.other]   1.89 (0.96 to 3.74)   2.23 (0.93 to 5.38)\nsmoke              2.02 (1.08 to 3.78)   2.33 (1.05 to 5.19)\nptd                4.32 (1.92 to 9.73)   3.39 (1.37 to 8.41)\nht                3.37 (1.02 to 11.09)  6.29 (1.58 to 24.95)\nui                 2.58 (1.14 to 5.83)   2.04 (0.82 to 5.05)"
+ },
+ {
+  "n": 9,
+  "title": "예시 산모의 예측 확률",
+  "out": "   age  lwt   race  smoke  ptd  ht  ui  p_low\n0   25  120  white      0    0   0   0  0.109\n1   25  120  white      1    0   0   0  0.223\n2   20  100  black      0    1   0   1  0.823\n3   20  100  black      1    1   0   1  0.916"
+ },
+ {
+  "n": 10,
+  "title": "흔한 결과에서 오즈비와 상대위험도",
+  "out": "low     0   1\nsmoke        \n0      86  29\n1      44  30\nrisk: [0.252, 0.405]\nRR = 1.61   OR = 2.02\n"
+ },
+ {
+  "n": 11,
+  "title": "모형 기반 표준화로 보정 상대위험도 구하기",
+  "out": "standardized risk: smokers 0.404, non-smokers 0.252\nadjusted RR = 1.60, RD = 0.152\n"
+ },
+ {
+  "n": 13,
+  "title": "lwt의 로짓 선형성: 스플라인과 비교",
+  "out": "LR = 1.99, df = 3, P = 0.574\nAIC linear: 214.8  spline: 218.8\n"
+ },
+ {
+  "n": 14,
+  "title": "직선 모형과 스플라인 모형의 로그 오즈",
+  "out": ""
+ },
+ {
+  "n": 15,
+  "title": "영향력이 큰 관측값 찾기",
+  "out": "same coefficients: True\n     cooks_d  standard_resid  hat_diag  low  age  ...   race smoke  ptd  ht  ui\n12     0.048          -1.786     0.120    0   22  ...  other     0    0   1   0\n146    0.046           1.934     0.100    1   21  ...  black     0    0   0   1\n32     0.039          -1.587     0.123    0   35  ...  black     1    1   0   0\n131    0.032           2.381     0.049    1   29  ...  white     0    0   0   1\n182    0.032           3.252     0.027    1   26  ...  white     1    0   0   0\n\n[5 rows x 11 columns]"
+ },
+ {
+  "n": 16,
+  "title": "Cook의 거리 그림",
+  "out": ""
+ },
+ {
+  "n": 17,
+  "title": "가장 영향력이 큰 1명을 빼고 다시 적합",
+  "out": "                  OR all (n=189)  OR without 1\nC(race)[T.black]            3.36          3.43\nC(race)[T.other]            2.23          2.33\nage                         0.96          0.96\nlwt                         0.99          0.98\nsmoke                       2.33          2.26\nptd                         3.39          3.33\nht                          6.29          9.74\nui                          2.04          2.02"
+ },
+ {
+  "n": 18,
+  "title": "분리가 생기는 모형: ptl을 범주 그대로 넣으면",
+  "out": "Warning: Maximum number of iterations has been exceeded.\n         Current function value: 0.509138\n         Iterations: 35\n====================================================================================\n                       coef    std err          z      P>|z|      [0.025      0.975]\n------------------------------------------------------------------------------------\nIntercept            0.8494      1.254      0.677      0.498      -1.609       3.308\nC(race)[T.black]     1.1489      0.540      2.128      0.033       0.091       2.207\nC(race)[T.other]     0.7391      0.456      1.621      0.105      -0.155       1.633\nC(ptl)[T.1]          1.5773      0.526      3.001      0.003       0.547       2.607\nC(ptl)[T.2]          0.2992      0.983      0.305      0.761      -1.627       2.225\nC(ptl)[T.3]        -20.6486      3e+04     -0.001      0.999   -5.89e+04    5.89e+04\nage                 -0.0405      0.038     -1.054      0.292      -0.116       0.035\nlwt                 -0.0161      0.007     -2.230      0.026      -0.030      -0.002\nsmoke                0.8618      0.414      2.084      0.037       0.051       1.672\nht                   1.8669      0.714      2.616      0.009       0.468       3.266\nui                   0.8561      0.475      1.804      0.071      -0.074       1.786\n====================================================================================\nconverged: False\n"
+ },
+ {
+  "n": 19,
+  "title": "다중공선성: 분산팽창계수(VIF)",
+  "out": "C(race)[T.black]    1.20\nC(race)[T.other]    1.35\nage                 1.13\nlwt                 1.24\nsmoke               1.21\nptd                 1.12\nht                  1.08\nui                  1.07\nName: VIF, dtype: float64"
+ },
+ {
+  "n": 20,
+  "title": "유방암 자료 불러오기와 결과 코딩",
+  "out": "(569, 30)\n['malignant' 'benign']\ntarget\n1    357\n0    212\nName: count, dtype: int64\nmalignant (y = 1): 212  proportion: 0.373\n"
+ },
+ {
+  "n": 21,
+  "title": "훈련 자료와 시험 자료로 나누기",
+  "out": "(398, 30) (171, 30)\n0.372 0.374\n"
+ },
+ {
+  "n": 22,
+  "title": "표준화 + 로지스틱 회귀 모형 학습",
+  "out": "[0 1]\n"
+ },
+ {
+  "n": 23,
+  "title": "predict_proba 결과 살펴보기",
+  "out": "<class 'numpy.ndarray'> (171, 2)\n[[0.887 0.113]\n [0.998 0.002]\n [1.    0.   ]\n [0.997 0.003]\n [0.981 0.019]]\n[0.113 0.002 0.    0.003 0.019]\n[1. 1. 1. 1. 1.]\n"
+ },
+ {
+  "n": 24,
+  "title": "ROC 곡선과 AUC",
+  "out": "AUC = 0.9975\n"
+ },
+ {
+  "n": 25,
+  "title": "AUC의 부트스트랩 95% 신뢰구간",
+  "out": "1000 [0.992 1.   ]\n"
+ },
+ {
+  "n": 26,
+  "title": "혼동행렬",
+  "out": "[[106   1]\n [  4  60]]\n"
+ },
+ {
+  "n": 27,
+  "title": "임계값별 민감도, 특이도, 정확도",
+  "out": "   threshold  TP  FN  FP   TN  sensitivity  specificity  accuracy\n0        0.5  60   4   1  106        0.938        0.991     0.971\n1        0.2  63   1   3  104        0.984        0.972     0.977"
+ },
+ {
+  "n": 28,
+  "title": "교정 곡선",
+  "out": "mean predicted: [0.    0.002 0.034 0.768 1.   ]\nobserved      : [0.    0.    0.029 0.853 1.   ]\n"
+ },
+ {
+  "n": 29,
+  "title": "Brier 점수와 예측 확률의 분포",
+  "out": "Brier (model)    : 0.0187\nBrier (reference): 0.2342\n"
+ },
+ {
+  "n": 30,
+  "title": "AUC와 정확도는 다른 것을 잽니다",
+  "out": "AUC     : 0.9975 -> 0.9975\nBrier   : 0.0187 -> 0.1134\naccuracy: 0.971 -> 0.632\naccuracy if all benign: 0.626\n"
+ },
+ {
+  "n": 31,
+  "title": "statsmodels와 scikit-learn의 계수 비교",
+  "out": "                 statsmodels  sklearn C=1  sklearn C=1e6\nmean radius            5.047        3.704          5.047\nmean texture           1.786        1.337          1.786\nmean smoothness        2.247        1.680          2.248"
+ },
+ {
+  "n": 32,
+  "title": "과제 1 정답. 고혈압 병력의 오즈비 읽기",
+  "out": "low    0   1  All\nht               \n0    125  52  177\n1      5   7   12\nAll  130  59  189\nadjusted OR (95% CI): [6.29, 1.58, 24.95]\nstandardized risk: ht=1 0.646, ht=0 0.289\nadjusted RR = 2.24\n"
+ },
+ {
+  "n": 33,
+  "title": "과제 2 정답. 기준범주와 단위 바꾸기",
+  "out": "log-likelihood: -98.417 -98.417\nsame predictions: True\nIntercept             6.358\nC(race_b)[T.white]    0.297\nC(race_b)[T.other]    0.665\nage                   0.963\nlwt10                 0.861\nsmoke                 2.331\nptd                   3.393\nht                    6.288\nui                    2.036\nName: OR, dtype: float64"
+ },
+ {
+  "n": 34,
+  "title": "과제 3 정답. 단변수 P로 변수를 고른 분석",
+  "out": "age      univariable P = 0.105\nlwt      univariable P = 0.023\nC(race)  univariable P = 0.067\nsmoke    univariable P = 0.028\nptd      univariable P = 0.000\nht       univariable P = 0.046\nui       univariable P = 0.023\nlow ~ lwt + smoke + ptd + ht + ui\nsmoke, selected     : [1.648 0.833 3.259]  P = 0.151\nsmoke, prespecified : [2.331 1.048 5.187]\n       smoke    low\nrace               \nwhite  0.542  0.240\nblack  0.385  0.423\nother  0.179  0.373"
+ }
+]

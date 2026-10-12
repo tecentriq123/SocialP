@@ -1,0 +1,48 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">다중공선성: 분산팽창계수(VIF)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+Xd = logit_m.model.exog              # 설계행렬 (상수항 열 + 설명변수 8열)
+names = logit_m.model.exog_names     # 각 열의 이름
+vif = pd.Series([variance_inflation_factor(Xd, j)
+                 for j in range(Xd.shape[1])], index=names, name=&quot;VIF&quot;)
+vif.drop(&quot;Intercept&quot;).round(2)       # 상수항 행은 빼고 읽음</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>VIF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(race)[T.black]</th>
+      <td>1.20</td>
+    </tr>
+    <tr>
+      <th>C(race)[T.other]</th>
+      <td>1.35<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td>1.13</td>
+    </tr>
+    <tr>
+      <th>lwt</th>
+      <td>1.24</td>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <td>1.21</td>
+    </tr>
+    <tr>
+      <th>ptd</th>
+      <td>1.12</td>
+    </tr>
+    <tr>
+      <th>ht</th>
+      <td>1.08</td>
+    </tr>
+    <tr>
+      <th>ui</th>
+      <td>1.07<span class="mk">2</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">statsmodels와 scikit-learn의 계수 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cols3 = [&quot;mean radius&quot;, &quot;mean texture&quot;, &quot;mean smoothness&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">statsmodels와 scikit-learn의 계수 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cols3 = [&quot;mean radius&quot;, &quot;mean texture&quot;, &quot;mean smoothness&quot;]
 Z = StandardScaler().fit_transform(X_train[cols3])     # 표준화
 sm_fit = sm.Logit(y_train.to_numpy(), sm.add_constant(Z)).fit(disp=0)
 sk_c1 = LogisticRegression().fit(Z, y_train)            # 기본 C = 1

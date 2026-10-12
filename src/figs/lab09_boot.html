@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">AUC의 부트스트랩 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(2026)          # 난수 시드 고정
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">AUC의 부트스트랩 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(2026)          # 난수 시드 고정
 yt, aucs = y_test.to_numpy(), []
 for _ in range(1000):
     i = rng.integers(0, len(yt), len(yt))  # 복원추출한 행 번호

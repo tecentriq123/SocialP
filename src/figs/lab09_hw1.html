@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">과제 1 정답. 고혈압 병력의 오즈비 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(pd.crosstab(bw[&quot;ht&quot;], bw[&quot;low&quot;], margins=True))
+print(&quot;adjusted OR (95% CI):&quot;,
+      or_tab.loc[&quot;ht&quot;, [&quot;OR&quot;, &quot;lower&quot;, &quot;upper&quot;]].round(2).tolist())
+r_ht1 = logit_m.predict(bw.assign(ht=1)).mean()   # 모두 고혈압 병력이 있다면
+r_ht0 = logit_m.predict(bw.assign(ht=0)).mean()   # 모두 없다면
+print(f&quot;standardized risk: ht=1 {r_ht1:.3f}, ht=0 {r_ht0:.3f}&quot;)
+print(f&quot;adjusted RR = {r_ht1 / r_ht0:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>low    0   1  All
+ht               
+0    125  52  177
+1      5   7   12<span class="mk">1</span>
+All  130  59  189
+adjusted OR (95% CI): [6.29, 1.58, 24.95]<span class="mk">2</span>
+standardized risk: ht=1 0.646, ht=0 0.289<span class="mk">3</span>
+adjusted RR = 2.24<span class="mk">4</span></pre></div></div>

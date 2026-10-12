@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">분리가 생기는 모형: ptl을 범주 그대로 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f_ptl = &quot;low ~ age + lwt + C(race) + smoke + C(ptl) + ht + ui&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">분리가 생기는 모형: ptl을 범주 그대로 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f_ptl = &quot;low ~ age + lwt + C(race) + smoke + C(ptl) + ht + ui&quot;
 sep_m = smf.logit(f_ptl, data=bw).fit()
 print(sep_m.summary().tables[1])        # 계수 표만 출력
 print(&quot;converged:&quot;, sep_m.mle_retvals[&quot;converged&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Warning: Maximum number of iterations has been exceeded.                             <span class="mk">1</span>
