@@ -1,6 +1,7 @@
 """Build the site and copy it + the source into the GitHub working copy (/home/claude/socialp).
 - /home/claude/socialp/index.html, stats.html = deploy head + dist/<same name> + closing tags
 - /home/claude/socialp/src/         = this source tree (without dist/ and caches)
+- /home/claude/socialp/chapters/    = per-chapter JSON loaded on demand by the course pages
 Does not commit or push."""
 import os, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,4 +26,11 @@ for sub in ("data", "notebooks"):
         shutil.rmtree(dstd)
     if os.path.isdir(srcd) and os.listdir(srcd):
         shutil.copytree(srcd, dstd)
+# per-chapter data (split build): dist/chapters/<course>/<id>.json + search.json -> /chapters/...
+cd = os.path.join(ROOT, "dist", "chapters")
+dstc = os.path.join(REPO, "chapters")
+if os.path.exists(dstc):
+    shutil.rmtree(dstc)
+if os.path.isdir(cd):
+    shutil.copytree(cd, dstc)
 print("deployed to", REPO)

@@ -1,5 +1,6 @@
 """Assemble the site from shell.html + content/chXX.html + figs + refs:
 dist/stats.html (the course page) and dist/index.html (home, lists the courses)."""
+import hashlib, shutil
 import glob, json, os, re, html, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -383,6 +384,34 @@ def inject_real(cid, src):
     return src
 
 
+def search_index(bodies, by):
+    """검색용 본문: 절마다 {id, ch, title, text}. shell.html의 예전 searchIndex()와 같은 규칙으로 만든다
+    (그림 SVG·스크립트·코드 상자를 빼고, 수식 \\( … \\)·\\[ … \\]를 지운 뒤 공백을 하나로)."""
+    out = []
+    for cid, b in bodies.items():
+        c = by.get(cid)
+        if not c or not c.get("ready"):
+            continue
+        t = re.sub(r"<svg\b.*?</svg>|<script\b.*?</script>|<details class=\"code\b.*?</details>", " ", b, flags=re.S)
+        no = c.get("no", "")
+        if c.get("lab"):
+            label = f"실습 {int(no)} {c['title']}"
+        elif c.get("review"):
+            label = f"종합 {c['title']}"
+        elif c.get("appendix"):
+            label = f"부록 {no} {c['title']}"
+        else:
+            label = f"{int(no)}장 {c['title']}" if str(no).isdigit() else f"{no} {c['title']}"
+        for m in re.finditer(r'<section class="sec" id="([^"]+)">(.*?)</section>', t, flags=re.S):
+            sec = m.group(2)
+            hm = re.search(r"<h2\b[^>]*>(.*?)</h2>", sec, flags=re.S)
+            title = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", hm.group(1)))).strip() if hm else c["title"]
+            text = html.unescape(re.sub(r"<[^>]+>", "", sec))
+            text = re.sub(r"\\\(.*?\\\)|\\\[.*?\\\]", " ", text, flags=re.S)
+            out.append({"id": m.group(1), "ch": label, "title": title, "text": re.sub(r"\s+", " ", text).strip()})
+    return out
+
+
 def build():
     meta = chapter_meta()
     ready = [c for c in meta if c["ready"] and c["id"] != REFS_ID]
@@ -467,10 +496,29 @@ def build():
     )
     bodies[REFS_ID] = ref_body
 
-    tpls = "\n".join(f'<template id="tpl-{cid}">{b}</template>' for cid, b in bodies.items())
     shell = open(os.path.join(ROOT, "shell.html"), encoding="utf-8").read()
-    meta_json = json.dumps({"mode": "course", "course": COURSE, "chapters": meta, "groups": GROUPS, "guide": GUIDE},
-                           ensure_ascii=False)
+    page = {"mode": "course", "course": COURSE, "chapters": meta, "groups": GROUPS, "guide": GUIDE}
+    if SPLIT:
+        # 장마다 따로 받기 (2026-10-13): 한 파일 11 MB를 휴대폰이 한 번에 받다 끊기는 문제를 막는다.
+        # 장 내용은 dist/chapters/<과목>/<id>.json, 검색용 본문은 search.json으로 쓰고, 페이지에는 틀만 남긴다.
+        ddir = os.path.join(ROOT, "dist", "chapters", COURSE["key"])
+        if os.path.isdir(ddir):
+            shutil.rmtree(ddir)
+        os.makedirs(ddir)
+        by = {c["id"]: c for c in meta}
+        for cid, b in bodies.items():
+            data = json.dumps({"html": b}, ensure_ascii=False)
+            open(os.path.join(ddir, cid + ".json"), "w", encoding="utf-8").write(data)
+            if cid in by:
+                by[cid]["h"] = hashlib.sha1(data.encode("utf-8")).hexdigest()[:10]
+        sidx = json.dumps(search_index(bodies, by), ensure_ascii=False)
+        open(os.path.join(ddir, "search.json"), "w", encoding="utf-8").write(sidx)
+        page.update(split=True, data="chapters/%s/" % COURSE["key"],
+                    sh=hashlib.sha1(sidx.encode("utf-8")).hexdigest()[:10])
+        tpls = ""
+    else:
+        tpls = "\n".join(f'<template id="tpl-{cid}">{b}</template>' for cid, b in bodies.items())
+    meta_json = json.dumps(page, ensure_ascii=False)
     wjs, css = [], []
     for c in ready:
         wp = os.path.join(ROOT, "widgets", c["id"] + ".js")
@@ -484,7 +532,8 @@ def build():
     dst = OUT or os.path.join(ROOT, "dist", COURSE["file"])
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     open(dst, "w", encoding="utf-8").write(out)
-    print(f"built {dst}: {len(out) / 1024:.0f} KB, chapters ready: {[c['id'] for c in ready]}, refs: {len(order)}")
+    print(f"built {dst}: {len(out) / 1024:.0f} KB{' (split: chapters/' + COURSE['key'] + '/*.json)' if SPLIT else ''}, "
+          f"chapters ready: {[c['id'] for c in ready]}, refs: {len(order)}")
     return shell, meta
 
 
@@ -521,6 +570,7 @@ def build_home(shell, meta, ml_meta=None):
 
 OUT = None
 NOFOLD = False
+SPLIT = False
 STATS_CFG = None
 BOOKS = None
 
@@ -547,6 +597,7 @@ if __name__ == "__main__":
     ap.add_argument("--only", nargs="*", help="chapter ids to include, e.g. ch02 ch03")
     ap.add_argument("--out", help="output html path (default dist/index.html)")
     ap.add_argument("--nofold", action="store_true", help="do not collapse 심화 parts")
+    ap.add_argument("--inline", action="store_true", help="full build as one file per course (no chapters/*.json)")
     ap.add_argument("--course", default=None, help="stats | ml | all (default: all; with --only/--out: stats)")
     a = ap.parse_args()
     if a.course is None:
@@ -557,6 +608,8 @@ if __name__ == "__main__":
         OUT = a.out
     if a.nofold:
         NOFOLD = True
+    # 배포용 전체 빌드는 장을 따로 받는 방식, --only/--out(작업자 확인용) 빌드는 지금처럼 한 파일
+    SPLIT = not (a.only or a.out or a.inline)
     if a.course != "all":
         use_course(a.course)
         build()

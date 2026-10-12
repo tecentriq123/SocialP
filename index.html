@@ -802,14 +802,25 @@ function typesetNow() {
       <form class="search-box" id="sform"><input id="sq" type="search" placeholder="검색어 입력" autocomplete="off" aria-label="검색어"></form>
       <ul class="results" id="sres"></ul></div>`;
     const input = document.getElementById("sq");
-    const run = () => {
+    let runSeq = 0;
+    const run = async () => {
+      const seq = ++runSeq;
       const terms = input.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
       const out = document.getElementById("sres");
+      let index;
+      try {
+        if (terms.length && META.split && !_idx) out.innerHTML = '<li><p>검색할 본문을 불러오는 중입니다…</p></li>';
+        index = terms.length ? await searchIndexAsync() : [];
+      } catch (e) {
+        out.innerHTML = '<li><p>검색할 본문을 불러오지 못했습니다. 연결을 확인하고 검색어를 다시 입력해 주세요.</p></li>';
+        return;
+      }
+      if (seq !== runSeq) return;
       // 검색어를 주소에 남겨 둔다: 결과를 눌렀다가 뒤로 오면 같은 검색 결과가 다시 보인다
       try { history.replaceState(history.state, "", "#search" + (input.value.trim() ? "/" + encodeURIComponent(input.value.trim()) : "")); } catch (e) {}
       if (!terms.length) { out.innerHTML = ""; return; }
       const hits = [];
-      for (const it of searchIndex()) {
+      for (const it of index) {
         const low = it.text.toLowerCase();
         if (terms.every(t => low.includes(t) || it.title.toLowerCase().includes(t))) {
           const i = Math.max(0, low.indexOf(terms[0]));
@@ -828,7 +839,15 @@ function typesetNow() {
     input.focus();
   }
 
-  let _idx = null;
+  let _idx = null, _idxP = null;
+  // 장을 따로 받는 배포판(META.split)은 빌드 때 만든 search.json을 받아 쓴다
+  function searchIndexAsync() {
+    if (!META.split) return Promise.resolve(searchIndex());
+    if (_idx) return Promise.resolve(_idx);
+    if (!_idxP) _idxP = getJSON(META.data + "search.json" + (META.sh ? "?v=" + META.sh : ""))
+      .then(j => (_idx = j)).catch(e => { _idxP = null; throw e; });
+    return _idxP;
+  }
   function searchIndex() {
     if (_idx) return _idx;
     _idx = [];
@@ -843,6 +862,46 @@ function typesetNow() {
       });
     }
     return _idx;
+  }
+
+  /* ---------- 장을 필요할 때 받아 오기 (2026-10-13) ----------
+     배포판은 장 내용을 chapters/<과목>/<id>.json으로 따로 둔다(META.split). 작업용 한 파일 빌드는
+     <template id="tpl-…">가 페이지에 들어 있으므로 받지 않는다. 휴대폰에서 연결이 잠깐 끊겨도
+     읽을 수 있게 세 번까지 다시 받는다. */
+  const _loading = {};
+  function getJSON(url, tries = 3) {
+    return fetch(url, { cache: "default" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .catch(e => tries > 1 ? new Promise(res => setTimeout(res, 700)).then(() => getJSON(url, tries - 1)) : Promise.reject(e));
+  }
+  const haveTpl = id => !!document.getElementById("tpl-" + id);
+  function loadTpl(id) {
+    if (haveTpl(id)) return Promise.resolve();
+    if (_loading[id]) return _loading[id];
+    const c = byId[id];
+    _loading[id] = getJSON(META.data + id + ".json" + (c && c.h ? "?v=" + c.h : "")).then(j => {
+      if (haveTpl(id)) return;
+      const t = document.createElement("template");
+      t.id = "tpl-" + id;
+      t.innerHTML = j.html;
+      document.body.appendChild(t);
+    }).finally(() => { delete _loading[id]; });
+    return _loading[id];
+  }
+  function prefetchNext(id) {
+    if (!META.split) return;
+    const list = CH.filter(x => x.ready), i = list.findIndex(x => x.id === id), nx = list[i + 1];
+    if (!nx || haveTpl(nx.id)) return;
+    const go = () => loadTpl(nx.id).catch(() => {});
+    if ("requestIdleCallback" in window) requestIdleCallback(go, { timeout: 4000 }); else setTimeout(go, 1500);
+  }
+  function showLoading(id, failed) {
+    const c = byId[id];
+    app.innerHTML = `<div class="wrap" style="max-width:46rem"><p class="crumbs"><a href="index.html">홈</a><span>/</span><a href="#toc">${esc(COURSE.title)}</a></p>
+      <h1 style="font-family:var(--f-serif)">${c ? esc(numLabel(c) + " " + c.title) : ""}</h1>
+      ${failed ? `<div class="soon-box">이 장을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 <a href="#" id="retryLoad">다시 시도</a>해 주세요.</div>`
+               : `<p style="color:var(--muted)">불러오는 중입니다…</p>`}</div>`;
+    const r = document.getElementById("retryLoad");
+    if (r) r.addEventListener("click", e => { e.preventDefault(); route(); });
   }
 
   let spy = null, stepSpy = null;
@@ -907,6 +966,7 @@ function typesetNow() {
       }, { rootMargin: "-10% 0px -80% 0px" });
       stepLinks.forEach(l => { const h = document.getElementById(l.dataset.step); if (h) stepSpy.observe(h); });
     }
+    prefetchNext(id);
     if (keepScroll) return;
     if (anchor) {
       const el = document.getElementById(anchor);
@@ -1026,6 +1086,20 @@ function typesetNow() {
       const m = h.match(/^((?:ch|lab|rv|ap|ml)\d\d)(?:-(.+))?$/);
       if (m) {
         cur = m[1];
+        if (META.split && byId[cur] && byId[cur].ready && !haveTpl(cur)) {
+          // 아직 받지 않은 장: 받는 동안 '불러오는 중'을 보이고, 다 받으면 같은 주소로 다시 그린다
+          pendingRestore = pr;
+          app.dataset.ch = "";
+          showLoading(cur);
+          window.scrollTo(0, 0);
+          const want = location.hash;
+          loadTpl(cur).then(() => { if (location.hash === want) route(); })
+            .catch(() => { if (location.hash === want) { pendingRestore = pr; showLoading(cur, true); } });
+          document.getElementById("menuBtn").hidden = false;
+          document.getElementById("courseBtn").hidden = HOME;
+          document.getElementById("searchBtn").hidden = HOME;
+          return;
+        }
         const already = app.dataset.ch === cur && document.getElementById("article");
         if (already && pr && pr.ch === cur) { restoreTo(pr); return; }
         if (already && m[2]) { const el = document.getElementById(h); if (el) { el.scrollIntoView({ block: "start" }); return; } }
