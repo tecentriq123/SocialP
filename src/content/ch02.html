@@ -2,9 +2,9 @@
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>먼저 읽을 부분</dt><dd>가 절은 첫 독해 경로에 있으므로 1–6단계를 차례로 읽고 '스스로 확인하기'를 풉니다. 0장에서 혈압 시험으로 해 본 계산을 HbA1c 예로 다시 따라가는 절입니다. 나 절은 논문에서 Mann-Whitney 검정을 만났을 때 1–6단계를 읽습니다.</dd>
-<dt>이 장의 핵심</dt><dd>① 두 군 평균의 차이가 우연으로 보기 어려운지는 시험을 다시 하면 그 차이가 흔들릴 정도와 견주어 판단하고, 두 군의 흩어짐이 다를 수 있으므로 Welch t 검정을 기본으로 쓴다는 것 ② 논문 그림의 오차막대가 SD, SE, CI 가운데 무엇인지 먼저 확인하고, 막대가 겹치는지로 차이를 판단하지 않는다는 것 ③ Mann-Whitney 검정의 결과는 두 중앙값의 비교가 아니라 한 군의 값이 더 크게 나오는 경향으로 읽는다는 것</dd>
-<dt>미뤄도 되는 것</dt><dd>각 절 끝의 '더 알아보기'와 본문 중간의 접힌 상자는 처음에는 건너뜁니다. 두 t 검정이 실제로 다른 답을 내는 예, 동점 처리, 파이썬 코드는 논문에서 그 내용을 만났거나 직접 분석할 때 펼쳐 읽습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>가 절(첫 독해 경로)을 차례로 읽습니다. 나 절은 논문에서 Mann-Whitney 검정을 만났을 때 읽습니다.</dd>
+<dt>이 장의 핵심</dt><dd>두 평균의 차이와 Welch t 검정, 오차막대가 무엇인지 확인하기, Mann-Whitney 결과를 읽는 법</dd>
+<dt>미뤄도 되는 것</dt><dd>접힌 상자와 '더 알아보기'(계산 과정, 동점 처리, 파이썬 코드)</dd>
 </dl>
 <details class="route-more"><summary>미리 알아 둘 것과 이 장의 목표</summary>
 <dl>
@@ -318,7 +318,7 @@ print(res)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div
 <tr><td>Protocol</td><td class="r">8</td><td class="r">21 <span style="white-space:nowrap">(17.3–27.3)</span></td><td class="r" rowspan="2">0.029</td></tr>
 <tr><td>Usual care</td><td class="r">7</td><td class="r">41 <span style="white-space:nowrap">(32.5–51.5)</span></td></tr>
 </tbody></table></div>
-<p>여기서도 세 가지만 먼저 봅니다. 첫째, 비교한 것은 약사가 진통제 처방을 관리한 프로토콜군 8명과 일반 관리군 7명입니다. 둘째, 측정한 결과는 수술 후 72시간 동안 쓴 오피오이드의 누적 사용량이고, 단위 <strong>MME</strong><span class="en">(morphine milligram equivalents)</span>는 경구 모르핀으로 환산한 용량입니다. 몇 명의 큰 값에 평균이 끌려가는 자료라서 군마다 가운데 값인 중앙값과, 가운데 50% 환자가 놓인 범위인 <strong>사분위범위</strong><span class="en">(interquartile range, IQR)</span>로 요약했습니다. 셋째, 프로토콜군의 중앙값이 더 작으므로 프로토콜군 쪽이 덜 쓴 방향입니다. 다만 이 P는 두 중앙값 21과 41을 맞대어 얻은 값이 아닙니다. 이 절에서는 이 P가 순위에서 어떻게 나오고(2단계), 무엇이 맞아야 믿을 수 있고(3단계), 무엇을 말해 주는지(4단계) 따라갑니다.</p>
+<p>여기서도 세 가지만 먼저 봅니다. 첫째, 비교한 것은 약사가 진통제 처방을 관리한 프로토콜군 8명과 일반 관리군 7명입니다. 둘째, 측정한 결과는 수술 후 72시간 동안 쓴 오피오이드의 누적 사용량이고, 단위 <strong>MME</strong><span class="en">(morphine milligram equivalents)</span>는 경구 모르핀으로 환산한 용량입니다. 몇 명의 큰 값에 평균이 끌려가는 자료라서 군마다 가운데 값인 중앙값과, 가운데 50% 환자의 값이 퍼진 폭인 <strong>사분위범위</strong><span class="en">(interquartile range, IQR)</span>로 요약했습니다. 셋째, 프로토콜군의 중앙값이 더 작으므로 프로토콜군 쪽이 덜 쓴 방향입니다. 다만 이 P는 두 중앙값 21과 41을 맞대어 얻은 값이 아닙니다. 이 절에서는 이 P가 순위에서 어떻게 나오고(2단계), 무엇이 맞아야 믿을 수 있고(3단계), 무엇을 말해 주는지(4단계) 따라갑니다.</p>
 
 <dl class="glance">
   <div><dt>언제 쓰나</dt><dd>독립된 두 군을 비교하는데 표본이 작고 분포가 치우쳤거나 극단값이 있을 때, 결과변수가 순서형(통증 점수, 만족도 척도)일 때</dd></div>

@@ -2,14 +2,14 @@
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>먼저 읽을 부분</dt><dd>첫 독해 경로의 마지막 장입니다. 1–6단계를 차례로 읽고 '스스로 확인하기'를 풉니다.</dd>
-<dt>이 장의 핵심</dt><dd>① 보정 오즈비는 모형에 넣은 조건(나이, 동반질환, 신기능 등)이 같은 환자끼리 비교한 오즈의 비이고, 모형에 넣지 않은 조건은 맞춰지지 않았다는 것 ② 입원처럼 흔한 결과에서는 오즈비가 위험의 비보다 1에서 멀리 있어서, '위험이 몇 배'로 읽으면 효과를 부풀린다는 것 ③ 논문 표의 보정 전후 오즈비를 기준군과 단위를 확인하며 읽고 문장으로 쓰는 법</dd>
-<dt>미뤄도 되는 것</dt><dd>절 끝 '더 알아보기'의 예측모형 성능 평가, 표의 P와 신뢰구간이 나오는 원리, 짝지은 자료나 결과가 셋 이상일 때 쓰는 모형은 논문에서 만났을 때 펼쳐 읽습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>1–6단계를 차례로 읽습니다(첫 독해 경로의 마지막 장).</dd>
+<dt>이 장의 핵심</dt><dd>보정 오즈비가 비교하는 것, 흔한 결과에서 오즈비와 위험의 비, 논문 표의 오즈비를 읽고 쓰는 법</dd>
+<dt>미뤄도 되는 것</dt><dd>예측모형의 성능 평가, 표의 P와 신뢰구간이 나오는 원리, 짝지은 자료나 결과가 셋 이상일 때의 모형</dd>
 </dl>
 <details class="route-more"><summary>미리 알아 둘 것과 이 장의 목표</summary>
 <dl>
 <dt>미리 알아 둘 것</dt><dd><a href="#ch05-s1">5장 가 절</a>의 위험, 오즈, 오즈비, <a href="#ch06-s4">6장 라 절</a>의 '다른 변수를 같게 둔 비교', <a href="#ch08-s2">8장 나 절</a>의 상대위험도와 오즈비, <a href="#ch08-s3">다 절</a>의 지수와 로그, <a href="#ch08-s6">바 절</a>의 교란. 범주형 변수는 <a href="#ch08-s7">사 절</a>의 기준범주를 씁니다.</dd>
-<dt>이 장을 마치면</dt><dd>① 보정 오즈비를 '모형에 넣은 조건이 같은 환자끼리 비교한 오즈의 비'로 풀어 말하고, 변수의 단위와 기준범주를 확인할 수 있다 ② 결과가 흔할 때 오즈비를 '위험이 몇 배'로 읽으면 왜 틀리는지 설명할 수 있다 ③ 논문 표에서 보정 전후 오즈비와 변수 전체의 P를 구분해 읽고, 보정용으로 넣은 다른 변수의 오즈비를 인과 효과로 읽지 않을 수 있다 ④ 추적 기간이 사람마다 다르거나 짝지은 자료라면 다른 모형이 필요하다는 것을 Methods에서 알아챌 수 있다 ⑤ 보정 전후 오즈비와 95% CI, 보정한 변수와 고른 근거, 모형 확인 결과를 Methods와 Results 문장으로 쓸 수 있다</dd>
+<dt>이 장을 마치면</dt><dd>① 보정 오즈비를 '모형에 넣은 조건이 같은 환자끼리 비교한 오즈의 비'로 풀어 말하고, 변수의 단위와 기준범주를 확인할 수 있다 ② 결과가 흔할 때 오즈비를 '위험이 몇 배'로 읽으면 왜 틀리는지 설명할 수 있다 ③ 논문 표에서 보정 전후 오즈비와 변수 전체의 P를 구분해 읽고, 보정용으로 넣은 다른 변수의 오즈비를 인과 효과로 읽지 않을 수 있다 ④ 추적 기간이 사람마다 다르거나 짝지은 자료라면 다른 모형이 필요하다는 것을 Methods에서 알아챌 수 있다 ⑤ 보정 전후 오즈비와 95% CI, 비교의 기준, 보정한 변수와 고른 근거를 Methods와 Results 문장으로 쓸 수 있다</dd>
 <dt>직접 분석할 때</dt><dd><a href="#lab09">실습 9</a>에서 statsmodels로 로지스틱 회귀를 해 봅니다. 직선 관계와 분리 같은 모형 점검은 <a href="#lab09-s3">실습 9 다 절</a>, 예측모형의 성능 평가는 <a href="#lab09-s4">라 절</a>에 있습니다.</dd>
 </dl></details>
 </div>
@@ -166,18 +166,18 @@
 <ol>
 <li><strong>모든 대상자를 같은 기간 끝까지 관찰했어야 합니다.</strong> 로지스틱 회귀의 결과는 "정해진 기간 안에 사건이 있었는가"입니다. 그런데 중간에 사망하거나 자격을 잃어 추적이 끊긴 사람이 많으면, 그 사람들이 1년을 다 채웠다면 입원했을지 알 수 없습니다. 그들을 '입원 없음'으로 두면 입원을 적게 세게 되고, 분석에서 빼면 끝까지 남은 사람끼리만 비교하게 되어 어느 쪽이든 오즈비가 치우칠 수 있습니다. 이 코호트는 모든 환자를 1년 동안 추적했다고 가정했습니다. 추적 기간이 사람마다 다를 때도 같은 문제가 생깁니다. 오래 관찰한 사람일수록 사건이 생길 기회가 많아서, '기간 안에 사건이 있었는가'만 세면 관찰 기간의 차이가 약의 차이처럼 섞이기 때문입니다. 그럴 때는 사건이 생기기까지의 시간을 다루는 <a href="#ch11-s1">11장</a>의 Cox 모형을 쓰고, 결과는 위험비(HR)로 보고합니다.</li>
 <li><strong>환자들의 결과가 서로 독립이어야 합니다.</strong> 독립은 한 환자의 결과가 다른 환자의 결과와 관계없이 정해진다는 뜻입니다. 한 환자의 여러 입원을 각각 한 줄로 넣거나 같은 병원 환자끼리 서로 비슷한 자료라면 이 가정이 깨집니다. 서로 닮은 줄은 줄 수만큼 새 정보를 주지 않는데 모형은 줄마다 새 환자로 세므로, 표준오차가 실제보다 작게 계산되어 신뢰구간은 지나치게 좁고 P는 지나치게 작아집니다. 이런 군집 자료는 10장의 일반화 추정 방정식이나 혼합모형으로 분석합니다. 나이와 성별을 맞춰 대조군을 짝지어 뽑은 환자-대조군 자료도 짝지은 두 사람이 같은 조건으로 함께 뽑혔으므로, 짝 안에서만 비교하는 <strong>조건부 로지스틱 회귀</strong><span class="en">(conditional logistic regression)</span>를 씁니다. 이 코호트는 환자 한 명이 한 줄이라 같은 사람이 여러 번 들어가지 않습니다.</li>
-<li><strong>연속형 변수와 로짓이 직선 관계여야 합니다.</strong> 나이를 10세당 오즈비 하나로 넣으면 "어느 나이에서든 10세 많아질 때마다 오즈가 같은 배수로 는다"고 가정하는 셈입니다. 실제 관계가 어느 지점에서 꺾이는데 직선으로 넣으면, 직선은 꺾이기 전과 후의 중간쯤 되는 기울기 하나로 맞춰집니다. 그래서 평평한 구간에서는 차이를 실제보다 크게, 가파른 구간에서는 차이를 실제보다 작게 나타냅니다. 이 코호트에서 나이는 확인해 보니 직선에서 벗어난다는 근거가 없어 직선으로 두었습니다. 그러나 eGFR은 60 아래에서 입원 오즈가 가파르게 올랐습니다. 직선으로 넣으면 eGFR 60–90 사이의 차이는 부풀리고 45 미만인 환자의 위험은 작게 나타내므로, 임상 기준인 60과 45로 나눈 세 범주로 넣었습니다. 직선인지는 같은 변수를 휘어질 수 있는 곡선, 흔히 제한 삼차 스플라인<span class="en">(restricted cubic spline)</span>으로 넣은 모형과 비교해 확인합니다.</li>
-<li><strong>추정할 계수 수에 비해 사건 수가 충분해야 합니다.</strong> 로지스틱 회귀는 입원한 사람과 입원하지 않은 사람의 차이에서 관련을 읽어 내므로, 정보의 양은 전체 인원보다 사건 수(정확히는 사건이 있는 사람과 없는 사람 가운데 적은 쪽)가 정합니다. 사건에 비해 모형에 넣은 변수가 많으면 계수가 불안정해져, 오즈비가 실제와 크게 달라지거나 방향이 거꾸로 나오기도 하고 신뢰구간도 참값을 제대로 담지 못합니다. 흔히 쓰는 대략의 기준은 추정할 계수 하나당 사건 10건 이상입니다. 이 코호트는 입원 533건에 비해 추정할 계수가 9개뿐이라(범주가 셋인 변수는 계수를 두 개씩 씁니다) 계수 하나당 약 59건으로 넉넉했습니다. 사건이 적으면 변수를 사전 지식으로 줄입니다. 특히 환자가 적은 범주에서 그 범주의 환자 모두에게 사건이 생기거나 아무에게도 생기지 않으면, 오즈비 추정값이 끝없이 커지거나 0으로 다가가는 <strong>분리</strong><span class="en">(separation)</span>가 생깁니다. 이때는 Firth 방법을 씁니다.</li>
+<li><strong>연속형 변수와 로짓이 직선 관계여야 합니다.</strong> 나이를 10세당 오즈비 하나로 넣으면 "어느 나이에서든 10세 많아질 때마다 오즈가 같은 배수로 는다"고 가정하는 셈입니다. 실제 관계가 어느 지점에서 꺾이는데 직선으로 넣으면, 직선은 꺾이기 전과 후의 중간쯤 되는 기울기 하나로 맞춰집니다. 그래서 평평한 구간에서는 차이를 실제보다 크게, 가파른 구간에서는 차이를 실제보다 작게 나타냅니다. 이 코호트에서 나이는 확인해 보니 직선에서 벗어난다는 근거가 없어 직선으로 두었습니다. 그러나 eGFR은 60 아래에서 입원 오즈가 가파르게 올랐습니다. 직선으로 넣으면 eGFR 60–90 사이의 차이는 부풀리고 45 미만인 환자의 위험은 작게 나타내므로, 임상 기준인 60과 45로 나눈 세 범주로 넣었습니다. 직선인지는 같은 변수를 휘어질 수 있는 곡선으로 넣은 모형과 비교해 확인합니다.</li>
+<li><strong>추정할 계수 수에 비해 사건 수가 충분해야 합니다.</strong> 로지스틱 회귀는 입원한 사람과 입원하지 않은 사람의 차이에서 관련을 읽어 내므로, 정보의 양은 전체 인원보다 사건 수(정확히는 사건이 있는 사람과 없는 사람 가운데 적은 쪽)가 정합니다. 사건에 비해 모형에 넣은 변수가 많으면 계수가 불안정해져, 오즈비가 실제와 크게 달라지거나 방향이 거꾸로 나오기도 하고 신뢰구간도 참값을 제대로 담지 못합니다. 흔히 쓰는 대략의 기준은 추정할 계수 하나당 사건 10건 이상입니다. 이 코호트는 입원 533건에 비해 추정할 계수가 9개뿐이라 계수 하나당 약 59건으로 넉넉했습니다. 사건이 적으면 변수를 사전 지식으로 줄입니다. 특히 환자가 적은 범주에서 그 범주의 환자 모두에게 사건이 생기거나 아무에게도 생기지 않으면, 오즈비 추정값이 끝없이 커지거나 0으로 다가갑니다. 이때는 추정 계산을 조금 바꿔 추정값이 그렇게 끝없이 치닫지 않게 하는 방법을 씁니다.</li>
 <li><strong>설명변수끼리 지나치게 겹치지 않아야 합니다.</strong> eGFR과 혈청 크레아티닌처럼 사실상 같은 정보를 두 번 넣으면, 모형이 결과의 차이를 어느 변수 몫으로 돌릴지 가려내지 못해 두 계수의 표준오차가 커지고 계수가 자료에 따라 크게 흔들립니다. 이를 <strong>다중공선성</strong><span class="en">(multicollinearity)</span>이라고 합니다. 이 코호트의 변수들은 이렇게 겹치지 않았습니다. 겹치는 변수가 있으면 연구 질문에 맞는 하나만 넣거나 둘을 합친 지표를 씁니다.</li>
 </ol>
-<p>곡선 모형과 비교하는 법, 계수를 세는 법, 분리가 생겼을 때의 출력, 겹침을 재는 분산팽창계수와 이 코호트의 결과는 절 끝 '더 알아보기'의 해당 상자에 있습니다. 파이썬으로 직접 확인하는 법은 <a href="#lab09-s1">실습 9 가 절</a>(사건 수와 계수 수)과 <a href="#lab09-s3">다 절</a>(나머지 점검)에 있습니다.</p>
+<p>곡선 모형과 비교하는 법, 계수를 세는 법, 한 범주에서 사건이 모두 생기거나 하나도 생기지 않았을 때의 출력과 그때 쓰는 방법의 이름, 겹침을 재는 지표와 이 코호트의 결과는 절 끝 '더 알아보기'의 해당 상자에 있습니다. 파이썬으로 직접 확인하는 법은 <a href="#lab09-s1">실습 9 가 절</a>(사건 수와 계수 수)과 <a href="#lab09-s3">다 절</a>(나머지 점검)에 있습니다.</p>
 
 <h3>4. 결과 읽기</h3>
 <p>이제 보정 오즈비를 말로 옮깁니다. 논문의 "adjusted OR, 0.76; 95% CI, 0.60–0.96; P = 0.022"를 다음 순서로 읽습니다.</p>
 <ol>
 <li>먼저 비교의 기준과 방향을 봅니다. 기준군은 DPP-4 억제제이고 오즈비가 1보다 작으므로, SGLT2 억제제군의 1년 입원 오즈가 더 낮습니다. 모형에 넣은 조건이 같은 환자끼리 비교하면 오즈가 0.76배, 즉 24% 낮습니다.</li>
-<li>다음으로 95% 신뢰구간을 봅니다. 이 코호트가 대표하는 환자 전체에서의 보정 오즈비는 0.60배부터 0.96배 사이로 추정됩니다. 구간 전체가 1보다 작으므로 P &lt; 0.05와 같은 결론입니다. 다만 상한 0.96은 1에 가까워서 차이가 거의 없을 가능성도 남아 있습니다.</li>
-<li>그다음 P를 봅니다. 0.022는 2단계에서 계수를 표준오차로 나눈 값(−2.28)으로 구한 P이고, 신뢰구간과 같은 결론을 줍니다. 범주가 셋인 동반질환 점수처럼 여러 행으로 나뉜 변수는 행마다의 P가 각 범주를 기준범주와 비교한 것일 뿐이라, 변수 전체가 입원과 관련되는지는 변수 이름 행에 따로 적힌 P 하나로 봅니다(5단계 Table 2의 각주 b).</li>
+<li>다음으로 2단계에서 구한 95% 신뢰구간 0.60–0.96을 봅니다. 이 코호트가 대표하는 환자 전체에서의 보정 오즈비는 0.60배부터 0.96배 사이로 추정됩니다. 구간 전체가 1보다 작으므로 P &lt; 0.05와 같은 결론입니다. 다만 상한 0.96은 1에 가까워서 차이가 거의 없을 가능성도 남아 있습니다.</li>
+<li>그다음 P를 봅니다. 0.022는 2단계에서 구한 Wald 검정의 P이고, 신뢰구간과 같은 결론을 줍니다. 범주가 셋인 동반질환 점수처럼 여러 행으로 나뉜 변수는 행마다의 P가 각 범주를 기준범주와 비교한 것일 뿐이라, 변수 전체가 입원과 관련되는지는 변수 이름 행에 따로 적힌 P 하나로 봅니다(5단계 Table 2의 각주 b).</li>
 <li>그리고 위험으로 옮깁니다. 1년 입원은 22.2%로 흔한 결과이고, 결과가 흔하면 오즈비를 위험의 비로 읽을 수 없습니다. 그래서 위험의 비와 위험차를 따로 구해 임상적 의미를 따지며, 아래 '결과가 흔할 때의 오즈비와 상대위험도'에서 봅니다.</li>
 <li>마지막으로 연관으로 읽습니다. 관찰연구이므로 "SGLT2 억제제가 입원을 줄였다"는 인과로 읽지 않습니다. 같게 맞춰진 것은 모형에 넣은 변수뿐이고, 노쇠, HbA1c, 체질량지수처럼 모형에 넣지 않은 교란변수는 보정되지 않았습니다.</li>
 </ol>
@@ -229,14 +229,14 @@
 <p class="jt-foot">OR, odds ratio; CI, confidence interval; eGFR, estimated glomerular filtration rate. <sup>a</sup> Adjusted for all variables in the table. <sup>b</sup> Likelihood ratio test with 2 degrees of freedom.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>Events/N (%).</b> 각 범주에서 입원한 환자 수 / 그 범주의 전체 환자 수(%)입니다. DPP-4 억제제군은 392 ÷ 1,526 = 25.7%입니다. 이 열이 있어야 오즈비를 실제 위험으로 옮겨 생각할 수 있고, 사건이 몇 명뿐이라 신뢰구간이 넓은 범주도 찾을 수 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>Crude OR과 Adjusted OR.</b> Crude(보정 전)는 그 변수 하나만 넣은 모형의 오즈비로, 이분형 변수라면 2×2 표에서 구한 값과 같습니다. Adjusted(보정 후)는 표의 모든 변수를 한 모형에 함께 넣은 결과로, "다른 변수의 값이 같은 사람끼리" 비교한 오즈비입니다. 각주 a가 보정 변수의 목록입니다. 신뢰구간은 로그 척도에서 '계수 ± 1.96 × 표준오차'를 구한 뒤 지수로 되돌린 값(Wald 방법, 아래 '더 알아보기'의 '표의 P와 신뢰구간이 나오는 방법')입니다. SGLT2 억제제의 계수는 −0.2727, 표준오차는 0.1194이므로 e<sup>−0.2727 ± 1.96 × 0.1194</sup> = 0.60–0.96입니다.</span></li>
-<li><span class="mk">3</span><span><b>P 열.</b> 보정 모형에서 각 계수가 0(오즈비 1)인지에 대한 <strong>Wald 검정</strong><span class="en">(Wald test)</span>의 P입니다(아래 '더 알아보기'의 '표의 P와 신뢰구간이 나오는 방법', z = 계수 ÷ 표준오차). 신뢰구간이 1을 포함하지 않으면 P &lt; 0.05이고, 포함하면 P &gt; 0.05입니다. 오즈비의 신뢰구간이 점추정값 0.76을 중심으로 비대칭(아래로 0.16, 위로 0.20)인 것은 로그 척도에서 대칭으로 구한 뒤 지수로 되돌렸기 때문입니다(8장 가 절).</span></li>
+<li><span class="mk">2</span><span><b>Crude OR과 Adjusted OR.</b> Crude(보정 전)는 그 변수 하나만 넣은 모형의 오즈비로, 이분형 변수라면 2×2 표에서 구한 값과 같습니다. Adjusted(보정 후)는 표의 모든 변수를 한 모형에 함께 넣은 결과로, "다른 변수의 값이 같은 사람끼리" 비교한 오즈비입니다. 무엇을 보정했는지는 각주 a에서 찾습니다. SGLT2 억제제 행의 0.76(0.60–0.96)은 2단계에서 구한 보정 오즈비와 신뢰구간입니다.</span></li>
+<li><span class="mk">3</span><span><b>P 열.</b> 보정 모형에서 각 계수가 0(오즈비 1)인지 본 Wald 검정의 P이고, SGLT2 억제제 행의 0.022는 2단계에서 구한 값입니다. 신뢰구간이 점추정값 0.76을 중심으로 비대칭(아래로 0.16, 위로 0.20)인 것은 2단계에서처럼 로그 척도에서 대칭으로 구한 뒤 되돌렸기 때문이라, 표가 잘못된 것이 아닙니다.</span></li>
 <li><span class="mk">4</span><span><b>1 (reference).</b> 기준범주입니다. 모든 오즈비는 이 범주와 비교한 값입니다. 기준범주를 DPP-4 억제제로 두었으므로 SGLT2 억제제의 오즈비가 1보다 작으면 "SGLT2 억제제군의 입원 오즈가 더 낮다"는 뜻입니다.</span></li>
-<li><span class="mk">5</span><span><b>보정 후 변화.</b> 0.56 → 0.76. SGLT2 억제제군이 원래 더 젊고 신기능이 좋아서(위 '숫자로 따라가기'의 기저 특성 표) 보정 전 오즈비에는 약의 효과와 이런 기저위험의 차이가 섞여 있었습니다. 보정으로 그 차이를 맞추자 1에 가까워졌습니다.</span></li>
-<li><span class="mk">6</span><span><b>연속형 변수의 행.</b> 범주가 없으므로 Events/N 칸이 비어 있습니다(—). 오즈비는 10세 차이에 대한 값이므로 65세와 85세의 차이는 1.41² ≈ 1.98배입니다(반올림 전 오즈비로 계산). 이 값은 "나이와 로그 오즈의 관계가 직선"이라는 가정 아래서만 의미가 있습니다. 아래 '더 알아보기'의 '연속형 변수의 로짓 선형성'처럼 스플라인으로 확인했을 때 나이는 비선형성 P = 0.40으로 직선으로 두어도 되었습니다.</span></li>
-<li><span class="mk">7</span><span><b>1을 포함하는 신뢰구간.</b> 여성의 오즈비 0.85(0.70–1.04), P = 0.12는 "성별은 입원과 관련이 없다"는 증거가 아닙니다. 입원 오즈가 30% 낮을 수도, 4% 높을 수도 있어 자료만으로는 결론을 내릴 수 없다는 뜻입니다(1장 나 절).</span></li>
-<li><span class="mk">8</span><span><b>범주형 변수 전체의 P.</b> 각주 b처럼 기준범주와 비교하는 두 행을 함께 검정한 <strong>우도비 검정</strong><span class="en">(likelihood ratio test, LRT)</span>(χ² = 42.5, 자유도 2)의 P입니다(아래 '더 알아보기'의 '표의 P와 신뢰구간이 나오는 방법'). 범주별 행의 P는 각 범주를 기준범주와 비교한 것이므로, 범주가 여럿인 변수의 유의성은 이 전체 P로 판단합니다.</span></li>
-<li><span class="mk">9</span><span><b>공변량의 보정 오즈비를 읽을 때.</b> CCI ≥3의 오즈비는 보정 전 2.78에서 2.42로 줄었습니다. 모형에 동반질환의 결과일 수 있는 '이전 1년 입원'이 함께 들어 있기 때문입니다. 즉 이 2.42는 "동반질환이 입원에 미치는 전체 효과"가 아니라 "이전 입원 여부가 같을 때의 관련성"입니다. 이 표는 SGLT2 억제제의 효과를 보려고 설계된 모형이므로, 공변량의 오즈비를 각각의 인과 효과로 읽으면 안 됩니다(아래 '더 알아보기'의 '공변량의 오즈비와 Table 2 오류').</span></li>
+<li><span class="mk">5</span><span><b>보정 후 변화.</b> 0.56 → 0.76. 보정 전후 두 열을 나란히 보면 보정으로 오즈비가 얼마나 달라졌는지 보입니다. 1에 가까워진 이유는 2단계에서 본 대로, SGLT2 억제제군이 원래 더 젊고 신기능이 좋았던 몫이 보정 전 오즈비에 섞여 있었기 때문입니다.</span></li>
+<li><span class="mk">6</span><span><b>연속형 변수의 행.</b> 범주가 없으므로 Events/N 칸이 비어 있습니다(—). 단위는 변수 이름의 "per 10 years"에서 찾습니다. 오즈비가 10세 차이에 대한 값이므로 65세와 85세의 차이는 1.41² ≈ 1.98배입니다(반올림 전 오즈비로 계산). 이 값은 "나이와 로그 오즈의 관계가 직선"이라는 3단계의 가정 아래서만 의미가 있고, 이 연구에서 나이는 직선으로 두어도 되었습니다.</span></li>
+<li><span class="mk">7</span><span><b>1을 포함하는 신뢰구간.</b> 여성의 오즈비 0.85(0.70–1.04)는 입원 오즈가 30% 낮을 수도 4% 높을 수도 있다는 뜻이라, 이 자료로는 관련 여부를 결론 내릴 수 없습니다(<a href="#ch00-s6">0장 바 절</a>).</span></li>
+<li><span class="mk">8</span><span><b>범주형 변수 전체의 P.</b> 4단계에서 말한 변수 전체의 P가 변수 이름 행에 따로 적힌 이 값입니다. 어떤 검정인지는 각주 b에서 찾습니다. 여기서는 기준범주와 비교하는 두 행을 함께 검정한 <strong>우도비 검정</strong><span class="en">(likelihood ratio test, LRT)</span>(χ² = 42.5, 자유도 2)입니다(아래 '더 알아보기'의 '표의 P와 신뢰구간이 나오는 방법').</span></li>
+<li><span class="mk">9</span><span><b>공변량의 보정 오즈비를 읽을 때.</b> CCI ≥3의 오즈비는 보정 전 2.78에서 2.42로 줄었습니다. 모형에 동반질환의 결과일 수 있는 '이전 1년 입원'이 함께 들어 있기 때문입니다. 즉 이 2.42는 "동반질환이 입원에 미치는 전체 효과"가 아니라 "이전 입원 여부가 같을 때의 관련성"입니다. 4단계의 Table 2 오류가 실제 표에서 이렇게 나타납니다(아래 '더 알아보기'의 '공변량의 오즈비와 Table 2 오류').</span></li>
 </ol>
 </div></div>
 
@@ -249,9 +249,9 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>보정 전 사건 비율.</b> 두 군의 실제 입원 비율입니다. 보정 전 위험차는 16.1 − 25.7 = −9.6%p이지만, 두 군의 기저위험이 달라 이 차이를 약의 효과로 볼 수 없습니다.</span></li>
 <li><span class="mk">2</span><span><b>'lower odds'라는 표현.</b> 저자는 위험(risk)이 아니라 오즈(odds)라고 정확히 썼습니다.</span></li>
-<li><span class="mk">3</span><span><b>표준화 위험.</b> 모든 환자가 SGLT2 억제제를 썼다고 가정한 예측 확률의 평균(19.4%)과 모두 DPP-4 억제제를 썼다고 가정한 평균(23.6%)입니다. 실제 SGLT2 억제제군의 입원 비율 16.1%와 다른 이유는 공변량 분포를 전체 코호트로 맞췄기 때문입니다. 이렇게 절대위험으로 바꾼 값이 있어야 비용효과분석이나 치료필요수 계산에 쓸 수 있습니다.</span></li>
-<li><span class="mk">4</span><span><b>보정 위험차.</b> 19.4 − 23.6 = −4.2%p(반올림 전 값으로 계산). 보정 전 −9.6%p의 절반 이하로 줄었습니다. 신뢰구간 상한 −0.3%p는 효과가 거의 없을 가능성도 배제하지 못한다는 뜻입니다. 위험차의 신뢰구간은 Methods에 적힌 방법(여기서는 부트스트랩)으로 구합니다.</span></li>
-<li><span class="mk">5</span><span><b>두 방법의 상대위험도.</b> 표준화로 구한 0.82(19.4 ÷ 23.6)와 수정 포아송 회귀의 0.81이 비슷합니다. 오즈비 0.76보다 1에 가깝다는 점을 보세요. 사건이 흔할수록 이 차이가 커집니다.</span></li>
+<li><span class="mk">3</span><span><b>표준화 위험.</b> 4단계에서 구한, 전원이 SGLT2 억제제를 썼을 때와 DPP-4 억제제를 썼을 때의 1년 입원 위험입니다. 실제 SGLT2 억제제군의 입원 비율 16.1%와 다른 이유는 공변량 분포를 전체 코호트로 맞췄기 때문입니다. 이렇게 절대위험으로 바꾼 값이 있어야 비용효과분석이나 치료필요수 계산에 쓸 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>보정 위험차.</b> 4단계에서 구한 −4.2%p와 그 신뢰구간입니다. 보정 전 −9.6%p(해설 1)의 절반 이하로 줄었습니다. 위험차의 신뢰구간을 어떤 방법으로 구했는지는 Methods에서 찾습니다(이 연구는 부트스트랩).</span></li>
+<li><span class="mk">5</span><span><b>두 방법의 상대위험도.</b> 표준화로 구한 0.82와 수정 포아송 회귀의 0.81이 비슷하고, 둘 다 오즈비 0.76보다 1에 가깝습니다.</span></li>
 </ol>
 </div></div>
 
@@ -265,24 +265,21 @@
 <li>노출과 비교군을 쓰고, 어느 군이 기준인지 밝힙니다.</li>
 <li>보정한 변수 목록과 고른 근거, 변수를 잰 시점을 쓰고, 연속형 변수의 단위와 범주형 변수의 기준범주도 밝힙니다.</li>
 <li>군별 사건 수와 인원, 보정 전과 보정 후의 오즈비와 95% 신뢰구간, 정확한 P를 씁니다.</li>
-<li>모형을 확인한 방법과 그 결과를 쓰고, 결과가 흔하면 상대위험도나 위험차를 함께 씁니다.</li>
+<li>결과가 흔하면 5단계 두 번째 상자처럼 상대위험도나 위험차를 함께 쓰고, 3단계의 가정을 어떻게 확인했는지와 그 결과도 밝힙니다.</li>
 </ol>
-<p>아래는 이 절의 숫자로 만든 예문입니다.</p>
+<p>아래는 이 절의 숫자로 1–4번 항목을 옮긴 기본 예문입니다. 5번까지 넣은 자세한 문단은 '더 알아보기'의 'Methods의 통계분석 문단'에 있습니다.</p>
 
 <div class="paper">
-<div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results</b><span>이 절의 예로 쓴 예문</span></div>
+<div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results의 기본 문장</b><span>이 절의 예로 쓴 예문</span></div>
 <div class="paper-b">
-<p class="excerpt"><b>Methods.</b> <span class="mk">1</span> <span class="hl">Multivariable logistic regression was used to estimate the association between SGLT2 inhibitor use and all-cause hospitalization within 1 year, with DPP-4 inhibitor use as the reference</span>. <span class="mk">2</span> <span class="hl">All patients were followed for the full year.</span> Covariates were <span class="mk">3</span> <span class="hl">selected before the analysis on the basis of clinical knowledge rather than statistical significance, and were measured at or before cohort entry</span>. They included <span class="mk">4</span> <span class="hl">age (per 10 years)</span>, sex, Charlson comorbidity index (0 [reference], 1–2, ≥3), prior hospitalization, heart failure, and eGFR (≥60 [reference], 45–59, &lt;45 mL/min/1.73 m²). <span class="mk">5</span> <span class="hl">Linearity on the log-odds scale was assessed with restricted cubic splines; because the association with eGFR was nonlinear, eGFR was entered in categories defined by clinical cut points. Multicollinearity was assessed with variance inflation factors</span>. Analyses were performed using Python with statsmodels 0.15.</p>
-<p class="excerpt"><b>Results.</b> <span class="mk">6</span> <span class="hl">Within 1 year, 141 of 874 patients (16.1%) in the SGLT2 inhibitor group and 392 of 1,526 (25.7%) in the DPP-4 inhibitor group were hospitalized</span>. SGLT2 inhibitor use was associated with lower odds of hospitalization <span class="mk">7</span> <span class="hl">before adjustment (OR, 0.56; 95% CI, 0.45 to 0.69) and after adjustment (adjusted OR, 0.76; 95% CI, 0.60 to 0.96; P = 0.022)</span>. <span class="mk">8</span> <span class="hl">There was no evidence of nonlinearity for age (P = 0.40), the largest variance inflation factor was 1.35, and there were 59 events per model coefficient.</span></p>
+<p class="excerpt"><b>Methods.</b> <span class="mk">1</span> <span class="hl">Multivariable logistic regression was used to estimate the association between SGLT2 inhibitor use and all-cause hospitalization within 1 year, with DPP-4 inhibitor use as the reference. All patients were followed for the full year.</span> Covariates were <span class="mk">2</span> <span class="hl">selected before the analysis on the basis of clinical knowledge rather than statistical significance, and were measured at or before cohort entry</span>. They included <span class="mk">3</span> <span class="hl">age (per 10 years), sex, Charlson comorbidity index (0 [reference], 1–2, ≥3), prior hospitalization, heart failure, and eGFR (≥60 [reference], 45–59, &lt;45 mL/min/1.73 m²)</span>.</p>
+<p class="excerpt"><b>Results.</b> <span class="mk">4</span> <span class="hl">Within 1 year, 141 of 874 patients (16.1%) in the SGLT2 inhibitor group and 392 of 1,526 (25.7%) in the DPP-4 inhibitor group were hospitalized</span>. <span class="mk">5</span> <span class="hl">SGLT2 inhibitor use was associated with lower odds of hospitalization before adjustment (OR, 0.56; 95% CI, 0.45 to 0.69) and after adjustment (adjusted OR, 0.76; 95% CI, 0.60 to 0.96; P = 0.022)</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>분석의 목적과 비교의 기준.</b> 노출 하나의 연관을 추정한다고 밝히면 나머지 변수가 보정용이라는 것이 분명해집니다. 그러면 공변량의 오즈비를 결과로 해석하는 Table 2 오류도 피할 수 있습니다. 기준군을 적어야 0.76이 어느 쪽의 오즈가 낮다는 뜻인지 알 수 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>추적의 완결성.</b> 로지스틱 회귀는 모든 대상자의 결과를 같은 기간 동안 확인했을 때 씁니다. 추적이 끊긴 사람이 있었다면 그 수와 처리 방법을 씁니다. 그런 사람이 많다면 Cox 모형이 더 맞는지 따져 봅니다.</span></li>
-<li><span class="mk">3</span><span><b>보정 변수를 고른 근거와 잰 시점.</b> 교란변수는 노출과 결과 모두와의 관계로 분석 전에 정합니다. 단변수 분석의 P로 고르면 중요한 교란변수를 빠뜨릴 수 있습니다. 또 공변량이 노출 이전의 값이라는 점을 밝힙니다. 약을 시작한 뒤에 잰 변수는 약의 효과가 지나가는 길목일 수 있어서, 보정하면 연관의 일부를 지울 수 있기 때문입니다.</span></li>
-<li><span class="mk">4</span><span><b>단위와 기준범주.</b> 나이의 오즈비가 10세당이라는 것, 동반질환 점수(Charlson comorbidity index)와 eGFR의 기준범주가 무엇인지 적습니다. 이 정보가 없으면 독자가 Table 2의 숫자를 바르게 읽을 수 없습니다.</span></li>
-<li><span class="mk">5</span><span><b>모형을 확인한 방법.</b> 3단계에서 본 직선 관계와 변수의 겹침을 어떻게 확인했는지 씁니다. 스플라인과 분산팽창계수(variance inflation factor)는 그 확인에 쓴 방법의 이름입니다. eGFR처럼 범주로 바꿔 넣은 변수는 그 이유와 절단점의 근거를 밝힙니다. 자료를 본 뒤 고른 절단점은 결과를 부풀릴 수 있기 때문입니다.</span></li>
-<li><span class="mk">6</span><span><b>군별 사건 수와 인원.</b> 오즈비만으로는 실제 위험의 크기를 알 수 없습니다. 16.1%와 25.7%가 있어야 독자가 결과가 흔한지 판단할 수 있습니다.</span></li>
-<li><span class="mk">7</span><span><b>보정 전후 오즈비와 "lower odds".</b> 보정 전 오즈비도 STROBE가 권하는 항목이고, 0.56과 0.76을 함께 보면 보정으로 오즈비가 얼마나 달라졌는지 보입니다. 관찰자료의 오즈비는 보정한 뒤에도 연관이므로 "was associated with"로 쓰고, "risk"가 아니라 "odds"로 씁니다. P는 "P &lt; 0.05"로 줄이지 않고 0.022처럼 정확한 값을 씁니다.</span></li>
-<li><span class="mk">8</span><span><b>모형 확인의 결과.</b> 확인했다는 말만 쓰지 않고 결과를 함께 씁니다. 59는 입원 533건을 추정한 계수 9개로 나눈 값입니다. 결과가 흔하므로 '논문에서 읽기'의 두 번째 상자처럼 표준화 위험과 위험차를 덧붙이면 더 좋습니다.</span></li>
+<li><span class="mk">1</span><span><b>분석, 결과와 기간, 비교의 기준.</b> 어떤 결과를 어떤 분석으로 비교했는지, 어느 군이 기준인지, 모든 대상자를 끝까지 관찰했는지를 앞의 두 문장에 담았습니다. 기준군을 적어야 0.76이 어느 쪽의 오즈가 낮다는 뜻인지 알 수 있고, 노출 하나의 연관을 추정한다고 밝히면 나머지 변수가 보정용이라는 것도 분명해집니다. 끝까지 관찰했다는 문장은 독자가 3단계의 첫째 가정을 확인하게 해 줍니다. 추적이 끊긴 사람이 있었다면 그 수와 처리 방법을 씁니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 변수를 고른 근거와 잰 시점.</b> 2단계에서처럼 분석 전에 임상 지식으로 고르고 처방 시작 전에 잰 값이라는 것을 씁니다. 결과와의 P 값으로 고르면 중요한 교란변수를 빠뜨릴 수 있고, 약을 시작한 뒤에 잰 변수는 약의 효과가 지나가는 길목일 수 있어서 보정하면 연관의 일부를 지울 수 있기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>보정 변수 목록과 단위, 기준범주.</b> 변수를 모두 적고, 연속형 변수에는 단위(나이는 10세당), 범주형 변수에는 기준범주(동반질환 점수 0, eGFR ≥60)를 괄호에 붙입니다. 이것을 빼면 어떻게 되는지는 예문 아래의 자주 하는 실수에서 봅니다.</span></li>
+<li><span class="mk">4</span><span><b>군별 사건 수와 인원.</b> 오즈비만으로는 실제 위험의 크기를 알 수 없습니다. 16.1%와 25.7%가 있어야 독자가 결과가 흔한지 판단할 수 있습니다.</span></li>
+<li><span class="mk">5</span><span><b>보정 전후 오즈비와 "lower odds".</b> 위의 STROBE 권고대로 보정 전과 보정 후 오즈비를 함께 쓰면, 독자가 0.56과 0.76을 견주어 보정으로 오즈비가 얼마나 달라졌는지 볼 수 있습니다. 4단계에서 읽은 대로 이 값은 연관이고 오즈의 비이므로 "was associated with lower odds"로 씁니다. P는 "P &lt; 0.05"로 줄이지 않고 0.022처럼 정확한 값을 씁니다.</span></li>
 </ol>
 </div></div>
 
@@ -296,7 +293,7 @@
 <li>로지스틱 모형에서 일정한 것은 오즈비뿐이고, 위험차와 위험의 비는 기저위험에 따라 달라집니다. 결과가 흔하면 오즈비가 상대위험도보다 1에서 멀리 있으므로 '위험이 몇 배'로 읽지 않고, 표준화나 수정 포아송 회귀로 구한 보정 상대위험도와 위험차를 함께 봅니다.</li>
 <li>보정 오즈비를 믿으려면 모든 대상자를 같은 기간 끝까지 관찰했고(아니면 Cox 모형), 결과가 서로 독립이며(군집이나 짝지은 자료는 다른 모형), 연속형 변수와 로짓이 직선 관계이고, 사건 수에 비해 변수가 많지 않으며, 변수끼리 지나치게 겹치지 않아야 합니다. 깨지면 오즈비나 신뢰구간이 틀어집니다.</li>
 <li>결과표는 기준과 방향, 신뢰구간, P(범주가 셋 이상인 변수는 변수 전체의 P), 위험으로 옮기기, 연관으로 읽기의 순서로 읽습니다. 하위군마다 효과가 다른지는 하위군별 P가 아니라 P for interaction으로 판단합니다.</li>
-<li>논문에는 군별 사건 수, 보정 전후 오즈비와 95% CI, 보정한 변수와 고른 근거, 변수의 단위와 기준범주, 모형 확인 결과를 씁니다. 관찰자료의 오즈비는 "was associated with lower odds"처럼 씁니다.</li>
+<li>논문에는 군별 사건 수, 보정 전후 오즈비와 95% CI, 기준군, 보정한 변수와 고른 근거, 변수의 단위와 기준범주를 씁니다. 관찰자료의 오즈비는 "was associated with lower odds"처럼 씁니다.</li>
 </ul></div>
 <div class="practice"><p class="pt">스스로 확인하기</p>
 <ol>
@@ -320,7 +317,7 @@
 <details><summary>답과 풀이</summary><div><p>읽을 수 있는 것은 "오즈비 척도에서 SGLT2 억제제와 입원의 관련성이 심부전 환자에서 더 컸다"입니다. 근거는 두 하위군의 P 값이 아니라 P for interaction = 0.020이고, 이것은 두 오즈비의 비 0.42 ÷ 0.86 = 0.49(95% CI 0.26–0.90)가 1인지를 본 검정입니다. 읽을 수 없는 것은 "심부전이 없는 환자에서는 효과가 없다"입니다. P = 0.23은 차이가 없다는 증거가 아니며, 신뢰구간 0.67–1.10은 오즈가 33% 낮을 가능성부터 10% 높을 가능성까지 포함합니다. 함께 확인할 것은 세 가지입니다. 이 하위군 분석을 미리 정했는지(이 연구의 Methods에는 prespecified라고 적혀 있습니다), 심부전 환자가 308명(입원 85명)뿐이라 추정이 불안정하지 않은지, 그리고 척도입니다. 이 교호작용은 곱셈 척도의 결과이고, 보정 전 위험차로 보면 심부전이 없는 환자 −7.9%p(16.3% 대 24.2%), 심부전 환자 −23.2%p(15.5% 대 38.8%)입니다.</p></div></details></li>
 <li><p><span class="qt">계산</span><span class="lv do">직접 분석</span>비용효과분석 모형에서 DPP-4 억제제군의 1년 입원 확률을 15%로 두었습니다. 이 장의 adjusted OR 0.76을 적용해 SGLT2 억제제군의 1년 입원 확률과 위험차를 구하세요. 15% × 0.76으로 계산하면 결과가 어떻게 달라집니까?</p>
 <details><summary>답과 풀이</summary><div><p>SGLT2 억제제군의 확률은 11.8%, 위험차는 −3.2%p입니다. 확률을 오즈로 바꾸면 0.15 ÷ 0.85 = 0.176이고, 오즈비를 곱하면 0.176 × 0.76 = 0.134, 다시 확률로 되돌리면 0.134 ÷ 1.134 = 11.8%입니다. 위험차는 11.8 − 15 = −3.2%p이고 치료필요수는 1 ÷ 0.0317 ≈ 32명입니다. 15% × 0.76 = 11.4%로 계산하면 위험차가 −3.6%p가 되어 효과를 약 1.13배로 과대평가합니다. 오즈비를 상대위험도처럼 확률에 바로 곱했기 때문이며, 기저위험이 높을수록 이 오차가 커집니다. 민감도 분석에는 신뢰구간 끝값을 같은 방법으로 바꾼 9.6%(오즈비 0.60)와 14.5%(오즈비 0.96)를 씁니다. 이 계산은 다른 집단의 기저위험에도 같은 오즈비가 성립한다는 가정 위에 있다는 점을 모형 보고서에 밝힙니다.</p></div></details></li>
-<li><p><span class="qt">분석 고르기</span><span class="lv do">직접 분석</span>결과가 모두 '사건이 있었는가'인 세 연구입니다. 무엇을 먼저 구분해야 하고, 각각 어떤 분석이 맞습니까? (가) 한 대학병원에서 반코마이신을 투여받은 1,200명을 모두 7일 동안 관찰해 AKI 85건을 확인했고, 모형에 피페라실린/타조박탐 병용 여부, 나이(연속형), 성별, CCI(4범주), eGFR(매듭 4개 스플라인, 계수 3개), 심부전, 병용 × 심부전 교호작용을 넣으려 한다 (나) 2016–2022년 청구자료에서 두 약을 새로 시작한 환자의 심부전 입원을 비교하는데, 시작 시기에 따라 추적이 몇 달에서 6년까지이고 추적 중 사망과 자격 상실이 있다 (다) 청구자료 코호트 안에서 저나트륨혈증으로 입원한 환자마다 나이, 성별, 코호트 진입일을 맞춘 대조군 4명을 뽑아 입원 전 30일의 티아지드 처방을 비교한다</p>
+<li><p><span class="qt">분석 고르기</span><span class="lv do">직접 분석</span>결과가 모두 '사건이 있었는가'인 세 연구입니다. 무엇을 먼저 구분해야 하고, 각각 어떤 분석이 맞습니까? (가) 한 대학병원에서 반코마이신을 투여받은 1,200명을 모두 7일 동안 관찰해 AKI 85건을 확인했고, 모형에 피페라실린/타조박탐 병용 여부, 나이(연속형), 성별, CCI(4범주), eGFR(매듭 4개 스플라인, 계수 3개), 심부전, 병용 × 심부전 교호작용을 넣으려 한다(계수를 세는 법은 '더 알아보기'의 '표본크기와 사건 수 대비 변수 수') (나) 2016–2022년 청구자료에서 두 약을 새로 시작한 환자의 심부전 입원을 비교하는데, 시작 시기에 따라 추적이 몇 달에서 6년까지이고 추적 중 사망과 자격 상실이 있다 (다) 청구자료 코호트 안에서 저나트륨혈증으로 입원한 환자마다 나이, 성별, 코호트 진입일을 맞춘 대조군 4명을 뽑아 입원 전 30일의 티아지드 처방을 비교한다</p>
 <details><summary>답과 풀이</summary><div><p>먼저 모든 대상자를 같은 기간 끝까지 관찰했는지, 그리고 자료가 짝지어져 있는지를 구분합니다. (가)는 관찰 기간이 7일로 같고 모두 끝까지 관찰했으므로 로지스틱 회귀가 맞습니다. 다만 추정할 계수가 병용 1, 나이 1, 성별 1, CCI 3, eGFR 스플라인 3, 심부전 1, 교호작용 1로 모두 11개라서 사건 수 대비 계수 수는 85 ÷ 11 = 7.7입니다. EPV 10은 대략의 경험칙이고 교란 보정이 목적이면 5–9에서도 대체로 괜찮다는 연구가 있지만, 여유가 없으므로 CCI 범주나 스플라인 매듭 수를 사전 지식으로 줄이거나 성향점수로 교란변수를 요약하는 방법을 고려하고, 신뢰구간이 지나치게 넓은 계수가 없는지 확인합니다. AKI가 7.1%로 드문 편이라 오즈비와 상대위험도의 차이는 크지 않습니다. (나)는 추적 기간이 사람마다 다르고 중도절단이 있으므로 '입원 여부'를 로지스틱 회귀에 넣으면 안 되고, 사건까지의 시간을 다루는 Cox 모형(<a href="#ch11-s1">11장</a>)을 씁니다. 사망은 입원을 가로막는 경쟁위험으로 따로 다룹니다(17장). (다)는 짝지은 환자-대조군 자료이므로 조건부 로지스틱 회귀를 씁니다('더 알아보기'의 '짝지은 자료나 결과가 셋 이상일 때 쓰는 모형'). 짝을 무시한 보통의 로지스틱 회귀나 짝마다 가변수를 넣은 모형은 오즈비가 치우칩니다. 환자-대조군 설계에서는 위험을 구할 수 없으므로 결과는 오즈비로만 보고합니다.</p></div></details></li>
 <li><p><span class="qt">논문 쓰기</span>건강보험 청구자료로 두 약을 비교하는 내 연구에 로지스틱 회귀를 쓴다고 합시다. 예를 들어 65세 이상에서 약 A와 약 B를 새로 시작한 환자를 모두 1년 동안 추적할 수 있고, 1년 안의 결과 사건은 15% 안팎으로 예상됩니다. 분석 방법을 밝히는 Methods 문장을 두 문장 정도로 써 보세요. 보정 변수는 자신의 연구에 맞게 고릅니다.</p>
 <details><summary>답과 풀이</summary><div><p>모범 문장은 다음과 같습니다. 대괄호는 자신의 연구에 맞게 바꿉니다. “We used multivariable logistic regression to estimate the association between initiation of [drug A], compared with [drug B] (reference), and [outcome] within 1 year after cohort entry; all patients had complete 1-year follow-up. Covariates were selected a priori on the basis of clinical knowledge and measured during the year before cohort entry, including age (per 10 years), sex, Charlson comorbidity index (0 [reference], 1–2, ≥3), and [other confounders]; because the outcome was expected to be common, we also estimated standardized risks, risk differences, and risk ratios.”</p>
@@ -501,7 +498,7 @@ hf             1.466  1.098  1.956</pre>
 <p>0/1 결과의 잔차는 두 줄의 띠 모양으로 나타나 선형회귀처럼 잔차 그림으로 문제를 찾기 어렵습니다. 대신 환자 한 명을 뺐을 때 계수가 얼마나 변하는지(DFBETA), 전체 적합이 얼마나 변하는지(Cook's distance)를 봅니다. statsmodels에서는 적합 결과의 <code>get_influence()</code>가 이 값들(<code>dfbetas</code>, <code>cooks_distance</code>)을 줍니다. 수천 명 자료에서는 한 명이 결과를 바꾸는 일이 드물지만, 작은 자료나 드문 범주에서는 몇 명이 오즈비를 좌우할 수 있습니다. 영향이 큰 환자가 보이면 먼저 자료 입력 오류인지 확인하고, 이유 없이 삭제하지 않습니다.</p>
 
 <h3>완전 분리와 준완전 분리 <span class="lv deep">심화</span></h3>
-<p>3단계의 네 번째 가정에서 말한 분리를 자세히 봅니다. 어떤 변수의 한 범주에서 모든 환자에게 사건이 생겼거나(또는 아무에게도 생기지 않았거나), 변수들의 조합으로 사건 여부를 완벽하게 가를 수 있으면 최대우도추정값이 존재하지 않습니다. 오즈비를 키울수록 우도(관측된 자료가 나올 확률, 8장 마 절)가 계속 커지기 때문입니다. 모든 환자가 완벽히 갈리면 <strong>완전 분리</strong><span class="en">(complete separation)</span>, 한쪽 범주에서만 완벽히 갈리면 <strong>준완전 분리</strong><span class="en">(quasi-complete separation)</span>라고 합니다. 작은 표본, 드문 노출, 범주를 잘게 나눈 변수에서 흔히 생깁니다. 분리가 생기면 계수와 표준오차가 비정상적으로 커지고 P가 1에 가깝게 나와 가장 강한 위험인자가 '관련 없음'처럼 보이며, 프로그램이 분리를 알려 주지 않을 수도 있습니다.</p>
+<p>3단계의 네 번째 가정에서 말한, 환자가 적은 범주에서 오즈비 추정값이 끝없이 커지거나 0으로 다가가는 문제를 자세히 봅니다. 이 문제를 <strong>분리</strong><span class="en">(separation)</span>라고 합니다. 어떤 변수의 한 범주에서 모든 환자에게 사건이 생겼거나(또는 아무에게도 생기지 않았거나), 변수들의 조합으로 사건 여부를 완벽하게 가를 수 있으면 최대우도추정값이 존재하지 않습니다. 오즈비를 키울수록 우도(관측된 자료가 나올 확률, 8장 마 절)가 계속 커지기 때문입니다. 모든 환자가 완벽히 갈리면 <strong>완전 분리</strong><span class="en">(complete separation)</span>, 한쪽 범주에서만 완벽히 갈리면 <strong>준완전 분리</strong><span class="en">(quasi-complete separation)</span>라고 합니다. 작은 표본, 드문 노출, 범주를 잘게 나눈 변수에서 흔히 생깁니다. 분리가 생기면 계수와 표준오차가 비정상적으로 커지고 P가 1에 가깝게 나와 가장 강한 위험인자가 '관련 없음'처럼 보이며, 프로그램이 분리를 알려 주지 않을 수도 있습니다.</p>
 <p>면역관문억제제를 투여받은 신세포암 환자 80명에서 3등급 이상 면역관련 이상반응(irAE)의 위험인자를 보는 자료입니다. 21명(26.3%)에게 irAE가 생겼습니다. 자가면역질환 병력이 있는 6명은 모두 irAE가 생겼고, 병용요법을 받은 34명 중 13명에게 생겼습니다.</p>
 
 <div class="paper">
@@ -541,13 +538,13 @@ combination     0.9985      0.593      1.684      0.092      -0.164       2.161
 <li><span class="mk">3</span><span><b>GLM은 경고 없이 끝납니다.</b> 같은 모형을 <code>smf.glm()</code>으로 적합하면 아무 경고 없이 반복 20회 만에 수렴했다고 보고하지만, 자가면역질환 병력의 계수는 22.8, 표준오차는 1.16 × 10<sup>4</sup>로 <code>smf.logit()</code>의 값과 다릅니다. 계수가 수렴한 것이 아니라 이탈도의 변화가 기준보다 작아져서 멈춘 것이라, 어디서 멈추느냐에 따라 숫자가 달라집니다. 분리와 관계없는 절편과 병용요법의 계수(0.9985)는 두 방법에서 같습니다. 경고가 없다고 안심하지 말고 계수와 표준오차의 크기, 반복 횟수, 교차표의 0인 칸을 직접 확인합니다.</span></li>
 </ol>
 </div></div>
-<p>분리가 생겼을 때 해당 변수를 빼거나 범주를 합치는 방법도 있지만, 가장 강한 위험인자를 버리는 결과가 될 수 있습니다. 현재는 <strong>Firth 벌점 우도</strong><span class="en">(Firth's penalized likelihood)</span> 방법이 표준적인 해결책으로 쓰입니다. 우도에 작은 벌점을 더해 추정값이 무한대로 가지 않게 하는 방법으로, 작은 표본에서 오즈비가 부풀려지는 경향(소표본 편향)도 줄여 줍니다<cite data-ref="firth1993"></cite><cite data-ref="heinze2002"></cite>.</p>
+<p>분리가 생겼을 때 해당 변수를 빼거나 범주를 합치는 방법도 있지만, 가장 강한 위험인자를 버리는 결과가 될 수 있습니다. 현재는 3단계에서 말한, 추정값이 끝없이 치닫지 않게 하는 방법인 <strong>Firth 벌점 우도</strong><span class="en">(Firth's penalized likelihood)</span> 방법이 표준적인 해결책으로 쓰입니다. 우도에 작은 벌점을 더해 추정값이 무한대로 가지 않게 하는 방법으로, 작은 표본에서 오즈비가 부풀려지는 경향(소표본 편향)도 줄여 줍니다<cite data-ref="firth1993"></cite><cite data-ref="heinze2002"></cite>.</p>
 <p>이 자료에 적용하면 자가면역질환 병력의 오즈비는 e<sup>3.7952</sup> = 44.5, 95% 신뢰구간은 e<sup>1.5403</sup>–e<sup>8.6959</sup> = 4.7–5,978입니다. 신뢰구간은 Wald 방법이 아닌 프로파일 벌점 우도로 구하고, P는 벌점 우도비 검정(χ² = 13.65, P = 0.0002)으로 구합니다. 구간이 매우 넓은 것은 사건 6건에 근거한 추정이라는 정직한 표시입니다. 분리가 없는 병용요법의 오즈비(e<sup>0.9540</sup> = 2.60)는 일반 로지스틱 회귀(e<sup>0.9985</sup> = 2.71)와 비슷합니다. 논문에서 "Firth's penalized likelihood"나 "bias-reduced logistic regression"이라는 표현을 보면 분리나 드문 사건 때문에 이 방법을 썼다는 뜻입니다.</p>
 <div class="callout note"><p class="ct">참고 · 파이썬에서 Firth 방법</p>
 <p>statsmodels에는 Firth 방법이 없습니다(0.15 기준). 파이썬에서는 <code>firthlogist</code> 패키지의 <code>FirthLogisticRegression</code>이 같은 방식의 신뢰구간과 검정을 제공한다고 소개되어 있지만, 2022년 이후 갱신되지 않았고 PyPI에 적힌 지원 파이썬 버전이 3.10 이하여서(2026년 9월 확인) 최신 환경에서는 설치되지 않을 수 있습니다. 벌점을 더한 Newton–Raphson 반복은 짧은 코드로 직접 구현할 수도 있으며, 이 장의 Firth 결과는 그렇게 계산했습니다.</p></div>
 
 <h3>표본크기와 사건 수 대비 변수 수 <span class="lv deep">심화</span></h3>
-<p>3단계의 네 번째 가정에서 사건 수와 계수 수를 세는 방법입니다. 그곳에서 말한 사건 수는 더 정확히 말해 사건이 있는 사람과 없는 사람 중 적은 쪽의 수입니다. 10,000명 중 50명에게 사건이 생긴 자료는 추정에 쓸 수 있는 정보가 50명 분량에 가깝습니다. 그래서 표본크기의 경험칙을 사건 수를 추정할 계수 수로 나눈 값, 즉 <strong>사건 수 대비 변수 수</strong><span class="en">(events per variable, EPV)</span>로 표현합니다.</p>
+<p>3단계의 네 번째 가정에서 사건 수와 계수 수를 세는 방법입니다. 그곳에서 말한 사건 수는 사건이 있는 사람과 없는 사람 중 적은 쪽의 수입니다. 10,000명 중 50명에게 사건이 생긴 자료는 추정에 쓸 수 있는 정보가 50명 분량에 가깝습니다. 그래서 표본크기의 경험칙을 사건 수를 추정할 계수 수로 나눈 값, 즉 <strong>사건 수 대비 변수 수</strong><span class="en">(events per variable, EPV)</span>로 표현합니다.</p>
 <p>계수는 절편을 빼고 셉니다. 범주가 셋인 변수는 기준범주와 비교하는 0/1 변수, 즉 가변수 두 개로 들어가므로(위 '범주가 셋 이상인 설명변수') 계수 2개로 세고, 스플라인 항과 교호작용 항도 계수 하나씩으로 셉니다. 변수 선택 과정에서 검토했다가 뺀 후보 변수도 셉니다. 신규 사용자 코호트의 모형 3은 SGLT2 억제제, 나이, 성별, 동반질환 점수 2개, 이전 입원, 심부전, eGFR 2개로 계수가 9개이므로 EPV = 533 ÷ 9 = 59.2입니다. 연구 전에 필요한 인원과 사건 수를 구하는 방법은 <a href="#ap01-s5">부록 A 마 절</a>에 있습니다.</p>
 <p>Peduzzi 등의 모의실험에서 EPV가 10 미만이면 계수가 위아래로 편향되고, 신뢰구간이 참값을 덜 포함하고, 효과의 방향이 거꾸로 나오는 경우가 늘었습니다<cite data-ref="peduzzi1996"></cite>. 여기서 "EPV ≥ 10" 규칙이 널리 퍼졌습니다. 이후 연구에서는 교란 보정이 목적이라면 EPV 5–9에서도 대체로 괜찮은 경우가 많고<cite data-ref="vittinghoff2007"></cite>, EPV만으로는 문제의 크기가 정해지지 않고 전체 표본크기 같은 다른 요인과 분리 여부에도 크게 좌우된다는 결과가 나왔습니다<cite data-ref="vansmeden2016"></cite>. 즉 10은 절대 기준이 아닌 대략의 경험칙입니다. 예측모형을 개발할 때는 EPV 대신 과적합의 정도, 전체 위험의 정밀도 등을 기준으로 필요한 표본크기를 계산하는 방법이 권장됩니다<cite data-ref="riley2020"></cite>.</p>
 <p>표본에 비해 변수가 많으면 모형이 자료의 우연한 패턴까지 외우는 <strong>과적합</strong><span class="en">(overfitting)</span>이 생깁니다(1장 라 절). 과적합된 모형은 모형을 만든 자료에서는 잘 맞아 보이지만 새 환자에서는 성능이 떨어집니다. 예측모형에서 이 현상을 확인한 예는 다음과 같습니다.</p>
@@ -561,21 +558,22 @@ combination     0.9985      0.593      1.684      0.092      -0.164       2.161
 <p>무관한 변수 10개를 더하자 개발 자료에서의 성능(C 통계량)은 오히려 좋아졌지만 새 환자에서는 나빠졌습니다. 교정 기울기 0.61은 예측 확률이 지나치게 극단적이라는 뜻입니다. 높게 예측한 환자는 실제로는 덜 높고, 낮게 예측한 환자는 실제로는 덜 낮습니다(아래 '예측모형의 교정'). 과적합을 줄이려면 후보 변수를 사전 지식으로 줄이고, 필요하면 계수를 0 쪽으로 줄이는 벌점 회귀(ridge, lasso)를 쓰며, 성능은 반드시 내부 검증으로 보정해서 보고합니다. Firth 보정은 작은 표본의 편향을 줄이는 방법으로, 계수를 줄이는 효과는 작아 과적합 대책으로는 충분하지 않습니다.</p>
 
 <h3>Methods의 통계분석 문단 <span class="lv deep">심화</span></h3>
-<p>5단계 Table 2의 숫자를 어디까지 믿을 수 있는지는 Methods의 통계분석 문단에서 판단합니다. 같은 연구의 문단을 한 문장씩 읽어 봅니다.</p>
+<p>5단계 Table 2의 숫자를 어디까지 믿을 수 있는지는 Methods의 통계분석 문단에서 판단합니다. 같은 연구의 문단을 한 문장씩 읽어 봅니다. 6단계 기본 예문에는 없는 모형 확인의 방법과 결과, 결과가 흔할 때의 보완까지 담은 자세한 문단이라, 내 논문을 쓸 때 본보기로도 쓸 수 있습니다.</p>
 <div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 통계분석 문단</b><span>가상의 예시</span></div>
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods의 통계분석 문단과 모형 확인 결과</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<p>위 코호트 연구의 Statistical analysis 문단입니다. 로지스틱 회귀를 쓴 관찰연구에서 확인해야 할 내용이 대부분 들어 있습니다.</p>
-<p class="excerpt">The outcome was all-cause hospitalization within 1 year after cohort entry; <span class="mk">1</span> <span class="hl">all patients had complete 1-year follow-up for the outcome</span>. We estimated odds ratios (ORs) and 95% confidence intervals (CIs) for hospitalization using multivariable logistic regression. Covariates were <span class="mk">2</span> <span class="hl">selected a priori on the basis of clinical knowledge and a directed acyclic graph, irrespective of their statistical significance</span>, and included <span class="mk">3</span> <span class="hl">age (continuous, per 10 years), sex, Charlson comorbidity index (0, 1–2, ≥3), prior hospitalization, heart failure, and estimated glomerular filtration rate (eGFR; ≥60, 45–59, &lt;45 mL/min/1.73 m²)</span>. The <span class="mk">4</span> <span class="hl">linearity of continuous variables on the log-odds scale</span> was examined with restricted cubic splines. <span class="mk">5</span> <span class="hl">Effect modification by heart failure was prespecified</span> and assessed by adding a product term and using a likelihood ratio test. With 533 events and 9 model parameters, <span class="mk">6</span> <span class="hl">the number of events per parameter was 59</span>. Because the outcome was common, we additionally estimated <span class="mk">7</span> <span class="hl">risk ratios with modified Poisson regression with robust standard errors, and standardized risks</span> by averaging model-predicted probabilities. <span class="mk">8</span> <span class="hl">All tests were two-sided with α = 0.05</span>.</p>
+<p>위 코호트 연구의 Statistical analysis 문단과, 모형을 확인한 결과를 적은 Results의 한 문장입니다. 로지스틱 회귀를 쓴 관찰연구에서 확인해야 할 내용이 대부분 들어 있습니다.</p>
+<p class="excerpt"><b>Methods.</b> The outcome was all-cause hospitalization within 1 year after cohort entry; <span class="mk">1</span> <span class="hl">all patients had complete 1-year follow-up for the outcome</span>. We estimated odds ratios (ORs) and 95% confidence intervals (CIs) for hospitalization using multivariable logistic regression. Covariates were <span class="mk">2</span> <span class="hl">selected a priori on the basis of clinical knowledge and a directed acyclic graph, irrespective of their statistical significance</span>, and included <span class="mk">3</span> <span class="hl">age (continuous, per 10 years), sex, Charlson comorbidity index (0, 1–2, ≥3), prior hospitalization, heart failure, and estimated glomerular filtration rate (eGFR; ≥60, 45–59, &lt;45 mL/min/1.73 m²)</span>. <span class="mk">4</span> <span class="hl">Linearity on the log-odds scale was assessed with restricted cubic splines; because the association with eGFR was nonlinear, eGFR was entered in categories defined by clinical cut points. Multicollinearity was assessed with variance inflation factors</span>. <span class="mk">5</span> <span class="hl">Effect modification by heart failure was prespecified</span> and assessed by adding a product term and using a likelihood ratio test. Because the outcome was common, we additionally estimated <span class="mk">6</span> <span class="hl">risk ratios with modified Poisson regression with robust standard errors, and standardized risks</span> by averaging model-predicted probabilities. <span class="mk">7</span> <span class="hl">All tests were two-sided with α = 0.05</span>. Analyses were performed using Python with statsmodels 0.15.</p>
+<p class="excerpt"><b>Results.</b> <span class="mk">8</span> <span class="hl">There was no evidence of nonlinearity for age (P = 0.40), the largest variance inflation factor was 1.35, and there were 59 events per model coefficient.</span></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>결과의 정의와 추적의 완결성.</b> 로지스틱 회귀는 "정해진 기간 안에 사건이 있었는가"를 모든 대상자에게서 확인할 수 있을 때 씁니다. 1년이 되기 전에 사망하거나 자격을 잃어 추적이 끊긴 환자가 많다면 그 환자를 '입원 없음'으로 두는 것도, 분석에서 빼는 것도 편향을 만듭니다. 그때는 추적 기간이 다른 것을 다룰 수 있는 Cox 모형(11장)을 쓰고, 사망이 입원을 가로막는 경쟁위험이라면 경쟁위험 분석(17장)을 씁니다. 이 문장이 없다면 Results의 추적 정보에서 탈락이 얼마나 있었는지 확인합니다.</span></li>
 <li><span class="mk">2</span><span><b>공변량 선택 방법.</b> 원인 모형에서는 "단변수 분석에서 P &lt; 0.2인 변수만 다변수 모형에 넣었다"는 방식이 권장되지 않습니다. 교란변수는 결과와 노출 모두와의 관계로 정해지는 것이지 결과와의 P 값으로 정해지지 않고, 단변수 P 값으로 고르면 중요한 교란변수를 빠뜨릴 수 있기 때문입니다<cite data-ref="sun1996"></cite>(8장 아 절). 인과 구조 그림(DAG)과 사전 지식으로 고른다고 밝힌 이 문장이 모범적인 형태입니다. 노출 이후에 생긴 변수(추적 중 순응도, 치료 중 검사값)는 넣지 않았는지도 확인합니다.</span></li>
 <li><span class="mk">3</span><span><b>변수를 넣은 형태.</b> 나이는 10세 단위 연속형이므로 표의 오즈비는 "10세당"입니다. CCI와 eGFR은 범주형이므로 괄호의 첫 범주(0, ≥60)가 기준범주입니다. 이 정보가 있어야 Table 2의 오즈비를 올바르게 읽을 수 있습니다.</span></li>
-<li><span class="mk">4</span><span><b>로짓 선형성 점검.</b> 연속형 변수를 직선으로 넣은 모형은 "나이가 10세 늘 때마다 로그 오즈가 같은 양만큼 는다"는 가정을 합니다. 제한 삼차 스플라인으로 이 가정을 확인했다는 뜻입니다(위 '연속형 변수의 로짓 선형성').</span></li>
+<li><span class="mk">4</span><span><b>모형을 확인한 방법.</b> 3단계의 직선 관계와 변수의 겹침을 어떻게 확인했는지 밝힌 문장입니다. 연속형 변수를 직선으로 넣은 모형은 "나이가 10세 늘 때마다 로그 오즈가 같은 양만큼 는다"는 가정을 하고, 제한 삼차 스플라인으로 이 가정을 확인했다는 뜻입니다(위 '연속형 변수의 로짓 선형성'). eGFR처럼 범주로 바꿔 넣은 변수는 그 이유와 절단점의 근거를 함께 밝힙니다. 자료를 본 뒤 고른 절단점은 결과를 부풀릴 수 있기 때문입니다. 변수의 겹침은 분산팽창계수(variance inflation factor)로 쟀습니다(위 '다중공선성과 영향력이 큰 관측값').</span></li>
 <li><span class="mk">5</span><span><b>미리 정한 효과수정 분석.</b> 심부전 여부에 따라 약의 효과가 다른지를 곱셈항(교호작용 항)으로 검정했습니다. '미리 정했다(prespecified)'는 표현이 중요합니다. 자료를 본 뒤 여러 하위군을 뒤져 하나를 고른 결과는 다중비교 문제가 있습니다(1장 다 절, 위 '하위군마다 효과가 다른지 보는 교호작용').</span></li>
-<li><span class="mk">6</span><span><b>사건 수 대비 모수 수(EPV).</b> 추정한 계수가 절편을 빼고 9개(SGLT2, 나이, 성별, CCI 가변수 2, 이전 입원, 심부전, eGFR 가변수 2)이므로 533 ÷ 9 = 59.2입니다. 범주가 셋인 변수는 계수 2개로 셉니다. 흔히 쓰는 기준인 10을 넉넉히 넘습니다(위 '표본크기').</span></li>
-<li><span class="mk">7</span><span><b>결과가 흔할 때의 보완.</b> 입원 비율이 22%라서 오즈비가 상대위험도보다 1에서 꽤 멀어집니다. 상대위험도와 절대위험의 차이를 따로 제시하겠다는 문장입니다(위 '결과가 흔할 때').</span></li>
-<li><span class="mk">8</span><span><b>유의수준.</b> 양측검정, α = 0.05. 교호작용 검정이나 여러 2차 결과가 있다면 다중성 처리 방법도 이 근처에 적습니다.</span></li>
+<li><span class="mk">6</span><span><b>결과가 흔할 때의 보완.</b> 입원 비율이 22%라서 오즈비가 상대위험도보다 1에서 꽤 멀어집니다. 상대위험도와 절대위험의 차이를 따로 제시하겠다는 문장입니다(4단계 '결과가 흔할 때의 오즈비와 상대위험도').</span></li>
+<li><span class="mk">7</span><span><b>유의수준.</b> 양측검정, α = 0.05. 교호작용 검정이나 여러 2차 결과가 있다면 다중성 처리 방법도 이 근처에 적습니다.</span></li>
+<li><span class="mk">8</span><span><b>모형 확인의 결과.</b> 확인했다는 말만 쓰지 않고 결과를 함께 씁니다. 나이의 비선형성 P = 0.40은 직선에서 벗어난다는 근거가 없었다는 뜻이고, 가장 큰 분산팽창계수 1.35는 변수끼리 거의 겹치지 않았다는 뜻입니다. 59는 사건 수 대비 계수 수(events per variable, EPV)입니다. 추정한 계수가 절편을 빼고 9개(SGLT2, 나이, 성별, CCI 가변수 2, 이전 입원, 심부전, eGFR 가변수 2)이므로 533 ÷ 9 = 59.2이고, 범주가 셋인 변수는 계수 2개로 셉니다. 흔히 쓰는 기준인 10을 넉넉히 넘습니다(위 '표본크기와 사건 수 대비 변수 수').</span></li>
 </ol>
 </div></div>
 
@@ -719,8 +717,8 @@ combination     0.9985      0.593      1.684      0.092      -0.164       2.161
 <div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
 <li><strong>고르는 기준</strong>: 결과가 예/아니오이고 모든 대상자를 같은 기간(예: 1년) 끝까지 관찰했다면 로지스틱 회귀를 씁니다. 추적 기간이 사람마다 다르거나 중간에 끊긴 사람이 많으면 Cox 모형(11장), 사건 건수나 발생률이 결과라면 포아송·음이항 회귀(12장), 결과가 연속형이면 선형회귀(6장 라 절)를 씁니다. 짝지은 환자-대조군 자료는 조건부 로지스틱 회귀(위 '짝지은 자료나 결과가 셋 이상일 때 쓰는 모형')입니다.</li>
 <li><strong>교란과 보정</strong>: 청구자료 같은 관찰연구에서는 약을 처방받는 환자가 원래 다릅니다(적응증에 의한 교란). 교란변수는 결과와의 P 값이 아니라 사전 지식과 인과 구조 그림(DAG)으로 고르고, 노출 이전(기저 시점)에 측정한 값으로 정의합니다. 노출 이후에 생긴 변수(매개변수)나 충돌변수는 넣지 않습니다. 교란변수가 한두 개면 층화와 Mantel–Haenszel 방법(8장 바 절)으로도 되고, 많으면 이 절의 다변수 모형이나 성향점수 방법(15장)을 씁니다. 어떤 방법도 모형에 넣지 않았거나 자료에 없는 교란변수(노쇠, HbA1c 등)는 보정하지 못합니다.</li>
-<li><strong>변수 수와 사건 수</strong>: 모형에 넣을 수 있는 변수의 수는 전체 인원이 아니라 사건 수(사건 유무 중 적은 쪽)가 정합니다. 사건 수 ÷ 추정하는 계수 수(EPV)를 계산하되, 범주가 셋인 변수는 계수 2개로 셉니다. EPV 10은 대략의 경험칙이고, 이보다 훨씬 적으면 사전 지식으로 변수를 줄이거나 성향점수로 여러 교란변수를 하나로 요약하는 방법을 고려합니다(위 '표본크기').</li>
-<li><strong>결과가 흔할 때</strong>: 결과 비율이 대략 10%를 넘으면 오즈비가 상대위험도보다 1에서 멀어집니다. 오즈비와 함께 표준화 위험과 위험차, 또는 수정 포아송 회귀의 상대위험도를 보고합니다(위 '결과가 흔할 때').</li>
+<li><strong>변수 수와 사건 수</strong>: 모형에 넣을 수 있는 변수의 수는 전체 인원이 아니라 사건 수(사건 유무 중 적은 쪽)가 정합니다. 사건 수 ÷ 추정하는 계수 수(EPV)를 계산하되, 범주가 셋인 변수는 계수 2개로 셉니다. EPV 10은 대략의 경험칙이고, 이보다 훨씬 적으면 사전 지식으로 변수를 줄이거나 성향점수로 여러 교란변수를 하나로 요약하는 방법을 고려합니다(위 '표본크기와 사건 수 대비 변수 수').</li>
+<li><strong>결과가 흔할 때</strong>: 결과 비율이 대략 10%를 넘으면 오즈비가 상대위험도보다 1에서 멀어집니다. 오즈비와 함께 표준화 위험과 위험차, 또는 수정 포아송 회귀의 상대위험도를 보고합니다(4단계 '결과가 흔할 때의 오즈비와 상대위험도').</li>
 <li><strong>변수를 넣는 형태</strong>: 연속형 변수는 임상적으로 의미 있는 단위(10세당 등)로, 범주형 변수는 기준범주를 미리 정해 넣습니다. 연속형 변수의 직선 가정은 스플라인으로 확인합니다(위 '가정과 대안'과 '연속형 변수의 로짓 선형성').</li>
 <li><strong>보고할 것</strong>: 군별 사건 수/인원(%), 보정 전후 오즈비와 95% 신뢰구간, 보정한 변수 목록과 넣은 형태(단위, 기준범주), 사건 수와 계수 수, 신뢰구간과 검정 방법, 결과가 흔하면 상대위험도나 위험차. 공변량의 오즈비는 인과 효과로 해석하지 않습니다(Table 2 오류).</li>
 </ul></div>
@@ -735,7 +733,7 @@ combination     0.9985      0.593      1.684      0.092      -0.164       2.161
 
 <h4>계수와 오즈비</h4>
 <div class="eq">\[ \frac{\text{odds}(x+1)}{\text{odds}(x)} = \frac{e^{\beta_0+\beta_1(x+1)}}{e^{\beta_0+\beta_1 x}} = e^{\beta_1} = \text{OR}, \qquad \text{OR}_{c\text{ 단위}} = e^{c\beta_1}, \qquad 95\%\ \text{CI} = e^{c(\hat\beta_1 \pm 1.96\,\text{SE})} \]
-<p>다른 설명변수가 있으면 나머지 변수의 값을 같게 둔 채 x만 1 늘린 비교가 됩니다. 예제: OR<sub>5 mg/L</sub> = e<sup>5 × 0.19995</sup> = 2.72, 95% CI = e<sup>5 × (0.19995 ± 1.96 × 0.04021)</sup> = 1.83–4.03. Table 2의 신뢰구간도 c = 1인 같은 식입니다(SGLT2 억제제: e<sup>−0.2727 ± 1.96 × 0.1194</sup> = 0.60–0.96).</p>
+<p>다른 설명변수가 있으면 나머지 변수의 값을 같게 둔 채 x만 1 늘린 비교가 됩니다. 예제: OR<sub>5 mg/L</sub> = e<sup>5 × 0.19995</sup> = 2.72, 95% CI = e<sup>5 × (0.19995 ± 1.96 × 0.04021)</sup> = 1.83–4.03. Table 2의 신뢰구간은 c = 1인 경우이고, 숫자를 넣은 계산은 2단계 '보정한 오즈비'에 있습니다.</p>
 <p>1 mg/L당 오즈비에서 출발해도 같은 값이 나오지만, 반올림한 1.22를 다섯 번 곱하면 2.70이 되므로 반올림 전 값 1.2213을 씁니다. 신뢰구간도 반올림 전 1 mg/L당 끝값을 다섯 번 곱하면 1.1288⁵ = 1.83, 1.3215⁵ = 4.03입니다.</p></div>
 
 <h4>확률 척도에서의 기울기</h4>
@@ -748,7 +746,7 @@ combination     0.9985      0.593      1.684      0.092      -0.164       2.161
 
 <h4>우도, 이탈도, 우도비 검정</h4>
 <div class="eq">\[ L(\beta) = \prod_{i=1}^{n} p_i^{\,y_i}\,(1-p_i)^{1-y_i}, \qquad D = -2\ln L, \qquad \chi^2_{\text{LR}} = D_{\text{축소 모형}} - D_{\text{전체 모형}}, \qquad \text{AIC} = D + 2k \]
-<p>y<sub>i</sub>는 환자 i의 결과(1 또는 0)이므로 입원한 환자는 p<sub>i</sub>, 입원하지 않은 환자는 1 − p<sub>i</sub>가 곱해집니다. k는 절편을 포함한 계수 수입니다. 코호트에서 절편만 있는 모형과의 우도비 검정은 2541.8 − 2320.8 = 221.0(자유도 9), AIC는 2320.8 + 2 × 10 = 2340.8입니다. 자유도 1 카이제곱 분포의 95% 분위수가 3.84이므로, 프로파일 우도 신뢰구간은 로그 우도가 꼭대기보다 3.84 ÷ 2 = 1.92 낮아지는 두 지점입니다. Wald 검정은 z = β̂/SE를 표준정규분포와 비교합니다(SGLT2 억제제: −0.27273 ÷ 0.11944 = −2.283, z² = 5.21).</p></div>
+<p>y<sub>i</sub>는 환자 i의 결과(1 또는 0)이므로 입원한 환자는 p<sub>i</sub>, 입원하지 않은 환자는 1 − p<sub>i</sub>가 곱해집니다. k는 절편을 포함한 계수 수입니다. 코호트에서 절편만 있는 모형과의 우도비 검정은 2541.8 − 2320.8 = 221.0(자유도 9), AIC는 2320.8 + 2 × 10 = 2340.8입니다. 자유도 1 카이제곱 분포의 95% 분위수가 3.84이므로, 프로파일 우도 신뢰구간은 로그 우도가 꼭대기보다 3.84 ÷ 2 = 1.92 낮아지는 두 지점입니다. Wald 검정은 z = β̂/SE를 표준정규분포와 비교합니다(숫자를 넣은 계산은 2단계 '보정한 오즈비'와 statsmodels 출력의 해설 3).</p></div>
 
 <h4>오즈비를 상대위험도로 바꾸는 근사식</h4>
 <div class="eq">\[ \text{RR} \approx \frac{\text{OR}}{1 - p_0 + p_0 \times \text{OR}} \]
