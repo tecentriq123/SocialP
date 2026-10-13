@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">일곱 변수가 모두 같은 환자끼리 묶으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d5 = df.assign(age5=(df[&quot;age&quot;] // 5) * 5)     # 나이를 5세 구간으로
+keys = [&quot;age5&quot;, &quot;female&quot;, &quot;hf&quot;, &quot;ckd&quot;, &quot;prior_hosp&quot;,
+        &quot;n_drug&quot;, &quot;tertiary&quot;]
+cell_n = d5.groupby(keys).size()              # 칸마다 환자 수
+print(&quot;cells:&quot;, len(cell_n), &quot; median size:&quot;, cell_n.median())
+print(&quot;cells with both drugs:&quot;,
+      d5.groupby(keys)[&quot;drugA&quot;].nunique().eq(2).sum())
+cell_n.value_counts().sort_index().head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>cells: 1814<span class="mk">1</span>  median size: 2.0<span class="mk">2</span>
+cells with both drugs: 810<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>754<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>291</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>179</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>114</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>74</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

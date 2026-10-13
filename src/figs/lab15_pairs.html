@@ -1,0 +1,32 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">짝을 무시한 신뢰구간과 짝 안의 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">gi = gee_fit(&quot;hosp_1y ~ drugA&quot;, m, &quot;id&quot;)   # 짝을 무시하고 한 사람씩
+print(&quot;pairs ignored:&quot;, rr_ci(gi).round(3))
+print(&quot;pairs used   :&quot;, rr_ci(gm).round(3))
+
+pd.crosstab(ma[&quot;hosp_1y&quot;].to_numpy(), mb[&quot;hosp_1y&quot;].to_numpy(),
+            rownames=[&quot;drug A user&quot;], colnames=[&quot;drug B user&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>pairs ignored: [0.908 0.797 1.034]<span class="mk">1</span>
+pairs used   : [0.908 0.797 1.033]<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>drug B user</th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+    <tr>
+      <th>drug A user</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2761</td>
+      <td>372<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>333<span class="mk">4</span></td>
+      <td>50<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

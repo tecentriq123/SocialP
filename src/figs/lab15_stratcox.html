@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">짝을 층으로 둔 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sc = smf.phreg(&quot;hosp_day ~ drugA&quot;, data=m, status=&quot;hosp_1y&quot;,
+               strata=&quot;pair&quot;).fit()             # 짝마다 따로 비교
+lo, hi = np.exp(sc.conf_int()[0])
+print(f&quot;HR, pairs as strata: {np.exp(sc.params[0]):.3f}&quot;,
+      f&quot;({lo:.3f}-{hi:.3f})&quot;)
+
+ta = np.where(ma[&quot;hosp_1y&quot;] == 1, ma[&quot;hosp_day&quot;], np.inf)
+tb = np.where(mb[&quot;hosp_1y&quot;] == 1, mb[&quot;hosp_day&quot;], np.inf)
+print(&quot;A user first:&quot;, (ta &lt; tb).sum(),
+      &quot; B user first:&quot;, (tb &lt; ta).sum(),
+      &quot; ratio:&quot;, round((ta &lt; tb).sum() / (tb &lt; ta).sum(), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>HR, pairs as strata: 0.897 (0.778-1.035)<span class="mk">1</span>
+A user first: 357<span class="mk">2</span>  B user first: 398<span class="mk">3</span>  ratio: 0.897<span class="mk">4</span></pre></div></div>

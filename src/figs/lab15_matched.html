@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">매칭 코호트 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ma = df.iloc[pairs[&quot;a_row&quot;]].copy()       # 짝을 찾은 A 사용자
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">매칭 코호트 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ma = df.iloc[pairs[&quot;a_row&quot;]].copy()       # 짝을 찾은 A 사용자
 mb = df.iloc[pairs[&quot;b_row&quot;]].copy()       # 짝이 된 B 사용자
 ma[&quot;pair&quot;] = range(len(pairs))            # 짝 번호 0, 1, 2, ...
 mb[&quot;pair&quot;] = range(len(pairs))

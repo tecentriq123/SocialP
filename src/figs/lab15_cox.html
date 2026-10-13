@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">입원까지의 시간으로 본 위험비 (Cox 모형)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">입원까지의 시간으로 본 위험비 (Cox 모형)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
 
 cols = [&quot;exp(coef)&quot;, &quot;exp(coef) lower 95%&quot;, &quot;exp(coef) upper 95%&quot;]
 c1 = CoxPHFitter().fit(df, &quot;hosp_day&quot;, &quot;hosp_1y&quot;, formula=&quot;drugA&quot;)

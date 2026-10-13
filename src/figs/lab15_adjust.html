@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">보정할 변수를 늘려 가며 구한 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sets = {&quot;none&quot;: [],
+        &quot;age, female&quot;: [&quot;age&quot;, &quot;female&quot;],
+        &quot;+ hf, ckd&quot;: [&quot;age&quot;, &quot;female&quot;, &quot;hf&quot;, &quot;ckd&quot;],
+        &quot;7 covariates&quot;: covs,
+        &quot;7 + frail&quot;: covs + [&quot;frail&quot;]}    # frail은 실제 청구자료에 없음
+rows = []
+for name, xs in sets.items():
+    f = &quot; + &quot;.join([&quot;hosp_1y ~ drugA&quot;] + xs)      # 모형식 만들기
+    g = smf.gee(f, groups=&quot;id&quot;, data=df,
+                family=sm.families.Poisson(),
+                cov_struct=sm.cov_struct.Independence()).fit()
+    lo, hi = g.conf_int().loc[&quot;drugA&quot;]
+    rows.append(np.exp([g.params[&quot;drugA&quot;], lo, hi]))
+adj = pd.DataFrame(rows, index=list(sets),
+                   columns=[&quot;RR&quot;, &quot;lower&quot;, &quot;upper&quot;])
+
+print(adj.round(3))
+
+lr = smf.logit(&quot;hosp_1y ~ drugA + &quot; + &quot; + &quot;.join(covs),
+               data=df).fit(disp=0)
+print(&quot;OR, 7 covariates:&quot;, round(np.exp(lr.params[&quot;drugA&quot;]), 3),
+      np.exp(lr.conf_int().loc[&quot;drugA&quot;]).round(3).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 RR  lower  upper
+none          1.328  1.191  1.481<span class="mk">1</span>
+age, female   1.155  1.035  1.288<span class="mk">2</span>
++ hf, ckd     1.035  0.926  1.158
+7 covariates  0.933  0.833  1.046<span class="mk">3</span>
+7 + frail     0.800  0.714  0.897<span class="mk">4</span>
+OR, 7 covariates: 0.921<span class="mk">5</span> [0.805, 1.053]</pre></div></div>

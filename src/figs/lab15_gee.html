@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">매칭 코호트의 상대위험도와 강건 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def gee_fit(formula, data, groups, weights=None, family=None):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">매칭 코호트의 상대위험도와 강건 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def gee_fit(formula, data, groups, weights=None, family=None):
     &quot;&quot;&quot;독립 작업상관 GEE. 기본은 포아송(상대위험도).&quot;&quot;&quot;
     if family is None:
         family = sm.families.Poisson()

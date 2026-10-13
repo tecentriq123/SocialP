@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">1:1 최근접 매칭 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def match_1to1(logit, treat, caliper, seed=7):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">1:1 최근접 매칭 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def match_1to1(logit, treat, caliper, seed=7):
     &quot;&quot;&quot;1:1 최근접 매칭 (비복원, caliper 적용).&quot;&quot;&quot;
     rng = np.random.default_rng(seed)
     a_rows = np.where(treat == 1)[0]      # A 사용자의 행 번호

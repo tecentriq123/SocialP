@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">측정하지 않은 변수와 음성 대조 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fr = [smd(df[&quot;frail&quot;], df[&quot;drugA&quot;]), smd(m[&quot;frail&quot;], m[&quot;drugA&quot;]),
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">측정하지 않은 변수와 음성 대조 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fr = [smd(df[&quot;frail&quot;], df[&quot;drugA&quot;]), smd(m[&quot;frail&quot;], m[&quot;drugA&quot;]),
       smd(df[&quot;frail&quot;], df[&quot;drugA&quot;], df[&quot;w&quot;])]
 print(&quot;frailty SMD (before, matched, IPTW):&quot;, np.round(fr, 2))
 print(m.groupby(&quot;drugA&quot;)[[&quot;frail&quot;, &quot;injury_ed&quot;]].mean().round(3))

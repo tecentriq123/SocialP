@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">허약이 만든 편향의 크기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p1 = m.loc[m[&quot;drugA&quot;] == 1, &quot;frail&quot;].mean()   # 매칭된 A군의 허약 비율
+p0 = m.loc[m[&quot;drugA&quot;] == 0, &quot;frail&quot;].mean()   # 매칭된 B군의 허약 비율
+gamma = np.exp(1.0)     # 허약이 입원 위험을 높이는 배수 (자료를 만들 때 정한 값)
+
+bias = (1 + p1 * (gamma - 1)) / (1 + p0 * (gamma - 1))
+print(f&quot;p1 = {p1:.3f}, p0 = {p0:.3f}&quot;)
+print(f&quot;gamma = {gamma:.2f}&quot;)
+print(f&quot;bias factor = {bias:.3f}&quot;)
+print(f&quot;true RR 0.80 x bias = {0.80 * bias:.3f}&quot;)
+print(f&quot;frailty, matched A vs B: {p1 / p0:.2f} times&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>p1 = 0.249<span class="mk">1</span>, p0 = 0.119<span class="mk">2</span>
+gamma = 2.72<span class="mk">3</span>
+bias factor = 1.186<span class="mk">4</span>
+true RR 0.80 x bias = 0.949<span class="mk">5</span>
+frailty, matched A vs B: 2.09 times<span class="mk">6</span></pre></div></div>

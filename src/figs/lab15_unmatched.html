@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">짝을 못 찾은 A 사용자는 누구인가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;matched&quot;] = df[&quot;id&quot;].isin(m[&quot;id&quot;]).astype(int)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">짝을 못 찾은 A 사용자는 누구인가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;matched&quot;] = df[&quot;id&quot;].isin(m[&quot;id&quot;]).astype(int)
 um = df[a].groupby(&quot;matched&quot;)[[&quot;ps&quot;, &quot;age&quot;, &quot;hf&quot;,
                                &quot;hosp_1y&quot;]].mean()
 um.insert(0, &quot;n&quot;, df[a][&quot;matched&quot;].value_counts())

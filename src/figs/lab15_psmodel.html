@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">성향점수 모형 (로지스틱 회귀)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f_ps = (&quot;drugA ~ age + female + hf + ckd + prior_hosp&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">성향점수 모형 (로지스틱 회귀)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f_ps = (&quot;drugA ~ age + female + hf + ckd + prior_hosp&quot;
         &quot; + n_drug + tertiary&quot;)
 ps_fit = smf.logit(f_ps, data=df).fit(disp=0)
 print(ps_fit.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                           Logit Regression Results                           

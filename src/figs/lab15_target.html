@@ -1,0 +1,57 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">가중치에 따라 두 군을 맞추는 대상</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;w_att&quot;] = np.where(a, 1, ps / (1 - ps))   # A 사용자에 맞춘 가중
+df[&quot;w_ow&quot;] = np.where(a, 1 - ps, ps)          # 겹침 가중
+print(&quot;ATT weights of B:&quot;,                     # 최솟값, 최댓값, 합
+      df.loc[~a, &quot;w_att&quot;].agg([&quot;min&quot;, &quot;max&quot;, &quot;sum&quot;]).round(3).tolist())
+
+def hf_share(d, w=None):
+    &quot;&quot;&quot;군별 (가중) 심부전 비율 [A군, B군]. w는 가중치 열 이름.&quot;&quot;&quot;
+    t = d[&quot;drugA&quot;] == 1
+    w = np.ones(len(d)) if w is None else d[w].to_numpy()
+    return [np.average(d.loc[t, &quot;hf&quot;], weights=w[t]),
+            np.average(d.loc[~t, &quot;hf&quot;], weights=w[~t])]
+
+print(&quot;heart failure, whole cohort:&quot;, round(df[&quot;hf&quot;].mean(), 3))
+target = pd.DataFrame({
+    &quot;before&quot;: hf_share(df),
+    &quot;matched&quot;: hf_share(m),
+    &quot;IPTW&quot;: hf_share(df, &quot;w&quot;),
+    &quot;ATT weights&quot;: hf_share(df, &quot;w_att&quot;),
+    &quot;overlap weights&quot;: hf_share(df, &quot;w_ow&quot;),
+}, index=[&quot;drug A&quot;, &quot;drug B&quot;]).T
+target.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ATT weights of B: [0.149, 8.583, 4027.559]<span class="mk">1</span>
+heart failure, whole cohort: 0.096<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>drug A</th>
+      <th>drug B</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>before</th>
+      <td>0.148</td>
+      <td>0.060</td>
+    </tr>
+    <tr>
+      <th>matched</th>
+      <td>0.090<span class="mk">3</span></td>
+      <td>0.093</td>
+    </tr>
+    <tr>
+      <th>IPTW</th>
+      <td>0.095<span class="mk">4</span></td>
+      <td>0.095</td>
+    </tr>
+    <tr>
+      <th>ATT weights</th>
+      <td>0.148</td>
+      <td>0.146<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>overlap weights<span class="mk">6</span></th>
+      <td>0.093</td>
+      <td>0.093</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

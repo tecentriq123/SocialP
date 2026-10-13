@@ -176,7 +176,7 @@
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>def surv(lam, gam, t):</code><span>와이블 생존함수입니다. <code>t</code>가 241개짜리 배열이면 결과도 241개입니다.</span></li>
-<li><code>hr_pfs = p["hr_pfs"] if arm == "A" else 1.0</code><span>군이 A이면 사전의 위험비를, 아니면 1을 씁니다(<code>값1 if 조건 else 값2</code>는 <a href="#lab15-s4">실습 15 라 절</a>). 표준요법 B는 기준군이어서 위험비가 1입니다.</span></li>
+<li><code>hr_pfs = p["hr_pfs"] if arm == "A" else 1.0</code><span>군이 A이면 사전의 위험비를, 아니면 1을 씁니다(<code>값1 if 조건 else 값2</code>는 <a href="#lab15-s3">실습 15 다 절</a>). 표준요법 B는 기준군이어서 위험비가 1입니다.</span></li>
 <li><code>surv(p["pfs_lam"] * hr_pfs, p["pfs_gam"], t)</code><span>위험비를 λ에 곱합니다. S<sub>A</sub>(t) = exp(−HR × λ t<sup>γ</sup>)이고, 표준요법 B의 곡선을 위험비만큼 거듭제곱한 것과 같습니다(비례위험 가정, <a href="#ch11-s1">11장 가 절</a>).</span></li>
 <li><code>return s_pfs, s_os</code><span>값 두 개를 한꺼번에 돌려줍니다. 받는 쪽에서 <code>pfs_B, os_B = curves(p, "B", t)</code>처럼 이름 두 개로 나눠 받습니다.</span></li>
 <li><code>pd.DataFrame({…}).loc[show].round(4)</code><span>네 곡선을 열로 묶은 241행의 표에서 <code>show</code>에 적은 시점의 행만 골라 보여 줍니다. 행 이름이 0–240이어서 그대로 개월 수입니다.</span></li>

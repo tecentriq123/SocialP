@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">IPTW 상대위험도의 부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(15)
+boot = []
+for _ in range(500):
+    d = df.iloc[rng.integers(0, len(df), len(df))]    # 환자를 복원추출
+    p = smf.logit(f_ps, data=d).fit(disp=0).predict(d)  # 성향점수부터 다시
+    d = d.assign(wb=np.where(d[&quot;drugA&quot;] == 1, 1 / p, 1 / (1 - p)))
+    boot.append(risks(d, &quot;wb&quot;)[2])                    # 가중 RR
+print(&quot;bootstrap 95% CI:&quot;, np.quantile(boot, [0.025, 0.975]).round(3))
+print(&quot;robust 95% CI   :&quot;,
+      rr.loc[&quot;IPTW&quot;, [&quot;lower&quot;, &quot;upper&quot;]].to_numpy().round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bootstrap 95% CI: [0.846 1.063]<span class="mk">1</span>
+robust 95% CI   : [0.848 1.072]<span class="mk">2</span></pre></div></div>

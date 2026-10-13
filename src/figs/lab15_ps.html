@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">환자별 성향점수와 C 통계량</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.metrics import roc_auc_score
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">환자별 성향점수와 C 통계량</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.metrics import roc_auc_score
 
 df[&quot;ps&quot;] = ps_fit.predict(df)             # 환자별 성향점수
 print(df.groupby(&quot;drugA&quot;)[&quot;ps&quot;]

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">세 분석의 입원 위험과 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def risks(d, w=None):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">세 분석의 입원 위험과 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def risks(d, w=None):
     &quot;&quot;&quot;A군 위험, B군 위험, 상대위험도, 위험차 (w는 가중치 열 이름).&quot;&quot;&quot;
     t = d[&quot;drugA&quot;] == 1
     w = np.ones(len(d)) if w is None else d[w].to_numpy()
