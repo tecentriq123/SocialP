@@ -1,0 +1,157 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas      3.0.5\nnumpy       2.5.3\nscipy       1.18.1\nstatsmodels 0.15.0\nmatplotlib  3.11.2\n"
+ },
+ {
+  "n": 2,
+  "title": "데이터 불러오기와 변수 만들기",
+  "out": "(189, 14)\n   low  smoke  race  age   lwt_kg  ptl_any  ht\n0    0      0     2   19  82.5552        0   0\n1    0      0     3   33  70.3080        0   0\n2    0      1     1   20  47.6280        0   0"
+ },
+ {
+  "n": 3,
+  "title": "비율의 95% 신뢰구간",
+  "out": "     data  method      p  lower  upper\n0  59/189  normal  0.312  0.246  0.378\n1  59/189  wilson  0.312  0.250  0.381\n2  59/189    beta  0.312  0.247  0.383\n3    7/12  normal  0.583  0.304  0.862\n4    7/12  wilson  0.583  0.320  0.807\n5    7/12    beta  0.583  0.277  0.848"
+ },
+ {
+  "n": 4,
+  "title": "평균의 95% 신뢰구간",
+  "out": "mean = 2944.6, SD = 729.2, SE = 53.04\nt = 1.973, half-width = 104.6\n95% CI = 2840.0 to 3049.2\n"
+ },
+ {
+  "n": 5,
+  "title": "흡연과 저체중아의 2×2 표",
+  "out": "low     1   0\nsmoke        \n1      30  44\n0      29  86\nrisk: smoker = 0.405, nonsmoker = 0.252\n"
+ },
+ {
+  "n": 6,
+  "title": "위험차, 상대위험도, 오즈비, NNH",
+  "out": "RD  =  0.153 (95% CI 0.016 to 0.290)\nRR  =  1.608 (95% CI 1.058 to 2.443)\nOR  =  2.022 (95% CI 1.081 to 3.783)\nNNH =  6.526 (95% CI 3.444 to 62.221)\n"
+ },
+ {
+  "n": 7,
+  "title": "부트스트랩 신뢰구간",
+  "out": "bootstrap RR: median 1.612, 95% CI 1.059 to 2.500\n"
+ },
+ {
+  "n": 8,
+  "title": "부트스트랩 분포 그래프",
+  "out": ""
+ },
+ {
+  "n": 9,
+  "title": "로지스틱 회귀를 GLM으로 적합하기",
+  "out": "                 Generalized Linear Model Regression Results                  \n==============================================================================\nDep. Variable:                    low   No. Observations:                  189\nModel:                            GLM   Df Residuals:                      187\nModel Family:                Binomial   Df Model:                            1\nLink Function:                  Logit   Scale:                          1.0000\nMethod:                          IRLS   Log-Likelihood:                -114.90\nDate:                Wed, 14 Oct 2026   Deviance:                       229.80\nTime:                        07:04:21   Pearson chi2:                     189.\nNo. Iterations:                     4   Pseudo R-squ. (CS):            0.02542\nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          z      P>|z|      [0.025      0.975]\n------------------------------------------------------------------------------\nIntercept     -1.0871      0.215     -5.062      0.000      -1.508      -0.666\nsmoke          0.7041      0.320      2.203      0.028       0.078       1.331\n==============================================================================\n"
+ },
+ {
+  "n": 10,
+  "title": "계수를 오즈비로 바꾸기",
+  "out": "              OR   2.5%  97.5%\nIntercept  0.337  0.221  0.514\nsmoke      2.022  1.081  3.783"
+ },
+ {
+  "n": 11,
+  "title": "연결함수와 분포가 다른 네 모형",
+  "out": ""
+ },
+ {
+  "n": 12,
+  "title": "흡연의 효과를 네 모형으로 비교",
+  "out": "            model  exp(b)  SE(b)   2.5%  97.5%\n0           logit   2.022  0.320  1.081  3.783\n1    log-binomial   1.608  0.214  1.058  2.443\n2         Poisson   1.608  0.260  0.965  2.678\n3  Poisson robust   1.608  0.214  1.058  2.443"
+ },
+ {
+  "n": 13,
+  "title": "로그우도, 이탈도, AIC",
+  "out": "null : llf = -117.336, deviance = 234.672, df_model = 0, AIC = 236.672\nsmoke: llf = -114.902, deviance = 229.805, df_model = 1, AIC = 233.805\n"
+ },
+ {
+  "n": 14,
+  "title": "우도비 검정을 직접 계산하기",
+  "out": "LR    chi2 = 4.867, P = 0.0274\nWald  chi2 = 4.852, P = 0.0276\nScore chi2 = 4.924, P = 0.0265\n"
+ },
+ {
+  "n": 15,
+  "title": "보정 모형에서 로그-이항 모형이 실패할 때",
+  "out": "converged     : True\nlog-likelihood: nan\nmax fitted p  : 9.042726310406027e+74\n"
+ },
+ {
+  "n": 16,
+  "title": "수정 포아송 회귀로 보정 상대위험도 구하기",
+  "out": "aRR, modified Poisson : 1.73 (95% CI 1.14 to 2.64)\naOR, logistic         : 2.36 (95% CI 1.07 to 5.22)\nmax fitted p (Poisson): 1.297\n"
+ },
+ {
+  "n": 17,
+  "title": "인종은 교란변수의 조건을 갖추었나",
+  "out": "         n  smoker %  LBW % (all)  LBW % (nonsmokers)\nrace_f                                               \nWhite   96      54.2         24.0                 9.1\nBlack   26      38.5         42.3                31.2\nOther   67      17.9         37.3                36.4"
+ },
+ {
+  "n": 18,
+  "title": "인종별 2×2 표와 층별 오즈비",
+  "out": "White [[19, 33], [4, 40]]  OR = 5.76 (1.78 to 18.60)\nBlack [[6, 4], [5, 11]]  OR = 3.30 (0.63 to 17.16)\nOther [[5, 7], [20, 35]]  OR = 1.25 (0.35 to 4.46)\n"
+ },
+ {
+  "n": 19,
+  "title": "Mantel–Haenszel 통합 오즈비와 두 가지 검정",
+  "out": "                   Estimate   LCB    UCB \n-----------------------------------------\nPooled odds           3.086   1.491 6.390\nPooled log odds       1.127   0.399 1.855\nPooled risk ratio     2.151              \n                                         \n                 Statistic P-value     \n---------------------------------------\nTest of OR=1         9.413   0.002     \nTest constant OR     3.126   0.210     \n                        \n------------------------\nNumber of tables   3    \nMin n             26    \nMax n             96    \nAvg n             63    \nTotal n          189    \n------------------------\n"
+ },
+ {
+  "n": 20,
+  "title": "보정 전과 보정 후 비교",
+  "out": "               method    OR  2.5%  97.5%\n0               crude  2.02  1.08   3.78\n1     Mantel-Haenszel  3.09  1.49   6.39\n2  logistic + C(race)  3.05  1.48   6.29"
+ },
+ {
+  "n": 21,
+  "title": "층별 오즈비와 통합 오즈비 그래프",
+  "out": ""
+ },
+ {
+  "n": 22,
+  "title": "인종을 숫자 그대로 넣으면",
+  "out": "Intercept   -2.325\nsmoke        1.117\nrace         0.559\ndtype: float64 \n\nIntercept                              -1.841\nC(race, Treatment(reference=1))[T.2]    1.084\nC(race, Treatment(reference=1))[T.3]    1.109\nsmoke                                   1.116\ndtype: float64 \n\nllf: numeric race -110.670, dummies -109.987\n"
+ },
+ {
+  "n": 23,
+  "title": "기준범주 바꾸기",
+  "out": "Intercept                               0.481\nC(race, Treatment(reference=3))[T.1]    0.330\nC(race, Treatment(reference=3))[T.2]    0.976\nsmoke                                   3.053\ndtype: float64 \n\nllf = -109.987\n"
+ },
+ {
+  "n": 24,
+  "title": "인종 전체의 P: 결합 검정",
+  "out": "                                      chi2        P>chi2  df constraint\nIntercept                        27.206652  1.828285e-07              1\nC(race, Treatment(reference=1))   9.112888  1.049933e-02              2\nsmoke                             9.135791  2.506571e-03              1\n\nLR test for race: chi2 = 9.830, df = 2, P = 0.0073\n"
+ },
+ {
+  "n": 25,
+  "title": "단변수 오즈비: 변수마다 따로 적합",
+  "out": "                OR    lo     hi\nsmoke         2.02  1.08   3.78\nC(race)[T.2]  2.33  0.94   5.77\nC(race)[T.3]  1.89  0.96   3.74\nage           0.95  0.89   1.01\nlwt_kg        0.97  0.94   1.00\nptl_any       4.32  1.92   9.73\nht            3.37  1.02  11.09"
+ },
+ {
+  "n": 26,
+  "title": "Table 2 만들기",
+  "out": "n = 189  events = 59  coefficients = 7\n             Univariable OR (95% CI) Multivariable OR (95% CI)\nsmoke               2.02 (1.08-3.78)          2.36 (1.07-5.22)\nC(race)[T.2]        2.33 (0.94-5.77)          3.22 (1.13-9.14)\nC(race)[T.3]        1.89 (0.96-3.74)          2.26 (0.95-5.38)\nage                 0.95 (0.89-1.01)          0.96 (0.89-1.03)\nlwt_kg              0.97 (0.94-1.00)          0.97 (0.94-1.00)\nptl_any             4.32 (1.92-9.73)          3.80 (1.55-9.31)\nht                 3.37 (1.02-11.09)         5.70 (1.44-22.61)"
+ },
+ {
+  "n": 27,
+  "title": "다변수 모형의 변수별 결합 검정",
+  "out": "               chi2    P>chi2  df constraint\nIntercept  0.591386  0.441884              1\nC(race)    5.991023  0.050011              2\nsmoke      4.496114  0.033972              1\nage        1.296971  0.254767              1\nlwt_kg     4.801803  0.028430              1\nptl_any    8.498876  0.003554              1\nht         6.127783  0.013307              1\n"
+ },
+ {
+  "n": 28,
+  "title": "행 이름을 논문용으로 바꾸기",
+  "out": "                                Univariable OR (95% CI) Multivariable OR (95% CI)\nSmoking during pregnancy               2.02 (1.08-3.78)          2.36 (1.07-5.22)\nRace: Black (vs White)                 2.33 (0.94-5.77)          3.22 (1.13-9.14)\nRace: Other (vs White)                 1.89 (0.96-3.74)          2.26 (0.95-5.38)\nAge, per year                          0.95 (0.89-1.01)          0.96 (0.89-1.03)\nWeight before pregnancy, per kg        0.97 (0.94-1.00)          0.97 (0.94-1.00)\nPrevious preterm labor                 4.32 (1.92-9.73)          3.80 (1.55-9.31)\nHistory of hypertension               3.37 (1.02-11.09)         5.70 (1.44-22.61)"
+ },
+ {
+  "n": 29,
+  "title": "과제 1 정답. NNH를 보정 모형으로 다시 구하기",
+  "out": "crude          : risk 0.405 vs 0.252, RD = 0.153, NNH = 6.5\nrace only      : risk 0.458 vs 0.229, RD = 0.229, NNH = 4.4\nall covariates : risk 0.406 vs 0.250, RD = 0.156, NNH = 6.4\n"
+ },
+ {
+  "n": 30,
+  "title": "과제 2 정답. 저체중아의 기준을 바꾸면",
+  "out": "    cut  events   prop  risk_s  risk_n     RR     OR  OR/RR\n0  2000      19  0.101   0.108   0.096  1.130  1.146  1.014\n1  2500      59  0.312   0.405   0.252  1.608  2.022  1.258\n2  3000      97  0.513   0.622   0.443  1.402  2.062  1.471"
+ },
+ {
+  "n": 31,
+  "title": "과제 3 정답. 인종에 따라 흡연의 효과가 다른가",
+  "out": "P for interaction (LR, df = 2): chi2 = 3.16, P = 0.206\nIntercept             0.10\nC(race)[T.2]          4.55\nC(race)[T.3]          5.71\nsmoke                 5.76\nsmoke:C(race)[T.2]    0.57\nsmoke:C(race)[T.3]    0.22\ndtype: float64 \n\nrace_f\nWhite    0.274\nBlack    0.288\nOther    0.053\ndtype: float64\n"
+ }
+]

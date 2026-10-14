@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">음주량 순서대로 합치기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">alc_order = [&quot;0-39g/day&quot;, &quot;40-79&quot;, &quot;80-119&quot;, &quot;120+&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">음주량 순서대로 합치기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">alc_order = [&quot;0-39g/day&quot;, &quot;40-79&quot;, &quot;80-119&quot;, &quot;120+&quot;]
 es[&quot;alcgp&quot;] = pd.Categorical(es[&quot;alcgp&quot;], categories=alc_order,
                              ordered=True)
 alc = (es.groupby(&quot;alcgp&quot;, observed=True)

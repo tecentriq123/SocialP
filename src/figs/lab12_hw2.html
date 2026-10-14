@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 2 정답. 오프셋의 단위를 바꾸거나 빼기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_days = smf.glm(form, data=pt, family=sm.families.Poisson(),
+                 offset=np.log(pt[&quot;days&quot;])).fit()     # 오프셋을 일 단위로
+m_none = smf.glm(form, data=pt,
+                 family=sm.families.Poisson()).fit()  # 오프셋 없음
+coefs = pd.DataFrame({&quot;ln(PY)&quot;: pois.params, &quot;ln(days)&quot;: m_days.params,
+                      &quot;none&quot;: m_none.params})
+print(coefs.round(4))
+print(&quot;ln(365.25) =&quot;, round(np.log(365.25), 4))
+print(&quot;treat IRR:&quot;, np.exp(coefs.loc[t]).round(3).tolist())
+pt.groupby(&quot;treat&quot;, observed=True)[&quot;days&quot;].mean().round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                      ln(PY)  ln(days)    none
+Intercept             0.9004   -5.0002  0.6652<span class="mk">1</span>
+treat[T.rIFN-g]      -1.0157   -1.0157 -0.9490
+inherit[T.autosomal]  0.3548    0.3548  0.3484
+age                  -0.0371   -0.0371 -0.0380
+propylac             -0.5288   -0.5288 -0.5308
+ln(365.25) = 5.9006<span class="mk">2</span>
+treat IRR: [0.362, 0.362, 0.387]<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>days</th>
+    </tr>
+    <tr>
+      <th>treat</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>placebo</th>
+      <td>285.0<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>rIFN-g</th>
+      <td>300.8</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

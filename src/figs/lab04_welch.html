@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">등분산 확인과 Welch 분산분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.oneway import anova_oneway
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">등분산 확인과 Welch 분산분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.oneway import anova_oneway
 
 lev = stats.levene(white, black, other)       # 중앙값 기준
 print(f&quot;Levene: p = {lev.pvalue:.3f}&quot;)

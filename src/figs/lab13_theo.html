@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">Theoph 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">url = (&quot;https://vincentarelbundock.github.io/Rdatasets/csv/&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Theoph 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">url = (&quot;https://vincentarelbundock.github.io/Rdatasets/csv/&quot;
        &quot;datasets/Theoph.csv&quot;)
 theo = pd.read_csv(url).drop(columns=&quot;rownames&quot;)
 print(theo.shape, theo[&quot;Subject&quot;].nunique())

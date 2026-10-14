@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 1 정답. 수면 제한 하루당 기울기 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">slopes = pd.Series({sid: m2.fe_params[&quot;Days&quot;] + re[&quot;Days&quot;]
+                    for sid, re in m2.random_effects.items()})
+print(slopes.sort_values().round(1).to_string())   # 참가자별 기울기
+print(&quot;5 ms/일보다 작은 참가자:&quot;, (slopes &lt; 5).sum(), &quot;명&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>335    -0.3<span class="mk">1</span>
+309     1.8
+310     5.0
+330     5.7
+331     7.4
+351     7.5
+371     9.5
+332    10.2
+333    10.2
+369    11.3
+334    11.5
+349    11.6
+372    11.8
+352    14.0
+370    15.3
+350    17.1
+337    19.1
+308    19.7<span class="mk">2</span>
+5 ms/일보다 작은 참가자: 2<span class="mk">3</span> 명</pre></div></div>

@@ -1,0 +1,49 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 1 정답. 성별 요약표의 한 행 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = lung.groupby(&quot;sex&quot;)                    # 1 = 남성, 2 = 여성
+hw1 = pd.DataFrame({&quot;n&quot;: g.size(),
+                    &quot;deaths&quot;: g[&quot;event&quot;].sum(),
+                    &quot;person_years&quot;: g[&quot;months&quot;].sum() / 12})
+hw1[&quot;deaths_%&quot;] = hw1[&quot;deaths&quot;] / hw1[&quot;n&quot;] * 100
+hw1[&quot;rate_per_100py&quot;] = hw1[&quot;deaths&quot;] / hw1[&quot;person_years&quot;] * 100
+hw1[&quot;mean_age&quot;] = g[&quot;age&quot;].mean()
+hw1.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>deaths</th>
+      <th>person_years</th>
+      <th>deaths_%</th>
+      <th>rate_per_100py</th>
+      <th>mean_age</th>
+    </tr>
+    <tr>
+      <th>sex</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>138</td>
+      <td>112</td>
+      <td>107.0</td>
+      <td>81.2<span class="mk">1</span></td>
+      <td>104.7<span class="mk">2</span></td>
+      <td>63.3<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>90</td>
+      <td>53</td>
+      <td>83.5</td>
+      <td>58.9</td>
+      <td>63.5<span class="mk">3</span></td>
+      <td>61.1</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

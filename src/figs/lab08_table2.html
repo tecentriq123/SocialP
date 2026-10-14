@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">Table 2 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">full = smf.logit(&quot;low ~ &quot; + &quot; + &quot;.join(terms), df).fit(disp=0)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">Table 2 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">full = smf.logit(&quot;low ~ &quot; + &quot; + &quot;.join(terms), df).fit(disp=0)
 multi = or_ci(full).loc[uni.index]      # 단변수 표와 같은 행 순서
 fmt = lambda t: [f&quot;{r.OR:.2f} ({r.lo:.2f}-{r.hi:.2f})&quot;
                  for r in t.itertuples()]

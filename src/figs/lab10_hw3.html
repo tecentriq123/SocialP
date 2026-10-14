@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 3 정답. 시간을 범주형으로 넣은 모형과 비교하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_cat = smf.mixedlm(&quot;Reaction ~ C(Days)&quot;, data=sleep,
+                    groups=sleep[&quot;Subject&quot;]).fit()       # 동료의 모형(REML)
+print(&quot;REML로 비교한 LR:&quot;, round(2 * (m_cat.llf - m1.llf), 2))
+
+m_cat_ml = smf.mixedlm(&quot;Reaction ~ C(Days)&quot;, data=sleep,
+                       groups=sleep[&quot;Subject&quot;]).fit(reml=False)
+m1_ml = smf.mixedlm(&quot;Reaction ~ Days&quot;, data=sleep,
+                    groups=sleep[&quot;Subject&quot;]).fit(reml=False)
+lr_ml = 2 * (m_cat_ml.llf - m1_ml.llf)
+print(&quot;ML로 비교한 LR  :&quot;, round(lr_ml, 2),
+      &quot; p (자유도 8):&quot;, round(stats.chi2.sf(lr_ml, 8), 3))
+print(&quot;AIC (ML): linear&quot;, round(m1_ml.aic, 1),
+      &quot; categorical&quot;, round(m_cat_ml.aic, 1))
+wt = m_cat.wald_test_terms(scalar=True).table   # 계수 9개를 함께 본 Wald 검정
+print(f&quot;Wald chi2 / 9 = {wt.loc[&#x27;C(Days)&#x27;, &#x27;statistic&#x27;] / 9:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>REML로 비교한 LR: 56.97<span class="mk">1</span>
+ML로 비교한 LR  : 3.74<span class="mk">2</span>  p (자유도 8): 0.879<span class="mk">3</span>
+AIC (ML): linear 1802.1<span class="mk">4</span>  categorical 1814.3<span class="mk">5</span>
+Wald chi2 / 9 = 18.70<span class="mk">6</span></pre></div></div>

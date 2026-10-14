@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">준포아송: 표준오차에 √φ 곱하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pois_q = smf.glm(form, data=pt, family=sm.families.Poisson(),
+                 offset=np.log(pt[&quot;py&quot;])).fit(scale=&quot;X2&quot;)
+phi = pois.pearson_chi2 / pois.df_resid      # Pearson chi2 / df
+print(&quot;phi =&quot;, round(phi, 3), &quot;  sqrt(phi) =&quot;, round(np.sqrt(phi), 3))
+print(&quot;same coefficients:&quot;, np.allclose(pois_q.params, pois.params))
+print(&quot;quasi-Poisson SE:&quot;, round(pois_q.bse[t], 4),
+      &quot;  model-based SE x sqrt(phi):&quot;, round(pois.bse[t] * np.sqrt(phi), 4))
+print(&quot;quasi-Poisson 95% CI:&quot;, np.exp(pois_q.conf_int().loc[t]).round(3).values)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>phi = 1.386   sqrt(phi) = 1.177<span class="mk">1</span>
+same coefficients: True<span class="mk">2</span>
+quasi-Poisson SE: 0.3085<span class="mk">3</span>   model-based SE x sqrt(phi): 0.3085
+quasi-Poisson 95% CI: [0.198 0.663]<span class="mk">4</span></pre></div></div>

@@ -79,7 +79,7 @@ def fmtp(p):
     return "< 0.001" if p < 0.001 else f"{p:.3f}"
 
 
-# ================================================================== 가. Pearson
+# ================================================================== a. Pearson
 # 8 patients: age (years) and systolic blood pressure (mmHg)
 AGE8 = np.array([42, 48, 53, 58, 62, 66, 71, 80], float)
 SBP8 = np.array([125, 127, 133, 141, 129, 139, 137, 149], float)
@@ -161,7 +161,7 @@ def anscombe():
     return [(np.corrcoef(a, b)[0, 1], ols(a, b)["b"]) for a, b in zip(xs, ys)]
 
 
-# ================================================================== 나. Spearman
+# ================================================================== b. Spearman
 def spearman8():
     rx = st.rankdata(AGE8)
     ry = st.rankdata(SBP8)
@@ -245,7 +245,7 @@ def corr_matrix_data():
     return D, rho, pv
 
 
-# ================================================================== 다. simple regression
+# ================================================================== c. simple regression
 def simple8():
     x, y = AGE8, SBP8
     fit = ols(x, y)
@@ -303,7 +303,7 @@ def resid_patterns():
     return (x1, y1), (x2, y2)
 
 
-# ================================================================== 라. multiple regression
+# ================================================================== d. multiple regression
 INST = ["clinic", "hospital", "tertiary"]
 
 
@@ -567,7 +567,7 @@ if __name__ == "__main__":
         print("  (skipped:", e, ")")
 
 
-# ================================================================== 라. 추가 (2026-09-30 rewrite review)
+# ================================================================== d. 추가 (2026-09-30 rewrite review)
 # Table of 6-month SBP by baseline-SBP tertile x number of classes (1, 2, 3+) shown in d 절
 # '기저 혈압이 비슷한 환자끼리 나눠 보기', plus model-2 predictions at baseline 150 / 170 mmHg.
 def tertile_block():

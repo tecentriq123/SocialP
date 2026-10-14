@@ -1,8 +1,12 @@
 """실습 8 (lab08) — 신뢰구간, 효과크기, 교란: birthwt (흡연 → 저체중아, 인종 = 교란변수).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/lab_lab08.py
+      then  python3 tools/nbcheck.py lab08   (runs the notebook alone in a fresh process and compares outputs)
 All outputs are produced by actually running the cells (labkit).
 Set LABDEBUG=1 to print every cell's text output to the console.
+Writes figs/lab08_*.html, pub/notebooks/lab08.ipynb and checks/lab08.expected.json.
+The VERIFY block at the end asserts the numbers quoted in content/lab08.html that are not marked in a cell output.
+(2026-10-14: version cell 1, 과제 1–3 (cells 29–31) and the notebook added; old cells 1–27 became 2–28.)
 """
 import html as _h
 import os
@@ -13,6 +17,7 @@ from labkit import Notebook  # noqa: E402
 
 nb = Notebook("lab08")
 DEBUG = os.environ.get("LABDEBUG")
+NOTES = {}     # 노트북에서 셀 앞에 넣을 짧은 안내 (절 제목, 과제 문제)
 
 
 def H(c, marks=None):
@@ -47,12 +52,24 @@ def S(name, c, marks=None):
     nb.save_fragment(name, H(c, marks))
 
 
-# ================================================================== 가. 신뢰구간과 효과크기
+# ================================================================== a. 신뢰구간과 효과크기
 c = nb.cell('''
 import numpy as np
 import pandas as pd
 from scipy import stats
+import scipy, statsmodels, matplotlib
 
+print("pandas     ", pd.__version__)
+print("numpy      ", np.__version__)
+print("scipy      ", scipy.__version__)
+print("statsmodels", statsmodels.__version__)
+print("matplotlib ", matplotlib.__version__)
+''', title="패키지 불러오기와 버전 확인")
+S("lab08_versions", c, {"statsmodels 0.15.0": 1})
+NOTES[c.n] = ("## a. 신뢰구간과 효과크기\n\n이 실습이 쓰는 패키지를 불러와 버전을 확인한 뒤 birthwt 자료를 읽습니다. "
+              "자료는 인터넷에서 읽어 오므로 인터넷 연결이 필요합니다.")
+
+c = nb.cell('''
 url = ("https://vincentarelbundock.github.io/Rdatasets/"
        "csv/MASS/birthwt.csv")
 df = pd.read_csv(url)
@@ -120,6 +137,7 @@ show("NNH", 1 / (p1 - p0), (1 / rd_ci[1], 1 / rd_ci[0]))
 S("lab08_effects", c, {"RD  =  0.153": 1, "RR  =  1.608 (95% CI 1.058 to 2.443)": 2,
                        "OR  =  2.022 (95% CI 1.081 to 3.783)": 3, "NNH =  6.526": 4,
                        "3.444 to 62.221": 5})
+EFFECTS_CELL = c.n
 
 c = nb.cell('''
 rng = np.random.default_rng(2026)   # 시드를 고정해 같은 결과 재현
@@ -151,7 +169,7 @@ plt.show()
 ''', title="부트스트랩 분포 그래프")
 S("lab08_bootplot", c)
 
-# ================================================================== 나. 일반화 선형모형과 우도비 검정
+# ================================================================== b. 일반화 선형모형과 우도비 검정
 c = nb.cell('''
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -161,6 +179,7 @@ m_logit = smf.glm("low ~ smoke", data=df,
                   family=fam.Binomial()).fit()
 print(m_logit.summary())
 ''', title="로지스틱 회귀를 GLM으로 적합하기")
+NOTES[c.n] = "## b. 일반화 선형모형과 우도비 검정"
 S("lab08_glm", c, {"Binomial": 1, "Logit": 2, "-114.90": 3, "229.80": 4,
                    "0.7041      0.320      2.203      0.028": 5})
 
@@ -237,7 +256,7 @@ print("max fitted p (Poisson):", round(mp.fittedvalues.max(), 3))
 S("lab08_modpois", c, {"aRR, modified Poisson : 1.73 (95% CI 1.14 to 2.64)": 1,
                        "aOR, logistic         : 2.36": 2, "1.297": 3})
 
-# ================================================================== 다. 교란과 층화 분석
+# ================================================================== c. 교란과 층화 분석
 c = nb.cell('''
 g = df.groupby("race_f", observed=True)
 g_non = df[df["smoke"] == 0].groupby("race_f", observed=True)
@@ -248,6 +267,7 @@ pd.DataFrame({
     "LBW % (nonsmokers)": g_non["low"].mean() * 100,
 }).round(1)
 ''', title="인종은 교란변수의 조건을 갖추었나")
+NOTES[c.n] = "## c. 교란과 층화 분석"
 S("lab08_confcheck", c, {"<td>54.2</td>": 1, "<td>17.9</td>": 2, "<td>24.0</td>": 3,
                          "<td>9.1</td>": 4, "<td>36.4</td>": 5})
 
@@ -263,6 +283,7 @@ for race, sub in df.groupby("race_f", observed=True):
 ''', title="인종별 2×2 표와 층별 오즈비")
 S("lab08_strata", c, {"[[19, 33], [4, 40]]": 1, "OR = 5.76 (1.78 to 18.60)": 2,
                       "OR = 3.30 (0.63 to 17.16)": 3, "OR = 1.25 (0.35 to 4.46)": 4})
+STRATA_CELL = c.n
 
 c = nb.cell('''
 from statsmodels.stats.contingency_tables import StratifiedTable
@@ -283,6 +304,7 @@ rows = [["crude", t22.oddsratio, *t22.oddsratio_confint()],
 pd.DataFrame(rows, columns=["method", "OR", "2.5%", "97.5%"]).round(2)
 ''', title="보정 전과 보정 후 비교")
 S("lab08_crudeadj", c, {"<td>2.02</td>": 1, "<td>3.09</td>": 2, "<td>3.05</td>": 3})
+RACE_CELL = c.n      # m_race (smoke + C(race))를 만드는 셀
 
 c = nb.cell('''
 labels = ["White", "Black", "Other", "Crude", "Mantel-Haenszel"]
@@ -304,7 +326,7 @@ plt.show()
 ''', title="층별 오즈비와 통합 오즈비 그래프")
 S("lab08_forest", c)
 
-# ================================================================== 라. 가변수와 다변수 분석
+# ================================================================== d. 가변수와 다변수 분석
 c = nb.cell('''
 m_num = smf.logit("low ~ smoke + race", df).fit(disp=0)
 m_cat = smf.logit("low ~ smoke + C(race, Treatment(reference=1))",
@@ -313,6 +335,7 @@ print(m_num.params.round(3), "\\n")
 print(m_cat.params.round(3), "\\n")
 print(f"llf: numeric race {m_num.llf:.3f}, dummies {m_cat.llf:.3f}")
 ''', title="인종을 숫자 그대로 넣으면")
+NOTES[c.n] = "## d. 가변수와 다변수 분석"
 S("lab08_numrace", c, {"race         0.559": 1, "[T.2]    1.084": 2, "[T.3]    1.109": 3,
                        "numeric race -110.670": 4, "dummies -109.987": 5})
 
@@ -362,6 +385,7 @@ table2
 ''', title="Table 2 만들기")
 S("lab08_table2", c, {"events = 59": 1, "coefficients = 7": 2, "2.02 (1.08-3.78)": 3,
                       "2.36 (1.07-5.22)": 4})
+FULL_CELL = c.n      # full (다변수 모형)을 만드는 셀
 
 c = nb.cell('''
 print(full.wald_test_terms())
@@ -377,31 +401,174 @@ table2
 ''', title="행 이름을 논문용으로 바꾸기")
 S("lab08_table2b", c)
 
-# ---------------------------------------------------------------- numbers quoted in the text
-ns = nb.ns
-_np, _smf, _fam = ns["np"], ns["smf"], ns["fam"]
-_mp = ns["mp"]
-_lb2 = _smf.glm(ns["f_adj"], ns["df"], family=_fam.Binomial(_fam.links.Log())).fit(start_params=_mp.params)
-print("log-binomial with Poisson start: RR", round(float(_np.exp(_lb2.params["smoke"])), 3),
-      "max fitted", _lb2.fittedvalues.max(), "llf", round(_lb2.llf, 3))
-_st = ns["st"]
-print("CMH corrected:", _st.test_null_odds(correction=True).statistic, _st.test_null_odds(correction=True).pvalue)
-print("BD Tarone:", _st.test_equal_odds(adjust=True).statistic, _st.test_equal_odds(adjust=True).pvalue)
-_bw = ns["bwt"]
-print("95% of babies:", round(_bw.mean() - 1.96 * _bw.std(), 1), round(_bw.mean() + 1.96 * _bw.std(), 1))
-print("ttest_1samp CI:", ns["stats"].ttest_1samp(_bw, 0).confidence_interval())
-_mn, _mc = ns["m_num"], ns["m_cat"]
-_lrn = 2 * (_mc.llf - _mn.llf)
-print("numeric vs dummy LR:", round(_lrn, 3), ns["stats"].chi2.sf(_lrn, 1))
-print("MH by hand:", sum(t[0,0]*t[1,1]/t.sum() for t in ns["tables"]) / sum(t[0,1]*t[1,0]/t.sum() for t in ns["tables"]))
-print("smoke 10 kg lwt:", _np.exp(10 * _np.log(ns["multi"].loc["lwt_kg", "OR"])))
-_full = ns["full"]
-print("lwt per 10 kg:", _np.exp(10 * _full.params["lwt_kg"]), _np.exp(10 * _full.conf_int().loc["lwt_kg"]).values)
-_bs = []
-for _seed in (1, 2, 3):
-    _rng = _np.random.default_rng(_seed); _y = ns["y"]; _x = ns["x"]; _r = []
-    for _ in range(2000):
-        _i = _rng.integers(0, len(_y), size=len(_y)); _r.append(_y[_i][_x[_i] == 1].mean() / _y[_i][_x[_i] == 0].mean())
-    _bs.append(_np.percentile(_r, [2.5, 97.5]).round(3).tolist())
-print("bootstrap other seeds:", _bs)
+# ================================================================== e. 과제 (정답 셀)
+c = nb.cell('''
+print(f"crude          : risk {p1:.3f} vs {p0:.3f}, "
+      f"RD = {p1 - p0:.3f}, NNH = {1 / (p1 - p0):.1f}")
+for name, model in [("race only", m_race), ("all covariates", full)]:
+    r1 = model.predict(df.assign(smoke=1)).mean()   # 모두 흡연했다면
+    r0 = model.predict(df.assign(smoke=0)).mean()   # 모두 비흡연이라면
+    print(f"{name:15s}: risk {r1:.3f} vs {r0:.3f}, "
+          f"RD = {r1 - r0:.3f}, NNH = {1 / (r1 - r0):.1f}")
+''', title="과제 1 정답. NNH를 보정 모형으로 다시 구하기")
+S("lab08_hw1", c, {"NNH = 6.5": 1, "race only      : risk 0.458 vs 0.229": 2, "NNH = 4.4": 3,
+                   "NNH = 6.4": 4})
+HW1_CELL = c.n
+NOTES[c.n] = (f"## e. 과제 정답\n\n**과제 1.** 셀 {EFFECTS_CELL}의 NNH 행(6.526, 95% CI 3.444 to 62.221)을 한 문장으로 옮기고, "
+              f"이 숫자가 말해 주지 않는 것을 두 가지 이상 쓰세요. 셀 {RACE_CELL}의 인종 보정 모형과 셀 {FULL_CELL}의 다변수 "
+              "모형으로 표준화한 위험차와 NNH를 구해 비교하세요.")
+
+c = nb.cell('''
+rows = []
+for cut in [2000, 2500, 3000]:
+    y_cut = (df["bwt"] < cut).astype(int)            # 결과를 다시 정의
+    t = pd.crosstab(df["smoke"], y_cut).loc[[1, 0], [1, 0]].to_numpy()
+    t2 = Table2x2(t)
+    r_s, r_n = t[0, 0] / t[0].sum(), t[1, 0] / t[1].sum()  # 흡연, 비흡연 위험
+    rows.append([cut, y_cut.sum(), y_cut.mean(), r_s, r_n,
+                 t2.riskratio, t2.oddsratio, t2.oddsratio / t2.riskratio])
+cols = ["cut", "events", "prop", "risk_s", "risk_n", "RR", "OR", "OR/RR"]
+pd.DataFrame(rows, columns=cols).round(3)
+''', title="과제 2 정답. 저체중아의 기준을 바꾸면")
+S("lab08_hw2", c, {"<td>0.101</td>": 1, "<td>1.130</td>": 2, "<td>1.014</td>": 3, "<td>0.513</td>": 4,
+                   "<td>1.402</td>": 5, "<td>2.062</td>": 6, "<td>1.471</td>": 7})
+HW2_CELL = c.n
+NOTES[c.n] = (f"**과제 2.** 저체중아의 기준을 2,500 g에서 2,000 g과 3,000 g으로 바꿔 셀 {EFFECTS_CELL}처럼 흡연의 상대위험도와 "
+              "오즈비를 다시 구하세요. 기준에 따라 두 지표의 차이가 왜 달라지는지 설명하세요.")
+
+c = nb.cell('''
+m_int = smf.logit("low ~ smoke * C(race)", df).fit(disp=0)  # 교호작용 항 포함
+lr_int = 2 * (m_int.llf - m_race.llf)               # 교호작용 항이 없는 모형과 비교
+print(f"P for interaction (LR, df = 2): chi2 = {lr_int:.2f}, "
+      f"P = {stats.chi2.sf(lr_int, 2):.3f}")
+print(np.exp(m_int.params).round(2), "\\n")
+risk = df.pivot_table(index="race_f", columns="smoke", values="low",
+                      aggfunc="mean", observed=True)
+print((risk[1] - risk[0]).round(3))                  # 인종별 위험차
+''', title="과제 3 정답. 인종에 따라 흡연의 효과가 다른가")
+S("lab08_hw3", c, {"chi2 = 3.16, P = 0.206": 1, "smoke                 5.76": 2, "smoke:C(race)[T.2]    0.57": 3,
+                   "smoke:C(race)[T.3]    0.22": 4, "White    0.274": 5, "Black    0.288": 6})
+HW3_CELL = c.n
+NOTES[c.n] = ("**과제 3.** 동료가 인종별 오즈비(셀 {0})를 보고 \"흡연은 백인 산모에서만 저체중아와 유의하게 관련되었고(OR 5.76, "
+              "95% CI 1.78–18.60), 흑인과 기타 산모에서는 관련이 없었다. 흡연의 영향은 인종에 따라 다르다\"라고 썼습니다. "
+              "이 결론에서 틀린 곳 두 가지를 찾고, 인종에 따라 효과가 다른지 직접 검정하세요.").format(STRATA_CELL)
+
 print("lab08: cells =", len(nb.cells))
+for cc in nb.cells:
+    if cc.warns:
+        print("WARN cell", cc.n, cc.warns)
+
+# ================================================================== notebook
+nb.save_ipynb(
+    "실습 8. 신뢰구간, 효과크기, 교란",
+    intro=("사회약학 연구방법 노트의 '실습 8. 신뢰구간, 효과크기, 교란'에 딸린 노트북입니다. MASS 패키지의 birthwt 자료"
+           "(출생아와 산모 189명)로 '임신 중 흡연은 저체중아 출산과 관련이 있는가, 인종을 고려하면 어떻게 달라지는가'를 "
+           "신뢰구간과 효과 지표, 일반화 선형모형과 우도비 검정, 층화 분석, 가변수와 다변수 모형으로 차례로 분석합니다. "
+           "셀을 위에서부터 차례로 실행하세요. 설명과 출력 읽는 법은 사이트의 실습 8에 있습니다."),
+    notes=NOTES)
+
+# ================================================================== VERIFY: numbers quoted in the text (not marked in an output)
+if __name__ == "__main__":
+    import warnings
+    import numpy as np
+    import pandas as pd
+    import statsmodels.formula.api as smf
+    from scipy import stats
+
+    ns = nb.ns
+    df = ns["df"]
+    n_ok = 0
+
+    def same(label, a, b):
+        global n_ok
+        assert a == b, f"{label}: {a!r} != {b!r}"
+        n_ok += 1
+
+    r1_ = lambda x: f"{x:.1f}"
+    r2_ = lambda x: f"{x:.2f}"
+    r3_ = lambda x: f"{x:.3f}"
+    # 글에서 번호로 가리키는 셀
+    cited = {1: "패키지 불러오기와 버전 확인", 5: "흡연과 저체중아의 2×2 표", 6: "위험차, 상대위험도, 오즈비, NNH", 18: "인종별 2×2 표와 층별 오즈비",
+             19: "Mantel–Haenszel 통합 오즈비와 두 가지 검정", 20: "보정 전과 보정 후 비교", 26: "Table 2 만들기"}
+    for k, t in cited.items():
+        same(f"cell {k} title", nb.cells[k - 1].title, t)
+    # 대응표
+    same("N, smokers, nonsmokers", (len(df), int(df["smoke"].sum()), int((df["smoke"] == 0).sum())), (189, 74, 115))
+    same("events", (int(df["low"].sum()), f"{df['low'].mean():.1%}"), (59, "31.2%"))
+    t22, st, m_race, full, mp = ns["t22"], ns["st"], ns["m_race"], ns["full"], ns["mp"]
+    same("crude OR, RR", (r2_(t22.oddsratio), r2_(t22.riskratio)), ("2.02", "1.61"))
+    same("MH OR, adjusted OR, aRR", (r2_(st.oddsratio_pooled), r2_(np.exp(full.params["smoke"])),
+                                     r2_(np.exp(mp.params["smoke"]))), ("3.09", "2.36", "1.73"))
+    same("EPV", f"{59 / 7:.1f}", "8.4")
+    # a 절
+    same("first mother lwt", (int(df["lwt"].iloc[0]), r1_(df["lwt_kg"].iloc[0])), (182, "82.6"))
+    same("12 mothers Wald half-width", (r3_(7 / 12), r3_(1.96 * np.sqrt(7 / 12 * 5 / 12 / 12))), ("0.583", "0.279"))
+    same("Wald minus Wilson upper", r3_(0.862 - 0.807), "0.055")
+    bw = ns["bwt"]
+    same("95% of babies", (f"{bw.mean() - 1.96 * bw.std():.0f}", f"{bw.mean() + 1.96 * bw.std():.0f}"), ("1515", "4374"))
+    ci1 = stats.ttest_1samp(bw, 0).confidence_interval()
+    same("ttest_1samp CI", (r1_(ci1.low), r1_(ci1.high)), ("2840.0", "3049.2"))
+    same("RR CI geometric mean", r3_(np.sqrt(1.058 * 2.443)), "1.608")
+    y, x = ns["y"], ns["x"]
+    los, his = [], []
+    for seed in (1, 2, 3):
+        rng = np.random.default_rng(seed)
+        r = []
+        for _ in range(2000):
+            i = rng.integers(0, len(y), size=len(y))
+            r.append(y[i][x[i] == 1].mean() / y[i][x[i] == 0].mean())
+        lo, hi = np.percentile(r, [2.5, 97.5])
+        los.append(lo)
+        his.append(hi)
+    lo2, hi2 = [round(v, 2) for v in los], [round(v, 2) for v in his]
+    assert min(lo2) >= 1.04 and max(lo2) <= 1.07 and min(hi2) >= 2.49 and max(hi2) <= 2.54, (los, his)
+    n_ok += 1
+    # b 절
+    a_, b_, c_, d_ = 30, 44, 29, 86
+    same("SE of log OR from table", r3_(np.sqrt(1 / a_ + 1 / b_ + 1 / c_ + 1 / d_)), "0.320")
+    same("nonsmoker odds", r3_(29 / 86), "0.337")
+    same("max fitted p (log-binomial) leading digit", f"{ns['lb'].fittedvalues.max():.0e}"[0], "9")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        fam = ns["fam"]
+        lb2 = smf.glm(ns["f_adj"], df, family=fam.Binomial(fam.links.Log())).fit(start_params=mp.params)
+    assert lb2.fittedvalues.max() > 0.999, lb2.fittedvalues.max()     # 경계(예측 확률 1)에 닿음
+    n_ok += 1
+    # c 절
+    tabs = ns["tables"]
+    num = [t[0, 0] * t[1, 1] / t.sum() for t in tabs]
+    den = [t[0, 1] * t[1, 0] / t.sum() for t in tabs]
+    same("MH by hand", (r2_(sum(num)), r2_(sum(den)), r2_(sum(num) / sum(den))), ("13.07", "4.23", "3.09"))
+    cmh = st.test_null_odds(correction=True)
+    same("CMH corrected", (r2_(cmh.statistic), r3_(cmh.pvalue)), ("8.38", "0.004"))
+    bd = st.test_equal_odds(adjust=True)
+    same("Breslow-Day Tarone", (r2_(bd.statistic), r2_(bd.pvalue)), ("3.13", "0.21"))
+    same("MH RR", r2_(st.riskratio_pooled), "2.15")
+    # d 절
+    same("other vs white OR", r2_(np.exp(ns["m_cat"].params.iloc[2])), "3.03")
+    same("lwt per 10 kg", (r2_(np.exp(10 * full.params["lwt_kg"])),
+                           [r2_(v) for v in np.exp(10 * full.conf_int().loc["lwt_kg"])]), ("0.71", ["0.52", "0.96"]))
+    same("hypertension mothers", int(df["ht"].sum()), 12)
+    # 과제 1
+    same("crude NNH", r1_(1 / (ns["p1"] - ns["p0"])), "6.5")
+    # 과제 2: OR/RR = (1 - nonsmoker risk) / (1 - smoker risk)
+    h2 = pd.DataFrame(ns["rows"], columns=ns["cols"])
+    for _, r in h2.iterrows():
+        assert abs(r["OR/RR"] - (1 - r["risk_n"]) / (1 - r["risk_s"])) < 1e-12
+    n_ok += 1
+    same("events by cut", h2["events"].tolist(), [19, 59, 97])
+    from statsmodels.stats.contingency_tables import Table2x2
+    y20 = (df["bwt"] < 2000).astype(int)
+    t20 = Table2x2(pd.crosstab(df["smoke"], y20).loc[[1, 0], [1, 0]].to_numpy())
+    same("RR CI at 2000 g", [r2_(v) for v in t20.riskratio_confint()], ["0.48", "2.68"])
+    same("OR/RR at 3000 g from rounded risks", r2_((1 - 0.443) / (1 - 0.622)), "1.47")
+    same("Black mothers", int((df["race"] == 2).sum()), 26)
+    # 과제 3
+    mi = ns["m_int"]
+    e_ = np.exp(mi.params)
+    same("stratum ORs from interaction model", (r2_(e_["smoke"]), r2_(e_["smoke"] * e_["smoke:C(race)[T.2]"]),
+                                                r2_(e_["smoke"] * e_["smoke:C(race)[T.3]"])), ("5.76", "3.30", "1.25"))
+    wt = mi.wald_test_terms().table
+    same("interaction Wald", (r2_(float(wt.loc["smoke:C(race)", "statistic"])), r2_(float(wt.loc["smoke:C(race)", "pvalue"]))),
+         ("3.02", "0.22"))
+    print(f"VERIFY: {n_ok} checks of numbers quoted in content/lab08.html passed")

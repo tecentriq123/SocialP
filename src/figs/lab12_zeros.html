@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">0건 환자 수 예측 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">a = nb2.params[&quot;alpha&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">0건 환자 수 예측 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">a = nb2.params[&quot;alpha&quot;]
 mu_nb = nb2.predict()                 # 환자별 기대 건수
 p0_nb = (1 + a * mu_nb) ** (-1 / a)   # 음이항 분포의 P(0건)
 print(&quot;zeros: observed&quot;, obs[0], &quot; Poisson&quot;, round(exp_p[0], 1),

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">우도비 검정을 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lr = 2 * (m_logit.llf - m0.llf)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">우도비 검정을 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lr = 2 * (m_logit.llf - m0.llf)
 print(f&quot;LR    chi2 = {lr:.3f}, P = {stats.chi2.sf(lr, 1):.4f}&quot;)
 z = m_logit.tvalues[&quot;smoke&quot;]
 print(f&quot;Wald  chi2 = {z**2:.3f}, P = {m_logit.pvalues[&#x27;smoke&#x27;]:.4f}&quot;)

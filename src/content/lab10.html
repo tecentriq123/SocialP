@@ -1,28 +1,65 @@
-<p class="lead">10장에서 배운 반복측정 분산분석, 선형 혼합모형, 일반화 추정 방정식을 공개 데이터 두 개로 직접 실행합니다. 수면 제한 연구의 반응시간 자료로 자료구조를 바꿔 보고 반복측정 분산분석과 혼합모형을 적합한 뒤, 뇌전증 임상시험의 발작 건수 자료로 포아송 GEE를 적합합니다. 각 단계는 <a href="#ch10">10장</a>의 해당 절과 연결되어 있습니다.</p>
+<p class="lead">10장의 반복측정 분산분석, 선형 혼합모형, 일반화 추정 방정식을 공개 자료 두 개로 직접 실행합니다. 앞부분(a–c 절)은 수면 제한 연구의 반응시간 자료로 자료구조를 바꿔 보고 반복측정 분산분석과 혼합모형을 적합합니다. d 절은 뇌전증 임상시험의 발작 건수 자료로 포아송 GEE를 적합합니다. e 절에는 출력을 말로 옮기고, 조건을 바꿔 다시 돌리고, 잘못된 분석을 찾는 과제 세 개가 있습니다. 이론은 <a href="#ch10">10장</a>, 노트북 사용법은 <a href="#lab00">실습 0</a>을 참고하세요.</p>
 
 <dl class="glance">
 <div><dt>관련 이론</dt><dd><a href="#ch10">10장 동일 개체에서 반복적으로 측정된 자료를 분석하는 방법</a> (a 반복측정 분산분석, b 자료구조의 변환, c 선형 혼합모형, d 일반화 추정 방정식)</dd></div>
 <div><dt>데이터</dt><dd>① <b>sleepstudy</b> (R lme4 패키지): 수면 제한 연구 참가자 18명의 평균 반응시간을 10일 동안 매일 측정한 자료, 180행 3변수. ② <b>epil</b> (R MASS 패키지): 뇌전증 환자 59명을 progabide 또는 위약에 무작위배정하고 2주씩 네 기간의 발작 건수를 센 임상시험 자료, 236행 9변수</dd></div>
 <div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, scipy, statsmodels (<code>AnovaRM</code>, <code>mixedlm</code>, <code>gee</code>)</dd></div>
-<div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00">실습 0</a> 참고). statsmodels는 Colab과 Anaconda에 기본으로 들어 있어 설치 셀이 필요 없습니다. 출력은 statsmodels 0.15.0, pandas 3.0으로 만든 것이며 버전에 따라 출력 모양이나 끝자리가 조금 다를 수 있습니다.</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00-s2">실습 0 b 절</a>). statsmodels는 Colab과 Anaconda에 기본으로 들어 있어 설치할 패키지가 없습니다. 두 자료 모두 인터넷에서 CSV 파일로 읽어 오므로 인터넷 연결이 필요합니다.</dd></div>
 </dl>
+
+<p class="nb-link"><a href="notebooks/lab10.ipynb" download>실습 노트북 내려받기 (lab10.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<p>이 실습은 10장과 다른 자료를 씁니다. 그래서 10장의 큰 예인 약사 중재 임상시험의 무엇이 이 실습의 무엇에 해당하는지 먼저 맞춰 둡니다. sleepstudy는 10장 a–c 절의 HbA1c 자리에, epil은 d 절의 복약순응 자리에 둡니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th></th><th>10장의 예<br>(약사 중재 임상시험)</th><th>이 실습의 자료<br>(sleepstudy, epil)</th></tr></thead>
+<tbody>
+<tr><td>연구 질문</td><td>약사 복약관리를 받은 당뇨병 환자의 HbA1c가 통상치료군과 다르게 변했는가(a–c 절). 중재군의 복약순응이 더 좋은가(d 절)</td><td>잠자리 시간을 하루 3시간으로 줄인 날이 늘수록 반응시간이 얼마나 느려지는가(sleepstudy). progabide를 더하면 발작이 줄어드는가(epil)</td></tr>
+<tr><td>자료</td><td>무작위배정 100명. 가상의 임상시험</td><td>sleepstudy 18명 × 10일 = 180행. epil 59명 × 2주 네 기간 = 236행. 실제 연구 자료</td></tr>
+<tr><td>비교군 (기준)</td><td>중재군 50명 (기준 통상치료군 50명)</td><td>sleepstudy는 비교군 없이 한 군. epil은 progabide 31명 (기준 위약 28명)</td></tr>
+<tr><td>결과와 측정 횟수</td><td>HbA1c(연속형) 4회, 순응(예/아니오) 3기간</td><td>평균 반응시간(ms, 연속형) 10회, 발작 건수 4기간</td></tr>
+<tr><td>빠진 측정</td><td>25명이 한 번 이상 빠짐</td><td>두 자료 모두 없음</td></tr>
+<tr><td>보정 변수</td><td>MMRM에서 기저 HbA1c</td><td>sleepstudy는 없음. epil은 기저 8주 발작 건수와 나이(모두 로그), 기간</td></tr>
+<tr><td>핵심 결과</td><td>군 × 시간 F(2.43, 177.11) = 3.95. 혼합모형의 12개월 차이 −0.52%p. 순응 OR 2.53(GEE)</td><td>시간 F(3.32, 56.46) = 18.70. 혼합모형의 기울기 하루 10.5 ms (7.4–13.5). 발생률비 0.99 (0.68–1.44)</td></tr>
+</tbody></table></div>
+<p>두 자료 모두 같은 사람을 여러 번 쟀고 한 사람의 값끼리 닮아 있어서, 10장의 방법을 그대로 쓸 수 있습니다. 다른 점은 셋입니다. 첫째, sleepstudy에는 비교군이 없습니다. 그래서 a–c 절에서 읽는 값은 10장의 중재 효과(군 × 시간 교호작용)가 아니라 한 군의 시간 효과이고, 이 차이가 과제 1의 주제입니다. 둘째, 두 자료 모두 빠진 측정이 없어서, 혼합모형이 탈락한 사람을 버리지 않는다는 장점은 b 절에서 한 칸을 일부러 지워 보는 것으로만 봅니다. 셋째, epil의 결과는 예/아니오가 아니라 건수라서 GEE를 로그 연결의 포아송 모형으로 적합합니다. 로그 연결에서는 10장 d 절에서 본 주변 효과와 조건부 효과의 차이가 생기지 않습니다(d 절 끝).</p>
+
+<p>셀은 하나의 노트북에서 위에서부터 순서대로 실행합니다(<kbd>Shift</kbd> + <kbd>Enter</kbd>). 뒤의 셀이 앞 셀에서 만든 <code>sleep</code>, <code>wide</code>, <code>m1</code>, <code>gee_ex</code> 같은 변수를 쓰기 때문입니다. 출력을 만든 패키지의 버전은 셀 1에서 확인합니다.</p>
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab10-s1">
 <h2><span class="sec-no">a.</span>실습 데이터와 자료구조 변환</h2>
 
+<p>이 절에서는 패키지를 불러와 버전을 확인하고, 두 자료를 읽어 몇 명을 몇 번 쟀는지 확인한 뒤, 긴 형식과 넓은 형식을 오가고 사람마다 선을 하나씩 그려 봅니다.</p>
+
+<h3>패키지 불러오기와 버전 확인</h3>
+<p>먼저 이 실습에서 쓰는 패키지를 불러오고 각각의 버전을 출력해 둡니다. 패키지의 버전이 바뀌면 출력의 자릿수나 표시 형식이 조금씩 달라질 수 있어서, 내 화면의 출력이 이 페이지와 다를 때 가장 먼저 비교해 볼 정보이기 때문입니다.</p>
+<!--FIG:lab10_versions-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import numpy as np
+import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루는 pandas를 불러와 각각 <code>np</code>, <code>pd</code>라는 짧은 이름을 붙입니다. 이 실습의 모든 셀이 이 이름을 씁니다.</span></li>
+<li><code>import matplotlib.pyplot as plt</code><span>그림을 그리는 matplotlib의 pyplot 모듈을 <code>plt</code>라는 이름으로 불러옵니다. 셀 6과 셀 17의 그림에 씁니다.</span></li>
+<li><code>import matplotlib, scipy, statsmodels</code><span>버전을 확인하려고 세 패키지를 원래 이름으로 불러옵니다. 쉼표로 이어 한 줄에 여러 개를 불러올 수 있습니다. 실제로 쓰는 함수(<code>AnovaRM</code>, <code>smf.mixedlm</code> 등)는 그 함수를 처음 쓰는 셀에서 따로 불러옵니다.</span></li>
+<li><code>print("pandas      ", pd.__version__)</code><span>패키지마다 <code>__version__</code>(앞뒤로 밑줄 두 개)에 버전 번호가 문자열로 들어 있습니다. 앞 문자열 끝에 공백을 넣어 다섯 줄의 버전 번호가 같은 자리에서 시작하게 했습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<p>이 페이지의 출력을 만든 환경의 버전입니다(2026년 10월 14일 확인). Colab의 버전이 다르면 끝자리가 조금 다를 수 있습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>pandas 3.0.5.</b> 긴 형식과 넓은 형식을 바꾸는 <code>pivot</code>, <code>melt</code>와 묶어 세는 <code>groupby</code>를 맡습니다. 버전에 따라 범주형 열로 묶을 때 경고가 나오기도 해서 d 절에서는 <code>observed=True</code>를 넣습니다.</span></li>
+<li><span class="mk">2</span><span><b>statsmodels 0.15.0.</b> 반복측정 분산분석(<code>AnovaRM</code>), 혼합모형(<code>mixedlm</code>), GEE(<code>gee</code>)를 계산하는 패키지입니다. 버전이 다르면 <code>summary()</code> 표의 줄 맞춤 같은 모양이 조금 다를 수 있습니다. <code>AnovaRM</code>은 이 버전에서도 구형성 검정과 ε 보정을 출력하지 않아서 b 절에서 직접 계산합니다.</span></li>
+</ol>
+
 <h3>두 데이터</h3>
-<p><b>sleepstudy</b>는 수면 제한 연구<cite data-ref="belenky2003"></cite>에서 밤마다 3시간만 잠자리에 들도록 한 참가자 18명의 자료입니다. 매일 반응시간 과제를 수행해 평균 반응시간(ms)을 기록했습니다. 변수는 Reaction(평균 반응시간, ms), Days(수면 제한 일수 0–9), Subject(참가자 번호) 세 개뿐이라 혼합모형 교재에서 가장 많이 쓰는 예제입니다. 데이터 설명서에 따르면 0–1일은 적응·훈련 기간, 2일은 기저 측정이고 수면 제한은 그 뒤에 시작되었습니다. 이 실습에서는 흔히 하는 대로 10일 전체를 씁니다.</p>
+<p><b>sleepstudy</b>는 수면 제한 연구<cite data-ref="belenky2003"></cite>에서 밤마다 잠자리에 3시간만 있게 한 군의 참가자 18명 자료입니다. 원 연구에는 잠자리 시간이 더 긴 군도 있었지만 이 자료에는 3시간 군만 들어 있어서 비교군이 없습니다. 참가자는 매일 반응시간 과제를 했고, 변수는 Reaction(평균 반응시간, ms), Days(수면 제한 일수 0–9), Subject(참가자 번호) 세 개뿐이라 혼합모형 교재에서 가장 많이 쓰는 예제입니다. 자료 설명서에 따르면 0–1일은 적응·훈련 기간, 2일은 기저 측정이고 수면 제한은 그 뒤에 시작되었습니다. 이 실습에서는 흔히 하는 대로 10일 전체를 씁니다.</p>
 <p><b>epil</b>은 부분 발작이 있는 뇌전증 환자 59명에게 기존 치료에 더해 항경련제 progabide 또는 위약을 무작위배정하고, 2주씩 네 기간 동안 발작 건수를 센 임상시험 자료입니다<cite data-ref="thall1990"></cite>. d 절의 GEE에서 씁니다.</p>
 
 <h3>데이터 불러오기</h3>
-<p>두 데이터 모두 Rdatasets에서 읽습니다. Rdatasets는 R 패키지에 들어 있는 공개 데이터를 CSV 파일로 모아 둔 사이트로, 주소만 알면 파이썬에서 바로 읽을 수 있습니다. 인터넷 연결이 필요합니다(<a href="#lab00-s5">실습 0 e 절</a>). Colab에서 새 노트북을 만들고 첫 셀에 아래 코드를 붙여 넣은 뒤 Shift+Enter로 실행합니다.</p>
+<p>두 자료 모두 Rdatasets에서 읽습니다. Rdatasets는 R 패키지에 들어 있는 공개 자료를 CSV 파일로 모아 둔 사이트로, 주소만 알면 파이썬에서 바로 읽을 수 있습니다(<a href="#lab00-s5">실습 0 e 절</a>).</p>
 <!--FIG:lab10_load-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>import pandas as pd</code><span>표 자료를 다루는 pandas를 <code>pd</code>라는 짧은 이름으로 불러옵니다. 아래 두 줄도 같은 방식으로 수치 계산용 numpy(<code>np</code>)와 그래프용 matplotlib(<code>plt</code>)을 불러옵니다. 이 실습의 모든 셀이 이 이름을 씁니다.</span></li>
 <li><code>url = ("https://…/csv/"
-       "lme4/sleepstudy.csv")</code><span>주소가 길어서 두 줄로 나눴습니다. 괄호 안에 문자열 두 개를 나란히 쓰면 파이썬이 하나로 이어 붙입니다. 주소의 <code>lme4</code>는 R 패키지 이름, <code>sleepstudy.csv</code>는 데이터 이름입니다.</span></li>
+       "lme4/sleepstudy.csv")</code><span>주소가 길어서 두 줄로 나눴습니다. 괄호 안에 문자열 두 개를 나란히 쓰면 파이썬이 하나로 이어 붙입니다. 주소의 <code>lme4</code>는 R 패키지 이름, <code>sleepstudy.csv</code>는 자료 이름입니다.</span></li>
 <li><code>pd.read_csv(url)</code><span>인터넷 주소의 CSV 파일을 읽어 DataFrame(행과 열이 있는 표)으로 만듭니다.</span></li>
 <li><code>.drop(columns="rownames")</code><span>Rdatasets가 붙인 행 번호 열(rownames)을 지웁니다. 남는 열은 Reaction, Days, Subject입니다. 결과를 <code>sleep</code>이라는 이름에 저장합니다.</span></li>
 <li><code>print(sleep.shape)</code><span>(행 수, 열 수)를 출력합니다.</span></li>
@@ -77,7 +114,7 @@
 </ol>
 
 <h4>모형에는 왜 긴 형식이 필요한가</h4>
-<p>statsmodels의 혼합모형(<code>mixedlm</code>)과 GEE(<code>gee</code>)는 한 행이 한 번의 측정인 긴 형식을 받습니다. 모형식 <code>"Reaction ~ Days"</code>는 "각 행의 Reaction을 그 행의 Days로 설명한다"는 뜻이어서 결과값과 시점이 각각 한 열에 모여 있어야 하고, 어느 행이 같은 사람의 것인지는 <code>groups=</code>에 준 열로 알려 줍니다. 넓은 형식에서는 Days가 열 이름 속에 숨어 있어 모형식에 쓸 수 없습니다. 긴 형식에서는 측정이 빠진 날의 행만 없으면 되고, 방문마다 달라지는 공변량도 같은 행에 열로 붙일 수 있습니다(<a href="#ch10-s2">10장 b 절</a>). 반대로 b 절의 구형성 계산처럼 시점 사이의 공분산 행렬이 필요할 때는 넓은 형식이 편합니다.</p>
+<p>statsmodels의 혼합모형(<code>mixedlm</code>)과 GEE(<code>gee</code>)는 한 행이 한 번의 측정인 긴 형식을 받습니다. 모형식 <code>"Reaction ~ Days"</code>는 각 행의 Reaction을 그 행의 Days로 설명한다는 뜻이라, 결과값과 시점이 각각 한 열에 있어야 하고 어느 행이 같은 사람의 것인지는 <code>groups=</code>에 준 열로 알려 줍니다. 넓은 형식에서는 Days가 열 이름 속에 숨어 있어 모형식에 쓸 수 없습니다. 빠진 방문과 방문마다 바뀌는 공변량을 담기에도 긴 형식이 편하다는 점은 <a href="#ch10-s2">10장 b 절</a>에서 보았습니다. 반대로 b 절의 구형성 계산처럼 시점 사이의 공분산 행렬이 필요할 때는 넓은 형식을 씁니다.</p>
 
 <div class="callout warn"><p class="ct">이런 오류가 나면</p>
 <ul>
@@ -98,6 +135,7 @@
 <li><code>ax.set_xlabel(…)</code>, <code>ax.set_ylabel(…)</code>, <code>ax.legend()</code><span>축 제목과 범례를 붙입니다. Colab에 한글 글꼴이 없으면 그래프의 한글이 네모로 보이므로 그래프 글자는 영어로 씁니다.</span></li>
 <li><code>plt.show()</code><span>그림을 화면에 표시합니다.</span></li>
 </ol>
+<h4>그림 읽기</h4>
 <p>x축은 수면 제한 일수, y축은 평균 반응시간(ms)입니다. 18명의 평균(파란 선)은 0일 256.7 ms에서 9일 350.9 ms로 하루 약 10 ms씩 올라갑니다. 회색 선을 보면 두 가지가 눈에 띕니다. 0일의 출발점이 199 ms에서 322 ms까지 사람마다 다르고(<b>무작위 절편</b>), 가파르게 올라가는 사람과 거의 평평한 사람이 섞여 있습니다(<b>무작위 기울기</b>). 사람마다 따로 직선을 그어 보면 기울기가 하루 −2.9 ms에서 21.8 ms까지 퍼져 있습니다. c 절에서 이 두 가지를 모형으로 옮깁니다. 날이 갈수록 선들이 부채꼴로 벌어지는 모습은 b 절의 구형성 가정이 깨질 것이라는 신호이기도 합니다.</p>
 
 <h3>epil 데이터</h3>
@@ -105,7 +143,7 @@
 <!--FIG:lab10_epil-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>url = (… "MASS/epil.csv")</code><span>R의 MASS 패키지에 들어 있는 epil 데이터의 주소입니다. 불러오는 방법은 sleepstudy와 같습니다.</span></li>
+<li><code>url = (… "MASS/epil.csv")</code><span>R의 MASS 패키지에 들어 있는 epil 자료의 주소입니다. 불러오는 방법은 sleepstudy와 같습니다.</span></li>
 <li><code>pd.Categorical(epil["trt"],
     categories=["placebo", "progabide"])</code><span>trt 열을 범주형으로 바꾸면서 범주의 순서를 placebo, progabide로 정합니다. 회귀모형에서는 첫 번째 범주가 기준범주가 되므로(<a href="#ch08-s7">8장 g 절</a>), 패키지 버전과 관계없이 계수가 "progabide 대 placebo"로 나오도록 고정해 두는 것입니다.</span></li>
 <li><code>print(epil.shape, epil["subject"].nunique())</code><span>행·열 수와 환자 수를 한 줄에 출력합니다.</span></li>
@@ -118,7 +156,7 @@
 <thead><tr><th>변수</th><th>뜻</th></tr></thead>
 <tbody>
 <tr><td>y</td><td>해당 2주 기간의 발작 건수 (결과변수)</td></tr>
-<tr><td>trt</td><td>배정군: placebo(위약) 또는 progabide</td></tr>
+<tr><td>trt</td><td>배정군. placebo(위약) 또는 progabide</td></tr>
 <tr><td>base</td><td>무작위배정 전 <b>8주</b> 동안의 발작 건수 (기저값)</td></tr>
 <tr><td>age</td><td>나이(세)</td></tr>
 <tr><td>V4</td><td>4번째 기간이면 1인 표시 변수</td></tr>
@@ -145,7 +183,7 @@
 <p><code>epil.pivot(index="subject", columns="period", values="y").head()</code>를 실행해 epil을 넓은 형식으로 바꿔 보세요. 59행 × 4열의 표가 나오고, trt·base·age처럼 환자마다 하나인 변수는 사라집니다. 넓은 형식에 이 변수들을 붙이려면 따로 합쳐야 한다는 것도 긴 형식이 모형에 편한 이유입니다.</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
-<li>Rdatasets 주소를 <code>pd.read_csv</code>에 넣으면 R 패키지의 공개 데이터를 바로 읽을 수 있습니다.</li>
+<li>Rdatasets 주소를 <code>pd.read_csv</code>에 넣으면 R 패키지의 공개 자료를 바로 읽을 수 있습니다.</li>
 <li>분석 전에 <code>nunique()</code>와 <code>groupby(...).size().value_counts()</code>로 사람 수와 사람당 측정 횟수(결측 여부)를 확인합니다.</li>
 <li>긴 형식 → 넓은 형식은 <code>pivot(index, columns, values)</code>, 넓은 형식 → 긴 형식은 <code>reset_index()</code> 뒤 <code>melt(id_vars, var_name, value_name)</code>입니다.</li>
 <li>혼합모형과 GEE는 긴 형식을, 시점 간 공분산 계산은 넓은 형식을 씁니다. 스파게티 그림으로 사람마다 다른 수준과 기울기를 먼저 봅니다.</li>
@@ -174,7 +212,7 @@
 </ol>
 
 <h3>구형성과 Greenhouse–Geisser ε</h3>
-<p>이 버전의 <code>AnovaRM</code> 출력에는 Mauchly 검정도 ε 보정도 없습니다. 10장 a 절에서 본 것처럼 날이 갈수록 사람 사이의 차이가 벌어지면 구형성이 깨지고, 보정하지 않은 p는 실제보다 작게 나옵니다. Greenhouse–Geisser ε은 넓은 형식 자료의 공분산 행렬로 직접 계산할 수 있습니다.</p>
+<p><strong><code>AnovaRM</code>의 출력에는 구형성 검정도 ε 보정도 없으므로, 넓은 형식 자료의 공분산 행렬로 ε을 직접 계산합니다.</strong> 10장 a 절에서 본 것처럼 날이 갈수록 사람 사이의 차이가 벌어지면 구형성이 깨지고, 보정하지 않은 p는 실제보다 작게 나옵니다.</p>
 <div class="eq">\[ \hat\varepsilon_{\text{GG}} = \frac{\left(\operatorname{tr} \tilde S\right)^2}{(k-1)\,\operatorname{tr}\!\left(\tilde S^2\right)} \]
 <p>\(\tilde S\)는 k × k 공분산 행렬 S의 각 칸에서 그 행의 평균과 그 열의 평균을 빼고 전체 평균을 더한 행렬(이중 중심화)이고, tr은 대각선 원소의 합입니다. 구형성이 완전히 성립하면 ε = 1이고, 가장 심하게 깨지면 1/(k − 1)입니다.</p></div>
 <!--FIG:lab10_gg-->
@@ -185,7 +223,7 @@
 <li><code>Sc = S - S.mean(axis=0)
      - S.mean(axis=1)[:, None] + S.mean()</code><span>이중 중심화입니다. <code>S.mean(axis=0)</code>은 열 평균 10개, <code>S.mean(axis=1)[:, None]</code>은 행 평균 10개를 세로로 세운 (10, 1) 모양입니다. 모양이 다른 배열을 빼면 numpy가 칸마다 맞춰 계산합니다(broadcasting).</span></li>
 <li><code>eps = np.trace(Sc)**2 / ((k - 1) * np.sum(Sc**2))</code><span>위 식 그대로입니다. <code>np.trace</code>는 대각합, <code>np.sum(Sc**2)</code>는 모든 칸의 제곱합으로, 대칭 행렬에서는 \(\operatorname{tr}(\tilde S^2)\)와 같습니다.</span></li>
-<li><code>aov.anova_table.loc["Days", "F Value"]</code><span>앞 셀 결과의 분산분석표(<code>anova_table</code>, DataFrame)에서 Days 행, F Value 열의 값 18.70을 꺼냅니다.</span></li>
+<li><code>aov.anova_table.loc["Days", "F Value"]</code><span>셀 8 결과의 분산분석표(<code>anova_table</code>, DataFrame)에서 Days 행, F Value 열의 값 18.70을 꺼냅니다.</span></li>
 <li><code>stats.f.sf(F, eps * df1, eps * df2)</code><span>F 분포의 오른쪽 꼬리 넓이, 즉 p입니다. F는 그대로 두고 자유도에만 ε을 곱합니다(10장 a 절 '더 알아보기'의 '보정한 자유도로 p 다시 구하기'와 같은 계산). 하한 보정은 ε = 1/(k − 1)이므로 자유도가 (1, n − 1)이 됩니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
@@ -193,13 +231,41 @@
 <li><span class="mk">1</span><span><b>ε = 0.369.</b> 1이면 구형성, 하한은 1/9 = 0.111입니다. 스파게티 그림의 부채꼴 모양대로 구형성이 크게 깨졌습니다. 10장 a 절의 경험칙(GG ε이 0.75보다 작으면 GG 보정)에 따라 Greenhouse–Geisser 보정을 씁니다.</span></li>
 <li><span class="mk">2</span><span><b>보정 자유도 (3.32, 56.46).</b> 9 × 0.369, 153 × 0.369입니다. 논문의 "F(3.32, 56.46)"이 이 값입니다. p는 보정 없음 9.0 × 10<sup>−21</sup>, GG 보정 5.5 × 10<sup>−9</sup>, 하한 보정 0.00046으로 커지지만 세 경우 모두 결론은 같습니다. <code>e-21</code>은 × 10<sup>−21</sup>을 뜻하는 과학적 표기입니다.</span></li>
 </ol>
-<div class="callout note"><p class="ct">참고 · 다른 도구</p>
-<p>Huynh–Feldt ε도 같은 공분산 행렬에서 계산할 수 있지만 식이 두 가지라(10장 a 절) 여기서는 생략했습니다. pingouin 같은 별도 패키지(설치 필요)는 Mauchly 검정과 ε 보정을 함께 출력합니다. 어느 도구를 쓰든 보정 방법은 결과를 보기 전에 정해 둡니다.</p></div>
+
+<h3>Mauchly 검정과 Huynh–Feldt ε</h3>
+<p><strong>10장 a 절 '더 알아보기'의 구형성 검정(Mauchly)과 또 하나의 보정(Huynh–Feldt)도 같은 행렬로 계산합니다.</strong> 이번에는 셀 9의 이중 중심화한 행렬 <code>Sc</code>의 고윳값<span class="en">(eigenvalue)</span>을 씁니다. 고윳값은 시점 사이의 차이들이 서로 겹치지 않는 k − 1개 방향으로 나뉘어 흩어진 크기라고 보면 됩니다. 구형성이 성립하면 이 k − 1개가 모두 같고, 한두 방향에 몰릴수록 구형성이 깨진 것입니다. GG ε도 같은 고윳값으로 쓸 수 있습니다(10장 a 절 '수식으로 보기').</p>
+<!--FIG:lab10_mauchly-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>lam = np.linalg.eigvalsh(Sc)[1:]</code><span><code>eigvalsh</code>는 대칭 행렬의 고윳값을 작은 것부터 차례로 돌려줍니다. 이중 중심화한 행렬은 고윳값 하나가 0이므로 맨 앞 하나를 빼고(<code>[1:]</code>) k − 1 = 9개를 씁니다.</span></li>
+<li><code>W = np.prod(lam) / np.mean(lam)**(k - 1)</code><span>Mauchly의 W는 고윳값들의 곱을 고윳값 평균의 (k − 1)제곱으로 나눈 값입니다. 고윳값이 모두 같으면 1이고, 고르지 않을수록 0에 가까워집니다.</span></li>
+<li><code>d = 1 - …</code>, <code>chi2 = -(n - 1) * d * np.log(W)</code><span>W를 카이제곱 분포로 근사하는 식입니다. <code>d</code>는 표본이 작을 때를 위해 곱하는 보정 계수입니다.</span></li>
+<li><code>df_m = k * (k - 1) // 2 - 1</code><span>자유도 k(k − 1)/2 − 1 = 44입니다. <code>//</code>는 나눗셈의 몫만 남깁니다.</span></li>
+<li><code>hf = (n*(k - 1)*eps - 2) / ((k - 1)*(n - 1 - (k - 1)*eps))</code><span>Huynh–Feldt ε은 GG ε을 표본 크기로 조정한 값입니다. 10장은 군이 둘인 예라 원래 식과 Lecoutre의 수정식이 둘째 자리에서 달랐지만, 군이 하나인 이 자료에서는 두 식이 같은 값을 줍니다.</span></li>
+<li><code>hf = min(hf, 1)</code><span>계산값이 1을 넘으면 1로 둡니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>W = 0.000219.</b> 구형성이면 1인 값이 0에 아주 가깝습니다.</span></li>
+<li><span class="mk">2</span><span><b>χ²(44) = 116.25, p = 1.9 × 10<sup>−8</sup>.</b> 구형성이 기각되었습니다. 다만 Mauchly 검정은 표본이 작으면 위반을 놓치고 정규분포에서 벗어난 자료에 민감해서, 검정 결과와 관계없이 처음부터 보정한 결과를 보고하라고 권하는 교재가 많습니다(10장 a 절 '더 알아보기').</span></li>
+<li><span class="mk">3</span><span><b>HF ε = 0.469.</b> GG ε 0.369보다 큽니다. GG 보정이 다소 보수적인 점을 줄이도록 고친 값이기 때문입니다.</span></li>
+<li><span class="mk">4</span><span><b>HF 보정 p = 7.1 × 10<sup>−11</sup>.</b> 자유도는 9 × 0.469 = 4.22와 153 × 0.469 = 71.81입니다.</span></li>
+</ol>
+<p>셀 9와 셀 10의 보정 네 가지를 모으면 다음과 같습니다. F는 모두 18.70이고 자유도만 다릅니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>보정</th><th class="r">ε</th><th class="r">자유도</th><th class="r">p</th></tr></thead>
+<tbody>
+<tr><td>보정 없음</td><td class="r">1</td><td class="r">9, 153</td><td class="r">9.0 × 10<sup>−21</sup></td></tr>
+<tr class="hi"><td>Greenhouse–Geisser</td><td class="r">0.369</td><td class="r">3.32, 56.46</td><td class="r">5.5 × 10<sup>−9</sup></td></tr>
+<tr><td>Huynh–Feldt</td><td class="r">0.469</td><td class="r">4.22, 71.81</td><td class="r">7.1 × 10<sup>−11</sup></td></tr>
+<tr><td>하한</td><td class="r">0.111</td><td class="r">1, 17</td><td class="r">0.00046</td></tr>
+</tbody></table></div>
+<p>이 자료는 어느 보정을 써도 결론이 같습니다. 보정 방법은 결과를 보기 전에 정하고, 이 자료처럼 GG ε이 0.75보다 작으면 GG를 씁니다. pingouin 같은 별도 패키지(설치 필요)는 Mauchly 검정과 ε 보정을 한 번에 출력합니다.</p>
 
 <h3>한 칸이라도 빠지면</h3>
 <p>반복측정 분산분석은 모든 사람이 모든 시점에 측정되어 있어야 합니다. 첫 행 하나만 지우고 다시 실행해 보겠습니다.</p>
 <!--FIG:lab10_unbal-->
-<p><code>sleep.drop(index=0)</code>은 행 번호 0(308번 참가자의 0일)을 뺀 179행짜리 자료를 만듭니다. 측정 하나가 빠지자 <code>ValueError: Data is unbalanced.</code>(자료가 균형이 아님) 오류가 나고 분석이 되지 않습니다. 이 방법을 쓰려면 측정이 빠진 사람을 통째로 빼야 하는데(완전사례 분석), 10장 a 절과 c 절에서 본 것처럼 탈락이 결과와 관련 있으면 편향이 생깁니다. 측정된 행을 모두 쓰는 c 절의 혼합모형이 대안입니다.</p>
+<p><code>sleep.drop(index=0)</code>은 행 번호 0(308번 참가자의 0일)을 뺀 179행짜리 자료를 만듭니다. 측정 하나가 빠지자 <code>ValueError: Data is unbalanced.</code>(자료가 균형이 아님) 오류가 나고 분석이 되지 않습니다. 이 방법을 쓰려면 측정이 빠진 사람을 통째로 빼야 하는데(완전사례 분석), 10장 a 절과 c 절에서 본 것처럼 탈락이 결과와 관련 있으면 편향이 생깁니다. 측정된 행을 모두 쓰는 c 절의 혼합모형이 대안입니다. 내려받는 노트북에는 오류로 실행이 멈추지 않도록 이 셀을 넣지 않았습니다.</p>
 
 <div class="paper">
 <div class="paper-h"><b>논문에는 이렇게 씁니다 · 반복측정 분산분석 결과</b><span>실습 결과</span></div>
@@ -207,17 +273,17 @@
 <p class="excerpt">Mean reaction time differed across the 10 days of sleep restriction (one-way repeated-measures ANOVA, <span class="mk">1</span> <span class="hl">F(9, 153) = 18.70, P &lt; .001</span>). Because the Greenhouse–Geisser estimate of sphericity was low (<span class="mk">2</span> <span class="hl">ε = 0.37</span>), degrees of freedom were corrected, and the result was unchanged (<span class="mk">3</span> <span class="hl">F(3.32, 56.46) = 18.70, P &lt; .001</span>).</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>보정하지 않은 F 검정.</b> 자유도 (9, 153)으로 참가자 수를 역산할 수 있습니다. 153 ÷ 9 = 17 = n − 1이므로 n = 18입니다(1장 d 절).</span></li>
-<li><span class="mk">2</span><span><b>ε = 0.37.</b> 직접 계산한 0.369를 반올림했습니다. 이 실습에서는 Mauchly 검정을 하지 않았으므로 "Mauchly's test indicated …"라고 쓰지 않고 ε 값을 근거로 적었습니다. 실제로 하지 않은 검정을 쓰면 안 됩니다.</span></li>
+<li><span class="mk">2</span><span><b>ε = 0.37.</b> 셀 9의 0.369를 반올림했습니다. 셀 10의 Mauchly 검정도 구형성을 기각했지만, 이 검정은 표본 크기에 크게 좌우되므로 ε 값을 보정의 근거로 적었습니다. Mauchly 검정을 함께 쓴다면 χ²(44) = 116.25처럼 통계량과 자유도를 적습니다.</span></li>
 <li><span class="mk">3</span><span><b>소수 자유도.</b> 보정했다는 표시입니다. F 값은 보정 전후가 같습니다. 이 문장은 "10일의 평균이 같지 않다"는 것만 말하므로, 하루에 몇 ms 느려지는지는 c 절의 혼합모형 결과와 함께 보고합니다.</span></li>
 </ol>
 </div></div>
 
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
-<p>데이터 설명서대로 적응 기간(0–1일)을 빼고 <code>s2 = sleep[sleep["Days"] &gt;= 2]</code>로 같은 분석을 해 보세요. <code>AnovaRM(s2, ...)</code>의 결과는 F(7, 119) = 15.31로 바뀝니다. 자유도가 (8 − 1, 7 × 17)이 되는 이유를 확인하고, ε도 <code>s2</code>로 만든 넓은 형식 표에서 다시 계산해 보세요.</p></div>
+<p>자료 설명서대로 적응 기간(0–1일)을 빼고 <code>s2 = sleep[sleep["Days"] &gt;= 2]</code>로 같은 분석을 해 보세요. <code>AnovaRM(s2, ...)</code>의 결과는 F(7, 119) = 15.31로 바뀝니다. 자유도가 (8 − 1, 7 × 17)이 되는 이유를 확인하고, ε도 <code>s2</code>로 만든 넓은 형식 표에서 다시 계산해 보세요.</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>AnovaRM(data, depvar, subject, within)</code>은 긴 형식 자료로 반복측정 분산분석을 합니다. 시간은 순서 없는 범주로 다뤄집니다.</li>
-<li>이 버전의 <code>AnovaRM</code>은 구형성 검정과 보정을 주지 않으므로, 넓은 형식의 공분산 행렬로 GG ε을 계산하고 <code>stats.f.sf</code>에 보정 자유도를 넣어 p를 다시 구합니다.</li>
+<li><code>AnovaRM</code>은 구형성 검정과 보정을 주지 않으므로, 넓은 형식의 공분산 행렬로 GG ε을 계산하고 <code>stats.f.sf</code>에 보정 자유도를 넣어 p를 다시 구합니다. Mauchly 검정과 HF ε은 같은 행렬의 고윳값으로 구합니다.</li>
 <li>측정이 하나라도 빠지면 <code>Data is unbalanced</code> 오류가 납니다. 결측이 있는 자료는 혼합모형으로 분석합니다.</li>
 <li>F 검정은 "시점 평균이 모두 같은가"만 답하므로 효과의 크기는 따로 보고합니다.</li>
 </ul></div>
@@ -243,13 +309,13 @@
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>Method: REML.</b> 분산성분을 제한최대우도로 추정했습니다(10장 c 절 '더 알아보기'의 '최대우도와 제한최대우도'). ML과의 차이는 아래에서 직접 비교합니다.</span></li>
+<li><span class="mk">1</span><span><b>Method: REML.</b> 분산성분을 제한최대우도로 추정했습니다(10장 c 절 '더 알아보기'의 '최대우도와 제한최대우도'). ML과의 차이는 셀 15에서 직접 비교합니다.</span></li>
 <li><span class="mk">2</span><span><b>No. Groups: 18.</b> <code>groups</code>로 준 군집, 즉 참가자 수입니다. statsmodels는 군집을 'Group'이라고 부릅니다. Min·Max group size가 모두 10이므로 모든 참가자가 10번 측정되었습니다.</span></li>
 <li><span class="mk">3</span><span><b>Scale = 960.46.</b> 잔차 분산 σ²입니다. 참가자 자신의 평균 수준 주변에서 날마다 흔들리는 정도로, SD는 √960.46 = 31.0 ms입니다.</span></li>
 <li><span class="mk">4</span><span><b>Log-Likelihood = −893.23.</b> REML 로그우도입니다. 혼자서는 의미가 없고, 무작위 기울기 모형과 비교할 때 씁니다.</span></li>
 <li><span class="mk">5</span><span><b>Converged: Yes.</b> 추정 계산이 수렴했습니다. No가 나오면 결과를 쓰지 말고 모형을 단순하게 하거나 척도를 바꿔 다시 적합합니다.</span></li>
-<li><span class="mk">6</span><span><b>Days = 10.467, SE 0.804.</b> 고정효과로, 수면 제한이 하루 늘 때 평균 반응시간이 10.5 ms 늘어난다는 뜻입니다. z = 10.467 ÷ 0.804 = 13.0, 95% CI 8.89–12.04입니다. statsmodels MixedLM은 정규분포(z)로 검정합니다. Intercept 251.405는 0일의 평균 반응시간입니다.</span></li>
-<li><span class="mk">7</span><span><b>Group Var = 1378.18.</b> 무작위 절편의 분산 τ²로, 참가자들의 평균 수준이 공통 직선 주위에 흩어진 정도입니다. SD는 √1378.18 = 37.1 ms입니다. 옆의 17.156은 분산 모수의 표준오차로 출력되지만 분산과 같은 단위로 읽을 수 있는 값이 아니고, statsmodels 설명서(<code>bse_re</code>)도 분산 모수의 표본분포는 크게 치우쳐 있어 이 표준오차로 보통의 방식대로 신뢰구간이나 p-value를 만들면 의미가 없을 수 있다고 적고 있습니다. 무작위효과가 필요한지는 아래의 우도비 검정으로 판단합니다.</span></li>
+<li><span class="mk">6</span><span><b>Days = 10.467, SE 0.804.</b> 고정효과로, 수면 제한 일수가 하루 많을수록 평균 반응시간이 10.5 ms 길다는 뜻입니다. z = 10.467 ÷ 0.804 = 13.0, 95% CI 8.89–12.04입니다. statsmodels MixedLM은 정규분포(z)로 검정합니다. Intercept 251.405는 0일의 평균 반응시간입니다.</span></li>
+<li><span class="mk">7</span><span><b>Group Var = 1378.18.</b> 무작위 절편의 분산 τ²로, 참가자들의 평균 수준이 공통 직선 주위에 흩어진 정도입니다. SD는 √1378.18 = 37.1 ms입니다. 옆의 17.156은 분산 모수의 표준오차로 출력되지만, 분산 모수의 표본분포는 크게 치우쳐 있어서 이 값으로 신뢰구간이나 p를 만들지 않습니다(statsmodels 설명서의 <code>bse_re</code>). 무작위효과가 필요한지는 셀 15의 우도비 검정으로 판단합니다.</span></li>
 </ol>
 
 <h3>ICC와 표준오차</h3>
@@ -267,7 +333,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>ICC = 0.589.</b> 1378.2 ÷ (1378.2 + 960.5)입니다. 반응시간 변동의 59%가 '누구인가'로 설명되고, 무작위 절편 모형에서는 같은 사람의 두 날 반응시간 사이의 상관계수이기도 합니다(10장 c 절).</span></li>
 <li><span class="mk">2</span><span><b>OLS의 SE 1.238.</b> 계수는 두 모형 모두 10.467로 같습니다(모든 사람이 같은 날짜에 측정된 균형 자료이기 때문).</span></li>
-<li><span class="mk">3</span><span><b>혼합모형의 SE 0.804는 오히려 작습니다.</b> Days는 한 사람 안에서 0부터 9까지 바뀌는 개체내 변수라서, 사람마다 다른 수준(τ²)을 빼고 나면 기울기를 더 정밀하게 추정할 수 있습니다. OLS는 그 차이를 오차에 섞어 버립니다. 10장 d 절의 "환자 안의 비교는 독립 가정이 표준오차를 크게 만든다"와 같은 현상이며, 대응 t 검정이 독립 t 검정보다 정밀한 이유(3장 a 절)이기도 합니다. 다만 이 0.804는 기울기가 모두 같다는 가정 아래의 값이어서 아래에서 다시 봅니다.</span></li>
+<li><span class="mk">3</span><span><b>혼합모형의 SE 0.804는 오히려 작습니다.</b> Days는 한 사람 안에서 0부터 9까지 바뀌는 개체내 변수라서, 사람마다 다른 수준(τ²)을 빼고 나면 기울기를 더 정밀하게 추정할 수 있습니다. OLS는 그 차이를 오차에 섞어 버립니다. 10장 d 절에서 본 "환자 안의 비교에서는 독립 가정이 표준오차를 크게 만든다"와 같은 현상이며, 대응 t 검정이 독립 t 검정보다 정밀한 이유(3장 a 절)이기도 합니다. 다만 이 0.804는 기울기가 모두 같다는 가정 아래의 값이어서 아래에서 다시 봅니다.</span></li>
 </ol>
 
 <h3>무작위 기울기 추가</h3>
@@ -275,7 +341,7 @@
 <!--FIG:lab10_rs-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>re_formula="~Days"</code><span>무작위효과의 모형식입니다. <code>"~Days"</code>는 무작위 절편과 Days의 무작위 기울기를 함께 넣고 둘의 공분산도 추정하라는 뜻입니다. 지정하지 않으면 무작위 절편만 들어갑니다. 나머지는 앞 셀과 같습니다.</span></li>
+<li><code>re_formula="~Days"</code><span>무작위효과의 모형식입니다. <code>"~Days"</code>는 무작위 절편과 Days의 무작위 기울기를 함께 넣고 둘의 공분산도 추정하라는 뜻입니다. 지정하지 않으면 무작위 절편만 들어갑니다. 나머지는 셀 12와 같습니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -300,7 +366,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>우도비 통계량 42.84.</b> 2 × (−871.81 − (−893.23))이고 p = 5.0 × 10<sup>−10</sup>입니다. 무작위 기울기가 필요합니다. 분산은 0보다 작을 수 없다는 경계 때문에 보통의 χ²(2)로 구한 p는 실제보다 큰(보수적인) 값입니다(10장 c 절). 그래도 이렇게 작으므로 결론은 같습니다.</span></li>
 </ol>
-<p>아래 표에서 ML의 절편 분산(565.5)과 기울기 분산(32.7)이 REML(612.1, 35.1)보다 작습니다. ML은 고정효과 두 개를 추정하는 데 쓴 자유도를 고려하지 않아 분산성분을 작게 추정하기 때문입니다. 분산성분은 사실상 참가자 18명에게서 추정되므로 차이가 눈에 띄고, 관측값 180개에서 추정되는 잔차 분산은 거의 같습니다. 그래서 혼합모형의 기본값은 REML이고, 고정효과가 다른 두 모형을 우도비 검정이나 AIC로 비교할 때만 ML로 적합합니다.</p>
+<p>아래 표에서 ML의 절편 분산(565.5)과 기울기 분산(32.7)이 REML(612.1, 35.1)보다 작습니다. ML은 고정효과 두 개를 추정하는 데 쓴 자유도를 고려하지 않아 분산성분을 작게 추정하기 때문입니다. 분산성분은 사실상 참가자 18명에게서 추정되므로 차이가 눈에 띄고, 관측값 180개에서 추정되는 잔차 분산은 거의 같습니다. 그래서 혼합모형의 기본값은 REML이고, 고정효과가 다른 두 모형을 우도비 검정이나 AIC로 비교할 때만 ML로 적합합니다. 이 규칙을 어기면 어떻게 되는지는 과제 3에서 봅니다.</p>
 
 <h3>표준오차 네 가지</h3>
 <p>Days 계수의 표준오차를 네 가지 방법으로 모아 봅니다. 두 번째 줄은 OLS 계수는 그대로 두고 표준오차만 참가자 단위의 군집 강건 표준오차(샌드위치 분산)로 바꾼 것으로, d 절 GEE의 강건 표준오차와 같은 원리입니다.</p>
@@ -371,7 +437,7 @@
 <p>모형식 <code>y ~ trt + np.log(base / 4) + np.log(age) + C(period)</code>의 각 항은 다음과 같습니다.</p>
 <ul>
 <li><b>trt</b>: 배정군. 기준범주는 a 절에서 정한 placebo입니다.</li>
-<li><b>np.log(base / 4)</b>: 기저값은 8주 건수이고 결과는 2주 건수이므로 4로 나눠 '2주당 기저 발작 건수'로 맞춘 뒤 로그를 취합니다. 포아송 모형은 로그 기대 건수를 모형화하므로, 기저 발작률도 로그로 넣으면 계수를 "기저 발작률이 k배인 환자는 추적 발작률이 k<sup>β</sup>배"로 읽을 수 있습니다. 무작위배정 시험에서 기저값을 보정하는 것은 정밀도를 높이는 표준적인 방법입니다(10장 b 절 구조 (나)).</li>
+<li><b>np.log(base / 4)</b>: 기저값은 8주 건수이고 결과는 2주 건수이므로 4로 나눠 '2주당 기저 발작 건수'로 맞춘 뒤 로그를 취합니다. 포아송 모형은 로그 기대 건수를 모형화하므로, 기저 발작률도 로그로 넣으면 계수를 "기저 발작률이 k배인 환자는 추적 발작률이 k<sup>β</sup>배"로 읽을 수 있습니다. 무작위배정 시험에서 기저값을 공변량으로 넣는 것은 정밀도를 높이는 표준적인 방법입니다(10장 b 절 구조 (나)). 얼마나 높이는지는 과제 2에서 봅니다.</li>
 <li><b>np.log(age)</b>: 나이의 로그입니다. 식 안의 <code>np.log</code>는 statsmodels가 계산해 주므로 새 열을 만들 필요가 없습니다.</li>
 <li><b>C(period)</b>: 기간 1–4를 범주형으로 넣습니다(기준범주 1기간). 10장 b 절의 '범주형 시간'입니다.</li>
 </ul>
@@ -382,7 +448,7 @@
 <li><code>form = "y ~ trt + np.log(base / 4) + ..."</code><span>모형식을 변수에 저장해 두고 뒤 셀에서 다시 씁니다.</span></li>
 <li><code>smf.gee(form, groups="subject", data=epil, ...)</code><span><code>groups</code>는 군집, 즉 서로 상관된 행들을 묶는 열입니다. 한 환자의 네 행이 한 군집입니다.</span></li>
 <li><code>family=sm.families.Poisson()</code><span>결과가 건수이므로 포아송 분포를 씁니다. 연결함수는 기본값인 로그입니다.</span></li>
-<li><code>cov_struct=sm.cov_struct.Exchangeable()</code><span>교환가능 작업상관: 같은 환자의 어느 두 기간이든 상관이 α로 같다고 '일단 가정'합니다(10장 d 절).</span></li>
+<li><code>cov_struct=sm.cov_struct.Exchangeable()</code><span>교환가능 작업상관입니다. 같은 환자의 어느 두 기간이든 상관이 α로 같다고 '일단 가정'합니다(10장 d 절).</span></li>
 <li><code>.fit()</code><span>적합합니다. 표준오차는 기본값인 강건(샌드위치) 표준오차입니다.</span></li>
 <li><code>gee_ex.model.cov_struct.summary()</code><span>추정된 작업상관 α는 요약표에 없어서 따로 출력합니다.</span></li>
 </ol>
@@ -390,7 +456,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>군집 59개, 군집 크기 4.</b> 강건 표준오차의 정확성은 관측값 수(236)가 아니라 군집 수(59)에 달려 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>Dependence structure: Exchangeable.</b> 지정한 작업상관 구조입니다.</span></li>
-<li><span class="mk">3</span><span><b>Scale = 1.000.</b> 포아송 분포의 척도모수를 1로 고정했다는 뜻입니다. 아래에서 보듯 이 자료는 과산포가 심하지만 강건 표준오차가 그것까지 반영합니다.</span></li>
+<li><span class="mk">3</span><span><b>Scale = 1.000.</b> 포아송 분포의 척도모수를 1로 고정했다는 뜻입니다. 셀 21에서 보듯 이 자료는 과산포가 심하지만 강건 표준오차가 그것까지 반영합니다.</span></li>
 <li><span class="mk">4</span><span><b>Covariance type: robust.</b> std err 열이 강건 표준오차입니다.</span></li>
 <li><span class="mk">5</span><span><b>trt[T.progabide] = −0.0107, SE 0.192.</b> 로그 발생률비입니다. 발생률비 = e<sup>−0.0107</sup> = 0.989, z = −0.055, P = 0.956, 95% CI는 e<sup>−0.387</sup>–e<sup>0.366</sup> = 0.68–1.44입니다(다음 셀).</span></li>
 <li><span class="mk">6</span><span><b>C(period)[T.4] = −0.203.</b> 4기간의 발작률이 1기간의 e<sup>−0.203</sup> = 0.82배입니다(P = 0.040). 이 모형은 기간 효과가 두 군에서 같다고 가정합니다.</span></li>
@@ -405,14 +471,14 @@
 <li><code>ci = gee_ex.conf_int()</code><span>로그 척도의 95% 신뢰구간 표입니다. 열 이름이 0(하한)과 1(상한)입니다.</span></li>
 <li><code>np.exp(gee_ex.params)</code>, <code>np.exp(ci[0])</code>, <code>np.exp(ci[1])</code><span>계수와 신뢰한계를 지수함수로 되돌립니다(8장 c 절). 세 Series를 열로 모아 표를 만듭니다.</span></li>
 </ol>
-<p>progabide의 발생률비는 0.989(95% CI 0.679–1.442)입니다. 나이는 2배일 때 2<sup>0.609</sup> = 1.53배로 읽고, Intercept 행(0.089)은 기저 발작률 2주 1건, 나이 1세인 가상의 환자의 1기간 발작률이라 해석하지 않습니다.</p>
+<p>progabide의 발생률비는 0.989(95% CI 0.679–1.442)입니다. 기저 발작률, 나이, 기간이 같을 때 progabide군의 발작률이 위약군의 0.99배라는 뜻이고, 신뢰구간이 발작률 32% 감소부터 44% 증가까지 걸쳐 있어 이 자료로는 효과의 방향도 정할 수 없습니다(유의하지 않은 결과를 읽는 법은 <a href="#ch00-s6">0장 f 절</a>). 발생률비는 기간당 발작 건수의 비이고, 한 번이라도 발작할 위험의 비가 아닙니다(<a href="#ch12-s1">12장 a 절</a>). 나이는 2배일 때 2<sup>0.609</sup> = 1.53배로 읽고, Intercept 행(0.089)은 기저 발작률 2주 1건, 나이 1세인 가상의 환자의 1기간 발작률이라 해석하지 않습니다.</p>
 
 <h3>작업상관과 표준오차 비교</h3>
 <p>같은 모형식을 독립 작업상관의 GEE와, 네 기간을 서로 독립인 관측으로 보는 보통의 포아송 회귀(12장 b 절)로도 적합해 progabide 계수를 비교합니다.</p>
 <!--FIG:lab10_gee_cmp-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>sm.cov_struct.Independence()</code><span>독립 작업상관입니다. 나머지는 앞의 GEE와 같습니다.</span></li>
+<li><code>sm.cov_struct.Independence()</code><span>독립 작업상관입니다. 나머지는 셀 19의 GEE와 같습니다.</span></li>
 <li><code>smf.glm(form, data=epil, family=sm.families.Poisson())</code><span>보통의 포아송 회귀입니다. <code>groups</code>가 없으므로 236행을 모두 독립으로 봅니다.</span></li>
 <li><code>glm.pearson_chi2 / glm.df_resid</code><span>Pearson χ² ÷ 잔차 자유도로 과산포를 봅니다(12장 b 절).</span></li>
 <li><code>fits = {...}</code><span>세 결과를 이름: 결과 쌍의 사전으로 묶습니다.</span></li>
@@ -425,13 +491,7 @@
 <p>포아송 회귀와 독립 GEE의 계수는 −0.0176으로 같습니다. 독립 작업상관의 GEE는 계수를 보통의 회귀와 똑같이 구하고 표준오차만 강건하게 바꾸기 때문입니다. 그런데 표준오차는 0.048 대 0.191로 네 배 차이가 납니다. 포아송 회귀만 썼다면 신뢰구간이 네 배 가까이 좁게, 즉 결과가 실제보다 훨씬 정밀한 것처럼 보고되었을 것입니다. trt는 환자마다 하나로 정해진 변수여서 10장 d 절에서 본 것처럼 독립 가정이 표준오차를 작게 만듭니다. 교환가능 작업상관의 계수(−0.0107)와 표준오차(0.192)는 독립 GEE와 거의 같습니다. 군집이 충분하면 작업상관의 선택이 결과를 크게 바꾸지 않는다는 10장 d 절의 설명과 일치합니다.</p>
 
 <h3>모집단 평균 효과로 읽기</h3>
-<p>GEE의 발생률비 0.99는 주변(모집단 평균) 효과입니다. "기저 발작률, 나이, 기간이 같은 환자 집단에서 progabide군 전체의 평균 발작률이 위약군 전체의 0.99배"라는 뜻입니다. 10장 d 절에서는 로지스틱 모형의 주변 오즈비와 조건부 오즈비가 달랐습니다. 로그 연결 모형에서는 사정이 다릅니다. 환자마다 다른 무작위 절편 b<sub>i</sub>가 있을 때 기대 건수는 e<sup>xβ + b<sub>i</sub></sup> = e<sup>xβ</sup> × e<sup>b<sub>i</sub></sup>이고, 이를 환자들에 대해 평균해도 e<sup>xβ</sup>에 상수가 곱해질 뿐이어서 절편만 바뀌고 발생률비는 그대로입니다. 그래서 건수 자료에서는 무작위 절편 포아송 혼합모형의 발생률비와 GEE의 발생률비가 (두 모형이 맞다면) 같은 양을 추정합니다. 무작위 기울기처럼 더 복잡한 구조가 있으면 두 값이 달라질 수 있습니다.</p>
-
-<div class="callout warn"><p class="ct">흔한 오해 · 유의하지 않은 GEE 결과</p>
-<ul>
-<li><span class="wrong">P = 0.96이므로 progabide는 발작을 줄이지 못한다는 것이 입증되었다.</span> 95% CI 0.68–1.44는 발작률 32% 감소부터 44% 증가까지를 모두 포함합니다. 효과가 없다는 증거가 아니라 결론을 내릴 만큼 정보가 없다는 뜻입니다. 효과가 없음(동등)을 말하려면 미리 정한 한계와 신뢰구간이 필요합니다(<a href="#ch13-s1">13장 a 절</a>).</li>
-<li><span class="wrong">발생률비 0.99이므로 progabide군의 발작 위험이 1% 낮다.</span> 발생률비는 '기간당 건수'의 비입니다. 한 번 이상 발작할 위험의 비가 아닙니다(12장 a 절).</li>
-</ul></div>
+<p><strong>로그 연결의 GEE에서는 모집단 평균 효과와 개인 단위 효과가 같은 발생률비가 됩니다.</strong> GEE의 발생률비 0.99는 주변(모집단 평균) 효과로, "기저 발작률, 나이, 기간이 같은 환자 집단에서 progabide군 전체의 평균 발작률이 위약군 전체의 0.99배"라는 뜻입니다. 10장 d 절에서는 로지스틱 모형의 주변 오즈비와 조건부 오즈비가 달랐습니다. 로그 연결에서는 사정이 다릅니다. 환자마다 다른 무작위 절편 b<sub>i</sub>가 있을 때 기대 건수는 e<sup>xβ + b<sub>i</sub></sup> = e<sup>xβ</sup> × e<sup>b<sub>i</sub></sup>이고, 이를 환자들에 대해 평균해도 e<sup>xβ</sup>에 상수가 곱해질 뿐이어서 절편만 바뀌고 발생률비는 그대로입니다. 그래서 건수 자료에서는 무작위 절편 포아송 혼합모형의 발생률비와 GEE의 발생률비가 (두 모형이 맞다면) 같은 양을 추정합니다. 다만 엄밀하게는 무작위 기울기처럼 더 복잡한 구조가 있으면 두 값이 달라질 수 있습니다.</p>
 
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
 <p>환자 49는 기저 8주 발작이 151건으로 가장 많고 추적 기간에도 63–102건을 기록했습니다. <code>epil[epil["subject"] != 49]</code>로 이 환자를 빼고 같은 GEE를 적합하면 발생률비가 0.80(95% CI 0.58–1.09)으로, 작업상관은 0.34로 바뀝니다. 한 명의 환자가 결과를 이만큼 움직입니다. 이런 분석은 결과를 보고 환자를 빼는 것이 아니라 미리 정한 민감도 분석으로 보고해야 합니다. <code>cov_struct</code>를 <code>sm.cov_struct.Independence()</code>로 바꾼 결과도 비교해 보세요.</p></div>
@@ -443,7 +503,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>GEE의 네 요소.</b> 분포와 연결함수, 작업상관 구조, 강건 표준오차, 군집 단위를 모두 적었습니다. 이 중 하나라도 빠지면 독자가 분석을 재현하거나 평가하기 어렵습니다(10장 d 절 '논문에서 읽기'의 Methods 상자).</span></li>
 <li><span class="mk">2</span><span><b>보정 변수.</b> 모두 무작위배정 이전 값(기저 발작률, 나이)이거나 설계 변수(기간)입니다. 기저 건수를 기간 길이에 맞춰 2주당으로 바꾸고 로그를 취했다는 점을 밝히면 계수를 해석할 수 있습니다.</span></li>
-<li><span class="mk">3</span><span><b>발생률비와 95% CI.</b> 발생률비 표의 0.989(0.679–1.442)와 요약표의 P = 0.956을 반올림했습니다. 신뢰구간이 넓다는 점을 Discussion에서 다뤄야 하며, "no effect"라고 쓰지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>발생률비와 95% CI.</b> 셀 20의 0.989(0.679–1.442)와 셀 19의 P = 0.956을 반올림했습니다. 신뢰구간이 넓다는 점을 Discussion에서 함께 다룹니다.</span></li>
 <li><span class="mk">4</span><span><b>작업상관.</b> <code>cov_struct.summary()</code>의 0.400입니다. 보고하지 않는 논문도 많지만, 같은 환자의 건수가 얼마나 닮았는지 알려 주어 다음 연구의 표본크기 계산(설계효과)에 쓸 수 있습니다.</span></li>
 </ol>
 </div></div>
@@ -452,6 +512,65 @@
 <li><code>smf.gee(form, groups=..., family=sm.families.Poisson(), cov_struct=sm.cov_struct.Exchangeable())</code>로 건수 결과의 GEE를 적합합니다. 표준오차는 기본값이 강건 표준오차입니다.</li>
 <li>계수는 로그 발생률비이므로 <code>np.exp</code>로 발생률비와 신뢰구간을 구합니다. 작업상관 α는 <code>model.cov_struct.summary()</code>로 따로 봅니다.</li>
 <li>같은 환자의 반복 건수를 독립으로 본 포아송 회귀는 이 자료에서 표준오차를 4분의 1로 작게 계산했습니다. 작업상관을 바꿔도 결과는 거의 같았습니다.</li>
-<li>GEE의 발생률비는 모집단 평균 효과이며, 로그 연결에서는 무작위 절편 모형의 발생률비와 같은 양을 추정합니다. 유의하지 않은 결과는 신뢰구간으로 해석합니다.</li>
+<li>GEE의 발생률비는 모집단 평균 효과이며, 로그 연결에서는 무작위 절편 모형의 발생률비와 같은 양을 추정합니다.</li>
 </ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="lab10-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 세 과제는 하는 일이 다릅니다. 과제 1은 출력의 한 행을 말로 옮기고, 과제 2는 조건 하나를 바꿔 다시 돌린 결과를 비교하고, 과제 3은 그럴듯하지만 틀린 분석을 찾습니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 수면 제한 하루당 기울기 읽기</h3>
+<p>셀 14의 무작위 절편 + 기울기 모형에서 Days 행(10.467, SE 1.546, 95% CI 7.438–13.497)을 논문의 Results처럼 한 문장으로 옮기세요. 그리고 이 숫자가 말해 주지 <em>않는</em> 것을 두 가지 이상 쓰세요. 셀 17처럼 고정효과에 참가자마다의 무작위효과를 더해 18명 각자의 기울기도 구해 보세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab10_hw1-->
+<p><code>m2.random_effects.items()</code>는 참가자 번호와 그 사람의 무작위효과를 짝으로 하나씩 꺼냅니다. 중괄호 안의 <code>{sid: … for sid, re in …}</code>는 참가자 번호를 열쇠로, 기울기를 값으로 하는 사전을 한 줄로 만드는 표현(사전 내포)이고, <code>pd.Series</code>로 감싸면 이름표가 참가자 번호인 Series가 됩니다. <code>(slopes &lt; 5).sum()</code>은 5보다 작은 기울기의 개수를 셉니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>가장 완만한 335번, 하루 −0.3 ms.</b> 사실상 느려지지 않았습니다.</span></li>
+<li><span class="mk">2</span><span><b>가장 가파른 308번, 하루 19.7 ms.</b> 평균 10.5 ms의 두 배 가까이 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>하루 5 ms보다 작은 참가자 2명.</b></span></li>
+</ol>
+<p>한 문장으로 옮기면 "수면 제한 일수가 하루 늘 때마다 18명의 평균 반응시간은 10.5 ms(95% CI 7.4–13.5) 길어졌다"입니다. 이 숫자가 말해 주지 않는 것은 세 가지입니다.</p>
+<p>첫째, 수면 제한이 반응시간을 하루 10.5 ms씩 늘린다는 인과의 크기가 아닙니다. 이 자료는 원 연구에서 잠자리 시간이 가장 짧았던 3시간 군만 담고 있어 비교군이 없습니다. 같은 과제를 매일 반복한 데서 오는 연습과 피로, 측정 환경의 변화도 날짜와 함께 움직이므로 이 기울기에는 그 몫이 모두 섞입니다. 10장 a 절 4단계에서 시간의 주효과를 중재 효과로 읽지 않은 것과 같은 이유입니다. 수면 제한의 효과를 말하려면 같은 기간 잠을 충분히 잔 군의 기울기와 견줘야 하고, 그것이 10장의 군 × 시간 교호작용입니다.</p>
+<p>둘째, 모든 참가자가 하루 10.5 ms씩 느려진다는 뜻이 아닙니다. 혼합모형의 참가자별 기울기는 −0.3 ms부터 19.7 ms까지 퍼져 있고, 2명은 하루 5 ms보다 작았습니다. 모형이 추정한 기울기의 분포로는 참가자의 약 95%가 하루 −1.1–22.1 ms 사이에 있습니다(셀 14).</p>
+<p>셋째, 10일 내내 같은 속도로 느려졌다는 것도 이 숫자 하나로는 알 수 없습니다. 0–1일은 적응과 훈련 기간이었고(a 절), 직선이라는 가정은 과제 3에서 확인합니다.</p>
+</div></details>
+
+<h3>과제 2. 기저 발작 건수를 보정하지 않으면</h3>
+<p>셀 19의 GEE에서 기저 발작 건수 항 <code>np.log(base / 4)</code>만 빼고 같은 방법으로 다시 적합하세요. progabide의 발생률비와 95% 신뢰구간, 표준오차, 작업상관 α가 원래 모형과 어떻게 다른지 비교하고, 왜 그렇게 달라지는지 설명하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab10_hw2-->
+<p><code>form0</code>은 셀 19의 모형식에서 <code>np.log(base / 4)</code>만 뺀 것입니다. 반복문은 두 결과를 차례로 꺼내 같은 형식으로 한 줄씩 출력합니다. <code>t</code>는 셀 21에서 만든 <code>"trt[T.progabide]"</code>이고, <code>g.model.cov_struct.dep_params</code>는 셀 19에서 <code>cov_struct.summary()</code>가 보여 준 작업상관 α의 값입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기저값을 보정한 원래 모형 0.989(0.679–1.442).</b></span></li>
+<li><span class="mk">2</span><span><b>표준오차 0.192.</b></span></li>
+<li><span class="mk">3</span><span><b>기저값을 뺀 모형 0.930(0.480–1.804).</b> 신뢰구간이 훨씬 넓어졌습니다.</span></li>
+<li><span class="mk">4</span><span><b>표준오차 0.338.</b> 원래 모형의 1.76배입니다.</span></li>
+<li><span class="mk">5</span><span><b>작업상관 0.791.</b> 원래 모형의 0.400에서 거의 두 배가 되었습니다.</span></li>
+</ol>
+<p>가장 크게 달라진 것은 정밀도입니다. 기저 발작 건수는 환자마다 6건에서 151건까지 달라서, 추적 기간의 발작 건수가 환자마다 다른 이유의 큰 몫을 설명합니다(셀 19의 출력 읽기 7번). 이 항을 빼면 그 몫이 설명되지 않은 채 남습니다. 그래서 같은 환자의 네 기간 건수가 함께 높거나 함께 낮은 정도인 작업상관이 0.791로 커지고, 환자 사이의 흩어짐이 모두 progabide와 위약의 비교에 잡음으로 들어가 표준오차가 1.76배가 됩니다. 기저값으로 설명되는 몫을 잡음에서 빼 주면 군 비교가 정밀해진다는 점은 <a href="#ch06-s4">6장 d 절</a>의 공분산분석과 같은 이치이고, 무작위배정 시험에서 기저값을 공변량으로 넣는 이유입니다(<a href="#ch10-s2">10장 b 절</a> 4단계의 구조 (나)).</p>
+<p>점추정값도 0.989에서 0.930으로 조금 움직였습니다. 무작위배정이라도 59명뿐인 시험에서는 기저 발작 건수와 나이 같은 예후 요인이 두 군에서 우연히 조금씩 달라서, 무엇을 함께 보정하느냐에 따라 추정값이 이 정도는 움직입니다. 두 값 모두 1에 가깝고 신뢰구간이 1을 넓게 포함해 결론은 같지만, 보정 변수는 결과를 보고 고르지 않고 시험 계획서에 미리 정해 둡니다.</p>
+</div></details>
+
+<h3>과제 3. 시간을 범주형으로 넣은 모형과 비교하기</h3>
+<p>동료가 sleepstudy의 반응시간이 날짜에 따라 직선으로 늘어나는지 확인하려고 이렇게 분석했습니다. 셀 12의 무작위 절편 모형(<code>m1</code>)은 그대로 두고, Days를 범주형으로 바꾼 무작위 절편 모형 <code>smf.mixedlm("Reaction ~ C(Days)", data=sleep, groups=sleep["Subject"]).fit()</code>을 적합한 뒤, 셀 15처럼 두 모형의 로그우도로 우도비 검정을 했습니다.</p>
+<p>"날짜를 범주형으로 둔 모형이 직선 모형보다 훨씬 잘 맞았다(LR = 56.97, 자유도 8, P &lt; 0.001). 반응시간은 직선으로 늘지 않으므로 시간을 범주형으로 두어야 한다."</p>
+<p>동료의 계산을 재현하고, 무엇이 왜 틀렸는지 찾아 바른 방법으로 다시 비교하세요. 셀 15 아래 문단과 10장 c 절 '더 알아보기'의 '최대우도와 제한최대우도'를 참고하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab10_hw3-->
+<p>첫 세 줄이 동료의 계산입니다. 기본 설정의 <code>fit()</code>은 REML로 적합하므로 <code>m_cat.llf</code>와 <code>m1.llf</code>는 모두 REML 로그우도입니다. 그다음 두 모형을 <code>reml=False</code>(ML)로 다시 적합해 같은 우도비 검정을 하고 AIC도 봅니다. statsmodels는 REML로 적합한 모형의 AIC를 nan으로 돌려주므로 AIC도 ML 적합에서 꺼냅니다. 마지막 두 줄의 <code>wald_test_terms(scalar=True)</code>는 변수마다 계수를 한꺼번에 검정한 Wald 검정 표를 돌려줍니다. <code>.table</code>에서 C(Days) 행의 통계량(<code>statistic</code> 열)을 꺼내면 날짜 계수 9개(1–9일, 기준 0일)가 모두 0인지 함께 본 χ²입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>REML로 비교한 LR 56.97.</b> 동료가 쓴 숫자와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>ML로 비교한 LR 3.74.</b></span></li>
+<li><span class="mk">3</span><span><b>P = 0.879.</b> 자유도 8은 범주형 모형의 고정효과 10개에서 직선 모형의 2개를 뺀 수입니다.</span></li>
+<li><span class="mk">4</span><span><b>직선 모형의 AIC 1802.1</b></span></li>
+<li><span class="mk">5</span><span><b>범주형 모형의 AIC 1814.3.</b> 직선 모형이 더 작습니다.</span></li>
+<li><span class="mk">6</span><span><b>Wald χ² ÷ 9 = 18.70.</b> 셀 8의 반복측정 분산분석 F와 같습니다(아래 풀이).</span></li>
+</ol>
+<p>틀린 곳은 고정효과가 다른 두 모형의 REML 로그우도를 비교한 것입니다. REML은 고정효과로 설명되는 부분을 먼저 떼어 내고 남은 정보로 분산성분을 추정하는 방법이라, 그 로그우도는 고정효과의 구성에 따라 계산의 바탕이 달라집니다. 이 예에서는 계수 2개를 떼어 낸 자료와 10개를 떼어 낸 자료의 우도를 견준 셈이라, 56.97은 자료에 맞는 정도의 차이로 해석할 수 없는 숫자입니다. 셀 15에서 무작위 기울기를 검정할 때 REML 로그우도를 비교할 수 있었던 것은 두 모형의 고정효과가 같았기 때문입니다.</p>
+<p>바르게 하려면 두 모형을 ML로 적합해 비교합니다. 그러면 LR = 3.74, P = 0.879이고 AIC도 직선 모형이 작습니다. 날짜마다 평균을 따로 두어도 직선보다 의미 있게 잘 맞지 않으므로, 이 자료에서 직선 가정을 기각할 근거는 없습니다. 결론이 정반대로 바뀝니다. 무작위 기울기를 함께 넣은 두 모형을 ML로 비교해도 LR = 5.50, P = 0.70으로 같습니다. 직선을 유지하면 "하루 10.5 ms"라는 계수 하나로 결과를 요약할 수 있다는 이점도 있습니다(10장 b 절 4단계의 범주형 시간과 연속형 시간).</p>
+<p>마지막 줄은 두 방법의 관계도 보여 줍니다. 시간을 범주형으로 둔 무작위 절편 모형에서 날짜 계수 9개를 함께 본 Wald χ² 168.32를 자유도 9로 나누면 셀 8의 반복측정 분산분석 F = 18.70이 그대로 나옵니다. 모든 참가자를 같은 날짜에 잰 이 자료에서는 두 분석이 같은 모형이기 때문입니다. 다만 엄밀하게는 이 일치는 빠진 측정이 없고 참가자 간 분산의 추정값이 0보다 클 때의 이야기이며, 측정이 빠진 자료에서는 혼합모형만 그 사람을 분석에 남깁니다.</p>
+</div></details>
 </section>

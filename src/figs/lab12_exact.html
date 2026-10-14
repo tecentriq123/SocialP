@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">조건부 정확검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">share = T[&quot;rIFN-g&quot;] / T.sum()        # rIFN-g군 인년의 비율
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">조건부 정확검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">share = T[&quot;rIFN-g&quot;] / T.sum()        # rIFN-g군 인년의 비율
 res = stats.binomtest(int(d[&quot;rIFN-g&quot;]), int(d.sum()), share)
 print(f&quot;expected share {share:.3f}, observed {d[&#x27;rIFN-g&#x27;]}/{d.sum()}&quot;)
 print(&quot;exact P =&quot;, res.pvalue)

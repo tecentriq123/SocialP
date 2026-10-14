@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">과제 3 정답. Mann-Whitney 검정의 P는 중앙값의 차이를 검정하지 않습니다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(&quot;median difference:&quot;, smoker.median() - nonsmoker.median())
+q75 = smoker.quantile(0.75)
+smoker_hi = smoker.where(smoker &lt;= q75, smoker + 500)  # 위쪽 4분의 1만 +500 g
+for name, x in [(&quot;original&quot;, smoker), (&quot;top quarter +500&quot;, smoker_hi)]:
+    r = stats.mannwhitneyu(x, nonsmoker, alternative=&quot;two-sided&quot;)
+    print(f&quot;{name:16}: median diff = {x.median() - nonsmoker.median():.1f}, &quot;
+          f&quot;P(smoker &gt; nonsmoker) = {r.statistic / n1n2:.3f}, &quot;
+          f&quot;p = {r.pvalue:.4f}&quot;)
+print(f&quot;Hodges-Lehmann = {hl:.1f} g, 95% CI {lo} ~ {hi}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>median difference: -324.5<span class="mk">1</span>
+original        : median diff = -324.5, P(smoker &gt; nonsmoker) = 0.383, p = 0.0068<span class="mk">2</span>
+top quarter +500: median diff = -324.5, P(smoker &gt; nonsmoker) = 0.431, p = 0.1110<span class="mk">3</span>
+Hodges-Lehmann = -307.0 g<span class="mk">4</span>, 95% CI -512 ~ -85</pre></div></div>

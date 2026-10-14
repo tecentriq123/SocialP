@@ -207,7 +207,7 @@ print(X_train.shape, X_test.shape, y_train.sum(), y_test.sum())
 ''', title="0장과 1장의 준비를 한 번에 (자료, 분할, 파이프라인, skf)")
 save("ml02_setup", c, marks={"(11250, 39) (3750, 39) 459 153": 1})
 
-# ================================================================ 가. 여러 나무를 평균 내는 이유
+# ================================================================ a. 여러 나무를 평균 내는 이유
 c = nb.cell('''
 from sklearn.tree import DecisionTreeClassifier
 
@@ -322,7 +322,7 @@ pd.DataFrame(rows, columns=["model", "CV AUC", "CV SD", "test AUC"]
 ''', title="로지스틱 회귀, 나무 하나, 배깅, 랜덤 포레스트")
 save("ml02_cmp1", c, dfmarks={"0.757": 1, "0.784": 2})
 
-# ================================================================ 나. 랜덤 포레스트의 조절값
+# ================================================================ b. 랜덤 포레스트의 조절값
 c = nb.cell('''
 forest = make_tree_pipe(RandomForestClassifier(
     min_samples_leaf=20, oob_score=True, warm_start=True,
@@ -377,7 +377,7 @@ heat.round(3)
 ''', title="max_features와 min_samples_leaf의 OOB AUC 열지도")
 save("ml02_heat", c, dfmarks={"0.708": 1, "0.757": 2, "0.738": 3})
 
-# ================================================================ 다. 무작위 탐색과 단계적 탐색
+# ================================================================ c. 무작위 탐색과 단계적 탐색
 c = nb.cell('''
 from scipy.stats import randint, uniform, loguniform
 
@@ -478,7 +478,7 @@ _tt = grab("t_three", lambda: [int(round(ns[k])) for k in ("t_grid", "t_rand", "
 _fx = [secs("t_grid", _tt[0]), secs("t_rand", _tt[1]), secs("t_halv", _tt[2])]
 save("ml02_cmp3", c, dfmarks={"0.7590": 1, "81": 2}, rowfix=list(zip(["grid", "random", "halving"], _fx)))
 
-# ================================================================ 라. 베이즈 최적화
+# ================================================================ d. 베이즈 최적화
 PIP_OUT = """Collecting optuna
   Downloading optuna-4.5.0-py3-none-any.whl (...)
 ...
@@ -623,7 +623,7 @@ _tt = grab("t_bayes", lambda: [int(round(ns[k])) for k in ("t_rand", "t_optuna",
 _fx = [secs("t_rand", _tt[0]), secs("t_optuna", _tt[1]), secs("t_hyperopt", _tt[2])]
 save("ml02_cmp_bayes", c, dfmarks={"best CV AUC": 1, "first reached at trial": 2, "seconds": 3}, rowfix=list(zip(["random", "Optuna", "HyperOpt"], _fx)))
 
-# ================================================================ 마. 변수 중요도와 결과 정리
+# ================================================================ e. 변수 중요도와 결과 정리
 c = nb.cell('''
 import joblib
 
@@ -779,7 +779,7 @@ pd.DataFrame(table, columns=["model", "CV AUC", "test AUC",
 ''', title="모형 비교 표와 ROC 곡선")
 save("ml02_cmp_final", c, dfmarks={"0.770": 1, "0.784": 2})
 
-# ================================================================ 바. 과제
+# ================================================================ f. 과제
 c = nb.cell('''
 from sklearn.metrics import confusion_matrix
 
@@ -1215,11 +1215,11 @@ if not SMOKE:
     notes={
         1: ("## 준비\n\n0장의 자료 불러오기, 분할, 전처리 함수(make_pipe), 5겹 분할기(skf)와 1장의 나무용 "
             "전처리 함수(make_tree_pipe)를 한 셀에 모았습니다."),
-        2: "## 가. 여러 나무를 평균 내는 이유",
-        6: "## 나. 랜덤 포레스트의 조절값",
-        8: "## 다. 무작위 탐색과 단계적 탐색",
-        14: "## 라. 베이즈 최적화: Optuna와 HyperOpt\n\nColab에서는 설치 셀부터 실행합니다(세션마다).",
-        21: "## 마. 변수 중요도와 결과 정리",
+        2: "## a. 여러 나무를 평균 내는 이유",
+        6: "## b. 랜덤 포레스트의 조절값",
+        8: "## c. 무작위 탐색과 단계적 탐색",
+        14: "## d. 베이즈 최적화: Optuna와 HyperOpt\n\nColab에서는 설치 셀부터 실행합니다(세션마다).",
+        21: "## e. 변수 중요도와 결과 정리",
         28: ("## 과제 정답\n\n**과제 1.** class_weight=\"balanced_subsample\"로 Optuna 탐색을 다시 하고(20번), "
              "기본 모형과 시험 AUC, 평균 예측 확률, 임계값 0.10의 혼동행렬을 비교합니다."),
         29: "**과제 2.** 셀 15의 study를 40번 더 이어서 돌려 시도 10, 20, 40, 80번째까지의 최고 점수를 봅니다.",

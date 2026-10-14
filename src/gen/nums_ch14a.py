@@ -10,7 +10,7 @@ import scipy.stats as st
 Z = st.norm.ppf(0.975)
 
 
-# ----------------------------------------------------------------------------- 가. McNemar
+# ----------------------------------------------------------------------------- a. McNemar
 def mcnemar_part():
     # 120 patients, adherence (PDC >= 80%) in the 6 months before vs after pharmacist counseling
     # rows = before (adherent, non-adherent), cols = after (adherent, non-adherent)
@@ -55,7 +55,7 @@ def mcnemar_part():
                 or_m=or_m, or_ci=or_ci, se_log=se_log, chi_m=chi_m, p_m=p_m, p_m_exact=p_m_exact, sm=sm)
 
 
-# ----------------------------------------------------------------------------- 나. ROC
+# ----------------------------------------------------------------------------- b. ROC
 SCORES = np.arange(0, 9)
 CASES = np.array([1, 2, 4, 6, 9, 11, 12, 9, 6])        # non-adherent (PDC < 80%), n = 60
 NONCASES = np.array([14, 22, 26, 22, 22, 15, 10, 6, 3])  # adherent, n = 140
@@ -121,7 +121,7 @@ def roc_part():
                 acc_all_neg=acc_all_neg, best=best)
 
 
-# ----------------------------------------------------------------------------- 다. Propensity scores
+# ----------------------------------------------------------------------------- c. Propensity scores
 def ps_toy():
     """One binary confounder (heart failure). True RR = 0.8 in both strata."""
     S = {

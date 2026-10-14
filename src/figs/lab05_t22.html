@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">상대위험도와 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.contingency_tables import Table2x2
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">상대위험도와 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.contingency_tables import Table2x2
 
 t22 = Table2x2(obs.to_numpy())  # DataFrame 대신 숫자 배열로
 print(t22.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Estimate   SE   LCB   UCB  p-value

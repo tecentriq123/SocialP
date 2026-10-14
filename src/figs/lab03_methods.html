@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">p-value 계산 방식 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = stats.wilcoxon(d, alternative=&quot;greater&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">p-value 계산 방식 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = stats.wilcoxon(d, alternative=&quot;greater&quot;)
 print(f&quot;greater: statistic = {g.statistic}, p = {g.pvalue:.5f}&quot;)
 a = stats.wilcoxon(d, method=&quot;asymptotic&quot;)
 print(f&quot;asymptotic: z = {a.zstatistic:.3f}, p = {a.pvalue:.4f}&quot;)

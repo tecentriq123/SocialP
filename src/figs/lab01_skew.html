@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">평균, 중앙값, 왜도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">summary = pd.DataFrame({
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">평균, 중앙값, 왜도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">summary = pd.DataFrame({
     &quot;mean&quot;: df[cols].mean(),
     &quot;median&quot;: df[cols].median(),
     &quot;skewness&quot;: df[cols].apply(stats.skew),   # 열마다 왜도

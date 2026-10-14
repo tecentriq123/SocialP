@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">순서대로 커지지 않는 경우</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;ftv3&quot;] = pd.cut(df[&quot;ftv&quot;], bins=[-1, 0, 1, 99],
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">순서대로 커지지 않는 경우</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;ftv3&quot;] = pd.cut(df[&quot;ftv&quot;], bins=[-1, 0, 1, 99],
                     labels=[&quot;0&quot;, &quot;1&quot;, &quot;2+&quot;])
 visits = [df.loc[df[&quot;ftv3&quot;] == k, &quot;bwt&quot;] for k in [&quot;0&quot;, &quot;1&quot;, &quot;2+&quot;]]
 g3 = df.groupby(&quot;ftv3&quot;, observed=True)[&quot;bwt&quot;]

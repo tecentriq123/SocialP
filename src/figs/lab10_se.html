@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">Days 계수의 표준오차 네 가지</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ols_cl = smf.ols(&quot;Reaction ~ Days&quot;, data=sleep).fit(
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">Days 계수의 표준오차 네 가지</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ols_cl = smf.ols(&quot;Reaction ~ Days&quot;, data=sleep).fit(
     cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: sleep[&quot;Subject&quot;]})
 se = pd.Series({&quot;OLS (independent)&quot;: ols.bse[&quot;Days&quot;],
                 &quot;OLS + cluster-robust&quot;: ols_cl.bse[&quot;Days&quot;],

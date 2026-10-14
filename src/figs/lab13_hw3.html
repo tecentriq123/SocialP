@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 3 정답. 소규모 시험을 &#x27;차이 없음&#x27;과 Wald 구간으로 판단한 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(&quot;Fisher exact P (difference = 0):&quot;,
+      round(stats.fisher_exact([[48, 2], [50, 0]]).pvalue, 3))
+print(tab[tab[&quot;trial&quot;] == &quot;small&quot;].round(4))      # 셀의 Wald와 Newcombe 구간
+for m in [&quot;wald&quot;, &quot;score&quot;]:
+    r = test_proportions_2indep(48, 50, 50, 50, value=-0.10, method=m,
+                                compare=&quot;diff&quot;, alternative=&quot;larger&quot;,
+                                correction=False)
+    print(f&quot;NI test, {m:5}: z = {r.statistic:.3f},&quot;
+          f&quot; one-sided P = {r.pvalue:.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Fisher exact P (difference = 0): 0.495<span class="mk">1</span>
+   trial   method  diff   lower   upper  NI (lower &gt; -0.10)
+2  small     wald -0.04 -0.0943<span class="mk">2</span>  0.0143                True
+3  small  newcomb -0.04 -0.1346<span class="mk">3</span>  0.0370               False
+NI test, wald : z = 2.165, one-sided P = 0.0152<span class="mk">4</span>
+NI test, score: z = 1.414, one-sided P = 0.0786<span class="mk">5</span></pre></div></div>

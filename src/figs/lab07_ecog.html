@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">세 군 비교 (ECOG 0, 1, 2+)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import multivariate_logrank_test
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">세 군 비교 (ECOG 0, 1, 2+)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import multivariate_logrank_test
 
 e = lung.dropna(subset=[&quot;ph.ecog&quot;]).copy()      # 결측 1명 제외
 e[&quot;ecog&quot;] = e[&quot;ph.ecog&quot;].clip(upper=2).astype(int)   # 3 -&gt; 2 (&quot;2+&quot;)

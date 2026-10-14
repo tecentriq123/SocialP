@@ -1,0 +1,132 @@
+[
+ {
+  "n": 1,
+  "title": "lifelines 설치 (Colab은 세션마다, 내 컴퓨터는 한 번)",
+  "out": ""
+ },
+ {
+  "n": 2,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas     3.0.5\nnumpy      2.5.3\nscipy      1.18.1\nmatplotlib 3.11.2\nlifelines  0.30.3\n"
+ },
+ {
+  "n": 3,
+  "title": "NCCTG 폐암 자료 불러오기",
+  "out": "(228, 11)\n   rownames  inst  time  status  ...  ph.karno  pat.karno  meal.cal  wt.loss\n0         1   3.0   306       2  ...      90.0      100.0    1175.0      NaN\n1         2   3.0   455       2  ...      90.0       90.0    1225.0     15.0\n2         3   3.0  1010       1  ...      90.0       90.0       NaN     15.0\n3         4   5.0   210       2  ...      90.0       60.0    1150.0     11.0\n4         5   1.0   883       2  ...     100.0       90.0       NaN      0.0\n\n[5 rows x 11 columns]"
+ },
+ {
+  "n": 4,
+  "title": "status 확인과 사건 변수 만들기",
+  "out": "status\n2    165\n1     63\nName: count, dtype: int64\nevent    0    1\nstatus         \n1       63    0\n2        0  165"
+ },
+ {
+  "n": 5,
+  "title": "사건 부호화를 잘못하면 (오류 없이 틀린 결과)",
+  "out": "status 그대로: 228 건, 중앙값 252.0 일\nevent 사용  : 165 건, 중앙값 310.0 일\n"
+ },
+ {
+  "n": 6,
+  "title": "시간 단위 바꾸기와 사건 수 세기",
+  "out": "환자 228 명, 사망 165 명, 중도절단 63 명\n사망 비율(추적 기간 무시): 72.4 %\n총 추적: 190.5 인년\n사망률: 86.6 / 100인년\n"
+ },
+ {
+  "n": 7,
+  "title": "중앙 추적기간 (역 Kaplan-Meier)",
+  "out": "전체 time의 중앙값: 8.4\n생존자 time의 중앙값: 9.3\n역 KM 중앙 추적기간: 19.3\n      KM_estimate\n0.75     9.889117\n0.25    31.704312\n"
+ },
+ {
+  "n": 8,
+  "title": "Kaplan-Meier 추정",
+  "out": "<lifelines.KaplanMeierFitter:\"All patients\", fitted with 228 total observations, 63 right-censored observations>\n          All patients\ntimeline              \n0.000000      1.000000\n0.164271      0.995614\n0.361396      0.982456\n0.394251      0.978070\n0.427105      0.969298"
+ },
+ {
+  "n": 9,
+  "title": "사건 표 (event_table)",
+  "out": "          removed  observed  censored  entrance  at_risk\nevent_at                                                \n0.000000        0         0         0       228      228\n0.164271        1         1         0         0      228\n0.361396        3         3         0         0      227\n0.394251        1         1         0         0      224\n0.427105        2         2         0         0      223\n0.492813        1         1         0         0      221"
+ },
+ {
+  "n": 10,
+  "title": "처음 두 계단을 손으로 계산",
+  "out": "0.995614 0.982456\n"
+ },
+ {
+  "n": 11,
+  "title": "중앙생존기간과 95% 신뢰구간",
+  "out": "중앙생존기간: 10.18 개월\n     All patients_lower_0.95  All patients_upper_0.95\n0.5                 9.330595                 11.86037"
+ },
+ {
+  "n": 12,
+  "title": "시점별 생존율과 95% 신뢰구간",
+  "out": " 6개월 생존율 0.708 (95% CI 0.644-0.763)\n12개월 생존율 0.409 (95% CI 0.339-0.478)\n24개월 생존율 0.116 (95% CI 0.068-0.178)\n"
+ },
+ {
+  "n": 13,
+  "title": "Greenwood 공식과 log-log 신뢰구간 직접 확인",
+  "out": "표준오차: 0.0358\nlog-log CI: 0.339 0.478\n"
+ },
+ {
+  "n": 14,
+  "title": "Kaplan-Meier 곡선과 위험집합 표",
+  "out": ""
+ },
+ {
+  "n": 15,
+  "title": "성별 Kaplan-Meier 곡선",
+  "out": ""
+ },
+ {
+  "n": 16,
+  "title": "성별 요약표 (논문 표 형식)",
+  "out": "    group    n  deaths   median (95% CI)   1-yr % (95% CI)\n0    Male  138     112    8.9 (6.9-10.1)  33.6 (25.3-42.1)\n1  Female   90      53  14.0 (11.3-17.2)  52.6 (40.4-63.5)"
+ },
+ {
+  "n": 17,
+  "title": "24개월 제한평균생존시간(RMST)과 차이",
+  "out": "24개월 RMST: 남 10.22, 여 14.28개월\n차이 4.06개월 (95% CI 1.91 to 6.21)\n"
+ },
+ {
+  "n": 18,
+  "title": "로그순위 검정 (남 대 여)",
+  "out": "<lifelines.StatisticalResult: logrank_test>\n               t_0 = -1\n null_distribution = chi squared\ndegrees_of_freedom = 1\n         test_name = logrank_test\n\n---\n test_statistic      p  -log2(p)\n          10.33 <0.005      9.57\n10.326741954885637 0.0013111645203554858\n"
+ },
+ {
+  "n": 19,
+  "title": "O, E, V를 직접 계산해 확인",
+  "out": "남성 O = 112, E = 91.58, O-E = 20.42, V = 40.37\nchi2 = 10.33\n"
+ },
+ {
+  "n": 20,
+  "title": "세 군 비교 (ECOG 0, 1, 2+)",
+  "out": "ecog\n0     63\n1    113\n2     51\nName: count, dtype: int64\n<lifelines.StatisticalResult: multivariate_logrank_test>\n               t_0 = -1\n null_distribution = chi squared\ndegrees_of_freedom = 2\n         test_name = multivariate_logrank_test\n\n---\n test_statistic      p  -log2(p)\n          18.98 <0.005     13.69\n"
+ },
+ {
+  "n": 21,
+  "title": "ECOG 군별 곡선",
+  "out": "ECOG 0 median 12.9\nECOG 1 median 10.1\nECOG 2+ median 6.0\n"
+ },
+ {
+  "n": 22,
+  "title": "두 군씩 비교와 다중비교 보정",
+  "out": "     test_statistic       p  p_bonferroni\n0 1          3.4568  0.0630        0.1890\n  2         17.4185  0.0000        0.0001\n1 2          9.0850  0.0026        0.0077"
+ },
+ {
+  "n": 23,
+  "title": "가중 로그순위 검정 비교",
+  "out": "log-rank                 chi2 =  10.33  P = 0.0013\nGehan-Breslow            chi2 =  12.47  P = 0.0004\nTarone-Ware              chi2 =  12.46  P = 0.0004\nPeto-Peto                chi2 =  12.71  P = 0.0004\nFleming-Harrington(0,1)  chi2 =   3.46  P = 0.0629\n"
+ },
+ {
+  "n": 24,
+  "title": "과제 1 정답. 성별 요약표의 한 행 읽기",
+  "out": "       n  deaths  person_years  deaths_%  rate_per_100py  mean_age\nsex                                                               \n1    138     112         107.0      81.2           104.7      63.3\n2     90      53          83.5      58.9            63.5      61.1"
+ },
+ {
+  "n": 25,
+  "title": "과제 2 정답. ECOG로 층화한 로그순위 검정",
+  "out": "ecog      0      1      2\nsex                      \n1     0.263  0.518  0.219\n2     0.300  0.467  0.233\n      O      E      V  O_minus_E\n0  28.0  23.36   8.32       4.64\n1  54.0  41.98  19.70      12.02\n2  29.0  25.00  10.62       4.00\nstratified   O-E = 20.67, V = 38.63, chi2 = 11.05, P = 0.0009\nunstratified O-E = 20.04, V = 40.14, chi2 = 10.01, P = 0.0016\n"
+ },
+ {
+  "n": 26,
+  "title": "과제 3 정답. 12개월 생존 여부를 카이제곱으로 비교한 분석",
+  "out": "excluded: 42 (male, female) = [18, 24]\ndead12   0   1\nsex           \n1       35  85\n2       30  36\ncolleague 1-yr survival: [0.292, 0.455]  chi-square P = 0.039\nKaplan-Meier 1-yr survival: [0.336, 0.526]  P = 0.013\n"
+ }
+]

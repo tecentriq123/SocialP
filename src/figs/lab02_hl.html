@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">Hodges-Lehmann 추정치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">diffs = np.subtract.outer(smoker.to_numpy(),
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">Hodges-Lehmann 추정치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">diffs = np.subtract.outer(smoker.to_numpy(),
                           nonsmoker.to_numpy())
 print(diffs.shape)
 hl = np.median(diffs)

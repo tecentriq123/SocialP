@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">치료만 넣은 Cox 모형 (단변수)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">치료만 넣은 Cox 모형 (단변수)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
 
 cph1 = CoxPHFitter()
 cph1.fit(df, duration_col=&quot;years&quot;, event_col=&quot;death&quot;, formula=&quot;dpca&quot;)
@@ -9,7 +9,7 @@ cph1.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cel
    number of observations = 312
 number of events observed = 125<span class="mk">2</span>
    partial log-likelihood = -639.915<span class="mk">4</span>
-         time fit was run = 2026-09-29 23:54:14 UTC
+         time fit was run = 2026-10-14 07:08:30 UTC
 
 ---
            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%

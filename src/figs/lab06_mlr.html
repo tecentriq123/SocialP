@@ -1,12 +1,12 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">다중회귀 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_adj = smf.ols(&quot;target ~ bmi + age + C(sex) + bp + s5&quot;,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">다중회귀 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_adj = smf.ols(&quot;target ~ bmi + age + C(sex) + bp + s5&quot;,
                     data=df).fit()
 print(model_adj.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                            OLS Regression Results                            
 ==============================================================================
 Dep. Variable:                 target   R-squared:                       0.487  <span class="mk">1</span>
 Model:                            OLS   Adj. R-squared:                  0.481  <span class="mk">2</span>
 Method:                 Least Squares   F-statistic:                     82.85  <span class="mk">3</span>
-Date:                Wed, 30 Sep 2026   Prob (F-statistic):           4.90e-61
-Time:                        02:24:40   Log-Likelihood:                -2399.6
+Date:                Wed, 14 Oct 2026   Prob (F-statistic):           4.90e-61
+Time:                        09:10:59   Log-Likelihood:                -2399.6
 No. Observations:                 442   AIC:                             4811.
 Df Residuals:                     436   BIC:                             4836.
 Df Model:                           5                                           <span class="mk">4</span>

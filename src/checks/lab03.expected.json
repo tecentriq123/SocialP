@@ -1,0 +1,97 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas     3.0.5\nnumpy      2.5.3\nscipy      1.18.1\nmatplotlib 3.11.2\n"
+ },
+ {
+  "n": 2,
+  "title": "데이터 불러오기",
+  "out": "    rownames  extra  group  ID\n0          1    0.7      1   1\n1          2   -1.6      1   2\n2          3   -0.2      1   3\n3          4   -1.2      1   4\n4          5   -0.1      1   5\n5          6    3.4      1   6\n6          7    3.7      1   7\n7          8    0.8      1   8\n8          9    0.0      1   9\n9         10    2.0      1  10\n10        11    1.9      2   1\n11        12    0.8      2   2\n12        13    1.1      2   3\n13        14    0.1      2   4\n14        15   -0.1      2   5\n15        16    4.4      2   6\n16        17    5.5      2   7\n17        18    1.6      2   8\n18        19    4.6      2   9\n19        20    3.4      2  10"
+ },
+ {
+  "n": 3,
+  "title": "짝 확인하기",
+  "out": "group  1  2\nID         \n1      1  1\n2      1  1\n3      1  1\n4      1  1\n5      1  1\n6      1  1\n7      1  1\n8      1  1\n9      1  1\n10     1  1"
+ },
+ {
+  "n": 4,
+  "title": "넓은 형식으로 바꾸기",
+  "out": "    drug1  drug2    d\nID                   \n1     0.7    1.9  1.2\n2    -1.6    0.8  2.4\n3    -0.2    1.1  1.3\n4    -1.2    0.1  1.3\n5    -0.1   -0.1  0.0\n6     3.4    4.4  1.0\n7     3.7    5.5  1.8\n8     0.8    1.6  0.8\n9     0.0    4.6  4.6\n10    2.0    3.4  1.4"
+ },
+ {
+  "n": 6,
+  "title": "요약통계와 상관",
+  "out": "두 약의 상관계수 r = 0.795\n       drug1  drug2      d\ncount  10.00  10.00  10.00\nmean    0.75   2.33   1.58\nstd     1.79   2.00   1.23\nmin    -1.60  -0.10   0.00\n25%    -0.18   0.88   1.05\n50%     0.35   1.75   1.30\n75%     1.70   4.15   1.70\nmax     3.70   5.50   4.60"
+ },
+ {
+  "n": 7,
+  "title": "짝지은 그림",
+  "out": ""
+ },
+ {
+  "n": 8,
+  "title": "대응표본 t 검정",
+  "out": "TtestResult(statistic=np.float64(4.062127683382037), pvalue=np.float64(0.002832890197384273), df=np.int64(9))\nt = 4.062, p = 0.0028, df = 9\nmean d = 1.58 h, 95% CI 0.70 ~ 2.46\n"
+ },
+ {
+  "n": 9,
+  "title": "차이 d에 대한 일표본 t 검정",
+  "out": "one-sample: t = 4.062, p = 0.0028\nmean = 1.58, SD = 1.230, SE = 0.389, t = 4.062\n"
+ },
+ {
+  "n": 10,
+  "title": "잘못된 분석: 독립표본 t 검정",
+  "out": "t = 1.861, p = 0.0792, df = 18\n95% CI -0.20 ~ 3.36\n"
+ },
+ {
+  "n": 11,
+  "title": "상관이 표준오차를 줄이는 원리",
+  "out": "SD1 = 1.789, SD2 = 2.002, r = 0.795\nSD of d: paired 1.230, if r = 0 2.685\n"
+ },
+ {
+  "n": 12,
+  "title": "차이 d의 정규성",
+  "out": "Shapiro-Wilk W = 0.830, p = 0.033\n"
+ },
+ {
+  "n": 13,
+  "title": "Wilcoxon 부호순위 검정",
+  "out": "WilcoxonResult(statistic=np.float64(0.0), pvalue=np.float64(0.00390625))\n"
+ },
+ {
+  "n": 14,
+  "title": "부호순위를 직접 계산하기",
+  "out": "ID     1    2    3    4    6    7    8    9    10\nd     1.2  2.4  1.3  1.3  1.0  1.8  0.8  4.6  1.4\nrank  3.0  8.0  4.5  4.5  2.0  7.0  1.0  9.0  6.0\nn = 9  W+ = 45.0  W- = 0.0\n"
+ },
+ {
+  "n": 15,
+  "title": "p-value 계산 방식 비교",
+  "out": "greater: statistic = 45.0, p = 0.00195\nasymptotic: z = -2.668, p = 0.0076\nasymptotic + correction: p = 0.0091\npratt (asymptotic): p = 0.0058\n"
+ },
+ {
+  "n": 16,
+  "title": "부호검정",
+  "out": "+: 9  -: 0  0: 1\nBinomTestResult(k=9, n=9, alternative='two-sided', statistic=1.0, pvalue=0.00390625)\n"
+ },
+ {
+  "n": 17,
+  "title": "중앙값과 사분위수",
+  "out": "drug1    0.35\ndrug2    1.75\nd        1.30\ndtype: float64\n0.25    1.05\n0.50    1.30\n0.75    1.70\nName: d, dtype: float64\n"
+ },
+ {
+  "n": 18,
+  "title": "과제 1 정답. 대응표본 t 검정의 한 행 읽기",
+  "out": "[0.0, 0.8, 1.0, 1.2, 1.3, 1.3, 1.4, 1.8, 2.4, 4.6]\nmedian d: 1.3\nd >= 1 h: 8 of 10\ndrug1    0.75\ndrug2    2.33\nName: mean, dtype: float64"
+ },
+ {
+  "n": 19,
+  "title": "과제 2 정답. 극단값 하나가 커지면 세 검정은",
+  "out": "                    d      d2\nmean           1.5800  2.5800\nSD             1.2300  4.2690\npaired t p     0.0028  0.0883\nsigned-rank p  0.0039  0.0039\nsign test p    0.0039  0.0039"
+ },
+ {
+  "n": 20,
+  "title": "과제 3 정답. 정렬한 뒤 행 순서로 짝지은 분석",
+  "out": "Shapiro p (drug 1, drug 2): 0.41 0.35\ncolleague: t = 9.27, p = 6.7e-06\n           95% CI 1.19 ~ 1.97\n   ID (drug 1)  ID (drug 2)  d used\n0            2            5     1.5\n1            4            4     1.3\n2            3            2     1.0\n3            5            3     1.2\n4            9            8     1.6\n5            1            1     1.2\n6            8           10     2.6\n7           10            6     2.4\n8            6            9     1.2\n9            7            7     1.8"
+ }
+]

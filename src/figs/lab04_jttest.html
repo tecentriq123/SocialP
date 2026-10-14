@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">정규근사로 p-value 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def jt_test(groups):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">정규근사로 p-value 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def jt_test(groups):
     &quot;&quot;&quot;Jonckheere-Terpstra 검정: 동점 보정 정규근사, 양측 p&quot;&quot;&quot;
     J = jt_J(groups)
     n = np.array([len(x) for x in groups])      # 군별 인원

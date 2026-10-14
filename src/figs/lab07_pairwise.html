@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">두 군씩 비교와 다중비교 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import pairwise_logrank_test
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">두 군씩 비교와 다중비교 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import pairwise_logrank_test
 
 pw = pairwise_logrank_test(e[&quot;months&quot;], e[&quot;ecog&quot;], e[&quot;event&quot;])
 out = pw.summary[[&quot;test_statistic&quot;, &quot;p&quot;]].copy()

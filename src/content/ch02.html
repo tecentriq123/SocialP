@@ -10,7 +10,7 @@
 <dl>
 <dt>미리 알아 둘 것</dt><dd><a href="#ch00-s5">0장 e 절</a>의 두 평균 차이의 표준오차와 t 분포, <a href="#ch00-s6">0장 f 절</a>의 신뢰구간과 p값, <a href="#ch01-s2">1장 b 절</a>의 가설검정. b 절은 <a href="#ch01-s7">1장 g 절</a>의 순위도 씁니다.</dd>
 <dt>이 장을 마치면</dt><dd>① 논문이 t 검정과 Mann-Whitney 검정 가운데 무엇을 왜 썼는지 설명할 수 있다 ② 두 군 비교 결과를 평균 차이, 95% CI, P로 읽고, 오차막대가 SD, SE, CI 가운데 무엇인지 확인할 수 있다 ③ Welch t 검정 결과를 Methods와 Results 문장으로 쓸 수 있다 ④ Mann-Whitney 결과를 한 군의 값이 더 큰 경향으로 읽고, 중앙값(IQR)과 Hodges–Lehmann 추정치로 쓸 수 있다</dd>
-<dt>직접 분석할 때</dt><dd><a href="#lab02">실습 2</a>에서 scipy로 두 검정을 해 봅니다. 파이썬 출력을 읽는 법은 각 절 '더 알아보기'에 있습니다.</dd>
+<dt>직접 분석할 때</dt><dd><a href="#lab02">실습 2</a>에서 공개 자료(출생체중)로 두 검정을 scipy로 해 보고, 과제에서 Student와 Welch가 갈리는 경우와 Mann-Whitney 결과를 중앙값의 차이로 잘못 쓰는 경우를 확인합니다. 파이썬 출력을 읽는 법은 각 절 '더 알아보기'에 있습니다.</dd>
 </dl></details>
 </div>
 
@@ -218,7 +218,7 @@
 <li>관찰연구에서 차이를 효과라고 쓰는 것입니다. "reduced" 대신 "was associated with"로 쓰고, 보정 전과 후의 추정값과 보정한 변수도 밝힙니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab02">실습 2</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="#lab02-s2">실습 2 b 절</a>에서 출생체중 자료로 Student와 Welch t 검정, 평균 차이의 신뢰구간과 Cohen의 d를 직접 구하고, 과제 2에서 군의 크기와 SD가 함께 다를 때 두 검정의 결론이 갈리는 것을 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>t는 두 군의 평균 차이를 그 차이의 표준오차로 나눈 값으로, 0장 혈압 시험의 4.3 ÷ 1.83 = 2.35와 같은 계산입니다. 차이의 표준오차는 두 평균의 표준오차를 제곱해 더한 뒤 제곱근을 씌워 구합니다.</li>
@@ -552,7 +552,7 @@ print(res)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div
 <li>Hodges–Lehmann 추정치를 "median difference"로 쓰는 것입니다. 이 예에서 추정치는 −18.5이고 두 중앙값의 차이는 −20이라 서로 다른 값입니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab02">실습 2</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="#lab02-s3">실습 2 c 절</a>에서 같은 자료로 Mann-Whitney 검정, 우월 확률, Hodges–Lehmann 추정치를 직접 구하고, 과제 3에서 이 검정의 P를 중앙값의 차이로 쓴 문장을 고칩니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>Mann-Whitney 검정은 두 군을 합쳐 순위를 매기고, 한 군의 순위합이나 U가 차이가 없을 때 기대되는 값에서 얼마나 벗어났는지 봅니다.</li>

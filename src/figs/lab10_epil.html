@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">epil 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">url = (&quot;https://vincentarelbundock.github.io/Rdatasets/csv/&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">epil 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">url = (&quot;https://vincentarelbundock.github.io/Rdatasets/csv/&quot;
        &quot;MASS/epil.csv&quot;)
 epil = pd.read_csv(url).drop(columns=&quot;rownames&quot;)
 epil[&quot;trt&quot;] = pd.Categorical(epil[&quot;trt&quot;],

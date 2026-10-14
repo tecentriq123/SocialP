@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">과제 2 정답. 고혈압 병력으로 나눈 두 군의 Student와 Welch</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ht1 = df.loc[df[&quot;ht&quot;] == 1, &quot;bwt&quot;]               # 고혈압 병력 있음
+ht0 = df.loc[df[&quot;ht&quot;] == 0, &quot;bwt&quot;]               # 없음
+print(f&quot;n = {len(ht1)} vs {len(ht0)}, &quot;
+      f&quot;SD = {ht1.std():.1f} vs {ht0.std():.1f}&quot;)
+for name, ev in [(&quot;Student&quot;, True), (&quot;Welch&quot;, False)]:
+    r = stats.ttest_ind(ht1, ht0, equal_var=ev)
+    ci_ht = r.confidence_interval()
+    print(f&quot;{name:7}: diff = {ht1.mean() - ht0.mean():.1f}, &quot;
+          f&quot;t = {r.statistic:.2f}, df = {r.df:.1f}, p = {r.pvalue:.3f}, &quot;
+          f&quot;95% CI {ci_ht.low:.0f} ~ {ci_ht.high:.0f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>n = 12 vs 177<span class="mk">1</span>, SD = 917.4 vs 709.4<span class="mk">2</span>
+Student: diff = -435.4, t = -2.02, df = 187.0, p = 0.045<span class="mk">3</span>, 95% CI -861 ~ -10<span class="mk">4</span>
+Welch  : diff = -435.4, t = -1.61, df = 11.9, p = 0.133<span class="mk">5</span>, 95% CI -1024 ~ 154<span class="mk">6</span></pre></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">음이항 회귀 (NB2)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">nb2 = smf.negativebinomial(form, data=pt,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">음이항 회귀 (NB2)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">nb2 = smf.negativebinomial(form, data=pt,
                            offset=np.log(pt[&quot;py&quot;])).fit()
 print(nb2.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Optimization terminated successfully.<span class="mk">1</span>
          Current function value: 0.955298
@@ -10,8 +10,8 @@ print(nb2.summary())</code></pre><div class="cell-out"><div class="cell-out-h">�
 Dep. Variable:                  n_inf   No. Observations:                  128
 Model:               NegativeBinomial   Df Residuals:                      123
 Method:                           MLE   Df Model:                            4
-Date:                Wed, 30 Sep 2026   Pseudo R-squ.:                 0.06590
-Time:                        08:54:20   Log-Likelihood:                -122.28
+Date:                Wed, 14 Oct 2026   Pseudo R-squ.:                 0.06590
+Time:                        09:10:59   Log-Likelihood:                -122.28
 converged:                       True<span class="mk">2</span>   LL-Null:                       -130.90
 Covariance Type:            nonrobust   LLR p-value:                  0.001726<span class="mk">3</span>
 ========================================================================================

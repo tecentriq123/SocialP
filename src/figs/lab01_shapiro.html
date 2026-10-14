@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">Shapiro-Wilk 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for col in [&quot;mean radius&quot;, &quot;area error&quot;]:
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">Shapiro-Wilk 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for col in [&quot;mean radius&quot;, &quot;area error&quot;]:
     x = benign[col]
     w, p = stats.shapiro(x)       # 검정통계량 W와 p-value
     print(f&quot;{col}: n = {len(x)}, skewness = {stats.skew(x):.2f}, &quot;

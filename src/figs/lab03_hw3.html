@@ -1,0 +1,87 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">과제 3 정답. 정렬한 뒤 행 순서로 짝지은 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">s = sleep.sort_values(&quot;extra&quot;)                  # 동료의 코드: 값 크기순 정렬
+drug1_s = s.loc[s[&quot;group&quot;] == 1, [&quot;ID&quot;, &quot;extra&quot;]]
+drug2_s = s.loc[s[&quot;group&quot;] == 2, [&quot;ID&quot;, &quot;extra&quot;]]
+print(&quot;Shapiro p (drug 1, drug 2):&quot;,
+      round(stats.shapiro(drug1_s[&quot;extra&quot;]).pvalue, 2),
+      round(stats.shapiro(drug2_s[&quot;extra&quot;]).pvalue, 2))
+res_c = stats.ttest_rel(drug2_s[&quot;extra&quot;], drug1_s[&quot;extra&quot;])
+ci_c = res_c.confidence_interval()
+print(f&quot;colleague: t = {res_c.statistic:.2f}, p = {res_c.pvalue:.1e}&quot;)
+print(f&quot;           95% CI {ci_c.low:.2f} ~ {ci_c.high:.2f}&quot;)
+pd.DataFrame({&quot;ID (drug 1)&quot;: drug1_s[&quot;ID&quot;].to_numpy(),
+              &quot;ID (drug 2)&quot;: drug2_s[&quot;ID&quot;].to_numpy(),
+              &quot;d used&quot;: (drug2_s[&quot;extra&quot;].to_numpy()
+                         - drug1_s[&quot;extra&quot;].to_numpy()).round(1)})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Shapiro p (drug 1, drug 2): 0.41 0.35<span class="mk">1</span>
+colleague: t = 9.27<span class="mk">2</span>, p = 6.7e-06<span class="mk">3</span>
+           95% CI 1.19 ~ 1.97<span class="mk">4</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ID (drug 1)</th>
+      <th>ID (drug 2)</th>
+      <th>d used</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2</td>
+      <td>5</td>
+      <td>1.5</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4</td>
+      <td>4</td>
+      <td>1.3</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>2</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5</td>
+      <td>3</td>
+      <td>1.2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>9</td>
+      <td>8</td>
+      <td>1.6</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1.2</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>8</td>
+      <td>10</td>
+      <td>2.6</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>10</td>
+      <td>6</td>
+      <td>2.4</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>6</td>
+      <td>9</td>
+      <td>1.2</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>7</td>
+      <td>7</td>
+      <td>1.8</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

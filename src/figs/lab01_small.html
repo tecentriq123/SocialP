@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">작은 표본에서 세 방법의 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 악성 10건, 양성 10건만 뽑은 작은 연구 (실제 차이는 있음)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">작은 표본에서 세 방법의 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 악성 10건, 양성 10건만 뽑은 작은 연구 (실제 차이는 있음)
 small_m = mal.sample(10, random_state=0)
 small_b = ben.sample(10, random_state=0)
 p_small = stats.ttest_ind(small_m[features], small_b[features],

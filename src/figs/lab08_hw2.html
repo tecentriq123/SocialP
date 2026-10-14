@@ -1,0 +1,59 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">과제 2 정답. 저체중아의 기준을 바꾸면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for cut in [2000, 2500, 3000]:
+    y_cut = (df[&quot;bwt&quot;] &lt; cut).astype(int)            # 결과를 다시 정의
+    t = pd.crosstab(df[&quot;smoke&quot;], y_cut).loc[[1, 0], [1, 0]].to_numpy()
+    t2 = Table2x2(t)
+    r_s, r_n = t[0, 0] / t[0].sum(), t[1, 0] / t[1].sum()  # 흡연, 비흡연 위험
+    rows.append([cut, y_cut.sum(), y_cut.mean(), r_s, r_n,
+                 t2.riskratio, t2.oddsratio, t2.oddsratio / t2.riskratio])
+cols = [&quot;cut&quot;, &quot;events&quot;, &quot;prop&quot;, &quot;risk_s&quot;, &quot;risk_n&quot;, &quot;RR&quot;, &quot;OR&quot;, &quot;OR/RR&quot;]
+pd.DataFrame(rows, columns=cols).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cut</th>
+      <th>events</th>
+      <th>prop</th>
+      <th>risk_s</th>
+      <th>risk_n</th>
+      <th>RR</th>
+      <th>OR</th>
+      <th>OR/RR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2000</td>
+      <td>19</td>
+      <td>0.101<span class="mk">1</span></td>
+      <td>0.108</td>
+      <td>0.096</td>
+      <td>1.130<span class="mk">2</span></td>
+      <td>1.146</td>
+      <td>1.014<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2500</td>
+      <td>59</td>
+      <td>0.312</td>
+      <td>0.405</td>
+      <td>0.252</td>
+      <td>1.608</td>
+      <td>2.022</td>
+      <td>1.258</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3000</td>
+      <td>97</td>
+      <td>0.513<span class="mk">4</span></td>
+      <td>0.622</td>
+      <td>0.443</td>
+      <td>1.402<span class="mk">5</span></td>
+      <td>2.062<span class="mk">6</span></td>
+      <td>1.471<span class="mk">7</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

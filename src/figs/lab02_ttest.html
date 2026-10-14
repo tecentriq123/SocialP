@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">Student t 검정과 Welch t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">smoker = df.loc[df[&quot;smoke&quot;] == 1, &quot;bwt&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">Student t 검정과 Welch t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">smoker = df.loc[df[&quot;smoke&quot;] == 1, &quot;bwt&quot;]
 nonsmoker = df.loc[df[&quot;smoke&quot;] == 0, &quot;bwt&quot;]
 
 student = stats.ttest_ind(smoker, nonsmoker, equal_var=True)

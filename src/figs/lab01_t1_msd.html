@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">군별 평균과 표준편차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t1_vars = [&quot;mean radius&quot;, &quot;mean texture&quot;, &quot;mean smoothness&quot;,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">군별 평균과 표준편차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t1_vars = [&quot;mean radius&quot;, &quot;mean texture&quot;, &quot;mean smoothness&quot;,
            &quot;mean area&quot;, &quot;area error&quot;]
 g = df.groupby(&quot;diagnosis&quot;, observed=True)[t1_vars]
 m = g.mean().T     # 행: 변수, 열: benign / malignant

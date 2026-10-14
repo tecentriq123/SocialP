@@ -1,0 +1,79 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">과제 3 정답. &#x27;치료 × 추적 시간&#x27; 열을 넣은 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import to_episodic_format
+
+f_t = (&quot;dpca + age10 + female + log2_bili + albumin&quot;
+       &quot; + C(edema) + protime + dpca_t&quot;)
+wrong = df.assign(dpca_t=df[&quot;dpca&quot;] * df[&quot;years&quot;])   # 동료가 만든 열
+cph_w = CoxPHFitter().fit(wrong, &quot;years&quot;, &quot;death&quot;, formula=f_t)
+
+ep = to_episodic_format(df.assign(id=df.index), duration_col=&quot;years&quot;,
+                        event_col=&quot;death&quot;, id_col=&quot;id&quot;, time_gaps=0.1)
+ep[&quot;dpca_t&quot;] = ep[&quot;dpca&quot;] * ep[&quot;stop&quot;]             # 그 구간 끝의 시간
+ctv_t = CoxTimeVaryingFitter().fit(ep, id_col=&quot;id&quot;, event_col=&quot;death&quot;,
+                                   start_col=&quot;start&quot;, stop_col=&quot;stop&quot;,
+                                   formula=f_t)
+print(len(df), &quot;명 -&gt;&quot;, len(ep), &quot;줄&quot;)
+print(f&quot;P for dpca_t: wrong {cph_w.summary.loc[&#x27;dpca_t&#x27;, &#x27;p&#x27;]:.1e},&quot;
+      f&quot; split {ctv_t.summary.loc[&#x27;dpca_t&#x27;, &#x27;p&#x27;]:.3f}&quot;)
+pd.DataFrame({&quot;wrong (years)&quot;: np.exp(cph_w.params_),
+              &quot;split (0.1 y)&quot;: np.exp(ctv_t.params_)}).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>312 명 -&gt; 17289 줄<span class="mk">1</span>
+P for dpca_t: wrong 4.5e-09<span class="mk">2</span>, split 0.458<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>wrong (years)</th>
+      <th>split (0.1 y)</th>
+    </tr>
+    <tr>
+      <th>covariate</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>dpca</th>
+      <td>8.165<span class="mk">4</span></td>
+      <td>0.781</td>
+    </tr>
+    <tr>
+      <th>age10</th>
+      <td>1.419</td>
+      <td>1.363</td>
+    </tr>
+    <tr>
+      <th>female</th>
+      <td>0.882</td>
+      <td>0.691</td>
+    </tr>
+    <tr>
+      <th>log2_bili</th>
+      <td>1.792</td>
+      <td>1.836</td>
+    </tr>
+    <tr>
+      <th>albumin</th>
+      <td>0.585<span class="mk">5</span></td>
+      <td>0.363</td>
+    </tr>
+    <tr>
+      <th>C(edema)[T.0.5]</th>
+      <td>1.373</td>
+      <td>1.195</td>
+    </tr>
+    <tr>
+      <th>C(edema)[T.1.0]</th>
+      <td>2.098</td>
+      <td>2.555</td>
+    </tr>
+    <tr>
+      <th>protime</th>
+      <td>1.234</td>
+      <td>1.289</td>
+    </tr>
+    <tr>
+      <th>dpca_t</th>
+      <td>0.679<span class="mk">6</span></td>
+      <td>1.047<span class="mk">7</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

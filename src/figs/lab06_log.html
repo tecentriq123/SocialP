@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">로그 변환한 결과변수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_log = smf.ols(&quot;np.log(target) ~ bmi + age + C(sex) + bp + s5&quot;,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">로그 변환한 결과변수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_log = smf.ols(&quot;np.log(target) ~ bmi + age + C(sex) + bp + s5&quot;,
                     data=df).fit()
 pct = (np.exp(model_log.params) - 1) * 100          # % 차이
 pct_ci = (np.exp(model_log.conf_int()) - 1) * 100   # CI 양 끝 변환

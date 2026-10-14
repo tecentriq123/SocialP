@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">statsmodels로 같은 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lbl = Table(cc).test_ordinal_association(
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">statsmodels로 같은 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lbl = Table(cc).test_ordinal_association(
     row_scores=score, col_scores=np.array([1, 0]))
 print(f&quot;z = {lbl.zscore:.3f}, z^2 = {lbl.zscore**2:.2f}, &quot;
       f&quot;p = {lbl.pvalue:.2e}&quot;)

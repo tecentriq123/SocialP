@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">카이제곱 검정 (연속성 보정 없음)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs = pd.crosstab(df[&quot;smoke_f&quot;], df[&quot;low_f&quot;])  # 합계 없는 2×2 표
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">카이제곱 검정 (연속성 보정 없음)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs = pd.crosstab(df[&quot;smoke_f&quot;], df[&quot;low_f&quot;])  # 합계 없는 2×2 표
 res = stats.chi2_contingency(obs, correction=False)
 print(&quot;statistic    :&quot;, res.statistic)
 print(&quot;pvalue       :&quot;, res.pvalue)

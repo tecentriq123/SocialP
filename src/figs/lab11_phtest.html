@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">비례위험 검정 (척도화 Schoenfeld 잔차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import proportional_hazard_test
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">비례위험 검정 (척도화 Schoenfeld 잔차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import proportional_hazard_test
 
 ph = proportional_hazard_test(cph, df, time_transform=&quot;rank&quot;)
 ph.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&lt;lifelines.StatisticalResult: proportional_hazard_test&gt;

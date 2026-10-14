@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">과제 1 정답. 음주량 80–119 g군의 오즈비 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">row, ref = alc.loc[&quot;80-119&quot;], alc.iloc[0]   # 80-119 g군, 기준군(0-39 g)
+t80 = Table2x2(np.array([[row[&quot;ncases&quot;], row[&quot;ncontrols&quot;]],
+                         [ref[&quot;ncases&quot;], ref[&quot;ncontrols&quot;]]]))
+lo, hi = t80.oddsratio_confint()
+print(f&quot;80-119 vs 0-39: OR {t80.oddsratio:.2f} ({lo:.2f} to {hi:.2f})&quot;)
+for k in [1, 2]:                            # 대조군을 k배로 뽑았다면
+    pct80 = 100 * row[&quot;ncases&quot;] / (row[&quot;ncases&quot;] + k * row[&quot;ncontrols&quot;])
+    pct0 = 100 * ref[&quot;ncases&quot;] / (ref[&quot;ncases&quot;] + k * ref[&quot;ncontrols&quot;])
+    or_k = ((row[&quot;ncases&quot;] / (k * row[&quot;ncontrols&quot;]))
+            / (ref[&quot;ncases&quot;] / (k * ref[&quot;ncontrols&quot;])))
+    print(f&quot;controls x{k}: case % {pct80:.1f} vs {pct0:.1f}, OR {or_k:.2f}&quot;)
+mid = alc.loc[&quot;40-79&quot;]                      # 이웃한 40-79 g군
+print(&quot;80-119 vs 40-79: OR&quot;, round((row[&quot;ncases&quot;] / row[&quot;ncontrols&quot;])
+                                   / (mid[&quot;ncases&quot;] / mid[&quot;ncontrols&quot;]), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>80-119 vs 0-39: OR 7.80 (4.68 to 13.02)<span class="mk">1</span>
+controls x1: case % 37.0 vs 7.0<span class="mk">2</span>, OR 7.80
+controls x2: case % 22.7 vs 3.6, OR 7.80<span class="mk">3</span>
+80-119 vs 40-79: OR 2.19<span class="mk">4</span></pre></div></div>

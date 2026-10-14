@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">환자 한 명 = 한 행으로 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pt = cgd.groupby(&quot;id&quot;).agg(
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">환자 한 명 = 한 행으로 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pt = cgd.groupby(&quot;id&quot;).agg(
     treat=(&quot;treat&quot;, &quot;first&quot;),
     age=(&quot;age&quot;, &quot;first&quot;),
     inherit=(&quot;inherit&quot;, &quot;first&quot;),

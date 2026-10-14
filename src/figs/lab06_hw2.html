@@ -1,0 +1,73 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">과제 2 정답. 보정 변수를 바꿔 가며 BMI 계수 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sets = {&quot;bmi only&quot;: &quot;target ~ bmi&quot;,
+        &quot;+ age, sex&quot;: &quot;target ~ bmi + age + C(sex)&quot;,
+        &quot;+ age, sex, bp&quot;: &quot;target ~ bmi + age + C(sex) + bp&quot;,
+        &quot;+ age, sex, s5&quot;: &quot;target ~ bmi + age + C(sex) + s5&quot;,
+        &quot;+ age, sex, bp, s5&quot;: &quot;target ~ bmi + age + C(sex) + bp + s5&quot;}
+rows = []
+for name, f in sets.items():
+    m = smf.ols(f, data=df).fit()
+    lo, hi = m.conf_int().loc[&quot;bmi&quot;]               # bmi 계수의 95% CI
+    rows.append({&quot;model&quot;: name, &quot;bmi&quot;: m.params[&quot;bmi&quot;], &quot;lower&quot;: lo,
+                 &quot;upper&quot;: hi, &quot;SE&quot;: m.bse[&quot;bmi&quot;], &quot;R2&quot;: m.rsquared})
+pd.DataFrame(rows).set_index(&quot;model&quot;).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>bmi</th>
+      <th>lower</th>
+      <th>upper</th>
+      <th>SE</th>
+      <th>R2</th>
+    </tr>
+    <tr>
+      <th>model</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>bmi only</th>
+      <td>10.233</td>
+      <td>8.909</td>
+      <td>11.557</td>
+      <td>0.674</td>
+      <td>0.344</td>
+    </tr>
+    <tr>
+      <th>+ age, sex</th>
+      <td>9.990<span class="mk">1</span></td>
+      <td>8.645</td>
+      <td>11.336</td>
+      <td>0.685</td>
+      <td>0.351</td>
+    </tr>
+    <tr>
+      <th>+ age, sex, bp</th>
+      <td>8.484<span class="mk">2</span></td>
+      <td>7.098</td>
+      <td>9.870</td>
+      <td>0.705</td>
+      <td>0.400</td>
+    </tr>
+    <tr>
+      <th>+ age, sex, s5</th>
+      <td>7.278<span class="mk">3</span></td>
+      <td>5.930</td>
+      <td>8.626</td>
+      <td>0.686</td>
+      <td>0.462</td>
+    </tr>
+    <tr>
+      <th>+ age, sex, bp, s5</th>
+      <td>6.452<span class="mk">4</span></td>
+      <td>5.088</td>
+      <td>7.817</td>
+      <td>0.694</td>
+      <td>0.487</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

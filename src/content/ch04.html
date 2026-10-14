@@ -21,7 +21,7 @@
 <dl>
 <dt>미리 알아 둘 것</dt><dd><a href="#ch00-s5">0장 e 절</a>의 표준오차, <a href="#ch01-s3">1장 c 절</a>의 가족단위 오류율(FWER), <a href="#ch02-s1">2장 a 절</a>의 독립표본 t 검정. d·e 절은 <a href="#ch02-s2">2장 b 절</a>의 순위와 U도 씁니다.</dd>
 <dt>이 장을 마치면</dt><dd>① 세 군을 두 군씩 여러 번 t 검정하면 안 되는 이유와 "전체 검정 → 사후분석" 순서를 설명할 수 있다 ② F(2, 87) = 4.12, P = 0.020 같은 분산분석 결과와 표의 위첨자 문자, P for trend를 읽을 수 있다 ③ 연구 질문에 맞춰 Tukey, Dunnett, Dunn 가운데 사후분석을 고를 수 있다 ④ 전체 검정과 사후분석 결과를 보정 방법, 보정한 95% CI와 P까지 Methods와 Results 문장으로 쓸 수 있다</dd>
-<dt>직접 분석할 때</dt><dd><a href="#lab04">실습 4</a>에서 scipy와 statsmodels로 해 봅니다. 파이썬 출력을 읽는 법은 각 절 '더 알아보기'에 있습니다.</dd>
+<dt>직접 분석할 때</dt><dd><a href="#lab04">실습 4</a>에서 birthwt 자료로 분산분석과 사후분석(b 절), Kruskal-Wallis 검정과 Dunn 검정(c 절), Jonckheere-Terpstra 검정(d 절)을 scipy와 statsmodels로 해 보고, 과제 세 개를 풉니다. 파이썬 출력을 읽는 법은 각 절 '더 알아보기'에 있습니다.</dd>
 </dl></details>
 </div>
 
@@ -180,7 +180,7 @@
 <li>Methods에 없던 검정을 Results에서 처음 쓰는 것입니다. 그러면 결과를 보고 검정을 바꾼 것처럼 읽힙니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 birthwt 자료(어머니 인종 분류에 따른 세 군, 96·26·67명)로 전체 검정 → 사후분석의 순서를 직접 따라가고, <a href="#lab04-s5">과제 3</a>에서 자료를 본 뒤 군의 순서를 정하면 추세 검정이 얼마나 자주 '유의'가 되는지 모의실험으로 확인합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>세 군 이상을 두 군씩 반복 t 검정하면 우연히 유의할 확률이 5%를 넘습니다. 세 군이면 약 12%입니다.</li>
@@ -463,7 +463,7 @@
 <li>결과를 보고 방법을 바꾸는 것입니다. Tukey로 유의하지 않자 보정 없는 P로 바꾸면 다중비교 보정이 무너집니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="#lab04-s2">실습 4 b 절</a>에서 statsmodels의 <code>pairwise_tukeyhsd</code>로 군 크기가 다른 세 군의 Tukey-Kramer 비교를 하고(군 이름이 알파벳순으로 정렬되는 점에 주의), <a href="#lab04-s5">과제 2</a>에서 같은 비교를 Dunnett 방법(<code>stats.dunnett</code>)으로 다시 해 비교 묶음이 작아지면 P와 신뢰구간이 어떻게 바뀌는지 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>사후분석은 여러 쌍을 비교하면서 비교 묶음 전체의 1종 오류(FWER)를 5%로 묶어 둡니다. 그 대가로 '유의'의 문턱이 올라갑니다. 예제에서는 6.06에서 7.27%p로 올랐습니다.</li>
@@ -816,7 +816,7 @@ Sample 0은 첫 번째 인자(1회 상담), Sample 1은 두 번째 인자(집중
 <li>Welch 분산분석에 정수 자유도를 쓰는 것입니다. "F(2, 87) = 3.77"처럼 쓰면 일반 분산분석의 자유도와 섞여 P를 검산할 수 없습니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="#lab04-s2">실습 4 b 절</a>에서 분산분석표, η²와 ω², 잔차의 정규성(Shapiro-Wilk 검정과 Q-Q plot), Levene 검정과 Welch 분산분석을 scipy와 statsmodels로 직접 계산합니다. <a href="#lab04-s5">과제 1</a>에서는 관찰 자료의 군 차이가 흡연을 함께 고려하면 어떻게 바뀌는지 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>분산분석은 평균을 비교하는 방법이며, 전체 변동을 군간 변동과 군내 변동으로 나눠 F = 군간 평균제곱 ÷ 군내 평균제곱을 계산합니다.</li>
@@ -1137,7 +1137,7 @@ F_onewayResult(statistic=np.float64(3.769535291925845), pvalue=np.float64(0.0289
 <li>사후분석 없이 중앙값이 가장 높은 군을 나머지보다 높다고 쓰는 것입니다. 전체 P는 어느 쌍이 다른지 알려 주지 않습니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="#lab04-s3">실습 4 c 절</a>에서 Kruskal-Wallis 검정 뒤 쌍별 Mann-Whitney 검정(Holm 보정)과 Dunn 검정을 직접 계산하고, 두 방법의 보정한 P가 0.05의 양쪽으로 갈리는 경우를 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>Kruskal-Wallis 검정은 전체 자료에서 순위를 매긴 뒤 군별 평균 순위가 전체 평균 순위에서 얼마나 떨어져 있는지를 H로 봅니다.</li>
@@ -1403,7 +1403,7 @@ KruskalResult(statistic=np.float64(7.446840090553576), pvalue=np.float64(0.02415
 <li>"P for trend"만 쓰고 방법을 빼는 것입니다. 그러면 독자가 순위 기반인지 모형 기반인지, 보정했는지 알 수 없습니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab04">실습 4</a>에서 이 절의 분석을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="#lab04-s4">실습 4 d 절</a>에서 Jonckheere-Terpstra 검정을 짧은 함수로 직접 만들어 statsmodels 0.15의 함수, 순열검정과 비교합니다. <a href="#lab04-s5">과제 3</a>에서는 자료를 본 뒤 순서를 정하면 1종 오류가 얼마나 커지는지 모의실험으로 확인합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>Jonckheere-Terpstra 검정은 순서가 있는 군에서 "순서대로 커진다(작아진다)"는 경향을 봅니다. 통계량 J는 순서가 있는 모든 군 쌍의 Mann-Whitney U를 더한 값입니다.</li>

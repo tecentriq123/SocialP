@@ -1,0 +1,33 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 2 정답. ECOG로 층화한 로그순위 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+
+def oev(df):
+    &quot;&quot;&quot;남성(sex == 1)의 관찰 사망 O, 기대 사망 E, 분산 V&quot;&quot;&quot;
+    O = E = V = 0
+    for t in np.sort(df.loc[df[&quot;event&quot;] == 1, &quot;months&quot;].unique()):
+        r = df[df[&quot;months&quot;] &gt;= t]                    # t 직전 위험집합
+        dead = (r[&quot;months&quot;] == t) &amp; (r[&quot;event&quot;] == 1)
+        male = r[&quot;sex&quot;] == 1
+        n, nA, d = len(r), male.sum(), dead.sum()
+        O += (dead &amp; male).sum()
+        E += d * nA / n
+        V += d * (nA / n) * (1 - nA / n) * (n - d) / max(n - 1, 1)
+    return O, E, V
+
+print(pd.crosstab(e[&quot;sex&quot;], e[&quot;ecog&quot;], normalize=&quot;index&quot;).round(3))
+strata = pd.DataFrame({g: oev(s) for g, s in e.groupby(&quot;ecog&quot;)},
+                      index=[&quot;O&quot;, &quot;E&quot;, &quot;V&quot;]).T      # ECOG 층마다 한 행
+print(strata.assign(O_minus_E=strata[&quot;O&quot;] - strata[&quot;E&quot;]).round(2))
+for name, (O, E, V) in [(&quot;stratified  &quot;, strata.sum()),
+                        (&quot;unstratified&quot;, oev(e))]:
+    chi2 = (O - E) ** 2 / V
+    print(f&quot;{name} O-E = {O - E:5.2f}, V = {V:5.2f}, &quot;
+          f&quot;chi2 = {chi2:5.2f}, P = {stats.chi2.sf(chi2, 1):.4f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ecog      0      1      2
+sex                      
+1     0.263  0.518  0.219<span class="mk">1</span>
+2     0.300  0.467  0.233<span class="mk">2</span>
+      O      E      V  O_minus_E<span class="mk">3</span>
+0  28.0  23.36   8.32       4.64
+1  54.0  41.98  19.70      12.02
+2  29.0  25.00  10.62       4.00
+stratified   O-E = 20.67, V = 38.63, chi2 = 11.05, P = 0.0009<span class="mk">4</span>
+unstratified O-E = 20.04, V = 40.14, chi2 = 10.01, P = 0.0016<span class="mk">5</span></pre></div></div>

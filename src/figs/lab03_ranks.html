@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">부호순위를 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">nz = d[d != 0]                   # 차이가 0인 쌍은 제외
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">부호순위를 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">nz = d[d != 0]                   # 차이가 0인 쌍은 제외
 rk = stats.rankdata(nz.abs())    # |d|에 순위 (동점은 평균순위)
 print(pd.DataFrame({&quot;d&quot;: nz, &quot;rank&quot;: rk}).T)
 w_plus = rk[nz &gt; 0].sum()        # 늘어난 쪽의 순위합

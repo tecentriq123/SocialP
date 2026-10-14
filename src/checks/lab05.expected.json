@@ -1,0 +1,162 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nscipy        1.18.1\nstatsmodels  0.15.0\nmatplotlib   3.11.2\n"
+ },
+ {
+  "n": 2,
+  "title": "데이터 불러오기",
+  "out": "(189, 11)\n   rownames  low  age  lwt  race  smoke  ptl  ht  ui  ftv   bwt\n0        85    0   19  182     2      0    0   0   1    0  2523\n1        86    0   33  155     3      0    0   0   0    3  2551\n2        87    0   20  105     1      1    0   0   0    1  2557\n3        88    0   21  108     1      1    0   0   1    2  2594\n4        89    0   18  107     1      1    0   0   1    0  2600"
+ },
+ {
+  "n": 3,
+  "title": "범주에 이름표와 순서 붙이기",
+  "out": ""
+ },
+ {
+  "n": 4,
+  "title": "범주별 빈도 확인",
+  "out": "low_f {'LBW': 59, 'Not LBW': 130}\nsmoke_f {'Smoker': 74, 'Nonsmoker': 115}\nht_f {'HT': 12, 'No HT': 177}\nptl_f {'Preterm': 30, 'None': 159}\nrace_f {'White': 96, 'Black': 26, 'Other': 67}\nLBW 비율: 0.312\n"
+ },
+ {
+  "n": 5,
+  "title": "교차표와 합계",
+  "out": "low_f      LBW  Not LBW  All\nsmoke_f                     \nSmoker      30       44   74\nNonsmoker   29       86  115\nAll         59      130  189"
+ },
+ {
+  "n": 6,
+  "title": "행 백분율",
+  "out": "low_f       LBW  Not LBW\nsmoke_f                 \nSmoker     40.5     59.5\nNonsmoker  25.2     74.8"
+ },
+ {
+  "n": 7,
+  "title": "카이제곱 검정 (연속성 보정 없음)",
+  "out": "statistic    : 4.923705434361292\npvalue       : 0.026490642530502487\ndof          : 1\nexpected_freq:\n[[23.1005291 50.8994709]\n [35.8994709 79.1005291]]\n"
+ },
+ {
+  "n": 8,
+  "title": "Yates 연속성 보정과 비교",
+  "out": "Pearson: chi2 = 4.924, p = 0.0265\nYates:   chi2 = 4.236, p = 0.0396\n가장 작은 기대빈도: 23.1\n"
+ },
+ {
+  "n": 9,
+  "title": "상대위험도와 오즈비",
+  "out": "               Estimate   SE   LCB   UCB  p-value\n-------------------------------------------------\nOdds ratio        2.022       1.081 3.783   0.028\nLog odds ratio    0.704 0.320 0.078 1.331   0.028\nRisk ratio        1.608       1.058 2.443   0.026\nLog risk ratio    0.475 0.214 0.056 0.893   0.026\n-------------------------------------------------\n"
+ },
+ {
+  "n": 10,
+  "title": "DataFrame을 그대로 넣으면",
+  "out": "(4, 4) 1.0\n"
+ },
+ {
+  "n": 11,
+  "title": "위험차와 95% 신뢰구간",
+  "out": "p1 = 0.405, p0 = 0.252\nRD = 0.153 (95% CI 0.016 to 0.290)\n"
+ },
+ {
+  "n": 12,
+  "title": "오즈비와 상대위험도의 관계",
+  "out": "RR = 1.608, OR = 2.022\nRR x (1-p0)/(1-p1) = 2.022\nOR/(1-p0+p0*OR) = 1.608\n"
+ },
+ {
+  "n": 13,
+  "title": "세 군 이상: 인종별 저체중아 비율",
+  "out": "chi2 = 5.005, dof = 2, p = 0.0819\nlow_f    LBW  Not LBW\nrace_f               \nWhite   24.0     76.0\nBlack   42.3     57.7\nOther   37.3     62.7"
+ },
+ {
+  "n": 14,
+  "title": "수정 표준화 잔차",
+  "out": "low_f    LBW  Not LBW\nrace_f               \nWhite  -2.19     2.19\nBlack   1.31    -1.31\nOther   1.34    -1.34"
+ },
+ {
+  "n": 15,
+  "title": "군별 저체중아 비율 그래프",
+  "out": ""
+ },
+ {
+  "n": 16,
+  "title": "고혈압 병력과 저체중아: 기대빈도 확인",
+  "out": "low_f  LBW  Not LBW\nht_f               \nHT       7        5\nNo HT   52      125\n[[  3.75   8.25]\n [ 55.25 121.75]]\n기대빈도 5 미만인 칸: 1 / 4\n"
+ },
+ {
+  "n": 17,
+  "title": "Fisher의 정확한 검정",
+  "out": "statistic: 3.3653846153846154\npvalue   : 0.05161187156764768\nPearson p = 0.0362, Yates p = 0.0763\n"
+ },
+ {
+  "n": 18,
+  "title": "오즈비 두 가지",
+  "out": "sample      OR = 3.365 (95% CI 1.02 to 11.09)\nconditional OR = 3.341 (95% CI 0.87 to 14.00)\n"
+ },
+ {
+  "n": 19,
+  "title": "가능한 모든 표의 확률",
+  "out": "[0.0095, 0.0565, 0.1501, 0.2357, 0.2434, 0.1742, 0.0885, 0.0322, 0.0083, 0.0015, 0.0002, 0.0, 0.0]\nP(a = 7) = 0.0322, 양측 p = 0.0516\n"
+ },
+ {
+  "n": 20,
+  "title": "초기하분포 그래프",
+  "out": ""
+ },
+ {
+  "n": 21,
+  "title": "esoph 데이터 불러오기",
+  "out": "(88, 6) 200 775\n   rownames  agegp      alcgp     tobgp  ncases  ncontrols\n0         1  25-34  0-39g/day  0-9g/day       0         40\n1         2  25-34  0-39g/day     10-19       0         10\n2         3  25-34  0-39g/day     20-29       0          6\n3         4  25-34  0-39g/day       30+       0          5\n4         5  25-34      40-79  0-9g/day       0         27\n5         6  25-34      40-79     10-19       0          7"
+ },
+ {
+  "n": 22,
+  "title": "순서를 지정하지 않고 합치면",
+  "out": "           ncases  ncontrols\nalcgp                       \n0-39g/day      29        386\n120+           45         22\n40-79          75        280\n80-119         51         87"
+ },
+ {
+  "n": 23,
+  "title": "음주량 순서대로 합치기",
+  "out": "           ncases  ncontrols  pct_case   odds      OR\nalcgp                                                \n0-39g/day      29        386     6.988  0.075   1.000\n40-79          75        280    21.127  0.268   3.565\n80-119         51         87    36.957  0.586   7.803\n120+           45         22    67.164  2.045  27.226"
+ },
+ {
+  "n": 24,
+  "title": "음주량별 오즈비와 95% 신뢰구간",
+  "out": " 40-79: OR  3.57 (2.26 to 5.62)\n80-119: OR  7.80 (4.68 to 13.02)\n  120+: OR 27.23 (14.44 to 51.34)\n"
+ },
+ {
+  "n": 25,
+  "title": "환자군과 대조군의 음주 분포",
+  "out": "           ncases  ncontrols\nalcgp                       \n0-39g/day    14.5       49.8\n40-79        37.5       36.1\n80-119       25.5       11.2\n120+         22.5        2.8"
+ },
+ {
+  "n": 26,
+  "title": "음주량별 환자 비율 그래프",
+  "out": ""
+ },
+ {
+  "n": 27,
+  "title": "Pearson 카이제곱 검정 (자유도 3)",
+  "out": "Pearson chi2 = 158.95, dof = 3, p = 3.08e-34\n"
+ },
+ {
+  "n": 28,
+  "title": "M² = (N − 1)r² 직접 계산",
+  "out": "(975,) 2.56 1.671\nr = 0.3963, M2 = 152.97, p = 3.88e-35\n"
+ },
+ {
+  "n": 29,
+  "title": "statsmodels로 같은 검정",
+  "out": "z = 12.368, z^2 = 152.97, p = 3.88e-35\nCochran-Armitage (N r^2) = 153.13\ndeparture = 5.98, p = 0.050\n"
+ },
+ {
+  "n": 30,
+  "title": "과제 1 정답. 음주량 80–119 g군의 오즈비 읽기",
+  "out": "80-119 vs 0-39: OR 7.80 (4.68 to 13.02)\ncontrols x1: case % 37.0 vs 7.0, OR 7.80\ncontrols x2: case % 22.7 vs 3.6, OR 7.80\n80-119 vs 40-79: OR 2.19\n"
+ },
+ {
+  "n": 31,
+  "title": "과제 2 정답. 행과 열의 순서 바꾸기",
+  "out": "original        risks 0.405 0.252  RD +0.153  RR 1.608  OR 2.022\nrows swapped    risks 0.252 0.405  RD -0.153  RR 0.622  OR 0.495\ncolumns swapped risks 0.595 0.748  RD -0.153  RR 0.795  OR 0.495\n"
+ },
+ {
+  "n": 32,
+  "title": "과제 3 정답. 백분율 표로 한 카이제곱 검정",
+  "out": "low_f   LBW  Not LBW\nht_f                \nHT     58.3     41.7\nNo HT  29.4     70.6\npercent table: total 200, chi2 = 17.02, p = 3.7e-05\nOR from percents 3.365, from counts 3.365\ncounts: Fisher p = 0.052, RR = 1.99\n"
+ }
+]

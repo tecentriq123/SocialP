@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">과제 3 정답. 백분율 표로 한 카이제곱 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pct_h = pd.crosstab(df[&quot;ht_f&quot;], df[&quot;low_f&quot;], normalize=&quot;index&quot;) * 100
+print(pct_h.round(1))
+bad = stats.chi2_contingency(pct_h, correction=False)   # 동료의 계산
+print(f&quot;percent table: total {pct_h.to_numpy().sum():.0f}, &quot;
+      f&quot;chi2 = {bad.statistic:.2f}, p = {bad.pvalue:.1e}&quot;)
+print(f&quot;OR from percents {Table2x2(pct_h.to_numpy()).oddsratio:.3f}, &quot;
+      f&quot;from counts {Table2x2(obs_h.to_numpy()).oddsratio:.3f}&quot;)
+rr_h = Table2x2(obs_h.to_numpy()).riskratio             # 실제 인원으로
+print(f&quot;counts: Fisher p = {fe.pvalue:.3f}, RR = {rr_h:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>low_f   LBW  Not LBW
+ht_f                
+HT     58.3<span class="mk">1</span>     41.7
+No HT  29.4     70.6
+percent table: total 200<span class="mk">2</span>, chi2 = 17.02, p = 3.7e-05<span class="mk">3</span>
+OR from percents 3.365, from counts 3.365<span class="mk">4</span>
+counts: Fisher p = 0.052<span class="mk">5</span>, RR = 1.99<span class="mk">6</span></pre></div></div>

@@ -88,7 +88,7 @@ for k in (0, 1, 34, 35, 36, 37, 47, 59):
     pr("t=%2d %d-%02d post=%d taft=%2d | pilot cnt %6d n %7d rate %.2f | comp cnt %6d n %7d rate %.2f | diff %.2f" %
        (t[k], year[k], mon[k] + 1, post[k], taft[k], PIL.cnt[k], PIL.n[k], yp[k], COM.cnt[k], COM.n[k], yc[k], yd[k]))
 
-# ------------------------------------------------------------------ 가. naive before-after
+# ------------------------------------------------------------------ a. naive before-after
 hdr("가. before-after")
 nv = {}
 for nm, y in (("pilot", yp), ("comp", yc)):
@@ -133,7 +133,7 @@ for _ in range(4000):
 falls = np.array(falls)
 pr("RTM simulation (top 20 of 250): mean excess %.2f, mean change next year %.2f" % (falls[:, 0].mean(), falls[:, 1].mean()))
 
-# ------------------------------------------------------------------ 나. ITS (pilot series)
+# ------------------------------------------------------------------ b. ITS (pilot series)
 hdr("나. ITS on the pilot series")
 ols = sm.OLS(yp, X).fit()
 nw = sm.OLS(yp, X).fit(cov_type="HAC", cov_kwds={"maxlags": 3})
@@ -269,7 +269,7 @@ OUT["pois"] = dict(b=poh.params.tolist(), se=poh.bse.tolist(), rr=np.exp(poh.par
                    disp=float(po_.pearson_chi2 / po_.df_resid),
                    rr12=[float(np.exp(ttp.effect[0])), *[float(v) for v in np.exp(ttp.conf_int()[0])]])
 
-# ------------------------------------------------------------------ 다. controlled ITS
+# ------------------------------------------------------------------ c. controlled ITS
 hdr("다. controlled ITS")
 cres = {}
 for nm, y in (("pilot", yp), ("comp", yc), ("diff", yd)):
@@ -308,7 +308,7 @@ OUT["stack"] = dict(params=sm_.params.to_dict(), se_cluster_month=sm_.bse.to_dic
 pr("pre-trend difference (diff series 'time' coef): %.4f (%.3f to %.3f) p=%.3f" %
    (cres["diff"]["b"][1], *cres["diff"]["ci"][1], cres["diff"]["p"][1]))
 
-# ------------------------------------------------------------------ 라. DID
+# ------------------------------------------------------------------ d. DID
 hdr("라. difference-in-differences")
 m = dict(tp=yp[:T0].mean(), tpost=yp[T0:].mean(), cp=yc[:T0].mean(), cpost=yc[T0:].mean())
 did = (m["tpost"] - m["tp"]) - (m["cpost"] - m["cp"])

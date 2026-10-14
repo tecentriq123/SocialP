@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">흡연과 저체중아의 2×2 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = pd.crosstab(df[&quot;smoke&quot;], df[&quot;low&quot;]).loc[[1, 0], [1, 0]]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">흡연과 저체중아의 2×2 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = pd.crosstab(df[&quot;smoke&quot;], df[&quot;low&quot;]).loc[[1, 0], [1, 0]]
 print(tab)
 (a, b), (c, d) = tab.to_numpy()
 p1, p0 = a / (a + b), c / (c + d)

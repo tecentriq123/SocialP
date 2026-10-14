@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">인종을 숫자 그대로 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_num = smf.logit(&quot;low ~ smoke + race&quot;, df).fit(disp=0)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">인종을 숫자 그대로 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_num = smf.logit(&quot;low ~ smoke + race&quot;, df).fit(disp=0)
 m_cat = smf.logit(&quot;low ~ smoke + C(race, Treatment(reference=1))&quot;,
                   df).fit(disp=0)
 print(m_num.params.round(3), &quot;\n&quot;)

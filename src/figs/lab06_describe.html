@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">요약통계와 sex 코딩 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(df[&quot;sex&quot;].value_counts())    # sex에 어떤 값이 몇 명씩 있는지
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">요약통계와 sex 코딩 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(df[&quot;sex&quot;].value_counts())    # sex에 어떤 값이 몇 명씩 있는지
 df[&quot;sex&quot;] = df[&quot;sex&quot;].astype(int)  # 1.0, 2.0 -&gt; 1, 2 (정수로)
 df.describe().T.round(2)           # 변수별 요약통계 (행·열 뒤집기)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>sex
 1.0    235<span class="mk">1</span>

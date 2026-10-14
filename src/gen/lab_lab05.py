@@ -1,8 +1,14 @@
 """실습 5 (lab05) — 비율 비교: birthwt(카이제곱·Fisher), esoph(선형 대 선형 결합).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/lab_lab05.py
+      then  python3 tools/nbcheck.py lab05   (runs the notebook alone in a fresh process and compares outputs)
 All outputs are produced by actually running the cells (labkit).
+Writes figs/lab05_*.html (insert in content/lab05.html with <!--FIG:lab05_xxx-->),
+pub/notebooks/lab05.ipynb (download link at the top of content/lab05.html) and checks/lab05.expected.json.
 Set LABDEBUG=1 to print every cell's text output to the console.
+The VERIFY block at the end asserts the numbers quoted in the text of content/lab05.html that are not
+marked in a cell output (대응표, the p-value comparison table in c 절, the '직접 바꿔 보기' tips, the 과제).
+(2026-10-14: version cell 1 split from the load cell, 과제 1–3 and the notebook added; cell numbers shifted by 1.)
 """
 import html as _h
 import os
@@ -13,6 +19,7 @@ from labkit import Notebook  # noqa: E402
 
 nb = Notebook("lab05")
 DEBUG = os.environ.get("LABDEBUG")
+NOTES = {}     # 노트북에서 셀 앞에 넣을 짧은 안내 (절 제목, 과제 문제)
 
 
 def H(c, marks=None):
@@ -46,18 +53,30 @@ def S(name, c, marks=None):
     nb.save_fragment(name, H(c, marks))
 
 
-# ================================================================== 가. 실습 데이터 준비
+# ================================================================== a. 실습 데이터 준비
 c = nb.cell('''
 import numpy as np
 import pandas as pd
 from scipy import stats
+import scipy, statsmodels, matplotlib
 
+print("pandas      ", pd.__version__)
+print("numpy       ", np.__version__)
+print("scipy       ", scipy.__version__)
+print("statsmodels ", statsmodels.__version__)
+print("matplotlib  ", matplotlib.__version__)
+''', title="패키지 불러오기와 버전 확인")
+S("lab05_versions", c, {nb.ns["scipy"].__version__: 1, nb.ns["statsmodels"].__version__: 2})
+NOTES[c.n] = ("## a. 실습 데이터 준비\n\n이 실습이 쓰는 패키지를 불러와 버전을 확인한 뒤 birthwt 자료를 읽습니다. "
+              "birthwt와 d 절의 esoph는 인터넷에서 읽어 오므로 인터넷 연결이 필요합니다.")
+
+c = nb.cell('''
 url = ("https://vincentarelbundock.github.io/Rdatasets/"
        "csv/MASS/birthwt.csv")
 df = pd.read_csv(url)
 print(df.shape)
 df.head()
-''', title="패키지와 데이터 불러오기")
+''', title="데이터 불러오기")
 S("lab05_load", c, {"(189, 11)": 1})
 
 c = nb.cell('''
@@ -82,10 +101,11 @@ print("LBW 비율:", round(df["low"].mean(), 3))
 ''', title="범주별 빈도 확인")
 S("lab05_counts", c, {"'LBW': 59": 1, "'HT': 12": 2, "'Preterm': 30": 3, "0.312": 4})
 
-# ================================================================== 나. 카이제곱 검정
+# ================================================================== b. 카이제곱 검정
 c = nb.cell('''
 pd.crosstab(df["smoke_f"], df["low_f"], margins=True)
 ''', title="교차표와 합계")
+NOTES[c.n] = "## b. 카이제곱 검정"
 S("lab05_crosstab", c, {"<td>30</td>": 1, "<td>29</td>": 2, "<td>189</td>": 3})
 
 c = nb.cell('''
@@ -121,6 +141,7 @@ t22 = Table2x2(obs.to_numpy())  # DataFrame 대신 숫자 배열로
 print(t22.summary())
 ''', title="상대위험도와 오즈비")
 S("lab05_t22", c, {"2.022": 1, "0.320": 2, "1.081 3.783": 3, "1.608": 4, "1.058 2.443": 5})
+T22_CELL = c.n
 
 c = nb.cell('''
 wrong = Table2x2(obs)  # 이름표가 붙은 DataFrame을 그대로 넣으면
@@ -180,7 +201,7 @@ plt.show()
 ''', title="군별 저체중아 비율 그래프")
 S("lab05_barplot", c)
 
-# ================================================================== 다. Fisher의 정확한 검정
+# ================================================================== c. Fisher의 정확한 검정
 c = nb.cell('''
 obs_h = pd.crosstab(df["ht_f"], df["low_f"])
 print(obs_h)
@@ -188,6 +209,7 @@ exp_h = stats.chi2_contingency(obs_h).expected_freq
 print(exp_h.round(2))
 print("기대빈도 5 미만인 칸:", (exp_h < 5).sum(), "/ 4")
 ''', title="고혈압 병력과 저체중아: 기대빈도 확인")
+NOTES[c.n] = "## c. Fisher의 정확한 검정"
 S("lab05_ht", c, {"3.75": 1, "기대빈도 5 미만인 칸: 1 / 4": 2})
 
 c = nb.cell('''
@@ -201,6 +223,7 @@ print(f"Pearson p = {chi_u.pvalue:.4f}, Yates p = {chi_y.pvalue:.4f}")
 S("lab05_fisher", c, {"3.3653846153846154": 1,
                       "0.05161187156764768": 2,
                       "Pearson p = 0.0362": 3, "Yates p = 0.0763": 4})
+FISHER_CELL = c.n
 
 c = nb.cell('''
 from scipy.stats.contingency import odds_ratio
@@ -235,7 +258,7 @@ plt.show()
 ''', title="초기하분포 그래프")
 S("lab05_hyperplot", c)
 
-# ================================================================== 라. 선형 대 선형 결합
+# ================================================================== d. 선형 대 선형 결합
 c = nb.cell('''
 url2 = ("https://vincentarelbundock.github.io/Rdatasets/"
         "csv/datasets/esoph.csv")
@@ -243,6 +266,7 @@ es = pd.read_csv(url2)
 print(es.shape, es["ncases"].sum(), es["ncontrols"].sum())
 es.head(6)
 ''', title="esoph 데이터 불러오기")
+NOTES[c.n] = "## d. 선형 대 선형 결합"
 S("lab05_esoph", c, {"(88, 6) 200 775": 1})
 
 c = nb.cell('''
@@ -273,6 +297,7 @@ for g, row in alc.iloc[1:].iterrows():
     print(f"{g:>6}: OR {t.oddsratio:5.2f} ({lo:.2f} to {hi:.2f})")
 ''', title="음주량별 오즈비와 95% 신뢰구간")
 S("lab05_alcor", c, {"(2.26 to 5.62)": 1, "(14.44 to 51.34)": 2})
+ALCOR_CELL = c.n
 
 c = nb.cell('''
 cc = alc[["ncases", "ncontrols"]]   # 환자 수, 대조군 수 두 열만
@@ -325,24 +350,165 @@ print(f"departure = {dev:.2f}, p = {stats.chi2.sf(dev, 2):.3f}")
 S("lab05_ordinal", c, {"z = 12.368": 1, "z^2 = 152.97": 2, "(N r^2) = 153.13": 3,
                        "departure = 5.98": 4, "p = 0.050": 5})
 
-# ---------------------------------------------------------------- numbers quoted in the text
-ns = nb.ns
-_st, _np, _pd = ns["stats"], ns["np"], ns["pd"]
-from statsmodels.stats.proportion import confint_proportions_2indep as _ci2
-from statsmodels.stats.contingency_tables import Table as _T
-print("RD newcombe (default):", _np.round(_ci2(30, 74, 29, 115, compare="diff"), 3))
-_cc = ns["cc"]
-print("scores 20,60,100,160 M2:", round(_T(_cc).test_ordinal_association(
-    row_scores=_np.array([20, 60, 100, 160]), col_scores=_np.array([1, 0])).zscore ** 2, 2))
-_es = ns["es"].copy()
-_es["tobgp"] = _pd.Categorical(_es["tobgp"], ["0-9g/day", "10-19", "20-29", "30+"], ordered=True)
-_tb = _es.groupby("tobgp", observed=True)[["ncases", "ncontrols"]].sum()
-_p = _st.chi2_contingency(_tb)
-_o = _T(_tb).test_ordinal_association(col_scores=_np.array([1, 0]))
-print("tobgp:", _tb.values.tolist(), "Pearson", round(_p.statistic, 2), f"{_p.pvalue:.2e}",
-      "M2", round(_o.zscore ** 2, 2), f"{_o.pvalue:.2e}")
-_df = ns["df"]
-print("ptl expected:", _st.chi2_contingency(_pd.crosstab(_df["ptl_f"], _df["low_f"])).expected_freq.round(2).tolist())
-print("ht LBW%:", round(7 / 12 * 100, 1), round(52 / 177 * 100, 1))
-print("white resid check:", round((23 - 96 * 59 / 189) / _np.sqrt(96 * 59 / 189 * (1 - 96 / 189) * (1 - 59 / 189)), 3))
+# ================================================================== e. 과제 (정답 셀)
+c = nb.cell('''
+row, ref = alc.loc["80-119"], alc.iloc[0]   # 80-119 g군, 기준군(0-39 g)
+t80 = Table2x2(np.array([[row["ncases"], row["ncontrols"]],
+                         [ref["ncases"], ref["ncontrols"]]]))
+lo, hi = t80.oddsratio_confint()
+print(f"80-119 vs 0-39: OR {t80.oddsratio:.2f} ({lo:.2f} to {hi:.2f})")
+for k in [1, 2]:                            # 대조군을 k배로 뽑았다면
+    pct80 = 100 * row["ncases"] / (row["ncases"] + k * row["ncontrols"])
+    pct0 = 100 * ref["ncases"] / (ref["ncases"] + k * ref["ncontrols"])
+    or_k = ((row["ncases"] / (k * row["ncontrols"]))
+            / (ref["ncases"] / (k * ref["ncontrols"])))
+    print(f"controls x{k}: case % {pct80:.1f} vs {pct0:.1f}, OR {or_k:.2f}")
+mid = alc.loc["40-79"]                      # 이웃한 40-79 g군
+print("80-119 vs 40-79: OR", round((row["ncases"] / row["ncontrols"])
+                                   / (mid["ncases"] / mid["ncontrols"]), 2))
+''', title="과제 1 정답. 음주량 80–119 g군의 오즈비 읽기")
+S("lab05_hw1", c, {"OR 7.80 (4.68 to 13.02)": 1, "case % 37.0 vs 7.0": 2, "case % 22.7 vs 3.6, OR 7.80": 3,
+                   "80-119 vs 40-79: OR 2.19": 4})
+NOTES[c.n] = ("## 과제 정답\n\n"
+              f"**과제 1.** 셀 {ALCOR_CELL}의 출력에서 80–119 g 행(OR 7.80, 95% CI 4.68–13.02)을 한 문장으로 옮기고, "
+              "이 숫자가 말해 주지 않는 것을 두 가지 이상 쓰세요. 대조군을 두 배로 뽑았다면 이 군의 환자 비율과 오즈비가 "
+              "어떻게 되는지, 40–79 g군과 견준 오즈비는 얼마인지도 계산해 보세요.")
+
+c = nb.cell('''
+tabs = {"original": obs.to_numpy(),                 # 흡연군, LBW가 첫 행·첫 열
+        "rows swapped": obs.to_numpy()[::-1],        # 비흡연군을 첫 행으로
+        "columns swapped": obs.to_numpy()[:, ::-1]}  # 'Not LBW'를 첫 열(사건)로
+for name, arr in tabs.items():
+    t = Table2x2(arr)
+    r1, r0 = arr[0, 0] / arr[0].sum(), arr[1, 0] / arr[1].sum()
+    print(f"{name:15s} risks {r1:.3f} {r0:.3f}  RD {r1 - r0:+.3f}"
+          f"  RR {t.riskratio:.3f}  OR {t.oddsratio:.3f}")
+''', title="과제 2 정답. 행과 열의 순서 바꾸기")
+S("lab05_hw2", c, {"RD +0.153  RR 1.608  OR 2.022": 1, "RR 0.622  OR 0.495": 2, "risks 0.595 0.748": 3,
+                   "RR 0.795  OR 0.495": 4})
+NOTES[c.n] = (f"**과제 2.** 셀 {T22_CELL}의 `Table2x2`는 첫 행을 노출군, 첫 열을 사건으로 읽습니다. 흡연 교차표 `obs`의 "
+              "행 순서를 바꿔 비흡연군을 첫 행에 두거나, 열 순서를 바꿔 'Not LBW'를 사건으로 두고 위험차, 상대위험도, "
+              "오즈비를 다시 구하세요. 각 지표가 어떻게 바뀌는지, 열을 바꿨을 때 상대위험도가 원래 값의 역수"
+              "(1 ÷ 1.608 = 0.622)가 되지 않는 이유는 무엇인지 설명하세요.")
+
+c = nb.cell('''
+pct_h = pd.crosstab(df["ht_f"], df["low_f"], normalize="index") * 100
+print(pct_h.round(1))
+bad = stats.chi2_contingency(pct_h, correction=False)   # 동료의 계산
+print(f"percent table: total {pct_h.to_numpy().sum():.0f}, "
+      f"chi2 = {bad.statistic:.2f}, p = {bad.pvalue:.1e}")
+print(f"OR from percents {Table2x2(pct_h.to_numpy()).oddsratio:.3f}, "
+      f"from counts {Table2x2(obs_h.to_numpy()).oddsratio:.3f}")
+rr_h = Table2x2(obs_h.to_numpy()).riskratio             # 실제 인원으로
+print(f"counts: Fisher p = {fe.pvalue:.3f}, RR = {rr_h:.2f}")
+''', title="과제 3 정답. 백분율 표로 한 카이제곱 검정")
+S("lab05_hw3", c, {"58.3": 1, "total 200": 2, "chi2 = 17.02, p = 3.7e-05": 3,
+                   "OR from percents 3.365, from counts 3.365": 4, "Fisher p = 0.052": 5, "RR = 1.99": 6})
+NOTES[c.n] = ("**과제 3.** 동료가 논문의 표에 있는 비율을 그대로 쓰려고 고혈압 병력과 저체중아의 행 백분율 표를 만들어 "
+              "`stats.chi2_contingency(pct_h, correction=False)`에 넣었습니다(`pct_h = pd.crosstab(df[\"ht_f\"], "
+              "df[\"low_f\"], normalize=\"index\") * 100`). 그리고 \"고혈압 병력이 있는 산모는 저체중아 출산 위험이 "
+              "3.37배 높았다(χ² = 17.02, P < 0.001)\"라고 썼습니다. 동료의 계산을 재현하고, 이 결론에서 틀린 곳 두 가지를 "
+              "찾아 왜 틀렸는지 설명하세요.")
+
 print("lab05: cells =", len(nb.cells))
+for cc_ in nb.cells:
+    if cc_.warns:
+        print("WARN cell", cc_.n, cc_.warns)
+
+# ================================================================== notebook
+nb.save_ipynb(
+    "실습 5. 비율을 비교하는 방법",
+    intro=("사회약학 연구방법 노트의 '실습 5. 비율을 비교하는 방법'에 딸린 노트북입니다. 앞부분(a–c)은 MASS 패키지의 "
+           "birthwt 자료(출생아와 산모 189명)로 흡연, 고혈압 병력, 인종과 저체중아 출생의 관련을 카이제곱 검정과 "
+           "Fisher의 정확한 검정으로 비교하고 위험차, 상대위험도, 오즈비를 구합니다. 뒷부분(d)은 식도암 환자-대조군 "
+           "자료 esoph로 음주량에 따른 추세를 검정합니다. 셀을 위에서부터 차례로 실행하세요. 설명과 출력 읽는 법은 "
+           "사이트의 실습 5에 있습니다."),
+    notes=NOTES)
+
+# ================================================================== 대조 블록: 글에 적은 숫자 확인
+if __name__ == "__main__":
+    import numpy as np
+    import pandas as pd
+    from scipy import stats as st
+    from statsmodels.stats.contingency_tables import Table as _T, Table2x2 as _T22
+    from statsmodels.stats.proportion import confint_proportions_2indep as _ci2
+
+    ns = nb.ns
+    n_ok = 0
+
+    def same(label, a, b):
+        global n_ok
+        assert a == b, f"{label}: {a!r} != {b!r}"
+        n_ok += 1
+
+    r2 = lambda x: f"{x:.2f}"
+    r3 = lambda x: f"{x:.3f}"
+    # 글(content/lab05.html)과 노트북 안내에서 번호로 가리키는 셀
+    cited = {1: "패키지 불러오기와 버전 확인", 9: "상대위험도와 오즈비", 17: "Fisher의 정확한 검정",
+             23: "음주량 순서대로 합치기", 24: "음주량별 오즈비와 95% 신뢰구간"}
+    for k, t in cited.items():
+        same(f"cell {k} title", nb.cells[k - 1].title, t)
+    # 셀 1의 출력 읽기에 적은 버전
+    same("scipy version", ns["scipy"].__version__, "1.18.1")
+    same("statsmodels version", ns["statsmodels"].__version__, "0.15.0")
+    # 대응표: 이 실습의 자료 열
+    df_, obs_ = ns["df"], ns["obs"].to_numpy()
+    same("N", len(df_), 189)
+    same("smokers, nonsmokers", (int(obs_[0].sum()), int(obs_[1].sum())), (74, 115))
+    same("LBW n, %", (int(df_["low"].sum()), f"{df_['low'].mean():.1%}"), (59, "31.2%"))
+    same("smoke risks", (f"{obs_[0, 0] / obs_[0].sum():.1%}", f"{obs_[1, 0] / obs_[1].sum():.1%}"), ("40.5%", "25.2%"))
+    same("smoke chi2, P", (r2(ns["res"].statistic), r3(ns["res"].pvalue)), ("4.92", "0.026"))
+    same("smoke RR, OR", (r2(ns["t22"].riskratio), r2(ns["t22"].oddsratio)), ("1.61", "2.02"))
+    oh = ns["obs_h"].to_numpy()
+    same("ht table", (int(oh[0, 0]), int(oh[0].sum()), int(oh[1, 0]), int(oh[1].sum())), (7, 12, 52, 177))
+    same("ht Fisher P", r3(ns["fe"].pvalue), "0.052")
+    same("esoph cases, controls", (int(ns["es"]["ncases"].sum()), int(ns["es"]["ncontrols"].sum())), (200, 775))
+    same("esoph M2", r2(ns["M2"]), "152.97")
+    # 대응표: 5장의 예 열 (5장 본문의 숫자를 다시 계산)
+    ab = np.array([[48, 352], [102, 498]])
+    chi_ab = st.chi2_contingency(ab, correction=False)
+    t_ab = _T22(ab)
+    same("ch05 a chi2, P, RR, OR", (r2(chi_ab.statistic), r3(chi_ab.pvalue), r2(t_ab.riskratio), r2(t_ab.oddsratio)),
+         ("4.71", "0.030", "0.71", "0.67"))
+    same("ch05 b Fisher P", r3(st.fisher_exact([[1, 14], [6, 8]]).pvalue), "0.035")
+    tr = _T(np.array([[30, 170], [36, 264], [40, 460]])).test_ordinal_association(
+        row_scores=np.array([1, 2, 3]), col_scores=np.array([1, 0]))
+    same("ch05 c M2, P for trend", (r2(tr.zscore ** 2), r3(tr.pvalue)), ("8.21", "0.004"))
+    # c 절의 p 비교표: 흡연 표의 Fisher P와 두 표의 세 p
+    same("smoke Fisher P", r3(st.fisher_exact(obs_).pvalue), "0.036")
+    same("smoke Yates P", r3(ns["yates"].pvalue), "0.040")
+    same("ht Pearson, Yates P", (r3(ns["chi_u"].pvalue), r3(ns["chi_y"].pvalue)), ("0.036", "0.076"))
+    same("min expected (smoke, ht)", (f"{ns['res'].expected_freq.min():.1f}", r2(ns["exp_h"].min())), ("23.1", "3.75"))
+    # '직접 바꿔 보기'와 본문의 표식 없는 숫자
+    same("RD Newcombe CI", [r3(v) for v in _ci2(30, 74, 29, 115, compare="diff")], ["0.018", "0.287"])
+    ptl_e = st.chi2_contingency(pd.crosstab(df_["ptl_f"], df_["low_f"])).expected_freq.ravel()
+    same("ptl expected", [r2(v) for v in ptl_e], ["9.37", "20.63", "49.63", "109.37"])
+    cc_ = ns["cc"]
+    same("scores 20,60,100,160 M2", r2(_T(cc_).test_ordinal_association(
+        row_scores=np.array([20, 60, 100, 160]), col_scores=np.array([1, 0])).zscore ** 2), "157.32")
+    es_ = ns["es"].copy()
+    es_["tobgp"] = pd.Categorical(es_["tobgp"], ["0-9g/day", "10-19", "20-29", "30+"], ordered=True)
+    tb = es_.groupby("tobgp", observed=True)[["ncases", "ncontrols"]].sum()
+    same("tobgp Pearson, M2", (r2(st.chi2_contingency(tb).statistic),
+                               r2(_T(tb).test_ordinal_association(col_scores=np.array([1, 0])).zscore ** 2)),
+         ("29.36", "26.93"))
+    same("ht LBW %", (f"{7 / 12:.1%}", f"{52 / 177:.1%}"), ("58.3%", "29.4%"))
+    e_w = 96 * 59 / 189
+    same("white resid by hand", (r2(e_w), r2((23 - e_w) / np.sqrt(e_w * (1 - 96 / 189) * (1 - 59 / 189)))),
+         ("29.97", "-2.19"))
+    same("Bonferroni 3 cells", r2(st.norm.ppf(1 - 0.05 / 6)), "2.39")
+    pr = ns["prob"]
+    same("hypergeom a=4, a=0, a=1", (f"{pr[4]:.4f}", f"{pr[0]:.4f}", f"{pr[1]:.4f}"), ("0.2434", "0.0095", "0.0565"))
+    same("Yates chi2 (paper box)", r2(ns["yates"].statistic), "4.24")
+    # 과제 1
+    lo80, hi80 = ns["t80"].oddsratio_confint()
+    same("80-119 OR (CI)", (r2(ns["t80"].oddsratio), r2(lo80), r2(hi80)), ("7.80", "4.68", "13.02"))
+    alc_ = ns["alc"]
+    same("case % by group", [f"{v:.1f}" for v in alc_["pct_case"]], ["7.0", "21.1", "37.0", "67.2"])
+    # 과제 2
+    same("RR not-LBW by hand", r3((44 / 74) / (86 / 115)), "0.795")
+    same("1/RR, 1/OR", (r3(1 / ns["t22"].riskratio), r3(1 / ns["t22"].oddsratio)), ("0.622", "0.495"))
+    # 과제 3
+    same("ht RR", r2((7 / 12) / (52 / 177)), "1.99")
+    same("percent table min expected", f"{ns['bad'].expected_freq.min():.1f}", "43.9")
+    print(f"VERIFY: {n_ok} checks of numbers quoted in content/lab05.html passed")

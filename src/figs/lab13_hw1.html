@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">과제 1 정답. 기하평균비의 90% 신뢰구간 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">wide = be.pivot(index=&quot;subject&quot;, columns=&quot;form&quot;, values=&quot;auc&quot;)  # 한 사람 = 한 행
+ratio = wide[&quot;T&quot;] / wide[&quot;R&quot;]                     # 대상자별 T/R
+print(wide.head(3).round(0))
+print(&quot;geometric mean of T/R:&quot;,
+      round(np.exp(np.log(ratio).mean()) * 100, 2), &quot;%&quot;)
+print(&quot;range of T/R:&quot;, round(ratio.min(), 3), &quot;to&quot;, round(ratio.max(), 3))
+outside = (ratio &lt; 0.80) | (ratio &gt; 1.25)
+print(&quot;outside 80-125%:&quot;, outside.sum(), &quot;of&quot;, len(ratio))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>form          R       T
+subject                
+1        8210.0  4619.0
+2        4912.0  5272.0
+3        6779.0  6921.0
+geometric mean of T/R: 95.82 %<span class="mk">1</span>
+range of T/R: 0.563 to 1.304<span class="mk">2</span>
+outside 80-125%: 5 of 24<span class="mk">3</span></pre></div></div>

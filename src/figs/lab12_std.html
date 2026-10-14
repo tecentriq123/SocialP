@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">표준화로 발생률과 발생률차 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">one_py = np.zeros(len(pt))            # 오프셋 ln(1인년) = 0
+r0 = nb2.predict(pt.assign(treat=&quot;placebo&quot;), offset=one_py)
+r1 = nb2.predict(pt.assign(treat=&quot;rIFN-g&quot;), offset=one_py)
+print(f&quot;standardized rate per 100 PY: placebo {100 * r0.mean():.1f},&quot;
+      f&quot; rIFN-g {100 * r1.mean():.1f}&quot;)
+print(f&quot;ratio {r1.mean() / r0.mean():.3f},&quot;
+      f&quot; difference {100 * (r1.mean() - r0.mean()):.1f} per 100 PY&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>standardized rate per 100 PY: placebo 105.7<span class="mk">1</span>, rIFN-g 38.5<span class="mk">2</span>
+ratio 0.364<span class="mk">3</span>, difference -67.2 per 100 PY<span class="mk">4</span></pre></div></div>

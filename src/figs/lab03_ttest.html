@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">대응표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = stats.ttest_rel(wide[&quot;drug2&quot;], wide[&quot;drug1&quot;])
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">대응표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = stats.ttest_rel(wide[&quot;drug2&quot;], wide[&quot;drug1&quot;])
 print(res)
 print(f&quot;t = {res.statistic:.3f}, p = {res.pvalue:.4f}, &quot;
       f&quot;df = {res.df}&quot;)

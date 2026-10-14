@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">논문용 위험비 표 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = cph.summary[[&quot;exp(coef)&quot;, &quot;exp(coef) lower 95%&quot;,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">논문용 위험비 표 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = cph.summary[[&quot;exp(coef)&quot;, &quot;exp(coef) lower 95%&quot;,
                    &quot;exp(coef) upper 95%&quot;, &quot;p&quot;]].copy()
 tab.columns = [&quot;HR&quot;, &quot;lower&quot;, &quot;upper&quot;, &quot;p&quot;]
 tab[&quot;HR (95% CI)&quot;] = [f&quot;{h:.2f} ({l:.2f}-{u:.2f})&quot;

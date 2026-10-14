@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">평균의 신뢰구간과 개인의 예측구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">new = pd.DataFrame({&quot;bmi&quot;: [25, 30]})     # 예측하고 싶은 BMI 값
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">평균의 신뢰구간과 개인의 예측구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">new = pd.DataFrame({&quot;bmi&quot;: [25, 30]})     # 예측하고 싶은 BMI 값
 pred = model.get_prediction(new)
 pred.summary_frame(alpha=0.05).round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
   <thead>

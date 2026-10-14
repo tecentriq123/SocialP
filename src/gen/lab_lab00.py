@@ -71,7 +71,7 @@ def syntax_error_cell(code, title):
     return c
 
 
-# ---------------------------------------------------------------- 가. 파이썬과 주피터 노트북
+# ---------------------------------------------------------------- a. 파이썬과 주피터 노트북
 c = nb.cell('''
 # 첫 번째 셀: 글자 출력과 계산
 print("안녕하세요, 파이썬!")
@@ -81,7 +81,7 @@ bwt_kg                  # 마지막 줄의 값은 셀 아래에 표시됨
 ''', title="첫 번째 셀")
 save("lab00_first", c, marks={"안녕하세요, 파이썬!": 1, "2.523": 2})
 
-# ---------------------------------------------------------------- 나. Google Colab
+# ---------------------------------------------------------------- b. Google Colab
 static("lab00_colab_upload", '''
 from google.colab import files
 uploaded = files.upload()   # 셀 아래에 파일 선택 버튼이 나타남
@@ -96,7 +96,7 @@ path = "/content/drive/MyDrive/lab/my_patients.csv"
 df_my = pd.read_csv(path, encoding="cp949")
 ''', "Colab 전용", "Google Drive의 파일 읽기 (이 사이트에서는 실행하지 않음)")
 
-# ---------------------------------------------------------------- 다. Windows 11 설치
+# ---------------------------------------------------------------- c. Windows 11 설치
 static("lab00_prompt_start", r'''
 cd C:\Users\hong\Documents\stats_lab
 jupyter lab
@@ -116,7 +116,7 @@ conda list pandas
 pip show lifelines
 ''', "Anaconda Prompt", "설치된 버전 확인", lang="plaintext")
 
-# ---------------------------------------------------------------- 라. 셀 실행과 패키지 설치
+# ---------------------------------------------------------------- d. 셀 실행과 패키지 설치
 c = nb.cell('''
 !pip install lifelines
 ''', title="패키지 설치 (Colab)", shell_output="""Collecting lifelines
@@ -181,7 +181,7 @@ save("lab00_twice2", c, marks={"2.523": 1})
 c = nb.cell(TWICE, title="같은 셀을 한 번 더 실행하면")
 save("lab00_twice3", c, marks={"0.002523": 2})
 
-# ---------------------------------------------------------------- 마. 데이터 불러오기
+# ---------------------------------------------------------------- e. 데이터 불러오기
 c = nb.cell('''
 from sklearn.datasets import load_breast_cancer
 
@@ -250,7 +250,7 @@ path = "C:\Users\hong\Documents\lab\my_patients.csv"
 ''', title="경로 앞에 r을 빼먹으면")
 save("lab00_winpath_err", c)
 
-# ---------------------------------------------------------------- 바. pandas로 데이터 살펴보기
+# ---------------------------------------------------------------- f. pandas로 데이터 살펴보기
 c = nb.cell('''
 df.head()   # 앞의 5행 (괄호 안에 숫자를 넣으면 그만큼)
 ''', title="표의 구조")
@@ -307,7 +307,7 @@ pd.crosstab(df["smoke"], df["low"], normalize="index").round(3)
 ''', title="crosstab()으로 교차표")
 save("lab00_pd_ct", c, marks={"All": 1, "0.405": 2})
 
-# ---------------------------------------------------------------- 사. 오류 메시지 읽는 법
+# ---------------------------------------------------------------- g. 오류 메시지 읽는 법
 TB_CODE = '''
 def to_kg(grams):
     return grams / 1000

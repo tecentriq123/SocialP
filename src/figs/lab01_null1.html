@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">귀무가설이 참일 때 (한 번)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 양성 357건을 무작위로 둘로 나눔: 두 군은 같은 집단 (귀무가설이 참)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">귀무가설이 참일 때 (한 번)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 양성 357건을 무작위로 둘로 나눔: 두 군은 같은 집단 (귀무가설이 참)
 half_a = ben.sample(frac=0.5, random_state=3)
 half_b = ben.drop(half_a.index)
 p_null = stats.ttest_ind(half_a[features], half_b[features],

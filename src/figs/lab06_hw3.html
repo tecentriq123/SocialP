@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">과제 3 정답. 잔차가 큰 환자를 뺀 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">r = model.resid                                  # 셀 13 단순회귀의 잔차
+keep = r.abs() &lt;= 2 * r.std()                    # 동료: 잔차가 2 SD 넘는 환자를 뺌
+m_trim = smf.ols(&quot;target ~ bmi&quot;, data=df[keep]).fit()
+print(&quot;removed:&quot;, (~keep).sum(), &quot;patients&quot;)
+print(df.loc[~keep, [&quot;bmi&quot;, &quot;target&quot;]].describe().loc[[&quot;min&quot;, &quot;max&quot;]])
+for name, m in [(&quot;all 442&quot;, model), (&quot;trimmed&quot;, m_trim)]:
+    lo, hi = m.conf_int().loc[&quot;bmi&quot;]
+    print(f&quot;{name:8s} slope {m.params[&#x27;bmi&#x27;]:.2f} ({lo:.2f} to {hi:.2f})&quot;
+          f&quot;  R2 {m.rsquared:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>removed: 13<span class="mk">1</span> patients
+      bmi  target
+min  21.0<span class="mk">2</span>    52.0
+max  33.0   311.0<span class="mk">3</span>
+all 442  slope 10.23 (8.91 to 11.56)  R2 0.344<span class="mk">4</span>
+trimmed  slope 10.84 (9.59 to 12.09)  R2 0.406<span class="mk">5</span></pre></div></div>

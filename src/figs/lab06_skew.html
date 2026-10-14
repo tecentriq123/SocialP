@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">로그 변환이 필요했는지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sk = lambda x: f&quot;{stats.skew(x):.2f}&quot;      # 왜도를 소수 둘째 자리로
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">로그 변환이 필요했는지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">sk = lambda x: f&quot;{stats.skew(x):.2f}&quot;      # 왜도를 소수 둘째 자리로
 print(&quot;skewness of target     :&quot;, sk(df[&quot;target&quot;]))
 print(&quot;skewness of log(target):&quot;, sk(np.log(df[&quot;target&quot;])))
 print(&quot;skewness of residuals  :&quot;, sk(model_adj.resid), &quot;(linear),&quot;,

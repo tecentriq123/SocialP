@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">발생률비와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = pois.conf_int()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">발생률비와 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = pois.conf_int()
 pd.DataFrame({&quot;IRR&quot;: np.exp(pois.params),
               &quot;2.5%&quot;: np.exp(ci[0]),
               &quot;97.5%&quot;: np.exp(ci[1])}).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">

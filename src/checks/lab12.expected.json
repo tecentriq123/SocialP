@@ -1,0 +1,117 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nscipy        1.18.1\nstatsmodels  0.15.0\nmatplotlib   3.11.2\n"
+ },
+ {
+  "n": 2,
+  "title": "cgd 불러오기 (계수과정 형식)",
+  "out": "(203, 16) 128\n    id    treat  tstart  tstop  status  enum\n0    1   rIFN-g       0    219       1     1\n1    1   rIFN-g     219    373       1     2\n2    1   rIFN-g     373    414       0     3\n3    2  placebo       0      8       1     1\n4    2  placebo       8     26       1     2\n5    2  placebo      26    152       1     3\n6    2  placebo     152    241       1     4\n7    2  placebo     241    249       1     5\n8    2  placebo     249    322       1     6\n9    2  placebo     322    350       1     7\n10   2  placebo     350    439       0     8\n11   3   rIFN-g       0    382       0     1"
+ },
+ {
+  "n": 3,
+  "title": "코딩 확인",
+  "out": "treat\nplacebo    65\nrIFN-g     63\nName: count, dtype: int64\nstatus\n0    127\n1     76\nName: count, dtype: int64\n"
+ },
+ {
+  "n": 4,
+  "title": "환자 한 명 = 한 행으로 요약",
+  "out": "(128, 8)\n   id    treat  age    inherit  propylac  n_inf  days        py\n0   1   rIFN-g   12  autosomal         0      2   414  1.133470\n1   2  placebo   15  autosomal         1      7   439  1.201916\n2   3   rIFN-g   19   X-linked         1      0   382  1.045859\n3   4   rIFN-g   12   X-linked         1      0   388  1.062286\n4   5  placebo   17   X-linked         1      2   383  1.048597"
+ },
+ {
+  "n": 5,
+  "title": "요약이 맞는지 확인",
+  "out": "True\n76 102.6\nn_inf\n0    84\n1    27\n2     9\n3     5\n4     1\n5     1\n7     1\nName: count, dtype: int64"
+ },
+ {
+  "n": 6,
+  "title": "군별 발생률과 정확 신뢰구간",
+  "out": "         patients  events     py    rate  lower   upper\ntreat                                                  \nplacebo        65      56  50.72  110.42  83.41  143.39\nrIFN-g         63      20  51.89   38.54  23.54   59.53"
+ },
+ {
+  "n": 7,
+  "title": "조발생률비와 Wald 신뢰구간",
+  "out": "IRR = 0.349  95% CI 0.209 to 0.582\nSE(log IRR) = 0.260\n"
+ },
+ {
+  "n": 8,
+  "title": "조건부 정확검정",
+  "out": "expected share 0.506, observed 20/76\nexact P = 2.5759626765141705e-05\nexact 95% CI 0.198 to 0.591\n"
+ },
+ {
+  "n": 9,
+  "title": "포아송 회귀 (오프셋 = log 인년)",
+  "out": "                 Generalized Linear Model Regression Results                  \n==============================================================================\nDep. Variable:                  n_inf   No. Observations:                  128\nModel:                            GLM   Df Residuals:                      123\nModel Family:                 Poisson   Df Model:                            4\nLink Function:                    Log   Scale:                          1.0000\nMethod:                          IRLS   Log-Likelihood:                -127.05\nDate:                Wed, 14 Oct 2026   Deviance:                       151.07\nTime:                        07:06:32   Pearson chi2:                     170.\nNo. Iterations:                     5   Pseudo R-squ. (CS):             0.2010\nCovariance Type:            nonrobust                                         \n========================================================================================\n                           coef    std err          z      P>|z|      [0.025      0.975]\n----------------------------------------------------------------------------------------\nIntercept                0.9004      0.344      2.618      0.009       0.226       1.574\ntreat[T.rIFN-g]         -1.0157      0.262     -3.876      0.000      -1.529      -0.502\ninherit[T.autosomal]     0.3548      0.242      1.466      0.143      -0.120       0.829\nage                     -0.0371      0.014     -2.736      0.006      -0.064      -0.011\npropylac                -0.5288      0.301     -1.754      0.079      -1.120       0.062\n========================================================================================\n"
+ },
+ {
+  "n": 10,
+  "title": "발생률비와 95% 신뢰구간",
+  "out": "                        IRR   2.5%  97.5%\nIntercept             2.460  1.254  4.828\ntreat[T.rIFN-g]       0.362  0.217  0.605\ninherit[T.autosomal]  1.426  0.887  2.292\nage                   0.964  0.938  0.990\npropylac              0.589  0.326  1.064"
+ },
+ {
+  "n": 11,
+  "title": "과산포 확인",
+  "out": "deviance / df: 1.228\nPearson chi2 / df: 1.386\n"
+ },
+ {
+  "n": 12,
+  "title": "관측 빈도와 포아송 기대 빈도",
+  "out": "zeros: observed 84  Poisson 75.7\n"
+ },
+ {
+  "n": 13,
+  "title": "강건(샌드위치) 표준오차",
+  "out": "model-based SE: 0.262\nrobust SE     : 0.309\nrobust 95% CI : [0.198 0.664]\n"
+ },
+ {
+  "n": 14,
+  "title": "준포아송: 표준오차에 √φ 곱하기",
+  "out": "phi = 1.386   sqrt(phi) = 1.177\nsame coefficients: True\nquasi-Poisson SE: 0.3085   model-based SE x sqrt(phi): 0.3085\nquasi-Poisson 95% CI: [0.198 0.663]\n"
+ },
+ {
+  "n": 15,
+  "title": "음이항 회귀 (NB2)",
+  "out": "Optimization terminated successfully.\n         Current function value: 0.955298\n         Iterations: 22\n         Function evaluations: 26\n         Gradient evaluations: 26\n                     NegativeBinomial Regression Results                      \n==============================================================================\nDep. Variable:                  n_inf   No. Observations:                  128\nModel:               NegativeBinomial   Df Residuals:                      123\nMethod:                           MLE   Df Model:                            4\nDate:                Wed, 14 Oct 2026   Pseudo R-squ.:                 0.06590\nTime:                        07:06:32   Log-Likelihood:                -122.28\nconverged:                       True   LL-Null:                       -130.90\nCovariance Type:            nonrobust   LLR p-value:                  0.001726\n========================================================================================\n                           coef    std err          z      P>|z|      [0.025      0.975]\n----------------------------------------------------------------------------------------\nIntercept                0.9236      0.467      1.978      0.048       0.009       1.839\ntreat[T.rIFN-g]         -1.0096      0.306     -3.298      0.001      -1.610      -0.410\ninherit[T.autosomal]     0.3358      0.301      1.115      0.265      -0.255       0.926\nage                     -0.0369      0.017     -2.230      0.026      -0.069      -0.004\npropylac                -0.5782      0.400     -1.444      0.149      -1.363       0.206\nalpha                    0.7153      0.360      1.985      0.047       0.009       1.422\n========================================================================================\n"
+ },
+ {
+  "n": 16,
+  "title": "네 방법 비교, AIC와 우도비 검정",
+  "out": "AIC  Poisson: 264.1  NB: 256.6\nLR = 9.55  p = 0.001\n                      IRR  lower  upper     SE\nPoisson             0.362  0.217  0.605  0.262\nQuasi-Poisson       0.362  0.198  0.663  0.308\nPoisson, robust SE  0.362  0.198  0.664  0.309\nNegative binomial   0.364  0.200  0.664  0.306"
+ },
+ {
+  "n": 17,
+  "title": "0건 환자 수 예측 비교",
+  "out": "zeros: observed 84  Poisson 75.7  NB 83.2\n"
+ },
+ {
+  "n": 18,
+  "title": "표준화로 발생률과 발생률차 구하기",
+  "out": "standardized rate per 100 PY: placebo 105.7, rIFN-g 38.5\nratio 0.364, difference -67.2 per 100 PY\n"
+ },
+ {
+  "n": 19,
+  "title": "GLM의 음이항 family와 비교",
+  "out": "                      discrete NB  GLM NB (alpha fixed)\nIntercept                  0.9236                0.9237\ntreat[T.rIFN-g]           -1.0096               -1.0097\ninherit[T.autosomal]       0.3358                0.3357\nage                       -0.0369               -0.0369\npropylac                  -0.5782               -0.5783\nalpha                      0.7153                   NaN\n"
+ },
+ {
+  "n": 20,
+  "title": "alpha를 빠뜨리면",
+  "out": ""
+ },
+ {
+  "n": 21,
+  "title": "과제 1 정답. 예방적 항생제의 발생률비 읽기",
+  "out": "treat     placebo  rIFN-g  All\npropylac                      \n0              10       7   17\n1              55      56  111\nAll            65      63  128\n          n_inf    py\npropylac             \n0            14  13.1\n1            62  89.5\nPoisson  IRR 0.589 (95% CI 0.326 to 1.064), P = 0.079\nNB       IRR 0.561 (95% CI 0.256 to 1.229), P = 0.149\n"
+ },
+ {
+  "n": 22,
+  "title": "과제 2 정답. 오프셋의 단위를 바꾸거나 빼기",
+  "out": "                      ln(PY)  ln(days)    none\nIntercept             0.9004   -5.0002  0.6652\ntreat[T.rIFN-g]      -1.0157   -1.0157 -0.9490\ninherit[T.autosomal]  0.3548    0.3548  0.3484\nage                  -0.0371   -0.0371 -0.0380\npropylac             -0.5288   -0.5288 -0.5308\nln(365.25) = 5.9006\ntreat IRR: [0.362, 0.362, 0.387]\ntreat\nplacebo    285.0\nrIFN-g     300.8\nName: days, dtype: float64"
+ },
+ {
+  "n": 23,
+  "title": "과제 3 정답. 203행 자료에 강건 표준오차를 쓴 분석",
+  "out": "                              coef      SE   lower   upper\npatients, model-based      -1.0157  0.2620  0.2167  0.6053\npatients, robust           -1.0157  0.3094  0.1975  0.6641\nintervals, robust (HC0)    -1.0157  0.2561  0.2192  0.5983\nintervals, clustered by id -1.0157  0.3137  0.1958  0.6698"
+ }
+]

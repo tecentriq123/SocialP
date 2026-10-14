@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">넓은 형식 → 긴 형식 (melt)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">long = wide.reset_index().melt(id_vars=&quot;Subject&quot;,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">넓은 형식 → 긴 형식 (melt)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">long = wide.reset_index().melt(id_vars=&quot;Subject&quot;,
                                var_name=&quot;Days&quot;,
                                value_name=&quot;Reaction&quot;)
 long = long.sort_values([&quot;Subject&quot;, &quot;Days&quot;])

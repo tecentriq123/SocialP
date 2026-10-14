@@ -349,7 +349,7 @@ pr(f"  reverse-KM median follow-up (ITT): {kmi.median_survival_time_:.2f} y; sim
 OUT["medfu"] = dict(at_rkm=float(km.median_survival_time_), at_simple=float(np.median(t) / 365.25),
                     itt_rkm=float(kmi.median_survival_time_), itt_simple=float(np.median(ti) / 365.25))
 
-# ---------------------------------------------------------------- 다. adherence / persistence in the cohort
+# ---------------------------------------------------------------- c. adherence / persistence in the cohort
 pr("=" * 78, "\n다. PDC (first 365 days) and persistence")
 pdc = {}
 for lab, k in (("S", 1), ("D", 0)):
@@ -434,7 +434,7 @@ lo, hi = proportion_confint(vk, vn, method="wilson")
 pr(f"  HHF definition validation: {vk}/{vn} confirmed, PPV {vk / vn:.3f} (Wilson 95% CI {lo:.3f}-{hi:.3f})")
 OUT["val"] = dict(n=vn, k=vk, ppv=vk / vn, lo=lo, hi=hi)
 
-# ---------------------------------------------------------------- 나. comparator choice: SGLT2i vs DPP-4i vs non-users
+# ---------------------------------------------------------------- b. comparator choice: SGLT2i vs DPP-4i vs non-users
 pr("=" * 78, "\n나. active comparator vs non-user comparator (on-treatment follow-up, measured covariates only)")
 # on-treatment follow-up for S and D (grace 60); non-users are followed until they start either class
 t, e, _ = follow(co, "at", 60)

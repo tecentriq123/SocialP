@@ -1,4 +1,4 @@
-<p class="lead">scikit-learn에 들어 있는 당뇨병 환자 442명 자료로 6장의 분석을 직접 해 봅니다. 두 연속형 변수의 Pearson·Spearman 상관계수를 구하고, statsmodels로 단순회귀와 다중회귀를 적합한 뒤 <code>summary()</code> 출력의 숫자를 하나씩 읽고, 마지막에 논문용 결과표를 만듭니다. 이론은 <a href="#ch06">6장</a>, 노트북 사용법은 <a href="#lab00">실습 0</a>을 참고하세요.</p>
+<p class="lead">scikit-learn에 들어 있는 당뇨병 환자 442명 자료로 6장의 분석을 직접 해 봅니다. 두 연속형 변수의 Pearson·Spearman 상관계수를 구하고(b 절), statsmodels로 단순회귀와 다중회귀를 적합한 뒤 <code>summary()</code> 출력의 숫자를 하나씩 읽고(c·d 절), 마지막에 논문용 결과표를 만듭니다. e 절에는 출력을 말로 옮기고, 조건을 바꿔 다시 돌리고, 잘못된 분석을 찾는 과제 세 개가 있습니다. 이론은 <a href="#ch06">6장</a>, 노트북 사용법은 <a href="#lab00">실습 0</a>을 참고하세요.</p>
 
 <dl class="glance">
   <div><dt>관련 이론</dt><dd><a href="#ch06">6장 연속형 변수 사이의 선형관계 추정</a> (<a href="#ch06-s1">a 절 Pearson</a>, <a href="#ch06-s2">b 절 Spearman</a>, <a href="#ch06-s3">c 절 단순회귀</a>, <a href="#ch06-s4">d 절 다중회귀</a>)</dd></div>
@@ -7,19 +7,53 @@
   <div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00-s2">실습 0 b 절</a>). 필요한 패키지가 모두 설치되어 있어 따로 설치할 것이 없고, 자료가 scikit-learn 안에 들어 있어 인터넷 연결 없이도 불러올 수 있습니다.</dd></div>
 </dl>
 
-<p>이 실습의 셀은 모두 <b>하나의 노트북에서 위에서부터 순서대로</b> 실행합니다. Colab에서 새 노트북을 열고, 각 셀의 코드를 코드 셀에 붙여 넣은 뒤 <kbd>Shift</kbd> + <kbd>Enter</kbd>로 실행하면 셀 아래에 출력이 나옵니다. 뒤의 셀은 앞 셀에서 만든 <code>df</code>, <code>model</code> 같은 변수를 그대로 쓰므로, 중간 셀을 건너뛰면 <code>NameError</code>가 납니다(<a href="#lab00-s7">실습 0 g 절</a>). 아래 출력은 scikit-learn 1.8, statsmodels 0.15, SciPy 1.17, pandas 3.0, NumPy 2.4에서 실제로 실행한 결과입니다. 버전에 따라 소수 끝자리, 표시 형식, 경고 문구가 조금 다를 수 있으며 이는 정상입니다.</p>
+<p class="nb-link"><a href="notebooks/lab06.ipynb" download>실습 노트북 내려받기 (lab06.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<p>이 실습은 6장과 다른 자료를 씁니다. 그래서 6장의 예가 이 실습의 무엇에 해당하는지 먼저 맞춰 둡니다. 6장의 나이와 항고혈압제 계열 수 자리에 BMI를, 혈압 자리에 1년 뒤 질병 진행 점수를 두고 읽습니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th></th><th>6장의 예</th><th>이 실습의 자료</th></tr></thead>
+<tbody>
+<tr><td>연구 질문</td><td>나이가 많은 환자일수록 수축기혈압(SBP)이 높은가(a–c 절). 항고혈압제를 한 계열 더 쓰는 환자의 6개월 뒤 SBP는 다른가(d 절)</td><td>기저 BMI가 높은 당뇨병 환자일수록 1년 뒤 질병 진행 점수가 높은가</td></tr>
+<tr><td>자료</td><td>고혈압 클리닉 환자 8명(a–c 절), 고혈압 환자 240명 코호트(d 절). 가상의 자료</td><td>당뇨병 환자 442명. 회귀 방법 논문에 쓰인 실제 자료</td></tr>
+<tr><td>설명변수 (노출)</td><td>나이(세), 항고혈압제 계열 수</td><td>기저 BMI(kg/m²)</td></tr>
+<tr><td>결과</td><td>SBP(mmHg), 6개월 뒤 SBP(mmHg)</td><td>1년 뒤 질병 진행 점수(25–346, 단위 없는 점수)</td></tr>
+<tr><td>보정 변수 (d 절)</td><td>기저 SBP, 나이, 성별, 당뇨, BMI, 진입 전 복약순응, 요양기관 종별</td><td>나이, sex, 혈압(bp), 혈청 측정값 s5</td></tr>
+<tr><td>상관과 단순회귀</td><td>r = 0.84, 기울기 0.547 mmHg/세, R² = 0.71</td><td>r = 0.59, 기울기 10.23점/(kg/m²), R² = 0.34</td></tr>
+<tr><td>보정 전 → 보정 후</td><td>+3.69 → −4.04 mmHg/계열. 부호가 뒤집힘</td><td>10.23 → 6.45점/(kg/m²). 크기가 줄어듦</td></tr>
+</tbody></table></div>
+<p>두 자료 모두 결과가 연속형 숫자이고, 상관계수와 단순회귀로 시작해 보정 전후의 계수를 견주는 순서가 같습니다. 그래서 6장의 각 단계를 이 자료로 그대로 따라 할 수 있습니다. 다른 점은 두 가지입니다. 6장 d 절의 예는 노출 앞에 잰 기저 혈압이 교란변수라 보정하자 부호가 뒤집혔지만, 이 자료는 모든 변수를 같은 시점에 재서 보정한 bp와 s5가 교란변수인지 BMI의 영향을 전달하는 매개변수인지 자료만으로는 알 수 없습니다(d 절). 또 이 자료는 sex의 코딩 방향, bp와 s1–s6의 단위가 공개되어 있지 않아 계수를 임상 단위로 읽지 못하는 변수가 있습니다(a 절).</p>
+
+<p>이 실습의 셀은 모두 <b>하나의 노트북에서 위에서부터 순서대로</b> 실행합니다(<kbd>Shift</kbd> + <kbd>Enter</kbd>). 뒤의 셀은 앞 셀에서 만든 <code>df</code>, <code>model</code> 같은 변수를 그대로 쓰므로, 중간 셀을 건너뛰면 <code>NameError</code>가 납니다(<a href="#lab00-s7">실습 0 g 절</a>). 출력을 만든 패키지의 버전은 셀 1에서 확인합니다.</p>
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab06-s1">
 <h2><span class="sec-no">a.</span>실습 데이터 준비</h2>
 
-<p>scikit-learn에는 연습용 자료가 몇 개 들어 있어서 함수 하나로 불러올 수 있습니다. 당뇨병 자료는 당뇨병 환자 442명의 기저 시점 변수 10개와, 기저 시점으로부터 1년 뒤에 잰 "질병 진행 정도의 정량적 지표"(<code>target</code>) 하나로 이루어져 있습니다. 이 실습에서는 <code>target</code>을 결과변수로, 나머지를 설명변수로 씁니다. 분석에 들어가기 전에 자료의 크기, 변수의 정의와 단위, 코딩 방식을 먼저 확인합니다. 이 순서를 건너뛰면 뒤에서 계수를 잘못 읽게 됩니다.</p>
+<p><strong>분석에 들어가기 전에 자료의 크기, 변수의 정의와 단위, 코딩 방식을 먼저 확인합니다. 이 순서를 건너뛰면 뒤에서 계수를 잘못 읽게 됩니다.</strong></p>
+<p>scikit-learn에는 연습용 자료가 몇 개 들어 있어서 함수 하나로 불러올 수 있습니다. 당뇨병 자료는 당뇨병 환자 442명의 기저 시점 변수 10개와, 기저 시점으로부터 1년 뒤에 잰 "질병 진행 정도의 정량적 지표"(<code>target</code>) 하나로 이루어져 있습니다. 이 실습에서는 <code>target</code>을 결과변수로, 나머지를 설명변수로 씁니다.</p>
+
+<h3>패키지 불러오기와 버전 확인</h3>
+<p>Colab에서 새 노트북을 열고 첫 셀에 아래 코드를 입력한 뒤 실행합니다. 이 실습에서 쓰는 패키지를 불러오고 각각의 버전을 출력해 둡니다. 패키지의 버전이 바뀌면 출력의 자릿수나 표시 형식, 경고 문구가 조금씩 달라질 수 있어서, 내 화면의 출력이 이 페이지와 다를 때 가장 먼저 비교해 볼 정보입니다.</p>
+<!--FIG:lab06_versions-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import pandas as pd
+import numpy as np</code><span>표 형태의 자료를 다루는 pandas와 수치 계산 패키지 NumPy를 불러와 각각 <code>pd</code>, <code>np</code>라는 짧은 이름을 붙입니다. 이후 <code>pd.DataFrame</code>, <code>np.sqrt</code>(제곱근), <code>np.log</code>(로그), <code>np.exp</code>(지수)처럼 씁니다.</span></li>
+<li><code>import scipy, statsmodels, matplotlib, sklearn</code><span>버전을 확인하려고 나머지 네 패키지를 불러옵니다. 쉼표로 이어 한 줄에 여러 개를 불러올 수 있습니다. scikit-learn은 설치할 때의 이름과 달리 <code>sklearn</code>으로 불러옵니다. 실제로 쓰는 함수(<code>stats.pearsonr</code>, <code>smf.ols</code> 등)는 그 함수를 처음 쓰는 셀에서 따로 불러옵니다.</span></li>
+<li><code>print("pandas      ", pd.__version__)</code><span>패키지마다 <code>__version__</code>(앞뒤로 밑줄 두 개)에 버전 번호가 문자열로 들어 있습니다. 앞 문자열 끝에 공백을 넣어 여섯 줄의 버전 번호가 같은 자리에서 시작하게 했습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<p>이 페이지의 출력을 만든 환경의 버전입니다(2026년 10월 14일 확인). Colab의 버전이 다르면 끝자리가 조금 다를 수 있습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>numpy 2.5.3.</b> NumPy 2 이상에서는 b 절의 상관분석 결과가 <code>np.float64(0.586…)</code>처럼 감싸여 보입니다. 그 전 버전에서는 숫자만 보입니다.</span></li>
+<li><span class="mk">2</span><span><b>statsmodels 0.15.0.</b> c·d 절의 회귀와 <code>summary()</code> 출력을 만드는 패키지입니다. d 절의 VIF 함수는 0.15에서 계산 방식이 바뀌었지만, 이 실습처럼 상수항 열이 든 설계행렬을 넣으면 0.14에서도 같은 VIF 표가 나옵니다.</span></li>
+<li><span class="mk">3</span><span><b>scikit-learn 1.9.1.</b> 이 실습에서는 자료를 불러오는 데만 씁니다.</span></li>
+</ol>
 
 <h3>자료 불러오기</h3>
 <!--FIG:lab06_load-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>import pandas as pd</code><span>표 형태의 자료를 다루는 pandas를 <code>pd</code>라는 짧은 이름으로 불러옵니다. 이후 <code>pd.DataFrame</code>처럼 씁니다.</span></li>
 <li><code>from sklearn.datasets import load_diabetes</code><span>scikit-learn(<code>sklearn</code>)의 <code>datasets</code> 모듈에서 당뇨병 자료를 불러오는 함수 하나만 가져옵니다.</span></li>
 <li><code>data = load_diabetes(scaled=False, as_frame=True)</code><span>자료를 불러와 <code>data</code>에 담습니다. <code>scaled=False</code>는 원래 단위의 값(나이는 세, BMI는 kg/m²)을 달라는 뜻입니다. 이 인자를 빼면 기본값 <code>scaled=True</code>가 적용되어 모든 설명변수가 평균 0, 제곱합 1이 되도록 바뀐 값이 나오고, 나이 59세가 0.038 같은 숫자로 보여 계수를 원래 단위로 해석할 수 없습니다. <code>as_frame=True</code>는 결과를 pandas DataFrame으로 달라는 뜻입니다. 아주 오래된 scikit-learn에는 <code>scaled</code> 인자가 없어 <code>TypeError</code>가 날 수 있는데, Colab에서는 문제가 없습니다.</span></li>
 <li><code>df = data.frame</code><span><code>data</code>는 여러 항목을 묶은 꾸러미(Bunch)입니다. 그중 <code>frame</code>이 설명변수 10개와 <code>target</code>을 한데 모은 DataFrame이고, 이것을 <code>df</code>라는 이름으로 꺼내 둡니다. 이제부터 분석은 모두 <code>df</code>로 합니다.</span></li>
@@ -104,7 +138,7 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <p class="excerpt">A total of <span class="mk">1</span> <span class="hl">442 patients with diabetes</span> were included. The mean (SD) age was 48.5 (13.1) years and the mean (SD) BMI was <span class="mk">2</span> <span class="hl">26.4 (4.4) kg/m²</span>. The disease progression score at 1 year <span class="mk">3</span> <span class="hl">ranged from 25 to 346</span> (mean [SD], 152.1 [77.1]; median, 140.5). There were <span class="mk">4</span> <span class="hl">no missing data</span>.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>분석 대상 수.</b> <code>df.shape</code>의 442입니다. 실제 연구라면 선정·제외 과정을 거쳐 이 숫자가 나오는 흐름(flow diagram)도 함께 제시합니다.</span></li>
-<li><span class="mk">2</span><span><b>평균(SD).</b> <code>describe()</code>의 mean 26.38과 std 4.42를 한 자리로 반올림했습니다. 논문의 "mean (SD)"는 대상자의 흩어짐(SD)이고, 평균의 정밀도(SE)가 아닙니다(1장 e 절).</span></li>
+<li><span class="mk">2</span><span><b>평균(SD).</b> <code>describe()</code>의 mean 26.38과 std 4.42를 한 자리로 반올림했습니다. 논문의 "mean (SD)"는 대상자의 흩어짐(SD)이고, 평균의 정밀도(SE)가 아닙니다(0장 e 절).</span></li>
 <li><span class="mk">3</span><span><b>결과변수의 분포.</b> 약간 치우친 변수라 평균과 함께 중앙값을 적었습니다. 이 자료의 target은 단위가 없는 점수이므로 논문에서는 점수의 정의(무엇을 어떻게 합산했는지)를 Methods에 반드시 적어야 합니다. 이 자료는 그 정의가 공개되어 있지 않다는 한계가 있습니다.</span></li>
 <li><span class="mk">4</span><span><b>결측.</b> 모든 변수의 count가 442였습니다. 결측이 있으면 statsmodels는 기본적으로 결측이 있는 행을 빼고 분석하므로(완전 사례 분석), 회귀 출력의 No. Observations가 전체 인원보다 작아집니다(부록 A d 절).</span></li>
 </ol>
@@ -121,7 +155,8 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <section class="sec" id="lab06-s2">
 <h2><span class="sec-no">b.</span>상관분석</h2>
 
-<p>BMI와 1년 뒤 질병 진행 점수가 얼마나 직선적으로 함께 움직이는지 Pearson 상관계수로 요약하고, 순위 기반의 Spearman 상관계수와 비교합니다. 공식과 해석은 <a href="#ch06-s1">6장 a 절</a>과 <a href="#ch06-s2">b 절</a>에 있습니다.</p>
+<p><strong>BMI와 1년 뒤 질병 진행 점수가 얼마나 직선적으로 함께 움직이는지 Pearson 상관계수로 요약하고, 순위로 바꿔 계산하는 Spearman 상관계수와 견줍니다. 두 값이 크게 다르면 극단값이나 휜 관계를 의심합니다.</strong></p>
+<p>공식과 해석은 <a href="#ch06-s1">6장 a 절</a>과 <a href="#ch06-s2">b 절</a>에 있습니다.</p>
 
 <h3>Pearson 상관계수</h3>
 <!--FIG:lab06_pearson-->
@@ -144,7 +179,6 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <!--FIG:lab06_fisher-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>import numpy as np</code><span>수치 계산 패키지 NumPy를 <code>np</code>라는 이름으로 불러옵니다. 제곱근(<code>np.sqrt</code>), 로그(<code>np.log</code>), 지수(<code>np.exp</code>) 등이 여기 있습니다.</span></li>
 <li><code>n, r = len(df), res.statistic</code><span>환자 수(442)와 위에서 구한 r을 각각 <code>n</code>, <code>r</code>에 담습니다. 쉼표로 두 변수에 한꺼번에 값을 넣는 문법입니다.</span></li>
 <li><code>t = r * np.sqrt(n - 2) / np.sqrt(1 - r**2)</code><span>6장 a 절의 t = r√(n − 2)/√(1 − r²)입니다. <code>**</code>는 거듭제곱입니다.</span></li>
 <li><code>z, se = np.arctanh(r), 1 / np.sqrt(n - 3)</code><span>Fisher z 변환 z = ½ln[(1 + r)/(1 − r)]은 <code>np.arctanh(r)</code>와 같은 값입니다. SE = 1/√(n − 3).</span></li>
@@ -195,9 +229,6 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <!--FIG:lab06_outlier_plot-->
 <p>오른쪽 그림에서 오류 값 하나가 가로축을 300 이상으로 늘려, 나머지 441명이 왼쪽 끝에 세로 막대처럼 몰려 있습니다. 코드는 앞 셀들과 같은 요소(<code>plt.subplots(1, 2)</code>로 가로 두 칸, 칸마다 <code>scatter</code>, <code>set_title</code>, <code>set_xlabel</code>)로 되어 있고, 제목의 r 값은 f-문자열로 계산 결과를 그대로 넣었습니다. 극단값을 발견하면 먼저 입력 오류인지 원자료로 확인하고 고칩니다. 실제 값이라면 결과가 마음에 들지 않는다는 이유로 지우지 말고, 포함한 결과와 제외한 결과를 함께 보고하거나 Spearman을 함께 제시합니다(6장 a 절).</p>
 
-<div class="callout warn"><p class="ct">흔한 오해 · 상관은 인과가 아닙니다</p>
-<p><span class="wrong">BMI와 1년 뒤 질병 진행의 상관이 r = 0.59이므로, BMI를 줄이면 질병 진행이 그만큼 늦춰진다.</span> 이 자료는 관찰 자료이고, 상관계수는 두 변수가 함께 움직이는 정도일 뿐입니다. BMI가 높은 환자는 혈압과 s5도 높은 경향이 있어서(상관행렬의 0.40, 0.45), 그 변수들과 연결된 요인이 진행 점수와의 관계에 섞여 있을 수 있습니다. 또 "BMI를 줄였을 때의 변화"는 사람마다 BMI가 다른 것을 한 시점에 비교한 자료로는 알 수 없고, 같은 사람의 변화를 추적하거나 중재한 연구가 필요합니다(<a href="#ch06-s1">6장 a 절</a>, 8장 f 절).</p></div>
-
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
 <ul>
 <li><code>stats.kendalltau(df["bmi"], df["target"])</code>를 실행해 Kendall τ를 구해 보세요. |τ|는 보통 |ρ|보다 작습니다(6장 b 절).</li>
@@ -209,10 +240,10 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <div class="paper-b">
 <p class="excerpt">Baseline BMI was positively correlated with the disease progression score at 1 year (<span class="mk">1</span> <span class="hl">Pearson r = 0.59</span>; <span class="mk">2</span> <span class="hl">95% CI, 0.52 to 0.64</span>; P &lt; .001). The rank-based estimate was similar (<span class="mk">3</span> <span class="hl">Spearman ρ = 0.56</span>), and <span class="mk">4</span> <span class="hl">BMI accounted for approximately 34% of the variance</span> in the progression score.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>r = 0.59.</b> <code>res.statistic</code> 0.5865를 둘째 자리로 반올림했습니다. "positively correlated"는 방향, 0.59는 직선 관계의 강도입니다. 인과를 뜻하는 동사(increase, cause)를 쓰지 않았습니다.</span></li>
+<li><span class="mk">1</span><span><b>r = 0.59.</b> <code>res.statistic</code> 0.5865를 둘째 자리로 반올림했습니다. "positively correlated"는 방향, 0.59는 직선 관계의 강도입니다. 상관만으로는 원인이라고 말할 수 없으므로(<a href="#ch06-s1">6장 a 절</a> 4단계) increase, cause 같은 동사를 쓰지 않았습니다.</span></li>
 <li><span class="mk">2</span><span><b>95% CI 0.52–0.64.</b> <code>res.confidence_interval()</code>의 0.5217, 0.6445입니다. 신뢰구간 계산 방법(Fisher z)은 Methods에 적습니다.</span></li>
 <li><span class="mk">3</span><span><b>Spearman ρ = 0.56.</b> Pearson과 비슷하다는 것을 보여 주어 결과가 극단값이나 비선형성에 좌우되지 않았다는 근거로 씁니다. 두 값이 크게 달랐다면 산점도와 함께 그 이유를 설명해야 합니다.</span></li>
-<li><span class="mk">4</span><span><b>약 34% = r² = 0.586².</b> 통계적인 "설명"이며, BMI가 진행의 34%를 결정한다는 인과적 의미가 아닙니다. 나머지 66%는 다른 요인과 무작위 변동의 몫입니다.</span></li>
+<li><span class="mk">4</span><span><b>약 34% = r² = 0.586².</b> 나머지 66%는 다른 요인과 무작위 변동의 몫입니다.</span></li>
 </ol>
 </div></div>
 
@@ -220,7 +251,7 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <li><code>stats.pearsonr(x, y)</code>는 r과 p를, <code>.confidence_interval()</code>은 Fisher z 신뢰구간을 줍니다. <code>stats.spearmanr(x, y)</code>는 ρ와 p를 줍니다.</li>
 <li><code>df.corr()</code>는 상관행렬을 주며, 설명변수끼리의 높은 상관(s1–s2의 0.90)은 다중회귀에서 문제가 될 수 있다는 신호입니다.</li>
 <li>입력 오류 한 건이 Pearson r을 0.59에서 0.18로 바꿨지만 Spearman ρ는 그대로였습니다. 두 계수가 크게 다르면 산점도와 원자료를 다시 봅니다.</li>
-<li>상관은 인과가 아닙니다. 논문에서는 "was correlated with"와 신뢰구간으로 보고합니다.</li>
+<li>논문에서는 방향만 말하는 "was correlated with"와 r, 95% 신뢰구간으로 보고합니다.</li>
 </ul></div>
 </section>
 
@@ -228,7 +259,8 @@ plt.show()</code><span>전체 제목을 붙이고 그림을 출력합니다. Col
 <section class="sec" id="lab06-s3">
 <h2><span class="sec-no">c.</span>단순회귀분석</h2>
 
-<p>상관계수는 단위가 없어서 "BMI가 1 높으면 진행 점수가 몇 점 높은가"에 답하지 못합니다. 그 크기를 원래 단위로 추정하는 것이 회귀분석입니다(<a href="#ch06-s3">6장 c 절</a>). statsmodels의 공식(formula) 방식은 R과 비슷하게 <code>"결과변수 ~ 설명변수"</code> 형태의 문자열로 모형을 지정합니다.</p>
+<p><strong>단순회귀는 "BMI가 1 kg/m² 높은 환자는 진행 점수가 평균 몇 점 높은가"를 원래 단위로 추정합니다. 출력을 읽은 뒤 잔차 그림과 영향력으로 그 숫자를 믿어도 되는지 확인하고, 평균의 구간과 한 사람의 구간을 구분합니다.</strong></p>
+<p>상관계수는 단위가 없어서 이 질문에 답하지 못합니다. 그 크기를 원래 단위로 추정하는 것이 회귀분석입니다(<a href="#ch06-s3">6장 c 절</a>). statsmodels의 공식(formula) 방식은 R과 비슷하게 <code>"결과변수 ~ 설명변수"</code> 형태의 문자열로 모형을 지정합니다.</p>
 
 <h3>모형 적합과 summary() 읽기</h3>
 <!--FIG:lab06_ols-->
@@ -299,7 +331,25 @@ model.rsquared</code><span>b 절의 Pearson r을 제곱한 것과 회귀의 R²�
 <li><code>plt.tight_layout()</code><span>두 칸의 글자가 겹치지 않게 간격을 자동으로 조정합니다.</span></li>
 </ol>
 <h4>그림 읽기</h4>
-<p>왼쪽 그림(Residuals vs fitted)에서 잔차는 0을 중심으로 위아래가 대체로 고르게 흩어져 있고, 휘어진 곡선 패턴이나 뚜렷한 부채꼴은 보이지 않습니다. 선형성과 등분산성에 큰 문제가 없다는 뜻입니다. 예측값이 큰 오른쪽 끝에서 위쪽 잔차가 적은 것은 target의 값이 346을 넘지 않아 생긴 모양일 수 있습니다. 오른쪽 Q-Q plot에서 가운데는 직선에 잘 붙어 있고, 양 끝의 점이 직선 안쪽으로 휘어집니다. 정규분포보다 꼬리가 짧다(첨도 2.45 &lt; 3)는 뜻입니다. 442명 자료에서 이 정도는 계수의 검정과 신뢰구간에 거의 영향을 주지 않습니다. 다만 개인의 예측구간은 잔차 분포의 모양에 직접 의존하므로 아래 예측구간은 대략적인 값으로 읽습니다.</p>
+<p>왼쪽 그림(Residuals vs fitted)에서 잔차는 0을 중심으로 위아래가 대체로 고르게 흩어져 있고, 휘어진 곡선 패턴이나 뚜렷한 부채꼴은 보이지 않습니다. 선형성과 등분산성에 큰 문제가 없다는 뜻입니다. 예측값이 큰 오른쪽 끝에서 위쪽 잔차가 적은 것은 target의 값이 346을 넘지 않아 생긴 모양일 수 있습니다.</p>
+<p>오른쪽 Q-Q plot에서 가운데는 직선에 잘 붙어 있고, 양 끝의 점이 직선 안쪽으로 휘어집니다. 정규분포보다 꼬리가 짧다(첨도 2.45 &lt; 3)는 뜻입니다. 442명 자료에서 이 정도는 계수의 검정과 신뢰구간에 거의 영향을 주지 않습니다. 다만 개인의 예측구간은 잔차 분포의 모양에 직접 의존하므로 아래 예측구간은 대략적인 값으로 읽습니다.</p>
+
+<h3>영향력이 큰 환자 찾기</h3>
+<p>잔차 그림은 전체 모양을 보여 주지만, 환자 한두 명이 기울기를 좌우하는지는 따로 확인합니다(<a href="#ch06-s3">6장 c 절</a> '더 알아보기'의 '가정이 깨졌을 때의 대안'). 그 환자를 빼면 예측값이 전체적으로 얼마나 바뀌는지를 숫자 하나로 나타낸 것이 <b>Cook의 거리</b><span class="en">(Cook's distance)</span>입니다. 직선에서 멀리 떨어져 있고(잔차가 큼) BMI가 다른 환자들과 동떨어진(지렛대가 큼) 환자일수록 커집니다.</p>
+<!--FIG:lab06_infl-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>infl = model.get_influence().summary_frame()</code><span>적합된 모형에서 환자마다 영향력 지표를 계산해 442행의 표로 돌려줍니다. 그중 <code>cooks_d</code>가 Cook의 거리, <code>standard_resid</code>가 잔차를 그 표준오차로 나눈 표준화 잔차, <code>hat_diag</code>가 지렛대(BMI가 평균에서 멀수록 큼)입니다.</span></li>
+<li><code>infl.sort_values("cooks_d", ascending=False).head(3)</code><span>Cook의 거리가 큰 순서(<code>ascending=False</code>, 내림차순)로 정렬해 위의 세 명을 고릅니다.</span></li>
+<li><code>top[[…]].join(df[["bmi", "target"]])</code><span>세 지표 옆에 그 환자의 BMI와 진행 점수를 행 번호에 맞춰 붙입니다.</span></li>
+<li><code>df.drop(index=top.index[0])</code><span>가장 영향력이 큰 환자 한 명(행 번호 <code>top.index[0]</code>)을 뺀 자료입니다. 원본 <code>df</code>는 그대로입니다. 이 자료로 같은 모형을 다시 적합해 기울기를 견줍니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>가장 큰 Cook의 거리 0.026.</b> 정해진 경계는 없지만 흔히 1을 넘는 값이나, 다른 환자들보다 눈에 띄게 큰 값을 살펴봅니다. 이 자료에서는 위의 세 명도 0.018–0.026으로 작고 서로 비슷합니다.</span></li>
+<li><span class="mk">2</span><span><b>BMI 33.0, 진행 점수 55.0인 환자.</b> BMI가 높은데 점수는 직선의 예측보다 훨씬 낮아(표준화 잔차 −2.648) 기울기를 낮추는 쪽으로 당기는 환자입니다.</span></li>
+<li><span class="mk">3</span><span><b>모든 환자의 기울기 10.23</b>이 <span class="mk">4</span> <b>이 환자를 빼면 10.36</b>입니다. 1% 남짓 움직일 뿐이라 한 명이 결론을 좌우하지 않으므로, 모든 환자를 넣은 결과를 보고합니다. 크게 달라졌다면 먼저 입력 오류인지 원자료로 확인하고, 실제 값이면 넣은 결과와 뺀 결과를 함께 보고합니다(b 절 '극단값 한 점의 영향').</span></li>
+</ol>
 
 <h3>평균의 신뢰구간과 개인의 예측구간</h3>
 <p>BMI 25와 30인 환자의 진행 점수를 예측해 봅니다. <a href="#ch06-s3">6장 c 절</a>에서 본 두 구간, 즉 "그 BMI인 환자 전체의 평균"에 대한 신뢰구간과 "그 BMI인 새 환자 한 명"에 대한 예측구간을 함께 구합니다.</p>
@@ -356,6 +406,7 @@ model.rsquared</code><span>b 절의 Pearson r을 제곱한 것과 회귀의 R²�
 <section class="sec" id="lab06-s4">
 <h2><span class="sec-no">d.</span>다중회귀분석</h2>
 
+<p><strong>여러 변수를 함께 넣은 다중회귀는 그 변수들이 같은 환자끼리 비교한 BMI 계수를 줍니다. 계수가 보정 전보다 줄어든 이유가 교란인지 매개인지는 자료가 아니라 인과 구조로 판단합니다.</strong></p>
 <p>BMI가 높은 환자는 혈압과 s5도 높은 경향이 있었습니다(b 절의 상관행렬). 그렇다면 단순회귀의 BMI 계수 10.2에는 이 변수들과 함께 움직이는 부분이 섞여 있습니다. 나이, sex, bp, s5를 함께 넣은 다중회귀로 "이 변수들이 같은 환자끼리 비교했을 때"의 BMI 계수를 구합니다(<a href="#ch06-s4">6장 d 절</a>).</p>
 
 <h3>다중회귀 적합</h3>
@@ -432,7 +483,7 @@ model_all.bse["s5"]</code><span><code>bse</code>는 계수의 표준오차입니
 <!--FIG:lab06_log-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>smf.ols("np.log(target) ~ …", data=df)</code><span>공식 안에서 NumPy 함수를 바로 쓸 수 있습니다. <code>np.log</code>는 자연로그(ln)입니다. 앞 셀에서 <code>import numpy as np</code>를 실행해 두어야 하며, 그렇지 않으면 <code>name 'np' is not defined</code> 오류가 납니다. 로그는 0이나 음수에 정의되지 않으므로 결과변수가 모두 양수인지 먼저 확인합니다(target 최솟값 25).</span></li>
+<li><code>smf.ols("np.log(target) ~ …", data=df)</code><span>공식 안에서 NumPy 함수를 바로 쓸 수 있습니다. <code>np.log</code>는 자연로그(ln)입니다. 셀 1에서 <code>import numpy as np</code>를 실행해 두어야 하며, 그렇지 않으면 <code>name 'np' is not defined</code> 오류가 납니다. 로그는 0이나 음수에 정의되지 않으므로 결과변수가 모두 양수인지 먼저 확인합니다(target 최솟값 25).</span></li>
 <li><code>pct = (np.exp(model_log.params) - 1) * 100</code><span>계수 Series 전체에 한꺼번에 e<sup>β</sup> − 1을 계산하고 100을 곱해 백분율 차이로 바꿉니다.</span></li>
 <li><code>pct_ci = (np.exp(model_log.conf_int()) - 1) * 100</code><span>신뢰구간의 양 끝을 <em>각각</em> 같은 방식으로 변환합니다. 신뢰구간은 로그 척도에서 구한 뒤 변환해야 합니다.</span></li>
 <li><code>pd.concat([...], axis=1)</code><span>계수, 백분율, 하한, 상한을 옆으로(<code>axis=1</code>) 붙여 하나의 표로 만듭니다. <code>out.columns = [...]</code>로 열 이름을 붙이고, 열마다 반올림 자릿수를 다르게 줍니다.</span></li>
@@ -477,7 +528,7 @@ sk(model_log.resid)</code><span>두 모형의 잔차 왜도입니다. 가정의 
 <li><span class="mk">1</span><span><b>bmi 보정 전 10.23 (8.91 to 11.56).</b> c 절의 단순회귀 결과와 같습니다.</span></li>
 <li><span class="mk">2</span><span><b>bmi 보정 후 6.45 (5.09 to 7.82).</b> 위 다중회귀의 bmi 행입니다.</span></li>
 <li><span class="mk">3</span><span><b>age 보정 전 1.10 (P &lt; 0.001) → 보정 후 −0.13 (P = 0.544).</b> 나이 하나만 보면 관련이 있었지만, 다른 변수를 보정하자 사라졌습니다.</span></li>
-<li><span class="mk">4</span><span><b>sex 2군: 보정 전 6.65 (P = 0.366) → 보정 후 −12.73 (P = 0.021).</b> 부호가 뒤집혔습니다. 두 군의 bp 분포 등이 달라서 생긴 변화로 보이지만, 이 모형은 BMI의 관련성을 보려고 변수를 고른 모형이라 sex 계수를 sex의 효과로 해석하면 안 됩니다. 보정 모형의 공변량 계수를 주 노출의 계수처럼 해석하는 오류가 Table 2 오류입니다(6장 d 절).</span></li>
+<li><span class="mk">4</span><span><b>sex 2군, 보정 전 6.65 (P = 0.366) → 보정 후 −12.73 (P = 0.021).</b> 부호가 뒤집혔습니다. 두 군의 bp 분포 등이 달라서 생긴 변화로 보이지만, 이 모형은 BMI의 관련성을 보려고 변수를 고른 모형이라 sex 계수를 sex의 효과로 해석하면 안 됩니다. 보정 모형의 공변량 계수를 주 노출의 계수처럼 해석하는 오류가 Table 2 오류입니다(<a href="#ch06-s4">6장 d 절</a> 5단계 Table 3의 ④).</span></li>
 </ol>
 
 <div class="paper">
@@ -498,7 +549,7 @@ sk(model_log.resid)</code><span>두 모형의 잔차 왜도입니다. 가정의 
 <li><span class="mk">1</span><span><b>결과변수와 분석 인원.</b> 표 제목에 결과변수와 n을 적어 둡니다. 결측으로 빠진 사람이 있다면 n이 달라지므로 No. Observations와 맞는지 확인합니다.</span></li>
 <li><span class="mk">2</span><span><b>단위는 행 이름에.</b> "per 1 kg/m²", "per 1 year"처럼 무엇 1 단위당인지 적습니다. bp와 s5는 원자료의 단위가 공개되어 있지 않아 "per 1 unit"으로만 적었습니다. 실제 논문이라면 단위를 확인할 수 없는 변수를 이렇게 보고해서는 안 되며, 이 자료의 한계로 기록해 둡니다.</span></li>
 <li><span class="mk">3</span><span><b>주 결과는 BMI의 보정 계수 6.45.</b> "나이, sex, 혈압, s5가 같은 환자들 사이에서 BMI 1 kg/m²당 진행 점수가 6.5점 높다"는 연관입니다. 보정한 bp와 s5가 매개변수일 수 있다는 점(위 보정 전후 비교)을 Discussion에서 다룹니다.</span></li>
-<li><span class="mk">4</span><span><b>범주형 변수는 비교 기준을 적습니다.</b> "vs group 1"이 기준범주입니다. 이 자료는 코딩의 방향이 공개되어 있지 않아 "male/female" 대신 group 1/2로 적었습니다. 보정 모형의 공변량 계수(age, sex, bp, s5)는 해석하지 않거나, 해석하더라도 인과 효과로 쓰지 않습니다(Table 2 오류).</span></li>
+<li><span class="mk">4</span><span><b>범주형 변수는 비교 기준을 적습니다.</b> "vs group 1"이 기준범주입니다. 이 자료는 코딩의 방향이 공개되어 있지 않아 "male/female" 대신 group 1/2로 적었습니다.</span></li>
 <li><span class="mk">5</span><span><b>모형 정보는 각주에.</b> R², 수정 R², 최대 VIF는 <code>model_adj.rsquared</code>, <code>rsquared_adj</code>, <code>vif_table(model_adj).max()</code>에서 옮깁니다. 보정한 변수의 목록과 가정 확인 방법(잔차 그림)도 Methods나 각주에 적습니다.</span></li>
 </ol>
 </div></div>
@@ -510,4 +561,59 @@ sk(model_log.resid)</code><span>두 모형의 잔차 왜도입니다. 가정의 
 <li>ln(결과변수) 모형의 계수는 (e<sup>β</sup> − 1) × 100% 차이로, 신뢰구간은 양 끝을 각각 변환해 보고합니다. 변환이 필요한지는 잔차로 판단합니다. 이 자료에서는 원래 척도가 더 적절했습니다.</li>
 <li>결과표는 코드로 만들어 옮겨 적는 오류를 줄이고, 단위·기준범주·보정 변수·모형 정보를 표 안과 각주에 적습니다.</li>
 </ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="lab06-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 세 과제는 하는 일이 다릅니다. 과제 1은 출력의 한 행을 말로 옮기고, 과제 2는 조건 하나를 바꿔 다시 돌린 결과를 비교하고, 과제 3은 그럴듯하지만 틀린 분석을 찾습니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 혈압(bp) 행 읽기</h3>
+<p>셀 24의 결과표에서 bp 행의 보정 계수(1.04, 95% CI 0.60 to 1.48)를 논문의 Results처럼 한 문장으로 옮기세요. 그리고 이 숫자가 말해 주지 <em>않는</em> 것을 두 가지 이상 쓰세요. bp의 범위와 표준편차를 확인하고, 10 단위당과 1 표준편차당 계수도 구해 보세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab06_hw1-->
+<p><code>model_adj.conf_int().loc["bp"]</code>는 셀 18의 다중회귀에서 bp 행의 하한과 상한을 꺼냅니다. 계수와 신뢰구간 양 끝에 같은 수(10, 표준편차)를 곱하면 그 단위당 값이 됩니다. <code>np.round(…, 2)</code>는 배열의 값을 소수 둘째 자리로 반올림하고, 출력의 <code>0.6</code>은 0.60, <code>6.</code>은 6.0입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>bp의 표준편차 13.8.</b></span></li>
+<li><span class="mk">2</span><span><b>범위 62–133.</b> 값의 크기는 mmHg 단위의 혈압처럼 보이지만, 설명서에 단위와 측정 방법이 없습니다(a 절).</span></li>
+<li><span class="mk">3</span><span><b>1 단위당 1.04 (0.60–1.48).</b> 셀 24의 결과표와 같은 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>10 단위당 10.4 (6.0–14.8).</b></span></li>
+<li><span class="mk">5</span><span><b>1 표준편차(13.8 단위)당 14.4 (8.2–20.5).</b></span></li>
+</ol>
+<p>한 문장으로 옮기면 "나이, BMI, sex, s5가 같은 환자끼리 비교하면 bp가 10 단위 높은 환자의 1년 뒤 진행 점수가 평균 10.4점 높았다(95% CI 6.0–14.8)"입니다.</p>
+<p>이 숫자가 말해 주지 않는 것은 세 가지입니다. 첫째, 임상 단위의 크기가 아닙니다. bp의 단위를 확인할 수 없어 "혈압 10 mmHg당"이라고 쓸 수 없고, 이 자료의 흩어짐(1 표준편차당 14.4점)으로 크기를 가늠할 뿐입니다. 둘째, 혈압이 진행 점수와 얼마나 관련되는지를 추정하려고 만든 값이 아닙니다. 이 모형은 BMI의 관련성을 보려고 변수를 고른 모형이라, bp 계수는 BMI와 s5까지 같게 맞춘 값입니다. 보정 전 2.46(1.99–2.93)이 1.04로 줄어든 것도 bp와 함께 움직이는 BMI(r = 0.40), s5(0.39), 나이(0.34)를 같게 맞췄기 때문입니다. 혈압의 관련성이 궁금하다면 혈압에 맞는 보정 변수를 따로 정해 모형을 다시 만들어야 합니다(d 절 결과표의 출력 읽기 4번, Table 2 오류). 셋째, 한 환자의 혈압을 10 낮추면 점수가 10.4점 낮아진다는 뜻이 아닙니다. 혈압이 다른 환자들을 같은 시점에 견준 차이입니다(<a href="#ch06-s3">6장 c 절</a> 4단계).</p>
+</div></details>
+
+<h3>과제 2. 보정 변수를 바꿔 가며 BMI 계수 보기</h3>
+<p>셀 13의 단순회귀에서 시작해 보정 변수를 바꿔 가며 BMI 계수를 다시 구하세요. 나이와 sex만, 여기에 bp만, s5만, bp와 s5를 모두 넣은 모형의 BMI 계수, 95% CI, 표준오차, R²를 한 표로 만들고, 어떤 변수를 넣을 때 계수가 크게 줄어드는지, 왜 그런지 설명하세요. 어느 모형의 계수를 주 결과로 보고할지도 생각해 보세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab06_hw2-->
+<p><code>sets</code>는 모형 이름을 키로, 공식을 값으로 둔 사전입니다. 반복문이 공식을 하나씩 꺼내 모형을 적합하고, BMI 계수와 그 신뢰구간, 표준오차(<code>bse</code>), R²를 사전 하나로 묶어 <code>rows</code>에 쌓습니다. 마지막 줄이 이 사전들의 목록을 표로 바꾸고 모형 이름을 행 이름으로 둡니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>나이와 sex만 넣으면 9.99.</b> 단순회귀의 10.23과 거의 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>bp를 더하면 8.48.</b></span></li>
+<li><span class="mk">3</span><span><b>bp 대신 s5를 더하면 7.28.</b></span></li>
+<li><span class="mk">4</span><span><b>둘 다 넣으면 6.45.</b> 셀 18의 다중회귀와 같습니다.</span></li>
+</ol>
+<p>계수를 줄인 것은 bp와 s5입니다. 보정한 변수가 계수를 바꾸려면 BMI와도, 진행 점수와도 함께 움직여야 합니다. 나이와 sex는 BMI와의 상관이 0.19와 0.09로 약해서 넣어도 계수가 거의 그대로입니다. bp(BMI와의 상관 0.40)와 s5(0.45)는 BMI와 함께 움직이면서 진행 점수와도 관련되므로, 넣을 때마다 BMI 계수에서 그 변수와 겹치는 몫이 빠집니다. s5가 더 많이 줄인 것은 BMI와도(0.45 대 0.40), 진행 점수와도(0.57 대 0.44) bp보다 강하게 함께 움직이기 때문입니다. 반면 표준오차는 0.674–0.705로 거의 같습니다. BMI와 함께 움직이는 변수를 넣으면 BMI 계수의 표준오차는 커지는 쪽으로 움직이지만(셀 20의 VIF 표에서 bmi 1.35), 같은 변수들이 진행 점수의 흩어짐을 더 설명해 잔차가 줄면 작아지는 쪽으로 움직입니다. 이 자료에서는 두 힘이 거의 비겨서 정밀도는 그대로이고, 바뀐 것은 무엇과 무엇을 견주는지입니다. R²가 0.344에서 0.487로 오른 것은 다른 변수가 진행 점수의 흩어짐을 더 설명했다는 뜻일 뿐, 어느 계수가 맞는지 알려 주지 않습니다.</p>
+<p>그래서 어느 계수를 주 결과로 쓸지는 표의 숫자가 아니라 bp와 s5의 역할로 정합니다. 비만이 혈압과 중성지방을 올리고 그것이 진행으로 이어진다면 bp와 s5는 매개변수이고, BMI의 전체 관련은 나이와 sex만 보정한 9.99에 가깝습니다. bp와 s5가 BMI와 진행에 함께 영향을 주는 공통 원인이라면 교란변수이고 6.45가 맞습니다(d 절 '보정 전후 BMI 계수 비교'의 출력 읽기 2번). 이 자료는 모든 변수를 같은 시점에 재서 자료만으로는 정할 수 없으므로, 분석 전에 인과 도표로 보정 변수를 정하고 그 이유를 Methods에 적습니다. 다른 선택의 결과는 민감도 분석으로 함께 보여 줄 수 있습니다.</p>
+</div></details>
+
+<h3>과제 3. 잔차가 큰 환자를 뺀 분석</h3>
+<p>동료가 셀 13의 단순회귀에서 잔차가 2 표준편차를 넘는 환자를 이상값으로 보고 빼서 다시 적합한 뒤 이렇게 썼습니다.</p>
+<p>"이상값 13명을 제외하자 모형의 설명력이 R² 0.34에서 0.41로 좋아졌고, BMI 1 kg/m²당 진행 점수가 10.8점(95% CI 9.6–12.1) 높았다."</p>
+<p>동료의 분석을 셀 하나로 재현하고, 무엇이 왜 틀렸는지 두 가지 이상 설명하세요. 셀 16의 영향력 확인과 견줘 보세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab06_hw3-->
+<p><code>r.abs() &lt;= 2 * r.std()</code>는 잔차의 절댓값이 잔차 표준편차(약 62점)의 2배 이하이면 True인 442개의 참거짓입니다. <code>df[keep]</code>은 True인 환자만, <code>~keep</code>은 참거짓을 뒤집어 뺀 환자만 고릅니다. <code>describe().loc[["min", "max"]]</code>는 요약통계 가운데 최솟값과 최댓값 두 행만 보여 줍니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>13명을 뺐습니다.</b></span></li>
+<li><span class="mk">2</span><span><b>뺀 환자의 BMI는 21.0–33.0,</b> <span class="mk">3</span> <b>진행 점수는 52–311</b>로 모두 자료의 범위 안에 있는 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>모든 환자의 기울기 10.23 (8.91–11.56), R² 0.344.</b></span></li>
+<li><span class="mk">5</span><span><b>13명을 뺀 뒤의 기울기 10.84 (9.59–12.09), R² 0.406.</b> 동료가 쓴 숫자와 같습니다.</span></li>
+</ol>
+<p>첫째 잘못은 뺀 이유입니다. 13명은 입력 오류가 아니라 BMI와 진행 점수가 모두 그럴듯한 실제 환자입니다. 직선에서 멀다는 것은 BMI 하나로 설명되지 않는 개인차가 크다는 뜻이지 값이 틀렸다는 뜻이 아닙니다. 결과에 맞지 않는다는 이유로 환자를 빼면 안 됩니다(<a href="#ch06-s1">6장 a 절</a> 3단계). 실제로 셀 16에서 영향력이 가장 큰 환자를 빼도 기울기는 10.36으로 거의 그대로였습니다. 확인할 것은 한두 명이 결론을 좌우하는지이고, 이 자료에서는 그렇지 않으므로 모든 환자의 결과를 보고합니다.</p>
+<p>둘째 잘못은 좋아진 숫자를 개선으로 읽은 것입니다. 직선에서 가장 먼 환자를 빼면 남은 환자의 흩어짐은 어떤 자료에서든 줄어듭니다. 모형의 잔차 표준편차가 62.5점에서 58.2점으로 줄면서 R²가 오르고 신뢰구간이 좁아졌지만, 모형이 나아진 것이 아니라 잘 맞지 않는 환자를 지운 결과입니다. 그 좁은 구간은 실제 환자에게 맞지 않는 거짓 정밀도입니다. 기울기가 10.84로 커진 것도 같은 이유입니다. 직선 위로 벗어나 빠진 8명은 BMI가 낮은 쪽(평균 25.0)에, 아래로 벗어나 빠진 5명은 BMI가 높은 쪽(평균 31.2)에 있어서, 둘 다 기울기를 완만하게 만들던 환자였습니다. 동료의 문장에는 13명을 어떤 기준으로 뺐는지도 없어서, 독자는 이 숫자가 전체 442명의 결과가 아니라는 것조차 알 수 없습니다.</p>
+</div></details>
 </section>

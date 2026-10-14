@@ -1,0 +1,92 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nscipy        1.18.1\nmatplotlib   3.11.2\nseaborn      0.13.2\nscikit-learn 1.9.1\n"
+ },
+ {
+  "n": 2,
+  "title": "데이터 불러오기",
+  "out": "(189, 11)\n   rownames  low  age  lwt  race  smoke  ptl  ht  ui  ftv   bwt\n0        85    0   19  182     2      0    0   0   1    0  2523\n1        86    0   33  155     3      0    0   0   0    3  2551\n2        87    0   20  105     1      1    0   0   0    1  2557\n3        88    0   21  108     1      1    0   0   1    2  2594\n4        89    0   18  107     1      1    0   0   1    0  2600"
+ },
+ {
+  "n": 3,
+  "title": "흡연 여부에 이름표 붙이기",
+  "out": "smoke_f\nNonsmoker    115\nSmoker        74\nName: count, dtype: int64"
+ },
+ {
+  "n": 4,
+  "title": "군별 요약통계",
+  "out": "           count    mean    std  median\nsmoke_f                                \nNonsmoker    115  3055.7  752.7  3100.0\nSmoker        74  2771.9  659.6  2775.5"
+ },
+ {
+  "n": 6,
+  "title": "상자그림과 개별 점",
+  "out": ""
+ },
+ {
+  "n": 7,
+  "title": "Student t 검정과 Welch t 검정",
+  "out": "TtestResult(statistic=np.float64(-2.7298856759879087), pvalue=np.float64(0.007002548173076962), df=np.float64(170.10024146854795))\nStudent: t = -2.653, p = 0.0087, df = 187\nWelch:   t = -2.730, p = 0.0070, df = 170.1\n"
+ },
+ {
+  "n": 8,
+  "title": "평균 차이와 95% 신뢰구간",
+  "out": "평균 차이 = -283.8 g\n95% CI = -489.0 ~ -78.6 g\n"
+ },
+ {
+  "n": 9,
+  "title": "같은 값을 공식으로 계산하기",
+  "out": "SE = 103.95, t = -2.730, df = 170.10\nCI = -489.0 ~ -78.6\n"
+ },
+ {
+  "n": 10,
+  "title": "Cohen의 d",
+  "out": "합동 SD = 717.8 g\nCohen's d = -0.40\n"
+ },
+ {
+  "n": 11,
+  "title": "Levene 검정",
+  "out": "LeveneResult(statistic=np.float64(1.456423193277535), pvalue=np.float64(0.22902449563904015))\nmedian: p = 0.229\nmean:   p = 0.211\n"
+ },
+ {
+  "n": 12,
+  "title": "중앙값과 사분위수",
+  "out": "             0.25    0.50     0.75\nsmoke_f                           \nNonsmoker  2509.0  3100.0  3621.50\nSmoker     2370.5  2775.5  3245.75"
+ },
+ {
+  "n": 13,
+  "title": "Mann-Whitney 검정",
+  "out": "MannwhitneyuResult(statistic=np.float64(3260.5), pvalue=np.float64(0.006767788964645173))\nU(smoker) = 3260.5\nU(nonsmoker) = 5249.5\np = 0.0068\n"
+ },
+ {
+  "n": 14,
+  "title": "U를 직접 세어 보기",
+  "out": "3241 39 3260.5\n"
+ },
+ {
+  "n": 15,
+  "title": "우월 확률과 AUC",
+  "out": "P(smoker > nonsmoker) = 0.383\nAUC = 0.383\n"
+ },
+ {
+  "n": 16,
+  "title": "Hodges-Lehmann 추정치",
+  "out": "(74, 115)\nHL = -307.0 g, 95% CI -512 ~ -85\n"
+ },
+ {
+  "n": 17,
+  "title": "과제 1 정답. 평균 차이가 말해 주지 않는 것",
+  "out": "smokers' infants above the nonsmoker mean: 25 of 74\nsmoke_f  Nonsmoker  Smoker\nrace_f                    \nwhite        0.458   0.542\nblack        0.615   0.385\nother        0.821   0.179\nsmoke_f  Nonsmoker  Smoker\nrace_f                    \nwhite       3428.8  2826.8\nblack       2854.5  2504.0\nother       2815.8  2757.2"
+ },
+ {
+  "n": 18,
+  "title": "과제 2 정답. 고혈압 병력으로 나눈 두 군의 Student와 Welch",
+  "out": "n = 12 vs 177, SD = 917.4 vs 709.4\nStudent: diff = -435.4, t = -2.02, df = 187.0, p = 0.045, 95% CI -861 ~ -10\nWelch  : diff = -435.4, t = -1.61, df = 11.9, p = 0.133, 95% CI -1024 ~ 154\n"
+ },
+ {
+  "n": 19,
+  "title": "과제 3 정답. Mann-Whitney 검정의 P는 중앙값의 차이를 검정하지 않습니다",
+  "out": "median difference: -324.5\noriginal        : median diff = -324.5, P(smoker > nonsmoker) = 0.383, p = 0.0068\ntop quarter +500: median diff = -324.5, P(smoker > nonsmoker) = 0.431, p = 0.1110\nHodges-Lehmann = -307.0 g, 95% CI -512 ~ -85\n"
+ }
+]

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">혈청 측정값 6개를 모두 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_all = smf.ols(&quot;target ~ bmi + age + C(sex) + bp&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">혈청 측정값 6개를 모두 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">model_all = smf.ols(&quot;target ~ bmi + age + C(sex) + bp&quot;
                     &quot; + s1 + s2 + s3 + s4 + s5 + s6&quot;, data=df).fit()
 print(vif_table(model_all))
 print(f&quot;r(s1, s2) = {df[&#x27;s1&#x27;].corr(df[&#x27;s2&#x27;]):.2f}&quot;)

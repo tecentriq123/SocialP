@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">결측값 확인과 분석용 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">na = d.isna().sum()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">결측값 확인과 분석용 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">na = d.isna().sum()
 print(na[na &gt; 0])
 print(&quot;dropna() 전체 적용:&quot;, len(d.dropna()), &quot;명&quot;)
 

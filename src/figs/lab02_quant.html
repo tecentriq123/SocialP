@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">중앙값과 사분위수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">q = (df.groupby(&quot;smoke_f&quot;, observed=True)[&quot;bwt&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">중앙값과 사분위수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">q = (df.groupby(&quot;smoke_f&quot;, observed=True)[&quot;bwt&quot;]
        .quantile([0.25, 0.5, 0.75])
        .unstack())
 q</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">

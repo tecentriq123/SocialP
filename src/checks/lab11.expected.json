@@ -1,0 +1,142 @@
+[
+ {
+  "n": 1,
+  "title": "lifelines 설치",
+  "out": ""
+ },
+ {
+  "n": 2,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nmatplotlib   3.11.2\nstatsmodels  0.15.0\nlifelines    0.30.3\n"
+ },
+ {
+  "n": 3,
+  "title": "PBC 자료 불러오기",
+  "out": "(418, 21)\n   rownames  id  time  status  trt  ...     ast   trig  platelet  protime  stage\n0         1   1   400       2  1.0  ...  137.95  172.0     190.0     12.2    4.0\n1         2   2  4500       0  1.0  ...  113.52   88.0     221.0     10.6    3.0\n2         3   3  1012       2  1.0  ...   96.10   55.0     151.0     12.0    4.0\n\n[3 rows x 21 columns]"
+ },
+ {
+  "n": 4,
+  "title": "무작위배정 환자만 남기기",
+  "out": "trt\n1.0    158\n2.0    154\nNaN    106\nName: count, dtype: int64\ntrt     1.0  2.0  All\nstatus               \n0        83   85  168\n1        10    9   19\n2        65   60  125\nAll     158  154  312"
+ },
+ {
+  "n": 5,
+  "title": "사건, 시간, 치료 변수 만들기",
+  "out": "사망 125 명, 이식(중도절단) 19 명\n      count  sum\ndpca            \n0       154   60\n1       158   65"
+ },
+ {
+  "n": 6,
+  "title": "결측값 확인과 분석용 자료 만들기",
+  "out": "chol        28\ncopper       2\ntrig        30\nplatelet     4\ndtype: int64\ndropna() 전체 적용: 276 명\n분석에 쓸 열만 dropna: 312 명\n"
+ },
+ {
+  "n": 7,
+  "title": "빌리루빈 로그 변환",
+  "out": "         bili  log2_bili\ncount  312.00     312.00\nmean     3.26       0.83\nstd      4.53       1.49\nmin      0.30      -1.74\n25%      0.80      -0.32\n50%      1.35       0.43\n75%      3.42       1.78\nmax     28.00       4.81"
+ },
+ {
+  "n": 8,
+  "title": "치료만 넣은 Cox 모형 (단변수)",
+  "out": "<lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations>\n             duration col = 'years'\n                event col = 'death'\n      baseline estimation = breslow\n   number of observations = 312\nnumber of events observed = 125\n   partial log-likelihood = -639.915\n         time fit was run = 2026-10-14 07:08:30 UTC\n\n---\n           coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                  \ndpca      0.057     1.059     0.179          -0.294           0.408               0.745               1.504\n\n           cmp to     z     p  -log2(p)\ncovariate                              \ndpca        0.000 0.319 0.749     0.416\n---\nConcordance = 0.499\nPartial AIC = 1281.831\nlog-likelihood ratio test = 0.102 on 1 df\n-log2(p) of ll-ratio test = 0.416\n\n"
+ },
+ {
+  "n": 9,
+  "title": "단변수 Cox 모형과 로그순위 검정 비교",
+  "out": "log-rank chi2 : 0.1017\nWald z^2      : 0.102\nLR chi2       : 0.1021\n"
+ },
+ {
+  "n": 10,
+  "title": "다변수 Cox 모형 (formula 사용)",
+  "out": "<lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations>\n             duration col = 'years'\n                event col = 'death'\n      baseline estimation = breslow\n   number of observations = 312\nnumber of events observed = 125\n   partial log-likelihood = -539.175\n         time fit was run = 2026-10-14 07:08:30 UTC\n\n---\n                  coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                         \ndpca            -0.065     0.938     0.194          -0.444           0.315               0.642               1.370\nage10            0.314     1.369     0.092           0.133           0.495               1.143               1.641\nfemale          -0.353     0.703     0.255          -0.852           0.147               0.427               1.158\nlog2_bili        0.611     1.842     0.069           0.476           0.746               1.609               2.108\nalbumin         -0.989     0.372     0.239          -1.457          -0.521               0.233               0.594\nC(edema)[T.0.5]  0.198     1.218     0.285          -0.361           0.756               0.697               2.130\nC(edema)[T.1.0]  0.949     2.582     0.309           0.342           1.555               1.408               4.734\nprotime          0.250     1.284     0.086           0.081           0.419               1.084               1.520\n\n                 cmp to      z       p  -log2(p)\ncovariate                                       \ndpca              0.000 -0.333   0.739     0.437\nage10             0.000  3.404   0.001    10.555\nfemale            0.000 -1.384   0.166     2.588\nlog2_bili         0.000  8.861 <0.0005    60.126\nalbumin           0.000 -4.140 <0.0005    14.813\nC(edema)[T.0.5]   0.000  0.693   0.488     1.035\nC(edema)[T.1.0]   0.000  3.067   0.002     8.853\nprotime           0.000  2.900   0.004     8.066\n---\nConcordance = 0.846\nPartial AIC = 1094.350\nlog-likelihood ratio test = 201.583 on 8 df\n-log2(p) of ll-ratio test = 127.988\n\n"
+ },
+ {
+  "n": 12,
+  "title": "위험비의 단위 바꾸기",
+  "out": "나이 1세당 HR   : 1.032\n나이 10세당 HR  : 1.369\n나이 20세당 HR  : 1.874\n빌리루빈 2배 HR : 1.842\n빌리루빈 4배 HR : 3.393\n알부민 0.5 g/dL 감소 HR: 1.639\n"
+ },
+ {
+  "n": 13,
+  "title": "위험비와 누적위험의 비(상대위험도)는 다르다",
+  "out": "HR (edema 1.0): 2.58\n      no edema  edema 1.0  risk ratio\n1.0      0.017      0.043       2.548\n5.0      0.150      0.342       2.285\n10.0     0.460      0.796       1.731"
+ },
+ {
+  "n": 14,
+  "title": "논문용 위험비 표 만들기",
+  "out": "                      HR (95% CI)       P\ncovariate                                \ndpca             0.94 (0.64-1.37)   0.739\nage10            1.37 (1.14-1.64)  <0.001\nfemale           0.70 (0.43-1.16)   0.166\nlog2_bili        1.84 (1.61-2.11)  <0.001\nalbumin          0.37 (0.23-0.59)  <0.001\nC(edema)[T.0.5]  1.22 (0.70-2.13)   0.488\nC(edema)[T.1.0]  2.58 (1.41-4.73)   0.002\nprotime          1.28 (1.08-1.52)   0.004"
+ },
+ {
+  "n": 15,
+  "title": "포레스트 그림",
+  "out": ""
+ },
+ {
+  "n": 16,
+  "title": "빌리루빈을 로그로 넣은 이유 확인",
+  "out": "bili       partial AIC = 1124.7  C = 0.832\nlog2_bili  partial AIC = 1094.3  C = 0.846\n"
+ },
+ {
+  "n": 17,
+  "title": "비례위험 검정 (척도화 Schoenfeld 잔차)",
+  "out": "<lifelines.StatisticalResult: proportional_hazard_test>\n    time_transform = rank\n null_distribution = chi squared\ndegrees_of_freedom = 1\n             model = <lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations>\n         test_name = proportional_hazard_test\n\n---\n                 test_statistic     p  -log2(p)\nC(edema)[T.0.5]           4.500 0.034     4.883\nC(edema)[T.1.0]           0.594 0.441     1.181\nage10                     0.210 0.647     0.628\nalbumin                   0.011 0.917     0.125\ndpca                      2.136 0.144     2.797\nfemale                    0.030 0.863     0.212\nlog2_bili                 1.960 0.162     2.630\nprotime                   4.641 0.031     5.001\n"
+ },
+ {
+  "n": 18,
+  "title": "check_assumptions의 요약과 조언",
+  "out": "The ``p_value_threshold`` is set at 0.05. Even under the null hypothesis of no violations, some\ncovariates will be below the threshold by chance. This is compounded when there are many covariates.\nSimilarly, when there are lots of observations, even minor deviances from the proportional hazard\nassumption will be flagged.\n\nWith that in mind, it's best to use a combination of statistical tests and visual tests to determine\nthe most serious violations. Produce visual plots using ``check_assumptions(..., show_plots=True)``\nand looking for non-constant lines. See link [A] below for a full example.\n\n<lifelines.StatisticalResult: proportional_hazard_test>\n null_distribution = chi squared\ndegrees_of_freedom = 1\n             model = <lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations>\n         test_name = proportional_hazard_test\n\n---\n                      test_statistic    p  -log2(p)\nC(edema)[T.0.5] km              4.01 0.05      4.47\n                rank            4.50 0.03      4.88\nC(edema)[T.1.0] km              0.34 0.56      0.84\n                rank            0.59 0.44      1.18\nage10           km              0.02 0.90      0.15\n                rank            0.21 0.65      0.63\nalbumin         km              0.02 0.89      0.18\n                rank            0.01 0.92      0.12\ndpca            km              1.42 0.23      2.10\n                rank            2.14 0.14      2.80\nfemale          km              0.03 0.85      0.23\n                rank            0.03 0.86      0.21\nlog2_bili       km              2.04 0.15      2.70\n                rank            1.96 0.16      2.63\nprotime         km              3.14 0.08      3.71\n                rank            4.64 0.03      5.00\n\n\n1. Variable 'C(edema)[T.0.5]' failed the non-proportional test: p-value is 0.0339.\n\n   Advice: with so few unique values (only 2), you can include `strata=['C(edema)[T.0.5]', ...]` in\nthe call in `.fit`. See documentation in link [E] below.\n\n2. Variable 'protime' failed the non-proportional test: p-value is 0.0312.\n\n   Advice 1: the functional form of the variable 'protime' might be incorrect. That is, there may be\nnon-linear terms missing. The proportional hazard test used is very sensitive to incorrect\nfunctional forms. See documentation in link [D] below on how to specify a functional form.\n\n   Advice 2: try binning the variable 'protime' using pd.cut, and then specify it in\n`strata=['protime', ...]` in the call in `.fit`. See documentation in link [B] below.\n\n   Advice 3: try adding an interaction term with your time variable. See documentation in link [C]\nbelow.\n\n\n---\n[A]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html\n[B]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Bin-variable-and-stratify-on-it\n[C]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Introduce-time-varying-covariates\n[D]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Modify-the-functional-form\n[E]  https://lifelines.readthedocs.io/en/latest/jupyter_notebooks/Proportional%20hazard%20assumption.html#Stratification\n\n[]"
+ },
+ {
+  "n": 19,
+  "title": "척도화 Schoenfeld 잔차 그림",
+  "out": ""
+ },
+ {
+  "n": 20,
+  "title": "log(-log) 생존 그림 (부종 범주별)",
+  "out": ""
+ },
+ {
+  "n": 21,
+  "title": "추적 기간을 3년에서 나눈 긴 자료 만들기",
+  "out": "312 명 -> 552 줄\n   id  start      stop  event  protime  protime_late\n0   0    0.0  1.095140      1     12.2           0.0\n3   3    0.0  3.000000      0     10.3           0.0\n3   3    3.0  5.270363      1     10.3          10.3"
+ },
+ {
+  "n": 22,
+  "title": "기간별 위험비 (시간과의 교호작용)",
+  "out": "protime HR, 0-3년 : 1.57\nprotime HR, 3년 후: 1.06\n교호작용 P        : 0.0234\ndpca HR           : 0.913\n"
+ },
+ {
+  "n": 23,
+  "title": "부종 범주별 예측 생존곡선 (나머지 변수는 중앙값)",
+  "out": ""
+ },
+ {
+  "n": 24,
+  "title": "직접 표준화한 보정 생존곡선",
+  "out": "      D-penicillamine  Placebo\n1.0             0.927    0.924\n5.0             0.709    0.699\n10.0            0.459    0.445\n"
+ },
+ {
+  "n": 25,
+  "title": "부종으로 층화한 Cox 모형",
+  "out": "<lifelines.CoxPHFitter: fitted with 312 total observations, 187 right-censored observations>\n             duration col = 'years'\n                event col = 'death'\n                   strata = edema\n      baseline estimation = breslow\n   number of observations = 312\nnumber of events observed = 125\n   partial log-likelihood = -458.464\n         time fit was run = 2026-10-14 07:08:31 UTC\n\n---\n            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                   \ndpca      -0.082     0.922     0.194          -0.462           0.299               0.630               1.348\nage10      0.318     1.374     0.094           0.133           0.503               1.143               1.653\nfemale    -0.339     0.713     0.254          -0.836           0.159               0.433               1.173\nlog2_bili  0.593     1.810     0.069           0.457           0.729               1.580               2.073\nalbumin   -0.934     0.393     0.239          -1.402          -0.467               0.246               0.627\nprotime    0.257     1.293     0.085           0.090           0.424               1.094               1.527\n\n           cmp to      z       p  -log2(p)\ncovariate                                 \ndpca        0.000 -0.421   0.674     0.569\nage10       0.000  3.373   0.001    10.394\nfemale      0.000 -1.333   0.182     2.454\nlog2_bili   0.000  8.564 <0.0005    56.353\nalbumin     0.000 -3.916 <0.0005    13.441\nprotime     0.000  3.022   0.003     8.636\n---\nConcordance = 0.806\nPartial AIC = 928.927\nlog-likelihood ratio test = 132.353 on 6 df\n-log2(p) of ll-ratio test = 84.332\n\n"
+ },
+ {
+  "n": 26,
+  "title": "세 모형의 치료 효과 비교",
+  "out": "                     exp(coef)  exp(coef) lower 95%  exp(coef) upper 95%      p\nunadjusted               1.059                0.745                1.504  0.749\nadjusted                 0.938                0.642                1.370  0.739\nstratified by edema      0.922                0.630                1.348  0.674"
+ },
+ {
+  "n": 27,
+  "title": "과제 1 정답. 빌리루빈의 위험비 읽기",
+  "out": "bilirubin  1 ->  2 mg/dL: HR 1.842\nbilirubin  5 -> 10 mg/dL: HR 1.842\nbilirubin 10 -> 11 mg/dL: HR 1.088\n      bili 1.35  bili 2.7  risk ratio\n5.0        0.15     0.259       1.725\n10.0       0.46     0.679       1.475"
+ },
+ {
+  "n": 28,
+  "title": "과제 2 정답. 사망 또는 간이식을 사건으로 보면",
+  "out": "events: death 125  death or transplant 144\ndpca HR 0.986 (0.695-1.398), p 0.937\n              age  bili\nstatus                 \nFalse   50.540726   1.3\nTrue    40.900753   3.2\n                 death  death or transplant\ncovariate                                  \ndpca             0.938                0.986\nage10            1.369                1.180\nfemale           0.703                0.651\nlog2_bili        1.842                1.824\nalbumin          0.372                0.394\nC(edema)[T.0.5]  1.218                1.235\nC(edema)[T.1.0]  2.582                2.479\nprotime          1.284                1.205"
+ },
+ {
+  "n": 29,
+  "title": "과제 3 정답. '치료 × 추적 시간' 열을 넣은 분석",
+  "out": "312 명 -> 17289 줄\nP for dpca_t: wrong 4.5e-09, split 0.458\n                 wrong (years)  split (0.1 y)\ncovariate                                    \ndpca                     8.165          0.781\nage10                    1.419          1.363\nfemale                   0.882          0.691\nlog2_bili                1.792          1.836\nalbumin                  0.585          0.363\nC(edema)[T.0.5]          1.373          1.195\nC(edema)[T.1.0]          2.098          2.555\nprotime                  1.234          1.289\ndpca_t                   0.679          1.047"
+ }
+]

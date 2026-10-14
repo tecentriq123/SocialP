@@ -1,0 +1,60 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 3 정답. 203행 자료에 강건 표준오차를 쓴 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = cgd.copy()                                        # 동료가 쓴 203행 자료
+rows[&quot;py_row&quot;] = (rows[&quot;tstop&quot;] - rows[&quot;tstart&quot;]) / 365.25
+rows[&quot;treat&quot;] = pd.Categorical(rows[&quot;treat&quot;],
+                               categories=[&quot;placebo&quot;, &quot;rIFN-g&quot;])
+rows[&quot;inherit&quot;] = pd.Categorical(rows[&quot;inherit&quot;],
+                                 categories=[&quot;X-linked&quot;, &quot;autosomal&quot;])
+f_row = &quot;status ~ treat + age + inherit + propylac&quot;
+glm_row = smf.glm(f_row, data=rows, family=sm.families.Poisson(),
+                  offset=np.log(rows[&quot;py_row&quot;]))
+m_hc0 = glm_row.fit(cov_type=&quot;HC0&quot;)                     # 동료의 분석
+m_cl = glm_row.fit(cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: rows[&quot;id&quot;]})
+fs = {&quot;patients, model-based&quot;: pois, &quot;patients, robust&quot;: pois_r,
+      &quot;intervals, robust (HC0)&quot;: m_hc0,
+      &quot;intervals, clustered by id&quot;: m_cl}
+pd.DataFrame(
+    {&quot;coef&quot;: [f.params[t] for f in fs.values()],
+     &quot;SE&quot;: [f.bse[t] for f in fs.values()],
+     &quot;lower&quot;: [np.exp(f.conf_int().loc[t, 0]) for f in fs.values()],
+     &quot;upper&quot;: [np.exp(f.conf_int().loc[t, 1]) for f in fs.values()]},
+    index=fs.keys()).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coef</th>
+      <th>SE</th>
+      <th>lower</th>
+      <th>upper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>patients, model-based</th>
+      <td>-1.0157</td>
+      <td>0.2620<span class="mk">1</span></td>
+      <td>0.2167</td>
+      <td>0.6053</td>
+    </tr>
+    <tr>
+      <th>patients, robust</th>
+      <td>-1.0157</td>
+      <td>0.3094<span class="mk">2</span></td>
+      <td>0.1975</td>
+      <td>0.6641</td>
+    </tr>
+    <tr>
+      <th>intervals, robust (HC0)</th>
+      <td>-1.0157</td>
+      <td>0.2561<span class="mk">3</span></td>
+      <td>0.2192</td>
+      <td>0.5983</td>
+    </tr>
+    <tr>
+      <th>intervals, clustered by id</th>
+      <td>-1.0157</td>
+      <td>0.3137<span class="mk">4</span></td>
+      <td>0.1958</td>
+      <td>0.6698</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

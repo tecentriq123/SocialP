@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">성별 요약표 (논문 표 형식)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">성별 요약표 (논문 표 형식)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
 for name, k in km_sex.items():
     med = k.median_survival_time_
     lo, hi = median_survival_times(k.confidence_interval_).iloc[0]

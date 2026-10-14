@@ -24,7 +24,7 @@ def show(title):
     print("\n" + "=" * 12, title)
 
 
-# ====================================================================== 가. 결정수형
+# ====================================================================== a. 결정수형
 show("가. 결정수형")
 tp = L.ae_tree_params()
 TREE = L.ae_tree(tp)
@@ -70,7 +70,7 @@ RR_THR = 1 - tp["c_proph"] / (tp["p_ae"] * (per_ae_cost + L.THRESHOLD * per_ae_q
 RR_SAVE = 1 - tp["c_proph"] / (tp["p_ae"] * per_ae_cost)
 print("ICER = 임계값이 되는 RR", RR_THR, tree_rr(RR_THR)["icer"], "| 비용이 같아지는 RR", RR_SAVE)
 
-# ====================================================================== 나. 마르코프 코호트 모형
+# ====================================================================== b. 마르코프 코호트 모형
 show("나. 율과 확률")
 med_pfs_B, med_os_B = L.weib_median(p["pfs_lam"], p["pfs_gam"]), L.weib_median(p["os_lam"], p["os_gam"])
 r_exit = math.log(2) / med_pfs_B
@@ -177,7 +177,7 @@ for arm in ("B", "A"):
     print(arm, "OS  PSM", np.round(sos[CMP_T], 3), "마르코프", np.round((tr["pf"] + tr["pd"])[CMP_T], 3))
     print(arm, "PFS PSM", np.round(spf[CMP_T], 3), "마르코프", np.round(tr["pf"][CMP_T], 3))
 
-# ====================================================================== 다. 분할생존모형
+# ====================================================================== c. 분할생존모형
 show("다. 분할생존모형")
 OCC_T = [0, 6, 12, 24, 36, 60, 120]
 for arm in ("B", "A"):
@@ -238,7 +238,7 @@ def price_at_threshold(r, lam=L.THRESHOLD):
 
 print("임계값에 맞는 월 약값:", price_at_threshold(BASE))
 
-# ====================================================================== 라. 생존곡선의 외삽
+# ====================================================================== d. 생존곡선의 외삽
 show("라. 외삽")
 from lifelines import (ExponentialFitter, WeibullFitter, LogNormalFitter, LogLogisticFitter,
                        GeneralizedGammaFitter, KaplanMeierFitter)

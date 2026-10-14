@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">단변수 오즈비: 변수마다 따로 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_ci(model):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">단변수 오즈비: 변수마다 따로 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def or_ci(model):
     t = np.exp(model.conf_int())
     t.columns = [&quot;lo&quot;, &quot;hi&quot;]
     t.insert(0, &quot;OR&quot;, np.exp(model.params))

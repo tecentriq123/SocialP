@@ -1,0 +1,117 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nmatplotlib   3.11.2\nscipy        1.18.1\nstatsmodels  0.15.0\n"
+ },
+ {
+  "n": 2,
+  "title": "sleepstudy 불러오기 (긴 형식)",
+  "out": "(180, 3)\n    Reaction  Days  Subject\n0   249.5600     0      308\n1   258.7047     1      308\n2   250.8006     2      308\n3   321.4398     3      308\n4   356.8519     4      308\n5   414.6901     5      308\n6   382.2038     6      308\n7   290.1486     7      308\n8   430.5853     8      308\n9   466.3535     9      308\n10  222.7339     0      309\n11  205.2658     1      309"
+ },
+ {
+  "n": 3,
+  "title": "몇 명을 몇 번 측정했나",
+  "out": "18\n10    18\nName: count, dtype: int64\n[0 1 2 3 4 5 6 7 8 9]\n"
+ },
+ {
+  "n": 4,
+  "title": "긴 형식 → 넓은 형식 (pivot)",
+  "out": "(18, 10)\nDays         0      1      2      3      4      5      6      7      8      9\nSubject                                                                      \n308      250.0  259.0  251.0  321.0  357.0  415.0  382.0  290.0  431.0  466.0\n309      223.0  205.0  203.0  205.0  208.0  216.0  214.0  218.0  224.0  237.0\n310      199.0  194.0  234.0  233.0  229.0  220.0  235.0  256.0  261.0  248.0\n330      322.0  300.0  284.0  285.0  286.0  298.0  280.0  318.0  305.0  354.0\n331      288.0  285.0  302.0  320.0  316.0  293.0  290.0  335.0  294.0  372.0"
+ },
+ {
+  "n": 5,
+  "title": "넓은 형식 → 긴 형식 (melt)",
+  "out": "(180, 3)\n    Subject Days  Reaction\n0       308    0  249.5600\n18      308    1  258.7047\n36      308    2  250.8006\n54      308    3  321.4398\n72      308    4  356.8519"
+ },
+ {
+  "n": 6,
+  "title": "스파게티 그림",
+  "out": ""
+ },
+ {
+  "n": 7,
+  "title": "epil 불러오기",
+  "out": "(236, 9) 59\n   y      trt  base  age  V4  subject  period     lbase      lage\n0  5  placebo    11   31   0        1       1 -0.756354  0.114204\n1  3  placebo    11   31   0        1       2 -0.756354  0.114204\n2  3  placebo    11   31   0        1       3 -0.756354  0.114204\n3  3  placebo    11   31   1        1       4 -0.756354  0.114204\n4  3  placebo    11   30   0        2       1 -0.756354  0.081414\n5  5  placebo    11   30   0        2       2 -0.756354  0.081414\n6  3  placebo    11   30   0        2       3 -0.756354  0.081414\n7  3  placebo    11   30   1        2       4 -0.756354  0.081414"
+ },
+ {
+  "n": 8,
+  "title": "반복측정 분산분석 (AnovaRM)",
+  "out": "               Anova\n===================================\n     F Value Num DF  Den DF  Pr > F\n-----------------------------------\nDays 18.7027 9.0000 153.0000 0.0000\n===================================\n\n"
+ },
+ {
+  "n": 9,
+  "title": "Greenhouse–Geisser ε 직접 계산",
+  "out": "GG epsilon: 0.369\n보정 자유도: 3.32 56.46\np, 보정 없음: 8.995345416002085e-21\np, GG 보정  : 5.463091767581512e-09\np, 하한 보정: 0.0004599124155647104\n"
+ },
+ {
+  "n": 10,
+  "title": "Mauchly 검정과 Huynh–Feldt ε",
+  "out": "Mauchly W: 0.000219  chi2: 116.25  df: 44  p: 1.9417252475726137e-08\nHF epsilon: 0.469\np, HF 보정  : 7.076551753372417e-11\n"
+ },
+ {
+  "n": 12,
+  "title": "무작위 절편 모형",
+  "out": "         Mixed Linear Model Regression Results\n========================================================\nModel:             MixedLM Dependent Variable: Reaction \nNo. Observations:  180     Method:             REML     \nNo. Groups:        18      Scale:              960.4568 \nMin. group size:   10      Log-Likelihood:     -893.2325\nMax. group size:   10      Converged:          Yes      \nMean group size:   10.0                                 \n--------------------------------------------------------\n           Coef.   Std.Err.   z    P>|z|  [0.025  0.975]\n--------------------------------------------------------\nIntercept  251.405    9.747 25.794 0.000 232.302 270.508\nDays        10.467    0.804 13.015 0.000   8.891  12.044\nGroup Var 1378.176   17.156                             \n========================================================\n\n"
+ },
+ {
+  "n": 13,
+  "title": "ICC와 표준오차 비교",
+  "out": "ICC: 0.589\nOLS의 Days SE      : 1.238\n무작위 절편 Days SE: 0.804\n"
+ },
+ {
+  "n": 14,
+  "title": "무작위 절편 + 기울기 모형",
+  "out": "            Mixed Linear Model Regression Results\n==============================================================\nModel:               MixedLM   Dependent Variable:   Reaction \nNo. Observations:    180       Method:               REML     \nNo. Groups:          18        Scale:                654.9405 \nMin. group size:     10        Log-Likelihood:       -871.8141\nMax. group size:     10        Converged:            Yes      \nMean group size:     10.0                                     \n--------------------------------------------------------------\n                  Coef.  Std.Err.   z    P>|z|  [0.025  0.975]\n--------------------------------------------------------------\nIntercept        251.405    6.825 36.838 0.000 238.029 264.781\nDays              10.467    1.546  6.771 0.000   7.438  13.497\nGroup Var        612.096   11.881                             \nGroup x Days Cov   9.605    1.821                             \nDays Var          35.072    0.610                             \n==============================================================\n\n"
+ },
+ {
+  "n": 15,
+  "title": "우도비 검정, REML과 ML",
+  "out": "LR 통계량: 42.84\np (자유도 2): 4.990041428530465e-10\n                REML     ML\nintercept var  612.1  565.5\nslope var       35.1   32.7\nresidual var   654.9  654.9"
+ },
+ {
+  "n": 16,
+  "title": "Days 계수의 표준오차 네 가지",
+  "out": "                          SE of Days\nOLS (independent)              1.238\nOLS + cluster-robust           1.550\nrandom intercept               0.804\nrandom intercept + slope       1.546"
+ },
+ {
+  "n": 17,
+  "title": "참가자별 직선과 수축",
+  "out": ""
+ },
+ {
+  "n": 18,
+  "title": "군별·기간별 평균 발작 건수",
+  "out": "trt\nplacebo      28\nprogabide    31\nName: subject, dtype: int64\nperiod        1     2     3     4\ntrt                              \nplacebo    9.36  8.29  8.79  7.96\nprogabide  8.58  8.42  8.13  6.71"
+ },
+ {
+  "n": 19,
+  "title": "GEE (포아송, 교환가능 작업상관)",
+  "out": "                               GEE Regression Results                              \n===================================================================================\nDep. Variable:                           y   No. Observations:                  236\nModel:                                 GEE   No. clusters:                       59\nMethod:                        Generalized   Min. cluster size:                   4\n                      Estimating Equations   Max. cluster size:                   4\nFamily:                            Poisson   Mean cluster size:                 4.0\nDependence structure:         Exchangeable   Num. iterations:                     5\nDate:                     Wed, 14 Oct 2026   Scale:                           1.000\nCovariance type:                    robust   Time:                         06:47:32\n====================================================================================\n                       coef    std err          z      P>|z|      [0.025      0.975]\n------------------------------------------------------------------------------------\nIntercept           -2.4165      1.051     -2.300      0.021      -4.476      -0.358\ntrt[T.progabide]    -0.0107      0.192     -0.055      0.956      -0.387       0.366\nC(period)[T.2]      -0.0686      0.109     -0.629      0.530      -0.282       0.145\nC(period)[T.3]      -0.0585      0.156     -0.375      0.707      -0.364       0.247\nC(period)[T.4]      -0.2030      0.099     -2.057      0.040      -0.396      -0.010\nnp.log(base / 4)     1.2311      0.156      7.894      0.000       0.925       1.537\nnp.log(age)          0.6092      0.290      2.101      0.036       0.041       1.178\n==============================================================================\nSkew:                          3.4618   Kurtosis:                      22.4238\nCentered skew:                 2.6436   Centered kurtosis:             22.6649\n==============================================================================\nThe correlation between two observations in the same cluster is 0.400\n"
+ },
+ {
+  "n": 20,
+  "title": "발생률비로 바꾸기",
+  "out": "                     RR   2.5%  97.5%\nIntercept         0.089  0.011  0.699\ntrt[T.progabide]  0.989  0.679  1.442\nC(period)[T.2]    0.934  0.754  1.156\nC(period)[T.3]    0.943  0.695  1.280\nC(period)[T.4]    0.816  0.673  0.990\nnp.log(base / 4)  3.425  2.523  4.650\nnp.log(age)       1.839  1.042  3.246"
+ },
+ {
+  "n": 21,
+  "title": "작업상관과 표준오차 비교",
+  "out": "GLM Pearson chi2/df: 4.76\n                    coef      SE\nPoisson GLM      -0.0176  0.0482\nGEE independence -0.0176  0.1905\nGEE exchangeable -0.0107  0.1921"
+ },
+ {
+  "n": 22,
+  "title": "과제 1 정답. 수면 제한 하루당 기울기 읽기",
+  "out": "335    -0.3\n309     1.8\n310     5.0\n330     5.7\n331     7.4\n351     7.5\n371     9.5\n332    10.2\n333    10.2\n369    11.3\n334    11.5\n349    11.6\n372    11.8\n352    14.0\n370    15.3\n350    17.1\n337    19.1\n308    19.7\n5 ms/일보다 작은 참가자: 2 명\n"
+ },
+ {
+  "n": 23,
+  "title": "과제 2 정답. 기저 발작 건수를 보정하지 않으면",
+  "out": "with baseline   : RR 0.989 (0.679-1.442)  SE 0.192  alpha 0.400\nwithout baseline: RR 0.930 (0.480-1.804)  SE 0.338  alpha 0.791\n"
+ },
+ {
+  "n": 24,
+  "title": "과제 3 정답. 시간을 범주형으로 넣은 모형과 비교하기",
+  "out": "REML로 비교한 LR: 56.97\nML로 비교한 LR  : 3.74  p (자유도 8): 0.879\nAIC (ML): linear 1802.1  categorical 1814.3\nWald chi2 / 9 = 18.70\n"
+ }
+]

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">과제 1 정답. NNH를 보정 모형으로 다시 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(f&quot;crude          : risk {p1:.3f} vs {p0:.3f}, &quot;
+      f&quot;RD = {p1 - p0:.3f}, NNH = {1 / (p1 - p0):.1f}&quot;)
+for name, model in [(&quot;race only&quot;, m_race), (&quot;all covariates&quot;, full)]:
+    r1 = model.predict(df.assign(smoke=1)).mean()   # 모두 흡연했다면
+    r0 = model.predict(df.assign(smoke=0)).mean()   # 모두 비흡연이라면
+    print(f&quot;{name:15s}: risk {r1:.3f} vs {r0:.3f}, &quot;
+          f&quot;RD = {r1 - r0:.3f}, NNH = {1 / (r1 - r0):.1f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>crude          : risk 0.405 vs 0.252, RD = 0.153, NNH = 6.5<span class="mk">1</span>
+race only      : risk 0.458 vs 0.229<span class="mk">2</span>, RD = 0.229, NNH = 4.4<span class="mk">3</span>
+all covariates : risk 0.406 vs 0.250, RD = 0.156, NNH = 6.4<span class="mk">4</span></pre></div></div>

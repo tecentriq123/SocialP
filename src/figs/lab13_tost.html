@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">TOST: 두 번의 단측 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dl = np.log(auc_T) - np.log(auc_R)          # 대상자별 ln(T/R)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">TOST: 두 번의 단측 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dl = np.log(auc_T) - np.log(auc_R)          # 대상자별 ln(T/R)
 lower = stats.ttest_1samp(dl, np.log(0.80), alternative=&quot;greater&quot;)
 upper = stats.ttest_1samp(dl, np.log(1.25), alternative=&quot;less&quot;)
 print(f&quot;t_L = {lower.statistic:.2f}, P = {lower.pvalue:.5f}&quot;)

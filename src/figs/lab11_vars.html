@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">사건, 시간, 치료 변수 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d[&quot;death&quot;] = (d[&quot;status&quot;] == 2).astype(int)   # 사망 = 1, 이식·생존 = 0
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">사건, 시간, 치료 변수 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d[&quot;death&quot;] = (d[&quot;status&quot;] == 2).astype(int)   # 사망 = 1, 이식·생존 = 0
 d[&quot;years&quot;] = d[&quot;time&quot;] / 365.25
 d[&quot;dpca&quot;] = (d[&quot;trt&quot;] == 1).astype(int)       # D-penicillamine = 1
 d[&quot;female&quot;] = (d[&quot;sex&quot;] == &quot;f&quot;).astype(int)

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">로그순위 검정 (남 대 여)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import logrank_test
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">로그순위 검정 (남 대 여)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import logrank_test
 
 m = lung[&quot;sex&quot;] == 1                       # 남성이면 True
 res = logrank_test(lung.loc[m, &quot;months&quot;], lung.loc[~m, &quot;months&quot;],

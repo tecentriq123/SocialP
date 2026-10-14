@@ -52,7 +52,7 @@ PIP_OUT = """Collecting lifelines
 ...
 Successfully installed ... lifelines-0.30.3"""
 
-# ---------------------------------------------------------------- 가. 실습 데이터 준비
+# ---------------------------------------------------------------- a. 실습 데이터 준비
 c = nb.cell('''
 !pip install lifelines
 ''', title="lifelines 설치", shell_output=PIP_OUT)
@@ -117,7 +117,7 @@ print("A / B:",
 ''', title="군별 사건 수, 인년, 발생률")
 save("lab17_rates", c, marks={"4049.16": 1, "2.93": 2, "9.78": 3, "11.43": 4, "[1.02, 0.55]": 5})
 
-# ---------------------------------------------------------------- 나. 누적발생함수
+# ---------------------------------------------------------------- b. 누적발생함수
 c = nb.cell('''
 from lifelines import AalenJohansenFitter, KaplanMeierFitter
 
@@ -279,7 +279,7 @@ print("statsmodels        :", round(cir.cinc[0][-1], 4))
 ''', title="일 단위 자료에서 나오는 동점 경고")
 save("lab17_ties", c, marks={"lifelines (jitter) : 0.2455": 1, "statsmodels        : 0.2455": 2})
 
-# ---------------------------------------------------------------- 다. 원인별 위험비와 Fine–Gray 위험비
+# ---------------------------------------------------------------- c. 원인별 위험비와 Fine–Gray 위험비
 c = nb.cell('''
 from lifelines import CoxPHFitter
 
@@ -426,7 +426,7 @@ theory.set_index("case").round({"A": 1, "sHR_5y": 2})
 ''', title="약이 사망에 주는 영향을 바꾼 이론값 (17장 표 17-5)")
 save("lab17_theory", c, marks={"B: 25.9%": 1}, dfmarks={"31.0": 2, "1.24": 3, "21.5": 4, "25.8": 5, "21.6": 6})
 
-# ---------------------------------------------------------------- 라. 과제 (정답 셀)
+# ---------------------------------------------------------------- d. 과제 (정답 셀)
 c = nb.cell('''
 ckd["any"] = (ckd["status"] > 0).astype(int)   # 투석 또는 사망
 comp = CoxPHFitter().fit(ckd, "years", "any", formula="drug_a")
@@ -507,8 +507,8 @@ HW = {
                      "1 = 고관절 골절, 2 = 골절 전 사망)로 동료의 분석을 재현하고, 골절과 사망의 원인별 위험비, 사망의 "
                      "누적발생률, 1 − Kaplan-Meier를 함께 구해 틀린 곳 두 가지를 찾습니다."),
 }
-NOTES = {K["lab17_install"]: "## 가. 실습 데이터 준비", K["lab17_tiny"]: "## 나. 누적발생함수",
-         K["lab17_cs"]: "## 다. 원인별 위험비와 Fine–Gray 위험비"}
+NOTES = {K["lab17_install"]: "## a. 실습 데이터 준비", K["lab17_tiny"]: "## b. 누적발생함수",
+         K["lab17_cs"]: "## c. 원인별 위험비와 Fine–Gray 위험비"}
 NOTES.update(HW)
 path = nb.save_ipynb(
     "실습 17. 경쟁위험 분석",

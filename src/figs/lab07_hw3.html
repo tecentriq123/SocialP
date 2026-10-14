@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">과제 3 정답. 12개월 생존 여부를 카이제곱으로 비교한 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import survival_difference_at_fixed_point_in_time_test
+
+known = (lung[&quot;months&quot;] &gt;= 12) | (lung[&quot;event&quot;] == 1)  # 1년 생존 여부를 아는 환자
+print(&quot;excluded:&quot;, (~known).sum(), &quot;(male, female) =&quot;,
+      lung.loc[~known, &quot;sex&quot;].value_counts().sort_index().tolist())
+d12 = lung[known].assign(dead12=lambda x: (x[&quot;months&quot;] &lt; 12).astype(int))
+tab12 = pd.crosstab(d12[&quot;sex&quot;], d12[&quot;dead12&quot;])        # 열 1 = 12개월 안 사망
+print(tab12)
+print(&quot;colleague 1-yr survival:&quot;, (tab12[0] / tab12.sum(axis=1)).round(3).tolist(),
+      &quot; chi-square P =&quot;, round(stats.chi2_contingency(tab12)[1], 3))
+fp = survival_difference_at_fixed_point_in_time_test(
+    12, km_sex[&quot;Male&quot;], km_sex[&quot;Female&quot;])
+print(&quot;Kaplan-Meier 1-yr survival:&quot;,
+      [round(float(k.predict(12)), 3) for k in km_sex.values()],
+      &quot; P =&quot;, round(fp.p_value, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>excluded: 42 (male, female) = [18, 24]<span class="mk">1</span>
+dead12   0   1
+sex           
+1       35  85
+2       30  36
+colleague 1-yr survival: [0.292, 0.455]<span class="mk">2</span>  chi-square P = 0.039<span class="mk">3</span>
+Kaplan-Meier 1-yr survival: [0.336, 0.526]<span class="mk">4</span>  P = 0.013<span class="mk">5</span></pre></div></div>

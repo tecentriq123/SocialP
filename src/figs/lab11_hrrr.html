@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">위험비와 누적위험의 비(상대위험도)는 다르다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pts = pd.DataFrame([df.median()] * 2)       # 중앙값 환자 두 명
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">위험비와 누적위험의 비(상대위험도)는 다르다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pts = pd.DataFrame([df.median()] * 2)       # 중앙값 환자 두 명
 pts[&quot;dpca&quot;] = 0
 pts[&quot;edema&quot;] = [0.0, 1.0]                   # 부종 없음 / 이뇨제에도 부종
 S = cph.predict_survival_function(pts, times=[1, 5, 10])

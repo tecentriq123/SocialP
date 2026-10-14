@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">기울기 검정 = 상관 검정 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(model.pvalues)                     # 계수별 정확한 p-value
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">기울기 검정 = 상관 검정 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(model.pvalues)                     # 계수별 정확한 p-value
 print(&quot;Pearson p :&quot;, res.pvalue)
 print(&quot;t^2 =&quot;, round(model.tvalues[&quot;bmi&quot;] ** 2, 2),
       &quot;  F =&quot;, round(model.fvalue, 2))

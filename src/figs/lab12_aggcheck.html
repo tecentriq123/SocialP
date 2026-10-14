@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">요약이 맞는지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">span = (cgd[&quot;tstop&quot;] - cgd[&quot;tstart&quot;]).groupby(cgd[&quot;id&quot;]).sum()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">요약이 맞는지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">span = (cgd[&quot;tstop&quot;] - cgd[&quot;tstart&quot;]).groupby(cgd[&quot;id&quot;]).sum()
 print((span.values == pt[&quot;days&quot;].values).all())  # 빈틈 없는 추적?
 print(pt[&quot;n_inf&quot;].sum(), round(pt[&quot;py&quot;].sum(), 1))
 pt[&quot;n_inf&quot;].value_counts().sort_index()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>True<span class="mk">1</span>

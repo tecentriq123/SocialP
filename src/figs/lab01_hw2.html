@@ -1,0 +1,69 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">과제 2 정답. Welch t 검정을 Mann-Whitney 검정으로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tt[&quot;p_mw&quot;] = [stats.mannwhitneyu(mal[f], ben[f]).pvalue
+              for f in features]               # 30개 변수의 Mann-Whitney 검정
+holm_mw = multipletests(tt[&quot;p_mw&quot;], method=&quot;holm&quot;)[0]
+print(&quot;Welch       : p &lt; 0.05&quot;, (tt[&quot;p&quot;] &lt; 0.05).sum(),
+      &quot;| after Holm&quot;, (tt[&quot;p_holm&quot;] &lt; 0.05).sum())
+print(&quot;Mann-Whitney: p &lt; 0.05&quot;, (tt[&quot;p_mw&quot;] &lt; 0.05).sum(),
+      &quot;| after Holm&quot;, holm_mw.sum())
+two = [&quot;fractal dimension error&quot;, &quot;symmetry error&quot;]
+for f in two:
+    print(f&quot;{f:23}: Welch p = {tt.loc[f, &#x27;p&#x27;]:.3f}, &quot;
+          f&quot;Mann-Whitney p = {tt.loc[f, &#x27;p_mw&#x27;]:.2g}&quot;)
+df.groupby(&quot;diagnosis&quot;, observed=True)[two].agg(
+    [&quot;median&quot;, &quot;mean&quot;, &quot;std&quot;, &quot;max&quot;]).T.round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Welch       : p &lt; 0.05 26 | after Holm 25<span class="mk">1</span>
+Mann-Whitney: p &lt; 0.05 27 | after Holm 26<span class="mk">2</span>
+fractal dimension error: Welch p = 0.042, Mann-Whitney p = 1.6e-06<span class="mk">3</span>
+symmetry error         : Welch p = 0.887, Mann-Whitney p = 0.028<span class="mk">4</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>diagnosis</th>
+      <th>benign</th>
+      <th>malignant</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="4" valign="top">fractal dimension error</th>
+      <th>median</th>
+      <td>0.0028</td>
+      <td>0.0037</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>0.0036</td>
+      <td>0.0041</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.0029</td>
+      <td>0.0020</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>0.0298<span class="mk">5</span></td>
+      <td>0.0128</td>
+    </tr>
+    <tr>
+      <th rowspan="4" valign="top">symmetry error</th>
+      <th>median</th>
+      <td>0.0191</td>
+      <td>0.0177</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>0.0206</td>
+      <td>0.0205</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.0070</td>
+      <td>0.0101</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>0.0615</td>
+      <td>0.0790</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

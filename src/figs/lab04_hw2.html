@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 2 정답. Tukey 대신 Dunnett 방법으로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dun = stats.dunnett(black, other, control=white, rng=2026)   # 대조군 = White
+ci_d = dun.confidence_interval()
+for k, name in enumerate([&quot;Black&quot;, &quot;Other&quot;]):      # 넣은 순서대로
+    print(f&quot;{name} - White: p = {dun.pvalue[k]:.3f}&quot;)
+    print(f&quot;  95% CI {ci_d.low[k]:.1f} ~ {ci_d.high[k]:.1f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Black - White: p = 0.032<span class="mk">1</span>
+  95% CI -737.9<span class="mk">2</span> ~ -28.1<span class="mk">3</span>
+Other - White: p = 0.019<span class="mk">4</span>
+  95% CI -553.0 ~ -41.9</pre></div></div>

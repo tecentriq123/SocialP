@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">무작위배정 환자만 남기기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(pbc[&quot;trt&quot;].value_counts(dropna=False))
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">무작위배정 환자만 남기기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(pbc[&quot;trt&quot;].value_counts(dropna=False))
 
 d = pbc[pbc[&quot;trt&quot;].notna()].copy()        # 무작위배정된 312명만
 pd.crosstab(d[&quot;status&quot;], d[&quot;trt&quot;], margins=True)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>trt

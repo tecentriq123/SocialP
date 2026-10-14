@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">Levene 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lev_med = stats.levene(smoker, nonsmoker)   # 중앙값 기준 (기본값)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">Levene 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lev_med = stats.levene(smoker, nonsmoker)   # 중앙값 기준 (기본값)
 lev_mean = stats.levene(smoker, nonsmoker, center=&quot;mean&quot;)
 print(lev_med)
 print(f&quot;median: p = {lev_med.pvalue:.3f}&quot;)

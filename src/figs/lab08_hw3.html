@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">과제 3 정답. 인종에 따라 흡연의 효과가 다른가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_int = smf.logit(&quot;low ~ smoke * C(race)&quot;, df).fit(disp=0)  # 교호작용 항 포함
+lr_int = 2 * (m_int.llf - m_race.llf)               # 교호작용 항이 없는 모형과 비교
+print(f&quot;P for interaction (LR, df = 2): chi2 = {lr_int:.2f}, &quot;
+      f&quot;P = {stats.chi2.sf(lr_int, 2):.3f}&quot;)
+print(np.exp(m_int.params).round(2), &quot;\n&quot;)
+risk = df.pivot_table(index=&quot;race_f&quot;, columns=&quot;smoke&quot;, values=&quot;low&quot;,
+                      aggfunc=&quot;mean&quot;, observed=True)
+print((risk[1] - risk[0]).round(3))                  # 인종별 위험차</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>P for interaction (LR, df = 2): chi2 = 3.16, P = 0.206<span class="mk">1</span>
+Intercept             0.10
+C(race)[T.2]          4.55
+C(race)[T.3]          5.71
+smoke                 5.76<span class="mk">2</span>
+smoke:C(race)[T.2]    0.57<span class="mk">3</span>
+smoke:C(race)[T.3]    0.22<span class="mk">4</span>
+dtype: float64 
+
+race_f
+White    0.274<span class="mk">5</span>
+Black    0.288<span class="mk">6</span>
+Other    0.053
+dtype: float64</pre></div></div>

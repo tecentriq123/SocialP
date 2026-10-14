@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">수정 포아송 회귀로 보정 상대위험도 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mp = smf.glm(f_adj, df, family=fam.Poisson()).fit(cov_type=&quot;HC0&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">수정 포아송 회귀로 보정 상대위험도 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mp = smf.glm(f_adj, df, family=fam.Poisson()).fit(cov_type=&quot;HC0&quot;)
 ml = smf.glm(f_adj, df, family=fam.Binomial()).fit()
 for name, r in [(&quot;aRR, modified Poisson&quot;, mp), (&quot;aOR, logistic&quot;, ml)]:
     lo, hi = np.exp(r.conf_int().loc[&quot;smoke&quot;])

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">군별 발생률과 정확 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">군별 발생률과 정확 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
 
 rt = pt.groupby(&quot;treat&quot;, observed=True).agg(
     patients=(&quot;id&quot;, &quot;size&quot;),

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">중앙 추적기간 (역 Kaplan-Meier)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import median_survival_times, qth_survival_times
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">중앙 추적기간 (역 Kaplan-Meier)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import median_survival_times, qth_survival_times
 
 print(&quot;전체 time의 중앙값:&quot;, round(lung[&quot;months&quot;].median(), 1))
 alive = lung[&quot;event&quot;] == 0

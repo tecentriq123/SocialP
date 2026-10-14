@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">인종 전체의 P: 결합 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(m_cat.wald_test_terms())
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">인종 전체의 P: 결합 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(m_cat.wald_test_terms())
 m_smoke = smf.logit(&quot;low ~ smoke&quot;, df).fit(disp=0)
 lr = 2 * (m_cat.llf - m_smoke.llf)
 print(f&quot;\nLR test for race: chi2 = {lr:.3f}, df = 2, &quot;

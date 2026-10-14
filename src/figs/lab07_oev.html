@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">O, E, V를 직접 계산해 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">O, E, V를 직접 계산해 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
 for t in np.sort(lung.loc[lung[&quot;event&quot;] == 1, &quot;months&quot;].unique()):
     r = lung[lung[&quot;months&quot;] &gt;= t]             # t 직전 위험집합
     dead = (r[&quot;months&quot;] == t) &amp; (r[&quot;event&quot;] == 1)

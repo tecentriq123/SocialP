@@ -1,0 +1,46 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">과제 2 정답. 극단값 하나가 커지면 세 검정은</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def three_tests(x):                    # 차이 x에 세 검정을 한 번에
+    t = stats.ttest_1samp(x, 0)
+    return {&quot;mean&quot;: x.mean(), &quot;SD&quot;: x.std(),
+            &quot;paired t p&quot;: t.pvalue,
+            &quot;signed-rank p&quot;: stats.wilcoxon(x).pvalue,
+            &quot;sign test p&quot;: stats.binomtest(int((x &gt; 0).sum()),
+                                           int((x != 0).sum())).pvalue}
+
+d2 = d.copy()
+d2[9] = 14.6                           # 환자 9의 차이만 4.6 -&gt; 14.6
+pd.DataFrame({&quot;d&quot;: three_tests(d), &quot;d2&quot;: three_tests(d2)}).round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>d</th>
+      <th>d2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>1.5800</td>
+      <td>2.5800<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>SD</th>
+      <td>1.2300</td>
+      <td>4.2690<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>paired t p</th>
+      <td>0.0028</td>
+      <td>0.0883<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>signed-rank p<span class="mk">4</span></th>
+      <td>0.0039</td>
+      <td>0.0039</td>
+    </tr>
+    <tr>
+      <th>sign test p</th>
+      <td>0.0039</td>
+      <td>0.0039</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

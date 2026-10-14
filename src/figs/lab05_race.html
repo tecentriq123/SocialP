@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">세 군 이상: 인종별 저체중아 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs_r = pd.crosstab(df[&quot;race_f&quot;], df[&quot;low_f&quot;])
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">세 군 이상: 인종별 저체중아 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs_r = pd.crosstab(df[&quot;race_f&quot;], df[&quot;low_f&quot;])
 res_r = stats.chi2_contingency(obs_r)  # 2×2가 아니면 보정 없음
 print(f&quot;chi2 = {res_r.statistic:.3f}, dof = {res_r.dof}, &quot;
       f&quot;p = {res_r.pvalue:.4f}&quot;)

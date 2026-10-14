@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Greenwood 공식과 log-log 신뢰구간 직접 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">et = kmf.event_table.loc[:12]             # 12개월까지의 사건 표
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">Greenwood 공식과 log-log 신뢰구간 직접 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">et = kmf.event_table.loc[:12]             # 12개월까지의 사건 표
 d, n = et[&quot;observed&quot;], et[&quot;at_risk&quot;]
 gw = (d / (n * (n - d))).sum()            # Greenwood 합
 s = kmf.survival_function_at_times(12).iloc[0]

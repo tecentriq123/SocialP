@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">차이 d에 대한 일표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d = wide[&quot;d&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">차이 d에 대한 일표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d = wide[&quot;d&quot;]
 one = stats.ttest_1samp(d, popmean=0)
 print(f&quot;one-sample: t = {one.statistic:.3f}, p = {one.pvalue:.4f}&quot;)
 

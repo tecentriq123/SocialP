@@ -185,7 +185,7 @@ def compute():
               t["eC"] / t["nC"] * 100, t["bT"], t["nT"], t["bT"] / t["nT"] * 100, t["bC"], t["nC"], t["bC"] / t["nC"] * 100))
     pr("totals", R["N"])
 
-    # ------------------------------------------------------------------ 나. pooling (efficacy)
+    # ------------------------------------------------------------------ b. pooling (efficacy)
     pr("=" * 78, "\n나. pooled OR, efficacy (MACE)")
     y, v = lor(eT, nT, eC, nC)
     E = dl(y, v)
@@ -277,7 +277,7 @@ def compute():
        % (lowE, lowN, np.exp(y2[0]), highE, highN, np.exp(y2[1]), eC[ib], nC[ib], wB_ok * 100, wB_dbl * 100, wB_dbl / wB_ok, 1 / v[ib], (1 / v2).sum()))
     R["multi"] = dict(lowE=lowE, highE=highE, or_low=np.exp(y2[0]), or_high=np.exp(y2[1]), w_ok=wB_ok, w_dbl=wB_dbl, iv_ok=1 / v[ib], iv_dbl=(1 / v2).sum())
 
-    # ------------------------------------------------------------------ 다. heterogeneity, subgroups, meta-regression
+    # ------------------------------------------------------------------ c. heterogeneity, subgroups, meta-regression
     pr("=" * 78, "\n다. subgroups (six trials reporting MACE by index event)")
     rep = g("rep")
     names_rep = [n for n, r_ in zip(nm, rep) if r_]
@@ -341,7 +341,7 @@ def compute():
     MRb = metareg(yb, vb, (g("dp") - 90) / 10)
     pr("  (bleeding log OR on DAPT%% per 10%%p: slope %.3f p %.3f)" % (MRb["b"][1], MRb["p"][1]))
 
-    # ------------------------------------------------------------------ 라. funnel, Egger, sensitivity
+    # ------------------------------------------------------------------ d. funnel, Egger, sensitivity
     pr("=" * 78, "\n라. funnel / Egger / sensitivity")
     EG = egger(y, v)
     pr("Egger (efficacy, k=10): intercept %.3f SE %.3f t %.2f df %d p %.3f" % (EG["b0"], EG["se0"], EG["t"], EG["df"], EG["p"]))
@@ -383,7 +383,7 @@ def compute():
        % ((~pub).sum(), pub.sum(), *da["re_or"], ea["p"], *dp_["re_or"], dp_["re_p"], dp_["I2"], ep["b0"], ep["p"]))
     R["fun"] = dict(se=sef, y=yf, pub=pub, all=da, publ=dp_, eg_all=ea, eg_pub=ep)
 
-    # ------------------------------------------------------------------ 마. absolute effects, NNT / NNH
+    # ------------------------------------------------------------------ e. absolute effects, NNT / NNH
     pr("=" * 78, "\n마. NNT / NNH")
     m12 = np.array([t["mo"] == 12 for t in T])
     p0 = eC[m12].sum() / nC[m12].sum(); pb0 = bC[m12].sum() / nC[m12].sum()

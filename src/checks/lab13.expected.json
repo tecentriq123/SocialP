@@ -1,0 +1,102 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "numpy        2.5.3\npandas       3.0.5\nscipy        1.18.1\nstatsmodels  0.15.0\nmatplotlib   3.11.2\n"
+ },
+ {
+  "n": 2,
+  "title": "모의 임상시험 자료 만들기",
+  "out": "[ 0.31  0.93  0.43 -1.73 -2.16]\ndrug X: n=185, mean=-0.749, SD=1.001\ncomparator: n=183, mean=-0.893, SD=1.027\n"
+ },
+ {
+  "n": 3,
+  "title": "차이와 95% 신뢰구간",
+  "out": "difference = 0.145\n95% CI -0.063 to 0.353\nP (difference = 0) = 0.172\n"
+ },
+ {
+  "n": 4,
+  "title": "비열등성 검정 (단측)",
+  "out": "TtestResult(statistic=np.float64(-2.413678866833918), pvalue=np.float64(0.008141687080523074), df=np.float64(365.5051608185273))\nSE = 0.1058, (d - margin) / SE = -2.414\none-sided 97.5% CI: -inf to 0.353\n"
+ },
+ {
+  "n": 5,
+  "title": "신뢰구간과 한계를 한 그림에",
+  "out": ""
+ },
+ {
+  "n": 6,
+  "title": "요약 통계로 13장 b·c 절의 숫자 재현",
+  "out": "PDC (ch13 b): difference -1.30, SE 1.3913, df 605.0, 95% CI -4.03 to 1.43, t 2.66, one-sided P 0.0040\nHbA1c (ch13 c): difference 0.09, SE 0.1085, df 365.1, 95% CI -0.12 to 0.30, t -2.86, one-sided P 0.0023\n"
+ },
+ {
+  "n": 7,
+  "title": "위험차의 Wald 구간과 Newcombe 구간",
+  "out": "   trial   method    diff   lower   upper  NI (lower > -0.10)\n0   main     wald -0.0179 -0.0859  0.0501                True\n1   main  newcomb -0.0179 -0.0862  0.0506                True\n2  small     wald -0.0400 -0.0943  0.0143                True\n3  small  newcomb -0.0400 -0.1346  0.0370               False"
+ },
+ {
+  "n": 8,
+  "title": "네 신뢰구간 그리기",
+  "out": ""
+ },
+ {
+  "n": 10,
+  "title": "statsmodels의 score(Farrington–Manning) 검정",
+  "out": "z = 2.309, one-sided P = 0.0105\n"
+ },
+ {
+  "n": 11,
+  "title": "Farrington–Manning 검정을 직접 계산",
+  "out": "restricted MLE: new 0.7795, standard 0.8795\nz = 2.333, one-sided P = 0.0098\n"
+ },
+ {
+  "n": 12,
+  "title": "Theoph 불러오기",
+  "out": "(132, 5) 12\n    Subject    Wt  Dose   Time   conc\n0         1  79.6  4.02   0.00   0.74\n1         1  79.6  4.02   0.25   2.84\n2         1  79.6  4.02   0.57   6.57\n3         1  79.6  4.02   1.12  10.50\n4         1  79.6  4.02   2.02   9.66\n5         1  79.6  4.02   3.82   8.58\n6         1  79.6  4.02   5.10   8.36\n7         1  79.6  4.02   7.03   7.47\n8         1  79.6  4.02   9.05   6.89\n9         1  79.6  4.02  12.12   5.94\n10        1  79.6  4.02  24.37   3.28"
+ },
+ {
+  "n": 13,
+  "title": "혈중농도-시간 곡선",
+  "out": ""
+ },
+ {
+  "n": 14,
+  "title": "사다리꼴 규칙으로 AUC 계산",
+  "out": "    Subject  AUC_0_t   Cmax  Tmax\n0         1   148.92  10.50  1.12\n1         2    91.53   8.33  1.92\n2         3    99.29   8.20  1.02\n3         4   106.80   8.60  1.07\n4         5   121.29  11.40  1.00\n5         6    73.78   6.44  1.15\n6         7    90.75   7.09  3.48\n7         8    88.56   7.56  2.02\n8         9    86.33   9.03  0.63\n9        10   138.37  10.21  3.55\n10       11    80.09   8.00  0.98\n11       12   119.98   9.75  3.52"
+ },
+ {
+  "n": 15,
+  "title": "기하평균비와 90% 신뢰구간 (대응 자료)",
+  "out": "GMR = 95.75%\n90% CI 89.10% to 102.89%\n"
+ },
+ {
+  "n": 16,
+  "title": "TOST: 두 번의 단측 검정",
+  "out": "t_L = 4.48, P = 0.00046\nt_U = -6.65, P = 0.00002\npaired t test of no difference: P = 0.30\n"
+ },
+ {
+  "n": 17,
+  "title": "2×2 교차설계 모의자료",
+  "out": "   subject seq  period form          auc\n0        1  TR       1    T  4618.750348\n1        1  TR       2    R  8209.687452\n2        2  TR       1    T  5271.948346\n3        2  TR       2    R  4911.692103"
+ },
+ {
+  "n": 18,
+  "title": "교차설계 분산분석으로 90% 신뢰구간",
+  "out": "GMR = 95.82%, 90% CI 89.71% to 102.36%\nresidual df = 22, MSE = 0.0177\nCV_intra = 13.4%\n"
+ },
+ {
+  "n": 19,
+  "title": "과제 1 정답. 기하평균비의 90% 신뢰구간 읽기",
+  "out": "form          R       T\nsubject                \n1        8210.0  4619.0\n2        4912.0  5272.0\n3        6779.0  6921.0\ngeometric mean of T/R: 95.82 %\nrange of T/R: 0.563 to 1.304\noutside 80-125%: 5 of 24\n"
+ },
+ {
+  "n": 20,
+  "title": "과제 2 정답. 위험차 대신 비의 척도로 판정하기",
+  "out": "success: ratio 0.979, 95% CI 0.903 to 1.062, margin 0.882, SE(log) 0.041\nfailure: ratio 1.118, 95% CI 0.731 to 1.708, margin 1.667, SE(log) 0.216\n"
+ },
+ {
+  "n": 21,
+  "title": "과제 3 정답. 소규모 시험을 '차이 없음'과 Wald 구간으로 판단한 분석",
+  "out": "Fisher exact P (difference = 0): 0.495\n   trial   method  diff   lower   upper  NI (lower > -0.10)\n2  small     wald -0.04 -0.0943  0.0143                True\n3  small  newcomb -0.04 -0.1346  0.0370               False\nNI test, wald : z = 2.165, one-sided P = 0.0152\nNI test, score: z = 1.414, one-sided P = 0.0786\n"
+ }
+]

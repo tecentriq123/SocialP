@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Dunn 검정 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">N = len(df)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">Dunn 검정 직접 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">N = len(df)
 t = df[&quot;bwt&quot;].value_counts()               # 동점 묶음의 크기
 tie = (t**3 - t).sum() / (12 * (N - 1))    # 동점 보정 항
 mean_rank = df.groupby(&quot;race_f&quot;, observed=True)[&quot;rank&quot;].mean()

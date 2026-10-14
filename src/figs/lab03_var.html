@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">상관이 표준오차를 줄이는 원리</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">s1, s2 = wide[&quot;drug1&quot;].std(), wide[&quot;drug2&quot;].std()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">상관이 표준오차를 줄이는 원리</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">s1, s2 = wide[&quot;drug1&quot;].std(), wide[&quot;drug2&quot;].std()
 sd_paired = np.sqrt(s1**2 + s2**2 - 2 * r * s1 * s2)
 sd_indep = np.sqrt(s1**2 + s2**2)            # r = 0으로 본 경우
 print(f&quot;SD1 = {s1:.3f}, SD2 = {s2:.3f}, r = {r:.3f}&quot;)

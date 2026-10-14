@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">과제 2 정답. 행과 열의 순서 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tabs = {&quot;original&quot;: obs.to_numpy(),                 # 흡연군, LBW가 첫 행·첫 열
+        &quot;rows swapped&quot;: obs.to_numpy()[::-1],        # 비흡연군을 첫 행으로
+        &quot;columns swapped&quot;: obs.to_numpy()[:, ::-1]}  # &#x27;Not LBW&#x27;를 첫 열(사건)로
+for name, arr in tabs.items():
+    t = Table2x2(arr)
+    r1, r0 = arr[0, 0] / arr[0].sum(), arr[1, 0] / arr[1].sum()
+    print(f&quot;{name:15s} risks {r1:.3f} {r0:.3f}  RD {r1 - r0:+.3f}&quot;
+          f&quot;  RR {t.riskratio:.3f}  OR {t.oddsratio:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>original        risks 0.405 0.252  RD +0.153  RR 1.608  OR 2.022<span class="mk">1</span>
+rows swapped    risks 0.252 0.405  RD -0.153  RR 0.622  OR 0.495<span class="mk">2</span>
+columns swapped risks 0.595 0.748<span class="mk">3</span>  RD -0.153  RR 0.795  OR 0.495<span class="mk">4</span></pre></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">논문용 결과표 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def tidy(m):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">논문용 결과표 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def tidy(m):
     ci = m.conf_int()
     f2 = &quot;{:.2f}&quot;.format
     est = (m.params.map(f2) + &quot; (&quot; + ci[0].map(f2) + &quot; to &quot;

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">단순회귀 적합과 summary()</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">단순회귀 적합과 summary()</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
 
 model = smf.ols(&quot;target ~ bmi&quot;, data=df).fit()   # 모형 적합
 print(model.summary())                           # 결과 요약표</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                            OLS Regression Results                            
@@ -6,8 +6,8 @@ print(model.summary())                           # 결과 요약표</code></pre>
 Dep. Variable:                 target   R-squared:                       0.344  <span class="mk">1</span><span class="mk">2</span>
 Model:                            OLS   Adj. R-squared:                  0.342  <span class="mk">3</span>
 Method:                 Least Squares   F-statistic:                     230.7  <span class="mk">4</span>
-Date:                Wed, 30 Sep 2026   Prob (F-statistic):           3.47e-42  <span class="mk">5</span>
-Time:                        02:24:39   Log-Likelihood:                -2454.0  <span class="mk">6</span>
+Date:                Wed, 14 Oct 2026   Prob (F-statistic):           3.47e-42  <span class="mk">5</span>
+Time:                        09:10:59   Log-Likelihood:                -2454.0  <span class="mk">6</span>
 No. Observations:                 442   AIC:                             4912.  <span class="mk">7</span><span class="mk">8</span>
 Df Residuals:                     440   BIC:                             4920.  <span class="mk">9</span>
 Df Model:                           1                                           <span class="mk">10</span>

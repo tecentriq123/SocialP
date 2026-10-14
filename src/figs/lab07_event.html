@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">status 확인과 사건 변수 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(lung[&quot;status&quot;].value_counts())
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">status 확인과 사건 변수 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(lung[&quot;status&quot;].value_counts())
 
 # 사건(사망) = 1, 중도절단 = 0 으로 새 열을 만듦
 lung[&quot;event&quot;] = (lung[&quot;status&quot;] == 2).astype(int)

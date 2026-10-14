@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">영향력이 큰 환자 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">infl = model.get_influence().summary_frame()    # 환자별 영향력 지표
+top = infl.sort_values(&quot;cooks_d&quot;, ascending=False).head(3)
+print(top[[&quot;cooks_d&quot;, &quot;standard_resid&quot;, &quot;hat_diag&quot;]]
+      .join(df[[&quot;bmi&quot;, &quot;target&quot;]]).round(3))
+m_wo = smf.ols(&quot;target ~ bmi&quot;, data=df.drop(index=top.index[0])).fit()
+print(&quot;slope, all 442 patients:&quot;, round(model.params[&quot;bmi&quot;], 2))
+print(&quot;slope, without top 1   :&quot;, round(m_wo.params[&quot;bmi&quot;], 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     cooks_d  standard_resid  hat_diag   bmi  target
+417    0.026<span class="mk">1</span>          -2.648     0.007  33.0<span class="mk">2</span>    55.0
+367    0.022          -1.171     0.031  42.2   242.0
+147    0.018          -1.808     0.011  35.0   128.0
+slope, all 442 patients: 10.23<span class="mk">3</span>
+slope, without top 1   : 10.36<span class="mk">4</span></pre></div></div>

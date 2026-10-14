@@ -1,0 +1,75 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">과제 2 정답. 사망 또는 간이식을 사건으로 보면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df2 = d[cols + [&quot;status&quot;]].dropna().reset_index(drop=True)
+df2[&quot;log2_bili&quot;] = np.log2(df2[&quot;bili&quot;])
+df2[&quot;event2&quot;] = (df2[&quot;status&quot;] &gt; 0).astype(int)   # 이식(1) 또는 사망(2)
+print(&quot;events: death&quot;, df2[&quot;death&quot;].sum(),
+      &quot; death or transplant&quot;, df2[&quot;event2&quot;].sum())
+cph_tx = CoxPHFitter()
+cph_tx.fit(df2, duration_col=&quot;years&quot;, event_col=&quot;event2&quot;,
+           formula=&quot;dpca + age10 + female + log2_bili + albumin&quot;
+                   &quot; + C(edema) + protime&quot;)
+s = cph_tx.summary.loc[&quot;dpca&quot;]
+print(f&quot;dpca HR {s[&#x27;exp(coef)&#x27;]:.3f} ({s[&#x27;exp(coef) lower 95%&#x27;]:.3f}&quot;
+      f&quot;-{s[&#x27;exp(coef) upper 95%&#x27;]:.3f}), p {s[&#x27;p&#x27;]:.3f}&quot;)
+print(d.groupby(d[&quot;status&quot;] == 1)[[&quot;age&quot;, &quot;bili&quot;]].median())  # 이식받은 19명(True)
+pd.DataFrame({&quot;death&quot;: cph.hazard_ratios_,
+              &quot;death or transplant&quot;: cph_tx.hazard_ratios_}).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>events: death 125<span class="mk">1</span>  death or transplant 144<span class="mk">2</span>
+dpca HR 0.986 (0.695-1.398), p 0.937<span class="mk">3</span>
+              age  bili
+status                 
+False   50.540726   1.3
+True    40.900753   3.2<span class="mk">4</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>death</th>
+      <th>death or transplant</th>
+    </tr>
+    <tr>
+      <th>covariate</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>dpca</th>
+      <td>0.938</td>
+      <td>0.986</td>
+    </tr>
+    <tr>
+      <th>age10</th>
+      <td>1.369</td>
+      <td>1.180<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>female</th>
+      <td>0.703</td>
+      <td>0.651</td>
+    </tr>
+    <tr>
+      <th>log2_bili</th>
+      <td>1.842</td>
+      <td>1.824</td>
+    </tr>
+    <tr>
+      <th>albumin</th>
+      <td>0.372</td>
+      <td>0.394</td>
+    </tr>
+    <tr>
+      <th>C(edema)[T.0.5]</th>
+      <td>1.218</td>
+      <td>1.235</td>
+    </tr>
+    <tr>
+      <th>C(edema)[T.1.0]</th>
+      <td>2.582</td>
+      <td>2.479</td>
+    </tr>
+    <tr>
+      <th>protime</th>
+      <td>1.284</td>
+      <td>1.205<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

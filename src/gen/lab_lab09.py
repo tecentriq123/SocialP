@@ -90,7 +90,7 @@ nb = Notebook("lab09")
 S = nb.save_fragment
 NOTES = {}     # 노트북에서 셀 앞에 넣을 짧은 안내 (절 제목, 과제 문제)
 
-# ================================================================ 가. 실습 데이터 준비
+# ================================================================ a. 실습 데이터 준비
 c = nb.cell('''
 import pandas as pd
 import numpy as np
@@ -104,7 +104,7 @@ print("matplotlib  ", matplotlib.__version__)
 print("scikit-learn", sklearn.__version__)
 ''', title="패키지 불러오기와 버전 확인")
 S("lab09_versions", H(c, lines=[("statsmodels", [1]), ("scikit-learn", [2])]))
-NOTES[c.n] = ("## 가. 실습 데이터 준비\n\n이 실습이 쓰는 패키지를 불러와 버전을 확인한 뒤 birthwt 자료를 읽습니다. "
+NOTES[c.n] = ("## a. 실습 데이터 준비\n\n이 실습이 쓰는 패키지를 불러와 버전을 확인한 뒤 birthwt 자료를 읽습니다. "
               "자료는 인터넷에서 읽어 오므로 인터넷 연결이 필요합니다.")
 
 c = nb.cell('''
@@ -136,7 +136,7 @@ print("EPV =", round(min(n_event, n_non) / k, 1))
 ''', title="사건 수와 EPV")
 S("lab09_epv", H(c, marks={"events: 59": 1, "proportion: 0.312": 2, "EPV = 7.4": 3}))
 
-# ================================================================ 나. 다변수 로지스틱 회귀
+# ================================================================ b. 다변수 로지스틱 회귀
 c = nb.cell('''
 import statsmodels.formula.api as smf
 
@@ -144,7 +144,7 @@ f = "low ~ age + lwt + C(race) + smoke + ptd + ht + ui"
 logit_m = smf.logit(f, data=bw).fit()     # 최대우도추정
 print(logit_m.summary())
 ''', title="다변수 로지스틱 회귀 적합")
-NOTES[c.n] = "## 나. 다변수 로지스틱 회귀"
+NOTES[c.n] = "## b. 다변수 로지스틱 회귀"
 S("lab09_logit", H(c, lines=[
     ("Optimization terminated successfully.", [1]),
     ("Iterations 6", [2]),
@@ -245,7 +245,7 @@ smf.logit("low12 ~ smoke", data=bw).fit()
 S("lab09_err", H(c))
 ERR_CELL = c.n     # 일부러 오류를 내는 셀: 노트북에서는 뺀다(위에서부터 모두 실행이 멈추지 않게)
 
-# ================================================================ 다. 모형 점검
+# ================================================================ c. 모형 점검
 c = nb.cell('''
 from scipy import stats
 
@@ -259,7 +259,7 @@ print("AIC linear:", round(logit_m.aic, 1),
       " spline:", round(spline_m.aic, 1))
 ''', title="lwt의 로짓 선형성: 스플라인과 비교")
 NOTES[c.n] = (f"결과변수를 1/2로 넣어 일부러 오류를 내 보는 셀(셀 {ERR_CELL})은 이 노트북에서 뺐습니다"
-              "(사이트의 실습 9 b 절에 있습니다).\n\n## 다. 모형 점검")
+              "(사이트의 실습 9 b 절에 있습니다).\n\n## c. 모형 점검")
 S("lab09_spline", H(c, marks={"LR = 1.99, df = 3, P = 0.574": 1, "AIC linear: 214.8": 2,
                               "spline: 218.8": 3}))
 
@@ -341,7 +341,7 @@ vif.drop("Intercept").round(2)       # 상수항 행은 빼고 읽음
 S("lab09_vif", H(c, marks={"1.35": 1, "1.07": 2}))
 VIF_CELL = c.n
 
-# ================================================================ 라. 예측모형과 성능 평가
+# ================================================================ d. 예측모형과 성능 평가
 c = nb.cell('''
 from sklearn.datasets import load_breast_cancer
 
@@ -353,7 +353,7 @@ print(bc.target.value_counts())
 y = (bc.target == 0).astype(int)     # 악성 = 1, 양성 = 0 으로 바꿈
 print("malignant (y = 1):", y.sum(), " proportion:", round(y.mean(), 3))
 ''', title="유방암 자료 불러오기와 결과 코딩")
-NOTES[c.n] = ("## 라. 예측모형과 성능 평가\n\n유방암 자료는 scikit-learn에 들어 있어 인터넷 없이 불러옵니다. "
+NOTES[c.n] = ("## d. 예측모형과 성능 평가\n\n유방암 자료는 scikit-learn에 들어 있어 인터넷 없이 불러옵니다. "
               f"그림과 마지막 셀에는 앞에서 불러온 matplotlib(셀 {PLT_CELL})과 statsmodels(셀 {SM_CELL})를 그대로 씁니다.")
 S("lab09_bc", H(c, marks={"(569, 30)": 1, "['malignant' 'benign']": 2, "1    357": 3,
                           "malignant (y = 1): 212": 4}))
@@ -498,7 +498,7 @@ pd.DataFrame({"statsmodels": sm_fit.params[1:],
 ''', title="statsmodels와 scikit-learn의 계수 비교")
 S("lab09_smsk", H(c, marks={"5.047": 1, "3.704": 2}))
 
-# ================================================================ 마. 과제 (정답 셀)
+# ================================================================ e. 과제 (정답 셀)
 c = nb.cell('''
 print(pd.crosstab(bw["ht"], bw["low"], margins=True))
 print("adjusted OR (95% CI):",

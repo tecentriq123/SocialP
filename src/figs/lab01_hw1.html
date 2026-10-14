@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 1 정답. 경계에 있는 변수의 차이 크기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">v = &quot;fractal dimension error&quot;
+r = stats.ttest_ind(mal[v], ben[v], equal_var=False)   # 셀 18과 같은 검정
+ci = r.confidence_interval()                           # 평균 차이의 95% CI
+diff = mal[v].mean() - ben[v].mean()
+smd_v = diff / np.sqrt((mal[v].var() + ben[v].var()) / 2)
+print(f&quot;mean: malignant {mal[v].mean():.5f}, benign {ben[v].mean():.5f}&quot;)
+print(f&quot;difference {diff:.5f} (95% CI {ci.low:.5f} to {ci.high:.5f})&quot;)
+print(f&quot;difference / benign mean = {diff / ben[v].mean():.1%}&quot;)
+print(f&quot;SMD {smd_v:.2f}  (mean radius: {smd[&#x27;mean radius&#x27;]:.2f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>mean: malignant 0.00406, benign 0.00364<span class="mk">1</span>
+difference 0.00043<span class="mk">2</span> (95% CI 0.00002 to 0.00084)<span class="mk">3</span>
+difference / benign mean = 11.7%<span class="mk">4</span>
+SMD 0.17<span class="mk">5</span>  (mean radius: 2.05)</pre></div></div>

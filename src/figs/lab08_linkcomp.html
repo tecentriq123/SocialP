@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">흡연의 효과를 네 모형으로 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">흡연의 효과를 네 모형으로 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
 for name, r in fits.items():
     lo, hi = np.exp(r.conf_int().loc[&quot;smoke&quot;])
     rows.append([name, np.exp(r.params[&quot;smoke&quot;]), r.bse[&quot;smoke&quot;],

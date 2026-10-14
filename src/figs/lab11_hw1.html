@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">과제 1 정답. 빌리루빈의 위험비 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b_bili = cph.params_[&quot;log2_bili&quot;]                # 두 배당 로그 위험비
+for lo, hi in [(1, 2), (5, 10), (10, 11)]:
+    hr = np.exp(b_bili * np.log2(hi / lo))       # lo에서 hi로 오를 때
+    print(f&quot;bilirubin {lo:&gt;2} -&gt; {hi:&gt;2} mg/dL: HR {hr:.3f}&quot;)
+
+pb = pd.DataFrame([df.median()] * 2)             # 중앙값 환자 두 명
+pb[&quot;dpca&quot;] = 0
+pb[&quot;bili&quot;] = [1.35, 2.7]                         # 빌리루빈 1.35와 그 두 배
+pb[&quot;log2_bili&quot;] = np.log2(pb[&quot;bili&quot;])
+rb = 1 - cph.predict_survival_function(pb, times=[5, 10])
+rb.columns = [&quot;bili 1.35&quot;, &quot;bili 2.7&quot;]
+rb[&quot;risk ratio&quot;] = rb[&quot;bili 2.7&quot;] / rb[&quot;bili 1.35&quot;]
+rb.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bilirubin  1 -&gt;  2 mg/dL: HR 1.842<span class="mk">1</span>
+bilirubin  5 -&gt; 10 mg/dL: HR 1.842<span class="mk">2</span>
+bilirubin 10 -&gt; 11 mg/dL: HR 1.088<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>bili 1.35</th>
+      <th>bili 2.7</th>
+      <th>risk ratio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>5.0</th>
+      <td>0.15</td>
+      <td>0.259<span class="mk">4</span></td>
+      <td>1.725<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>10.0</th>
+      <td>0.46</td>
+      <td>0.679</td>
+      <td>1.475</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

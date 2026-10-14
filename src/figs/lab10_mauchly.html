@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">Mauchly 검정과 Huynh–Feldt ε</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lam = np.linalg.eigvalsh(Sc)[1:]         # 고윳값 k - 1개 (맨 앞의 0 하나는 뺌)
+W = np.prod(lam) / np.mean(lam)**(k - 1)  # Mauchly의 W (1이면 구형성)
+d = 1 - (2*(k - 1)**2 + (k - 1) + 2) / (6*(k - 1)*(n - 1))
+chi2 = -(n - 1) * d * np.log(W)          # 카이제곱 근사
+df_m = k * (k - 1) // 2 - 1
+print(&quot;Mauchly W:&quot;, round(W, 6), &quot; chi2:&quot;, round(chi2, 2),
+      &quot; df:&quot;, df_m, &quot; p:&quot;, stats.chi2.sf(chi2, df_m))
+
+hf = (n*(k - 1)*eps - 2) / ((k - 1)*(n - 1 - (k - 1)*eps))
+hf = min(hf, 1)                          # 1을 넘으면 1로 둠
+print(&quot;HF epsilon:&quot;, round(hf, 3))
+print(&quot;p, HF 보정  :&quot;, stats.f.sf(F, hf * df1, hf * df2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Mauchly W: 0.000219<span class="mk">1</span>  chi2: 116.25  df: 44  p: 1.9417252475726137e-08<span class="mk">2</span>
+HF epsilon: 0.469<span class="mk">3</span>
+p, HF 보정  : 7.076551753372417e-11<span class="mk">4</span></pre></div></div>

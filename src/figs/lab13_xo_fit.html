@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">교차설계 분산분석으로 90% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">교차설계 분산분석으로 90% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
 
 fit = smf.ols(&quot;np.log(auc) ~ C(subject) + C(period) + C(form)&quot;,
               data=be).fit()

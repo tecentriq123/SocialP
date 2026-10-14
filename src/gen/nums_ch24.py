@@ -33,7 +33,7 @@ assert round(BASE["icer"]) == 5621 and round(BASE["d_cost"]) == 2872 and round(B
 N["base"] = {"d_cost": BASE["d_cost"], "d_qaly": BASE["d_qaly"], "icer": BASE["icer"], "nmb": L.nmb(BASE),
              "cost_A": BASE["A"]["cost"], "cost_B": BASE["B"]["cost"], "qaly_A": BASE["A"]["qaly"], "qaly_B": BASE["B"]["qaly"]}
 
-# ====================================================================== 가. 결정론적 민감도 분석
+# ====================================================================== a. 결정론적 민감도 분석
 show("가. 일원 민감도 분석 (범위와 ICER)")
 OW = L.oneway()
 for i, r in enumerate(OW, 1):
@@ -136,7 +136,7 @@ for s, e in ((36, 60), (60, 84)):
           f" 48개월 시점 위험비(OS) {w['hr_t']['os'][47]:.3f}")
 print("  20년 시점 생존율 A, B:", L.curves(p, "A", np.array([240.0]))[1], L.curves(p, "B", np.array([240.0]))[1])
 
-# ====================================================================== 나. 확률적 민감도 분석
+# ====================================================================== b. 확률적 민감도 분석
 show("나. 분포의 모수 (적률법)")
 DP = {k: L.dist_params(k) for k in L.PSA_SPEC}
 for k, d in DP.items():
@@ -404,7 +404,7 @@ ci24 = km.confidence_interval_survival_function_.loc[:24.0].iloc[-1].values
 print("  Kaplan-Meier 24개월 생존율", float(km.predict(24.0)), "95% CI", ci24)
 N["corr"] = CORR
 
-# ====================================================================== 다. 수용곡선과 순편익
+# ====================================================================== c. 수용곡선과 순편익
 show("다. 순편익과 수용곡선")
 NB = L.inmb(DC, DQ)
 print(f"증분 순금전편익(λ=5,000): 평균 {NB.mean():.1f}, 2.5–97.5 백분위수 {np.percentile(NB, 2.5):.0f} – {np.percentile(NB, 97.5):.0f}, 양수 비율 {np.mean(NB > 0):.4f}, 양수 {int((NB > 0).sum())}회")

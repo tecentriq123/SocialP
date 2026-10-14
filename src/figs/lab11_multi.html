@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">다변수 Cox 모형 (formula 사용)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cph = CoxPHFitter()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">다변수 Cox 모형 (formula 사용)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cph = CoxPHFitter()
 cph.fit(df, duration_col=&quot;years&quot;, event_col=&quot;death&quot;,
         formula=&quot;dpca + age10 + female + log2_bili + albumin&quot;
                 &quot; + C(edema) + protime&quot;)
@@ -9,7 +9,7 @@ cph.print_summary(decimals=3)</code></pre><div class="cell-out"><div class="cell
    number of observations = 312
 number of events observed = 125
    partial log-likelihood = -539.175
-         time fit was run = 2026-09-29 23:54:14 UTC
+         time fit was run = 2026-10-14 07:08:30 UTC
 
 ---
                   coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%

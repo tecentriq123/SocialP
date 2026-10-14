@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">계수를 오즈비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">or_tab = np.exp(m_logit.conf_int())
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">계수를 오즈비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">or_tab = np.exp(m_logit.conf_int())
 or_tab.columns = [&quot;2.5%&quot;, &quot;97.5%&quot;]
 or_tab.insert(0, &quot;OR&quot;, np.exp(m_logit.params))
 or_tab.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">

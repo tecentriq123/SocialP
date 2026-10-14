@@ -1,0 +1,132 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nscipy        1.18.1\nstatsmodels  0.15.0\nmatplotlib   3.11.2\nscikit-learn 1.9.1\n"
+ },
+ {
+  "n": 2,
+  "title": "당뇨병 자료 불러오기",
+  "out": "(442, 11)\n    age  sex   bmi     bp     s1     s2    s3   s4      s5    s6  target\n0  59.0  2.0  32.1  101.0  157.0   93.2  38.0  4.0  4.8598  87.0   151.0\n1  48.0  1.0  21.6   87.0  183.0  103.2  70.0  3.0  3.8918  69.0    75.0\n2  72.0  2.0  30.5   93.0  156.0   93.6  41.0  4.0  4.6728  85.0   141.0\n3  24.0  1.0  25.3   84.0  198.0  131.4  40.0  5.0  4.8903  89.0   206.0\n4  50.0  1.0  23.0  101.0  192.0  125.4  52.0  4.0  4.2905  80.0   135.0"
+ },
+ {
+  "n": 3,
+  "title": "자료 설명서에서 변수 정의 확인",
+  "out": ":Attribute Information:\n    - age     age in years\n    - sex\n    - bmi     body mass index\n    - bp      average blood pressure\n    - s1      tc, total serum cholesterol\n    - s2      ldl, low-density lipoproteins\n    - s3      hdl, high-density lipoproteins\n    - s4      tch, total cholesterol / HDL\n    - s5      ltg, possibly log of serum triglycerides level\n    - s6      glu, blood sugar level\n\nNote: Each of these 10 feature variables have been mean centered and scaled by the standard deviation times the square root of `n_samples` (i.e. the sum of squares of each column totals 1).\n\n\n"
+ },
+ {
+  "n": 4,
+  "title": "요약통계와 sex 코딩 확인",
+  "out": "sex\n1.0    235\n2.0    207\nName: count, dtype: int64\n        count    mean    std    min     25%     50%     75%     max\nage     442.0   48.52  13.11  19.00   38.25   50.00   59.00   79.00\nsex     442.0    1.47   0.50   1.00    1.00    1.00    2.00    2.00\nbmi     442.0   26.38   4.42  18.00   23.20   25.70   29.28   42.20\nbp      442.0   94.65  13.83  62.00   84.00   93.00  105.00  133.00\ns1      442.0  189.14  34.61  97.00  164.25  186.00  209.75  301.00\ns2      442.0  115.44  30.41  41.60   96.05  113.00  134.50  242.40\ns3      442.0   49.79  12.93  22.00   40.25   48.00   57.75   99.00\ns4      442.0    4.07   1.29   2.00    3.00    4.00    5.00    9.09\ns5      442.0    4.64   0.52   3.26    4.28    4.62    5.00    6.11\ns6      442.0   91.26  11.50  58.00   83.25   91.00   98.00  124.00\ntarget  442.0  152.13  77.09  25.00   87.00  140.50  211.50  346.00"
+ },
+ {
+  "n": 6,
+  "title": "산점도 행렬",
+  "out": ""
+ },
+ {
+  "n": 7,
+  "title": "Pearson 상관계수, p-value, 95% 신뢰구간",
+  "out": "PearsonRResult(statistic=np.float64(0.5864501344746887), pvalue=np.float64(3.4660064451669974e-42))\nConfidenceInterval(low=np.float64(0.5217155989267568), high=np.float64(0.6444700712920269))\n"
+ },
+ {
+  "n": 8,
+  "title": "손 공식으로 검산하기",
+  "out": "t = 15.187, df = 440\n95% CI: [0.5217 0.6445]\n"
+ },
+ {
+  "n": 9,
+  "title": "Spearman 순위상관계수",
+  "out": "SignificanceResult(statistic=np.float64(0.5613820101065616), pvalue=np.float64(4.5670239277251874e-38))\n"
+ },
+ {
+  "n": 10,
+  "title": "상관행렬",
+  "out": "         age   bmi    bp    s1    s2    s3    s5  target\nage     1.00  0.19  0.34  0.26  0.22 -0.08  0.27    0.19\nbmi     0.19  1.00  0.40  0.25  0.26 -0.37  0.45    0.59\nbp      0.34  0.40  1.00  0.24  0.19 -0.18  0.39    0.44\ns1      0.26  0.25  0.24  1.00  0.90  0.05  0.52    0.21\ns2      0.22  0.26  0.19  0.90  1.00 -0.20  0.32    0.17\ns3     -0.08 -0.37 -0.18  0.05 -0.20  1.00 -0.40   -0.39\ns5      0.27  0.45  0.39  0.52  0.32 -0.40  1.00    0.57\ntarget  0.19  0.59  0.44  0.21  0.17 -0.39  0.57    1.00"
+ },
+ {
+  "n": 11,
+  "title": "입력 오류 한 건이 상관계수에 주는 영향",
+  "out": "Pearson r    : 0.586 -> 0.176\nSpearman rho : 0.561 -> 0.561\nbmi max      : 321.0\n"
+ },
+ {
+  "n": 12,
+  "title": "입력 오류가 있는 산점도",
+  "out": ""
+ },
+ {
+  "n": 13,
+  "title": "단순회귀 적합과 summary()",
+  "out": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.344\nModel:                            OLS   Adj. R-squared:                  0.342\nMethod:                 Least Squares   F-statistic:                     230.7\nDate:                Wed, 14 Oct 2026   Prob (F-statistic):           3.47e-42\nTime:                        07:43:17   Log-Likelihood:                -2454.0\nNo. Observations:                 442   AIC:                             4912.\nDf Residuals:                     440   BIC:                             4920.\nDf Model:                           1                                         \nCovariance Type:            nonrobust                                         \n==============================================================================\n                 coef    std err          t      P>|t|      [0.025      0.975]\n------------------------------------------------------------------------------\nIntercept   -117.7734     18.019     -6.536      0.000    -153.187     -82.359\nbmi           10.2331      0.674     15.187      0.000       8.909      11.557\n==============================================================================\nOmnibus:                       11.674   Durbin-Watson:                   1.848\nProb(Omnibus):                  0.003   Jarque-Bera (JB):                7.310\nSkew:                           0.156   Prob(JB):                       0.0259\nKurtosis:                       2.453   Cond. No.                         162.\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n"
+ },
+ {
+  "n": 14,
+  "title": "기울기 검정 = 상관 검정 확인",
+  "out": "Intercept    1.751618e-10\nbmi          3.466006e-42\ndtype: float64\nPearson p : 3.4660064451669974e-42\nt^2 = 230.65   F = 230.65\nr^2 = 0.3439   R2 = 0.3439\n                 0       1\nIntercept -153.187 -82.359\nbmi          8.909  11.557\n"
+ },
+ {
+  "n": 15,
+  "title": "잔차 그림 두 가지",
+  "out": ""
+ },
+ {
+  "n": 16,
+  "title": "영향력이 큰 환자 찾기",
+  "out": "     cooks_d  standard_resid  hat_diag   bmi  target\n417    0.026          -2.648     0.007  33.0    55.0\n367    0.022          -1.171     0.031  42.2   242.0\n147    0.018          -1.808     0.011  35.0   128.0\nslope, all 442 patients: 10.23\nslope, without top 1   : 10.36\n"
+ },
+ {
+  "n": 17,
+  "title": "평균의 신뢰구간과 개인의 예측구간",
+  "out": "    mean  mean_se  mean_ci_lower  mean_ci_upper  obs_ci_lower  obs_ci_upper\n0  138.1      3.1          131.9          144.2          15.0         261.1\n1  189.2      3.8          181.7          196.8          66.1         312.3"
+ },
+ {
+  "n": 18,
+  "title": "다중회귀 적합",
+  "out": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:                 target   R-squared:                       0.487\nModel:                            OLS   Adj. R-squared:                  0.481\nMethod:                 Least Squares   F-statistic:                     82.85\nDate:                Wed, 14 Oct 2026   Prob (F-statistic):           4.90e-61\nTime:                        07:43:18   Log-Likelihood:                -2399.6\nNo. Observations:                 442   AIC:                             4811.\nDf Residuals:                     436   BIC:                             4836.\nDf Model:                           5                                         \nCovariance Type:            nonrobust                                         \n===============================================================================\n                  coef    std err          t      P>|t|      [0.025      0.975]\n-------------------------------------------------------------------------------\nIntercept    -341.0570     25.962    -13.137      0.000    -392.084    -290.030\nC(sex)[T.2]   -12.7252      5.490     -2.318      0.021     -23.516      -1.935\nbmi             6.4521      0.694      9.294      0.000       5.088       7.817\nage            -0.1322      0.218     -0.607      0.544      -0.560       0.296\nbp              1.0399      0.226      4.597      0.000       0.595       1.484\ns5             51.0543      5.938      8.598      0.000      39.384      62.725\n==============================================================================\nOmnibus:                        4.772   Durbin-Watson:                   1.984\nProb(Omnibus):                  0.092   Jarque-Bera (JB):                3.949\nSkew:                           0.138   Prob(JB):                        0.139\nKurtosis:                       2.628   Cond. No.                     1.10e+03\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.\n[2] The condition number is large, 1.1e+03. This might indicate that there are\nstrong multicollinearity or other numerical problems.\n"
+ },
+ {
+  "n": 19,
+  "title": "보정 전후 BMI 계수 비교",
+  "out": "bmi coefficient: 10.23 -> 6.45\nchange: -36.9%\n         bmi    bp    s5  target\nbmi     1.00  0.40  0.45    0.59\nbp      0.40  1.00  0.39    0.44\ns5      0.45  0.39  1.00    0.57\ntarget  0.59  0.44  0.57    1.00\n"
+ },
+ {
+  "n": 20,
+  "title": "분산팽창계수(VIF)",
+  "out": "C(sex)[T.2]    1.08\nbmi            1.35\nage            1.17\nbp             1.40\ns5             1.38\nName: VIF, dtype: float64"
+ },
+ {
+  "n": 21,
+  "title": "혈청 측정값 6개를 모두 넣으면",
+  "out": "C(sex)[T.2]     1.28\nbmi             1.51\nage             1.22\nbp              1.46\ns1             59.20\ns2             39.19\ns3             15.40\ns4              8.89\ns5             10.08\ns6              1.48\nName: VIF, dtype: float64\nr(s1, s2) = 0.90\nSE of s5: 5.94 -> 15.67\n"
+ },
+ {
+  "n": 22,
+  "title": "로그 변환한 결과변수",
+  "out": "             beta (log)  % diff  lower %  upper %\nC(sex)[T.2]     -0.0909    -8.7    -15.8     -1.0\nbmi              0.0409     4.2      3.1      5.2\nage             -0.0003    -0.0     -0.4      0.3\nbp               0.0065     0.7      0.3      1.0\ns5               0.3990    49.0     36.5     62.7"
+ },
+ {
+  "n": 23,
+  "title": "로그 변환이 필요했는지 확인",
+  "out": "skewness of target     : 0.44\nskewness of log(target): -0.33\nskewness of residuals  : 0.14 (linear), -0.40 (log)\n"
+ },
+ {
+  "n": 24,
+  "title": "논문용 결과표 만들기",
+  "out": "                beta (95% CI) crude  ... P adjusted\nbmi           10.23 (8.91 to 11.56)  ...     <0.001\nage             1.10 (0.56 to 1.65)  ...      0.544\nC(sex)[T.2]   6.65 (-7.80 to 21.09)  ...      0.021\nbp              2.46 (1.99 to 2.93)  ...     <0.001\ns5           83.51 (72.11 to 94.91)  ...     <0.001\n\n[5 rows x 4 columns]"
+ },
+ {
+  "n": 25,
+  "title": "과제 1 정답. 혈압(bp) 행 읽기",
+  "out": "count    442.0\nmean      94.6\nstd       13.8\nmin       62.0\n25%       84.0\n50%       93.0\n75%      105.0\nmax      133.0\nName: bp, dtype: float64\nper 1 unit : [1.04 0.6  1.48]\nper 10 units: [10.4  6.  14.8]\nper 1 SD (13.8): [14.4  8.2 20.5]\n"
+ },
+ {
+  "n": 26,
+  "title": "과제 2 정답. 보정 변수를 바꿔 가며 BMI 계수 보기",
+  "out": "                       bmi  lower   upper     SE     R2\nmodel                                                  \nbmi only            10.233  8.909  11.557  0.674  0.344\n+ age, sex           9.990  8.645  11.336  0.685  0.351\n+ age, sex, bp       8.484  7.098   9.870  0.705  0.400\n+ age, sex, s5       7.278  5.930   8.626  0.686  0.462\n+ age, sex, bp, s5   6.452  5.088   7.817  0.694  0.487"
+ },
+ {
+  "n": 27,
+  "title": "과제 3 정답. 잔차가 큰 환자를 뺀 분석",
+  "out": "removed: 13 patients\n      bmi  target\nmin  21.0    52.0\nmax  33.0   311.0\nall 442  slope 10.23 (8.91 to 11.56)  R2 0.344\ntrimmed  slope 10.84 (9.59 to 12.09)  R2 0.406\n"
+ }
+]

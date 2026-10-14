@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">빌리루빈을 로그로 넣은 이유 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for name, f in [(&quot;bili&quot;, &quot;bili&quot;), (&quot;log2_bili&quot;, &quot;log2_bili&quot;)]:
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">빌리루빈을 로그로 넣은 이유 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for name, f in [(&quot;bili&quot;, &quot;bili&quot;), (&quot;log2_bili&quot;, &quot;log2_bili&quot;)]:
     m = CoxPHFitter().fit(df, &quot;years&quot;, &quot;death&quot;,
         formula=f&quot;dpca + age10 + female + {f} + albumin&quot;
                 &quot; + C(edema) + protime&quot;)

@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 1 정답. 혈압(bp) 행 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(df[&quot;bp&quot;].describe().round(1))                # bp의 범위와 표준편차
+b = model_adj.params[&quot;bp&quot;]                         # 셀 18의 보정 계수
+lo, hi = model_adj.conf_int().loc[&quot;bp&quot;]
+sd_bp = df[&quot;bp&quot;].std()
+print(&quot;per 1 unit :&quot;, np.round([b, lo, hi], 2))
+print(&quot;per 10 units:&quot;, np.round(10 * np.array([b, lo, hi]), 1))
+print(f&quot;per 1 SD ({sd_bp:.1f}):&quot;, np.round(sd_bp * np.array([b, lo, hi]), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>count    442.0
+mean      94.6
+std       13.8<span class="mk">1</span>
+min       62.0<span class="mk">2</span>
+25%       84.0
+50%       93.0
+75%      105.0
+max      133.0
+Name: bp, dtype: float64
+per 1 unit : [1.04 0.6  1.48]<span class="mk">3</span>
+per 10 units: [10.4  6.  14.8]<span class="mk">4</span>
+per 1 SD (13.8): [14.4  8.2 20.5]<span class="mk">5</span></pre></div></div>

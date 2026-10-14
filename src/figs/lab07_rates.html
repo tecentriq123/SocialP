@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">시점별 생존율과 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = kmf.confidence_interval_
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">시점별 생존율과 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = kmf.confidence_interval_
 for t in [6, 12, 24]:
     s = kmf.survival_function_at_times(t).iloc[0]
     lo, hi = ci.loc[:t].iloc[-1]          # t 이전 마지막 계단

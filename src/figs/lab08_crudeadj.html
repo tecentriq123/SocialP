@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">보정 전과 보정 후 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_race = smf.logit(&quot;low ~ smoke + C(race)&quot;, df).fit(disp=0)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">보정 전과 보정 후 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_race = smf.logit(&quot;low ~ smoke + C(race)&quot;, df).fit(disp=0)
 b = m_race.params[&quot;smoke&quot;]
 b_lo, b_hi = m_race.conf_int().loc[&quot;smoke&quot;]
 rows = [[&quot;crude&quot;, t22.oddsratio, *t22.oddsratio_confint()],

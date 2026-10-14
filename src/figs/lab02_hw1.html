@@ -1,0 +1,43 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">과제 1 정답. 평균 차이가 말해 주지 않는 것</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">above = (smoker &gt; nonsmoker.mean()).sum()      # 비흡연군 평균보다 무거운 흡연군 아기
+print(&quot;smokers&#x27; infants above the nonsmoker mean:&quot;, above, &quot;of&quot;, n1)
+
+df[&quot;race_f&quot;] = pd.Categorical(
+    df[&quot;race&quot;].map({1: &quot;white&quot;, 2: &quot;black&quot;, 3: &quot;other&quot;}),
+    categories=[&quot;white&quot;, &quot;black&quot;, &quot;other&quot;])
+print(pd.crosstab(df[&quot;race_f&quot;], df[&quot;smoke_f&quot;], normalize=&quot;index&quot;).round(3))
+df.groupby([&quot;race_f&quot;, &quot;smoke_f&quot;], observed=True)[&quot;bwt&quot;].mean().unstack().round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>smokers&#x27; infants above the nonsmoker mean: 25 of 74<span class="mk">1</span>
+smoke_f  Nonsmoker  Smoker
+race_f                    
+white        0.458   0.542<span class="mk">2</span>
+black        0.615   0.385
+other        0.821   0.179<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>smoke_f</th>
+      <th>Nonsmoker</th>
+      <th>Smoker</th>
+    </tr>
+    <tr>
+      <th>race_f</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>white</th>
+      <td>3428.8<span class="mk">4</span></td>
+      <td>2826.8<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>black</th>
+      <td>2854.5</td>
+      <td>2504.0</td>
+    </tr>
+    <tr>
+      <th>other</th>
+      <td>2815.8</td>
+      <td>2757.2</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

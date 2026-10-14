@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 1 정답. 예방적 항생제의 발생률비 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(pd.crosstab(pt[&quot;propylac&quot;], pt[&quot;treat&quot;], margins=True))
+print(pt.groupby(&quot;propylac&quot;)[[&quot;n_inf&quot;, &quot;py&quot;]].sum().round(1))
+for name, f in [(&quot;Poisson&quot;, pois), (&quot;NB&quot;, nb2)]:
+    lo, hi = np.exp(f.conf_int().loc[&quot;propylac&quot;])
+    print(f&quot;{name:8} IRR {np.exp(f.params[&#x27;propylac&#x27;]):.3f}&quot;
+          f&quot; (95% CI {lo:.3f} to {hi:.3f}), P = {f.pvalues[&#x27;propylac&#x27;]:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>treat     placebo  rIFN-g  All
+propylac                      
+0              10       7   17<span class="mk">1</span>
+1              55      56  111
+All            65      63  128
+          n_inf    py
+propylac             
+0            14  13.1<span class="mk">2</span>
+1            62  89.5
+Poisson  IRR 0.589 (95% CI 0.326 to 1.064), P = 0.079<span class="mk">3</span>
+NB       IRR 0.561 (95% CI 0.256 to 1.229), P = 0.149<span class="mk">4</span></pre></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">가능한 모든 표의 확률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">total, lbw, ht_n = 189, 59, 12   # 전체, LBW 합계, HT 산모 수
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">가능한 모든 표의 확률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">total, lbw, ht_n = 189, 59, 12   # 전체, LBW 합계, HT 산모 수
 a = np.arange(0, ht_n + 1)        # HT 산모 중 LBW 수: 0 ~ 12
 prob = stats.hypergeom.pmf(a, total, lbw, ht_n)
 p_obs = prob[7]                   # 관측된 표 (a = 7)

@@ -1,8 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">sleepstudy 불러오기 (긴 형식)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-
-url = (&quot;https://vincentarelbundock.github.io/Rdatasets/csv/&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">sleepstudy 불러오기 (긴 형식)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">url = (&quot;https://vincentarelbundock.github.io/Rdatasets/csv/&quot;
        &quot;lme4/sleepstudy.csv&quot;)
 sleep = pd.read_csv(url).drop(columns=&quot;rownames&quot;)
 print(sleep.shape)

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">무작위 절편 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">무작위 절편 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
 
 m1 = smf.mixedlm(&quot;Reaction ~ Days&quot;, data=sleep,
                  groups=sleep[&quot;Subject&quot;]).fit()

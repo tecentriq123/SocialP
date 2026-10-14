@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">조발생률비와 Wald 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">irr = rt.loc[&quot;rIFN-g&quot;, &quot;rate&quot;] / rt.loc[&quot;placebo&quot;, &quot;rate&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">조발생률비와 Wald 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">irr = rt.loc[&quot;rIFN-g&quot;, &quot;rate&quot;] / rt.loc[&quot;placebo&quot;, &quot;rate&quot;]
 se = np.sqrt(1 / d[&quot;rIFN-g&quot;] + 1 / d[&quot;placebo&quot;])  # log IRR의 SE
 lo = np.exp(np.log(irr) - 1.96 * se)
 hi = np.exp(np.log(irr) + 1.96 * se)

@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">과제 2 정답. 위험차 대신 비의 척도로 판정하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">counts = {&quot;success&quot;: (186, 224, 190, 224),     # 제균 성공 수, 인원 (신약, 표준)
+          &quot;failure&quot;: (38, 224, 34, 224)}       # 실패 수 = 224 - 성공 수
+margins = {&quot;success&quot;: 0.75 / 0.85,             # 85%가 75%로: 성공의 비 한계
+           &quot;failure&quot;: 0.25 / 0.15}             # 15%가 25%로: 실패의 비 한계
+for name, (x1, n1, x2, n2) in counts.items():
+    lo, hi = confint_proportions_2indep(x1, n1, x2, n2,
+                                        method=&quot;log&quot;, compare=&quot;ratio&quot;)
+    se_log = np.sqrt(1 / x1 - 1 / n1 + 1 / x2 - 1 / n2)   # ln(비)의 SE
+    print(f&quot;{name}: ratio {x1 / n1 / (x2 / n2):.3f},&quot;
+          f&quot; 95% CI {lo:.3f} to {hi:.3f}, margin {margins[name]:.3f},&quot;
+          f&quot; SE(log) {se_log:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>success: ratio 0.979, 95% CI 0.903 to 1.062, margin 0.882<span class="mk">1</span>, SE(log) 0.041<span class="mk">3</span>
+failure: ratio 1.118, 95% CI 0.731 to 1.708, margin 1.667<span class="mk">2</span>, SE(log) 0.216<span class="mk">4</span></pre></div></div>

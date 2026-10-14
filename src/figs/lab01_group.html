@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">진단별 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df.groupby(&quot;diagnosis&quot;, observed=True)[&quot;mean radius&quot;].agg(
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">진단별 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df.groupby(&quot;diagnosis&quot;, observed=True)[&quot;mean radius&quot;].agg(
     [&quot;count&quot;, &quot;mean&quot;, &quot;std&quot;, &quot;median&quot;]).round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
   <thead>
     <tr style="text-align: right;">

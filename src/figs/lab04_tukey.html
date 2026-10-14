@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">Tukey HSD 사후분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.multicomp import pairwise_tukeyhsd
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">Tukey HSD 사후분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 tukey = pairwise_tukeyhsd(df[&quot;bwt&quot;], df[&quot;race_f&quot;], alpha=0.05)
 print(tukey)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  Multiple Comparison of Means - Tukey HSD, FWER=0.05<span class="mk">1</span>  

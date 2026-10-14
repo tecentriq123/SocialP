@@ -1,5 +1,5 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">세 방법 비교, AIC와 우도비 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fits = {&quot;Poisson&quot;: pois, &quot;Poisson, robust SE&quot;: pois_r,
-        &quot;Negative binomial&quot;: nb2}
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">네 방법 비교, AIC와 우도비 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fits = {&quot;Poisson&quot;: pois, &quot;Quasi-Poisson&quot;: pois_q,
+        &quot;Poisson, robust SE&quot;: pois_r, &quot;Negative binomial&quot;: nb2}
 tab = pd.DataFrame(
     {&quot;IRR&quot;: [np.exp(f.params[t]) for f in fits.values()],
      &quot;lower&quot;: [np.exp(f.conf_int().loc[t, 0]) for f in fits.values()],
@@ -27,6 +27,13 @@ LR = 9.55<span class="mk">3</span>  p = 0.001</pre><div class="df-wrap"><table c
       <td>0.217</td>
       <td>0.605</td>
       <td>0.262</td>
+    </tr>
+    <tr>
+      <th>Quasi-Poisson</th>
+      <td>0.362</td>
+      <td>0.198</td>
+      <td>0.663</td>
+      <td>0.308</td>
     </tr>
     <tr>
       <th>Poisson, robust SE</th>

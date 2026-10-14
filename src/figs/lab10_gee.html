@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">GEE (포아송, 교환가능 작업상관)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">GEE (포아송, 교환가능 작업상관)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
 
 form = &quot;y ~ trt + np.log(base / 4) + np.log(age) + C(period)&quot;
 gee_ex = smf.gee(form, groups=&quot;subject&quot;, data=epil,
@@ -13,8 +13,8 @@ Method:                        Generalized   Min. cluster size:                 
                       Estimating Equations   Max. cluster size:                   4
 Family:                            Poisson   Mean cluster size:                 4.0
 Dependence structure:         Exchangeable<span class="mk">2</span>   Num. iterations:                     5
-Date:                     Wed, 30 Sep 2026   Scale:                           1.000<span class="mk">3</span>
-Covariance type:                    robust<span class="mk">4</span>   Time:                         08:54:18
+Date:                     Wed, 14 Oct 2026   Scale:                           1.000<span class="mk">3</span>
+Covariance type:                    robust<span class="mk">4</span>   Time:                         09:10:59
 ====================================================================================
                        coef    std err          z      P&gt;|z|      [0.025      0.975]
 ------------------------------------------------------------------------------------

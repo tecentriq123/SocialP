@@ -1,0 +1,137 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nscipy        1.18.1\nmatplotlib   3.11.2\nstatsmodels  0.15.0\nscikit-learn 1.9.1\n"
+ },
+ {
+  "n": 2,
+  "title": "데이터 불러오기",
+  "out": "(569, 31)\ntarget\n1    357\n0    212\nName: count, dtype: int64\n"
+ },
+ {
+  "n": 3,
+  "title": "진단 변수를 읽기 쉽게 바꾸기",
+  "out": "212\ndiagnosis  benign  malignant\ntarget                      \n0               0        212\n1             357          0"
+ },
+ {
+  "n": 4,
+  "title": "설명변수 30개의 구성",
+  "out": "30\n['mean radius', 'mean texture', 'mean perimeter', 'mean area', 'mean smoothness', 'mean compactness', 'mean concavity', 'mean concave points', 'mean symmetry', 'mean fractal dimension']\n['radius error', 'texture error', 'perimeter error']\n['worst radius', 'worst texture', 'worst perimeter']\n"
+ },
+ {
+  "n": 5,
+  "title": "앞의 5행",
+  "out": "   mean radius  mean smoothness  area error  diagnosis  malignant\n0        17.99          0.11840      153.40  malignant          1\n1        20.57          0.08474       74.08  malignant          1\n2        19.69          0.10960       94.03  malignant          1\n3        11.42          0.14250       27.23  malignant          1\n4        20.29          0.10030       94.44  malignant          1"
+ },
+ {
+  "n": 6,
+  "title": "describe()",
+  "out": "       mean radius  mean smoothness  mean area  area error\ncount      569.000          569.000    569.000     569.000\nmean        14.127            0.096    654.889      40.337\nstd          3.524            0.014    351.914      45.491\nmin          6.981            0.053    143.500       6.802\n25%         11.700            0.086    420.300      17.850\n50%         13.370            0.096    551.100      24.530\n75%         15.780            0.105    782.700      45.190\nmax         28.110            0.163   2501.000     542.200"
+ },
+ {
+  "n": 7,
+  "title": "평균, 중앙값, 왜도",
+  "out": "                    mean   median  skewness\nmean radius       14.127   13.370     0.940\nmean smoothness    0.096    0.096     0.455\nmean area        654.889  551.100     1.641\narea error        40.337   24.530     5.433"
+ },
+ {
+  "n": 8,
+  "title": "히스토그램",
+  "out": ""
+ },
+ {
+  "n": 9,
+  "title": "진단별 요약",
+  "out": "           count   mean   std  median\ndiagnosis                            \nbenign       357  12.15  1.78   12.20\nmalignant    212  17.46  3.20   17.33"
+ },
+ {
+  "n": 10,
+  "title": "진단별 상자그림",
+  "out": ""
+ },
+ {
+  "n": 11,
+  "title": "군별 평균과 표준편차",
+  "out": "                    mean                 sd          \ndiagnosis         benign malignant   benign malignant\nmean radius       12.147    17.463    1.781     3.204\nmean texture      17.915    21.605    3.995     3.779\nmean smoothness    0.092     0.103    0.013     0.013\nmean area        462.790   978.376  134.287   367.938\narea error        21.135    72.672    8.843    61.355"
+ },
+ {
+  "n": 12,
+  "title": "군별 사분위수",
+  "out": "diagnosis        benign                 malignant                 \n                   0.25    0.50    0.75      0.25    0.50     0.75\nmean radius       11.08   12.20   13.37     15.08   17.33    19.59\nmean texture      15.15   17.39   19.76     19.33   21.46    23.76\nmean smoothness    0.08    0.09    0.10      0.09    0.10     0.11\nmean area        378.20  458.40  551.10    705.30  932.00  1203.75\narea error        15.26   19.63   25.03     35.76   58.46    94.00"
+ },
+ {
+  "n": 13,
+  "title": "표준화 평균차(SMD)",
+  "out": "mean radius        2.05\nmean texture       0.95\nmean smoothness    0.80\nmean area          1.86\narea error         1.18\ndtype: float64\n"
+ },
+ {
+  "n": 14,
+  "title": "Q-Q plot: 양성 종양 안에서",
+  "out": ""
+ },
+ {
+  "n": 15,
+  "title": "Shapiro-Wilk 검정",
+  "out": "mean radius: n = 357, skewness = -0.08, W = 0.997, p = 0.668\narea error: n = 357, skewness = 1.64, W = 0.896, p = 6.76e-15\n"
+ },
+ {
+  "n": 16,
+  "title": "표본이 클 때",
+  "out": "n = 569, skewness = 0.46, W = 0.987, p = 8.6e-05\n"
+ },
+ {
+  "n": 17,
+  "title": "표본크기와 정규성 검정",
+  "out": "n =  20: p < 0.05 in 9.1%\nn =  50: p < 0.05 in 20.2%\nn = 100: p < 0.05 in 31.6%\nn = 200: p < 0.05 in 56.5%\nn = 400: p < 0.05 in 87.7%\n"
+ },
+ {
+  "n": 18,
+  "title": "30개 변수의 t 검정",
+  "out": "26 of 30 features: p < 0.05\n                              t             p\nworst concave points  29.117659  1.061454e-96\nworst perimeter       25.332210  1.032730e-72\nmean concave points   24.844810  3.127316e-71"
+ },
+ {
+  "n": 19,
+  "title": "1장 c 절의 다섯 p값으로 확인하기",
+  "out": "bonferroni: [0.02  0.06  0.105 0.19  1.   ]  1 significant\nholm      : [0.02  0.048 0.063 0.076 0.26 ]  2 significant\nfdr_bh    : [0.02   0.03   0.035  0.0475 0.26  ]  4 significant\n"
+ },
+ {
+  "n": 20,
+  "title": "Bonferroni, Holm, Benjamini-Hochberg",
+  "out": "bonferroni: 25 significant\nholm      : 25 significant\nfdr_bh    : 26 significant\n"
+ },
+ {
+  "n": 21,
+  "title": "경계에 있는 변수들",
+  "out": "                                    p  p_bonferroni        p_holm      p_fdr_bh\nconcavity error          1.266514e-11  3.799542e-10  7.599084e-11  1.519817e-11\nfractal dimension error  4.220238e-02  1.000000e+00  2.110119e-01  4.869505e-02\nsmoothness error         1.052970e-01  1.000000e+00  4.211880e-01  1.169967e-01\nmean fractal dimension   7.667216e-01  1.000000e+00  1.000000e+00  8.214874e-01\ntexture error            8.354171e-01  1.000000e+00  1.000000e+00  8.642246e-01\nsymmetry error           8.871223e-01  1.000000e+00  1.000000e+00  8.871223e-01"
+ },
+ {
+  "n": 22,
+  "title": "귀무가설이 참일 때 (한 번)",
+  "out": "178 179\nno correction: 2\nbonferroni: 0\nholm: 0\nfdr_bh: 0\n"
+ },
+ {
+  "n": 23,
+  "title": "귀무가설이 참일 때 (1000번 반복)",
+  "out": "             FWER  mean_FP\nnone        0.481    1.414\nbonferroni  0.024    0.043\nholm        0.024    0.045\nfdr_bh      0.029    0.100"
+ },
+ {
+  "n": 24,
+  "title": "작은 표본에서 세 방법의 차이",
+  "out": "no correction: 21\nbonferroni: 7\nholm: 7\nfdr_bh: 18\n"
+ },
+ {
+  "n": 25,
+  "title": "과제 1 정답. 경계에 있는 변수의 차이 크기",
+  "out": "mean: malignant 0.00406, benign 0.00364\ndifference 0.00043 (95% CI 0.00002 to 0.00084)\ndifference / benign mean = 11.7%\nSMD 0.17  (mean radius: 2.05)\n"
+ },
+ {
+  "n": 26,
+  "title": "과제 2 정답. Welch t 검정을 Mann-Whitney 검정으로 바꾸기",
+  "out": "Welch       : p < 0.05 26 | after Holm 25\nMann-Whitney: p < 0.05 27 | after Holm 26\nfractal dimension error: Welch p = 0.042, Mann-Whitney p = 1.6e-06\nsymmetry error         : Welch p = 0.887, Mann-Whitney p = 0.028\ndiagnosis                       benign  malignant\nfractal dimension error median  0.0028     0.0037\n                        mean    0.0036     0.0041\n                        std     0.0029     0.0020\n                        max     0.0298     0.0128\nsymmetry error          median  0.0191     0.0177\n                        mean    0.0206     0.0205\n                        std     0.0070     0.0101\n                        max     0.0615     0.0790"
+ },
+ {
+  "n": 27,
+  "title": "과제 3 정답. 유의한 p만 골라 보정하면",
+  "out": "colleague: [0.0215 0.0164] -> [0.0327 0.0327]\nall 30   : 0 significant\nFWER, only p < 0.05 adjusted: 0.357\nFWER, all 30 adjusted       : 0.024\n"
+ }
+]

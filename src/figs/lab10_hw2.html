@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 2 정답. 기저 발작 건수를 보정하지 않으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">form0 = &quot;y ~ trt + np.log(age) + C(period)&quot;     # 기저 발작 건수를 뺀 모형
+gee0 = smf.gee(form0, groups=&quot;subject&quot;, data=epil,
+               family=sm.families.Poisson(),
+               cov_struct=sm.cov_struct.Exchangeable()).fit()
+for name, g in [(&quot;with baseline&quot;, gee_ex), (&quot;without baseline&quot;, gee0)]:
+    lo, hi = np.exp(g.conf_int().loc[t])
+    print(f&quot;{name:16}: RR {np.exp(g.params[t]):.3f} ({lo:.3f}-{hi:.3f})&quot;,
+          f&quot; SE {g.bse[t]:.3f}  alpha {g.model.cov_struct.dep_params:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>with baseline   : RR 0.989 (0.679-1.442)<span class="mk">1</span>  SE 0.192<span class="mk">2</span>  alpha 0.400
+without baseline: RR 0.930 (0.480-1.804)<span class="mk">3</span>  SE 0.338<span class="mk">4</span>  alpha 0.791<span class="mk">5</span></pre></div></div>

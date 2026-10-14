@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">사건 부호화를 잘못하면 (오류 없이 틀린 결과)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import KaplanMeierFitter
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">사건 부호화를 잘못하면 (오류 없이 틀린 결과)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import KaplanMeierFitter
 
 wrong = KaplanMeierFitter().fit(lung[&quot;time&quot;], lung[&quot;status&quot;])
 right = KaplanMeierFitter().fit(lung[&quot;time&quot;], lung[&quot;event&quot;])

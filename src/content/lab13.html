@@ -1,11 +1,28 @@
-<p class="lead">13장의 비열등성·동등성 판단을 파이썬으로 직접 계산합니다. 이 장의 주제에 맞는 공개 임상시험 원자료는 구하기 어려우므로, 평균 차이는 난수 시드를 고정한 모의 임상시험 자료로, 비율 차이는 13장의 가상 요약자료로 계산합니다. 생물학적 동등성은 공개 약동학 자료(Theoph)로 AUC 계산을 익힌 뒤, 13장의 가상 AUC 자료와 모의 교차설계 자료로 기하평균비의 90% 신뢰구간을 구합니다. 각 단계는 <a href="#ch13">13장</a>의 해당 절과 연결되어 있습니다.</p>
+<p class="lead">13장의 비열등성·동등성 판단을 파이썬으로 직접 계산합니다. 이 장의 주제에 맞는 공개 임상시험 원자료는 구하기 어려우므로, 평균 차이는 난수 시드를 고정한 모의 임상시험 자료와 13장의 요약 통계로(a 절), 비율 차이는 13장의 가상 요약자료로 계산합니다(b 절). 생물학적 동등성은 공개 약동학 자료(Theoph)로 AUC 계산을 익힌 뒤, 13장의 가상 AUC 자료와 모의 교차설계 자료로 기하평균비의 90% 신뢰구간을 구합니다(c 절). d 절에는 출력을 말로 옮기고, 조건을 바꿔 다시 돌리고, 잘못된 분석을 찾는 과제 세 개가 있습니다. 이론은 <a href="#ch13">13장</a>, 노트북 사용법은 <a href="#lab00">실습 0</a>을 참고하세요.</p>
 
 <dl class="glance">
-<div><dt>관련 이론</dt><dd><a href="#ch13">13장 두 치료법의 동등성, 비열등성을 검정하는 방법</a> (a 동등성 검정과 비열등성 검정, b·c 크기의 비열등성 검정, d 비율의 비열등성 검정)</dd></div>
-<div><dt>데이터</dt><dd>① <b>모의자료</b>: 13장 c 절의 HbA1c 시험을 흉내 내 난수로 만든 두 군 자료(185명, 183명). ② <b>요약자료</b>: 13장 d 절의 가상 <i>H. pylori</i> 제균 시험(186/224 대 190/224)과 소규모 시험(48/50 대 50/50). ③ <b>Theoph</b> (R datasets 패키지): 12명에게 테오필린을 경구 투여하고 25시간 동안 11번 혈중농도를 잰 약동학 자료, 132행 5변수. ④ 13장 a 절의 가상 AUC 자료(12명)와 2×2 교차설계 모의자료(24명)</dd></div>
-<div><dt>사용 패키지</dt><dd>numpy, pandas, matplotlib, scipy (<code>ttest_ind</code>, <code>ttest_rel</code>, <code>ttest_1samp</code>, <code>integrate.trapezoid</code>), statsmodels (<code>confint_proportions_2indep</code>, <code>test_proportions_2indep</code>, <code>ols</code>)</dd></div>
-<div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00">실습 0</a> 참고). 필요한 패키지는 Colab과 Anaconda에 기본으로 들어 있습니다. 신뢰구간 메서드(<code>confidence_interval</code>)는 scipy 1.11 이상에서 쓸 수 있습니다. 출력은 scipy 1.17, statsmodels 0.15.0, numpy 2.4로 만든 것이며 버전에 따라 출력 모양이 조금 다를 수 있습니다.</dd></div>
+<div><dt>관련 이론</dt><dd><a href="#ch13">13장 두 치료법의 동등성, 비열등성을 검정하는 방법</a> (<a href="#ch13-s1">a 절</a>의 신뢰구간과 한계, 두 단측 검정, 생물학적 동등성, <a href="#ch13-s2">b 절</a>과 <a href="#ch13-s3">c 절</a>의 평균 차이의 비열등성, <a href="#ch13-s4">d 절</a>의 비율 차이의 비열등성)</dd></div>
+<div><dt>데이터</dt><dd>① <b>모의자료</b>: 13장 c 절의 HbA1c 시험을 흉내 내 난수로 만든 두 군 자료(185명, 183명). ② <b>요약자료</b>: 13장 b·c 절의 군별 평균, SD, 인원과 d 절의 가상 <i>H. pylori</i> 제균 시험(186/224 대 190/224), 소규모 시험(48/50 대 50/50). ③ <b>Theoph</b> (R datasets 패키지): 12명에게 테오필린을 경구 투여하고 25시간 동안 11번 혈중농도를 잰 약동학 자료, 132행 5변수. ④ 13장 a 절의 가상 AUC 자료(12명)와 2×2 교차설계 모의자료(24명)</dd></div>
+<div><dt>사용 패키지</dt><dd>numpy, pandas, matplotlib, scipy (<code>ttest_ind</code>, <code>ttest_ind_from_stats</code>, <code>ttest_rel</code>, <code>ttest_1samp</code>, <code>fisher_exact</code>, <code>integrate.trapezoid</code>), statsmodels (<code>confint_proportions_2indep</code>, <code>test_proportions_2indep</code>, <code>ols</code>)</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00-s2">실습 0 b 절</a>). 설치할 패키지는 없습니다. c 절의 Theoph는 인터넷에서 CSV 파일을 읽어 오므로 인터넷 연결이 필요합니다.</dd></div>
 </dl>
+
+<p class="nb-link"><a href="notebooks/lab13.ipynb" download>실습 노트북 내려받기 (lab13.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<p>이 실습은 13장의 자료를 그대로 쓰는 곳과, 13장의 값을 참값으로 삼아 새로 만든 자료를 쓰는 곳이 섞여 있습니다. 절마다 13장의 무엇에 해당하는지 먼저 맞춰 둡니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th></th><th>13장의 예</th><th>이 실습의 자료</th></tr></thead>
+<tbody>
+<tr><td>평균 차이 (a 절)</td><td>c 절 HbA1c 시험의 요약 통계. 신약 X 185명 −0.74%p, 대조약 183명 −0.83%p, 한계 +0.4%p</td><td>같은 값을 참값으로 뽑은 개인 자료(셀 2). 요약 통계 그대로의 계산은 셀 6</td></tr>
+<tr><td>평균 차이의 결과</td><td>0.09%p (95% CI −0.12 ~ 0.30)</td><td>개인 자료 0.145%p (−0.063 ~ 0.353), 요약 통계 0.09%p (−0.12 ~ 0.30)</td></tr>
+<tr><td>비율 차이 (b 절)</td><td>d 절 제균 시험 186/224 대 190/224와 4단계의 소규모 시험 48/50 대 50/50, 한계 −10%p</td><td>같은 요약자료</td></tr>
+<tr><td>비율 차이의 결과</td><td>Newcombe −8.62 ~ 5.06%p, 소규모 −13.46 ~ 3.70%p</td><td>같음(셀 7)</td></tr>
+<tr><td>생물학적 동등성 (c 절)</td><td>a 절 '더 알아보기'의 AUC 12명과 24명 교차설계 결과표</td><td>같은 12명(셀 15), 24명 교차설계 모의자료(셀 17), AUC 계산 연습용 실제 자료 Theoph</td></tr>
+<tr><td>생물학적 동등성의 결과</td><td>12명 GMR 95.75% (90% CI 89.10–102.89%)</td><td>같음. 모의 교차설계 95.82% (89.71–102.36%)</td></tr>
+</tbody></table></div>
+<p>b 절과 c 절의 12명 AUC는 13장과 같은 자료라 셀의 출력을 13장의 숫자와 바로 맞춰 볼 수 있습니다. a 절의 개인 자료는 13장 c 절의 요약 통계를 참값으로 삼아 뽑은 한 표본이라 숫자가 조금 다르고, 셀 6에서 요약 통계로 13장의 숫자를 그대로 재현합니다. 13장 b 절의 PDC 예(높을수록 좋은 결과)도 개인 자료 없이 셀 6에서 요약 통계로 계산합니다.</p>
+
+<p>셀은 하나의 노트북에서 위에서부터 순서대로 실행합니다(<kbd>Shift</kbd> + <kbd>Enter</kbd>). 뒤의 셀이 앞 셀에서 만든 <code>new</code>, <code>tab</code>, <code>be</code> 같은 변수를 쓰기 때문입니다. 출력을 만든 패키지의 버전은 셀 1에서 확인합니다.</p>
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab13-s1">
@@ -13,12 +30,30 @@
 
 <p><a href="#ch13-s3">13장 c 절</a>의 시험을 모의자료로 재현합니다. 메트포르민으로 조절되지 않는 제2형 당뇨병 환자를 새 DPP-4 억제제(신약 X)와 기존 DPP-4 억제제(대조약)에 배정하고 24주 HbA1c 변화량을 비교하는 시험입니다. HbA1c 변화량은 <b>낮을수록 좋은</b> 결과이고, 비열등성 한계는 0.4%p입니다. 차이를 신약 − 대조약으로 정의하면 양수가 신약에 불리한 쪽이므로, 95% 신뢰구간의 <b>상한</b>이 +0.4보다 작은지를 봅니다.</p>
 
+<h3>패키지 불러오기와 버전 확인</h3>
+<p>먼저 이 실습에서 쓰는 패키지를 불러오고 각각의 버전을 출력해 둡니다. 버전이 바뀌면 출력의 자릿수나 표시 형식이 조금씩 달라질 수 있어서, 내 화면의 출력이 이 페이지와 다를 때 가장 먼저 비교해 볼 정보이기 때문입니다.</p>
+<!--FIG:lab13_versions-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료를 다루는 pandas, 그래프를 그리는 matplotlib의 pyplot을 불러와 각각 <code>np</code>, <code>pd</code>, <code>plt</code>라는 짧은 이름을 붙입니다.</span></li>
+<li><code>from scipy import stats</code><span>t 검정과 확률분포 함수가 들어 있는 scipy의 stats 모듈을 불러옵니다. 이 실습의 t 검정은 모두 <code>stats.</code>으로 시작합니다.</span></li>
+<li><code>import scipy, statsmodels, matplotlib</code><span>버전을 확인하려고 세 패키지를 패키지 이름 그대로 불러옵니다. 쉼표로 이어 한 줄에 여러 개를 불러올 수 있습니다. statsmodels의 함수는 처음 쓰는 셀(셀 7, 10, 18)에서 따로 불러옵니다.</span></li>
+<li><code>print("numpy       ", np.__version__)</code><span>패키지마다 <code>__version__</code>(앞뒤로 밑줄 두 개)에 버전 번호가 문자열로 들어 있습니다. 앞의 문자열 끝에 공백을 넣어 다섯 줄의 버전 번호가 같은 자리에서 시작하게 했습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<p>이 페이지의 출력을 만든 환경의 버전입니다(2026년 10월 14일 확인). Colab의 버전이 다르면 끝자리가 조금 다를 수 있습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>scipy 1.18.1.</b> a 절과 c 절의 t 검정과 신뢰구간을 계산합니다. <code>ttest_ind</code> 결과의 <code>confidence_interval</code> 메서드는 scipy 1.11부터 있으므로, 그보다 오래된 버전에서는 셀 3에서 오류가 납니다.</span></li>
+<li><span class="mk">2</span><span><b>statsmodels 0.15.0.</b> b 절의 비율 신뢰구간과 검정, c 절의 교차설계 분석에 씁니다. b 절의 <code>method="score"</code>는 이 버전에서 13장의 값과 조금 다르게 나옵니다(b 절 주의 상자).</span></li>
+</ol>
+
 <h3>모의 임상시험 자료 만들기</h3>
 <p>실제 환자 자료 대신, 참값을 정해 두고 정규분포 난수로 자료를 만듭니다. 신약 X군의 참 평균 변화량은 −0.74%p(SD 1.02), 대조약군은 −0.83%p(SD 1.06)로 두었습니다. 참 차이는 +0.09%p로, 신약이 조금 덜 낮추지만 한계 0.4보다 훨씬 작은 상황입니다.</p>
 <!--FIG:lab13_sim-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>from scipy import stats</code><span>t 검정과 확률분포 함수가 들어 있는 scipy의 stats 모듈을 불러옵니다. 위 세 줄은 numpy, pandas, matplotlib을 불러옵니다.</span></li>
 <li><code>rng = np.random.default_rng(2024)</code><span>난수 생성기를 만듭니다. 괄호 안의 2024는 시드(seed)로, 같은 시드를 쓰면 누가 언제 실행해도 같은 난수가 나옵니다. 시드를 바꾸면 다른 '가상의 시험'이 됩니다.</span></li>
 <li><code>rng.normal(loc=-0.74, scale=1.02, size=185)</code><span>평균(<code>loc</code>) −0.74, 표준편차(<code>scale</code>) 1.02인 정규분포에서 값 185개를 뽑아 1차원 배열로 만듭니다. 신약 X군 185명의 HbA1c 변화량입니다. 다음 줄은 대조약군 183명입니다.</span></li>
 <li><code>print(new[:5].round(2))</code><span>앞 5명의 값을 소수 둘째 자리로 보여 줍니다. <code>[:5]</code>는 '처음부터 5개'라는 뜻입니다.</span></li>
@@ -37,7 +72,7 @@
 <ol class="lines">
 <li><code>stats.ttest_ind(new, ref, equal_var=False)</code><span>등분산을 가정하지 않는 Welch t 검정입니다. 차이는 항상 <b>첫 번째 인자 − 두 번째 인자</b>(신약 − 대조약)로 계산되므로 인자 순서가 차이의 부호를 정합니다.</span></li>
 <li><code>d = new.mean() - ref.mean()</code><span>관측된 평균 차이입니다.</span></li>
-<li><code>res.confidence_interval(confidence_level=0.95)</code><span>차이의 95% 신뢰구간입니다. 결과의 <code>.low</code>와 <code>.high</code>가 하한과 상한입니다. 단측 α 0.025 기준의 비열등성 판단은 양측 95% 구간과 같습니다(13장 a 절).</span></li>
+<li><code>res.confidence_interval(confidence_level=0.95)</code><span>차이의 95% 신뢰구간입니다. 결과의 <code>.low</code>와 <code>.high</code>가 하한과 상한입니다. 단측 α 0.025 기준의 비열등성 판단은 양측 95% 구간과 같습니다(13장 a 절 3단계).</span></li>
 <li><code>res.pvalue</code><span>"차이 = 0"에 대한 양측 p입니다. 참고용으로 출력합니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
@@ -54,15 +89,17 @@
 <ol class="lines">
 <li><code>margin = 0.4</code><span>비열등성 한계 Δ입니다.</span></li>
 <li><code>stats.ttest_ind(new - margin, ref, equal_var=False,
-                alternative="less")</code><span><code>new - margin</code>은 배열의 모든 값에서 0.4를 뺀 새 배열입니다. <code>alternative="less"</code>는 대립가설 "첫 번째 평균 − 두 번째 평균 &lt; 0", 즉 "신약 − 대조약 &lt; 0.4"를 뜻하는 단측 검정입니다. 높을수록 좋은 결과(13장 b 절)라면 <code>new + margin</code>과 <code>alternative="greater"</code>를 씁니다.</span></li>
+                alternative="less")</code><span><code>new - margin</code>은 배열의 모든 값에서 0.4를 뺀 새 배열입니다. <code>alternative="less"</code>는 대립가설 "첫 번째 평균 − 두 번째 평균 &lt; 0", 즉 "신약 − 대조약 &lt; 0.4"를 뜻하는 단측 검정입니다. 높을수록 좋은 결과(13장 b 절)라면 <code>new + margin</code>과 <code>alternative="greater"</code>를 씁니다(셀 6).</span></li>
 <li><code>print(ni)</code><span>결과 객체를 그대로 출력합니다. numpy 2 이상에서는 숫자가 <code>np.float64(…)</code>로 감싸여 보이고, 이전 버전에서는 숫자만 보입니다.</span></li>
 <li><code>se = np.sqrt(new.var(ddof=1) / new.size + ...)</code><span>Welch 방식의 차이 표준오차 √(s₁²/n₁ + s₂²/n₂)를 직접 계산해 t 값을 검산합니다.</span></li>
+<li><code>ni.confidence_interval(confidence_level=0.975)</code><span>단측 검정의 결과 객체는 한쪽만 있는 신뢰구간을 줍니다. 대립가설이 "less"라 하한은 −inf(음의 무한대)이고 상한만 의미가 있습니다. 신약 값에서 0.4를 뺐으므로 상한에 0.4를 다시 더해 차이의 신뢰한계로 되돌립니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>t = −2.41.</b> (d − Δ)/SE = (0.145 − 0.4) ÷ 0.1058입니다. 13장의 식 t<sub>NI</sub> = (Δ − d)/SE로 계산한 2.41과 부호만 반대입니다. 값을 빼는 방향이 반대이기 때문이고, 판단은 같습니다. df = 365.5는 Welch 자유도입니다.</span></li>
-<li><span class="mk">2</span><span><b>단측 P = 0.0081.</b> 귀무가설 "신약이 0.4%p 이상 덜 낮춘다" 아래에서 이런 결과가 나올 확률입니다. 0.025보다 작으므로 비열등성을 입증합니다. 신뢰구간 상한이 0.4보다 작다는 판단과 항상 일치합니다. 이 p를 "두 약의 차이가 유의하다"로 읽으면 정반대가 됩니다(차이 = 0에 대한 p는 0.172).</span></li>
+<li><span class="mk">2</span><span><b>단측 P = 0.0081.</b> 귀무가설 "신약이 0.4%p 이상 덜 낮춘다" 아래에서 이만큼 또는 더 극단적인 결과가 나올 확률입니다. 0.025보다 작으므로 비열등성을 입증합니다. 신뢰구간 상한이 0.4보다 작다는 판단과 항상 일치합니다. 이 p를 "두 약의 차이가 유의하다"로 읽으면 정반대가 됩니다(차이 = 0에 대한 p는 0.172).</span></li>
 <li><span class="mk">3</span><span><b>SE = 0.1058.</b> 직접 계산한 t가 scipy의 값과 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>단측 97.5% 신뢰구간의 상한 0.353.</b> 셀 3의 양측 95% 신뢰구간 상한과 같은 값입니다. <code>confidence_level</code>을 적지 않으면 기본값 0.95가 적용되어 상한이 0.319로 나옵니다. 이것은 양측 90% 신뢰구간의 상한이라 비열등성 판단에는 너무 느슨합니다(13장 b 절 '더 알아보기'의 '파이썬으로 계산하기' 해설 3번).</span></li>
 </ol>
 <div class="callout note"><p class="ct">참고 · statsmodels로 하면</p>
 <p><code>statsmodels.stats.weightstats.ttest_ind(new, ref, alternative="smaller", usevar="unequal", value=0.4)</code>처럼 statsmodels의 함수는 <code>value=</code>로 귀무가설의 차이를 직접 줄 수 있어 값을 빼는 과정이 필요 없습니다. 결과는 (t, p, 자유도) 세 값의 묶음으로 나오며 위와 같은 t = −2.414, P = 0.0081입니다.</p></div>
@@ -79,9 +116,33 @@
 </ol>
 <p>x축은 HbA1c 변화량의 차이(신약 X − 대조약, %p)입니다. 왼쪽이 신약에 유리하고(더 많이 낮춤) 오른쪽이 대조약에 유리합니다. 신뢰구간의 오른쪽 끝(0.353)이 주황 점선(+0.4)의 왼쪽에 있으므로 비열등성이 입증되고, 구간이 검은 실선(0)을 가로지르므로 우월성은 입증되지 않았습니다. 회색 점선(−0.4)은 이 시험의 판단에 쓰이지 않지만, 동등성(양쪽 한계)을 보려면 구간 전체가 두 점선 사이에 있어야 합니다.</p>
 
+<h3>요약 통계만 있을 때</h3>
+<p>논문에는 개인 자료 없이 군별 평균, SD, 인원만 실리는 경우가 많습니다. scipy의 <code>ttest_ind_from_stats</code>는 이 세 값으로 t 검정을 하므로 13장 b 절(PDC, 높을수록 좋음)과 c 절(HbA1c, 낮을수록 좋음)의 숫자를 그대로 재현할 수 있습니다. 두 방향을 함께 다루도록 짧은 함수를 만들었습니다.</p>
+<!--FIG:lab13_stats-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def ni_from_stats(label, m1, s1, n1, m2, s2, n2, margin, higher_better):</code><span>함수를 새로 정의합니다. 출력에 붙일 이름표(<code>label</code>), 신약의 평균·SD·인원(<code>m1, s1, n1</code>), 대조의 평균·SD·인원(<code>m2, s2, n2</code>), 한계(<code>margin</code>), 결과가 높을수록 좋은지(<code>higher_better</code>, True 또는 False)를 받아 결과 한 줄을 출력합니다.</span></li>
+<li><code>v1, v2 = s1**2 / n1, s2**2 / n2</code><span>각 군 평균의 분산, 즉 표준오차의 제곱입니다. <code>**</code>는 거듭제곱입니다. 다음 줄의 <code>se</code>는 두 값을 더해 제곱근을 씌운 차이의 표준오차입니다(13장 b 절 2단계).</span></li>
+<li><code>df = (v1 + v2)**2 / (v1**2 / (n1 - 1) + v2**2 / (n2 - 1))</code><span>Welch 자유도입니다(2장 a 절). <code>ttest_ind_from_stats</code>가 이 값을 돌려주지 않으므로 직접 계산합니다.</span></li>
+<li><code>tc = stats.t.ppf(0.975, df)</code><span>그 자유도의 t 분포에서 가운데 95%를 남기는 임계값입니다. 13장의 1.964, 1.966이 이 값입니다.</span></li>
+<li><code>if higher_better:</code> … <code>else:</code><span>높을수록 좋으면 한계가 −margin이므로 신약 평균에 margin을 더하고 대립가설을 "greater"로 둡니다. 낮을수록 좋으면 한계가 +margin이므로 margin을 빼고 "less"로 둡니다. 셀 4에서 개인 자료에 한 것과 같은 방법입니다.</span></li>
+<li><code>stats.ttest_ind_from_stats(m1 + margin, s1, n1, m2, s2, n2, equal_var=False, alternative="greater")</code><span>인자 순서는 (첫 군 평균, SD, 인원, 둘째 군 평균, SD, 인원)이고 차이는 첫 군 − 둘째 군입니다. 결과에는 t와 p만 있고 신뢰구간 메서드가 없어서, 신뢰구간은 위의 <code>se</code>와 <code>tc</code>로 차이 ± 임계값 × 표준오차를 직접 계산했습니다.</span></li>
+<li><code>ni_from_stats("PDC (ch13 b)", 83.9, 16.8, 304, 85.2, 17.5, 304, 5, True)</code><span>13장 b 절의 원격 상담(83.9%, SD 16.8, 304명)과 대면 상담(85.2%, SD 17.5, 304명), 한계 5%p, 높을수록 좋음을 넣어 함수를 부릅니다. 다음 줄은 c 절의 HbA1c입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>PDC 차이 −1.30%p.</b> 원격 상담의 PDC가 1.30%p 낮습니다. 13장 b 절 2단계의 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>95% CI −4.03 ~ 1.43.</b> 높을수록 좋은 결과이므로 하한 −4.03을 한계 −5와 견줍니다. −5보다 크므로 비열등입니다.</span></li>
+<li><span class="mk">3</span><span><b>단측 P 0.0040.</b> 13장의 "P = .004 for noninferiority"입니다. t = 2.66은 13장의 (−1.30 + 5) ÷ 1.391과 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>HbA1c 차이 0.09%p.</b> 13장 c 절 2단계의 값입니다.</span></li>
+<li><span class="mk">5</span><span><b>95% CI −0.12 ~ 0.30.</b> 낮을수록 좋은 결과이므로 상한 0.30을 한계 +0.4와 견줍니다.</span></li>
+<li><span class="mk">6</span><span><b>t −2.86, 단측 P 0.0023.</b> 13장의 t<sub>NI</sub> = 2.86과 부호만 반대인 이유는 셀 4와 같습니다. 13장은 P를 .002로 적었습니다.</span></li>
+</ol>
+<p>셀 3의 모의자료 결과(0.145, −0.063 ~ 0.353)가 13장 c 절과 다른 것은 같은 참값에서 뽑은 한 표본이기 때문입니다. 요약 통계로 계산하면 13장과 같은 숫자가 나옵니다.</p>
+
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
 <ul>
-<li>시드를 바꿔 보세요. 참값이 같아도 표본마다 결과가 달라집니다. <code>default_rng(13)</code>에서는 차이 0.259, 95% CI 0.036–0.482로 상한이 0.4를 넘어 비열등성을 입증하지 못하고, 하한이 0보다 커서 신약이 유의하게 덜 낮춘 것으로 나옵니다(13장 그림 13-1의 E를 좌우로 뒤집은 모양). 참 차이(0.09)가 한계보다 작아도 이렇게 입증에 실패할 확률이 1 − 검정력입니다.</li>
+<li>셀 2의 시드를 바꿔 보세요. 참값이 같아도 표본마다 결과가 달라집니다. <code>default_rng(13)</code>에서는 차이 0.259, 95% CI 0.036–0.482로 상한이 0.4를 넘어 비열등성을 입증하지 못하고, 하한이 0보다 커서 신약이 유의하게 덜 낮춘 것으로 나옵니다(13장 그림 13-1의 E를 좌우로 뒤집은 모양). 참 차이(0.09)가 한계보다 작아도 이렇게 입증에 실패할 확률이 1 − 검정력입니다.</li>
 <li><code>size</code>를 군당 60명으로 줄이면 신뢰구간이 넓어져 같은 참값에서도 비열등성을 입증하기 어려워집니다(13장 b 절 '더 알아보기'의 '표본크기 계산과 가정에 따른 변화').</li>
 </ul></div>
 
@@ -100,7 +161,8 @@
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>stats.ttest_ind(a, b, equal_var=False).confidence_interval(0.95)</code>로 평균 차이(a − b)의 95% 신뢰구간을 구합니다. 인자 순서가 차이의 부호를 정합니다.</li>
 <li>낮을수록 좋은 결과에서는 (신약 − 대조)의 95% CI 상한을 +Δ와, 높을수록 좋은 결과에서는 하한을 −Δ와 비교합니다.</li>
-<li>비열등성 단측 검정은 한 군에서 Δ를 빼거나 더한 뒤 <code>alternative="less"</code> 또는 <code>"greater"</code>로 합니다. 결과는 신뢰구간 판단과 같습니다.</li>
+<li>비열등성 단측 검정은 한 군에서 Δ를 빼거나 더한 뒤 <code>alternative="less"</code> 또는 <code>"greater"</code>로 합니다. 그 결과의 신뢰구간은 <code>confidence_level=0.975</code>로 구해야 양측 95% 구간의 끝과 같습니다.</li>
+<li>요약 통계만 있으면 <code>stats.ttest_ind_from_stats</code>로 비열등성 P를 구하고, 신뢰구간은 Welch 자유도의 임계값으로 직접 계산합니다.</li>
 <li>모의자료는 시드를 고정해 재현 가능하게 만들고, 시드를 바꿔 결과가 얼마나 흔들리는지 보면 검정력을 체감할 수 있습니다.</li>
 </ul></div>
 </section>
@@ -138,7 +200,7 @@
 <h3>score 방법과 Farrington–Manning 검정</h3>
 <p><code>confint_proportions_2indep</code>의 <code>method="score"</code>는 Miettinen–Nurminen 방식의 점수 구간입니다. 소규모 시험에 적용하면 다음과 같이 됩니다.</p>
 <!--FIG:lab13_score_err-->
-<p><code>ValueError: f(a) and f(b) must have different signs</code>는 구간의 끝을 찾는 수치 계산(해 찾기)이 실패했다는 뜻입니다. 이 버전에서는 한 군의 비율이 100%(또는 0%)인 극단적인 자료에서 이 오류가 났습니다. 이런 경우에는 Newcombe 구간을 쓰거나 다른 프로그램으로 계산해 비교합니다.</p>
+<p><code>ValueError: f(a) and f(b) must have different signs</code>는 구간의 끝을 찾는 수치 계산(해 찾기)이 실패했다는 뜻입니다. 이 버전에서는 한 군의 비율이 100%(또는 0%)인 극단적인 자료에서 이 오류가 났습니다. 이런 경우에는 Newcombe 구간을 쓰거나 다른 프로그램으로 계산해 비교합니다. 이 셀은 일부러 오류를 내므로 내려받는 노트북에서는 뺐습니다.</p>
 
 <p>비열등성에 대한 단측 P는 <code>test_proportions_2indep</code>로 구합니다. <code>value=</code>로 귀무가설의 차이(−0.10)를, <code>alternative=</code>로 방향을 지정할 수 있습니다.</p>
 <!--FIG:lab13_fm_sm-->
@@ -172,7 +234,7 @@
 <li><span class="mk">3</span><span><b>단측 P = 0.0098.</b> 13장의 값과 같습니다.</span></li>
 </ol>
 <div class="callout warn"><p class="ct">주의 · 프로그램마다 다른 결과가 나오면</p>
-<p>이 사이트에서 확인한 statsmodels 0.15.0의 <code>method="score"</code>는 귀무가설 아래의 비율을 77.52%, 87.52%로 계산했는데, 이 값에서의 로그우도(−200.162)는 직접 찾은 77.95%, 87.95%에서의 로그우도(−200.128)보다 작아 최대우도 추정값이 아닙니다. 그래서 z가 2.309로 조금 작게 나왔습니다. 같은 계산을 쓰는 <code>confint_proportions_2indep(..., method="score")</code>도 이 자료에서 −8.73 ~ 5.10%p를 주어 13장의 Miettinen–Nurminen 구간(−8.67 ~ 5.08%p)과 조금 다릅니다. 이 예에서는 결론이 바뀌지 않지만, 한계에 가까운 결과라면 직접 계산값이나 다른 통계 프로그램의 결과와 비교해 보세요. 다른 버전에서는 결과가 다를 수 있습니다. 비열등성 판단 자체는 미리 정한 신뢰구간(여기서는 Newcombe)으로 하는 것이 13장 d 절 '논문에 쓰기' 예문의 방식입니다.</p></div>
+<p>이 사이트에서 확인한 statsmodels 0.15.0의 <code>method="score"</code>는 귀무가설 아래의 비율을 77.52%, 87.52%로 계산했습니다. 셀 11의 <code>negloglik</code>로 이 값에서의 로그우도를 구하면 −8.042로, 직접 찾은 77.95%, 87.95%에서의 로그우도(−8.008)보다 작아 최대우도 추정값이 아닙니다. 그래서 z가 2.309로 조금 작게 나왔습니다. 같은 계산을 쓰는 <code>confint_proportions_2indep(..., method="score")</code>도 이 자료에서 −8.73 ~ 5.10%p를 주어 13장의 Miettinen–Nurminen 구간(−8.67 ~ 5.08%p)과 조금 다릅니다. 이 예에서는 결론이 바뀌지 않지만, 한계에 가까운 결과라면 직접 계산값이나 다른 통계 프로그램의 결과와 비교해 보세요. 다른 버전에서는 결과가 다를 수 있습니다. 비열등성 판단 자체는 미리 정한 신뢰구간(여기서는 Newcombe)으로 하는 것이 13장 d 절 '논문에 쓰기' 예문의 방식입니다.</p></div>
 
 <div class="paper">
 <div class="paper-h"><b>논문에는 이렇게 씁니다 · 비율의 비열등성 Results</b><span>실습 결과(13장 가상 자료)</span></div>
@@ -236,7 +298,7 @@
 <p>대상자 1의 AUC<sub>0–t</sub>는 148.92 mg·h/L, Cmax는 10.50 mg/L(1.12시간)입니다. AUC는 73.78–148.92로 대상자마다 두 배 넘게 다릅니다. 실제 생물학적 동등성 시험에서는 여기에 마지막 농도 이후의 넓이를 소실 속도로 외삽한 AUC<sub>0–∞</sub>도 함께 보고합니다(13장 a 절 '더 알아보기'의 '생물학적 동등성 시험' Table 2).</p>
 
 <h3>기하평균비와 90% 신뢰구간</h3>
-<p>이제 시험약(T)과 대조약(R)의 AUC로 판정합니다. 13장 a 절 '더 알아보기'의 '생물학적 동등성 시험'에 있는 가상 자료(12명)를 그대로 씁니다. 두 가지를 기억합니다. 첫째, <b>로그 척도</b>에서 계산합니다. 약동학 지표는 로그정규분포에 가깝고 관심이 비(T/R)이므로, 로그를 취하면 비가 차이로 바뀌어 t 분포를 쓸 수 있고 결과를 지수로 되돌리면 기하평균비가 됩니다. 둘째, 동등성은 두 번의 단측 검정(각 α = 0.05)이므로 <b>90% 신뢰구간</b>을 씁니다. 판정 범위 80.00–125.00%는 로그 척도에서 ±0.2231로 0을 중심으로 대칭입니다.</p>
+<p>이제 시험약(T)과 대조약(R)의 AUC로 판정합니다. 13장 a 절 '더 알아보기'의 '생물학적 동등성 시험'에 있는 가상 자료(12명)를 그대로 씁니다. 두 가지를 기억합니다. 첫째, <b>로그 척도</b>에서 계산합니다. 로그를 취하면 비가 차이로 바뀌어 t 분포를 쓸 수 있고, 결과를 지수로 되돌리면 기하평균비가 됩니다. 둘째, 동등성은 두 번의 단측 검정(각 α = 0.05)이므로 <b>90% 신뢰구간</b>을 씁니다. 판정 범위 80.00–125.00%는 로그 척도에서 ±0.2231로 0을 중심으로 대칭입니다. 로그 척도를 쓰는 이유는 같은 '더 알아보기' 상자에, 90% 신뢰구간을 쓰는 이유는 13장 a 절 2단계의 '동등성은 어떻게 검정하나?'에 있습니다.</p>
 <!--FIG:lab13_be-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -265,7 +327,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>아래쪽 검정 t = 4.48, P = 0.00046.</b></span></li>
 <li><span class="mk">2</span><span><b>위쪽 검정 t = −6.65, P = 0.00002.</b> 두 단측 p가 모두 0.05보다 작으므로 동등성을 인정하며, 90% 신뢰구간 판단과 같습니다. 13장의 t<sub>U</sub> = 6.65와 부호가 반대인 것은 scipy가 (평균 − 기준값)으로 계산하기 때문입니다.</span></li>
-<li><span class="mk">3</span><span><b>차이 = 0에 대한 P = 0.30.</b> 동등성 판단과 관계가 없는 값입니다. "유의한 차이가 없으므로 동등하다"는 논리는 쓰지 않습니다(13장 a 절).</span></li>
+<li><span class="mk">3</span><span><b>차이 = 0에 대한 P = 0.30.</b> 동등성 판단과 관계가 없는 값입니다. "유의한 차이가 없으므로 동등하다"는 논리를 쓰지 않는 이유는 13장 a 절 1단계에 있습니다.</span></li>
 </ol>
 
 <h3>교차설계 분산분석으로 하기</h3>
@@ -326,4 +388,58 @@
 <li>TOST의 두 단측 p가 모두 0.05보다 작다는 판단은 90% CI 판단과 같습니다. 차이 = 0에 대한 p는 쓰지 않습니다.</li>
 <li>교차설계는 <code>smf.ols("np.log(auc) ~ C(subject) + C(period) + C(form)")</code>로 분석하고 <code>conf_int(alpha=0.10)</code>에서 90% CI를, √(e<sup>MSE</sup> − 1)로 개체내 CV를 구합니다.</li>
 </ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab13-s4">
+<h2><span class="sec-no">d.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 세 과제는 하는 일이 다릅니다. 과제 1은 출력의 한 행을 말로 옮기고, 과제 2는 조건 하나를 바꿔 다시 돌린 결과를 비교하고, 과제 3은 그럴듯하지만 틀린 분석을 찾습니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 기하평균비의 90% 신뢰구간 읽기</h3>
+<p>셀 18의 교차설계 결과(GMR 95.82%, 90% CI 89.71–102.36%)를 논문의 Results처럼 한 문장으로 옮기세요. 그리고 이 결과가 말해 주지 <em>않는</em> 것을 두 가지 이상 쓰세요. 셀 17의 자료에서 대상자마다 시험약 AUC ÷ 대조약 AUC를 구해 80–125% 밖인 사람이 몇 명인지도 확인하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab13_hw1-->
+<p><code>be.pivot(index="subject", columns="form", values="auc")</code>은 한 행이 한 대상자의 한 기간이던 긴 형식 표를, 한 행이 한 대상자이고 R과 T가 열인 넓은 형식 표로 바꿉니다. <code>wide["T"] / wide["R"]</code>은 대상자 24명의 T/R 비입니다. <code>np.exp(np.log(ratio).mean())</code>은 그 비들의 기하평균이고, <code>(ratio &lt; 0.80) | (ratio &gt; 1.25)</code>는 두 조건 가운데 하나라도 참이면 True입니다(<code>|</code>는 '또는').</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>대상자별 비의 기하평균 95.82%.</b> 셀 18의 기하평균비와 같습니다. 두 순서군의 인원이 같은 교차설계에서는 모형의 제제 효과가 대상자별 비의 기하평균과 같아집니다.</span></li>
+<li><span class="mk">2</span><span><b>대상자별 비의 범위 0.563–1.304.</b> 기하평균비는 96%이지만 대상자 한 명 한 명의 비는 56%에서 130%까지 흩어져 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>24명 가운데 5명이 80–125% 밖.</b> 80% 미만이 4명, 125% 초과가 1명입니다.</span></li>
+</ol>
+<p>한 문장으로 옮기면 "AUC의 기하평균비(시험약/대조약)는 95.82%였고 90% 신뢰구간 89.71–102.36%가 80.00–125.00% 안에 있어, AUC에 대해 두 제제는 생물학적으로 동등했다"입니다.</p>
+<p>이 결과가 말해 주지 않는 것은 세 가지입니다. 첫째, 환자 한 명 한 명의 AUC가 80–125% 안에 든다는 뜻이 아닙니다. 판정은 대상자 집단의 평균(기하평균비)에 대한 것이고, 이 자료에서도 24명 가운데 5명의 T/R이 범위 밖입니다. 같은 약을 두 번 먹어도 값이 달라지는 개체내 변동(CV 13.4%)이 이 흩어짐에 섞여 있으므로, 이 5명이 시험약에 특별히 다르게 반응했다는 뜻도 아닙니다. 둘째, 생물학적 동등성 전체를 판정한 것이 아닙니다. 실제 판정은 AUC와 Cmax 모두에서 90% 신뢰구간이 범위 안이어야 하고, 흡수 속도에 좌우되는 Cmax가 대개 먼저 걸립니다(13장 a 절 '더 알아보기'의 '생물학적 동등성 시험' Table 2 해설 5번). 셋째, 두 제제의 AUC가 같다는 뜻도 아닙니다. 점추정값 95.82%는 100%가 아니고, 구간은 시험약의 AUC가 대조약보다 최대 약 10% 낮을 수도 있음을 보여 줍니다. 동등성은 '차이가 미리 정한 범위 안'이라는 판정입니다.</p>
+</div></details>
+
+<h3>과제 2. 위험차 대신 비의 척도로 판정하기</h3>
+<p>셀 7의 본 시험(186/224 대 190/224)을 위험차 대신 비의 척도로 다시 판정하세요. <code>confint_proportions_2indep</code>에서 <code>compare="ratio"</code>, <code>method="log"</code>로 바꿔 제균 성공의 비와 실패의 비의 95% 신뢰구간을 구하세요. 그리고 설계 때 가정한 제균율 85%에서 −10%p 한계가 각각 어떤 비의 한계가 되는지 계산해 결론을 비교하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab13_hw2-->
+<p>실패 수는 224에서 성공 수를 뺀 38명과 34명입니다. <code>method="log"</code>는 로그를 씌운 비에서 Wald 구간을 만들어 지수로 되돌리는 방법입니다(8장 b 절). 성공의 비 한계 0.75 ÷ 0.85는 "제균율 85%가 75%로 떨어지는 것", 실패의 비 한계 0.25 ÷ 0.15는 "실패율 15%가 25%로 오르는 것"을 비로 나타낸 값입니다. <code>se_log</code>는 로그를 씌운 비의 표준오차로, 사건(분자) 수가 적을수록 커집니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>성공의 비 0.979, 95% CI 0.903–1.062, 한계 0.882.</b> 새 요법에 가장 불리한 끝은 하한 0.903이고 한계 0.882보다 크므로 비열등입니다.</span></li>
+<li><span class="mk">2</span><span><b>실패의 비 1.118, 95% CI 0.731–1.708, 한계 1.667.</b> 실패는 낮을수록 좋으므로 새 요법에 가장 불리한 끝은 상한 1.708이고, 한계 1.667을 넘으므로 비열등성을 입증하지 못합니다.</span></li>
+<li><span class="mk">3</span><span><b>성공의 비의 로그 척도 SE 0.041</b></span></li>
+<li><span class="mk">4</span><span><b>실패의 비의 로그 척도 SE 0.216.</b> 성공은 186명과 190명, 실패는 38명과 34명이라 실패의 비가 다섯 배 넘게 흔들립니다.</span></li>
+</ol>
+<p>같은 자료가 위험차로는 비열등(하한 −8.6%p &gt; −10%p), 성공의 비로도 비열등, 실패의 비로는 입증 실패로 갈렸습니다. 이유는 둘입니다. 첫째, 같은 −10%p가 척도에 따라 다른 크기의 한계가 됩니다. 성공의 비로는 11.8% 상대 감소이지만 실패의 비로는 67% 상대 증가이고, 그나마 기준 제균율을 85%로 가정했을 때의 값입니다. 둘째, 로그를 씌운 비의 표준오차는 분자의 사건 수가 적을수록 커집니다. 실패는 사건이 적어 로그 척도의 구간이 넓고, 그래서 비율로는 작은 차이도 실패의 비로는 넓은 구간이 됩니다. 그래서 한계의 척도와 값은 결과를 보기 전에 정하고 그 근거를 밝혀야 하며, 결과를 본 뒤 유리한 척도를 골라서는 안 됩니다(<a href="#ch13-s4">13장 d 절</a> '더 알아보기'의 '같은 자료, 척도에 따라 달라지는 결론').</p>
+</div></details>
+
+<h3>과제 3. 소규모 시험을 '차이 없음'과 Wald 구간으로 판단한 분석</h3>
+<p>동료가 b 절의 소규모 시험(48/50 대 50/50)을 이렇게 요약했습니다.</p>
+<p>"Fisher 정확검정에서 두 요법의 제균율 차이는 유의하지 않았다(P = 0.49). 위험차의 95% CI는 −9.4 ~ 1.4%p(Wald)로 하한이 한계 −10%p보다 크므로 새 요법은 표준 요법에 비열등하다. 따라서 두 요법의 효과는 같다."</p>
+<p>이 결론에서 틀린 곳 세 가지를 찾아 왜 틀렸는지 설명하고, 바르게 고쳐 쓰세요. 셀 7의 표에서 소규모 시험의 두 줄을 다시 보고, <code>test_proportions_2indep</code>로 Wald 방식과 score 방식의 비열등성 P도 비교해 보세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab13_hw3-->
+<p><code>stats.fisher_exact([[48, 2], [50, 0]])</code>는 행이 요법, 열이 성공·실패인 2×2 표로 "두 제균율이 같다"를 검정합니다(5장). <code>tab[tab["trial"] == "small"]</code>은 셀 7의 표에서 소규모 시험 두 줄만 고릅니다. 반복문은 같은 비열등성 검정(귀무가설 "차이 = −0.10")을 <code>method="wald"</code>와 <code>method="score"</code>로 한 번씩 합니다. score 방식에 <code>correction=False</code>를 주면 Farrington–Manning 검정입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>차이 = 0에 대한 Fisher P = 0.495.</b> 동료가 쓴 0.49입니다.</span></li>
+<li><span class="mk">2</span><span><b>Wald 하한 −0.0943</b></span></li>
+<li><span class="mk">3</span><span><b>Newcombe 하한 −0.1346.</b> 한계 −0.10을 넘습니다.</span></li>
+<li><span class="mk">4</span><span><b>Wald 방식의 비열등성 검정 z = 2.165, 단측 P = 0.0152.</b> Wald 구간처럼 '비열등'으로 판정합니다.</span></li>
+<li><span class="mk">5</span><span><b>score(Farrington–Manning) 검정 z = 1.414, 단측 P = 0.0786.</b> 0.025보다 커서 비열등성을 입증하지 못합니다.</span></li>
+</ol>
+<p>첫째 잘못은 차이 검정의 P를 근거로 쓴 것입니다. P = 0.49는 50명씩의 작은 시험이 차이를 보여 줄 증거가 부족하다는 뜻일 뿐, 두 요법이 같거나 새 요법이 나쁘지 않다는 증거가 아닙니다. 이 논리로는 시험을 작게 할수록 '같다'는 결론을 얻기 쉬워집니다(<a href="#ch13-s1">13장 a 절</a> 1단계의 '차이가 유의하지 않으면 같다고 할 수 있나?').</p>
+<p>둘째 잘못은 Wald 구간을 쓴 것입니다. 표준 요법은 50명 모두 성공해 관측 비율이 1이므로, Wald 표준오차에서 그 군의 몫(1 × 0 ÷ 50)이 0이 됩니다. 표준오차가 √(0.96 × 0.04 ÷ 50) = 0.0277로 새 요법 쪽의 흔들림만 남아 구간이 너무 좁아집니다. 비율 자료에 권장되는 Newcombe 구간은 −13.5 ~ 3.7%p로 하한이 한계를 넘고, Farrington–Manning 검정의 단측 P도 0.079로 0.025보다 큽니다. Wald 방식의 검정(P = 0.015)만 '비열등'으로 판정합니다(b 절 '위험차의 Wald 구간과 Newcombe 구간', <a href="#ch13-s4">13장 d 절</a> 4단계).</p>
+<p>셋째 잘못은 비열등성을 '같다'로 옮긴 것입니다. 비열등성이 입증되었더라도 그것은 "한계 이상 나쁘지 않다"는 한쪽 방향의 결론이고, 효과가 같다는 동등성과 다릅니다(13장 a 절 3단계의 흔한 오해). 바르게 고쳐 쓰면 "새 요법의 제균율은 96.0%, 표준 요법은 100%로 차이는 −4.0%p(95% CI −13.5 ~ 3.7, Newcombe)였다. 하한이 미리 정한 한계 −10%p보다 낮아 비열등성을 입증하지 못했다"입니다. 13장 그림 13-1로는 D, 즉 결론을 내릴 수 없는 경우입니다.</p>
+</div></details>
 </section>

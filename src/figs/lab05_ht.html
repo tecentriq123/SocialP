@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">고혈압 병력과 저체중아: 기대빈도 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs_h = pd.crosstab(df[&quot;ht_f&quot;], df[&quot;low_f&quot;])
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">고혈압 병력과 저체중아: 기대빈도 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">obs_h = pd.crosstab(df[&quot;ht_f&quot;], df[&quot;low_f&quot;])
 print(obs_h)
 exp_h = stats.chi2_contingency(obs_h).expected_freq
 print(exp_h.round(2))

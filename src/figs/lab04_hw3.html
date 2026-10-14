@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 3 정답. 자료를 본 뒤 정한 순서로 한 추세 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">med = df.groupby(&quot;race_f&quot;, observed=True)[&quot;bwt&quot;].median()
+order_seen = med.sort_values().index.tolist()     # 자료를 본 뒤 정한 순서
+print(&quot;medians:&quot;, order_seen)
+print(&quot;means  :&quot;, g.mean().sort_values().index.tolist())
+J_c, EJ_c, z_c, p_c = jt_test(
+    [df.loc[df[&quot;race_f&quot;] == k, &quot;bwt&quot;] for k in order_seen])
+print(f&quot;z = {z_c:.2f}, P for trend = {p_c:.3f}&quot;)
+
+rng3 = np.random.default_rng(2026)
+y3, race_lab = df[&quot;bwt&quot;].to_numpy(), df[&quot;race_f&quot;].to_numpy()
+B3, hit_jt, hit_kw = 2000, 0, 0
+for _ in range(B3):
+    s = rng3.permutation(race_lab)         # 인종과 무관하게 섞음
+    gs = sorted([y3[s == k] for k in [&quot;White&quot;, &quot;Black&quot;, &quot;Other&quot;]],
+                key=np.median)             # 매번 중앙값 순서로 늘어놓음
+    hit_jt += jt_test(gs)[3] &lt; 0.05
+    hit_kw += stats.kruskal(*gs).pvalue &lt; 0.05
+print(f&quot;&#x27;significant&#x27; in {B3} null data sets:&quot;)
+print(f&quot;  JT, order from data {hit_jt / B3:.3f}&quot;)
+print(f&quot;  Kruskal-Wallis      {hit_kw / B3:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>medians: [&#x27;Other&#x27;, &#x27;Black&#x27;, &#x27;White&#x27;]<span class="mk">1</span>
+means  : [&#x27;Black&#x27;, &#x27;Other&#x27;, &#x27;White&#x27;]<span class="mk">2</span>
+z = 2.54, P for trend = 0.011<span class="mk">3</span>
+&#x27;significant&#x27; in 2000 null data sets:
+  JT, order from data 0.112<span class="mk">4</span>
+  Kruskal-Wallis      0.056<span class="mk">5</span></pre></div></div>

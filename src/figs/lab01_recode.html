@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">진단 변수를 읽기 쉽게 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">labels = {0: &quot;malignant&quot;, 1: &quot;benign&quot;}      # sklearn의 코딩
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">진단 변수를 읽기 쉽게 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">labels = {0: &quot;malignant&quot;, 1: &quot;benign&quot;}      # sklearn의 코딩
 df[&quot;diagnosis&quot;] = pd.Categorical(df[&quot;target&quot;].map(labels),
                                  categories=[&quot;benign&quot;, &quot;malignant&quot;])
 df[&quot;malignant&quot;] = (df[&quot;target&quot;] == 0).astype(int)   # 1 = 악성

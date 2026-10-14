@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">과제 1 정답. 대응표본 t 검정의 한 행 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(d.round(1).sort_values().tolist())       # 환자별 차이, 작은 순서로
+print(&quot;median d:&quot;, d.median())
+print(&quot;d &gt;= 1 h:&quot;, int((d &gt;= 1).sum()), &quot;of&quot;, len(d))
+wide[[&quot;drug1&quot;, &quot;drug2&quot;]].mean().round(2).rename(&quot;mean&quot;)   # 약을 쓰지 않은 밤 대비</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[0.0<span class="mk">1</span>, 0.8, 1.0, 1.2, 1.3, 1.3, 1.4, 1.8, 2.4, 4.6]
+median d: 1.3<span class="mk">2</span>
+d &gt;= 1 h: 8 of 10<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>drug1</th>
+      <td>0.75<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>drug2</th>
+      <td>2.33<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

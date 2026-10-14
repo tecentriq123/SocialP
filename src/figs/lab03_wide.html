@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">넓은 형식으로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">wide = sleep.pivot(index=&quot;ID&quot;, columns=&quot;group&quot;, values=&quot;extra&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">넓은 형식으로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">wide = sleep.pivot(index=&quot;ID&quot;, columns=&quot;group&quot;, values=&quot;extra&quot;)
 wide.columns = [&quot;drug1&quot;, &quot;drug2&quot;]
 wide[&quot;d&quot;] = wide[&quot;drug2&quot;] - wide[&quot;drug1&quot;]   # 환자별 차이
 wide</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">

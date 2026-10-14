@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">과제 3 정답. 유의한 p만 골라 보정하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p_sig = p_null[p_null &lt; 0.05]                  # 동료: 유의한 p만 골라서
+print(&quot;colleague:&quot;, p_sig.round(4), &quot;-&gt;&quot;,
+      multipletests(p_sig, method=&quot;holm&quot;)[1].round(4))
+print(&quot;all 30   :&quot;, multipletests(p_null, method=&quot;holm&quot;)[0].sum(),
+      &quot;significant&quot;)
+
+wrong, right = [], []
+for i in range(1000):                          # 셀 23과 같은 분할 1000개
+    a = ben.sample(frac=0.5, random_state=i)
+    b = ben.drop(a.index)
+    p = stats.ttest_ind(a[features], b[features],
+                        equal_var=False).pvalue
+    sig = p[p &lt; 0.05]
+    wrong.append(len(sig) &gt; 0 and multipletests(sig, method=&quot;holm&quot;)[0].any())
+    right.append(multipletests(p, method=&quot;holm&quot;)[0].any())
+print(&quot;FWER, only p &lt; 0.05 adjusted:&quot;, np.mean(wrong))
+print(&quot;FWER, all 30 adjusted       :&quot;, np.mean(right))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>colleague: [0.0215 0.0164]<span class="mk">1</span> -&gt; [0.0327 0.0327]<span class="mk">2</span>
+all 30   : 0<span class="mk">3</span> significant
+FWER, only p &lt; 0.05 adjusted: 0.357<span class="mk">4</span>
+FWER, all 30 adjusted       : 0.024<span class="mk">5</span></pre></div></div>

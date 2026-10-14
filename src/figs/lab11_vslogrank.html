@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">단변수 Cox 모형과 로그순위 검정 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import logrank_test
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">단변수 Cox 모형과 로그순위 검정 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.statistics import logrank_test
 
 a = df[&quot;dpca&quot;] == 1
 lr = logrank_test(df.loc[a, &quot;years&quot;], df.loc[~a, &quot;years&quot;],

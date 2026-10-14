@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">군별·기간별 평균 발작 건수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(epil.groupby(&quot;trt&quot;, observed=True)[&quot;subject&quot;].nunique())
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">군별·기간별 평균 발작 건수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(epil.groupby(&quot;trt&quot;, observed=True)[&quot;subject&quot;].nunique())
 tab = epil.groupby([&quot;trt&quot;, &quot;period&quot;], observed=True)[&quot;y&quot;].mean()
 tab.unstack().round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>trt
 placebo      28<span class="mk">1</span>

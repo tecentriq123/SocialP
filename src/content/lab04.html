@@ -1,17 +1,50 @@
-<p class="lead">4장의 세 군 이상 비교를 <a href="#lab02">실습 2</a>의 birthwt 자료로 해 봅니다. 어머니의 인종 분류에 따른 세 군의 출생체중을 분산분석, Welch 분산분석, Tukey 사후분석, Kruskal-Wallis 검정으로 비교하고, 어머니 체중 삼분위라는 순서 있는 세 군에는 Jonckheere-Terpstra 검정을 함수로 직접 만들어 적용합니다. 이 검정은 scipy에 없고 statsmodels에는 최신 버전(0.15)에서야 추가되었기 때문입니다(<a href="#ch04">4장</a>).</p>
+<p class="lead">4장의 세 군 이상 비교를 <a href="#lab02">실습 2</a>의 birthwt 자료로 해 봅니다. 어머니의 인종 분류에 따른 세 군의 출생체중을 분산분석, Welch 분산분석, Tukey 사후분석(b 절), Kruskal-Wallis 검정과 Dunn 검정(c 절)으로 비교하고, 어머니 체중 삼분위라는 순서 있는 세 군에는 Jonckheere-Terpstra 검정을 함수로 직접 만들어 적용합니다(d 절). 이 검정은 scipy에 없고 statsmodels에는 최신 버전(0.15)에서야 추가되었기 때문입니다. e 절에는 출력을 말로 옮기고, 조건을 바꿔 다시 돌리고, 잘못된 분석을 찾는 과제 세 개가 있습니다. 이론은 <a href="#ch04">4장</a>, 노트북 사용법은 <a href="#lab00">실습 0</a>을 참고하세요.</p>
 
 <dl class="glance">
   <div><dt>관련 이론</dt><dd><a href="#ch04-s2">4장 b 절 사후분석</a>, <a href="#ch04-s3">c 절 일원배치 분산분석</a>, <a href="#ch04-s4">d 절 Kruskal-Wallis test</a>, <a href="#ch04-s5">e 절 Jonckheere-Terpstra test</a></dd></div>
   <div><dt>데이터</dt><dd>birthwt (R의 MASS 패키지, 실습 2와 같은 자료). 1986년 Baystate Medical Center 출생아 189명<cite data-ref="hosmer1989"></cite>. 결과변수 <code>bwt</code>(출생체중, g), 군 <code>race</code>(1 = white, 2 = black, 3 = other), 순서 있는 군은 <code>lwt</code>(어머니 체중)의 삼분위. 변수 설명은 <a href="#lab02-s1">실습 2 a 절</a>의 표를 보세요.</dd></div>
-  <div><dt>사용 패키지</dt><dd>pandas, numpy, scipy.stats, statsmodels, matplotlib, seaborn</dd></div>
-  <div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). statsmodels는 Colab에 설치되어 있습니다. 새 노트북에서 셀 1부터 순서대로 실행하세요. 셀 18(순열검정)은 몇 초에서 수십 초 걸리고, 셀 17은 statsmodels 0.15 이상에서만 실행됩니다.</dd></div>
+  <div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, seaborn, scipy.stats(<code>f_oneway</code>, <code>shapiro</code>, <code>probplot</code>, <code>levene</code>, <code>kruskal</code>, <code>mannwhitneyu</code>, <code>dunnett</code>), statsmodels(<code>smf.ols</code>, <code>anova_lm</code>, <code>anova_oneway</code>, <code>pairwise_tukeyhsd</code>, <code>multipletests</code>, <code>jonckheere_terpstra</code>)</dd></div>
+  <div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00-s2">실습 0 b 절</a>). 설치할 패키지는 없습니다. birthwt는 인터넷에서 CSV 파일을 읽어 오므로 인터넷 연결이 필요합니다. 셀 20(순열검정)과 셀 25(과제 3 정답)는 몇 초에서 수십 초 걸리고, 셀 19는 statsmodels 0.15 이상에서만 실행됩니다(그보다 낮으면 그 셀만 건너뜁니다).</dd></div>
 </dl>
+
+<p class="nb-link"><a href="notebooks/lab04.ipynb" download>실습 노트북 내려받기 (lab04.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<p>이 실습은 4장과 다른 자료를 씁니다. 4장의 예(약사 중재 세 군의 복약순응도)와 이 실습의 자료가 어떻게 대응하는지 먼저 맞춰 둡니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th></th><th>4장의 예<br>(가상 자료)</th><th>이 실습의 자료<br>(birthwt)</th></tr></thead>
+<tbody>
+<tr><td>연구 질문</td><td>세 가지 약사 중재 가운데 복약순응도가 다른 군이 있는가, 중재가 강할수록 높아지는가</td><td>어머니의 인종 분류에 따라 출생체중이 다른가(b·c 절), 어머니 체중이 무거울수록 출생체중이 큰가(d 절)</td></tr>
+<tr><td>자료</td><td>무작위배정한 가상의 시험 90명</td><td>1986년 미국 한 병원의 출생아 189명. 관찰 자료</td></tr>
+<tr><td>비교하는 군</td><td>일반 복약지도, 1회 상담, 집중 상담(30명씩). 순서 있음</td><td>인종 분류 White 96명, Black 26명, Other 67명(순서 없음). d 절은 어머니 체중 삼분위 67, 60, 62명(순서 있음)</td></tr>
+<tr><td>결과</td><td>6개월 PDC(%)</td><td>출생체중(g)</td></tr>
+<tr><td>보정 변수나 조건</td><td>없음. 무작위배정이라 군 사이의 다른 차이는 우연뿐</td><td>없음. 관찰 자료라 흡연 비율(54%, 38%, 18%) 같은 다른 특성이 군마다 다름</td></tr>
+<tr><td>핵심 결과</td><td>F(2, 87) = 4.12, P = 0.020. P for trend = 0.007</td><td>F(2, 186) = 4.91, P = 0.008. 삼분위 P for trend = 0.0006</td></tr>
+</tbody></table></div>
+<p>두 자료는 독립된 세 군의 연속형 결과를 비교한다는 점이 같습니다. 그래서 4장의 순서(전체 검정 → 사후분석, 군에 순서가 있으면 추세 검정)를 이 자료로 그대로 따라 할 수 있습니다. 다른 점은 세 가지입니다. 인종 분류에는 순서가 없어서 추세 검정은 어머니 체중 삼분위로 따로 합니다. 군 크기가 26–96명으로 달라서 Tukey-Kramer 방식과 Welch 분산분석이 실제로 쓰입니다. 그리고 무작위배정이 아닌 관찰 자료라서 군 사이의 차이를 군 자체의 효과로 읽을 수 없습니다(과제 1).</p>
+
+<p>셀은 하나의 노트북에서 위에서부터 순서대로 실행합니다(<kbd>Shift</kbd> + <kbd>Enter</kbd>). 뒤의 셀이 앞 셀에서 만든 <code>df</code>, <code>model</code>, <code>jt_test</code> 같은 변수와 함수를 쓰기 때문입니다. 출력을 만든 패키지의 버전은 셀 1에서 확인합니다.</p>
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab04-s1">
 <h2><span class="sec-no">a.</span>실습 데이터 준비</h2>
 
-<p>이 실습의 첫 질문은 "어머니의 인종 분류에 따라 출생체중이 다른가"입니다. <code>race</code>는 1986년 미국 자료에 기록된 분류(White, Black, Other)입니다. 인종은 생물학적 특성보다 사회경제적 여건, 의료 이용, 생활습관 같은 여러 요인과 얽힌 사회적 범주이므로, 여기서 보는 군 차이는 '인종의 효과'가 아니라 보정하지 않은 집단 간 차이로만 읽습니다. 이 실습에서는 크기가 다른 세 군을 비교하는 예제로 씁니다.</p>
+<p><strong>이 실습의 첫 질문은 "어머니의 인종 분류에 따라 출생체중이 다른가"이고, 크기가 크게 다른 세 군을 비교하는 예제로 씁니다.</strong> <code>race</code>는 1986년 미국 자료에 기록된 분류(White, Black, Other)입니다. 인종은 생물학적 특성보다 사회경제적 여건, 의료 이용, 생활습관 같은 여러 요인과 얽힌 사회적 범주이므로, 여기서 보는 군 차이는 '인종의 효과'가 아니라 보정하지 않은 집단 간 차이로만 읽습니다.</p>
+
+<h3>패키지 불러오기와 버전 확인</h3>
+<p>먼저 이 실습에서 쓰는 패키지를 불러오고 각각의 버전을 출력해 둡니다. 패키지의 버전이 바뀌면 출력의 자릿수나 표시 형식, 경고 문구가 조금씩 달라질 수 있어서, 내 화면의 출력이 이 페이지와 다를 때 가장 먼저 비교해 볼 정보이기 때문입니다.</p>
+<!--FIG:lab04_versions-->
+<ol class="lines">
+<li><code>import pandas as pd
+import numpy as np
+from scipy import stats</code><span>이 실습 내내 쓰는 세 가지를 불러옵니다. 각 패키지의 역할은 <a href="#lab02-s1">실습 2 a 절</a>과 같습니다.</span></li>
+<li><code>import scipy, statsmodels, matplotlib, seaborn</code><span>버전을 확인하려고 나머지 패키지를 원래 이름으로 불러옵니다. 쉼표로 이어 한 줄에 여러 개를 불러올 수 있습니다. 그림용 <code>plt</code>, <code>sns</code>와 statsmodels의 함수들은 처음 쓰는 셀에서 따로 불러옵니다.</span></li>
+<li><code>print("pandas     ", pd.__version__)</code><span>패키지마다 <code>__version__</code>(앞뒤로 밑줄 두 개)에 버전 번호가 문자열로 들어 있습니다. 앞 문자열 끝에 공백을 넣어 여섯 줄의 버전 번호가 같은 자리에서 시작하게 했습니다.</span></li>
+</ol>
+<p>이 페이지의 출력을 만든 환경의 버전입니다(2026년 10월 14일 확인). Colab의 버전이 다르면 끝자리가 조금 다를 수 있습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>scipy 1.18.1.</b> 분산분석, Kruskal-Wallis, Mann-Whitney 검정과 과제 2의 Dunnett 방법을 계산합니다. 과제 2에서 쓰는 <code>rng=</code> 인자는 scipy 1.15부터 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>statsmodels 0.15.0.</b> 분산분석표, Welch 분산분석, Tukey 사후분석, Holm 보정을 계산합니다. d 절 셀 19의 <code>jonckheere_terpstra</code> 함수는 0.15부터 있습니다.</span></li>
+</ol>
 
 <h3>데이터 불러오기와 군 이름표</h3>
 <!--FIG:lab04_load-->
@@ -42,7 +75,7 @@ df = pd.read_csv(url)</code><span>실습 2와 같은 birthwt 자료를 읽습니
 
 <h3>상자그림과 개별 점</h3>
 <!--FIG:lab04_plot-->
-<p>코드는 <a href="#lab02-s1">실습 2 a 절</a>의 그림과 같고, 가로축 변수를 <code>race_f</code>로 바꾸고 2,500 g 점선을 뺐습니다. "Maternal race"는 어머니의 인종 분류입니다. <b>그림 읽기.</b> White 군의 상자가 위쪽에 있고 Black과 Other는 비슷한 높이입니다. 세 군 모두 한쪽으로 심하게 치우치지 않았고, 흩어진 정도도 비슷합니다. 개인 값은 세 군이 크게 겹칩니다.</p>
+<p>코드는 <a href="#lab02-s1">실습 2 a 절</a>의 그림과 같고, 가로축 변수를 <code>race_f</code>로 바꾸고 2,500 g 점선을 뺐습니다. "Maternal race"는 어머니의 인종 분류입니다. <b>그림 읽기.</b> White 군의 상자가 위쪽에 있고 Black과 Other는 비슷한 높이입니다. 세 군 모두 한쪽으로 심하게 치우치지 않았고, 흩어진 정도도 비슷합니다. 개인 값은 세 군이 크게 겹칩니다. 출력에서 그림 위에 나온 <code>MatplotlibDeprecationWarning</code>은 seaborn이 그림을 그리며 내부에서 쓰는 인자(<code>vert</code>)를 matplotlib 3.11부터 권하지 않고 3.13에서 없앨 예정이라는 안내이고, 그림과 결과에는 영향이 없습니다. 버전에 따라 나오지 않을 수도 있습니다.</p>
 
 <h3>군별 흡연 비율</h3>
 <p>군 비교를 해석하기 전에, 결과에 영향을 주는 다른 변수가 군마다 다른지 봅니다. 실습 2에서 흡연군의 출생체중이 낮았으므로 흡연 비율을 확인합니다.</p>
@@ -52,7 +85,7 @@ df = pd.read_csv(url)</code><span>실습 2와 같은 birthwt 자료를 읽습니
 </ol>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>White 군의 흡연 비율 54%.</b></span></li>
-<li><span class="mk">2</span><span><b>Other 군의 흡연 비율 18%.</b> 흡연이 가장 많은 White 군의 출생체중이 가장 컸습니다. 인종 분류와 흡연(그리고 이 자료에 없는 여러 사회경제적 요인)이 서로 얽혀 있으므로, 이 실습의 단순 비교는 여러 요인이 섞인 결과입니다. 이런 변수를 함께 고려하는 방법은 교란(<a href="#ch08-s6">8장 f 절</a>)과 다중회귀분석(<a href="#ch06-s4">6장 d 절</a>)에서 다룹니다.</span></li>
+<li><span class="mk">2</span><span><b>Other 군의 흡연 비율 18%.</b> 흡연이 가장 많은 White 군의 출생체중이 가장 컸습니다. 인종 분류와 흡연(그리고 이 자료에 없는 여러 사회경제적 요인)이 서로 얽혀 있으므로, 이 실습의 단순 비교는 여러 요인이 섞인 결과입니다. 이런 변수를 함께 고려하는 방법은 교란(<a href="#ch08-s6">8장 f 절</a>)과 다중회귀분석(<a href="#ch06-s4">6장 d 절</a>)에서 다루고, 과제 1에서 흡연을 함께 넣어 군 차이가 어떻게 바뀌는지 봅니다.</span></li>
 </ol>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
@@ -65,7 +98,7 @@ df = pd.read_csv(url)</code><span>실습 2와 같은 birthwt 자료를 읽습니
 <section class="sec" id="lab04-s2">
 <h2><span class="sec-no">b.</span>분산분석과 사후분석</h2>
 
-<p>귀무가설은 "세 군의 평균 출생체중이 모두 같다"이고, 대립가설은 "적어도 한 군의 평균이 다르다"입니다(<a href="#ch04-s1">4장 a 절</a>). 먼저 전체 검정으로 분산분석을 하고, 어느 쌍이 다른지는 Tukey 사후분석으로 봅니다. scipy로 F와 p를 빠르게 구한 뒤, statsmodels로 4장 c 절의 분산분석표를 만듭니다.</p>
+<p><strong>먼저 전체 검정으로 "세 군의 평균이 모두 같은가"를 보고, 어느 쌍이 다른지는 사후분석으로 봅니다.</strong> 귀무가설은 "세 군의 평균 출생체중이 모두 같다"이고, 대립가설은 "적어도 한 군의 평균이 다르다"입니다(<a href="#ch04-s1">4장 a 절</a>). 전체 검정은 분산분석, 사후분석은 Tukey 방법으로 합니다. scipy로 F와 p를 빠르게 구한 뒤, statsmodels로 4장 c 절의 분산분석표를 만듭니다.</p>
 
 <h3>일원배치 분산분석 (scipy)</h3>
 <!--FIG:lab04_foneway-->
@@ -115,6 +148,20 @@ import statsmodels.formula.api as smf</code><span>statsmodels의 기본 모듈(<
 <li><span class="mk">4</span><span><b>합동 SD 714.5 g.</b> √MS<sub>W</sub>입니다.</span></li>
 </ol>
 
+<h3>잔차의 정규성</h3>
+<p>분산분석의 정규성 가정은 잔차, 곧 각 아기의 출생체중에서 자기 군 평균을 뺀 값에 대한 것입니다(<a href="#ch04-s3">4장 c 절</a> 3단계). 군별로 따로 볼 수도 있지만, 4장 c 절 '더 알아보기'의 '세 가지 가정의 확인 방법과 등분산 모의실험'처럼 189명의 잔차를 모아 Shapiro-Wilk 검정과 Q-Q plot으로 한 번에 봅니다.</p>
+<!--FIG:lab04_resid-->
+<ol class="lines">
+<li><code>resid = model.resid</code><span>셀 7에서 적합한 모형 <code>model</code>의 잔차입니다. 군을 가변수로 넣은 모형이라 각 아기의 예측값이 자기 군의 평균이므로, 잔차는 출생체중 − 자기 군 평균이 됩니다. 189개입니다.</span></li>
+<li><code>stats.shapiro(resid)</code><span>Shapiro-Wilk 정규성 검정입니다(<a href="#lab01-s3">실습 1 c 절</a>).</span></li>
+<li><code>stats.probplot(resid, dist="norm", plot=ax)</code><span>잔차를 크기순으로 놓고, 정규분포라면 그 순위에 있어야 할 값(가로축)과 짝지어 점을 찍고 그 점들에 맞춘 직선을 긋습니다. <code>plot=ax</code>는 앞 줄에서 만든 그림 칸에 그리라는 뜻입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>W = 0.989.</b></span></li>
+<li><span class="mk">2</span><span><b>p = 0.174.</b> 정규성을 기각하지 않습니다.</span></li>
+</ol>
+<p><b>그림 읽기.</b> 점들이 직선을 따라 늘어서고, 양 끝의 몇 점만 조금 벗어납니다. 이 자료는 잔차의 정규성에 큰 문제가 없으므로, 분산분석에서 따로 볼 것은 다음 셀의 등분산입니다.</p>
+
 <h3>등분산 확인과 Welch 분산분석</h3>
 <p>군별 분산이 다를 때 쓰는 Welch 분산분석은 statsmodels의 <code>anova_oneway</code> 함수로 할 수 있습니다(statsmodels 0.12 이상). 분산이 비슷할 때도 손해가 거의 없어 기본으로 쓰자는 의견도 있습니다(4장 c 절).</p>
 <!--FIG:lab04_welch-->
@@ -153,7 +200,9 @@ welch.pvalue</code><span>F, 분자 자유도, 분모 자유도, p-value입니다
 <ul>
 <li>scipy에도 Tukey HSD가 있습니다. <code>print(stats.tukey_hsd(white, black, other))</code>를 실행하면 같은 p-value(0.043, 0.026, 0.862)가 나옵니다. 군 이름 대신 넣은 순서대로 0, 1, 2 번호가 붙고, 모든 쌍이 양방향(0 − 1과 1 − 0)으로 나오므로 번호가 어느 군인지 기억해 두고 읽습니다.</li>
 <li><code>print(model.params)</code>로 회귀계수를 보세요. Intercept 3102.7은 기준범주 White의 평균이고, <code>race_f[T.Black]</code> −383.0과 <code>race_f[T.Other]</code> −297.4는 White와의 평균 차이입니다. 분산분석이 가변수 회귀와 같다는 것을 확인할 수 있습니다(<a href="#ch08-s7">8장 g 절</a>). 단, 회귀계수의 p-value는 다중비교 보정을 하지 않은 값입니다.</li>
+<li>scipy 1.16 이상이면 <code>stats.f_oneway(white, black, other, equal_var=False)</code>로도 Welch 분산분석을 할 수 있습니다(4장 c 절 '더 알아보기'의 '내 연구에 쓸 때'). 이 자료에서는 F = 5.060, p = 0.0088로 셀 10과 같습니다.</li>
 </ul></div>
+<p>Tukey 표의 한 행을 말로 옮기고 그 결과가 말해 주지 않는 것을 따지는 것이 과제 1, 같은 비교를 대조군 대비 방법(Dunnett)으로 다시 하는 것이 과제 2입니다.</p>
 
 <div class="paper">
 <div class="paper-h"><b>논문에는 이렇게 씁니다 · 분산분석과 사후분석의 Results 문장</b><span>birthwt 자료의 실제 결과</span></div>
@@ -173,6 +222,7 @@ welch.pvalue</code><span>F, 분자 자유도, 분모 자유도, p-value입니다
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>stats.f_oneway(군1, 군2, 군3)</code>은 F와 p만 주고, statsmodels의 <code>anova_lm(smf.ols("y ~ 군", data).fit())</code>은 SS, df, MS, F, p가 있는 분산분석표를 줍니다.</li>
 <li>η² = SS<sub>B</sub> ÷ SS<sub>T</sub>는 분산분석표에서 직접 계산합니다.</li>
+<li>정규성은 모형의 잔차(<code>model.resid</code>)를 모아 Shapiro-Wilk 검정과 Q-Q plot으로 봅니다.</li>
 <li>Welch 분산분석은 <code>anova_oneway(y, 군, use_var="unequal")</code>로 하며, 소수 분모 자유도가 표시입니다.</li>
 <li><code>pairwise_tukeyhsd</code>는 군 이름을 알파벳순으로 정렬하고 meandiff = group2 − group1입니다. p-adj와 신뢰구간은 이미 보정된 값입니다.</li>
 </ul></div>
@@ -265,8 +315,8 @@ n = df["race_f"].value_counts()</code><span>앞에서 189명 전체로 매긴 �
 <section class="sec" id="lab04-s4">
 <h2><span class="sec-no">d.</span>Jonckheere-Terpstra 검정</h2>
 
-<p>군에 자연스러운 순서가 있고 연구가설이 "순서대로 커진다"일 때는 Jonckheere-Terpstra 검정이 Kruskal-Wallis 검정보다 강력합니다(<a href="#ch04-s5">4장 e 절</a>)<cite data-ref="jonckheere1954"></cite>. 인종 분류에는 순서가 없으므로, 여기서는 어머니 체중(<code>lwt</code>, 마지막 월경 시점, 파운드)을 삼분위로 나눈 세 군을 씁니다.</p>
-<p>이 검정에서 가장 중요한 것은 <b>순서와 방향을 자료를 보기 전에 정하는 것</b>입니다. 이 실습의 가설은 "임신 전 어머니 체중이 무거울수록 출생체중이 크다"이고, 순서는 T1(가벼움) &lt; T2 &lt; T3(무거움), 방향은 증가입니다. 어머니 체중이 태아 성장과 관련 있다는 사전 지식에 근거한 가설이며, 코드 첫 줄에 주석으로 기록해 둡니다. 결과를 보고 순서를 바꾸거나 평균이 작은 군부터 늘어놓으면 경향이 없어도 쉽게 유의해집니다(4장 e 절 주의 상자).</p>
+<p>군에 자연스러운 순서가 있고 연구가설이 "순서대로 커진다"일 때는 Jonckheere-Terpstra 검정을 씁니다. 실제 차이가 그 순서를 따른다면 Kruskal-Wallis 검정보다 강력하고, 가운데 군만 높은 모양이면 오히려 약합니다(<a href="#ch04-s5">4장 e 절</a>)<cite data-ref="jonckheere1954"></cite>. 인종 분류에는 순서가 없으므로, 여기서는 어머니 체중(<code>lwt</code>, 마지막 월경 시점, 파운드)을 삼분위로 나눈 세 군을 씁니다.</p>
+<p>이 검정에서 가장 중요한 것은 <b>순서와 방향을 자료를 보기 전에 정하는 것</b>입니다. 이 실습의 가설은 "임신 전 어머니 체중이 무거울수록 출생체중이 크다"이고, 순서는 T1(가벼움) &lt; T2 &lt; T3(무거움), 방향은 증가입니다. 어머니 체중이 태아 성장과 관련 있다는 사전 지식에 근거한 가설이며, 코드 첫 줄에 주석으로 기록해 둡니다. 결과를 보고 순서를 바꾸거나 평균이 작은 군부터 늘어놓으면 경향이 없어도 쉽게 유의해집니다(4장 e 절 주의 상자, 과제 3).</p>
 <p>scipy에는 이 검정의 함수가 없습니다. statsmodels는 0.15.0에서 <code>jonckheere_terpstra</code> 함수가 추가되었고 0.14 이하에는 없으므로, 쓰는 환경의 버전에 따라 이 함수를 쓸 수 없을 수 있습니다. 그래서 어느 환경에서나 돌아가는 짧은 함수를 직접 만들고, 그 결과를 statsmodels 0.15의 함수와 비교합니다. 원리는 4장 e 절 그대로입니다. 순서상 앞 군과 뒤 군의 모든 짝에서 뒤 군 값이 더 큰 짝의 수(Mann-Whitney U)를 세어 더한 것이 J입니다.</p>
 
 <h3>어머니 체중 삼분위 만들기</h3>
@@ -389,7 +439,7 @@ stats.kruskal(*visits)</code><span>같은 두 검정을 적용합니다.</span><
 <ol class="marks">
 <li><span class="mk">1</span><span><b>1회 방문군의 중앙값 3,033 g이 가장 큽니다.</b> 0회 2,921 g, 2회 이상 2,977 g으로, 가운데 군이 가장 높은 봉우리 모양입니다.</span></li>
 <li><span class="mk">2</span><span><b>Jonckheere-Terpstra p = 0.292.</b> 0회 → 1회의 증가와 1회 → 2회 이상의 감소가 서로 상쇄되어 단조 경향을 찾지 못합니다. 4장 e 절의 검정력 그림에서 본 '가운데 군만 높은 경우'입니다.</span></li>
-<li><span class="mk">3</span><span><b>Kruskal-Wallis p = 0.269.</b> 이 자료에서는 순서를 무시한 검정도 유의하지 않습니다. 이 결과를 보고 군 순서를 0회 &lt; 2회 이상 &lt; 1회로 바꿔 다시 검정하는 것은 순서를 자료에 맞춰 고르는 것이므로 허용되지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>Kruskal-Wallis p = 0.269.</b> 이 자료에서는 순서를 무시한 검정도 유의하지 않습니다. 이 결과를 보고 군 순서를 0회 &lt; 2회 이상 &lt; 1회로 바꿔 다시 검정하는 것은 순서를 자료에 맞춰 고르는 것이므로 허용되지 않습니다. 이런 선택이 '유의'를 얼마나 늘리는지는 과제 3에서 직접 확인합니다.</span></li>
 </ol>
 
 <div class="paper">
@@ -410,4 +460,59 @@ stats.kruskal(*visits)</code><span>같은 두 검정을 적용합니다.</span><
 <li>순서와 방향은 자료를 보기 전에 정하고 코드와 Methods에 기록합니다. 결과를 본 뒤 순서를 바꾸면 안 됩니다.</li>
 <li>가운데 군이 가장 높은 봉우리 모양의 차이는 Jonckheere-Terpstra 검정이 거의 잡아내지 못합니다.</li>
 </ul></div>
+</section>
+
+<!-- ============================================================ 마 -->
+<section class="sec" id="lab04-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 세 과제는 하는 일이 다릅니다. 과제 1은 출력의 한 행을 말로 옮기고, 과제 2는 조건 하나를 바꿔 다시 돌린 결과를 비교하고, 과제 3은 그럴듯하지만 틀린 분석을 찾습니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. Tukey 결과의 한 행 읽기</h3>
+<p>셀 11의 Tukey 결과에서 <code>Other  White 297.4352  0.026  28.7051 566.1652  True</code> 행을 논문의 Results처럼 한 문장으로 옮기세요. 그리고 이 결과가 말해 주지 <em>않는</em> 것을 두 가지 이상 쓰세요. 셀 7의 모형(<code>bwt ~ race_f</code>)에 흡연(<code>smoke</code>)을 더해 White와 Other의 차이가 어떻게 바뀌는지도 확인하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab04_hw1-->
+<p><code>smf.ols("bwt ~ race_f + smoke", data=df)</code>는 셀 7의 모형에 흡연 여부를 더한 다중회귀입니다(<a href="#ch06-s4">6장 d 절</a>). 이제 군의 계수는 흡연 여부가 같은 산모끼리 비교한 평균 차이가 됩니다. <code>conf_int().loc["race_f[T.Other]"]</code>는 Other 계수의 95% 신뢰구간 한 행을 꺼내고, <code>.round(1).tolist()</code>는 소수 첫째 자리로 반올림해 목록으로 바꿉니다. 마지막 표는 흡연을 넣기 전(crude, 셀 7의 <code>model</code>)과 넣은 뒤의 계수를 나란히 놓습니다. crude 열의 smoke 칸이 NaN인 것은 그 모형에 흡연이 없기 때문입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>흡연을 고려한 Other − White의 95% CI −682.7 ~ −223.1 g.</b></span></li>
+<li><span class="mk">2</span><span><b>흡연을 넣기 전 race_f[T.Other] −297.4.</b> Tukey 행의 297.4를 반대 방향(Other − White)에서 본 값입니다. 회귀계수는 기준범주 White와 비교하기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>흡연을 넣은 뒤 −452.9.</b> 차이가 297 g에서 453 g으로 커졌습니다. Black도 −383.0에서 −450.4가 되었습니다.</span></li>
+<li><span class="mk">4</span><span><b>smoke −428.7.</b> 같은 인종 분류 안에서 흡연 산모의 아기가 평균 429 g 가벼웠습니다.</span></li>
+</ol>
+<p>한 문장으로 옮기면 "White 산모의 아기는 Other로 분류된 산모의 아기보다 평균 297 g 무거웠다(Tukey 보정 95% 동시 신뢰구간 29–566 g, 보정 P = 0.026)"입니다. Tukey 표는 군 이름을 알파벳순으로 놓고 group2 − group1을 계산하므로 이 행은 White − Other입니다.</p>
+<p>이 결과가 말해 주지 않는 것은 세 가지입니다. 첫째, 인종 분류 자체가 출생체중을 297 g 바꾼다는 뜻이 아닙니다. 이 비교는 다른 특성을 고려하지 않은 단순 비교입니다. 셀 5에서 본 것처럼 흡연 비율이 White 54%, Other 18%로 크게 달라서, 흡연 여부가 같은 산모끼리 비교하면 차이가 453 g으로 오히려 커집니다(2, 3번). 흡연한 산모의 아기가 가벼운데(4번) 흡연이 많은 White 군에서 그 몫이 단순 비교에 섞여 차이가 작게 보였던 것입니다. 흡연을 고려한 453 g도 인종의 효과는 아닙니다. 자료에 없는 사회경제적 여건이나 의료 이용의 차이가 그대로 남아 있기 때문입니다(a 절). 둘째, 차이의 크기를 정확히 알려 주지 않습니다. 동시 신뢰구간 29–566 g은 0에 가까운 차이부터 500 g이 넘는 차이까지 포함합니다. 셋째, 아기 한 명의 출생체중을 가늠하게 해 주지 않습니다. 인종 분류가 설명하는 몫은 출생체중 변동의 5%(셀 8의 η² = 0.050)이고, 같은 군 안에서도 출생체중은 SD 714 g 정도로 흩어져 있습니다.</p>
+</div></details>
+
+<h3>과제 2. Tukey 대신 Dunnett 방법으로</h3>
+<p>연구 질문이 처음부터 "White 산모와 비교해 나머지 두 군의 출생체중이 다른가"였다고 해 봅시다. 셀 11의 Tukey 대신 대조군과의 비교만 보정하는 Dunnett 방법(<code>stats.dunnett</code>, 대조군 White)으로 다시 비교하세요. Tukey와 비교해 P와 신뢰구간이 어떻게 바뀌는지, 왜 그런지, 그리고 Dunnett 결과로는 말할 수 없는 것이 무엇인지 설명하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab04_hw2-->
+<p><code>stats.dunnett(black, other, control=white, rng=2026)</code>은 비교할 군을 앞에 차례로 넣고 대조군을 <code>control=</code>에 넣습니다(4장 b 절 '더 알아보기'의 '파이썬에서 다른 사후분석 실행하기'). 결과 객체를 그대로 <code>print(dun)</code>하면 넣은 순서대로 Sample 0(Black), Sample 1(Other)의 표가 나오는데 휴대폰에서는 옆으로 길어서, 여기서는 반복문으로 군마다 p(<code>dun.pvalue</code>)와 95% 신뢰구간(<code>dun.confidence_interval()</code>)만 꺼내 출력했습니다. 차이는 군 − 대조군(White) 방향입니다. Dunnett 방법의 p와 신뢰구간은 난수를 쓰는 수치 적분으로 계산해 실행할 때마다 끝자리가 조금 달라질 수 있으므로, <code>rng=2026</code>으로 난수를 고정했습니다(scipy 1.15 이전에는 <code>random_state=2026</code>).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Black − White의 p 0.032.</b> Tukey로는 0.043이었습니다.</span></li>
+<li><span class="mk">2</span><span><b>신뢰구간 하한 −737.9 g</b></span></li>
+<li><span class="mk">3</span><span><b>상한 −28.1 g.</b> Tukey의 9.8 ~ 756.2 g을 반대 방향에서 본 구간보다 조금 좁습니다(폭 710 g 대 746 g).</span></li>
+<li><span class="mk">4</span><span><b>Other − White의 p 0.019.</b> Tukey로는 0.026이었습니다.</span></li>
+</ol>
+<p>두 비교 모두 P가 작아지고 신뢰구간이 좁아졌습니다. Tukey는 세 쌍(Black–White, Other–White, Black–Other)을 한 묶음으로 보고 그 안에서 우연한 '유의'가 하나라도 나올 확률을 5%로 묶었습니다. Dunnett은 대조군과의 비교 두 개만 묶음으로 보므로 '유의'의 문턱이 그만큼 낮습니다(<a href="#ch04-s2">4장 b 절</a> 3단계). 대신 Black과 Other는 서로 비교하지 않았으므로, Dunnett 결과로는 두 군이 서로 다른지 말할 수 없습니다.</p>
+<p>또 이 방법은 연구 질문이 처음부터 대조군과의 비교였을 때만 씁니다. Tukey 결과를 본 뒤 P를 더 작게 만들려고 Dunnett으로 바꾸면 그 자체가 결과를 보고 고른 분석이 됩니다. 인종 분류에는 4장의 일반 복약지도처럼 자연스러운 대조군이 없으므로, 이 자료라면 모든 쌍을 보는 Tukey가 질문에 더 맞습니다.</p>
+</div></details>
+
+<h3>과제 3. 자료를 본 뒤 정한 순서로 한 추세 검정</h3>
+<p>동료가 인종 분류의 세 군을 출생체중 중앙값이 작은 순서(Other 2,835 g, Black 2,849 g, White 3,062 g)로 늘어놓고, 셀 18의 <code>jt_test</code>로 Jonckheere-Terpstra 검정을 한 뒤 이렇게 썼습니다.</p>
+<p>"출생체중은 Other, Black, White 순서로 커지는 추세가 있었다(Jonckheere-Terpstra 검정, z = 2.54, P for trend = 0.011)."</p>
+<p>동료의 분석을 재현하세요. 그리고 셀 20의 순열검정처럼 인종 이름표를 섞어 인종과 출생체중이 무관한 자료를 여러 번 만들고, 매번 같은 절차(중앙값 순서로 늘어놓고 추세 검정)를 되풀이하면 '유의'가 몇 %나 나오는지 확인한 뒤, 무엇이 왜 틀렸는지 설명하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab04_hw3-->
+<p><code>med.sort_values().index.tolist()</code>는 군별 중앙값을 작은 순서로 정렬한 뒤 군 이름만 목록으로 꺼냅니다. 동료가 순서를 정한 방법입니다. 그다음 줄은 같은 일을 평균(셀 3의 <code>g</code>)으로 해 본 것입니다. 반복문은 인종 이름표를 무작위로 섞어 인종과 출생체중이 무관한 자료를 2,000번 만듭니다. <code>sorted(…, key=np.median)</code>은 세 군의 값 묶음을 중앙값이 작은 순서로 늘어놓고, <code>jt_test(gs)[3]</code>은 <code>jt_test</code>가 돌려주는 네 값 가운데 네 번째인 양측 p입니다. p가 0.05보다 작으면 True이고, True는 1로 더해지므로 <code>hit_jt</code>는 '유의'가 나온 횟수가 됩니다. 마지막에 횟수를 2,000으로 나눠 비율로 출력합니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>중앙값으로 정한 순서 Other, Black, White.</b></span></li>
+<li><span class="mk">2</span><span><b>평균으로 정하면 Black, Other, White.</b> 가운데 두 군의 순서가 바뀝니다.</span></li>
+<li><span class="mk">3</span><span><b>P for trend = 0.011.</b> 동료가 쓴 숫자입니다.</span></li>
+<li><span class="mk">4</span><span><b>순서를 자료로 정한 추세 검정 0.112.</b> 인종과 출생체중이 무관한 자료 2,000개 가운데 11.2%에서 '유의'가 나왔습니다.</span></li>
+<li><span class="mk">5</span><span><b>Kruskal-Wallis 검정 0.056.</b> 순서를 쓰지 않는 검정은 약속한 5% 근처를 지켰습니다.</span></li>
+</ol>
+<p>첫째 잘못은 순서를 정한 시점입니다. 추세 검정의 P는 순서를 자료를 보기 전에 정했다는 전제에서 계산됩니다. 결과를 보고 값이 작은 군부터 늘어놓으면 이미 관측된 방향에 맞춘 가설을 검정하는 셈이라 차이가 없어도 '유의'가 쉽게 나옵니다(<a href="#ch04-s5">4장 e 절</a> 3단계의 주의 상자). 모의실험에서 이 절차는 무관한 자료의 11.2%를 '유의'로 판정해 약속한 5%의 두 배를 넘었습니다.</p>
+<p>둘째 잘못은 순서가 없는 분류에 추세라는 말을 쓴 것입니다. 인종 분류에는 용량이나 체중 삼분위 같은 설계상의 순서가 없어서, Other &lt; Black &lt; White라는 순서 자체에 뜻이 없습니다. 중앙값으로 정하면 Other &lt; Black, 평균으로 정하면 Black &lt; Other로 바뀌는 것도 이 순서를 자료가 우연히 정해 주었다는 표시입니다. 바르게 쓰면 c 절의 결과처럼 "세 군의 출생체중 분포가 모두 같다고 보기는 어려웠다(Kruskal-Wallis H = 8.52, P = 0.014)"이고, 어느 쌍이 다른지는 미리 정한 사후분석(c 절의 Dunn 검정)으로 따로 보고합니다. 과제 1에서 본 것처럼 이것도 흡연 같은 다른 특성을 고려하지 않은 비교입니다.</p>
+</div></details>
 </section>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">추적 기간을 3년에서 나눈 긴 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cut = 3                                     # 3년에서 나눔
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">추적 기간을 3년에서 나눈 긴 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cut = 3                                     # 3년에서 나눔
 x = df.assign(id=df.index)                  # 환자 번호 열
 early = x.assign(start=0.0, stop=x[&quot;years&quot;].clip(upper=cut), late=0)
 early[&quot;event&quot;] = np.where(x[&quot;years&quot;] &lt;= cut, x[&quot;death&quot;], 0)

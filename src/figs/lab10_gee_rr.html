@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">발생률비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = gee_ex.conf_int()                 # 로그 척도의 95% CI
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">발생률비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ci = gee_ex.conf_int()                 # 로그 척도의 95% CI
 rr = pd.DataFrame({&quot;RR&quot;: np.exp(gee_ex.params),
                    &quot;2.5%&quot;: np.exp(ci[0]),
                    &quot;97.5%&quot;: np.exp(ci[1])})

@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 1 정답. Tukey 결과의 한 행 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m_smoke = smf.ols(&quot;bwt ~ race_f + smoke&quot;, data=df).fit()   # 흡연을 함께 넣음
+print(&quot;adjusted 95% CI, Other:&quot;)
+print(m_smoke.conf_int().loc[&quot;race_f[T.Other]&quot;].round(1).tolist())
+pd.DataFrame({&quot;crude&quot;: model.params,
+              &quot;adjusted&quot;: m_smoke.params}).round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>adjusted 95% CI, Other:
+[-682.7, -223.1]<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>crude</th>
+      <th>adjusted</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>3102.7</td>
+      <td>3334.9</td>
+    </tr>
+    <tr>
+      <th>race_f[T.Black]</th>
+      <td>-383.0</td>
+      <td>-450.4</td>
+    </tr>
+    <tr>
+      <th>race_f[T.Other]</th>
+      <td>-297.4<span class="mk">2</span></td>
+      <td>-452.9<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>smoke</th>
+      <td>NaN</td>
+      <td>-428.7<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

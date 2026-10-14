@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">1장 c 절의 다섯 p값으로 확인하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.multitest import multipletests
+
+p5 = [0.004, 0.012, 0.021, 0.038, 0.260]   # 1장 c 절 표의 원래 p
+for method in [&quot;bonferroni&quot;, &quot;holm&quot;, &quot;fdr_bh&quot;]:
+    reject, p_adj, _, _ = multipletests(p5, alpha=0.05, method=method)
+    print(f&quot;{method:10s}: {p_adj.round(4)}  {reject.sum()} significant&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>bonferroni: [0.02  0.06  0.105 0.19  1.   ]  1 significant<span class="mk">1</span>
+holm      : [0.02  0.048 0.063 0.076 0.26 ]  2 significant<span class="mk">2</span>
+fdr_bh    : [0.02   0.03   0.035  0.0475<span class="mk">3</span> 0.26  ]  4 significant<span class="mk">4</span></pre></div></div>

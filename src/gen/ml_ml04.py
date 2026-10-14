@@ -252,7 +252,7 @@ print(X_train.shape, X_test.shape, y_train.sum(), y_test.sum())
 grab("setup", lambda: [len(ns["X_train"]), len(ns["X_test"]), int(ns["y_train"].sum()), int(ns["y_test"].sum())])
 save("ml04_setup", c, marks={"(11250, 39) (3750, 39) 459 153": 1})
 
-# ================================================================ 가. 여러 모형을 합치는 방법
+# ================================================================ a. 여러 모형을 합치는 방법
 c = nb.cell('''
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
@@ -411,7 +411,7 @@ grab("corr", lambda: dict(rho={k: num_list(v) for k, v in ns["rho"].items()},
                           pairs=ns["pairs"].assign(rho=ns["pairs"]["rho"].astype(float)).values.tolist()))
 save("ml04_corr", c)
 
-# ================================================================ 나. 스태킹 만들기
+# ================================================================ b. 스태킹 만들기
 c = nb.cell('''
 from sklearn.ensemble import StackingClassifier
 
@@ -559,7 +559,7 @@ _to, _tf = secs("t_outer", round(_t2[0])), secs("t_fit", round(_t2[1]))
 save("ml04_stack_lo", c, marks={"outer CV 90": 1, "0.7773": 2, "test AUC: 0.778": 3, "'forest': -0.49": 4}, subs=[(f"({_t2[0]:.0f} s)", f"({_to:.0f} s)"), (f"(one fit {_t2[1]:.0f} s)", f"(one fit {_tf:.0f} s)"),
                                (f"about {10 * _t2[0] / 60:.0f} min", f"about {10 * _to / 60:.0f} min")])
 
-# ================================================================ 다. 모형을 공정하게 비교하기
+# ================================================================ c. 모형을 공정하게 비교하기
 c = nb.cell('''
 rows = []
 for seed in range(10):
@@ -720,7 +720,7 @@ grab("boot_pairs", lambda: [[r[0]] + [float(v) for v in r[1:]] for r in ns["rows
 grab("who_stack", lambda: [float(ns["test_p"].loc[i, "stack"]) for i in DATA["toy6"]["who"]])
 save("ml04_boot", c, dfmarks={"0.322": 1, "0.010": 2, "-0.066": 3})
 
-# ================================================================ 라. 최종 모형 고르기와 보고
+# ================================================================ d. 최종 모형 고르기와 보고
 c = nb.cell('''
 from sklearn.metrics import roc_curve
 
@@ -854,7 +854,7 @@ grab("pdp", lambda: {f"{f}|{nm}": dict(grid=num_list(s.index), avg=num_list(s.va
 grab("pdp_ids", lambda: [int(v) for v in ns["df"].loc[ns["X_pdp"].index, "id"]])
 save("ml04_pdp", c)
 
-# ================================================================ 마. 과제
+# ================================================================ e. 과제
 c = nb.cell('''
 for w in [[1, 1, 1], [1, 1, 2], [1, 1, 4], [0, 0, 1]]:
     p_cv = (oof[three] * w).sum(axis=1) / sum(w)    # 겹 밖 예측의 가중 평균
@@ -1348,10 +1348,10 @@ if not SMOKE:
         notes={
             1: ("## 준비\n\n0장의 자료 불러오기와 분할, 0–3장의 전처리 함수 네 가지, 5겹 분할기(skf), 1장의 `boot_auc`를 "
                 "한 셀에 모았습니다."),
-            2: "## 가. 여러 모형을 합치는 방법",
-            6: "## 나. 스태킹 만들기",
-            10: "## 다. 모형을 공정하게 비교하기",
-            16: "## 라. 최종 모형 고르기와 보고",
+            2: "## a. 여러 모형을 합치는 방법",
+            6: "## b. 스태킹 만들기",
+            10: "## c. 모형을 공정하게 비교하기",
+            16: "## d. 최종 모형 고르기와 보고",
             21: ("## 과제 정답\n\n**과제 1.** 셀 3의 세 모형에 가중치 [1, 1, 1], [1, 1, 2], [1, 1, 4], [0, 0, 1]을 주어 "
                  "겹 밖 예측으로 교차검증 AUC를, 시험 예측으로 시험 AUC를 구합니다."),
             22: "**과제 2.** 기본 모형 일곱 개의 겹 밖 예측으로 셀 8에서 고른 메타 모형을 맞추고 계수와 AUC를 봅니다.",

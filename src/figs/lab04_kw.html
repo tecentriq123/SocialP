@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">Kruskal-Wallis 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">kw = stats.kruskal(white, black, other)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Kruskal-Wallis 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">kw = stats.kruskal(white, black, other)
 print(f&quot;H = {kw.statistic:.3f}, p = {kw.pvalue:.4f}&quot;)
 
 df[&quot;rank&quot;] = df[&quot;bwt&quot;].rank()      # 189명 전체에서 매긴 순위

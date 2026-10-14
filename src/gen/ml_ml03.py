@@ -300,7 +300,7 @@ print(X_train.shape, X_test.shape, y_train.sum(), y_test.sum())
 ''', title="0–2장의 준비를 한 번에 (자료, 분할, 파이프라인 세 가지, skf)")
 save("ml03_setup", c, marks={"(11250, 39) (3750, 39) 459 153": 1})
 
-# ================================================================ 가. 앞 나무의 오차를 다음 나무가 배운다
+# ================================================================ a. 앞 나무의 오차를 다음 나무가 배운다
 c = nb.cell('''
 from sklearn.tree import DecisionTreeRegressor
 
@@ -374,7 +374,7 @@ _t = grab("t_gbm", lambda: ns["t_gbm"])
 grab("gbm_cv", lambda: [float(ns["cv_gbm"].mean()), float(ns["cv_gbm"].std())])
 save("ml03_gbm_cv", c, marks={"CV AUC 0.7658 (SD 0.0154)": 1}, subs=[(f" {_t:.0f} s", f" {secs('t_gbm', round(_t)):.0f} s")])
 
-# ================================================================ 나. XGBoost
+# ================================================================ b. XGBoost
 c = nb.cell('''
 import xgboost as xgb
 from xgboost import XGBClassifier
@@ -448,7 +448,7 @@ grab("depth", lambda: dict(tr=ns["tr"].mean(axis=1).tolist(), va=ns["va"].mean(a
                            sd=ns["va"].std(axis=1).tolist()))
 save("ml03_xgb_depth", c, dfmarks={"0.7712": 1, "0.7124": 2})
 
-# ================================================================ 다. LightGBM (Colab)
+# ================================================================ c. LightGBM (Colab)
 colab_cell("ml03_lgb_default", '''
 import lightgbm as lgb
 from lightgbm import LGBMClassifier
@@ -504,7 +504,7 @@ for name, model, data in [
     print(f"{name:28s} CV AUC {auc.mean():.4f}")
 ''', "범주형 열을 그대로 넘기기 (pandas category)", "ml03-s3", "LightGBM")
 
-# ================================================================ 라. 히스토그램 부스팅과 CatBoost
+# ================================================================ d. 히스토그램 부스팅과 CatBoost
 c = nb.cell('''
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.preprocessing import OrdinalEncoder
@@ -571,7 +571,7 @@ for name, params in [("default", {}),
                                        "l2_leaf_reg"]})
 ''', "CatBoost: 범주형 열을 그대로, 기본값으로", "ml03-s4", "CatBoost")
 
-# ================================================================ 마. 조기 종료와 튜닝
+# ================================================================ e. 조기 종료와 튜닝
 c = nb.cell('''
 Z_tr, Z_val = Z_train.loc[X_tr.index], Z_train.loc[X_val.index]
 es_model = XGBClassifier(n_estimators=2000, learning_rate=0.05,
@@ -828,7 +828,7 @@ print(round(study_lgb.best_value, 4), " trial",
       f" ({time.perf_counter() - t0:.0f} s)")
 ''', "Optuna로 LightGBM 튜닝 (40번 시도)", "ml03-s5", "LightGBM")
 
-# ================================================================ 바. 변수 기여도와 결과 정리
+# ================================================================ f. 변수 기여도와 결과 정리
 c = nb.cell('''
 from sklearn.inspection import permutation_importance
 
@@ -1052,7 +1052,7 @@ pd.DataFrame(rows, columns=["model", "CV AUC", "test AUC", "CI low",
              ).round(3)
 ''', "LightGBM과 CatBoost의 시험 AUC (비교 표에 더할 줄)", "ml03-s6", "LightGBM, CatBoost")
 
-# ================================================================ 사. 과제
+# ================================================================ g. 과제
 c = nb.cell('''
 for lr in [0.3, 0.1, 0.03]:
     m = XGBClassifier(n_estimators=5000, learning_rate=lr, max_depth=2,
@@ -1723,12 +1723,12 @@ if not SMOKE:
         1: ("## 설치\n\nColab에서는 세션마다 이 셀부터 실행합니다. LightGBM과 shap은 Colab에 이미 있을 수 있고, 그러면 "
             "`Requirement already satisfied`로 나옵니다. 설치 뒤 세션을 다시 시작하라는 안내가 나오면 따르고 셀 2부터 다시 실행합니다."),
         2: "## 준비\n\n0장의 자료 불러오기와 분할, 0–1장의 전처리 함수, 이 장에서 새로 쓰는 `make_nan_pipe`(숫자 열의 결측을 그대로 두는 전처리), 1장의 `boot_auc`를 한 셀에 모았습니다.",
-        _sec_start("toy = pd.DataFrame"): "## 가. 앞 나무의 오차를 다음 나무가 배운다",
-        _sec_start("shallow = dict("): "## 나. XGBoost",
-        _sec_start("import lightgbm as lgb"): "## 다. LightGBM\n\n이 절의 셀은 LightGBM이 필요합니다(Colab에는 있습니다). 사이트의 출력은 Colab에서 실행한 결과입니다.",
-        _sec_start("settings = {"): "## 라. 히스토그램 부스팅과 CatBoost",
-        _sec_start("es_model = XGBClassifier"): "## 마. 조기 종료와 튜닝",
-        _sec_start("from sklearn.inspection import permutation_importance"): "## 바. 변수 기여도와 결과 정리",
+        _sec_start("toy = pd.DataFrame"): "## a. 앞 나무의 오차를 다음 나무가 배운다",
+        _sec_start("shallow = dict("): "## b. XGBoost",
+        _sec_start("import lightgbm as lgb"): "## c. LightGBM\n\n이 절의 셀은 LightGBM이 필요합니다(Colab에는 있습니다). 사이트의 출력은 Colab에서 실행한 결과입니다.",
+        _sec_start("settings = {"): "## d. 히스토그램 부스팅과 CatBoost",
+        _sec_start("es_model = XGBClassifier"): "## e. 조기 종료와 튜닝",
+        _sec_start("from sklearn.inspection import permutation_importance"): "## f. 변수 기여도와 결과 정리",
         _sec_start("for lr in [0.3, 0.1, 0.03]"): ("## 과제 정답\n\n**과제 1.** 학습률 0.3, 0.1, 0.03에서 조기 종료가 고른 나무 수와 검증 손실, "
                                                   "검증 AUC를 비교합니다."),
         _sec_start("spw = "): "**과제 2.** scale_pos_weight를 1과 (음성 수 ÷ 양성 수)로 바꿔 겹 밖 예측의 AUC, 평균 확률, 혼동행렬을 비교합니다.",

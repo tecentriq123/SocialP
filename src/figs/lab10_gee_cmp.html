@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">작업상관과 표준오차 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">gee_in = smf.gee(form, groups=&quot;subject&quot;, data=epil,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">작업상관과 표준오차 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">gee_in = smf.gee(form, groups=&quot;subject&quot;, data=epil,
                  family=sm.families.Poisson(),
                  cov_struct=sm.cov_struct.Independence()).fit()
 glm = smf.glm(form, data=epil, family=sm.families.Poisson()).fit()

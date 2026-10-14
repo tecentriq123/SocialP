@@ -46,7 +46,7 @@ def clopper(x, n):
     return st.beta.ppf(0.025, x, n - x + 1), st.beta.ppf(0.975, x + 1, n - x)
 
 
-# =================================================================== 가. 95% CI
+# =================================================================== a. 95% CI
 # (1) mean: HbA1c change after pharmacist counselling, n = 25, mean -0.62, SD 0.80
 m, s, n = -0.62, 0.80, 25
 se = s / np.sqrt(n); tc = st.t.ppf(0.975, n - 1)
@@ -143,7 +143,7 @@ se_h = (np.log(hi_) - np.log(lo_)) / (2 * 1.96)
 R["hr_obs"] = dict(se=se_h, z=np.log(hr_) / se_h, p=2 * st.norm.sf(abs(np.log(hr_) / se_h)))
 out("hr obs", R["hr_obs"])
 
-# =================================================================== 나. RR and OR
+# =================================================================== b. RR and OR
 # RCT: pharmacist-led medication review vs usual care, 300 per group, 90-day outcomes
 RCT = {"readm": (45, 300, 72, 300), "ed": (60, 300, 75, 300), "ade": (18, 300, 30, 300)}
 R["rct"] = {}
@@ -252,7 +252,7 @@ for pv in (0, 1):
     eta = xr @ full["beta"]
     R["pred"].append(dict(eta=eta, odds=np.exp(eta), risk=1 / (1 + np.exp(-eta))))
 
-# ------------------------------------------------ 라. same covariates, different GLMs
+# ------------------------------------------------ d. same covariates, different GLMs
 X, names = design(D, FULL)
 y = D["readm"].astype(float)
 lb = glm(X, y, "binomial", "log", start=np.r_[np.log(y.mean()), np.zeros(X.shape[1] - 1)])
@@ -294,7 +294,7 @@ irr = (120 / 400) / (90 / 450); se_irr = np.sqrt(1 / 120 + 1 / 90)
 R["irr"] = dict(r1=120 / 400, r0=90 / 450, irr=irr, se=se_irr, lo=irr * np.exp(-Z * se_irr), hi=irr * np.exp(Z * se_irr))
 out("IRR", R["irr"])
 
-# ------------------------------------------------ 마. likelihood
+# ------------------------------------------------ e. likelihood
 x, nn = 7, 50
 pg = np.linspace(0.001, 0.45, 2000)
 ll = x * np.log(pg) + (nn - x) * np.log(1 - pg)
@@ -389,7 +389,7 @@ idb = glm(X, y, "binomial", "identity", start=np.r_[y.mean(), np.zeros(X.shape[1
 R["idbin"] = dict(b=idb["beta"][1], mumin=idb["mu"].min(), iters=idb["iters"])
 out("identity-binomial at boundary", R["idbin"])
 
-# =================================================================== 바. confounding & interaction
+# =================================================================== f. confounding & interaction
 # confounding by indication: drug A (new) vs drug B, severe vs mild
 S = {"severe": dict(a=288, n1=900, c=120, n0=300), "mild": dict(a=24, n1=300, c=90, n0=900)}
 R["conf"] = {}
@@ -462,7 +462,7 @@ out("overall RR", [round(v, 3) for v in R["sg_overall"]["rr"][:3]], "P", R["sg_o
 for sgr in R["sg"]:
     out("SG", sgr["g"], sgr["l1"], [round(v, 2) for v in sgr["rr1"][:3]], round(sgr["p1"], 4), "|", sgr["l2"], [round(v, 2) for v in sgr["rr2"][:3]], round(sgr["p2"], 4), "Pint", round(sgr["pint"], 3), "ratio", round(sgr["ratio"], 3))
 
-# =================================================================== 사. dummy variables
+# =================================================================== g. dummy variables
 R["dum"] = {}
 for key, terms in (("ref0", FULL), ("ref1", ["poly", "age", "female", "cci_d_ref1", "medaid"]), ("ref3", ["poly", "age", "female", "cci_d_ref3", "medaid"])):
     m_ = logistic(D, terms)
@@ -480,7 +480,7 @@ cc_ = logistic(D, ["cci_d"])
 R["cci_crude"] = wald_rows(cc_, cc_["names"])
 out("crude CCI", [(r["name"], round(np.exp(r["b"]), 3), round(np.exp(r["lo"]), 3), round(np.exp(r["hi"]), 3)) for r in R["cci_crude"]])
 
-# =================================================================== 아. univariable vs multivariable
+# =================================================================== h. univariable vs multivariable
 R["uni"] = {}
 for t in ("poly", "age", "female", "cci_d", "medaid"):
     m_ = logistic(D, [t])

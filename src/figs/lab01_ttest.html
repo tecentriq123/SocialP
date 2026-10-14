@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">30개 변수의 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mal = df[df[&quot;diagnosis&quot;] == &quot;malignant&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">30개 변수의 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mal = df[df[&quot;diagnosis&quot;] == &quot;malignant&quot;]
 ben = df[df[&quot;diagnosis&quot;] == &quot;benign&quot;]
 res = stats.ttest_ind(mal[features], ben[features], equal_var=False)
 tt = pd.DataFrame({&quot;t&quot;: res.statistic, &quot;p&quot;: res.pvalue},
