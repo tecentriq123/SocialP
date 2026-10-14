@@ -1,0 +1,41 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">사건 비율로 비교하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def share_vs_rate(t):
+    &quot;&quot;&quot;사건 비율(사건 ÷ 인원)과 발생률(사건 ÷ 인년)을 나란히&quot;&quot;&quot;
+    s = pd.DataFrame({&quot;events %&quot;: 100 * t[&quot;events&quot;] / t[&quot;n&quot;],
+                      &quot;mean FU (y)&quot;: t[&quot;py&quot;] / t[&quot;n&quot;],
+                      &quot;rate&quot;: t[&quot;rate&quot;]})
+    ratio = s.loc[&quot;SGLT2i&quot;] / s.loc[&quot;DPP4i&quot;]
+    print(&quot;ratio of event shares: %.2f&quot; % ratio[&quot;events %&quot;])
+    print(&quot;rate ratio           : %.2f&quot; % ratio[&quot;rate&quot;])
+    return s.round(2)
+
+share_vs_rate(tab)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ratio of event shares: 0.38<span class="mk">1</span>
+rate ratio           : 0.43<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>events %</th>
+      <th>mean FU (y)</th>
+      <th>rate</th>
+    </tr>
+    <tr>
+      <th>arm</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>DPP4i</th>
+      <td>2.83</td>
+      <td>2.18</td>
+      <td>12.95</td>
+    </tr>
+    <tr>
+      <th>SGLT2i</th>
+      <td>1.07<span class="mk">3</span></td>
+      <td>1.93<span class="mk">4</span></td>
+      <td>5.54</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

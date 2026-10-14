@@ -1,6 +1,7 @@
 """실습 14 · 청구자료에서 코호트 만들기 — cells run for real with labkit.
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab14.py && python3 gen/lab_lab14.py
+      then  python3 tools/nbcheck.py lab14   (runs the notebook alone in a fresh process and compares outputs)
       (NOMARK=1 python3 gen/lab_lab14.py  prints every cell output without marks)
 
 자료: pub/data/claims_person.csv, claims_visit.csv, claims_rx.csv, sglt2_cohort.csv (gen/data_lab14.py가 만든다).
@@ -12,8 +13,16 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab14.py && python3 
   - 표본의 발생률(8개), 발생률비(4개), 조·보정 위험비(8개)는 소수 둘째 자리까지 같다(유예 60일, 30일, 90일, ITT).
   - 기저 특성(군별 비율 7개, 나이 평균과 SD)은 소수 첫째 자리까지 같다.
   - 전체 코호트 파일(sglt2_cohort_full.csv)로는 표 14-5의 사건, 인년, 발생률과 정확 신뢰구간, 발생률비, 조·보정
-    위험비와 신뢰구간이 as-treated와 ITT 모두 본문과 같다.
-  맞추지 않는 것: 표본의 신뢰구간(사건 수가 1/30이라 넓다), 표본 인년의 절대값(본문/30과 0.2-3.5% 다르다).
+    위험비와 신뢰구간이 as-treated와 ITT 모두 본문과 같다. 사건 비율의 비(0.37), 1인당 평균 추적(1.87, 2.18년),
+    역 Kaplan-Meier 중앙 추적기간(1.80, 3.50년)도 본문과 같다.
+  - 양성예측도의 Wilson 신뢰구간(85.5%, 96.7%)과 c 절 예제 환자의 PDC(315/365)는 본문과 같다.
+  맞추지 않는 것: 표본의 신뢰구간(사건 수가 1/30이라 넓다), 표본 인년의 절대값(본문/30과 0.2-3.5% 다르다),
+  표본의 PDC 0.8 이상 비율과 1년 지속 비율(표본을 발생률과 위험비에 맞춰 골라서 본문과 2%p 안쪽으로 다르다).
+
+(2026-10-14: 14장을 PART 3의 새 틀로 고친 뒤 '실습 14에 더할 것'을 반영했다. 버전 셀 2, 세척 기간 180일 셀 13
+ (옛 과제 2), 첫 365일 PDC와 1년 지속 셀 16, 양성예측도의 신뢰구간 셀 19, 사건 비율과 발생률 셀 23, 전체 코호트의
+ 사건 비율과 중앙 추적기간 셀 29를 더했다. 과제는 ① ITT 결과 해석(옛 과제 3) ② 유예기간 30·60·90일(옛 과제 1에
+ 90일을 더함) ③ 첫 처방일 뒤의 기록으로 만든 공변량(새로)으로 바꿨다. 셀 번호가 모두 바뀌었다.)
 """
 import json
 import os
@@ -103,6 +112,7 @@ Successfully installed ... lifelines-0.30.3"""
 
 # 출력에 붙이는 번호 표식 (자료를 다시 만들어 숫자가 달라지면 여기서 ValueError가 난다)
 M = {
+    "versions": {"pandas      3.0.5": 1, "statsmodels 0.15.0": 2, "lifelines   0.30.3": 3},
     "load": {"(10150, 6)": 1, "datetime64[us]": 2},
     "head": {"NaT": 1, "setting": 2, "I209": 3, "NaN": 4, "days": 5},
     "units": {"person: 10150 rows, 10150 people": 1, "rx    : 111405 rows": 2, "2015-01-01 2022-12-31": 3,
@@ -116,19 +126,34 @@ M = {
     "age": {"min         10.0": 1, "age < 18: 14": 2},
     "dxflags": {"esrd         194": 1, "prior_hhf    234": 2},
     "flow": {"               10000": 1, "4103       5897": 2, "136       5552": 3, "SGLT2i    1028": 4},
+    "washout180": {"3785       6215": 1, "141       5856": 2, "DPP4i     4812": 3, "min      190.0": 4,
+                   "max      360.0": 5},
     "gap_df": {"2018-08-16": 1, "12.0": 2, "36.0": 3, "NaN": 4},
     "stop": {"grace 30 -> 2019-06-26": 1, "grace 60 -> 2023-04-07": 2},
+    "pdc": {"PDC 0.863 = 315 / 365": 1, "smallest gap: 0 days": 2},
+    "pdc_df": {"70.6": 3, "73.2": 4, "66.0": 5, "77.0": 6},
     "switch": {"switched or added: 817": 1, "DPP4i     0.160": 2},
     "outcome": {"287 claims, 221 people": 1, "any position, inpt : 321 people": 2,
                 "any claim with I50 : 653 people": 3},
+    "ppv": {"85.5% (95% CI 80.0-89.7)": 1, "96.7% (95% CI 95.7-97.5)": 2},
     "follow": {"1192      1": 1},
     "follow_df": {"139": 2, "2693": 3, "2104": 4},
     "rate": {"1986.20   5.54": 1, "9882.12  12.95": 2, "2.76   9.91": 3, "IRR 0.43 (0.23-0.79)": 4},
+    "share": {"ratio of event shares: 0.38": 1, "rate ratio           : 0.43": 2},
+    "share_df": {"1.07": 3, "1.93": 4},
     "table1_df": {"57.0": 1, "6.8": 2, "86.3": 3},
     "cox": {"crude HR    0.42 (0.23-0.77)": 1, "adjusted HR 0.61 (0.32-1.13)": 2},
     "check": {"True": 1},
     "full_df": {"11 / 1986": 1, "320 / 57781": 2, "5.54 (4.95-6.18)": 3, "0.61 (0.32-1.13)": 4, "0.61 (0.54-0.68)": 5},
-    "hw3_df": {"582 / 92403": 1, "0.73 (0.67-0.79)": 2},
+    "fullfu": {"ratio of event shares: 0.37": 1, "1.87": 2, "as-treated : 1.80": 3, "ITT        : 3.50": 4,
+               "sample, as-treated : 1.81": 5},
+    "hw1": {"crude HR    0.51 (0.32-0.81)": 1, "adjusted HR 0.73 (0.45-1.17)": 2, "SGLT2i     7.76": 3},
+    "hw1_df": {"582 / 92403": 4, "0.73 (0.67-0.79)": 5},
+    "hw2": {"grace 30: 2019-06-26, day 404, event 0": 1},
+    "hw2_df": {"0.60 (0.30-1.20)": 2, "0.61 (0.32-1.13)": 3, "0.61 (0.33-1.11)": 4},
+    "hw3": {"hf = 1, whole period    : 823": 1, "events with hf = 1 in c_any: 1.0": 2,
+            "365 days         HR 0.61 (0.32-1.13)": 3, "all before index HR 0.61 (0.32-1.14)": 4,
+            "whole period     HR 0.71 (0.38-1.33)": 5},
 }
 
 # ================================================================ 가. 청구자료의 표 구조
@@ -141,7 +166,18 @@ c = nb.cell('''
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import scipy, matplotlib, statsmodels, lifelines
 
+print("pandas     ", pd.__version__)
+print("numpy      ", np.__version__)
+print("scipy      ", scipy.__version__)
+print("matplotlib ", matplotlib.__version__)
+print("statsmodels", statsmodels.__version__)
+print("lifelines  ", lifelines.__version__)
+''', title="패키지 불러오기와 버전 확인")
+save("lab14_versions", c, marks=M.get("versions"))
+
+c = nb.cell('''
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
 UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 person = pd.read_csv(BASE + "claims_person.csv",
@@ -276,6 +312,18 @@ print(cohort["arm"].value_counts())
 ''', title="선정 기준을 차례로 적용하며 인원 세기")
 save("lab14_flow", c, marks=M.get("flow"))
 
+c = nb.cell('''
+coh180 = coh.copy()
+prior180 = m[(m["before"] >= 1) & (m["before"] <= 180)]
+coh180["prevalent"] = coh180["pid"].isin(prior180["pid"])
+flow180, keep180 = flow_table(coh180)
+print(flow180.to_string(index=False))
+print(coh180[keep180]["arm"].value_counts())
+late = prior[~prior["pid"].isin(prior180["pid"])]
+print(late.groupby("pid")["before"].min().describe().round(0))
+''', title="세척 기간을 180일로 줄이면")
+save("lab14_washout180", c, marks=M.get("washout180"))
+
 # ================================================================ 다. 노출·결과·공변량 만들기
 c = nb.cell('''
 f = study.merge(cohort[["pid", "index_date", "arm"]], on="pid")
@@ -303,6 +351,35 @@ for grace in [30, 60, 90]:
 save("lab14_stop", c, marks=M.get("stop"))
 
 c = nb.cell('''
+def pdc_365(fills):
+    """첫 365일 가운데 약이 있던 날의 비율 (처방이 겹치지 않을 때)"""
+    win_end = fills["index_date"] + pd.Timedelta(days=365)
+    days = (fills["runout"].clip(upper=win_end)
+            - fills["rx_date"]).dt.days.clip(lower=0)
+    return days.groupby(fills["pid"]).sum() / 365
+
+ex = pd.DataFrame({"pid": 0, "days": [30, 30, 30, 90, 90, 90],
+                   "rx_date": pd.to_datetime(
+                       ["2021-03-02", "2021-04-01", "2021-05-06",
+                        "2021-06-05", "2021-10-18", "2022-01-16"])})
+ex["index_date"] = ex["rx_date"].min()
+ex["runout"] = ex["rx_date"] + pd.to_timedelta(ex["days"], unit="D")
+pdc_ex = pdc_365(ex).iloc[0]
+print(f"chapter example: PDC {pdc_ex:.3f} = {pdc_ex * 365:.0f} / 365")
+print("smallest gap:", int(own["gap"].min()), "days")
+
+cohort["pdc"] = cohort["pid"].map(pdc_365(own))
+adh = pd.DataFrame({"PDC >= 0.8":
+                    (cohort["pdc"] >= 0.8).groupby(cohort["arm"]).mean()})
+for grace in [30, 60]:
+    stop = cohort["pid"].map(stop_date(own, grace))
+    on_drug = (stop - cohort["index_date"]).dt.days > 365
+    adh[f"1 y, grace {grace}"] = on_drug.groupby(cohort["arm"]).mean()
+(100 * adh).T.round(1)
+''', title="첫 365일의 PDC와 1년 지속 비율")
+save("lab14_pdc", c, marks=M.get("pdc"), dfmarks=M.get("pdc_df"))
+
+c = nb.cell('''
 other = f[(f["drug"] != f["arm"])
           & (f["rx_date"] > f["index_date"])]
 switch = other.groupby("pid")["rx_date"].min()
@@ -328,6 +405,17 @@ print("any claim with I50 :",
       after[has_dx(after, "I50")]["pid"].nunique(), "people")
 ''', title="결과: 주상병이 심부전인 입원의 첫 날짜")
 save("lab14_outcome", c, marks=M.get("outcome"))
+
+c = nb.cell('''
+from statsmodels.stats.proportion import proportion_confint
+
+for name, k, n in [("HHF definition", 171, 200),
+                   ("diabetes definition B", 1391, 1438)]:
+    lo, hi = proportion_confint(k, n, method="wilson")
+    print(f"{name}: {k}/{n} = {100 * k / n:.1f}%"
+          f" (95% CI {100 * lo:.1f}-{100 * hi:.1f})")
+''', title="정의의 양성예측도와 신뢰구간")
+save("lab14_ppv", c, marks=M.get("ppv"))
 
 c = nb.cell('''
 b = base[base["pid"].isin(cohort["pid"])]
@@ -399,6 +487,21 @@ print(tab.round(2))
 print("IRR %.2f (%.2f-%.2f)" % irr(tab))
 ''', title="사건 수, 인년, 1,000인년당 발생률과 발생률비")
 save("lab14_rate", c, marks=M.get("rate"))
+
+c = nb.cell('''
+def share_vs_rate(t):
+    """사건 비율(사건 ÷ 인원)과 발생률(사건 ÷ 인년)을 나란히"""
+    s = pd.DataFrame({"events %": 100 * t["events"] / t["n"],
+                      "mean FU (y)": t["py"] / t["n"],
+                      "rate": t["rate"]})
+    ratio = s.loc["SGLT2i"] / s.loc["DPP4i"]
+    print("ratio of event shares: %.2f" % ratio["events %"])
+    print("rate ratio           : %.2f" % ratio["rate"])
+    return s.round(2)
+
+share_vs_rate(tab)
+''', title="사건 비율로 비교하면")
+save("lab14_share", c, marks=M.get("share"), dfmarks=M.get("share_df"))
 
 c = nb.cell('''
 g = cohort.groupby("arm")
@@ -473,31 +576,27 @@ pd.DataFrame({"sample (n = 5,552)": summary(cohort),
 ''', title="전체 코호트 166,548명으로 같은 분석 하기")
 save("lab14_full", c, dfmarks=M.get("full_df"))
 
+c = nb.cell('''
+print(share_vs_rate(rate_table(full)))
+
+def median_fu(time, event):
+    """역 Kaplan-Meier 중앙 추적기간(년)"""
+    km = KaplanMeierFitter().fit(time / 365.25, 1 - event)
+    return km.median_survival_time_
+
+t_itt = full["time_itt"].fillna(full["time"])
+e_itt = full["event_itt"].fillna(full["event"])
+print("median follow-up (reverse KM, years)")
+print("  as-treated : %.2f" % median_fu(full["time"], full["event"]),
+      "  simple median %.2f" % (full["time"].median() / 365.25))
+print("  ITT        : %.2f" % median_fu(t_itt, e_itt),
+      "  simple median %.2f" % (t_itt.median() / 365.25))
+print("  sample, as-treated : %.2f" %
+      median_fu(cohort["time"], cohort["event"]))
+''', title="전체 코호트의 사건 비율과 중앙 추적기간")
+save("lab14_fullfu", c, marks=M.get("fullfu"))
+
 # ================================================================ 마. 과제 (정답 셀)
-c = nb.cell('''
-c30 = cohort.copy()
-c30["stop_date"] = c30["pid"].map(stop_date(own, 30))
-c30 = follow_up(c30, AT)
-t30 = rate_table(c30)
-print(t30.round(2))
-print("IRR %.2f (%.2f-%.2f)" % irr(t30))
-print("adjusted HR %.2f (%.2f-%.2f)" % hr(c30, ["sglt2"] + covs))
-print(c30.loc[c30["pid"] == p, ["end_date", "time", "event"]])
-''', title="과제 1 정답: 유예기간 30일")
-save("lab14_hw1", c, marks=M.get("hw1"))
-
-c = nb.cell('''
-coh180 = coh.copy()
-prior180 = m[(m["before"] >= 1) & (m["before"] <= 180)]
-coh180["prevalent"] = coh180["pid"].isin(prior180["pid"])
-flow180, keep180 = flow_table(coh180)
-print(flow180.to_string(index=False))
-print(coh180[keep180]["arm"].value_counts())
-late = prior[~prior["pid"].isin(prior180["pid"])]
-print(late.groupby("pid")["before"].min().describe().round(0))
-''', title="과제 2 정답: 세척 기간 180일")
-save("lab14_hw2", c, marks=M.get("hw2"))
-
 c = nb.cell('''
 itt = follow_up(cohort, ["hhf_date", "death_date", "study_end"])
 ti = rate_table(itt)
@@ -513,8 +612,49 @@ full_itt["time"] = full["time_itt"].fillna(full["time"])
 full_itt["event"] = full["event_itt"].fillna(full["event"])
 pd.DataFrame({"sample (n = 5,552)": summary(itt),
               "full (n = 166,548)": summary(full_itt)})
-''', title="과제 3 정답: ITT 방식의 추적")
-save("lab14_hw3", c, marks=M.get("hw3"), dfmarks=M.get("hw3_df"))
+''', title="과제 1 정답. ITT 방식의 추적과 해석")
+save("lab14_hw1", c, marks=M.get("hw1"), dfmarks=M.get("hw1_df"))
+
+c = nb.cell('''
+res = []
+for grace in [30, 60, 90]:
+    cg = cohort.copy()
+    cg["stop_date"] = cg["pid"].map(stop_date(own, grace))
+    cg = follow_up(cg, AT)
+    t = rate_table(cg)
+    res.append([grace,
+                "%d / %d" % tuple(t.loc[["SGLT2i", "DPP4i"], "events"]),
+                "%.2f / %.2f" % tuple(t.loc[["SGLT2i", "DPP4i"], "rate"]),
+                "%.2f" % irr(t)[0],
+                "%.2f (%.2f-%.2f)" % hr(cg, ["sglt2"] + covs)])
+    x = cg.loc[cg["pid"] == p].iloc[0]
+    print(f"grace {grace}: {x['end_date'].date()},",
+          f"day {x['time']}, event {x['event']}")
+pd.DataFrame(res, columns=["grace", "events S / D", "rate S / D",
+                           "IRR", "adjusted HR"]).set_index("grace")
+''', title="과제 2 정답. 유예기간 30일, 60일, 90일")
+save("lab14_hw2", c, marks=M.get("hw2"), dfmarks=M.get("hw2_df"))
+
+c = nb.cell('''
+va = v[v["pid"].isin(cohort["pid"])]      # 코호트의 모든 명세서
+pre = va[va["before"] >= 0]               # 첫 처방일 당일까지
+c_any, c_pre = cohort.copy(), cohort.copy()
+for name, codes in dx_def.items():
+    hit_any = va[has_dx(va, codes)]["pid"]
+    hit_pre = pre[has_dx(pre, codes)]["pid"]
+    c_any[name] = c_any["pid"].isin(hit_any).astype(int)
+    c_pre[name] = c_pre["pid"].isin(hit_pre).astype(int)
+
+for name, d in [("365 days", cohort), ("all before index", c_pre),
+                ("whole period", c_any)]:
+    print(f"hf = 1, {name:16s}:", d["hf"].sum())
+print("events with hf = 1 in c_any:",
+      c_any.loc[c_any["event"] == 1, "hf"].mean())
+for name, d in [("365 days", cohort), ("all before index", c_pre),
+                ("whole period", c_any)]:
+    print(f"{name:16s} HR %.2f (%.2f-%.2f)" % hr(d, ["sglt2"] + covs))
+''', title="과제 3 정답. 자료 기간 전체로 만든 동반질환")
+save("lab14_hw3", c, marks=M.get("hw3"))
 
 print("lab14: cells", len(nb.cells))
 for cc in nb.cells:
@@ -523,19 +663,24 @@ for cc in nb.cells:
 
 # ---------------------------------------------------------------- 노트북 (pub/notebooks/lab14.ipynb)
 HW = {
-    24: "## 과제 정답\n\n**과제 1.** 유예기간을 60일에서 30일로 바꿔 as-treated 추적을 다시 만들고, 군별 사건 수, 인년, "
-        "1,000인년당 발생률, 발생률비, 보정 위험비를 구합니다. a 절에서 따라가 본 환자의 추적이 어떻게 달라지는지도 확인합니다.",
-    25: "**과제 2.** 세척 기간을 365일에서 180일로 줄여 선정 흐름을 다시 만들고, 기존 사용자로 빠지는 인원과 최종 코호트 "
-        "인원이 얼마나 달라지는지 구합니다.",
-    26: "**과제 3.** 약 중단과 비교약으로의 변경을 무시하는 ITT 방식으로 추적을 다시 만들고, 발생률, 발생률비, 보정 전과 "
-        "보정 후의 위험비를 구합니다. 약을 끊거나 바꾼 뒤의 기간에서 발생률이 얼마인지도 계산하고, 전체 코호트 파일로 같은 "
-        "분석을 해 본문 표 14-5의 ITT 유사 분석과 맞는지 확인합니다.",
+    30: "## 과제 정답\n\n**과제 1.** 약 중단과 비교약으로의 변경을 무시하는 ITT 방식으로 추적을 다시 만들고, 발생률, 발생률비, "
+        "보정 전과 보정 후의 위험비를 구합니다. 보정 위험비 행을 Results 문장으로 옮기고, as-treated 분석의 0.61과 "
+        "어떤 질문의 답이 다른지, 이 값이 말해 주지 않는 것은 무엇인지 씁니다. 전체 코호트 파일로 본문 표 14-5와도 맞춰 봅니다.",
+    31: "**과제 2.** 유예기간을 30일, 60일, 90일로 바꿔 as-treated 추적을 다시 만들고, 군별 사건 수, 발생률, 발생률비, "
+        "보정 위험비를 비교합니다. a 절에서 따라가 본 환자의 추적이 어떻게 달라지는지도 확인합니다.",
+    32: "**과제 3.** 동료가 자료 기간 전체(2015–2022년)의 명세서로 동반질환을 다시 정의한 분석을 재현하고, 틀린 곳 두 가지를 "
+        "찾습니다. 첫 처방일 당일까지의 모든 기록으로 정의한 결과와도 비교합니다.",
 }
 NOTES = {
-    1: "## 가. 청구자료의 표 구조\n\n자격, 명세서·상병, 처방 세 표를 불러와 행의 단위를 확인하고 한 사람의 기록을 따라가 봅니다.",
-    6: "## 나. 신규 사용자 코호트 만들기\n\nindex date를 찾고, 선정 기준을 하나씩 표지로 만든 뒤 차례로 적용하며 인원을 셉니다.",
-    12: "## 다. 노출·결과·공변량 만들기\n\n처방 기록에서 중단일과 변경일을, 명세서에서 심부전 입원일과 기저 동반질환을 만듭니다.",
-    17: "## 라. 추적 기간과 발생률\n\n추적 종료일을 정하고 인년, 발생률, 기저 특성 표, 누적발생 곡선, 위험비를 구합니다.",
+    1: "## 가. 청구자료의 표 구조\n\n자격, 명세서·상병, 처방 세 표를 불러와 행의 단위를 확인하고 한 사람의 기록을 따라가 봅니다. "
+       "Colab에서는 런타임이 새로 배정될 때마다 lifelines를 설치합니다.",
+    2: "출력을 만든 패키지의 버전을 확인합니다. 내 화면의 출력이 사이트와 다를 때 먼저 비교합니다.",
+    7: "## 나. 신규 사용자 코호트 만들기\n\nindex date를 찾고, 선정 기준을 하나씩 표지로 만든 뒤 차례로 적용하며 인원을 셉니다.",
+    13: "세척 기간을 180일로 줄인 민감도 분석입니다. 선정 흐름만 다시 셉니다.",
+    14: "## 다. 노출·결과·공변량 만들기\n\n처방 기록에서 중단일과 변경일을, 명세서에서 심부전 입원일과 기저 동반질환을 만듭니다.",
+    16: "14장 c 절의 예제 환자(PDC 315/365)로 함수를 먼저 확인한 뒤 코호트 전체에 적용합니다.",
+    21: "## 라. 추적 기간과 발생률\n\n추적 종료일을 정하고 인년, 발생률, 기저 특성 표, 누적발생 곡선, 위험비를 구합니다.",
+    28: "전체 코호트 파일(5MB)을 읽고 Cox 모형 네 개를 적합하므로 Colab에서는 수십 초가 걸릴 수 있습니다.",
 }
 NOTES.update(HW)
 path = nb.save_ipynb(
@@ -573,7 +718,7 @@ if __name__ == "__main__":
     # (2) 사람별 대조: 파이프라인으로 만든 코호트 = data_lab14.py가 nums_ch14의 값에서 직접 쓴 sglt2_cohort.csv
     ref = pd.read_csv(os.path.join(PUBDATA, "sglt2_cohort.csv"))
     mine = cohort.sort_values("pid").reset_index(drop=True)
-    itt, c30 = ns["itt"].sort_values("pid").reset_index(drop=True), ns["c30"]
+    itt = ns["itt"].sort_values("pid").reset_index(drop=True)
     for col in ["pid", "arm", "sglt2", "age", "female", "htn", "ihd", "hf", "ckd", "met", "ins", "time", "event"]:
         assert (mine[col].values == ref[col].values).all(), col
     assert (mine["index_date"].dt.strftime("%Y-%m-%d").values == ref["index_date"].values).all()
@@ -589,10 +734,12 @@ if __name__ == "__main__":
         return 1
 
     hrf, covs = ns["hr"], ns["covs"]
-    c90 = cohort.copy()
-    c90["stop_date"] = c90["pid"].map(ns["stop_date"](ns["own"], 90))
-    c90 = ns["follow_up"](c90, ns["AT"])
-    for key, data in (("at60", cohort), ("at30", c30), ("at90", c90), ("itt", ns["itt"])):
+    by_grace = {}
+    for G in (30, 90):
+        cg = cohort.copy()
+        cg["stop_date"] = cg["pid"].map(ns["stop_date"](ns["own"], G))
+        by_grace[G] = ns["follow_up"](cg, ns["AT"])
+    for key, data in (("at60", cohort), ("at30", by_grace[30]), ("at90", by_grace[90]), ("itt", ns["itt"])):
         fu = J["fu"][key]
         tb = ns["rate_table"](data)
         for arm, lab_ in (("SGLT2i", "S"), ("DPP4i", "D")):
@@ -619,13 +766,23 @@ if __name__ == "__main__":
             for a, b in ((tb.loc[arm, "rate"], fu[lab_]["rate"]), (tb.loc[arm, "lo"], fu[lab_]["lo"]), (tb.loc[arm, "hi"], fu[lab_]["hi"])):
                 assert abs(a - b) < 1e-6, (key, arm, a, b)
             n_full += 5
+            # 1인당 평균 추적(본문 d 절 2단계 3번: 1.87, 2.18, 3.00, 3.66년)
+            assert abs(tb.loc[arm, "py"] / tb.loc[arm, "n"] - fu[lab_]["mean_fu"]) < 1e-9
+            n_full += 1
         for a, b in zip(ns["irr"](tb), (fu["irr"], fu["irr_lo"], fu["irr_hi"])):
             n_full += same2(a, b, (key, "full irr"))        # 1.96 대신 정확한 분위수를 쓴 본문과 둘째 자리까지
         for nm, cols in (("crude", ["sglt2"]), ("adj", ["sglt2"] + covs)):
             for a, b in zip(hrf(data, cols), (fu[nm]["hr"], fu[nm]["lo"], fu[nm]["hi"])):
                 n_full += same2(a, b, (key, nm, "full"))
+    # 셀 29: 역 Kaplan-Meier 중앙 추적기간 (본문 d 절 '더 알아보기' 1.80, 3.50년)
+    mf = ns["median_fu"]
+    assert abs(mf(ns["full"]["time"], ns["full"]["event"]) - J["medfu"]["at_rkm"]) < 1e-9
+    assert abs(mf(ns["t_itt"], ns["e_itt"]) - J["medfu"]["itt_rkm"]) < 1e-9
+    assert abs(ns["full"]["time"].median() / 365.25 - J["medfu"]["at_simple"]) < 1e-9
+    assert abs(ns["t_itt"].median() / 365.25 - J["medfu"]["itt_simple"]) < 1e-9
+    n_full += 4
     print(f"CHECK full cohort file: {n_full} numbers of table 14-5 (events, PY, rates and exact CIs, IRR, crude and adjusted HR "
-          f"with CIs; as-treated and ITT) equal the chapter")
+          f"with CIs; as-treated and ITT), mean and reverse-KM median follow-up equal the chapter")
 
     # (5) 기저 특성: 본문 표 14-4와 소수 첫째 자리까지
     g = cohort.groupby("arm")
@@ -646,15 +803,31 @@ if __name__ == "__main__":
                        ("study_end", "admin")):
             assert abs(rs.loc[col, arm] - J["fu"]["at60"]["reasons"][lab_][k] / FRAC) < 2.0, (arm, col)
     print("CHECK reasons: within 2 people of chapter / 30")
+
+    # (7) 셀 16, 19: 예제 환자의 PDC, 양성예측도의 신뢰구간 (본문과 같음)
+    assert round(ns["pdc_ex"] * 365) == J["ex"]["pdc_days"] == 315 and abs(ns["pdc_ex"] - J["ex"]["pdc"]) < 1e-12
+    from statsmodels.stats.proportion import proportion_confint as _pc
+    lo_, hi_ = _pc(171, 200, method="wilson")
+    assert abs(lo_ - J["val"]["lo"]) < 1e-12 and abs(hi_ - J["val"]["hi"]) < 1e-12
+    n_exact += 3
     print(f"CHECK total: sample {n_exact} numbers + full cohort {n_full} numbers agree with the chapter")
     lo, hi = hrf(cohort, ["sglt2"] + covs)[1:]
     print(f"NOTE sample adjusted HR 95% CI {lo:.2f}-{hi:.2f}; chapter {J['fu']['at60']['adj']['lo']:.2f}-{J['fu']['at60']['adj']['hi']:.2f}")
+    adh = ns["adh"]
+    for arm, lab_ in (("SGLT2i", "S"), ("DPP4i", "D")):
+        P = J["pdc"][lab_]
+        got = [adh.loc[arm, "PDC >= 0.8"], adh.loc[arm, "1 y, grace 30"], adh.loc[arm, "1 y, grace 60"]]
+        want = [P["ge80"], P["pers"]["30"], P["pers"]["60"]]
+        print(f"NOTE PDC/persistence {arm}: sample " + ", ".join(f"{100 * x:.1f}" for x in got)
+              + "  chapter " + ", ".join(f"{100 * x:.1f}" for x in want))
+        assert max(abs(a - b) for a, b in zip(got, want)) < 0.021        # 글: 본문과 2%p 안쪽으로 다르다
 
     # ---------------------------------------------------------------- 본문 글에 인용한 숫자 (셀로 보여 주지 않는 것)
     m, coh, index, study = ns["m"], ns["coh"], ns["index"], ns["study"]
     arm_of = coh.set_index("pid")["arm"]
     same = m[(m["before"] >= 1) & (m["before"] <= 365) & (m["drug"] == m["pid"].map(arm_of))]
     print("VERIFY washout checking own class only:", coh["pid"].isin(same["pid"]).sum(), "(either class 4103)")
+    assert coh["pid"].isin(same["pid"]).sum() == 3862
     tab = ns["tab"]
     print("VERIFY mean follow-up (y):", (tab["py"] / tab["n"]).round(2).to_dict(), " events/n %:",
           (100 * tab["events"] / tab["n"]).round(1).to_dict())
@@ -676,5 +849,39 @@ if __name__ == "__main__":
     print("VERIFY visits in baseline window:", len(b), "of", len(v))
     print("VERIFY sex/age of example:", person.loc[person["pid"] == P_EX].to_dict("records"))
     print("VERIFY example covs:", cohort.loc[cohort["pid"] == P_EX, ["age"] + covs[1:] + ["switch_date", "stop_date", "hhf_date"]].to_dict("records"))
-    print("VERIFY hw2:", ns["flow180"]["remaining"].tolist(), ns["flow180"]["excluded"].tolist())
+    print("VERIFY washout 180:", ns["flow180"]["remaining"].tolist(), ns["flow180"]["excluded"].tolist(),
+          ns["coh180"][ns["keep180"]]["arm"].value_counts().to_dict())
+    # 셀 16: PDC 0.8 이상이면서 유예 30일 기준 1년 안에 중단한 사람 (본문 c 절의 예제 환자와 같은 경우)
+    st30 = (cohort["pid"].map(ns["stop_date"](own, 30)) - cohort["index_date"]).dt.days
+    both = (cohort["pdc"] >= 0.8) & (st30 <= 365)
+    print(f"VERIFY PDC>=0.8 yet stopped within 1 y (grace 30): {int(both.sum())} ({100 * both.mean():.1f}%)",
+          f" chapter {J['pdc_vs_pers']['n']} ({100 * J['pdc_vs_pers']['pct']:.1f}%)")
+    print("VERIFY PDC mean/median by arm:", cohort.groupby("arm")["pdc"].agg(["mean", "median"]).round(3).to_dict())
+    print("VERIFY deaths within first year:", int(((cohort["death_date"] - cohort["index_date"]).dt.days <= 365).sum()))
+    # 셀 23, 29: 사건 비율의 비와 발생률비
+    full = ns["full"]
+    tf = ns["rate_table"](full)
+    sh = tf["events"] / tf["n"]
+    print("VERIFY full: share ratio %.4f, IRR %.4f, mean FU %s" % (sh["SGLT2i"] / sh["DPP4i"], ns["irr"](tf)[0],
+                                                                 (tf["py"] / tf["n"]).round(3).to_dict()))
+    assert "%.2f" % (sh["SGLT2i"] / sh["DPP4i"]) == "0.37"
+    # 과제 1: ITT에만 있는 기간의 발생률 (SGLT2 억제제군 8건, 1,031인년)
+    off = ti[["events", "py"]] - tab[["events", "py"]]
+    print("VERIFY ITT-only period:", off.round(1).to_dict())
+    assert int(off.loc["SGLT2i", "events"]) == 8 and round(ti.loc["SGLT2i", "py"]) - round(tab.loc["SGLT2i", "py"]) == 1031      # 3,017 − 1,986
+    # 과제 3: 자료 기간 전체로 정의한 공변량 (글에 인용한 숫자)
+    c_any, c_pre = ns["c_any"], ns["c_pre"]
+    print("VERIFY hw3 sums:", {k: int(x[k].sum()) for k in ("htn", "ihd", "hf", "ckd") for x in [c_any]},
+          {k: int(c_pre[k].sum()) for k in ("htn", "ihd", "hf", "ckd")}, {k: int(cohort[k].sum()) for k in ("htn", "ihd", "hf", "ckd")})
+    print("VERIFY hw3 hf share by arm (365 d / whole period):",
+          cohort.groupby("arm")["hf"].mean().round(3).to_dict(), c_any.groupby("arm")["hf"].mean().round(3).to_dict())
+    print("VERIFY hw3 ckd share by arm (365 d / whole period):",
+          cohort.groupby("arm")["ckd"].mean().round(3).to_dict(), c_any.groupby("arm")["ckd"].mean().round(3).to_dict())
+    n_out_only = int((c_any["hf"].astype(bool) & ~c_pre["hf"].astype(bool)).sum())
+    print("VERIFY hw3 hf=1 only from records after the index date:", n_out_only,
+          " of whom had the outcome (as-treated event):", int((c_any["hf"].astype(bool) & ~c_pre["hf"].astype(bool) & (cohort["event"] == 1)).sum()),
+          " had any primary inpatient I50 after index:", int(cohort.loc[c_any["hf"].astype(bool) & ~c_pre["hf"].astype(bool), "hhf_date"].notna().sum()))
+    # 과제 3: 동료의 모형에서 lifelines가 내는 경고(글에서 설명한다). 다른 셀에는 경고가 없어야 한다.
+    warned = {cc.n for cc in nb.cells if cc.warns}
+    assert warned == {32} and all("ConvergenceWarning" in w for w in nb.cells[31].warns), warned
     print("VERIFY pandas", pd.__version__, "numpy", np.__version__)

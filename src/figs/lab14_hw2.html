@@ -1,27 +1,58 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 2 정답: 세척 기간 180일</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">coh180 = coh.copy()
-prior180 = m[(m[&quot;before&quot;] &gt;= 1) &amp; (m[&quot;before&quot;] &lt;= 180)]
-coh180[&quot;prevalent&quot;] = coh180[&quot;pid&quot;].isin(prior180[&quot;pid&quot;])
-flow180, keep180 = flow_table(coh180)
-print(flow180.to_string(index=False))
-print(coh180[keep180][&quot;arm&quot;].value_counts())
-late = prior[~prior[&quot;pid&quot;].isin(prior180[&quot;pid&quot;])]
-print(late.groupby(&quot;pid&quot;)[&quot;before&quot;].min().describe().round(0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                             step excluded  remaining
-          Prescribed in 2016-2021               10000
-Prior use of either class (365 d)     3785       6215
-       Both classes on index date       91       6124
-                   Age &lt; 18 years       10       6114
-         ESRD or dialysis (365 d)      117       5997
-       HF hospitalization (365 d)      141       5856
-arm
-DPP4i     4812
-SGLT2i    1044
-Name: count, dtype: int64
-count    318.0
-mean     280.0
-std       47.0
-min      190.0
-25%      242.0
-50%      284.0
-75%      320.0
-max      360.0
-Name: before, dtype: float64</pre></div></div>
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">과제 2 정답. 유예기간 30일, 60일, 90일</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = []
+for grace in [30, 60, 90]:
+    cg = cohort.copy()
+    cg[&quot;stop_date&quot;] = cg[&quot;pid&quot;].map(stop_date(own, grace))
+    cg = follow_up(cg, AT)
+    t = rate_table(cg)
+    res.append([grace,
+                &quot;%d / %d&quot; % tuple(t.loc[[&quot;SGLT2i&quot;, &quot;DPP4i&quot;], &quot;events&quot;]),
+                &quot;%.2f / %.2f&quot; % tuple(t.loc[[&quot;SGLT2i&quot;, &quot;DPP4i&quot;], &quot;rate&quot;]),
+                &quot;%.2f&quot; % irr(t)[0],
+                &quot;%.2f (%.2f-%.2f)&quot; % hr(cg, [&quot;sglt2&quot;] + covs)])
+    x = cg.loc[cg[&quot;pid&quot;] == p].iloc[0]
+    print(f&quot;grace {grace}: {x[&#x27;end_date&#x27;].date()},&quot;,
+          f&quot;day {x[&#x27;time&#x27;]}, event {x[&#x27;event&#x27;]}&quot;)
+pd.DataFrame(res, columns=[&quot;grace&quot;, &quot;events S / D&quot;, &quot;rate S / D&quot;,
+                           &quot;IRR&quot;, &quot;adjusted HR&quot;]).set_index(&quot;grace&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>grace 30: 2019-06-26, day 404, event 0<span class="mk">1</span>
+grace 60: 2021-08-22, day 1192, event 1
+grace 90: 2021-08-22, day 1192, event 1</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>events S / D</th>
+      <th>rate S / D</th>
+      <th>IRR</th>
+      <th>adjusted HR</th>
+    </tr>
+    <tr>
+      <th>grace</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>30</th>
+      <td>9 / 107</td>
+      <td>5.46 / 13.15</td>
+      <td>0.41</td>
+      <td>0.60 (0.30-1.20)<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>60</th>
+      <td>11 / 128</td>
+      <td>5.54 / 12.95</td>
+      <td>0.43</td>
+      <td>0.61 (0.32-1.13)<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>90</th>
+      <td>12 / 140</td>
+      <td>5.50 / 12.81</td>
+      <td>0.43</td>
+      <td>0.61 (0.33-1.11)<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

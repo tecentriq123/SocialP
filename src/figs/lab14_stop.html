@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">유예기간으로 중단일 정하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def stop_date(own, grace):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">유예기간으로 중단일 정하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def stop_date(own, grace):
     over = own[&quot;gap&quot;].isna() | (own[&quot;gap&quot;] &gt; grace)
     runout = own[over].groupby(&quot;pid&quot;)[&quot;runout&quot;].first()
     return runout + pd.Timedelta(days=grace)

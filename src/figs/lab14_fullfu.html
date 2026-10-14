@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">전체 코호트의 사건 비율과 중앙 추적기간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(share_vs_rate(rate_table(full)))
+
+def median_fu(time, event):
+    &quot;&quot;&quot;역 Kaplan-Meier 중앙 추적기간(년)&quot;&quot;&quot;
+    km = KaplanMeierFitter().fit(time / 365.25, 1 - event)
+    return km.median_survival_time_
+
+t_itt = full[&quot;time_itt&quot;].fillna(full[&quot;time&quot;])
+e_itt = full[&quot;event_itt&quot;].fillna(full[&quot;event&quot;])
+print(&quot;median follow-up (reverse KM, years)&quot;)
+print(&quot;  as-treated : %.2f&quot; % median_fu(full[&quot;time&quot;], full[&quot;event&quot;]),
+      &quot;  simple median %.2f&quot; % (full[&quot;time&quot;].median() / 365.25))
+print(&quot;  ITT        : %.2f&quot; % median_fu(t_itt, e_itt),
+      &quot;  simple median %.2f&quot; % (t_itt.median() / 365.25))
+print(&quot;  sample, as-treated : %.2f&quot; %
+      median_fu(cohort[&quot;time&quot;], cohort[&quot;event&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ratio of event shares: 0.37<span class="mk">1</span>
+rate ratio           : 0.43
+        events %  mean FU (y)   rate
+arm                                 
+DPP4i       2.82         2.18  12.95
+SGLT2i      1.04         1.87<span class="mk">2</span>   5.54
+median follow-up (reverse KM, years)
+  as-treated : 1.80<span class="mk">3</span>   simple median 1.75
+  ITT        : 3.50<span class="mk">4</span>   simple median 3.39
+  sample, as-treated : 1.81<span class="mk">5</span></pre></div></div>

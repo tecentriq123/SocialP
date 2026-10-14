@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">결과: 주상병이 심부전인 입원의 첫 날짜</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">after = visit.merge(cohort[[&quot;pid&quot;, &quot;index_date&quot;]], on=&quot;pid&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">결과: 주상병이 심부전인 입원의 첫 날짜</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">after = visit.merge(cohort[[&quot;pid&quot;, &quot;index_date&quot;]], on=&quot;pid&quot;)
 after = after[after[&quot;visit_date&quot;] &gt; after[&quot;index_date&quot;]]
 adm = after[(after[&quot;setting&quot;] == &quot;I&quot;)
             &amp; has_dx(after, &quot;I50&quot;, cols=[&quot;dx_main&quot;])]

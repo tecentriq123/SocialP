@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">index date에 처방받은 계열과 동시 시작 여부</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">first = enroll.merge(index, on=&quot;pid&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">index date에 처방받은 계열과 동시 시작 여부</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">first = enroll.merge(index, on=&quot;pid&quot;)
 first = first[first[&quot;rx_date&quot;] == first[&quot;index_date&quot;]]
 print(len(enroll), &quot;-&gt;&quot;, len(first), &quot;rows&quot;)
 

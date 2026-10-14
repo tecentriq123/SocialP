@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">기저 기간의 상병으로 말기신부전과 심부전 입원력 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">v = visit.merge(index, on=&quot;pid&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">기저 기간의 상병으로 말기신부전과 심부전 입원력 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">v = visit.merge(index, on=&quot;pid&quot;)
 v[&quot;before&quot;] = (v[&quot;index_date&quot;] - v[&quot;visit_date&quot;]).dt.days
 base = v[(v[&quot;before&quot;] &gt;= 0) &amp; (v[&quot;before&quot;] &lt;= 365)]
 

@@ -91,7 +91,7 @@ arrow(c1, C, E, cls="s2"); arrow(c1, C, Y, cls="s2")
 arrow(c1, I, E, cls="s4", dash=True)
 arrow(c1, Rk, Y, cls="s3")
 arrow(c1, E, Y, cls="s1", w=2.2)
-c1.text_px(10, 20, "가. 치료 시작 전에 정해진 변수", cls="ptitle")
+c1.text_px(10, 20, "a. 치료 시작 전에 정해진 변수", cls="ptitle")
 c1.text_px(210, 276, "교란변수는 보정, 치료에만 영향을 주는 변수는 넣지 않음", anchor="middle", cls="lbl small")
 
 c2 = canvas(W, H)
@@ -102,13 +102,13 @@ C2 = node(c2, 210, 222, "충돌변수", cls="s2", sub="예: 시작 후 외래 �
 arrow(c2, E2, M2, cls="s3"); arrow(c2, M2, Y2, cls="s3")
 arrow(c2, E2, Y2, cls="s1", w=2.2)
 arrow(c2, E2, C2, cls="s4"); arrow(c2, Y2, C2, cls="s4")
-c2.text_px(10, 20, "나. 치료 시작 뒤에 생긴 변수", cls="ptitle")
+c2.text_px(10, 20, "b. 치료 시작 뒤에 생긴 변수", cls="ptitle")
 c2.text_px(210, 276, "둘 다 보정하지 않음", anchor="middle", cls="lbl small")
 save("ch15_dag", figure(
     [c1.svg("치료 시작 전에 정해진 변수의 인과 도표"), c2.svg("치료 시작 뒤에 생긴 변수의 인과 도표")],
-    "그림 15-1. 변수의 종류와 보정 여부. 화살표는 '원인 → 결과'입니다. (가) 교란변수는 약 선택과 입원 모두의 원인이므로 보정합니다. "
+    "그림 15-1. 변수의 종류와 보정 여부. 화살표는 '원인 → 결과'입니다. (a) 교란변수는 약 선택과 입원 모두의 원인이므로 보정합니다. "
     "결과에만 영향을 주는 변수는 넣어도 좋고, 치료에만 영향을 주는 변수(점선)는 넣지 않습니다. "
-    "(나) 매개변수는 약의 효과가 지나가는 길이고, 충돌변수는 약과 결과가 함께 영향을 주는 변수입니다. 이 그림의 두 변수는 치료 시작 뒤에 생겼고, "
+    "(b) 매개변수는 약의 효과가 지나가는 길이고, 충돌변수는 약과 결과가 함께 영향을 주는 변수입니다. 이 그림의 두 변수는 치료 시작 뒤에 생겼고, "
     "약의 전체 효과를 볼 때 보정하면 편향이 생깁니다. 치료 전에 잰 변수도 충돌변수일 수 있으므로 잰 시점과 함께 화살표의 방향을 확인합니다.",
     cols=2))
 
@@ -134,15 +134,15 @@ def mirror(ps, A, title, nA, nB, cstat, ymax=20):
     return p, fA, fB
 
 
-pa, fA1, fB1 = mirror(s["ps"], s["A"], "가. 이 장의 코호트", s["nA"], s["nB"], s["c_ps"])
-pb, fA2, fB2 = mirror(poor["ps"], poor["A"], "나. 약 선택이 훨씬 엄격한 가상의 경우", poor["nA"], poor["nB"], poor["c"], ymax=20)
+pa, fA1, fB1 = mirror(s["ps"], s["A"], "a. 이 장의 코호트", s["nA"], s["nB"], s["c_ps"])
+pb, fA2, fB2 = mirror(poor["ps"], poor["A"], "b. 약 선택이 훨씬 엄격한 가상의 경우", poor["nA"], poor["nB"], poor["c"], ymax=20)
 assert fA1.max() < 20 and fB1.max() < 20, (fA1.max(), fB1.max())
 print("psdist max bar %:", fA1.max(), fB1.max(), fA2.max(), fB2.max())
 save("ch15_psdist", figure(
     [pa.svg("이 장의 코호트에서 약물 A군과 B군의 성향점수 분포"), pb.svg("약 선택이 훨씬 엄격한 가상의 코호트에서 두 군의 성향점수 분포")],
     f"그림 15-2. 성향점수의 분포. 위(파랑)는 약물 A 사용자, 아래(주황)는 약물 B 사용자이고, 각 칸의 오른쪽 위에 C 통계량을 적었습니다. "
-    f"가로축의 같은 점수대에 위아래 막대가 함께 있는지 보세요. (가) 이 장의 코호트는 거의 모든 구간에 두 군이 함께 있습니다. "
-    f"(나) 같은 변수가 약 선택에 세 배 강하게 작용하도록 만든 가상의 경우입니다. A군의 {100 * poor['gt95_A']:.0f}%가 0.95를 넘는 오른쪽 끝에 몰려 있고, 그 아래에는 비교할 B 사용자가 거의 없습니다.", cols=2))
+    f"가로축의 같은 점수대에 위아래 막대가 함께 있는지 보세요. (a) 이 장의 코호트는 거의 모든 구간에 두 군이 함께 있습니다. "
+    f"(b) 같은 변수가 약 선택에 세 배 강하게 작용하도록 만든 가상의 경우입니다. A군의 {100 * poor['gt95_A']:.0f}%가 0.95를 넘는 오른쪽 끝에 몰려 있고, 그 아래에는 비교할 B 사용자가 거의 없습니다.", cols=2))
 
 
 # ====================================================================== 15-3  target populations in the toy example
@@ -222,12 +222,12 @@ def cum_panel(a, b, title, ra, rb):
 
 
 e = s["km_end"]
-pa = cum_panel(km["cA"], km["cB"], "가. 보정 전", e["cA"], e["cB"])
-pb = cum_panel(km["wA"], km["wB"], "나. IPTW 가중 후", e["wA"], e["wB"])
+pa = cum_panel(km["cA"], km["cB"], "a. 보정 전", e["cA"], e["cB"])
+pb = cum_panel(km["wA"], km["wB"], "b. IPTW 가중 후", e["wA"], e["wB"])
 save("ch15_cuminc", figure(
     [pa.svg("보정 전 두 군의 입원 누적 발생률 곡선"), pb.svg("IPTW 가중 후 두 군의 입원 누적 발생률 곡선")],
     "그림 15-5. 1년 동안의 입원 누적 발생률(1 − Kaplan-Meier 생존확률). 범례의 괄호 안이 1년 누적 발생률입니다. "
-    "(가) 보정 전에는 A군의 곡선이 처음부터 위에 있습니다. (나) 성향점수 가중치를 준 곡선은 측정한 기저특성이 같아진 두 가상 집단의 곡선으로, "
+    "(a) 보정 전에는 A군의 곡선이 처음부터 위에 있습니다. (b) 성향점수 가중치를 준 곡선은 측정한 기저특성이 같아진 두 가상 집단의 곡선으로, "
     "두 곡선이 거의 겹치고 A가 조금 아래에 있습니다. 논문에서는 'weighted' 또는 'adjusted cumulative incidence curves'라고 부릅니다.",
     cols=2))
 

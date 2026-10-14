@@ -1,69 +1,31 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">과제 3 정답: ITT 방식의 추적</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">itt = follow_up(cohort, [&quot;hhf_date&quot;, &quot;death_date&quot;, &quot;study_end&quot;])
-ti = rate_table(itt)
-print(ti.round(2))
-print(&quot;IRR %.2f (%.2f-%.2f)&quot; % irr(ti))
-print(&quot;crude HR    %.2f (%.2f-%.2f)&quot; % hr(itt, [&quot;sglt2&quot;]))
-print(&quot;adjusted HR %.2f (%.2f-%.2f)&quot; % hr(itt, [&quot;sglt2&quot;] + covs))
-off = ti[[&quot;events&quot;, &quot;py&quot;]] - tab[[&quot;events&quot;, &quot;py&quot;]]
-print((1000 * off[&quot;events&quot;] / off[&quot;py&quot;]).round(2))
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">과제 3 정답. 자료 기간 전체로 만든 동반질환</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">va = v[v[&quot;pid&quot;].isin(cohort[&quot;pid&quot;])]      # 코호트의 모든 명세서
+pre = va[va[&quot;before&quot;] &gt;= 0]               # 첫 처방일 당일까지
+c_any, c_pre = cohort.copy(), cohort.copy()
+for name, codes in dx_def.items():
+    hit_any = va[has_dx(va, codes)][&quot;pid&quot;]
+    hit_pre = pre[has_dx(pre, codes)][&quot;pid&quot;]
+    c_any[name] = c_any[&quot;pid&quot;].isin(hit_any).astype(int)
+    c_pre[name] = c_pre[&quot;pid&quot;].isin(hit_pre).astype(int)
 
-full_itt = full.copy()         # 전체 코호트의 ITT 추적
-full_itt[&quot;time&quot;] = full[&quot;time_itt&quot;].fillna(full[&quot;time&quot;])
-full_itt[&quot;event&quot;] = full[&quot;event_itt&quot;].fillna(full[&quot;event&quot;])
-pd.DataFrame({&quot;sample (n = 5,552)&quot;: summary(itt),
-              &quot;full (n = 166,548)&quot;: summary(full_itt)})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           n  events        py   rate     lo     hi
-arm                                                
-DPP4i   4524     202  16579.83  12.18  10.56  13.98
-SGLT2i  1028      19   3016.60   6.30   3.79   9.84
-IRR 0.52 (0.32-0.83)
-crude HR    0.51 (0.32-0.81)
-adjusted HR 0.73 (0.45-1.17)
-arm
-DPP4i     11.05
-SGLT2i     7.76
-dtype: float64</pre><div class="df-wrap"><table class="dataframe dfout">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>sample (n = 5,552)</th>
-      <th>full (n = 166,548)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>SGLT2i events / PY</th>
-      <td>19 / 3017</td>
-      <td>582 / 92403<span class="mk">1</span></td>
-    </tr>
-    <tr>
-      <th>SGLT2i rate (95% CI)</th>
-      <td>6.30 (3.79-9.84)</td>
-      <td>6.30 (5.80-6.83)</td>
-    </tr>
-    <tr>
-      <th>DPP4i events / PY</th>
-      <td>202 / 16580</td>
-      <td>6058 / 497187</td>
-    </tr>
-    <tr>
-      <th>DPP4i rate (95% CI)</th>
-      <td>12.18 (10.56-13.98)</td>
-      <td>12.18 (11.88-12.50)</td>
-    </tr>
-    <tr>
-      <th>IRR (95% CI)</th>
-      <td>0.52 (0.32-0.83)</td>
-      <td>0.52 (0.47-0.56)</td>
-    </tr>
-    <tr>
-      <th>crude HR (95% CI)</th>
-      <td>0.51 (0.32-0.81)</td>
-      <td>0.51 (0.47-0.55)</td>
-    </tr>
-    <tr>
-      <th>adjusted HR (95% CI)</th>
-      <td>0.73 (0.45-1.17)</td>
-      <td>0.73 (0.67-0.79)<span class="mk">2</span></td>
-    </tr>
-  </tbody>
-</table></div></div></div>
+for name, d in [(&quot;365 days&quot;, cohort), (&quot;all before index&quot;, c_pre),
+                (&quot;whole period&quot;, c_any)]:
+    print(f&quot;hf = 1, {name:16s}:&quot;, d[&quot;hf&quot;].sum())
+print(&quot;events with hf = 1 in c_any:&quot;,
+      c_any.loc[c_any[&quot;event&quot;] == 1, &quot;hf&quot;].mean())
+for name, d in [(&quot;365 days&quot;, cohort), (&quot;all before index&quot;, c_pre),
+                (&quot;whole period&quot;, c_any)]:
+    print(f&quot;{name:16s} HR %.2f (%.2f-%.2f)&quot; % hr(d, [&quot;sglt2&quot;] + covs))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>hf = 1, 365 days        : 311
+hf = 1, all before index: 382
+hf = 1, whole period    : 823<span class="mk">1</span>
+events with hf = 1 in c_any: 1.0<span class="mk">2</span>
+365 days         HR 0.61 (0.32-1.13)<span class="mk">3</span>
+all before index HR 0.61 (0.32-1.14)<span class="mk">4</span>
+whole period     HR 0.71 (0.38-1.33)<span class="mk">5</span></pre><pre class="warn-out">ConvergenceWarning: Column hf have very low variance when conditioned on death event present or not. This may harm convergence. This could be a form of &#x27;complete separation&#x27;. For example, try the following code:
+
+&gt;&gt;&gt; events = df[&#x27;event&#x27;].astype(bool)
+&gt;&gt;&gt; print(df.loc[events, &#x27;hf&#x27;].var())
+&gt;&gt;&gt; print(df.loc[~events, &#x27;hf&#x27;].var())
+
+A very low variance means that the column hf completely determines whether a subject dies or not. See https://stats.stackexchange.com/questions/11109/how-to-deal-with-perfect-separation-in-logistic-regression.
+</pre><pre class="warn-out">ConvergenceWarning: Newton-Raphson convergence completed successfully but norm(delta) is still high, 0.355. This may imply non-unique solutions to the maximum likelihood. Perhaps there is collinearity or complete separation in the dataset?
+</pre></div></div>

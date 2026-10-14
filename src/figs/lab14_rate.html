@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">사건 수, 인년, 1,000인년당 발생률과 발생률비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">사건 수, 인년, 1,000인년당 발생률과 발생률비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
 
 def rate_table(c):
     t = c.groupby(&quot;arm&quot;).agg(n=(&quot;event&quot;, &quot;size&quot;),

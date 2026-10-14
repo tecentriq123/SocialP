@@ -1,0 +1,162 @@
+[
+ {
+  "n": 1,
+  "title": "lifelines 설치",
+  "out": ""
+ },
+ {
+  "n": 2,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas      3.0.5\nnumpy       2.5.3\nscipy       1.18.1\nmatplotlib  3.11.2\nstatsmodels 0.15.0\nlifelines   0.30.3\n"
+ },
+ {
+  "n": 3,
+  "title": "세 표 불러오기",
+  "out": "(10150, 6) (53895, 6) (111405, 4)\npid                 int64\nrx_date    datetime64[us]\ndrug                  str\ndays                int64\ndtype: object\n"
+ },
+ {
+  "n": 4,
+  "title": "표마다 앞의 세 줄 보기",
+  "out": "     pid sex  birth_year elig_start   elig_end death_date\n0  10001   F        1962 2015-01-01 2022-12-31        NaT\n1  10002   M        1933 2015-01-01 2022-12-31        NaT\n2  10003   F        1940 2015-01-01 2022-12-31        NaT\n     pid visit_date setting dx_main dx_sub1 dx_sub2\n0  19160 2015-01-01       O    I209    E119     NaN\n1  10019 2015-01-02       O     J00     NaN     NaN\n2  15868 2015-01-02       O    I251    E116     NaN\n     pid    rx_date       drug  days\n0  17780 2015-01-04  metformin    90\n1  16338 2015-01-10  metformin    60\n2  19326 2015-01-10  metformin    60\n"
+ },
+ {
+  "n": 5,
+  "title": "행의 단위 확인하기",
+  "out": "person: 10150 rows, 10150 people\nvisit : 53895 rows, 10150 people\nrx    : 111405 rows, 10150 people\n2015-01-01 2022-12-31\ncount    10150.0\nmean        11.0\nstd         12.9\nmin          1.0\n25%          2.0\n50%          4.0\n75%         15.0\nmax         76.0\ndtype: float64\ndrug\nDPP4i           86679\nSGLT2i          16588\nmetformin        6558\ninsulin           791\nstatin            454\nsulfonylurea      335\nName: count, dtype: int64\nsetting\nO    52618\nI     1277\nName: count, dtype: int64\n"
+ },
+ {
+  "n": 6,
+  "title": "한 사람의 기록을 세 표에서 따라가기",
+  "out": "        pid sex  birth_year elig_start   elig_end death_date\n1890  11891   F        1943 2015-01-01 2022-12-31        NaT\n          pid    rx_date       drug  days\n22622   11891 2018-02-17  metformin    60\n25144   11891 2018-05-18      DPP4i    90\n28278   11891 2018-08-28      DPP4i    90\n31409   11891 2018-11-27      DPP4i    90\n34774   11891 2019-02-26      DPP4i    90\n39885   11891 2019-07-02      DPP4i    90\n43900   11891 2019-09-30      DPP4i    90\n48294   11891 2020-01-02      DPP4i    90\n52800   11891 2020-04-03      DPP4i    90\n57857   11891 2020-07-09      DPP4i    90\n63653   11891 2020-10-24      DPP4i    90\n68918   11891 2021-01-24      DPP4i    90\n74531   11891 2021-04-29      DPP4i    90\n80032   11891 2021-07-29      DPP4i    90\n85782   11891 2021-10-29      DPP4i    90\n91918   11891 2022-02-03      DPP4i    90\n97736   11891 2022-05-08      DPP4i    90\n103181  11891 2022-08-08      DPP4i    90\n108431  11891 2022-11-08      DPP4i    90\n         pid visit_date setting dx_main dx_sub1 dx_sub2\n33     11891 2015-01-10       O    J304    E116     NaN\n25667  11891 2018-02-17       O    I200     I10     NaN\n26002  11891 2018-03-13       O    E118     NaN     NaN\n26417  11891 2018-04-13       O    E118     NaN     NaN\n26862  11891 2018-05-18       O    E116     I10     NaN\n28351  11891 2018-08-28       O    E119     I10     NaN\n32425  11891 2019-05-11       O    K297     NaN     NaN\n47485  11891 2021-08-22       I    I501    E116     I10\n47874  11891 2021-09-15       O    I509    E118     NaN\n53269  11891 2022-11-08       O    E114     I10    I251\n"
+ },
+ {
+  "n": 7,
+  "title": "등록 기간의 첫 처방일(index date) 찾기",
+  "out": "10150 -> 10000 people\n     pid index_date\n0  10001 2016-01-15\n1  10003 2016-01-25\n2  10004 2018-10-26"
+ },
+ {
+  "n": 8,
+  "title": "index date에 처방받은 계열과 동시 시작 여부",
+  "out": "77200 -> 10131 rows\narm\nDPP4i     8755\nSGLT2i    1245\nName: count, dtype: int64\nboth classes on index date: 131\n"
+ },
+ {
+  "n": 9,
+  "title": "세척 기간 365일의 처방으로 기존 사용자 찾기",
+  "out": "prevalent users: 4103\n        pid    rx_date    drug  days index_date  before\n2770  10111 2015-12-03   DPP4i    30 2016-01-10      38\n5182  10111 2016-01-10  SGLT2i    30 2016-01-10       0"
+ },
+ {
+  "n": 10,
+  "title": "자격 표를 붙여 index date의 나이 구하기",
+  "out": "count    10000.0\nmean        60.6\nstd         12.3\nmin         10.0\n25%         52.0\n50%         61.0\n75%         69.0\nmax         95.0\nName: age, dtype: float64\nage < 18: 14\n"
+ },
+ {
+  "n": 11,
+  "title": "기저 기간의 상병으로 말기신부전과 심부전 입원력 찾기",
+  "out": "esrd         194\nprior_hhf    234\ndtype: int64\n"
+ },
+ {
+  "n": 12,
+  "title": "선정 기준을 차례로 적용하며 인원 세기",
+  "out": "                             step excluded  remaining\n          Prescribed in 2016-2021               10000\nPrior use of either class (365 d)     4103       5897\n       Both classes on index date       90       5807\n                   Age < 18 years        9       5798\n         ESRD or dialysis (365 d)      110       5688\n       HF hospitalization (365 d)      136       5552\narm\nDPP4i     4524\nSGLT2i    1028\nName: count, dtype: int64\n"
+ },
+ {
+  "n": 13,
+  "title": "세척 기간을 180일로 줄이면",
+  "out": "                             step excluded  remaining\n          Prescribed in 2016-2021               10000\nPrior use of either class (365 d)     3785       6215\n       Both classes on index date       91       6124\n                   Age < 18 years       10       6114\n         ESRD or dialysis (365 d)      117       5997\n       HF hospitalization (365 d)      141       5856\narm\nDPP4i     4812\nSGLT2i    1044\nName: count, dtype: int64\ncount    318.0\nmean     280.0\nstd       47.0\nmin      190.0\n25%      242.0\n50%      284.0\n75%      320.0\nmax      360.0\nName: before, dtype: float64\n"
+ },
+ {
+  "n": 14,
+  "title": "처방 기록에서 약이 떨어지는 날과 공백 구하기",
+  "out": "         rx_date  days     runout   gap\n11319 2018-05-18    90 2018-08-16  12.0\n14119 2018-08-28    90 2018-11-26   1.0\n16890 2018-11-27    90 2019-02-25   1.0\n19915 2019-02-26    90 2019-05-27  36.0\n24520 2019-07-02    90 2019-09-30   0.0\n28177 2019-09-30    90 2019-12-29   4.0\n32162 2020-01-02    90 2020-04-01   2.0\n36280 2020-04-03    90 2020-07-02   7.0\n40871 2020-07-09    90 2020-10-07  17.0\n46200 2020-10-24    90 2021-01-22   2.0\n51052 2021-01-24    90 2021-04-24   5.0\n56347 2021-04-29    90 2021-07-28   1.0\n61654 2021-07-29    90 2021-10-27   2.0\n67251 2021-10-29    90 2022-01-27   7.0\n73238 2022-02-03    90 2022-05-04   4.0\n78943 2022-05-08    90 2022-08-06   2.0\n84283 2022-08-08    90 2022-11-06   2.0\n89444 2022-11-08    90 2023-02-06   NaN"
+ },
+ {
+  "n": 15,
+  "title": "유예기간으로 중단일 정하기",
+  "out": "grace 30 -> 2019-06-26\ngrace 60 -> 2023-04-07\ngrace 90 -> 2023-05-07\n"
+ },
+ {
+  "n": 16,
+  "title": "첫 365일의 PDC와 1년 지속 비율",
+  "out": "chapter example: PDC 0.863 = 315 / 365\nsmallest gap: 0 days\narm            DPP4i  SGLT2i\nPDC >= 0.8      73.2    70.6\n1 y, grace 30   68.9    66.0\n1 y, grace 60   78.1    77.0"
+ },
+ {
+  "n": 17,
+  "title": "비교약으로 바꾸거나 더한 날",
+  "out": "switched or added: 817\narm\nDPP4i     0.160\nSGLT2i    0.092\nName: switch_date, dtype: float64\n"
+ },
+ {
+  "n": 18,
+  "title": "결과: 주상병이 심부전인 입원의 첫 날짜",
+  "out": "primary, inpatient : 287 claims, 221 people\nany position, inpt : 321 people\nany claim with I50 : 653 people\n"
+ },
+ {
+  "n": 19,
+  "title": "정의의 양성예측도와 신뢰구간",
+  "out": "HHF definition: 171/200 = 85.5% (95% CI 80.0-89.7)\ndiabetes definition B: 1391/1438 = 96.7% (95% CI 95.7-97.5)\n"
+ },
+ {
+  "n": 20,
+  "title": "기저 기간의 상병과 처방으로 공변량 만들기",
+  "out": "     pid     arm index_date  age  female  htn  ihd  hf  ckd  met  ins\n5  10007  SGLT2i 2020-05-26   61       0    1    0   1    0    1    0\n6  10008   DPP4i 2020-08-30   79       0    1    1   1    0    0    0\n7  10009   DPP4i 2018-09-19   57       1    1    0   0    0    1    0"
+ },
+ {
+  "n": 21,
+  "title": "추적 종료일, 추적 일수, 사건 여부",
+  "out": "     index_date   end_date  time  event\n1858 2018-05-18 2021-08-22  1192      1\narm          DPP4i  SGLT2i   All\nreason                          \ndeath_date     105      10   115\nhhf_date       128      11   139\nstop_date     2190     503  2693\nstudy_end     1658     446  2104\nswitch_date    443      58   501\nAll           4524    1028  5552"
+ },
+ {
+  "n": 22,
+  "title": "사건 수, 인년, 1,000인년당 발생률과 발생률비",
+  "out": "           n  events       py   rate     lo     hi\narm                                               \nDPP4i   4524     128  9882.12  12.95  10.81  15.40\nSGLT2i  1028      11  1986.20   5.54   2.76   9.91\nIRR 0.43 (0.23-0.79)\n"
+ },
+ {
+  "n": 23,
+  "title": "사건 비율로 비교하면",
+  "out": "ratio of event shares: 0.38\nrate ratio           : 0.43\n        events %  mean FU (y)   rate\narm                                 \nDPP4i       2.83         2.18  12.95\nSGLT2i      1.07         1.93   5.54"
+ },
+ {
+  "n": 24,
+  "title": "기저 특성 표",
+  "out": "arm      DPP4i  SGLT2i\nage       61.0    57.0\nfemale    45.0    41.3\nhtn       63.6    59.8\nihd       11.8    13.2\nhf         5.9     4.4\nckd        6.8     3.2\nmet       78.8    86.3\nins        8.8     6.3\nage SD    12.5    10.9\nn       4524.0  1028.0"
+ },
+ {
+  "n": 25,
+  "title": "Kaplan-Meier 누적발생 곡선",
+  "out": ""
+ },
+ {
+  "n": 26,
+  "title": "보정 전과 보정 후의 Cox 위험비",
+  "out": "crude HR    0.42 (0.23-0.77)\nadjusted HR 0.61 (0.32-1.13)\n"
+ },
+ {
+  "n": 27,
+  "title": "사이트의 분석용 코호트 파일과 대조하기",
+  "out": "5552 5552\nTrue\n"
+ },
+ {
+  "n": 28,
+  "title": "전체 코호트 166,548명으로 같은 분석 하기",
+  "out": "                       sample (n = 5,552)   full (n = 166,548)\nSGLT2i events / PY              11 / 1986          320 / 57781\nSGLT2i rate (95% CI)     5.54 (2.76-9.91)     5.54 (4.95-6.18)\nDPP4i events / PY              128 / 9882        3828 / 295495\nDPP4i rate (95% CI)   12.95 (10.81-15.40)  12.95 (12.55-13.37)\nIRR (95% CI)             0.43 (0.23-0.79)     0.43 (0.38-0.48)\ncrude HR (95% CI)        0.42 (0.23-0.77)     0.42 (0.38-0.47)\nadjusted HR (95% CI)     0.61 (0.32-1.13)     0.61 (0.54-0.68)"
+ },
+ {
+  "n": 29,
+  "title": "전체 코호트의 사건 비율과 중앙 추적기간",
+  "out": "ratio of event shares: 0.37\nrate ratio           : 0.43\n        events %  mean FU (y)   rate\narm                                 \nDPP4i       2.82         2.18  12.95\nSGLT2i      1.04         1.87   5.54\nmedian follow-up (reverse KM, years)\n  as-treated : 1.80   simple median 1.75\n  ITT        : 3.50   simple median 3.39\n  sample, as-treated : 1.81\n"
+ },
+ {
+  "n": 30,
+  "title": "과제 1 정답. ITT 방식의 추적과 해석",
+  "out": "           n  events        py   rate     lo     hi\narm                                                \nDPP4i   4524     202  16579.83  12.18  10.56  13.98\nSGLT2i  1028      19   3016.60   6.30   3.79   9.84\nIRR 0.52 (0.32-0.83)\ncrude HR    0.51 (0.32-0.81)\nadjusted HR 0.73 (0.45-1.17)\narm\nDPP4i     11.05\nSGLT2i     7.76\ndtype: float64\n                       sample (n = 5,552)   full (n = 166,548)\nSGLT2i events / PY              19 / 3017          582 / 92403\nSGLT2i rate (95% CI)     6.30 (3.79-9.84)     6.30 (5.80-6.83)\nDPP4i events / PY             202 / 16580        6058 / 497187\nDPP4i rate (95% CI)   12.18 (10.56-13.98)  12.18 (11.88-12.50)\nIRR (95% CI)             0.52 (0.32-0.83)     0.52 (0.47-0.56)\ncrude HR (95% CI)        0.51 (0.32-0.81)     0.51 (0.47-0.55)\nadjusted HR (95% CI)     0.73 (0.45-1.17)     0.73 (0.67-0.79)"
+ },
+ {
+  "n": 31,
+  "title": "과제 2 정답. 유예기간 30일, 60일, 90일",
+  "out": "grace 30: 2019-06-26, day 404, event 0\ngrace 60: 2021-08-22, day 1192, event 1\ngrace 90: 2021-08-22, day 1192, event 1\n      events S / D    rate S / D   IRR       adjusted HR\ngrace                                                   \n30         9 / 107  5.46 / 13.15  0.41  0.60 (0.30-1.20)\n60        11 / 128  5.54 / 12.95  0.43  0.61 (0.32-1.13)\n90        12 / 140  5.50 / 12.81  0.43  0.61 (0.33-1.11)"
+ },
+ {
+  "n": 32,
+  "title": "과제 3 정답. 자료 기간 전체로 만든 동반질환",
+  "out": "hf = 1, 365 days        : 311\nhf = 1, all before index: 382\nhf = 1, whole period    : 823\nevents with hf = 1 in c_any: 1.0\n365 days         HR 0.61 (0.32-1.13)\nall before index HR 0.61 (0.32-1.14)\nwhole period     HR 0.71 (0.38-1.33)\n"
+ }
+]

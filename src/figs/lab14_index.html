@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">등록 기간의 첫 처방일(index date) 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">study = rx[rx[&quot;drug&quot;].isin([&quot;SGLT2i&quot;, &quot;DPP4i&quot;])]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">등록 기간의 첫 처방일(index date) 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">study = rx[rx[&quot;drug&quot;].isin([&quot;SGLT2i&quot;, &quot;DPP4i&quot;])]
 enroll = study[(study[&quot;rx_date&quot;] &gt;= &quot;2016-01-01&quot;)
                &amp; (study[&quot;rx_date&quot;] &lt;= &quot;2021-12-31&quot;)]
 index = enroll.groupby(&quot;pid&quot;)[&quot;rx_date&quot;].min()

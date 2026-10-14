@@ -80,7 +80,7 @@ p1.text((rr["rr"] + rr["hi"]) / 2, 0.82, f"{rr['dhi']:.2f}", anchor="middle", dy
 p1.text(rr["lo"], 0.45, f"{rr['lo']:.2f}", anchor="end", dx=-6, dy=4, cls="lbl small")
 p1.text(rr["hi"], 0.45, f"{rr['hi']:.2f}", anchor="start", dx=6, dy=4, cls="lbl small")
 p1.text(rr["rr"], 0.45, f"{rr['rr']:.2f}", anchor="middle", dy=22, cls="lbl strong")
-panel_title(p1, "가. 일반 눈금: 점추정값 양쪽 길이가 다름")
+panel_title(p1, "a. 일반 눈금: 점추정값 양쪽 길이가 다름")
 lx = [0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 1.2]
 p2 = Plot((L(0.4), L(1.3)), (0, 1), w=420, h=170, ml=20, mr=20, mt=30, mb=46, show_yaxis=False, ygrid=False,
           xticks=[L(v) for v in lx], xtickfmt=lambda v: fmt(round(math.exp(v), 2)), xlabel="상대위험도 (로그 눈금)")
@@ -93,10 +93,10 @@ d_ = Z_ = 1.959963984540054 * rr["se"]
 p2.text((L(rr["lo"]) + L(rr["rr"])) / 2, 0.75, f"{d_:.3f}", anchor="middle", dy=-5, cls="lbl small")
 p2.text((L(rr["rr"]) + L(rr["hi"])) / 2, 0.82, f"{d_:.3f}", anchor="middle", dy=-5, cls="lbl small")
 p2.text(L(rr["rr"]), 0.45, f"ln {rr['rr']:.2f} = −{abs(rr['ln']):.3f}", anchor="middle", dy=22, cls="lbl strong")
-panel_title(p2, "나. 로그 눈금: 양쪽 길이가 같음 (1.96 × SE)")
+panel_title(p2, "b. 로그 눈금: 양쪽 길이가 같음 (1.96 × SE)")
 save("ch08_logci", figure([p1.svg("일반 눈금의 상대위험도 신뢰구간"), p2.svg("로그 눈금의 상대위험도 신뢰구간")],
      f"그림 8-2. 5장 약물 A·B 자료의 상대위험도 {rr['rr']:.2f}(95% CI {rr['lo']:.2f}–{rr['hi']:.2f})를 두 눈금에 그렸습니다. "
-     "가의 일반 눈금에서는 점추정값 양쪽 팔의 길이가 다르고, 나의 로그 눈금에서는 같습니다. "
+     "a의 일반 눈금에서는 점추정값 양쪽 팔의 길이가 다르고, b의 로그 눈금에서는 같습니다. "
      "비(ratio)를 그리는 포레스트 플롯이 로그 눈금을 쓰는 이유입니다.", cols=2))
 
 # ------------------------------------------------------------------ 8-3 CI vs clinically important difference
@@ -142,7 +142,7 @@ pA.points([0.24], [o24], s=2, r=4.5)
 pA.text(0.49, RRc, f"상대위험도 {RRc} (고정)", anchor="end", dy=-8, cls="lbl strong")
 pA.text(0.24, o24, f"p₀ 24%: OR {o24:.2f}", anchor="end", dx=-6, dy=20, cls="lbl strong")
 pA.text(0.46, orv[-20], "오즈비", anchor="end", dy=16, cls="lbl")
-panel_title(pA, "가. 오즈비는 p₀가 클수록 1에서 멀어짐")
+panel_title(pA, "a. 오즈비는 p₀가 클수록 1에서 멀어짐")
 nnt = 1 / (x * (1 - RRc))
 pB = Plot((0, 0.5), (L(4), L(300)), w=420, h=300, ml=54, mr=16, xlabel="대조군의 위험 (p₀)", ylabel="치료필요수 NNT (로그 눈금)",
           xticks=[0, 0.1, 0.2, 0.3, 0.4, 0.5], xtickfmt=lambda v: pct(v), yticks=[L(v) for v in (5, 10, 20, 50, 100, 200)],
@@ -155,11 +155,11 @@ for p0v, dy_, dx_, an in ((0.024, -2, 10, "start"), (0.10, -8, 8, "start"), (0.2
     pB.text(p0v, L(nv), f"p₀ {p0v * 100:g}%: ARR {p0v * (1 - RRc) * 100:.1f}%p", anchor=an, dx=dx_, dy=dy_,
             cls="lbl strong" if p0v != 0.10 else "lbl")
     pB.text(p0v, L(nv), f"NNT {nv:.0f}", anchor=an, dx=dx_, dy=dy_ + 15, cls="lbl strong" if p0v != 0.10 else "lbl")
-panel_title(pB, "나. 같은 RR 0.625에서 NNT")
+panel_title(pB, "b. 같은 RR 0.625에서 NNT")
 save("ch08_baseline", figure([pA.svg("대조군 위험에 따른 오즈비"), pB.svg("대조군 위험에 따른 NNT")],
      "그림 8-4. 상대위험도를 0.625(상대위험 감소 37.5%)로 고정하고 대조군의 위험 p₀만 바꿨습니다. "
-     "가: 사건이 흔할수록 같은 효과를 오즈비로 나타내면 1에서 더 멀어집니다(과장되어 보입니다). "
-     "나: 상대적 효과가 같아도 기저위험이 낮으면 위험차(그림 속 ARR, 절대위험 감소)가 작아져 NNT가 커집니다. 기저위험 2.4%에서는 111명을 치료해야 1명의 재입원을 막습니다.",
+     "a: 사건이 흔할수록 같은 효과를 오즈비로 나타내면 1에서 더 멀어집니다(과장되어 보입니다). "
+     "b: 상대적 효과가 같아도 기저위험이 낮으면 위험차(그림 속 ARR, 절대위험 감소)가 작아져 NNT가 커집니다. 기저위험 2.4%에서는 111명을 치료해야 1명의 재입원을 막습니다.",
      cols=2))
 
 # ------------------------------------------------------------------ 8-5 exponential function and the two scales
@@ -177,7 +177,7 @@ for bv, lab, dx_, dy_ in ((-1.386, "0.25", 4, -10), (-0.693, "0.5", 0, -12), (0,
     pE.text(bv, math.exp(bv), lab, anchor="end", dx=dx_, dy=dy_, cls="lbl strong")
 pE.text(0.35, 3.3, "β에 0.693을 더할 때마다", anchor="middle", cls="lbl small")
 pE.text(0.35, 3.3, "e^β는 2배", anchor="middle", dy=16, cls="lbl small")
-panel_title(pE, "가. e^β 곡선")
+panel_title(pE, "a. e^β 곡선")
 # panel B: two number lines
 pN = Plot((-1.8, 4.6), (0, 1), w=420, h=320, ml=16, mr=16, mt=26, mb=30, show_yaxis=False, ygrid=False, show_xaxis=False)
 yb, yr = 0.80, 0.34
@@ -197,10 +197,10 @@ pN.text(-1.8, yb, "로그 척도 (β, ln OR)", anchor="start", dy=-32, cls="lbl 
 pN.text(-1.8, yr, "비 척도 (e^β, OR)", anchor="start", dy=58, cls="lbl strong")
 pN.text(rmap(0.5), 0.02, "1 아래: 0~1 사이에 압축", anchor="start", cls="lbl mute small")
 pN.text(rmap(2.4), 0.02, "1 위: 1~∞로 펼쳐짐", anchor="start", cls="lbl mute small")
-panel_title(pN, "나. 로그 척도의 등간격 = 비 척도의 같은 배수")
+panel_title(pN, "b. 로그 척도의 등간격 = 비 척도의 같은 배수")
 save("ch08_exp", figure([pE.svg("지수함수 곡선"), pN.svg("로그 척도와 비 척도의 대응")],
-     "그림 8-5. 회귀계수 β는 로그 척도에 있고, e^β로 바꾸면 비(ratio)가 됩니다. 가에서는 β가 0.693씩 커질 때마다 곡선의 높이가 두 배가 되는 것을 봅니다. "
-     "나에서는 위 줄(로그 척도)의 같은 간격이 아래 줄(비 척도)에서 1 아래로는 좁게, 1 위로는 넓게 대응하는 것을 봅니다.", cols=2))
+     "그림 8-5. 회귀계수 β는 로그 척도에 있고, e^β로 바꾸면 비(ratio)가 됩니다. a에서는 β가 0.693씩 커질 때마다 곡선의 높이가 두 배가 되는 것을 봅니다. "
+     "b에서는 위 줄(로그 척도)의 같은 간격이 아래 줄(비 척도)에서 1 아래로는 좁게, 1 위로는 넓게 대응하는 것을 봅니다.", cols=2))
 
 # ------------------------------------------------------------------ 8-6 link functions
 eta = np.linspace(-6, 6, 300)
@@ -211,7 +211,7 @@ pl.line(eta, 1 / (1 + np.exp(-eta)), s=1, w=2.6)
 pl.points([0], [0.5], s=2, r=4.5)
 pl.text(0, 0.5, "η = 0 → μ = 0.5", anchor="start", dx=10, dy=4, cls="lbl strong")
 pl.text(-5.8, 1.0, "μ는 항상 0과 1 사이", anchor="start", dy=-8, cls="lbl mute small")
-panel_title(pl, "가. 로짓 연결: μ = 1 / (1 + e^(−η))")
+panel_title(pl, "a. 로짓 연결: μ = 1 / (1 + e^(−η))")
 eta2 = np.linspace(-4, 1.2, 300)
 pg = Plot((-4, 1.2), (-0.05, 3.4), w=420, h=300, ml=50, mr=16, xlabel="선형예측값 η", ylabel="평균 μ",
           xticks=[-4, -3, -2, -1, 0, 1], yticks=[0, 0.5, 1, 1.5, 2, 2.5, 3])
@@ -222,10 +222,10 @@ pg.points([0], [1], s=2, r=4.5)
 pg.text(-3.9, 2.9, "μ > 1: 확률로는 불가능한 영역", anchor="start", cls="lbl small")
 pg.text(-3.9, 2.9, "(발생률·비용에는 문제 없음)", anchor="start", dy=16, cls="lbl mute small")
 pg.text(0, 1, "η = 0 → μ = 1", anchor="end", dx=-10, dy=-8, cls="lbl strong")
-panel_title(pg, "나. 로그 연결: μ = e^η")
+panel_title(pg, "b. 로그 연결: μ = e^η")
 save("ch08_links", figure([pl.svg("로짓 연결함수"), pg.svg("로그 연결함수")],
-     "그림 8-6. 연결함수를 거꾸로 따라가면 −∞~∞ 범위의 선형예측값 η가 결과변수 평균 μ의 범위로 옮겨집니다. 가: 로짓 연결에서는 어떤 η든 0과 1 사이의 확률로 바뀝니다. "
-     "나: 로그 연결은 0보다 큰 값을 만들지만 상한이 없어, 이분형 결과에 쓰면(로그-이항 모형) η가 0을 넘는 순간 확률이 1을 넘게 되어 추정이 수렴하지 않기도 합니다."
+     "그림 8-6. 연결함수를 거꾸로 따라가면 −∞~∞ 범위의 선형예측값 η가 결과변수 평균 μ의 범위로 옮겨집니다. a: 로짓 연결에서는 어떤 η든 0과 1 사이의 확률로 바뀝니다. "
+     "b: 로그 연결은 0보다 큰 값을 만들지만 상한이 없어, 이분형 결과에 쓰면(로그-이항 모형) η가 0을 넘는 순간 확률이 1을 넘게 되어 추정이 수렴하지 않기도 합니다."
      , cols=2))
 
 # ------------------------------------------------------------------ 8-7 likelihood for 7/50
@@ -246,7 +246,7 @@ for q, lab in ((0.05, "p = 0.05: 0.054"), (0.30, "p = 0.30: 0.030")):
 pa.text(0.05, 0.054, "0.05에서 0.054", anchor="start", dx=-4, dy=-12, cls="lbl small")
 pa.text(0.30, 0.03, "0.30에서 0.030", anchor="start", dx=2, dy=-12, cls="lbl small")
 halo(pa, 0.155, 0.35, f"95% 구간 {lk['lr_lo']:.3f}–{lk['lr_hi']:.3f}", anchor="middle", cls="lbl small", fs=11.5)
-panel_title(pa, "가. 우도 (최댓값을 1로)")
+panel_title(pa, "a. 우도 (최댓값을 1로)")
 pb = Plot((0, 0.4), (-6, 0.6), w=420, h=300, ml=50, mr=16, xlabel="이상반응 발생 확률 p", ylabel="로그우도 ln L(p) − ln L(0.14)",
           xticks=[0, 0.1, 0.2, 0.3, 0.4], xtickfmt=lambda v: fmt(round(v, 2)), yticks=[-6, -5, -4, -3, -2, -1, 0])
 mk_ = (llv - lk["llmax"]) >= -6
@@ -258,10 +258,10 @@ pb.points([lk["lr_lo"], lk["lr_hi"]], [-lk["drop"]] * 2, s=2, r=4)
 pb.text(0.395, -lk["drop"], "최댓값보다 1.92 낮은 선", anchor="end", dy=20, cls="lbl small")
 pb.text(lk["lr_lo"], -5.2, f"{lk['lr_lo']:.3f}", anchor="end", dx=-4, cls="lbl strong")
 pb.text(lk["lr_hi"], -5.2, f"{lk['lr_hi']:.3f}", anchor="start", dx=4, cls="lbl strong")
-panel_title(pb, "나. 로그우도와 우도비 신뢰구간")
+panel_title(pb, "b. 로그우도와 우도비 신뢰구간")
 save("ch08_lik", figure([pa.svg("우도 곡선"), pb.svg("로그우도 곡선")],
-     f"그림 8-7. 환자 50명 중 7명에게 이상반응이 생겼을 때 발생 확률 p의 우도. 가: 곡선의 꼭대기와, 그 높이에 견준 p = 0.05와 0.30에서의 높이를 봅니다. "
-     f"나: 로그우도가 최댓값보다 1.92(= χ²₁ 임계값 3.84 ÷ 2) 이상 떨어지지 않는 범위가 95% 우도비 신뢰구간({lk['lr_lo']:.3f}–{lk['lr_hi']:.3f})입니다. "
+     f"그림 8-7. 환자 50명 중 7명에게 이상반응이 생겼을 때 발생 확률 p의 우도. a: 곡선의 꼭대기와, 그 높이에 견준 p = 0.05와 0.30에서의 높이를 봅니다. "
+     f"b: 로그우도가 최댓값보다 1.92(= χ²₁ 임계값 3.84 ÷ 2) 이상 떨어지지 않는 범위가 95% 우도비 신뢰구간({lk['lr_lo']:.3f}–{lk['lr_hi']:.3f})입니다. "
      "곡선이 비대칭이라 구간도 0.14를 중심으로 비대칭입니다.", cols=2))
 
 # ------------------------------------------------------------------ 8-8 Wald / LR / score
@@ -351,7 +351,7 @@ Y = node(c1, 260, 150, "입원")
 arrow(c1, C, E, cls="s2"); arrow(c1, C, Y, cls="s2"); arrow(c1, E, Y, cls="s1", dash=True)
 c1.text_px(165, 200, "E ← C → Y: 뒷문 경로", anchor="middle", cls="lbl small")
 c1.text_px(165, 218, "C를 보정해 경로를 막음", anchor="middle", cls="lbl strong")
-c1.text_px(10, 18, "가. 교란변수", cls="ptitle")
+c1.text_px(10, 18, "a. 교란변수", cls="ptitle")
 c2 = canvas(W, H)
 E2 = node(c2, 60, 110, "스타틴")
 M2 = node(c2, 165, 50, "LDL 감소", cls="s3")
@@ -359,7 +359,7 @@ Y2 = node(c2, 275, 110, "심근경색")
 arrow(c2, E2, M2, cls="s3"); arrow(c2, M2, Y2, cls="s3"); arrow(c2, E2, Y2, cls="s1", dash=True)
 c2.text_px(165, 200, "E → M → Y: 효과가 지나가는 길", anchor="middle", cls="lbl small")
 c2.text_px(165, 218, "총효과를 보려면 M을 보정하지 않음", anchor="middle", cls="lbl strong")
-c2.text_px(10, 18, "나. 매개변수", cls="ptitle")
+c2.text_px(10, 18, "b. 매개변수", cls="ptitle")
 c3 = canvas(W, H)
 E3 = node(c3, 70, 60, "약물 A 사용")
 Y3 = node(c3, 260, 60, "질환 X")
@@ -367,10 +367,10 @@ H3 = node(c3, 165, 150, "입원", cls="s2", dash=True)
 arrow(c3, E3, H3, cls="s4"); arrow(c3, Y3, H3, cls="s4")
 c3.text_px(165, 200, "E → H ← Y: 원래 막혀 있는 경로", anchor="middle", cls="lbl small")
 c3.text_px(165, 218, "H로 보정·제한하면 경로가 열림", anchor="middle", cls="lbl strong")
-c3.text_px(10, 18, "다. 충돌변수", cls="ptitle")
+c3.text_px(10, 18, "c. 충돌변수", cls="ptitle")
 save("ch08_dag", figure([c1.svg("교란변수 DAG"), c2.svg("매개변수 DAG"), c3.svg("충돌변수 DAG")],
-     "그림 8-10. 인과 도표(DAG)로 본 세 가지 변수. 화살표는 '원인 → 결과'입니다. 가운데 변수에서 두 화살표가 나가는지(가), "
-     "노출에서 들어와 결과로 나가는지(나), 두 화살표가 들어오는지(다)를 봅니다. 이 차이가 그 변수를 보정할지 말지를 정합니다.", cols=3))
+     "그림 8-10. 인과 도표(DAG)로 본 세 가지 변수. 화살표는 '원인 → 결과'입니다. 가운데 변수에서 두 화살표가 나가는지(a), "
+     "노출에서 들어와 결과로 나가는지(b), 두 화살표가 들어오는지(c)를 봅니다. 이 차이가 그 변수를 보정할지 말지를 정합니다.", cols=3))
 
 # ------------------------------------------------------------------ 8-10 Simpson-type reversal
 cf = R["conf"]
@@ -416,10 +416,10 @@ def scale_panel(logy):
     return pp
 
 
-pl_ = scale_panel(False); panel_title(pl_, "가. 위험차: 층마다 다름 (−8 vs −2%p)")
-pg_ = scale_panel(True); panel_title(pg_, "나. 상대위험도: 층마다 같음 (0.80)")
+pl_ = scale_panel(False); panel_title(pl_, "a. 위험차: 층마다 다름 (−8 vs −2%p)")
+pg_ = scale_panel(True); panel_title(pg_, "b. 상대위험도: 층마다 같음 (0.80)")
 save("ch08_scale", figure([pl_.svg("일반 눈금의 위험"), pg_.svg("로그 눈금의 위험")],
-     "그림 8-11. 그림 8-9의 층별 위험을 두 척도로 그렸습니다. 로그 눈금(나)에서는 두 선이 평행하고, 일반 눈금(가)에서는 기울기가 다릅니다. "
+     "그림 8-11. 그림 8-9의 층별 위험을 두 척도로 그렸습니다. 로그 눈금(b)에서는 두 선이 평행하고, 일반 눈금(a)에서는 기울기가 다릅니다. "
      "같은 자료라도 '교호작용이 있다/없다'는 어느 척도에서 본 것인지와 함께 말해야 합니다.", cols=2))
 
 

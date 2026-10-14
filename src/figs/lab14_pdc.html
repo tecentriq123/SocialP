@@ -1,0 +1,51 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">첫 365일의 PDC와 1년 지속 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def pdc_365(fills):
+    &quot;&quot;&quot;첫 365일 가운데 약이 있던 날의 비율 (처방이 겹치지 않을 때)&quot;&quot;&quot;
+    win_end = fills[&quot;index_date&quot;] + pd.Timedelta(days=365)
+    days = (fills[&quot;runout&quot;].clip(upper=win_end)
+            - fills[&quot;rx_date&quot;]).dt.days.clip(lower=0)
+    return days.groupby(fills[&quot;pid&quot;]).sum() / 365
+
+ex = pd.DataFrame({&quot;pid&quot;: 0, &quot;days&quot;: [30, 30, 30, 90, 90, 90],
+                   &quot;rx_date&quot;: pd.to_datetime(
+                       [&quot;2021-03-02&quot;, &quot;2021-04-01&quot;, &quot;2021-05-06&quot;,
+                        &quot;2021-06-05&quot;, &quot;2021-10-18&quot;, &quot;2022-01-16&quot;])})
+ex[&quot;index_date&quot;] = ex[&quot;rx_date&quot;].min()
+ex[&quot;runout&quot;] = ex[&quot;rx_date&quot;] + pd.to_timedelta(ex[&quot;days&quot;], unit=&quot;D&quot;)
+pdc_ex = pdc_365(ex).iloc[0]
+print(f&quot;chapter example: PDC {pdc_ex:.3f} = {pdc_ex * 365:.0f} / 365&quot;)
+print(&quot;smallest gap:&quot;, int(own[&quot;gap&quot;].min()), &quot;days&quot;)
+
+cohort[&quot;pdc&quot;] = cohort[&quot;pid&quot;].map(pdc_365(own))
+adh = pd.DataFrame({&quot;PDC &gt;= 0.8&quot;:
+                    (cohort[&quot;pdc&quot;] &gt;= 0.8).groupby(cohort[&quot;arm&quot;]).mean()})
+for grace in [30, 60]:
+    stop = cohort[&quot;pid&quot;].map(stop_date(own, grace))
+    on_drug = (stop - cohort[&quot;index_date&quot;]).dt.days &gt; 365
+    adh[f&quot;1 y, grace {grace}&quot;] = on_drug.groupby(cohort[&quot;arm&quot;]).mean()
+(100 * adh).T.round(1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>chapter example: PDC 0.863 = 315 / 365<span class="mk">1</span>
+smallest gap: 0 days<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>arm</th>
+      <th>DPP4i</th>
+      <th>SGLT2i</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>PDC &gt;= 0.8</th>
+      <td>73.2<span class="mk">4</span></td>
+      <td>70.6<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>1 y, grace 30</th>
+      <td>68.9</td>
+      <td>66.0<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>1 y, grace 60</th>
+      <td>78.1</td>
+      <td>77.0<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -146,7 +146,7 @@ p1.text(dobs, 0.312, f"관측된 차이 {m(dobs)}", anchor="start", dx=6, dy=5, 
 p1.text(3.2, 0.21, "차이 = 0일 때의 분포", anchor="start", cls="lbl small mute")
 p1.text(3.2, 0.21, "(우월성 검정의 H₀)", anchor="start", dy=15, cls="lbl small mute")
 p1.text(-2.55, 0.045, "기각역 2.5%", anchor="end", dx=-4, cls="lbl small")
-panel_title(p1, "가. 비열등성 검정: 귀무가설을 −5로 옮겨 놓고 검정")
+panel_title(p1, "a. 비열등성 검정: 귀무가설을 −5로 옮겨 놓고 검정")
 
 p2 = Plot((-11, 6), (0.3, 2.7), w=640, h=170, ml=58, mr=24, mt=30, mb=46, show_yaxis=False, ygrid=False,
           xlabel="평균 PDC 차이 (원격 − 대면, %p)와 95% 신뢰구간", xticks=[-10, -5, 0, 5],
@@ -161,9 +161,9 @@ for i, lab in enumerate(("ITT", "PP")):
     p2.text_px(10, p2.sy(y) + 5, lab, cls="lbl strong")
     p2.text(q["hi"], y, f"{m(q['d'])} ({m(q['lo'], 2)} ~ {m(q['hi'], 2)})", dx=10, dy=5, cls="lbl small")
 p2.text(-8, 2.7, "열등 영역", anchor="middle", dy=14, cls="lbl small")
-panel_title(p2, "나. 같은 결론을 신뢰구간으로: 하한이 −5보다 오른쪽")
+panel_title(p2, "b. 같은 결론을 신뢰구간으로: 하한이 −5보다 오른쪽")
 save("ch13_pdc", figure([p1.svg("비열등성 검정의 귀무가설 분포와 기각역"), p2.svg("평균 차이의 95% 신뢰구간과 비열등성 한계")],
-     f"그림 13-4. 원격 복약상담 시험(군당 304명, 차이의 표준오차 {se:.2f}). 가: 주황 분포는 실제 차이가 한계 −5%p일 때, 회색 분포는 실제 차이가 0일 때 관측 차이가 흩어지는 모양입니다. '관측된 차이'라고 적힌 세로선이 주황 분포의 오른쪽 2.5% 기각역(색칠한 부분) 안에 드는지, 회색 분포에서는 어디쯤 놓이는지 견주어 봅니다. 나: 같은 판단을 신뢰구간으로 한 것으로, ITT와 PP 막대의 왼쪽 끝이 −5의 오른쪽에 있는지 봅니다."))
+     f"그림 13-4. 원격 복약상담 시험(군당 304명, 차이의 표준오차 {se:.2f}). a: 주황 분포는 실제 차이가 한계 −5%p일 때, 회색 분포는 실제 차이가 0일 때 관측 차이가 흩어지는 모양입니다. '관측된 차이'라고 적힌 세로선이 주황 분포의 오른쪽 2.5% 기각역(색칠한 부분) 안에 드는지, 회색 분포에서는 어디쯤 놓이는지 견주어 봅니다. b: 같은 판단을 신뢰구간으로 한 것으로, ITT와 PP 막대의 왼쪽 끝이 −5의 오른쪽에 있는지 봅니다."))
 
 # ------------------------------------------------------------------ 13-5 HbA1c direction
 panels = []
@@ -190,16 +190,16 @@ for flip in (False, True):
         pp.text(-0.4, 0.3, "한계 −0.4", anchor="end", dx=-4, dy=-4, cls="lbl small mute")
         pp.text_px(pp.sx(0) - 6, 213, "← 대조약이 더 낮춤", anchor="end", cls="lbl small mute")
         pp.text_px(pp.sx(0) + 6, 213, "신약이 더 낮춤 →", anchor="start", cls="lbl small mute")
-        panel_title(pp, "나. 대조약 − 신약: 하한을 −0.4와 비교")
+        panel_title(pp, "b. 대조약 − 신약: 하한을 −0.4와 비교")
     else:
         pp.text(0.55, 2.8, "열등 영역", anchor="middle", dy=14, cls="lbl small")
         pp.text(0.4, 0.3, "한계 +0.4", anchor="start", dx=4, dy=-4, cls="lbl small mute")
         pp.text_px(pp.sx(0) - 6, 213, "← 신약이 더 낮춤", anchor="end", cls="lbl small mute")
         pp.text_px(pp.sx(0) + 6, 213, "대조약이 더 낮춤 →", anchor="start", cls="lbl small mute")
-        panel_title(pp, "가. 신약 − 대조약: 상한을 +0.4와 비교")
+        panel_title(pp, "a. 신약 − 대조약: 상한을 +0.4와 비교")
     panels.append(pp.svg("HbA1c 변화량 차이의 95% 신뢰구간과 비열등성 한계"))
 save("ch13_hba1c", figure(panels,
-     "그림 13-5. 같은 HbA1c 시험 결과를 두 방향으로 그린 그림. HbA1c는 낮을수록 좋으므로, 가(신약 − 대조약)에서는 신뢰구간의 <b>상한</b>이 +0.4보다 작아야 하고, 나(대조약 − 신약)에서는 <b>하한</b>이 −0.4보다 커야 합니다. 두 그림은 좌우가 뒤집혔을 뿐 결론은 같습니다. 논문의 그림을 볼 때는 먼저 가로축이 어느 쪽에서 어느 쪽을 뺀 값인지, 열등 영역이 어느 쪽인지 확인하세요.", cols=2))
+     "그림 13-5. 같은 HbA1c 시험 결과를 두 방향으로 그린 그림. HbA1c는 낮을수록 좋으므로, a(신약 − 대조약)에서는 신뢰구간의 <b>상한</b>이 +0.4보다 작아야 하고, b(대조약 − 신약)에서는 <b>하한</b>이 −0.4보다 커야 합니다. 두 그림은 좌우가 뒤집혔을 뿐 결론은 같습니다. 논문의 그림을 볼 때는 먼저 가로축이 어느 쪽에서 어느 쪽을 뺀 값인지, 열등 영역이 어느 쪽인지 확인하세요.", cols=2))
 
 # ------------------------------------------------------------------ 13-6 Wald vs Newcombe
 W, H = 660, 350

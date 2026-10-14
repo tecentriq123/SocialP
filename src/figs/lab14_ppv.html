@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">정의의 양성예측도와 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.proportion import proportion_confint
+
+for name, k, n in [(&quot;HHF definition&quot;, 171, 200),
+                   (&quot;diabetes definition B&quot;, 1391, 1438)]:
+    lo, hi = proportion_confint(k, n, method=&quot;wilson&quot;)
+    print(f&quot;{name}: {k}/{n} = {100 * k / n:.1f}%&quot;
+          f&quot; (95% CI {100 * lo:.1f}-{100 * hi:.1f})&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>HHF definition: 171/200 = 85.5% (95% CI 80.0-89.7)<span class="mk">1</span>
+diabetes definition B: 1391/1438 = 96.7% (95% CI 95.7-97.5)<span class="mk">2</span></pre></div></div>

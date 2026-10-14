@@ -29,7 +29,7 @@ b = d[d.A == 0]
 gB = N["grp"]["B"]
 assert abs(b.cost.mean() - gB["mean"]) < 1e-6 and len(b) == gB["n"]
 panels = []
-# (가) 1년 총 의료비
+# (a) 1년 총 의료비
 edges = np.arange(0, 8250, 250)
 y = b.cost.values
 cnt, _ = np.histogram(np.clip(y, 0, edges[-1] - 1e-6), bins=edges)
@@ -48,9 +48,9 @@ p.text(gB["mean"], YM * 0.95, f"평균 {c0(gB['mean'])}", anchor="start", dx=6, 
 p.text(4300, YM * 0.52, f"5,000만원 초과 {gB['over5000']}명", anchor="start", cls="lbl small")
 p.text(4300, YM * 0.52, f"최고 {c0(gB['max'])}만원", anchor="start", dy=16, cls="lbl small")
 p.text(4300, YM * 0.52, f"상위 5% 환자가 총액의 {gB['top5'] * 100:.0f}%", anchor="start", dy=32, cls="lbl small")
-panel_title(p, f"가. 총 의료비 (표준요법 B군 {c0(gB['n'])}명)")
+panel_title(p, f"a. 총 의료비 (표준요법 B군 {c0(gB['n'])}명)")
 panels.append(p.svg("표준요법 B군의 1년 총 의료비 분포"))
-# (나) 입원비
+# (b) 입원비
 cI = N["comp"]["inp"]
 iB = N["inpB"]
 yi = b.inp.values
@@ -71,12 +71,12 @@ p.text(cI["mB"], YM2 * 0.70, f"평균 {c0(cI['mB'])}", anchor="start", dx=5, dy=
 p.text(cI["mB"], YM2 * 0.70, f"중앙값 {c0(cI['medB'])}", anchor="start", dx=5, dy=20, cls="lbl small mute")
 p.text(2000, YM2 * 0.40, f"입원한 {c0(iB['npos'])}명의 평균 {c0(iB['pos_mean'])}", anchor="start", cls="lbl small")
 p.text(2000, YM2 * 0.40, f"상위 10% 환자가 입원비의 {iB['top10'] * 100:.0f}%", anchor="start", dy=16, cls="lbl small")
-panel_title(p, "나. 그중 입원 진료비")
+panel_title(p, "b. 그중 입원 진료비")
 panels.append(p.svg("표준요법 B군의 1년 입원 진료비 분포"))
 save("ch21_dist", figure(panels,
      f"그림 21-1. 표준요법 B군 {c0(gB['n'])}명의 1년 의료비 분포(250만원 간격, 가상의 자료). "
-     f"가: 대부분은 1,000만–3,000만원에 몰려 있고 소수의 고액 환자가 오른쪽으로 긴 꼬리를 만들어, 평균(굵은 실선)이 중앙값(점선)보다 큽니다. "
-     f"나: 입원 진료비만 보면 3명 중 1명이 0원이고 꼬리는 더 깁니다. 0원 막대는 위를 잘라 그렸습니다.", cols=2))
+     f"a: 대부분은 1,000만–3,000만원에 몰려 있고 소수의 고액 환자가 오른쪽으로 긴 꼬리를 만들어, 평균(굵은 실선)이 중앙값(점선)보다 큽니다. "
+     f"b: 입원 진료비만 보면 3명 중 1명이 0원이고 꼬리는 더 깁니다. 0원 막대는 위를 잘라 그렸습니다.", cols=2))
 
 # ------------------------------------------------------------------ 그림 21-2: 부트스트랩 분포
 dist = np.load(os.path.join(HERE, "_ch21_boot.npy"))

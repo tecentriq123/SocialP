@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">세척 기간 365일의 처방으로 기존 사용자 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m = study.merge(index, on=&quot;pid&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">세척 기간 365일의 처방으로 기존 사용자 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m = study.merge(index, on=&quot;pid&quot;)
 m[&quot;before&quot;] = (m[&quot;index_date&quot;] - m[&quot;rx_date&quot;]).dt.days
 prior = m[(m[&quot;before&quot;] &gt;= 1) &amp; (m[&quot;before&quot;] &lt;= 365)]
 coh[&quot;prevalent&quot;] = coh[&quot;pid&quot;].isin(prior[&quot;pid&quot;])
