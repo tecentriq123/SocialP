@@ -33,7 +33,7 @@ b,se=0.642,0.211; z=b/se; print('z',z,'p',2*st.norm.sf(z),'wald',z*z,'OR',np.exp
 # lognormal pop
 mu,sg=3,0.9; mean=np.exp(mu+sg**2/2); sd=mean*np.sqrt(np.exp(sg**2)-1); print('pop mean',mean,'median',np.exp(mu),'sd',sd,'se30',sd/np.sqrt(30),'se5',sd/np.sqrt(5))
 # rank example
-A=np.array([1,2,3,3,4,5,47]); B=np.array([6,7,8,9,10,11,12])  # ch01 사 절 표와 같은 자료
+A=np.array([1,2,3,3,4,5,47]); B=np.array([6,7,8,9,10,11,12])  # ch01 g 절 표와 같은 자료
 print('meanA',A.mean(),'meanB',B.mean(),'medA',np.median(A),'medB',np.median(B))
 print('t',st.ttest_ind(A,B), 'welch', st.ttest_ind(A,B,equal_var=False))
 print('MW',st.mannwhitneyu(A,B,alternative='two-sided',method='exact'), st.mannwhitneyu(A,B,alternative='two-sided'))
@@ -41,7 +41,7 @@ allv=np.concatenate([A,B]); r=st.rankdata(allv); print('ranks A',r[:7],'sum',r[:
 # 2/pi
 print('2/pi',2/np.pi,'3/pi',3/np.pi)
 
-# ---------------------------------------------------------------- 파이썬 출력 상자 (마 절)
+# ---------------------------------------------------------------- 파이썬 출력 상자 (e 절)
 # statsmodels 로지스틱 회귀 vs SAS PROC LOGISTIC. 가상 2×2 표(30일 재입원 × 흡연):
 #   흡연자 229명 중 재입원 53명, 비흡연자 424명 중 재입원 58명 -> beta = 0.642, SE = 0.211
 # Run: source /home/claude/pylibs/env.sh && python3 gen/nums_ch01.py
@@ -59,18 +59,18 @@ else:
     print("beta", b, "se", se, "z", b / se, "Wald chi2 (SAS)", (b / se) ** 2, "p", st.chi2.sf((b / se) ** 2, 1))
     print("OR", np.exp(b), "CI", np.exp(fit.conf_int().loc["smoker"].values), "2x2 OR", (53 * 366) / (176 * 58))
 
-# ---------------------------------------------------------------- 2026-09-30 초보자용 개편에서 새로 들어간 숫자 (마·바·사 절)
-# 마 절 'SD와 SE' 논문 상자, 쉽게 말하면 상자
+# ---------------------------------------------------------------- 2026-09-30 초보자용 개편에서 새로 들어간 숫자 (e·f·g 절)
+# e 절 'SD와 SE' 논문 상자, 쉽게 말하면 상자
 print("SE drug", 7.0 / np.sqrt(30), "SE placebo", 7.2 / np.sqrt(30), "sqrt30", np.sqrt(30),
       "SE n300", 7.0 / np.sqrt(300), "mean±2SD", 12.4 - 2 * 7.0, 12.4 + 2 * 7.0)
-# 바 절 비용 논문 상자와 수식으로 보기: 위젯 모집단 = lognormal(mu=3, sigma=0.9), 단위 만원
+# f 절 비용 논문 상자와 수식으로 보기: 위젯 모집단 = lognormal(mu=3, sigma=0.9), 단위 만원
 mu, sg = 3, 0.9
 pm = np.exp(mu + sg**2 / 2); psd = pm * np.sqrt(np.exp(sg**2) - 1)
 skew = (np.exp(sg**2) + 2) * np.sqrt(np.exp(sg**2) - 1)      # lognormal 왜도 = 4.745
 print("cost pop mean (원)", pm * 1e4, "SD", psd * 1e4, "median", np.exp(mu) * 1e4)
 print("SE n=1200 (원)", 336000 / np.sqrt(1200), "mean-2SD", 301000 - 2 * 336000)
 print("skewness", skew, "skew of mean n=30/100/1200", [skew / np.sqrt(n) for n in (30, 100, 1200)])
-# 사 절 표: IQR (numpy 기본 선형보간)
+# g 절 표: IQR (numpy 기본 선형보간)
 print("IQR A", np.percentile(A, [25, 75]), "IQR B", np.percentile(B, [25, 75]))
-# 라 절 논문 상자 p-value
+# d 절 논문 상자 p-value
 print("F(2,87)=4.12 p", st.f.sf(4.12, 2, 87), "chi2(1)=5.31 p", st.chi2.sf(5.31, 1))

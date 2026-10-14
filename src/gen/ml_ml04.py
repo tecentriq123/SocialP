@@ -10,7 +10,7 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/ml_ml04.py          (전�
 
 자료와 분할, 전처리 함수(make_pipe, make_tree_pipe, make_nan_pipe, make_hgb_pipe), 5겹 분할기(skf), boot_auc는
 0-3장(gen/ml_ml00.py … ml_ml03.py)과 같다. 기본 모형 일곱 개의 조절값은 앞 장에서 고른 값을 그대로 쓴다
-(로지스틱 C = 0.1: 0장 라 절, 나무: 1장 라 절, 배깅·랜덤 포레스트: 2장 가·라 절, XGBoost·히스토그램 부스팅: 3장 라·마 절).
+(로지스틱 C = 0.1: 0장 d 절, 나무: 1장 d 절, 배깅·랜덤 포레스트: 2장 a·d 절, XGBoost·히스토그램 부스팅: 3장 d·e 절).
 
 OMP_NUM_THREADS를 1로 둔다. 이 환경은 코어가 2개이고 다른 작업과 함께 돌 때 XGBoost·히스토그램 부스팅의 OpenMP 스레드가
 서로 기다리며 수십 배 느려졌다(XGBoost 기본값 5겹 34초 → 1초). 결과(AUC)는 스레드 수와 상관없이 같았다.
@@ -18,7 +18,7 @@ OMP_NUM_THREADS를 1로 둔다. 이 환경은 코어가 2개이고 다른 작업
 
 걸린 시간은 실행할 때마다 달라지므로 조각에 들어가는 값은 SECONDS로 고정한다(대표 실행 한 번에서 잰 값, 본문에
 "환경마다 다르다"고 적음). 끝의 대조 블록에서 본문에 적은 핵심 숫자와 앞 장의 숫자를 실행 결과와 맞춘다.
-LightGBM은 이 환경에 없어서 이 장의 계산에 넣지 않는다(본문은 3장 다 절로 링크만).
+LightGBM은 이 환경에 없어서 이 장의 계산에 넣지 않는다(본문은 3장 c 절로 링크만).
 """
 import os
 os.environ.setdefault("OMP_NUM_THREADS", "1")   # 위 설명 참고. numpy·xgboost를 부르기 전에 정해야 한다.
@@ -230,7 +230,7 @@ def make_nan_pipe(model):
     return Pipeline([("prep", prep), ("model", model)])
 
 def make_hgb_pipe(model):
-    """3장 라 절: 글자 열은 정수 번호로(결측은 NaN) 앞에, 숫자 열은 그대로"""
+    """3장 d 절: 글자 열은 정수 번호로(결측은 NaN) 앞에, 숫자 열은 그대로"""
     prep = ColumnTransformer(
         [("cat", OrdinalEncoder(handle_unknown="use_encoded_value",
                                 unknown_value=np.nan), cat_cols)],
@@ -238,7 +238,7 @@ def make_hgb_pipe(model):
     return Pipeline([("prep", prep), ("model", model)])
 
 def boot_auc(y_true, p, n_boot=1000, seed=2026):
-    """1장 마 절: 시험 자료를 복원추출해 다시 구한 AUC n_boot개"""
+    """1장 e 절: 시험 자료를 복원추출해 다시 구한 AUC n_boot개"""
     rng = np.random.default_rng(seed)
     yt, p, out = np.asarray(y_true), np.asarray(p), []
     for _ in range(n_boot):
@@ -260,7 +260,7 @@ from sklearn.ensemble import (BaggingClassifier, RandomForestClassifier,
                               HistGradientBoostingClassifier)
 from xgboost import XGBClassifier
 
-best_xgb = {"n_estimators": 200,            # 3장 마 절 Optuna가 고른 값
+best_xgb = {"n_estimators": 200,            # 3장 e 절 Optuna가 고른 값
             "learning_rate": 0.08296006039772535,
             "max_depth": 1,
             "min_child_weight": 1.2474747561630017,
@@ -961,7 +961,7 @@ def collect_truth():
 
 
 def toy_stack():
-    """나 절 '숫자로 따라가기': 환자 8명, 2겹, 단순한 기본 모형 셋(나이 규칙, 응급실 규칙, 가장 닮은 환자 외우기)."""
+    """b 절 '숫자로 따라가기': 환자 8명, 2겹, 단순한 기본 모형 셋(나이 규칙, 응급실 규칙, 가장 닮은 환자 외우기)."""
     import itertools
     age = np.array([52, 78, 66, 83, 71, 88, 59, 80])
     ned = np.array([0, 2, 0, 0, 0, 1, 1, 2])
@@ -1044,7 +1044,7 @@ def checks():
     D = DATA
     M = D["models"]
     idx = {m: i for i, m in enumerate(M)}
-    # ---------------- 앞 장의 숫자 재현 (본문 가 절 셀 2, 라 절 셀 16·19)
+    # ---------------- 앞 장의 숫자 재현 (본문 a 절 셀 2, d 절 셀 16·19)
     same("split", D["setup"], [11250, 3750, 459, 153])
     S = D["summary"]
     same("CV AUC (ch 0-3)", r(S["CV AUC"], 3), [0.749, 0.754, 0.734, 0.757, 0.698, 0.768, 0.776])
@@ -1067,7 +1067,7 @@ def checks():
     same("ch3 paired CIs (sign flipped)", [r(BP["logistic - xgb"][1:3], 3), r(BP["forest - xgb"][1:3], 3)],
          [[-0.066, -0.019], [-0.028, -0.002]])
     same("final model", r([D["final"]["auc"], D["final"]["lo"], D["final"]["hi"]], 3), [0.784, 0.738, 0.825])
-    # ---------------- 가 절
+    # ---------------- a 절
     t6 = D["toy6"]
     same("toy6 hard / admitted / AUCs", [t6["hard_n"], t6["hard_admit"], round(t6["auc_votes"], 3), round(t6["auc_soft"], 3)],
          [14, 11, 0.577, 0.772])
@@ -1087,7 +1087,7 @@ def checks():
     gray = [p_ for p_ in D["corr"]["pairs"] if p_[3] >= 0.01]
     assert sum(p_[4] < 0 for p_ in gray) >= 0.8 * len(gray)        # "회색 점은 대부분 0 아래"
     n_ok[0] += 1
-    # ---------------- 나 절
+    # ---------------- b 절
     k8 = D["toy8"]
     same("toy8 oof", k8["oof"], [[0, 0, 0], [1, 2 / 3, 1], [0, 0, 0], [1, 0, 1], [0, 0, 0], [0.5, 1, 0], [0, 1, 0], [0.5, 1, 1]])
     same("toy8 in-sample", k8["ins"], [[0, 0, 0], [.75, .75, 1], [0, 0, 0], [.75, 0, 0], [0, 0, 0], [.75, .75, 1],
@@ -1122,7 +1122,7 @@ def checks():
     sl = D["stack_lo"]
     same("stack log-odds", [round(np.mean(sl["cv"]), 4), round(sl["test"], 3), round(sl["coef"][1], 2)], [0.7773, 0.778, -0.49])
     same("fits", [3 * (5 + 1), 5 * 3 * (5 + 1)], [18, 90])
-    # ---------------- 다 절
+    # ---------------- c 절
     sd = np.array(D["seeds"])
     same("fold seeds", [round(sd[:, 1].min(), 4), round(sd[:, 1].max(), 4), round(sd[:, 2].min(), 4), round(sd[:, 2].max(), 4),
                         round(sd[:, 3].min(), 4), round(sd[:, 3].max(), 4), round(sd[:, 3].std(ddof=1), 4),
@@ -1168,7 +1168,7 @@ def checks():
     same("SE agree, SE range", [np.abs(ses[:, 0] - ses[:, 1]).max() < 0.001, round(ses.min(), 3), round(ses.max(), 3),
                                 round(1.96 * ses.min(), 2), round(1.96 * ses.max(), 3)], [1, 0.005, 0.013, 0.01, 0.025])
     same("Bonferroni", [round(0.05 / 6, 4), sum(v[5] < 0.05 / 6 for v in BP.values())], [0.0083, 1])
-    # ---------------- 라 절
+    # ---------------- d 절
     O = ["logistic", "tree", "bagging", "forest", "xgb_default", "hgb", "xgb", "soft vote", "stack"]
     tb = {k: dict(zip(O, v)) for k, v in T.items()}
     same("table CV", r([tb["CV AUC"][m] for m in ["stack", "xgb", "hgb", "soft vote", "logistic"]], 4),

@@ -136,7 +136,7 @@ c = nb.cell('''
 import numpy as np
 
 n, r = len(df), res.statistic
-t = r * np.sqrt(n - 2) / np.sqrt(1 - r**2)   # 6장 가 절의 t 공식
+t = r * np.sqrt(n - 2) / np.sqrt(1 - r**2)   # 6장 a 절의 t 공식
 z, se = np.arctanh(r), 1 / np.sqrt(n - 3)    # Fisher z 변환과 SE
 print(f"t = {t:.3f}, df = {n - 2}")
 print("95% CI:", np.tanh([z - 1.96 * se, z + 1.96 * se]).round(4))

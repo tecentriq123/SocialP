@@ -1,7 +1,7 @@
 <p class="lead">실습 0에서는 뒤의 모든 실습에 필요한 준비를 합니다. 설치 없이 브라우저에서 쓰는 Google Colab과 내 컴퓨터(Windows 11)의 JupyterLab에서 셀을 실행하는 방법, 패키지 설치, 공개 데이터 불러오기, pandas로 표 살펴보기, 오류 메시지 읽는 법을 차례로 익힙니다. 코드를 처음 써 보는 분을 기준으로 한 줄씩 설명합니다.</p>
 
 <dl class="glance">
-  <div><dt>관련 이론</dt><dd><a href="#ch01-s1">1장 가 절 자료의 분류</a>(pandas 자료형과 자료 유형의 관계). 실습 1부터는 같은 번호의 장과 짝을 이룹니다(실습 1 ↔ 1장, …, 실습 13 ↔ 13장).</dd></div>
+  <div><dt>관련 이론</dt><dd><a href="#ch01-s1">1장 a 절 자료의 분류</a>(pandas 자료형과 자료 유형의 관계). 실습 1부터는 같은 번호의 장과 짝을 이룹니다(실습 1 ↔ 1장, …, 실습 13 ↔ 13장).</dd></div>
   <div><dt>데이터</dt><dd>위스콘신 유방암 진단 자료(scikit-learn 내장, 569건·설명변수 30개), birthwt(Rdatasets, 산모 189명·10변수, 1986년 미국 한 병원의 저체중아 위험인자 자료), 직접 만든 한글 CSV·엑셀 파일</dd></div>
   <div><dt>사용 패키지</dt><dd>pandas, numpy, scikit-learn (버전 확인에서 scipy, statsmodels, lifelines)</dd></div>
   <div><dt>실행 환경</dt><dd>Google Colab 권장. 이 페이지의 출력은 Python 3.11.15, pandas 3.0.2, numpy 2.4.4, scipy 1.17.1, statsmodels 0.15.0, scikit-learn 1.8.0, lifelines 0.30.3에서 실제로 실행한 결과입니다. 버전이 다르면 출력의 표시 형식이 조금 다를 수 있으며, 이는 정상입니다.</dd></div>
@@ -9,7 +9,7 @@
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab00-s1">
-<h2><span class="sec-no">가.</span>파이썬과 주피터 노트북</h2>
+<h2><span class="sec-no">a.</span>파이썬과 주피터 노트북</h2>
 
 <p>연구실에서는 통계분석에 파이썬(Python)을 씁니다. 파이썬은 무료이고, 이 사이트에서 다루는 거의 모든 분석(t 검정, 카이제곱 검정, 회귀모형, 생존분석, 혼합모형)을 공개 패키지로 할 수 있습니다. 먼저 실습에서 계속 나오는 다섯 가지 용어를 정리합니다.</p>
 
@@ -45,7 +45,7 @@
 </ul>
 
 <h3>첫 번째 셀</h3>
-<p>아래 상자가 이 사이트의 '셀'입니다. 위쪽 회색 부분이 입력할 코드이고, 아래 '출력'이 그 코드를 실제로 실행한 결과입니다. 오른쪽 위 <b>복사</b> 버튼을 누르면 코드가 복사되므로, Colab(나 절)이나 JupyterLab(다 절)의 빈 코드 셀에 <kbd>Ctrl</kbd>+<kbd>V</kbd>로 붙여 넣고 실행하면 같은 출력이 나옵니다. 셀 번호는 이 페이지 안의 순서입니다. 한 페이지의 셀은 <b>위에서부터 차례로</b> 실행해야 합니다(라 절).</p>
+<p>아래 상자가 이 사이트의 '셀'입니다. 위쪽 회색 부분이 입력할 코드이고, 아래 '출력'이 그 코드를 실제로 실행한 결과입니다. 오른쪽 위 <b>복사</b> 버튼을 누르면 코드가 복사되므로, Colab(b 절)이나 JupyterLab(c 절)의 빈 코드 셀에 <kbd>Ctrl</kbd>+<kbd>V</kbd>로 붙여 넣고 실행하면 같은 출력이 나옵니다. 셀 번호는 이 페이지 안의 순서입니다. 한 페이지의 셀은 <b>위에서부터 차례로</b> 실행해야 합니다(d 절).</p>
 <!--FIG:lab00_first-->
 <ol class="lines">
 <li><code># 첫 번째 셀: …</code><span><code>#</code> 뒤의 글은 <b>주석</b><span class="en">(comment)</span>입니다. 파이썬은 이 부분을 실행하지 않습니다. 코드가 무엇을 하는지 적어 두는 메모입니다.</span></li>
@@ -72,21 +72,21 @@
 
 <!-- ============================================================ 나 -->
 <section class="sec" id="lab00-s2">
-<h2><span class="sec-no">나.</span>Google Colab으로 시작하기</h2>
+<h2><span class="sec-no">b.</span>Google Colab으로 시작하기</h2>
 
 <p><strong>Google Colab</strong><span class="en">(Colaboratory)</span>은 Google이 제공하는 온라인 주피터 노트북입니다. 코드는 내 컴퓨터가 아니라 Google의 가상 컴퓨터(<b>런타임</b><span class="en">(runtime)</span>)에서 실행됩니다. pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib이 대부분 미리 설치되어 있어서, 연구실 컴퓨터든 집 노트북이든 브라우저만 있으면 같은 환경에서 실습할 수 있습니다. 이 사이트의 실습은 Colab을 기준으로 설명합니다.</p>
 
 <div class="callout warn"><p class="ct">주의 · 실제 연구 자료는 올리지 마세요</p>
-<p>Colab에 올린 파일은 외부(Google) 서버에서 처리됩니다. 건강보험 청구자료(HIRA·NHIS)처럼 반출이 제한된 자료, 병원 전자의무기록에서 추출한 환자 자료, 개인정보가 담긴 설문 자료는 IRB 승인 조건과 자료 제공 기관의 규정을 먼저 확인해야 하며, 대개 외부 서버에 올릴 수 없습니다. 이런 자료는 허가된 분석 환경이나 내 컴퓨터(다 절)에서 분석합니다. 이 사이트의 실습 자료는 모두 공개 자료이므로 Colab에서 써도 됩니다.</p></div>
+<p>Colab에 올린 파일은 외부(Google) 서버에서 처리됩니다. 건강보험 청구자료(HIRA·NHIS)처럼 반출이 제한된 자료, 병원 전자의무기록에서 추출한 환자 자료, 개인정보가 담긴 설문 자료는 IRB 승인 조건과 자료 제공 기관의 규정을 먼저 확인해야 하며, 대개 외부 서버에 올릴 수 없습니다. 이런 자료는 허가된 분석 환경이나 내 컴퓨터(c 절)에서 분석합니다. 이 사이트의 실습 자료는 모두 공개 자료이므로 Colab에서 써도 됩니다.</p></div>
 
 <h3>새 노트북을 만들고 셀 실행하기</h3>
 <p>메뉴 이름과 버튼 위치는 Colab 업데이트에 따라 바뀔 수 있습니다. 화면이 영어로 보이면 괄호 안의 영어 이름을 찾으세요.</p>
 <div class="flow">
 <div><div><b>Google 계정으로 로그인</b><p>Gmail 계정이면 됩니다. 학교 Google 계정은 관리자가 Colab을 막아 둔 경우가 있으니, 열리지 않으면 개인 계정을 쓰세요.</p></div></div>
 <div><div><b>colab.research.google.com 접속</b><p>'노트 열기' 창이 뜨면 아래쪽의 <strong>새 노트</strong>(New notebook)를 누릅니다. 창이 뜨지 않으면 메뉴 <strong>파일 → 새 노트</strong>(File → New notebook)를 누릅니다.</p></div></div>
-<div><div><b>코드 셀에 입력</b><p>화면 가운데의 회색 칸이 코드 셀입니다. 클릭한 뒤 가 절의 셀 1 코드를 붙여 넣습니다.</p></div></div>
+<div><div><b>코드 셀에 입력</b><p>화면 가운데의 회색 칸이 코드 셀입니다. 클릭한 뒤 a 절의 셀 1 코드를 붙여 넣습니다.</p></div></div>
 <div><div><b>실행</b><p><kbd>Shift</kbd>+<kbd>Enter</kbd>를 누르거나 셀 왼쪽의 ▶(실행) 버튼을 누릅니다. 처음 실행할 때는 런타임에 연결하느라 몇 초에서 수십 초가 걸립니다. 오른쪽 위에 RAM·디스크 표시가 보이면 연결된 것입니다.</p></div></div>
-<div><div><b>출력 확인</b><p>출력은 셀 <strong>바로 아래</strong>에 나타납니다. 실행이 끝나면 ▶ 자리에 <code>[1]</code> 같은 실행 순서 번호가 붙습니다. 오류가 나면 빨간 글씨의 오류 메시지가 나옵니다(사 절).</p></div></div>
+<div><div><b>출력 확인</b><p>출력은 셀 <strong>바로 아래</strong>에 나타납니다. 실행이 끝나면 ▶ 자리에 <code>[1]</code> 같은 실행 순서 번호가 붙습니다. 오류가 나면 빨간 글씨의 오류 메시지가 나옵니다(g 절).</p></div></div>
 <div><div><b>셀 추가</b><p>위쪽의 <strong>+ 코드</strong>(+ Code) 버튼으로 새 코드 셀을, <strong>+ 텍스트</strong>(+ Text)로 설명 글 셀을 추가합니다. 실습 페이지의 셀마다 새 코드 셀을 하나씩 만들어 붙여 넣으면 됩니다.</p></div></div>
 </div>
 
@@ -104,24 +104,24 @@
 <li>Colab 노트북은 내 Google Drive의 <b>Colab Notebooks</b> 폴더에 자동으로 저장됩니다. <kbd>Ctrl</kbd>+<kbd>S</kbd>를 누르면 바로 저장합니다.</li>
 <li>왼쪽 위의 파일 이름(처음에는 <code>Untitled0.ipynb</code>)을 클릭하면 이름을 바꿀 수 있습니다. 예: <code>lab01_자료탐색.ipynb</code></li>
 <li>다른 사람이 공유한 노트북을 열었을 때는 <b>파일 → Drive에 사본 저장</b>(Save a copy in Drive)을 해야 내 Drive에 남습니다.</li>
-<li><b>파일 → 다운로드 → .ipynb 다운로드</b>로 파일을 받으면, 내 컴퓨터의 JupyterLab(다 절)에서도 열 수 있습니다.</li>
+<li><b>파일 → 다운로드 → .ipynb 다운로드</b>로 파일을 받으면, 내 컴퓨터의 JupyterLab(c 절)에서도 열 수 있습니다.</li>
 </ul>
 
 <h3>런타임과 세션 다시 시작</h3>
-<p>노트북 문서(코드와 이미 찍힌 출력)는 Drive에 저장되지만, <b>변수는 런타임의 메모리에만</b> 있습니다. 가 절의 비유로 말하면, 주문서(노트북)는 보관되어도 요리사(커널)의 기억은 교대하면 사라집니다.</p>
+<p>노트북 문서(코드와 이미 찍힌 출력)는 Drive에 저장되지만, <b>변수는 런타임의 메모리에만</b> 있습니다. a 절의 비유로 말하면, 주문서(노트북)는 보관되어도 요리사(커널)의 기억은 교대하면 사라집니다.</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>상황</th><th>변수</th><th>설치한 패키지·올린 파일</th><th>다음에 할 일</th></tr></thead>
 <tbody>
 <tr><td><b>런타임 → 세션 다시 시작</b><br>(Restart session. 예전 이름은 '런타임 다시 시작')</td><td>모두 사라짐</td><td>남아 있음</td><td>위에서부터 셀을 다시 실행</td></tr>
 <tr><td><b>런타임 → 런타임 연결 해제 및 삭제</b>, 또는 오래 사용하지 않아 연결이 끊김</td><td>모두 사라짐</td><td>모두 사라짐 (새 가상 컴퓨터를 받음)</td><td>설치 셀(<code>!pip install …</code>)과 파일 업로드부터 다시</td></tr>
 </tbody></table></div>
-<p>세션을 다시 시작하는 이유는 보통 두 가지입니다. 패키지를 설치한 뒤 Colab이 재시작을 요청할 때, 그리고 셀을 이리저리 고쳐 실행하다가 변수 상태가 꼬였을 때입니다(라 절). 노트북을 다시 열었을 때는 <b>런타임 → 모두 실행</b>(Run all)으로 위에서부터 한 번에 실행할 수 있습니다.</p>
+<p>세션을 다시 시작하는 이유는 보통 두 가지입니다. 패키지를 설치한 뒤 Colab이 재시작을 요청할 때, 그리고 셀을 이리저리 고쳐 실행하다가 변수 상태가 꼬였을 때입니다(d 절). 노트북을 다시 열었을 때는 <b>런타임 → 모두 실행</b>(Run all)으로 위에서부터 한 번에 실행할 수 있습니다.</p>
 
 <h3>내 컴퓨터의 파일 올리기</h3>
 <div class="flow">
 <div><div><b>파일 패널 열기</b><p>화면 왼쪽 세로 막대의 폴더 모양 아이콘(파일)을 누릅니다.</p></div></div>
 <div><div><b>업로드</b><p>패널 위쪽의 업로드 아이콘(위쪽 화살표가 그려진 종이)을 누르고 파일을 고릅니다. PC의 파일 탐색기에서 파일을 패널로 끌어다 놓아도 됩니다.</p></div></div>
-<div><div><b>위치 확인</b><p>올린 파일은 Colab의 현재 작업 폴더인 <code>/content</code>에 놓입니다. 그래서 코드에서는 <code>pd.read_csv("my_patients.csv")</code>처럼 파일 이름만 쓰면 됩니다(마 절). 파일 이름 오른쪽의 점 세 개 메뉴에서 '경로 복사'를 할 수도 있습니다.</p></div></div>
+<div><div><b>위치 확인</b><p>올린 파일은 Colab의 현재 작업 폴더인 <code>/content</code>에 놓입니다. 그래서 코드에서는 <code>pd.read_csv("my_patients.csv")</code>처럼 파일 이름만 쓰면 됩니다(e 절). 파일 이름 오른쪽의 점 세 개 메뉴에서 '경로 복사'를 할 수도 있습니다.</p></div></div>
 </div>
 <p>코드로 올리는 방법과 Google Drive를 연결하는 방법도 있습니다. 둘 다 Colab에서만 동작하므로 이 사이트에서는 실행하지 않고 코드만 보여 드립니다.</p>
 <!--FIG:lab00_colab_upload-->
@@ -129,7 +129,7 @@
 <ol class="lines">
 <li><code>files.upload()</code><span>실행하면 셀 아래에 파일 선택 버튼이 나타납니다. 고른 파일은 파일 패널로 올린 것과 같이 <code>/content</code>에 저장됩니다.</span></li>
 <li><code>drive.mount("/content/drive")</code><span>내 Google Drive를 Colab 런타임에 연결합니다. 계정 선택과 접근 허용 창이 뜨면 허용합니다. 연결된 뒤에는 Drive의 '내 드라이브'가 <code>/content/drive/MyDrive/</code> 아래에 보입니다.</span></li>
-<li><code>path = "/content/drive/MyDrive/lab/…"</code><span>Drive의 lab 폴더에 있는 파일의 전체 경로입니다. <code>encoding="cp949"</code>는 한글 CSV를 읽을 때 쓰는 옵션입니다(마 절).</span></li>
+<li><code>path = "/content/drive/MyDrive/lab/…"</code><span>Drive의 lab 폴더에 있는 파일의 전체 경로입니다. <code>encoding="cp949"</code>는 한글 CSV를 읽을 때 쓰는 옵션입니다(e 절).</span></li>
 </ol>
 <div class="callout warn"><p class="ct">이런 일이 생기면</p>
 <p>어제 올린 파일로 <code>pd.read_csv</code>를 실행했더니 <code>FileNotFoundError</code>가 난다면, 그사이 런타임이 삭제되어 업로드 파일이 사라진 것입니다(위 표의 두 번째 줄). 계속 쓸 파일은 Google Drive에 두고 <code>drive.mount</code>로 연결해 읽는 것이 편합니다.</p></div>
@@ -143,7 +143,7 @@
 
 <!-- ============================================================ 다 -->
 <section class="sec" id="lab00-s3">
-<h2><span class="sec-no">다.</span>내 컴퓨터(Windows 11)에 설치하기</h2>
+<h2><span class="sec-no">c.</span>내 컴퓨터(Windows 11)에 설치하기</h2>
 
 <p>인터넷 없이 작업하거나, 외부로 반출할 수 없는 자료를 분석하거나, 오래 쓸 분석 환경을 갖추려면 내 컴퓨터에 설치합니다. 가장 쉬운 방법은 <strong>Anaconda</strong>입니다. Anaconda는 파이썬, 주요 패키지(pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib 등), JupyterLab을 한 번에 설치해 주는 배포판입니다.</p>
 
@@ -177,7 +177,7 @@
 </ol>
 
 <h3>노트북 파일이 저장되는 곳</h3>
-<p>노트북(.ipynb)은 JupyterLab 왼쪽 파일 브라우저에 보이는 폴더에 저장됩니다. Navigator에서 실행하면 보통 사용자 폴더(<code>C:\Users\&lt;사용자이름&gt;</code>)가 시작 위치이고, Anaconda Prompt에서 실행하면 <code>cd</code>로 옮겨 간 폴더가 시작 위치입니다. 노트북 안에서 <code>pd.read_csv("파일이름.csv")</code>처럼 파일 이름만 쓰면 <b>그 노트북 파일이 있는 폴더</b>에서 파일을 찾습니다(마 절). 그래서 실습용 폴더 하나에 노트북과 데이터 파일을 함께 두는 것이 가장 덜 헷갈립니다. 저장해 둔 노트북은 JupyterLab을 먼저 실행한 뒤 왼쪽 파일 브라우저에서 더블클릭해 엽니다.</p>
+<p>노트북(.ipynb)은 JupyterLab 왼쪽 파일 브라우저에 보이는 폴더에 저장됩니다. Navigator에서 실행하면 보통 사용자 폴더(<code>C:\Users\&lt;사용자이름&gt;</code>)가 시작 위치이고, Anaconda Prompt에서 실행하면 <code>cd</code>로 옮겨 간 폴더가 시작 위치입니다. 노트북 안에서 <code>pd.read_csv("파일이름.csv")</code>처럼 파일 이름만 쓰면 <b>그 노트북 파일이 있는 폴더</b>에서 파일을 찾습니다(e 절). 그래서 실습용 폴더 하나에 노트북과 데이터 파일을 함께 두는 것이 가장 덜 헷갈립니다. 저장해 둔 노트북은 JupyterLab을 먼저 실행한 뒤 왼쪽 파일 브라우저에서 더블클릭해 엽니다.</p>
 
 <h3>패키지 설치: 두 가지 방법</h3>
 <p>Anaconda에는 대부분의 패키지가 들어 있지만, 생존분석 패키지 lifelines(실습 7, 11)는 기본 설치에 들어 있지 않으므로 따로 설치합니다. 설치는 <b>한 번만</b> 하면 됩니다.</p>
@@ -189,7 +189,7 @@
 <tr><td>Anaconda Prompt</td><td><code>pip install lifelines</code></td><td>명령 창에서 설치합니다. 앞에 아무 기호도 붙이지 않습니다.</td></tr>
 <tr><td>노트북 셀</td><td><code>%pip install lifelines</code></td><td>지금 이 노트북의 커널이 쓰는 파이썬에 설치합니다. 파이썬 환경이 여러 개 있어도 엉뚱한 곳에 설치될 걱정이 없어 노트북 안에서는 이 방법이 안전합니다. 설치 뒤 <b>Kernel → Restart Kernel</b>로 커널을 다시 시작해야 할 때가 있습니다.</td></tr>
 </tbody></table></div>
-<p><code>%</code>는 "이 줄은 파이썬 코드가 아니라 노트북에 내리는 특수 명령"이라는 표시입니다. Colab에서는 <code>!pip install …</code>도 흔히 씁니다(라 절). 기호를 빼먹었을 때 생기는 일도 라 절에서 봅니다. conda 명령(<code>conda install -c conda-forge lifelines</code>)으로도 설치할 수 있지만, 한 환경에서 pip과 conda를 번갈아 쓰면 패키지가 꼬이는 경우가 있으므로 한 가지를 정해 쓰는 것이 좋습니다.</p>
+<p><code>%</code>는 "이 줄은 파이썬 코드가 아니라 노트북에 내리는 특수 명령"이라는 표시입니다. Colab에서는 <code>!pip install …</code>도 흔히 씁니다(d 절). 기호를 빼먹었을 때 생기는 일도 d 절에서 봅니다. conda 명령(<code>conda install -c conda-forge lifelines</code>)으로도 설치할 수 있지만, 한 환경에서 pip과 conda를 번갈아 쓰면 패키지가 꼬이는 경우가 있으므로 한 가지를 정해 쓰는 것이 좋습니다.</p>
 
 <h3>버전 확인</h3>
 <!--FIG:lab00_prompt_ver-->
@@ -198,7 +198,7 @@
 <li><code>conda list pandas</code><span>이름에 pandas가 들어가는 패키지를 표로 보여 줍니다. Version 열이 버전입니다.</span></li>
 <li><code>pip show lifelines</code><span>lifelines의 정보를 보여 줍니다. <code>Version:</code>으로 시작하는 줄을 봅니다. 설치되어 있지 않으면 찾을 수 없다는 경고가 나옵니다.</span></li>
 </ol>
-<p>노트북 안에서 확인하는 방법은 라 절의 셀 4입니다.</p>
+<p>노트북 안에서 확인하는 방법은 d 절의 셀 4입니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>Anaconda를 설치하면 파이썬, 주요 패키지, JupyterLab이 함께 설치됩니다. 기관 컴퓨터라면 사용 조건을 먼저 확인합니다.</li>
@@ -209,12 +209,12 @@
 
 <!-- ============================================================ 라 -->
 <section class="sec" id="lab00-s4">
-<h2><span class="sec-no">라.</span>셀 실행과 패키지 설치</h2>
+<h2><span class="sec-no">d.</span>셀 실행과 패키지 설치</h2>
 
 <p>여기서부터는 Colab이나 JupyterLab의 새 노트북에 셀을 하나씩 만들어 따라 하세요. 이 절에서는 실습 노트북의 맨 위에 늘 들어가는 두 가지(설치와 import)와, 초보자가 가장 자주 겪는 문제인 <b>셀 실행 순서</b>를 다룹니다.</p>
 
 <h3>패키지 설치 (Colab)</h3>
-<p>Colab에는 lifelines가 기본으로 설치되어 있지 않은 경우가 많습니다. 새 런타임을 받을 때마다 설치 파일이 사라지므로(나 절), lifelines를 쓰는 실습에서는 노트북의 <b>첫 셀</b>에 설치 명령을 넣어 둡니다. 이미 설치되어 있으면 금방 끝나므로 매번 실행해도 괜찮습니다.</p>
+<p>Colab에는 lifelines가 기본으로 설치되어 있지 않은 경우가 많습니다. 새 런타임을 받을 때마다 설치 파일이 사라지므로(b 절), lifelines를 쓰는 실습에서는 노트북의 <b>첫 셀</b>에 설치 명령을 넣어 둡니다. 이미 설치되어 있으면 금방 끝나므로 매번 실행해도 괜찮습니다.</p>
 <!--FIG:lab00_pip-->
 <ol class="lines">
 <li><code>!pip install lifelines</code><span>맨 앞의 <code>!</code>는 "이 줄을 파이썬이 아니라 런타임 컴퓨터의 명령 창에서 실행하라"는 표시입니다. <code>pip</code>은 파이썬 패키지를 인터넷 저장소(PyPI)에서 내려받아 설치하는 프로그램이고, <code>install lifelines</code>는 lifelines를 설치하라는 뜻입니다.</span></li>
@@ -224,7 +224,7 @@
 <li><span class="mk">1</span><span><b>내려받기 시작.</b> lifelines와, lifelines가 필요로 하는 다른 패키지(의존 패키지)를 차례로 내려받습니다.</span></li>
 <li><span class="mk">2</span><span><b>설치 성공.</b> 마지막 줄이 <code>Successfully installed … lifelines-버전</code>이면 끝난 것입니다. 이미 설치되어 있었다면 <code>Requirement already satisfied: lifelines …</code>가 나오는데, 이것도 정상입니다. <code>ERROR</code>로 시작하는 줄이 나오면 설치에 실패한 것이니 패키지 이름의 오타와 인터넷 연결을 확인합니다. 설치 뒤 Colab이 세션을 다시 시작하라는 안내를 띄우면 따르고, 그다음 셀부터 이어서 실행합니다.</span></li>
 </ol>
-<p>앞의 <code>!</code>나 <code>%</code>를 빼먹고 <code>pip install lifelines</code>만 쓰면 어떻게 될까요? Colab과 JupyterLab은 이런 줄을 대개 <code>%pip install lifelines</code>로 알아서 바꿔 실행합니다(IPython의 automagic 기능). 그러나 이 줄은 파이썬 문법이 아니므로, 같은 줄을 .py 파일에 쓰거나 Anaconda Prompt에서 <code>python</code>을 입력해 연 파이썬 창(<code>&gt;&gt;&gt;</code> 표시)에 입력하면 <code>SyntaxError: invalid syntax</code>(문법 오류)가 납니다. 헷갈리지 않도록 노트북 셀에서는 늘 <code>%pip</code>(Colab에서는 <code>!pip</code>도 가능)으로 쓰고, 기호 없는 <code>pip install</code>은 Anaconda Prompt에서만 씁니다(다 절).</p>
+<p>앞의 <code>!</code>나 <code>%</code>를 빼먹고 <code>pip install lifelines</code>만 쓰면 어떻게 될까요? Colab과 JupyterLab은 이런 줄을 대개 <code>%pip install lifelines</code>로 알아서 바꿔 실행합니다(IPython의 automagic 기능). 그러나 이 줄은 파이썬 문법이 아니므로, 같은 줄을 .py 파일에 쓰거나 Anaconda Prompt에서 <code>python</code>을 입력해 연 파이썬 창(<code>&gt;&gt;&gt;</code> 표시)에 입력하면 <code>SyntaxError: invalid syntax</code>(문법 오류)가 납니다. 헷갈리지 않도록 노트북 셀에서는 늘 <code>%pip</code>(Colab에서는 <code>!pip</code>도 가능)으로 쓰고, 기호 없는 <code>pip install</code>은 Anaconda Prompt에서만 씁니다(c 절).</p>
 
 <h3>패키지 불러오기</h3>
 <p>설치한 패키지는 노트북을 새로 열거나 세션을 다시 시작할 때마다 다시 불러와야(import) 합니다. 보통 노트북의 설치 셀 바로 다음 셀에 모아 둡니다.</p>
@@ -233,7 +233,7 @@
 <li><code>import pandas as pd</code><span>pandas 패키지를 불러오면서 <code>pd</code>라는 짧은 별명을 붙입니다. 이후 <code>pd.read_csv()</code>처럼 <code>pd.</code> 뒤에 기능 이름을 붙여 씁니다. pd, np는 세계적으로 통용되는 관례라서, 검색해서 찾은 코드도 대부분 같은 별명을 씁니다.</span></li>
 <li><code>import numpy as np</code><span>numpy를 <code>np</code>라는 별명으로 불러옵니다.</span></li>
 </ol>
-<p>이 셀은 출력이 없습니다. <b>아무것도 나오지 않으면 성공</b>입니다. 설치되지 않은 패키지를 import하면 <code>ModuleNotFoundError</code>가 납니다(사 절).</p>
+<p>이 셀은 출력이 없습니다. <b>아무것도 나오지 않으면 성공</b>입니다. 설치되지 않은 패키지를 import하면 <code>ModuleNotFoundError</code>가 납니다(g 절).</p>
 
 <h3>버전 확인</h3>
 <p>같은 코드라도 패키지 버전에 따라 기본값이나 출력 모양이 조금씩 다를 수 있습니다. 결과가 이 사이트와 다르게 보이면 먼저 버전을 확인합니다. 논문의 Methods에 분석 소프트웨어의 버전을 적을 때도 이 셀을 씁니다.</p>
@@ -247,7 +247,7 @@
 <p><b>출력 읽기</b></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>파이썬 버전.</b> Colab은 보통 이보다 새 버전을 씁니다. 3.10 이상이면 이 사이트의 코드는 문제없이 돌아갑니다.</span></li>
-<li><span class="mk">2</span><span><b>pandas 3.0.2.</b> Colab이나 Anaconda에는 pandas 2.x가 설치되어 있을 수 있습니다. 이 사이트의 코드는 두 버전에서 모두 돌아가도록 썼고, 자료형 이름 같은 출력의 표시 형식만 조금 다를 수 있습니다(바 절).</span></li>
+<li><span class="mk">2</span><span><b>pandas 3.0.2.</b> Colab이나 Anaconda에는 pandas 2.x가 설치되어 있을 수 있습니다. 이 사이트의 코드는 두 버전에서 모두 돌아가도록 썼고, 자료형 이름 같은 출력의 표시 형식만 조금 다를 수 있습니다(f 절).</span></li>
 <li><span class="mk">3</span><span><b>statsmodels 0.15.0.</b> Colab에서는 0.14.x일 수 있습니다. 회귀 결과표의 숫자는 같고, 표의 모양이 조금 다를 수 있습니다.</span></li>
 </ol>
 
@@ -259,7 +259,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>소프트웨어 이름과 버전.</b> SAS 9.4, R 4.x, Stata 18처럼 쓰는 것과 같은 자리입니다. 셀 4 출력의 첫 줄에서 옮깁니다.</span></li>
 <li><span class="mk">2</span><span><b>분석에 실제로 쓴 패키지와 버전.</b> 기본값이나 계산 방법이 버전에 따라 바뀔 수 있으므로, 다른 연구자가 결과를 재현하려면 버전이 필요합니다. 쓰지 않은 패키지는 넣지 않습니다. 패키지에 따라 인용해 달라고 요청하는 논문이 있으며(예: SciPy<cite data-ref="virtanen2020"></cite>, lifelines<cite data-ref="davidsonpilon2019"></cite>), 학술지 규정에 따라 참고문헌에 넣습니다.</span></li>
-<li><span class="mk">3</span><span><b>유의수준과 양측검정.</b> 소프트웨어 문장과 함께 쓰는 경우가 많습니다. 다중비교 보정을 했다면 이 문장 뒤에 이어서 씁니다(<a href="#ch01-s3">1장 다 절</a>, <a href="#lab01-s4">실습 1 라 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>유의수준과 양측검정.</b> 소프트웨어 문장과 함께 쓰는 경우가 많습니다. 다중비교 보정을 했다면 이 문장 뒤에 이어서 씁니다(<a href="#ch01-s3">1장 c 절</a>, <a href="#lab01-s4">실습 1 d 절</a>).</span></li>
 </ol>
 </div></div>
 
@@ -282,7 +282,7 @@
 <!--FIG:lab00_twice2-->
 <!--FIG:lab00_twice3-->
 <ol class="lines">
-<li><code>pd.Series([2523, 2551, 2557])</code><span>숫자 세 개로 <b>Series</b>(한 줄짜리 자료, 바 절)를 만듭니다. 대괄호 <code>[ ]</code>로 묶은 것은 <b>리스트</b>(목록)입니다.</span></li>
+<li><code>pd.Series([2523, 2551, 2557])</code><span>숫자 세 개로 <b>Series</b>(한 줄짜리 자료, f 절)를 만듭니다. 대괄호 <code>[ ]</code>로 묶은 것은 <b>리스트</b>(목록)입니다.</span></li>
 <li><code>bwt = bwt / 1000</code><span>"지금의 bwt를 1000으로 나눈 값을 다시 bwt에 저장"합니다. 셀 9를 처음 실행하면 g이 kg이 되지만, 한 번 더 실행하면 이미 kg인 값을 또 1000으로 나눕니다.</span></li>
 <li><code>print(bwt)</code><span>Series를 출력합니다. 왼쪽 0, 1, 2는 행 번호(인덱스), 마지막 줄 <code>dtype: float64</code>는 값의 자료형(소수점이 있는 숫자)입니다.</span></li>
 </ol>
@@ -305,7 +305,7 @@
 
 <!-- ============================================================ 마 -->
 <section class="sec" id="lab00-s5">
-<h2><span class="sec-no">마.</span>데이터 불러오기</h2>
+<h2><span class="sec-no">e.</span>데이터 불러오기</h2>
 
 <p>실습 데이터를 가져오는 길은 세 가지입니다. scikit-learn에 들어 있는 데이터는 인터넷 없이 바로 쓸 수 있고, Rdatasets의 CSV는 인터넷 주소(URL)로 읽으며, 연구에서 받은 내 파일은 경로를 지정해 읽습니다.</p>
 
@@ -326,7 +326,7 @@
 </ol>
 <!--FIG:lab00_sk2-->
 <ol class="lines">
-<li><code>bc.frame[["mean radius", "mean area", "target"]]</code><span>대괄호를 두 겹으로 쓰면 여러 열을 골라 새 표를 만듭니다. 안쪽 대괄호는 열 이름의 목록(리스트)입니다(바 절). 열 이름에 빈칸이 있으면 빈칸까지 정확히 써야 합니다.</span></li>
+<li><code>bc.frame[["mean radius", "mean area", "target"]]</code><span>대괄호를 두 겹으로 쓰면 여러 열을 골라 새 표를 만듭니다. 안쪽 대괄호는 열 이름의 목록(리스트)입니다(f 절). 열 이름에 빈칸이 있으면 빈칸까지 정확히 써야 합니다.</span></li>
 <li><code>.head()</code><span>앞의 5행만 보여 줍니다.</span></li>
 </ol>
 <p>출력에서 <span class="mk">1</span> target 열의 앞 5행은 모두 0(악성)이지만, 전체 569건 중 악성은 212건, 양성은 357건입니다(설명서 <code>bc.DESCR</code>의 Class Distribution). 앞 몇 행만 보고 자료 전체를 짐작하지 않도록 합니다. scikit-learn에는 이 밖에 <code>load_diabetes(scaled=False)</code>(당뇨병 환자 442명의 기저 측정값과 1년 뒤 질병 진행 정도) 같은 데이터도 들어 있습니다. 이름이 <code>fetch_</code>로 시작하는 함수는 인터넷에서 내려받는 방식입니다.</p>
@@ -358,7 +358,7 @@
 <li><code>df = df.drop(columns="rownames")</code><span><code>.drop(columns=…)</code>은 그 열을 뺀 <b>새 표</b>를 돌려줍니다. 원래 <code>df</code>는 그대로이므로, 결과를 다시 <code>df</code>에 저장해야 반영됩니다. <code>df.drop(columns="rownames")</code>만 쓰고 저장하지 않으면 출력에만 보이고 df는 바뀌지 않습니다.</span></li>
 <li><code>df.columns.tolist()</code><span><code>df.columns</code>는 열 이름들이고, <code>.tolist()</code>는 이를 보기 쉬운 리스트로 바꿉니다.</span></li>
 </ol>
-<p>출력 <span class="mk">1</span>에서 열이 10개로 줄었습니다. 각 변수의 뜻은 설명서 페이지(doc)에서 확인합니다. 숫자로 저장되어 있어도 자료 유형은 제각각이라는 점을 <a href="#ch01-s1">1장 가 절</a>과 연결해 보세요.</p>
+<p>출력 <span class="mk">1</span>에서 열이 10개로 줄었습니다. 각 변수의 뜻은 설명서 페이지(doc)에서 확인합니다. 숫자로 저장되어 있어도 자료 유형은 제각각이라는 점을 <a href="#ch01-s1">1장 a 절</a>과 연결해 보세요.</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>변수</th><th>뜻</th><th>값</th><th>자료 유형</th></tr></thead>
 <tbody>
@@ -424,7 +424,7 @@
 
 <!-- ============================================================ 바 -->
 <section class="sec" id="lab00-s6">
-<h2><span class="sec-no">바.</span>pandas로 데이터 살펴보기</h2>
+<h2><span class="sec-no">f.</span>pandas로 데이터 살펴보기</h2>
 
 <p>pandas의 <strong>DataFrame</strong>은 엑셀 시트와 비슷한 표입니다. 한 <b>행</b><span class="en">(row)</span>은 관측 단위 하나(여기서는 산모 한 명), 한 <b>열</b><span class="en">(column)</span>은 변수 하나입니다. 왼쪽의 행 이름표를 <b>인덱스</b><span class="en">(index)</span>라고 하고, 열 하나를 따로 꺼낸 한 줄짜리 자료를 <b>Series</b>라고 합니다. 열마다 값의 종류인 <b>자료형</b><span class="en">(dtype)</span>이 정해져 있습니다.</p>
 <div class="tbl-wrap"><table class="tbl">
@@ -436,10 +436,10 @@
 <tr><td><code>bool</code></td><td>참/거짓(True/False)</td><td>조건 비교의 결과</td></tr>
 <tr><td><code>category</code></td><td>정해진 범주 중 하나</td><td>진단(악성/양성), 병기</td></tr>
 </tbody></table></div>
-<p>자료형은 <a href="#ch01-s1">1장 가 절</a>의 자료 유형과 다릅니다. birthwt의 <code>race</code>(1, 2, 3)는 int64로 저장되어 있지만 명목형 자료이고, <code>low</code>(0, 1)는 이분형 자료입니다. 컴퓨터는 숫자로 저장된 열을 모두 수치로 취급하므로, 자료 유형은 연구자가 판단해야 합니다.</p>
+<p>자료형은 <a href="#ch01-s1">1장 a 절</a>의 자료 유형과 다릅니다. birthwt의 <code>race</code>(1, 2, 3)는 int64로 저장되어 있지만 명목형 자료이고, <code>low</code>(0, 1)는 이분형 자료입니다. 컴퓨터는 숫자로 저장된 열을 모두 수치로 취급하므로, 자료 유형은 연구자가 판단해야 합니다.</p>
 
 <h3>표의 구조: head()와 info()</h3>
-<p>마 절에서 불러온 <code>df</code>(birthwt, rownames 제거)를 계속 씁니다.</p>
+<p>e 절에서 불러온 <code>df</code>(birthwt, rownames 제거)를 계속 씁니다.</p>
 <!--FIG:lab00_pd_head-->
 <ol class="lines">
 <li><code>df.head()</code><span>앞의 5행을 보여 줍니다. <code>df.head(10)</code>처럼 괄호 안에 숫자를 넣으면 그만큼 보여 주고, <code>df.tail()</code>은 끝의 5행입니다.</span></li>
@@ -452,7 +452,7 @@
 <p><b>출력 읽기</b></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>189 entries, 0 to 188.</b> 행이 189개이고, 인덱스는 0부터 188까지입니다(0부터 세므로 마지막 번호는 행 수 − 1).</span></li>
-<li><span class="mk">2</span><span><b>189 non-null.</b> 결측이 아닌 값이 189개, 즉 이 열에는 결측이 없습니다. 이 숫자가 전체 행 수보다 작으면 그 차이만큼 결측값이 있다는 뜻입니다. 실제 연구 자료에서는 여기서 결측을 처음 발견하는 경우가 많습니다(결측자료의 처리는 <a href="#ap01-s4">부록 A 라 절</a>).</span></li>
+<li><span class="mk">2</span><span><b>189 non-null.</b> 결측이 아닌 값이 189개, 즉 이 열에는 결측이 없습니다. 이 숫자가 전체 행 수보다 작으면 그 차이만큼 결측값이 있다는 뜻입니다. 실제 연구 자료에서는 여기서 결측을 처음 발견하는 경우가 많습니다(결측자료의 처리는 <a href="#ap01-s4">부록 A d 절</a>).</span></li>
 <li><span class="mk">3</span><span><b>int64.</b> 모든 열이 정수입니다. 숫자여야 할 열이 object나 str로 나오면 값 중에 글자(예: "&lt;5", "N/A", 쉼표가 들어간 "1,200")가 섞여 있다는 신호입니다.</span></li>
 </ol>
 <p>첫 줄의 <code>&lt;class 'pandas.DataFrame'&gt;</code>은 pandas 2에서는 <code>&lt;class 'pandas.core.frame.DataFrame'&gt;</code>로 나옵니다. 같은 뜻입니다.</p>
@@ -467,7 +467,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>bwt 평균 2944.59 g.</b></span></li>
 <li><span class="mk">2</span><span><b>bwt 표준편차 729.21 g.</b> pandas의 <code>std</code>는 n − 1로 나누는 표본표준편차입니다. numpy의 <code>np.std()</code>는 기본값이 n으로 나누는 방식이라 값이 조금 다르므로, 논문용 SD는 pandas의 <code>.std()</code>를 쓰는 것이 안전합니다.</span></li>
-<li><span class="mk">3</span><span><b>bwt 중앙값 2977.00 g.</b> 평균(2944.59)과 가까우므로 출생체중 분포는 크게 치우치지 않았다고 짐작할 수 있습니다(<a href="#ch01-s8">1장 아 절</a>, 실습 1).</span></li>
+<li><span class="mk">3</span><span><b>bwt 중앙값 2977.00 g.</b> 평균(2944.59)과 가까우므로 출생체중 분포는 크게 치우치지 않았다고 짐작할 수 있습니다(<a href="#ch01-s8">1장 h 절</a>, 실습 1).</span></li>
 <li><span class="mk">4</span><span><b>race의 평균 1.85는 의미가 없습니다.</b> describe는 숫자로 저장된 열이면 무조건 계산합니다. 명목형 코드의 평균·표준편차는 해석하지 않고, 범주별 빈도(value_counts)로 요약합니다. 반면 0/1 변수의 평균은 비율이므로 쓸모가 있습니다. smoke의 평균 0.39는 흡연 산모가 39%라는 뜻입니다.</span></li>
 </ol>
 
@@ -498,7 +498,7 @@
 <h3>새 열 만들기</h3>
 <!--FIG:lab00_pd_newcol-->
 <ol class="lines">
-<li><code>df["bwt_kg"] = df["bwt"] / 1000</code><span>없는 열 이름에 값을 저장하면 새 열이 생깁니다. 오른쪽 계산은 189개 값 모두에 한 번에 적용되므로 반복문이 필요 없습니다. 원래 bwt 열은 그대로 둡니다(라 절의 '두 번 실행' 문제를 피하는 방법).</span></li>
+<li><code>df["bwt_kg"] = df["bwt"] / 1000</code><span>없는 열 이름에 값을 저장하면 새 열이 생깁니다. 오른쪽 계산은 189개 값 모두에 한 번에 적용되므로 반복문이 필요 없습니다. 원래 bwt 열은 그대로 둡니다(d 절의 '두 번 실행' 문제를 피하는 방법).</span></li>
 <li><code>race_names = {1: "white", 2: "black", 3: "other"}</code><span>코드 번호와 이름을 짝지은 사전입니다. 코드의 뜻은 설명서에서 확인한 것입니다.</span></li>
 <li><code>df["race"].map(race_names)</code><span><code>.map()</code>은 열의 값 하나하나를 사전에서 찾아 짝지어진 값으로 바꿉니다. 사전에 없는 값(예: 4)은 결측값(NaN)이 되므로, 바꾼 뒤 결측이 생기지 않았는지 확인합니다.</span></li>
 <li><code>df[["bwt", "bwt_kg", "race", "race_lab"]].head()</code><span>원래 열과 새 열을 나란히 놓고 제대로 바뀌었는지 눈으로 확인합니다.</span></li>
@@ -520,7 +520,7 @@
 <li><code>["bwt"]</code><span>각 묶음에서 bwt 열만 씁니다.</span></li>
 <li><code>.agg(["count", "mean", "std"])</code><span>묶음마다 개수, 평균, 표준편차를 한 번에 계산합니다. 결과는 묶음이 행, 요약이 열인 표입니다. 평균 하나만 필요하면 <code>.mean()</code>을 씁니다.</span></li>
 </ol>
-<p>출력에서 <span class="mk">1</span> 비흡연 산모(smoke = 0, 115명)의 아기 평균 출생체중은 3055.7 g(SD 752.7), <span class="mk">2</span> 흡연 산모(74명)는 2771.9 g(SD 659.6)입니다. 차이는 약 284 g입니다. 이 차이가 우연으로 설명될 정도인지는 독립표본 t 검정으로 판단합니다(<a href="#ch02-s1">2장 가 절</a>, 실습 2).</p>
+<p>출력에서 <span class="mk">1</span> 비흡연 산모(smoke = 0, 115명)의 아기 평균 출생체중은 3055.7 g(SD 752.7), <span class="mk">2</span> 흡연 산모(74명)는 2771.9 g(SD 659.6)입니다. 차이는 약 284 g입니다. 이 차이가 우연으로 설명될 정도인지는 독립표본 t 검정으로 판단합니다(<a href="#ch02-s1">2장 a 절</a>, 실습 2).</p>
 
 <h3>교차표: crosstab()</h3>
 <!--FIG:lab00_pd_ct-->
@@ -531,7 +531,7 @@
 <p><b>출력 읽기</b></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>합계(All).</b> 흡연 산모 74명 중 30명, 비흡연 산모 115명 중 29명이 저체중아를 낳았습니다. 전체로는 189명 중 59명입니다.</span></li>
-<li><span class="mk">2</span><span><b>흡연 산모의 저체중아 비율 0.405(40.5%)</b>로, 비흡연 산모의 0.252(25.2%)보다 높습니다. 두 비율의 비인 상대위험도는 0.405 ÷ 0.252 = 1.61입니다. 2×2 표에서 위험차·상대위험도·오즈비를 구하는 방법은 <a href="#ch05-s1">5장 가 절</a>, 두 비율의 차이를 검정하는 카이제곱 검정은 실습 5에서 다룹니다.</span></li>
+<li><span class="mk">2</span><span><b>흡연 산모의 저체중아 비율 0.405(40.5%)</b>로, 비흡연 산모의 0.252(25.2%)보다 높습니다. 두 비율의 비인 상대위험도는 0.405 ÷ 0.252 = 1.61입니다. 2×2 표에서 위험차·상대위험도·오즈비를 구하는 방법은 <a href="#ch05-s1">5장 a 절</a>, 두 비율의 차이를 검정하는 카이제곱 검정은 실습 5에서 다룹니다.</span></li>
 </ol>
 
 <div class="paper">
@@ -554,7 +554,7 @@
 
 <!-- ============================================================ 사 -->
 <section class="sec" id="lab00-s7">
-<h2><span class="sec-no">사.</span>오류 메시지 읽는 법</h2>
+<h2><span class="sec-no">g.</span>오류 메시지 읽는 법</h2>
 
 <p>코드를 쓰다 보면 오류는 반드시 납니다. 숙련자도 마찬가지이며, 오류 메시지는 원인을 알려 주는 단서입니다. 메시지를 읽는 순서만 알면 대부분 스스로 고칠 수 있습니다.</p>
 
@@ -572,7 +572,7 @@
 <li><span class="mk">1</span><span><b>"가장 최근의 호출이 마지막".</b> 위에서 아래로 갈수록 오류가 실제로 난 곳에 가까워진다는 뜻입니다.</span></li>
 <li><span class="mk">2</span><span><b>셀의 4번째 줄</b> <code>to_kg("2523")</code>에서 함수를 부른 것이 출발점입니다. 내가 쓴 코드 중 어디서 문제가 시작됐는지 보여 줍니다.</span></li>
 <li><span class="mk">3</span><span><b>함수 안의 2번째 줄</b> <code>return grams / 1000</code>에서 실제로 오류가 났습니다. <code>~~~~~~^~~~~~</code> 표시가 문제의 연산(나누기)을 가리킵니다.</span></li>
-<li><span class="mk">4</span><span><b>마지막 줄 = 오류의 종류와 설명.</b> <code>TypeError</code>(자료형 오류): 'str'(문자열)과 'int'(정수)는 <code>/</code>로 나눌 수 없다. 원인은 "2523"의 따옴표이고, <code>to_kg(2523)</code>으로 고치면 됩니다. CSV에서 읽은 숫자 열이 글자로 저장되어 있을 때(바 절의 info 출력 해설 3)도 같은 오류가 납니다.</span></li>
+<li><span class="mk">4</span><span><b>마지막 줄 = 오류의 종류와 설명.</b> <code>TypeError</code>(자료형 오류): 'str'(문자열)과 'int'(정수)는 <code>/</code>로 나눌 수 없다. 원인은 "2523"의 따옴표이고, <code>to_kg(2523)</code>으로 고치면 됩니다. CSV에서 읽은 숫자 열이 글자로 저장되어 있을 때(f 절의 info 출력 해설 3)도 같은 오류가 납니다.</span></li>
 </ol>
 <div class="flow">
 <div><div><b>맨 아래 줄부터 읽기</b><p>콜론(:) 앞이 오류의 종류(NameError, KeyError …), 뒤가 설명입니다. 대부분 이 한 줄로 원인을 알 수 있습니다.</p></div></div>
@@ -596,7 +596,7 @@
 
 <h4>FileNotFoundError: 없는 파일</h4>
 <!--FIG:lab00_err_file-->
-<p><code>[Errno 2] No such file or directory</code>는 그 위치에 그 이름의 파일이 없다는 뜻입니다. 확인할 것은 네 가지입니다. 파일 이름의 오타, 확장자(Windows 탐색기가 확장자를 숨겨서 <code>data.csv</code>가 실제로는 <code>data.csv.xlsx</code>인 경우), 파일을 올리지 않았거나 런타임이 바뀌어 사라진 경우(나 절), 현재 작업 폴더가 생각한 곳이 아닌 경우입니다. 현재 폴더는 셀에서 <code>import os</code> 다음 줄에 <code>os.getcwd()</code>를 실행하면 확인할 수 있고, 헷갈리면 전체 경로를 씁니다(마 절).</p>
+<p><code>[Errno 2] No such file or directory</code>는 그 위치에 그 이름의 파일이 없다는 뜻입니다. 확인할 것은 네 가지입니다. 파일 이름의 오타, 확장자(Windows 탐색기가 확장자를 숨겨서 <code>data.csv</code>가 실제로는 <code>data.csv.xlsx</code>인 경우), 파일을 올리지 않았거나 런타임이 바뀌어 사라진 경우(b 절), 현재 작업 폴더가 생각한 곳이 아닌 경우입니다. 현재 폴더는 셀에서 <code>import os</code> 다음 줄에 <code>os.getcwd()</code>를 실행하면 확인할 수 있고, 헷갈리면 전체 경로를 씁니다(e 절).</p>
 
 <h4>경고(warning): 실행은 되었지만 확인이 필요함</h4>
 <p>오류(error)가 나면 셀이 그 줄에서 멈추지만, <b>경고</b><span class="en">(warning)</span>는 실행을 끝까지 마친 뒤 "결과를 확인하라"고 알려 주는 메시지입니다.</p>
@@ -625,7 +625,7 @@
 <div><div><b>마지막 줄을 복사해 검색</b><p>오류 종류와 설명을 복사하되, 내 변수 이름이나 파일 경로처럼 나에게만 있는 부분은 빼고 검색합니다. 패키지 이름을 함께 넣으면 더 정확합니다. 예: <code>pandas read_csv UnicodeDecodeError 'utf-8' codec can't decode byte</code></p></div></div>
 <div><div><b>검색 결과 고르기</b><p>Stack Overflow의 채택된 답변과 패키지 공식 문서를 먼저 봅니다. 오래된 답변은 옛 버전 기준일 수 있으니 날짜를 확인합니다.</p></div></div>
 <div><div><b>도움말 보기</b><p>함수의 인자가 궁금하면 셀에 <code>help(pd.read_csv)</code>를 실행하거나, 노트북에서 <code>pd.read_csv?</code>를 실행합니다. Colab에서는 함수 괄호 안에 커서를 두면 설명 창이 뜨기도 합니다.</p></div></div>
-<div><div><b>AI나 선배에게 질문</b><p>셀 코드 전체, 오류 메시지 전체(traceback), 패키지 버전(라 절 셀 4)을 함께 붙이면 원인을 훨씬 빨리 찾습니다. "안 돼요"보다 "무엇을 하려 했고, 무엇이 나왔는가"를 씁니다. 환자 자료나 개인정보는 붙이지 않고, 필요하면 <code>df.head()</code> 대신 열 이름과 자료형(<code>df.info()</code>)만 보여 줍니다.</p></div></div>
+<div><div><b>AI나 선배에게 질문</b><p>셀 코드 전체, 오류 메시지 전체(traceback), 패키지 버전(d 절 셀 4)을 함께 붙이면 원인을 훨씬 빨리 찾습니다. "안 돼요"보다 "무엇을 하려 했고, 무엇이 나왔는가"를 씁니다. 환자 자료나 개인정보는 붙이지 않고, 필요하면 <code>df.head()</code> 대신 열 이름과 자료형(<code>df.info()</code>)만 보여 줍니다.</p></div></div>
 </div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>

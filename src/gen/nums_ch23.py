@@ -200,7 +200,7 @@ for arm in ("B", "A"):
     h2 = p["hr_os"] if arm == "A" else 1.0
     CROSS[arm] = ((p["pfs_lam"] * h1) / (p["os_lam"] * h2)) ** (1 / (p["os_gam"] - p["pfs_gam"]))
 print("PFS와 OS 곡선이 만나는 시점(개월):", CROSS)
-# 확률적 민감도 분석(24장 나 절)에서 입력값 5,000벌을 채택하는 동안, 두 곡선이 분석기간(240개월) 안에 만나서 버리고 다시 뽑은 비율.
+# 확률적 민감도 분석(24장 b 절)에서 입력값 5,000벌을 채택하는 동안, 두 곡선이 분석기간(240개월) 안에 만나서 버리고 다시 뽑은 비율.
 # L.draw()는 그런 벌을 버리므로 채택된 5,000벌에서는 곡선이 만나지 않는다(무진행생존을 전체생존 값으로 자르는 장치가 작동하지 않는다).
 _draws, _cnt = L.psa_inputs(5000, SEED)
 assert not any(L.curves_cross(q) for q in _draws)
@@ -327,7 +327,7 @@ RM = {"km30": float(restricted_mean_survival_time(km, t=30.0)),                 
       "weib_total": FIT["weib"]["mean_B"] * 12}
 RM["share30"] = RM["weib30"] / RM["weib_total"]
 print("면적:", RM)
-# numpy 한 줄 검산(가 절), matrix_power 검산(나 절)
+# numpy 한 줄 검산(a 절), matrix_power 검산(b 절)
 assert abs((np.array([0.12, 0.18, 0.70]) * np.array([700, 200, 0])).sum() - 120) < 1e-9
 assert np.allclose(np.linalg.matrix_power(MI["B"]["P"], 24)[0], [trB["pf"][24], trB["pd"][24], trB["dead"][24]])
 assert np.allclose(MI["B"]["P"].sum(axis=1), 1)

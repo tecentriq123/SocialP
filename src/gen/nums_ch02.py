@@ -171,7 +171,7 @@ print("P(c>u)", p_gt, "P(tie)", p_eq, "P(c<u)", 1 - p_gt - p_eq)
 
 print("=" * 20, "G. 파이썬 출력 상자 (scipy 1.17, pandas 3.0; run with source /home/claude/pylibs/env.sh)")
 import pandas as pd
-# 가 절: Welch t 검정. x1, x2 = exact_data (평균·SD가 표와 정확히 같은 개인 값)
+# a 절: Welch t 검정. x1, x2 = exact_data (평균·SD가 표와 정확히 같은 개인 값)
 tdf = pd.DataFrame({"group": ["counseling"] * 36 + ["usual"] * 36, "hba1c_chg": np.r_[x1, x2]})
 print(tdf.groupby("group")["hba1c_chg"].agg(["count", "mean", "std"]))
 counseling = tdf.loc[tdf["group"] == "counseling", "hba1c_chg"]
@@ -180,7 +180,7 @@ res = st.ttest_ind(counseling, usual, equal_var=False)
 print(repr(res)); print(repr(res.confidence_interval()))
 res_s = st.ttest_ind(counseling, usual)          # 기본값 equal_var=True -> Student
 print(repr(res_s)); print(repr(res_s.confidence_interval()))
-# 나 절: Mann-Whitney + Hodges-Lehmann
+# b 절: Mann-Whitney + Hodges-Lehmann
 protocol = np.array([12, 15, 18, 20, 22, 26, 31, 68])
 usual_mme = np.array([24, 29, 36, 41, 45, 58, 115])
 print(repr(st.mannwhitneyu(protocol, usual_mme)))

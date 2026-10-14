@@ -62,7 +62,7 @@ toy = pd.DataFrame({
     "age":   [52, 61, 47, 78, 83, 69, 88, 58, 74, 81],
     "n_ed":  [0, 0, 1, 2, 0, 0, 3, 1, 2, 0],
     "admit": [0, 0, 0, 1, 0, 0, 1, 0, 0, 1]},
-    index=list("ABCDEFGHIJ"))           # 0장 가 절의 환자 10명
+    index=list("ABCDEFGHIJ"))           # 0장 a 절의 환자 10명
 
 def gini(y):
     """입원 비율 p에서 지니 불순도 1 - p² - (1 - p)²"""
@@ -106,7 +106,7 @@ print(stump.predict_proba(new))
 ''', title="사이킷런으로 같은 일 하기")
 save("ml01_stump", c, marks={"age <= 76.00": 1, "weights: [1.00, 3.00]": 2, "[[0.25 0.75]]": 3})
 
-# ---------------------------------------------------------------- 0장의 준비를 다시 (가 절 안)
+# ---------------------------------------------------------------- 0장의 준비를 다시 (a 절 안)
 c = nb.cell('''
 import time
 import numpy as np
@@ -463,7 +463,7 @@ save("ml01_final", c, marks={"leaves: 11": 1, "test AUC: 0.771": 2, "[0.726 0.81
 c = nb.cell('''
 from sklearn.linear_model import LogisticRegression
 
-# 0장 라 절에서 고른 C = 0.1
+# 0장 d 절에서 고른 C = 0.1
 lr = make_pipe(LogisticRegression(C=0.1, max_iter=1000))
 cv_lr = cross_val_score(lr, X_train, y_train, cv=skf,
                         scoring="roc_auc")
@@ -684,7 +684,7 @@ def toy_tree_figure():
     text(185, 216, "0.6 x 0 + 0.4 x 0.375 = 0.150", "middle", "lbl mute small")
     svg = (f'<svg viewBox="0 0 {W} {H}" class="viz" role="img" aria-label="환자 10명으로 만든 깊이 2의 나무" '
            f'xmlns="http://www.w3.org/2000/svg">{"".join(o)}</svg>')
-    cap = ("그림 1-1. 0장 가 절의 환자 10명으로 만든 깊이 2의 나무. 맨 위 마디가 뿌리, 더 나누지 않는 초록 마디가 잎입니다. "
+    cap = ("그림 1-1. 0장 a 절의 환자 10명으로 만든 깊이 2의 나무. 맨 위 마디가 뿌리, 더 나누지 않는 초록 마디가 잎입니다. "
            "잎의 입원 비율이 그 잎에 도착하는 새 사람의 예측 확률이 됩니다. 두 번째 나누기의 응급실 기준은 나이 82세 기준과 "
            "불순도 감소가 같은 동점입니다(본문 ④).")
     return figure(svg, cap)
@@ -742,7 +742,7 @@ if __name__ == "__main__":
     T = json.load(open(os.path.join(ROOT, "gen", "_ml_truth.json"), encoding="utf-8"))
     same("split", [len(Xtr), len(Xte), ytr.sum(), yte.sum()],
          [T["check"]["n_train"], T["check"]["n_test"], T["check"]["events_train"], T["check"]["events_test"]])
-    # 가 절: 환자 10명 (0장 가 절의 표와 같은 값)
+    # a 절: 환자 10명 (0장 a 절의 표와 같은 값)
     toy = ns["toy"]
     same("toy table = ml00 table", [toy["age"].tolist(), toy["n_ed"].tolist(), toy["admit"].tolist()],
          [[52, 61, 47, 78, 83, 69, 88, 58, 74, 81], [0, 0, 1, 2, 0, 0, 3, 1, 2, 0], [0, 0, 0, 1, 0, 0, 1, 0, 0, 1]])
@@ -757,7 +757,7 @@ if __name__ == "__main__":
     g_a82 = (lambda L, R: (len(L) * ns["gini"](L) + len(R) * ns["gini"](R)) / len(rnode))(
         rnode["admit"][rnode["age"] <= 82], rnode["admit"][rnode["age"] > 82])
     same("depth-2 tie n_ed vs age 82", [g_ed, g_a82], [0.25, 0.25], 1e-12)
-    # 나 절: 잎 크기와 확률의 흔들림 (입원 비율 4%)
+    # b 절: 잎 크기와 확률의 흔들림 (입원 비율 4%)
     same("leaf of 20: P(0 events), SE; leaf of 300: SE",
          [round(0.96 ** 20, 3), round(math.sqrt(0.04 * 0.96 / 20), 3), round(math.sqrt(0.04 * 0.96 / 300), 3), 0.04 * 300],
          [0.442, 0.044, 0.011, 12])
@@ -790,7 +790,7 @@ if __name__ == "__main__":
     p_true_te = tr_csv.loc[df_.loc[Xte.index, "id"], "p_true"].to_numpy()
     same("true-probability test AUC", round(roc_auc_score(yte, p_true_te), 3), 0.810)
     same("cv recall 0.089 -> 41 of 459", round(41 / 459, 3), 0.089)
-    # 나 절: 깊이 표
+    # b 절: 깊이 표
     dt = ns["depth_tab"]
     same("depth table", [dt.loc[4, "cv"].round(3), dt.loc[10, "train"], dt.loc[10, "cv"].round(3), dt.loc[10, "leaves"],
                          dt.loc[10, "test"].round(3), dt.loc[5, "test"].round(3)], [0.706, 1.0, 0.578, 674, 0.581, 0.729])
@@ -802,7 +802,7 @@ if __name__ == "__main__":
     print(f"VERIFY balanced weights {w0:.3f} {w1:.3f} ratio {w1 / w0:.1f}; 4% leaf -> {pw:.3f}")
     same("balanced weights", [round(w0, 3), round(w1, 2), round(w1 / w0, 1), round(pw, 2)], [0.521, 12.25, 23.5, 0.49])
     same("ccp path length", len(ns["alphas"]), 179)
-    # 라 절
+    # d 절
     same("gs1 best at edge", [ns["gs1"].best_params_["model__min_samples_leaf"], round(ns["gs1"].best_score_, 4)], [200, 0.7478])
     gs = ns["gs"]
     same("gs best", [gs.best_params_["model__max_depth"], gs.best_params_["model__min_samples_leaf"], round(gs.best_score_, 4)],
@@ -810,7 +810,7 @@ if __name__ == "__main__":
     g2 = ns["gs_two"]
     same("gs_two best", [g2.best_params_["model__max_leaf_nodes"], round(g2.best_score_, 4)], [10, 0.7546])
     same("gs_two leaves", g2.best_estimator_.named_steps["model"].get_n_leaves(), 10)
-    # 마 절
+    # e 절
     same("final test AUC and CI", [round(roc_auc_score(yte, ns["p_tree"]), 3), *np.percentile(ns["b_tree"], [2.5, 97.5]).round(3)],
          [0.771, 0.726, 0.810])
     same("logistic test AUC and CI (= ml00)", [round(roc_auc_score(yte, ns["p_lr"]), 3), *np.percentile(ns["b_lr"], [2.5, 97.5]).round(3)],

@@ -1,7 +1,7 @@
 <p class="lead">7장에서 12명 자료로 손계산한 Kaplan-Meier 곡선, 중앙생존기간, 로그순위 검정을 실제 임상연구 자료 228명에 파이썬 lifelines 패키지로 적용합니다. 사건 변수 만들기와 역 Kaplan-Meier 중앙 추적기간에서 시작해, 위험집합 표가 붙은 생존곡선, 시점별 생존율과 신뢰구간, 제한평균생존시간, 로그순위 검정과 그 변형까지 해 보고, 결과를 논문 문장으로 옮깁니다. 이론은 <a href="#ch07">7장</a>을 함께 보세요.</p>
 
 <dl class="glance">
-<div><dt>관련 이론</dt><dd><a href="#ch07">7장 생존율의 추정 및 군의 생존율 비교</a> (<a href="#ch07-s1">가 절</a> 생존 연구의 준비, <a href="#ch07-s2">나 절</a> Kaplan-Meier, <a href="#ch07-s3">다 절</a> 로그순위법)</dd></div>
+<div><dt>관련 이론</dt><dd><a href="#ch07">7장 생존율의 추정 및 군의 생존율 비교</a> (<a href="#ch07-s1">a 절</a> 생존 연구의 준비, <a href="#ch07-s2">b 절</a> Kaplan-Meier, <a href="#ch07-s3">c 절</a> 로그순위법)</dd></div>
 <div><dt>데이터</dt><dd>NCCTG 폐암 자료 (R survival 패키지의 <code>cancer</code>, 흔히 <code>lung</code>이라고 부름). 진행성 폐암 환자 228명, 변수 10개(생존 일수, 사망 여부, 나이, 성별, ECOG 수행능력 등). North Central Cancer Treatment Group이 환자가 작성한 설문이 예후를 예측하는지 본 전향적 연구의 자료입니다<cite data-ref="loprinzi1994"></cite>.</dd></div>
 <div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, lifelines (<code>KaplanMeierFitter</code>, <code>logrank_test</code>, <code>multivariate_logrank_test</code>, <code>pairwise_logrank_test</code>)</dd></div>
 <div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). lifelines는 첫 셀에서 설치</dd></div>
@@ -9,9 +9,9 @@
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab07-s1">
-<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+<h2><span class="sec-no">a.</span>실습 데이터 준비</h2>
 
-<p>생존분석은 자료를 (time, status) 한 쌍으로 만드는 데서 시작합니다(<a href="#ch07-s1">7장 가 절</a>). 이 절에서는 lifelines를 설치하고, 자료를 불러와 사건 변수를 올바르게 만들고, 사건 수와 중앙 추적기간을 확인합니다. 분석 결과가 틀리는 가장 흔한 원인이 이 단계의 부호화 실수이므로 한 줄씩 확인하며 진행합니다.</p>
+<p>생존분석은 자료를 (time, status) 한 쌍으로 만드는 데서 시작합니다(<a href="#ch07-s1">7장 a 절</a>). 이 절에서는 lifelines를 설치하고, 자료를 불러와 사건 변수를 올바르게 만들고, 사건 수와 중앙 추적기간을 확인합니다. 분석 결과가 틀리는 가장 흔한 원인이 이 단계의 부호화 실수이므로 한 줄씩 확인하며 진행합니다.</p>
 
 <h3>lifelines 설치</h3>
 <p><strong>lifelines</strong>는 Kaplan-Meier 추정, 로그순위 검정, Cox 모형(실습 11) 같은 생존분석 기능을 모아 놓은 파이썬 패키지입니다. Colab 기본 환경에는 들어 있지 않은 경우가 많으므로 노트북의 <b>첫 셀</b>에서 설치합니다. Colab은 런타임 연결이 끊기면(한동안 사용하지 않았거나 창을 닫았다가 다시 연 경우) 새 가상 컴퓨터가 배정되어 설치한 패키지가 사라지므로, 노트북을 새로 열 때마다 이 셀을 먼저 실행합니다. 내 컴퓨터의 Anaconda 환경이라면 한 번만 설치하면 됩니다. Jupyter 셀에서 아래와 똑같이 실행해도 되고, Anaconda Prompt에 <code>pip install lifelines</code>(앞의 <code>!</code> 없이)를 입력해도 됩니다(<a href="#lab00">실습 0</a>).</p>
@@ -83,13 +83,13 @@
 <ol class="lines">
 <li><code>from lifelines import KaplanMeierFitter</code><span>lifelines에서 Kaplan-Meier 추정을 하는 도구(클래스)를 불러옵니다.</span></li>
 <li><code>KaplanMeierFitter().fit(lung["time"], lung["status"])</code><span>빈 추정기를 만들고(<code>KaplanMeierFitter()</code>) 곧바로 <code>fit(시간, 사건 여부)</code>로 계산합니다. 두 번째 인자에 1/2로 된 status를 잘못 넣은 것이 <code>wrong</code>, 0/1로 된 event를 넣은 것이 <code>right</code>입니다.</span></li>
-<li><code>wrong.event_table["observed"].sum()</code><span>추정기 안의 사건 표(나 절에서 자세히 봄)에서 시점별 사건 수(observed)를 모두 더한 값, 즉 lifelines가 '사건'으로 센 환자 수입니다.</span></li>
+<li><code>wrong.event_table["observed"].sum()</code><span>추정기 안의 사건 표(b 절에서 자세히 봄)에서 시점별 사건 수(observed)를 모두 더한 값, 즉 lifelines가 '사건'으로 센 환자 수입니다.</span></li>
 <li><code>wrong.median_survival_time_</code><span>추정한 중앙생존기간입니다. 이름 끝의 밑줄(<code>_</code>)은 lifelines에서 "fit을 한 뒤에 생기는 결과"라는 표시입니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>228건.</b> 228명 전원이 사망으로 처리되었습니다. 중도절단된 63명까지 사망으로 센 것입니다.</span></li>
-<li><span class="mk">2</span><span><b>중앙값 252일.</b> 중도절단을 '그 시점의 사망'으로 취급했으므로 생존기간이 짧게 나옵니다. 7장 가 절 표에서 본 과소추정이 실제로 일어난 것입니다.</span></li>
+<li><span class="mk">2</span><span><b>중앙값 252일.</b> 중도절단을 '그 시점의 사망'으로 취급했으므로 생존기간이 짧게 나옵니다. 7장 a 절 표에서 본 과소추정이 실제로 일어난 것입니다.</span></li>
 <li><span class="mk">3</span><span><b>165건.</b> 올바른 사망자 수입니다.</span></li>
 <li><span class="mk">4</span><span><b>중앙값 310일.</b> 올바른 중앙생존기간입니다. 부호화 하나로 58일 차이가 납니다.</span></li>
 </ol>
@@ -97,7 +97,7 @@
 <p>status를 그대로 넣어도 오류가 나지 않으므로, <code>fit</code> 뒤에 출력되는 "fitted with 228 total observations, <b>63 right-censored observations</b>"처럼 중도절단 수가 예상과 맞는지 확인하세요(0이면 부호화를 의심). 사건이 0/1이 아닌 자료(1/2, 'dead'/'alive', 날짜 등)는 반드시 새 0/1 열을 만들고 교차표로 확인합니다. 반대로 <code>KeyError: 'event'</code>가 나면 열 이름이 틀린 것이므로 <code>lung.columns</code>로 실제 열 이름을 확인합니다.</p></div>
 
 <h3>시간 단위와 사건 수</h3>
-<p>time은 일 단위입니다. 종양학 논문은 보통 개월로 보고하므로 개월 단위 열을 새로 만듭니다. 1개월은 365.25일 ÷ 12 = 30.4375일로 계산합니다. 모든 환자의 시간을 같은 수로 나누는 것이라 사건의 순서는 그대로이고, Kaplan-Meier 곡선과 로그순위 검정 결과는 단위만 바뀔 뿐 똑같습니다. 이어서 7장 가 절에서 본 요약값들을 계산합니다.</p>
+<p>time은 일 단위입니다. 종양학 논문은 보통 개월로 보고하므로 개월 단위 열을 새로 만듭니다. 1개월은 365.25일 ÷ 12 = 30.4375일로 계산합니다. 모든 환자의 시간을 같은 수로 나누는 것이라 사건의 순서는 그대로이고, Kaplan-Meier 곡선과 로그순위 검정 결과는 단위만 바뀔 뿐 똑같습니다. 이어서 7장 a 절에서 본 요약값들을 계산합니다.</p>
 <!--FIG:lab07_counts-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -110,13 +110,13 @@
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>사망 165명, 중도절단 63명.</b> 논문의 Results 첫 문단에 들어가는 숫자입니다.</span></li>
-<li><span class="mk">2</span><span><b>72.4%는 '사망 위험'이 아닙니다.</b> 환자마다 추적 기간이 다르므로 이 비율은 추적을 오래 할수록 커집니다. 특정 시점의 사망 위험은 나 절의 Kaplan-Meier 추정값으로 봅니다(<a href="#ch07-s1">7장 가 절</a> 2단계 '숫자로 따라가기').</span></li>
+<li><span class="mk">2</span><span><b>72.4%는 '사망 위험'이 아닙니다.</b> 환자마다 추적 기간이 다르므로 이 비율은 추적을 오래 할수록 커집니다. 특정 시점의 사망 위험은 b 절의 Kaplan-Meier 추정값으로 봅니다(<a href="#ch07-s1">7장 a 절</a> 2단계 '숫자로 따라가기').</span></li>
 <li><span class="mk">3</span><span><b>총 190.5인년.</b> 228명이 평균 약 10개월씩 관찰된 양입니다.</span></li>
-<li><span class="mk">4</span><span><b>100인년당 86.6명.</b> 관찰한 시간 100인년마다 약 87명이 사망하는 속도로, 추적 기간의 차이를 반영한 빈도입니다. "100명을 1년 관찰하면 87명이 사망한다"는 뜻은 아닙니다. 사망한 환자는 그 뒤로 인년을 보태지 않으므로, 위험률이 일정하다고 가정해도 1년 안에 사망할 확률은 1 − e<sup>−0.866</sup> = 58%입니다(나 절 Kaplan-Meier의 1년 사망 59%와 비슷). 위험률이 시간에 따라 일정하다고 볼 때 이 값은 그 위험률(연 0.866)의 추정값이기도 합니다(<a href="#ch11-s1">11장</a> '위험률').</span></li>
+<li><span class="mk">4</span><span><b>100인년당 86.6명.</b> 관찰한 시간 100인년마다 약 87명이 사망하는 속도로, 추적 기간의 차이를 반영한 빈도입니다. "100명을 1년 관찰하면 87명이 사망한다"는 뜻은 아닙니다. 사망한 환자는 그 뒤로 인년을 보태지 않으므로, 위험률이 일정하다고 가정해도 1년 안에 사망할 확률은 1 − e<sup>−0.866</sup> = 58%입니다(b 절 Kaplan-Meier의 1년 사망 59%와 비슷). 위험률이 시간에 따라 일정하다고 볼 때 이 값은 그 위험률(연 0.866)의 추정값이기도 합니다(<a href="#ch11-s1">11장</a> '위험률').</span></li>
 </ol>
 
 <h3>중앙 추적기간</h3>
-<p>논문은 "median follow-up"으로 추적이 충분했는지 보고합니다. 7장 가 절에서 본 세 가지 계산을 모두 해 보고 차이를 확인합니다. 역 Kaplan-Meier 방법은 사건 부호를 뒤집어(중도절단 = '사건', 사망 = '중도절단') Kaplan-Meier 곡선을 구하고 그 중앙값을 읽습니다.</p>
+<p>논문은 "median follow-up"으로 추적이 충분했는지 보고합니다. 7장 a 절에서 본 세 가지 계산을 모두 해 보고 차이를 확인합니다. 역 Kaplan-Meier 방법은 사건 부호를 뒤집어(중도절단 = '사건', 사망 = '중도절단') Kaplan-Meier 곡선을 구하고 그 중앙값을 읽습니다.</p>
 <!--FIG:lab07_followup-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -132,7 +132,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>전체 time의 중앙값 8.4개월.</b> 사망한 환자는 사망과 함께 time이 끝나므로, 사망이 많은 이 자료에서는 추적기간이 짧게 보입니다.</span></li>
 <li><span class="mk">2</span><span><b>생존자만의 중앙값 9.3개월.</b> 사망자 정보를 버린 값입니다.</span></li>
-<li><span class="mk">3</span><span><b>역 Kaplan-Meier 중앙 추적기간 19.3개월.</b> 단순 계산의 두 배가 넘습니다. "사망하지 않았다면 관찰이 얼마나 이어질 수 있었는가"를 추정한 값으로, 논문에서 권장하는 방법입니다(<a href="#ch07-s1">7장 가 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>역 Kaplan-Meier 중앙 추적기간 19.3개월.</b> 단순 계산의 두 배가 넘습니다. "사망하지 않았다면 관찰이 얼마나 이어질 수 있었는가"를 추정한 값으로, 논문에서 권장하는 방법입니다(<a href="#ch07-s1">7장 a 절</a>).</span></li>
 <li><span class="mk">4</span><span><b>0.75 행의 9.9개월.</b> 역 곡선이 0.75 아래로 내려가는 시점이므로 <em>추적기간의 25번째 백분위수</em>(IQR의 아래쪽 끝)입니다. 행 이름 0.75는 곡선의 높이이지 백분위수가 아니라는 점에 주의합니다.</span></li>
 <li><span class="mk">5</span><span><b>0.25 행의 31.7개월.</b> IQR의 위쪽 끝입니다. 논문에는 "median follow-up 19.3 months (IQR, 9.9 to 31.7)"로 씁니다. 추적의 절반이 약 19개월에서 끝나므로 2년 이후의 생존곡선은 적은 수의 환자에 근거할 것이라고 미리 예상할 수 있습니다.</span></li>
 </ol>
@@ -158,9 +158,9 @@
 
 <!-- ============================================================ 나 -->
 <section class="sec" id="lab07-s2">
-<h2><span class="sec-no">나.</span>Kaplan-Meier 생존곡선</h2>
+<h2><span class="sec-no">b.</span>Kaplan-Meier 생존곡선</h2>
 
-<p>이제 7장 나 절의 계산을 228명에 적용합니다. <code>KaplanMeierFitter</code> 하나로 생존곡선, 사건 표, 중앙생존기간, 신뢰구간을 모두 얻을 수 있습니다. 먼저 전체 환자의 곡선을 보고, 이어서 성별로 나눠 비교합니다.</p>
+<p>이제 7장 b 절의 계산을 228명에 적용합니다. <code>KaplanMeierFitter</code> 하나로 생존곡선, 사건 표, 중앙생존기간, 신뢰구간을 모두 얻을 수 있습니다. 먼저 전체 환자의 곡선을 보고, 이어서 성별로 나눠 비교합니다.</p>
 
 <h3>Kaplan-Meier 추정</h3>
 <!--FIG:lab07_kmfit-->
@@ -174,7 +174,7 @@
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>228 total observations.</b> 분석에 들어간 환자 수입니다.</span></li>
-<li><span class="mk">2</span><span><b>63 right-censored observations.</b> 우측 중도절단 수로, 가 절의 63명과 같습니다. 부호화를 확인하는 가장 빠른 방법입니다.</span></li>
+<li><span class="mk">2</span><span><b>63 right-censored observations.</b> 우측 중도절단 수로, a 절의 63명과 같습니다. 부호화를 확인하는 가장 빠른 방법입니다.</span></li>
 <li><span class="mk">3</span><span><b>0.164271개월에 0.995614.</b> 0.164271개월은 5일입니다. 첫 사망이 5일에 있었고 곡선이 1에서 0.9956으로 한 계단 내려갔습니다. 0 시점의 1.000000은 모든 곡선의 출발점입니다.</span></li>
 </ol>
 
@@ -206,7 +206,7 @@
 </ol>
 
 <h3>중앙생존기간과 신뢰구간</h3>
-<p>중앙생존기간은 곡선이 처음 0.5 이하가 되는 시점이고, 그 95% 신뢰구간은 신뢰구간 띠의 아래쪽과 위쪽이 0.5를 지나는 시점입니다(<a href="#ch07-s2">7장 나 절</a>).</p>
+<p>중앙생존기간은 곡선이 처음 0.5 이하가 되는 시점이고, 그 95% 신뢰구간은 신뢰구간 띠의 아래쪽과 위쪽이 0.5를 지나는 시점입니다(<a href="#ch07-s2">7장 b 절</a>).</p>
 <!--FIG:lab07_median-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -234,12 +234,12 @@
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>1년 생존율 40.9% (95% CI 33.9–47.8%).</b> 12개월에 위험집합에 남은 환자는 65명(아래 그림의 위험집합 표)이지만 65/228 = 28.5%는 1년 생존율이 아닙니다. 12개월 전에 중도절단된 42명도 위험집합에서 빠졌기 때문입니다(<a href="#ch07-s2">7장 나 절</a>).</span></li>
+<li><span class="mk">1</span><span><b>1년 생존율 40.9% (95% CI 33.9–47.8%).</b> 12개월에 위험집합에 남은 환자는 65명(아래 그림의 위험집합 표)이지만 65/228 = 28.5%는 1년 생존율이 아닙니다. 12개월 전에 중도절단된 42명도 위험집합에서 빠졌기 때문입니다(<a href="#ch07-s2">7장 b 절</a>).</span></li>
 <li><span class="mk">2</span><span><b>2년 생존율 11.6% (6.8–17.8%).</b> 11.6에서 아래로 4.8, 위로 6.2만큼 떨어진 비대칭 구간입니다. 0에 가까운 생존율에서 log-log 변환이 구간을 0–1 안에 붙잡아 두기 때문입니다.</span></li>
 </ol>
 
 <h3>Greenwood 공식과 신뢰구간 방법 확인</h3>
-<p>lifelines의 신뢰구간은 어떤 방법일까요? 7장 나 절의 Greenwood 분산과 log-log 변환으로 12개월 신뢰구간을 직접 계산해 비교합니다. 프로그램마다 기본 변환이 다르므로(R의 <code>survfit</code>은 log 변환이 기본값) Methods에 적을 내용을 이렇게 확인해 두면 좋습니다.</p>
+<p>lifelines의 신뢰구간은 어떤 방법일까요? 7장 b 절의 Greenwood 분산과 log-log 변환으로 12개월 신뢰구간을 직접 계산해 비교합니다. 프로그램마다 기본 변환이 다르므로(R의 <code>survfit</code>은 log 변환이 기본값) Methods에 적을 내용을 이렇게 확인해 두면 좋습니다.</p>
 <!--FIG:lab07_greenwood-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -257,7 +257,7 @@
 </ol>
 
 <h3>생존곡선 그리기</h3>
-<p>논문용 Kaplan-Meier 그림에는 신뢰구간, 중도절단 표시, 위험집합 표가 들어가는 것이 권장됩니다(<a href="#ch07-s2">7장 나 절</a> 5단계 '논문에서 읽기'). lifelines는 세 가지를 모두 그릴 수 있습니다. 그림 안의 글자는 영어로 씁니다. Colab에는 한글 글꼴이 없어 한글이 네모로 보이기 때문입니다.</p>
+<p>논문용 Kaplan-Meier 그림에는 신뢰구간, 중도절단 표시, 위험집합 표가 들어가는 것이 권장됩니다(<a href="#ch07-s2">7장 b 절</a> 5단계 '논문에서 읽기'). lifelines는 세 가지를 모두 그릴 수 있습니다. 그림 안의 글자는 영어로 씁니다. Colab에는 한글 글꼴이 없어 한글이 네모로 보이기 때문입니다.</p>
 <!--FIG:lab07_kmplot-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -275,7 +275,7 @@
 <ul>
 <li><b>At risk 228, 156, 65, 32, 13, 3, 0.</b> 12개월에는 65명이 남아 있고, 24개월 이후에는 13명 이하입니다. 24개월 뒤의 곡선은 한두 명의 사망으로 크게 움직입니다.</li>
 <li><b>Censored와 Events는 누적 값입니다.</b> 12개월 열의 65 + 42 + 121 = 228처럼 세 값을 더하면 항상 전체 인원이 됩니다.</li>
-<li><b>중도절단 표시(+)</b>가 6–12개월에 몰려 있습니다. 누적 중도절단이 6개월 6명에서 12개월 42명으로 늘었으므로, 중도절단된 63명 중 36명의 관찰이 이 기간에 끝났습니다. 이 자료에는 중도절단 사유가 없어 자료 마감 때문인지 추적 소실 때문인지는 알 수 없습니다(7장 가 절의 비정보적 중도절단 가정).</li>
+<li><b>중도절단 표시(+)</b>가 6–12개월에 몰려 있습니다. 누적 중도절단이 6개월 6명에서 12개월 42명으로 늘었으므로, 중도절단된 63명 중 36명의 관찰이 이 기간에 끝났습니다. 이 자료에는 중도절단 사유가 없어 자료 마감 때문인지 추적 소실 때문인지는 알 수 없습니다(7장 a 절의 비정보적 중도절단 가정).</li>
 <li><b>신뢰구간 띠</b>는 오른쪽으로 갈수록 넓어집니다. 위험집합이 작아질수록 추정이 불확실해지기 때문입니다.</li>
 </ul>
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
@@ -296,8 +296,8 @@
 <h4>그림 읽기</h4>
 <ul>
 <li>여성(Female) 곡선이 처음부터 남성보다 위에 있고, 두 곡선의 차이는 6–21개월 사이에서 가장 큽니다. 24개월 이후에는 두 곡선이 가까워지지만 이때 남은 환자는 남성 7명, 여성 6명뿐입니다.</li>
-<li>두 신뢰구간 띠가 일부 겹칩니다. 시점별 신뢰구간이 겹친다고 두 곡선에 차이가 없다는 뜻은 아닙니다. 곡선 전체의 비교는 다 절의 로그순위 검정으로 합니다.</li>
-<li>이 곡선들은 나이, 수행능력 같은 다른 요인을 보정하지 않은 비교입니다(<a href="#ch07-s3">7장 다 절</a>).</li>
+<li>두 신뢰구간 띠가 일부 겹칩니다. 시점별 신뢰구간이 겹친다고 두 곡선에 차이가 없다는 뜻은 아닙니다. 곡선 전체의 비교는 c 절의 로그순위 검정으로 합니다.</li>
+<li>이 곡선들은 나이, 수행능력 같은 다른 요인을 보정하지 않은 비교입니다(<a href="#ch07-s3">7장 c 절</a>).</li>
 </ul>
 
 <h3>논문 표 형식으로 요약</h3>
@@ -321,7 +321,7 @@
 </ol>
 
 <h3>제한평균생존시간</h3>
-<p>RMST는 τ까지의 곡선 아래 넓이로, "처음 τ 기간 가운데 평균적으로 살아 있던 기간"입니다(<a href="#ch07-s2">7장 나 절</a>). 두 군 모두 위험집합이 남아 있는 24개월을 τ로 씁니다(남성 7명, 여성 6명). 실제 연구에서는 τ를 자료를 보기 전에 정합니다.</p>
+<p>RMST는 τ까지의 곡선 아래 넓이로, "처음 τ 기간 가운데 평균적으로 살아 있던 기간"입니다(<a href="#ch07-s2">7장 b 절</a>). 두 군 모두 위험집합이 남아 있는 24개월을 τ로 씁니다(남성 7명, 여성 6명). 실제 연구에서는 τ를 자료를 보기 전에 정합니다.</p>
 <p>lifelines의 <code>restricted_mean_survival_time(model, t=τ)</code>는 RMST 자체는 정확히 계산하지만 신뢰구간은 주지 않습니다. <code>return_variance=True</code>를 넣으면 두 번째 값이 나오는데, 소스 코드를 보면 이것은 환자 개개인의 제한 생존시간 min(T, τ)가 얼마나 퍼져 있는지(분산)이고 <em>RMST 추정값의 표준오차의 제곱이 아닙니다</em>. 그대로 신뢰구간에 쓰면 구간이 지나치게 넓어집니다. 또 0.30.3 버전의 <code>difference_of_restricted_mean_survival_time_test</code>는 이름만 있고 아무 값도 돌려주지 않습니다. 그래서 7장 예제의 RMST 신뢰구간(23.5개월, 16.2–30.8)과 같은 Greenwood형 분산을 계산하는 작은 함수를 직접 만듭니다.</p>
 <div class="eq">\[ \widehat{\mathrm{Var}}\big[\text{RMST}(\tau)\big] = \sum_{t_j \le \tau} A_j^2 \, \frac{d_j}{n_j(n_j - d_j)}, \qquad A_j = \int_{t_j}^{\tau} \hat S(u)\,du \]
 <p>\(A_j\)는 사망 시점 \(t_j\)부터 τ까지의 곡선 아래 넓이입니다. 이른 시점의 계단일수록 그 뒤의 넓이 전체에 영향을 주므로 가중치가 큽니다.</p></div>
@@ -359,7 +359,7 @@
 </div></div>
 
 <div class="callout tip"><p class="ct">사회약학 연구에서는</p>
-<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(15장). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 가 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 가 절 '더 알아보기'의 '청구자료에서 코호트 만들기'에 있는 '추적 종료 사유 표' 상자).</p></div>
+<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(15장). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 a 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 a 절 '더 알아보기'의 '청구자료에서 코호트 만들기'에 있는 '추적 종료 사유 표' 상자).</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>KaplanMeierFitter().fit(시간, 사건, label=…)</code> 한 번으로 <code>survival_function_</code>(곡선), <code>event_table</code>(위험집합·사망·중도절단), <code>median_survival_time_</code>, <code>confidence_interval_</code>을 얻습니다.</li>
@@ -372,9 +372,9 @@
 
 <!-- ============================================================ 다 -->
 <section class="sec" id="lab07-s3">
-<h2><span class="sec-no">다.</span>로그순위법</h2>
+<h2><span class="sec-no">c.</span>로그순위법</h2>
 
-<p>나 절에서 여성의 곡선이 남성보다 위에 있었습니다. 이 차이가 우연으로 설명될 정도인지를 로그순위 검정으로 봅니다(<a href="#ch07-s3">7장 다 절</a>). 두 군 비교, 세 군 비교, 두 군씩 비교, 가중 검정 순서로 진행합니다.</p>
+<p>b 절에서 여성의 곡선이 남성보다 위에 있었습니다. 이 차이가 우연으로 설명될 정도인지를 로그순위 검정으로 봅니다(<a href="#ch07-s3">7장 c 절</a>). 두 군 비교, 세 군 비교, 두 군씩 비교, 가중 검정 순서로 진행합니다.</p>
 
 <h3>두 군 비교</h3>
 <!--FIG:lab07_logrank-->
@@ -410,10 +410,10 @@
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>O = 112.</b> 남성 사망자 수입니다(나 절 표의 deaths).</span></li>
+<li><span class="mk">1</span><span><b>O = 112.</b> 남성 사망자 수입니다(b 절 표의 deaths).</span></li>
 <li><span class="mk">2</span><span><b>E = 91.58.</b> 두 군의 곡선이 같다면 남성에서 기대되는 사망 수입니다. 실제로는 20.4명 더 사망했으므로 남성이 불리한 방향입니다. 여성은 반대로 O = 53, E = 165 − 91.58 = 73.42입니다.</span></li>
 <li><span class="mk">3</span><span><b>V = 40.37.</b> O − E의 분산입니다.</span></li>
-<li><span class="mk">4</span><span><b>χ² = 20.42² ÷ 40.37 = 10.33.</b> <code>logrank_test</code>의 결과와 같습니다. O/E 비의 비 (112/91.58) ÷ (53/73.42) = 1.22 ÷ 0.72 = 1.69는 남성 대 여성 위험비의 간단한 근사입니다(7장 다 절). 성별 하나만 넣은 Cox 모형(실습 11의 방법)으로 구하면 위험비는 1.70입니다.</span></li>
+<li><span class="mk">4</span><span><b>χ² = 20.42² ÷ 40.37 = 10.33.</b> <code>logrank_test</code>의 결과와 같습니다. O/E 비의 비 (112/91.58) ÷ (53/73.42) = 1.22 ÷ 0.72 = 1.69는 남성 대 여성 위험비의 간단한 근사입니다(7장 c 절). 성별 하나만 넣은 Cox 모형(실습 11의 방법)으로 구하면 위험비는 1.70입니다.</span></li>
 </ol>
 
 <h3>세 군 이상의 비교</h3>
@@ -441,7 +441,7 @@
 </ol>
 
 <h3>두 군씩 비교</h3>
-<p>어느 군이 다른지 보려면 두 군씩 비교합니다. 비교가 3번이므로 다중비교를 고려해야 합니다(<a href="#ch01-s3">1장 다 절</a>).</p>
+<p>어느 군이 다른지 보려면 두 군씩 비교합니다. 비교가 3번이므로 다중비교를 고려해야 합니다(<a href="#ch01-s3">1장 c 절</a>).</p>
 <!--FIG:lab07_pairwise-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -456,10 +456,10 @@
 <li><span class="mk">2</span><span><b>Bonferroni 보정 P = 0.1890.</b> 0 대 2+(보정 P = 0.0001), 1 대 2+(0.0077)는 보정 뒤에도 차이가 뚜렷합니다. 논문에 두 군씩 비교를 보고할 때는 보정 방법을 함께 적습니다.</span></li>
 </ol>
 <div class="callout note"><p class="ct">참고 · 순서가 있는 군의 추세 검정</p>
-<p>ECOG처럼 군에 순서가 있으면 7장 다 절의 추세 로그순위 검정이 더 알맞을 수 있습니다. lifelines 0.30에는 추세 검정 전용 함수가 없습니다. 순서 점수(0, 1, 2)를 연속형 변수로 넣은 Cox 모형(<a href="#lab11">실습 11</a>)으로 "수행능력이 한 단계 나빠질 때 위험률이 몇 배인가"를 추정하는 방법이 같은 질문을 다룹니다.</p></div>
+<p>ECOG처럼 군에 순서가 있으면 7장 c 절의 추세 로그순위 검정이 더 알맞을 수 있습니다. lifelines 0.30에는 추세 검정 전용 함수가 없습니다. 순서 점수(0, 1, 2)를 연속형 변수로 넣은 Cox 모형(<a href="#lab11">실습 11</a>)으로 "수행능력이 한 단계 나빠질 때 위험률이 몇 배인가"를 추정하는 방법이 같은 질문을 다룹니다.</p></div>
 
 <h3>가중 로그순위 검정</h3>
-<p>로그순위 검정은 모든 사망 시점에 같은 무게를 둡니다. <code>weightings</code> 인자로 7장 다 절의 가중 검정을 할 수 있습니다. 여기서는 여러 검정의 결과가 어떻게 다른지 보기 위해 모두 계산하지만, 실제 연구에서는 <b>주 분석의 검정을 자료를 보기 전에 하나로 정해야 합니다</b>.</p>
+<p>로그순위 검정은 모든 사망 시점에 같은 무게를 둡니다. <code>weightings</code> 인자로 7장 c 절의 가중 검정을 할 수 있습니다. 여기서는 여러 검정의 결과가 어떻게 다른지 보기 위해 모두 계산하지만, 실제 연구에서는 <b>주 분석의 검정을 자료를 보기 전에 하나로 정해야 합니다</b>.</p>
 <!--FIG:lab07_weighted-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -471,8 +471,8 @@
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>로그순위 χ² 10.33, P = 0.0013.</b> 앞의 결과와 같습니다.</span></li>
-<li><span class="mk">2</span><span><b>Peto-Peto χ² 12.71, P = 0.0004.</b> 초반에 무게를 두는 세 검정(Gehan-Breslow, Tarone-Ware, Peto-Peto)의 χ²가 모두 로그순위보다 큽니다. 두 곡선의 차이가 주로 추적 초중반에 있다는 뜻으로, 나 절 그림과 맞습니다.</span></li>
-<li><span class="mk">3</span><span><b>Fleming-Harrington(0,1) χ² 3.46, P = 0.063.</b> 후반에 무게를 두면 차이가 약해집니다. 곡선이 24개월 이후 가까워지고, 그 구간에는 환자가 몇 명 남지 않았기 때문입니다. 같은 자료라도 검정에 따라 P가 0.0004에서 0.063까지 달라지므로, 결과를 보고 검정을 고르면 다중비교 문제가 됩니다(<a href="#ch07-s3">7장 다 절</a> '더 알아보기'의 '검정에 따라 달라지는 결론'에 있는 주의 상자). 가중치의 세부 정의(예: Peto-Peto의 생존 추정값)는 프로그램마다 조금씩 달라, 같은 이름의 검정이라도 다른 프로그램과 끝자리가 다를 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>Peto-Peto χ² 12.71, P = 0.0004.</b> 초반에 무게를 두는 세 검정(Gehan-Breslow, Tarone-Ware, Peto-Peto)의 χ²가 모두 로그순위보다 큽니다. 두 곡선의 차이가 주로 추적 초중반에 있다는 뜻으로, b 절 그림과 맞습니다.</span></li>
+<li><span class="mk">3</span><span><b>Fleming-Harrington(0,1) χ² 3.46, P = 0.063.</b> 후반에 무게를 두면 차이가 약해집니다. 곡선이 24개월 이후 가까워지고, 그 구간에는 환자가 몇 명 남지 않았기 때문입니다. 같은 자료라도 검정에 따라 P가 0.0004에서 0.063까지 달라지므로, 결과를 보고 검정을 고르면 다중비교 문제가 됩니다(<a href="#ch07-s3">7장 c 절</a> '더 알아보기'의 '검정에 따라 달라지는 결론'에 있는 주의 상자). 가중치의 세부 정의(예: Peto-Peto의 생존 추정값)는 프로그램마다 조금씩 달라, 같은 이름의 검정이라도 다른 프로그램과 끝자리가 다를 수 있습니다.</span></li>
 </ol>
 
 <div class="paper">
@@ -481,20 +481,20 @@
 <p class="excerpt"><b>Statistical analysis.</b> Overall survival was estimated with the <span class="hl">Kaplan–Meier method</span>, and 95% CIs were calculated using <span class="mk">1</span> <span class="hl">Greenwood's formula with a log(−log) transformation</span>. The median follow-up was estimated with the reverse Kaplan–Meier method. Survival curves were compared with the <span class="mk">2</span> <span class="hl">log-rank test</span>; for ECOG performance status, <span class="hl">pairwise comparisons were adjusted with the Bonferroni method</span>. The <span class="mk">3</span> <span class="hl">restricted mean survival time at 24 months</span> was prespecified as an absolute measure of the difference between groups. Analyses were performed with Python (lifelines, version 0.30).</p>
 <p class="excerpt"><b>Results.</b> Men had shorter overall survival than women (median, 8.9 vs. 14.0 months; <span class="mk">4</span> <span class="hl">log-rank P = 0.001</span>) (Fig. 1). Overall survival also differed according to ECOG performance status (median, 12.9, 10.1, and 6.0 months for ECOG 0, 1, and ≥2, respectively; <span class="mk">5</span> <span class="hl">P &lt; 0.001 by the log-rank test with 2 degrees of freedom</span>); the difference between ECOG 0 and 1 was not significant after Bonferroni adjustment (<span class="mk">6</span> <span class="hl">adjusted P = 0.19</span>).</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>신뢰구간 방법.</b> 나 절의 셀 12에서 확인한 lifelines의 방법(Greenwood + log(−log))을 그대로 적었습니다. 프로그램 이름과 버전을 함께 적으면 재현하는 사람이 기본값 차이를 알 수 있습니다.</span></li>
+<li><span class="mk">1</span><span><b>신뢰구간 방법.</b> b 절의 셀 12에서 확인한 lifelines의 방법(Greenwood + log(−log))을 그대로 적었습니다. 프로그램 이름과 버전을 함께 적으면 재현하는 사람이 기본값 차이를 알 수 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>검정과 다중비교 보정.</b> 주 검정은 가중치 없는 로그순위 검정이고, 두 군씩 비교의 보정 방법을 미리 밝혔습니다. 가중 검정들은 탐색적으로 계산했을 뿐이므로 주 결과로 보고하지 않습니다.</span></li>
-<li><span class="mk">3</span><span><b>사전에 정한 τ.</b> RMST 결과(나 절 논문 문장)의 τ = 24개월이 결과를 보기 전에 정해졌다는 표현입니다.</span></li>
+<li><span class="mk">3</span><span><b>사전에 정한 τ.</b> RMST 결과(b 절 논문 문장)의 τ = 24개월이 결과를 보기 전에 정해졌다는 표현입니다.</span></li>
 <li><span class="mk">4</span><span><b>로그순위 P = 0.001.</b> 셀 17의 0.00131을 반올림했습니다. 방향(남성이 불리)은 중앙생존기간과 O > E(셀 18)로 확인합니다. 차이의 크기는 중앙값, 1년 생존율, RMST 차이로 제시했습니다. 이 결과는 나이·수행능력을 보정하지 않은 비교입니다.</span></li>
 <li><span class="mk">5</span><span><b>세 군 로그순위 검정.</b> 셀 19의 χ² = 18.98(자유도 2)입니다. 자유도를 적으면 몇 군을 한 번에 검정했는지 알 수 있습니다. ECOG 3(1명)을 2와 합쳤다는 사실도 Methods에 적습니다.</span></li>
-<li><span class="mk">6</span><span><b>보정한 두 군 비교.</b> 셀 21의 Bonferroni 보정 P 0.1890입니다. "ECOG 0과 1의 생존이 같다"는 뜻이 아니라, 차이를 보일 증거가 부족하다는 뜻입니다(<a href="#ch01-s2">1장 나 절</a>).</span></li>
+<li><span class="mk">6</span><span><b>보정한 두 군 비교.</b> 셀 21의 Bonferroni 보정 P 0.1890입니다. "ECOG 0과 1의 생존이 같다"는 뜻이 아니라, 차이를 보일 증거가 부족하다는 뜻입니다(<a href="#ch01-s2">1장 b 절</a>).</span></li>
 </ol>
 </div></div>
 
 <div class="callout warn"><p class="ct">이런 오류가 나면</p>
 <ul>
-<li><code>ModuleNotFoundError: No module named 'lifelines'</code>: 설치 셀을 실행하지 않았거나 Colab 세션이 새로 시작된 것입니다. 가 절 첫 셀을 다시 실행합니다.</li>
+<li><code>ModuleNotFoundError: No module named 'lifelines'</code>: 설치 셀을 실행하지 않았거나 Colab 세션이 새로 시작된 것입니다. a 절 첫 셀을 다시 실행합니다.</li>
 <li><code>ValueError: Must provide keyword argument p for Flemington-Harrington test statistic</code>: <code>weightings="fleming-harrington"</code>에 <code>p</code>, <code>q</code>를 넣지 않은 경우입니다(메시지의 철자는 lifelines의 표기 그대로).</li>
-<li>결과가 이상하게 좋거나 나쁘면 사건 부호화(가 절)와 군 부호화(sex 1 = 남성)를 먼저 확인합니다. <code>logrank_test</code>에는 A군의 시간·사건과 B군의 시간·사건을 같은 마스크(<code>m</code>, <code>~m</code>)로 골라 넣어야 짝이 맞습니다.</li>
+<li>결과가 이상하게 좋거나 나쁘면 사건 부호화(a 절)와 군 부호화(sex 1 = 남성)를 먼저 확인합니다. <code>logrank_test</code>에는 A군의 시간·사건과 B군의 시간·사건을 같은 마스크(<code>m</code>, <code>~m</code>)로 골라 넣어야 짝이 맞습니다.</li>
 </ul></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>

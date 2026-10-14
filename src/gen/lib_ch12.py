@@ -212,7 +212,7 @@ def nb_pmf(k, mu, alpha):
     return st.nbinom.pmf(k, r, r / (r + mu))
 
 
-# ---------------------------------------------------------------- simulated COPD cohort (나 절)
+# ---------------------------------------------------------------- simulated COPD cohort (b 절)
 AGE_LABELS = ["40-64", "65-74", "75+"]
 TRUE = dict(b0=np.log(0.42), drugA=np.log(0.80), age2=np.log(1.30), age3=np.log(1.70), female=np.log(0.90),
             cci=np.log(1.12), alpha=1.0)

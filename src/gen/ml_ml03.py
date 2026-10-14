@@ -287,7 +287,7 @@ def make_nan_pipe(model, num=num_cols, cat=cat_cols):
     return Pipeline([("prep", prep), ("model", model)])
 
 def boot_auc(y_true, p, n_boot=1000, seed=2026):
-    """1장 마 절: 시험 자료를 복원추출해 다시 구한 AUC n_boot개"""
+    """1장 e 절: 시험 자료를 복원추출해 다시 구한 AUC n_boot개"""
     rng = np.random.default_rng(seed)
     yt, p, out = np.asarray(y_true), np.asarray(p), []
     for _ in range(n_boot):
@@ -1206,7 +1206,7 @@ def checks():
 
     D = DATA
     same("split", D["setup"], [11250, 3750, 459, 153])
-    # 가 절: 환자 8명 (숫자로 따라가기의 표와 손계산)
+    # a 절: 환자 8명 (숫자로 따라가기의 표와 손계산)
     T = D["toy"]["table"]
     same("toy round 1", [T["resid1"][0], T["tree1"][0], T["p1"][0], T["tree1"][3], T["p1"][3]],
          [-0.375, round(-1.25 / 6, 4), 0.2708, 0.625, 0.6875], 1e-4)
@@ -1227,7 +1227,7 @@ def checks():
     same("gbm curve", [gb["best"], round(min(gb["val"]), 4), round(gb["val"][0], 4), round(gb["tr"][-1], 4), round(gb["val"][-1], 4)],
          [69, 0.1396, 0.1602, 0.0653, 0.1630])
     same("gbm cv", [round(v, 4) for v in D["gbm_cv"]], [0.7658, 0.0154])
-    # 나 절
+    # b 절
     xb = D["xgb_basic"]
     same("xgb basic", [round(r[2], 4) for r in xb[:4]], [0.6904, 0.7682, 0.6977, 0.7697])
     assert xb[-1] == "3.4.2"
@@ -1238,10 +1238,10 @@ def checks():
     same("depth curve", [round(dp["va"][0], 4), round(dp["va"][-1], 4), int(np.argmax(dp["va"])), round(dp["tr"][-1], 3)],
          [0.7712, 0.7124, 0, 0.998])
     same("hess per person, min_child_weight 1 ~ people", [round(D["hess_per_person"], 3), round(1 / D["hess_per_person"])], [0.039, 26])
-    # 라 절
+    # d 절
     hg = D["hgb"]
     same("hgb", [round(r[1], 4) for r in hg] + [r[3] for r in hg], [0.7243, 0.7469, 0.7679, 50, 50, 256])
-    # 마 절
+    # e 절
     es = D["es"]
     same("early stopping", [es["grown"], es["best"], round(es["score"], 4), round(es["auc"], 4)], [210, 159, 0.1373, 0.7958])
     for t in ["stop on logloss: leaky 0.7707, clean 0.7698, leaky higher in 4 of 5 folds",
@@ -1275,7 +1275,7 @@ def checks():
     tu = {r[0]: r[1:] for r in D["tuned"]}
     same("tuned table", [[round(x, 3) for x in tu[k]] for k in ["default", "stepwise grid", "Optuna"]],
          [[0.698, 0.023, 0.717, 0.673, 0.761], [0.771, 0.014, 0.792, 0.746, 0.831], [0.776, 0.016, 0.784, 0.738, 0.825]])
-    # 바 절
+    # f 절
     im, pm = D["imp"]["imp"], D["imp"]["perm"]
     w = pd.Series(im["weight"]); gn = pd.Series(im["gain"]); cv_ = pd.Series(im["cover"])
     same("importance", [w["bmi"], w.rank(ascending=False, method="min")["bmi"], gn.rank(ascending=False, method="min")["bmi"],
@@ -1444,7 +1444,7 @@ def fig_adaboost():
        "start", "lbl mute small")
     svg = _svg(W, H, o, "AdaBoost의 가중치 변화와 가중 투표")
     r1, r2, r3 = A["rounds"]
-    cap = (f"그림 3-1. AdaBoost를 환자 8명(가 절의 표, 주황은 입원한 환자)으로 세 번 돌린 모습. 원의 넓이가 그 회차의 가중치입니다. "
+    cap = (f"그림 3-1. AdaBoost를 환자 8명(a 절의 표, 주황은 입원한 환자)으로 세 번 돌린 모습. 원의 넓이가 그 회차의 가중치입니다. "
            f"1회차 그루터기(응급실 2회 이상 → 입원)는 7번만 틀려(점선 고리) 오차 {r1['err']:.3f}, 발언권 {r1['alpha']:.2f}이고, "
            f"그 결과 7번의 가중치가 커집니다(1/8 → {r2['w'][6]:.2f}). 2회차는 7번을 맞히려고 나이 {r2['t']:g}세를 고르고, "
            f"3회차는 2회차에 틀린 사람과 7번을 함께 보며 나이 {r3['t']:g}세를 고릅니다. 맨 아래 줄은 세 그루터기의 "
@@ -1564,8 +1564,8 @@ if not SMOKE:
 
 
 # ================================================================ Colab 노트북 (주인 실행용)과 대응표
-SEC_NAME = {"ml03-s1": "가 절", "ml03-s2": "나 절", "ml03-s3": "다 절", "ml03-s4": "라 절", "ml03-s5": "마 절",
-            "ml03-s6": "바 절", "ml03-s7": "사 절"}
+SEC_NAME = {"ml03-s1": "a 절", "ml03-s2": "b 절", "ml03-s3": "c 절", "ml03-s4": "d 절", "ml03-s5": "e 절",
+            "ml03-s6": "f 절", "ml03-s7": "g 절"}
 COLAB_INTRO = """# 머신러닝 기초 3장 · Colab 실행용 노트북 (LightGBM, CatBoost, shap)
 
 사이트 '머신러닝 기초' 3장(부스팅)에서 LightGBM, CatBoost, shap이 필요한 셀만 모은 노트북입니다. 사이트를 만든 컴퓨터에는 이 세 패키지가 없어서, Colab에서 한 번 돌려 나온 출력을 본문에 넣습니다.

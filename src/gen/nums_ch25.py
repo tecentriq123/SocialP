@@ -4,8 +4,8 @@
 공통 예시(gen/lib_p4.py)의 기준 분석, 일원 민감도 분석 L.oneway(), 시나리오 L.scenario_table(), 임계 가격 L.threshold_price(),
 확률적 민감도 분석 L.psa(n=5000, seed=20261002)와 L.ceac, L.evpi, L.psa_summary를 그대로 불러 쓴다(lib_p4.py는 고치지 않는다).
 이 장에서 새로 계산하는 것:
-  나 절  증분 QALY·증분비용 가운데 시험 추적(30개월) 뒤에 생기는 몫, 가상 논문의 표(₩ thousand, ₩ million 단위)
-  다 절  환급률과 표시 가격·실제 가격의 ICER, 5년 재정영향분석(가상의 환자 수와 점유율)
+  b 절  증분 QALY·증분비용 가운데 시험 추적(30개월) 뒤에 생기는 몫, 가상 논문의 표(₩ thousand, ₩ million 단위)
+  c 절  환급률과 표시 가격·실제 가격의 ICER, 5년 재정영향분석(가상의 환자 수와 점유율)
 모든 값은 가상의 예시이다. 결과는 gen/_ch25_nums.json(그림용)에 저장한다.
 """
 import contextlib, io, json, math, os, sys
@@ -32,7 +32,7 @@ p = L.base_params()
 BASE = L.run()
 A, B = BASE["A"], BASE["B"]
 
-# ====================================================================== 기준 분석 (가·나 절의 가상 논문)
+# ====================================================================== 기준 분석 (a·b 절의 가상 논문)
 show("기준 분석: 만원 단위와 논문 표기(₩ thousand = 천 원, ₩ million = 백만 원)")
 assert round(BASE["icer"]) == 5621 and round(BASE["d_cost"]) == 2872 and round(BASE["d_qaly"], 3) == 0.511 and round(L.nmb(BASE)) == -317
 comp = [("c_drug", "Drug acquisition"), ("c_pf", "Disease management, progression-free"), ("c_pd", "Disease management, progressed disease"),
@@ -70,7 +70,7 @@ for k in ("hr_pfs", "hr_os", "u_pf", "u_pd"):
     print(f"  {k}: {d['base']} (95% {d['lo']:.2f}–{d['hi']:.2f})")
 N["median"] = med
 
-# ====================================================================== 나 절: 시험 추적 30개월 뒤에 생기는 몫
+# ====================================================================== b 절: 시험 추적 30개월 뒤에 생기는 몫
 show("나. 증분 결과 가운데 시험 추적 기간(30개월) 뒤에 생기는 몫")
 FU = 30
 t_chk = np.array([12, 24, FU, 60, 120, 240])
@@ -100,12 +100,12 @@ cum = [0.0] + [L.run(horizon=h)["d_qaly"] for h in hs[1:]]
 cum[0] = -(p["du_ae_A"] - p["du_ae_B"])
 N["extrap"] = {"fu": FU, "sA30": sA30, "sB30": sB30, "dq30": R30["d_qaly"], "dc30": R30["d_cost"], "icer30": R30["icer"],
                "share_q": share_q, "share_c": share_c, "share_ly": share_ly, "hs": hs, "cum": cum}
-# 전체생존 이득이 없다면(22장 다 절): hr_os = 1
+# 전체생존 이득이 없다면(22장 c 절): hr_os = 1
 r_noos = L.run(L.set_param(p, "hr_os", 1.0))
 print(f"  전체생존 위험비를 1로 두면 증분 QALY {r_noos['d_qaly']:.3f}, 증분비용 {r_noos['d_cost']:.0f}, ICER {r_noos['icer']:.0f}")
 N["no_os"] = {"d_qaly": r_noos["d_qaly"], "d_cost": r_noos["d_cost"], "icer": r_noos["icer"]}
 
-# ====================================================================== 나 절: 일원 민감도 분석과 시나리오
+# ====================================================================== b 절: 일원 민감도 분석과 시나리오
 show("나. 일원 민감도 분석 (L.oneway) — 논문 그림과 표, ₩ million per QALY")
 OW = L.oneway()
 for r in OW[:6]:
@@ -124,7 +124,7 @@ print(f"  시나리오 {len(ic)}개의 ICER 범위 {min(ic):.0f}–{max(ic):.0f}
 N["scen"] = {r["key"]: {"d_cost": r["d_cost"], "d_qaly": r["d_qaly"], "icer": r["icer"], "label_en": r["label_en"]} for r in SC}
 N["scen_range"] = [min(ic), max(ic), len(ic)]
 
-# ====================================================================== 나·다 절: 임계 가격과 환급
+# ====================================================================== b·c 절: 임계 가격과 환급
 show("임계 가격 (L.threshold_price)과 환급률")
 TP = L.threshold_price()
 cut = 1 - TP / p["c_drug_A"]
@@ -141,7 +141,7 @@ for lam in (4000.0, 5000.0, 6000.0):
     print(f"  임계값 {lam:.0f}에서의 임계 가격 {L.threshold_price(lam):.1f}만원")
 N["price"] = {"tp": TP, "cut": cut, "months_A": months_A, "rows": price_rows}
 
-# ====================================================================== 나 절: 확률적 민감도 분석
+# ====================================================================== b 절: 확률적 민감도 분석
 show("나. 확률적 민감도 분석 (L.psa 5,000회, seed 20261002)")
 dc, dq = L.psa(n=5000, seed=SEED)
 PS = L.psa_summary(dc, dq)
@@ -165,7 +165,7 @@ N["psa"] = {"summary": PS, "ceac": {str(k): v[0] for k, v in ce.items()}, "evpi"
             "lams": L.CEAC_LAMS.tolist(), "curve": curve.tolist(), "lam50": float(L.CEAC_LAMS[i50]), "p_qaly_gain": float(np.mean(dq > 0)),
             "p_ce_tp": L.ceac(dc_tp, dq_tp, LAM), "scatter_dq": dq[:500].tolist(), "scatter_dc": dc[:500].tolist()}
 
-# ====================================================================== 다 절: 재정영향분석
+# ====================================================================== c 절: 재정영향분석
 show("다. 재정영향분석 (가상의 환자 수와 점유율, 할인하지 않음)")
 YEARS = 5
 N_NEW = 600                                   # 해마다 1차 치료를 새로 시작하는 환자 수(가상)
@@ -229,7 +229,7 @@ print(f"  3년차 재정영향 {eok(BI['net'][2]):.1f}억 원, 5년 합 {eok(BI[
 print(f"  기준 지출 대비 증가율(5년차) {BI['net'][4] / BI['world0'][4] * 100:.1f}%")
 print(f"  공단 부담금만(산정특례 본인부담 5%를 뺀 0.95배) 5년 합 {eok(BI['net'].sum()) * 0.95:.1f}억 원, 3년차 {eok(BI['net'][2]) * 0.95:.1f}")
 # 검수(2026-10-03) 추가: 약품비만 본 순증가(신약 A 약품비 − 대체된 표준요법 B 약품비). 진행 상태 비용이 줄어드는 몫이 빠지므로
-# 급여 진료비 전체로 본 재정영향보다 크다. 다 절 접힌 '계산 과정 보기'에 쓴다.
+# 급여 진료비 전체로 본 재정영향보다 크다. c 절 접힌 '계산 과정 보기'에 쓴다.
 drug_B_displaced = np.array([sum(BI["n_A"][s] * dB[t - s] for s in range(t + 1)) for t in range(YEARS)])
 net_drug = BI["drug_A"] - drug_B_displaced
 print(f"  약품비만 본 순증가(억 원): {np.round(eok(net_drug), 1).tolist()} 5년 합 {eok(net_drug.sum()):.1f}"
@@ -263,10 +263,10 @@ print(f"  (대비) 흔한 만성질환의 가상 신약: ICER {dcost_big / dq_bi
 N["contrast"] = {"n": n_big, "dcost": dcost_big, "dq": dq_big, "icer": dcost_big / dq_big, "bi": eok(n_big * dcost_big)}
 
 show("스스로 확인하기용 계산")
-# 가 절: 초록의 숫자 검산
+# a 절: 초록의 숫자 검산
 print(f"  초록: (105.6 − 76.9) ÷ (2.385 − 1.874) = {(105.6 - 76.9) / (2.385 - 1.874):.2f}")
-# 나 절: 다른 논문 예 — 분석기간 내 비율
-# 다 절: 재정영향 연습 문제 (환자 2,000명, 점유율 10·20·30%, 연 비용 신약 900 기존 500)
+# b 절: 다른 논문 예 — 분석기간 내 비율
+# c 절: 재정영향 연습 문제 (환자 2,000명, 점유율 10·20·30%, 연 비용 신약 900 기존 500)
 n_q, up_q, c_new, c_old = 2000, [0.10, 0.20, 0.30], 900.0, 500.0
 net_q = [n_q * u * (c_new - c_old) for u in up_q]
 gross_q = [n_q * u * c_new for u in up_q]

@@ -22,7 +22,7 @@ cat_cols = [&quot;insurance&quot;, &quot;region&quot;, &quot;smoking&quot;, &quo
 num_cols = [c for c in X.columns if c not in cat_cols]
 
 def make_pipe(model, num=num_cols, cat=cat_cols):
-    &quot;&quot;&quot;0장 다 절과 같은 전처리(결측 대체, 표준화, 원-핫) + 모형&quot;&quot;&quot;
+    &quot;&quot;&quot;0장 c 절과 같은 전처리(결측 대체, 표준화, 원-핫) + 모형&quot;&quot;&quot;
     num_steps = Pipeline([
         (&quot;impute&quot;, SimpleImputer(strategy=&quot;median&quot;)),
         (&quot;scale&quot;, StandardScaler())])
@@ -36,7 +36,7 @@ def make_pipe(model, num=num_cols, cat=cat_cols):
     return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
 
 def make_tree_pipe(model, num=num_cols, cat=cat_cols):
-    &quot;&quot;&quot;1장 가 절과 같은 나무용: 결측 대체와 원-핫만 (표준화 없음)&quot;&quot;&quot;
+    &quot;&quot;&quot;1장 a 절과 같은 나무용: 결측 대체와 원-핫만 (표준화 없음)&quot;&quot;&quot;
     cat_steps = Pipeline([
         (&quot;impute&quot;, SimpleImputer(strategy=&quot;constant&quot;,
                                  fill_value=&quot;missing&quot;)),

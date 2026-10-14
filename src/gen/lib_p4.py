@@ -57,7 +57,7 @@ def base_params():
 # 생존곡선(표준요법 B의 와이블 곡선)의 불확실성은 척도 모수 lam이 아니라 중앙 생존기간과 모양 모수로 적는다.
 #   pfs_med, os_med: 중앙 무진행생존·전체생존기간(개월). base_params()에는 없는 key이고 get_input()이 lam, gam에서 계산한다
 #   (기준값 10, 28개월). 뽑은 중앙값과 모양 모수로 lam = weib_lam(중앙값, 모양)을 다시 계산한다.
-#   표준오차의 근거(gen/nums_ch24.py에서 검산): 23장 라 절의 가상 시험(표준요법 B군 300명, 추적 24–30개월)에 와이블을 적합하면
+#   표준오차의 근거(gen/nums_ch24.py에서 검산): 23장 d 절의 가상 시험(표준요법 B군 300명, 추적 24–30개월)에 와이블을 적합하면
 #   전체생존은 ln 중앙값의 표준오차 0.074, ln 모양의 표준오차 0.077이고, 같은 설계의 무진행생존은 0.069, 0.053이다.
 #   두 군(각 300명)을 함께 적합하면 모양의 표준오차는 0.058, 0.040으로 줄어든다. 이 사이의 값으로 정했다.
 PSA_SPEC = {
@@ -733,7 +733,7 @@ def run_waning(p=None, start=36.0, end=60.0, apply_to=("os", "pfs"), horizon=HOR
 
 
 def os_alternatives(path=None):
-    """23장 라 절의 가상 시험 자료(gen/_ch23_trial.csv, 표준요법 B군 300명)에 lifelines의 모수 모형을 적합해
+    """23장 d 절의 가상 시험 자료(gen/_ch23_trial.csv, 표준요법 B군 300명)에 lifelines의 모수 모형을 적합해
     전체생존 외삽 곡선의 후보를 돌려준다: {key: (우리말 이름, 영어 이름, 함수 t(개월) → S_OS(t))}.
     key는 exp, weib, llog, lnorm, ggam. run_os()에 함수를 넘겨 쓰면 23장 표 23-12와 같은 결과가 나온다.
     lifelines가 없거나 자료 파일이 없으면 빈 dict를 돌려준다(자료 파일은 gen/nums_ch23.py가 만든다)."""

@@ -396,7 +396,7 @@ ex["pdc_days"], ex["pdc"] = int(cov), cov / 365
 ex["fills_day"] = [((a - index_date).days, int(s)) for a, s in zip(rx.date, rx.supply)]
 OUT["ex"] = ex
 
-# ---- practice patient (다 절 스스로 확인하기)
+# ---- practice patient (c 절 스스로 확인하기)
 rx2 = pd.DataFrame({"date": pd.to_datetime(["2021-07-01", "2021-09-02", "2021-12-20"]), "supply": [60, 60, 60]})
 rx2["runout"] = rx2["date"] + pd.to_timedelta(rx2["supply"], unit="D")
 rx2["gap"] = (rx2["date"].shift(-1) - rx2["runout"]).dt.days
@@ -459,7 +459,7 @@ for lab, dat in (("vsD", sd), ("vsN", sn)):
 OUT["cmp"] = cmp_
 OUT["truth"] = dict(hr_on=HR_ON)
 
-# ---------------------------------------------------------------- 가 절 스스로 확인하기 (asthma definition, hypothetical chart review)
+# ---------------------------------------------------------------- a 절 스스로 확인하기 (asthma definition, hypothetical chart review)
 a_n, a_k, b_n, b_k = 150, 63, 71, 58
 la, ha = proportion_confint(a_k, a_n, method="wilson")
 lb, hb = proportion_confint(b_k, b_n, method="wilson")
@@ -469,7 +469,7 @@ OUT["asthma"] = dict(a=a_k / a_n, b=b_k / b_n, keep=b_k / a_k)
 for k_ in ("at30", "at90", "at60", "itt"):
     pr(f"  exact PY {k_}: S {res[k_]['S']['py']:.3f}  D {res[k_]['D']['py']:.3f}")
 
-# ---------------------------------------------------------------- 다 절 code cell (run exactly as printed in the chapter)
+# ---------------------------------------------------------------- c 절 code cell (run exactly as printed in the chapter)
 pr("=" * 78, "\n다 code cell output")
 CELL = """
 import pandas as pd

@@ -126,7 +126,7 @@ GUIDE = [
     ("비용과 효과를 함께", "ICER, 결정분석 모형", "20·23"),
 ]
 
-KO = "가나다라마바사아자차카타파하"
+KO = "abcdefghijklmn"   # 절 이름 (2026-10-14 주인 요청으로 가나다 → abc)
 REFS_ID = "ap02"   # the references page (부록 B)
 
 

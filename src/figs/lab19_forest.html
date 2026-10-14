@@ -1,5 +1,5 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">포레스트 플롯 그리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pi_half = stats.t.ppf(0.975, k - 2) * np.sqrt(tau2 + se_re**2)
-pi = np.exp([re - pi_half, re + pi_half])   # 예측구간(다 절)
+pi = np.exp([re - pi_half, re + pi_half])   # 예측구간(c 절)
 ypos = np.arange(k, 0, -1)                  # 10, 9, ..., 1
 
 fig, ax = plt.subplots(figsize=(7.5, 4.6))

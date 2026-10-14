@@ -430,7 +430,7 @@ def chk(name, got, want, tol=1e-6):
 
 G, C, LG, RG, TP = N["grp"], N["comp"], N["log"], N["reg"], N["reg"]["tp"]
 a_, b_ = ns["a"], ns["b"]
-# 가 절: 인원, 평균(SD), 중앙값(사분위수), 총액, 0원 비율
+# a 절: 인원, 평균(SD), 중앙값(사분위수), 총액, 0원 비율
 chk("n A, B", [len(a_), len(b_)], [G["A"]["n"], G["B"]["n"]])
 chk("mean, SD", [a_.mean(), a_.std(ddof=1), b_.mean(), b_.std(ddof=1)],
     [C["cost"]["mA"], C["cost"]["sA"], C["cost"]["mB"], C["cost"]["sB"]])
@@ -439,7 +439,7 @@ chk("median, quartiles", np.percentile(a_, [25, 50, 75]).tolist() + np.percentil
 chk("B total, median x n", [b_.sum(), np.median(b_) * len(b_)], [G["B"]["total"], N["budget"]["tot_by_med"]], 1e-4)
 chk("below mean, top 5% (B)", [(b_ < b_.mean()).mean(), ns["top"].sum()], [G["B"]["below_mean"], 90], 1e-9)
 chk("zero inpatient % by arm", ns["zero"]["cost_inp"].tolist(), [C["inp"]["zeroA"] * 100, C["inp"]["zeroB"] * 100])
-# 나 절: 평균 차이, Welch t, 부트스트랩(백분위수, BCa), Mann-Whitney, 로그 변환
+# b 절: 평균 차이, Welch t, 부트스트랩(백분위수, BCa), Mann-Whitney, 로그 변환
 chk("mean difference", ns["diff"], C["cost"]["diff"])
 chk("Welch t, df, CI", [ns["tt"].statistic, ns["tt"].df, ns["ci"].low, ns["ci"].high],
     [C["cost"]["t"], C["cost"]["dfw"]] + C["cost"]["t_ci"])
@@ -457,7 +457,7 @@ chk("geometric means, ratio, CI", [ns["gm_a"], ns["gm_b"], ns["gm_a"] / ns["gm_b
     [LG["gmA"], LG["gmB"], LG["gm_ratio"]] + LG["gm_ci"])
 chk("smearing factors by arm, log SD", [ns["k_a"], ns["k_b"], ns["la"].std(ddof=1), ns["lb"].std(ddof=1)],
     [LG["smearA"], LG["smearB"], LG["sdlA"], LG["sdlB"]])
-# 다 절: 기저 특성, 선형회귀, 로그 변환 회귀, 감마 GLM, 표준화, 부트스트랩, 점검
+# c 절: 기저 특성, 선형회귀, 로그 변환 회귀, 감마 GLM, 표준화, 부트스트랩, 점검
 df_ = ns["df"]
 for v in ("age", "male", "cci", "stage4"):
     g = df_.groupby("arm")[v].agg(["mean", "std"])

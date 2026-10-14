@@ -124,12 +124,12 @@ for signs in product((0, 1), repeat=12):
 print("no-tie exact P(W+<=7)*2", 2 * cnt[:8].sum() / 4096)
 
 print("=" * 20, "F. 파이썬 출력 상자 (scipy 1.17; run with source /home/claude/pylibs/env.sh)")
-# 가 절: 대응표본 t 검정
+# a 절: 대응표본 t 검정
 res = st.ttest_rel(after, before)
 print(repr(res)); print(repr(res.confidence_interval()))
 print(repr(np.mean(after - before)))
 print("one-sample", st.ttest_1samp(after - before, 0), "independent (wrong)", st.ttest_ind(after, before))
-# 나 절: Wilcoxon 부호순위 검정 (0 포함 14쌍 -> scipy 1.17 method='auto'는 정규근사)
+# b 절: Wilcoxon 부호순위 검정 (0 포함 14쌍 -> scipy 1.17 method='auto'는 정규근사)
 print(repr(st.wilcoxon(a, b)))                                   # 기본값: correction=False
 print(repr(st.wilcoxon(a, b, correction=True)))                  # 연속성 보정
 print(repr(st.wilcoxon(a, b, method=st.PermutationMethod(n_resamples=np.inf))))  # 조건부 정확 p

@@ -878,7 +878,7 @@ out("poly share by medaid", D["poly"][D["medaid"] == 1].mean(), D["poly"][D["med
 
 
 # =================================================================== python outputs (real statsmodels)
-# The boxes in 다 and 마 절 print the real statsmodels 0.15.0 output. Run with
+# The boxes in 다 and e 절 print the real statsmodels 0.15.0 output. Run with
 #   source /home/claude/pylibs/env.sh && python3 gen/nums_ch08.py
 # The block below refits the model with statsmodels and checks it against the in-house IRLS fit above.
 llf, lln = full["ll"], null["ll"]

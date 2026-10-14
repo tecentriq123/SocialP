@@ -176,7 +176,7 @@ cat_cols = ["insurance", "region", "smoking", "alcohol"]
 num_cols = [c for c in X.columns if c not in cat_cols]
 
 def make_pipe(model, num=num_cols, cat=cat_cols):
-    """0장 다 절과 같은 전처리(결측 대체, 표준화, 원-핫) + 모형"""
+    """0장 c 절과 같은 전처리(결측 대체, 표준화, 원-핫) + 모형"""
     num_steps = Pipeline([
         ("impute", SimpleImputer(strategy="median")),
         ("scale", StandardScaler())])
@@ -190,7 +190,7 @@ def make_pipe(model, num=num_cols, cat=cat_cols):
     return Pipeline([("prep", prep), ("model", model)])
 
 def make_tree_pipe(model, num=num_cols, cat=cat_cols):
-    """1장 가 절과 같은 나무용: 결측 대체와 원-핫만 (표준화 없음)"""
+    """1장 a 절과 같은 나무용: 결측 대체와 원-핫만 (표준화 없음)"""
     cat_steps = Pipeline([
         ("impute", SimpleImputer(strategy="constant",
                                  fill_value="missing")),
@@ -627,7 +627,7 @@ save("ml02_cmp_bayes", c, dfmarks={"best CV AUC": 1, "first reached at trial": 2
 c = nb.cell('''
 import joblib
 
-best_rf = study.best_params                  # 라 절에서 Optuna가 찾은 조합
+best_rf = study.best_params                  # d 절에서 Optuna가 찾은 조합
 final = make_tree_pipe(RandomForestClassifier(
     n_estimators=500, random_state=2026, n_jobs=-1, **best_rf))
 final.fit(X_train, y_train)                  # 학습 자료 전체로 다시 맞춤
@@ -645,7 +645,7 @@ def boot_ci(y_true, p, n_boot=1000, seed=2026):
 lo, hi = boot_ci(y_test, p_final)
 print(f"test AUC {roc_auc_score(y_test, p_final):.3f}"
       f" (95% CI {lo:.3f} to {hi:.3f})")
-joblib.dump(final, "rf_final.joblib")        # 저장 (1장 마 절과 같음)
+joblib.dump(final, "rf_final.joblib")        # 저장 (1장 e 절과 같음)
 ''', title="최종 모형: 학습 자료 전체로 맞추고 시험 자료로 한 번 평가")
 save("ml02_final", c, marks={"test AUC 0.770 (95% CI 0.722 to 0.815)": 1})
 
@@ -926,7 +926,7 @@ def collect():
                     best=ns["study"].best_params)
     D["hw3"] = [[int(r[0]), float(r[1]), float(r[2])] for r in ns["out"]]
 
-    # 나 절 조절값 표에 적는 숫자: 기준(200그루, sqrt, 잎 20명)에서 하나씩 바꾼 OOB AUC와 평균 OOB 확률
+    # b 절 조절값 표에 적는 숫자: 기준(200그루, sqrt, 잎 20명)에서 하나씩 바꾼 OOB AUC와 평균 OOB 확률
     def oob(**kw):
         params = dict(n_estimators=10 if SMOKE else 200, min_samples_leaf=20, oob_score=True, random_state=2026,
                       n_jobs=-1)
@@ -944,7 +944,7 @@ def collect():
             "ccp_alpha=0.0005": oob(ccp_alpha=0.0005), "min_impurity_decrease=1e-4": oob(min_impurity_decrease=1e-4),
             "default": oob(min_samples_leaf=1),
         }
-        # 마 절: 부분 의존의 몇 점 (그림에서 읽는 값)
+        # e 절: 부분 의존의 몇 점 (그림에서 읽는 값)
         D["pdp_pts"] = {}
         for f, pts in [("age", [50, 60, 70, 75, 80, 85, 87]), ("bmi", [18, 20, 23, 24, 25, 28, 32]),
                        ("n_ed", [0, 1, 2, 3]), ("n_drugs", [5, 8, 9, 10, 11, 15])]:
@@ -984,7 +984,7 @@ def checks():
         n_ok[0] += 1
 
     D = DATA
-    # 가 절 숫자로 따라가기: 환자 10명, seed 30으로 뽑은 주머니 세 개, 한 번 나누는 나무
+    # a 절 숫자로 따라가기: 환자 10명, seed 30으로 뽑은 주머니 세 개, 한 번 나누는 나무
     age = np.array([52, 61, 47, 78, 83, 69, 88, 58, 74, 81])
     ed = np.array([0, 0, 1, 2, 0, 0, 3, 1, 2, 0])
     yy = np.array([0, 0, 0, 1, 0, 0, 1, 0, 0, 1])
@@ -1049,7 +1049,7 @@ def checks():
     same("hyperopt", round(max(D["hyperopt"]["auc"]), 4), 0.7598)
     f = D["final"]
     same("final test AUC and CI", [round(f["auc"], 3), round(f["lo"], 3), round(f["hi"], 3)], [0.770, 0.722, 0.815])
-    # 나 절 조절값 표의 숫자 (기준에서 하나씩 바꾼 OOB AUC)
+    # b 절 조절값 표의 숫자 (기준에서 하나씩 바꾼 OOB AUC)
     pe = {k: round(v[0], 3) for k, v in D["param_effects"].items()}
     same("param table", [pe["base"], pe["max_samples=0.5"], pe["max_depth=6"], pe["max_depth=12"], pe["criterion=entropy"],
                          pe["balanced_subsample"], pe["msl1_mss100"], pe["max_leaf_nodes=64"],
@@ -1059,7 +1059,7 @@ def checks():
                                         round(D["param_effects"]["balanced_subsample"][1], 3)], [0.040, 0.264])
     assert D["param_effects"]["balanced"][0] == 0.0     # 1.9.1: 'balanced'는 입원자의 OOB 예측이 생기지 않음
     n_ok[0] += 1
-    # 라 절
+    # d 절
     same("optuna importance", [round(D["optuna_imp"][k], 2) for k in ("min_samples_leaf", "max_features", "max_samples",
                                                                        "criterion")], [0.73, 0.13, 0.09, 0.06])
     ov = np.array(D["optuna"]["values"])
@@ -1070,7 +1070,7 @@ def checks():
     same("lowest three trials' leaf", sorted(leaf[np.argsort(ov)[:3]]), [1, 20, 36])
     hy = np.array(D["hyperopt"]["auc"])
     same("hyperopt best trial (1-based)", int(np.argmax(hy)) + 1, 31)
-    # 마 절
+    # e 절
     imp = D["imp"]
     idx = D["imp_index"]
     rk = {k: (int(imp["rank_imp"][i]), int(imp["rank_perm"][i])) for i, k in enumerate(idx)}
@@ -1090,7 +1090,7 @@ def checks():
     same("pdp age up to 70 (0.022-0.027)", [round(aa[ga <= 70].min(), 3), round(aa[ga <= 70].max(), 3)], [0.022, 0.027])
     same("pdp n_ed grid", D["pdp"]["n_ed"]["grid"], [0, 1, 2, 3, 5])
     same("pdp n_drugs grid end", D["pdp"]["n_drugs"]["grid"][-1], 17.0)
-    # 라 절 셀 16 아래 글: Optuna 위쪽 5개의 후보 수 18-20개, 표본 비율 73-89%
+    # d 절 셀 16 아래 글: Optuna 위쪽 5개의 후보 수 18-20개, 표본 비율 73-89%
     top5 = [D["optuna"]["params"][i] for i in np.argsort(-np.array(D["optuna"]["values"]))[:5]]
     same("optuna top5 max_features and max_samples range",
          [min(q["max_features"] for q in top5), max(q["max_features"] for q in top5),

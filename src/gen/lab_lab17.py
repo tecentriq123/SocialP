@@ -121,7 +121,7 @@ save("lab17_rates", c, marks={"4049.16": 1, "2.93": 2, "9.78": 3, "11.43": 4, "[
 c = nb.cell('''
 from lifelines import AalenJohansenFitter, KaplanMeierFitter
 
-# 17장 가 절 2단계의 환자 10명 (1 = 투석, 2 = 사망, 0 = 중도절단)
+# 17장 a 절 2단계의 환자 10명 (1 = 투석, 2 = 사망, 0 = 중도절단)
 tiny = pd.DataFrame({
     "years":  [0.8, 1.2, 1.5, 2.0, 2.6, 3.1, 3.5, 4.0, 4.4, 5.0],
     "status": [1,   2,   2,   1,   2,   1,   2,   0,   1,   0]})
@@ -150,7 +150,7 @@ aj10 = AalenJohansenFitter().fit(tiny["years"], tiny["status"],
 km10 = KaplanMeierFitter().fit(tiny["years"], tiny["status"] == 1)
 print("lifelines: CIF", round(aj10.predict(5), 3),
       " 1 - KM", round(1 - km10.predict(5), 3))
-''', title="환자 10명으로 두 방법 계산하기 (17장 가 절 2단계)")
+''', title="환자 10명으로 두 방법 계산하기 (17장 a 절 2단계)")
 save("lab17_tiny", c, marks={"2.0   1  7 0.229  0.20    0.2  0.60": 1,
                              "4.0   0  3 0.383  0.30    0.4  0.30": 2,
                              "4.4   1  2 0.691  0.45    0.4  0.15": 3,
@@ -484,7 +484,7 @@ m3 = CoxPHFitter().fit(fx, "years_sd", "frac", formula="drug_c")
 print("fracture, cause-specific HR :", hr_ci(m1, "drug_c"))
 print("death, cause-specific HR    :", hr_ci(m2, "drug_c"))
 print("fracture, subdistribution HR:", hr_ci(m3, "drug_c"))
-''', title="과제 3 정답. 고관절 골절 자료로 동료의 분석 재현 (17장 나 절 확인 문제)")
+''', title="과제 3 정답. 고관절 골절 자료로 동료의 분석 재현 (17장 b 절 확인 문제)")
 save("lab17_hw3", c, marks={"C: fracture 8.3 (7.2-9.5)": 1, "1 - KM 14.1": 2,
                             "cause-specific HR : 0.97 (0.80-1.17)": 3,
                             "subdistribution HR: 0.81 (0.67-0.98)": 4})

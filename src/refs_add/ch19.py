@@ -28,7 +28,7 @@ ADD = {
     # PMID 15116347
     "sweeting2004": {"text": "Sweeting MJ, Sutton AJ, Lambert PC. What to add to nothing? Use and avoidance of continuity corrections in meta-analysis of sparse data. <i>Stat Med</i>. 2004;23(9):1351-1375.",
                      "doi": "10.1002/sim.1761"},
-    # PMID 9250266 (added 2026-10-14 for the 마 절 '간접비교' box; checked against the PubMed record)
+    # PMID 9250266 (added 2026-10-14 for the e 절 '간접비교' box; checked against the PubMed record)
     "bucher1997": {"text": "Bucher HC, Guyatt GH, Griffith LE, Walter SD. The results of direct and indirect treatment comparisons in meta-analysis of randomized controlled trials. <i>J Clin Epidemiol</i>. 1997;50(6):683-691.",
                    "doi": "10.1016/s0895-4356(97)00049-8"},
     # PMID 29417147 (PMC5885890)

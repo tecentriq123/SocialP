@@ -236,8 +236,8 @@ N["text"] = {
     "hz3_vs_base": hz[3]["icer"] / r["icer"] - 1,                 # 3년 분석기간의 ICER가 기준 분석보다 몇 % 높은가
     "disc_dcost_drop": 1 - r["d_cost"] / dr["0.0"]["d_cost"],     # 할인으로 증분비용이 줄어드는 비율
     "disc_dqaly_drop": 1 - r["d_qaly"] / dr["0.0"]["d_qaly"],
-    "cea_paper3": 31 / 0.05,                                      # 나 절 논문 상자: 31만원 ÷ 0.05건
-    "abstract_icer": (105.6 - 76.9) / 0.511,                      # 가 절 초록: 백만 원 단위로 반올림한 값의 검산
+    "cea_paper3": 31 / 0.05,                                      # b 절 논문 상자: 31만원 ÷ 0.05건
+    "abstract_icer": (105.6 - 76.9) / 0.511,                      # a 절 초록: 백만 원 단위로 반올림한 값의 검산
     "q3_diff": 1500 - sum(pv),
     "q2_ratio": 0.40 / 0.60,
 }

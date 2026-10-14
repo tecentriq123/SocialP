@@ -1,6 +1,6 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">0장 로지스틱 회귀와 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from sklearn.linear_model import LogisticRegression
 
-# 0장 라 절에서 고른 C = 0.1
+# 0장 d 절에서 고른 C = 0.1
 lr = make_pipe(LogisticRegression(C=0.1, max_iter=1000))
 cv_lr = cross_val_score(lr, X_train, y_train, cv=skf,
                         scoring=&quot;roc_auc&quot;)

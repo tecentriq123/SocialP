@@ -22,10 +22,11 @@
 <p class="lead">이 장에서 다루는 것 2–3문장 (페이지 머리로 옮겨짐)</p>
 
 <section class="sec" id="chXX-s1">
-<h2><span class="sec-no">가.</span>목차에 적힌 절 제목 그대로</h2>
+<h2><span class="sec-no">a.</span>목차에 적힌 절 제목 그대로</h2>
 ...
 </section>
 ```
+- 절 이름표는 a, b, c …(소문자)입니다(2026-10-14 주인 요청으로 가나다에서 바꿈). 본문에서는 "8장 f 절", "a–e 절", "a·b 절", "부록 A e 절"처럼 씁니다. 연습문제 보기 (가)(나), 그림의 패널 이름표 '가.', 환자 이름 '환자 가'는 절이 아니므로 그대로 둡니다.
 - 절 id는 `chXX-s1`, `chXX-s2` … 순서대로. 절 제목은 목차 제목과 **글자 그대로 같게** (build.py의 CHAPTERS 참고).
 - 절 안의 소제목은 `<h3>`, 그 아래는 `<h4>`.
 - 소제목은 **담백하게**: "개념", "숫자로 따라가기", "가정과 확인 방법", "결과 읽기"처럼. "놀라운 ~의 비밀", 콜론으로 부제를 다는 과장된 제목, 이모지 금지.
@@ -56,7 +57,7 @@
 - 통계 용어는 **처음 나올 때 한글과 영어를 병기**: `<strong>표준오차</strong><span class="en">(standard error, SE)</span>`. 영어 이름이 그대로 쓰이는 검정(Mann-Whitney 등)은 영어 이름 + 한글 설명.
 - 약학·의학 용어(HbA1c, eGFR, NYHA 등)는 병기 불필요.
 - 수식은 **적게**: 직관적 설명과 숫자 예시가 중심이고, 핵심 수식만 곁들입니다. 긴 유도·증명 금지. 인라인 `\( ... \)`, 블록은 `<div class="eq">\[ ... \]<p>기호 설명</p></div>`. HTML이므로 `<`, `>`, `&` 는 `&lt;`, `&gt;`, `&amp;` 로. TeX 안의 `<` 도 `&lt;` 로 쓰거나 `\lt` 사용.
-- 다른 장 참조: "(8장)", "(14장 다 절)". 존재하는 장·절만 참조 (build.py 목차 참고).
+- 다른 장 참조: "(8장)", "(14장 c 절)". 존재하는 장·절만 참조 (build.py 목차 참고).
 - 사이트 주인이 적극 교정을 원하는 오류: OR/RR 혼동, HR을 위험비(risk ratio)처럼 해석, 상관=인과, PSM 후 편향이 완전히 제거됐다는 생각, AUC를 정확도로 보는 것. 관련 장에서는 '흔한 오해' 상자로 다루세요.
 - 사회약학 맥락 예시를 적극 활용: 건강보험 청구자료(HIRA·NHIS), 신규 사용자 설계, 약물 순응도(PDC/MPR), 약사 중재, 의료비용, 약물 이상반응, 신세포암 등 종양 코호트.
 
@@ -98,7 +99,7 @@
 | 틀린 문장 표시 | 흔한 오해 상자 안에서 `<span class="wrong">틀린 주장</span>` 뒤에 올바른 설명 |
 | 단계 흐름 | `<div class="flow"><div><div><b>단계</b><p>설명</p></div></div>…</div>` (자동 번호) |
 | 2×2 판단표 | `<div class="matrix">` (ch01 1종/2종 오류 예 참고) |
-| 두 갈래 분류 | `<div class="tree">` (ch01 가 절 참고) |
+| 두 갈래 분류 | `<div class="tree">` (ch01 a 절 참고) |
 | 정리 | `<div class="keypoints"><p class="kt">정리</p><ul><li>…</li></ul></div>` |
 | R 코드 | `<details class="code"><summary>R로 해 보기 · 주제</summary><pre><code>…</code></pre></details>` |
 | 영어 병기 | `<span class="en">(English term)</span>` |
@@ -171,13 +172,13 @@ window.EXTRA_WIDGETS["chXX_name"] = function (el, H) {
 
 ## 이미 완성된 장 (Part 1) — 중복을 피하고 연결하세요
 
-- 1장: 자료 유형, 가설검정, p-value, 1·2종 오류, 검정력·표본수 기초, 다중비교, 자유도, z·t·χ²·F, SD vs SE, 중심극한정리, 모수/비모수, 정규성. 로지스틱 계수의 R/SAS 출력 비교(β 0.642, OR 1.90) 예시가 마 절에 있음.
+- 1장: 자료 유형, 가설검정, p-value, 1·2종 오류, 검정력·표본수 기초, 다중비교, 자유도, z·t·χ²·F, SD vs SE, 중심극한정리, 모수/비모수, 정규성. 로지스틱 계수의 R/SAS 출력 비교(β 0.642, OR 1.90) 예시가 e 절에 있음.
 - 2·3장: t 검정, Welch, Mann-Whitney(AUC와의 관계), 대응 t, Wilcoxon, 평균으로의 회귀.
 - 4장: 분산분석, 사후분석, Kruskal-Wallis, Jonckheere-Terpstra.
-- 5장: 카이제곱, Fisher, 추세검정. 2×2 표에서 위험차·상대위험도·오즈비 계산과 "오즈비를 상대위험도처럼 읽기" 오해가 가 절에 있음(8장 나 절은 더 깊게).
+- 5장: 카이제곱, Fisher, 추세검정. 2×2 표에서 위험차·상대위험도·오즈비 계산과 "오즈비를 상대위험도처럼 읽기" 오해가 a 절에 있음(8장 b 절은 더 깊게).
 - 6장: 상관, 단순·다중 선형회귀(출력 읽기, VIF, 로그 변환 결과, Table 2 오류, ANCOVA, 매개변수 보정 주의).
 - 7장: 생존자료, 중도절단, 청구자료 코호트 설계, Kaplan-Meier, Greenwood, 중앙생존기간, RMST, 로그순위법과 가중 검정, "HR 0.73 ≠ 3년 사망위험 27% 감소" 오해(S₁ = S₀^HR 계산). Cox·비례위험 가정은 11장으로 미뤄 둠.
-관련 장의 해당 부분을 읽고 용어·예시가 어긋나지 않게 하며, "(5장 가 절)"처럼 연결하세요.
+관련 장의 해당 부분을 읽고 용어·예시가 어긋나지 않게 하며, "(5장 a 절)"처럼 연결하세요.
 
 ## 추가 규칙 (Part 1 검수에서 나온 것 — Part 2부터 반드시 지킬 것)
 
@@ -187,7 +188,7 @@ window.EXTRA_WIDGETS["chXX_name"] = function (el, H) {
 | risk ratio / relative risk (RR) | **상대위험도** | `상대위험도<span class="en">(relative risk, risk ratio, RR)</span>` |
 | hazard ratio (HR) | **위험비** | `위험비<span class="en">(hazard ratio, HR)</span>` — 절대로 RR을 위험비라고 부르지 마세요 |
 | hazard | **위험률** | `위험률<span class="en">(hazard)</span>` |
-| odds ratio (OR) | **오즈비** | `오즈비<span class="en">(odds ratio, OR; 교차비)</span>` — 8장 나 절 제목은 목차대로 '교차비'이므로 두 이름이 같다는 것을 밝힐 것 |
+| odds ratio (OR) | **오즈비** | `오즈비<span class="en">(odds ratio, OR; 교차비)</span>` — 8장 b 절 제목은 목차대로 '교차비'이므로 두 이름이 같다는 것을 밝힐 것 |
 | incidence rate ratio | **발생률비** | `발생률비<span class="en">(incidence rate ratio, IRR)</span>` |
 | risk difference | **위험차** | `위험차<span class="en">(risk difference, RD)</span>` |
 | confounder / effect modification / interaction | 교란변수 / 효과수정 / 교호작용 | |
@@ -203,7 +204,7 @@ window.EXTRA_WIDGETS["chXX_name"] = function (el, H) {
 - **과장 금지**: "항상", "모든", "가장 흔한" 같은 단정은 근거가 있을 때만.
 
 ### 이미 다룬 내용과 약속된 내용
-- `PART1_OUTLINE.md`: 1–7장에서 이미 설명한 내용 목록. 반복하지 말고 "(2장 가 절)"처럼 참조하세요.
+- `PART1_OUTLINE.md`: 1–7장에서 이미 설명한 내용 목록. 반복하지 말고 "(2장 a 절)"처럼 참조하세요.
 - `FORWARD_REFS.txt`: 1–7장이 "8장 X 절에서 다룹니다"처럼 뒤 장에 미룬 내용. 해당 장을 쓸 때 그 약속을 지키세요.
 
 

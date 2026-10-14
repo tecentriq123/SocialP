@@ -17,7 +17,7 @@ import pandas as pd  # noqa: E402
 import nums_ch19 as N  # noqa: E402  (import만으로는 아무것도 출력하지 않는다)
 
 OUT = os.path.join(os.path.dirname(HERE), "pub", "data")
-ROB = {"C": "some concerns", "G": "high"}   # 19장 가 절의 RoB 2 종합 판정 (나머지는 low)
+ROB = {"C": "some concerns", "G": "high"}   # 19장 a 절의 RoB 2 종합 판정 (나머지는 low)
 
 
 def build():
@@ -41,7 +41,7 @@ def build():
 
 if __name__ == "__main__":
     trials, sub = build()
-    # 본문(19장 가 절 표, 나 절, 다 절)의 합계와 대조
+    # 본문(19장 a 절 표, b 절, c 절)의 합계와 대조
     assert trials["n_x"].sum() == 16850 and trials["n_pbo"].sum() == 14875
     assert trials["mace_x"].sum() == 1271 and trials["mace_pbo"].sum() == 1386
     assert trials["bleed_x"].sum() == 410 and trials["bleed_pbo"].sum() == 170

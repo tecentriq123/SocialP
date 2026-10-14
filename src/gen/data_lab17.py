@@ -4,7 +4,7 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab17.py
 
 17장의 예제 자료를 그대로 내보낸다(열 이름만 정리). 새로 난수를 뽑지 않으므로 다시 돌려도 같은 파일이 나온다.
   gen/_ch17_cr.csv  ->  pub/data/ckd_competing.csv           (본문 예제: CKD 4기, 약물 A 대 B, 투석 / 투석 전 사망)
-  gen/_ch17_fx.csv  ->  pub/data/dementia_fracture.csv  (나 절 확인 문제 2번: 치매 환자, 약물 C 대 D, 고관절 골절 / 골절 전 사망)
+  gen/_ch17_fx.csv  ->  pub/data/dementia_fracture.csv  (b 절 확인 문제 2번: 치매 환자, 약물 C 대 D, 고관절 골절 / 골절 전 사망)
 두 원본은 gen/nums_ch17.py가 만든다(sim_cr(13), sim_fx(25)). 원본이 없으면 그 스크립트를 먼저 돌린다.
 
 열

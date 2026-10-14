@@ -1,7 +1,7 @@
-<p class="lead">24장의 불확실성 분석을 빈 노트북에서 직접 돌립니다. 실습 23에서 만든 분할생존모형 함수에 입력값을 하나씩 바꿔 넣어 토네이도 그림을 그리고, 모든 입력값을 분포에서 한꺼번에 뽑아 모형을 5,000번 돌린 뒤, 그 결과를 비용효과평면과 비용효과 수용곡선으로 요약합니다. 결과는 본문의 숫자와 같습니다. 이론은 <a href="#ch24-s1">24장 가 절</a>, <a href="#ch24-s2">나 절</a>, <a href="#ch24-s3">다 절</a>에 있습니다.</p>
+<p class="lead">24장의 불확실성 분석을 빈 노트북에서 직접 돌립니다. 실습 23에서 만든 분할생존모형 함수에 입력값을 하나씩 바꿔 넣어 토네이도 그림을 그리고, 모든 입력값을 분포에서 한꺼번에 뽑아 모형을 5,000번 돌린 뒤, 그 결과를 비용효과평면과 비용효과 수용곡선으로 요약합니다. 결과는 본문의 숫자와 같습니다. 이론은 <a href="#ch24-s1">24장 a 절</a>, <a href="#ch24-s2">b 절</a>, <a href="#ch24-s3">c 절</a>에 있습니다.</p>
 
 <dl class="glance">
-<div><dt>관련 이론</dt><dd><a href="#ch24">24장 불확실성 분석</a> (가 절 결정론적 민감도 분석, 나 절 확률적 민감도 분석, 다 절 비용효과 수용곡선과 순편익), <a href="#ch23-s3">23장 다 절</a> (분할생존모형과 입력값 표), <a href="#ch20-s4">20장 라 절</a> (ICER, 순금전편익)</dd></div>
+<div><dt>관련 이론</dt><dd><a href="#ch24">24장 불확실성 분석</a> (a 절 결정론적 민감도 분석, b 절 확률적 민감도 분석, c 절 비용효과 수용곡선과 순편익), <a href="#ch23-s3">23장 c 절</a> (분할생존모형과 입력값 표), <a href="#ch20-s4">20장 d 절</a> (ICER, 순금전편익)</dd></div>
 <div><dt>데이터</dt><dd>자료 파일 없음. 20–25장 공통 예시(진행성 신세포암 1차 치료, 신약 A 대 표준요법 B)의 입력값 18개와 분포 15개를 노트북에 직접 적습니다. 모두 설명을 위해 지어낸 값이고 실제 약제의 자료가 아닙니다</dd></div>
 <div><dt>사용 패키지</dt><dd>numpy, pandas, matplotlib. scipy는 분포의 백분위수를 구하는 데만 씁니다(<code>stats.norm.ppf</code>, <code>stats.beta.ppf</code>, <code>stats.gamma.ppf</code>)</dd></div>
 <div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). 따로 설치할 것이 없습니다. 모형 5,000번은 1초 안팎에 끝납니다</dd></div>
@@ -10,12 +10,12 @@
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab24-s1">
-<h2><span class="sec-no">가.</span>실습 준비</h2>
+<h2><span class="sec-no">a.</span>실습 준비</h2>
 
 <p>민감도 분석은 모형을 새로 만드는 일이 아닙니다. 이미 있는 모형에 다른 입력값을 넣어 여러 번 다시 돌리는 일입니다. 그래서 모형이 "입력값 사전을 받아 결과를 돌려주는 함수"로 묶여 있어야 합니다. 이 절에서는 실습 23의 입력값 사전과 모형 함수를 다시 적어 기준 분석이 그대로 나오는지 확인하고, 생존곡선의 입력값을 바꿀 때 쓸 작은 함수 두 개를 만듭니다. 이 노트북은 실습 23을 하지 않았어도 처음부터 끝까지 실행됩니다.</p>
 
 <h3>입력값 사전</h3>
-<p><a href="#lab23-s2">실습 23 나 절</a>에서 만든 사전 그대로입니다. 첫 줄의 <code>time</code>은 실행 시간을 재는 데, <code>scipy.stats</code>는 나 절에서 분포의 백분위수를 구하는 데 씁니다.</p>
+<p><a href="#lab23-s2">실습 23 b 절</a>에서 만든 사전 그대로입니다. 첫 줄의 <code>time</code>은 실행 시간을 재는 데, <code>scipy.stats</code>는 b 절에서 분포의 백분위수를 구하는 데 씁니다.</p>
 <!--FIG:lab24_setup-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>입력값 18개.</b> 곡선의 모수 4개, 위험비 2개, 효용과 QALY 손실 4개, 비용 7개, 할인율입니다.</span></li>
@@ -23,7 +23,7 @@
 </ol>
 
 <h3>모형 함수와 기준 분석</h3>
-<p><code>run_model</code>은 <a href="#lab23-s3">실습 23 다 절</a>에서 만든 함수입니다. 두 곡선에서 상태 비율을 구하고, 반주기 보정과 할인을 적용해 240주기의 비용과 QALY를 더하는 계산을 한 줄씩 따라가는 설명은 <a href="#lab23-s2">실습 23 나 절</a>(상태 비율, 반주기 보정)과 다 절(비용, QALY, 할인)에 있습니다. 여기서는 무엇을 넣고 무엇을 받는지만 정리합니다.</p>
+<p><code>run_model</code>은 <a href="#lab23-s3">실습 23 c 절</a>에서 만든 함수입니다. 두 곡선에서 상태 비율을 구하고, 반주기 보정과 할인을 적용해 240주기의 비용과 QALY를 더하는 계산을 한 줄씩 따라가는 설명은 <a href="#lab23-s2">실습 23 b 절</a>(상태 비율, 반주기 보정)과 c 절(비용, QALY, 할인)에 있습니다. 여기서는 무엇을 넣고 무엇을 받는지만 정리합니다.</p>
 <!--FIG:lab24_model-->
 <div class="tbl-wrap"><table class="tbl" style="max-width:48rem">
 <caption>run_model(p, horizon=240)의 입력과 반환값</caption>
@@ -45,11 +45,11 @@
 <li><span class="mk">1</span><span><b>증분비용 2,872.3만원.</b></span></li>
 <li><span class="mk">2</span><span><b>증분 QALY 0.511.</b></span></li>
 <li><span class="mk">3</span><span><b>ICER 5,621만원/QALY.</b> 20–25장이 함께 쓰는 기준 분석의 값입니다. 이 숫자가 나오지 않으면 뒤의 결과도 모두 달라지므로 입력값 사전의 오타부터 찾습니다.</span></li>
-<li><span class="mk">4</span><span><b>증분 순금전편익 −317.1만원.</b> 이 예시에서 가정한 임계값 5,000만원/QALY에서의 값입니다. 음수이므로 기준 분석에서는 신약 A가 비용효과적이지 않습니다. 공식 임계값이 아니라 설명을 위해 정한 값입니다(<a href="#ch20-s4">20장 라 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>증분 순금전편익 −317.1만원.</b> 이 예시에서 가정한 임계값 5,000만원/QALY에서의 값입니다. 음수이므로 기준 분석에서는 신약 A가 비용효과적이지 않습니다. 공식 임계값이 아니라 설명을 위해 정한 값입니다(<a href="#ch20-s4">20장 d 절</a>).</span></li>
 </ol>
 
 <h3>곡선을 중앙값과 모양 모수로 읽고 바꾸기</h3>
-<p>모형은 곡선을 λ와 γ로 받지만, 불확실성은 <b>중앙 생존기간</b>과 <b>모양 모수 γ</b>로 적습니다. 이유는 두 가지입니다(<a href="#ch24-s2">24장 나 절</a>의 접힌 상자 '모수 사이의 상관과 촐레스키 분해').</p>
+<p>모형은 곡선을 λ와 γ로 받지만, 불확실성은 <b>중앙 생존기간</b>과 <b>모양 모수 γ</b>로 적습니다. 이유는 두 가지입니다(<a href="#ch24-s2">24장 b 절</a>의 접힌 상자 '모수 사이의 상관과 촐레스키 분해').</p>
 <ul>
 <li>λ와 γ의 추정값은 강하게 얽혀 있습니다(23장의 가상 시험 자료에서 상관계수 −0.96). γ만 바꾸고 λ를 그대로 두면 자료가 가리키지 않는 곡선이 됩니다. 중앙값은 자료가 많은 곡선의 가운데를 붙잡는 값이어서 γ와 덜 얽힙니다(−0.20).</li>
 <li>논문의 입력값 표도 "중앙 생존기간 28개월"처럼 적는 일이 많아 범위를 정하기 쉽습니다.</li>
@@ -61,7 +61,7 @@
 <li><code>if key.endswith("_med"):</code><span>문자열이 <code>"_med"</code>로 끝나면 True입니다. <code>"pfs_med"</code>와 <code>"os_med"</code>가 여기에 해당합니다. 이 두 이름은 사전 <code>p</code>에 없고, 이 함수들이 λ와 γ로 바꿔 읽고 씁니다.</span></li>
 <li><code>c = key[:-4]</code><span>문자열에서 끝의 네 글자를 뗀 앞부분입니다. <code>"pfs_med"</code>이면 <code>"pfs"</code>, <code>"os_gam"</code>이면 <code>"os"</code>가 됩니다. 뒤에서 <code>c + "_lam"</code>처럼 이어 붙여 그 곡선의 다른 이름을 만듭니다.</span></li>
 <li><code>(np.log(2) / p[c + "_lam"]) ** (1 / p[c + "_gam"])</code><span>λ와 γ에서 중앙값을 되돌리는 식입니다. λ = ln 2 ÷ 중앙값<sup>γ</sup>를 중앙값에 대해 풀었습니다.</span></li>
-<li><code>q = dict(p)</code><span>사전의 사본을 만듭니다. 사본만 고치고 돌려주므로 원래의 <code>p</code>는 바뀌지 않습니다(<a href="#lab23-s3">실습 23 다 절</a>의 <code>dict(p, 이름=값)</code>과 같은 생각).</span></li>
+<li><code>q = dict(p)</code><span>사전의 사본을 만듭니다. 사본만 고치고 돌려주므로 원래의 <code>p</code>는 바뀌지 않습니다(<a href="#lab23-s3">실습 23 c 절</a>의 <code>dict(p, 이름=값)</code>과 같은 생각).</span></li>
 <li><code>elif key.endswith("_gam"):</code><span>모양 모수를 바꾸는 경우입니다. 먼저 <code>get_input(p, c + "_med")</code>로 지금의 중앙값을 읽어 두고, γ를 새 값으로 바꾼 다음, 그 중앙값과 새 γ로 λ를 다시 계산합니다.</span></li>
 <li><code>else: q[key] = value</code><span>위험비, 효용, 비용처럼 사전에 그대로 들어 있는 입력값은 값만 바꿉니다.</span></li>
 </ol>
@@ -73,7 +73,7 @@
 <li><span class="mk">4</span><span><b>사전의 값만 바꾸면 중앙값이 19.5개월.</b> <code>dict(p, os_gam=1.29)</code>는 λ를 그대로 두므로 곡선 전체가 아래로 내려갑니다. 모양의 불확실성을 보려던 것이 중앙값을 8개월 넘게 줄인 분석이 되었습니다.</span></li>
 <li><span class="mk">5</span><span><b>그때의 ICER 6,021만원/QALY.</b> 같은 "γ = 1.29"인데 결과가 290만원 다릅니다. 곡선의 입력값을 바꿀 때 무엇을 고정했는지 밝혀야 하는 이유입니다.</span></li>
 </ol>
-<p>이 실습의 출력은 numpy 2.5, pandas 3.0, scipy 1.18, matplotlib 3.11로 실제로 실행해 얻었습니다. 버전이 다르면 출력의 모양이 조금 다를 수 있습니다. 난수를 쓰는 다 절부터는 숫자 자체가 달라질 수도 있습니다. numpy는 버전이 달라져도 같은 seed가 같은 난수열을 낸다고 보장하지 않기 때문입니다(<code>rng.normal</code>, <code>rng.beta</code>, <code>rng.gamma</code>). Colab에서 가 절과 나 절의 숫자는 같은데 다 절부터 끝자리가 다르게 나오면 코드가 틀린 것이 아니라 난수열이 다른 것입니다. 그때도 결과는 몬테카를로 오차 범위 안에 있어야 합니다(비용효과적일 확률이라면 16.0%에서 ±1%포인트쯤).</p>
+<p>이 실습의 출력은 numpy 2.5, pandas 3.0, scipy 1.18, matplotlib 3.11로 실제로 실행해 얻었습니다. 버전이 다르면 출력의 모양이 조금 다를 수 있습니다. 난수를 쓰는 c 절부터는 숫자 자체가 달라질 수도 있습니다. numpy는 버전이 달라져도 같은 seed가 같은 난수열을 낸다고 보장하지 않기 때문입니다(<code>rng.normal</code>, <code>rng.beta</code>, <code>rng.gamma</code>). Colab에서 a 절과 b 절의 숫자는 같은데 c 절부터 끝자리가 다르게 나오면 코드가 틀린 것이 아니라 난수열이 다른 것입니다. 그때도 결과는 몬테카를로 오차 범위 안에 있어야 합니다(비용효과적일 확률이라면 16.0%에서 ±1%포인트쯤).</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>민감도 분석은 <code>run_model(입력값 사전)</code>을 다른 입력값으로 여러 번 부르는 일입니다. 먼저 기준 분석(ICER 5,621만원/QALY)이 그대로 나오는지 확인합니다.</li>
@@ -84,15 +84,15 @@
 
 <!-- ============================================================ 나 -->
 <section class="sec" id="lab24-s2">
-<h2><span class="sec-no">나.</span>일원 민감도 분석과 토네이도 그림</h2>
+<h2><span class="sec-no">b.</span>일원 민감도 분석과 토네이도 그림</h2>
 
-<p>일원 민감도 분석<span class="en">(one-way sensitivity analysis)</span>은 입력값 하나를 범위의 양 끝으로 바꾸고 나머지는 기준값에 둔 채 ICER를 다시 계산합니다(<a href="#ch24-s1">24장 가 절</a>). 할 일은 세 가지입니다. 입력값마다 범위를 정하고, 하나씩 바꿔 모형을 돌리고, 결과를 폭이 큰 순서로 그립니다. 마지막 그림이 토네이도 그림<span class="en">(tornado diagram)</span>입니다.</p>
+<p>일원 민감도 분석<span class="en">(one-way sensitivity analysis)</span>은 입력값 하나를 범위의 양 끝으로 바꾸고 나머지는 기준값에 둔 채 ICER를 다시 계산합니다(<a href="#ch24-s1">24장 a 절</a>). 할 일은 세 가지입니다. 입력값마다 범위를 정하고, 하나씩 바꿔 모형을 돌리고, 결과를 폭이 큰 순서로 그립니다. 마지막 그림이 토네이도 그림<span class="en">(tornado diagram)</span>입니다.</p>
 
 <h3>입력값의 분포</h3>
-<p>범위는 되도록 자료에서 온 95% 구간으로 정합니다. 공통 예시는 불확실한 입력값 15개에 분포를 주었고(<a href="#ch23-s3">23장 다 절</a>의 입력값 표), 그 분포의 2.5와 97.5 백분위수를 범위로 씁니다. 같은 분포를 다 절의 확률적 민감도 분석에서 다시 쓰므로 여기서 한 번 적어 둡니다.</p>
+<p>범위는 되도록 자료에서 온 95% 구간으로 정합니다. 공통 예시는 불확실한 입력값 15개에 분포를 주었고(<a href="#ch23-s3">23장 c 절</a>의 입력값 표), 그 분포의 2.5와 97.5 백분위수를 범위로 씁니다. 같은 분포를 c 절의 확률적 민감도 분석에서 다시 쓰므로 여기서 한 번 적어 둡니다.</p>
 <!--FIG:lab24_dist-->
 <div class="tbl-wrap"><table class="tbl" style="max-width:48rem">
-<caption>spec에 적은 분포와 숫자의 뜻 (<a href="#ch24-s2">24장 나 절</a> 표 24-4)</caption>
+<caption>spec에 적은 분포와 숫자의 뜻 (<a href="#ch24-s2">24장 b 절</a> 표 24-4)</caption>
 <thead><tr><th>입력값</th><th>분포</th><th>사전에 적은 숫자</th></tr></thead>
 <tbody>
 <tr><td>위험비 2개, 곡선의 중앙값 2개와 모양 모수 2개</td><td>로그정규</td><td>로그 척도의 표준오차. 기준값이 분포의 중앙값이 됨</td></tr>
@@ -102,7 +102,7 @@
 </tbody></table></div>
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>spec = {"hr_pfs": ("lognormal", 0.113), …}</code><span>이름마다 (분포 이름, 숫자)의 짝을 값으로 가진 사전입니다. 괄호로 묶은 짝을 튜플<span class="en">(tuple)</span>이라고 합니다. <code>dist, u = spec["u_pf"]</code>처럼 받으면 <code>dist</code>는 <code>"beta"</code>, <code>u</code>는 0.03이 됩니다. <code>pfs_med</code>와 <code>os_med</code>는 가 절에서 정한 중앙값의 이름입니다.</span></li>
+<li><code>spec = {"hr_pfs": ("lognormal", 0.113), …}</code><span>이름마다 (분포 이름, 숫자)의 짝을 값으로 가진 사전입니다. 괄호로 묶은 짝을 튜플<span class="en">(tuple)</span>이라고 합니다. <code>dist, u = spec["u_pf"]</code>처럼 받으면 <code>dist</code>는 <code>"beta"</code>, <code>u</code>는 0.03이 됩니다. <code>pfs_med</code>와 <code>os_med</code>는 a 절에서 정한 중앙값의 이름입니다.</span></li>
 <li><code>def beta_ab(m, se):</code><span>평균과 표준오차를 베타분포의 두 모수로 바꿉니다. 분포의 평균과 분산이 주어진 평균과 표준오차의 제곱에 맞도록 정하는 방법이고 적률법<span class="en">(method of moments)</span>이라고 합니다. n = m(1 − m) ÷ se² − 1, α = m × n, β = (1 − m) × n입니다.</span></li>
 <li><code>def gamma_ks(m, se):</code><span>감마분포의 모양 = (m ÷ se)², 척도 = m ÷ 모양입니다. 평균은 모양 × 척도, 표준편차는 √모양 × 척도가 됩니다.</span></li>
 </ol>
@@ -118,7 +118,7 @@
 <!--FIG:lab24_ranges-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>z = stats.norm.ppf(0.975)</code><span>표준정규분포에서 아래쪽 넓이가 0.975인 값, 곧 1.96입니다. <code>ppf</code>는 확률을 넣으면 그 확률에 해당하는 값(백분위수)을 돌려줍니다(<a href="#lab02-s2">실습 2 나 절</a>의 <code>stats.t.ppf</code>와 같은 종류).</span></li>
+<li><code>z = stats.norm.ppf(0.975)</code><span>표준정규분포에서 아래쪽 넓이가 0.975인 값, 곧 1.96입니다. <code>ppf</code>는 확률을 넣으면 그 확률에 해당하는 값(백분위수)을 돌려줍니다(<a href="#lab02-s2">실습 2 b 절</a>의 <code>stats.t.ppf</code>와 같은 종류).</span></li>
 <li><code>np.exp(np.log(m) - z * u), np.exp(np.log(m) + z * u)</code><span>로그정규분포의 95% 구간입니다. 로그 척도에서 기준값의 로그 ± 1.96 × 표준오차를 구하고 지수를 취합니다. 전체생존 위험비라면 exp(ln 0.75 ± 1.96 × 0.131)입니다.</span></li>
 <li><code>stats.beta.ppf([0.025, 0.975], a, b)</code><span>모수가 a, b인 베타분포의 2.5와 97.5 백분위수 두 개를 배열로 돌려줍니다. <code>tuple(…)</code>은 그 배열을 (낮은 값, 높은 값)의 짝으로 바꿉니다.</span></li>
 <li><code>stats.gamma.ppf([0.025, 0.975], k, scale=s)</code><span>감마분포의 백분위수입니다. 모양은 둘째 자리에, 척도는 <code>scale=</code>로 적습니다. <code>scale=</code>을 빼먹으면 척도 1인 분포가 되어 엉뚱한 값이 나옵니다.</span></li>
@@ -143,7 +143,7 @@
 <li><code>run_model(set_input(p, key, low))</code><span>일원 민감도 분석의 전부입니다. <code>set_input</code>이 그 입력값 하나만 바꾼 사본을 만들고, <code>run_model</code>이 그 사본으로 모형을 돌립니다. 나머지 17개는 기준값입니다. 입력값 17개 × 양 끝 2개이므로 모형을 34번 돌립니다.</span></li>
 <li><code>ow["swing"] = (ow["icer_high"] - ow["icer_low"]).abs()</code><span>두 ICER의 차이의 절댓값, 곧 ICER가 움직인 폭입니다. <code>.abs()</code>가 없으면 입력값이 클수록 ICER가 내려가는 줄에서 음수가 됩니다.</span></li>
 <li><code>ow[["icer_low", "icer_high"]].min(axis=1)</code><span>줄마다 두 ICER 가운데 작은 값입니다. <code>axis=1</code>은 가로 방향으로 견주라는 뜻입니다. 이 값이 임계값보다 작으면 <code>below</code>가 True입니다.</span></li>
-<li><code>ow.sort_values("swing", ascending=False)</code><span>폭이 큰 순서로 줄을 다시 세웁니다(<a href="#lab09-s3">실습 9 다 절</a>).</span></li>
+<li><code>ow.sort_values("swing", ascending=False)</code><span>폭이 큰 순서로 줄을 다시 세웁니다(<a href="#lab09-s3">실습 9 c 절</a>).</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -176,7 +176,7 @@
 <li>넷째 막대는 임의로 정한 범위로 그린 것입니다. 막대의 길이를 견줄 때는 범위의 근거를 먼저 봅니다.</li>
 </ul>
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
-<p>셀 5의 표준요법 B 줄을 <code>b * (1 - 0.10), b * (1 + 0.10)</code>으로 바꾸고 셀 5–7을 다시 실행해 보세요. 폭이 1,337에서 668로 절반이 되고 순위가 4위에서 5위로 내려갑니다. 범위를 어떻게 잡느냐가 막대의 길이를 정합니다. 전체 불확실성을 보려면 한 번에 하나씩이 아니라 한꺼번에 움직여야 하고, 그것이 다 절의 분석입니다.</p></div>
+<p>셀 5의 표준요법 B 줄을 <code>b * (1 - 0.10), b * (1 + 0.10)</code>으로 바꾸고 셀 5–7을 다시 실행해 보세요. 폭이 1,337에서 668로 절반이 되고 순위가 4위에서 5위로 내려갑니다. 범위를 어떻게 잡느냐가 막대의 길이를 정합니다. 전체 불확실성을 보려면 한 번에 하나씩이 아니라 한꺼번에 움직여야 하고, 그것이 c 절의 분석입니다.</p></div>
 
 <h3>ICER가 임계값과 같아지는 약값</h3>
 <p>임계값 분석<span class="en">(threshold analysis)</span>은 "입력값이 얼마이면 결론이 바뀌는가"를 묻습니다. 약값을 바꿔도 생존곡선과 QALY는 그대로이고 증분비용만 약값에 비례해 달라지므로, ICER는 약값의 1차식입니다. 직선 위의 두 점을 알면 ICER가 5,000이 되는 가격을 비례식으로 바로 구할 수 있습니다.</p>
@@ -204,7 +204,7 @@
 <li><span class="mk">1</span><span><b>범위와 방법.</b> 셀 5의 범위와 셀 6의 계산입니다. 한 번에 하나만 바꿨다는 것을 적습니다.</span></li>
 <li><span class="mk">2</span><span><b>곡선을 바꾼 방법.</b> 셀 3의 <code>set_input</code>이 한 일입니다. 무엇을 고정했는지에 따라 결과가 달라지므로 적어 둡니다.</span></li>
 <li><span class="mk">3</span><span><b>임의의 범위.</b> 어느 입력값의 범위가 자료에서 오지 않았는지 밝힙니다.</span></li>
-<li><span class="mk">4</span><span><b>가장 민감한 입력값.</b> 셀 6의 위에서 세 줄입니다. 입력값별 기준값, 범위, 두 ICER는 표로 싣습니다(본문 24장 가 절의 Table 4).</span></li>
+<li><span class="mk">4</span><span><b>가장 민감한 입력값.</b> 셀 6의 위에서 세 줄입니다. 입력값별 기준값, 범위, 두 ICER는 표로 싣습니다(본문 24장 a 절의 Table 4).</span></li>
 <li><span class="mk">5</span><span><b>결론이 바뀌는 조건.</b> 셀 6에서 <code>below</code>가 True인 세 줄입니다.</span></li>
 <li><span class="mk">6</span><span><b>임계 가격.</b> 셀 8의 175.39만원과 7.7%입니다.</span></li>
 </ol>
@@ -220,9 +220,9 @@
 
 <!-- ============================================================ 다 -->
 <section class="sec" id="lab24-s3">
-<h2><span class="sec-no">다.</span>확률적 민감도 분석</h2>
+<h2><span class="sec-no">c.</span>확률적 민감도 분석</h2>
 
-<p>확률적 민감도 분석<span class="en">(probabilistic sensitivity analysis, PSA)</span>은 불확실한 입력값을 모두 분포에서 한꺼번에 뽑아 모형을 돌리는 일을 수천 번 되풀이합니다(<a href="#ch24-s2">24장 나 절</a>). 나 절의 <code>spec</code>에 분포가 이미 있으므로 남은 일은 "한 벌을 뽑는 함수"를 만드는 것입니다. 한 번에 뽑은 입력값 한 묶음을 본문처럼 '한 벌'이라고 부릅니다.</p>
+<p>확률적 민감도 분석<span class="en">(probabilistic sensitivity analysis, PSA)</span>은 불확실한 입력값을 모두 분포에서 한꺼번에 뽑아 모형을 돌리는 일을 수천 번 되풀이합니다(<a href="#ch24-s2">24장 b 절</a>). b 절의 <code>spec</code>에 분포가 이미 있으므로 남은 일은 "한 벌을 뽑는 함수"를 만드는 것입니다. 한 번에 뽑은 입력값 한 묶음을 본문처럼 '한 벌'이라고 부릅니다.</p>
 
 <h3>상관 있는 두 정규 난수</h3>
 <p>입력값끼리 관련이 있으면 따로 뽑으면 안 됩니다. 무진행생존과 전체생존은 같은 환자에게서 추정한 값이어서, 진행이 늦게 추정된 시험에서는 사망도 늦게 추정되는 쪽으로 함께 움직입니다. 따로 뽑으면 "진행은 늦는데 사망은 빠른" 조합이 섞이고, 무진행생존 곡선이 전체생존 곡선을 넘는 벌이 나옵니다. 무진행 상태인 사람이 살아 있는 사람보다 많을 수는 없습니다. 그래서 공통 예시는 무진행생존과 전체생존의 중앙값끼리, 모양 모수끼리, 위험비끼리 로그 척도에서 상관계수 0.5를 주어 함께 뽑습니다. 0.5는 이 예시에서 가정한 값입니다.</p>
@@ -236,7 +236,7 @@
 <!--FIG:lab24_corr-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>rng0 = np.random.default_rng(1)</code><span>난수 생성기입니다(<a href="#lab21-s2">실습 21 나 절</a>). 이 셀은 연습이어서 뒤의 분석과 다른 이름(<code>rng0</code>)과 다른 seed를 썼습니다.</span></li>
+<li><code>rng0 = np.random.default_rng(1)</code><span>난수 생성기입니다(<a href="#lab21-s2">실습 21 b 절</a>). 이 셀은 연습이어서 뒤의 분석과 다른 이름(<code>rng0</code>)과 다른 seed를 썼습니다.</span></li>
 <li><code>z1 = rng0.normal(size=10000)</code><span>평균 0, 표준편차 1인 정규분포에서 1만 개를 뽑습니다. <code>normal()</code>에 평균과 표준편차를 적지 않으면 표준정규분포입니다.</span></li>
 <li><code>z2 = rho * z1 + np.sqrt(1 - rho ** 2) * e</code><span>위의 식 그대로입니다. 배열끼리의 계산이어서 1만 쌍이 한 줄로 만들어집니다.</span></li>
 <li><code>np.mean(z2[z1 &gt; 0] &gt; 0)</code><span><code>z2[z1 &gt; 0]</code>은 z₁이 양수인 자리의 z₂만 고른 것입니다. 그 가운데 양수인 비율을 구합니다.</span></li>
@@ -298,7 +298,7 @@
 <!--FIG:lab24_psa-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>dc, dq = np.empty(n), np.empty(n)</code><span>결과를 담을 길이 n의 빈 배열 두 개입니다(<a href="#lab21-s3">실습 21 다 절</a>).</span></li>
+<li><code>dc, dq = np.empty(n), np.empty(n)</code><span>결과를 담을 길이 n의 빈 배열 두 개입니다(<a href="#lab21-s3">실습 21 c 절</a>).</span></li>
 <li><code>r = run_model(draw_inputs(rng, p, count, rho, redraw))</code><span>분석의 전부입니다. 한 벌을 뽑아 모형을 돌립니다. 이 줄을 n번 되풀이합니다.</span></li>
 <li><code>dc[i], dq[i] = r["d_cost"], r["d_qaly"]</code><span>i번째 벌의 증분비용과 증분 QALY를 배열의 i번째 자리에 넣습니다.</span></li>
 <li><code>t0 = time.time()</code>, <code>time.time() - t0</code><span><code>time.time()</code>은 지금 시각을 초 단위의 수로 돌려줍니다. 앞뒤에서 한 번씩 불러 빼면 걸린 시간입니다.</span></li>
@@ -313,7 +313,7 @@
 </ol>
 
 <h3>결과 요약</h3>
-<p>5,000쌍의 평균과 2.5·97.5 백분위수를 구합니다. <code>np.percentile</code>은 <a href="#lab21-s2">실습 21 나 절</a>에서 설명했습니다.</p>
+<p>5,000쌍의 평균과 2.5·97.5 백분위수를 구합니다. <code>np.percentile</code>은 <a href="#lab21-s2">실습 21 b 절</a>에서 설명했습니다.</p>
 <!--FIG:lab24_summary-->
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -322,12 +322,12 @@
 <li><span class="mk">3</span><span><b>증분 QALY의 평균 0.525 (0.101–1.008).</b> 기준 분석 0.511과 조금 다릅니다. 모형의 결과가 입력값에 직선으로 비례하지 않아서 가운데 값을 넣은 결과와 결과의 평균이 같지 않습니다.</span></li>
 <li><span class="mk">4</span><span><b>증분 순금전편익의 평균 −308만원 (−919에서 412).</b> 평균이 음수이고 구간이 0을 포함합니다.</span></li>
 <li><span class="mk">5</span><span><b>ICER 5,586만원/QALY.</b> 평균 증분비용을 평균 증분 QALY로 나눈 값입니다. 벌마다 ICER를 구해 평균을 내지 않습니다. 증분 QALY가 0에 가깝거나 음수인 벌이 섞여 뜻이 없는 값이 됩니다(본문 'ICER의 신뢰구간을 쓰지 않는 이유').</span></li>
-<li><span class="mk">6</span><span><b>비용효과적일 확률 0.1604.</b> 임계값 5,000만원/QALY에서 순금전편익이 양수인 벌의 비율입니다. 라 절에서 자세히 봅니다.</span></li>
+<li><span class="mk">6</span><span><b>비용효과적일 확률 0.1604.</b> 임계값 5,000만원/QALY에서 순금전편익이 양수인 벌의 비율입니다. d 절에서 자세히 봅니다.</span></li>
 <li><span class="mk">7</span><span><b>몬테카를로 표준오차<span class="en">(Monte Carlo standard error)</span> 0.0052.</b> √(0.1604 × 0.8396 ÷ 5,000)입니다. 난수가 달랐다면 확률이 ±1%포인트쯤 다르게 나왔을 것이라는 뜻입니다. 모든 값이 본문 표 24-5와 같습니다.</span></li>
 </ol>
 
 <h3>비용효과평면</h3>
-<p>5,000쌍을 비용효과평면<span class="en">(cost-effectiveness plane)</span>에 점으로 찍고 사분면별로 셉니다(<a href="#ch20-s4">20장 라 절</a>).</p>
+<p>5,000쌍을 비용효과평면<span class="en">(cost-effectiveness plane)</span>에 점으로 찍고 사분면별로 셉니다(<a href="#ch20-s4">20장 d 절</a>).</p>
 <!--FIG:lab24_plane-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -363,7 +363,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>횟수.</b> 셀 12의 n = 5,000입니다. 난수의 seed와 프로그램도 보충 자료에 적어 두면 다른 사람이 같은 결과를 얻을 수 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>분포와 모수.</b> 셀 4의 <code>spec</code>, <code>beta_ab</code>, <code>gamma_ks</code>입니다. 입력값별 분포와 모수는 입력값 표의 열로 싣습니다.</span></li>
-<li><span class="mk">3</span><span><b>상관.</b> 셀 10의 <code>rho=0.5</code>입니다. 자료에서 추정한 값이 아니라 가정한 값이므로 "assumed"라고 씁니다. 환자 단위 자료가 있으면 적합 결과의 공분산 행렬이나 부트스트랩을 씁니다(<a href="#ch24-s2">24장 나 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>상관.</b> 셀 10의 <code>rho=0.5</code>입니다. 자료에서 추정한 값이 아니라 가정한 값이므로 "assumed"라고 씁니다. 환자 단위 자료가 있으면 적합 결과의 공분산 행렬이나 부트스트랩을 씁니다(<a href="#ch24-s2">24장 b 절</a>).</span></li>
 <li><span class="mk">4</span><span><b>다시 뽑은 비율.</b> 셀 12의 137 ÷ 5,137입니다.</span></li>
 <li><span class="mk">5</span><span><b>고정한 입력값.</b> <code>spec</code>에 없는 약값과 할인율입니다.</span></li>
 <li><span class="mk">6</span><span><b>평균과 95% 구간.</b> 셀 13의 값입니다. ICER의 구간 대신 증분비용과 증분 QALY를 따로 적습니다.</span></li>
@@ -381,9 +381,9 @@
 
 <!-- ============================================================ 라 -->
 <section class="sec" id="lab24-s4">
-<h2><span class="sec-no">라.</span>비용효과 수용곡선</h2>
+<h2><span class="sec-no">d.</span>비용효과 수용곡선</h2>
 
-<p>5,000쌍의 결과를 "비용효과적일 확률"로 요약합니다(<a href="#ch24-s3">24장 다 절</a>). 이 절의 계산은 모두 셀 12에서 얻은 두 배열 <code>dc</code>, <code>dq</code>에서 나옵니다. 모형을 다시 돌리지 않습니다.</p>
+<p>5,000쌍의 결과를 "비용효과적일 확률"로 요약합니다(<a href="#ch24-s3">24장 c 절</a>). 이 절의 계산은 모두 셀 12에서 얻은 두 배열 <code>dc</code>, <code>dq</code>에서 나옵니다. 모형을 다시 돌리지 않습니다.</p>
 
 <h3>증분 순금전편익과 확률</h3>
 <p>증분 순금전편익<span class="en">(incremental net monetary benefit)</span>은 임계값 × 증분 QALY − 증분비용이고, 양수이면 그 벌에서 신약 A가 비용효과적입니다. 처음 다섯 벌에 임계값 5,000만원과 6,000만원을 적용해 봅니다.</p>
@@ -429,7 +429,7 @@
 <li><span class="mk">1</span><span><b>양 끝의 확률 0.1%와 97.5%.</b> 임계값 0에서의 값은 신약 A가 비용을 줄이는 벌의 비율이고, 임계값이 아주 커지면 신약 A가 QALY를 늘리는 벌의 비율(99.2%)에 가까워집니다. 0에서 시작해 100%에 닿는 곡선이 아닙니다.</span></li>
 <li><span class="mk">2</span><span><b>50%를 처음 넘는 임계값 5,650만원.</b> 기준 분석의 ICER(5,621)나 확률적 분석의 ICER(5,586)와 비슷하지만 같지 않습니다.</span></li>
 </ol>
-<p>가로축은 임계값(만원/QALY), 세로축은 비용효과적일 확률입니다. 세로 점선이 가정한 임계값 5,000만원, 가로 점선이 50%입니다. 곡선은 5,000만원과 6,500만원 사이에서 가파르게 오릅니다. 이 확률은 모형의 구조와 입력값에 준 분포(표준오차, 가정한 상관 0.5)가 맞다는 조건에서 모수 불확실성만 반영한 값입니다. 공식 임계값이 없는 국내 상황에서는 한 점의 확률보다 곡선 전체를 보입니다(<a href="#ch20-s4">20장 라 절</a>).</p>
+<p>가로축은 임계값(만원/QALY), 세로축은 비용효과적일 확률입니다. 세로 점선이 가정한 임계값 5,000만원, 가로 점선이 50%입니다. 곡선은 5,000만원과 6,500만원 사이에서 가파르게 오릅니다. 이 확률은 모형의 구조와 입력값에 준 분포(표준오차, 가정한 상관 0.5)가 맞다는 조건에서 모수 불확실성만 반영한 값입니다. 공식 임계값이 없는 국내 상황에서는 한 점의 확률보다 곡선 전체를 보입니다(<a href="#ch20-s4">20장 d 절</a>).</p>
 
 <h3>EVPI 풀어 보기</h3>
 <!--FIG:lab24_evpi-->
@@ -437,7 +437,7 @@
 <li><span class="mk">1</span><span><b>양수인 벌의 평균 224.1만원.</b> <code>inmb[inmb &gt; 0]</code>은 신약 A가 더 나았던 802벌만 고른 것입니다.</span></li>
 <li><span class="mk">2</span><span><b>0.1604 × 224.1 = 35.9만원.</b> 평균 순금전편익이 음수(−307.7만원)이므로 지금의 선택은 표준요법 B입니다. 벌의 16.0%에서는 신약 A가 더 나았고 그때 평균 224만원을 얻을 수 있었습니다. 참값을 알았다면 얻었을 이 이득이 EVPI이고, 함수가 낸 값과 같습니다.</span></li>
 <li><span class="mk">3</span><span><b>EVPI가 가장 큰 임계값 5,590만원.</b> ICER 근처입니다.</span></li>
-<li><span class="mk">4</span><span><b>그때의 EVPI 164.1만원.</b> 순금전편익의 평균이 0에 가까워 두 대안이 가장 팽팽한 곳입니다(평균끼리 나눈 ICER 5,586 근처). EVPI는 확률만으로 정해지지 않고 틀렸을 때 잃는 크기에도 달려 있습니다(<a href="#ch24-s3">24장 다 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>그때의 EVPI 164.1만원.</b> 순금전편익의 평균이 0에 가까워 두 대안이 가장 팽팽한 곳입니다(평균끼리 나눈 ICER 5,586 근처). EVPI는 확률만으로 정해지지 않고 틀렸을 때 잃는 크기에도 달려 있습니다(<a href="#ch24-s3">24장 c 절</a>).</span></li>
 <li><span class="mk">5</span><span><b>대상 환자가 3,000명이라고 가정하면 약 11억 원.</b> 환자 수는 설명을 위해 정한 값입니다. 추가 연구의 비용이 이보다 크면 그 연구는 할 가치가 없다는 상한으로 읽습니다. 이 값은 모형에 넣은 모수 불확실성만 반영합니다.</span></li>
 </ol>
 
@@ -450,7 +450,7 @@
 <li><span class="mk">2</span><span><b>다른 임계값에서의 확률.</b> 셀 17의 표입니다.</span></li>
 <li><span class="mk">3</span><span><b>순금전편익의 평균과 구간.</b> 셀 13의 −308만원(−919에서 412)을 백만 원 단위로 적었습니다. 어느 대안을 택할지는 이 평균의 부호로 정하고, 확률은 그 결정이 얼마나 불확실한지로 읽습니다.</span></li>
 <li><span class="mk">4</span><span><b>EVPI.</b> 셀 19의 35.9만원입니다.</span></li>
-<li><span class="mk">5</span><span><b>반영되지 않은 불확실성.</b> 외삽 곡선의 종류나 치료 효과가 이어지는 기간 같은 구조적 가정은 이 확률에 들어 있지 않습니다. 시나리오 분석으로 따로 보입니다(<a href="#ch24-s1">24장 가 절</a>의 표 24-3).</span></li>
+<li><span class="mk">5</span><span><b>반영되지 않은 불확실성.</b> 외삽 곡선의 종류나 치료 효과가 이어지는 기간 같은 구조적 가정은 이 확률에 들어 있지 않습니다. 시나리오 분석으로 따로 보입니다(<a href="#ch24-s1">24장 a 절</a>의 표 24-3).</span></li>
 </ol>
 </div></div>
 
@@ -464,7 +464,7 @@
 
 <!-- ============================================================ 마 -->
 <section class="sec" id="lab24-s5">
-<h2><span class="sec-no">마.</span>과제</h2>
+<h2><span class="sec-no">e.</span>과제</h2>
 
 <p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 코드를 짜 본 뒤 접힌 정답을 열어 보세요. 세 과제의 답은 모두 24장 본문에 나오는 숫자입니다.</p>
 
@@ -506,6 +506,6 @@
 <li><span class="mk">4</span><span><b>160만원에서 82.5%.</b> 본문 논문 상자의 "the probability at ₩50 million per QALY increased to 82.5%"입니다. 불확실성까지 감안해 높은 확률을 요구한다면 가격은 임계 가격보다 더 낮아져야 합니다.</span></li>
 <li><span class="mk">5</span><span><b>증분 QALY는 세 번 모두 같습니다.</b> 약값은 비용만 바꾸기 때문입니다.</span></li>
 </ol>
-<p>그림에서 약값을 낮추면 곡선이 통째로 왼쪽으로 옮겨 갑니다. 세로 점선(임계값 5,000만원)과 만나는 높이가 16.0%, 48.3%, 82.5%입니다. 민감도 분석 결과가 가격 협상의 근거로 쓰이는 방식입니다(<a href="#ch24-s3">24장 다 절</a>의 접힌 표 '약값에 따른 비용효과적일 확률').</p>
+<p>그림에서 약값을 낮추면 곡선이 통째로 왼쪽으로 옮겨 갑니다. 세로 점선(임계값 5,000만원)과 만나는 높이가 16.0%, 48.3%, 82.5%입니다. 민감도 분석 결과가 가격 협상의 근거로 쓰이는 방식입니다(<a href="#ch24-s3">24장 c 절</a>의 접힌 표 '약값에 따른 비용효과적일 확률').</p>
 </div></details>
 </section>

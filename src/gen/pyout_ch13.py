@@ -1,4 +1,4 @@
-"""Python (scipy) output pasted into content/ch13.html, 나 절 ('파이썬 출력에서는 이렇게 보입니다').
+"""Python (scipy) output pasted into content/ch13.html, b 절 ('파이썬 출력에서는 이렇게 보입니다').
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/pyout_ch13.py
 The ITT summary statistics of the telepharmacy PDC trial (nums_ch13.py: remote 83.9 +/- 16.8, n 304;

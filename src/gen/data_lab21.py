@@ -33,7 +33,7 @@ def build():
         "cost_inp": s["inp"],
         "cost": s["cost"],
     })
-    # 본문(21장 나 절)의 숫자와 같은 자료인지 확인
+    # 본문(21장 b 절)의 숫자와 같은 자료인지 확인
     assert len(d) == 3000 and d["pid"].is_unique
     assert (d["arm"] == "A").sum() == 1203 and (d["arm"] == "B").sum() == 1797
     assert (s["age"] == d["age"]).all()

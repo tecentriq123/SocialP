@@ -1,7 +1,7 @@
 """Every number quoted in content/ch13.html is printed (and checked) by this script.
 run: python3 gen/nums_ch13.py
 Other scripts import the dicts defined here (fig_ch13.py).
-The scipy ttest_ind output in 나 절 comes from gen/pyout_ch13.py (individual-level data with the
+The scipy ttest_ind output in b 절 comes from gen/pyout_ch13.py (individual-level data with the
 same means/SDs as the ITT summary below).
 """
 import math

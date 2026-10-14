@@ -5,7 +5,7 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab23.py && python3 
 
 자료: pub/data/rcc_trial.csv (gen/data_lab23.py가 23장의 gen/_ch23_trial.csv에서 만든다).
 학생 코드는 gen/lib_p4.py를 쓰지 않는다(입력값 사전과 짧은 함수로 다시 짠다).
-끝의 대조 블록이 실습 결과를 lib_p4.run()(20–25장 공통 예시의 기준 분석)과 gen/_ch23_nums.json(23장 라 절)의 값과 맞춘다.
+끝의 대조 블록이 실습 결과를 lib_p4.run()(20–25장 공통 예시의 기준 분석)과 gen/_ch23_nums.json(23장 d 절)의 값과 맞춘다.
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -359,7 +359,7 @@ print("적합한 와이블 곡선: 생존연수 B",
 print("증분비용", round(r_fit["d_cost"]),
       " 증분 QALY", round(r_fit["d_qaly"], 3),
       " ICER", round(r_fit["icer"]))
-''', title="입력값을 바꿔 다시 돌리기 (가 절에서 적합한 곡선)")
+''', title="입력값을 바꿔 다시 돌리기 (a 절에서 적합한 곡선)")
 save("lab23_refit", c, marks={"p_fit: 1.1454": 1, "A 3.98": 2, "5610": 3})
 
 # ---------------------------------------------------------------- 라. 모형 점검
@@ -478,7 +478,7 @@ CHECKS = []
 
 
 def chk(name, got, want, tol=1e-9, grp="model"):
-    """grp: "model" = lib_p4와 견준 모형 계산, "fit" = 23장 라 절의 적합 결과(_ch23_nums.json)와 견준 것"""
+    """grp: "model" = lib_p4와 견준 모형 계산, "fit" = 23장 d 절의 적합 결과(_ch23_nums.json)와 견준 것"""
     got, want = np.asarray(got, dtype=float), np.asarray(want, dtype=float)
     err = float(np.max(np.abs(got - want)))
     CHECKS.append((name, err, grp))
@@ -506,7 +506,7 @@ assert [round(base_[a][k], 3) for a in "AB" for k in ("ly_pf", "ly_pd", "ly")] =
 assert [round(base_[a]["ly_d"], 3) for a in "AB"] == [3.399, 2.729] and round(base_["d_ly"], 3) == 0.670
 assert [round(base_[a][k]) for a in "AB" for k in ("c_drug", "c_pf", "c_pd", "c_death")] == [4124, 868, 4769, 680, 1708, 569, 4629, 704]
 assert round(L.nmb(REF)) == -317 and round(REF["icer_ly"]) == 4287
-# 나 절: 곡선과 상태 비율(lib_p4의 trace), 반주기 보정
+# b 절: 곡선과 상태 비율(lib_p4의 trace), 반주기 보정
 for arm in ("A", "B"):
     tr, occ = REF[arm]["trace"], ns["occ_" + arm]
     chk(f"occupancy arm {arm} (241 x 3)", occ[["pf", "pd", "dead"]].to_numpy().T, [tr["pf"], tr["pd"], tr["dead"]], 1e-12)
@@ -514,13 +514,13 @@ for arm in ("A", "B"):
     chk(f"curves arm {arm}", [ns["pfs_" + arm], ns["os_" + arm]], [s_pfs, s_os], 1e-12)
 chk("B: PF, PD years (step by step)", [ns["pf"].sum() / 12, ns["pd_"].sum() / 12], [REF["B"]["ly_pf"], REF["B"]["ly_pd"]])
 chk("B: life-years without half-cycle correction", (ns["pf_t"][:-1] + ns["pd_t"][:-1]).sum() / 12, L.run(half_cycle=False)["B"]["ly"])
-# 다 절: 단계별 계산(표준요법 B)과 함수의 결과
+# c 절: 단계별 계산(표준요법 B)과 함수의 결과
 chk("B: cost, QALY (step by step)", [ns["cost_B"], ns["qaly_B"]], [REF["B"]["cost"], REF["B"]["qaly"]])
 chk("B: discounted cost items (step by step)", ns["after"][["c_drug", "c_pf", "c_pd", "c_death"]].tolist(),
     [REF["B"][k] for k in ("c_drug", "c_pf", "c_pd", "c_death")])
 chk("discount factors: cycles 1, 12, 120", ns["cyc"].loc[[1, 12, 120], "disc"].tolist(),
     [1 / 1.045 ** (0.5 / 12), 1 / 1.045 ** (11.5 / 12), 1 / 1.045 ** (119.5 / 12)], 1e-12)
-# 가 절: Kaplan-Meier, 다섯 모형의 적합(23장 표 23-11), 와이블 모수 변환
+# a 절: Kaplan-Meier, 다섯 모형의 적합(23장 표 23-11), 와이블 모수 변환
 KM = N["km"]
 trial_ = ns["trial"]
 assert (len(trial_), int(trial_["event"].sum()), int((trial_["event"] == 0).sum())) == (KM["n"], KM["events"], KM["cens"])
@@ -544,11 +544,11 @@ rf = ns["r_fit"]
 chk("fitted Weibull in the model (Table 23-12): LY B, LY A, d_cost, d_qaly, ICER",
     [rf["B"]["ly"], rf["A"]["ly"], rf["d_cost"], rf["d_qaly"], rf["icer"]], [W["ly_B"], W["ly_A"], W["d_cost"], W["d_qaly"], W["icer"]], 0.02, "fit")
 assert round(rf["icer"]) == 5610 and round(rf["d_cost"]) == 2902 and round(rf["d_qaly"], 3) == 0.517
-# 라 절: 점검에 쓴 값
+# d 절: 점검에 쓴 값
 chk("discount 0%: A cost, A QALY, ICER", [ns["r0"]["A"]["cost"], ns["r0"]["A"]["qaly"], ns["r0"]["icer"]],
     [L.run(disc=0.0)["A"]["cost"], REF["A"]["qaly_undisc"], L.run(disc=0.0)["icer"]])
 assert round(ns["r0"]["A"]["cost"]) == 12194 and round(ns["r0"]["A"]["qaly"], 3) == 2.732          # 20장 '할인'
-# 과제: 분석기간(20장 표 20-6), 할인율(표 20-8), 임계 가격(24장 가 절)
+# 과제: 분석기간(20장 표 20-6), 할인율(표 20-8), 임계 가격(24장 a 절)
 hw1_, hw2_ = ns["hw1"], ns["hw2"]
 for i, yrs in enumerate((3, 5, 10, 20)):
     q = L.run(horizon=yrs * 12)
@@ -560,12 +560,12 @@ for i, rate in enumerate((0.0, 0.03, 0.045)):
     chk(f"discount {rate}: d_cost, d_qaly, ICER", hw2_.loc[i, ["d_cost", "d_qaly", "icer"]], [q["d_cost"], q["d_qaly"], q["icer"]])
 assert [(round(a), round(b, 3), round(c)) for a, b, c in hw2_[["d_cost", "d_qaly", "icer"]].to_numpy()[:2]] == \
     [(3508, 0.646, 5431), (3058, 0.550, 5555)]
-assert round(base_["d_cost"] / ns["dq_undisc"]) == 4447                                             # 20장 다 절 흔한 오해
+assert round(base_["d_cost"] / ns["dq_undisc"]) == 4447                                             # 20장 c 절 흔한 오해
 chk("threshold price = lib_p4.threshold_price()", ns["price"], L.threshold_price())
 assert round(ns["price"], 1) == 175.4 and round(ns["months"], 1) == 21.7
 print(f"대조: {len(CHECKS)}개 항목 모두 허용 오차 안 (lib_p4와 견준 {sum(g == 'model' for _, _, g in CHECKS)}개의 가장 큰 차이 "
       f"{max(e for _, e, g in CHECKS if g == 'model'):.2e}, "
-      f"23장 라 절과 견준 {sum(g == 'fit' for _, _, g in CHECKS)}개의 가장 큰 차이 {max(e for _, e, g in CHECKS if g == 'fit'):.2e})")
+      f"23장 d 절과 견준 {sum(g == 'fit' for _, _, g in CHECKS)}개의 가장 큰 차이 {max(e for _, e, g in CHECKS if g == 'fit'):.2e})")
 
 # ---------------------------------------------------------------- 본문 문장에 쓴 그 밖의 숫자 확인
 if os.environ.get("VERIFY") or os.environ.get("NOMARK"):
@@ -592,7 +592,7 @@ path = nb.save_ipynb(
     intro=("사회약학 연구방법 노트의 '실습 23 결정분석 모형 만들기'에 나오는 셀을 차례로 모은 노트북입니다. "
            "진행성 신세포암 1차 치료(신약 A 대 표준요법 B, 가상의 예시)의 세 상태 분할생존모형을 numpy와 pandas만으로 만들어 "
            "20–25장 공통 예시의 기준 분석(ICER 5,621만원/QALY)을 재현합니다. "
-           "셀을 위에서부터 차례로 실행하세요. 가 절의 자료는 사이트에서 바로 읽으므로 인터넷 연결이 필요합니다. "
+           "셀을 위에서부터 차례로 실행하세요. a 절의 자료는 사이트에서 바로 읽으므로 인터넷 연결이 필요합니다. "
            "설명과 출력 읽는 법은 사이트의 실습 23 쪽에 있습니다."),
     skip=(21,), notes=notes)
 print("notebook:", path, len(nb.cells), "cells")

@@ -413,21 +413,21 @@ def python_outputs():
     df = pd.DataFrame({"arm": pd.Categorical(np.repeat(["usual", "brief", "intensive"], 30),
                                              categories=["usual", "brief", "intensive"]),
                        "pdc": np.concatenate([usual, brief, intensive])})
-    # 나 절: Tukey HSD (0 = usual, 1 = brief, 2 = intensive)
+    # b 절: Tukey HSD (0 = usual, 1 = brief, 2 = intensive)
     res = st.tukey_hsd(usual, brief, intensive)
     print(res)
-    # 나 절 본문: 합동분산(MSW)을 쓰는 쌍별 t 검정 + Bonferroni/Holm
+    # b 절 본문: 합동분산(MSW)을 쓰는 쌍별 t 검정 + Bonferroni/Holm
     fit = smf.ols("pdc ~ arm", data=df).fit()
     print(fit.t_test_pairwise("arm", method=["bonferroni", "holm"]).result_frame.round(4).to_string())
-    # 다 절: 분산분석표
+    # c 절: 분산분석표
     print(sm.stats.anova_lm(fit))
-    # 다 절: Welch 분산분석
+    # c 절: Welch 분산분석
     print(repr(st.f_oneway(usual, brief, intensive, equal_var=False)))
     print(repr(st.f_oneway(usual, brief, intensive)))
     w = anova_oneway(df["pdc"], df["arm"], use_var="unequal")
     print(repr(w.df))
     print("levene median", st.levene(usual, brief, intensive), "mean", st.levene(usual, brief, intensive, center="mean"))
-    # 라 절: Kruskal-Wallis (+ 작은 예제의 정확 p를 순열검정으로)
+    # d 절: Kruskal-Wallis (+ 작은 예제의 정확 p를 순열검정으로)
     print(repr(st.kruskal(usual, brief, intensive)))
     perm = st.permutation_test(TINY, lambda *s, axis=-1: st.kruskal(*s, axis=axis).statistic,
                                permutation_type="independent", alternative="greater",

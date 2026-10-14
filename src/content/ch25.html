@@ -2,9 +2,9 @@
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>미리 알아 둘 것</dt><dd><a href="#ch20-s3">20장 다 절</a>의 관점·비교대안·분석기간·할인과 <a href="#ch20-s4">라 절</a>의 ICER, <a href="#ch23-s3">23장 다 절</a>의 분할생존모형과 <a href="#ch23-s4">라 절</a>의 외삽, <a href="#ch24-s1">24장 가 절</a>의 토네이도 그림과 <a href="#ch24-s3">다 절</a>의 수용곡선. 20장만 읽었다면 가 절과 나 절의 '여기서 확인할 것', <a href="#ch25-t4">표 25-4</a>만 읽어도 됩니다.</dd>
-<dt>먼저 읽을 부분</dt><dd>가 절은 '쉽게 말하면', 표 25-2, 흔한 오해 상자, 초록 상자. 나 절은 '쉽게 말하면'부터 흔한 오해 상자까지 전부. 다 절은 '쉽게 말하면', '가격과 환급', 표 25-7, '재정영향분석', '숫자로 따라가기', 흔한 오해 상자, '논문에서 읽어 보기'.</dd>
-<dt>나중에 읽을 부분</dt><dd>접힌 '심화' 부분은 모두 나중에 읽습니다. 나 절의 접힌 번호 해설은 '여기서 확인할 것'에 답하기 어려울 때 폅니다.</dd>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch20-s3">20장 c 절</a>의 관점·비교대안·분석기간·할인과 <a href="#ch20-s4">d 절</a>의 ICER, <a href="#ch23-s3">23장 c 절</a>의 분할생존모형과 <a href="#ch23-s4">d 절</a>의 외삽, <a href="#ch24-s1">24장 a 절</a>의 토네이도 그림과 <a href="#ch24-s3">c 절</a>의 수용곡선. 20장만 읽었다면 a 절과 b 절의 '여기서 확인할 것', <a href="#ch25-t4">표 25-4</a>만 읽어도 됩니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절은 '쉽게 말하면', 표 25-2, 흔한 오해 상자, 초록 상자. b 절은 '쉽게 말하면'부터 흔한 오해 상자까지 전부. c 절은 '쉽게 말하면', '가격과 환급', 표 25-7, '재정영향분석', '숫자로 따라가기', 흔한 오해 상자, '논문에서 읽어 보기'.</dd>
+<dt>나중에 읽을 부분</dt><dd>접힌 '심화' 부분은 모두 나중에 읽습니다. b 절의 접힌 번호 해설은 '여기서 확인할 것'에 답하기 어려울 때 폅니다.</dd>
 <dt>이 장을 마치면</dt><dd>① CHEERS 2022가 보고 점검표이고 질 평가 점수가 아님을 설명하고, 논문에서 관점·비교대안·분석기간·할인율·자료의 출처를 찾을 수 있다 ② 모형 논문을 Methods부터 Discussion까지 읽으면서 결과 가운데 자료에서 온 부분과 가정에서 온 부분을 가를 수 있다 ③ ICER가 표시 가격과 실제 가격 가운데 무엇으로 계산되었는지 확인하고, 외국의 평가 결과를 국내에 그대로 옮길 수 없는 이유를 말할 수 있다 ④ 재정영향분석이 경제성 평가와 다른 질문에 답함을 알고, 연도별 재정영향 표를 읽고 검산할 수 있다</dd>
 <dt>직접 분석할 때</dt><dd>논문을 쓰거나 급여 신청 자료를 만들 때는 세 절의 '내 연구에 쓸 때', 접힌 표 25-1(CHEERS 28개 항목), 표 25-3, 접힌 파이썬 코드를 읽습니다.</dd>
 </dl></div>
@@ -12,7 +12,7 @@
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="ch25-s1">
-<h2><span class="sec-no">가.</span>보고 기준 CHEERS 2022</h2>
+<h2><span class="sec-no">a.</span>보고 기준 CHEERS 2022</h2>
 
 <div class="easy">
 <p class="et">쉽게 말하면</p>
@@ -28,11 +28,11 @@
   <div><dt>무엇인가</dt><dd>경제성 평가 논문의 보고 기준. 28개 항목, 7개 범주(제목, 초록, 서론, 방법, 결과, 고찰, 기타 정보)</dd></div>
   <div><dt>누가 쓰나</dt><dd>논문을 쓰는 연구자, 심사자와 편집자. 읽는 사람은 정보를 찾는 지도로 씀</dd></div>
   <div><dt>쓰지 않는 용도</dt><dd>연구의 질을 점수로 매기는 일. 방법이 적절한지 판단하는 일</dd></div>
-  <div><dt>범위 밖</dt><dd>재정영향분석(다 절)</dd></div>
+  <div><dt>범위 밖</dt><dd>재정영향분석(c 절)</dd></div>
 </dl>
 
 <h3>보고 기준이 하는 일</h3>
-<p>보고 기준<span class="en">(reporting guideline)</span>은 독자가 연구를 이해하고 따져 볼 수 있으려면 논문에 최소한 무엇이 적혀 있어야 하는지를 정한 목록입니다. 메타분석의 PRISMA(<a href="#ch19-s1">19장 가 절</a>)와 같은 종류입니다. 경제성 평가의 보고 기준이 <strong>CHEERS</strong><span class="en">(Consolidated Health Economic Evaluation Reporting Standards)</span>이고, 2013년에 처음 나온 뒤<cite data-ref="husereau2013cheers"></cite> 2022년판이 이를 대체했습니다<cite data-ref="husereau2022cheers"></cite>. 항목마다의 설명과 예시는 따로 나온 해설 문서에 있습니다<cite data-ref="husereau2022ee"></cite>.</p>
+<p>보고 기준<span class="en">(reporting guideline)</span>은 독자가 연구를 이해하고 따져 볼 수 있으려면 논문에 최소한 무엇이 적혀 있어야 하는지를 정한 목록입니다. 메타분석의 PRISMA(<a href="#ch19-s1">19장 a 절</a>)와 같은 종류입니다. 경제성 평가의 보고 기준이 <strong>CHEERS</strong><span class="en">(Consolidated Health Economic Evaluation Reporting Standards)</span>이고, 2013년에 처음 나온 뒤<cite data-ref="husereau2013cheers"></cite> 2022년판이 이를 대체했습니다<cite data-ref="husereau2022cheers"></cite>. 항목마다의 설명과 예시는 따로 나온 해설 문서에 있습니다<cite data-ref="husereau2022ee"></cite>.</p>
 <p>경제성 평가에 보고 기준이 특히 필요한 이유는 결과가 선택에 달려 있기 때문입니다. 같은 약이라도 관점, 비교대안, 분석기간, 할인율, 외삽 방법에 따라 증분비용효과비<span class="en">(incremental cost-effectiveness ratio, ICER)</span>가 달라집니다(20장, 23장). 이 선택들이 적혀 있지 않으면 숫자를 해석할 수 없습니다.</p>
 <p>CHEERS가 답하는 것은 "적혀 있는가"까지입니다. 저자들은 이 성명이 채점 도구도, 방법의 적절성을 평가하는 도구도 아니라고 밝히고, 검증된 점수 체계가 없으므로 점수를 매기지 말라고 합니다. 28개 항목을 모두 적은 논문도 비교대안이 부적절하거나 외삽이 낙관적일 수 있습니다. CHEERS를 인용한 논문 50편을 살펴보니 알맞게 쓴 것은 42%였다는 조사도 같은 글에 실려 있습니다<cite data-ref="husereau2022cheers"></cite>.</p>
 
@@ -45,37 +45,37 @@
 <thead><tr><th>번호와 항목</th><th>적을 내용</th><th>이 노트에서 배운 곳</th></tr></thead>
 <tbody>
 <tr class="hi"><td colspan="3">제목, 초록, 서론</td></tr>
-<tr><td>1 제목</td><td>경제성 평가임을 밝히고 비교하는 대안을 적음</td><td><a href="#ch20-s2">20장 나 절</a></td></tr>
+<tr><td>1 제목</td><td>경제성 평가임을 밝히고 비교하는 대안을 적음</td><td><a href="#ch20-s2">20장 b 절</a></td></tr>
 <tr><td>2 초록</td><td>맥락, 핵심 방법, 결과, 추가 분석을 구조화해 요약</td><td>이 절</td></tr>
-<tr><td>3 배경과 목적</td><td>연구 질문, 그것이 어떤 결정에 쓰이는지</td><td><a href="#ch20-s1">20장 가 절</a></td></tr>
+<tr><td>3 배경과 목적</td><td>연구 질문, 그것이 어떤 결정에 쓰이는지</td><td><a href="#ch20-s1">20장 a 절</a></td></tr>
 <tr class="hi"><td colspan="3">방법</td></tr>
 <tr><td>4 보건경제 분석 계획</td><td>분석 계획서를 만들었는지, 어디서 볼 수 있는지</td><td>(새 항목)</td></tr>
-<tr><td>5 연구 대상 인구</td><td>나이, 임상 특성 등 대상 환자의 특성</td><td>이 장 나 절</td></tr>
-<tr><td>6 환경과 장소</td><td>결과에 영향을 줄 수 있는 나라, 제도 등의 맥락</td><td>이 장 다 절</td></tr>
-<tr><td>7 비교대안</td><td>비교하는 치료와 그것을 고른 이유</td><td><a href="#ch20-s3">20장 다 절</a></td></tr>
-<tr><td>8 관점</td><td>누구의 비용과 결과를 세는지와 그 이유</td><td>20장 다 절, <a href="#ch21-s1">21장 가 절</a></td></tr>
-<tr><td>9 분석기간</td><td>기간과 그것이 알맞은 이유</td><td>20장 다 절</td></tr>
-<tr><td>10 할인율</td><td>율과 근거</td><td>20장 다 절</td></tr>
-<tr><td>11 결과 지표의 선택</td><td>이득과 위해를 무엇으로 재는지(QALY 등)</td><td>20장 나 절</td></tr>
-<tr><td>12 결과의 측정</td><td>그 지표를 어떻게 쟀는지(시험, 문헌)</td><td><a href="#ch22-s2">22장 나 절</a></td></tr>
-<tr><td>13 결과의 가치 평가</td><td>누구의 선호를 어떤 방법으로 써서 값을 매겼는지</td><td><a href="#ch22-s1">22장 가 절</a>, 나 절</td></tr>
-<tr><td>14 자원과 비용의 측정·가치 평가</td><td>비용을 어떻게 구했는지(사용량과 단가의 출처)</td><td>21장 가 절</td></tr>
-<tr><td>15 통화·가격 기준 연도·환산</td><td>사용량과 단가의 시점, 통화, 환산한 연도</td><td>21장 가 절</td></tr>
+<tr><td>5 연구 대상 인구</td><td>나이, 임상 특성 등 대상 환자의 특성</td><td>이 장 b 절</td></tr>
+<tr><td>6 환경과 장소</td><td>결과에 영향을 줄 수 있는 나라, 제도 등의 맥락</td><td>이 장 c 절</td></tr>
+<tr><td>7 비교대안</td><td>비교하는 치료와 그것을 고른 이유</td><td><a href="#ch20-s3">20장 c 절</a></td></tr>
+<tr><td>8 관점</td><td>누구의 비용과 결과를 세는지와 그 이유</td><td>20장 c 절, <a href="#ch21-s1">21장 a 절</a></td></tr>
+<tr><td>9 분석기간</td><td>기간과 그것이 알맞은 이유</td><td>20장 c 절</td></tr>
+<tr><td>10 할인율</td><td>율과 근거</td><td>20장 c 절</td></tr>
+<tr><td>11 결과 지표의 선택</td><td>이득과 위해를 무엇으로 재는지(QALY 등)</td><td>20장 b 절</td></tr>
+<tr><td>12 결과의 측정</td><td>그 지표를 어떻게 쟀는지(시험, 문헌)</td><td><a href="#ch22-s2">22장 b 절</a></td></tr>
+<tr><td>13 결과의 가치 평가</td><td>누구의 선호를 어떤 방법으로 써서 값을 매겼는지</td><td><a href="#ch22-s1">22장 a 절</a>, b 절</td></tr>
+<tr><td>14 자원과 비용의 측정·가치 평가</td><td>비용을 어떻게 구했는지(사용량과 단가의 출처)</td><td>21장 a 절</td></tr>
+<tr><td>15 통화·가격 기준 연도·환산</td><td>사용량과 단가의 시점, 통화, 환산한 연도</td><td>21장 a 절</td></tr>
 <tr><td>16 모형의 근거와 설명</td><td>모형을 쓴 이유와 구조, 공개된 모형이면 그 위치</td><td><a href="#ch23-s1">23장</a></td></tr>
-<tr><td>17 분석 방법과 가정</td><td>자료 분석과 변환, 외삽 방법, 모형의 타당도 확인</td><td><a href="#ch23-s4">23장 라 절</a></td></tr>
-<tr><td>18 이질성</td><td>하위군에 따라 결과가 어떻게 다른지 본 방법</td><td><a href="#ch24-s1">24장 가 절</a></td></tr>
+<tr><td>17 분석 방법과 가정</td><td>자료 분석과 변환, 외삽 방법, 모형의 타당도 확인</td><td><a href="#ch23-s4">23장 d 절</a></td></tr>
+<tr><td>18 이질성</td><td>하위군에 따라 결과가 어떻게 다른지 본 방법</td><td><a href="#ch24-s1">24장 a 절</a></td></tr>
 <tr><td>19 분배 효과</td><td>영향이 집단 사이에 어떻게 나뉘는지, 우선순위 집단의 반영</td><td>(새 항목)</td></tr>
 <tr><td>20 불확실성</td><td>불확실성을 다룬 방법</td><td>24장</td></tr>
 <tr><td>21 환자 등 참여 방법</td><td>환자, 일반 대중, 이해관계자가 연구 설계에 참여한 방법</td><td>(새 항목)</td></tr>
 <tr class="hi"><td colspan="3">결과</td></tr>
-<tr><td>22 연구 모수</td><td>모든 입력값의 값, 범위, 분포, 출처</td><td><a href="#ch23-s3">23장 다 절</a>, <a href="#ch24-s2">24장 나 절</a></td></tr>
-<tr><td>23 주요 결과 요약</td><td>비용과 결과의 평균, 종합 지표(ICER 등)</td><td><a href="#ch20-s4">20장 라 절</a></td></tr>
+<tr><td>22 연구 모수</td><td>모든 입력값의 값, 범위, 분포, 출처</td><td><a href="#ch23-s3">23장 c 절</a>, <a href="#ch24-s2">24장 b 절</a></td></tr>
+<tr><td>23 주요 결과 요약</td><td>비용과 결과의 평균, 종합 지표(ICER 등)</td><td><a href="#ch20-s4">20장 d 절</a></td></tr>
 <tr><td>24 불확실성의 영향</td><td>가정과 입력값이 결과에 준 영향. 할인율과 분석기간의 영향</td><td>24장</td></tr>
 <tr><td>25 환자 등 참여의 영향</td><td>참여가 접근 방법이나 결과에 준 차이</td><td>(새 항목)</td></tr>
 <tr class="hi"><td colspan="3">고찰, 기타 정보</td></tr>
-<tr><td>26 결과·한계·일반화 가능성·기존 지식</td><td>핵심 결과, 한계, 반영하지 못한 윤리·형평성 문제, 정책과 진료에 주는 의미</td><td>이 장 나 절, 다 절</td></tr>
-<tr><td>27 재원</td><td>연구비의 출처와 그 제공자가 연구에서 맡은 역할</td><td>이 장 나 절</td></tr>
-<tr><td>28 이해상충</td><td>저자의 이해상충</td><td>이 장 나 절</td></tr>
+<tr><td>26 결과·한계·일반화 가능성·기존 지식</td><td>핵심 결과, 한계, 반영하지 못한 윤리·형평성 문제, 정책과 진료에 주는 의미</td><td>이 장 b 절, c 절</td></tr>
+<tr><td>27 재원</td><td>연구비의 출처와 그 제공자가 연구에서 맡은 역할</td><td>이 장 b 절</td></tr>
+<tr><td>28 이해상충</td><td>저자의 이해상충</td><td>이 장 b 절</td></tr>
 </tbody></table></div>
 <!--/FOLD-->
 <p>2013년판은 24개 항목이었습니다. 2022년판에 새로 생긴 항목은 보건경제 분석 계획(4번), 분배 효과(19번), 환자·일반 대중·이해관계자의 참여(21번, 25번)입니다. 재정영향분석은 CHEERS의 범위 밖이라는 점도 명시되어 있습니다<cite data-ref="husereau2022cheers"></cite>.</p>
@@ -107,7 +107,7 @@
 <tr><td>모형의 종류</td><td class="c">16</td><td>세 상태 분할생존모형, 주기 1개월</td></tr>
 <tr><td>불확실성 분석</td><td class="c">20, 24</td><td>일원 민감도 분석, 시나리오 분석, 확률적 민감도 분석 5,000회</td></tr>
 </tbody></table></div>
-<p>찾지 못한 항목은 그대로 적어 둡니다. 할인율이나 가격 기준 연도가 없는 논문의 ICER는 다른 연구와 견줄 수 없고, 외삽 방법이 없는 논문은 생존 이득이 어디서 왔는지 확인할 길이 없습니다. 아홉 가지를 찾은 뒤에 각각이 알맞은 선택인지를 따지는 일은 나 절에서 합니다.</p>
+<p>찾지 못한 항목은 그대로 적어 둡니다. 할인율이나 가격 기준 연도가 없는 논문의 ICER는 다른 연구와 견줄 수 없고, 외삽 방법이 없는 논문은 생존 이득이 어디서 왔는지 확인할 길이 없습니다. 아홉 가지를 찾은 뒤에 각각이 알맞은 선택인지를 따지는 일은 b 절에서 합니다.</p>
 
 <h3>보고 기준이 아닌 도구</h3>
 <p>방법의 질이나 모형의 타당도를 보는 도구는 따로 있습니다. CHEERS 원문도 방법의 질을 평가하는 도구는 따로 있다고 적습니다. 도구의 이름을 외울 필요는 없고, 문헌고찰이나 모형 검증을 할 때 찾아보는 표입니다.</p>
@@ -126,10 +126,10 @@
 <div class="callout warn"><p class="ct">흔한 오해 · CHEERS를 쓰는 방법</p>
 <p><span class="wrong">CHEERS 28개 항목 가운데 26개를 충족했으므로(93점) 질이 높은 연구다.</span> CHEERS는 보고 점검표이고 검증된 점수 체계가 없습니다. 저자들은 점수화가 독자를 오도할 수 있다며 하지 말라고 합니다. 문헌고찰에서 쓴다면 어느 항목이 보고되지 않았는지를 항목별로 서술합니다.</p>
 <p><span class="wrong">"CHEERS 2022에 따라 보고했다"고 적혀 있으니 분석 방법도 지침에 맞다.</span> 보고와 수행은 다릅니다. 비교대안을 고른 이유가 적혀 있는 것과 그 비교대안이 알맞은 것은 별개의 문제입니다.</p>
-<p><span class="wrong">점검표에 없는 재정영향분석 결과가 빠졌으니 보고가 불완전하다.</span> 재정영향분석은 CHEERS의 범위 밖이고, 따로 보고합니다(다 절).</p></div>
+<p><span class="wrong">점검표에 없는 재정영향분석 결과가 빠졌으니 보고가 불완전하다.</span> 재정영향분석은 CHEERS의 범위 밖이고, 따로 보고합니다(c 절).</p></div>
 
 <div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
-<li><strong>계획할 때</strong>: 접힌 표 25-1의 방법 항목(4–21번)이 곧 분석 전에 정해야 할 것의 목록입니다. 국내 급여 평가용이면 기본값은 건강보험심사평가원 「의약품 경제성 평가 지침」(2021년 개정)을 따릅니다<cite data-ref="hira2021guideline"></cite>. 기본분석은 보건의료체계 관점의 비용-효용 분석이고, 할인율은 비용과 결과 모두 연 4.5%, 비교대안은 가장 많이 쓰이는 치료가 원칙입니다(지침 5–6, 10–12, 14–17, 40–42쪽. <a href="#ch20-s3">20장 다 절</a>).</li>
+<li><strong>계획할 때</strong>: 접힌 표 25-1의 방법 항목(4–21번)이 곧 분석 전에 정해야 할 것의 목록입니다. 국내 급여 평가용이면 기본값은 건강보험심사평가원 「의약품 경제성 평가 지침」(2021년 개정)을 따릅니다<cite data-ref="hira2021guideline"></cite>. 기본분석은 보건의료체계 관점의 비용-효용 분석이고, 할인율은 비용과 결과 모두 연 4.5%, 비교대안은 가장 많이 쓰이는 치료가 원칙입니다(지침 5–6, 10–12, 14–17, 40–42쪽. <a href="#ch20-s3">20장 c 절</a>).</li>
 <li><strong>보고할 때</strong>: 학술지에 낼 때는 점검표의 항목마다 원고의 쪽이나 절을 적어 함께 냅니다. 지면이 모자라면 입력값 표와 민감도 분석 결과를 보충자료에 싣습니다. 심평원 지침도 검토자가 결과를 재현할 수 있게 구조화된 양식으로 보고하도록 합니다<cite data-ref="hira2021guideline"></cite>(지침 13쪽).</li>
 <li><strong>문헌고찰을 할 때</strong>: CHEERS로는 보고의 완전성만 항목별로 서술합니다. 방법의 질은 표 25-3의 다른 도구로 봅니다.</li>
 <li><strong>국제 관행과의 차이</strong>: CHEERS는 학술지 논문의 기준이고, 급여 신청 자료의 양식은 나라마다 그 나라의 지침이 정합니다.</li>
@@ -143,7 +143,7 @@
 <!--/FOLD-->
 
 <h3>논문에서 읽어 보기</h3>
-<p>공통 예시를 학술지 논문으로 썼다고 하고 제목과 초록을 봅니다. 나 절에서 이 논문의 본문을 이어서 읽습니다. 금액은 백만 원 단위(₩ million)입니다. ₩1 million이 100만원이므로 ₩56.2 million은 5,620만원입니다(반올림하기 전 값은 5,621만원).</p>
+<p>공통 예시를 학술지 논문으로 썼다고 하고 제목과 초록을 봅니다. b 절에서 이 논문의 본문을 이어서 읽습니다. 금액은 백만 원 단위(₩ million)입니다. ₩1 million이 100만원이므로 ₩56.2 million은 5,620만원입니다(반올림하기 전 값은 5,621만원).</p>
 
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 제목과 구조화 초록</b><span>가상의 예시</span></div>
@@ -151,15 +151,15 @@
 <p class="excerpt"><b><span class="mk">1</span> <span class="hl">Cost-effectiveness of drug A versus standard therapy B</span> as first-line treatment for advanced renal cell carcinoma in Korea: a partitioned survival analysis</b></p>
 <p class="excerpt"><b>Objective:</b> To evaluate the cost-effectiveness of drug A compared with <span class="mk">2</span> <span class="hl">standard therapy B</span> as first-line treatment for <span class="mk">3</span> <span class="hl">adults with advanced renal cell carcinoma in Korea</span>. <b>Methods:</b> <span class="mk">4</span> <span class="hl">A three-state partitioned survival model</span> was used to estimate costs and quality-adjusted life years (QALYs) <span class="mk">5</span> <span class="hl">from the Korean healthcare system perspective over a 20-year time horizon; costs and QALYs were discounted at 4.5% per year</span>. <span class="mk">6</span> <span class="hl">Survival was based on a phase 3 trial and extrapolated with Weibull models; utilities were derived from EQ-5D-5L data collected in the trial, and costs from national claims data (2025 Korean won).</span> Uncertainty was explored in one-way, scenario, and probabilistic sensitivity analyses. <b>Results:</b> Drug A was associated with higher costs (₩105.6 million vs ₩76.9 million) and more QALYs (2.385 vs 1.874) than standard therapy B, <span class="mk">7</span> <span class="hl">resulting in an incremental cost-effectiveness ratio (ICER) of ₩56.2 million per QALY gained</span>. <span class="mk">8</span> <span class="hl">The ICER was most sensitive to the hazard ratios for overall and progression-free survival and the price of drug A; the probability that drug A was cost-effective at ₩50 million per QALY was 16.0%.</span> <b>Conclusions:</b> <span class="mk">9</span> <span class="hl">At its list price, drug A was not cost-effective at a threshold of ₩50 million per QALY; a price reduction of 7.7% would be required.</span></p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>제목(1번).</b> 경제성 평가라는 것과 비교하는 두 대안이 제목에 있습니다. 부제는 모형의 종류입니다. 제목의 'cost-effectiveness'는 넓은 뜻이고, 결과 지표가 QALY이므로 비용-효용 분석입니다(20장 나 절).</span></li>
+<li><span class="mk">1</span><span><b>제목(1번).</b> 경제성 평가라는 것과 비교하는 두 대안이 제목에 있습니다. 부제는 모형의 종류입니다. 제목의 'cost-effectiveness'는 넓은 뜻이고, 결과 지표가 QALY이므로 비용-효용 분석입니다(20장 b 절).</span></li>
 <li><span class="mk">2</span><span><b>비교대안(7번).</b> 무엇과 비교했는지는 초록에 있지만 왜 이 치료를 골랐는지는 본문에서 찾아야 합니다.</span></li>
 <li><span class="mk">3</span><span><b>대상 인구와 환경(5번, 6번).</b> 어느 나라의 어떤 환자인지입니다. 나이나 위험군 같은 세부 특성은 본문에 있습니다.</span></li>
 <li><span class="mk">4</span><span><b>모형(16번).</b> 세 상태 분할생존모형입니다. 구조를 고른 이유와 그림은 본문에 있습니다.</span></li>
 <li><span class="mk">5</span><span><b>관점, 분석기간, 할인율(8–10번).</b> 표 25-2의 세 가지가 이 한 구절에 모여 있습니다. 국내 지침의 기본값(보건의료체계 관점, 연 4.5%)과 같습니다.</span></li>
 <li><span class="mk">6</span><span><b>자료의 출처(12–15번, 17번).</b> 효과, 효용, 비용이 어디서 왔고 어떻게 외삽했는지입니다. "2025 Korean won"이 가격 기준 연도입니다.</span></li>
 <li><span class="mk">7</span><span><b>주요 결과(23번).</b> 대안별 비용과 QALY가 함께 있어 검산할 수 있습니다. (105.6 − 76.9) ÷ (2.385 − 1.874) = 28.7 ÷ 0.511 = 56.2.</span></li>
-<li><span class="mk">8</span><span><b>불확실성의 영향(24번).</b> 결과를 가장 크게 움직인 입력값과 비용효과적일 확률입니다. 확률에는 임계값이 함께 적혀 있어야 합니다(24장 다 절).</span></li>
-<li><span class="mk">9</span><span><b>결론(26번의 일부).</b> 결론이 표시 가격과 임계값에 조건부로 적혀 있습니다. 우리나라에는 공식 임계값이 없으므로 ₩50 million은 저자가 가정한 값입니다(20장 라 절).</span></li>
+<li><span class="mk">8</span><span><b>불확실성의 영향(24번).</b> 결과를 가장 크게 움직인 입력값과 비용효과적일 확률입니다. 확률에는 임계값이 함께 적혀 있어야 합니다(24장 c 절).</span></li>
+<li><span class="mk">9</span><span><b>결론(26번의 일부).</b> 결론이 표시 가격과 임계값에 조건부로 적혀 있습니다. 우리나라에는 공식 임계값이 없으므로 ₩50 million은 저자가 가정한 값입니다(20장 d 절).</span></li>
 </ol>
 <p>초록만으로는 답할 수 없는 항목도 있습니다. 분석 계획서(4번), 하위군(18번), 입력값 전체(22번), 한계(26번), 재원과 이해상충(27번, 28번)은 본문과 논문 끝에서 찾습니다.</p>
 </div></div>
@@ -173,7 +173,7 @@
 <div class="practice"><p class="pt">스스로 확인하기</p>
 <ol>
 <li><p><span class="qt">논문 읽기</span>어느 논문의 Methods가 이렇게 시작합니다. "A Markov model was developed to compare drug X with placebo over a 5-year time horizon. Costs were discounted at 3% per year." 표 25-2의 아홉 가지 가운데 이 두 문장에서 찾을 수 있는 것과 찾을 수 없는 것을 가르고, 찾은 것 가운데 다시 확인해야 할 점을 두 가지 들어 보세요.</p>
-<details><summary>답과 풀이</summary><div><p>찾을 수 있는 것은 모형의 종류(마르코프 모형), 비교대안(위약), 분석기간(5년), 비용의 할인율(3%)입니다. 관점, 효과·효용·비용의 출처, 가격 기준 연도, 불확실성 분석은 이 문장에 없으므로 이어지는 문단과 입력값 표에서 찾습니다. 다시 확인할 점은 다음과 같습니다. 첫째, 비교대안이 위약입니다. 실제 진료에서 쓰이는 치료가 따로 있다면 신약의 이득이 실제보다 크게 나옵니다(20장 다 절). 둘째, 할인율이 비용에만 적혀 있습니다. QALY도 같은 율로 할인했는지 확인합니다. 셋째, 생존에 영향을 주는 약이라면 5년에 환자가 얼마나 살아 있는지, 5년이 차이를 모두 담는 기간인지 봅니다.</p></div></details></li>
+<details><summary>답과 풀이</summary><div><p>찾을 수 있는 것은 모형의 종류(마르코프 모형), 비교대안(위약), 분석기간(5년), 비용의 할인율(3%)입니다. 관점, 효과·효용·비용의 출처, 가격 기준 연도, 불확실성 분석은 이 문장에 없으므로 이어지는 문단과 입력값 표에서 찾습니다. 다시 확인할 점은 다음과 같습니다. 첫째, 비교대안이 위약입니다. 실제 진료에서 쓰이는 치료가 따로 있다면 신약의 이득이 실제보다 크게 나옵니다(20장 c 절). 둘째, 할인율이 비용에만 적혀 있습니다. QALY도 같은 율로 할인했는지 확인합니다. 셋째, 생존에 영향을 주는 약이라면 5년에 환자가 얼마나 살아 있는지, 5년이 차이를 모두 담는 기간인지 봅니다.</p></div></details></li>
 <li><p><span class="qt">해석 고치기</span>"체계적 문헌고찰에 포함된 경제성 평가 12편에 CHEERS 2022 점검표를 적용해 항목당 1점으로 채점했고, 22점 이상인 8편을 질 높은 연구로 분류했다." 무엇이 문제이고 어떻게 고쳐야 합니까?</p>
 <details><summary>답과 풀이</summary><div><p>두 가지가 문제입니다. 첫째, CHEERS는 보고의 완전성을 보는 점검표입니다. 22개 항목을 보고했다는 것은 그만큼 적혀 있다는 뜻이고 방법이 옳다는 뜻이 아닙니다. 둘째, 검증된 점수 체계가 없습니다. 항목마다 무게가 같지 않은데 합계로 줄을 세우면, 이해상충을 적지 않은 논문과 할인율을 적지 않은 논문이 같은 점수가 됩니다. 고치려면 CHEERS로는 어느 항목이 보고되지 않았는지를 항목별로 서술하고, 방법의 질은 CHEC 목록이나 Philips 점검표 같은 다른 도구로 따로 평가합니다.</p></div></details></li>
 <li><p><span class="qt">분석 고르기</span>다음 세 경우에 표 25-3의 어느 도구가 알맞습니까? 표를 보면서 고릅니다. (가) 내가 쓴 비용-효용 분석 원고를 학술지에 내기 전에 빠진 내용이 없는지 확인한다. (나) 내가 만든 모형이 제대로 계산하는지 어떤 확인을 했는지 정리해 보고한다. (다) 문헌고찰에서 모형 기반 경제성 평가들의 모형 구조와 자료가 적절한지 평가한다.</p>
@@ -183,7 +183,7 @@
 
 <!-- ============================================================ 나 -->
 <section class="sec" id="ch25-s2">
-<h2><span class="sec-no">나.</span>모형 기반 경제성 평가 논문 읽기</h2>
+<h2><span class="sec-no">b.</span>모형 기반 경제성 평가 논문 읽기</h2>
 
 <div class="easy">
 <p class="et">쉽게 말하면</p>
@@ -202,7 +202,7 @@
 </dl>
 
 <h3>가상 논문을 순서대로 읽기</h3>
-<p>가 절의 초록에 이어 같은 논문의 본문을 여섯 조각으로 읽습니다. 금액은 본문에서 백만 원(₩ million), 표에서 천 원(₩ thousand) 단위입니다. 20–24장의 만원으로 바꾸려면 ₩ million에는 100을 곱하고 ₩ thousand는 10으로 나눕니다(₩28.7 million = ₩28,723 thousand = 2,872만원). 번호 해설은 접어 두었고, 그 아래 '여기서 확인할 것'에 그 부분에서 답해야 할 질문을 적었습니다. 자세한 설명은 20–24장의 해당 절에 있습니다.</p>
+<p>a 절의 초록에 이어 같은 논문의 본문을 여섯 조각으로 읽습니다. 금액은 본문에서 백만 원(₩ million), 표에서 천 원(₩ thousand) 단위입니다. 20–24장의 만원으로 바꾸려면 ₩ million에는 100을 곱하고 ₩ thousand는 10으로 나눕니다(₩28.7 million = ₩28,723 thousand = 2,872만원). 번호 해설은 접어 두었고, 그 아래 '여기서 확인할 것'에 그 부분에서 답해야 할 질문을 적었습니다. 자세한 설명은 20–24장의 해당 절에 있습니다.</p>
 
 <h4>1. Methods</h4>
 <div class="paper">
@@ -212,11 +212,11 @@
 <!--FOLD:번호 해설 보기: Methods 발췌-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>대상 인구.</b> 모형의 환자는 시험에 등록된 환자입니다. 급여 대상이 될 환자가 시험 환자와 나이, 전신 상태, 위험군에서 비슷한지는 따로 따져야 합니다.</span></li>
-<li><span class="mk">2</span><span><b>비교대안과 그 근거.</b> "가장 널리 쓰인다"는 근거가 붙어 있습니다. 국내 지침의 원칙과 같습니다(<a href="#ch20-s3">20장 다 절</a>).</span></li>
+<li><span class="mk">2</span><span><b>비교대안과 그 근거.</b> "가장 널리 쓰인다"는 근거가 붙어 있습니다. 국내 지침의 원칙과 같습니다(<a href="#ch20-s3">20장 c 절</a>).</span></li>
 <li><span class="mk">3</span><span><b>관점, 분석기간, 할인율.</b> 관점과 할인율은 국내 지침의 기본값입니다. 관점이 보건의료체계이므로 교통비, 비공식 간병비, 생산성 손실은 들어 있지 않습니다.</span></li>
-<li><span class="mk">4</span><span><b>관찰 30개월, 외삽 20년.</b> 자료가 있는 구간은 240개월 가운데 30개월입니다. 와이블을 고른 근거와 다른 곡선의 결과는 보충자료와 시나리오 분석에서 찾습니다(<a href="#ch23-s4">23장 라 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>관찰 30개월, 외삽 20년.</b> 자료가 있는 구간은 240개월 가운데 30개월입니다. 와이블을 고른 근거와 다른 곡선의 결과는 보충자료와 시나리오 분석에서 찾습니다(<a href="#ch23-s4">23장 d 절</a>).</span></li>
 <li><span class="mk">5</span><span><b>위험비를 전 기간에 적용.</b> 신약의 효과가 20년 동안 같은 크기로 이어진다는 가정입니다. 시험이 확인한 것은 30개월까지입니다.</span></li>
-<li><span class="mk">6</span><span><b>비용의 범위.</b> 비의료비용을 뺀 것은 관점에 맞는 선택이고, 비급여를 뺀 것은 청구자료에 없기 때문입니다(<a href="#ch21-s1">21장 가 절</a>). 심평원 지침은 이 관점에서 비급여 항목도 비용에 넣어 산출할 수 있다고 적습니다(지침 24쪽). 약값이 표시 가격이라는 점도 여기서 확인합니다.</span></li>
+<li><span class="mk">6</span><span><b>비용의 범위.</b> 비의료비용을 뺀 것은 관점에 맞는 선택이고, 비급여를 뺀 것은 청구자료에 없기 때문입니다(<a href="#ch21-s1">21장 a 절</a>). 심평원 지침은 이 관점에서 비급여 항목도 비용에 넣어 산출할 수 있다고 적습니다(지침 24쪽). 약값이 표시 가격이라는 점도 여기서 확인합니다.</span></li>
 </ol>
 <!--/FOLD-->
 <p><strong>여기서 확인할 것</strong></p>
@@ -245,9 +245,9 @@
 <p class="jt-foot">PFS, progression-free survival; OS, overall survival; HR, hazard ratio. Costs in ₩ thousand. Other cost inputs are in the supplement.</p>
 <!--FOLD:번호 해설 보기: Table 1-->
 <ol class="marks">
-<li><span class="mk">1</span><span><b>표준요법의 생존곡선.</b> 중앙 무진행생존 10개월, 중앙 전체생존 28개월인 와이블 곡선입니다. 확률적 분석에서는 이 중앙값과 모양 모수를 로그정규분포에서 뽑습니다(<a href="#ch24-s2">24장 나 절</a>). 모양 모수의 값은 <a href="#ch23-s3">23장 다 절</a>의 입력값 표에 있습니다.</span></li>
+<li><span class="mk">1</span><span><b>표준요법의 생존곡선.</b> 중앙 무진행생존 10개월, 중앙 전체생존 28개월인 와이블 곡선입니다. 확률적 분석에서는 이 중앙값과 모양 모수를 로그정규분포에서 뽑습니다(<a href="#ch24-s2">24장 b 절</a>). 모양 모수의 값은 <a href="#ch23-s3">23장 c 절</a>의 입력값 표에 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>전체생존 위험비.</b> 0.75는 사망의 위험률이 25% 낮다는 뜻이고 "사망할 확률이 25% 낮다"가 아닙니다(<a href="#ch11-s1">11장</a>). 신뢰구간의 상한이 0.97입니다.</span></li>
-<li><span class="mk">3</span><span><b>효용.</b> 무진행 상태의 1년을 0.78 QALY로, 진행 상태의 1년을 0.62 QALY로 셉니다. 괄호 안은 표준오차입니다(<a href="#ch22-s2">22장 나 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>효용.</b> 무진행 상태의 1년을 0.78 QALY로, 진행 상태의 1년을 0.62 QALY로 셉니다. 괄호 안은 표준오차입니다(<a href="#ch22-s2">22장 b 절</a>).</span></li>
 <li><span class="mk">4</span><span><b>약값.</b> 한 달에 190만원과 120만원입니다. Fixed는 확률분포를 주지 않았다는 뜻이고, 출처가 표시 가격입니다.</span></li>
 <li><span class="mk">5</span><span><b>진행 상태의 비용.</b> 한 달 250만원으로 무진행 상태의 관리비(40만원)보다 훨씬 큽니다. 후속치료가 들어 있기 때문이고, 오래 살수록 이 비용이 쌓입니다.</span></li>
 </ol>
@@ -277,7 +277,7 @@
 <p class="excerpt"><span class="mk">5</span> <span class="hl">Mean undiscounted survival was 47.0 months with drug A and 36.6 months with standard therapy B.</span></p>
 <!--FOLD:번호 해설 보기: Table 2-->
 <ol class="marks">
-<li><span class="mk">1</span><span><b>증분비용.</b> 105,618 − 76,895 = 28,723천 원, 곧 2,872만원입니다. 항목별 구성과 읽는 법은 <a href="#ch20-s4">20장 라 절</a>의 결과표에 있습니다.</span></li>
+<li><span class="mk">1</span><span><b>증분비용.</b> 105,618 − 76,895 = 28,723천 원, 곧 2,872만원입니다. 항목별 구성과 읽는 법은 <a href="#ch20-s4">20장 d 절</a>의 결과표에 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>약값의 증분.</b> 24,166 ÷ 28,723 = 84%입니다. 나머지는 상태별 관리비, 임종기 비용, 이상반응 치료비입니다.</span></li>
 <li><span class="mk">3</span><span><b>증분 QALY.</b> 2.385 − 1.874 = 0.511. 할인한 생존연수의 증분 0.670보다 작습니다. 늘어난 기간의 효용이 1보다 낮기 때문입니다.</span></li>
 <li><span class="mk">4</span><span><b>ICER.</b> 28,723 ÷ 0.511 = 56,209천 원, 곧 5,621만원/QALY입니다. 총비용을 QALY로 나눈 105,618 ÷ 2.385 = 44,284천 원은 평균 비이고 ICER가 아닙니다.</span></li>
@@ -293,7 +293,7 @@
 <!--FIG:ch25_extrap-->
 <p>이 몫이 크다고 결과가 틀린 것은 아닙니다. 생존을 늘리는 약의 이득은 원래 뒤에 쌓입니다. 다만 그만큼은 곡선의 선택과 효과 지속 기간에 대한 가정이 결과를 정하므로 시나리오 분석을 무겁게 읽어야 합니다.</p>
 <!--FOLD:파이썬으로 계산해 보기: 관찰 기간 뒤에 생기는 몫-->
-<p><a href="#ch23-s3">23장 다 절</a>의 분할생존모형을 분석기간을 바꿀 수 있는 함수로 만들고, 20년과 30개월로 두 번 돌립니다. 주피터 노트북의 셀에 그대로 붙여 넣어 실행합니다.</p>
+<p><a href="#ch23-s3">23장 c 절</a>의 분할생존모형을 분석기간을 바꿀 수 있는 함수로 만들고, 20년과 30개월로 두 번 돌립니다. 주피터 노트북의 셀에 그대로 붙여 넣어 실행합니다.</p>
 <div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">분석기간 20년과 30개월의 증분 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
 
 def model(horizon):                                   # 분석기간(개월)을 넣으면 (증분비용, 증분QALY)를 돌려준다
@@ -319,7 +319,7 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 30개월: 1157 0.128 9056
 30개월 뒤의 몫: QALY 0.75  비용 0.597</pre></div></div>
 <ul>
-<li><code>model(horizon)</code>은 23장 다 절의 코드와 같은 계산입니다. 달라진 것은 시점 배열 <code>t</code>의 끝을 <code>horizon</code>으로 받는다는 점뿐입니다.</li>
+<li><code>model(horizon)</code>은 23장 c 절의 코드와 같은 계산입니다. 달라진 것은 시점 배열 <code>t</code>의 끝을 <code>horizon</code>으로 받는다는 점뿐입니다.</li>
 <li>출력 첫 줄이 기준 분석(증분비용 2,872만원, 증분 QALY 0.511, ICER 5,621만원/QALY)입니다.</li>
 <li>둘째 줄은 30개월에서 끊은 결과입니다. 증분 QALY 0.128, ICER 9,056만원/QALY입니다.</li>
 <li>셋째 줄에서 증분 QALY의 75.0%, 증분비용의 59.7%가 30개월 뒤에 생깁니다. 비용은 약값이 치료 초기에 몰려 있어 QALY보다 일찍 쌓입니다.</li>
@@ -347,7 +347,7 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <p class="jt-foot">OS, overall survival; ICER, incremental cost-effectiveness ratio of drug A vs standard therapy B.</p>
 <!--FOLD:번호 해설 보기: Figure 2와 Table 3-->
 <ol class="marks">
-<li><span class="mk">1</span><span><b>결론이 바뀌는 조건.</b> 막대가 점선(₩50 million)을 넘는 입력값을 글로 적은 문장입니다. 표준요법 B의 약값은 근거 없이 ±20%로 잡은 범위이고, 심평원 지침은 이런 임의의 변이를 피하도록 합니다(지침 50쪽, <a href="#ch24-s1">24장 가 절</a>).</span></li>
+<li><span class="mk">1</span><span><b>결론이 바뀌는 조건.</b> 막대가 점선(₩50 million)을 넘는 입력값을 글로 적은 문장입니다. 표준요법 B의 약값은 근거 없이 ±20%로 잡은 범위이고, 심평원 지침은 이런 임의의 변이를 피하도록 합니다(지침 50쪽, <a href="#ch24-s1">24장 a 절</a>).</span></li>
 <li><span class="mk">2</span><span><b>임계 가격.</b> 월 175.4만원입니다. 190 × (1 − 0.077) = 175.4로 검산됩니다. 다른 입력값이 모두 기준값일 때의 계산입니다.</span></li>
 <li><span class="mk">3</span><span><b>분석기간 5년.</b> 시나리오 가운데 ICER가 가장 높습니다. 뒤에 쌓이는 이득을 잘라 냈기 때문입니다.</span></li>
 <li><span class="mk">4</span><span><b>로그-정규 외삽.</b> 증분 QALY가 0.813으로 기준 분석의 1.6배입니다. 꼬리가 긴 곡선을 고르면 이득이 커집니다.</span></li>
@@ -363,10 +363,10 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 </div></div>
 
 <h4>5. 확률적 민감도 분석</h4>
-<p>확률적 민감도 분석의 결과는 <a href="#ch24-s3">24장 다 절</a>에서 읽은 것과 같은 그림과 문장으로 나오므로 논문 상자는 접어 두었습니다. 여기서 확인할 것은 두 가지입니다.</p>
+<p>확률적 민감도 분석의 결과는 <a href="#ch24-s3">24장 c 절</a>에서 읽은 것과 같은 그림과 문장으로 나오므로 논문 상자는 접어 두었습니다. 여기서 확인할 것은 두 가지입니다.</p>
 <ul>
 <li><b>결론이 전제한 임계값에서의 확률이 결론과 맞는가.</b> 신약 A가 비용효과적일 확률은 임계값 ₩50 million에서 16.0%, ₩60 million에서 65.9%입니다. "₩50 million 기준으로 비용효과적이지 않다"는 초록의 결론과 맞습니다.</li>
-<li><b>이 확률에 들어 있지 않은 것은 무엇인가.</b> 외삽 곡선과 효과 지속 기간 같은 구조적 가정, 그리고 가격입니다. Table 3과 함께 읽습니다. 확률은 입력값을 뽑는 방법에도 달려 있으므로, 서로 관련된 입력값(무진행생존과 전체생존의 곡선, 두 위험비)의 상관을 어떻게 다뤘는지도 Methods에서 확인합니다(<a href="#ch24-s2">24장 나 절</a>).</li>
+<li><b>이 확률에 들어 있지 않은 것은 무엇인가.</b> 외삽 곡선과 효과 지속 기간 같은 구조적 가정, 그리고 가격입니다. Table 3과 함께 읽습니다. 확률은 입력값을 뽑는 방법에도 달려 있으므로, 서로 관련된 입력값(무진행생존과 전체생존의 곡선, 두 위험비)의 상관을 어떻게 다뤘는지도 Methods에서 확인합니다(<a href="#ch24-s2">24장 b 절</a>).</li>
 </ul>
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · Figure 3과 Results 문장 <span class="lv deep">심화</span></b><span>가상의 예시</span></div>
@@ -374,9 +374,9 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <!--FIG:ch25_paperpsa-->
 <p class="excerpt">In the probabilistic analysis, <span class="mk">1</span> <span class="hl">the mean incremental cost was ₩29.3 million (95% interval, 10.6 to 51.0) and the mean incremental QALY gain was 0.525 (95% interval, 0.101 to 1.008)</span>. <span class="mk">2</span> <span class="hl">Drug A was more costly and more effective in 99.2% of simulations.</span> <span class="mk">3</span> <span class="hl">The probability that drug A was cost-effective was 16.0% at a threshold of ₩50 million per QALY, 65.9% at ₩60 million, and 93.0% at ₩80 million.</span></p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>평균과 95% 구간.</b> 모의실험 5,000회의 평균과 2.5·97.5 백분위수입니다. 기준 분석(₩28.7 million, 0.511)과 조금 다른 이유는 <a href="#ch24-s2">24장 나 절</a>에 있습니다. ICER의 구간 대신 비용과 QALY를 따로 적은 것이 맞는 보고입니다.</span></li>
+<li><span class="mk">1</span><span><b>평균과 95% 구간.</b> 모의실험 5,000회의 평균과 2.5·97.5 백분위수입니다. 기준 분석(₩28.7 million, 0.511)과 조금 다른 이유는 <a href="#ch24-s2">24장 b 절</a>에 있습니다. ICER의 구간 대신 비용과 QALY를 따로 적은 것이 맞는 보고입니다.</span></li>
 <li><span class="mk">2</span><span><b>사분면.</b> 점의 대부분이 "더 비싸고 더 효과적"인 사분면에 있습니다. 약이 건강을 늘린다는 것 자체는 거의 확실하다는 뜻입니다.</span></li>
-<li><span class="mk">3</span><span><b>임계값별 확률.</b> (B)의 곡선에서 가로축 50, 60, 80의 높이입니다. ₩50 million과 ₩60 million 사이에서 확률이 16.0%에서 65.9%로 뜁니다(<a href="#ch24-s3">24장 다 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>임계값별 확률.</b> (B)의 곡선에서 가로축 50, 60, 80의 높이입니다. ₩50 million과 ₩60 million 사이에서 확률이 16.0%에서 65.9%로 뜁니다(<a href="#ch24-s3">24장 c 절</a>).</span></li>
 </ol>
 <p>초록의 결론은 "₩50 million 기준으로 비용효과적이지 않다"였고 그 임계값에서 확률은 16.0%이므로 결론과 수용곡선이 맞습니다. 확률이 50%를 넘는 것은 임계값이 약 ₩56.5 million일 때부터입니다. 같은 결과에 "likely to be cost-effective"라고 썼다면 그보다 높은 임계값을 전제한 것이므로 근거를 물어야 합니다.</p>
 </div></div>
@@ -392,7 +392,7 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <li><span class="mk">1</span><span><b>미성숙한 생존 자료.</b> 그림 25-1의 내용을 저자가 스스로 밝힌 문장입니다. 이 비율을 적어 주는 논문은 많지 않습니다.</span></li>
 <li><span class="mk">2</span><span><b>효과 지속 가정.</b> Table 3의 치료 효과 감소 시나리오가 이 한계의 크기를 보여 줍니다.</span></li>
 <li><span class="mk">3</span><span><b>비급여 제외.</b> 두 군에 비급여가 비슷하게 든다면 증분비용에는 영향이 작지만, 그런지는 이 자료로 알 수 없습니다.</span></li>
-<li><span class="mk">4</span><span><b>표시 가격.</b> 환급 계약이 있으면 실제 가격으로 계산한 ICER는 논문의 값보다 낮습니다(다 절).</span></li>
+<li><span class="mk">4</span><span><b>표시 가격.</b> 환급 계약이 있으면 실제 가격으로 계산한 ICER는 논문의 값보다 낮습니다(c 절).</span></li>
 <li><span class="mk">5</span><span><b>재원과 그 역할(CHEERS 27번).</b> 누가 연구비를 댔는지와 함께, 설계·분석·원고에 관여했는지가 적혀 있어야 합니다. 경제성 평가 등록 자료의 8,192편을 분석한 연구에서, 증분비용과 증분 QALY가 모두 양수인 5,877편 가운데 산업체가 지원한 연구의 ICER는 그렇지 않은 연구보다 33% 낮았습니다<cite data-ref="xie2022"></cite>. 앞선 체계적 문헌고찰에서도 산업체가 지원한 연구는 QALY당 2만, 5만, 10만 달러보다 낮은 ICER를 보고하는 일이 더 많았습니다<cite data-ref="bell2006"></cite>.</span></li>
 <li><span class="mk">6</span><span><b>이해상충(28번).</b> 저자가 제조사 소속인지, 자문료를 받았는지를 봅니다.</span></li>
 </ol>
@@ -420,7 +420,7 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <tr><td class="c">8</td><td>어떤 입력값과 가정이 결론을 바꾸나</td><td>토네이도 그림, 시나리오 표 (24)</td></tr>
 <tr><td class="c">9</td><td>확률은 어느 임계값에서의 값인가. 결론과 맞는가</td><td>수용곡선 (24)</td></tr>
 <tr><td class="c">10</td><td>한계는 결과를 어느 쪽으로 움직이나. 누가 연구비를 댔나</td><td>Discussion, 논문 끝 (26–28)</td></tr>
-<tr><td class="c">11</td><td>내 나라, 내 환자에게 옮길 수 있나</td><td>이 장 다 절 (6, 26)</td></tr>
+<tr><td class="c">11</td><td>내 나라, 내 환자에게 옮길 수 있나</td><td>이 장 c 절 (6, 26)</td></tr>
 </tbody></table></div>
 
 <div class="callout warn"><p class="ct">흔한 오해 · 모형 논문의 결과를 읽을 때</p>
@@ -430,7 +430,7 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 
 <div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
 <li><strong>읽은 것을 남기기</strong>: 표 25-4의 답을 논문마다 한 장으로 적어 두면 저널리뷰와 문헌고찰의 자료 추출표가 됩니다.</li>
-<li><strong>내 논문을 쓸 때</strong>: 상태별 평균 기간과 관찰 기간 뒤에 생기는 몫을 스스로 보고합니다. CHEERS 2022에서 외삽 방법(17번)과 분석기간·예측이 결과에 준 영향(24번)을 적는 자리입니다<cite data-ref="husereau2022cheers"></cite>. 심평원 지침도 관찰기간을 넘어 외삽하면 관찰 자료에 기초한 분석결과를 함께 내고 차이를 설명하도록 합니다<cite data-ref="hira2021guideline"></cite>(지침 7–8쪽, 별첨 4). 외삽 모형을 고르고 적는 방법에 대한 지침의 요구는 <a href="#ch23-s4">23장 라 절</a>의 '내 연구에 쓸 때'에 있습니다.</li>
+<li><strong>내 논문을 쓸 때</strong>: 상태별 평균 기간과 관찰 기간 뒤에 생기는 몫을 스스로 보고합니다. CHEERS 2022에서 외삽 방법(17번)과 분석기간·예측이 결과에 준 영향(24번)을 적는 자리입니다<cite data-ref="husereau2022cheers"></cite>. 심평원 지침도 관찰기간을 넘어 외삽하면 관찰 자료에 기초한 분석결과를 함께 내고 차이를 설명하도록 합니다<cite data-ref="hira2021guideline"></cite>(지침 7–8쪽, 별첨 4). 외삽 모형을 고르고 적는 방법에 대한 지침의 요구는 <a href="#ch23-s4">23장 d 절</a>의 '내 연구에 쓸 때'에 있습니다.</li>
 <li><strong>국제 관행과의 차이</strong>: 영국 NICE의 기술지원문서는 분할생존모형의 외삽을 상태전이 모형으로 함께 검증하도록 권고합니다<cite data-ref="woods2020psm"></cite>.</li>
 <li><strong>파이썬</strong>: 표의 검산은 사칙연산이면 됩니다. 관찰 기간 뒤의 몫은 모형의 분석기간을 줄여 다시 돌려 구합니다(위 접힌 코드, numpy로 직접 구현).</li>
 </ul></div>
@@ -453,13 +453,13 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <li><p><span class="qt">논문 읽기</span>어느 항암제 논문에 "Median follow-up was 14 months. A 30-year horizon was used. Incremental QALYs were 1.20. With a 5-year horizon, incremental QALYs were 0.30"이라고 적혀 있습니다. 5년 뒤에 생기는 증분 QALY의 몫을 구하고, 이 논문에서 찾아봐야 할 것을 두 가지 들어 보세요.</p>
 <details><summary>답과 풀이</summary><div><p>5년에서 끊은 증분 QALY가 0.30이므로 5년 뒤에 생기는 몫은 1 − 0.30 ÷ 1.20 = 75%입니다. 추적의 중앙값은 14개월이어서 관찰 기간 뒤의 몫은 이보다 더 큽니다. 결과의 대부분이 외삽에서 나오므로 찾아볼 것은 다음과 같습니다. 첫째, 생존곡선을 어떤 모형으로 늘렸고 다른 모형을 쓴 시나리오의 결과가 어떤지입니다. 둘째, 치료 효과가 30년 동안 유지된다고 가정했는지, 효과가 줄어드는 시나리오가 있는지입니다. 5년 시나리오의 ICER가 얼마인지도 봅니다. 공통 예시에서는 30개월에서 끊으면 ICER가 5,621만원에서 9,056만원/QALY로 올랐습니다.</p></div></details></li>
 <li><p><span class="qt">논문 읽기</span>공통 예시에서 전체생존 위험비를 1로 두면(생존 이득이 없다고 보면) 증분 QALY는 0.096, ICER는 9,268만원/QALY입니다. 기준 분석(0.511, 5,621만원/QALY)과 견주어 이 논문의 결론이 무엇에 기대고 있는지 설명해 보세요.</p>
-<details><summary>답과 풀이</summary><div><p>생존 이득이 없으면 증분 QALY가 0.511에서 0.096으로 줄어듭니다. 무진행 기간이 늘어난 데서 오는 삶의 질 이득만 남기 때문입니다(22장 다 절). 증분 QALY의 약 80%가 전체생존의 개선에서 나온다는 뜻입니다. 그런데 전체생존 위험비의 신뢰구간은 0.58–0.97로 넓고, 그 효과가 관찰된 기간은 30개월입니다. 이 논문의 ICER는 "전체생존 이득이 있고 20년 동안 이어진다"는 데 기대고 있습니다. 그래서 전체생존 위험비의 일원 민감도 분석(₩52.3–79.2 million)과 치료 효과 감소 시나리오(₩61.5 million)를 기준 분석만큼 무겁게 읽어야 합니다.</p></div></details></li>
+<details><summary>답과 풀이</summary><div><p>생존 이득이 없으면 증분 QALY가 0.511에서 0.096으로 줄어듭니다. 무진행 기간이 늘어난 데서 오는 삶의 질 이득만 남기 때문입니다(22장 c 절). 증분 QALY의 약 80%가 전체생존의 개선에서 나온다는 뜻입니다. 그런데 전체생존 위험비의 신뢰구간은 0.58–0.97로 넓고, 그 효과가 관찰된 기간은 30개월입니다. 이 논문의 ICER는 "전체생존 이득이 있고 20년 동안 이어진다"는 데 기대고 있습니다. 그래서 전체생존 위험비의 일원 민감도 분석(₩52.3–79.2 million)과 치료 효과 감소 시나리오(₩61.5 million)를 기준 분석만큼 무겁게 읽어야 합니다.</p></div></details></li>
 </ol></div>
 </section>
 
 <!-- ============================================================ 다 -->
 <section class="sec" id="ch25-s3">
-<h2><span class="sec-no">다.</span>국내 급여 평가와 재정영향분석</h2>
+<h2><span class="sec-no">c.</span>국내 급여 평가와 재정영향분석</h2>
 
 <div class="easy">
 <p class="et">쉽게 말하면</p>
@@ -479,7 +479,7 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 </dl>
 
 <h3>급여 결정에서 쓰이는 방식</h3>
-<p>선별등재제도에서 신약은 심평원의 평가와 건강보험공단의 협상을 차례로 거칩니다(<a href="#ch20-s1">20장 가 절</a>)<cite data-ref="bae2018role"></cite><cite data-ref="yoo2019access"></cite>. 두 단계가 묻는 것이 다릅니다.</p>
+<p>선별등재제도에서 신약은 심평원의 평가와 건강보험공단의 협상을 차례로 거칩니다(<a href="#ch20-s1">20장 a 절</a>)<cite data-ref="bae2018role"></cite><cite data-ref="yoo2019access"></cite>. 두 단계가 묻는 것이 다릅니다.</p>
 <p class="tbl-cap"><b>표 25-5.</b> 급여 결정의 두 단계와 쓰이는 분석</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>단계</th><th>묻는 것</th><th>주로 쓰이는 분석</th></tr></thead>
@@ -487,10 +487,10 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <tr><td>심평원 약제급여평가위원회의 평가</td><td>임상적으로 더 나은가. 추가 비용이 그 값을 하는가</td><td>경제성 평가(ICER와 민감도 분석)</td></tr>
 <tr><td>건강보험공단의 약가협상</td><td>얼마에 등재할 것인가. 재정에 주는 영향은 얼마인가</td><td>예상 사용량, 재정영향분석</td></tr>
 </tbody></table></div>
-<p>첫 단계에서 ICER는 정해진 선 하나와 견주어지지 않습니다. 우리나라에는 명시적인 임계값이 없고, 과거 심의에서는 질병의 위중도와 불확실성이 함께 고려되었습니다(<a href="#ch20-s4">20장 라 절</a>). 2007–2016년의 심의를 분석한 연구에서 ICER가 당시 1인당 국내총생산보다 낮았는데도 불확실성 때문에 받아들여지지 않은 것이 12건 있었습니다<cite data-ref="bae2018role"></cite>. 나 절에서 민감도 분석을 결과표만큼 무겁게 읽은 이유입니다. 같은 연구는 재정영향이 급여 평가의 고려 요소이지만 주로 약가협상에서 쓰인다고 설명합니다.</p>
+<p>첫 단계에서 ICER는 정해진 선 하나와 견주어지지 않습니다. 우리나라에는 명시적인 임계값이 없고, 과거 심의에서는 질병의 위중도와 불확실성이 함께 고려되었습니다(<a href="#ch20-s4">20장 d 절</a>). 2007–2016년의 심의를 분석한 연구에서 ICER가 당시 1인당 국내총생산보다 낮았는데도 불확실성 때문에 받아들여지지 않은 것이 12건 있었습니다<cite data-ref="bae2018role"></cite>. b 절에서 민감도 분석을 결과표만큼 무겁게 읽은 이유입니다. 같은 연구는 재정영향이 급여 평가의 고려 요소이지만 주로 약가협상에서 쓰인다고 설명합니다.</p>
 
 <h3>가격과 환급</h3>
-<p>공통 예시의 ICER는 표시 가격(월 190만원)에서 5,621만원/QALY로, 이 예시에서 가정한 임계값 5,000만원/QALY를 넘습니다. ICER가 5,000만원이 되는 월 약값은 175.4만원이고 표시 가격보다 7.7% 낮습니다(<a href="#ch24-s1">24장 가 절</a>). 가격을 이만큼 낮추는 방법은 두 가지입니다. 표시 가격 자체를 낮추거나, 표시 가격은 그대로 두고 일부를 돌려주는 것입니다.</p>
+<p>공통 예시의 ICER는 표시 가격(월 190만원)에서 5,621만원/QALY로, 이 예시에서 가정한 임계값 5,000만원/QALY를 넘습니다. ICER가 5,000만원이 되는 월 약값은 175.4만원이고 표시 가격보다 7.7% 낮습니다(<a href="#ch24-s1">24장 a 절</a>). 가격을 이만큼 낮추는 방법은 두 가지입니다. 표시 가격 자체를 낮추거나, 표시 가격은 그대로 두고 일부를 돌려주는 것입니다.</p>
 <p>위험분담제<span class="en">(risk sharing arrangement)</span> 가운데 흔히 환급형<span class="en">(refund)</span>이라고 부르는 유형이 뒤의 방법입니다. 제약사가 표시 가격의 일정 비율을 건강보험공단에 돌려줍니다<cite data-ref="lee2021rsa"></cite>. 위험분담 대상 약도 같은 절차로 평가하고 계약 내용이 경제성 평가에 반영되므로<cite data-ref="yoo2019access"></cite>, 심의에서 보는 ICER는 환급 뒤의 실제 가격으로 계산한 값입니다.</p>
 <p class="tbl-cap"><b>표 25-6.</b> 환급률에 따른 실제 가격과 ICER (가상의 예시. 표시 가격은 월 190만원으로 같음)</p>
 <div class="tbl-wrap"><table class="tbl" style="max-width:44rem">
@@ -511,8 +511,8 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <li><b>환자 단위 사용량 제한형</b><span class="en">(utilization cap)</span>. 환자당 사용량의 상한을 넘는 부분을 제약사가 부담합니다.</li>
 </ul>
 <p>2019년 상반기까지 위험분담제가 적용된 39개 약 가운데 환급형이 17개, 총액제한형이 23개였고, 5개는 두 유형을 함께 썼습니다. 환급형은 표시 가격과 실제 가격이 달라지는 구조여서 투명성이 낮다는 비판이 있습니다<cite data-ref="lee2021rsa"></cite>.</p>
-<p>대체 치료가 없는 중증 질환의 항암제와 희귀질환 치료제에는 경제성 평가 자료 제출을 생략하는 경로가 따로 있습니다(<a href="#ch20-s1">20장 가 절</a>의 접힌 상자). 2016년 9월부터 이 경로로 등재되는 신약은 총액제한형 계약을 맺어야 합니다<cite data-ref="lee2021rsa"></cite>. 이 경로의 약은 경제성 평가 자료 없이 평가되므로 심의에서 본 ICER가 없습니다.</p>
-<p>가격을 임계값에 맞춘다고 불확실성이 사라지지는 않습니다. ICER가 가정한 임계값과 같아지는 월 175.4만원에서도 신약 A가 비용효과적일 확률은 48.3%로 절반 근처입니다(<a href="#ch24-s3">24장 다 절</a>).</p>
+<p>대체 치료가 없는 중증 질환의 항암제와 희귀질환 치료제에는 경제성 평가 자료 제출을 생략하는 경로가 따로 있습니다(<a href="#ch20-s1">20장 a 절</a>의 접힌 상자). 2016년 9월부터 이 경로로 등재되는 신약은 총액제한형 계약을 맺어야 합니다<cite data-ref="lee2021rsa"></cite>. 이 경로의 약은 경제성 평가 자료 없이 평가되므로 심의에서 본 ICER가 없습니다.</p>
+<p>가격을 임계값에 맞춘다고 불확실성이 사라지지는 않습니다. ICER가 가정한 임계값과 같아지는 월 175.4만원에서도 신약 A가 비용효과적일 확률은 48.3%로 절반 근처입니다(<a href="#ch24-s3">24장 c 절</a>).</p>
 <!--/FOLD-->
 
 <h3>외국의 평가를 그대로 옮길 수 없는 이유</h3>
@@ -521,13 +521,13 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>요소</th><th>왜 달라지나</th><th>국내 분석에서</th></tr></thead>
 <tbody>
-<tr><td>가격</td><td>약값과 진료 수가가 나라마다 다름</td><td>국내 급여 상한금액과 수가(<a href="#ch21-s1">21장 가 절</a>)</td></tr>
+<tr><td>가격</td><td>약값과 진료 수가가 나라마다 다름</td><td>국내 급여 상한금액과 수가(<a href="#ch21-s1">21장 a 절</a>)</td></tr>
 <tr><td>진료 양상</td><td>입원 기간, 추적 검사, 후속치료가 다름. 자원 사용량이 달라짐</td><td>국내 청구자료의 사용량</td></tr>
 <tr><td>기저 위험</td><td>표준치료를 받는 환자의 사건 발생과 생존이 나라마다 다를 수 있음</td><td>국내 환자 자료로 확인한 표준요법의 경과</td></tr>
-<tr><td>비교대안</td><td>표준치료가 나라마다 다를 수 있음</td><td>국내에서 가장 많이 쓰이는 치료(<a href="#ch20-s3">20장 다 절</a>)</td></tr>
-<tr><td>효용</td><td>같은 건강상태도 나라마다 가치 세트가 달라 효용이 다름</td><td>한국 가치 세트(<a href="#ch22-s2">22장 나 절</a>)</td></tr>
+<tr><td>비교대안</td><td>표준치료가 나라마다 다를 수 있음</td><td>국내에서 가장 많이 쓰이는 치료(<a href="#ch20-s3">20장 c 절</a>)</td></tr>
+<tr><td>효용</td><td>같은 건강상태도 나라마다 가치 세트가 달라 효용이 다름</td><td>한국 가치 세트(<a href="#ch22-s2">22장 b 절</a>)</td></tr>
 <tr><td>관점과 할인율</td><td>지침이 다름. 영국 NICE는 연 3.5%, 한국은 4.5%</td><td>보건의료체계 관점, 연 4.5%<cite data-ref="hira2021guideline"></cite></td></tr>
-<tr><td>임계값</td><td>판단 기준이 다름</td><td>명시적 임계값 없음(<a href="#ch20-s4">20장 라 절</a>)</td></tr>
+<tr><td>임계값</td><td>판단 기준이 다름</td><td>명시적 임계값 없음(<a href="#ch20-s4">20장 d 절</a>)</td></tr>
 </tbody></table></div>
 <p>여러 나라의 경제성 평가 지침을 살펴본 연구에서, 임상시험에서 얻은 상대효과(위험비)는 나라 사이에 옮기기 쉬운 것으로, 기저 위험과 단가는 옮기기 어려운 것으로 분류되었습니다<cite data-ref="barbieri2010"></cite>. 그래서 외국 논문에서는 대개 모형의 구조와 상대효과를 가져오고, 기저 위험·비용·효용·비교대안은 국내 자료로 다시 채웁니다. 심평원 지침도 외국 연구 결과를 쓰더라도 단위비용과 자원사용량은 국내 자료로 하고, 임상 결과는 국내 역학과 진료 양상에 비추어 국내 적용이 타당한지 검토해 적도록 합니다<cite data-ref="hira2021guideline"></cite>(지침 52–54쪽). 외국의 ICER를 환율로 바꿔 국내 기준과 견주는 계산은 뜻이 없습니다.</p>
 
@@ -568,7 +568,7 @@ print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quo
 <tr class="hi"><td>재정영향 (순증가)</td><td class="r">3.7</td><td class="r">9.9</td><td class="r">18.2</td><td class="r">28.6</td><td class="r">41.0</td><td class="r">101.5</td></tr>
 <tr><td>참고: 신약 A의 약품비</td><td class="r">10.5</td><td class="r">27.3</td><td class="r">48.0</td><td class="r">71.0</td><td class="r">95.5</td><td class="r">252.4</td></tr>
 </tbody></table></div>
-<p>재정영향은 반올림하기 전 값으로 계산해서 표의 두 줄을 뺀 값과 끝자리가 0.1 다를 수 있습니다. 급여 3년차의 재정영향은 18.2억 원, 5년 합은 101.5억 원입니다. 지출은 급여 진료비 전체(공단 부담금과 본인부담금)로 계산했습니다. 공단 부담금만 세면 이보다 조금 작습니다. 산정특례로 등록한 암 환자는 급여 진료비의 5%를 부담하므로(<a href="#ch21-s1">21장 가 절</a>) 대략 0.95배입니다.</p>
+<p>재정영향은 반올림하기 전 값으로 계산해서 표의 두 줄을 뺀 값과 끝자리가 0.1 다를 수 있습니다. 급여 3년차의 재정영향은 18.2억 원, 5년 합은 101.5억 원입니다. 지출은 급여 진료비 전체(공단 부담금과 본인부담금)로 계산했습니다. 공단 부담금만 세면 이보다 조금 작습니다. 산정특례로 등록한 암 환자는 급여 진료비의 5%를 부담하므로(<a href="#ch21-s1">21장 a 절</a>) 대략 0.95배입니다.</p>
 <!--FIG:ch25_bia-->
 <ul>
 <li><b>해마다 커집니다.</b> 점유율이 오르고, 앞선 해에 신약으로 시작한 환자가 계속 치료받기 때문입니다.</li>

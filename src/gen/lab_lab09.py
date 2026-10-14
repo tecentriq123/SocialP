@@ -259,7 +259,7 @@ print("AIC linear:", round(logit_m.aic, 1),
       " spline:", round(spline_m.aic, 1))
 ''', title="lwt의 로짓 선형성: 스플라인과 비교")
 NOTES[c.n] = (f"결과변수를 1/2로 넣어 일부러 오류를 내 보는 셀(셀 {ERR_CELL})은 이 노트북에서 뺐습니다"
-              "(사이트의 실습 9 나 절에 있습니다).\n\n## 다. 모형 점검")
+              "(사이트의 실습 9 b 절에 있습니다).\n\n## 다. 모형 점검")
 S("lab09_spline", H(c, marks={"LR = 1.99, df = 3, P = 0.574": 1, "AIC linear: 214.8": 2,
                               "spline: 218.8": 3}))
 

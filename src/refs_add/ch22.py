@@ -24,7 +24,7 @@ ADD = {
     #   WebFetch 요약 도구로 두 번 읽어 저자·날짜(July 2011)와 4.1절의 문장을 확인했다(PDF 직접 내려받기는 막혀 있음):
     #   "an alternative approach would be to describe the utility values as decrements from full health (i.e. 1 minus the HSUV) and then
     #   sample from a log normal or gamma distribution giving a sampled utility decrement on the interval (0, positive infinity)".
-    #   22장 나 절과 24장 나 절에서 쓴다.
+    #   22장 b 절과 24장 b 절에서 쓴다.
     "ara2011tsd12": {"text": "Ara R, Wailoo A. <i>NICE DSU Technical Support Document 12: The use of health state utility values in decision models</i>. Sheffield: NICE Decision Support Unit; 2011.",
                      "url": "https://www.sheffield.ac.uk/nice-dsu/tsds/utilities"},
     "aaronson1993": {"text": "Aaronson NK, Ahmedzai S, Bergman B, et al. The European Organization for Research and Treatment of Cancer QLQ-C30: a quality-of-life instrument for use in international clinical trials in oncology. <i>J Natl Cancer Inst</i>. 1993;85(5):365-376.",

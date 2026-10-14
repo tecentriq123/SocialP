@@ -589,7 +589,7 @@ nb.save_ipynb(
     notes={
         1: "## 가. 실습 데이터 준비\n\nColab에서는 런타임이 새로 배정될 때마다 lifelines를 설치합니다(셀 26에서 씁니다).",
         2: "출력을 만든 패키지의 버전을 확인합니다. 내 화면의 출력이 사이트와 다를 때 먼저 비교합니다.",
-        5: "약물 A 여부와 보정 변수를 함께 넣은 수정 포아송 회귀를 보정 변수를 늘려 가며 적합합니다(15장 가 절 2단계의 표).",
+        5: "약물 A 여부와 보정 변수를 함께 넣은 수정 포아송 회귀를 보정 변수를 늘려 가며 적합합니다(15장 a 절 2단계의 표).",
         6: ("## 나. 성향점수 추정과 겹침\n\n먼저 일곱 변수가 모두 같은 환자끼리 묶어 보고, 그다음 결과변수 자리에 "
             "치료(drugA)를 놓은 로지스틱 회귀로 성향점수를 구합니다."),
         10: "## 다. 매칭과 가중\n\n로짓 성향점수로 짝을 짓고, 같은 성향점수로 가중치를 만듭니다.",
@@ -627,7 +627,7 @@ if __name__ == "__main__":
     same("adjustment sets", ns["adj"].to_numpy(), [flat(x["rr"]) for x in S["adjsets"]], 1e-7)
     lr_ = ns["lr"]
     same("logistic OR, 7 covariates", np.exp([lr_.params["drugA"], *lr_.conf_int().loc["drugA"]]), flat(S["reg_or"]), 1e-7)
-    # 셀 6: 같은 조건의 칸 (15장 나 절 1단계의 1,814개, 중앙값 2명)
+    # 셀 6: 같은 조건의 칸 (15장 b 절 1단계의 1,814개, 중앙값 2명)
     same("cells, median size", [len(ns["cell_n"]), ns["cell_n"].median()], [1814, 2])
     same("PS coefficients", ns["ps_fit"].params.to_numpy(), S["res"].params.to_numpy(), 1e-8)
     same("PS", df_["ps"], S["ps"], 1e-12)

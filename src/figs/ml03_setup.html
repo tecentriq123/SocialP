@@ -52,7 +52,7 @@ def make_nan_pipe(model, num=num_cols, cat=cat_cols):
     return Pipeline([(&quot;prep&quot;, prep), (&quot;model&quot;, model)])
 
 def boot_auc(y_true, p, n_boot=1000, seed=2026):
-    &quot;&quot;&quot;1장 마 절: 시험 자료를 복원추출해 다시 구한 AUC n_boot개&quot;&quot;&quot;
+    &quot;&quot;&quot;1장 e 절: 시험 자료를 복원추출해 다시 구한 AUC n_boot개&quot;&quot;&quot;
     rng = np.random.default_rng(seed)
     yt, p, out = np.asarray(y_true), np.asarray(p), []
     for _ in range(n_boot):

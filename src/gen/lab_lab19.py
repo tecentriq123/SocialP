@@ -241,7 +241,7 @@ save("lab19_mh", c, marks={"0.84 (0.78-0.91)": 1})
 
 c = nb.cell('''
 pi_half = stats.t.ppf(0.975, k - 2) * np.sqrt(tau2 + se_re**2)
-pi = np.exp([re - pi_half, re + pi_half])   # 예측구간(다 절)
+pi = np.exp([re - pi_half, re + pi_half])   # 예측구간(c 절)
 ypos = np.arange(k, 0, -1)                  # 10, 9, ..., 1
 
 fig, ax = plt.subplots(figsize=(7.5, 4.6))
@@ -718,7 +718,7 @@ if __name__ == "__main__":
 
     tr_ = ns["tr"]
     same(int(tr_["n_x"].sum() + tr_["n_pbo"].sum()), 31725, "N")
-    # 더한 사건 수의 오즈비와 신뢰구간 (19장 나 절 1단계 표: 0.79 (0.73–0.86))
+    # 더한 사건 수의 오즈비와 신뢰구간 (19장 b 절 1단계 표: 0.79 (0.73–0.86))
     close(ns["or_c"], (R["naive"]["pT"] / (1 - R["naive"]["pT"])) / (R["naive"]["pC"] / (1 - R["naive"]["pC"])))
     same("%.2f-%.2f" % (np.exp(np.log(ns["or_c"]) - 1.96 * ns["se_c"]), np.exp(np.log(ns["or_c"]) + 1.96 * ns["se_c"])),
          "0.73-0.86", "crude CI")
@@ -740,7 +740,7 @@ if __name__ == "__main__":
     same(orci_(mb_["re"], mb_["se_re"]), "2.28 (1.90-2.74)")
     close(ns["m5"]["re"], R["bleed_all05"]["re"])
     close(ns["m_noC"]["re"], R["bleed_exC"]["re"]); close(ns["mh_b"].oddsratio_pooled, R["mh_bleed"][0])
-    # SE from a reported CI (19장 나 절 스스로 확인하기 2번과 '더 알아보기')
+    # SE from a reported CI (19장 b 절 스스로 확인하기 2번과 '더 알아보기')
     close(ns["se_r"], (np.log(0.98) - np.log(0.79)) / (2 * N19.Z)); same(int(round(1 / ns["se_r"] ** 2)), 331)
     close(ns["se_h"], R["lhr"][1])
     # continuous outcome (HbA1c)
@@ -783,12 +783,12 @@ if __name__ == "__main__":
     for lv in R["levels"]:
         close(1 / abs(rw(lv["p0"], np.exp(m_["re"])) - lv["p0"]), lv["nnt"])
     ORs_ = np.exp([m_["re"], m_["re"] - ns["Z"] * m_["se_re"], m_["re"] + ns["Z"] * m_["se_re"]])
-    rd12 = rw(0.12, ORs_) - 0.12                                    # 19장 마 절 스스로 확인하기 4번
+    rd12 = rw(0.12, ORs_) - 0.12                                    # 19장 e 절 스스로 확인하기 4번
     same("%.0f (%.0f-%.0f)" % (1 / abs(rd12[0]), *sorted(1 / np.abs(rd12[1:]))), "53 (34-135)")
     same(int(round(1 / (R["naive"]["pC"] - R["naive"]["pT"]))), 56)
     for got, ref in zip(ns["rd_n"], R["abs_n"]["rd"]):              # NSTE-ACS: 66 ... inf ... 235
         close(got, ref)
-    # indirect comparison (19장 마 절 '더 알아보기': 0.92 (0.78–1.08))
+    # indirect comparison (19장 e 절 '더 알아보기': 0.92 (0.78–1.08))
     same(orci_(ns["y_xy"], ns["se_xy"]), "0.92 (0.78-1.08)")
     # homework
     close(ns["pg"].loc[2, "re"], R["phase"]["P2"]["re"]); close(ns["pg"].loc[3, "re"], R["phase"]["P3"]["re"])

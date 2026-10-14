@@ -88,7 +88,7 @@ def fmt(x, nd=2):
     return f"{x:.{nd}f}".replace("-", "−")
 
 
-# ------------------------------------------------------------------ toy example (가 절)
+# ------------------------------------------------------------------ toy example (a 절)
 TOY = np.array([[9.2, 9.0, 8.5],
                 [7.4, 7.3, 6.9],
                 [8.4, 7.8, 7.8],
@@ -298,7 +298,7 @@ def replicate(nrep=500, start=5000):
                 mcse=out.std(0, ddof=1) / np.sqrt(nrep))
 
 
-# ------------------------------------------------------------------ marginal vs conditional toy (라 절)
+# ------------------------------------------------------------------ marginal vs conditional toy (d 절)
 def or_toy(logits=(-2.0, 0.0, 2.0), cond_or=3.0):
     p0 = expit(np.array(logits))
     p1 = expit(np.array(logits) + np.log(cond_or))
@@ -600,7 +600,7 @@ if __name__ == "__main__" and "--out" in sys.argv:
 
 
 # ------------------------------------------------------------------ REVIEW2 (2026-09-30): numbers introduced by the beginner rewrite
-# (가 절 correlations quoted in the text, GG epsilon via eigenvalues in '수식으로 보기', 라 절 'average patient' probabilities)
+# (a 절 correlations quoted in the text, GG epsilon via eigenvalues in '수식으로 보기', d 절 'average patient' probabilities)
 if __name__ == "__main__":
     from lib_ch10 import orth_contrasts
     E2 = example()

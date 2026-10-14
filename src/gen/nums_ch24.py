@@ -319,7 +319,7 @@ def _fit_ph(tt, ev, arm):
 
 
 def trial_sampling(rho, reps=600, n=300, seed=1):
-    """군당 n명, 추적 24–30개월(23장 라 절의 설계)의 시험을 reps번 만들어 무진행생존과 전체생존에 각각 적합한다.
+    """군당 n명, 추적 24–30개월(23장 d 절의 설계)의 시험을 reps번 만들어 무진행생존과 전체생존에 각각 적합한다.
     진행 시간과 사망 시간은 정규 코퓰라(상관 rho)로 뽑는다(22장의 가상 시험은 rho = 0.7). 반환: reps × 6 배열
     (ln 중앙값, ln γ, ln HR) × (무진행생존, 전체생존)."""
     rng = np.random.default_rng(seed)
@@ -494,7 +494,7 @@ from scipy import stats
 from scipy.optimize import brentq
 
 t = np.arange(0, 241)                                   # 0, 1, ..., 240개월
-base = dict(hr_pfs=0.65, hr_os=0.75,                    # 기준 분석 입력값(23장 다 절의 표)
+base = dict(hr_pfs=0.65, hr_os=0.75,                    # 기준 분석 입력값(23장 c 절의 표)
             pfs_lam=np.log(2) / 10 ** 0.95, pfs_gam=0.95, os_lam=np.log(2) / 28 ** 1.15, os_gam=1.15,
             u_pf=0.78, u_pd=0.62, du_ae_A=0.012, du_ae_B=0.008,
             c_pf=40.0, c_pd=250.0, c_death=800.0, c_ae_A=120.0, c_ae_B=80.0,
@@ -521,7 +521,7 @@ z = np.array([-1.96, 1.96])
 ranges = {"hr_os": np.exp(np.log(0.75) + z * 0.131),    # 위험비: 로그 척도에서 ±1.96 × 표준오차
           "hr_pfs": np.exp(np.log(0.65) + z * 0.113),
           "c_drug_A": np.array([152.0, 190.0]),         # 표시 가격에서 20% 인하한 값까지
-          "u_pf": stats.beta.ppf([0.025, 0.975], 147.94, 41.727)}   # 베타분포의 95% 구간(나 절)
+          "u_pf": stats.beta.ppf([0.025, 0.975], 147.94, 41.727)}   # 베타분포의 95% 구간(b 절)
 for name, (low, high) in ranges.items():                # 일원 민감도 분석: 하나씩만 바꾼다
     icers = []
     for value in (low, high):

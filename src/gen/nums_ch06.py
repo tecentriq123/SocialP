@@ -568,7 +568,7 @@ if __name__ == "__main__":
 
 
 # ================================================================== 라. 추가 (2026-09-30 rewrite review)
-# Table of 6-month SBP by baseline-SBP tertile x number of classes (1, 2, 3+) shown in 라 절
+# Table of 6-month SBP by baseline-SBP tertile x number of classes (1, 2, 3+) shown in d 절
 # '기저 혈압이 비슷한 환자끼리 나눠 보기', plus model-2 predictions at baseline 150 / 170 mmHg.
 def tertile_block():
     M = multi240()
@@ -589,7 +589,7 @@ def tertile_block():
         print(f"  model 2 prediction at baseline {bs}:", [round(b[0] + b[1] * k + b[2] * bs, 2) for k in (1, 2, 3)])
     print(f"  shift 150 -> 170: 20 x {b[2]:.4f} = {20 * b[2]:.2f}")
     pc = poly_cost()
-    print(f"  (가 절 use box) partial r(polypharmacy, cost | CCI) = {pc['r_part']:.3f}")
+    print(f"  (a 절 use box) partial r(polypharmacy, cost | CCI) = {pc['r_part']:.3f}")
 
 
 if __name__ == "__main__":

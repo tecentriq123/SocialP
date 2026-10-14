@@ -63,7 +63,7 @@ c = nb.cell('''
 ''', title="lifelines 설치", shell_output=PIP_OUT)
 save("lab16_install", c)
 NOTES[c.n] = ("## 가. 실습 데이터 준비\n\nColab에서는 런타임이 새로 배정될 때마다 lifelines를 설치합니다"
-              "(나 절부터 씁니다).")
+              "(b 절부터 씁니다).")
 
 c = nb.cell('''
 import numpy as np
@@ -208,7 +208,7 @@ print(f"사망률 {rate_u:.1f} 대 {rate_nu:.1f},"
 ''', title="사용군의 불멸 인년 계산")
 save("lab16_immortal", c, marks={"사용군 2613인년": 1, "첫 처방 전 1142인년 (44%)": 2, "비사용군 2699인년": 3,
                                  "사망률 12.3 대 33.8": 4, "발생률비 0.36": 5})
-NOTES[c.n] = (f"셀 {ERR_CELL}은 일부러 오류를 내 보는 셀이어서 이 노트북에서는 뺐습니다(사이트의 실습 16 나 절에 있습니다). "
+NOTES[c.n] = (f"셀 {ERR_CELL}은 일부러 오류를 내 보는 셀이어서 이 노트북에서는 뺐습니다(사이트의 실습 16 b 절에 있습니다). "
               f"셀 번호는 사이트와 같게 두었으므로 셀 {ERR_CELL - 1} 다음이 셀 {ERR_CELL + 1}입니다.")
 
 c = nb.cell('''
@@ -372,7 +372,7 @@ save("lab16_periods", c, marks={"비노출 34%": 1, "노출 8%": 2, "단순한 �
                                 "Cox 1.03": 5},
      dfmarks={"28.8": 6, "30.0": 7, "0.94": 8})
 NOTES[c.n] = ("퇴원 후 기간을 0-3, 3-6, 6-12개월로 나눠 같은 시기끼리 노출 상태를 견줍니다"
-              "(16장 다 절 '더 알아보기'의 '퇴원 후 기간을 나눠 같은 시기끼리 견주면').")
+              "(16장 c 절 '더 알아보기'의 '퇴원 후 기간을 나눠 같은 시기끼리 견주면').")
 
 c = nb.cell('''
 from lifelines.utils import to_long_format, add_covariate_to_timeline
@@ -432,7 +432,7 @@ pd.DataFrame({"HR (95% CI), true 0.70": res})
 save("lab16_effect", c, marks={"-> 1138 명": 1},
      dfmarks={"0.25 (0.22-0.29)": 2, "0.71 (0.61-0.83)": 3, "0.78 (0.58-1.04)": 4, "0.65 (0.52-0.81)": 5})
 NOTES[c.n] = ("약물 X가 시작 뒤 사망 위험률을 0.7배로 낮추도록 자료를 바꿔 세 분석을 다시 합니다"
-              "(16장 가 절 3단계 넷째 함정, 나 절 2단계).")
+              "(16장 a 절 3단계 넷째 함정, b 절 2단계).")
 N_MAIN = len(nb.cells)
 
 # ---------------------------------------------------------------- 마. 과제 (정답 셀)
@@ -604,7 +604,7 @@ close(hr3(ns["ctv"], "drugx"), J["hr_tv"][:3], 1e-6, "time-varying HR 1.03 (0.90
 close(ns["ctv"].summary.loc["drugx", ["coef", "se(coef)", "z", "p"]].values,
       [JJ["tv_summary"][k] for k in ("coef", "se(coef)", "z", "p")], 1e-6, "coef 0.031, se 0.070, z 0.445, p 0.656")
 close(ns["ctv"].log_likelihood_, JJ["tv_loglik"], 1e-3, "partial log-likelihood -10598.599")
-# 셀 21: 기간을 나눈 비교 (16장 다 절 '더 알아보기'의 표와 Mantel-Haenszel 1.01)
+# 셀 21: 기간을 나눈 비교 (16장 c 절 '더 알아보기'의 표와 Mantel-Haenszel 1.01)
 per_ = ns["per"]
 for i, p in enumerate(JJ["period"]):
     close(per_.iloc[i][["deaths U", "PY U", "deaths E", "PY E", "IRR"]].to_numpy(),

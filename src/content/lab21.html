@@ -1,7 +1,7 @@
-<p class="lead">21장의 예제 자료(진행성 신세포암 1차 치료, 신약 A 대 표준요법 B, 가상 환자 3,000명의 1년 의료비)를 직접 분석합니다. 치우친 비용 분포를 그림으로 확인하고, 평균 차이의 신뢰구간을 Welch t 검정과 직접 짠 부트스트랩으로 구한 뒤, 감마 일반화 선형모형(GLM)으로 두 군의 환자 구성 차이를 보정해 Methods·Results 문장으로 옮깁니다. 이론은 <a href="#ch21-s2">21장 나 절</a>과 <a href="#ch21-s3">다 절</a>에 있고, 실습에서 나오는 숫자는 본문의 숫자와 같습니다.</p>
+<p class="lead">21장의 예제 자료(진행성 신세포암 1차 치료, 신약 A 대 표준요법 B, 가상 환자 3,000명의 1년 의료비)를 직접 분석합니다. 치우친 비용 분포를 그림으로 확인하고, 평균 차이의 신뢰구간을 Welch t 검정과 직접 짠 부트스트랩으로 구한 뒤, 감마 일반화 선형모형(GLM)으로 두 군의 환자 구성 차이를 보정해 Methods·Results 문장으로 옮깁니다. 이론은 <a href="#ch21-s2">21장 b 절</a>과 <a href="#ch21-s3">c 절</a>에 있고, 실습에서 나오는 숫자는 본문의 숫자와 같습니다.</p>
 
 <dl class="glance">
-<div><dt>관련 이론</dt><dd><a href="#ch21">21장 비용 자료 분석</a> (나 절 비용 분포와 평균 비용의 비교, 다 절 비용의 회귀분석)</dd></div>
+<div><dt>관련 이론</dt><dd><a href="#ch21">21장 비용 자료 분석</a> (b 절 비용 분포와 평균 비용의 비교, c 절 비용의 회귀분석)</dd></div>
 <div><dt>데이터</dt><dd><code>rcc_cost.csv</code>. 이 사이트가 만든 가상 자료. 환자 한 명이 한 줄, 3,000명(신약 A 1,203명, 표준요법 B 1,797명), 10개 열. 치료 시작 후 1년 급여 진료비(만원)와 기저 특성 4개</dd></div>
 <div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, scipy(<code>ttest_ind</code>, <code>mannwhitneyu</code>, <code>bootstrap</code>), statsmodels(<code>smf.ols</code>, <code>smf.glm</code>, <code>smf.logit</code>)</dd></div>
 <div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). 따로 설치할 패키지 없음. 셀 20은 1–2분 걸림</dd></div>
@@ -10,16 +10,16 @@
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab21-s1">
-<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+<h2><span class="sec-no">a.</span>실습 데이터 준비</h2>
 
-<p>이 실습의 자료는 실제 환자 자료가 아닙니다. <a href="#ch21-s2">21장 나 절</a>의 '예제 자료'를 그대로 파일로 옮긴 가상 자료입니다. 암 등록 자료와 연계한 건강보험 청구자료에서 진행성 신세포암 1차 치료로 신약 A 또는 표준요법 B를 시작한 환자를 골랐고, 청구 명세서를 환자별로 합쳐 치료 시작일부터 1년 동안의 비용을 이미 만들어 둔 상태라고 가정합니다(명세서에서 환자당 비용을 만드는 과정은 <a href="#ch21-s1">21장 가 절</a>). 모든 환자가 1년을 관찰할 수 있게 골랐고, 1년 안에 사망한 환자는 사망일까지의 비용이 1년 비용입니다.</p>
+<p>이 실습의 자료는 실제 환자 자료가 아닙니다. <a href="#ch21-s2">21장 b 절</a>의 '예제 자료'를 그대로 파일로 옮긴 가상 자료입니다. 암 등록 자료와 연계한 건강보험 청구자료에서 진행성 신세포암 1차 치료로 신약 A 또는 표준요법 B를 시작한 환자를 골랐고, 청구 명세서를 환자별로 합쳐 치료 시작일부터 1년 동안의 비용을 이미 만들어 둔 상태라고 가정합니다(명세서에서 환자당 비용을 만드는 과정은 <a href="#ch21-s1">21장 a 절</a>). 모든 환자가 1년을 관찰할 수 있게 골랐고, 1년 안에 사망한 환자는 사망일까지의 비용이 1년 비용입니다.</p>
 
 <h3>자료 불러오기</h3>
 <!--FIG:lab21_load-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>BASE = "https://…/data/"</code><span>이 사이트의 실습 자료가 놓인 주소를 문자열로 저장해 둡니다. 실습 1–13에서 쓴 Rdatasets 대신 이 사이트에서 읽습니다. 인터넷 연결이 필요합니다.</span></li>
-<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 가 절</a>).</span></li>
+<li><code>UA = {"User-Agent": "Mozilla/5.0"}</code><span>이 사이트는 파이썬의 기본 요청을 막으므로, 읽을 때 <code>storage_options=UA</code>로 브라우저의 머리글을 붙입니다(<a href="#lab14-s1">실습 14 a 절</a>).</span></li>
 <li><code>pd.read_csv(BASE + "rcc_cost.csv", storage_options=UA)</code><span>문자열 두 개를 <code>+</code>로 이으면 하나의 긴 주소가 됩니다. 그 주소의 CSV 파일을 읽어 표(<code>df</code>)로 만듭니다. 나머지 줄은 <a href="#lab00">실습 0</a>과 같습니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
@@ -47,7 +47,7 @@
 <p>공변량 네 개(age, male, cci, stage4)는 모두 치료 시작 시점의 값입니다. 이 실습의 출력은 pandas 3.0, numpy 2.5, scipy 1.18, statsmodels 0.15로 실제로 실행해 얻었습니다. 버전이 다르면 출력의 모양이 조금 다를 수 있습니다.</p>
 
 <h3>치료군 변수, 결측값, 0원</h3>
-<p>회귀모형에 넣으려면 치료군을 0과 1로 바꿔 두는 것이 편합니다. 기준이 되는 표준요법 B를 0으로 둡니다(<a href="#lab11-s1">실습 11 가 절</a>과 같은 방식). 비용 자료에서는 결측값과 0원을 먼저 확인합니다. 0원은 결측이 아니라 "그 항목의 진료를 받지 않았다"는 실제 값입니다.</p>
+<p>회귀모형에 넣으려면 치료군을 0과 1로 바꿔 두는 것이 편합니다. 기준이 되는 표준요법 B를 0으로 둡니다(<a href="#lab11-s1">실습 11 a 절</a>과 같은 방식). 비용 자료에서는 결측값과 0원을 먼저 확인합니다. 0원은 결측이 아니라 "그 항목의 진료를 받지 않았다"는 실제 값입니다.</p>
 <!--FIG:lab21_trt-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -67,12 +67,12 @@
 
 <h3>군별 요약통계</h3>
 <!--FIG:lab21_summary-->
-<p><code>describe()</code>와 <code>agg()</code>는 <a href="#lab01-s2">실습 1 나 절</a>에서 썼습니다. 끝의 <code>.T</code>는 행과 열을 바꿔 군이 열로 오게 합니다. 둘째 표는 비용 네 열 각각의 군별 평균과 표준편차입니다.</p>
+<p><code>describe()</code>와 <code>agg()</code>는 <a href="#lab01-s2">실습 1 b 절</a>에서 썼습니다. 끝의 <code>.T</code>는 행과 열을 바꿔 군이 열로 오게 합니다. 둘째 표는 비용 네 열 각각의 군별 평균과 표준편차입니다.</p>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>A군 평균 2,668.9만원, B군 2,272.8만원.</b></span></li>
 <li><span class="mk">2</span><span><b>SD 1,303.1과 1,462.2.</b> 평균의 절반을 넘는 큰 흩어짐입니다.</span></li>
-<li><span class="mk">3</span><span><b>중앙값(50%) 2,462.3과 1,836.4.</b> 두 군 모두 중앙값이 평균보다 작습니다. 오른쪽으로 치우친 분포의 특징입니다(<a href="#ch21-s2">21장 나 절</a> '비용 자료의 모양'). 사분위범위는 A군 2,185–2,849, B군 1,520–2,580입니다.</span></li>
+<li><span class="mk">3</span><span><b>중앙값(50%) 2,462.3과 1,836.4.</b> 두 군 모두 중앙값이 평균보다 작습니다. 오른쪽으로 치우친 분포의 특징입니다(<a href="#ch21-s2">21장 b 절</a> '비용 자료의 모양'). 사분위범위는 A군 2,185–2,849, B군 1,520–2,580입니다.</span></li>
 <li><span class="mk">4</span><span><b>최댓값 21,727.1만원.</b> 2억 원이 넘습니다. 실제로 쓴 비용이라면 이런 환자도 빼지 않습니다.</span></li>
 <li><span class="mk">5</span><span><b>항목별 평균.</b> A군은 1,558.6 + 525.5 + 584.8 = 2,668.9로 항목의 평균을 더하면 총비용의 평균이 됩니다. 중앙값은 이렇게 더해지지 않습니다.</span></li>
 <li><span class="mk">6</span><span><b>입원비의 SD 1,202.7이 평균 584.8의 두 배.</b> 음수가 될 수 없는 값에서 SD가 평균보다 크면 치우침이 심하다는 신호입니다.</span></li>
@@ -81,7 +81,7 @@
 
 <h3>비용 분포의 모양</h3>
 <!--FIG:lab21_hist-->
-<p>왼쪽이 신약 A군, 오른쪽이 표준요법 B군입니다. 가로축은 1년 비용(만원), 세로축은 환자 수이고, 주황 실선이 평균, 점선이 중앙값입니다. 두 군 모두 봉우리가 왼쪽에 있고 오른쪽으로 꼬리가 깁니다. <code>bins=np.arange(0, 10200, 200)</code>은 0부터 10,000까지 200만원 간격으로 칸을 나눈다는 뜻이고, <code>sharey=True</code>는 두 그림의 세로축 눈금을 같게 맞춥니다. 히스토그램 그리기는 <a href="#lab01-s2">실습 1 나 절</a>과 같습니다.</p>
+<p>왼쪽이 신약 A군, 오른쪽이 표준요법 B군입니다. 가로축은 1년 비용(만원), 세로축은 환자 수이고, 주황 실선이 평균, 점선이 중앙값입니다. 두 군 모두 봉우리가 왼쪽에 있고 오른쪽으로 꼬리가 깁니다. <code>bins=np.arange(0, 10200, 200)</code>은 0부터 10,000까지 200만원 간격으로 칸을 나눈다는 뜻이고, <code>sharey=True</code>는 두 그림의 세로축 눈금을 같게 맞춥니다. 히스토그램 그리기는 <a href="#lab01-s2">실습 1 b 절</a>과 같습니다.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>그림 밖의 환자.</b> 1억 원(10,000만원)을 넘는 환자가 A군 5명, B군 11명 있습니다. 그림에는 보이지 않지만 평균에는 들어 있습니다.</span></li>
 </ol>
@@ -91,7 +91,7 @@
 <!--FIG:lab21_total-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>a = df.loc[df["arm"] == "A", "cost"].to_numpy()</code><span>A군 환자의 cost 열만 골라 numpy 배열로 바꿉니다. 값 1,203개가 한 줄로 늘어선 배열입니다. <code>b</code>는 B군의 1,797개입니다. 이 두 배열을 나 절 끝까지 씁니다.</span></li>
+<li><code>a = df.loc[df["arm"] == "A", "cost"].to_numpy()</code><span>A군 환자의 cost 열만 골라 numpy 배열로 바꿉니다. 값 1,203개가 한 줄로 늘어선 배열입니다. <code>b</code>는 B군의 1,797개입니다. 이 두 배열을 b 절 끝까지 씁니다.</span></li>
 <li><code>(b &lt; b.mean()).mean() * 100</code><span>평균보다 작으면 True인 배열의 평균, 곧 평균보다 적게 쓴 환자의 비율(%)입니다.</span></li>
 <li><code>np.sort(b)[::-1][:k]</code><span><code>np.sort</code>는 작은 값부터 세우고, <code>[::-1]</code>은 순서를 뒤집어 큰 값부터 세웁니다. <code>[:k]</code>로 앞의 90개(상위 5%)를 잘라 냅니다.</span></li>
 </ol>
@@ -109,7 +109,7 @@
 <p class="excerpt">The cohort comprised <span class="mk">1</span> <span class="hl">3,000 patients who started first-line treatment with drug A (n = 1,203) or comparator B (n = 1,797)</span>. The outcome was the <span class="mk">2</span> <span class="hl">total reimbursed healthcare cost during the first year after treatment initiation</span> (study drug, other outpatient care, and inpatient care), expressed in 10,000 Korean won at 2025 prices. Costs were summarized as <span class="mk">3</span> <span class="hl">means with standard deviations; medians with interquartile ranges</span> were reported to describe the distributions. <span class="mk">4</span> <span class="hl">Zero costs were retained, and no observations were excluded as outliers.</span></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>분석 대상.</b> 셀 2의 인원입니다.</span></li>
-<li><span class="mk">2</span><span><b>비용의 범위와 기간.</b> 어떤 항목을, 언제부터 언제까지, 어느 해의 가격으로 셌는지 적습니다(<a href="#ch21-s1">21장 가 절</a>).</span></li>
+<li><span class="mk">2</span><span><b>비용의 범위와 기간.</b> 어떤 항목을, 언제부터 언제까지, 어느 해의 가격으로 셌는지 적습니다(<a href="#ch21-s1">21장 a 절</a>).</span></li>
 <li><span class="mk">3</span><span><b>주 지표는 평균.</b> 중앙값은 분포를 보여 주는 용도로 함께 싣습니다(셀 3).</span></li>
 <li><span class="mk">4</span><span><b>0원과 고액 환자의 처리.</b> 입원비 0원(셀 2)과 1억 원이 넘는 환자(셀 4)를 그대로 두었다는 문장입니다.</span></li>
 </ol>
@@ -124,13 +124,13 @@
 
 <!-- ============================================================ 나 -->
 <section class="sec" id="lab21-s2">
-<h2><span class="sec-no">나.</span>평균 비용의 비교와 부트스트랩</h2>
+<h2><span class="sec-no">b.</span>평균 비용의 비교와 부트스트랩</h2>
 
-<p>비교할 값은 1인당 산술평균<span class="en">(arithmetic mean)</span>의 차이입니다. 그 신뢰구간을 두 가지 방법으로 구합니다. 하나는 Welch t 검정이고, 다른 하나는 자료를 다시 뽑는 부트스트랩<span class="en">(bootstrap)</span>입니다(<a href="#ch21-s2">21장 나 절</a> '평균 차이의 신뢰구간'). 이어서 중앙값, Mann-Whitney 검정, 로그 변환이 같은 자료에서 무엇을 답하는지 확인합니다.</p>
+<p>비교할 값은 1인당 산술평균<span class="en">(arithmetic mean)</span>의 차이입니다. 그 신뢰구간을 두 가지 방법으로 구합니다. 하나는 Welch t 검정이고, 다른 하나는 자료를 다시 뽑는 부트스트랩<span class="en">(bootstrap)</span>입니다(<a href="#ch21-s2">21장 b 절</a> '평균 차이의 신뢰구간'). 이어서 중앙값, Mann-Whitney 검정, 로그 변환이 같은 자료에서 무엇을 답하는지 확인합니다.</p>
 
 <h3>평균 차이와 Welch t 검정</h3>
 <!--FIG:lab21_welch-->
-<p><code>stats.ttest_ind(a, b, equal_var=False)</code>와 <code>confidence_interval()</code>은 <a href="#lab02-s2">실습 2 나 절</a>에서 설명했습니다. 차이는 첫 번째 인자에서 두 번째 인자를 뺀 방향(A − B)입니다. <code>se</code> 줄은 Welch 방법의 표준오차 공식 √(s<sub>A</sub>²/n<sub>A</sub> + s<sub>B</sub>²/n<sub>B</sub>)을 그대로 옮긴 것입니다.</p>
+<p><code>stats.ttest_ind(a, b, equal_var=False)</code>와 <code>confidence_interval()</code>은 <a href="#lab02-s2">실습 2 b 절</a>에서 설명했습니다. 차이는 첫 번째 인자에서 두 번째 인자를 뺀 방향(A − B)입니다. <code>se</code> 줄은 Welch 방법의 표준오차 공식 √(s<sub>A</sub>²/n<sub>A</sub> + s<sub>B</sub>²/n<sub>B</sub>)을 그대로 옮긴 것입니다.</p>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>평균 차이 396.1만원.</b> 신약 A군이 1인당 1년에 396만원 더 썼습니다.</span></li>
@@ -140,7 +140,7 @@
 </ol>
 
 <h3>부트스트랩 한 번</h3>
-<p>부트스트랩은 가진 표본에서 같은 크기의 표본을 복원추출<span class="en">(sampling with replacement)</span>로 다시 뽑아 통계량을 다시 계산하는 일을 되풀이합니다. 기본 원리와 <code>rng.integers</code>는 <a href="#lab08-s1">실습 8 가 절</a>에서 다뤘습니다. 여기서 새로운 점은 두 가지입니다. 두 군을 각각 따로 다시 뽑고, 반복문 대신 번호표 배열로 한꺼번에 뽑습니다. 먼저 A군을 한 번만 다시 뽑아 봅니다.</p>
+<p>부트스트랩은 가진 표본에서 같은 크기의 표본을 복원추출<span class="en">(sampling with replacement)</span>로 다시 뽑아 통계량을 다시 계산하는 일을 되풀이합니다. 기본 원리와 <code>rng.integers</code>는 <a href="#lab08-s1">실습 8 a 절</a>에서 다뤘습니다. 여기서 새로운 점은 두 가지입니다. 두 군을 각각 따로 다시 뽑고, 반복문 대신 번호표 배열로 한꺼번에 뽑습니다. 먼저 A군을 한 번만 다시 뽑아 봅니다.</p>
 <!--FIG:lab21_once-->
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -195,7 +195,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 </ol>
 
 <h3>중앙값 차이와 Mann-Whitney 검정</h3>
-<p>치우친 자료라는 이유로 중앙값을 비교하거나 Mann-Whitney 검정을 하면 어떤 답이 나오는지 봅니다. <code>stats.mannwhitneyu</code>는 <a href="#lab02-s3">실습 2 다 절</a>에서 설명했습니다. 통계량 U를 두 군 인원의 곱으로 나누면 "A군에서 한 명, B군에서 한 명을 뽑았을 때 A군 환자의 비용이 더 클 확률"이 됩니다.</p>
+<p>치우친 자료라는 이유로 중앙값을 비교하거나 Mann-Whitney 검정을 하면 어떤 답이 나오는지 봅니다. <code>stats.mannwhitneyu</code>는 <a href="#lab02-s3">실습 2 c 절</a>에서 설명했습니다. 통계량 U를 두 군 인원의 곱으로 나누면 "A군에서 한 명, B군에서 한 명을 뽑았을 때 A군 환자의 비용이 더 클 확률"이 됩니다.</p>
 <!--FIG:lab21_mw-->
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -215,7 +215,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 </ol>
 
 <h3>로그 변환과 기하평균</h3>
-<p>로그를 취한 뒤 t 검정을 하는 방법도 흔합니다. 로그 척도의 평균을 지수함수로 되돌리면 기하평균<span class="en">(geometric mean)</span>이 되고, 이것은 산술평균보다 작습니다. 이것이 재변환 문제<span class="en">(retransformation problem)</span>입니다(<a href="#ch21-s2">21장 나 절</a>). 되돌릴 때 곱해야 하는 보정 계수가 Duan의 smearing 추정량입니다<cite data-ref="duan1983"></cite>.</p>
+<p>로그를 취한 뒤 t 검정을 하는 방법도 흔합니다. 로그 척도의 평균을 지수함수로 되돌리면 기하평균<span class="en">(geometric mean)</span>이 되고, 이것은 산술평균보다 작습니다. 이것이 재변환 문제<span class="en">(retransformation problem)</span>입니다(<a href="#ch21-s2">21장 b 절</a>). 되돌릴 때 곱해야 하는 보정 계수가 Duan의 smearing 추정량입니다<cite data-ref="duan1983"></cite>.</p>
 <!--FIG:lab21_log-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -230,7 +230,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 <li><span class="mk">2</span><span><b>기하평균 2,441.0과 1,961.7.</b> 산술평균 2,668.9와 2,272.8보다 각각 9%, 14% 작습니다.</span></li>
 <li><span class="mk">3</span><span><b>기하평균의 비 1.244 (95% CI 1.202–1.288).</b> 로그 변환 t 검정이 보고하는 값입니다.</span></li>
 <li><span class="mk">4</span><span><b>산술평균의 비 1.174.</b> 1인당 평균 비용은 24%가 아니라 17% 높습니다. 흩어짐이 큰 B군의 기하평균이 더 많이 작아져 비가 부풀었습니다.</span></li>
-<li><span class="mk">5</span><span><b>smearing 계수 1.093과 1.159.</b> 흩어짐이 클수록 계수가 큽니다. 두 군의 계수가 다르다는 점이 다 절에서 문제가 됩니다.</span></li>
+<li><span class="mk">5</span><span><b>smearing 계수 1.093과 1.159.</b> 흩어짐이 클수록 계수가 큽니다. 두 군의 계수가 다르다는 점이 c 절에서 문제가 됩니다.</span></li>
 <li><span class="mk">6</span><span><b>기하평균 × 계수 = 산술평균.</b> 2,668.9와 2,272.8로 셀 3의 평균과 같아집니다. 화면에 반올림되어 보이는 1.093과 1.159를 곱하면 2,668.0과 2,273.6으로 끝자리가 조금 다릅니다.</span></li>
 </ol>
 
@@ -248,7 +248,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 <p class="jt-foot"><sup>a</sup> Nonparametric bootstrap, percentile method, 9,999 replicates. <span class="mk">4</span> The Welch t interval (296 to 496) and the BCa bootstrap interval (298 to 499) were similar. IQR, interquartile range.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>구간을 구한 방법.</b> 반복 횟수, 구간의 종류, 다시 뽑은 단위(군 안의 환자)를 적습니다. 분석 코드에는 seed를 남깁니다.</span></li>
-<li><span class="mk">2</span><span><b>평균 차이와 95% CI.</b> 셀 6의 396.1과 셀 8의 296.1 ~ 496.3을 만원 단위로 반올림했습니다. 제목의 "Unadjusted"는 환자 구성의 차이가 섞여 있다는 뜻입니다(다 절).</span></li>
+<li><span class="mk">2</span><span><b>평균 차이와 95% CI.</b> 셀 6의 396.1과 셀 8의 296.1 ~ 496.3을 만원 단위로 반올림했습니다. 제목의 "Unadjusted"는 환자 구성의 차이가 섞여 있다는 뜻입니다(c 절).</span></li>
 <li><span class="mk">3</span><span><b>중앙값(IQR)은 참고용.</b> 셀 3의 값입니다. 중앙값의 차이나 Mann-Whitney 검정의 P값은 싣지 않았습니다.</span></li>
 <li><span class="mk">4</span><span><b>다른 방법의 결과.</b> 셀 6과 셀 10입니다. 구간이 방법에 따라 달라지지 않는다는 것을 한 문장으로 보여 줍니다.</span></li>
 </ol>
@@ -264,20 +264,20 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 
 <!-- ============================================================ 다 -->
 <section class="sec" id="lab21-s3">
-<h2><span class="sec-no">다.</span>비용의 회귀분석</h2>
+<h2><span class="sec-no">c.</span>비용의 회귀분석</h2>
 
-<p>나 절의 396만원은 보정 전 차이입니다. 청구자료에서는 두 약을 받은 환자의 구성이 다르므로 회귀모형으로 보정합니다(<a href="#ch21-s3">21장 다 절</a>). 선형회귀, 로그 변환 회귀, 감마 GLM을 차례로 적합하고, 경제성 평가에 필요한 금액 차이를 구합니다.</p>
+<p>b 절의 396만원은 보정 전 차이입니다. 청구자료에서는 두 약을 받은 환자의 구성이 다르므로 회귀모형으로 보정합니다(<a href="#ch21-s3">21장 c 절</a>). 선형회귀, 로그 변환 회귀, 감마 GLM을 차례로 적합하고, 경제성 평가에 필요한 금액 차이를 구합니다.</p>
 
 <h3>두 군의 기저 특성</h3>
 <!--FIG:lab21_base-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>나이 61.5세 대 65.7세.</b> 신약군이 네 살쯤 젊습니다.</span></li>
 <li><span class="mk">2</span><span><b>동반질환 점수 1.00 대 1.65.</b> 신약군의 동반질환이 적습니다.</span></li>
-<li><span class="mk">3</span><span><b>4기 57% 대 65%.</b> 0과 1로 된 열의 평균은 비율입니다. 신약군이 더 젊고 덜 아픈 환자로 이루어져 있어 어떤 약을 쓰든 진료비가 적게 들 것입니다. 보정 전 차이는 신약의 추가 비용을 작게 보여 줍니다(교란, <a href="#ch15-s1">15장 가 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>4기 57% 대 65%.</b> 0과 1로 된 열의 평균은 비율입니다. 신약군이 더 젊고 덜 아픈 환자로 이루어져 있어 어떤 약을 쓰든 진료비가 적게 들 것입니다. 보정 전 차이는 신약의 추가 비용을 작게 보여 줍니다(교란, <a href="#ch15-s1">15장 a 절</a>).</span></li>
 </ol>
 
 <h3>원래 비용의 선형회귀</h3>
-<p>가장 단순한 보정은 비용을 그대로 결과변수로 둔 다중회귀입니다(<a href="#lab06-s4">실습 6 라 절</a>). 비용은 흩어짐이 일정하지 않으므로 강건 표준오차<span class="en">(robust standard error)</span>를 씁니다. <code>.fit(cov_type="HC3")</code>은 <a href="#lab08-s2">실습 8 나 절</a>의 <code>"HC0"</code>과 같은 샌드위치 표준오차이고, HC3은 표본이 작을 때의 보정이 더 들어간 종류입니다. 계수는 바뀌지 않고 표준오차만 바뀝니다.</p>
+<p>가장 단순한 보정은 비용을 그대로 결과변수로 둔 다중회귀입니다(<a href="#lab06-s4">실습 6 d 절</a>). 비용은 흩어짐이 일정하지 않으므로 강건 표준오차<span class="en">(robust standard error)</span>를 씁니다. <code>.fit(cov_type="HC3")</code>은 <a href="#lab08-s2">실습 8 b 절</a>의 <code>"HC0"</code>과 같은 샌드위치 표준오차이고, HC3은 표본이 작을 때의 보정이 더 들어간 종류입니다. 계수는 바뀌지 않고 표준오차만 바뀝니다.</p>
 <!--FIG:lab21_ols-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>trt의 계수 512.6.</b> 나이, 성별, 동반질환 점수, 병기가 같을 때 신약군의 비용이 평균 513만원 높습니다. 보정 전 396만원보다 큽니다.</span></li>
@@ -286,14 +286,14 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 </ol>
 
 <h3>로그 변환 회귀와 되돌리기</h3>
-<p>로그를 취한 비용에 선형회귀를 하면 e<sup>β</sup>는 기하평균의 비입니다. 금액으로 되돌리려면 나 절의 재변환 문제를 다시 만납니다. 세 가지 방법으로 되돌려 봅니다.</p>
+<p>로그를 취한 비용에 선형회귀를 하면 e<sup>β</sup>는 기하평균의 비입니다. 금액으로 되돌리려면 b 절의 재변환 문제를 다시 만납니다. 세 가지 방법으로 되돌려 봅니다.</p>
 <!--FIG:lab21_logols-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>smf.ols("np.log(cost) ~ trt + …", data=df).fit()</code><span>공식 안에서 결과변수에 로그를 취합니다(<a href="#lab06-s4">실습 6 라 절</a>).</span></li>
-<li><code>dA, dB = df.assign(trt=1), df.assign(trt=0)</code><span>3,000명 모두의 trt를 1로 바꾼 복사본과 0으로 바꾼 복사본입니다. 나머지 열은 그대로입니다(<a href="#lab09-s2">실습 9 나 절</a>).</span></li>
+<li><code>smf.ols("np.log(cost) ~ trt + …", data=df).fit()</code><span>공식 안에서 결과변수에 로그를 취합니다(<a href="#lab06-s4">실습 6 d 절</a>).</span></li>
+<li><code>dA, dB = df.assign(trt=1), df.assign(trt=0)</code><span>3,000명 모두의 trt를 1로 바꾼 복사본과 0으로 바꾼 복사본입니다. 나머지 열은 그대로입니다(<a href="#lab09-s2">실습 9 b 절</a>).</span></li>
 <li><code>np.exp(logm.predict(dA)).mean()</code><span><code>predict</code>는 로그 척도의 예측값을 줍니다. 지수함수로 그대로 되돌려 평균을 냈습니다. 보정 없이 되돌린 값입니다.</span></li>
-<li><code>s = np.exp(logm.resid).mean()</code><span><code>resid</code>는 환자별 잔차(로그 비용 − 예측값)입니다. 지수함수로 되돌린 잔차의 평균이 smearing 계수입니다. 나 절의 계수와 같은 원리이고, 평균 대신 회귀 예측값에서 벗어난 정도를 씁니다.</span></li>
+<li><code>s = np.exp(logm.resid).mean()</code><span><code>resid</code>는 환자별 잔차(로그 비용 − 예측값)입니다. 지수함수로 되돌린 잔차의 평균이 smearing 계수입니다. b 절의 계수와 같은 원리이고, 평균 대신 회귀 예측값에서 벗어난 정도를 씁니다.</span></li>
 <li><code>logm.resid[df["trt"] == 1]</code><span>A군 환자의 잔차만 골라 군별 계수를 구합니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
@@ -309,7 +309,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 <p>입원비처럼 0원이 있는 열에 <code>np.log</code>를 쓰면 <code>RuntimeWarning: divide by zero encountered in log</code> 경고가 나오고 회귀계수가 모두 <code>nan</code>이 됩니다. 0의 로그는 음의 무한대이기 때문입니다. 임의의 수를 더해 로그를 취하면 더한 수에 따라 결과가 달라집니다. 0원이 많은 항목은 과제 3의 이단계 모형<span class="en">(two-part model)</span>으로 다룹니다.</p></div>
 
 <h3>감마 GLM</h3>
-<p>감마 분포와 로그 연결함수<span class="en">(log link)</span>를 쓰는 일반화 선형모형<span class="en">(generalized linear model, GLM)</span>은 비용의 평균에 로그를 취해 모형화합니다. 산술평균을 직접 다루므로 재변환이 필요 없습니다. <code>smf.glm</code>은 <a href="#lab08-s2">실습 8 나 절</a>과 <a href="#lab12-s3">실습 12 다 절</a>에서 이항분포와 포아송 분포로 썼습니다. 분포만 바꾸면 됩니다.</p>
+<p>감마 분포와 로그 연결함수<span class="en">(log link)</span>를 쓰는 일반화 선형모형<span class="en">(generalized linear model, GLM)</span>은 비용의 평균에 로그를 취해 모형화합니다. 산술평균을 직접 다루므로 재변환이 필요 없습니다. <code>smf.glm</code>은 <a href="#lab08-s2">실습 8 b 절</a>과 <a href="#lab12-s3">실습 12 c 절</a>에서 이항분포와 포아송 분포로 썼습니다. 분포만 바꾸면 됩니다.</p>
 <!--FIG:lab21_glm-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -329,7 +329,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 <p><code>family=sm.families.Gamma()</code>처럼 <code>link</code>를 적지 않으면 감마 분포의 기본값인 역수 연결이 쓰입니다. 이 자료에서 그렇게 적합하면 Link Function 줄이 InversePower로 바뀌고 trt의 계수가 −0.0000855가 됩니다. 평균의 역수에 대한 계수여서 지수함수로 바꿔도 비용 비가 되지 않습니다. 논문에서도 "gamma distribution and log link"처럼 분포와 연결함수를 함께 적습니다.</p></div>
 
 <!--FIG:lab21_ratio-->
-<p><code>np.exp(glm.params)</code>와 <code>np.exp(glm.conf_int())</code>로 계수와 신뢰구간의 양 끝을 지수함수로 바꿔 표로 묶었습니다(<a href="#lab08-s2">실습 8 나 절</a>과 같은 방식).</p>
+<p><code>np.exp(glm.params)</code>와 <code>np.exp(glm.conf_int())</code>로 계수와 신뢰구간의 양 끝을 지수함수로 바꿔 표로 묶었습니다(<a href="#lab08-s2">실습 8 b 절</a>과 같은 방식).</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>비용 비 1.241 (95% CI 1.188–1.296).</b> 나이, 성별, 동반질환 점수, 병기가 같은 환자에서 신약의 평균 비용이 24% 높습니다. 감마 GLM이므로 산술평균의 비입니다. 로그 변환 회귀의 1.295(기하평균의 비)와 다릅니다.</span></li>
 <li><span class="mk">2</span><span><b>cci의 비용 비 1.087.</b> 동반질환 점수가 1점 높으면 평균 비용이 9% 높습니다.</span></li>
@@ -337,7 +337,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 </ol>
 
 <h3>금액 차이로 바꾸기</h3>
-<p>경제성 평가에는 비가 아니라 금액이 필요합니다. 3,000명 모두가 A를 썼다고 놓고 각자의 비용을 예측해 평균하고, 모두 B를 썼다고 놓고 같은 일을 합니다. 두 평균의 차이가 보정된 금액 차이입니다. 이 계산을 표준화<span class="en">(standardization)</span>라고 하고, 비용 논문에서는 재활용 예측<span class="en">(recycled predictions)</span>, 그렇게 구한 차이를 평균 한계효과<span class="en">(average marginal effect)</span>라고도 부릅니다. 같은 계산을 <a href="#lab09-s2">실습 9 나 절</a>에서 위험에 대해 했습니다.</p>
+<p>경제성 평가에는 비가 아니라 금액이 필요합니다. 3,000명 모두가 A를 썼다고 놓고 각자의 비용을 예측해 평균하고, 모두 B를 썼다고 놓고 같은 일을 합니다. 두 평균의 차이가 보정된 금액 차이입니다. 이 계산을 표준화<span class="en">(standardization)</span>라고 하고, 비용 논문에서는 재활용 예측<span class="en">(recycled predictions)</span>, 그렇게 구한 차이를 평균 한계효과<span class="en">(average marginal effect)</span>라고도 부릅니다. 같은 계산을 <a href="#lab09-s2">실습 9 b 절</a>에서 위험에 대해 했습니다.</p>
 <!--FIG:lab21_std-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -354,7 +354,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 </ol>
 
 <h3>표준화한 차이의 신뢰구간</h3>
-<p>536만원에는 표준오차 공식이 마땅치 않아 부트스트랩을 씁니다. 이번에는 환자 3,000명 전체에서 3,000명을 다시 뽑고, 뽑을 때마다 모형 적합부터 예측까지를 되풀이합니다. 나 절과 달리 두 군의 크기도 매번 조금씩 달라집니다. 본문과 같은 방식이고 반복 횟수 1,000번과 seed 2101도 같습니다. 모형을 1,000번 적합하므로 1–2분 걸립니다.</p>
+<p>536만원에는 표준오차 공식이 마땅치 않아 부트스트랩을 씁니다. 이번에는 환자 3,000명 전체에서 3,000명을 다시 뽑고, 뽑을 때마다 모형 적합부터 예측까지를 되풀이합니다. b 절과 달리 두 군의 크기도 매번 조금씩 달라집니다. 본문과 같은 방식이고 반복 횟수 1,000번과 seed 2101도 같습니다. 모형을 1,000번 적합하므로 1–2분 걸립니다.</p>
 <!--FIG:lab21_stdboot-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -374,14 +374,14 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 </ol>
 
 <h3>모형 점검</h3>
-<p>감마 분포를 고른 것이 자료와 맞는지, 예측이 관측과 맞는지를 확인합니다(<a href="#ch21-s3">21장 다 절</a>의 심화 상자). modified Park test는 분산이 평균의 몇 제곱에 비례하는지를 자료에서 추정합니다<cite data-ref="manning2001"></cite>. (관측값 − 예측값)²을 결과변수로, 예측값의 로그를 설명변수로 둔 로그 연결 GLM을 한 번 더 적합하면 그 기울기가 지수의 추정값입니다. 전용 함수가 없어 직접 계산합니다.</p>
+<p>감마 분포를 고른 것이 자료와 맞는지, 예측이 관측과 맞는지를 확인합니다(<a href="#ch21-s3">21장 c 절</a>의 심화 상자). modified Park test는 분산이 평균의 몇 제곱에 비례하는지를 자료에서 추정합니다<cite data-ref="manning2001"></cite>. (관측값 − 예측값)²을 결과변수로, 예측값의 로그를 설명변수로 둔 로그 연결 GLM을 한 번 더 적합하면 그 기울기가 지수의 추정값입니다. 전용 함수가 없어 직접 계산합니다.</p>
 <!--FIG:lab21_check-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>chk = pd.DataFrame({"cost": df["cost"], "pred": glm.predict(df)})</code><span>관측 비용과 예측 비용(각자의 실제 치료군 그대로) 두 열로 점검용 표를 만듭니다.</span></li>
 <li><code>chk["res2"] = (chk["cost"] - chk["pred"]) ** 2</code><span>잔차의 제곱입니다. <code>** 2</code>가 제곱입니다.</span></li>
 <li><code>smf.glm("res2 ~ ln_pred", data=chk, family=fam).fit(cov_type="HC0")</code><span>잔차 제곱을 예측값의 로그로 설명하는 로그 연결 GLM입니다. 강건 표준오차를 씁니다.</span></li>
-<li><code>pd.qcut(chk["pred"], 10, labels=False) + 1</code><span>예측 비용의 크기순으로 환자를 약 300명씩 열 구간으로 나눕니다(<a href="#lab04-s4">실습 4 라 절</a>). <code>labels=False</code>는 구간 번호를 0–9로 주므로 1을 더해 1–10으로 만들었습니다.</span></li>
+<li><code>pd.qcut(chk["pred"], 10, labels=False) + 1</code><span>예측 비용의 크기순으로 환자를 약 300명씩 열 구간으로 나눕니다(<a href="#lab04-s4">실습 4 d 절</a>). <code>labels=False</code>는 구간 번호를 0–9로 주므로 1을 더해 1–10으로 만들었습니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -415,7 +415,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 <li><span class="mk">3</span><span><b>재활용 예측.</b> 셀 19의 계산입니다. 두 평균은 같은 3,000명에 대한 값입니다.</span></li>
 <li><span class="mk">4</span><span><b>부트스트랩.</b> 셀 20입니다. 환자를 다시 뽑아 모형 적합과 예측을 되풀이했다는 뜻입니다.</span></li>
 <li><span class="mk">5</span><span><b>보정된 평균 비용.</b> 셀 19의 2,759.8과 2,223.8, 셀 20의 구간입니다.</span></li>
-<li><span class="mk">6</span><span><b>보정된 차이.</b> 2,760 − 2,224 = 536만원입니다. 증분비용효과비의 분자나 모형의 비용 입력값으로 쓰이는 값입니다(<a href="#ch20-s4">20장 라 절</a>). 보정된 것은 모형에 넣은 변수뿐이고, 청구자료에 없는 전신 상태 같은 변수의 교란은 남을 수 있습니다.</span></li>
+<li><span class="mk">6</span><span><b>보정된 차이.</b> 2,760 − 2,224 = 536만원입니다. 증분비용효과비의 분자나 모형의 비용 입력값으로 쓰이는 값입니다(<a href="#ch20-s4">20장 d 절</a>). 보정된 것은 모형에 넣은 변수뿐이고, 청구자료에 없는 전신 상태 같은 변수의 교란은 남을 수 있습니다.</span></li>
 <li><span class="mk">7</span><span><b>비용 비.</b> 셀 18의 1.241 (1.188–1.296)입니다.</span></li>
 <li><span class="mk">8</span><span><b>민감도 분석.</b> 셀 15의 선형회귀 결과입니다. 주 분석과 방향과 크기가 비슷하다는 것을 보여 줍니다.</span></li>
 </ol>
@@ -432,7 +432,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 
 <!-- ============================================================ 라 -->
 <section class="sec" id="lab21-s4">
-<h2><span class="sec-no">라.</span>과제</h2>
+<h2><span class="sec-no">d.</span>과제</h2>
 
 <p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 코드를 짜 본 뒤 접힌 정답을 열어 보세요. 세 과제의 답은 모두 21장 본문에 나오는 숫자와 이어집니다.</p>
 
@@ -458,7 +458,7 @@ res.standard_error</code><span>결과 객체에서 구간(<code>.low</code>, <co
 </div></details>
 
 <h3>과제 3. 입원비의 이단계 모형</h3>
-<p>입원 진료비는 38.8%가 0원입니다. 감마 분포는 0원이 이렇게 많은 자료에 맞지 않습니다. 이단계 모형으로 보정된 입원비 차이를 구하세요. 1부는 입원비가 생겼는지(0보다 큰지)에 대한 로지스틱 회귀(<a href="#lab09-s2">실습 9 나 절</a>의 <code>smf.logit</code>), 2부는 입원비가 있는 환자만으로 적합한 감마 GLM입니다. 환자마다 1부의 예측 확률과 2부의 예측 비용을 곱해, 모두 A일 때와 모두 B일 때의 평균과 그 차이를 구합니다. 설명변수는 셀 15와 같습니다.</p>
+<p>입원 진료비는 38.8%가 0원입니다. 감마 분포는 0원이 이렇게 많은 자료에 맞지 않습니다. 이단계 모형으로 보정된 입원비 차이를 구하세요. 1부는 입원비가 생겼는지(0보다 큰지)에 대한 로지스틱 회귀(<a href="#lab09-s2">실습 9 b 절</a>의 <code>smf.logit</code>), 2부는 입원비가 있는 환자만으로 적합한 감마 GLM입니다. 환자마다 1부의 예측 확률과 2부의 예측 비용을 곱해, 모두 A일 때와 모두 B일 때의 평균과 그 차이를 구합니다. 설명변수는 셀 15와 같습니다.</p>
 <details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
 <!--FIG:lab21_hw3-->
 <p><code>.fit(disp=0)</code>은 로지스틱 회귀의 적합 과정 안내문을 출력하지 않게 합니다. 2부 모형은 입원비가 있는 환자(<code>pos</code>)로 적합했지만, 예측은 전체 3,000명(<code>dA</code>, <code>dB</code>)에 대해 합니다. 두 예측값을 곱한 것이 "입원비가 생길 확률 × 생겼을 때의 평균 비용", 곧 그 환자의 기대 입원비입니다.</p>

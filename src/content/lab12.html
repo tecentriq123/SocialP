@@ -1,7 +1,7 @@
 <p class="lead">12장의 발생률, 발생률비, 포아송 회귀, 과산포, 음이항 회귀를 실제 임상시험 자료로 직접 계산합니다. 만성 육아종병 환자에게 감마 인터페론 또는 위약을 투여하고 반복되는 중증 감염을 기록한 자료를 환자 단위로 요약한 뒤, 정확 신뢰구간과 조발생률비부터 오프셋을 넣은 포아송 회귀, 강건 표준오차, 음이항 회귀까지 차례로 적합합니다. 각 단계는 <a href="#ch12">12장</a>의 해당 절과 연결되어 있습니다.</p>
 
 <dl class="glance">
-<div><dt>관련 이론</dt><dd><a href="#ch12">12장 질병의 발생률에 대한 연구</a> (가 포아송 분포, 나 포아송 회귀분석)</dd></div>
+<div><dt>관련 이론</dt><dd><a href="#ch12">12장 질병의 발생률에 대한 연구</a> (a 포아송 분포, b 포아송 회귀분석)</dd></div>
 <div><dt>데이터</dt><dd><b>cgd</b> (R survival 패키지): 만성 육아종병(chronic granulomatous disease, CGD) 환자 128명을 감마 인터페론(rIFN-g) 63명과 위약 65명에 무작위배정한 이중눈가림 시험. 중증 감염이 생길 때마다 한 행이 끝나는 계수과정 형식으로 203행 16변수<cite data-ref="icgd1991"></cite><cite data-ref="fleming1991"></cite></dd></div>
 <div><dt>사용 패키지</dt><dd>pandas, numpy, matplotlib, scipy (<code>stats.chi2</code>, <code>stats.binomtest</code>), statsmodels (<code>glm</code>, <code>negativebinomial</code>)</dd></div>
 <div><dt>실행 환경</dt><dd>Google Colab 권장(<a href="#lab00">실습 0</a> 참고). 필요한 패키지는 Colab과 Anaconda에 기본으로 들어 있습니다. 출력은 statsmodels 0.15.0, scipy 1.17, pandas 3.0으로 만든 것이며 버전에 따라 출력 모양이나 끝자리가 조금 다를 수 있습니다.</dd></div>
@@ -9,7 +9,7 @@
 
 <!-- ============================================================ 가 -->
 <section class="sec" id="lab12-s1">
-<h2><span class="sec-no">가.</span>실습 데이터 준비</h2>
+<h2><span class="sec-no">a.</span>실습 데이터 준비</h2>
 
 <h3>데이터</h3>
 <p>만성 육아종병은 식세포가 세균을 죽이는 데 필요한 활성산소를 만들지 못해 중증 세균·진균 감염이 반복되는 유전 질환입니다. 1980년대 말 국제 공동연구진이 128명의 환자를 감마 인터페론 피하주사(주 3회) 또는 위약에 무작위배정하고 약 1년 동안 입원과 주사 항생제가 필요한 중증 감염을 기록했습니다<cite data-ref="icgd1991"></cite>. 원 논문의 주 결과변수는 첫 중증 감염까지의 시간이었고, 전체 감염 건수도 함께 비교했습니다. 이 실습에서는 환자마다 여러 번 생길 수 있는 감염의 <b>건수</b>를 결과로 둡니다.</p>
@@ -26,7 +26,7 @@
 </tbody></table></div>
 
 <h3>데이터 불러오기</h3>
-<p>R 패키지의 공개 데이터를 CSV로 모아 둔 Rdatasets 사이트에서 읽습니다. 인터넷 연결이 필요합니다(<a href="#lab00-s5">실습 0 마 절</a>). Colab 새 노트북의 첫 셀에 붙여 넣고 Shift+Enter로 실행합니다.</p>
+<p>R 패키지의 공개 데이터를 CSV로 모아 둔 Rdatasets 사이트에서 읽습니다. 인터넷 연결이 필요합니다(<a href="#lab00-s5">실습 0 e 절</a>). Colab 새 노트북의 첫 셀에 붙여 넣고 Shift+Enter로 실행합니다.</p>
 <!--FIG:lab12_load-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -56,7 +56,7 @@
 </ol>
 
 <h3>환자 한 명 = 한 행으로 요약</h3>
-<p>포아송·음이항 회귀는 "환자 i의 감염 건수와 추적 기간"을 한 행에 두고 분석합니다(<a href="#ch12-s2">12장 나 절</a>). 계수과정 형식은 반복 사건을 Cox 모형으로 분석할 때(12장 나 절 '더 알아보기'의 '포아송 회귀와 Cox 모형' 안 '반복 사건' 참고 상자) 쓰는 모양이므로, 환자별로 감염 수는 더하고 추적 기간은 마지막 tstop으로 요약합니다.</p>
+<p>포아송·음이항 회귀는 "환자 i의 감염 건수와 추적 기간"을 한 행에 두고 분석합니다(<a href="#ch12-s2">12장 b 절</a>). 계수과정 형식은 반복 사건을 Cox 모형으로 분석할 때(12장 b 절 '더 알아보기'의 '포아송 회귀와 Cox 모형' 안 '반복 사건' 참고 상자) 쓰는 모양이므로, 환자별로 감염 수는 더하고 추적 기간은 마지막 tstop으로 요약합니다.</p>
 <!--FIG:lab12_agg-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -66,7 +66,7 @@
 <li><code>days=("tstop", "max")</code><span>마지막 구간의 끝일, 즉 무작위배정부터 추적이 끝난 날까지의 일수입니다.</span></li>
 <li><code>.reset_index()</code><span>행 이름표로 들어간 id를 보통 열로 되돌립니다.</span></li>
 <li><code>pt["py"] = pt["days"] / 365.25</code><span>일수를 인년(person-year)으로 바꾼 새 열을 만듭니다. 365.25는 윤년을 고려한 1년의 평균 일수입니다.</span></li>
-<li><code>pd.Categorical(pt["treat"], categories=["placebo", "rIFN-g"])</code><span>배정군의 범주 순서를 위약, rIFN-g로 정합니다. 회귀모형에서 첫 범주가 기준범주가 되므로(<a href="#ch08-s7">8장 사 절</a>) 결과가 "rIFN-g 대 위약"으로 나오게 고정합니다.</span></li>
+<li><code>pd.Categorical(pt["treat"], categories=["placebo", "rIFN-g"])</code><span>배정군의 범주 순서를 위약, rIFN-g로 정합니다. 회귀모형에서 첫 범주가 기준범주가 되므로(<a href="#ch08-s7">8장 g 절</a>) 결과가 "rIFN-g 대 위약"으로 나오게 고정합니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -86,7 +86,7 @@
 <li><span class="mk">1</span><span><b>True.</b> 모든 환자의 추적이 0일부터 빈틈없이 이어져 있어 마지막 tstop을 추적 기간으로 써도 됩니다.</span></li>
 <li><span class="mk">2</span><span><b>감염 76건, 102.6인년.</b> 원 자료의 status 합계와 같습니다. 추적 기간은 91–439일, 평균 293일입니다.</span></li>
 </ol>
-<p>84명(66%)은 감염이 없었고, 한 번 이상 감염된 44명 가운데 여러 번 감염된 환자도 있습니다(최대 7건). 0이 많고 오른쪽으로 긴 꼬리를 가진 전형적인 건수 자료입니다(12장 가 절).</p>
+<p>84명(66%)은 감염이 없었고, 한 번 이상 감염된 44명 가운데 여러 번 감염된 환자도 있습니다(최대 7건). 0이 많고 오른쪽으로 긴 꼬리를 가진 전형적인 건수 자료입니다(12장 a 절).</p>
 
 <div class="callout warn"><p class="ct">이런 오류가 나면</p>
 <ul>
@@ -102,7 +102,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>총 인년.</b> <code>pt["py"].sum()</code>의 102.6입니다. 발생률의 분모이므로 사건 수와 함께 반드시 적습니다. 추적 기간의 평균과 범위는 <code>pt["days"].describe()</code>로 확인할 수 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>사건 수와 사건을 겪은 환자 수를 구분합니다.</b> 76은 감염 건수, 44는 한 번 이상 감염된 환자 수(128 − 84)입니다. 반복 사건 자료에서 이 둘을 섞으면 발생률과 위험을 혼동하게 됩니다.</span></li>
-<li><span class="mk">3</span><span><b>반복의 정도.</b> 감염 건수 분포(<code>value_counts</code>)에서 1건 27명, 2건 이상 9 + 5 + 1 + 1 + 1 = 17명입니다. 일부 환자에게 감염이 몰려 있다는 사실은 다 절의 과산포와 연결됩니다.</span></li>
+<li><span class="mk">3</span><span><b>반복의 정도.</b> 감염 건수 분포(<code>value_counts</code>)에서 1건 27명, 2건 이상 9 + 5 + 1 + 1 + 1 = 17명입니다. 일부 환자에게 감염이 몰려 있다는 사실은 c 절의 과산포와 연결됩니다.</span></li>
 </ol>
 </div></div>
 
@@ -116,9 +116,9 @@
 
 <!-- ============================================================ 나 -->
 <section class="sec" id="lab12-s2">
-<h2><span class="sec-no">나.</span>발생률과 발생률비</h2>
+<h2><span class="sec-no">b.</span>발생률과 발생률비</h2>
 
-<p>먼저 모형 없이 군별 발생률과 그 정확 신뢰구간, 두 군의 발생률비를 구합니다(<a href="#ch12-s1">12장 가 절</a>). 발생률은 사건 수 ÷ 총 인년이고, 정확 신뢰구간은 카이제곱 분포의 분위수로 계산합니다.</p>
+<p>먼저 모형 없이 군별 발생률과 그 정확 신뢰구간, 두 군의 발생률비를 구합니다(<a href="#ch12-s1">12장 a 절</a>). 발생률은 사건 수 ÷ 총 인년이고, 정확 신뢰구간은 카이제곱 분포의 분위수로 계산합니다.</p>
 <div class="eq">\[ \text{하한} = \frac{\chi^2_{0.025}(2D)}{2T}, \qquad \text{상한} = \frac{\chi^2_{0.975}(2D + 2)}{2T} \]
 <p>D는 사건 수, T는 총 인년입니다. 100을 곱하면 100인년당 값이 됩니다.</p></div>
 <!--FIG:lab12_rates-->
@@ -133,8 +133,8 @@
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>위약군 100인년당 110.4건.</b> 56건 ÷ 50.72인년 × 100입니다. 위약군 환자는 1년에 평균 1.1번 중증 감염으로 입원한 셈입니다.</span></li>
-<li><span class="mk">2</span><span><b>정확 95% CI 83.4–143.4.</b> 점추정값 110.4에서 아래로 27.0, 위로 33.0으로 위쪽이 깁니다. 건수가 0 아래로는 갈 수 없는 포아송 분포의 모양이 반영된 비대칭입니다(12장 가 절).</span></li>
-<li><span class="mk">3</span><span><b>rIFN-g군 100인년당 38.5건(23.5–59.5).</b> 사건이 20건뿐이라 구간이 상대적으로 더 넓습니다(상대 표준오차 1/√20 = 22%, 위약군은 1/√56 = 13%). 이 구간들은 포아송 가정 아래의 값이어서, 다 절에서 볼 과산포가 있으면 실제보다 좁을 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>정확 95% CI 83.4–143.4.</b> 점추정값 110.4에서 아래로 27.0, 위로 33.0으로 위쪽이 깁니다. 건수가 0 아래로는 갈 수 없는 포아송 분포의 모양이 반영된 비대칭입니다(12장 a 절).</span></li>
+<li><span class="mk">3</span><span><b>rIFN-g군 100인년당 38.5건(23.5–59.5).</b> 사건이 20건뿐이라 구간이 상대적으로 더 넓습니다(상대 표준오차 1/√20 = 22%, 위약군은 1/√56 = 13%). 이 구간들은 포아송 가정 아래의 값이어서, c 절에서 볼 과산포가 있으면 실제보다 좁을 수 있습니다.</span></li>
 </ol>
 
 <p>두 발생률의 비를 구하고, 로그 척도에서 Wald 신뢰구간을 만듭니다. 로그 발생률비의 표준오차는 사건 수로만 정해집니다.</p>
@@ -144,17 +144,17 @@
 <ol class="lines">
 <li><code>rt.loc["rIFN-g", "rate"] / rt.loc["placebo", "rate"]</code><span><code>.loc[행 이름, 열 이름]</code>으로 표에서 값 하나를 꺼냅니다. rIFN-g군 발생률 ÷ 위약군 발생률 = 발생률비입니다.</span></li>
 <li><code>np.sqrt(1 / d["rIFN-g"] + 1 / d["placebo"])</code><span>위 식의 표준오차입니다.</span></li>
-<li><code>np.exp(np.log(irr) - 1.96 * se)</code><span>로그 척도에서 ±1.96 × SE를 한 뒤 지수함수로 되돌립니다(<a href="#ch08-s3">8장 다 절</a>).</span></li>
+<li><code>np.exp(np.log(irr) - 1.96 * se)</code><span>로그 척도에서 ±1.96 × SE를 한 뒤 지수함수로 되돌립니다(<a href="#ch08-s3">8장 c 절</a>).</span></li>
 <li><code>print(f"IRR = {irr:.3f} …")</code><span>f-문자열입니다. 중괄호 안의 변수를 <code>:.3f</code>(소수 셋째 자리) 형식으로 끼워 넣습니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>조발생률비 0.349.</b> 38.54 ÷ 110.42입니다. rIFN-g군의 중증 감염 발생률이 위약군의 약 0.35배, 즉 65% 낮았습니다.</span></li>
 <li><span class="mk">2</span><span><b>95% CI 0.209–0.582.</b> 구간 전체가 1보다 작습니다.</span></li>
-<li><span class="mk">3</span><span><b>SE 0.260.</b> √(1/20 + 1/56)입니다. 인년이 들어가지 않고 사건 수만 들어갑니다(12장 가 절).</span></li>
+<li><span class="mk">3</span><span><b>SE 0.260.</b> √(1/20 + 1/56)입니다. 인년이 들어가지 않고 사건 수만 들어갑니다(12장 a 절).</span></li>
 </ol>
 
-<p>사건이 적을 때는 12장 가 절의 조건부 정확검정을 씁니다. 두 발생률이 같다면 전체 76건 가운데 rIFN-g군에서 나올 사건의 비율은 그 군이 차지한 인년의 비율과 같아야 한다는 논리입니다. 이항검정으로 계산하고, 이항 비율의 정확 신뢰구간을 발생률비로 바꿔 정확 신뢰구간도 구합니다.</p>
+<p>사건이 적을 때는 12장 a 절의 조건부 정확검정을 씁니다. 두 발생률이 같다면 전체 76건 가운데 rIFN-g군에서 나올 사건의 비율은 그 군이 차지한 인년의 비율과 같아야 한다는 논리입니다. 이항검정으로 계산하고, 이항 비율의 정확 신뢰구간을 발생률비로 바꿔 정확 신뢰구간도 구합니다.</p>
 <!--FIG:lab12_exact-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -172,7 +172,7 @@
 </ol>
 
 <div class="callout warn"><p class="ct">흔한 오해 · 발생률비를 위험의 비로 읽기</p>
-<p><span class="wrong">발생률비 0.35이므로 rIFN-g를 맞으면 중증 감염을 한 번이라도 겪을 위험이 65% 줄어든다.</span> 한 번 이상 감염된 환자는 위약군 30/65(46.2%), rIFN-g군 14/63(22.2%)이고, 그 비는 0.48입니다. 발생률비 0.35가 이보다 1에서 먼 것은 위약군에서 같은 환자가 여러 번 감염되었기 때문입니다(위약군 56건 / 30명, rIFN-g군 20건 / 14명). 발생률비는 '인년당 건수'의 비이고, 사건이 반복되고 흔할수록 '한 번 이상 겪을 위험'의 비와 멀어집니다(<a href="#ch12-s2">12장 나 절</a> '더 알아보기'의 '약물경제학 연구에서는'). 두 군의 추적 기간이 비슷한(평균 285일 대 301일) 이 자료에서도 그렇습니다.</p></div>
+<p><span class="wrong">발생률비 0.35이므로 rIFN-g를 맞으면 중증 감염을 한 번이라도 겪을 위험이 65% 줄어든다.</span> 한 번 이상 감염된 환자는 위약군 30/65(46.2%), rIFN-g군 14/63(22.2%)이고, 그 비는 0.48입니다. 발생률비 0.35가 이보다 1에서 먼 것은 위약군에서 같은 환자가 여러 번 감염되었기 때문입니다(위약군 56건 / 30명, rIFN-g군 20건 / 14명). 발생률비는 '인년당 건수'의 비이고, 사건이 반복되고 흔할수록 '한 번 이상 겪을 위험'의 비와 멀어집니다(<a href="#ch12-s2">12장 b 절</a> '더 알아보기'의 '약물경제학 연구에서는'). 두 군의 추적 기간이 비슷한(평균 285일 대 301일) 이 자료에서도 그렇습니다.</p></div>
 
 <div class="paper">
 <div class="paper-h"><b>논문에는 이렇게 씁니다 · 발생률과 조발생률비</b><span>실습 결과</span></div>
@@ -195,9 +195,9 @@
 
 <!-- ============================================================ 다 -->
 <section class="sec" id="lab12-s3">
-<h2><span class="sec-no">다.</span>포아송 회귀와 과산포</h2>
+<h2><span class="sec-no">c.</span>포아송 회귀와 과산포</h2>
 
-<p>여러 변수를 함께 보정한 발생률비는 포아송 회귀로 구합니다(<a href="#ch12-s2">12장 나 절</a>). 환자마다 추적 기간이 다르므로 로그 인년을 <strong>오프셋</strong><span class="en">(offset)</span>으로 넣습니다.</p>
+<p>여러 변수를 함께 보정한 발생률비는 포아송 회귀로 구합니다(<a href="#ch12-s2">12장 b 절</a>). 환자마다 추적 기간이 다르므로 로그 인년을 <strong>오프셋</strong><span class="en">(offset)</span>으로 넣습니다.</p>
 <div class="eq">\[ \ln(\mu_i) = \ln(\text{py}_i) + \beta_0 + \beta_1\,\text{rIFN-g}_i + \beta_2\,\text{age}_i + \cdots \]
 <p>μ<sub>i</sub>는 환자 i의 기대 감염 건수입니다. ln(py<sub>i</sub>)의 계수는 추정하지 않고 1로 고정되므로, 모형은 사실상 ln(μ<sub>i</sub> ÷ py<sub>i</sub>), 즉 로그 발생률을 설명합니다. 추적 기간이 2배인 환자는 발생률이 같아도 기대 건수가 2배라는 사실을 모형에 넣는 장치입니다.</p></div>
 <p>보정 변수는 등록 시점의 나이, 유전 형태, 예방적 항생제 사용으로 정했습니다. 무작위배정 시험이므로 교란 보정이 아니라 예후 인자를 보정해 정밀도를 높이려는 목적이며, 실제 연구에서는 이런 변수를 계획서에 미리 정해 둡니다. 스테로이드 사용은 3명뿐이라 넣지 않았습니다.</p>
@@ -208,7 +208,7 @@
 <li><code>pd.Categorical(pt["inherit"],
     categories=["X-linked", "autosomal"])</code><span>유전 형태의 기준범주를 X-linked로 정합니다. 계수는 "autosomal 대 X-linked"로 나옵니다.</span></li>
 <li><code>form = "n_inf ~ treat + age + inherit + propylac"</code><span>결과변수(감염 건수)와 설명변수를 적은 모형식입니다. 뒤 셀에서 다시 쓰려고 변수에 저장합니다. propylac은 0/1 숫자라 그대로 넣습니다.</span></li>
-<li><code>smf.glm(form, data=pt, family=sm.families.Poisson(), …)</code><span>일반화 선형모형(<a href="#ch08-s4">8장 라 절</a>)을 포아송 분포로 적합합니다. 연결함수는 기본값인 로그입니다.</span></li>
+<li><code>smf.glm(form, data=pt, family=sm.families.Poisson(), …)</code><span>일반화 선형모형(<a href="#ch08-s4">8장 d 절</a>)을 포아송 분포로 적합합니다. 연결함수는 기본값인 로그입니다.</span></li>
 <li><code>offset=np.log(pt["py"])</code><span>환자별 로그 인년을 오프셋으로 넣습니다. <code>py</code> 자체가 아니라 로그를 넣어야 합니다. 모형식 안이 아니라 인자로 따로 주는 것이 statsmodels의 방식입니다.</span></li>
 <li><code>.fit()</code>, <code>print(pois.summary())</code><span>최대우도로 적합하고 요약표를 출력합니다.</span></li>
 </ol>
@@ -216,19 +216,19 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>관측값 128.</b> 환자 한 명이 한 관측입니다. Df Residuals 123 = 128 − 모수 5개입니다.</span></li>
 <li><span class="mk">2</span><span><b>Link Function: Log.</b> 계수가 로그 발생률의 차이, 즉 로그 발생률비라는 뜻입니다.</span></li>
-<li><span class="mk">3</span><span><b>Scale 1.0000.</b> 포아송 분포의 '분산 = 평균'을 그대로 가정했다는 뜻입니다(12장 나 절 '더 알아보기'의 '파이썬 출력 읽기'에 있는 Scale: 1.0000과 같은 내용).</span></li>
+<li><span class="mk">3</span><span><b>Scale 1.0000.</b> 포아송 분포의 '분산 = 평균'을 그대로 가정했다는 뜻입니다(12장 b 절 '더 알아보기'의 '파이썬 출력 읽기'에 있는 Scale: 1.0000과 같은 내용).</span></li>
 <li><span class="mk">4</span><span><b>Deviance 151.07.</b> 잔차 이탈도입니다. 자유도 123으로 나눠 과산포를 가늠합니다(아래 셀).</span></li>
 <li><span class="mk">5</span><span><b>Pearson chi2 170.</b> Pearson χ²입니다. 요약표는 이 값을 유효숫자 세 자리로만 보여 주어 "170."으로 표시되며, 정확한 값은 170.5입니다(<code>pois.pearson_chi2</code>).</span></li>
 <li><span class="mk">6</span><span><b>Intercept 0.9004.</b> 모든 설명변수가 0인 환자(위약, 0세, X-linked, 예방적 항생제 없음)의 로그 발생률입니다. 0세는 자료 범위 밖이라 해석하지 않습니다.</span></li>
 <li><span class="mk">7</span><span><b>treat[T.rIFN-g] = −1.0157, SE 0.262.</b> 나이·유전 형태·예방적 항생제가 같은 환자끼리 비교한 로그 발생률비입니다. 발생률비 = e<sup>−1.0157</sup> = 0.362, z = −3.88입니다. 이 SE는 Scale = 1 가정 아래의 값입니다.</span></li>
-<li><span class="mk">8</span><span><b>age = −0.0371.</b> 나이가 1세 많을 때 발생률이 e<sup>−0.0371</sup> = 0.964배, 10세 많으면 0.964<sup>10</sup> = 0.69배입니다. 연속형 변수의 비는 단위마다 곱해집니다(12장 나 절). 이 모형은 치료 효과를 추정하려고 만든 것이므로 보정 변수의 계수를 각 변수의 인과 효과로 읽지 않습니다.</span></li>
+<li><span class="mk">8</span><span><b>age = −0.0371.</b> 나이가 1세 많을 때 발생률이 e<sup>−0.0371</sup> = 0.964배, 10세 많으면 0.964<sup>10</sup> = 0.69배입니다. 연속형 변수의 비는 단위마다 곱해집니다(12장 b 절). 이 모형은 치료 효과를 추정하려고 만든 것이므로 보정 변수의 계수를 각 변수의 인과 효과로 읽지 않습니다.</span></li>
 </ol>
 
 <!--FIG:lab12_pois_irr-->
 <p>계수와 신뢰한계를 지수로 바꾼 표입니다(<code>conf_int()</code>의 열 0이 하한, 1이 상한). 보정 발생률비는 0.362(95% CI 0.217–0.605)로 조발생률비 0.349와 비슷합니다. 무작위배정으로 두 군의 기저 특성이 비슷하기 때문입니다.</p>
 
 <h3>과산포 확인</h3>
-<p>포아송 모형이 맞으면 이탈도 ÷ 자유도와 Pearson χ² ÷ 자유도가 1 근처여야 합니다(12장 나 절 '가정과 대안').</p>
+<p>포아송 모형이 맞으면 이탈도 ÷ 자유도와 Pearson χ² ÷ 자유도가 1 근처여야 합니다(12장 b 절 '가정과 대안').</p>
 <!--FIG:lab12_disp-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -258,7 +258,7 @@
 <p>그림의 x축은 환자당 중증 감염 건수, y축은 환자 수입니다. 파란 막대(Observed)가 주황 막대(Expected, Poisson)보다 0에서 높고 1에서 낮으며, 3건 이상의 꼬리에서도 관측이 기대보다 조금 많습니다. 같은 공변량을 가진 환자 사이에도 감염 경향이 다르다는 뜻입니다.</p>
 
 <h3>강건 표준오차</h3>
-<p>과산포에 대처하는 첫 번째 방법은 계수는 그대로 두고 표준오차만 실제 잔차의 흩어짐으로 계산하는 강건(샌드위치) 표준오차입니다(12장 나 절 '가정과 대안').</p>
+<p>과산포에 대처하는 첫 번째 방법은 계수는 그대로 두고 표준오차만 실제 잔차의 흩어짐으로 계산하는 강건(샌드위치) 표준오차입니다(12장 b 절 '가정과 대안').</p>
 <!--FIG:lab12_robust-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -273,14 +273,14 @@
 </ol>
 
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
-<p>오프셋을 빼고 <code>smf.glm(form, data=pt, family=sm.families.Poisson()).fit()</code>으로 적합해 보세요. 치료군 발생률비가 0.362에서 0.387로 바뀝니다. 위약군이 조금 짧게 추적되어(평균 285일 대 301일) 위약군의 건수가 상대적으로 적게 쌓인 것이 효과를 작게 보이게 만든 것입니다. 추적 기간 차이가 큰 관찰연구에서는 이 차이가 훨씬 커집니다(12장 나 절 '논문에 쓰기'의 자주 하는 실수에 있는 0.79 대 0.67).</p></div>
+<p>오프셋을 빼고 <code>smf.glm(form, data=pt, family=sm.families.Poisson()).fit()</code>으로 적합해 보세요. 치료군 발생률비가 0.362에서 0.387로 바뀝니다. 위약군이 조금 짧게 추적되어(평균 285일 대 301일) 위약군의 건수가 상대적으로 적게 쌓인 것이 효과를 작게 보이게 만든 것입니다. 추적 기간 차이가 큰 관찰연구에서는 이 차이가 훨씬 커집니다(12장 b 절 '논문에 쓰기'의 자주 하는 실수에 있는 0.79 대 0.67).</p></div>
 
 <div class="paper">
 <div class="paper-h"><b>논문에는 이렇게 씁니다 · 포아송 회귀의 Methods</b><span>실습 결과</span></div>
 <div class="paper-b">
 <p class="excerpt">The number of serious infections per patient was analyzed with <span class="mk">1</span> <span class="hl">Poisson regression with the logarithm of follow-up time in years as an offset</span>, adjusted for <span class="mk">2</span> <span class="hl">age, pattern of inheritance, and use of prophylactic antibiotics at enrollment</span>. Because the model showed overdispersion (<span class="mk">3</span> <span class="hl">Pearson χ²/df = 1.39</span>), <span class="hl">robust (sandwich) standard errors</span> were used; the <span class="mk">4</span> <span class="hl">adjusted rate ratio for interferon gamma versus placebo was 0.36 (95% CI, 0.20 to 0.66)</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>오프셋.</b> "log of follow-up time as an offset"은 로그 인년의 계수를 1로 고정했다는 뜻입니다. "as a covariate"라고 쓰면 계수를 추정한 것이어서 발생률 모형이 아닙니다(12장 나 절).</span></li>
+<li><span class="mk">1</span><span><b>오프셋.</b> "log of follow-up time as an offset"은 로그 인년의 계수를 1로 고정했다는 뜻입니다. "as a covariate"라고 쓰면 계수를 추정한 것이어서 발생률 모형이 아닙니다(12장 b 절).</span></li>
 <li><span class="mk">2</span><span><b>보정 변수는 모두 등록 시점 값.</b> 추적 중에 바뀌는 값은 넣지 않았습니다. 무작위배정 시험에서는 어떤 변수를 보정할지 미리 정했다는 문장("prespecified")이 있으면 더 좋습니다.</span></li>
 <li><span class="mk">3</span><span><b>과산포 지표.</b> 1.386을 반올림했습니다. 어떤 지표(Pearson 또는 이탈도)를 썼는지 밝힙니다.</span></li>
 <li><span class="mk">4</span><span><b>강건 표준오차로 만든 신뢰구간.</b> 점추정값 0.362와 구간 0.198–0.664를 반올림했습니다. 모형 기반 구간(0.22–0.61)을 보고했다면 정밀도를 과장했을 것입니다.</span></li>
@@ -297,9 +297,9 @@
 
 <!-- ============================================================ 라 -->
 <section class="sec" id="lab12-s4">
-<h2><span class="sec-no">라.</span>음이항 회귀</h2>
+<h2><span class="sec-no">d.</span>음이항 회귀</h2>
 
-<p>음이항 회귀는 같은 공변량을 가진 환자라도 각자의 발생률이 다르다는 것을 분포로 모형화합니다. 분산을 Var = μ + αμ²로 두고 α를 계수와 함께 최대우도로 추정하는 NB2 모형이 표준입니다(12장 나 절 '음이항 모형의 α'). α = 0이면 포아송 모형으로 돌아갑니다. statsmodels에서는 <code>smf.negativebinomial</code>이 α까지 추정합니다.</p>
+<p>음이항 회귀는 같은 공변량을 가진 환자라도 각자의 발생률이 다르다는 것을 분포로 모형화합니다. 분산을 Var = μ + αμ²로 두고 α를 계수와 함께 최대우도로 추정하는 NB2 모형이 표준입니다(12장 b 절 '음이항 모형의 α'). α = 0이면 포아송 모형으로 돌아갑니다. statsmodels에서는 <code>smf.negativebinomial</code>이 α까지 추정합니다.</p>
 <!--FIG:lab12_nb-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -313,7 +313,7 @@
 <li><span class="mk">2</span><span><b>converged: True.</b> 같은 내용을 요약표에서 한 번 더 확인합니다.</span></li>
 <li><span class="mk">3</span><span><b>LLR p-value 0.0017.</b> 네 설명변수가 모두 0이라는 가설의 우도비 검정입니다(절편과 α만 있는 모형 LL-Null −130.90 대비). 치료 효과 자체의 검정이 아닙니다.</span></li>
 <li><span class="mk">4</span><span><b>treat[T.rIFN-g] = −1.0096, SE 0.306.</b> 발생률비 e<sup>−1.0096</sup> = 0.364, 95% CI e<sup>−1.610</sup>–e<sup>−0.410</sup> = 0.200–0.664, P = 0.00097입니다. 점추정값은 포아송(0.362)과 거의 같고 표준오차가 0.262에서 0.306으로 커졌습니다. 과산포를 반영한 결과입니다.</span></li>
-<li><span class="mk">5</span><span><b>alpha = 0.7153.</b> 과산포 모수 α입니다. 환자별 발생률에 붙는 곱셈 인자의 SD가 √0.715 = 0.85라는 뜻으로, 공변량이 같아도 환자마다 감염 경향이 크게 다릅니다. 기대 건수가 1건인 환자라면 분산은 1 + 0.715 = 1.72입니다. 이 줄의 P(0.047)는 α = 0이 모수 공간의 경계라서 정확하지 않으므로 쓰지 않고, α가 필요한지는 아래 우도비 검정으로 봅니다. R의 <code>MASS::glm.nb</code>는 α 대신 θ = 1/α(여기서는 1.40)를 출력합니다(12장 나 절).</span></li>
+<li><span class="mk">5</span><span><b>alpha = 0.7153.</b> 과산포 모수 α입니다. 환자별 발생률에 붙는 곱셈 인자의 SD가 √0.715 = 0.85라는 뜻으로, 공변량이 같아도 환자마다 감염 경향이 크게 다릅니다. 기대 건수가 1건인 환자라면 분산은 1 + 0.715 = 1.72입니다. 이 줄의 P(0.047)는 α = 0이 모수 공간의 경계라서 정확하지 않으므로 쓰지 않고, α가 필요한지는 아래 우도비 검정으로 봅니다. R의 <code>MASS::glm.nb</code>는 α 대신 θ = 1/α(여기서는 1.40)를 출력합니다(12장 b 절).</span></li>
 </ol>
 
 <h3>세 방법 비교</h3>
@@ -324,7 +324,7 @@
 <li><code>[np.exp(f.params[t]) for f in fits.values()]</code><span>세 결과에서 차례로 치료군 계수를 꺼내 지수로 바꾼 목록을 만듭니다(리스트 내포). 신뢰한계와 SE도 같은 방식으로 꺼냅니다. <code>conf_int().loc[t, 0]</code>은 치료군 행의 하한입니다.</span></li>
 <li><code>pois.aic</code>, <code>nb2.aic</code><span>AIC = −2 × 로그우도 + 2 × 모수 수입니다. 두 모형 모두 완전한 로그우도로 계산되어 서로 비교할 수 있습니다.</span></li>
 <li><code>lr = 2 * (nb2.llf - pois.llf)</code><span>포아송(α = 0)과 음이항 모형의 우도비 통계량입니다.</span></li>
-<li><code>stats.chi2.sf(lr, 1) / 2</code><span>자유도 1인 카이제곱의 꼬리 넓이를 절반으로 나눕니다. α = 0이 경계에 있어서 쓰는 보정입니다(12장 나 절).</span></li>
+<li><code>stats.chi2.sf(lr, 1) / 2</code><span>자유도 1인 카이제곱의 꼬리 넓이를 절반으로 나눕니다. α = 0이 경계에 있어서 쓰는 보정입니다(12장 b 절).</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -344,7 +344,7 @@
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>음이항 기대 83.2명.</b> 관측 84명에 거의 맞습니다. 포아송 모형은 75.7명이었습니다. 0이 많아 보이던 것이 과산포의 한 모습이었으며, 영과잉 모형이 필요하지 않다는 근거가 됩니다(12장 나 절 '0이 많은 자료').</span></li>
+<li><span class="mk">1</span><span><b>음이항 기대 83.2명.</b> 관측 84명에 거의 맞습니다. 포아송 모형은 75.7명이었습니다. 0이 많아 보이던 것이 과산포의 한 모습이었으며, 영과잉 모형이 필요하지 않다는 근거가 됩니다(12장 b 절 '0이 많은 자료').</span></li>
 </ol>
 
 <h3>GLM의 음이항 family</h3>
@@ -367,7 +367,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>모형의 이름과 오프셋.</b> "NB2"는 분산이 μ + αμ²인 모형이라는 뜻입니다. 다른 형태(NB1: 분산 = μ + αμ)도 있으므로 밝혀 두면 좋습니다.</span></li>
 <li><span class="mk">2</span><span><b>α와 모형 비교.</b> α 0.7153, 경계 보정한 우도비 검정 P = 0.0010, 두 AIC를 반올림했습니다. α인지 θ(= 1/α = 1.40)인지 명시해야 다른 프로그램의 결과와 비교할 수 있습니다.</span></li>
-<li><span class="mk">3</span><span><b>보정 발생률비.</b> 0.364(0.200–0.664), P = 0.00097입니다. "64% 감소"는 1 − 0.364이며, 인년당 감염 건수가 64% 적다는 뜻입니다. 한 번 이상 감염될 위험이 64% 줄었다는 뜻이 아닙니다(나 절 흔한 오해).</span></li>
+<li><span class="mk">3</span><span><b>보정 발생률비.</b> 0.364(0.200–0.664), P = 0.00097입니다. "64% 감소"는 1 − 0.364이며, 인년당 감염 건수가 64% 적다는 뜻입니다. 한 번 이상 감염될 위험이 64% 줄었다는 뜻이 아닙니다(b 절 흔한 오해).</span></li>
 <li><span class="mk">4</span><span><b>민감도 분석.</b> 분산 가정이 다른 방법(강건 표준오차, 0.362, 0.198–0.664)에서도 결론이 같다는 것을 보여 줍니다.</span></li>
 </ol>
 </div></div>

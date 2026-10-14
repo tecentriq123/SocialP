@@ -529,7 +529,7 @@ if __name__ == "__main__":
     same("cost mean, median, max", [round(df_.cost_2023.mean(), 1), round(df_.cost_2023.median(), 1), df_.cost_2023.max()],
          [D["cost_2023"]["mean"], 116.3, D["cost_2023"]["max"]], 0.051)
     same("bmi missing", round(df_.bmi.isna().mean(), 3), 0.307)
-    # 나 절: 40명 중 4명이 사건, 10명을 시험 자료로 뽑을 때 사건이 0명일 확률
+    # b 절: 40명 중 4명이 사건, 10명을 시험 자료로 뽑을 때 사건이 0명일 확률
     p0 = math.comb(36, 10) / math.comb(40, 10)
     same("hypergeometric P(0 events)", round(p0, 3), 0.300)
     same("deep tree train/test AUC", [round(roc_auc_score(ytr, ns["p_tr"]), 3), round(roc_auc_score(yte, ns["p_te"]), 3)],
@@ -549,14 +549,14 @@ if __name__ == "__main__":
     same("all-0 accuracy", round((yte == 0).mean(), 4), 0.9592)
     same("regression MAE, RMSE, R2", [round(ns["mae"](ns["err"]), 1), round(ns["rmse"](ns["err"]), 1)], [183.0, 430.1])
     same("hw3 log model", [round(ns["c_pred_log"].mean(), 1), round(ns["c_test"].mean(), 1)], [197.6, 281.5])
-    # 마 절: 다섯 명의 오차로 MAE와 RMSE
+    # e 절: 다섯 명의 오차로 MAE와 RMSE
     e5 = np.array([10, 20, 30, 40, 900.0])
     same("toy MAE/RMSE", [np.abs(e5).mean(), round(np.sqrt((e5 ** 2).mean()), 1),
                           np.abs(e5[:4]).mean(), round(np.sqrt((e5[:4] ** 2).mean()), 1)], [200, 403.2, 25, 27.4])
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        # 시험 AUC의 부트스트랩 95% 신뢰구간 (실습 9 라 절과 같은 방법)
+        # 시험 AUC의 부트스트랩 95% 신뢰구간 (실습 9 d 절과 같은 방법)
         rng = np.random.default_rng(2026)
         yt, pf, aucs = yte.to_numpy(), ns["p_final"], []
         for _ in range(1000):
@@ -565,7 +565,7 @@ if __name__ == "__main__":
         lo, hi = np.percentile(aucs, [2.5, 97.5])
         print(f"VERIFY bootstrap 95% CI of test AUC: {lo:.3f}-{hi:.3f}")
         same("bootstrap CI (3 decimals)", [round(lo, 3), round(hi, 3)], [0.695, 0.785])
-        # 다 절: 전체 자료로 전처리를 맞춘 뒤 나누면 (두 번째 누수 유형)
+        # c 절: 전체 자료로 전처리를 맞춘 뒤 나누면 (두 번째 누수 유형)
         mp, LR = ns["make_pipe"], ns["LogisticRegression"]
         prep_all = mp(LR(max_iter=1000)).named_steps["prep"].fit(X_)
         m_all = LR(max_iter=1000).fit(prep_all.transform(Xtr), ytr)
@@ -574,7 +574,7 @@ if __name__ == "__main__":
         same("prep-on-all AUC", [round(auc_all, 4), round(roc_auc_score(yte, ns["p_test"]), 4)], [0.7398, 0.7396])
         med_all, med_tr = X_["bmi"].median(), Xtr["bmi"].median()
         print("VERIFY bmi median all / train:", med_all, med_tr, " egfr:", X_["egfr"].median(), Xtr["egfr"].median())
-        # 다 절 팁: 결측 표시 열을 더하면 (add_indicator=True)
+        # c 절 팁: 결측 표시 열을 더하면 (add_indicator=True)
         from sklearn.compose import ColumnTransformer
         from sklearn.impute import SimpleImputer
         from sklearn.pipeline import Pipeline
@@ -583,7 +583,7 @@ if __name__ == "__main__":
         p_ind.named_steps["prep"].transformers[0][1].steps[0] = ("impute", SimpleImputer(strategy="median", add_indicator=True))
         s_ind = cross_val_score(p_ind, Xtr, ytr, cv=ns["skf"], scoring="roc_auc")
         print(f"VERIFY add_indicator CV AUC {s_ind.mean():.4f} (SD {s_ind.std():.4f}) vs {ns['auc5'].mean():.4f}")
-        # 라 절: 시험 자료로 C를 고르면 (하지 말아야 할 일)
+        # d 절: 시험 자료로 C를 고르면 (하지 말아야 할 일)
         test_auc_by_C = {}
         for C in [0.001, 0.01, 0.1, 1, 10, 100]:
             m = mp(LR(C=C, max_iter=1000)).fit(Xtr, ytr)
@@ -591,7 +591,7 @@ if __name__ == "__main__":
         print("VERIFY test AUC by C:", test_auc_by_C)
         same("C chosen on the test set (C, AUC)", [max(test_auc_by_C, key=test_auc_by_C.get), round(test_auc_by_C[0.01], 3)], [0.01, 0.746])
         print("VERIFY grid mean CV:", dict(zip(ns["res"]["param_model__C"].astype(float), ns["res"]["mean_test_score"].round(4))))
-        # 가 절: 응급실 방문 2회 이상과 미만의 입원율 (학습 자료)
+        # a 절: 응급실 방문 2회 이상과 미만의 입원율 (학습 자료)
         g2 = Xtr["n_ed"] >= 2
         print(f"VERIFY train n_ed>=2: n={g2.sum()}, rate={ytr[g2].mean():.3f}; <2: n={(~g2).sum()}, rate={ytr[~g2].mean():.3f}")
         print(f"VERIFY high-risk share at 0.10: {(ns['pred10'] == 1).sum()} ({(ns['pred10'] == 1).mean():.3f})")
@@ -628,7 +628,7 @@ if __name__ == "__main__":
         same("class_weight=balanced (CV AUC, mean prob, default mean prob)",
              [round(s_bal.mean(), 3), round(m_bal.predict_proba(Xtr)[:, 1].mean(), 3), round(ns["pipe"].predict_proba(Xtr)[:, 1].mean(), 3)],
              [0.748, 0.393, 0.041])
-        # 가 절 흔한 오해: 효과가 없도록 만든 처방 의사 수의 단순 비교 (공개 자료로 계산)
+        # a 절 흔한 오해: 효과가 없도록 만든 처방 의사 수의 단순 비교 (공개 자료로 계산)
         npres = df_["n_prescribers"]
         r_lo, r_hi = df_.loc[npres <= 2, "admit_2023"].mean(), df_.loc[npres >= 5, "admit_2023"].mean()
         print(f"VERIFY n_prescribers <=2: {r_lo:.3f}  >=5: {r_hi:.3f}  (n>=5: {(npres >= 5).sum()})")
