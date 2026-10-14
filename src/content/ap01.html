@@ -48,10 +48,10 @@
 </div>
 
 <p>이 표를 "상담 전 120명"과 "상담 후 120명"이라는 서로 다른 두 군처럼 5장의 카이제곱 검정에 넣으면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>분석 방법</th><th>표에 들어간 관측</th><th class="r">통계량</th><th class="r">p</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>분석 방법</th><th>표에 들어간<br>관측</th><th class="r">통계량</th><th class="r">p</th></tr></thead>
 <tbody>
-<tr class="hi"><td>McNemar 검정 (올바름)</td><td>120명, 짝 유지</td><td class="r">정확 검정 (χ² = 10.13)</td><td class="r">0.002 (0.0015)</td></tr>
+<tr class="hi"><td>McNemar 검정 (올바름)</td><td>120명, 짝 유지</td><td class="r">정확 검정 <span style="white-space:nowrap">(χ² = 10.13)</span></td><td class="r">0.002 (0.0015)</td></tr>
 <tr><td>일반 카이제곱 검정 (잘못됨)</td><td>240건, 같은 사람을 두 번 셈</td><td class="r">χ² = 5.41</td><td class="r">0.020</td></tr>
 </tbody></table></div>
 <p>이 자료에서는 잘못된 분석의 p가 오히려 큽니다. 상담 전에 순응하던 사람은 대체로 상담 후에도 순응하는 것처럼 같은 사람의 두 값은 함께 움직이는데, 일반 카이제곱 검정은 이 연관을 무시하고 서로 다른 240명처럼 계산하기 때문입니다. 3장 a 절에서 대응 자료를 독립표본 t 검정으로 분석했을 때 p가 0.002에서 0.099로 커진 것과 같은 현상입니다. 여기서는 결론이 우연히 같았지만, 관측의 독립이라는 가정을 어긴 계산이므로 틀린 분석입니다.</p>
@@ -145,8 +145,8 @@
 <tr><td>합계</td><td class="r">60</td><td class="r">140</td><td class="r">200</td></tr>
 </tbody></table></div>
 <p>민감도<span class="en">(sensitivity)</span>와 특이도<span class="en">(specificity)</span>는 <strong>세로(참값)</strong>로 나눕니다: 비순응 60명 중 양성 38명 = 63.3%, 순응 140명 중 음성 106명 = 75.7%. 양성예측도<span class="en">(positive predictive value, PPV)</span>와 음성예측도<span class="en">(negative predictive value, NPV)</span>는 <strong>가로(검사 결과)</strong>로 나눕니다: 양성 72명 중 실제 비순응 38명 = 52.8%, 음성 128명 중 실제 순응 106명 = 82.8%. 환자 앞에서 쓸모 있는 질문은 "양성이 나왔는데 정말 비순응인가"이므로 예측도가 더 직접적이지만, 예측도는 집단의 유병률에 따라 달라집니다. 같은 설문(민감도 63.3%, 특이도 75.7%)을 비순응 비율이 다른 곳에서 1만 명에게 쓴다고 해 봅시다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>비순응 비율</th><th class="r">참양성</th><th class="r">위양성</th><th class="r">양성예측도</th><th class="r">음성예측도</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>비순응<br>비율</th><th class="r">참양성</th><th class="r">위양성</th><th class="r">양성<br>예측도</th><th class="r">음성<br>예측도</th></tr></thead>
 <tbody>
 <tr><td>30% (이 연구)</td><td class="r">1,900</td><td class="r">1,700</td><td class="r">52.8%</td><td class="r">82.8%</td></tr>
 <tr><td>10%</td><td class="r">633</td><td class="r">2,186</td><td class="r">22.5%</td><td class="r">94.9%</td></tr>
@@ -156,8 +156,8 @@
 
 <h4>기준값을 바꾸면: ROC 곡선</h4>
 <p>기준값을 낮추면 더 많은 사람이 양성이 되어 민감도는 오르고 특이도는 내려갑니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>양성 기준</th><th class="r">민감도</th><th class="r">특이도</th><th class="r">1 − 특이도</th><th class="r">정확도</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>양성<br>기준</th><th class="r">민감도</th><th class="r">특이도</th><th class="r">1 −<br>특이도</th><th class="r">정확도</th></tr></thead>
 <tbody>
 <tr><td>≥3점</td><td class="r">88.3%</td><td class="r">44.3%</td><td class="r">55.7%</td><td class="r">57.5%</td></tr>
 <tr><td>≥4점</td><td class="r">78.3%</td><td class="r">60.0%</td><td class="r">40.0%</td><td class="r">65.5%</td></tr>
@@ -254,11 +254,11 @@
 <p>로그 변환은 이 자료에 쓰기 어렵습니다. 0원에는 로그를 취할 수 없어 흔히 "비용 + 1"에 로그를 취하는데, 이렇게 적합한 선형회귀의 e<sup>β</sup>는 0.59이고, 1 대신 100을 더하면 0.85가 됩니다. 더하는 상수를 무엇으로 정하느냐에 따라 답이 바뀌고, 어느 쪽도 산술평균의 비(0.73)가 아닙니다. 0이 없는 자료에서도 로그-OLS의 e<sup>β</sup>는 기하평균의 비이고 원래 단위로 되돌리려면 재변환 보정(smearing)이 필요합니다(8장 d 절)<cite data-ref="manning2001"></cite>.</p>
 
 <h3>방법 고르기</h3>
-<div class="tbl-wrap"><table class="tbl">
+<div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th>방법</th><th>추정하는 것</th><th>이럴 때</th><th>주의</th></tr></thead>
 <tbody>
 <tr class="hi"><td>평균 비교(t 검정) + 부트스트랩 CI</td><td>산술평균 차이(원)</td><td>무작위배정 시험, 표본이 충분할 때</td><td>공변량을 보정하지 못함</td></tr>
-<tr><td>감마 GLM, 로그 연결 (8장 d 절)</td><td>산술평균의 비. 재활용 예측(모든 환자를 양쪽 군에 한 번씩 놓고 예측한 비용의 평균 차이, 21장 c 절)으로 금액 차이</td><td>관찰연구에서 교란변수를 보정할 때</td><td>0원이 많으면 맞지 않음(이단계 모형을 씀). 분산 구조가 맞는지 확인(modified Park test, 21장 c 절)</td></tr>
+<tr><td>감마 GLM, 로그 연결 (8장 d 절)</td><td>산술평균의 비. 재활용 예측(모든 환자를 양쪽 군에 한 번씩 놓고 예측한 비용의 평균 차이, 21장 c 절)으로 금액 차이</td><td>관찰연구의 교란변수를 보정할 때</td><td>0원이 많으면 맞지 않음(이단계 모형을 씀). 분산 구조가 맞는지 확인(modified Park test, 21장 c 절)</td></tr>
 <tr><td>이단계 모형</td><td>사용 확률 × 사용자의 평균</td><td>0원이 많을 때</td><td>두 부분의 예측을 곱해 금액을 구하고 CI는 부트스트랩</td></tr>
 <tr><td>로그 변환 뒤 선형회귀</td><td>기하평균의 비</td><td>평균 비용이 목적일 때는 재변환이 필요해 주의</td><td>0원 처리 불가, 재변환 문제</td></tr>
 <tr><td>Mann-Whitney 검정</td><td>한 군 값이 더 클 확률(순위)</td><td>평균이 질문이 아닐 때</td><td>평균 비용 차이에 답하지 못함</td></tr>
@@ -349,8 +349,8 @@
 
 <h3>숫자로 따라가기</h3>
 <p>고혈압 환자 300명을 약사 주도 혈압관리 프로그램과 통상치료에 150명씩 무작위배정하고 12개월 수축기혈압(SBP)을 비교한 가상의 시험으로 따라가 봅니다. 12개월 SBP는 77명(중재군 30명, 통상치료군 47명)에서 측정되지 못했습니다. 기저 SBP와 3개월 SBP는 모두에게 있고, 3개월 혈압이 높던 사람이 더 많이 탈락했습니다. 모의자료라서 탈락한 77명의 실제 12개월 혈압도 알고 있습니다. 먼저 남은 사람만 보면 왜 치우치는지 확인합니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>12개월 SBP 평균 (mmHg)</th><th class="r">측정된 사람</th><th class="r">탈락자(실제 값)</th><th class="r">전체(참값)</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>12개월 SBP<br>평균 (mmHg)</th><th class="r">측정된<br>사람</th><th class="r">탈락자<br>(실제 값)</th><th class="r">전체<br>(참값)</th></tr></thead>
 <tbody>
 <tr><td>중재군</td><td class="r">143.5 (120명)</td><td class="r">157.2 (30명)</td><td class="r">146.2</td></tr>
 <tr><td>통상치료군</td><td class="r">146.4 (103명)</td><td class="r">159.5 (47명)</td><td class="r">150.5</td></tr>
@@ -374,11 +374,15 @@
 <p>여러 대체 자료의 결과를 하나로 합치는 표준 방법이 <strong>Rubin의 규칙</strong><span class="en">(Rubin's rules)</span>입니다. 추정값은 대체 자료마다 얻은 추정값의 평균이고, 표준오차에는 각 분석 안의 불확실성에 더해 채울 때마다 결과가 달라지는 정도를 더합니다. 그래서 대체 자료 하나만 만들어 분석하면(단일 대체) 불확실성을 실제보다 작게 봅니다.</p>
 <!--FOLD:계산 과정 보기: 대체 자료 5개로 Rubin의 규칙 따라가기-->
 <p>계산을 보이기 위해 보조변수를 넣은 다중대체의 30개 대체 자료 중 앞의 5개만 써 봅니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>대체 자료</th><th class="r">1</th><th class="r">2</th><th class="r">3</th><th class="r">4</th><th class="r">5</th><th class="r">결합</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:24rem">
+<thead><tr><th>대체 자료</th><th class="r">군간 차이<br>(mmHg)</th><th class="r">SE²</th></tr></thead>
 <tbody>
-<tr><td>군간 차이 (mmHg)</td><td class="r">−4.71</td><td class="r">−4.91</td><td class="r">−4.23</td><td class="r">−5.88</td><td class="r">−5.19</td><td class="r">평균 −4.98</td></tr>
-<tr><td>SE²</td><td class="r">0.871</td><td class="r">0.908</td><td class="r">0.986</td><td class="r">0.934</td><td class="r">0.866</td><td class="r">평균 0.913</td></tr>
+<tr><td>1</td><td class="r">−4.71</td><td class="r">0.871</td></tr>
+<tr><td>2</td><td class="r">−4.91</td><td class="r">0.908</td></tr>
+<tr><td>3</td><td class="r">−4.23</td><td class="r">0.986</td></tr>
+<tr><td>4</td><td class="r">−5.88</td><td class="r">0.934</td></tr>
+<tr><td>5</td><td class="r">−5.19</td><td class="r">0.866</td></tr>
+<tr><td>결합</td><td class="r">평균 −4.98</td><td class="r">평균 0.913</td></tr>
 </tbody></table></div>
 <div class="flow">
 <div><div><b>추정값</b><p>다섯 값의 평균 −4.98 mmHg.</p></div></div>

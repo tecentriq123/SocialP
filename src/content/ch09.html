@@ -140,14 +140,14 @@
 <p>다만 어느 군을 1로 넣느냐에 따라 오즈비가 역수로 바뀝니다. 5장 a 절에서 1년 입원을 비교한 약물 A·B 자료라면, A를 1로 넣을 때 오즈비는 0.67이고 B를 1로 넣을 때는 1/0.67 = 1.50입니다. 결론은 같으므로, 논문에서는 어느 쪽이 기준군인지 먼저 확인합니다.</p>
 <!--FOLD:로지스틱 회귀가 2×2 표와 같은 오즈비를 내는지 숫자로 확인하기-->
 <p>5장 a 절의 약물 A·B 자료에서 A는 400명 중 48명, B는 600명 중 102명이 1년 안에 입원했습니다. 약물 A = 1, B = 0인 설명변수 하나로 로지스틱 회귀를 적합하면 다음과 같습니다. β̂₀, β̂₁은 자료에서 추정한 절편과 기울기라는 뜻으로 모자(^)를 씌운 기호입니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>로지스틱 회귀의 결과</th><th class="r">값</th><th>2×2 표에서 같은 값을 구하는 방법</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>로지스틱<br>회귀의 결과</th><th class="r">값</th><th>2×2 표에서<br>같은 값을<br>구하는 방법</th></tr></thead>
 <tbody>
 <tr><td>절편 β̂₀</td><td class="r">−1.586</td><td>기준군(B)의 로그 오즈: ln(102/498) = −1.586</td></tr>
 <tr><td>기울기 β̂₁</td><td class="r">−0.407</td><td>두 군 로그 오즈의 차이: ln(48/352) − ln(102/498) = −1.992 − (−1.586)</td></tr>
 <tr><td>오즈비 e<sup>β̂₁</sup></td><td class="r">0.67</td><td>(48 × 498) ÷ (352 × 102) = 0.666</td></tr>
 <tr><td>β̂₁의 표준오차</td><td class="r">0.188</td><td>√(1/48 + 1/352 + 1/102 + 1/498) = 0.188 (Woolf 방법)</td></tr>
-<tr><td>오즈비의 95% CI</td><td class="r">0.46–0.96</td><td>e<sup>−0.407 ± 1.96 × 0.188</sup>, 5장 a 절의 값과 같음</td></tr>
+<tr><td>오즈비의 95% CI</td><td class="r"><span style="white-space:nowrap">0.46–0.96</span></td><td>e<sup>−0.407 ± 1.96 × 0.188</sup>, 5장 a 절의 값과 같음</td></tr>
 <tr><td>예측 확률</td><td class="r">12.0%, 17.0%</td><td>두 군의 실제 입원 비율과 같음</td></tr>
 </tbody></table></div>
 <p>표의 왼쪽과 오른쪽이 같은 값이므로, 설명변수가 이분형 하나뿐이면 로지스틱 회귀는 2×2 표 분석과 정확히 같은 결과를 줍니다. 절편은 기준군인 B군의 로그 오즈이고, 기울기는 두 군 로그 오즈의 차이라서 e로 되돌리면 두 군 오즈의 비가 됩니다.</p>
@@ -476,14 +476,23 @@
 
 <h3>보정한 상대위험도와 위험차를 구하는 방법 <span class="lv deep">심화</span></h3>
 <p>4단계에서 결과만 본 두 방법의 원리입니다. 모형 기반 표준화는 2단계의 환자 A·B처럼 환자마다 약만 바꿔 두 가지 예측 확률을 계산하고, 그것을 모든 환자에 대해 평균 냅니다. 그러면 이 코호트 전원이 SGLT2 억제제를 썼다면 19.4%, 전원이 DPP-4 억제제를 썼다면 23.6%가 입원했을 것으로 계산됩니다. 이 방법은 로지스틱 모형이 잘 지정되어 있어야 하고, 위험차의 신뢰구간은 부트스트랩이나 델타 방법으로 구합니다. 수정 포아송 회귀는 0/1 결과에 원래 건수 자료용인 포아송 회귀를 적합하고, e<sup>β</sup>를 상대위험도로 읽습니다. 분포가 맞지 않아 틀어지는 표준오차는 강건 표준오차로 바로잡습니다. 수렴 문제가 거의 없어 널리 쓰이지만, 개인의 예측 확률이 1을 넘을 수 있습니다. 포아송 회귀는 12장에서 다룹니다.</p>
-<p>이전 입원과 SGLT2 억제제의 보정 상대위험도와 위험차를 방법별로 구하면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>방법</th><th>원리</th><th class="r">이전 입원 (vs 없음)</th><th class="r">SGLT2 억제제 (vs DPP-4)</th></tr></thead>
+<p>방법마다 원리를 모으면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>방법</th><th>원리</th></tr></thead>
 <tbody>
-<tr><td>로지스틱 회귀</td><td>보정 오즈비</td><td class="r">OR 2.78 (2.23–3.47)</td><td class="r">OR 0.76 (0.60–0.96)</td></tr>
-<tr><td><strong>모형 기반 표준화</strong><span class="en">(g-computation, marginal standardization)</span></td><td>로지스틱 모형으로 전원이 노출된 경우와 전원이 노출되지 않은 경우의 예측 확률을 각각 구해 평균</td><td class="r">36.4% vs 18.0%<br>RD 18.4%p (14.0–22.9)<br>RR 2.02 (1.73–2.33)</td><td class="r">19.4% vs 23.6%<br>RD −4.2%p (−7.6 to −0.3)<br>RR 0.82 (0.69–0.99)</td></tr>
-<tr><td><strong>수정 포아송 회귀</strong><span class="en">(modified Poisson regression)</span></td><td>로그 연결 포아송 모형 + 강건 표준오차<cite data-ref="zou2004"></cite></td><td class="r">RR 2.00 (1.73–2.32)</td><td class="r">RR 0.81 (0.67–0.97)</td></tr>
-<tr><td><strong>로그-이항 모형</strong><span class="en">(log-binomial model)</span></td><td>이항분포 + 로그 연결함수</td><td class="r">RR 1.91 (1.66–2.20)</td><td class="r">RR 0.80 (0.67–0.95)</td></tr>
+<tr><td>로지스틱 회귀</td><td>보정 오즈비</td></tr>
+<tr><td><strong>모형 기반 표준화</strong><span class="en">(g-computation, marginal standardization)</span></td><td>로지스틱 모형으로 전원이 노출된 경우와 전원이 노출되지 않은 경우의 예측 확률을 각각 구해 평균</td></tr>
+<tr><td><strong>수정 포아송 회귀</strong><span class="en">(modified Poisson regression)</span></td><td>로그 연결 포아송 모형 + 강건 표준오차<cite data-ref="zou2004"></cite></td></tr>
+<tr><td><strong>로그-이항 모형</strong><span class="en">(log-binomial model)</span></td><td>이항분포 + 로그 연결함수</td></tr>
+</tbody></table></div>
+<p>이전 입원과 SGLT2 억제제의 보정 상대위험도와 위험차를 방법별로 구하면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>방법</th><th class="r">이전 입원<br>(vs 없음)</th><th class="r">SGLT2 억제제<br>(vs DPP-4)</th></tr></thead>
+<tbody>
+<tr><td>로지스틱 회귀</td><td class="r">OR 2.78 <span style="white-space:nowrap">(2.23–3.47)</span></td><td class="r">OR 0.76 <span style="white-space:nowrap">(0.60–0.96)</span></td></tr>
+<tr><td>모형 기반 표준화</td><td class="r">36.4% vs 18.0%<br>RD 18.4%p <span style="white-space:nowrap">(14.0–22.9)</span><br>RR 2.02 <span style="white-space:nowrap">(1.73–2.33)</span></td><td class="r">19.4% vs 23.6%<br>RD −4.2%p (−7.6 to −0.3)<br>RR 0.82 <span style="white-space:nowrap">(0.69–0.99)</span></td></tr>
+<tr><td>수정 포아송 회귀</td><td class="r">RR 2.00 <span style="white-space:nowrap">(1.73–2.32)</span></td><td class="r">RR 0.81 <span style="white-space:nowrap">(0.67–0.97)</span></td></tr>
+<tr><td>로그-이항 모형</td><td class="r">RR 1.91 <span style="white-space:nowrap">(1.66–2.20)</span></td><td class="r">RR 0.80 <span style="white-space:nowrap">(0.67–0.95)</span></td></tr>
 </tbody></table></div>
 <p class="fig-note">표준화의 신뢰구간은 부트스트랩(1,000회) 백분위수 구간입니다.</p>
 <ul>
@@ -499,11 +508,11 @@
 
 <h3>하위군마다 효과가 다른지 보는 교호작용 <span class="lv deep">심화</span></h3>
 <p>SGLT2 억제제의 효과가 심부전 환자에서 더 클 것이라는 가설을 분석 전에 세웠다고 합시다. 층별 입원 비율은 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
-<thead><tr><th>심부전</th><th class="r">SGLT2 억제제</th><th class="r">DPP-4 억제제</th><th class="r">보정 오즈비 (95% CI)</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:40rem">
+<thead><tr><th>심부전</th><th class="r">SGLT2<br>억제제</th><th class="r">DPP-4<br>억제제</th><th class="r">보정 오즈비<br>(95% CI)</th></tr></thead>
 <tbody>
-<tr><td>없음</td><td class="r">118/726 (16.3%)</td><td class="r">330/1,366 (24.2%)</td><td class="r">0.86 (0.67–1.10)</td></tr>
-<tr><td>있음</td><td class="r">23/148 (15.5%)</td><td class="r">62/160 (38.8%)</td><td class="r">0.42 (0.23–0.74)</td></tr>
+<tr><td>없음</td><td class="r">118/726 (16.3%)</td><td class="r">330/1,366 (24.2%)</td><td class="r">0.86 <span style="white-space:nowrap">(0.67–1.10)</span></td></tr>
+<tr><td>있음</td><td class="r">23/148 (15.5%)</td><td class="r">62/160 (38.8%)</td><td class="r">0.42 <span style="white-space:nowrap">(0.23–0.74)</span></td></tr>
 </tbody></table></div>
 <p>효과가 두 층에서 다른지를 보려면 모형에 SGLT2 × 심부전의 곱셈항(<strong>교호작용</strong> 항<span class="en">, interaction term</span>)을 추가합니다. 곱셈항의 계수는 −0.720(SE 0.315)이고, e<sup>−0.720</sup> = 0.49(95% CI 0.26–0.90)는 "심부전 환자의 오즈비가 심부전이 없는 환자의 오즈비의 몇 배인가", 즉 두 오즈비의 비(0.42 ÷ 0.86)입니다. 곱셈항을 넣은 모형과 뺀 모형의 우도비 검정은 χ² = 5.41, P = 0.020이고, 이것이 논문의 <strong>P for interaction</strong>입니다(곱셈항의 Wald 검정 P = 0.022).</p>
 <div class="callout warn"><p class="ct">흔한 오해 · 교호작용 모형의 주효과 계수</p>
@@ -521,12 +530,19 @@
 
 <h4>Wald 방법과 우도비 방법</h4>
 <p>신뢰구간과 검정에는 두 계열이 있습니다. <strong>Wald 방법</strong>은 꼭대기의 곡률로 언덕을 포물선(정규분포)으로 근사해, β̂ ± 1.96 × SE로 신뢰구간을 구하고 (β̂/SE)²로 검정합니다. <strong>우도비 방법</strong>은 언덕의 실제 모양을 씁니다. 로그 우도가 꼭대기보다 1.92 낮아지는 두 지점을 신뢰구간의 끝으로 삼는 것이 <strong>프로파일 우도 신뢰구간</strong><span class="en">(profile likelihood confidence interval)</span>이고, 두 모형의 로그 우도 차이의 2배를 카이제곱 분포와 비교하는 것이 우도비 검정입니다. 세 번째로 점수 검정은 귀무가설 값(β = 0)에서 언덕의 기울기를 봅니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>자료와 계수</th><th class="r">Wald χ²</th><th class="r">점수 χ²</th><th class="r">우도비 χ²</th><th>신뢰구간 (Wald / 프로파일)</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>자료와 계수</th><th class="r">Wald χ²</th><th class="r">점수 χ²</th><th class="r">우도비 χ²</th></tr></thead>
 <tbody>
-<tr><td>2×2 표, 약물 A vs B (1,000명)</td><td class="r">4.66</td><td class="r">4.71</td><td class="r">4.81</td><td>OR 0.460–0.963 / 0.457–0.958</td></tr>
-<tr><td>반코마이신, trough (150명)</td><td class="r">24.7</td><td class="r">37.6</td><td class="r">38.3</td><td>5 mg/L당 OR 1.83–4.03 / 1.89–4.18</td></tr>
-<tr><td>코호트, SGLT2 억제제 (2,400명, 보정)</td><td class="r">5.21</td><td class="r">5.23</td><td class="r">5.29</td><td>OR 0.602–0.962 / 0.601–0.961</td></tr>
+<tr><td>2×2 표, 약물 A vs B (1,000명)</td><td class="r">4.66</td><td class="r">4.71</td><td class="r">4.81</td></tr>
+<tr><td>반코마이신, trough (150명)</td><td class="r">24.7</td><td class="r">37.6</td><td class="r">38.3</td></tr>
+<tr><td>코호트, SGLT2 억제제 (2,400명, 보정)</td><td class="r">5.21</td><td class="r">5.23</td><td class="r">5.29</td></tr>
+</tbody></table></div>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>자료와 계수</th><th>Wald<br>신뢰구간</th><th>프로파일<br>신뢰구간</th></tr></thead>
+<tbody>
+<tr><td>2×2 표, 약물 A vs B (1,000명)</td><td>OR <span style="white-space:nowrap">0.460–0.963</span></td><td>OR <span style="white-space:nowrap">0.457–0.958</span></td></tr>
+<tr><td>반코마이신, trough (150명)</td><td>5 mg/L당 OR <span style="white-space:nowrap">1.83–4.03</span></td><td>5 mg/L당 OR <span style="white-space:nowrap">1.89–4.18</span></td></tr>
+<tr><td>코호트, SGLT2 억제제 (2,400명, 보정)</td><td>OR <span style="white-space:nowrap">0.602–0.962</span></td><td>OR <span style="white-space:nowrap">0.601–0.961</span></td></tr>
 </tbody></table></div>
 <p>표본이 크고 효과가 중간 정도인 코호트에서는 세 검정과 두 신뢰구간이 사실상 같습니다. 반코마이신 자료처럼 표본이 작고 효과가 큰 경우에는 로그 우도가 좌우 비대칭이어서 차이가 커지고, Wald 통계량이 가장 작습니다. 두 방법이 다를 때는 우도비 방법이 더 정확하다고 알려져 있습니다. 세 검정은 표본이 크면 같은 답으로 수렴하는 서로 다른 근사입니다(8장 e 절).</p>
 <p>2×2 표 행의 세 검정은 5장의 검정과 하나씩 대응합니다. Wald 검정(P = 0.031)은 로그 오즈비 ÷ Woolf 표준오차의 z 검정, 우도비 검정(P = 0.028)은 우도비 카이제곱(G²), 점수 검정(P = 0.030)은 Pearson 카이제곱 검정입니다. 같은 원리로 5장 c 절의 Cochran–Armitage 추세 검정은 순서 점수(0, 1, 2 …)를 연속형 설명변수 하나로 넣은 로지스틱 회귀의 점수 검정과 같고, 여기에 교란변수를 함께 넣으면 논문 표 아래의 "보정된 P for trend"가 됩니다.</p>
@@ -673,11 +689,14 @@ combination     0.9985      0.593      1.684      0.092      -0.164       2.161
 <p>Peduzzi 등의 모의실험에서 EPV가 10 미만이면 계수가 위아래로 편향되고, 신뢰구간이 참값을 덜 포함하고, 효과의 방향이 거꾸로 나오는 경우가 늘었습니다<cite data-ref="peduzzi1996"></cite>. 여기서 "EPV ≥ 10" 규칙이 널리 퍼졌습니다. 이후 연구에서는 교란 보정이 목적이라면 EPV 5–9에서도 대체로 괜찮은 경우가 많고<cite data-ref="vittinghoff2007"></cite>, EPV만으로는 문제의 크기가 정해지지 않고 전체 표본크기 같은 다른 요인과 분리 여부에도 크게 좌우된다는 결과가 나왔습니다<cite data-ref="vansmeden2016"></cite>. 즉 10은 절대 기준이 아닌 대략의 경험칙입니다. 예측모형을 개발할 때는 EPV 대신 과적합의 정도, 전체 위험의 정밀도 등을 기준으로 필요한 표본크기를 계산하는 방법이 권장됩니다<cite data-ref="riley2020"></cite>.</p>
 <p>표본에 비해 변수가 많으면 모형이 자료의 우연한 패턴까지 외우는 <strong>과적합</strong><span class="en">(overfitting)</span>이 생깁니다(1장 d 절). 과적합된 모형은 모형을 만든 자료에서는 잘 맞아 보이지만 새 환자에서는 성능이 떨어집니다. 예측모형에서 이 현상을 확인한 예는 다음과 같습니다.</p>
 <p>코호트에서 300명(입원 65명)만 뽑아 예측모형을 만들고, 나머지 2,100명에서 성능을 확인해 보았습니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>개발 자료 300명 (사건 65건)</th><th class="r">계수 수</th><th class="r">EPV</th><th class="r">개발 자료의 C 통계량</th><th class="r">나머지 2,100명의 C 통계량</th><th class="r">교정 기울기</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>개발 자료<br>300명<br>(사건 65건)</th><th class="r">실제<br>위험인자 8개</th><th class="r">위험인자 8개 +<br>결과와 무관한<br>변수 10개</th></tr></thead>
 <tbody>
-<tr><td>실제 위험인자 8개</td><td class="r">8</td><td class="r">8.1</td><td class="r">0.70</td><td class="r">0.68</td><td class="r">0.82</td></tr>
-<tr><td>위험인자 8개 + 결과와 무관한 변수 10개</td><td class="r">18</td><td class="r">3.6</td><td class="r">0.72</td><td class="r">0.66</td><td class="r">0.61</td></tr>
+<tr><td>계수 수</td><td class="r">8</td><td class="r">18</td></tr>
+<tr><td>EPV</td><td class="r">8.1</td><td class="r">3.6</td></tr>
+<tr><td>개발 자료의 C 통계량</td><td class="r">0.70</td><td class="r">0.72</td></tr>
+<tr><td>나머지 2,100명의 C 통계량</td><td class="r">0.68</td><td class="r">0.66</td></tr>
+<tr><td>교정 기울기</td><td class="r">0.82</td><td class="r">0.61</td></tr>
 </tbody></table></div>
 <p>무관한 변수 10개를 더하자 개발 자료에서의 성능(C 통계량)은 오히려 좋아졌지만 새 환자에서는 나빠졌습니다. 교정 기울기 0.61은 예측 확률이 지나치게 극단적이라는 뜻입니다. 높게 예측한 환자는 실제로는 덜 높고, 낮게 예측한 환자는 실제로는 덜 낮습니다(아래 '예측모형의 교정'). 과적합을 줄이려면 후보 변수를 사전 지식으로 줄이고, 필요하면 계수를 0 쪽으로 줄이는 벌점 회귀(ridge, lasso)를 쓰며, 성능은 반드시 내부 검증으로 보정해서 보고합니다. Firth 보정은 작은 표본의 편향을 줄이는 방법으로, 계수를 줄이는 효과는 작아 과적합 대책으로는 충분하지 않습니다.</p>
 
@@ -709,21 +728,22 @@ combination     0.9985      0.593      1.684      0.092      -0.164       2.161
 
 <h4>임계값과 분류표</h4>
 <p>예측 확률이 임계값 이상인 환자를 '고위험'으로 분류하면 진단검사처럼 민감도와 특이도를 계산할 수 있습니다. 임계값 0.2에서의 분류표입니다.</p>
-<div class="tbl-wrap"><table class="tbl" style="max-width:36rem">
-<thead><tr><th>임계값 0.2</th><th class="r">실제 입원</th><th class="r">입원 안 함</th><th class="r">합계</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:36rem">
+<thead><tr><th>임계값 0.2</th><th class="r">실제<br>입원</th><th class="r">입원<br>안 함</th><th class="r">합계</th></tr></thead>
 <tbody>
-<tr><td>고위험 (예측 확률 ≥ 0.2)</td><td class="r">354</td><td class="r">703</td><td class="r">1,057</td></tr>
-<tr><td>저위험 (예측 확률 &lt; 0.2)</td><td class="r">179</td><td class="r">1,164</td><td class="r">1,343</td></tr>
+<tr><td>고위험 (예측 확률 <span style="white-space:nowrap">≥ 0.2)</span></td><td class="r">354</td><td class="r">703</td><td class="r">1,057</td></tr>
+<tr><td>저위험 (예측 확률 <span style="white-space:nowrap">&lt; 0.2)</span></td><td class="r">179</td><td class="r">1,164</td><td class="r">1,343</td></tr>
 <tr><td>합계</td><td class="r">533</td><td class="r">1,867</td><td class="r">2,400</td></tr>
 </tbody></table></div>
 <p>민감도 354/533 = 66.4%, 특이도 1,164/1,867 = 62.3%, 양성예측도 354/1,057 = 33.5%, 음성예측도 1,164/1,343 = 86.7%, 정확도 (354 + 1,164)/2,400 = 63.3%입니다. 임계값을 바꾸면 모든 값이 달라집니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>임계값</th><th class="r">고위험으로 분류된 비율</th><th class="r">민감도</th><th class="r">특이도</th><th class="r">양성예측도</th><th class="r">정확도</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>임계값</th><th class="r">0.1</th><th class="r">0.2</th><th class="r">0.3</th><th class="r">0.5</th></tr></thead>
 <tbody>
-<tr><td>0.1</td><td class="r">87.6%</td><td class="r">94.7%</td><td class="r">14.5%</td><td class="r">24.0%</td><td class="r">32.3%</td></tr>
-<tr><td>0.2</td><td class="r">44.0%</td><td class="r">66.4%</td><td class="r">62.3%</td><td class="r">33.5%</td><td class="r">63.3%</td></tr>
-<tr><td>0.3</td><td class="r">22.4%</td><td class="r">42.4%</td><td class="r">83.3%</td><td class="r">42.1%</td><td class="r">74.3%</td></tr>
-<tr><td>0.5</td><td class="r">4.5%</td><td class="r">11.6%</td><td class="r">97.5%</td><td class="r">57.4%</td><td class="r">78.5%</td></tr>
+<tr><td>고위험으로 분류된 비율 (%)</td><td class="r">87.6</td><td class="r">44.0</td><td class="r">22.4</td><td class="r">4.5</td></tr>
+<tr><td>민감도 (%)</td><td class="r">94.7</td><td class="r">66.4</td><td class="r">42.4</td><td class="r">11.6</td></tr>
+<tr><td>특이도 (%)</td><td class="r">14.5</td><td class="r">62.3</td><td class="r">83.3</td><td class="r">97.5</td></tr>
+<tr><td>양성예측도 (%)</td><td class="r">24.0</td><td class="r">33.5</td><td class="r">42.1</td><td class="r">57.4</td></tr>
+<tr><td>정확도 (%)</td><td class="r">32.3</td><td class="r">63.3</td><td class="r">74.3</td><td class="r">78.5</td></tr>
 </tbody></table></div>
 <p>그래서 C 통계량 0.70을 "환자의 70%를 맞게 분류한다"로 읽으면 틀립니다. 위 표처럼 맞게 분류한 환자의 비율, 즉 정확도는 '고위험'을 가르는 임계값과 사건 비율에 따라 달라지기 때문입니다. C 통계량은 임계값을 하나 정하기 전의 순위만으로 계산하므로 임계값과 관계가 없습니다. 아래 계산기에서 임계값과 사건 비율을 바꿔 보면 C 통계량은 그대로인데 정확도가 크게 움직입니다.</p>
 <div class="widget" data-widget="ch09_thr"></div>

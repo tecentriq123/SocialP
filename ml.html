@@ -391,6 +391,7 @@ pre.out { font-family: var(--f-mono); font-size: 13px; line-height: 1.55; backgr
 input[type="range"] { accent-color: var(--accent); width: min(320px, 100%); }
 .wchart { overflow-x: auto; }
 .wchart svg { display: block; width: 100%; height: auto; min-width: 420px; }
+#cltChart svg { min-width: 0; }   /* clt 위젯은 칸 너비에 맞춰 다시 그린다 */
 
 /* pager */
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 56px; border-top: 1px solid var(--line); padding-top: 22px; }
@@ -1160,12 +1161,17 @@ function typesetNow() {
           <div class="stat"><div class="sl">표본평균들의 표준편차 (관측)</div><div class="sv" id="c2"></div></div>
           <div class="stat"><div class="sl">이론적 표준오차 σ/√n</div><div class="sv" id="c3"></div></div>
         </div>`;
+      const box = el.querySelector("#cltChart");
+      // 칸이 640px보다 좁으면(휴대폰) 그 너비를 그대로 viewBox 폭으로 써서 글자가 줄어들지 않게 한다
+      const chartW = () => { const c = Math.round(box.clientWidth); return c > 0 && c < 640 ? Math.max(300, c) : 640; };
+      let drawnW = 0;
       const draw = () => {
         const r = mulberry32(seed), R = 3000, means = new Float64Array(R);
         for (let i = 0; i < R; i++) { let s = 0; for (let j = 0; j < n; j++) s += Math.exp(MU + SG * gauss(r)); means[i] = s / n; }
         let m = 0; for (const v of means) m += v; m /= R;
         let v2 = 0; for (const v of means) v2 += (v - m) ** 2; const sd = Math.sqrt(v2 / (R - 1));
-        const W = 640, H = 260, L = 50, Rr = 20, T = 16, B = 44, lo = 0, hi = 100, bw = 2, nb = (hi - lo) / bw;
+        const W = chartW(), narrow = W < 520, H = 260, L = narrow ? 16 : 50, Rr = narrow ? 16 : 20, T = narrow ? 40 : 16, B = 44, lo = 0, hi = 100, bw = 2, nb = (hi - lo) / bw;
+        drawnW = W;
         const cnt = new Array(nb).fill(0); let over = 0;
         for (const v of means) { const b = Math.floor((v - lo) / bw); if (b >= 0 && b < nb) cnt[b]++; else over++; }
         const ymax = Math.max(...cnt) * 1.12;
@@ -1178,7 +1184,8 @@ function typesetNow() {
           const se = POPSD / Math.sqrt(n); let d = "";
           for (let x = 0; x <= 100; x += 0.25) { const y = R * bw * Math.exp(-0.5 * ((x - POPM) / se) ** 2) / (se * Math.sqrt(2 * Math.PI)); d += (d ? " L" : "M") + sx(x).toFixed(1) + "," + sy(Math.min(y, ymax)).toFixed(1); }
           s += `<path d="${d}" class="ln s2" stroke-width="2" fill="none"/>`;
-          s += `<line x1="${W - Rr - 196}" y1="${T + 10}" x2="${W - Rr - 174}" y2="${T + 10}" class="ln s2" stroke-width="2.4"/><text x="${W - Rr - 168}" y="${T + 14}" class="lbl">같은 평균·SE의 정규곡선</text>`;
+          const lx = narrow ? L : W - Rr - 196, ly = narrow ? 16 : T + 10;   // 좁은 화면에서는 범례를 그림 위 왼쪽 줄로
+          s += `<line x1="${lx}" y1="${ly}" x2="${lx + 22}" y2="${ly}" class="ln s2" stroke-width="2.4"/><text x="${lx + 28}" y="${ly + 4}" class="lbl">같은 평균·SE의 정규곡선</text>`;
         }
         s += `<line x1="${sx(POPM)}" y1="${T}" x2="${sx(POPM)}" y2="${H - B}" class="ref" stroke-dasharray="4 4"/><text x="${sx(POPM) + 6}" y="${T + 12}" class="lbl mute small">모평균 ${fmt(POPM)}</text>`;
         s += `<text x="${(L + W - Rr) / 2}" y="${H - 8}" text-anchor="middle" class="axlab">${n === 1 ? "환자 1명의 약제비 (만원) — 모집단 분포 그대로" : `${n}명 표본의 평균 약제비 (만원)`}</text>`;
@@ -1191,6 +1198,7 @@ function typesetNow() {
       el.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { n = +b.dataset.n; el.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); }));
       el.querySelector("#cltRe").addEventListener("click", () => { seed = (seed * 7 + 13) % 100000; draw(); });
       draw();
+      if (window.ResizeObserver) new ResizeObserver(() => { if (chartW() !== drawnW) draw(); }).observe(box);
     }
   };
 

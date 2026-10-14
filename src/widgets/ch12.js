@@ -23,19 +23,24 @@ window.EXTRA_WIDGETS["ch12_disp"] = function (el, H) {
     return p;
   }
   const pct = v => v >= 0.001 ? H.fmt(v * 100, 1) + "%" : "&lt; 0.1%";
+  const box = el.querySelector("#c12chart");
+  // 칸이 640px보다 좁으면(휴대폰) 그 너비를 viewBox 폭으로 써서, 가로 스크롤 없이 글자 크기를 유지한다
+  const chartW = () => { const c = Math.round(box.clientWidth); return c > 0 && c < 640 ? Math.max(260, c) : 640; };
+  let drawnW = 0;
 
   function draw() {
     const v = mu + alpha * mu * mu;
     const K = Math.min(40, Math.max(12, Math.ceil(mu + 4 * Math.sqrt(v))));
     const pp = pois(mu, 200), pn = nb(mu, alpha, 200);
-    const W = 640, Hh = 270, L = 54, R = 16, T = 18, B = 46;
+    const W = chartW(), narrow = W < 520, Hh = narrow ? 300 : 270, L = 54, R = 16, T = narrow ? 50 : 18, B = 46;
+    drawnW = W;
     const ymax = Math.max(0.1, Math.ceil(Math.max(...pp.slice(0, K + 1), ...pn.slice(0, K + 1)) * 1.12 * 20) / 20);
     const sx = x => L + (x + 0.6) / (K + 1.2) * (W - L - R), sy = y => Hh - B - y / ymax * (Hh - T - B);
     let s = "";
     const step = ymax > 0.5 ? 0.2 : ymax > 0.2 ? 0.1 : 0.05;
     for (let y = 0; y <= ymax + 1e-9; y += step) s += `<line x1="${L}" y1="${sy(y).toFixed(1)}" x2="${W - R}" y2="${sy(y).toFixed(1)}" class="grid"/><text x="${L - 8}" y="${(sy(y) + 4).toFixed(1)}" text-anchor="end" class="tick">${y.toFixed(2)}</text>`;
     s += `<line x1="${L}" y1="${sy(0)}" x2="${W - R}" y2="${sy(0)}" class="axis"/>`;
-    const xstep = K > 24 ? 5 : K > 14 ? 2 : 1;
+    const xstep = narrow ? (K > 24 ? 10 : K > 12 ? 4 : 2) : (K > 24 ? 5 : K > 14 ? 2 : 1);
     for (let k = 0; k <= K; k += xstep) s += `<text x="${sx(k).toFixed(1)}" y="${sy(0) + 18}" text-anchor="middle" class="tick">${k}</text>`;
     s += `<text x="${(L + W - R) / 2}" y="${Hh - 8}" text-anchor="middle" class="axlab">건수 k</text>`;
     s += `<text x="14" y="${(T + Hh - B) / 2}" text-anchor="middle" transform="rotate(-90 14 ${(T + Hh - B) / 2})" class="axlab">P(X = k)</text>`;
@@ -44,12 +49,14 @@ window.EXTRA_WIDGETS["ch12_disp"] = function (el, H) {
       const x = sx(k) - bw / 2, y = sy(Math.min(pn[k], ymax));
       s += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${(sy(0) - y).toFixed(1)}" class="f1"/>`;
     }
-    for (let k = 0; k <= K; k++) s += `<circle cx="${sx(k).toFixed(1)}" cy="${sy(Math.min(pp[k], ymax)).toFixed(1)}" r="4" class="pt f2"/>`;
+    const pr = Math.max(2, Math.min(4, (sx(1) - sx(0)) * 0.4));
+    for (let k = 0; k <= K; k++) s += `<circle cx="${sx(k).toFixed(1)}" cy="${sy(Math.min(pp[k], ymax)).toFixed(1)}" r="${pr.toFixed(1)}" class="pt f2"/>`;
     s += `<line x1="${sx(mu).toFixed(1)}" y1="${T}" x2="${sx(mu).toFixed(1)}" y2="${sy(0)}" class="ref" stroke-dasharray="4 4"/>`;
     s += `<text x="${(sx(mu) + 6).toFixed(1)}" y="${T + 10}" class="lbl mute small">평균 μ</text>`;
-    s += `<rect x="${W - R - 200}" y="${T + 22}" width="12" height="12" rx="2" class="f1"/><text x="${W - R - 182}" y="${T + 32}" class="lbl small">음이항 (분산 μ + αμ²)</text>`;
-    s += `<circle cx="${W - R - 194}" cy="${T + 50}" r="4" class="pt f2"/><text x="${W - R - 182}" y="${T + 54}" class="lbl small">포아송 (분산 μ)</text>`;
-    el.querySelector("#c12chart").innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" class="viz" role="img" aria-label="포아송 분포와 음이항 분포 비교">${s}</svg>`;
+    const lx = narrow ? L : W - R - 200, ly = narrow ? 4 : T + 22;   // 좁은 화면에서는 범례를 그림 위로
+    s += `<rect x="${lx}" y="${ly}" width="12" height="12" rx="2" class="f1"/><text x="${lx + 18}" y="${ly + 10}" class="lbl small">음이항 (분산 μ + αμ²)</text>`;
+    s += `<circle cx="${lx + 6}" cy="${ly + 28}" r="4" class="pt f2"/><text x="${lx + 18}" y="${ly + 32}" class="lbl small">포아송 (분산 μ)</text>`;
+    box.innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" class="viz" style="min-width:0" role="img" aria-label="포아송 분포와 음이항 분포 비교">${s}</svg>`;
     el.querySelector("#c12muv").textContent = H.fmt(mu, 1);
     el.querySelector("#c12v").textContent = `${H.fmt(mu, 1)} / ${H.fmt(v, 1)}`;
     el.querySelector("#c12r").textContent = H.fmt(1 + alpha * mu, 2) + "배";
@@ -69,4 +76,5 @@ window.EXTRA_WIDGETS["ch12_disp"] = function (el, H) {
     draw();
   }));
   draw();
+  if (window.ResizeObserver) new ResizeObserver(() => { if (chartW() !== drawnW) draw(); }).observe(box);
 };

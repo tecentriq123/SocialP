@@ -4,6 +4,7 @@
 # guyot2012(PMID 22297116), fleurence2007(17192114), sonnenberg1993(8246705), briggs1998markov(10178664), woods2020psm(33248517)은
 # 같은 날 PubMed 레코드로 다시 확인했다. latimer2013tsd14의 내용(후보 모형, 선택 절차, 비례위험 가정, 같은 종류의 모형)은
 # 보고서 PDF(https://sheffield.ac.uk/media/34225/download)를 요약 도구로 읽어 확인했다.
+# elbasha2016(PMID 26643402)과 elbasha2016mdm(PMID 26092831, 온라인 2015-06, 인쇄 2016;36(1))은 2026-10-14 PubMed 레코드(get_article_metadata)로 저자·제목·학술지·연도·권(호)·쪽·DOI를 확인했다.
 ADD = {
     "naimark2008": {"text": "Naimark DMJ, Bott M, Krahn M. The half-cycle correction explained: two alternative pedagogical approaches. <i>Med Decis Making</i>. 2008;28(5):706-712.",
                     "doi": "10.1177/0272989X08315241"},
@@ -11,4 +12,8 @@ ADD = {
                    "doi": "10.1177/0272989X9701700202"},
     "barton2004": {"text": "Barton P, Bryan S, Robinson S. Modelling in the economic evaluation of health care: selecting the appropriate approach. <i>J Health Serv Res Policy</i>. 2004;9(2):110-118.",
                    "doi": "10.1258/135581904322987535"},
+    "elbasha2016": {"text": "Elbasha EH, Chhatwal J. Myths and misconceptions of within-cycle correction: a guide for modelers and decision makers. <i>Pharmacoeconomics</i>. 2016;34(1):13-22.",
+                    "doi": "10.1007/s40273-015-0337-0"},
+    "elbasha2016mdm": {"text": "Elbasha EH, Chhatwal J. Theoretical foundations and practical applications of within-cycle correction methods. <i>Med Decis Making</i>. 2016;36(1):115-131.",
+                       "doi": "10.1177/0272989X15585121"},
 }

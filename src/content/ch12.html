@@ -248,15 +248,25 @@
 <h3>포아송 분포가 생기는 상황과 건수별 확률 <span class="lv deep">심화</span></h3>
 <p>한 상급종합병원에서 한 달에 나가는 처방은 수십만 건입니다. 처방 하나하나가 이상반응 보고로 이어질 확률은 아주 작지만 기회가 워낙 많아서, 보고는 평균적으로 한 달에 4건쯤 접수됩니다. 어떤 달은 1건, 어떤 달은 8건일 수 있습니다. 이처럼 <b>기회는 아주 많고 각 기회에서 사건이 생길 확률은 아주 작으며, 사건끼리 서로 영향을 주지 않을 때</b> 일정 기간의 건수는 포아송 분포를 따릅니다. 평균 건수 λ 하나만 알면 0건, 1건, 2건 … 이 나올 확률이 모두 정해집니다. 식은 아래 '수식으로 보기'에 있습니다.</p>
 <p>평균이 4건일 때 건수별 확률은 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
-<thead><tr><th>한 달 보고 건수 k</th><th class="r">0</th><th class="r">1</th><th class="r">2</th><th class="r">3</th><th class="r">4</th><th class="r">5</th><th class="r">6</th><th class="r">7</th><th class="r">8 이상</th></tr></thead>
-<tbody><tr><td>확률 (λ = 4)</td><td class="r">0.0183</td><td class="r">0.0733</td><td class="r">0.1465</td><td class="r">0.1954</td><td class="r">0.1954</td><td class="r">0.1563</td><td class="r">0.1042</td><td class="r">0.0595</td><td class="r">0.0511</td></tr></tbody></table></div>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:20rem">
+<thead><tr><th>한 달 보고 건수 k</th><th class="r">확률 (λ = 4)</th></tr></thead>
+<tbody>
+<tr><td>0</td><td class="r">0.0183</td></tr>
+<tr><td>1</td><td class="r">0.0733</td></tr>
+<tr><td>2</td><td class="r">0.1465</td></tr>
+<tr><td>3</td><td class="r">0.1954</td></tr>
+<tr><td>4</td><td class="r">0.1954</td></tr>
+<tr><td>5</td><td class="r">0.1563</td></tr>
+<tr><td>6</td><td class="r">0.1042</td></tr>
+<tr><td>7</td><td class="r">0.0595</td></tr>
+<tr><td>8 이상</td><td class="r">0.0511</td></tr>
+</tbody></table></div>
 <p>평균이 4건인 병원에서 한 달에 8건 이상 보고되는 일은 5.1%, 대략 20달에 한 번 일어납니다. 그러니 어느 달에 8건이 접수되었다는 사실만으로 새로운 안전성 문제가 생겼다고 단정하기 어렵고, 9건 이상(2.1%)쯤 되어야 우연으로 보기 드문 달이라고 할 수 있습니다. 약물감시에서 관측 건수를 기대 건수와 비교하는 방법(표준화 발생비)이 이 계산에서 출발합니다(아래 '관측 건수와 기대 건수의 비교').</p>
 
 <h3>이항분포와의 관계 <span class="lv deep">심화</span></h3>
 <p>포아송 분포는 시행 횟수 n이 매우 크고 사건 확률 p가 매우 작은 이항분포의 극한입니다(λ = np). 평균이 모두 3건인 세 분포를 비교해 보겠습니다.</p>
-<div class="tbl-wrap"><table class="tbl" style="max-width:40rem">
-<thead><tr><th>건수 k</th><th class="r">포아송 (λ = 3)</th><th class="r">이항 (n = 10,000, p = 0.0003)</th><th class="r">이항 (n = 20, p = 0.15)</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:40rem">
+<thead><tr><th>건수 k</th><th class="r">포아송<br>(λ = 3)</th><th class="r">이항<br>(n = 10,000,<br>p = 0.0003)</th><th class="r">이항<br>(n = 20,<br>p = 0.15)</th></tr></thead>
 <tbody>
 <tr><td>0</td><td class="r">0.0498</td><td class="r">0.0498</td><td class="r">0.0388</td></tr>
 <tr><td>1</td><td class="r">0.1494</td><td class="r">0.1493</td><td class="r">0.1368</td></tr>
@@ -264,19 +274,19 @@
 <tr><td>3</td><td class="r">0.2240</td><td class="r">0.2241</td><td class="r">0.2428</td></tr>
 <tr><td>4</td><td class="r">0.1680</td><td class="r">0.1681</td><td class="r">0.1821</td></tr>
 <tr><td>5</td><td class="r">0.1008</td><td class="r">0.1008</td><td class="r">0.1028</td></tr>
-<tr><td>6 이상</td><td class="r">0.0839</td><td class="r">0.0839</td><td class="r">0.0673</td></tr>
+<tr><td><span style="white-space:nowrap">6 이상</span></td><td class="r">0.0839</td><td class="r">0.0839</td><td class="r">0.0673</td></tr>
 <tr class="hi"><td>분산</td><td class="r">3</td><td class="r">np(1 − p) = 2.999</td><td class="r">np(1 − p) = 2.55</td></tr>
 </tbody></table></div>
 <p>환자 1만 명 중 0.03%에게 생기는 드문 이상반응의 건수는 포아송(λ = 3)과 소수 넷째 자리까지 거의 같습니다. 반면 20명 중 15%에게 생기는 흔한 사건은 분산이 2.55로 포아송보다 작고 양 끝의 확률도 다릅니다. 한 사람에게 한 번만 일어날 수 있는 사건이 흔하면 포아송보다 이항분포(5장, 9장)가 맞는 모형입니다. 이 차이는 b 절의 수정 포아송 회귀에서 다시 나옵니다.</p>
 
 <h3>사건이 적거나 0건일 때의 신뢰구간 <span class="lv deep">심화</span></h3>
 <p>3단계 '헷갈리는 점'의 혈관부종 예(1,500인년에 3건, 1,000인년당 2.00건)의 95% 신뢰구간을 세 가지 방법으로 구하면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>방법</th><th>원리</th><th class="r">1,000인년당 95% CI</th><th>특징</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>방법</th><th>원리</th><th class="r">1,000인년당<br>95% CI</th><th>특징</th></tr></thead>
 <tbody>
-<tr><td>정규근사 <span class="en">(Wald)</span></td><td>점추정값을 중심으로 좌우 대칭</td><td class="r">−0.26 ~ 4.26</td><td>음수 하한이 나옴. 사건이 적으면 쓰면 안 됨</td></tr>
-<tr><td>로그 변환</td><td>로그 척도에서 대칭인 구간을 되돌림</td><td class="r">0.65 ~ 6.20</td><td>음수는 피하지만 사건이 적으면 부정확</td></tr>
-<tr class="hi"><td>정확 신뢰구간 <span class="en">(exact, Garwood)</span></td><td>포아송 분포에서 직접 계산</td><td class="r">0.41 ~ 5.84</td><td>사건이 적을 때 표준</td></tr>
+<tr><td>정규근사 <span class="en">(Wald)</span></td><td>점추정값 중심으로 좌우 대칭</td><td class="r"><span style="white-space:nowrap">−0.26 ~ 4.26</span></td><td>음수 하한이 나옴. 사건이 적으면 쓰면 안 됨</td></tr>
+<tr><td>로그 변환</td><td>로그 척도에서 대칭인 구간을 되돌림</td><td class="r"><span style="white-space:nowrap">0.65 ~ 6.20</span></td><td>음수는 피함. 사건이 적으면 부정확</td></tr>
+<tr class="hi"><td>정확 신뢰구간 <span class="en">(exact, Garwood)</span></td><td>포아송 분포에서 직접 계산</td><td class="r"><span style="white-space:nowrap">0.41 ~ 5.84</span></td><td>사건이 적을 때 표준</td></tr>
 </tbody></table></div>
 <p>정확 신뢰구간은 점추정값(2.00)을 중심으로 비대칭이어서 위쪽이 깁니다. 건수가 0 아래로는 내려갈 수 없고 위로는 얼마든지 커질 수 있는 분포의 모양이 그대로 반영된 것입니다. 사건이 0건일 때의 상한도 같은 방법으로 구합니다. 이보다 간단한 약식 계산으로, 0건일 때 단측 95% 상한을 "3 ÷ 인년"(3 ÷ 2,300 = 1,000인년당 1.30건)으로 구하는 '3의 법칙'<span class="en">(rule of three)</span>이 있습니다.</p>
 <!--FIG:ch12_coverage-->
@@ -767,12 +777,12 @@ alpha               0.8573      0.085     10.095      0.000       0.691       1.
 <h3>포아송 회귀와 Cox 모형 <span class="lv deep">심화</span></h3>
 <p>한 번만 일어나는 사건(사망, 첫 입원)에 포아송 회귀를 쓰면, 추적 기간 동안 사건의 속도(위험률<span class="en">(hazard)</span>)가 일정하다고 가정하는 셈입니다.</p>
 <p>위험률이 일정하다는 가정은 추적 기간을 여러 구간으로 나누어 풀 수 있습니다. 환자 한 명의 추적을 구간별로 쪼개 한 줄씩 만들고, 구간마다 다른 절편을 넣으면 "각 구간 안에서만 위험률이 일정하다"는 <strong>구간별 지수 모형</strong><span class="en">(piecewise exponential model)</span>이 됩니다. 구간을 사건 시점마다 잘게 나누면 이 모형의 계수는 Cox 모형의 계수와 사실상 같아집니다<cite data-ref="holford1980"></cite>. 7장의 신세포암 코호트(약물 A 152명, 약물 B 148명)로 확인해 보겠습니다.</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>분석</th><th class="r">약물 A 대 B (95% CI)</th><th>위험률에 대한 가정</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>분석</th><th class="r">약물 A 대 B (95% CI)</th><th>위험률에<br>대한 가정</th></tr></thead>
 <tbody>
-<tr><td>포아송 회귀, 구간 1개 (= 조사망률의 비, 7장 a 절)</td><td class="r">0.71 (0.54–0.93)</td><td>전체 추적 기간 동안 일정</td></tr>
-<tr><td>포아송 회귀, 1년 단위 구간 7개</td><td class="r">0.73 (0.56–0.96)</td><td>각 1년 안에서만 일정, 해마다 달라도 됨</td></tr>
-<tr class="hi"><td>Cox 모형 (7장 c 절, 11장)</td><td class="r">0.73 (0.55–0.96)</td><td>모양을 가정하지 않음</td></tr>
+<tr><td>포아송 회귀, 구간 1개 (= 조사망률의 비, 7장 a 절)</td><td class="r">0.71 <span style="white-space:nowrap">(0.54–0.93)</span></td><td>전체 추적 기간 동안 일정</td></tr>
+<tr><td>포아송 회귀, 1년 단위 구간 7개</td><td class="r">0.73 <span style="white-space:nowrap">(0.56–0.96)</span></td><td>각 1년 안에서만 일정, 해마다 달라도 됨</td></tr>
+<tr class="hi"><td>Cox 모형 (7장 c 절, 11장)</td><td class="r">0.73 <span style="white-space:nowrap">(0.55–0.96)</span></td><td>모양을 가정하지 않음</td></tr>
 </tbody></table></div>
 <p>약물 B군의 사망률은 첫해 100인년당 43.3명에서 넷째 해 21.7명으로 크게 변했지만, 1년 단위 구간을 두는 것만으로 결과가 Cox 모형과 거의 같아졌습니다. 두 모형 모두 약물의 효과(비)가 모든 구간에서 같다는 비례 가정은 공유합니다. 대규모 청구자료처럼 개인 단위 Cox 모형이 무겁거나, 나이·달력 연도처럼 시간에 따라 변하는 변수를 구간별로 넣고 싶을 때, 또는 사건 수와 인년만 있는 집계 자료일 때 포아송 회귀가 유용합니다. 반대로 한 번만 일어나는 사건에서 위험률의 모양을 가정하지 않으려면 Cox 모형(11장)을 씁니다.</p>
 <div class="callout note"><p class="ct">참고 · 반복 사건</p>

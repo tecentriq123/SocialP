@@ -537,12 +537,19 @@ nephrectomy km             0.018 0.892     0.165
 <h4>동점 처리</h4>
 <p>부분우도는 사망 시점마다 한 명씩 사망한다고 보고 계산하지만, 실제 자료에는 같은 날(또는 같은 달) 사망한 환자가 있습니다. 300명 코호트에서도 사망 210건이 161개 시점에서 일어났고, 37개 시점에 두 명 이상이 사망했습니다(최대 4명). 누가 먼저 사망했는지 알 수 없는 이런 <strong>동점</strong><span class="en">(tied event times)</span>을 처리하는 방법은 세 가지이고, 프로그램마다 기본값이 다릅니다.</p>
 <p class="tbl-cap"><b>표 11-3.</b> 동점 처리 방법과 300명 코호트의 위험비</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th>방법</th><th>같은 시점의 사망을 보는 방식</th><th class="r">300명 HR</th><th>쓰는 프로그램</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>방법</th><th>같은 시점의<br>사망을 보는 방식</th><th class="r">300명<br>HR</th></tr></thead>
 <tbody>
-<tr><td>Breslow</td><td>같은 시점에 사망한 사람들이 모두 같은 위험집합에서 사망했다고 봄(먼저 사망한 사람을 빼지 않음)</td><td class="r">0.7287</td><td>statsmodels PHReg(기본값), SAS PHREG·Stata stcox(기본값)</td></tr>
-<tr><td>Efron</td><td>같은 시점에 사망한 사람들을 뒤쪽 분모에서 평균적으로 조금씩 빼 줌</td><td class="r">0.7289</td><td>lifelines CoxPHFitter, statsmodels PHReg(ties="efron")</td></tr>
-<tr><td>discrete (exact)</td><td>그 시점의 위험집합에서 그 수만큼 사망하는 모든 조합 가운데 실제 조합이 나올 확률로 계산</td><td class="r">0.7278</td><td>lifelines·statsmodels에는 없음 (SAS의 TIES=DISCRETE 등)</td></tr>
+<tr><td>Breslow</td><td>같은 시점에 사망한 사람들이 모두 같은 위험집합에서 사망했다고 봄(먼저 사망한 사람을 빼지 않음)</td><td class="r">0.7287</td></tr>
+<tr><td>Efron</td><td>같은 시점에 사망한 사람들을 뒤쪽 분모에서 평균적으로 조금씩 빼 줌</td><td class="r">0.7289</td></tr>
+<tr><td>discrete (exact)</td><td>그 시점의 위험집합에서 그 수만큼 사망하는 모든 조합 가운데 실제 조합이 나올 확률로 계산</td><td class="r">0.7278</td></tr>
+</tbody></table></div>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>방법</th><th>쓰는 프로그램</th></tr></thead>
+<tbody>
+<tr><td>Breslow</td><td>statsmodels PHReg(기본값), SAS PHREG·Stata stcox(기본값)</td></tr>
+<tr><td>Efron</td><td>lifelines CoxPHFitter, statsmodels PHReg(ties="efron")</td></tr>
+<tr><td>discrete (exact)</td><td>lifelines·statsmodels에는 없음 (SAS의 TIES=DISCRETE 등)</td></tr>
 </tbody></table></div>
 <p>동점이 적으면 세 방법의 결과가 거의 같습니다(위 표). 동점이 많으면 차이가 커집니다. 같은 코호트의 사망 시간을 6개월 단위로 뭉뚱그리면 Breslow 0.743, Efron 0.724, exact 0.706으로, 동점이 적은 원래 자료의 0.729와 비교하면 Breslow 방법은 위험비를 1 쪽으로 끌어당기고 Efron 방법이 가장 가깝습니다. 동점이 많은 자료에서는 Breslow보다 Efron 방법이 낫다고 알려져 있습니다<cite data-ref="efron1977"></cite>. discrete 방법은 시간이 본래 띄엄띄엄한 자료(예: 몇 번째 방문)에 맞는 모형이라, 연속 시간을 뭉뚱그려 생긴 동점에서는 위험비가 아니라 구간별 사망 오즈의 비를 추정하므로 1에서 더 멀어집니다. 같은 자료를 lifelines와 statsmodels(기본값)로 분석했을 때 위험비의 끝자리가 다르다면 먼저 동점 처리 방법을 확인합니다. 세 방법의 계산식은 아래 '수식으로 보기'에 있습니다.</p>
 
@@ -696,16 +703,26 @@ nephrectomy km             0.018 0.892     0.165
 <p>\(t_j\)는 j번째 사망 시점, \(R_j\)는 그 직전까지 관찰 중이던 사람들(위험집합), \(x_{(j)}\)는 그때 사망한 사람의 값입니다. 기저위험률 \(h_0(t_j)\)가 분자와 분모에서 약분되어 사라집니다. 이 확률을 모든 사망 시점에 걸쳐 곱한 L(β)를 가장 크게 만드는 β가 추정값입니다(최대우도추정, 8장 e 절).</p></div>
 <p>7장의 환자 12명(약물 A 6명, 약물 B 6명)으로 계산해 봅니다. 약물 A를 x = 1, 약물 B를 x = 0으로 두면, 위험집합에 A 환자 n<sub>A</sub>명과 B 환자 n<sub>B</sub>명이 있을 때 B 환자가 사망할 확률은 1/(n<sub>A</sub>e<sup>β</sup> + n<sub>B</sub>), A 환자가 사망할 확률은 e<sup>β</sup>/(n<sub>A</sub>e<sup>β</sup> + n<sub>B</sub>)입니다.</p>
 <p class="tbl-cap"><b>표 11-4.</b> 12명 자료의 부분우도 계산 (위험집합은 7장 표 7-3과 같음)</p>
-<div class="tbl-wrap"><table class="tbl">
-<thead><tr><th class="r">t (개월)</th><th>사망한 환자</th><th class="r">n<sub>A</sub></th><th class="r">n<sub>B</sub></th><th>그 환자가 사망했을 확률</th><th class="r">β = 0 (HR 1)</th><th class="r">β = −1.473 (HR 0.229)</th></tr></thead>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th class="r">t<br>(개월)</th><th>사망한<br>환자</th><th class="r">n<sub>A</sub></th><th class="r">n<sub>B</sub></th><th>그 환자가<br>사망했을 확률</th></tr></thead>
 <tbody>
-<tr><td class="r">3</td><td>#1 (B)</td><td class="r">6</td><td class="r">6</td><td>1/(6e<sup>β</sup> + 6)</td><td class="r">1/12 = 0.083</td><td class="r">0.136</td></tr>
-<tr><td class="r">8</td><td>#3 (B)</td><td class="r">6</td><td class="r">4</td><td>1/(6e<sup>β</sup> + 4)</td><td class="r">1/10 = 0.100</td><td class="r">0.186</td></tr>
-<tr><td class="r">12</td><td>#4 (A), #5 (B)</td><td class="r">6</td><td class="r">3</td><td>두 명이 같은 날 사망(아래 '동점 처리의 식')</td><td class="r">1/72 = 0.014</td><td class="r">0.014</td></tr>
-<tr><td class="r">20</td><td>#7 (B)</td><td class="r">4</td><td class="r">2</td><td>1/(4e<sup>β</sup> + 2)</td><td class="r">1/6 = 0.167</td><td class="r">0.343</td></tr>
-<tr><td class="r">28</td><td>#9 (A)</td><td class="r">3</td><td class="r">1</td><td>e<sup>β</sup>/(3e<sup>β</sup> + 1)</td><td class="r">1/4 = 0.250</td><td class="r">0.136</td></tr>
-<tr><td class="r">38</td><td>#11 (B)</td><td class="r">1</td><td class="r">1</td><td>1/(e<sup>β</sup> + 1)</td><td class="r">1/2 = 0.500</td><td class="r">0.814</td></tr>
-<tr class="hi"><td colspan="5">로그 부분우도 (여섯 확률의 로그의 합)</td><td class="r">−12.935</td><td class="r">−11.227</td></tr>
+<tr><td class="r">3</td><td>#1 (B)</td><td class="r">6</td><td class="r">6</td><td>1/(6e<sup>β</sup> + 6)</td></tr>
+<tr><td class="r">8</td><td>#3 (B)</td><td class="r">6</td><td class="r">4</td><td>1/(6e<sup>β</sup> + 4)</td></tr>
+<tr><td class="r">12</td><td><span style="white-space:nowrap">#4 (A),</span> <span style="white-space:nowrap">#5 (B)</span></td><td class="r">6</td><td class="r">3</td><td>두 명이 같은 날 사망(아래 '동점 처리의 식')</td></tr>
+<tr><td class="r">20</td><td>#7 (B)</td><td class="r">4</td><td class="r">2</td><td>1/(4e<sup>β</sup> + 2)</td></tr>
+<tr><td class="r">28</td><td>#9 (A)</td><td class="r">3</td><td class="r">1</td><td>e<sup>β</sup>/(3e<sup>β</sup> + 1)</td></tr>
+<tr><td class="r">38</td><td>#11 (B)</td><td class="r">1</td><td class="r">1</td><td>1/(e<sup>β</sup> + 1)</td></tr>
+</tbody></table></div>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th class="r">t<br>(개월)</th><th>사망한<br>환자</th><th class="r">β = 0<br>(HR 1)</th><th class="r">β = −1.473<br>(HR 0.229)</th></tr></thead>
+<tbody>
+<tr><td class="r">3</td><td>#1 (B)</td><td class="r"><span style="white-space:nowrap">1/12 = 0.083</span></td><td class="r">0.136</td></tr>
+<tr><td class="r">8</td><td>#3 (B)</td><td class="r"><span style="white-space:nowrap">1/10 = 0.100</span></td><td class="r">0.186</td></tr>
+<tr><td class="r">12</td><td><span style="white-space:nowrap">#4 (A),</span> <span style="white-space:nowrap">#5 (B)</span></td><td class="r"><span style="white-space:nowrap">1/72 = 0.014</span></td><td class="r">0.014</td></tr>
+<tr><td class="r">20</td><td>#7 (B)</td><td class="r"><span style="white-space:nowrap">1/6 = 0.167</span></td><td class="r">0.343</td></tr>
+<tr><td class="r">28</td><td>#9 (A)</td><td class="r"><span style="white-space:nowrap">1/4 = 0.250</span></td><td class="r">0.136</td></tr>
+<tr><td class="r">38</td><td>#11 (B)</td><td class="r"><span style="white-space:nowrap">1/2 = 0.500</span></td><td class="r">0.814</td></tr>
+<tr class="hi"><td colspan="2">로그 부분우도 (여섯 확률의 로그의 합)</td><td class="r">−12.935</td><td class="r">−11.227</td></tr>
 </tbody></table></div>
 <ul>
 <li><b>β = 0</b>이면 모든 환자의 '빠르기'가 같아 확률은 1/(위험집합 크기)입니다. 3개월에는 12명 중 1명이므로 1/12입니다.</li>
