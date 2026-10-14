@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">고정효과 모형 (역분산 가중평균)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">w = 1 / es[&quot;vi&quot;]                            # 역분산 가중치
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">고정효과 모형 (역분산 가중평균)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">w = 1 / es[&quot;vi&quot;]                            # 역분산 가중치
 fe = np.sum(w * es[&quot;yi&quot;]) / np.sum(w)       # 가중평균
 se_fe = 1 / np.sqrt(np.sum(w))
 print(f&quot;sum w = {np.sum(w):.1f}, sum wy = {np.sum(w * es[&#x27;yi&#x27;]):.1f}&quot;)

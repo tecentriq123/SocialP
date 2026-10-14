@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">I²의 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def i2_ci(Q, k):
+    &quot;&quot;&quot;I²의 95% 신뢰구간: H = √(Q/(k-1))의 구간을 로그 척도에서 구해 I²로 바꿈&quot;&quot;&quot;
+    H = np.sqrt(Q / (k - 1))
+    if Q &gt; k:
+        se_lnH = (0.5 * (np.log(Q) - np.log(k - 1))
+                  / (np.sqrt(2 * Q) - np.sqrt(2 * k - 3)))
+    else:
+        se_lnH = np.sqrt(1 / (2 * (k - 2)) * (1 - 1 / (3 * (k - 2)**2)))
+    H_lo, H_hi = np.exp(np.log(H) - Z * se_lnH), np.exp(np.log(H) + Z * se_lnH)
+    return [max(0, (h**2 - 1) / h**2) for h in (H_lo, H_hi)]
+
+print(&quot;all 10   : I2 {:.0%}, 95% CI {:.0%}-{:.0%}&quot;.format(
+    m[&quot;I2&quot;], *i2_ci(m[&quot;Q&quot;], m[&quot;k&quot;])))
+for g in [&quot;STEMI&quot;, &quot;NSTE-ACS&quot;]:
+    print(&quot;{:9}: I2 {:.0%}, 95% CI {:.0%}-{:.0%}&quot;.format(
+        g, sg.loc[g, &quot;I2&quot;], *i2_ci(sg.loc[g, &quot;Q&quot;], sg.loc[g, &quot;k&quot;])))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>all 10   : I2 32%, 95% CI 0%-68%<span class="mk">1</span>
+STEMI    : I2 3%, 95% CI 0%-75%<span class="mk">2</span>
+NSTE-ACS : I2 18%, 95% CI 0%-63%</pre></div></div>

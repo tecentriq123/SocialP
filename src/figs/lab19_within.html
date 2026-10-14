@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">시험 안의 차이를 먼저 구해 합치기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">stemi = sub[sub[&quot;subgroup&quot;] == &quot;STEMI&quot;].set_index(&quot;trial&quot;)
+nste = sub[sub[&quot;subgroup&quot;] == &quot;NSTE-ACS&quot;].set_index(&quot;trial&quot;)
+dy = stemi[&quot;yi&quot;] - nste[&quot;yi&quot;]               # 시험 안의 로그 오즈비 차이
+dv = stemi[&quot;vi&quot;] + nste[&quot;vi&quot;]               # 그 분산
+print(np.exp(dy).round(2).to_string())      # 시험마다 오즈비의 비
+mw = pool(dy, dv)
+p_w = 2 * stats.norm.sf(abs(mw[&quot;re&quot;] / mw[&quot;se_re&quot;]))
+print(&quot;within-trial:&quot;, orci(mw[&quot;re&quot;], mw[&quot;se_re&quot;]))
+print(f&quot;P {p_w:.2f}, I2 {mw[&#x27;I2&#x27;]:.0%}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>trial
+Trial A    0.63<span class="mk">1</span>
+Trial B    2.23
+Trial D    0.83
+Trial F    0.86
+Trial H    0.77
+Trial I    0.86
+within-trial: 0.86 (0.73-1.02)<span class="mk">2</span>
+P 0.08, I2 0%<span class="mk">3</span></pre></div></div>

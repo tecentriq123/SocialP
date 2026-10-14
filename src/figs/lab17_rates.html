@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">군별 사건 수, 인년, 발생률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rate = ckd.groupby(&quot;drug&quot;).agg(
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">군별 사건 수, 인년, 발생률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rate = ckd.groupby(&quot;drug&quot;).agg(
     n=(&quot;id&quot;, &quot;size&quot;), py=(&quot;years&quot;, &quot;sum&quot;),
     dial=(&quot;dial&quot;, &quot;sum&quot;), death=(&quot;death&quot;, &quot;sum&quot;))
 rate[&quot;mean_fu&quot;] = rate[&quot;py&quot;] / rate[&quot;n&quot;]

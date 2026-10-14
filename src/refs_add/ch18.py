@@ -1,6 +1,14 @@
 # Chapter 18 (정책 효과의 평가). Bibliographic details checked against PubMed records (2026-10-02).
-# wagner2002, bernal2017, dimick2014 are in ch14b.py; barnett2005 is in ch03.py.
+# barnett2005 is in ch03.py; vonelm2007 and langan2018 are in ch14.py.
+# wagner2002, bernal2017, dimick2014 were defined only in the old-version file ch14b.py; they are copied here
+# with identical text (2026-10-14) so that chapter 18 keeps them if that file is retired (identical text gives no warning).
 ADD = {
+    "wagner2002": {"text": "Wagner AK, Soumerai SB, Zhang F, Ross-Degnan D. Segmented regression analysis of interrupted time series studies in medication use research. <i>J Clin Pharm Ther</i>. 2002;27(4):299-309.",
+                   "doi": "10.1046/j.1365-2710.2002.00430.x"},
+    "bernal2017": {"text": "Bernal JL, Cummins S, Gasparrini A. Interrupted time series regression for the evaluation of public health interventions: a tutorial. <i>Int J Epidemiol</i>. 2017;46(1):348-355.",
+                   "doi": "10.1093/ije/dyw098"},
+    "dimick2014": {"text": "Dimick JB, Ryan AM. Methods for evaluating changes in health care policy: the difference-in-differences approach. <i>JAMA</i>. 2014;312(22):2401-2402.",
+                   "doi": "10.1001/jama.2014.16153"},
     "lopezbernal2018": {"text": "Lopez Bernal J, Cummins S, Gasparrini A. The use of controls in interrupted time series studies of public health interventions. <i>Int J Epidemiol</i>. 2018;47(6):2082-2093.",
                         "doi": "10.1093/ije/dyy135"},
     "kontopantelis2015": {"text": "Kontopantelis E, Doran T, Springate DA, Buchan I, Reeves D. Regression based quasi-experimental approach when randomisation is not an option: interrupted time series analysis. <i>BMJ</i>. 2015;350:h2750.",

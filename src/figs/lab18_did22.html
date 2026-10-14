@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">2×2 평균표와 이중차분 추정값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m = both.groupby([&quot;group&quot;, &quot;post&quot;])[&quot;rate&quot;].mean().unstack(&quot;post&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">2×2 평균표와 이중차분 추정값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">m = both.groupby([&quot;group&quot;, &quot;post&quot;])[&quot;rate&quot;].mean().unstack(&quot;post&quot;)
 m.columns = [&quot;before&quot;, &quot;after&quot;]
 m[&quot;change&quot;] = m[&quot;after&quot;] - m[&quot;before&quot;]
 m.loc[&quot;difference&quot;] = m.loc[1] - m.loc[0]

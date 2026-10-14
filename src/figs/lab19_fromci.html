@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">신뢰구간에서 표준오차 되살리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 논문에 &quot;adjusted RR 0.88 (95% CI 0.79-0.98)&quot;만 있을 때
+rr_r, lo_r, hi_r = 0.88, 0.79, 0.98
+y_r = np.log(rr_r)                              # 로그 척도로
+se_r = (np.log(hi_r) - np.log(lo_r)) / (2 * Z)  # 구간 폭 / (2 x 1.96)
+print(f&quot;log RR {y_r:.3f}, SE {se_r:.3f}, weight {1 / se_r**2:.0f}&quot;)
+print(f&quot;largest trial weight: {w.max():.1f}&quot;)
+
+# &quot;HR 0.82 (95% CI 0.70-0.96)&quot;도 같은 방법
+se_h = (np.log(0.96) - np.log(0.70)) / (2 * Z)
+print(f&quot;log HR {np.log(0.82):.3f}, SE {se_h:.3f}&quot;)
+
+# 확인: Trial I의 보고된 구간 0.55-0.90에서 되살리면
+print(f&quot;Trial I: SE from CI {(np.log(0.90) - np.log(0.55)) / (2 * Z):.3f}&quot;
+      f&quot; vs from counts {es.loc[8, &#x27;se&#x27;]:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>log RR -0.128, SE 0.055, weight 331<span class="mk">1</span>
+largest trial weight: 254.7<span class="mk">2</span>
+log HR -0.198, SE 0.081<span class="mk">3</span>
+Trial I: SE from CI 0.126<span class="mk">4</span> vs from counts 0.124</pre></div></div>

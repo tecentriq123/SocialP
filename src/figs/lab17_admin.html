@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">중도절단이 자료 마감뿐인지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cens = ckd[&quot;status&quot;] == 0
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">중도절단이 자료 마감뿐인지 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cens = ckd[&quot;status&quot;] == 0
 same = ckd.loc[cens, &quot;years&quot;] == ckd.loc[cens, &quot;max_years&quot;]
 early = ckd.loc[~cens, &quot;years&quot;] &lt; ckd.loc[~cens, &quot;max_years&quot;]
 print(&quot;중도절단 시점 = 자료 마감:&quot;, same.all())

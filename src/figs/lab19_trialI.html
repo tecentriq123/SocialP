@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">시험 하나의 로그 오즈비와 표준오차 (Trial I)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t = tr[tr[&quot;trial&quot;] == &quot;Trial I&quot;].iloc[0]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">시험 하나의 로그 오즈비와 표준오차 (Trial I)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">t = tr[tr[&quot;trial&quot;] == &quot;Trial I&quot;].iloc[0]
 a, c = t[&quot;mace_x&quot;], t[&quot;mace_pbo&quot;]           # 사건이 생긴 사람
 b, d = t[&quot;n_x&quot;] - a, t[&quot;n_pbo&quot;] - c         # 생기지 않은 사람
 or_i = (a * d) / (b * c)

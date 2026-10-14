@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">lifelines 함수로 같은 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import to_long_format, add_covariate_to_timeline
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">lifelines 함수로 같은 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines.utils import to_long_format, add_covariate_to_timeline
 
 base = to_long_format(d[[&quot;id&quot;, &quot;fu_days&quot;, &quot;died&quot;]],
                       duration_col=&quot;fu_days&quot;)

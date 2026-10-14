@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">한 사람 한 줄 자료를 긴 형식으로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">u = d[d[&quot;ever&quot;] == 1]        # 약을 시작한 사람: 두 줄
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">한 사람 한 줄 자료를 긴 형식으로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">u = d[d[&quot;ever&quot;] == 1]        # 약을 시작한 사람: 두 줄
 nu = d[d[&quot;ever&quot;] == 0]       # 시작하지 않은 사람: 한 줄
 before = pd.DataFrame({&quot;id&quot;: u[&quot;id&quot;], &quot;start&quot;: 0.0,
                        &quot;stop&quot;: u[&quot;rx_day&quot;], &quot;drugx&quot;: 0, &quot;died&quot;: 0})

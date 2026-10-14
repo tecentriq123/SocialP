@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">추적 중 사용 여부로 군 나누기 (잘못된 분류)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d[&quot;ever&quot;] = d[&quot;rx_day&quot;].notna().astype(int)   # 1년 안에 시작 = 1
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">추적 중 사용 여부로 군 나누기 (잘못된 분류)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d[&quot;ever&quot;] = d[&quot;rx_day&quot;].notna().astype(int)   # 1년 안에 시작 = 1
 
 t1 = d.groupby(&quot;ever&quot;)[&quot;died&quot;].agg([&quot;count&quot;, &quot;sum&quot;, &quot;mean&quot;])
 t1.columns = [&quot;n&quot;, &quot;deaths&quot;, &quot;risk&quot;]

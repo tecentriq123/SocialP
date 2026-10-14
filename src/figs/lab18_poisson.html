@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">건수 자료의 포아송 분절회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pois = smf.glm(&quot;n_sed ~ time + post + time_after&quot;, data=its,
+               family=sm.families.Poisson(),
+               offset=np.log(its[&quot;n_pat&quot;]))       # 분모는 오프셋으로
+fit_p = pois.fit(cov_type=&quot;HAC&quot;, cov_kwds={&quot;maxlags&quot;: 3})
+
+ratio = np.exp(fit_p.conf_int())                  # 신뢰구간을 비로
+ratio.columns = [&quot;lower&quot;, &quot;upper&quot;]
+ratio.insert(0, &quot;ratio&quot;, np.exp(fit_p.params))    # 계수를 비로
+print(ratio.round(4))
+
+e12 = fit_p.t_test(&quot;post + 12 * time_after = 0&quot;)  # 12개월째 (로그 척도)
+print(&quot;12 months:&quot;, np.exp(e12.effect).round(3),
+      np.exp(e12.conf_int()).round(3))
+print(&quot;Pearson chi2 / df:&quot;,
+      round(fit_p.pearson_chi2 / fit_p.df_resid, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             ratio   lower   upper
+Intercept   0.0957<span class="mk">3</span>  0.0948  0.0966
+time        0.9973  0.9968  0.9979
+post        0.9164  0.8921  0.9413<span class="mk">1</span>
+time_after  0.9963<span class="mk">2</span>  0.9948  0.9978
+12 months: [0.877] [[0.856 0.898]]<span class="mk">4</span>
+Pearson chi2 / df: 6.9<span class="mk">5</span></pre></div></div>

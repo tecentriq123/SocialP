@@ -1,0 +1,66 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">약이 사망에 주는 영향을 바꾼 이론값 (17장 표 17-5)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def cif_const(h1, h2, t=5):
+    &quot;&quot;&quot;두 원인별 위험률이 일정할 때 사건 1의 t년 누적발생률&quot;&quot;&quot;
+    return h1 / (h1 + h2) * (1 - np.exp(-(h1 + h2) * t))
+
+ref = cif_const(0.10, 0.20)      # B군: 투석 연 0.10, 사망 연 0.20
+print(f&quot;B: {ref * 100:.1f}%&quot;)
+
+scen = {&quot;fewer death&quot;: (1.00, 0.55),     # (투석, 사망)의 원인별 위험비
+        &quot;slower dial&quot;: (0.80, 1.00),
+        &quot;both&quot;: (0.80, 0.55),
+        &quot;more death&quot;: (1.00, 1.50)}
+rows = []
+for name, (hr_d, hr_m) in scen.items():
+    fa_s = cif_const(0.10 * hr_d, 0.20 * hr_m)   # A군의 위험률로 계산
+    rows.append([name, fa_s * 100, np.log(1 - fa_s) / np.log(1 - ref),
+                 hr_d, hr_m])
+theory = pd.DataFrame(rows, columns=[&quot;case&quot;, &quot;A&quot;, &quot;sHR_5y&quot;,
+                                     &quot;cs_dial&quot;, &quot;cs_death&quot;])
+theory.set_index(&quot;case&quot;).round({&quot;A&quot;: 1, &quot;sHR_5y&quot;: 2})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>B: 25.9%<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>A</th>
+      <th>sHR_5y</th>
+      <th>cs_dial</th>
+      <th>cs_death</th>
+    </tr>
+    <tr>
+      <th>case</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>fewer death</th>
+      <td>31.0<span class="mk">2</span></td>
+      <td>1.24<span class="mk">3</span></td>
+      <td>1.0</td>
+      <td>0.55</td>
+    </tr>
+    <tr>
+      <th>slower dial</th>
+      <td>21.5<span class="mk">4</span></td>
+      <td>0.81</td>
+      <td>0.8</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>both</th>
+      <td>25.8<span class="mk">5</span></td>
+      <td>1.00</td>
+      <td>0.8</td>
+      <td>0.55</td>
+    </tr>
+    <tr>
+      <th>more death</th>
+      <td>21.6<span class="mk">6</span></td>
+      <td>0.81</td>
+      <td>1.0</td>
+      <td>1.50</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

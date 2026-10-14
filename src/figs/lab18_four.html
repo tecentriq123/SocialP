@@ -1,0 +1,56 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">같은 척도로 본 네 가지 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">avg = {}
+for name in [&quot;pilot&quot;, &quot;difference&quot;]:
+    t = fits[name].t_test(&quot;post + 12.5 * time_after = 0&quot;)   # 24개월 평균
+    avg[name] = [t.effect[0], *t.conf_int()[0]]
+lo, hi = did.conf_int().loc[&quot;treat:post&quot;]
+
+four = pd.DataFrame(
+    [[m.loc[1, &quot;change&quot;], np.nan, np.nan],         # 셀 24의 전후 변화
+     avg[&quot;pilot&quot;], avg[&quot;difference&quot;],
+     [did.params[&quot;treat:post&quot;], lo, hi],
+     [-5.0 + 12.5 * -0.20, np.nan, np.nan]],       # 모의자료에 넣은 효과
+    index=[&quot;before-after&quot;, &quot;ITS, pilot&quot;, &quot;controlled ITS&quot;,
+           &quot;DID&quot;, &quot;true effect&quot;],
+    columns=[&quot;estimate&quot;, &quot;lower&quot;, &quot;upper&quot;])
+four.round(2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>estimate</th>
+      <th>lower</th>
+      <th>upper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>before-after</th>
+      <td>-17.46<span class="mk">1</span></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>ITS, pilot</th>
+      <td>-10.20<span class="mk">2</span></td>
+      <td>-12.29</td>
+      <td>-8.11</td>
+    </tr>
+    <tr>
+      <th>controlled ITS</th>
+      <td>-7.32<span class="mk">3</span></td>
+      <td>-8.14</td>
+      <td>-6.50</td>
+    </tr>
+    <tr>
+      <th>DID</th>
+      <td>-7.40<span class="mk">4</span></td>
+      <td>-7.87</td>
+      <td>-6.94</td>
+    </tr>
+    <tr>
+      <th>true effect</th>
+      <td>-7.50<span class="mk">5</span></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

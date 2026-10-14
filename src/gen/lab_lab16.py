@@ -1,10 +1,15 @@
 """실습 16 · 불멸시간 편향과 시간의존 Cox 모형 — cells run for real with labkit.
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab16.py && python3 gen/lab_lab16.py
+      then  python3 tools/nbcheck.py lab16   (runs the notebook alone in a fresh process and compares outputs)
       (NOMARK=1 python3 gen/lab_lab16.py prints every cell's raw output without marks)
 
 Data: pub/data/ami_cohort.csv (gen/data_lab16.py; the chapter 16 cohort of gen/nums_ch16.py).
 The check block at the end compares the lab's numbers with gen/_ch16_nums.json.
+(2026-10-14: 16장을 PART 3의 새 틀로 고친 뒤 '실습 16에 더할 것'을 반영했다. 버전 셀 2, 표 16-1의 작은 예 셀 6,
+ 기간을 나눈 비교 셀 21, 효과가 있는 약 셀 24, 출력 해석 과제의 정답 셀 25를 더했고, 과제를 ① 출력 해석
+ ② 조건을 바꿔 비교(시차) ③ 잘못된 분석 판단(첫 처방 전 시간을 버린 분석, 랜드마크 뒤 처방까지 넣은 분석)으로
+ 다시 묶었다. 셀 번호가 모두 바뀌었다.)
 """
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -57,13 +62,24 @@ c = nb.cell('''
 !pip install lifelines
 ''', title="lifelines 설치", shell_output=PIP_OUT)
 save("lab16_install", c)
-NOTES[c.n] = "## 가. 실습 데이터 준비"
+NOTES[c.n] = ("## 가. 실습 데이터 준비\n\nColab에서는 런타임이 새로 배정될 때마다 lifelines를 설치합니다"
+              "(나 절부터 씁니다).")
 
 c = nb.cell('''
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib, lifelines
 
+print("pandas    ", pd.__version__)
+print("numpy     ", np.__version__)
+print("matplotlib", matplotlib.__version__)
+print("lifelines ", lifelines.__version__)
+''', title="패키지 불러오기와 버전 확인")
+save("lab16_versions", c, marks={"pandas     3.0.5": 1, "lifelines  0.30.3": 2})
+NOTES[c.n] = "출력을 만든 패키지의 버전을 확인합니다. 내 화면의 출력이 사이트와 다를 때 먼저 비교합니다."
+
+c = nb.cell('''
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
 UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 d = pd.read_csv(BASE + "ami_cohort.csv", storage_options=UA)
@@ -100,6 +116,32 @@ save("lab16_rxdist", c, marks={"count    2734.0": 1, "25%         2.1": 2, "50% 
 
 # ---------------------------------------------------------------- 나. 불멸시간 편향 재현하기
 c = nb.cell('''
+small = pd.DataFrame({
+    "who": ["future users, 0-6 mo", "others, 0-6 mo",
+            "users, 6-12 mo", "never users, 6-12 mo"],
+    "py": [200, 300, 200, 250],                # 인년
+    "deaths": [0, 100, 40, 50]})
+# 네 분석이 네 줄을 어디에 넣는가 (E 노출, U 비노출, - 버림)
+plan = {"1 ever user":    ["E", "U", "E", "U"],
+        "2 dropped":      ["-", "U", "E", "U"],
+        "3 time-varying": ["U", "U", "E", "U"],
+        "4 landmark":     ["-", "-", "E", "U"]}
+rows = {}
+for name, where in plan.items():
+    small["arm"] = where
+    g = small.groupby("arm")[["deaths", "py"]].sum()
+    g["rate"] = g["deaths"] / g["py"] * 100    # 100인년당 사망률
+    fmt = lambda k: f"{g.loc[k, 'deaths']}/{g.loc[k, 'py']} ({g.loc[k, 'rate']:.1f})"
+    rows[name] = {"exposed": fmt("E"), "unexposed": fmt("U"),
+                  "IRR": f"{g.loc['E', 'rate'] / g.loc['U', 'rate']:.2f}"}
+tab1 = pd.DataFrame(rows).T
+tab1
+''', title="표 16-1의 작은 예를 네 가지로 분석하기")
+save("lab16_small", c, dfmarks={"40/400 (10.0)": 1, "0.37": 2, "0.73": 3, "150/750 (20.0)": 4, "50/250 (20.0)": 5})
+NOTES[c.n] = ("## 나. 불멸시간 편향 재현하기\n\n먼저 16장 표 16-1의 작은 예를 계산하고, 그다음 일부러 잘못된 분석을 합니다. "
+              "추적 중 한 번이라도 약을 시작한 사람을 처음부터 사용군으로 두고 퇴원일부터 추적합니다.")
+
+c = nb.cell('''
 d["ever"] = d["rx_day"].notna().astype(int)   # 1년 안에 시작 = 1
 
 t1 = d.groupby("ever")["died"].agg(["count", "sum", "mean"])
@@ -109,8 +151,6 @@ t1["risk"] = (t1["risk"] * 100).round(1)       # 1년 사망 위험(%)
 t1
 ''', title="추적 중 사용 여부로 군 나누기 (잘못된 분류)")
 save("lab16_ever", c, marks={"상대위험도: 0.42": 1}, dfmarks={"3266": 2, "28.0": 3, "11.7": 4})
-NOTES[c.n] = ("## 나. 불멸시간 편향 재현하기\n\n일부러 잘못된 분석을 합니다. 추적 중 한 번이라도 약을 시작한 사람을 "
-              "처음부터 사용군으로 두고 퇴원일부터 추적합니다.")
 
 c = nb.cell('''
 from lifelines import KaplanMeierFitter
@@ -168,8 +208,8 @@ print(f"사망률 {rate_u:.1f} 대 {rate_nu:.1f},"
 ''', title="사용군의 불멸 인년 계산")
 save("lab16_immortal", c, marks={"사용군 2613인년": 1, "첫 처방 전 1142인년 (44%)": 2, "비사용군 2699인년": 3,
                                  "사망률 12.3 대 33.8": 4, "발생률비 0.36": 5})
-NOTES[c.n] = ("셀 8은 일부러 오류를 내 보는 셀이어서 이 노트북에서는 뺐습니다(사이트의 실습 16 나 절에 있습니다). "
-              "셀 번호는 사이트와 같게 두었으므로 셀 7 다음이 셀 9입니다.")
+NOTES[c.n] = (f"셀 {ERR_CELL}은 일부러 오류를 내 보는 셀이어서 이 노트북에서는 뺐습니다(사이트의 실습 16 나 절에 있습니다). "
+              f"셀 번호는 사이트와 같게 두었으므로 셀 {ERR_CELL - 1} 다음이 셀 {ERR_CELL + 1}입니다.")
 
 c = nb.cell('''
 print("사용군에서 첫 처방 전에 사망한 사람:",
@@ -301,6 +341,40 @@ save("lab16_ctv", c, marks={"number of periods = 8734": 1, "number of events = 1
                             "0.900": 5, "1.182": 6, "0.656": 7})
 
 c = nb.cell('''
+cuts = [0, 365 * 3 / 12, 365 * 6 / 12, 365]   # 0, 3, 6, 12개월 (일)
+rows = []
+for a, b in zip(cuts[:-1], cuts[1:]):
+    s = long["start"].clip(lower=a)          # 이 기간 안에서 줄이 시작하는 날
+    e = long["stop"].clip(upper=b)           # 이 기간 안에서 줄이 끝나는 날
+    py = (e - s).clip(lower=0) / 365         # 이 기간에 든 인년
+    dead = (long["died"] == 1) & (long["stop"] > a) & (long["stop"] <= b)
+    g = pd.DataFrame({"drugx": long["drugx"], "deaths": dead,
+                      "py": py}).groupby("drugx").sum()
+    dU, pU = g.loc[0, "deaths"], g.loc[0, "py"]   # 비노출
+    dE, pE = g.loc[1, "deaths"], g.loc[1, "py"]   # 노출
+    rows.append([dU / pU * 100, dE / pE * 100, dU, pU, dE, pE])
+per = pd.DataFrame(rows, index=["0-3 mo", "3-6 mo", "6-12 mo"],
+                   columns=["rate U", "rate E", "deaths U", "PY U",
+                            "deaths E", "PY E"])
+per.insert(2, "IRR", per["rate E"] / per["rate U"])
+
+first = per.loc["0-3 mo", ["PY U", "PY E"]] / per[["PY U", "PY E"]].sum()
+print(f"0-3개월에 든 인년: 비노출 {first['PY U']:.0%}, 노출 {first['PY E']:.0%}")
+w = per["PY U"] + per["PY E"]
+mh = ((per["deaths E"] * per["PY U"] / w).sum()
+      / (per["deaths U"] * per["PY E"] / w).sum())
+print(f"단순한 비 {t3.loc[1, 'rate'] / t3.loc[0, 'rate']:.2f},"
+      f" Mantel-Haenszel {mh:.2f},"
+      f" Cox {ctv.summary.loc['drugx', 'exp(coef)']:.2f}")
+per.round({"rate U": 1, "rate E": 1, "IRR": 2, "PY U": 0, "PY E": 0})
+''', title="기간을 나눠 같은 시기끼리 견주기")
+save("lab16_periods", c, marks={"비노출 34%": 1, "노출 8%": 2, "단순한 비 0.92": 3, "Mantel-Haenszel 1.01": 4,
+                                "Cox 1.03": 5},
+     dfmarks={"28.8": 6, "30.0": 7, "0.94": 8})
+NOTES[c.n] = ("퇴원 후 기간을 0-3, 3-6, 6-12개월로 나눠 같은 시기끼리 노출 상태를 견줍니다"
+              "(16장 다 절 '더 알아보기'의 '퇴원 후 기간을 나눠 같은 시기끼리 견주면').")
+
+c = nb.cell('''
 from lifelines.utils import to_long_format, add_covariate_to_timeline
 
 base = to_long_format(d[["id", "fu_days", "died"]],
@@ -319,47 +393,66 @@ save("lab16_utils", c, marks={"8734 줄, HR (95% CI): 1.03 (0.90-1.18)": 1}, dfm
 
 c = nb.cell('''
 pd.DataFrame({"HR (95% CI)": {
-    "ever vs never use, from discharge": hr_ci(cph, "ever"),
-    "landmark at 3 months": hr_ci(cph_lm, "exposed"),
-    "time-varying exposure": hr_ci(ctv, "drugx")}})
+    "ever user (wrong)": hr_ci(cph, "ever"),
+    "landmark 3 mo": hr_ci(cph_lm, "exposed"),
+    "time-varying": hr_ci(ctv, "drugx")}})
 ''', title="세 분석의 위험비 비교")
 save("lab16_compare", c, dfmarks={"0.37 (0.32-0.42)": 1, "0.94 (0.78-1.14)": 2, "1.03 (0.90-1.18)": 3})
+
+c = nb.cell('''
+LAM, K = 6.25, 0.8    # 약이 없을 때의 사망 시점을 만든 와이블 분포(척도 년, 모양)
+
+def H(t):             # 퇴원 후 t년까지 쌓인 위험(누적위험)
+    return (t / LAM) ** K
+
+def H_inv(h):         # 쌓인 위험이 h가 되는 시점(년)
+    return LAM * h ** (1 / K)
+
+de = d.copy()                                  # 효과가 있는 약의 자료
+k = (de["ever"] == 1) & (de["died"] == 1)      # 약을 시작한 뒤 사망한 사람
+t0, ti = de.loc[k, "fu_days"] / 365, de.loc[k, "rx_day"] / 365
+t1 = H_inv(H(ti) + (H(t0) - H(ti)) / 0.7)      # 시작 뒤 위험이 0.7배로 쌓이면
+de.loc[k, "died"] = (t1 <= 1).astype(int)
+de.loc[k, "fu_days"] = np.minimum(t1, 1) * 365
+print("사망", d["died"].sum(), "->", de["died"].sum(), "명")
+
+lg = add_covariate_to_timeline(
+    to_long_format(de[["id", "fu_days", "died"]], duration_col="fu_days"),
+    de.loc[de["ever"] == 1, ["id", "rx_day"]].assign(drugx=1),
+    id_col="id", duration_col="rx_day", event_col="died").fillna({"drugx": 0})
+res = {"ever user (wrong)": hr_ci(CoxPHFitter().fit(
+           de, "fu_days", "died", formula="ever"), "ever"),
+       "time-varying": hr_ci(CoxTimeVaryingFitter().fit(
+           lg, id_col="id", event_col="died",
+           start_col="start", stop_col="stop"), "drugx")}
+for m in [1, 3, 6]:
+    res[f"landmark {m} mo"] = landmark(de, m)["HR (95% CI)"]
+pd.DataFrame({"HR (95% CI), true 0.70": res})
+''', title="약물 X에 실제 효과가 있다면 (참값 0.70)")
+save("lab16_effect", c, marks={"-> 1138 명": 1},
+     dfmarks={"0.25 (0.22-0.29)": 2, "0.71 (0.61-0.83)": 3, "0.78 (0.58-1.04)": 4, "0.65 (0.52-0.81)": 5})
+NOTES[c.n] = ("약물 X가 시작 뒤 사망 위험률을 0.7배로 낮추도록 자료를 바꿔 세 분석을 다시 합니다"
+              "(16장 가 절 3단계 넷째 함정, 나 절 2단계).")
 N_MAIN = len(nb.cells)
 
 # ---------------------------------------------------------------- 마. 과제 (정답 셀)
 c = nb.cell('''
-L = 365 * 3 / 12
-lm_w = d[d["fu_days"] > L].copy()          # 3개월 생존자
-lm_w["t_lm"] = lm_w["fu_days"] - L
-print(lm_w.groupby("ever")["died"].agg(["count", "sum"]))
-m1 = CoxPHFitter().fit(lm_w, "t_lm", "died", formula="ever")
-print("HR (95% CI):", hr_ci(m1, "ever"))
-
-late = lm_w[lm_w["rx_day"] > L]            # 3개월 뒤에 시작한 사람
-print(len(late), "명의 3개월부터 첫 처방까지:",
-      round((late["rx_day"] - L).sum() / 365), "인년")
-''', title="과제 1 정답. 랜드마크 뒤의 처방까지 넣어 군을 나누면")
-save("lab16_hw1", c, marks={"HR (95% CI): 0.53 (0.46-0.62)": 1, "1763 명": 2})
-NOTES[c.n] = ("## 과제 정답\n\n**과제 1.** 3개월 랜드마크 분석에서 군을 '3개월까지 시작했는가'(exposed)가 아니라 "
-              "'1년 안에 한 번이라도 시작했는가'(ever)로 나누면 위험비가 얼마로 나옵니까?")
-
-c = nb.cell('''
-ex2 = pd.concat([
-    pd.DataFrame({"t": u["fu_days"] - u["rx_day"],   # 첫 처방일부터
-                  "died": u["died"], "ever": 1}),
-    pd.DataFrame({"t": nu["fu_days"],                # 퇴원일부터
-                  "died": nu["died"], "ever": 0})])
-py2 = ex2.groupby("ever")["t"].sum() / 365
-rate2 = ex2.groupby("ever")["died"].sum() / py2 * 100
-print("인년:", py2.round(0).to_dict())
-print("100인년당 사망률:", rate2.round(1).to_dict(),
-      " 발생률비:", round(rate2[1] / rate2[0], 2))
-m2 = CoxPHFitter().fit(ex2, "t", "died", formula="ever")
-print("HR (95% CI):", hr_ci(m2, "ever"))
-''', title="과제 2 정답. 첫 처방 전 시간을 버리기만 하면")
-save("lab16_hw2", c, marks={"1: 1471.0": 1, "발생률비: 0.65": 2, "HR (95% CI): 0.58 (0.51-0.66)": 3})
-NOTES[c.n] = ("**과제 2.** 사용군은 첫 처방일부터, 비사용군은 퇴원일부터 추적하면(첫 처방 전 시간을 버리면) "
-              "사망률, 발생률비, 위험비가 어떻게 됩니까?")
+print("랜드마크 분석:", len(lm), "명, 3개월 전 사망으로 제외",
+      len(d) - len(lm), "명")
+print("  분석에 쓴 사망", lm["died"].sum(), "건 / 전체",
+      d["died"].sum(), "건")
+print("  비노출군 가운데 3개월 뒤 시작", late, "명",
+      f"({late / (lm['exposed'] == 0).sum():.1%})")
+n_pt = long.groupby("drugx")["id"].nunique()   # 상태별로 시간을 보탠 환자
+print("시간의존 분석: 비노출 시간을 보탠 환자", n_pt[0], "명,",
+      "노출 시간을 보탠 환자", n_pt[1], "명, 합", n_pt.sum(), "명")
+print("  분석에 쓴 사망", long["died"].sum(), "건, 인년",
+      round(long["py"].sum()))
+''', title="과제 1 정답. 두 위험비가 답하는 대상 확인")
+save("lab16_hw1", c, marks={"제외 417 명": 1, "분석에 쓴 사망 817 건": 2, "(37.9%)": 3,
+                            "비노출 시간을 보탠 환자 6000 명": 4, "합 8734 명": 5})
+NOTES[c.n] = ("## 과제 정답\n\n**과제 1.** 셀 23의 3개월 랜드마크 행과 시간의존 노출 행을 Results 문장으로 옮기고, "
+              "두 값이 각각 말해 주지 않는 것과 그 근거가 되는 숫자를 찾습니다.")
 
 c = nb.cell('''
 def make_long(d, lag=0):
@@ -390,11 +483,43 @@ print("시차 30일 HR (95% CI):", hr_ci(m3, "drugx"))
 chk = add_covariate_to_timeline(base, rx, id_col="id",
     duration_col="rx_day", event_col="died", delay=30)
 print("lifelines delay=30:", len(chk), "줄")
-''', title="과제 3 정답. 시차 30일을 둔 노출")
-save("lab16_hw3", c, marks={"8555 줄": 1, "1254.0": 2, "시차 30일 HR (95% CI): 1.03 (0.89-1.19)": 3,
+''', title="과제 2 정답. 시차 30일을 둔 노출")
+save("lab16_hw2", c, marks={"8555 줄": 1, "1254.0": 2, "시차 30일 HR (95% CI): 1.03 (0.89-1.19)": 3,
                             "lifelines delay=30: 8555 줄": 4})
-NOTES[c.n] = ("**과제 3.** 첫 처방 뒤 30일까지를 비노출로 세는 시차 30일의 긴 형식 자료를 만들고, "
-              "노출 상태별 사망 수와 인년, 시간의존 Cox 모형의 위험비를 구하세요.")
+NOTES[c.n] = ("**과제 2.** 첫 처방 뒤 30일까지를 비노출로 세는 시차 30일의 긴 형식 자료를 만들고, "
+              "노출 상태별 사망 수와 인년, 시간의존 Cox 모형의 위험비를 구해 셀 19, 20과 비교합니다.")
+
+c = nb.cell('''
+ex2 = pd.concat([
+    pd.DataFrame({"t": u["fu_days"] - u["rx_day"],   # 첫 처방일부터
+                  "died": u["died"], "ever": 1}),
+    pd.DataFrame({"t": nu["fu_days"],                # 퇴원일부터
+                  "died": nu["died"], "ever": 0})])
+py2 = ex2.groupby("ever")["t"].sum() / 365
+rate2 = ex2.groupby("ever")["died"].sum() / py2 * 100
+print("인년:", py2.round(0).to_dict())
+print("100인년당 사망률:", rate2.round(1).to_dict(),
+      " 발생률비:", round(rate2[1] / rate2[0], 2))
+m2 = CoxPHFitter().fit(ex2, "t", "died", formula="ever")
+print("HR (95% CI):", hr_ci(m2, "ever"))
+''', title="과제 3 정답 (가). 첫 처방 전 시간을 버리기만 한 분석")
+save("lab16_hw3a", c, marks={"1: 1471.0": 1, "발생률비: 0.65": 2, "HR (95% CI): 0.58 (0.51-0.66)": 3})
+NOTES[c.n] = ("**과제 3.** 동료가 불멸시간 편향을 피하려고 한 두 분석, (가) 사용군만 첫 처방일부터 추적한 분석과 "
+              "(나) 3개월 랜드마크에서 1년 안 사용 여부로 군을 나눈 분석을 재현하고, 무엇이 왜 틀렸는지 찾습니다.")
+
+c = nb.cell('''
+L = 365 * 3 / 12
+lm_w = d[d["fu_days"] > L].copy()          # 3개월 생존자
+lm_w["t_lm"] = lm_w["fu_days"] - L
+print(lm_w.groupby("ever")["died"].agg(["count", "sum"]))
+m1 = CoxPHFitter().fit(lm_w, "t_lm", "died", formula="ever")
+print("HR (95% CI):", hr_ci(m1, "ever"))
+
+late_w = lm_w[lm_w["rx_day"] > L]          # 3개월 뒤에 시작한 사람
+print(len(late_w), "명의 3개월부터 첫 처방까지:",
+      round((late_w["rx_day"] - L).sum() / 365), "인년")
+''', title="과제 3 정답 (나). 랜드마크 뒤의 처방까지 넣어 군을 나눈 분석")
+save("lab16_hw3b", c, marks={"HR (95% CI): 0.53 (0.46-0.62)": 1, "1763 명": 2})
 
 print("lab16: cells", len(nb.cells), "(main", N_MAIN, ")")
 for cc in nb.cells:
@@ -405,15 +530,16 @@ for cc in nb.cells:
 nb.save_ipynb(
     "실습 16. 불멸시간 편향과 시간의존 Cox 모형",
     intro=("사회약학 연구방법 노트의 '실습 16. 불멸시간 편향과 시간의존 Cox 모형'에 딸린 노트북입니다. "
-           "급성 심근경색 퇴원 환자 6,000명의 가상 자료에서, 효과가 없는 약물 X가 잘못된 분석에서는 위험비 0.37로 "
-           "나오는 것(불멸시간 편향)을 직접 만들어 보고, 랜드마크 분석과 시간의존 Cox 모형으로 바로잡습니다. "
-           "셀을 위에서부터 차례로 실행하세요. 설명과 출력 읽는 법은 사이트의 실습 16에 있습니다."),
+           "16장의 예제 코호트(급성 심근경색 퇴원 환자 6,000명의 가상 자료)에서, 효과가 없는 약물 X가 잘못된 분석에서는 "
+           "위험비 0.37로 나오는 것(불멸시간 편향)을 직접 만들어 보고, 랜드마크 분석과 시간의존 Cox 모형으로 바로잡습니다. "
+           "셀을 위에서부터 차례로 실행하세요. 설명과 출력 읽는 법은 사이트의 실습 16에 있습니다. "
+           "자료는 사이트가 만든 가상 자료이며 실제 환자 자료가 아닙니다."),
     skip=(ERR_CELL,), notes=NOTES)
 
 # ---------------------------------------------------------------- 대조 블록: 본문(16장) 숫자와 맞추기
 ns = nb.ns
-J = json.load(open(os.path.join(HERE, "_ch16_nums.json")))["null"]
 JJ = json.load(open(os.path.join(HERE, "_ch16_nums.json")))
+J = JJ["null"]
 
 
 def hr3(model, name):
@@ -427,6 +553,10 @@ def close(a, b, tol, what):
     CHK.append(what)
 
 
+def s3(v):
+    return "%.2f (%.2f-%.2f)" % tuple(v[:3])
+
+
 CHK = []
 d_, long_, lm_ = ns["d"], ns["long"], ns["lm"]
 close(len(d_), J["n"], 0.5, "n 6000")
@@ -436,6 +566,13 @@ close([d_[d_.ever == 1].died.mean() * 100, d_[d_.ever == 0].died.mean() * 100], 
       "1-year risk 11.7 / 28.0")
 close(ns["rx_month"].median(), J["median_init_months"], 1e-6, "median months to first Rx 4.5")
 close([ns["rx_month"].quantile(.25), ns["rx_month"].quantile(.75)], J["init_q1q3_months"], 1e-6, "IQR 2.1-7.8")
+# 셀 6: 표 16-1 (1,000명의 작은 예)
+tab1_ = ns["tab1"]
+K4 = ("wrong", "excl", "tv", "lm")
+assert list(tab1_["IRR"]) == ["%.2f" % JJ["det"][k][6] for k in K4], list(tab1_["IRR"])
+assert list(tab1_["exposed"]) == ["%d/%d (%.1f)" % tuple(JJ["det"][k][0:3]) for k in K4], list(tab1_["exposed"])
+assert list(tab1_["unexposed"]) == ["%d/%d (%.1f)" % tuple(JJ["det"][k][3:6]) for k in K4], list(tab1_["unexposed"])
+CHK.append("table 16-1 deaths / person-years / rates / IRRs")
 close(hr3(ns["cph"], "ever"), J["hr_naive"][:3], 1e-6, "naive HR 0.37 (0.32-0.42)")
 close([ns["py_u"], ns["immortal"], ns["py_nu"]], [J["py_user_total"], J["immortal"], J["py_non"]], 1e-4,
       "person-years 2613 / 1142 / 2699")
@@ -443,7 +580,7 @@ close([ns["rate_u"], ns["rate_nu"]], J["rate_naive"], 1e-5, "naive rates 12.3 / 
 close(len(ns["early"]), J["deaths_3mo"], 0.5, "deaths within 3 months 417")
 close((ns["early"].ever == 0).sum(), J["non_deaths_3mo"], 0.5, "of which never users 380")
 L3 = J["lm"]["3"]
-close([len(lm_), lm_.exposed.sum(), ns["late"].shape[0]], [L3["n"], L3["exposed"], L3["late_starters"]], 0.5,
+close([len(lm_), lm_.exposed.sum(), ns["late"], len(ns["late_w"])], [L3["n"], L3["exposed"], L3["late_starters"], L3["late_starters"]], 0.5,
       "3-month landmark n 5583 / exposed 934 / late starters 1763")
 close([lm_[lm_.exposed == 1].died.sum(), lm_[lm_.exposed == 0].died.sum()], [L3["d_exp"], L3["d_unexp"]], 0.5,
       "3-month landmark deaths 131 / 686")
@@ -454,7 +591,7 @@ for mo in (1, 3, 6):
     r, ref = ns["landmark"](d_, mo), J["lm"][str(mo)]
     close([r["n"], r["excluded"], r["exposed"]], [ref["n"], ref["excluded"], ref["exposed"]], 0.5, f"landmark {mo} mo counts")
     close(r["late start %"], ref["late_pct"], 0.051, f"landmark {mo} mo late starters %")
-    assert r["HR (95% CI)"] == "%.2f (%.2f-%.2f)" % tuple(ref["hr"][:3]), (r, ref["hr"])
+    assert r["HR (95% CI)"] == s3(ref["hr"]), (r, ref["hr"])
     assert r["deaths"] == "%d / %d" % (ref["d_exp"], ref["d_unexp"])
     CHK.append(f"landmark {mo} mo HR and deaths")
 close(len(long_), J["tv_rows"], 0.5, "long format rows 8734")
@@ -467,6 +604,14 @@ close(hr3(ns["ctv"], "drugx"), J["hr_tv"][:3], 1e-6, "time-varying HR 1.03 (0.90
 close(ns["ctv"].summary.loc["drugx", ["coef", "se(coef)", "z", "p"]].values,
       [JJ["tv_summary"][k] for k in ("coef", "se(coef)", "z", "p")], 1e-6, "coef 0.031, se 0.070, z 0.445, p 0.656")
 close(ns["ctv"].log_likelihood_, JJ["tv_loglik"], 1e-3, "partial log-likelihood -10598.599")
+# 셀 21: 기간을 나눈 비교 (16장 다 절 '더 알아보기'의 표와 Mantel-Haenszel 1.01)
+per_ = ns["per"]
+for i, p in enumerate(JJ["period"]):
+    close(per_.iloc[i][["deaths U", "PY U", "deaths E", "PY E", "IRR"]].to_numpy(),
+          [p["ev0"], p["py0"], p["ev1"], p["py1"], p["irr"]], 1e-6, f"period {p['a']:.0f}-{p['b']:.0f} months")
+close(ns["mh"], JJ["irr_mh"], 1e-9, "Mantel-Haenszel IRR 1.01")
+assert ("%.0f%%" % (100 * ns["first"]["PY U"]), "%.0f%%" % (100 * ns["first"]["PY E"])) == ("34%", "8%")
+CHK.append("person-time share in months 0-3: 34% vs 8%")
 close(hr3(ns["ctv2"], "drugx"), JJ["tv_util"][:3], 1e-6, "lifelines utilities HR")
 close(len(ns["long2"]), JJ["tv_util_rows"], 0.5, "lifelines utilities rows 8734")
 tt = ns["t"]
@@ -475,9 +620,22 @@ for p in JJ["ex_patients"]:
     assert rows["stop"].iloc[-1] == p["end"] and rows["died"].iloc[-1] == p["died"]
     assert (len(rows) == 2) == (p["init"] is not None) and (p["init"] is None or rows["stop"].iloc[0] == p["init"])
 CHK.append("table 16-4 patients A, B, C")
-close(hr3(ns["m2"], "ever"), J["hr_excl"][:3], 1e-6, "HW2 excluded immortal time HR 0.58 (0.51-0.66)")
+# 셀 24: 효과가 있는 약 (nums_ch16.sim_it(2, theta=0.70)의 결과와 같아야 함)
+E_ = JJ["eff"]
+de_ = ns["de"]
+close([de_.died.sum(), de_[de_.ever == 1].died.sum()], [E_["deaths"], E_["d_users"]], 0.5, "effect scenario deaths")
+res_ = ns["res"]
+assert res_["ever user (wrong)"] == s3(E_["hr_naive"]), res_
+assert res_["time-varying"] == s3(E_["hr_tv"]), res_
+for mo in (1, 3, 6):
+    assert res_[f"landmark {mo} mo"] == s3(E_["lm"][str(mo)]["hr"]), (mo, res_)
+CHK.append("effect scenario HRs: naive 0.25, time-varying 0.71 (0.61-0.83), landmarks 1/3/6 months")
+# 셀 25: 과제 1
+close([len(ns["lm"]), ns["lm"].died.sum(), ns["n_pt"][0], ns["n_pt"][1]], [5583, 817, 6000, 2734], 0.5,
+      "hw1: landmark n and deaths, patients contributing to each exposure state")
+close(hr3(ns["m2"], "ever"), J["hr_excl"][:3], 1e-6, "HW3a excluded immortal time HR 0.58 (0.51-0.66)")
 close([ns["rate2"][1], ns["rate2"][0], ns["rate2"][1] / ns["rate2"][0]], J["rate_excl"] + [J["irr_excl"]], 1e-5,
-      "HW2 rates 21.8 / 33.8, IRR 0.65")
+      "HW3a rates 21.8 / 33.8, IRR 0.65")
 print("CHECK: %d comparisons with gen/_ch16_nums.json all passed" % len(CHK))
 
 # numbers quoted in the text that are not printed by a cell
@@ -505,8 +663,8 @@ with warnings.catch_warnings():
     print("VERIFY switched with lag 30:", int((d_.rx_day + 30 < d_.fu_days).sum()), "never switched users:",
           int(((d_.rx_day + 30 >= d_.fu_days) & (d_.ever == 1)).sum()))
     lm_w = ns["lm_w"]
-    print("VERIFY HW1 risks:", lm_w.groupby("ever").died.mean().round(4).to_dict(),
-          "late immortal PY", float((ns["late"].rx_day - 365 * 3 / 12).sum() / 365))
+    print("VERIFY HW3b risks:", lm_w.groupby("ever").died.mean().round(4).to_dict(),
+          "late immortal PY", float((ns["late_w"].rx_day - 365 * 3 / 12).sum() / 365))
     print("VERIFY users started by 3 mo:", int((d_.rx_day <= 91.25).sum()), " min rx_day", float(d_.rx_day.min()),
           " users dying:", int(u_.died.sum()), " share of deaths excluded at 3/6 mo:",
           round(417 / 1234 * 100, 1), round(712 / 1234 * 100, 1))
@@ -517,3 +675,9 @@ with warnings.catch_warnings():
     for mo in (2, 4, 9):
         print("VERIFY landmark", mo, ns["landmark"](d_, mo))
     print("VERIFY exposed-state table:", ns["t3"].round(3).to_dict())
+    print("VERIFY periods:\n", ns["per"].round(3).to_string())
+    de_ = ns["de"]
+    print("VERIFY effect: deaths among users", int(de_[de_.ever == 1].died.sum()), "(null", int(u_.died.sum()), ")",
+          " postponed beyond 1 year", int(((d_.died == 1) & (de_.died == 0)).sum()),
+          " big-sample landmarks (ch16 text):", {k: round(JJ["big"]["0.7"][k][0], 2) for k in ("lm1", "lm3", "lm6")})
+    print("VERIFY effect: landmark late-start % ", {mo: ns["landmark"](de_, mo)["late start %"] for mo in (1, 3, 6)})

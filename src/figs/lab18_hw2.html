@@ -1,20 +1,13 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 2 정답. 적응 기간 3개월을 뺀 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">keep = its[~its[&quot;time&quot;].isin([37, 38, 39])]     # 2018년 1-3월 제외
-fit_ph = smf.ols(f, data=keep).fit(cov_type=&quot;HAC&quot;,
-                                   cov_kwds={&quot;maxlags&quot;: 3})
-print(len(keep), &quot;months&quot;)
-print(fit_ph.summary().tables[1])
-print(fit_ph.t_test(&quot;post + 12 * time_after = 0&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>57 months
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">과제 2 정답 (1). 시행 전후 12개월씩만 쓴 분절회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">short = its[(its[&quot;time&quot;] &gt; 24) &amp; (its[&quot;time&quot;] &lt;= 48)]
+fit_12 = smf.ols(f, data=short).fit(cov_type=&quot;HAC&quot;,
+                                    cov_kwds={&quot;maxlags&quot;: 3})
+print(len(short), &quot;months&quot;)
+print(fit_12.summary().tables[1])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>24 months
 ==============================================================================
                  coef    std err          z      P&gt;|z|      [0.025      0.975]
 ------------------------------------------------------------------------------
-Intercept     95.6211      0.425    224.896      0.000      94.788      96.454
-time          -0.2421      0.026     -9.185      0.000      -0.294      -0.190
-post          -8.5402      1.053     -8.109      0.000     -10.604      -6.476
-time_after    -0.1572      0.056     -2.828      0.005      -0.266      -0.048
-==============================================================================
-                             Test for Constraints                             
-==============================================================================
-                 coef    std err          z      P&gt;|z|      [0.025      0.975]
-------------------------------------------------------------------------------
-c0           -10.4263      1.075     -9.696      0.000     -12.534      -8.319
+Intercept    103.0606      3.854     26.739      0.000      95.506     110.615
+time          -0.4775<span class="mk">3</span>      0.132     -3.617      0.000      -0.736      -0.219
+post          -5.6749      1.042     -5.444      0.000      -7.718      -3.632<span class="mk">1</span>
+time_after    -0.1403      0.231     -0.608      0.543      -0.592       0.312<span class="mk">2</span>
 ==============================================================================</pre></div></div>

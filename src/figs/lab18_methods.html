@@ -1,6 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">AR(1) 오차 모형과 네 가지 방법의 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.api as sm
-
-X = sm.add_constant(its[[&quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;]])
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">AR(1) 오차 모형과 네 가지 방법의 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">X = sm.add_constant(its[[&quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;]])
 gls = sm.GLSAR(its[&quot;rate&quot;], X, rho=1).iterative_fit(maxiter=50)
 print(&quot;rho:&quot;, np.round(gls.model.rho, 3))
 

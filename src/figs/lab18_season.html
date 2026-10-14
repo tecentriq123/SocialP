@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">계절 항을 넣은 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">its[&quot;sin12&quot;] = np.sin(2 * np.pi * its[&quot;time&quot;] / 12)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">계절 항을 넣은 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">its[&quot;sin12&quot;] = np.sin(2 * np.pi * its[&quot;time&quot;] / 12)
 its[&quot;cos12&quot;] = np.cos(2 * np.pi * its[&quot;time&quot;] / 12)
 
 fit_s = smf.ols(f + &quot; + sin12 + cos12&quot;, data=its).fit(

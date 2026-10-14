@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">회귀로 구하는 이중차분 추정값 (군집 강건 표준오차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">panel = d.copy()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">회귀로 구하는 이중차분 추정값 (군집 강건 표준오차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">panel = d.copy()
 panel[&quot;w&quot;] = panel.groupby(&quot;unit&quot;)[&quot;n_pat&quot;].transform(&quot;mean&quot;)
 
 did = smf.wls(&quot;rate ~ treat * post&quot;, data=panel,

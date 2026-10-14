@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">연도별 평균과 원래 흐름의 몫</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">year = (2015 + (its[&quot;time&quot;] - 1) // 12).rename(&quot;year&quot;)   # 1-12 -&gt; 2015
+yearly = pd.DataFrame({&quot;pilot&quot;: its[&quot;rate&quot;].groupby(year).mean(),
+                       &quot;comparison&quot;: comp[&quot;rate&quot;].groupby(year).mean()})
+print(yearly.round(2))
+
+pre = its[its[&quot;post&quot;] == 0]                        # 시행 전 36개월
+po = its[its[&quot;post&quot;] == 1]                         # 시행 후 24개월
+slope = np.polyfit(pre[&quot;time&quot;], pre[&quot;rate&quot;], 1)[0]   # 시행 전 기울기
+gap = po[&quot;time&quot;].mean() - pre[&quot;time&quot;].mean()       # 48.5 - 18.5
+change = po[&quot;rate&quot;].mean() - pre[&quot;rate&quot;].mean()    # 전후 평균의 차이
+print(f&quot;trend only: {slope:.4f} x {gap:.0f} months = {slope * gap:.2f}&quot;)
+print(f&quot;before-after {change:.2f} - trend = {change - slope * gap:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      pilot  comparison
+year                   
+2015  94.33       82.69<span class="mk">1</span>
+2016  90.60       79.31
+2017  88.50       76.98<span class="mk">2</span>
+2018  76.18       70.96
+2019  71.18       68.25
+trend only: -0.2421 x 30 months = -7.26<span class="mk">3</span>
+before-after -17.46 - trend = -10.20<span class="mk">4</span></pre></div></div>

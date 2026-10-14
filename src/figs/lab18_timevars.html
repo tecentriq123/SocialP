@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">시간 변수와 처방률 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d = raw.copy()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">시간 변수와 처방률 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">d = raw.copy()
 d[&quot;date&quot;] = pd.to_datetime(d[&quot;month&quot;])
 d[&quot;time&quot;] = ((d[&quot;date&quot;].dt.year - 2015) * 12
              + d[&quot;date&quot;].dt.month)              # 1, 2, ..., 60

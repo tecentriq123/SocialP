@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">시행 첫 달을 0으로 센 분절회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">its0 = its.assign(time_after0=np.where(its[&quot;post&quot;] == 1,
+                                       its[&quot;time_after&quot;] - 1, 0))
+fit_ta0 = smf.ols(&quot;rate ~ time + post + time_after0&quot;, data=its0).fit(
+    cov_type=&quot;HAC&quot;, cov_kwds={&quot;maxlags&quot;: 3})
+print(fit_ta0.summary().tables[1])
+print(fit_ta0.t_test(&quot;post + 11 * time_after0 = 0&quot;))   # 12개월째</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>===============================================================================
+                  coef    std err          z      P&gt;|z|      [0.025      0.975]
+-------------------------------------------------------------------------------
+Intercept      95.6211      0.425    224.896      0.000      94.788      96.454
+time           -0.2421      0.026     -9.185      0.000      -0.294      -0.190
+post           -7.5970      1.092     -6.956      0.000      -9.737      -5.457<span class="mk">1</span>
+time_after0    -0.2263<span class="mk">2</span>      0.063     -3.605      0.000      -0.349      -0.103
+===============================================================================
+                             Test for Constraints                             
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+c0           -10.0860      1.056     -9.553      0.000     -12.155      -8.017<span class="mk">3</span>
+==============================================================================</pre></div></div>

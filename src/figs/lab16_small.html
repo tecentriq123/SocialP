@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">표 16-1의 작은 예를 네 가지로 분석하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">small = pd.DataFrame({
+    &quot;who&quot;: [&quot;future users, 0-6 mo&quot;, &quot;others, 0-6 mo&quot;,
+            &quot;users, 6-12 mo&quot;, &quot;never users, 6-12 mo&quot;],
+    &quot;py&quot;: [200, 300, 200, 250],                # 인년
+    &quot;deaths&quot;: [0, 100, 40, 50]})
+# 네 분석이 네 줄을 어디에 넣는가 (E 노출, U 비노출, - 버림)
+plan = {&quot;1 ever user&quot;:    [&quot;E&quot;, &quot;U&quot;, &quot;E&quot;, &quot;U&quot;],
+        &quot;2 dropped&quot;:      [&quot;-&quot;, &quot;U&quot;, &quot;E&quot;, &quot;U&quot;],
+        &quot;3 time-varying&quot;: [&quot;U&quot;, &quot;U&quot;, &quot;E&quot;, &quot;U&quot;],
+        &quot;4 landmark&quot;:     [&quot;-&quot;, &quot;-&quot;, &quot;E&quot;, &quot;U&quot;]}
+rows = {}
+for name, where in plan.items():
+    small[&quot;arm&quot;] = where
+    g = small.groupby(&quot;arm&quot;)[[&quot;deaths&quot;, &quot;py&quot;]].sum()
+    g[&quot;rate&quot;] = g[&quot;deaths&quot;] / g[&quot;py&quot;] * 100    # 100인년당 사망률
+    fmt = lambda k: f&quot;{g.loc[k, &#x27;deaths&#x27;]}/{g.loc[k, &#x27;py&#x27;]} ({g.loc[k, &#x27;rate&#x27;]:.1f})&quot;
+    rows[name] = {&quot;exposed&quot;: fmt(&quot;E&quot;), &quot;unexposed&quot;: fmt(&quot;U&quot;),
+                  &quot;IRR&quot;: f&quot;{g.loc[&#x27;E&#x27;, &#x27;rate&#x27;] / g.loc[&#x27;U&#x27;, &#x27;rate&#x27;]:.2f}&quot;}
+tab1 = pd.DataFrame(rows).T
+tab1</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>exposed</th>
+      <th>unexposed</th>
+      <th>IRR</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1 ever user</th>
+      <td>40/400 (10.0)<span class="mk">1</span></td>
+      <td>150/550 (27.3)</td>
+      <td>0.37<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>2 dropped</th>
+      <td>40/200 (20.0)</td>
+      <td>150/550 (27.3)</td>
+      <td>0.73<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>3 time-varying</th>
+      <td>40/200 (20.0)</td>
+      <td>150/750 (20.0)<span class="mk">4</span></td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>4 landmark</th>
+      <td>40/200 (20.0)</td>
+      <td>50/250 (20.0)<span class="mk">5</span></td>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">기저 위험을 바꿔 다시 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(&quot;MACE, OR 0.83 at other baseline risks&quot;)
+for p_base in [0.04, 0.12, 0.15]:
+    absolute(p_base, m[&quot;re&quot;], m[&quot;se_re&quot;])
+print(&quot;Major bleeding, OR 2.28 at baseline risk 3%&quot;)
+absolute(0.03, mb[&quot;re&quot;], mb[&quot;se_re&quot;])
+print(f&quot;summed counts of all trials: NNT {1 / (r_p - r_x):.0f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MACE, OR 0.83 at other baseline risks
+  risk 4.0% -&gt; 3.32%
+  RD %p   : -0.68 (-1.04, -0.27)
+  per 1000: -7 (-10, -3)
+  NNT/NNH : 148 (96-373)<span class="mk">1</span>
+  risk 12.0% -&gt; 10.11%<span class="mk">2</span>
+  RD %p   : -1.89 (-2.93, -0.74)
+  per 1000: -19 (-29, -7)<span class="mk">3</span>
+  NNT/NNH : 53 (34-135)<span class="mk">4</span>
+  risk 15.0% -&gt; 12.71%
+  RD %p   : -2.29 (-3.56, -0.90)
+  per 1000: -23 (-36, -9)
+  NNT/NNH : 44 (28-112)<span class="mk">5</span>
+Major bleeding, OR 2.28 at baseline risk 3%
+  risk 3.0% -&gt; 6.59%
+  RD %p   : 3.59 (2.56, 4.80)
+  per 1000: 36 (26, 48)
+  NNT/NNH : 28 (21-39)<span class="mk">6</span>
+summed counts of all trials: NNT 56<span class="mk">7</span></pre></div></div>

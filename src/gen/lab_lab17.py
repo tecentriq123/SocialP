@@ -1,9 +1,14 @@
 """실습 17 · 경쟁위험 분석 — cells run for real with labkit.
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/lab_lab17.py
+      then  python3 tools/nbcheck.py lab17   (runs the notebook alone in a fresh process and compares outputs)
       (NOMARK=1 로 돌리면 번호 표식 없이 셀의 출력만 찍는다)
 자료: pub/data/ckd_competing.csv, pub/data/dementia_fracture.csv (gen/data_lab17.py)
 끝의 대조 블록이 실습에서 얻은 숫자를 gen/_ch17_nums.json(17장 본문의 숫자)과 맞춘다.
+(2026-10-14: 17장을 PART 3의 새 틀로 고친 뒤 '실습 17에 더할 것'을 반영했다. 버전 셀 2를 자료 불러오기에서
+ 떼어 냈고, 환자 10명의 반복문 계산 셀 7, 하위분포 위험비를 시점별 누적발생률로 옮기는 셀 23, 표 17-5의
+ 이론값 셀 24를 더했다. 과제는 ① 출력 해석(복합 결과) ② 조건을 바꿔 비교(사망을 관심 사건으로)
+ ③ 잘못된 분석 판단(고관절 골절 자료) 순서로 바꿨다. 셀 번호가 모두 바뀌었다.)
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -29,7 +34,11 @@ def render(c, marks=None, dfmarks=None):
     return h
 
 
+CELLNO = {}   # fragment name -> cell number (노트북 안내문의 셀 번호를 손으로 적지 않으려고)
+
+
 def save(name, c, marks=None, dfmarks=None):
+    CELLNO[name] = c.n
     if os.environ.get("NOMARK"):
         print(f"===== {name} (cell {c.n})\n{c.stdout}{c.value_repr or ''}{c.error or ''}")
         for w in c.warns:
@@ -53,7 +62,17 @@ c = nb.cell('''
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib, lifelines, statsmodels
 
+print("pandas     ", pd.__version__)
+print("numpy      ", np.__version__)
+print("matplotlib ", matplotlib.__version__)
+print("lifelines  ", lifelines.__version__)
+print("statsmodels", statsmodels.__version__)
+''', title="패키지 불러오기와 버전 확인")
+save("lab17_versions", c, marks={"lifelines   0.30.3": 1, "statsmodels 0.15.0": 2})
+
+c = nb.cell('''
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
 UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 ckd = pd.read_csv(BASE + "ckd_competing.csv", storage_options=UA)
@@ -102,6 +121,42 @@ save("lab17_rates", c, marks={"4049.16": 1, "2.93": 2, "9.78": 3, "11.43": 4, "[
 c = nb.cell('''
 from lifelines import AalenJohansenFitter, KaplanMeierFitter
 
+# 17장 가 절 2단계의 환자 10명 (1 = 투석, 2 = 사망, 0 = 중도절단)
+tiny = pd.DataFrame({
+    "years":  [0.8, 1.2, 1.5, 2.0, 2.6, 3.1, 3.5, 4.0, 4.4, 5.0],
+    "status": [1,   2,   2,   1,   2,   1,   2,   0,   1,   0]})
+
+km = 1.0                  # 투석만 없었을 확률 (사망은 중도절단)
+free = 1.0                # 어느 사건도 없이 남아 있을 확률
+f_dial = f_death = 0.0    # 투석, 사망의 누적발생률
+steps = []
+for t, ev in zip(tiny["years"], tiny["status"]):
+    n = (tiny["years"] >= t).sum()       # 그 직전 남은 인원
+    if ev == 1:
+        km = km * (n - 1) / n            # 1 - KM: 곱해 나감
+        f_dial = f_dial + free * (1 / n) # 누적발생함수: 더해 나감
+    if ev == 2:
+        f_death = f_death + free * (1 / n)
+    if ev > 0:
+        free = free * (n - 1) / n        # 어느 사건이든 한 명 빠짐
+    steps.append([t, ev, n, 1 - km, f_dial, f_death, free])
+
+steps = pd.DataFrame(steps, columns=["t", "ev", "n", "1-KM",
+                                     "dial", "death", "free"])
+print(steps.round(3).to_string(index=False))
+
+aj10 = AalenJohansenFitter().fit(tiny["years"], tiny["status"],
+                                 event_of_interest=1)
+km10 = KaplanMeierFitter().fit(tiny["years"], tiny["status"] == 1)
+print("lifelines: CIF", round(aj10.predict(5), 3),
+      " 1 - KM", round(1 - km10.predict(5), 3))
+''', title="환자 10명으로 두 방법 계산하기 (17장 가 절 2단계)")
+save("lab17_tiny", c, marks={"2.0   1  7 0.229  0.20    0.2  0.60": 1,
+                             "4.0   0  3 0.383  0.30    0.4  0.30": 2,
+                             "4.4   1  2 0.691  0.45    0.4  0.15": 3,
+                             "lifelines: CIF 0.45  1 - KM 0.691": 4})
+
+c = nb.cell('''
 b = ckd[ckd["drug"] == "B"]
 ajf = AalenJohansenFitter()
 ajf.fit(b["years"], b["status"], event_of_interest=1)
@@ -330,7 +385,65 @@ pd.DataFrame({"HR (95% CI), A vs B": {
 save("lab17_hrtab", c, dfmarks={"1.02 (0.89-1.16)": 1, "1.25 (1.10-1.43)": 2, "1.26 (1.10-1.43)": 3,
                                 "0.55 (0.49-0.61)": 4})
 
+c = nb.cell('''
+shr = fg.hazard_ratios_["drug_a"]          # 셀 17의 하위분포 위험비
+print("subdistribution HR:", round(shr, 3))
+
+rows = []
+for t in [1, 3, 5]:
+    fa_t = cif(ckd[ckd["drug"] == "A"], 1, t)[0]
+    fb_t = cif(ckd[ckd["drug"] == "B"], 1, t)[0]
+    fa_fg = 1 - (1 - fb_t) ** shr          # 1.254로 옮긴 A군의 값
+    rows.append([t, fa_t * 100, fb_t * 100, fa_t / fb_t,
+                 fa_fg * 100, fa_fg / fb_t])
+conv = pd.DataFrame(rows, columns=["year", "A", "B", "A/B",
+                                   "A_fg", "fg/B"])
+print(conv.round({"A": 1, "B": 1, "A/B": 2, "A_fg": 1, "fg/B": 2})
+          .to_string(index=False))
+''', title="하위분포 위험비를 시점별 누적발생률로 옮기기")
+save("lab17_shrcif", c, marks={"1.08": 1, "9.8": 2, "29.8": 3, "1.21": 4})
+
+c = nb.cell('''
+def cif_const(h1, h2, t=5):
+    """두 원인별 위험률이 일정할 때 사건 1의 t년 누적발생률"""
+    return h1 / (h1 + h2) * (1 - np.exp(-(h1 + h2) * t))
+
+ref = cif_const(0.10, 0.20)      # B군: 투석 연 0.10, 사망 연 0.20
+print(f"B: {ref * 100:.1f}%")
+
+scen = {"fewer death": (1.00, 0.55),     # (투석, 사망)의 원인별 위험비
+        "slower dial": (0.80, 1.00),
+        "both": (0.80, 0.55),
+        "more death": (1.00, 1.50)}
+rows = []
+for name, (hr_d, hr_m) in scen.items():
+    fa_s = cif_const(0.10 * hr_d, 0.20 * hr_m)   # A군의 위험률로 계산
+    rows.append([name, fa_s * 100, np.log(1 - fa_s) / np.log(1 - ref),
+                 hr_d, hr_m])
+theory = pd.DataFrame(rows, columns=["case", "A", "sHR_5y",
+                                     "cs_dial", "cs_death"])
+theory.set_index("case").round({"A": 1, "sHR_5y": 2})
+''', title="약이 사망에 주는 영향을 바꾼 이론값 (17장 표 17-5)")
+save("lab17_theory", c, marks={"B: 25.9%": 1}, dfmarks={"31.0": 2, "1.24": 3, "21.5": 4, "25.8": 5, "21.6": 6})
+
 # ---------------------------------------------------------------- 라. 과제 (정답 셀)
+c = nb.cell('''
+ckd["any"] = (ckd["status"] > 0).astype(int)   # 투석 또는 사망
+comp = CoxPHFitter().fit(ckd, "years", "any", formula="drug_a")
+print("composite HR:", hr_ci(comp))
+
+risk = {}
+for g in ["A", "B"]:
+    d = ckd[ckd["drug"] == g]
+    km = KaplanMeierFitter().fit(d["years"], d["any"])
+    risk[g] = 1 - km.predict(5)
+    both = cif(d, 1, 5)[0] + cif(d, 2, 5)[0]
+    print(f"{g}: 1 - KM {risk[g]*100:.1f},"
+          f" CIF dialysis + CIF death {both*100:.1f}")
+print("5-year risk ratio A / B:", round(risk["A"] / risk["B"], 2))
+''', title="과제 1 정답. 복합 결과(투석 또는 사망)의 위험비 읽기")
+save("lab17_hw1", c, marks={"composite HR: 0.70 (0.64-0.76)": 1, "A: 1 - KM 65.4": 2, "A / B: 0.84": 3})
+
 c = nb.cell('''
 for g in ["A", "B"]:
     d = ckd[ckd["drug"] == g]
@@ -346,22 +459,8 @@ fg_death = CoxPHFitter().fit(ckd, "years_sd2", "death",
                              formula="drug_a")
 print("subdistribution HR:", hr_ci(fg_death))
 print("cause-specific HR :", hr_ci(cs_death))
-''', title="과제 1 정답. 투석 전 사망을 관심 사건으로")
-save("lab17_hw1", c, marks={"A: CIF 35.2 (32.6-37.8)": 1, "1 - KM 43.2": 2, "subdistribution HR: 0.56 (0.50-0.62)": 3})
-
-c = nb.cell('''
-ckd["any"] = (ckd["status"] > 0).astype(int)   # 투석 또는 사망
-comp = CoxPHFitter().fit(ckd, "years", "any", formula="drug_a")
-print("composite HR:", hr_ci(comp))
-
-for g in ["A", "B"]:
-    d = ckd[ckd["drug"] == g]
-    km = KaplanMeierFitter().fit(d["years"], d["any"])
-    both = cif(d, 1, 5)[0] + cif(d, 2, 5)[0]
-    print(f"{g}: 1 - KM {(1 - km.predict(5))*100:.1f},"
-          f" CIF dialysis + CIF death {both*100:.1f}")
-''', title="과제 2 정답. 복합 결과(투석 또는 사망)")
-save("lab17_hw2", c, marks={"composite HR: 0.70 (0.64-0.76)": 1, "A: 1 - KM 65.4": 2})
+''', title="과제 2 정답. 투석 전 사망을 관심 사건으로")
+save("lab17_hw2", c, marks={"A: CIF 35.2 (32.6-37.8)": 1, "1 - KM 43.2": 2, "subdistribution HR: 0.56 (0.50-0.62)": 3})
 
 c = nb.cell('''
 fx = pd.read_csv(BASE + "dementia_fracture.csv", storage_options=UA)
@@ -385,7 +484,7 @@ m3 = CoxPHFitter().fit(fx, "years_sd", "frac", formula="drug_c")
 print("fracture, cause-specific HR :", hr_ci(m1, "drug_c"))
 print("death, cause-specific HR    :", hr_ci(m2, "drug_c"))
 print("fracture, subdistribution HR:", hr_ci(m3, "drug_c"))
-''', title="과제 3 정답. 고관절 골절 자료 (17장 나 절 확인 문제)")
+''', title="과제 3 정답. 고관절 골절 자료로 동료의 분석 재현 (17장 나 절 확인 문제)")
 save("lab17_hw3", c, marks={"C: fracture 8.3 (7.2-9.5)": 1, "1 - KM 14.1": 2,
                             "cause-specific HR : 0.97 (0.80-1.17)": 3,
                             "subdistribution HR: 0.81 (0.67-0.98)": 4})
@@ -396,24 +495,27 @@ for cc in nb.cells:
         print("WARN cell", cc.n, cc.warns)
 
 # ---------------------------------------------------------------- 노트북
+K = CELLNO
 HW = {
-    21: ("## 과제 정답\n\n**과제 1. 투석 전 사망을 관심 사건으로.** 두 군의 5년 사망 누적발생률(95% 신뢰구간)과, "
-         "투석을 중도절단으로 둔 1 − Kaplan-Meier를 구합니다. 이어서 사망의 하위분포 위험비를 구해 "
-         "셀 13의 원인별 위험비와 비교합니다."),
-    22: ("**과제 2. 복합 결과.** '투석 또는 사망 중 먼저 일어난 것'을 사건으로 놓고 Cox 모형의 위험비와 "
-         "두 군의 5년 1 − Kaplan-Meier를 구합니다. 이 값이 투석과 사망의 누적발생률의 합과 같은지 확인합니다."),
-    23: ("**과제 3. 고관절 골절 자료.** dementia_fracture.csv(치매 고령 환자, 약물 C 대 D, 1 = 고관절 골절, "
-         "2 = 골절 전 사망)로 5년 누적발생률, 1 − Kaplan-Meier, 골절과 사망의 원인별 위험비, 골절의 하위분포 "
-         "위험비를 구합니다."),
+    K["lab17_hw1"]: ("## 과제 정답\n\n**과제 1. 복합 결과의 위험비 읽기 (출력 해석).** '투석 또는 사망 가운데 먼저 일어난 것'을 "
+                     "사건으로 놓고 Cox 모형의 위험비와 두 군의 5년 1 − Kaplan-Meier를 구합니다. 위험비를 Results의 "
+                     "한 문장으로 옮기고, 이 값이 말해 주지 않는 것 두 가지를 씁니다."),
+    K["lab17_hw2"]: ("**과제 2. 투석 전 사망을 관심 사건으로 (조건을 바꿔 비교).** 두 군의 5년 사망 누적발생률(95% 신뢰구간)과 "
+                     "투석을 중도절단으로 둔 1 − Kaplan-Meier를 구하고, 사망의 하위분포 위험비를 셀 "
+                     f"{K['lab17_fg']}의 방법으로 구해 셀 {K['lab17_cs']}의 원인별 위험비와 비교합니다."),
+    K["lab17_hw3"]: ("**과제 3. 동료의 고관절 골절 분석 (잘못된 분석 판단).** dementia_fracture.csv(치매 고령 환자, 약물 C 대 D, "
+                     "1 = 고관절 골절, 2 = 골절 전 사망)로 동료의 분석을 재현하고, 골절과 사망의 원인별 위험비, 사망의 "
+                     "누적발생률, 1 − Kaplan-Meier를 함께 구해 틀린 곳 두 가지를 찾습니다."),
 }
-NOTES = {1: "## 가. 실습 데이터 준비", 6: "## 나. 누적발생함수", 13: "## 다. 원인별 위험비와 Fine–Gray 위험비"}
+NOTES = {K["lab17_install"]: "## 가. 실습 데이터 준비", K["lab17_tiny"]: "## 나. 누적발생함수",
+         K["lab17_cs"]: "## 다. 원인별 위험비와 Fine–Gray 위험비"}
 NOTES.update(HW)
 path = nb.save_ipynb(
     "실습 17. 경쟁위험 분석",
     intro=("사회약학 연구방법 노트의 '실습 17 경쟁위험 분석'에 나오는 셀을 순서대로 담은 노트북입니다. "
            "17장의 예제 자료(가상의 만성콩팥병 코호트, 약물 A 대 B)로 누적발생함수, 원인별 위험비, "
-           "Fine–Gray 하위분포 위험비를 구합니다. 셀을 위에서부터 차례로 실행하세요. "
-           "셀 18은 줄 수가 많아 10초 넘게 걸릴 수 있습니다. 설명은 사이트의 실습 17 쪽에 있습니다."),
+           "하위분포 위험비(subdistribution HR, Fine–Gray 모형)를 구합니다. 셀을 위에서부터 차례로 실행하세요. "
+           f"셀 {K['lab17_fgw']}은 줄 수가 많아 10초 넘게 걸릴 수 있습니다. 설명은 사이트의 실습 17 쪽에 있습니다."),
     notes=NOTES)
 print("notebook:", path)
 
@@ -495,6 +597,27 @@ if __name__ == "__main__":
         chk(f"fx {g} CIF death 5y", cif(d, 2, 5)[0], q["death5"], 1e-9)
         km = KM().fit(d["years"], d["status"] == 1)
         chk(f"fx {g} 1-KM fracture 5y", 1 - km.predict(5), q["km5"], 1e-9)
+    # 2026-10-14에 더한 셀: 환자 10명(셀 7), 시점별로 옮긴 값(셀 23), 표 17-5 이론값(셀 24)
+    last = ns["steps"].iloc[-1]
+    chk("tiny 1-KM dialysis 5y", float(last["1-KM"]), J["tiny_1mkm"], 1e-9)
+    chk("tiny CIF dialysis 5y", float(last["dial"]), J["tiny_cif_d"], 1e-9)
+    chk("tiny CIF death 5y", float(last["death"]), J["tiny_cif_m"], 1e-9)
+    chk("tiny event-free 5y", float(last["free"]), J["tiny_S"], 1e-9)
+    chk("tiny lifelines CIF", float(ns["aj10"].predict(5)), J["tiny_cif_d"], 1e-9)
+    chk("tiny lifelines 1-KM", float(1 - ns["km10"].predict(5)), J["tiny_1mkm"], 1e-9)
+    conv = ns["conv"].set_index("year")
+    for y in (1, 3, 5):
+        chk(f"CIF ratio {y}y", conv.loc[y, "A/B"], J["A"][f"y{y}"]["cif_d"] / J["B"][f"y{y}"]["cif_d"], 1e-9)
+    chk("Fine-Gray implied CIF A 5y", conv.loc[5, "A_fg"] / 100, J["fg_pred5"], 1e-9)
+    th = ns["theory"].set_index("case")
+    chk("scenario CIF B", ns["ref"], J["scen"][0]["cifB"], 1e-12)
+    for lab_, i in (("fewer death", 0), ("slower dial", 2), ("both", 3), ("more death", 4)):
+        s = J["scen"][i]
+        chk(f"scenario {lab_} csHR dialysis", th.loc[lab_, "cs_dial"], s["cs_d"], 1e-12)
+        chk(f"scenario {lab_} csHR death", th.loc[lab_, "cs_death"], s["cs_m"], 1e-12)
+        chk(f"scenario {lab_} CIF A", th.loc[lab_, "A"] / 100, s["cifA"], 1e-12)
+        chk(f"scenario {lab_} sHR (5-y matched vs large-sample FG, both round to the chapter's 1 decimal)",
+            round(th.loc[lab_, "sHR_5y"], 1), round(s["shr"], 1), 1e-9)
     print(f"대조 {len(checks)}개 모두 일치")
 
     # ---- 본문 글에 인용한 그 밖의 숫자 (셀로 보여 주지 않는 것)
@@ -534,3 +657,22 @@ if __name__ == "__main__":
     print("VERIFY total PY:", round(float(ckd["years"].sum()), 1), " dialysis %:", round(892 / 3500 * 100, 1),
           " death %:", round(1551 / 3500 * 100, 1))
     print("VERIFY potential fu: share with max_years == 5:", round(float((ckd["max_years"] == 5).mean()), 3))
+    # 셀 23 글의 근거: 하위분포 위험률의 비가 앞쪽에서 작고 뒤로 갈수록 커진다(2.5년에서 나눈 Fine–Gray)
+    rows_ = []
+    for r_ in ckd[["id", "years_sd", "dial", "drug_a"]].itertuples():
+        if r_.years_sd <= 2.5:
+            rows_.append((r_.id, 0.0, r_.years_sd, r_.dial, r_.drug_a, 0))
+        else:
+            rows_.append((r_.id, 0.0, 2.5, 0, r_.drug_a, 0))
+            rows_.append((r_.id, 2.5, r_.years_sd, r_.dial, r_.drug_a, 1))
+    import pandas as pd
+    L_ = pd.DataFrame(rows_, columns=["id", "start", "stop", "dial", "drug_a", "late"])
+    L_["a_early"], L_["a_late"] = L_["drug_a"] * (1 - L_["late"]), L_["drug_a"] * L_["late"]
+    ct_ = ns["CoxTimeVaryingFitter"]().fit(L_, id_col="id", event_col="dial", start_col="start", stop_col="stop",
+                                           formula="a_early + a_late")
+    print("VERIFY sHR before / after 2.5 y:", ct_.hazard_ratios_.round(3).to_dict())
+    print("VERIFY chapter table 17-5 large-sample sHR:", [round(s["shr"], 3) for s in J["scen"]])
+    print("VERIFY composite events A/B:", ckd.groupby("drug")["any"].sum().to_dict(),
+          " 5y risks:", {k: round(float(v), 4) for k, v in ns["risk"].items()})
+    print("VERIFY share of deaths among composite events:",
+          round(int(ckd["death"].sum()) / int(ckd["any"].sum()), 3))

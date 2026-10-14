@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">노출 상태별 사망, 인년, 사망률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">long[&quot;py&quot;] = (long[&quot;stop&quot;] - long[&quot;start&quot;]) / 365
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">노출 상태별 사망, 인년, 사망률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">long[&quot;py&quot;] = (long[&quot;stop&quot;] - long[&quot;start&quot;]) / 365
 t3 = long.groupby(&quot;drugx&quot;).agg(deaths=(&quot;died&quot;, &quot;sum&quot;),
                                py=(&quot;py&quot;, &quot;sum&quot;))
 t3[&quot;rate&quot;] = t3[&quot;deaths&quot;] / t3[&quot;py&quot;] * 100      # 100인년당 사망률

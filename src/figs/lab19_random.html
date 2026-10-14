@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">연구 간 분산과 무작위효과 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">k = len(es)                                 # 시험 수
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">연구 간 분산과 무작위효과 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">k = len(es)                                 # 시험 수
 Q = np.sum(w * (es[&quot;yi&quot;] - fe)**2)
 C = np.sum(w) - np.sum(w**2) / np.sum(w)
 tau2 = max(0, (Q - (k - 1)) / C)            # DerSimonian-Laird

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">시행 전 추세의 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pre = panel[panel[&quot;post&quot;] == 0]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">시행 전 추세의 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pre = panel[panel[&quot;post&quot;] == 0]
 pt = smf.wls(&quot;rate ~ treat * time&quot;, data=pre,
              weights=pre[&quot;w&quot;]).fit(
     cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: pre[&quot;unit&quot;]})

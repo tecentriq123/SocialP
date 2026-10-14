@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">위험비를 한 표로 정리</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def hr_ci(m, var=&quot;drug_a&quot;):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">위험비를 한 표로 정리</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def hr_ci(m, var=&quot;drug_a&quot;):
     s = m.summary.loc[var]
     return (f&quot;{s[&#x27;exp(coef)&#x27;]:.2f} ({s[&#x27;exp(coef) lower 95%&#x27;]:.2f}&quot;
             f&quot;-{s[&#x27;exp(coef) upper 95%&#x27;]:.2f})&quot;)

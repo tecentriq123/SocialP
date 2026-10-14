@@ -3,8 +3,14 @@
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab18.py && python3 gen/lab_lab18.py
       (LABDEBUG=1 prints every cell's text output, for writing marks)
 
+      then  python3 tools/nbcheck.py lab18   (runs the notebook alone in a fresh process and compares outputs)
+
 자료: pub/data/sedative_district_month.csv (gen/data_lab18.py가 18장의 모의자료를 그대로 내보낸 것).
 끝의 대조 블록에서 실습 결과를 gen/_ch18_nums.json(18장 본문 숫자)과 맞춘다.
+(2026-10-14: 18장을 PART 3의 새 틀로 고친 뒤 '실습 18에 더할 것'을 반영했다. 버전 셀 1, 연도별 평균과 흐름의 몫 셀 8,
+ 평균으로의 회귀 모의실험 셀 9, 시행 첫 달을 0으로 센 모형 셀 15, 포아송 분절회귀 셀 18, 파급 효과 셀 22,
+ 네 분석의 비교(24개월 평균) 셀 29, 과제 1(출력 해석) 셀 30을 더했고 과제 2를 '분석에 넣는 달 바꾸기' 두 셀로,
+ 과제 3을 '잘못된 분석 판단'으로 바꿨다. 셀 번호가 모두 바뀌었다.)
 """
 import html as _html
 import json
@@ -60,8 +66,20 @@ c = nb.cell('''
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import statsmodels, scipy, matplotlib
 
-BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
+print("pandas      ", pd.__version__)
+print("numpy       ", np.__version__)
+print("statsmodels ", statsmodels.__version__)
+print("scipy       ", scipy.__version__)
+print("matplotlib  ", matplotlib.__version__)
+''', title="패키지 불러오기와 버전 확인")
+save("lab18_versions", c, marks={"pandas       3.0.5": 1, "statsmodels  0.15.0": 2})
+
+c = nb.cell('''
+BASE ="https://socialp-ajou.tecentriq12.workers.dev/data/"
 UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 raw = pd.read_csv(BASE + "sedative_district_month.csv",
                   storage_options=UA)
@@ -142,10 +160,41 @@ for name, s in [("pilot", its), ("comparison", comp)]:
 ''', title="전후 평균만 비교하면")
 save("lab18_naive", c, marks={"diff -17.46 (-19.25, -15.67)": 1, "diff -10.06 (-11.40, -8.72)": 2})
 
+c = nb.cell('''
+year = (2015 + (its["time"] - 1) // 12).rename("year")   # 1-12 -> 2015
+yearly = pd.DataFrame({"pilot": its["rate"].groupby(year).mean(),
+                       "comparison": comp["rate"].groupby(year).mean()})
+print(yearly.round(2))
+
+pre = its[its["post"] == 0]                        # 시행 전 36개월
+po = its[its["post"] == 1]                         # 시행 후 24개월
+slope = np.polyfit(pre["time"], pre["rate"], 1)[0]   # 시행 전 기울기
+gap = po["time"].mean() - pre["time"].mean()       # 48.5 - 18.5
+change = po["rate"].mean() - pre["rate"].mean()    # 전후 평균의 차이
+print(f"trend only: {slope:.4f} x {gap:.0f} months = {slope * gap:.2f}")
+print(f"before-after {change:.2f} - trend = {change - slope * gap:.2f}")
+''', title="연도별 평균과 원래 흐름의 몫")
+save("lab18_yearly", c, marks={"~2015\\s+94\\.33\\s+82\\.69": 1, "~2017\\s+88\\.50\\s+76\\.98": 2,
+                               "= -7.26": 3, "= -10.20": 4})
+
+c = nb.cell('''
+rng = np.random.default_rng(1)
+up, down = [], []
+for _ in range(4000):                          # 4,000번 되풀이
+    usual = rng.normal(88, 6, 250)             # 250곳의 평소 수준
+    year1 = usual + rng.normal(0, 3, 250)      # 첫해 = 평소 + 우연
+    year2 = usual + rng.normal(0, 3, 250)      # 다음 해 = 평소 + 새 우연
+    top = np.argsort(year1)[-20:]              # 첫해 상위 20곳
+    up.append(year1[top].mean() - 88)          # 평균보다 얼마나 높았나
+    down.append(year2[top].mean() - year1[top].mean())   # 다음 해 변화
+print(f"top 20, first year: {np.mean(up):.2f} above the mean")
+print(f"top 20, next year : {np.mean(down):.2f}")
+''', title="평균으로의 회귀 모의실험")
+save("lab18_rtm", c, marks={"12.39 above the mean": 1, "next year : -2.46": 2})
+
 # ================================================================== 나. 중단시계열분석
 S2 = len(nb.cells) + 1
 c = nb.cell('''
-import statsmodels.formula.api as smf
 from statsmodels.stats.stattools import durbin_watson
 
 f = "rate ~ time + post + time_after"
@@ -228,6 +277,16 @@ its.loc[its["time"].isin([37, 48, 60]),
 save("lab18_cf", c, dfmarks={"86.66": 1, "-10.09": 2, "-12.80": 3})
 
 c = nb.cell('''
+its0 = its.assign(time_after0=np.where(its["post"] == 1,
+                                       its["time_after"] - 1, 0))
+fit_ta0 = smf.ols("rate ~ time + post + time_after0", data=its0).fit(
+    cov_type="HAC", cov_kwds={"maxlags": 3})
+print(fit_ta0.summary().tables[1])
+print(fit_ta0.t_test("post + 11 * time_after0 = 0"))   # 12개월째
+''', title="시행 첫 달을 0으로 센 분절회귀")
+save("lab18_ta0", c, marks={"~post\\s+-7\\.5970[^\\n]*": 1, "~time_after0\\s+-0\\.2263": 2, "~c0\\s+-10\\.0860[^\\n]*": 3})
+
+c = nb.cell('''
 its["sin12"] = np.sin(2 * np.pi * its["time"] / 12)
 its["cos12"] = np.cos(2 * np.pi * its["time"] / 12)
 
@@ -242,8 +301,6 @@ save("lab18_season", c, marks={"~post\\s+-7\\.7717[^\\n]*": 1, "~time_after\\s+-
                                "~cos12\\s+0\\.9506": 3, "Durbin-Watson: 1.296": 4, "residual SD  : 1.52 -> 1.26": 5})
 
 c = nb.cell('''
-import statsmodels.api as sm
-
 X = sm.add_constant(its[["time", "post", "time_after"]])
 gls = sm.GLSAR(its["rate"], X, rho=1).iterative_fit(maxiter=50)
 print("rho:", np.round(gls.model.rho, 3))
@@ -260,6 +317,26 @@ tab = pd.DataFrame(
 tab.round(3)
 ''', title="AR(1) 오차 모형과 네 가지 방법의 비교")
 save("lab18_methods", c, marks={"rho: [0.527]": 1}, dfmarks={"-8.991": 2, "-9.559": 3, "-7.216": 4, "-7.772": 5})
+
+c = nb.cell('''
+pois = smf.glm("n_sed ~ time + post + time_after", data=its,
+               family=sm.families.Poisson(),
+               offset=np.log(its["n_pat"]))       # 분모는 오프셋으로
+fit_p = pois.fit(cov_type="HAC", cov_kwds={"maxlags": 3})
+
+ratio = np.exp(fit_p.conf_int())                  # 신뢰구간을 비로
+ratio.columns = ["lower", "upper"]
+ratio.insert(0, "ratio", np.exp(fit_p.params))    # 계수를 비로
+print(ratio.round(4))
+
+e12 = fit_p.t_test("post + 12 * time_after = 0")  # 12개월째 (로그 척도)
+print("12 months:", np.exp(e12.effect).round(3),
+      np.exp(e12.conf_int()).round(3))
+print("Pearson chi2 / df:",
+      round(fit_p.pearson_chi2 / fit_p.df_resid, 1))
+''', title="건수 자료의 포아송 분절회귀")
+save("lab18_poisson", c, marks={"~post\\s+0\\.9164[^\\n]*": 1, "~time_after\\s+0\\.9963": 2, "~Intercept\\s+0\\.0957": 3,
+                                "~12 months: [^\\n]*": 4, "Pearson chi2 / df: 6.9": 5})
 
 # ================================================================== 다. 대조군이 있는 중단시계열
 S3 = len(nb.cells) + 1
@@ -310,6 +387,18 @@ ax.legend()
 plt.tight_layout()
 ''', title="차이의 계열 그림")
 save("lab18_diffplot", c)
+
+c = nb.cell('''
+for shift in [1.5, -1.5]:
+    comp_s = comp["rate"] + shift * comp["post"]   # 시행 후에만 더함
+    diff_s = diff.assign(rate=its["rate"] - comp_s)
+    res = seg(diff_s)                              # 셀 19의 함수
+    lo, hi = res.conf_int().loc["post"]
+    print(f"comparison {shift:+.1f}: level {res.params['post']:.2f}"
+          f" ({lo:.2f}, {hi:.2f}), slope {res.params['time_after']:.3f}")
+''', title="비교 계열에 정책의 영향이 번지면")
+save("lab18_spill", c, marks={"~comparison \\+1\\.5: level -6\\.34 \\([^)]*\\)": 1,
+                              "~comparison -1\\.5: level -3\\.34 \\([^)]*\\)": 2, "slope -0.198": 3})
 
 c = nb.cell('''
 cols = ["treat", "time", "post", "time_after", "rate"]
@@ -404,17 +493,49 @@ plt.tight_layout()
 ''', title="시행 전 계수의 결합 검정과 사건연구 그림")
 save("lab18_eventplot", c, marks={"p = 0.76": 1})
 
+c = nb.cell('''
+avg = {}
+for name in ["pilot", "difference"]:
+    t = fits[name].t_test("post + 12.5 * time_after = 0")   # 24개월 평균
+    avg[name] = [t.effect[0], *t.conf_int()[0]]
+lo, hi = did.conf_int().loc["treat:post"]
+
+four = pd.DataFrame(
+    [[m.loc[1, "change"], np.nan, np.nan],         # 셀 24의 전후 변화
+     avg["pilot"], avg["difference"],
+     [did.params["treat:post"], lo, hi],
+     [-5.0 + 12.5 * -0.20, np.nan, np.nan]],       # 모의자료에 넣은 효과
+    index=["before-after", "ITS, pilot", "controlled ITS",
+           "DID", "true effect"],
+    columns=["estimate", "lower", "upper"])
+four.round(2)
+''', title="같은 척도로 본 네 가지 분석")
+save("lab18_four", c, dfmarks={"-17.46": 1, "-10.20": 2, "-7.32": 3, "-7.40": 4, "-7.50": 5})
+
 N_MAIN = len(nb.cells)
 
 # ================================================================== 과제
+c = nb.cell('''
+for name in ["pilot", "comparison", "difference"]:
+    t = fits[name].t_test("post + 12 * time_after = 0")
+    lo, hi = t.conf_int()[0]
+    print(f"{name:<10} 12 months: {t.effect[0]:6.2f} ({lo:.2f}, {hi:.2f})")
+t = fits["difference"].t_test("post + 24 * time_after = 0")
+lo, hi = t.conf_int()[0]
+print(f"difference 24 months: {t.effect[0]:6.2f} ({lo:.2f}, {hi:.2f})")
+''', title="과제 1 정답. 세 계열의 12개월째 효과")
+save("lab18_hw1", c, marks={"~pilot\\s+12 months: [^\\n]*": 1, "~comparison 12 months: [^\\n]*": 2,
+                            "~difference 12 months: [^\\n]*": 3, "~difference 24 months: [^\\n]*": 4})
+
 c = nb.cell('''
 short = its[(its["time"] > 24) & (its["time"] <= 48)]
 fit_12 = smf.ols(f, data=short).fit(cov_type="HAC",
                                     cov_kwds={"maxlags": 3})
 print(len(short), "months")
 print(fit_12.summary().tables[1])
-''', title="과제 1 정답. 시행 전후 12개월씩만 쓴 분절회귀")
-save("lab18_hw1", c)
+''', title="과제 2 정답 (1). 시행 전후 12개월씩만 쓴 분절회귀")
+save("lab18_hw2", c, marks={"~post\\s+-5\\.6\\d+[^\\n]*": 1, "~time_after\\s+-0\\.14\\d+[^\\n]*": 2,
+                            "~time\\s+-0\\.47\\d+": 3})
 
 c = nb.cell('''
 keep = its[~its["time"].isin([37, 38, 39])]     # 2018년 1-3월 제외
@@ -423,8 +544,9 @@ fit_ph = smf.ols(f, data=keep).fit(cov_type="HAC",
 print(len(keep), "months")
 print(fit_ph.summary().tables[1])
 print(fit_ph.t_test("post + 12 * time_after = 0"))
-''', title="과제 2 정답. 적응 기간 3개월을 뺀 분석")
-save("lab18_hw2", c)
+''', title="과제 2 정답 (2). 적응 기간 3개월을 뺀 분석")
+save("lab18_hw2b", c, marks={"~post\\s+-8\\.5\\d+[^\\n]*": 1, "~time_after\\s+-0\\.15\\d+[^\\n]*": 2,
+                             "~c0\\s+-10\\.4\\d+[^\\n]*": 3})
 
 c = nb.cell('''
 # (1) 가중치 없는 이중차분
@@ -445,8 +567,8 @@ fit_chg = smf.wls("chg ~ treat", data=chg,
 lo, hi = fit_chg.conf_int().loc["treat"]
 print(f"district-level: {fit_chg.params['treat']:.2f}"
       f" ({lo:.2f}, {hi:.2f})  n = {int(fit_chg.nobs)}")
-''', title="과제 3 정답. 가중치 없는 분석과 시군구별 변화량")
-save("lab18_hw3", c)
+''', title="과제 3 정답. 동료의 분석 재현과 시군구별 변화량")
+save("lab18_hw3", c, marks={"~unweighted DID: [^\\n]*": 1, "~district-level: [^\\n]*": 2})
 
 print("lab18: cells", len(nb.cells), "(main", N_MAIN, "+ homework", len(nb.cells) - N_MAIN, ")")
 for cc in nb.cells:
@@ -461,16 +583,19 @@ nb.save_ipynb(
            "직접 집계해 분절회귀, 대조군이 있는 중단시계열, 이중차분법으로 분석합니다. "
            "셀을 위에서부터 차례로 실행하세요. 자료는 사이트에서 내려받으므로 인터넷 연결이 필요합니다."),
     notes={
-        1: "## 가. 실습 데이터 준비\n\n시군구 × 월 자료를 읽고, 시간 변수와 처방률을 만들고, 지역을 합친 월별 계열을 만듭니다.",
+        1: ("## 가. 실습 데이터 준비\n\n패키지를 불러와 버전을 확인하고, 시군구 × 월 자료를 읽어 시간 변수와 처방률, "
+            "지역을 합친 월별 계열을 만듭니다. 셀 9는 실습 자료를 쓰지 않는 모의실험입니다."),
         S2: "## 나. 중단시계열분석\n\n시범 지역의 월별 계열(its)에 분절회귀를 적합하고, 자기상관을 확인한 뒤 Newey-West 표준오차를 씁니다.",
         S3: "## 다. 대조군이 있는 중단시계열\n\n비교 지역의 계열과 차이의 계열(시범 − 비교)에도 같은 모형을 적합합니다.",
         S4: "## 라. 이중차분법\n\n2×2 평균표로 먼저 구하고, 시군구 × 월 자료의 회귀로 같은 값과 군집 강건 표준오차를 구합니다.",
-        N_MAIN + 1: ("## 과제 정답\n\n**과제 1.** 시범 지역의 계열에서 시행 전 12개월과 시행 후 12개월(time 25–48)만 남겨 "
-                     "나 절의 분절회귀(Newey-West, 시차 3)를 다시 적합하고, 수준 변화와 기울기 변화의 95% 신뢰구간을 60개월 분석과 비교하세요."),
-        N_MAIN + 2: ("**과제 2.** 시행 직후 3개월(2018년 1–3월, time 37–39)을 적응 기간으로 보고 빼고 분석하세요. "
-                     "time_after는 그대로 둡니다. 수준 변화, 기울기 변화, 12개월째의 효과를 구하세요."),
-        N_MAIN + 3: ("**과제 3.** (1) 가중치 없이 이중차분 추정값과 95% 신뢰구간을 구하세요. "
-                     "(2) 시군구마다 '시행 후 평균 − 시행 전 평균'을 하나씩 구해 60개의 변화량으로 두 지역을 비교하세요."),
+        N_MAIN + 1: ("## 과제 정답\n\n**과제 1.** 셀 20의 차이 계열에서 12개월째 효과(c0 줄)를 논문의 Results처럼 한 문장으로 옮기고, "
+                     "시범 지역만 본 셀 13의 −10.09와 무엇이 다른지, 이 값이 말해 주지 않는 것 두 가지를 쓰세요."),
+        N_MAIN + 2: ("**과제 2.** 분석에 넣는 달을 바꿔 봅니다. (1) 시행 전후 12개월씩(time 25–48)만 남겨 분절회귀를 다시 적합하고 "
+                     "60개월 분석과 비교하세요."),
+        N_MAIN + 3: ("(2) 시행 직후 3개월(2018년 1–3월, time 37–39)을 적응 기간으로 보고 빼고 분석하세요. "
+                     "time_after는 그대로 둡니다. 수준 변화, 기울기 변화, 12개월째의 효과를 60개월 분석과 비교하세요."),
+        N_MAIN + 4: ("**과제 3.** 가중치 없이 이중차분을 돌리고 '줄이 3,600개라 정밀하다'고 쓴 동료의 분석을 재현하고, "
+                     "시군구마다 전후 변화량을 하나씩 구한 60줄 분석과 비교해 틀린 곳 두 가지를 찾으세요."),
     })
 
 # ================================================================== 본문 숫자와의 대조 (18장 = gen/_ch18_nums.json)
@@ -583,6 +708,53 @@ if __name__ == "__main__":
     fc = ns["fit_chg"]
     eq(fc.params["treat"], J["did_chg"]["est"][0], what="hw3 district-level"); eq(fc.conf_int().loc["treat", 0], J["did_chg"]["est"][1], what="hw3")
     eq(fc.conf_int().loc["treat", 1], J["did_chg"]["est"][2], what="hw3")
+    # 2026-10-14에 더한 셀
+    yl = ns["yearly"]
+    for i, yr in enumerate(range(2015, 2020)):
+        eq(yl.loc[yr, "pilot"], J["yearly"]["p"][i], what=f"yearly pilot {yr}")
+        eq(yl.loc[yr, "comparison"], J["yearly"]["c"][i], what=f"yearly comp {yr}")
+    assert "%.1f %.1f" % (yl.loc[2015, "pilot"] - yl.loc[2017, "pilot"],
+                          yl.loc[2015, "comparison"] - yl.loc[2017, "comparison"]) == "5.8 5.7"
+    n_ok += 1
+    eq(ns["slope"], J["its"]["b"][1], what="pre-period slope = segmented-regression trend")
+    eq(ns["change"] - ns["slope"] * ns["gap"], J["its_avg"][0], what="before-after minus trend = ITS 24-month average")
+    assert "%.2f %.2f" % (np.mean(ns["up"]), np.mean(ns["down"])) == "12.39 -2.46"   # 본문 '더 알아보기'의 모의실험 −2.46
+    assert "%.2f %.2f" % (J["rtm"]["excess"], J["rtm"]["fall"]) == "12.47 2.49"
+    n_ok += 2
+    ft = ns["fit_ta0"]
+    eq(ft.params["post"], J["its_eff"]["1"]["diff"], what="time_after from 0: level = first-month effect")
+    eq(ft.params["time_after0"], J["its"]["b"][3], what="time_after from 0: slope")
+    eq(ft.t_test("post + 11 * time_after0 = 0").effect[0], J["its_eff"]["12"]["diff"], what="time_after from 0: 12 months")
+    fpo, PJ = ns["fit_p"], J["pois"]
+    for i, k in enumerate(["Intercept", "time", "post", "time_after"]):
+        eq(np.exp(fpo.params[k]), PJ["rr"][i], what="poisson rr " + k)
+        eq(np.exp(fpo.conf_int().loc[k, 0]), PJ["rr_ci"][i][0], what="poisson lo " + k)
+        eq(np.exp(fpo.conf_int().loc[k, 1]), PJ["rr_ci"][i][1], what="poisson hi " + k)
+    e = fpo.t_test("post + 12 * time_after = 0")
+    eq(np.exp(e.effect[0]), PJ["rr12"][0], what="poisson rr12"); eq(np.exp(e.conf_int()[0][0]), PJ["rr12"][1], what="rr12 lo")
+    eq(np.exp(e.conf_int()[0][1]), PJ["rr12"][2], what="rr12 hi")
+    eq(fpo.pearson_chi2 / fpo.df_resid, PJ["disp"], what="pearson chi2/df")
+    for sh, txt in ((1.5, "-6.34"), (-1.5, "-3.34")):
+        cs = comp["rate"] + sh * comp["post"]
+        r_ = ns["seg"](ns["diff"].assign(rate=its["rate"] - cs))
+        eq(r_.params["post"], J["cits"]["diff"]["b"][2] - sh, what=f"spillover {sh}")
+        eq(r_.params["time_after"], J["cits"]["diff"]["b"][3], what=f"spillover slope {sh}")
+        assert "%.2f" % r_.params["post"] == txt
+        n_ok += 1
+    fr = ns["four"]
+    eq(fr.loc["before-after", "estimate"], J["naive"]["pilot"]["diff"], what="four: before-after")
+    for k_, ref in (("ITS, pilot", J["its_avg"]), ("controlled ITS", J["cits"]["diff"]["eav"]),
+                    ("DID", [R["params"]["treat:post"], *R["ci_cluster"][3]])):
+        for col, v in zip(["estimate", "lower", "upper"], ref):
+            eq(fr.loc[k_, col], v, what=f"four: {k_} {col}")
+    eq(fr.loc["true effect", "estimate"], -7.5, what="four: truth")
+    for nm, key in (("pilot", "pilot"), ("comparison", "comp"), ("difference", "diff")):
+        t_ = ns["fits"][nm].t_test("post + 12 * time_after = 0")
+        eq(t_.effect[0], J["cits"][key]["e12"][0], what="hw1 e12 " + nm)
+        eq(t_.conf_int()[0][1], J["cits"][key]["e12"][2], what="hw1 e12 hi " + nm)
+    t_ = ns["fits"]["difference"].t_test("post + 24 * time_after = 0")
+    eq(t_.effect[0], J["cits"]["diff"]["e24"][0], what="hw1 e24")
+    eq(t_.conf_int()[0][0], J["cits"]["diff"]["e24"][1], what="hw1 e24 lo")
     print(f"CHECK: {n_ok} comparisons with gen/_ch18_nums.json all agree (tol 1e-6)")
 
     # ---------------- numbers quoted in the text but not shown in a cell

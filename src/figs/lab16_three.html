@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">표 16-4의 환자 세 명 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ex = {298: &quot;A&quot;, 64: &quot;B&quot;, 3: &quot;C&quot;}       # 16장 표 16-4의 환자
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">표 16-4의 환자 세 명 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ex = {298: &quot;A&quot;, 64: &quot;B&quot;, 3: &quot;C&quot;}       # 16장 표 16-4의 환자
 t = long[long[&quot;id&quot;].isin(ex)].copy()
 t[&quot;patient&quot;] = t[&quot;id&quot;].map(ex)
 t[[&quot;start&quot;, &quot;stop&quot;]] = t[[&quot;start&quot;, &quot;stop&quot;]].round().astype(int)

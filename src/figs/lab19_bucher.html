@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">대조약이 다른 시험을 잇는 간접비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">y_y = np.log(0.90)                          # 약물 Y 대 위약 0.90 (0.80-1.01), 가상
+se_y = (np.log(1.01) - np.log(0.80)) / (2 * Z)
+y_xy = m[&quot;re&quot;] - y_y                        # (X 대 위약) - (Y 대 위약)
+se_xy = np.sqrt(m[&quot;se_re&quot;]**2 + se_y**2)    # 두 불확실성을 더함
+print(f&quot;SE, X vs placebo: {m[&#x27;se_re&#x27;]:.3f}&quot;)
+print(f&quot;SE, Y vs placebo: {se_y:.3f}&quot;)
+print(f&quot;SE, X vs Y      : {se_xy:.3f}&quot;)
+print(&quot;indirect OR, X vs Y:&quot;, orci(y_xy, se_xy))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>SE, X vs placebo: 0.061
+SE, Y vs placebo: 0.059<span class="mk">1</span>
+SE, X vs Y      : 0.085<span class="mk">2</span>
+indirect OR, X vs Y: 0.92 (0.78-1.08)<span class="mk">3</span></pre></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">메타회귀 (STEMI 환자 비율)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">메타회귀 (STEMI 환자 비율)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
 
 es[&quot;stemi10&quot;] = (tr[&quot;stemi_pct&quot;] - 50) / 10   # 10%p 단위, 50%가 0
 m0 = smf.wls(&quot;yi ~ stemi10&quot;, data=es, weights=w).fit()

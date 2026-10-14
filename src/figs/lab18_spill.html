@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">비교 계열에 정책의 영향이 번지면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for shift in [1.5, -1.5]:
+    comp_s = comp[&quot;rate&quot;] + shift * comp[&quot;post&quot;]   # 시행 후에만 더함
+    diff_s = diff.assign(rate=its[&quot;rate&quot;] - comp_s)
+    res = seg(diff_s)                              # 셀 19의 함수
+    lo, hi = res.conf_int().loc[&quot;post&quot;]
+    print(f&quot;comparison {shift:+.1f}: level {res.params[&#x27;post&#x27;]:.2f}&quot;
+          f&quot; ({lo:.2f}, {hi:.2f}), slope {res.params[&#x27;time_after&#x27;]:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>comparison +1.5: level -6.34 (-7.13, -5.55)<span class="mk">1</span>, slope -0.198<span class="mk">3</span>
+comparison -1.5: level -3.34 (-4.13, -2.55)<span class="mk">2</span>, slope -0.198</pre></div></div>

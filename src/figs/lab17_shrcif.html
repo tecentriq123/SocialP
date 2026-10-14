@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">하위분포 위험비를 시점별 누적발생률로 옮기기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">shr = fg.hazard_ratios_[&quot;drug_a&quot;]          # 셀 17의 하위분포 위험비
+print(&quot;subdistribution HR:&quot;, round(shr, 3))
+
+rows = []
+for t in [1, 3, 5]:
+    fa_t = cif(ckd[ckd[&quot;drug&quot;] == &quot;A&quot;], 1, t)[0]
+    fb_t = cif(ckd[ckd[&quot;drug&quot;] == &quot;B&quot;], 1, t)[0]
+    fa_fg = 1 - (1 - fb_t) ** shr          # 1.254로 옮긴 A군의 값
+    rows.append([t, fa_t * 100, fb_t * 100, fa_t / fb_t,
+                 fa_fg * 100, fa_fg / fb_t])
+conv = pd.DataFrame(rows, columns=[&quot;year&quot;, &quot;A&quot;, &quot;B&quot;, &quot;A/B&quot;,
+                                   &quot;A_fg&quot;, &quot;fg/B&quot;])
+print(conv.round({&quot;A&quot;: 1, &quot;B&quot;: 1, &quot;A/B&quot;: 2, &quot;A_fg&quot;: 1, &quot;fg/B&quot;: 2})
+          .to_string(index=False))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>subdistribution HR: 1.254
+ year    A    B  A/B  A_fg  fg/B
+    1  8.5  7.9 1.08<span class="mk">1</span>   9.8<span class="mk">2</span>  1.24
+    3 21.0 18.2 1.16  22.2  1.22
+    5 30.2 24.5 1.23  29.8<span class="mk">3</span>  1.21<span class="mk">4</span></pre></div></div>

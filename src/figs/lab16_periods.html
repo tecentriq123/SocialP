@@ -1,0 +1,72 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">기간을 나눠 같은 시기끼리 견주기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cuts = [0, 365 * 3 / 12, 365 * 6 / 12, 365]   # 0, 3, 6, 12개월 (일)
+rows = []
+for a, b in zip(cuts[:-1], cuts[1:]):
+    s = long[&quot;start&quot;].clip(lower=a)          # 이 기간 안에서 줄이 시작하는 날
+    e = long[&quot;stop&quot;].clip(upper=b)           # 이 기간 안에서 줄이 끝나는 날
+    py = (e - s).clip(lower=0) / 365         # 이 기간에 든 인년
+    dead = (long[&quot;died&quot;] == 1) &amp; (long[&quot;stop&quot;] &gt; a) &amp; (long[&quot;stop&quot;] &lt;= b)
+    g = pd.DataFrame({&quot;drugx&quot;: long[&quot;drugx&quot;], &quot;deaths&quot;: dead,
+                      &quot;py&quot;: py}).groupby(&quot;drugx&quot;).sum()
+    dU, pU = g.loc[0, &quot;deaths&quot;], g.loc[0, &quot;py&quot;]   # 비노출
+    dE, pE = g.loc[1, &quot;deaths&quot;], g.loc[1, &quot;py&quot;]   # 노출
+    rows.append([dU / pU * 100, dE / pE * 100, dU, pU, dE, pE])
+per = pd.DataFrame(rows, index=[&quot;0-3 mo&quot;, &quot;3-6 mo&quot;, &quot;6-12 mo&quot;],
+                   columns=[&quot;rate U&quot;, &quot;rate E&quot;, &quot;deaths U&quot;, &quot;PY U&quot;,
+                            &quot;deaths E&quot;, &quot;PY E&quot;])
+per.insert(2, &quot;IRR&quot;, per[&quot;rate E&quot;] / per[&quot;rate U&quot;])
+
+first = per.loc[&quot;0-3 mo&quot;, [&quot;PY U&quot;, &quot;PY E&quot;]] / per[[&quot;PY U&quot;, &quot;PY E&quot;]].sum()
+print(f&quot;0-3개월에 든 인년: 비노출 {first[&#x27;PY U&#x27;]:.0%}, 노출 {first[&#x27;PY E&#x27;]:.0%}&quot;)
+w = per[&quot;PY U&quot;] + per[&quot;PY E&quot;]
+mh = ((per[&quot;deaths E&quot;] * per[&quot;PY U&quot;] / w).sum()
+      / (per[&quot;deaths U&quot;] * per[&quot;PY E&quot;] / w).sum())
+print(f&quot;단순한 비 {t3.loc[1, &#x27;rate&#x27;] / t3.loc[0, &#x27;rate&#x27;]:.2f},&quot;
+      f&quot; Mantel-Haenszel {mh:.2f},&quot;
+      f&quot; Cox {ctv.summary.loc[&#x27;drugx&#x27;, &#x27;exp(coef)&#x27;]:.2f}&quot;)
+per.round({&quot;rate U&quot;: 1, &quot;rate E&quot;: 1, &quot;IRR&quot;: 2, &quot;PY U&quot;: 0, &quot;PY E&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>0-3개월에 든 인년: 비노출 34%<span class="mk">1</span>, 노출 8%<span class="mk">2</span>
+단순한 비 0.92<span class="mk">3</span>, Mantel-Haenszel 1.01<span class="mk">4</span>, Cox 1.03<span class="mk">5</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rate U</th>
+      <th>rate E</th>
+      <th>IRR</th>
+      <th>deaths U</th>
+      <th>PY U</th>
+      <th>deaths E</th>
+      <th>PY E</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0-3 mo</th>
+      <td>28.8<span class="mk">6</span></td>
+      <td>30.0<span class="mk">7</span></td>
+      <td>1.04</td>
+      <td>380</td>
+      <td>1318.0</td>
+      <td>37</td>
+      <td>123.0</td>
+    </tr>
+    <tr>
+      <th>3-6 mo</th>
+      <td>22.0</td>
+      <td>20.6</td>
+      <td>0.94<span class="mk">8</span></td>
+      <td>229</td>
+      <td>1039.0</td>
+      <td>66</td>
+      <td>320.0</td>
+    </tr>
+    <tr>
+      <th>6-12 mo</th>
+      <td>20.5</td>
+      <td>21.2</td>
+      <td>1.04</td>
+      <td>304</td>
+      <td>1484.0</td>
+      <td>218</td>
+      <td>1028.0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

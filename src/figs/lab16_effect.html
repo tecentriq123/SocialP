@@ -1,0 +1,57 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">약물 X에 실제 효과가 있다면 (참값 0.70)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">LAM, K = 6.25, 0.8    # 약이 없을 때의 사망 시점을 만든 와이블 분포(척도 년, 모양)
+
+def H(t):             # 퇴원 후 t년까지 쌓인 위험(누적위험)
+    return (t / LAM) ** K
+
+def H_inv(h):         # 쌓인 위험이 h가 되는 시점(년)
+    return LAM * h ** (1 / K)
+
+de = d.copy()                                  # 효과가 있는 약의 자료
+k = (de[&quot;ever&quot;] == 1) &amp; (de[&quot;died&quot;] == 1)      # 약을 시작한 뒤 사망한 사람
+t0, ti = de.loc[k, &quot;fu_days&quot;] / 365, de.loc[k, &quot;rx_day&quot;] / 365
+t1 = H_inv(H(ti) + (H(t0) - H(ti)) / 0.7)      # 시작 뒤 위험이 0.7배로 쌓이면
+de.loc[k, &quot;died&quot;] = (t1 &lt;= 1).astype(int)
+de.loc[k, &quot;fu_days&quot;] = np.minimum(t1, 1) * 365
+print(&quot;사망&quot;, d[&quot;died&quot;].sum(), &quot;-&gt;&quot;, de[&quot;died&quot;].sum(), &quot;명&quot;)
+
+lg = add_covariate_to_timeline(
+    to_long_format(de[[&quot;id&quot;, &quot;fu_days&quot;, &quot;died&quot;]], duration_col=&quot;fu_days&quot;),
+    de.loc[de[&quot;ever&quot;] == 1, [&quot;id&quot;, &quot;rx_day&quot;]].assign(drugx=1),
+    id_col=&quot;id&quot;, duration_col=&quot;rx_day&quot;, event_col=&quot;died&quot;).fillna({&quot;drugx&quot;: 0})
+res = {&quot;ever user (wrong)&quot;: hr_ci(CoxPHFitter().fit(
+           de, &quot;fu_days&quot;, &quot;died&quot;, formula=&quot;ever&quot;), &quot;ever&quot;),
+       &quot;time-varying&quot;: hr_ci(CoxTimeVaryingFitter().fit(
+           lg, id_col=&quot;id&quot;, event_col=&quot;died&quot;,
+           start_col=&quot;start&quot;, stop_col=&quot;stop&quot;), &quot;drugx&quot;)}
+for m in [1, 3, 6]:
+    res[f&quot;landmark {m} mo&quot;] = landmark(de, m)[&quot;HR (95% CI)&quot;]
+pd.DataFrame({&quot;HR (95% CI), true 0.70&quot;: res})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>사망 1234 -&gt; 1138 명<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>HR (95% CI), true 0.70</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>ever user (wrong)</th>
+      <td>0.25 (0.22-0.29)<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>time-varying</th>
+      <td>0.71 (0.61-0.83)<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>landmark 1 mo</th>
+      <td>0.78 (0.58-1.04)<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>landmark 3 mo</th>
+      <td>0.65 (0.52-0.81)<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>landmark 6 mo</th>
+      <td>0.72 (0.58-0.89)</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,0 +1,137 @@
+[
+ {
+  "n": 1,
+  "title": "lifelines 설치",
+  "out": ""
+ },
+ {
+  "n": 2,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas     3.0.5\nnumpy      2.5.3\nmatplotlib 3.11.2\nlifelines  0.30.3\n"
+ },
+ {
+  "n": 3,
+  "title": "자료 불러오기",
+  "out": "(6000, 4)\n   id     fu_days  died      rx_day\n0   0  177.836900     1         NaN\n1   1  341.341834     1         NaN\n2   2  365.000000     0  249.905124\n3   3  365.000000     0   48.614645\n4   4  365.000000     0   49.468897"
+ },
+ {
+  "n": 4,
+  "title": "자료 확인",
+  "out": "환자 6000 명, id 중복 0 건\n사망 1234 명 (20.6%)\n약물 X를 시작한 사람 2734 명\n생존자의 추적 일수: [365.]\n사망자의 추적 일수 최대: 363.758483\n추적이 끝난 뒤의 처방 0 건\n"
+ },
+ {
+  "n": 5,
+  "title": "약물 X를 시작한 시점의 분포",
+  "out": "count    2734.0\nmean        5.0\nstd         3.4\nmin         0.0\n25%         2.1\n50%         4.5\n75%         7.8\nmax        12.0\nName: rx_day, dtype: float64\n"
+ },
+ {
+  "n": 6,
+  "title": "표 16-1의 작은 예를 네 가지로 분석하기",
+  "out": "                      exposed       unexposed   IRR\n1 ever user     40/400 (10.0)  150/550 (27.3)  0.37\n2 dropped       40/200 (20.0)  150/550 (27.3)  0.73\n3 time-varying  40/200 (20.0)  150/750 (20.0)  1.00\n4 landmark      40/200 (20.0)   50/250 (20.0)  1.00"
+ },
+ {
+  "n": 7,
+  "title": "추적 중 사용 여부로 군 나누기 (잘못된 분류)",
+  "out": "상대위험도: 0.42\n         n  deaths  risk\never                    \n0     3266     913  28.0\n1     2734     321  11.7"
+ },
+ {
+  "n": 8,
+  "title": "잘못된 분류로 그린 Kaplan-Meier 곡선",
+  "out": "Ever users 90일 생존율 0.987  365일 생존율 0.883\nNever users 90일 생존율 0.884  365일 생존율 0.72\n"
+ },
+ {
+  "n": 9,
+  "title": "잘못된 분류의 Cox 모형",
+  "out": "<lifelines.CoxPHFitter: fitted with 6000 total observations, 4766 right-censored observations>\n             duration col = 'fu_days'\n                event col = 'died'\n      baseline estimation = breslow\n   number of observations = 6000\nnumber of events observed = 1234\n   partial log-likelihood = -10462.796\n         time fit was run = 2026-10-14 05:47:51 UTC\n\n---\n            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                   \never      -1.004     0.366     0.065          -1.131          -0.877               0.323               0.416\n\n           cmp to       z       p  -log2(p)\ncovariate                                  \never        0.000 -15.465 <0.0005   176.795\n---\nConcordance = 0.619\nPartial AIC = 20927.592\nlog-likelihood ratio test = 271.803 on 1 df\n-log2(p) of ll-ratio test = 200.439\n\nHR (95% CI): 0.37 (0.32-0.42)\n"
+ },
+ {
+  "n": 11,
+  "title": "사용군의 불멸 인년 계산",
+  "out": "사용군 2613인년, 그중 첫 처방 전 1142인년 (44%)\n비사용군 2699인년\n사망률 12.3 대 33.8, 발생률비 0.36\n"
+ },
+ {
+  "n": 12,
+  "title": "일찍 사망한 사람은 어느 군에 있는가",
+  "out": "사용군에서 첫 처방 전에 사망한 사람: 0 명\n퇴원 후 3개월 안의 사망: 417 건\never\n0    380\n1     37\nName: count, dtype: int64\n"
+ },
+ {
+  "n": 13,
+  "title": "3개월 랜드마크 자료 만들기",
+  "out": "대상자 5583 명, 제외 417 명\n비노출군 가운데 3개월 뒤에 시작한 사람 1763 명\n            n  deaths  risk\nexposed                    \n0        4649     686  14.8\n1         934     131  14.0"
+ },
+ {
+  "n": 14,
+  "title": "랜드마크부터의 Kaplan-Meier 곡선과 Cox 모형",
+  "out": "3개월 랜드마크 HR (95% CI): 0.94 (0.78-1.14)\n"
+ },
+ {
+  "n": 15,
+  "title": "랜드마크 시점을 1, 3, 6개월로 바꿔 보기",
+  "out": "   month     n  excluded  exposed  late start %     deaths       HR (95% CI)\n0      1  5820       180      349          43.5   66 / 988  1.06 (0.82-1.36)\n1      3  5583       417      934          37.9  131 / 686  0.94 (0.78-1.14)\n2      6  5288       712     1580          28.3  162 / 360  1.06 (0.88-1.27)"
+ },
+ {
+  "n": 16,
+  "title": "한 사람 한 줄 자료를 긴 형식으로 바꾸기",
+  "out": "6000 명 -> 8734 줄\n   id       start        stop  drugx  died\n0   0    0.000000  177.836900      0     1\n1   1    0.000000  341.341834      0     1\n2   2    0.000000  249.905124      0     0\n3   2  249.905124  365.000000      1     0\n4   3    0.000000   48.614645      0     0\n5   3   48.614645  365.000000      1     0"
+ },
+ {
+  "n": 17,
+  "title": "표 16-4의 환자 세 명 확인",
+  "out": "    patient   id  start  stop  drugx  died\n438       A  298      0   126      0     0\n439       A  298    126   301      1     1\n99        B   64      0    44      0     1\n4         C    3      0    49      0     0\n5         C    3     49   365      1     0"
+ },
+ {
+  "n": 18,
+  "title": "긴 형식 자료 점검",
+  "out": "둘째 줄 2734 줄, 앞 줄의 끝에서 시작하는가: True\n길이가 0 이하인 구간 0 줄\n사망 1234 건, 마지막 줄의 사망 1234 건, 원자료 1234 건\n인년 합계 5312, 원자료 5312\n"
+ },
+ {
+  "n": 19,
+  "title": "노출 상태별 사망, 인년, 사망률",
+  "out": "발생률비: 0.92\n       deaths      py  rate\ndrugx                      \n0         913  3841.0  23.8\n1         321  1471.0  21.8"
+ },
+ {
+  "n": 20,
+  "title": "시간의존 Cox 모형",
+  "out": "<lifelines.CoxTimeVaryingFitter: fitted with 8734 periods, 6000 subjects, 1234 events>\n         event col = 'died'\nnumber of subjects = 6000\n number of periods = 8734\n  number of events = 1234\npartial log-likelihood = -10598.599\n  time fit was run = 2026-10-14 05:47:52 UTC\n\n---\n           coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                  \ndrugx     0.031     1.031     0.070          -0.105           0.167               0.900               1.182\n\n           cmp to     z     p  -log2(p)\ncovariate                              \ndrugx       0.000 0.445 0.656     0.608\n---\nPartial AIC = 21199.198\nlog-likelihood ratio test = 0.198 on 1 df\n-log2(p) of ll-ratio test = 0.607\n\n"
+ },
+ {
+  "n": 21,
+  "title": "기간을 나눠 같은 시기끼리 견주기",
+  "out": "0-3개월에 든 인년: 비노출 34%, 노출 8%\n단순한 비 0.92, Mantel-Haenszel 1.01, Cox 1.03\n         rate U  rate E   IRR  deaths U    PY U  deaths E    PY E\n0-3 mo     28.8    30.0  1.04       380  1318.0        37   123.0\n3-6 mo     22.0    20.6  0.94       229  1039.0        66   320.0\n6-12 mo    20.5    21.2  1.04       304  1484.0       218  1028.0"
+ },
+ {
+  "n": 22,
+  "title": "lifelines 함수로 같은 자료 만들기",
+  "out": "8734 줄, HR (95% CI): 1.03 (0.90-1.18)\n   id  died       start        stop  drugx\n0   0     1    0.000000  177.836900      0\n1   1     1    0.000000  341.341834      0\n2   2     0    0.000000  249.905124      0\n3   2     0  249.905124  365.000000      1"
+ },
+ {
+  "n": 23,
+  "title": "세 분석의 위험비 비교",
+  "out": "                        HR (95% CI)\never user (wrong)  0.37 (0.32-0.42)\nlandmark 3 mo      0.94 (0.78-1.14)\ntime-varying       1.03 (0.90-1.18)"
+ },
+ {
+  "n": 24,
+  "title": "약물 X에 실제 효과가 있다면 (참값 0.70)",
+  "out": "사망 1234 -> 1138 명\n                  HR (95% CI), true 0.70\never user (wrong)       0.25 (0.22-0.29)\ntime-varying            0.71 (0.61-0.83)\nlandmark 1 mo           0.78 (0.58-1.04)\nlandmark 3 mo           0.65 (0.52-0.81)\nlandmark 6 mo           0.72 (0.58-0.89)"
+ },
+ {
+  "n": 25,
+  "title": "과제 1 정답. 두 위험비가 답하는 대상 확인",
+  "out": "랜드마크 분석: 5583 명, 3개월 전 사망으로 제외 417 명\n  분석에 쓴 사망 817 건 / 전체 1234 건\n  비노출군 가운데 3개월 뒤 시작 1763 명 (37.9%)\n시간의존 분석: 비노출 시간을 보탠 환자 6000 명, 노출 시간을 보탠 환자 2734 명, 합 8734 명\n  분석에 쓴 사망 1234 건, 인년 5312\n"
+ },
+ {
+  "n": 26,
+  "title": "과제 2 정답. 시차 30일을 둔 노출",
+  "out": "8555 줄\n       deaths      py\ndrugx                \n0         964  4058.0\n1         270  1254.0\n시차 30일 HR (95% CI): 1.03 (0.89-1.19)\nlifelines delay=30: 8555 줄\n"
+ },
+ {
+  "n": 27,
+  "title": "과제 3 정답 (가). 첫 처방 전 시간을 버리기만 한 분석",
+  "out": "인년: {0: 2699.0, 1: 1471.0}\n100인년당 사망률: {0: 33.8, 1: 21.8}  발생률비: 0.65\nHR (95% CI): 0.58 (0.51-0.66)\n"
+ },
+ {
+  "n": 28,
+  "title": "과제 3 정답 (나). 랜드마크 뒤의 처방까지 넣어 군을 나눈 분석",
+  "out": "      count  sum\never            \n0      2886  533\n1      2697  284\nHR (95% CI): 0.53 (0.46-0.62)\n1763 명의 3개월부터 첫 처방까지: 584 인년\n"
+ }
+]

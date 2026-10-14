@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">지역을 합친 월별 계열 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ag = (d.groupby([&quot;treat&quot;, &quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;])
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">지역을 합친 월별 계열 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ag = (d.groupby([&quot;treat&quot;, &quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;])
         [[&quot;n_sed&quot;, &quot;n_pat&quot;]].sum().reset_index())
 ag[&quot;rate&quot;] = ag[&quot;n_sed&quot;] / ag[&quot;n_pat&quot;] * 1000
 

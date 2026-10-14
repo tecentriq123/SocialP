@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">차이의 계열 분석 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fit_d = fits[&quot;difference&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">차이의 계열 분석 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fit_d = fits[&quot;difference&quot;]
 print(fit_d.summary().tables[1])
 print(fit_d.t_test(&quot;post + 12 * time_after = 0&quot;))
 print(&quot;Durbin-Watson:&quot;, round(durbin_watson(fit_d.resid), 2),

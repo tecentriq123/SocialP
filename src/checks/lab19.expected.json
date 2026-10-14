@@ -1,0 +1,167 @@
+[
+ {
+  "n": 1,
+  "title": "패키지 불러오기와 버전 확인",
+  "out": "pandas       3.0.5\nnumpy        2.5.3\nscipy        1.18.1\nstatsmodels  0.15.0\nmatplotlib   3.11.2\n"
+ },
+ {
+  "n": 2,
+  "title": "시험 수준 자료 불러오기",
+  "out": "(10, 12)\n     trial  year  phase  followup_mo  ...  bleed_x n_pbo  mace_pbo  bleed_pbo\n0  Trial A  2008      2            6  ...        7   310        11          2\n1  Trial B  2009      2            6  ...       12   580        27          2\n2  Trial C  2010      2            6  ...        3   120         3          0\n3  Trial D  2011      3           12  ...       91  3640       296         37\n4  Trial E  2011      2            6  ...       12   450        30          1\n5  Trial F  2012      3           18  ...      162  5080       624         69\n6  Trial G  2013      2            6  ...        1   205         9          1\n7  Trial H  2014      3           12  ...       71  2440       199         33\n8  Trial I  2016      3           12  ...       39  1790       167         23\n9  Trial J  2018      2            9  ...       12   260        20          2\n\n[10 rows x 12 columns]"
+ },
+ {
+  "n": 3,
+  "title": "하위군 자료 불러오기",
+  "out": "(12, 6)\n      trial  subgroup   n_x  mace_x  n_pbo  mace_pbo\n0   Trial A     STEMI   341      10    170         6\n1   Trial A  NSTE-ACS   279      13    140         5\n2   Trial B     STEMI   603      28    302        11\n3   Trial B  NSTE-ACS   557      19    278        16\n4   Trial D     STEMI  1496     112   1492       120\n5   Trial D  NSTE-ACS  2154     194   2148       176\n6   Trial F     STEMI  2550     249   2540       313\n7   Trial F  NSTE-ACS  2550     283   2540       311\n8   Trial H     STEMI   882      54    878        78\n9   Trial H  NSTE-ACS  1568     107   1562       121\n10  Trial I     STEMI  1134      75   1128       108\n11  Trial I  NSTE-ACS   666      47    662        59"
+ },
+ {
+  "n": 4,
+  "title": "사건 수를 그냥 더하면 안 되는 이유",
+  "out": "n_x         16850\nmace_x       1271\nn_pbo       14875\nmace_pbo     1386\nsummed risk: 7.5% vs 9.3%\ncrude OR   : 0.79 (0.73-0.86)\nshort trials: 22.8% of drug X, 12.9% of placebo\n"
+ },
+ {
+  "n": 5,
+  "title": "시험 하나의 로그 오즈비와 표준오차 (Trial I)",
+  "out": "a, b, c, d = 122 1678 167 1623\nOR 0.707, log OR -0.3473, var 0.0154, SE 0.1241\n95% CI 0.55-0.90\nweight = 1/var = 64.9\n"
+ },
+ {
+  "n": 6,
+  "title": "열 개 시험의 효과크기 표",
+  "out": "     trial     yi     vi     se     or     lo     hi\n0  Trial A  0.046  0.139  0.373  1.047  0.504  2.177\n1  Trial B -0.145  0.061  0.247  0.865  0.533  1.404\n2  Trial C  0.296  0.471  0.686  1.345  0.350  5.164\n3  Trial D  0.033  0.007  0.085  1.034  0.875  1.221\n4  Trial E -0.629  0.067  0.259  0.533  0.321  0.886\n5  Trial F -0.184  0.004  0.063  0.832  0.736  0.940\n6  Trial G -0.608  0.219  0.468  0.544  0.218  1.362\n7  Trial H -0.233  0.012  0.110  0.792  0.638  0.983\n8  Trial I -0.347  0.015  0.124  0.707  0.554  0.901\n9  Trial J -0.344  0.091  0.301  0.709  0.393  1.279"
+ },
+ {
+  "n": 7,
+  "title": "고정효과 모형 (역분산 가중평균)",
+  "out": "sum w = 596.4, sum wy = -101.5\nlog OR -0.1702, SE 0.0409\nOR 0.84 (0.78-0.91)\n"
+ },
+ {
+  "n": 8,
+  "title": "연구 간 분산과 무작위효과 모형",
+  "out": "Q 13.28, C 436.0, tau2 0.0098, sum w* = 266.7\nlog OR -0.1921, SE 0.0612, z -3.14, P 0.0017\nOR 0.83 (0.73-0.93)\n     trial     se    w_fe    w_re\n0  Trial A  0.373   1.203   2.512\n1  Trial B  0.247   2.748   5.292\n2  Trial C  0.686   0.356   0.779\n3  Trial D  0.085  23.145  21.963\n4  Trial E  0.259   2.496   4.870\n5  Trial F  0.063  42.712  27.263\n6  Trial G  0.468   0.767   1.641\n7  Trial H  0.110  13.835  17.084\n8  Trial I  0.124  10.890  14.865\n9  Trial J  0.301   1.849   3.730"
+ },
+ {
+  "n": 9,
+  "title": "통합 계산을 함수로 묶기",
+  "out": "fixed  : 0.84 (0.78-0.91)\nrandom : 0.83 (0.73-0.93)\n"
+ },
+ {
+  "n": 10,
+  "title": "statsmodels로 같은 값 확인하기",
+  "out": "                      eff  sd_eff  ci_low  ci_upp    w_fe    w_re\nTrial A            0.0461  0.3734 -0.6857  0.7779  0.0120  0.0251\nTrial B           -0.1451  0.2470 -0.6293  0.3390  0.0275  0.0529\nTrial C            0.2963  0.6864 -1.0491  1.6417  0.0036  0.0078\nTrial D            0.0332  0.0851 -0.1336  0.2000  0.2314  0.2196\nTrial E           -0.6295  0.2592 -1.1374 -0.1215  0.0250  0.0487\nTrial F           -0.1843  0.0627 -0.3071 -0.0615  0.4271  0.2726\nTrial G           -0.6080  0.4677 -1.5246  0.3086  0.0077  0.0164\nTrial H           -0.2331  0.1101 -0.4489 -0.0173  0.1383  0.1708\nTrial I           -0.3473  0.1241 -0.5905 -0.1041  0.1089  0.1486\nTrial J           -0.3442  0.3011 -0.9345  0.2460  0.0185  0.0373\nfixed effect      -0.1702  0.0409 -0.2505 -0.0900  1.0000     NaN\nrandom effect     -0.1921  0.0612 -0.3121 -0.0721     NaN  1.0000\nfixed effect wls  -0.1702  0.0497 -0.2677 -0.0727  1.0000     NaN\nrandom effect wls -0.1921  0.0591 -0.3080 -0.0762     NaN  1.0000\n13.2849 0.3225 0.009827\ndefault (iterated) tau2: 0.007689\n"
+ },
+ {
+  "n": 11,
+  "title": "Mantel–Haenszel 방법",
+  "out": "Mantel-Haenszel OR 0.84 (0.78-0.91)\n"
+ },
+ {
+  "n": 12,
+  "title": "포레스트 플롯 그리기",
+  "out": ""
+ },
+ {
+  "n": 13,
+  "title": "주요 출혈과 0건인 칸",
+  "out": "Trial C: 3.55 (0.18-69.32)\npooled : 2.28 (1.90-2.74) Q 4.06, I2 0%, tau2 0.0000\nstatsmodels, Trial C, no correction: inf inf\nstatsmodels, zero_correction=0.5  : 2.24 (1.87-2.68)\n"
+ },
+ {
+  "n": 14,
+  "title": "0건 처리 방법을 바꿔 보기",
+  "out": "0.5 added to Trial C: 2.28 (1.90-2.74)\nTrial C excluded    : 2.28 (1.90-2.73)\nMantel-Haenszel     : 2.31 (1.93-2.77)\nweight of Trial C: 0.4%, four phase 3 trials: 94.2%\n"
+ },
+ {
+  "n": 15,
+  "title": "신뢰구간에서 표준오차 되살리기",
+  "out": "log RR -0.128, SE 0.055, weight 331\nlargest trial weight: 254.7\nlog HR -0.198, SE 0.081\nTrial I: SE from CI 0.126 vs from counts 0.124\n"
+ },
+ {
+  "n": 16,
+  "title": "연속형 결과를 합칠 때 (HbA1c)",
+  "out": "fixed  : -0.32 (-0.43 to -0.21)\nrandom : -0.45 (-0.70 to -0.20)\nI2 78%, tau2 0.072\n95% prediction interval: -1.28 to 0.38\nSMD    : -0.40 (-0.61 to -0.19)\n  study   n1   n0   md     se\n0     A   45   44 -0.6  0.244\n1     B  120  118 -0.3  0.130\n2     C   60   58 -1.1  0.230\n3     D  210  205 -0.2  0.088\n4     E   80   82 -0.7  0.181\n5     F  150  148 -0.1  0.122"
+ },
+ {
+  "n": 17,
+  "title": "이질성 지표와 예측구간",
+  "out": "Q = 13.28, df = 9, P = 0.15\nI2 = 32%\ntau2 = 0.0098, tau = 0.099\nexp(mean +/- 1.96 tau): 0.68-1.00\nt(8) = 2.306, half-width = 0.269\n95% prediction interval: 0.63-1.08\n"
+ },
+ {
+  "n": 18,
+  "title": "하위군별 통합",
+  "out": "          k    drug X   placebo       OR (95% CI)       P      I2\nsubgroup                                                         \nSTEMI     6  528/7006  636/6510  0.78 (0.69-0.89)  0.0001  0.0312\nNSTE-ACS  6  663/7774  688/7330  0.92 (0.81-1.06)  0.2393  0.1815"
+ },
+ {
+  "n": 19,
+  "title": "I²의 신뢰구간",
+  "out": "all 10   : I2 32%, 95% CI 0%-68%\nSTEMI    : I2 3%, 95% CI 0%-75%\nNSTE-ACS : I2 18%, 95% CI 0%-63%\n"
+ },
+ {
+  "n": 20,
+  "title": "하위군 간 차이 검정",
+  "out": "difference -0.164, SE 0.094, z -1.74\nQ between = z^2 = 3.03 (df = 1)\nP for interaction = 0.082\nratio of ORs: 0.85 (0.71-1.02)\n"
+ },
+ {
+  "n": 21,
+  "title": "시험 안의 차이를 먼저 구해 합치기",
+  "out": "trial\nTrial A    0.63\nTrial B    2.23\nTrial D    0.83\nTrial F    0.86\nTrial H    0.77\nTrial I    0.86\nwithin-trial: 0.86 (0.73-1.02)\nP 0.08, I2 0%\n"
+ },
+ {
+  "n": 22,
+  "title": "메타회귀 (STEMI 환자 비율)",
+  "out": "QE 9.56, residual tau2 0.0044\nslope -0.094 (SE 0.058), z -1.61, P 0.11\nratio of ORs per 10 %p: 0.91 (0.81-1.02)\n"
+ },
+ {
+  "n": 23,
+  "title": "깔때기 그림",
+  "out": ""
+ },
+ {
+  "n": 24,
+  "title": "Egger 검정",
+  "out": "slope -0.505 (SE 0.667), t -0.76, df 8, P 0.47\noriginal form: intercept -0.505, P 0.47\n"
+ },
+ {
+  "n": 25,
+  "title": "한 시험씩 빼기",
+  "out": "range: 0.79-0.85\n  left out       OR (95% CI)     OR  I2 (%)\n0  Trial A  0.82 (0.72-0.93)  0.818      38\n1  Trial B  0.82 (0.72-0.93)  0.819      40\n2  Trial C  0.82 (0.72-0.93)  0.820      38\n3  Trial D  0.79 (0.72-0.87)  0.793       0\n4  Trial E  0.85 (0.76-0.94)  0.848      21\n5  Trial F  0.81 (0.69-0.96)  0.810      39\n6  Trial G  0.83 (0.74-0.94)  0.831      35\n7  Trial H  0.83 (0.71-0.96)  0.826      38\n8  Trial I  0.85 (0.75-0.96)  0.850      27\n9  Trial J  0.83 (0.73-0.94)  0.828      38"
+ },
+ {
+  "n": 26,
+  "title": "그 밖의 민감도 분석",
+  "out": "main (random effects): 0.83 (0.73-0.93)\nfixed effect         : 0.84 (0.78-0.91)\nlow risk of bias, k=8: 0.83 (0.73-0.94)\nHartung-Knapp        : SE 0.0591, 95% CI 0.72-0.94\n"
+ },
+ {
+  "n": 27,
+  "title": "NNT와 NNH",
+  "out": "MACE, placebo: 662 / 7870\n  risk 8.4% -> 7.04%\n  RD %p   : -1.36 (-2.11, -0.54)\n  per 1000: -14 (-21, -5)\n  NNT/NNH : 73 (47-186)\nMajor bleeding, placebo: 93 / 7870\n  risk 1.2% -> 2.70%\n  RD %p   : 1.50 (1.06, 2.02)\n  per 1000: 15 (11, 20)\n  NNT/NNH : 67 (50-94)\n"
+ },
+ {
+  "n": 28,
+  "title": "기저 위험을 바꿔 다시 계산하기",
+  "out": "MACE, OR 0.83 at other baseline risks\n  risk 4.0% -> 3.32%\n  RD %p   : -0.68 (-1.04, -0.27)\n  per 1000: -7 (-10, -3)\n  NNT/NNH : 148 (96-373)\n  risk 12.0% -> 10.11%\n  RD %p   : -1.89 (-2.93, -0.74)\n  per 1000: -19 (-29, -7)\n  NNT/NNH : 53 (34-135)\n  risk 15.0% -> 12.71%\n  RD %p   : -2.29 (-3.56, -0.90)\n  per 1000: -23 (-36, -9)\n  NNT/NNH : 44 (28-112)\nMajor bleeding, OR 2.28 at baseline risk 3%\n  risk 3.0% -> 6.59%\n  RD %p   : 3.59 (2.56, 4.80)\n  per 1000: 36 (26, 48)\n  NNT/NNH : 28 (21-39)\nsummed counts of all trials: NNT 56\n"
+ },
+ {
+  "n": 29,
+  "title": "유의하지 않은 결과의 NNT",
+  "out": "RD %p   : -0.60 (-1.52, 0.42)\nNNT     : 166\nCI ends : NNT 66 ... infinity ... NNH 235\nabsolute() would print: 66-235\n"
+ },
+ {
+  "n": 30,
+  "title": "대조약이 다른 시험을 잇는 간접비교",
+  "out": "SE, X vs placebo: 0.061\nSE, Y vs placebo: 0.059\nSE, X vs Y      : 0.085\nindirect OR, X vs Y: 0.92 (0.78-1.08)\n"
+ },
+ {
+  "n": 31,
+  "title": "과제 1 정답. 임상시험 단계에 따른 하위군 분석",
+  "out": "P for subgroup difference: 0.36\n       k       OR (95% CI)     I2   tau2\nphase                                   \n2      6  0.73 (0.57-0.95)  0.000  0.000\n3      4  0.85 (0.73-0.98)  0.626  0.014"
+ },
+ {
+  "n": 32,
+  "title": "과제 2 정답. 상대위험도와 위험차로 통합",
+  "out": "RR: 0.84 (0.75-0.94) I2 33%\nRD: -1.24 (-2.02 to -0.46) %p, I2 34%\n1 / pooled RD = 81\nrisk in placebo groups: [3.5, 4.7, 2.5, 8.1, 6.7, 12.3, 4.4, 8.2, 9.3, 7.7]\n"
+ },
+ {
+  "n": 33,
+  "title": "과제 3 정답. 이질성 검정으로 모형을 고른 동료의 분석",
+  "out": "model: fe | main: 0.84 (0.78-0.91)\n  STEMI    : 0.78 (0.69-0.88)\n  NSTE-ACS : 0.93 (0.83-1.04)\nP for interaction: 0.043\nplanned random effects: 0.83 (0.73-0.93)\n  P for interaction: 0.082\n  within-trial P   : 0.08\n"
+ }
+]

@@ -1,5 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">분절회귀 (보통의 최소제곱)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import statsmodels.formula.api as smf
-from statsmodels.stats.stattools import durbin_watson
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">분절회귀 (보통의 최소제곱)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from statsmodels.stats.stattools import durbin_watson
 
 f = &quot;rate ~ time + post + time_after&quot;
 fit0 = smf.ols(f, data=its).fit()

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">5년 시점의 세 상태와 합계, 1 − Kaplan-Meier</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">5년 시점의 세 상태와 합계, 1 − Kaplan-Meier</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
 for g in [&quot;A&quot;, &quot;B&quot;]:
     d = ckd[ckd[&quot;drug&quot;] == g]
     km_any = KaplanMeierFitter().fit(d[&quot;years&quot;], d[&quot;status&quot;] &gt; 0)

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">잘못된 분류의 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">잘못된 분류의 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import CoxPHFitter
 
 cph = CoxPHFitter()
 cph.fit(d, duration_col=&quot;fu_days&quot;, event_col=&quot;died&quot;, formula=&quot;ever&quot;)

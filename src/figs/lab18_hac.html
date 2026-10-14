@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">Newey-West(HAC) 표준오차로 다시 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fit = smf.ols(f, data=its).fit(cov_type=&quot;HAC&quot;,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">Newey-West(HAC) 표준오차로 다시 적합</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fit = smf.ols(f, data=its).fit(cov_type=&quot;HAC&quot;,
                                cov_kwds={&quot;maxlags&quot;: 3})
 print(fit.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                            OLS Regression Results                            
 ==============================================================================

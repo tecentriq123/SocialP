@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">그 밖의 민감도 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">low = tr[&quot;rob&quot;] == &quot;low&quot;                    # 편향 위험 &#x27;낮음&#x27; 8개
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">그 밖의 민감도 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">low = tr[&quot;rob&quot;] == &quot;low&quot;                    # 편향 위험 &#x27;낮음&#x27; 8개
 m_low = pool(es.loc[low, &quot;yi&quot;], es.loc[low, &quot;vi&quot;])
 q_hk = np.sum(ws * (es[&quot;yi&quot;] - re)**2) / (k - 1)
 se_hk = se_re * np.sqrt(q_hk)               # Hartung-Knapp 표준오차

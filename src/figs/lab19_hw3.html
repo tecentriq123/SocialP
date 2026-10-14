@@ -1,19 +1,19 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 3 정답. 주요 출혈의 민감도 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">keep = bl[&quot;trial&quot;] != &quot;Trial C&quot;
-m_noC = pool(bl.loc[keep, &quot;yi&quot;], bl.loc[keep, &quot;vi&quot;])
-tables_b = [[[r.bleed_x, r.n_x - r.bleed_x],
-             [r.bleed_pbo, r.n_pbo - r.bleed_pbo]]
-            for r in tr.itertuples()]
-mh_b = StratifiedTable(tables_b)
-lo, hi = mh_b.oddsratio_pooled_confint()
-print(&quot;0.5 added to Trial C:&quot;, orci(mb[&quot;re&quot;], mb[&quot;se_re&quot;]))
-print(&quot;Trial C excluded    :&quot;, orci(m_noC[&quot;re&quot;], m_noC[&quot;se_re&quot;]))
-print(f&quot;Mantel-Haenszel     : {mh_b.oddsratio_pooled:.2f}&quot;
-      f&quot; ({lo:.2f}-{hi:.2f})&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 33</span><span class="cell-t">과제 3 정답. 이질성 검정으로 모형을 고른 동료의 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 동료의 분석을 그대로 재현
+model = &quot;fe&quot; if p_q &gt; 0.10 else &quot;re&quot;        # Q 검정의 P로 모형 고르기
+print(&quot;model:&quot;, model, &quot;| main:&quot;, orci(m[model], m[&quot;se_&quot; + model]))
+for g in [&quot;STEMI&quot;, &quot;NSTE-ACS&quot;]:
+    print(f&quot;  {g:9}:&quot;, orci(sg.loc[g, model], sg.loc[g, &quot;se_&quot; + model]))
+dsg = sg.loc[&quot;STEMI&quot;, model] - sg.loc[&quot;NSTE-ACS&quot;, model]
+sdsg = np.sqrt((sg[&quot;se_&quot; + model]**2).sum())
+print(&quot;P for interaction:&quot;, round(2 * stats.norm.sf(abs(dsg / sdsg)), 3))
 
-wb = 1 / bl[&quot;vi&quot;]                           # tau2 = 0: 두 모형 공통
-share = 100 * wb / wb.sum()
-print(f&quot;weight of Trial C: {share[2]:.1f}%,&quot;
-      f&quot; four phase 3 trials: {share[tr[&#x27;phase&#x27;] == 3].sum():.1f}%&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>0.5 added to Trial C: 2.28 (1.90-2.74)<span class="mk">1</span>
-Trial C excluded    : 2.28 (1.90-2.73)<span class="mk">2</span>
-Mantel-Haenszel     : 2.31 (1.93-2.77)<span class="mk">3</span>
-weight of Trial C: 0.4%<span class="mk">4</span>, four phase 3 trials: 94.2%<span class="mk">5</span></pre></div></div>
+# 계획서대로 한 분석과 비교 (셀 19-21)
+print(&quot;planned random effects:&quot;, orci(m[&quot;re&quot;], m[&quot;se_re&quot;]))
+print(&quot;  P for interaction:&quot;, round(2 * stats.norm.sf(abs(z)), 3))
+print(&quot;  within-trial P   :&quot;, round(p_w, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>model: fe | main: 0.84 (0.78-0.91)<span class="mk">1</span>
+  STEMI    : 0.78 (0.69-0.88)<span class="mk">2</span>
+  NSTE-ACS : 0.93 (0.83-1.04)<span class="mk">3</span>
+P for interaction: 0.043<span class="mk">4</span>
+planned random effects: 0.83 (0.73-0.93)
+  P for interaction: 0.082<span class="mk">5</span>
+  within-trial P   : 0.08<span class="mk">6</span></pre></div></div>

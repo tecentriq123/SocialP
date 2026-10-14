@@ -1,6 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">약물 B군의 누적발생률과 1 − Kaplan-Meier</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import AalenJohansenFitter, KaplanMeierFitter
-
-b = ckd[ckd[&quot;drug&quot;] == &quot;B&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">약물 B군의 누적발생률과 1 − Kaplan-Meier</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b = ckd[ckd[&quot;drug&quot;] == &quot;B&quot;]
 ajf = AalenJohansenFitter()
 ajf.fit(b[&quot;years&quot;], b[&quot;status&quot;], event_of_interest=1)
 print(ajf.predict([1, 3, 5]))

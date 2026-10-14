@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">사망자를 위험집합에 남긴 긴 자료와 가중치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ev_t = np.sort(ckd.loc[ckd[&quot;dial&quot;] == 1, &quot;years&quot;].unique())
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">사망자를 위험집합에 남긴 긴 자료와 가중치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ev_t = np.sort(ckd.loc[ckd[&quot;dial&quot;] == 1, &quot;years&quot;].unique())
 dead = ckd.loc[died, [&quot;id&quot;, &quot;drug_a&quot;, &quot;years&quot;]]
 
 # 사망자마다, 사망 뒤에 투석이 일어난 시점들을 한 줄씩 붙임

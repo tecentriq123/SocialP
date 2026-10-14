@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">평균으로의 회귀 모의실험</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(1)
+up, down = [], []
+for _ in range(4000):                          # 4,000번 되풀이
+    usual = rng.normal(88, 6, 250)             # 250곳의 평소 수준
+    year1 = usual + rng.normal(0, 3, 250)      # 첫해 = 평소 + 우연
+    year2 = usual + rng.normal(0, 3, 250)      # 다음 해 = 평소 + 새 우연
+    top = np.argsort(year1)[-20:]              # 첫해 상위 20곳
+    up.append(year1[top].mean() - 88)          # 평균보다 얼마나 높았나
+    down.append(year2[top].mean() - year1[top].mean())   # 다음 해 변화
+print(f&quot;top 20, first year: {np.mean(up):.2f} above the mean&quot;)
+print(f&quot;top 20, next year : {np.mean(down):.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>top 20, first year: 12.39 above the mean<span class="mk">1</span>
+top 20, next year : -2.46<span class="mk">2</span></pre></div></div>
