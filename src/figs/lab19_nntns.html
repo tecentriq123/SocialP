@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">유의하지 않은 결과의 NNT</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">e_n, s_n = sg.loc[&quot;NSTE-ACS&quot;, &quot;re&quot;], sg.loc[&quot;NSTE-ACS&quot;, &quot;se_re&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">유의하지 않은 결과의 NNT</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">e_n, s_n = sg.loc[&quot;NSTE-ACS&quot;, &quot;re&quot;], sg.loc[&quot;NSTE-ACS&quot;, &quot;se_re&quot;]
 ors_n = np.exp([e_n, e_n - Z * s_n, e_n + Z * s_n])   # 0.92 (0.81-1.06)
 rd_n = risk_with(p0, ors_n) - p0            # 기저 위험 8.4%에 적용
 print(&quot;RD %p   : {:.2f} ({:.2f}, {:.2f})&quot;.format(*(100 * rd_n)))

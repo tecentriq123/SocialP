@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">대조약이 다른 시험을 잇는 간접비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">y_y = np.log(0.90)                          # 약물 Y 대 위약 0.90 (0.80-1.01), 가상
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 33</span><span class="cell-t">대조약이 다른 시험을 잇는 간접비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">y_y = np.log(0.90)                          # 약물 Y 대 위약 0.90 (0.80-1.01), 가상
 se_y = (np.log(1.01) - np.log(0.80)) / (2 * Z)
 y_xy = m[&quot;re&quot;] - y_y                        # (X 대 위약) - (Y 대 위약)
 se_xy = np.sqrt(m[&quot;se_re&quot;]**2 + se_y**2)    # 두 불확실성을 더함

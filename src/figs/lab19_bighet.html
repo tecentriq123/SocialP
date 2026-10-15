@@ -1,0 +1,47 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">이질성이 큰 자료 (가상의 관찰연구 7개)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">adh = pd.DataFrame({
+    &quot;study&quot;: [f&quot;Study {i}&quot; for i in range(1, 8)],
+    &quot;or_&quot;: [1.15, 1.90, 1.45, 2.60, 1.05, 1.70, 3.10],
+    &quot;lo&quot;:  [0.95, 1.55, 1.10, 1.90, 0.88, 1.30, 2.05],
+    &quot;hi&quot;:  [1.39, 2.33, 1.91, 3.56, 1.25, 2.22, 4.69]})
+adh[&quot;yi&quot;] = np.log(adh[&quot;or_&quot;])
+adh[&quot;vi&quot;] = ((np.log(adh[&quot;hi&quot;]) - np.log(adh[&quot;lo&quot;])) / (2 * Z))**2
+ya, va = adh[&quot;yi&quot;].to_numpy(), adh[&quot;vi&quot;].to_numpy()
+
+ma = pool(ya, va)                            # 고정효과, Q, I²
+t2_dl, t2_reml = tau2_dl(ya, va), tau2_reml(ya, va)
+adh[&quot;w_fe&quot;] = 100 * (1 / va) / np.sum(1 / va)
+adh[&quot;w_re&quot;] = 100 * (1 / (va + t2_reml)) / np.sum(1 / (va + t2_reml))
+print(adh[[&quot;study&quot;, &quot;or_&quot;, &quot;lo&quot;, &quot;hi&quot;, &quot;w_fe&quot;, &quot;w_re&quot;]].round(
+    {&quot;w_fe&quot;: 1, &quot;w_re&quot;: 1}).to_string(index=False))
+print(f&quot;Q {ma[&#x27;Q&#x27;]:.2f}, df {len(ya) - 1}, I2 {ma[&#x27;I2&#x27;]:.0%}&quot;)
+print(&quot;fixed effect           :&quot;, orci(ma[&quot;fe&quot;], ma[&quot;se_fe&quot;]))
+mu, se = re_pool(ya, va, t2_dl)
+print(f&quot;DL   + Wald, tau2 {t2_dl:.3f}:&quot;, orci(mu, se))
+mu, se, q, se_q, tq = hksj(ya, va, t2_reml)
+print(f&quot;REML + Wald, tau2 {t2_reml:.3f}:&quot;, orci(mu, se))
+print(f&quot;REML + HKSJ, q {q:.2f}, t(6) {tq:.3f}:&quot;
+      f&quot; {np.exp(mu - tq*se_q):.2f}-{np.exp(mu + tq*se_q):.2f}&quot;)
+tp = stats.t.ppf(0.975, len(ya) - 2)
+half_a = tp * np.sqrt(t2_reml + se**2)
+print(f&quot;95% prediction interval: {np.exp(mu - half_a):.2f}&quot;
+      f&quot;-{np.exp(mu + half_a):.2f}&quot;)
+lo, hi = tau2_qprofile(ya, va)
+print(f&quot;tau2 95% CI {lo:.3f}-{hi:.3f}, tau {np.sqrt(lo):.2f}-{np.sqrt(hi):.2f}&quot;)
+n_up = int((adh[&quot;or_&quot;] &gt; 1).sum())
+print(f&quot;OR &gt; 1 in {n_up} of 7, sign test P&quot;
+      f&quot; {stats.binomtest(n_up, 7).pvalue:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  study  or_   lo   hi  w_fe  w_re
+Study 1 1.15 0.95 1.39  21.7  15.2
+Study 2 1.90 1.55 2.33  18.9  15.1
+Study 3 1.45 1.10 1.91  10.3  14.2
+Study 4 2.60 1.90 3.56   8.0  13.7
+Study 5 1.05 0.88 1.25  25.5  15.4
+Study 6 1.70 1.30 2.22  11.0  14.3
+Study 7 3.10 2.05 4.69   4.6  12.2<span class="mk">1</span>
+Q 52.90, df 6, I2 89%<span class="mk">2</span>
+fixed effect           : 1.48 (1.35-1.61)<span class="mk">3</span>
+DL   + Wald, tau2 0.117: 1.68 (1.28-2.21)
+REML + Wald, tau2 0.132: 1.69 (1.26-2.25)<span class="mk">4</span>
+REML + HKSJ, q 1.03, t(6) 2.447: 1.17-2.43<span class="mk">5</span>
+95% prediction interval: 0.61-4.63<span class="mk">6</span>
+tau2 95% CI 0.044-0.753<span class="mk">7</span>, tau 0.21-0.87
+OR &gt; 1 in 7 of 7, sign test P 0.016<span class="mk">8</span></pre></div></div>

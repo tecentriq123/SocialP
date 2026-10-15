@@ -34,4 +34,24 @@ ADD = {
     # PMID 29417147 (PMC5885890)
     "chiarito2018": {"text": "Chiarito M, Cao D, Cannata F, et al. Direct oral anticoagulants in addition to antiplatelet therapy for secondary prevention after acute coronary syndromes: a systematic review and meta-analysis. <i>JAMA Cardiol</i>. 2018;3(3):234-241.",
                      "doi": "10.1001/jamacardio.2017.5306"},
+    # PMID 26332144 (added 2026-10-15 for c 절 'τ²는 어떤 방법으로 구하나?'; checked against the PubMed record)
+    "veroniki2016": {"text": "Veroniki AA, Jackson D, Viechtbauer W, et al. Methods to estimate the between-study variance and its uncertainty in meta-analysis. <i>Res Synth Methods</i>. 2016;7(1):55-79.",
+                     "doi": "10.1002/jrsm.1164"},
+    # PMID 30067315 (added 2026-10-15)
+    "langan2019": {"text": "Langan D, Higgins JPT, Jackson D, et al. A comparison of heterogeneity variance estimators in simulated random-effects meta-analyses. <i>Res Synth Methods</i>. 2019;10(1):83-98.",
+                   "doi": "10.1002/jrsm.1316"},
+    # PMID 26573817 (added 2026-10-15)
+    "rover2015": {"text": "Röver C, Knapp G, Friede T. Hartung-Knapp-Sidik-Jonkman approach and its modification for random-effects meta-analysis with few studies. <i>BMC Med Res Methodol</i>. 2015;15:99.",
+                  "doi": "10.1186/s12874-015-0091-1"},
+    # PMID 31948937 (added 2026-10-15)
+    "campbell2020swim": {"text": "Campbell M, McKenzie JE, Sowden A, et al. Synthesis without meta-analysis (SWiM) in systematic reviews: reporting guideline. <i>BMJ</i>. 2020;368:l6890.",
+                         "doi": "10.1136/bmj.l6890"},
+    # Cochrane training presentation, dated 23 October 2024 (read 2026-10-15): REML default, HKSJ when k > 2 and tau2 > 0,
+    # Wald when tau2 = 0, both when k = 2, PI with t(k-1) after HKSJ, I2 from the estimated tau2.
+    "cochrane2024re": {"text": "Veroniki AA, McKenzie JE. Introduction to new random-effects methods in RevMan [webinar slides]. Cochrane Training; 23 October 2024.",
+                       "url": "https://training-noproxy.cochrane.org/sites/training.cochrane.org/files/public/uploads/Introduction%20to%20new%20random-effects%20methods%20in%20RevMan.pdf"},
+    # Cochrane RevMan release notes (read 2026-10-15): 8.15.0 (2025-01-23) REML, tau2 CI, HKSJ, prediction intervals added;
+    # 8.19.0 (2025-03-20) "Default summary effect CI method changed to Wald in random-effects analyses".
+    "revman2025notes": {"text": "Cochrane. RevMan release notes. Cochrane Documentation; versions 8.15.0 (23 January 2025) and 8.19.0 (20 March 2025). Accessed 15 October 2026.",
+                        "url": "https://documentation.cochrane.org/revman-kb/revman-release-notes-342261851.html"},
 }

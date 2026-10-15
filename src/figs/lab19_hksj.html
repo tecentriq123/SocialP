@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">Hartung–Knapp 신뢰구간과 τ²의 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def hksj(y, v, t2):
+    &quot;&quot;&quot;Hartung-Knapp-Sidik-Jonkman: q로 표준오차를 고치고 t 분포를 씀&quot;&quot;&quot;
+    mu, se = re_pool(y, v, t2)
+    q = gen_q(y, v, t2) / (len(y) - 1)
+    tq = stats.t.ppf(0.975, len(y) - 1)
+    return mu, se, q, np.sqrt(q) * se, tq
+
+def tau2_qprofile(y, v):
+    &quot;&quot;&quot;τ²의 95% 신뢰구간: 일반화 Q가 카이제곱의 97.5%, 2.5% 점이 되는 τ²&quot;&quot;&quot;
+    out = []
+    for target in stats.chi2.ppf([0.975, 0.025], len(y) - 1):
+        if gen_q(y, v, 0) &lt;= target:
+            out.append(0.0)
+        else:
+            out.append(optimize.brentq(
+                lambda t: gen_q(y, v, t) - target, 0, 10))
+    return out
+
+t2 = tau2_reml(y19, v19)
+mu, se, q, se_q, tq = hksj(y19, v19, t2)
+print(f&quot;REML: q {q:.3f}, SE {se:.4f} -&gt; {se_q:.4f}, t(9) {tq:.3f}&quot;)
+print(f&quot;Wald 95% CI {np.exp(mu - Z*se):.3f}-{np.exp(mu + Z*se):.3f}&quot;)
+print(f&quot;HKSJ 95% CI {np.exp(mu - tq*se_q):.3f}-{np.exp(mu + tq*se_q):.3f}&quot;)
+se_m = max(se, se_q)                         # 수정판: q &lt; 1이면 원래 표준오차
+print(f&quot;modified HKSJ {np.exp(mu - tq*se_m):.3f}-{np.exp(mu + tq*se_m):.3f}&quot;)
+lo, hi = tau2_qprofile(y19, v19)
+print(f&quot;tau2 95% CI {lo:.4f}-{hi:.4f}, tau {np.sqrt(lo):.2f}-{np.sqrt(hi):.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>REML: q 0.836<span class="mk">1</span>, SE 0.0666 -&gt; 0.0609<span class="mk">2</span>, t(9) 2.262
+Wald 95% CI 0.720-0.935<span class="mk">3</span>
+HKSJ 95% CI 0.715-0.942<span class="mk">4</span>
+modified HKSJ 0.706-0.954<span class="mk">5</span>
+tau2 95% CI 0.0000-0.1278<span class="mk">6</span>, tau 0.00-0.36</pre></div></div>

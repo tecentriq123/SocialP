@@ -111,56 +111,71 @@
  },
  {
   "n": 23,
+  "title": "τ²를 구하는 세 가지 방법",
+  "out": "DL    tau2 0.0098  tau 0.099  OR 0.83 (0.73-0.93)\nPM    tau2 0.0077  tau 0.088  OR 0.83 (0.74-0.93)\nREML  tau2 0.0138  tau 0.117  OR 0.82 (0.72-0.94)\n"
+ },
+ {
+  "n": 24,
+  "title": "Hartung–Knapp 신뢰구간과 τ²의 신뢰구간",
+  "out": "REML: q 0.836, SE 0.0666 -> 0.0609, t(9) 2.262\nWald 95% CI 0.720-0.935\nHKSJ 95% CI 0.715-0.942\nmodified HKSJ 0.706-0.954\ntau2 95% CI 0.0000-0.1278, tau 0.00-0.36\n"
+ },
+ {
+  "n": 25,
+  "title": "이질성이 큰 자료 (가상의 관찰연구 7개)",
+  "out": "  study  or_   lo   hi  w_fe  w_re\nStudy 1 1.15 0.95 1.39  21.7  15.2\nStudy 2 1.90 1.55 2.33  18.9  15.1\nStudy 3 1.45 1.10 1.91  10.3  14.2\nStudy 4 2.60 1.90 3.56   8.0  13.7\nStudy 5 1.05 0.88 1.25  25.5  15.4\nStudy 6 1.70 1.30 2.22  11.0  14.3\nStudy 7 3.10 2.05 4.69   4.6  12.2\nQ 52.90, df 6, I2 89%\nfixed effect           : 1.48 (1.35-1.61)\nDL   + Wald, tau2 0.117: 1.68 (1.28-2.21)\nREML + Wald, tau2 0.132: 1.69 (1.26-2.25)\nREML + HKSJ, q 1.03, t(6) 2.447: 1.17-2.43\n95% prediction interval: 0.61-4.63\ntau2 95% CI 0.044-0.753, tau 0.21-0.87\nOR > 1 in 7 of 7, sign test P 0.016\n"
+ },
+ {
+  "n": 26,
   "title": "깔때기 그림",
   "out": ""
  },
  {
-  "n": 24,
+  "n": 27,
   "title": "Egger 검정",
   "out": "slope -0.505 (SE 0.667), t -0.76, df 8, P 0.47\noriginal form: intercept -0.505, P 0.47\n"
  },
  {
-  "n": 25,
+  "n": 28,
   "title": "한 시험씩 빼기",
   "out": "range: 0.79-0.85\n  left out       OR (95% CI)     OR  I2 (%)\n0  Trial A  0.82 (0.72-0.93)  0.818      38\n1  Trial B  0.82 (0.72-0.93)  0.819      40\n2  Trial C  0.82 (0.72-0.93)  0.820      38\n3  Trial D  0.79 (0.72-0.87)  0.793       0\n4  Trial E  0.85 (0.76-0.94)  0.848      21\n5  Trial F  0.81 (0.69-0.96)  0.810      39\n6  Trial G  0.83 (0.74-0.94)  0.831      35\n7  Trial H  0.83 (0.71-0.96)  0.826      38\n8  Trial I  0.85 (0.75-0.96)  0.850      27\n9  Trial J  0.83 (0.73-0.94)  0.828      38"
  },
  {
-  "n": 26,
+  "n": 29,
   "title": "그 밖의 민감도 분석",
   "out": "main (random effects): 0.83 (0.73-0.93)\nfixed effect         : 0.84 (0.78-0.91)\nlow risk of bias, k=8: 0.83 (0.73-0.94)\nHartung-Knapp        : SE 0.0591, 95% CI 0.72-0.94\n"
  },
  {
-  "n": 27,
+  "n": 30,
   "title": "NNT와 NNH",
   "out": "MACE, placebo: 662 / 7870\n  risk 8.4% -> 7.04%\n  RD %p   : -1.36 (-2.11, -0.54)\n  per 1000: -14 (-21, -5)\n  NNT/NNH : 73 (47-186)\nMajor bleeding, placebo: 93 / 7870\n  risk 1.2% -> 2.70%\n  RD %p   : 1.50 (1.06, 2.02)\n  per 1000: 15 (11, 20)\n  NNT/NNH : 67 (50-94)\n"
  },
  {
-  "n": 28,
+  "n": 31,
   "title": "기저 위험을 바꿔 다시 계산하기",
   "out": "MACE, OR 0.83 at other baseline risks\n  risk 4.0% -> 3.32%\n  RD %p   : -0.68 (-1.04, -0.27)\n  per 1000: -7 (-10, -3)\n  NNT/NNH : 148 (96-373)\n  risk 12.0% -> 10.11%\n  RD %p   : -1.89 (-2.93, -0.74)\n  per 1000: -19 (-29, -7)\n  NNT/NNH : 53 (34-135)\n  risk 15.0% -> 12.71%\n  RD %p   : -2.29 (-3.56, -0.90)\n  per 1000: -23 (-36, -9)\n  NNT/NNH : 44 (28-112)\nMajor bleeding, OR 2.28 at baseline risk 3%\n  risk 3.0% -> 6.59%\n  RD %p   : 3.59 (2.56, 4.80)\n  per 1000: 36 (26, 48)\n  NNT/NNH : 28 (21-39)\nsummed counts of all trials: NNT 56\n"
  },
  {
-  "n": 29,
+  "n": 32,
   "title": "유의하지 않은 결과의 NNT",
   "out": "RD %p   : -0.60 (-1.52, 0.42)\nNNT     : 166\nCI ends : NNT 66 ... infinity ... NNH 235\nabsolute() would print: 66-235\n"
  },
  {
-  "n": 30,
+  "n": 33,
   "title": "대조약이 다른 시험을 잇는 간접비교",
   "out": "SE, X vs placebo: 0.061\nSE, Y vs placebo: 0.059\nSE, X vs Y      : 0.085\nindirect OR, X vs Y: 0.92 (0.78-1.08)\n"
  },
  {
-  "n": 31,
+  "n": 34,
   "title": "과제 1 정답. 임상시험 단계에 따른 하위군 분석",
   "out": "P for subgroup difference: 0.36\n       k       OR (95% CI)     I2   tau2\nphase                                   \n2      6  0.73 (0.57-0.95)  0.000  0.000\n3      4  0.85 (0.73-0.98)  0.626  0.014"
  },
  {
-  "n": 32,
+  "n": 35,
   "title": "과제 2 정답. 상대위험도와 위험차로 통합",
   "out": "RR: 0.84 (0.75-0.94) I2 33%\nRD: -1.24 (-2.02 to -0.46) %p, I2 34%\n1 / pooled RD = 81\nrisk in placebo groups: [3.5, 4.7, 2.5, 8.1, 6.7, 12.3, 4.4, 8.2, 9.3, 7.7]\n"
  },
  {
-  "n": 33,
+  "n": 36,
   "title": "과제 3 정답. 이질성 검정으로 모형을 고른 동료의 분석",
   "out": "model: fe | main: 0.84 (0.78-0.91)\n  STEMI    : 0.78 (0.69-0.88)\n  NSTE-ACS : 0.93 (0.83-1.04)\nP for interaction: 0.043\nplanned random effects: 0.83 (0.73-0.93)\n  P for interaction: 0.082\n  within-trial P   : 0.08\n"
  }

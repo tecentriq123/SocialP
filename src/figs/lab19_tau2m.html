@@ -1,0 +1,47 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">τ²를 구하는 세 가지 방법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import optimize
+
+def tau2_dl(y, v):
+    &quot;&quot;&quot;DerSimonian-Laird: (Q - 자유도) / C&quot;&quot;&quot;
+    w_ = 1 / v
+    mu = np.sum(w_ * y) / np.sum(w_)
+    Q_ = np.sum(w_ * (y - mu)**2)
+    C_ = np.sum(w_) - np.sum(w_**2) / np.sum(w_)
+    return max(0.0, (Q_ - (len(y) - 1)) / C_)
+
+def gen_q(y, v, t2):
+    &quot;&quot;&quot;τ²를 t2로 둘 때의 일반화 Q (무작위효과 가중치로 다시 잰 Q)&quot;&quot;&quot;
+    w_ = 1 / (v + t2)
+    mu = np.sum(w_ * y) / np.sum(w_)
+    return np.sum(w_ * (y - mu)**2)
+
+def tau2_pm(y, v):
+    &quot;&quot;&quot;Paule-Mandel: 일반화 Q가 자유도와 같아지는 τ²&quot;&quot;&quot;
+    df = len(y) - 1
+    if gen_q(y, v, 0) &lt;= df:
+        return 0.0
+    return optimize.brentq(lambda t: gen_q(y, v, t) - df, 0, 10)
+
+def tau2_reml(y, v):
+    &quot;&quot;&quot;REML: 제한 우도가 가장 큰 τ²&quot;&quot;&quot;
+    def nll(t):                              # -(제한 로그우도), 상수는 뺌
+        w_ = 1 / (v + t)
+        mu = np.sum(w_ * y) / np.sum(w_)
+        return 0.5 * (np.sum(np.log(v + t)) + np.log(np.sum(w_))
+                      + np.sum(w_ * (y - mu)**2))
+    t = optimize.minimize_scalar(nll, bounds=(0, 10), method=&quot;bounded&quot;,
+                                 options={&quot;xatol&quot;: 1e-10}).x
+    return t if nll(t) &lt; nll(0) else 0.0
+
+def re_pool(y, v, t2):
+    &quot;&quot;&quot;τ²를 t2로 둔 무작위효과 통합값과 표준오차&quot;&quot;&quot;
+    w_ = 1 / (v + t2)
+    return np.sum(w_ * y) / np.sum(w_), 1 / np.sqrt(np.sum(w_))
+
+y19, v19 = es[&quot;yi&quot;].to_numpy(), es[&quot;vi&quot;].to_numpy()
+for name, f in [(&quot;DL&quot;, tau2_dl), (&quot;PM&quot;, tau2_pm), (&quot;REML&quot;, tau2_reml)]:
+    t2 = f(y19, v19)
+    mu, se = re_pool(y19, v19, t2)
+    print(f&quot;{name:4s}  tau2 {t2:.4f}  tau {np.sqrt(t2):.3f}&quot;
+          f&quot;  OR {orci(mu, se)}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>DL    tau2 0.0098<span class="mk">1</span>  tau 0.099  OR 0.83 (0.73-0.93)
+PM    tau2 0.0077<span class="mk">2</span>  tau 0.088  OR 0.83 (0.74-0.93)
+REML  tau2 0.0138<span class="mk">3</span>  tau 0.117  OR 0.82 (0.72-0.94)</pre></div></div>

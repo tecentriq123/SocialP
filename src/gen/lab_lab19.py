@@ -11,6 +11,8 @@ The block at the end checks the lab's numbers against gen/nums_ch19.py compute()
  I²의 신뢰구간(셀 19), 시험 안의 차이를 먼저 합치기(셀 21), 기저 위험 바꾸기(셀 28), 유의하지 않은 결과의 NNT(셀 29),
  간접비교(셀 30)를 더했고 포레스트 플롯을 유효성 통합 바로 뒤(셀 12)로 옮겼다. 과제는 ① 출력 해석(임상시험 단계)
  ② 조건 바꾸기(효과 척도) ③ 잘못된 분석 판단(이질성 검정으로 모형 고르기)으로 맞췄다. 셀 번호가 모두 바뀌었다.)
+(2026-10-15: 19장 c 절 3단계의 '이질성이 큰 자료' 보강에 맞춰 셀 23(τ² 추정 방법 세 가지), 24(Hartung–Knapp 신뢰구간과
+ τ²의 신뢰구간), 25(이질성이 큰 가상의 관찰연구 7개)를 더했다. 옛 셀 23–33은 26–36이 되었다.)
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -476,6 +478,127 @@ print("ratio of ORs per 10 %p:", orci(b, se_b))
 save("lab19_metareg", c, marks={"residual tau2 0.0044": 1, "slope -0.094 (SE 0.058)": 2, "P 0.11": 3,
                                 "0.91 (0.81-1.02)": 4})
 
+# (2026-10-15) 19장 c 절 3단계 '이질성이 큰 자료', 'τ²는 어떤 방법으로', '평균의 신뢰구간은'에 맞춰 셀 23–25를 더했다.
+c = nb.cell('''
+from scipy import optimize
+
+def tau2_dl(y, v):
+    """DerSimonian-Laird: (Q - 자유도) / C"""
+    w_ = 1 / v
+    mu = np.sum(w_ * y) / np.sum(w_)
+    Q_ = np.sum(w_ * (y - mu)**2)
+    C_ = np.sum(w_) - np.sum(w_**2) / np.sum(w_)
+    return max(0.0, (Q_ - (len(y) - 1)) / C_)
+
+def gen_q(y, v, t2):
+    """τ²를 t2로 둘 때의 일반화 Q (무작위효과 가중치로 다시 잰 Q)"""
+    w_ = 1 / (v + t2)
+    mu = np.sum(w_ * y) / np.sum(w_)
+    return np.sum(w_ * (y - mu)**2)
+
+def tau2_pm(y, v):
+    """Paule-Mandel: 일반화 Q가 자유도와 같아지는 τ²"""
+    df = len(y) - 1
+    if gen_q(y, v, 0) <= df:
+        return 0.0
+    return optimize.brentq(lambda t: gen_q(y, v, t) - df, 0, 10)
+
+def tau2_reml(y, v):
+    """REML: 제한 우도가 가장 큰 τ²"""
+    def nll(t):                              # -(제한 로그우도), 상수는 뺌
+        w_ = 1 / (v + t)
+        mu = np.sum(w_ * y) / np.sum(w_)
+        return 0.5 * (np.sum(np.log(v + t)) + np.log(np.sum(w_))
+                      + np.sum(w_ * (y - mu)**2))
+    t = optimize.minimize_scalar(nll, bounds=(0, 10), method="bounded",
+                                 options={"xatol": 1e-10}).x
+    return t if nll(t) < nll(0) else 0.0
+
+def re_pool(y, v, t2):
+    """τ²를 t2로 둔 무작위효과 통합값과 표준오차"""
+    w_ = 1 / (v + t2)
+    return np.sum(w_ * y) / np.sum(w_), 1 / np.sqrt(np.sum(w_))
+
+y19, v19 = es["yi"].to_numpy(), es["vi"].to_numpy()
+for name, f in [("DL", tau2_dl), ("PM", tau2_pm), ("REML", tau2_reml)]:
+    t2 = f(y19, v19)
+    mu, se = re_pool(y19, v19, t2)
+    print(f"{name:4s}  tau2 {t2:.4f}  tau {np.sqrt(t2):.3f}"
+          f"  OR {orci(mu, se)}")
+''', title="τ²를 구하는 세 가지 방법")
+save("lab19_tau2m", c, marks={"DL    tau2 0.0098": 1, "PM    tau2 0.0077": 2, "REML  tau2 0.0138": 3})
+
+c = nb.cell('''
+def hksj(y, v, t2):
+    """Hartung-Knapp-Sidik-Jonkman: q로 표준오차를 고치고 t 분포를 씀"""
+    mu, se = re_pool(y, v, t2)
+    q = gen_q(y, v, t2) / (len(y) - 1)
+    tq = stats.t.ppf(0.975, len(y) - 1)
+    return mu, se, q, np.sqrt(q) * se, tq
+
+def tau2_qprofile(y, v):
+    """τ²의 95% 신뢰구간: 일반화 Q가 카이제곱의 97.5%, 2.5% 점이 되는 τ²"""
+    out = []
+    for target in stats.chi2.ppf([0.975, 0.025], len(y) - 1):
+        if gen_q(y, v, 0) <= target:
+            out.append(0.0)
+        else:
+            out.append(optimize.brentq(
+                lambda t: gen_q(y, v, t) - target, 0, 10))
+    return out
+
+t2 = tau2_reml(y19, v19)
+mu, se, q, se_q, tq = hksj(y19, v19, t2)
+print(f"REML: q {q:.3f}, SE {se:.4f} -> {se_q:.4f}, t(9) {tq:.3f}")
+print(f"Wald 95% CI {np.exp(mu - Z*se):.3f}-{np.exp(mu + Z*se):.3f}")
+print(f"HKSJ 95% CI {np.exp(mu - tq*se_q):.3f}-{np.exp(mu + tq*se_q):.3f}")
+se_m = max(se, se_q)                         # 수정판: q < 1이면 원래 표준오차
+print(f"modified HKSJ {np.exp(mu - tq*se_m):.3f}-{np.exp(mu + tq*se_m):.3f}")
+lo, hi = tau2_qprofile(y19, v19)
+print(f"tau2 95% CI {lo:.4f}-{hi:.4f}, tau {np.sqrt(lo):.2f}-{np.sqrt(hi):.2f}")
+''', title="Hartung–Knapp 신뢰구간과 τ²의 신뢰구간")
+save("lab19_hksj", c, marks={"q 0.836": 1, "0.0666 -> 0.0609": 2, "Wald 95% CI 0.720-0.935": 3,
+                            "HKSJ 95% CI 0.715-0.942": 4, "modified HKSJ 0.706-0.954": 5,
+                            "tau2 95% CI 0.0000-0.1278": 6})
+
+c = nb.cell('''
+adh = pd.DataFrame({
+    "study": [f"Study {i}" for i in range(1, 8)],
+    "or_": [1.15, 1.90, 1.45, 2.60, 1.05, 1.70, 3.10],
+    "lo":  [0.95, 1.55, 1.10, 1.90, 0.88, 1.30, 2.05],
+    "hi":  [1.39, 2.33, 1.91, 3.56, 1.25, 2.22, 4.69]})
+adh["yi"] = np.log(adh["or_"])
+adh["vi"] = ((np.log(adh["hi"]) - np.log(adh["lo"])) / (2 * Z))**2
+ya, va = adh["yi"].to_numpy(), adh["vi"].to_numpy()
+
+ma = pool(ya, va)                            # 고정효과, Q, I²
+t2_dl, t2_reml = tau2_dl(ya, va), tau2_reml(ya, va)
+adh["w_fe"] = 100 * (1 / va) / np.sum(1 / va)
+adh["w_re"] = 100 * (1 / (va + t2_reml)) / np.sum(1 / (va + t2_reml))
+print(adh[["study", "or_", "lo", "hi", "w_fe", "w_re"]].round(
+    {"w_fe": 1, "w_re": 1}).to_string(index=False))
+print(f"Q {ma['Q']:.2f}, df {len(ya) - 1}, I2 {ma['I2']:.0%}")
+print("fixed effect           :", orci(ma["fe"], ma["se_fe"]))
+mu, se = re_pool(ya, va, t2_dl)
+print(f"DL   + Wald, tau2 {t2_dl:.3f}:", orci(mu, se))
+mu, se, q, se_q, tq = hksj(ya, va, t2_reml)
+print(f"REML + Wald, tau2 {t2_reml:.3f}:", orci(mu, se))
+print(f"REML + HKSJ, q {q:.2f}, t(6) {tq:.3f}:"
+      f" {np.exp(mu - tq*se_q):.2f}-{np.exp(mu + tq*se_q):.2f}")
+tp = stats.t.ppf(0.975, len(ya) - 2)
+half_a = tp * np.sqrt(t2_reml + se**2)
+print(f"95% prediction interval: {np.exp(mu - half_a):.2f}"
+      f"-{np.exp(mu + half_a):.2f}")
+lo, hi = tau2_qprofile(ya, va)
+print(f"tau2 95% CI {lo:.3f}-{hi:.3f}, tau {np.sqrt(lo):.2f}-{np.sqrt(hi):.2f}")
+n_up = int((adh["or_"] > 1).sum())
+print(f"OR > 1 in {n_up} of 7, sign test P"
+      f" {stats.binomtest(n_up, 7).pvalue:.3f}")
+''', title="이질성이 큰 자료 (가상의 관찰연구 7개)")
+save("lab19_bighet", c, marks={"4.6  12.2": 1, "Q 52.90, df 6, I2 89%": 2, "1.48 (1.35-1.61)": 3,
+                             "REML + Wald, tau2 0.132: 1.69 (1.26-2.25)": 4, "1.17-2.43": 5, "0.61-4.63": 6,
+                             "0.044-0.753": 7, "sign test P 0.016": 8})
+
 # ---------------------------------------------------------------- d. 깔때기 그림과 민감도 분석
 c = nb.cell('''
 s_max = 0.75
@@ -685,14 +808,15 @@ nb.save_ipynb(
         5: ("## b. 효과의 통합\n\n시험 하나의 계산에서 시작해 고정효과·무작위효과 통합, statsmodels 확인, 포레스트 플롯까지 "
             "갑니다. 이어서 주요 출혈의 0건 처리, 신뢰구간만 보고한 연구, 연속형 결과를 다룹니다."),
         17: ("## c. 이질성과 하위군 분석\n\nQ, I², τ², 예측구간과 I²의 신뢰구간을 구하고, 하위군 분석과 차이 검정, "
-             "메타회귀를 합니다."),
-        23: ("## d. 깔때기 그림과 민감도 분석\n\n깔때기 그림, Egger 검정, 한 시험씩 빼기, 그 밖의 민감도 분석을 하고, "
+             "메타회귀를 합니다. 이어서 τ²를 구하는 세 방법, Hartung–Knapp 신뢰구간과 τ²의 신뢰구간을 계산하고, "
+             "이질성이 큰 가상의 관찰연구 7개를 여러 방법으로 합쳐 봅니다."),
+        26: ("## d. 깔때기 그림과 민감도 분석\n\n깔때기 그림, Egger 검정, 한 시험씩 빼기, 그 밖의 민감도 분석을 하고, "
              "통합 오즈비를 NNT·NNH로 바꾼 뒤 간접비교까지 합니다."),
-        31: ("## 과제 정답\n\n먼저 스스로 풀어 본 뒤 실행하세요.\n\n**과제 1 (출력 해석).** 임상시험 단계(2상, 3상)로 하위군 "
+        34: ("## 과제 정답\n\n먼저 스스로 풀어 본 뒤 실행하세요.\n\n**과제 1 (출력 해석).** 임상시험 단계(2상, 3상)로 하위군 "
              "분석을 하고, 3상 시험의 결과와 차이 검정의 P를 말로 옮긴 뒤 이 결과가 말해 주지 않는 것 두 가지를 씁니다."),
-        32: ("**과제 2 (조건 바꾸기).** 효과 척도를 오즈비에서 상대위험도와 위험차로 바꿔 다시 합치고, 결과가 어떻게 왜 "
+        35: ("**과제 2 (조건 바꾸기).** 효과 척도를 오즈비에서 상대위험도와 위험차로 바꿔 다시 합치고, 결과가 어떻게 왜 "
              "달라지는지 설명합니다."),
-        33: ("**과제 3 (잘못된 분석 찾기).** Q 검정의 P로 고정효과 모형을 고르고 하위군 차이를 주장한 동료의 분석을 재현하고, "
+        36: ("**과제 3 (잘못된 분석 찾기).** Q 검정의 P로 고정효과 모형을 고르고 하위군 차이를 주장한 동료의 분석을 재현하고, "
              "틀린 곳 두 가지를 찾습니다."),
     })
 
@@ -826,3 +950,68 @@ if __name__ == "__main__":
     print("VERIFY Bucher: se_y %.4f se_xy %.4f ; with rounded SEs sqrt(0.061^2+0.060^2) = %.4f" % (
         ns["se_y"], ns["se_xy"], np.sqrt(0.061 ** 2 + 0.060 ** 2)))
     print("VERIFY placebo risks by trial (%%): %s" % (100 * ns["r0"]).round(2).tolist())
+    # ---- (2026-10-15) τ² 추정 방법, Hartung–Knapp, τ²의 신뢰구간, 이질성이 큰 예 (19장 b·c 절)
+    #      DL·PM·HK는 statsmodels와, REML은 REML 추정식(고정점)과 맞춰 본다. 본문에 적은 숫자는 문자열로 맞춘다.
+    from statsmodels.stats.meta_analysis import combine_effects as ce3
+    st_ = N19.st
+    t2dl, t2pm, t2re, gq, hk_, qp = (ns["tau2_dl"], ns["tau2_pm"], ns["tau2_reml"], ns["gen_q"], ns["hksj"],
+                                     ns["tau2_qprofile"])
+    yA, vA, yB, vB = ns["y19"], ns["v19"], ns["ya"], ns["va"]
+    for yy, vv, lab in ((yA, vA, "ACS"), (yB, vB, "adherence")):
+        close(t2dl(yy, vv), ce3(yy, vv, method_re="chi2").tau2, 1e-9, "DL " + lab)
+        close(t2pm(yy, vv), ce3(yy, vv, method_re="iterated").tau2, 1e-6, "PM " + lab)
+        t2r = t2re(yy, vv); wr = 1 / (vv + t2r); mur = np.sum(wr * yy) / np.sum(wr)
+        close(t2r, np.sum(wr ** 2 * ((yy - mur) ** 2 - vv)) / np.sum(wr ** 2) + 1 / np.sum(wr), 1e-7, "REML eq " + lab)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for mre, t2f in (("chi2", t2dl), ("iterated", t2pm)):
+                sfh = ce3(yy, vv, method_re=mre, use_t=True).summary_frame()
+                close(hk_(yy, vv, t2f(yy, vv))[3], float(sfh.loc["random effect wls", "sd_eff"]), 1e-6, "HK " + mre + lab)
+        lo_, hi_ = qp(yy, vv); kk = len(yy)
+        if lo_ > 0:
+            close(gq(yy, vv, lo_), st_.chi2.ppf(0.975, kk - 1), 1e-6, "Qprof lo " + lab)
+        close(gq(yy, vv, hi_), st_.chi2.ppf(0.025, kk - 1), 1e-6, "Qprof hi " + lab)
+
+    def ci2(mu_, se_, crit):
+        return "%.2f-%.2f" % (np.exp(mu_ - crit * se_), np.exp(mu_ + crit * se_))
+    # 예제(ACS): 세 방법의 τ²와 통합값, REML의 Wald·HKSJ·수정판, τ²의 구간
+    same(["%.4f" % f(yA, vA) for f in (t2dl, t2pm, t2re)], ["0.0098", "0.0077", "0.0138"], "ACS tau2")
+    same([orci_(*ns["re_pool"](yA, vA, f(yA, vA))) for f in (t2dl, t2pm, t2re)],
+         ["0.83 (0.73-0.93)", "0.83 (0.74-0.93)", "0.82 (0.72-0.94)"], "ACS pooled")
+    muA, seA, qA, sehA, tqA = hk_(yA, vA, t2re(yA, vA))
+    same(("%.2f %.3f %.3f %.3f" % (qA, seA, sehA, tqA)), "0.84 0.067 0.061 2.262", "ACS HK")
+    same((ci2(muA, seA, N19.Z), ci2(muA, sehA, tqA), ci2(muA, max(seA, sehA), tqA)),
+         ("0.72-0.94", "0.72-0.94", "0.71-0.95"), "ACS HK CIs")
+    same("%.3f-%.3f / %.2f-%.2f" % (*qp(yA, vA), *np.sqrt(qp(yA, vA))), "0.000-0.128 / 0.00-0.36", "ACS tau2 CI")
+    # 이질성이 큰 예(관찰연구 7개)
+    mB = pool_(yB, vB)
+    same("%.2f %.0f" % (mB["Q"], 100 * mB["I2"]), "52.90 89", "adh Q I2")
+    same(["%.3f/%.3f" % (f(yB, vB), np.sqrt(f(yB, vB))) for f in (t2dl, t2pm, t2re)],
+         ["0.117/0.342", "0.137/0.370", "0.132/0.364"], "adh tau2")
+    same([orci_(mB["fe"], mB["se_fe"])] + [orci_(*ns["re_pool"](yB, vB, f(yB, vB))) for f in (t2dl, t2pm, t2re)],
+         ["1.48 (1.35-1.61)", "1.68 (1.28-2.21)", "1.69 (1.26-2.26)", "1.69 (1.26-2.25)"], "adh pooled")
+    muB, seB, qB, sehB, tqB = hk_(yB, vB, t2re(yB, vB))
+    same("%.2f %.3f %.3f %.3f %s" % (qB, seB, sehB, tqB, ci2(muB, sehB, tqB)), "1.03 0.147 0.149 2.447 1.17-2.43", "adh HK")
+    t2B = t2re(yB, vB); spi = np.sqrt(t2B + seB ** 2)
+    same((ci2(muB, spi, st_.t.ppf(0.975, 5)), ci2(muB, spi, st_.t.ppf(0.975, 6))), ("0.61-4.63", "0.65-4.41"), "adh PI k-2, k-1")
+    same("%.3f %.3f %.3f %.3f" % (muB, t2B, spi, st_.t.ppf(0.975, 5) * spi), "0.523 0.132 0.393 1.009", "adh PI parts")
+    same("%.3f-%.3f / %.2f-%.2f" % (*qp(yB, vB), *np.sqrt(qp(yB, vB))), "0.044-0.753 / 0.21-0.87", "adh tau2 CI")
+    same("%.3f-%.3f" % (vB.min(), vB.max()), "0.008-0.045", "adh SE^2 range")
+    same("%.2f" % np.median(np.exp(yB)), "1.70", "adh median OR")
+    # 고정효과·무작위효과 가중치의 변화 (19장 b 절 2단계: Trial F와 Trial C)
+    vF, vC = vA[5], vA[2]
+    same("%.4f %.4f %.4f %.4f" % (vF, vF + E["t2"], vC, vC + E["t2"]), "0.0039 0.0138 0.4712 0.4810", "F C var")
+    same("%.1f %.1f %.2f %.2f %.0f %.0f" % (1 / vF, 1 / (vF + E["t2"]), 1 / vC, 1 / (vC + E["t2"]),
+                                          vC / vF, (vC + E["t2"]) / (vF + E["t2"])), "254.7 72.7 2.12 2.08 120 35", "F C w")
+    same("%.1f" % ((vF + E["t2"]) / vF), "3.5", "F var ratio")
+    # Q에 가장 크게 기여한 시험 (19장 c 절 2단계)
+    contrib = ns["w"] * (es_["yi"] - m_["fe"]) ** 2
+    same(["%.2f" % contrib[i] for i in (3, 4)], ["5.71", "3.14"], "Q contrib D E")
+    # RevMan식 I²(추정한 τ²로)와 1.96을 쓴 예측구간 (19장 c 절 '더 알아보기'의 '프로그램마다 다른 점')
+    wA = 1 / vA
+    s2A = (len(yA) - 1) * np.sum(wA) / (np.sum(wA) ** 2 - np.sum(wA ** 2))      # 전형적인 연구 안 분산
+    same("%.0f" % (100 * t2re(yA, vA) / (t2re(yA, vA) + s2A)), "40", "RevMan-style I2 (REML)")
+    same(ci2(muB, spi, N19.Z), "0.78-3.64", "adh PI z")
+    same("%.1f" % (12.2 / 4.6), "2.7", "study 7 weight ratio (rounded %)")
+    print("대조 블록(2026-10-15 추가분)까지 일치", n_ok, "개")
+
