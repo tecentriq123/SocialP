@@ -434,7 +434,7 @@
 <tr><td><code>max_iter</code></td><td>반복 계산의 최대 횟수. 성능을 고르는 조절값이 아니라 계산 설정</td><td>수렴할 여유가 생기고 시간이 조금 더 걸립니다</td><td>기본 100, 경고가 나면 1000 이상</td></tr>
 <tr><td><code>n_splits</code> (StratifiedKFold)</td><td>교차검증의 겹 수 k</td><td>학습 겹이 커지고 검증 겹은 작아지며 계산이 k배</td><td>5 또는 10 (과제 2)</td></tr>
 </tbody></table></div>
-<p>벌점의 종류(L1, L2)는 6장에서 다룹니다. scikit-learn 1.8부터 벌점 종류를 정하는 인자가 <code>penalty</code>에서 <code>l1_ratio</code>로 바뀌는 중이므로, 이 장에서는 어느 버전에서나 같은 기본값(L2)만 씁니다.</p>
+<p>벌점의 종류(L1, L2)는 6장에서 다룹니다. 벌점 종류를 정하는 인자는 버전마다 다릅니다. scikit-learn 1.7 이하는 <code>penalty="l1"</code>처럼 쓰고, 1.8부터는 <code>l1_ratio=1</code>처럼 쓰며 <code>penalty</code>를 쓰면 경고가 나옵니다(이 페이지를 만든 1.9.1에서 확인, 1.10에서 삭제 예정). 그래서 이 장에서는 인자를 쓰지 않고 어느 버전에서나 같은 기본값(L2)만 씁니다.</p>
 
 <h3>시험 자료로 한 번 평가</h3>
 <!--FIG:ml00_final-->

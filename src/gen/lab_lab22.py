@@ -6,8 +6,8 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab22.py && python3 
 
 자료: pub/data/lab22_eq5d.csv, pub/data/lab22_patients.csv (gen/data_lab22.py가 22장의 gen/_ch22_trial.csv, gen/_ch22_pts.csv에서 만든다.
 이 생성기는 자료를 다시 만들지 않는다). 학생 코드는 gen/lib_p4.py를 쓰지 않는다(가치 세트와 모형을 짧은 함수로 다시 짠다).
-가치 세트의 계수: 한국 5L과 한국 3L은 P4_FACTS.md 5.4, 5.3. 영국 3L은 22장(gen/nums_ch22.py의 UK3)과 같은 값으로,
-P4_FACTS.md '검수 중 추가로 확인된 사항'이 적은 출처(R 패키지 eq5d의 data-raw/TTO.csv, UK 열)와 같다.
+가치 세트의 계수: 한국 5L과 한국 3L은 P4_FACTS.md 5.4, 5.3. 영국 3L은 P4_FACTS.md 5.5(22장 gen/nums_ch22.py의 UK3와 같은 값,
+출처는 R 패키지 eq5d의 data-raw/TTO.csv, UK 열).
 끝의 대조 블록이 실습 결과를 gen/_ch22_nums.json(22장 본문의 숫자), gen/lib_p4.py(공통 예시 모형)와 맞추고,
 22장 작성자의 작업 공간 스크립트(calc22_new.py)가 낸 값(VAS ÷ 100, 생존자만의 평균, 할인 시점, 마지막 값 유지)을 반올림 자릿수로 확인한다.
 (2026-10-15 새로 만듦. 22장을 새 틀로 고친 뒤 PART 4 확장의 '실습 20·22(새로 만듦, 작게)'에 따라.)

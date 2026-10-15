@@ -865,7 +865,7 @@ two = ns["two"]
 chk("two-way table = lib_p4.twoway(), _ch24_nums.json", np.r_[two.to_numpy(), two.to_numpy()],
     np.r_[L.twoway("c_drug_A", [190.0, 175.0, 160.0], "hr_pfs", ns["hrs"]), np.array(N["twoway"]["icer"])], 1e-8)
 book("two-way table ('더 알아보기')", two.to_numpy().ravel().tolist(), [4784, 5621, 6499, 4090, 4983, 5922, 3395, 4346, 5345])
-# 셀 11–12: 효과 감소·소실 모형과 시나리오 표(24장 표 24-3의 방법론적 선택과 효과 감소 줄, a 절 3단계와 '더 알아보기'의 효과 소실)
+# 셀 11–12: 효과 감소·소실 모형과 시나리오 표(24장 표 24-3의 방법론적 선택과 효과 감소·소실 줄)
 run_waning = ns["run_waning"]
 chk("run_waning without waning = run_model", [ns["r0"]["d_cost"], ns["r0"]["d_qaly"], ns["r0"]["icer"]],
     [base_["d_cost"], base_["d_qaly"], base_["icer"]], 1e-8)
