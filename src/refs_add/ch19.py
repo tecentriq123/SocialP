@@ -54,4 +54,17 @@ ADD = {
     # 8.19.0 (2025-03-20) "Default summary effect CI method changed to Wald in random-effects analyses".
     "revman2025notes": {"text": "Cochrane. RevMan release notes. Cochrane Documentation; versions 8.15.0 (23 January 2025) and 8.19.0 (20 March 2025). Accessed 15 October 2026.",
                         "url": "https://documentation.cochrane.org/revman-kb/revman-release-notes-342261851.html"},
+    # Program defaults for tau2 (read 2026-10-15) for the c 절 3단계 표 '주요 프로그램의 τ² 기본값'.
+    # Cochrane Methods explainer: "The default option in RevMan for calculating Tau2 is now REML"; DL still selectable.
+    "cochrane_reexplainer": {"text": "Cochrane Methods. New random-effects methods in RevMan: explainer [PDF]. Cochrane; n.d. Accessed 15 October 2026.",
+                             "url": "https://methods.cochrane.org/sites/methods.cochrane.org/files/uploads/news/final_-re-methods-explainer.pdf"},
+    # R meta: "the current default in R package meta is the REML estimator"; DL was the default in version 4 and below.
+    "meta_pkg": {"text": "Schwarzer G. meta: brief overview of methods and general hints (R package meta documentation). Accessed 15 October 2026.",
+                 "url": "https://rdrr.io/cran/meta/man/meta-package.html"},
+    # metafor misc-recs: rma.uni default method="REML"; test="knha" recommended; default test="z".
+    "metafor_recs": {"text": "Viechtbauer W. Recommended practices (misc-recs), metafor package documentation. Accessed 15 October 2026.",
+                     "url": "https://search.r-project.org/CRAN/refmans/metafor/html/misc-recs.html"},
+    # Stata manual: "random is a synonym for random(reml)".
+    "stata_meta": {"text": "StataCorp. meta summarize. In: Stata Meta-Analysis Reference Manual. College Station, TX: Stata Press. Accessed 15 October 2026.",
+                   "url": "https://www.stata.com/manuals/metametasummarize.pdf"},
 }

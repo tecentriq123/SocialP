@@ -15,7 +15,7 @@ hi = m_rd[&quot;re&quot;] + Z * m_rd[&quot;se_re&quot;]
 print(f&quot;RD: {100 * m_rd[&#x27;re&#x27;]:.2f} ({100 * lo:.2f} to {100 * hi:.2f})&quot;
       f&quot; %p, I2 {m_rd[&#x27;I2&#x27;]:.0%}&quot;)
 print(f&quot;1 / pooled RD = {1 / abs(m_rd[&#x27;re&#x27;]):.0f}&quot;)
-print(&quot;risk in placebo groups:&quot;, (100 * r0).round(1).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RR: 0.84 (0.75-0.94)<span class="mk">1</span> I2 33%<span class="mk">2</span>
-RD: -1.24 (-2.02 to -0.46)<span class="mk">3</span> %p, I2 34%<span class="mk">4</span>
+print(&quot;risk in placebo groups:&quot;, (100 * r0).round(1).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RR: 0.83 (0.74-0.94)<span class="mk">1</span> I2 33%<span class="mk">2</span>
+RD: -1.24 (-2.04 to -0.44)<span class="mk">3</span> %p, I2 34%<span class="mk">4</span>
 1 / pooled RD = 81<span class="mk">5</span>
 risk in placebo groups: [3.5,<span class="mk">6</span> 4.7, 2.5, 8.1, 6.7, 12.3, 4.4, 8.2, 9.3, 7.7]</pre></div></div>

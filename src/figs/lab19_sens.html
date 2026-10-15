@@ -8,7 +8,7 @@ print(&quot;fixed effect         :&quot;, orci(m[&quot;fe&quot;], m[&quot;se_fe&
 print(f&quot;low risk of bias, k={m_low[&#x27;k&#x27;]}:&quot;,
       orci(m_low[&quot;re&quot;], m_low[&quot;se_re&quot;]))
 print(f&quot;Hartung-Knapp        : SE {se_hk:.4f}, 95% CI&quot;
-      f&quot; {np.exp(re - t9*se_hk):.2f}-{np.exp(re + t9*se_hk):.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>main (random effects): 0.83 (0.73-0.93)
+      f&quot; {np.exp(re - t9*se_hk):.2f}-{np.exp(re + t9*se_hk):.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>main (random effects): 0.82 (0.72-0.94)
 fixed effect         : 0.84 (0.78-0.91)<span class="mk">1</span>
-low risk of bias, k=8: 0.83 (0.73-0.94)<span class="mk">2</span>
-Hartung-Knapp        : SE 0.0591<span class="mk">3</span>, 95% CI 0.72-0.94<span class="mk">4</span></pre></div></div>
+low risk of bias, k=8: 0.82 (0.72-0.94)<span class="mk">2</span>
+Hartung-Knapp        : SE 0.0609<span class="mk">3</span>, 95% CI 0.72-0.94<span class="mk">4</span></pre></div></div>

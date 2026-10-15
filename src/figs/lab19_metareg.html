@@ -4,10 +4,19 @@ es[&quot;stemi10&quot;] = (tr[&quot;stemi_pct&quot;] - 50) / 10   # 10%p 단위,
 m0 = smf.wls(&quot;yi ~ stemi10&quot;, data=es, weights=w).fit()
 QE = np.sum(w * m0.resid**2)                  # 직선 주위의 흩어짐
 X = m0.model.exog                             # 10행 x [1, stemi10]
-W = np.diag(w)                                # 대각선이 가중치인 행렬
-A = np.linalg.inv(X.T @ W @ X)
-C_reg = np.trace(W) - np.trace(A @ X.T @ W @ W @ X)
-tau2_res = max(0, (QE - (k - 2)) / C_reg)     # 남은 연구 간 분산
+yv, vv = es[&quot;yi&quot;].to_numpy(), es[&quot;vi&quot;].to_numpy()
+
+def nll_reg(t):                               # -(제한 로그우도), 상수는 뺌
+    w_ = 1 / (vv + t)
+    XtWX = X.T @ (X * w_[:, None])            # X&#x27;WX (2 x 2)
+    b_ = np.linalg.solve(XtWX, X.T @ (w_ * yv))   # 가중최소제곱 계수
+    return 0.5 * (np.sum(np.log(vv + t)) + np.linalg.slogdet(XtWX)[1]
+                  + np.sum(w_ * (yv - X @ b_)**2))
+
+tau2_res = optimize.minimize_scalar(nll_reg, bounds=(0, 10), method=&quot;bounded&quot;,
+                                    options={&quot;xatol&quot;: 1e-10}).x
+if nll_reg(tau2_res) &gt;= nll_reg(0):
+    tau2_res = 0.0                            # 남은 연구 간 분산 (REML)
 
 mr = smf.wls(&quot;yi ~ stemi10&quot;, data=es,
              weights=1 / (es[&quot;vi&quot;] + tau2_res)).fit(
@@ -16,6 +25,6 @@ b, se_b = mr.params[&quot;stemi10&quot;], mr.bse[&quot;stemi10&quot;]
 print(f&quot;QE {QE:.2f}, residual tau2 {tau2_res:.4f}&quot;)
 p_b = 2 * stats.norm.sf(abs(b / se_b))
 print(f&quot;slope {b:.3f} (SE {se_b:.3f}), z {b / se_b:.2f}, P {p_b:.2f}&quot;)
-print(&quot;ratio of ORs per 10 %p:&quot;, orci(b, se_b))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>QE 9.56, residual tau2 0.0044<span class="mk">1</span>
-slope -0.094 (SE 0.058)<span class="mk">2</span>, z -1.61, P 0.11<span class="mk">3</span>
-ratio of ORs per 10 %p: 0.91 (0.81-1.02)<span class="mk">4</span></pre></div></div>
+print(&quot;ratio of ORs per 10 %p:&quot;, orci(b, se_b))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>QE 9.56, residual tau2 0.0084<span class="mk">1</span>
+slope -0.092 (SE 0.064)<span class="mk">2</span>, z -1.43, P 0.15<span class="mk">3</span>
+ratio of ORs per 10 %p: 0.91 (0.80-1.03)<span class="mk">4</span></pre></div></div>

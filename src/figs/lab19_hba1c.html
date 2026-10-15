@@ -29,10 +29,10 @@ g_smd, v_smd = effectsize_smd(hb[&quot;m1&quot;].to_numpy(), hb[&quot;sd1&quot;]
 m_smd = pool(g_smd, v_smd)
 print(&quot;SMD    :&quot;, mdci(m_smd[&quot;re&quot;], m_smd[&quot;se_re&quot;]))   # Hedges g, 무작위효과
 hb[[&quot;study&quot;, &quot;n1&quot;, &quot;n0&quot;, &quot;md&quot;, &quot;se&quot;]].round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>fixed  : -0.32 (-0.43 to -0.21)<span class="mk">1</span>
-random : -0.45 (-0.70 to -0.20)<span class="mk">2</span>
-I2 78%, tau2 0.072<span class="mk">3</span>
-95% prediction interval: -1.28 to 0.38<span class="mk">4</span>
-SMD    : -0.40 (-0.61 to -0.19)<span class="mk">5</span></pre><div class="df-wrap"><table class="dataframe dfout">
+random : -0.46 (-0.75 to -0.17)<span class="mk">2</span>
+I2 78%, tau2 0.100<span class="mk">3</span>
+95% prediction interval: -1.43 to 0.51<span class="mk">4</span>
+SMD    : -0.40 (-0.63 to -0.18)<span class="mk">5</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
     <tr style="text-align: right;">
       <th></th>

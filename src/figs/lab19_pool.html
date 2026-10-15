@@ -1,11 +1,10 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">통합 계산을 함수로 묶기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def pool(y, v):
-    &quot;&quot;&quot;역분산 고정효과(fe)와 DerSimonian-Laird 무작위효과(re)&quot;&quot;&quot;
+    &quot;&quot;&quot;역분산 고정효과(fe)와 무작위효과(re, τ²는 REML)&quot;&quot;&quot;
     y, v = np.asarray(y, float), np.asarray(v, float)
     k, w = len(y), 1 / v
     fe = np.sum(w * y) / np.sum(w)
     Q = np.sum(w * (y - fe)**2)
-    C = np.sum(w) - np.sum(w**2) / np.sum(w)
-    tau2 = max(0, (Q - (k - 1)) / C)
+    tau2 = tau2_reml(y, v)
     ws = 1 / (v + tau2)
     re = np.sum(ws * y) / np.sum(ws)
     return {&quot;k&quot;: k, &quot;fe&quot;: fe, &quot;se_fe&quot;: 1 / np.sqrt(np.sum(w)),
@@ -20,4 +19,4 @@ def orci(est, se):
 m = pool(es[&quot;yi&quot;], es[&quot;vi&quot;])
 print(&quot;fixed  :&quot;, orci(m[&quot;fe&quot;], m[&quot;se_fe&quot;]))
 print(&quot;random :&quot;, orci(m[&quot;re&quot;], m[&quot;se_re&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>fixed  : 0.84 (0.78-0.91)<span class="mk">1</span>
-random : 0.83 (0.73-0.93)<span class="mk">2</span></pre></div></div>
+random : 0.82 (0.72-0.94)<span class="mk">2</span></pre></div></div>

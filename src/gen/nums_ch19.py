@@ -96,21 +96,42 @@ def i2_ci(Q, k):
     return (f(lo), f(hi))
 
 
-def dl(y, v):
-    """inverse-variance fixed effect and DerSimonian–Laird random effects"""
+def tau2_reml(y, v):
+    """REML τ²: maximise the restricted log-likelihood over τ² >= 0 (same routine as lab19's tau2_reml)"""
+    from scipy import optimize
+    y = np.asarray(y, float); v = np.asarray(v, float)
+    if len(y) < 2:
+        return 0.0
+
+    def nll(t):
+        w_ = 1 / (v + t)
+        mu = np.sum(w_ * y) / np.sum(w_)
+        return 0.5 * (np.sum(np.log(v + t)) + np.log(np.sum(w_)) + np.sum(w_ * (y - mu) ** 2))
+    t = optimize.minimize_scalar(nll, bounds=(0, 10), method="bounded", options={"xatol": 1e-10}).x
+    return t if nll(t) < nll(0) else 0.0
+
+
+def pool(y, v):
+    """inverse-variance fixed effect and random effects. The main random-effects result uses REML τ² (the default in
+    RevMan, R meta/metafor and Stata). The DerSimonian–Laird τ² and its random-effects result are kept as *_dl keys,
+    because the chapter uses the DL formula to show what τ² means (c 절 2단계)."""
     y = np.asarray(y, float); v = np.asarray(v, float)
     w = 1 / v; k = len(y)
     fe = np.sum(w * y) / w.sum(); fe_se = 1 / np.sqrt(w.sum())
     Q = np.sum(w * (y - fe) ** 2)
     C = w.sum() - np.sum(w ** 2) / w.sum()
-    t2 = max(0.0, (Q - (k - 1)) / C) if k > 1 else 0.0
+    t2_dl = max(0.0, (Q - (k - 1)) / C) if k > 1 else 0.0
+    t2 = tau2_reml(y, v)
     wr = 1 / (v + t2)
     re = np.sum(wr * y) / wr.sum(); re_se = 1 / np.sqrt(wr.sum())
+    wd = 1 / (v + t2_dl)
+    re_dl = np.sum(wd * y) / wd.sum(); re_dl_se = 1 / np.sqrt(wd.sum())
     I2 = max(0.0, (Q - (k - 1)) / Q) if Q > 0 else 0.0
     out = dict(k=k, y=y, v=v, se=np.sqrt(v), w=w, wr=wr, wfe=w / w.sum(), wre=wr / wr.sum(), sw=w.sum(), swy=np.sum(w * y),
                sw2=np.sum(w ** 2), C=C, fe=fe, fe_se=fe_se, Q=Q, df=k - 1, pQ=st.chi2.sf(Q, k - 1) if k > 1 else np.nan,
-               I2=I2, I2ci=i2_ci(Q, k), t2=t2, tau=np.sqrt(t2), re=re, re_se=re_se, swr=wr.sum(), swry=np.sum(wr * y))
-    for key in ("fe", "re"):
+               I2=I2, I2ci=i2_ci(Q, k), t2=t2, tau=np.sqrt(t2), re=re, re_se=re_se, swr=wr.sum(), swry=np.sum(wr * y),
+               t2_dl=t2_dl, wr_dl=wd, wre_dl=wd / wd.sum(), re_dl=re_dl, re_dl_se=re_dl_se, swr_dl=wd.sum(), swry_dl=np.sum(wd * y))
+    for key in ("fe", "re", "re_dl"):
         e, s = out[key], out[key + "_se"]
         out[key + "_ci"] = (e - Z * s, e + Z * s)
         out[key + "_p"] = 2 * st.norm.sf(abs(e / s))
@@ -121,6 +142,8 @@ def dl(y, v):
         out["tcrit"] = tc
         out["pi"] = (re - half, re + half)
         out["pi_or"] = (np.exp(re - half), np.exp(re + half))
+        half_dl = tc * np.sqrt(t2_dl + re_dl_se ** 2)
+        out["pi_dl_or"] = (np.exp(re_dl - half_dl), np.exp(re_dl + half_dl))
     return out
 
 
@@ -133,7 +156,8 @@ def wls_fixed(y, X, w):
 
 
 def metareg(y, v, x):
-    """random-effects meta-regression, method-of-moments residual tau²"""
+    """random-effects meta-regression; residual τ² by REML (method-of-moments value kept as t2_mm)"""
+    from scipy import optimize
     y = np.asarray(y, float); v = np.asarray(v, float)
     X = np.column_stack([np.ones(len(y)), np.asarray(x, float)])
     k, p = X.shape
@@ -141,14 +165,21 @@ def metareg(y, v, x):
     b0, _, cov0 = wls_fixed(y, X, w)
     QE = np.sum(w * (y - X @ b0) ** 2)
     tr = w.sum() - np.trace(cov0 @ ((X.T * w ** 2) @ X))
-    t2 = max(0.0, (QE - (k - p)) / tr)
+    t2_mm = max(0.0, (QE - (k - p)) / tr)
+
+    def nll(t):
+        ws_ = 1 / (v + t)
+        b_, _, cov_ = wls_fixed(y, X, ws_)
+        return 0.5 * (np.sum(np.log(v + t)) - np.log(np.linalg.det(cov_)) + np.sum(ws_ * (y - X @ b_) ** 2))
+    t2 = optimize.minimize_scalar(nll, bounds=(0, 10), method="bounded", options={"xatol": 1e-10}).x
+    t2 = t2 if nll(t2) < nll(0) else 0.0
     ws = 1 / (v + t2)
     b, se, cov = wls_fixed(y, X, ws)
     zv = b / se
     # Knapp–Hartung: scale the covariance by the weighted residual mean square, t with k - p df
     s2 = np.sum(ws * (y - X @ b) ** 2) / (k - p)
     se_kh = se * np.sqrt(s2)
-    return dict(b=b, se=se, z=zv, p=2 * st.norm.sf(np.abs(zv)), QE=QE, pQE=st.chi2.sf(QE, k - p), t2=t2, k=k,
+    return dict(b=b, se=se, z=zv, p=2 * st.norm.sf(np.abs(zv)), QE=QE, pQE=st.chi2.sf(QE, k - p), t2=t2, t2_mm=t2_mm, k=k,
                 se_kh=se_kh, p_kh=2 * st.t.sf(np.abs(b / se_kh), k - p), ws=ws)
 
 
@@ -188,7 +219,7 @@ def compute():
     # ------------------------------------------------------------------ b. pooling (efficacy)
     pr("=" * 78, "\n나. pooled OR, efficacy (MACE)")
     y, v = lor(eT, nT, eC, nC)
-    E = dl(y, v)
+    E = pool(y, v)
     R["eff"] = E
     for i, t in enumerate(T):
         pr("%s logOR %.4f SE %.4f var %.5f OR %.2f (%.2f-%.2f) w %.2f wFE %.1f%% w* %.2f wRE %.1f%%"
@@ -198,6 +229,8 @@ def compute():
     pr("Q %.3f df %d p %.4f  I2 %.4f (%.3f-%.3f)  C %.2f tau2 %.5f tau %.4f" % (E["Q"], E["df"], E["pQ"], E["I2"], *E["I2ci"], E["C"], E["t2"], E["tau"]))
     pr("sum w* %.2f sum w*y %.3f  RE %.4f SE %.4f OR %.3f (%.3f-%.3f) p=%.2g z=%.2f" % (E["swr"], E["swry"], E["re"], E["re_se"], *E["re_or"], E["re_p"], E["re"] / E["re_se"]))
     pr("prediction interval t=%.3f: OR %.3f-%.3f ; exp(mu ± 1.96 tau) = %.3f-%.3f" % (E["tcrit"], *E["pi_or"], np.exp(E["re"] - Z * E["tau"]), np.exp(E["re"] + Z * E["tau"])))
+    pr("  [DL for the hand formula] tau2 %.5f sum w* %.2f sum w*y %.3f RE %.4f SE %.4f OR %.3f (%.3f-%.3f) p=%.2g ; PI %.3f-%.3f"
+       % (E["t2_dl"], E["swr_dl"], E["swry_dl"], E["re_dl"], E["re_dl_se"], *E["re_dl_or"], E["re_dl_p"], *E["pi_dl_or"]))
     # worked detail: trial I
     i = nm.index("I")
     a, b_, c, d = eT[i], nT[i] - eT[i], eC[i], nC[i] - eC[i]
@@ -211,8 +244,8 @@ def compute():
     assert np.allclose(ys, y) and np.allclose(vs, v)
     res = combine_effects(ys, vs, method_re="chi2", row_names=["Trial " + n for n in nm])
     sf = res.summary_frame()
-    assert abs(res.tau2 - E["t2"]) < 1e-10 and abs(res.i2 - E["I2"]) < 1e-10 and abs(res.q - E["Q"]) < 1e-9
-    assert abs(sf.loc["random effect", "eff"] - E["re"]) < 1e-10 and abs(sf.loc["fixed effect", "sd_eff"] - E["fe_se"]) < 1e-10
+    assert abs(res.tau2 - E["t2_dl"]) < 1e-10 and abs(res.i2 - E["I2"]) < 1e-10 and abs(res.q - E["Q"]) < 1e-9
+    assert abs(sf.loc["random effect", "eff"] - E["re_dl"]) < 1e-10 and abs(sf.loc["fixed effect", "sd_eff"] - E["fe_se"]) < 1e-10
     import pandas as pd
     with pd.option_context("display.width", 200):
         pr(sf.round(4))
@@ -227,7 +260,7 @@ def compute():
     R["mh_eff"] = mh
     # pooled RR instead of OR
     yr_, vr_ = lrr(eT, nT, eC, nC)
-    ER = dl(yr_, vr_)
+    ER = pool(yr_, vr_)
     pr("pooled RR (RE) %.3f (%.3f-%.3f) I2 %.3f ; FE %.3f" % (*ER["re_or"], ER["I2"], ER["fe_or"][0]))
     R["rr"] = ER
     # HR from a reported CI
@@ -239,7 +272,7 @@ def compute():
     # ------------------------------------------------------------------ bleeding, zero cells
     pr("=" * 78, "\n나/마. bleeding (zero cell in trial C)")
     yb, vb = lor(bT, nT, bC, nC)
-    B = dl(yb, vb)
+    B = pool(yb, vb)
     R["bleed"] = B
     for i, t in enumerate(T):
         pr("%s bleed OR %.2f (%.2f-%.2f) SE %.3f wRE %.1f%%" % (t["nm"], np.exp(yb[i]), np.exp(yb[i] - Z * B["se"][i]), np.exp(yb[i] + Z * B["se"][i]), B["se"][i], B["wre"][i] * 100))
@@ -247,7 +280,7 @@ def compute():
     ic = nm.index("C")
     pr("trial C with 0.5: a=%.1f b=%.1f c=%.1f d=%.1f OR %.3f SE %.3f" % (bT[ic] + .5, nT[ic] - bT[ic] + .5, bC[ic] + .5, nC[ic] - bC[ic] + .5, np.exp(yb[ic]), B["se"][ic]))
     keep = np.arange(len(T)) != ic
-    Bx = dl(yb[keep], vb[keep])
+    Bx = pool(yb[keep], vb[keep])
     pr("excluding C: RE OR %.3f (%.3f-%.3f)" % Bx["re_or"])
     R["bleed_exC"] = Bx
     tabsb = [np.array([[bT[i], nT[i] - bT[i]], [bC[i], nC[i] - bC[i]]]) for i in range(len(T))]
@@ -261,7 +294,7 @@ def compute():
         y_sm5, v_sm5 = effectsize_2proportions(bT, nT, bC, nC, statistic="odds-ratio", zero_correction=0.5)
     pr("statsmodels without correction: trial C logOR =", y_sm0[ic], "; zero_correction=0.5 changes ALL studies:",
        not np.allclose(np.delete(y_sm5, ic), np.delete(yb, ic)), " trial C equal:", np.isclose(y_sm5[ic], yb[ic]))
-    B5 = dl(y_sm5, v_sm5)
+    B5 = pool(y_sm5, v_sm5)
     pr("  (0.5 added to every study: RE OR %.3f (%.3f-%.3f))" % B5["re_or"])
     R["bleed_all05"] = B5
 
@@ -271,7 +304,7 @@ def compute():
     assert lowE + highE == eT[ib] and lowN + highN == nT[ib]
     y2, v2 = lor(np.array([lowE, highE]), np.array([lowN, highN]), np.array([eC[ib], eC[ib]]), np.array([nC[ib], nC[ib]]))
     yd = np.concatenate([np.delete(y, ib), y2]); vd = np.concatenate([np.delete(v, ib), v2])
-    Dd = dl(yd, vd)
+    Dd = pool(yd, vd)
     wB_ok = E["wfe"][ib]; wB_dbl = Dd["wfe"][-2:].sum()
     pr("multi-arm: low %d/%d OR %.2f, high %d/%d OR %.2f vs placebo %d/%d; combined arms weight FE %.2f%% ; double-counted weight %.2f%% (x%.2f); 1/v combined %.2f vs %.2f"
        % (lowE, lowN, np.exp(y2[0]), highE, highN, np.exp(y2[1]), eC[ib], nC[ib], wB_ok * 100, wB_dbl * 100, wB_dbl / wB_ok, 1 / v[ib], (1 / v2).sum()))
@@ -283,7 +316,7 @@ def compute():
     names_rep = [n for n, r_ in zip(nm, rep) if r_]
     ySt, vSt = lor(g("eTs")[rep], g("nTs")[rep], g("eCs")[rep], g("nCs")[rep])
     yNs, vNs = lor(g("eTn")[rep], g("nTn")[rep], g("eCn")[rep], g("nCn")[rep])
-    S, Nn = dl(ySt, vSt), dl(yNs, vNs)
+    S, Nn = pool(ySt, vSt), pool(yNs, vNs)
     for lab, M, e1, n1, e0, n0 in (("STEMI", S, "eTs", "nTs", "eCs", "nCs"), ("NSTE-ACS", Nn, "eTn", "nTn", "eCn", "nCn")):
         for j, n in enumerate(names_rep):
             t = T[nm.index(n)]
@@ -304,12 +337,12 @@ def compute():
     dfe = S["fe"] - Nn["fe"]; sfe = np.sqrt(S["fe_se"] ** 2 + Nn["fe_se"] ** 2)
     pr("  (fixed-effect subgroup estimates: z %.3f p %.4f)" % (dfe / sfe, 2 * st.norm.sf(abs(dfe / sfe))))
     # all 12 strata pooled (the 'overall' diamond of a subgroup forest plot) and the six trials unstratified
-    All12 = dl(np.concatenate([ySt, yNs]), np.concatenate([vSt, vNs]))
-    Six = dl(y[rep], v[rep])
+    All12 = pool(np.concatenate([ySt, yNs]), np.concatenate([vSt, vNs]))
+    Six = pool(y[rep], v[rep])
     pr("overall of 12 strata RE OR %.3f (%.3f-%.3f) I2 %.3f pQ %.3f ; six trials unstratified RE %.3f (%.3f-%.3f) I2 %.3f"
        % (*All12["re_or"], All12["I2"], All12["pQ"], *Six["re_or"], Six["I2"]))
     # within-trial interaction pooled (difference of log ORs inside each trial)
-    W = dl(ySt - yNs, vSt + vNs)
+    W = pool(ySt - yNs, vSt + vNs)
     pr("within-trial interactions pooled: ratio of ORs RE %.3f (%.3f-%.3f) p=%.4f I2 %.3f" % (*W["re_or"], W["re_p"], W["I2"]))
     R["sub"] = dict(names=names_rep, S=S, N=Nn, Qb=Qb, pint=pint, I2b=max(0, (Qb - 1) / Qb), zdiff=diff / se_d, ror=(np.exp(diff), np.exp(diff - Z * se_d), np.exp(diff + Z * se_d)),
                     all12=All12, six=Six, within=W,
@@ -319,7 +352,7 @@ def compute():
     pr("subgroup P values: STEMI %.4f, NSTE-ACS %.4f" % (S["re_p"], Nn["re_p"]))
     # study-level subgroup: phase II vs phase III
     ph = g("ph")
-    P2, P3 = dl(y[ph == 2], v[ph == 2]), dl(y[ph == 3], v[ph == 3])
+    P2, P3 = pool(y[ph == 2], v[ph == 2]), pool(y[ph == 3], v[ph == 3])
     dph = P2["re"] - P3["re"]; sph = np.sqrt(P2["re_se"] ** 2 + P3["re_se"] ** 2)
     pr("phase II (k=%d) RE OR %.3f (%.3f-%.3f) I2 %.2f ; phase III (k=%d) %.3f (%.3f-%.3f) I2 %.2f ; p diff %.3f"
        % (P2["k"], *P2["re_or"], P2["I2"], P3["k"], *P3["re_or"], P3["I2"], 2 * st.norm.sf(abs(dph / sph))))
@@ -353,21 +386,22 @@ def compute():
     R["egger"] = EG; R["egger_b"] = EGb
     loo = []
     for i, t in enumerate(T):
-        m = dl(np.delete(y, i), np.delete(v, i))
+        m = pool(np.delete(y, i), np.delete(v, i))
         loo.append(dict(nm=t["nm"], or_=m["re_or"], I2=m["I2"], t2=m["t2"]))
         pr("  leave out %s: RE OR %.3f (%.3f-%.3f) I2 %.1f%%" % (t["nm"], *m["re_or"], m["I2"] * 100))
     R["loo"] = loo
     pr("fixed-effect %.3f (%.3f-%.3f) vs random-effects %.3f (%.3f-%.3f)" % (*E["fe_or"], *E["re_or"]))
     pr("phase III only: RE %.3f (%.3f-%.3f) I2 %.2f" % (*P3["re_or"], P3["I2"]))
     lowrob = np.array([n not in ("C", "G") for n in nm])     # trials C and G: some concerns/high risk of bias (hypothetical)
-    LR = dl(y[lowrob], v[lowrob])
+    LR = pool(y[lowrob], v[lowrob])
     pr("excluding C and G (risk of bias): RE %.3f (%.3f-%.3f) I2 %.2f" % (*LR["re_or"], LR["I2"]))
     R["lowrob"] = LR
     # Hartung–Knapp interval for the random-effects mean (few studies)
     q_hk = np.sum(E["wr"] * (y - E["re"]) ** 2) / (E["k"] - 1)
     se_hk = E["re_se"] * np.sqrt(q_hk)
     tc9 = st.t.ppf(0.975, E["k"] - 1)
-    pr("Hartung–Knapp: SE %.4f, t9 %.3f, OR CI %.3f-%.3f (statsmodels sd_eff_w_re_hksj %.4f)" % (se_hk, tc9, np.exp(E["re"] - tc9 * se_hk), np.exp(E["re"] + tc9 * se_hk), res.sd_eff_w_re_hksj))
+    pr("Hartung–Knapp (REML τ²): q %.4f SE %.4f, t9 %.3f, OR CI %.3f-%.3f ; with max(SE, SE_HK) %.3f-%.3f" % (q_hk, se_hk, tc9, np.exp(E["re"] - tc9 * se_hk), np.exp(E["re"] + tc9 * se_hk),
+       np.exp(E["re"] - tc9 * max(se_hk, E["re_se"])), np.exp(E["re"] + tc9 * max(se_hk, E["re_se"]))))
     R["hk"] = (np.exp(E["re"] - tc9 * se_hk), np.exp(E["re"] + tc9 * se_hk))
 
     # publication-bias illustration: 30 hypothetical small-to-medium trials of a drug with NO true effect (OR 1.0);
@@ -378,7 +412,7 @@ def compute():
     yf = rng.normal(0, 1, 30) * sef
     pub = ~((sef > 0.18) & (yf / sef > -0.6))
     ea, ep = egger(yf, sef ** 2), egger(yf[pub], sef[pub] ** 2)
-    da, dp_ = dl(yf, sef ** 2), dl(yf[pub], sef[pub] ** 2)
+    da, dp_ = pool(yf, sef ** 2), pool(yf[pub], sef[pub] ** 2)
     pr("funnel illustration: unpublished %d of 30 (published %d); all RE OR %.3f (%.3f-%.3f) Egger p %.3f; published RE OR %.3f (%.3f-%.3f) p %.3f I2 %.2f Egger intercept %.2f p %.4f"
        % ((~pub).sum(), pub.sum(), *da["re_or"], ea["p"], *dp_["re_or"], dp_["re_p"], dp_["I2"], ep["b0"], ep["p"]))
     R["fun"] = dict(se=sef, y=yf, pub=pub, all=da, publ=dp_, eg_all=ea, eg_pub=ep)
@@ -430,7 +464,7 @@ def compute():
     pr("  bleeding summed: %.2f%% vs %.2f%% naive NNH %.1f" % (crbT * 100, crbC * 100, 1 / (crbT - crbC)))
     # pooled risk difference directly
     yd_, vd_ = effectsize_2proportions(eT, nT, eC, nC, statistic="diff")
-    RDm = dl(yd_, vd_)
+    RDm = pool(yd_, vd_)
     pr("pooled risk difference (RE): %.2f%%p (%.2f to %.2f) I2 %.1f%% pQ %.3f -> NNT %.0f" % (RDm["re"] * 100, RDm["re_ci"][0] * 100, RDm["re_ci"][1] * 100, RDm["I2"] * 100, RDm["pQ"], -1 / RDm["re"]))
     R["rdm"] = RDm
     pr("NNT - NNH = %.0f - %.0f = %.0f ; per 1000: prevented %.1f, caused %.1f" % (A_e["n"][0], A_b["n"][0], A_e["n"][0] - A_b["n"][0], -A_e["per1000"][0], A_b["per1000"][0]))
@@ -440,14 +474,14 @@ def compute():
     trials = [("Study A", 45, -0.9, 1.1, 44, -0.3, 1.2), ("Study B", 120, -0.7, 1.0, 118, -0.4, 1.0), ("Study C", 60, -1.3, 1.3, 58, -0.2, 1.2),
               ("Study D", 210, -0.5, 0.9, 205, -0.3, 0.9), ("Study E", 80, -0.8, 1.2, 82, -0.1, 1.1), ("Study F", 150, -0.6, 1.0, 148, -0.5, 1.1)]
     ym = np.array([t[2] - t[5] for t in trials]); sem = np.array([np.sqrt(t[3] ** 2 / t[1] + t[6] ** 2 / t[4]) for t in trials])
-    Hm = dl(ym, sem ** 2)
+    Hm = pool(ym, sem ** 2)
     for i, t in enumerate(trials):
         pr("  %s MD %.2f SE %.3f wFE %.1f%% wRE %.1f%%" % (t[0], ym[i], sem[i], Hm["wfe"][i] * 100, Hm["wre"][i] * 100))
     pr("  FE %.3f (%.3f to %.3f); Q %.2f p %.4f I2 %.3f tau2 %.4f tau %.3f; RE %.3f (%.3f to %.3f); PI %.2f to %.2f; N %d"
        % (Hm["fe"], *Hm["fe_ci"], Hm["Q"], Hm["pQ"], Hm["I2"], Hm["t2"], Hm["tau"], Hm["re"], *Hm["re_ci"], *Hm["pi"], sum(t[1] + t[4] for t in trials)))
     smd, vsmd = effectsize_smd(np.array([t[2] for t in trials]), np.array([t[3] for t in trials]), np.array([t[1] for t in trials]),
                                np.array([t[5] for t in trials]), np.array([t[6] for t in trials]), np.array([t[4] for t in trials]))
-    Hs = dl(smd, vsmd)
+    Hs = pool(smd, vsmd)
     pr("  SMD (Hedges g) per study", np.round(smd, 3), " pooled RE SMD %.3f (%.3f to %.3f) I2 %.2f" % (Hs["re"], *Hs["re_ci"], Hs["I2"]))
     sd_ch = np.sqrt(1.3 ** 2 + 1.4 ** 2 - 2 * 0.5 * 1.3 * 1.4)
     pr("  imputed SD of change (SD 1.3, 1.4, r 0.5): %.3f" % sd_ch)
