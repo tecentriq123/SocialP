@@ -120,7 +120,7 @@
 <section class="sec" id="lab19-s2">
 <h2><span class="sec-no">b.</span>효과의 통합</h2>
 
-<p><strong>통합은 세 단계입니다. 시험마다 효과와 표준오차를 구하고, 정밀도로 가중치를 주어 평균하고, 연구 간 분산<span class="en">(between-study variance)</span>을 더해 다시 평균합니다.</strong></p>
+<p><strong>통합은 세 단계입니다. 시험마다 효과와 표준오차를 구하고, 1 ÷ 표준오차²를 가중치로 평균하고(고정효과 모형), 분산에 연구 간 분산<span class="en">(between-study variance)</span> τ²를 더한 1 ÷ (표준오차² + τ²)를 가중치로 다시 평균합니다(무작위효과 모형).</strong></p>
 <p>19장 b 절 2단계(예제 메타분석에서 따라가기)의 계산을 그대로 따라갑니다. 계산이 단순하므로 먼저 직접 짜고, 그다음 statsmodels의 결과와 맞춰 봅니다. 직접 짜 두면 포레스트 플롯<span class="en">(forest plot)</span>의 숫자가 어디서 오는지 보입니다. 뒷부분에서는 주요 출혈처럼 0건인 칸이 있는 결과, 추정값과 신뢰구간만 보고한 연구, 연속형 결과를 차례로 다룹니다.</p>
 
 <h3>시험 하나의 로그 오즈비와 표준오차</h3>
@@ -154,7 +154,7 @@
 <li><code>es = tr[["trial"]].copy()</code><span>시험 이름 열 하나만 있는 새 표입니다. 대괄호를 두 겹으로 써야 표(DataFrame)로 남습니다. 여기에 효과크기 열을 붙여 갑니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
-<p><code>yi</code>는 로그 오즈비, <code>vi</code>는 분산, <code>se</code>는 표준오차, <code>or</code>, <code>lo</code>, <code>hi</code>는 오즈비와 95% 신뢰구간입니다. 19장 그림 19-2의 오른쪽 열과 같습니다.</p>
+<p><code>yi</code>는 로그 오즈비, <code>vi</code>는 분산, <code>se</code>는 표준오차, <code>or</code>, <code>lo</code>, <code>hi</code>는 오즈비와 95% 신뢰구간입니다. 19장 그림 19-3의 오른쪽 열과 같습니다.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>Trial C의 표준오차 0.686.</b> 가장 작은 시험(사건 8건과 3건)이어서 가장 불확실합니다.</span></li>
 <li><span class="mk">2</span><span><b>Trial F의 표준오차 0.063.</b> 사건이 가장 많은 시험입니다.</span></li>
@@ -266,7 +266,7 @@
 <li><code>ax.text(6.5, y, …)</code><span>축의 오른쪽 바깥(x = 6.5)에 오즈비와 신뢰구간, 가중치를 글자로 적습니다. <code>va="center"</code>는 글자의 세로 가운데를 그 높이에 맞춥니다.</span></li>
 </ol>
 <h4>그림 읽기</h4>
-<p>가로축(Odds ratio, 로그 눈금)의 1이 '차이 없음'이고 왼쪽이 약물 X에 유리한 쪽입니다. 네모가 큰 D, F, H, I가 결과를 주도하고, 선이 긴 C와 G는 정보가 적습니다. 마름모(Random effects)는 0.83 (0.73–0.93)으로 기준선에 닿지 않고, 회색 선(Prediction interval)은 0.63–1.08로 1을 넘습니다. 19장 그림 19-2와 같은 내용입니다.</p>
+<p>가로축(Odds ratio, 로그 눈금)의 1이 '차이 없음'이고 왼쪽이 약물 X에 유리한 쪽입니다. 네모가 큰 D, F, H, I가 결과를 주도하고, 선이 긴 C와 G는 정보가 적습니다. 마름모(Random effects)는 0.83 (0.73–0.93)으로 기준선에 닿지 않고, 회색 선(Prediction interval)은 0.63–1.08로 1을 넘습니다. 19장 그림 19-3와 같은 내용입니다.</p>
 
 <h3>주요 출혈과 0건인 칸</h3>
 <p>안전성 결과인 주요 출혈을 같은 함수로 합칩니다. Trial C의 위약군이 0건이어서 <code>log_or</code>의 연속성 수정이 여기서 작동합니다(<a href="#ch19-s2">19장 b 절</a> 4단계의 그림 19-4와 '더 알아보기'의 '사건이 0건인 연구와 여러 군이 있는 시험').</p>

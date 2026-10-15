@@ -1013,5 +1013,19 @@ if __name__ == "__main__":
     same("%.0f" % (100 * t2re(yA, vA) / (t2re(yA, vA) + s2A)), "40", "RevMan-style I2 (REML)")
     same(ci2(muB, spi, N19.Z), "0.78-3.64", "adh PI z")
     same("%.1f" % (12.2 / 4.6), "2.7", "study 7 weight ratio (rounded %)")
+    # Trial I, 비율, 합치는 순서 표 (19장 b 절 2단계 '모형에 따라 가중치 주기'와 '두 모형으로 합치는 순서')
+    yA_, vA_ = np.asarray(yA, float), np.asarray(vA, float)
+    wfA, wrA = 1 / vA_, 1 / (vA_ + E["t2"])
+    vI = vA_[8]
+    same("%.4f %.4f %.1f %.1f" % (vI, vI + E["t2"], 1 / vI, 1 / (vI + E["t2"])), "0.0154 0.0252 64.9 39.6", "I var w")
+    same(["%.1f" % (100 * ww[i] / ww.sum()) for ww in (wfA, wrA) for i in (5, 8, 2)],
+         ["42.7", "10.9", "0.4", "27.3", "14.9", "0.8"], "F I C share")
+    same("%.1f %.1f %.1f %.1f" % (wfA.sum(), (wfA * yA_).sum(), wrA.sum(), (wrA * yA_).sum()),
+         "596.4 -101.5 266.7 -51.2", "sums")
+    muF_, muR_ = (wfA * yA_).sum() / wfA.sum(), (wrA * yA_).sum() / wrA.sum()
+    seF_, seR_ = 1 / np.sqrt(wfA.sum()), 1 / np.sqrt(wrA.sum())
+    same("%.3f %.3f %.3f %.3f" % (muF_, seF_, muR_, seR_), "-0.170 0.041 -0.192 0.061", "pooled log, se")
+    same("%.3f %.3f %.3f %.3f" % (muF_ - 1.96 * seF_, muF_ + 1.96 * seF_, muR_ - 1.96 * seR_, muR_ + 1.96 * seR_),
+         "-0.250 -0.090 -0.312 -0.072", "log CI")
     print("대조 블록(2026-10-15 추가분)까지 일치", n_ok, "개")
 
