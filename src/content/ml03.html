@@ -134,11 +134,11 @@
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>Z_train = prep_nan.fit_transform(X_train)</code><span>전처리만 따로 해 둔 학습 자료입니다(11,250행 × 48열의 DataFrame, NaN 그대로). 조기 종료(e 절)와 SHAP(f 절)은 전처리한 자료를 직접 넘겨야 해서 만들어 둡니다.</span></li>
-<li><code>json.loads(small.get_booster().save_config())</code><span><code>get_booster()</code>는 사이킷런 방식의 겉모습 안에 든 XGBoost 본체(Booster)를 꺼내고, <code>save_config()</code>는 그 설정 전체를 JSON 글자로 돌려줍니다. <code>json.loads</code>로 사전으로 바꿔 나무 관련 설정만 골랐습니다.</span></li>
+<li><code>json.loads(small.get_booster().save_config())</code><span><code>get_booster()</code>는 사이킷런 방식의 겉모습 안에 든 XGBoost 본체(Booster)를 꺼내고, <code>save_config()</code>는 그 설정 전체를 JSON(이름과 값의 짝을 글자로 적는 형식, 파이썬 사전과 모양이 비슷함) 글자로 돌려줍니다. <code>json.loads</code>로 사전으로 바꿔 나무 관련 설정만 골랐습니다.</span></li>
 <li><code>trees_to_dataframe()</code><span>모든 나무의 마디를 한 줄씩 표로 만듭니다. <code>Split</code>은 기준값, <code>Yes</code>는 '값 &lt; 기준'일 때 가는 마디, <code>No</code>는 그 반대, <code>Missing</code>은 값이 비어 있을 때 가는 마디입니다. 잎(<code>Leaf</code>)의 <code>Gain</code> 칸에는 잎의 값이 들어 있습니다.</span></li>
 </ol>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>min_child_weight 1, lambda 1, alpha 0, gamma 0, max_bin 256.</b> 주지 않은 값은 XGBoost의 기본값입니다. 학습률이 0.100000001로 보이는 것은 XGBoost가 안에서 단정밀도 실수로 저장하기 때문입니다.</span></li>
+<li><span class="mk">1</span><span><b>min_child_weight 1, lambda 1, alpha 0, gamma 0, max_bin 256.</b> 주지 않은 값은 XGBoost의 기본값입니다. 학습률이 0.100000001로 보이는 것은 XGBoost가 안에서 단정밀도 실수(유효숫자 7자리 안팎까지만 담는 32비트 실수)로 저장하기 때문입니다.</span></li>
 <li><span class="mk">2</span><span><b>첫 나누기 age 84.0.</b> 84세 미만이면 0-1, 이상이면 0-2로 갑니다. XGBoost는 '&lt;'로 나누고 사이킷런은 '&lt;='로 나누는 차이가 있습니다. 나이에는 결측이 없지만 기본 방향(Missing)은 늘 기록됩니다.</span></li>
 <li><span class="mk">3</span><span><b>잎의 값 0.963.</b> 84세 이상이고 약이 9가지 이상인 사람의 로그 오즈에 더하는 값입니다. 학습률이 이미 곱해진 값이고, 나머지 49그루의 잎 값과 출발값을 더해 확률로 바꿉니다.</span></li>
 <li><span class="mk">4</span><span><b>bmi 나누기 43번 가운데 24번은 NaN을 작은 쪽(Yes)으로</b>, 19번은 큰 쪽으로 보냈습니다. 결측의 방향은 미리 정한 것이 아니라 나누기마다 손실을 보고 고른 것입니다. 검진을 받지 않은 사람은 BMI가 낮은 사람과 같은 쪽으로 가기도 하고 높은 사람과 같은 쪽으로 가기도 합니다.</span></li>
@@ -269,7 +269,7 @@
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>LightGBM은 잎 우선으로 나무를 키우므로 <code>num_leaves</code>가 크기를 정하는 핵심 조절값이고, <code>min_child_samples</code>와 함께 먼저 조절합니다.</li>
-<li>이 자료에서 LightGBM은 기본값 0.727, 잎 2개로 줄이면 0.771, Optuna로 조절하면 0.775였고, 시험 AUC는 튜닝한 XGBoost와 사실상 같았습니다(0.785 대 0.784).</li>
+<li>이 자료에서 LightGBM은 기본값 0.727, 잎 2개로 줄이면 0.771, Optuna로 조절하면 0.775(e 절 '기본값과 튜닝 결과 비교')였고, 시험 AUC는 튜닝한 XGBoost와 사실상 같았습니다(0.785 대 0.784, f 절 '모형 비교').</li>
 <li>히스토그램, GOSS, EFB로 빠르지만, 작은 자료에서는 속도보다 기본값이 자료에 맞는지가 중요합니다. 같은 이름이라도 XGBoost와 기본값이 다릅니다.</li>
 <li>pandas <code>category</code> 열은 원-핫 없이 넘길 수 있고, 예측 자료도 같은 범주 목록으로 맞춥니다.</li>
 </ul></div>
@@ -328,7 +328,7 @@
 <li><code>CatBoostClassifier(cat_features=cat_cols, random_seed=2026, verbose=0)</code><span>범주형 열 이름, seed(CatBoost의 이름은 <code>random_seed</code>), 진행 출력 끄기입니다. 끄지 않으면 나무마다 한 줄씩 찍힙니다.</span></li>
 <li><code>m.get_all_params()</code><span>실제로 쓴 설정 전체입니다. 스스로 정한 학습률과 순서 부스팅 여부를 여기서 확인합니다.</span></li>
 </ol>
-<p>기본값의 교차검증 AUC는 0.744, 순서 부스팅은 0.748이고, CatBoost가 스스로 정한 학습률은 0.026(1,000그루), 걸린 시간은 Colab에서 81초와 172초였습니다. 조절하지 않은 기본값끼리는 아래 표의 네 가지 가운데 가장 높지만(XGBoost 0.698, LightGBM 0.727, 히스토그램 부스팅 0.724), 조절한 XGBoost(0.776)에는 못 미칩니다. 순서 부스팅은 0.0045 높지만 겹 사이 표준편차(0.015–0.021)보다 훨씬 작은 차이이고, 시간은 두 배쯤 듭니다. 이 자료의 글자 열은 범주가 2–3개뿐이라 CatBoost의 범주형 처리가 크게 유리할 곳이 없다는 점도 함께 생각합니다.</p>
+<p>기본값의 교차검증 AUC는 0.744, 순서 부스팅은 0.748이고, CatBoost가 스스로 정한 학습률은 0.026(1,000그루), 걸린 시간은 Colab에서 81초와 172초였습니다. 조절하지 않은 기본값끼리는 아래 표의 네 가지 가운데 가장 높지만(XGBoost 0.698, LightGBM 0.727, 히스토그램 부스팅 0.724), e 절에서 Optuna로 조절한 XGBoost(0.776)에는 못 미칩니다. 순서 부스팅은 0.0045 높지만 겹 사이 표준편차(0.015–0.021)보다 훨씬 작은 차이이고, 시간은 두 배쯤 듭니다. 이 자료의 글자 열은 범주가 2–3개뿐이라 CatBoost의 범주형 처리가 크게 유리할 곳이 없다는 점도 함께 생각합니다.</p>
 
 <h3>네 가지를 언제 고르나</h3>
 <div class="tbl-wrap"><table class="tbl">
@@ -342,7 +342,7 @@
 <tr><td>속도 (이 자료, 5겹)</td><td>1초 안팎</td><td>4.5초 (Colab)</td><td>2초 안팎</td><td>81초 (Colab, 순서 부스팅 172초)</td></tr>
 <tr><td>교차검증 AUC (기본값 → 조절)</td><td>0.698 → 0.776 (Optuna)</td><td>0.727 → 0.775 (Optuna)</td><td>0.724 → 0.768 (손으로), 0.772 (과제 3)</td><td>0.744 (기본값만)</td></tr>
 </tbody></table></div>
-<p>속도 줄의 LightGBM과 CatBoost는 Colab에서, XGBoost와 히스토그램 부스팅은 이 쪽을 만든 컴퓨터에서 잰 값이라 서로 바로 견줄 수는 없습니다.</p>
+<p>속도 줄의 LightGBM과 CatBoost는 Colab에서, XGBoost와 히스토그램 부스팅은 이 쪽을 만든 컴퓨터에서 잰 값이라 서로 바로 견줄 수는 없습니다. 교차검증 AUC 줄에서 '(Optuna)'를 붙인 0.776과 0.775는 e 절에서 조절한 결과입니다.</p>
 <p>연구실에서 처음 쓴다면 설치 걱정이 없는 히스토그램 부스팅이나 XGBoost로 시작하고, 자료가 수십만 명 이상이면 LightGBM, 범주가 많은 글자 열이 핵심이면 CatBoost를 비교 대상에 넣는 정도가 무난합니다. 표 형태의 자료에서는 넷의 성능 차이가 대개 튜닝의 차이보다 작습니다.</p>
 
 <div class="callout warn"><p class="ct">흔한 오해</p>
