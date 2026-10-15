@@ -236,6 +236,9 @@ mark { background: color-mix(in srgb, var(--s1) 18%, transparent); color: inheri
 .mjx { overflow-x: auto; overflow-y: hidden; }
 .eq { margin: 18px 0 20px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
 .eq p { margin: 8px 0 0; font-size: 14.5px; color: var(--ink-2); }
+/* 계산 과정: 식 하나를 한 줄에 (줄은 <br>로 나눔) */
+p.calc { margin: 10px 0 14px; padding: 4px 0 4px 14px; border-left: 3px solid var(--line-strong); line-height: 1.95; font-variant-numeric: tabular-nums; }
+.flow p.calc, .eq p.calc, .practice li > p.calc { margin: 8px 0 10px !important; }
 mjx-container[display="true"] { margin: 6px 0 !important; }
 mjx-container { color: var(--ink); }
 
