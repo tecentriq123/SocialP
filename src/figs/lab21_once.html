@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">A군을 한 번 다시 뽑아 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(21)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">A군을 한 번 다시 뽑아 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rng = np.random.default_rng(21)
 idx = rng.integers(0, len(a), len(a))    # 0~1202 가운데 1,203개
 print(idx[:8])
 print(&quot;한 번 이상 뽑힌 환자:&quot;, len(np.unique(idx)), &quot;명&quot;)

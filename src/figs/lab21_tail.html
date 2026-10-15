@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">고액 환자의 비용을 키워 보는 실험</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b2 = b.copy()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">고액 환자의 비용을 키워 보는 실험</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b2 = b.copy()
 top = b2 &gt;= np.percentile(b2, 95)       # B군에서 비용이 큰 5%
 b2[top] = b2[top] * 3                   # 이 환자들의 비용만 3배로
 

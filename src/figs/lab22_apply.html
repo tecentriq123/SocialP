@@ -1,0 +1,39 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">응답 1,593건을 효용으로 바꾸고 utility 열과 견주기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;u_calc&quot;] = df[&quot;eq5d&quot;].map(kr5l)            # 1,593건 모두
+print(&quot;서로 다른 응답 코드:&quot;, df[&quot;eq5d&quot;].nunique(), &quot;가지&quot;)
+print(&quot;utility 열과의 차이(가장 큰 값):&quot;, (df[&quot;u_calc&quot;] - df[&quot;utility&quot;]).abs().max())
+print(&quot;11111(효용 1) 응답:&quot;, (df[&quot;eq5d&quot;] == &quot;11111&quot;).sum(), &quot;건&quot;)
+df[df[&quot;u_calc&quot;] &lt; 0][[&quot;id&quot;, &quot;arm&quot;, &quot;month&quot;, &quot;state&quot;, &quot;eq5d&quot;, &quot;u_calc&quot;]]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>서로 다른 응답 코드: 227<span class="mk">1</span> 가지
+utility 열과의 차이(가장 큰 값): 0.0<span class="mk">2</span>
+11111(효용 1) 응답: 180 건<span class="mk">3</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>arm</th>
+      <th>month</th>
+      <th>state</th>
+      <th>eq5d</th>
+      <th>u_calc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1453</th>
+      <td>289</td>
+      <td>B</td>
+      <td>3</td>
+      <td>PD</td>
+      <td>55554</td>
+      <td>-0.031<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>1592</th>
+      <td>320</td>
+      <td>B</td>
+      <td>6</td>
+      <td>PD</td>
+      <td>54555</td>
+      <td>-0.022</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

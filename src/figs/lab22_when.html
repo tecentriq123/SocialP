@@ -1,0 +1,65 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">할인 계수를 매기는 시점 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for when in [&quot;mid&quot;, &quot;start&quot;, &quot;end&quot;, &quot;annual&quot;, &quot;wrong&quot;]:
+    r = model(p, when)
+    dq = r[&quot;A&quot;][&quot;qaly&quot;] - r[&quot;B&quot;][&quot;qaly&quot;]
+    dc = r[&quot;A&quot;][&quot;cost&quot;] - r[&quot;B&quot;][&quot;cost&quot;]
+    rows.append([when, r[&quot;A&quot;][&quot;qaly&quot;], r[&quot;B&quot;][&quot;qaly&quot;], dq, dc / dq])
+when_tab = pd.DataFrame(rows, columns=[&quot;when&quot;, &quot;qaly_A&quot;, &quot;qaly_B&quot;,
+                                       &quot;d_qaly&quot;, &quot;icer&quot;]).set_index(&quot;when&quot;)
+print(&quot;12번째 달의 할인 계수  기준:&quot;, round(1 / 1.045 ** (11.5 / 12), 3),
+      &quot; wrong:&quot;, round(1 / 1.045 ** 11.5, 3))
+when_tab.round(3).round({&quot;icer&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>12번째 달의 할인 계수  기준: 0.959<span class="mk">1</span>  wrong: 0.603<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>qaly_A</th>
+      <th>qaly_B</th>
+      <th>d_qaly</th>
+      <th>icer</th>
+    </tr>
+    <tr>
+      <th>when</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mid</th>
+      <td>2.385</td>
+      <td>1.874</td>
+      <td>0.511</td>
+      <td>5621.0</td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td>2.389</td>
+      <td>1.877</td>
+      <td>0.512</td>
+      <td>5620.0<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td>2.380</td>
+      <td>1.870</td>
+      <td>0.510</td>
+      <td>5621.0</td>
+    </tr>
+    <tr>
+      <th>annual</th>
+      <td>2.435</td>
+      <td>1.913</td>
+      <td>0.523<span class="mk">4</span></td>
+      <td>5612.0</td>
+    </tr>
+    <tr>
+      <th>wrong</th>
+      <td>0.969</td>
+      <td>0.870</td>
+      <td>0.099</td>
+      <td>9140.0<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

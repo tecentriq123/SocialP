@@ -1,0 +1,57 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">치료 효과 감소와 소실을 넣은 모형 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def arm_result(p, arm, pf_t, pd_t, half=True):
+    &quot;&quot;&quot;시점별 상태 비율(0-n개월의 n+1개) -&gt; 한 군의 생존연수, 비용, QALY&quot;&quot;&quot;
+    n = len(pf_t) - 1
+    if half:                                  # 반주기 보정
+        pf = (pf_t[:-1] + pf_t[1:]) / 2
+        pd_ = (pd_t[:-1] + pd_t[1:]) / 2
+    else:                                     # 주기 시작의 값으로 셈
+        pf, pd_ = pf_t[:-1], pd_t[:-1]
+    alive = pf_t + pd_t
+    died = alive[:-1] - alive[1:]             # 주기별 사망
+    disc = 1 / (1 + p[&quot;disc&quot;]) ** ((np.arange(n) + 0.5) / 12)
+    cost = ((pf * (p[&quot;c_drug_&quot; + arm] + p[&quot;c_pf&quot;]) + pd_ * p[&quot;c_pd&quot;]
+             + died * p[&quot;c_death&quot;]) * disc).sum() + p[&quot;c_ae_&quot; + arm]
+    qaly = (((pf * p[&quot;u_pf&quot;] + pd_ * p[&quot;u_pd&quot;]) / 12 * disc).sum()
+            - p[&quot;du_ae_&quot; + arm])
+    return {&quot;ly_pf&quot;: pf.sum() / 12, &quot;ly_pd&quot;: pd_.sum() / 12,
+            &quot;ly&quot;: (pf + pd_).sum() / 12, &quot;qaly&quot;: qaly, &quot;cost&quot;: cost}
+
+def two_arms(rA, rB):
+    &quot;&quot;&quot;두 군의 결과 -&gt; 증분과 ICER&quot;&quot;&quot;
+    dc, dq = rA[&quot;cost&quot;] - rB[&quot;cost&quot;], rA[&quot;qaly&quot;] - rB[&quot;qaly&quot;]
+    return {&quot;A&quot;: rA, &quot;B&quot;: rB, &quot;d_cost&quot;: dc, &quot;d_qaly&quot;: dq, &quot;icer&quot;: dc / dq}
+
+def run_waning(p, start=36, end=60, horizon=240):
+    &quot;&quot;&quot;신약 A의 위험비가 start개월부터 줄어 end개월에 1이 되는 모형&quot;&quot;&quot;
+    t = np.arange(0, horizon + 1)
+    mid = t[:-1] + 0.5                        # 주기 중간 시점
+    if end &gt; start:                           # 0이면 효과 그대로, 1이면 없음
+        w = np.clip((mid - start) / (end - start), 0, 1)
+    else:                                     # start = end: 그 달부터 바로 1
+        w = (mid &gt;= start) * 1.0
+    res = {}
+    for arm in [&quot;A&quot;, &quot;B&quot;]:
+        s = {}
+        for k in [&quot;pfs&quot;, &quot;os&quot;]:
+            dH = np.diff(p[k + &quot;_lam&quot;] * t ** p[k + &quot;_gam&quot;])  # B의 누적위험 증가
+            hr = p[&quot;hr_&quot; + k] + (1 - p[&quot;hr_&quot; + k]) * w if arm == &quot;A&quot; else 1.0
+            s[k] = np.exp(-np.r_[0, np.cumsum(hr * dH)])
+        s_pfs = np.minimum(s[&quot;pfs&quot;], s[&quot;os&quot;])
+        res[arm] = arm_result(p, arm, s_pfs, s[&quot;os&quot;] - s_pfs)
+    out = two_arms(res[&quot;A&quot;], res[&quot;B&quot;])
+    out[&quot;hr_os_t&quot;] = p[&quot;hr_os&quot;] + (1 - p[&quot;hr_os&quot;]) * w    # 달마다의 위험비
+    return out
+
+r0 = run_waning(p, start=999, end=1000)   # 효과가 줄지 않는 경우
+print(&quot;효과가 그대로이면 ICER:&quot;, round(r0[&quot;icer&quot;], 6),
+      &quot; run_model:&quot;, round(base[&quot;icer&quot;], 6))
+r1 = run_waning(p, 36, 60)
+print(&quot;3년 뒤부터 감소: 48번째 달의 위험비&quot;, round(r1[&quot;hr_os_t&quot;][47], 3),
+      &quot; ICER&quot;, round(r1[&quot;icer&quot;]))
+r2 = run_waning(p, 30, 30)
+print(&quot;30개월 뒤 소실: 30, 31번째 달의 위험비&quot;, r2[&quot;hr_os_t&quot;][29:31])
+print(&quot;신약 A 생존연수: 효과 소실&quot;, round(r2[&quot;A&quot;][&quot;ly&quot;], 3),
+      &quot; 기준 분석&quot;, round(base[&quot;A&quot;][&quot;ly&quot;], 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>효과가 그대로이면 ICER: 5620.610246  run_model: 5620.610246<span class="mk">1</span>
+3년 뒤부터 감소: 48번째 달의 위험비 0.87<span class="mk">2</span>  ICER 6150<span class="mk">3</span>
+30개월 뒤 소실: 30, 31번째 달의 위험비 [0.75 1.  ]<span class="mk">4</span>
+신약 A 생존연수: 효과 소실 3.455<span class="mk">5</span>  기준 분석 3.916</pre></div></div>

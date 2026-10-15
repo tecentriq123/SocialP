@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">환자 한 명의 QALY (사다리꼴 공식)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def path(month, u, t_death, end=24):
+    &quot;&quot;&quot;측정 시점(개월)과 효용 -&gt; 사망과 추적 끝을 이은 (시점, 효용) 경로&quot;&quot;&quot;
+    t, u = list(month), list(u)
+    if t_death &lt;= end:                    # 추적 기간 안에 사망
+        t, u = t + [t_death], u + [0.0]   # 사망 시점의 효용은 0
+        if t_death &lt; end:
+            t, u = t + [end], u + [0.0]   # 그 뒤 추적 끝까지 0
+    return np.array(t, dtype=float), np.array(u, dtype=float)
+
+# 환자 다 (22장 표 22-4). 0, 3, 6, 12개월에 응답하고 15개월에 사망
+u_c = [kr5l(x) for x in [&quot;11221&quot;, &quot;21222&quot;, &quot;21232&quot;, &quot;31241&quot;]]
+t, u = path([0, 3, 6, 12], u_c, t_death=15)
+print(&quot;시점:&quot;, t)
+print(&quot;효용:&quot;, u)
+print(&quot;구간별 QALY:&quot;, np.round(np.diff(t) * (u[:-1] + u[1:]) / 2 / 12, 3))
+print(&quot;QALY:&quot;, round(trapezoid(u, t) / 12, 3), &quot; 생존연수:&quot;, 15 / 12)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>시점: [ 0.  3.  6. 12. 15. 24.]
+효용: [0.841 0.762 0.751 0.581 0.    0.   ]
+구간별 QALY: [0.2   0.189 0.333 0.073 0.   ]<span class="mk">1</span>
+QALY: 0.795<span class="mk">2</span>  생존연수: 1.25</pre></div></div>

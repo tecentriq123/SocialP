@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">분포와 평균 구조 점검</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">chk = pd.DataFrame({&quot;cost&quot;: df[&quot;cost&quot;], &quot;pred&quot;: glm.predict(df)})
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">분포와 평균 구조 점검</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">chk = pd.DataFrame({&quot;cost&quot;: df[&quot;cost&quot;], &quot;pred&quot;: glm.predict(df)})
 chk[&quot;res2&quot;] = (chk[&quot;cost&quot;] - chk[&quot;pred&quot;]) ** 2
 chk[&quot;ln_pred&quot;] = np.log(chk[&quot;pred&quot;])
 park = smf.glm(&quot;res2 ~ ln_pred&quot;, data=chk,

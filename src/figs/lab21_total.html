@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">평균, 중앙값, 총액</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">a = df.loc[df[&quot;arm&quot;] == &quot;A&quot;, &quot;cost&quot;].to_numpy()   # A군 1,203명의 비용
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">평균, 중앙값, 총액</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">a = df.loc[df[&quot;arm&quot;] == &quot;A&quot;, &quot;cost&quot;].to_numpy()   # A군 1,203명의 비용
 b = df.loc[df[&quot;arm&quot;] == &quot;B&quot;, &quot;cost&quot;].to_numpy()   # B군 1,797명의 비용
 
 print(&quot;B군 총액      :&quot;, round(b.sum()))

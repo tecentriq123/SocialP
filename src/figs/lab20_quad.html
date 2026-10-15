@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">사분면 판정과 음수 ICER</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def quadrant(dc, dq):
+    &quot;&quot;&quot;증분비용(dc)과 증분 QALY(dq)의 부호로 비용효과평면의 사분면을 판정&quot;&quot;&quot;
+    if dq &gt; 0 and dc &lt;= 0:
+        return &quot;오른쪽 아래, 우월(dominant)&quot;
+    if dq &lt;= 0 and dc &gt; 0:
+        return &quot;왼쪽 위, 열등(dominated)&quot;
+    if dq &gt; 0:
+        return &quot;오른쪽 위, ICER를 임계값과 견줌&quot;
+    return &quot;왼쪽 아래, ICER가 임계값보다 높아야 받아들임&quot;
+
+cases = {&quot;A vs B&quot;: (d_cost, d_qaly),
+         &quot;예 1  &quot;: (-500, 0.2),       # 500만원 덜 들고 0.2 QALY를 더 얻음
+         &quot;예 2  &quot;: (500, -0.2),       # 500만원 더 들고 0.2 QALY를 잃음
+         &quot;예 3  &quot;: (-1000, -0.1)}     # 1,000만원 아끼고 0.1 QALY를 잃음
+for name, (dc, dq) in cases.items():
+    print(name, &quot;ICER&quot;, round(dc / dq), &quot;|&quot;, quadrant(dc, dq))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A vs B ICER 5621 | 오른쪽 위<span class="mk">1</span>, ICER를 임계값과 견줌
+예 1   ICER -2500 | 오른쪽 아래<span class="mk">2</span>, 우월(dominant)
+예 2   ICER -2500 | 왼쪽 위<span class="mk">3</span>, 열등(dominated)
+예 3   ICER 10000<span class="mk">4</span> | 왼쪽 아래, ICER가 임계값보다 높아야 받아들임</pre></div></div>

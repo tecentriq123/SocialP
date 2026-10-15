@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">주기별 비용과 QALY, 할인 계수 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">died = os_B[:-1] - os_B[1:]            # 그 주기에 사망한 비율
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">주기별 비용과 QALY, 할인 계수 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">died = os_B[:-1] - os_B[1:]            # 그 주기에 사망한 비율
 mid = (t[:-1] + 0.5) / 12              # 주기 중간 시점(년)
 disc = 1 / (1 + p[&quot;disc&quot;]) ** mid      # 할인 계수
 

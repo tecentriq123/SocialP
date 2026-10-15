@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">중앙값 차이와 Mann-Whitney 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">med_diff = np.median(a) - np.median(b)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">중앙값 차이와 Mann-Whitney 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">med_diff = np.median(a) - np.median(b)
 mw = stats.mannwhitneyu(a, b)
 print(&quot;중앙값 A, B:&quot;, np.median(a), np.median(b),
       &quot; 차이:&quot;, round(med_diff, 1))

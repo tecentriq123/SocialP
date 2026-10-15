@@ -1,5 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 3 정답. 입원비의 이단계 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;anyinp&quot;] = (df[&quot;cost_inp&quot;] &gt; 0).astype(int)  # 입원비가 생겼으면 1
-rhs = &quot;trt + age + male + cci + stage4&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 34</span><span class="cell-t">과제 3 정답 (2). 입원비의 이단계 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;anyinp&quot;] = (df[&quot;cost_inp&quot;] &gt; 0).astype(int)  # 입원비가 생겼으면 1
 part1 = smf.logit(&quot;anyinp ~ &quot; + rhs, data=df).fit(disp=0)
 pos = df[df[&quot;cost_inp&quot;] &gt; 0]                     # 입원비가 있는 환자만
 part2 = smf.glm(&quot;cost_inp ~ &quot; + rhs, data=pos, family=fam).fit()

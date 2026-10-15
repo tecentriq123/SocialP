@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">감마 GLM (로그 연결)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fam = sm.families.Gamma(link=sm.families.links.Log())
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">감마 GLM (로그 연결)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fam = sm.families.Gamma(link=sm.families.links.Log())
 glm = smf.glm(f, data=df, family=fam).fit()
 print(glm.summary())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 Generalized Linear Model Regression Results                  
 ==============================================================================
@@ -7,7 +7,7 @@ Model:                            GLM   Df Residuals:                     2994
 Model Family:                   Gamma<span class="mk">1</span>   Df Model:                            5
 Link Function:                    Log<span class="mk">2</span>   Scale:                         0.31751<span class="mk">3</span>
 Method:                          IRLS   Log-Likelihood:                -25248.
-Date:                Sat, 03 Oct 2026   Deviance:                       714.39
+Date:                Thu, 15 Oct 2026   Deviance:                       714.39
 Time:                        12:00:00   Pearson chi2:                     951.
 No. Iterations:                    11   Pseudo R-squ. (CS):            0.04923
 Covariance Type:            nonrobust                                         

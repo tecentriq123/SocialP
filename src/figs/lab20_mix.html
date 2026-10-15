@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">B와 A를 섞은 전략과 병용요법 D</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = (alts.loc[&quot;D&quot;, &quot;qaly&quot;] - qaly_B) / (qaly_A - qaly_B)   # A를 쓸 환자의 비율
+mix_cost = cost_B + f * (cost_A - cost_B)
+mix_qaly = qaly_B + f * (qaly_A - qaly_B)
+print(&quot;A를 쓰는 비율:&quot;, round(f * 100, 1), &quot;%&quot;)
+print(&quot;섞은 전략 : QALY&quot;, round(mix_qaly, 3), &quot; 비용&quot;, round(mix_cost, 1))
+print(&quot;병용요법 D: QALY&quot;, alts.loc[&quot;D&quot;, &quot;qaly&quot;], &quot; 비용&quot;, alts.loc[&quot;D&quot;, &quot;cost&quot;])
+print(&quot;D보다 적게 드는 비용:&quot;, round(alts.loc[&quot;D&quot;, &quot;cost&quot;] - mix_cost, 1), &quot;만원&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A를 쓰는 비율: 24.7 %<span class="mk">1</span>
+섞은 전략 : QALY 2.0  비용 8399.7<span class="mk">2</span>
+병용요법 D: QALY 2.0  비용 9400.0
+D보다 적게 드는 비용: 1000.3<span class="mk">3</span> 만원</pre></div></div>

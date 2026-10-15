@@ -1,16 +1,23 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 3 정답. ICER가 임계값과 같아지는 약값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">months = base[&quot;A&quot;][&quot;c_drug&quot;] / p[&quot;c_drug_A&quot;]     # 할인한 투약 개월 수
-nmb = threshold * base[&quot;d_qaly&quot;] - base[&quot;d_cost&quot;]   # 순금전편익
-price = p[&quot;c_drug_A&quot;] + nmb / months
-print(&quot;A군의 할인한 투약 개월 수:&quot;, round(months, 3))
-print(&quot;임계 가격:&quot;, round(price, 2), &quot;만원,&quot;,
-      &quot;인하율:&quot;, round((1 - price / p[&quot;c_drug_A&quot;]) * 100, 1), &quot;%&quot;)
-
-r = run_model(dict(p, c_drug_A=price))
-print(&quot;그 가격에서의 ICER:&quot;, round(r[&quot;icer&quot;], 4))
-for x in [190, 180, 170]:
-    print(x, round(run_model(dict(p, c_drug_A=x))[&quot;icer&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A군의 할인한 투약 개월 수: 21.707<span class="mk">1</span>
-임계 가격: 175.39<span class="mk">2</span> 만원, 인하율: 7.7<span class="mk">3</span> %
-그 가격에서의 ICER: 5000.0<span class="mk">4</span>
-190 5621
-180 5196
-170 4771</pre></div></div>
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 35</span><span class="cell-t">과제 3 정답. 1년 확률을 12로 나눈 마르코프 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p_wrong = p_year / 12                  # 동료가 넣은 한 달 확률
+r_w = prob_to_rate(p_wrong)            # 율로 바꾸면
+P_Bw = matrix(0.9 * r_w, 0.1 * r_w, r_dpd)
+P_Aw = matrix(0.9 * r_w * hr, 0.1 * r_w * hr, r_dpd)
+tB, tA = trace(P_Bw), trace(P_Aw)
+wrong = two_arms(arm_result(p, &quot;A&quot;, tA[:, 0], tA[:, 1]),
+                 arm_result(p, &quot;B&quot;, tB[:, 0], tB[:, 1]))
+print(&quot;한 달 확률:&quot;, round(p_wrong, 4), &quot; 옳은 값:&quot;, round(p_month, 4))
+print(&quot;모형 속 B의 중앙 무진행생존:&quot;, round(np.log(2) / r_w, 1), &quot;개월&quot;)
+print(&quot;모형 속 B의 중앙 전체생존 :&quot;, round(median_os(P_Bw), 1), &quot;개월&quot;)
+print(&quot;생존연수 B&quot;, round(wrong[&quot;B&quot;][&quot;ly&quot;], 3), &quot; A&quot;, round(wrong[&quot;A&quot;][&quot;ly&quot;], 3))
+print(&quot;증분비용&quot;, round(wrong[&quot;d_cost&quot;]), &quot; 증분 QALY&quot;, round(wrong[&quot;d_qaly&quot;], 3),
+      &quot; ICER&quot;, round(wrong[&quot;icer&quot;]))
+print(&quot;셀 31  :&quot;, round(mk[&quot;d_cost&quot;]), round(mk[&quot;d_qaly&quot;], 3),
+      round(mk[&quot;icer&quot;]))
+print(&quot;순금전편익&quot;, round(threshold * wrong[&quot;d_qaly&quot;] - wrong[&quot;d_cost&quot;]),
+      &quot; 셀 31:&quot;, round(threshold * mk[&quot;d_qaly&quot;] - mk[&quot;d_cost&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>한 달 확률: 0.0471<span class="mk">1</span>  옳은 값: 0.067
+모형 속 B의 중앙 무진행생존: 14.4<span class="mk">2</span> 개월
+모형 속 B의 중앙 전체생존 : 33.5<span class="mk">3</span> 개월
+생존연수 B 3.36<span class="mk">4</span>  A 4.287
+증분비용 3342  증분 QALY 0.567  ICER 5894<span class="mk">5</span>
+셀 31  : 2436 0.416 5858<span class="mk">6</span>
+순금전편익 -507<span class="mk">7</span>  셀 31: -357</pre></div></div>

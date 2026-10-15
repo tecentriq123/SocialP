@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">로그 변환, 기하평균, smearing 계수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">la, lb = np.log(a), np.log(b)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">로그 변환, 기하평균, smearing 계수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">la, lb = np.log(a), np.log(b)
 gm_a, gm_b = np.exp(la.mean()), np.exp(lb.mean())
 print(&quot;로그 비용의 SD A, B:&quot;, round(la.std(ddof=1), 2),
       round(lb.std(ddof=1), 2))

@@ -1,0 +1,37 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">결정수형: 이상반응 예방 요법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tp = {&quot;p_ae&quot;: 0.30,       # 예방 요법 없이 중증 이상반응이 생길 확률 (시험)
+      &quot;rr&quot;: 0.60,         # 예방 요법의 상대위험도 (메타분석)
+      &quot;p_hosp&quot;: 0.40,     # 이상반응이 생기면 입원할 확률
+      &quot;c_hosp&quot;: 700.0, &quot;c_out&quot;: 200.0,    # 입원, 외래 치료비 (만원)
+      &quot;dq_hosp&quot;: 0.07, &quot;dq_out&quot;: 0.02,    # 입원, 외래 치료의 QALY 손실
+      &quot;c_proph&quot;: 60.0}    # 예방 요법 비용 (만원)
+
+def ae_tree(tp):
+    &quot;&quot;&quot;두 전략의 경로 확률, 기대비용, 기대 QALY 변화와 증분&quot;&quot;&quot;
+    out = {}
+    for s, p_ae, add in [(&quot;none&quot;, tp[&quot;p_ae&quot;], 0.0),
+                         (&quot;proph&quot;, tp[&quot;p_ae&quot;] * tp[&quot;rr&quot;], tp[&quot;c_proph&quot;])]:
+        prob = np.array([p_ae * tp[&quot;p_hosp&quot;],         # 이상반응, 입원
+                         p_ae * (1 - tp[&quot;p_hosp&quot;]),   # 이상반응, 외래 치료
+                         1 - p_ae])                   # 이상반응 없음
+        cost = add + np.array([tp[&quot;c_hosp&quot;], tp[&quot;c_out&quot;], 0.0])
+        qaly = -np.array([tp[&quot;dq_hosp&quot;], tp[&quot;dq_out&quot;], 0.0])
+        out[s] = {&quot;prob&quot;: prob, &quot;cost&quot;: (prob * cost).sum(),
+                  &quot;qaly&quot;: (prob * qaly).sum()}
+    out[&quot;d_cost&quot;] = out[&quot;proph&quot;][&quot;cost&quot;] - out[&quot;none&quot;][&quot;cost&quot;]
+    out[&quot;d_qaly&quot;] = out[&quot;proph&quot;][&quot;qaly&quot;] - out[&quot;none&quot;][&quot;qaly&quot;]
+    out[&quot;icer&quot;] = out[&quot;d_cost&quot;] / out[&quot;d_qaly&quot;]
+    return out
+
+tree = ae_tree(tp)
+for s in [&quot;none&quot;, &quot;proph&quot;]:
+    print(s, &quot;경로 확률&quot;, tree[s][&quot;prob&quot;].round(3),
+          &quot;합&quot;, round(tree[s][&quot;prob&quot;].sum(), 10),
+          &quot;| 기대비용&quot;, round(tree[s][&quot;cost&quot;], 1),
+          &quot; 기대 QALY&quot;, round(tree[s][&quot;qaly&quot;], 4))
+print(&quot;증분비용&quot;, round(tree[&quot;d_cost&quot;], 1),
+      &quot; 증분 QALY&quot;, round(tree[&quot;d_qaly&quot;], 4),
+      &quot; ICER&quot;, round(tree[&quot;icer&quot;]))
+print(&quot;증분 순편익&quot;, round(threshold * tree[&quot;d_qaly&quot;] - tree[&quot;d_cost&quot;], 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>none 경로 확률 [0.12 0.18 0.7 ]<span class="mk">1</span> 합 1.0 | 기대비용 120.0<span class="mk">2</span>  기대 QALY -0.012
+proph 경로 확률 [0.072 0.108 0.82 ]<span class="mk">3</span> 합 1.0 | 기대비용 132.0<span class="mk">4</span>  기대 QALY -0.0072
+증분비용 12.0  증분 QALY 0.0048  ICER 2500<span class="mk">5</span>
+증분 순편익 12.0<span class="mk">6</span></pre></div></div>

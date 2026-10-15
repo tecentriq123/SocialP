@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">임계값마다 순금전편익이 가장 큰 대안</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">grid = np.arange(0, 20001, 100)        # 임계값 0, 100, ..., 20,000
+best = [(g * alts[&quot;qaly&quot;] - alts[&quot;cost&quot;]).idxmax() for g in grid]
+print(&quot;가장 큰 대안이 된 횟수:&quot;, pd.Series(best).value_counts().to_dict())
+print(&quot;A가 처음 가장 커지는 임계값:&quot;, grid[best.index(&quot;A&quot;)])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>가장 큰 대안이 된 횟수: {&#x27;A&#x27;: 144, &#x27;B&#x27;: 57}<span class="mk">1</span>
+A가 처음 가장 커지는 임계값: 5700<span class="mk">2</span></pre></div></div>

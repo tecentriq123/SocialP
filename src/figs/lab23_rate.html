@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">율과 확률 바꾸기 (23장 표 23-7)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def rate_to_prob(r, t=1):
+    &quot;&quot;&quot;율 r이 일정할 때 길이 t인 기간 안에 사건이 일어날 확률&quot;&quot;&quot;
+    return 1 - np.exp(-r * t)
+
+def prob_to_rate(prob, t=1):
+    &quot;&quot;&quot;길이 t인 기간의 확률 -&gt; 일정한 율&quot;&quot;&quot;
+    return -np.log(1 - prob) / t
+
+r_exit = np.log(2) / 10                # 중앙 무진행생존 10개월 -&gt; 월 단위 율
+p_year = rate_to_prob(r_exit, 12)      # 1년 확률
+p_month = rate_to_prob(r_exit)         # 한 달 확률
+print(&quot;월 율&quot;, round(r_exit, 4), &quot; 1년 확률&quot;, round(p_year, 3),
+      &quot; 한 달 확률&quot;, round(p_month, 4))
+print(&quot;1행 옳은&quot;, round(rate_to_prob(prob_to_rate(p_year, 12)), 4),
+      &quot;  틀린&quot;, round(p_year / 12, 4))
+print(&quot;2행 옳은&quot;, round(1 - (1 - p_month) ** 12, 3),
+      &quot;  틀린&quot;, round(p_month * 12, 3))
+print(&quot;3행 옳은&quot;, round(rate_to_prob(r_exit * p[&quot;hr_pfs&quot;], 12), 3),
+      &quot;  틀린&quot;, round(p_year * p[&quot;hr_pfs&quot;], 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>월 율 0.0693<span class="mk">1</span>  1년 확률 0.565  한 달 확률 0.067
+1행 옳은 0.067<span class="mk">2</span>   틀린 0.0471
+2행 옳은 0.565<span class="mk">3</span>   틀린 0.804
+3행 옳은 0.418<span class="mk">4</span>   틀린 0.367</pre></div></div>

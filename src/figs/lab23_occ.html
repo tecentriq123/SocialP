@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">두 곡선에서 상태 비율 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def occupancy(p, arm, t):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">두 곡선에서 상태 비율 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def occupancy(p, arm, t):
     &quot;&quot;&quot;시점별 상태 비율: 무진행(pf), 진행(pd), 사망(dead)&quot;&quot;&quot;
     s_pfs, s_os = curves(p, arm, t)
     s_pfs = np.minimum(s_pfs, s_os)    # PFS가 OS를 넘지 않게

@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 3 정답. EQ VAS ÷ 100으로 계산한 동료의 QALY</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 동료의 코드: 효용 대신 EQ VAS ÷ 100
+q_vas = []
+for r in pts.itertuples():
+    g = df[df[&quot;id&quot;] == r.id]
+    t, u = path(g[&quot;month&quot;], g[&quot;vas&quot;] / 100, r.t_death)
+    q_vas.append(trapezoid(u, t) / 12)
+pts[&quot;qaly_vas&quot;] = q_vas
+m = smf.ols(&quot;qaly_vas ~ A&quot;, data=pts).fit()
+lo, hi = m.conf_int().loc[&quot;A&quot;]
+print(&quot;VAS/100 QALY:&quot;, pts.groupby(&quot;arm&quot;)[&quot;qaly_vas&quot;].mean().round(3).to_dict(),
+      &quot; 차이&quot;, round(m.params[&quot;A&quot;], 3), &quot; 95% CI&quot;, round(lo, 3), round(hi, 3))
+
+p_vas = dict(p, u_pf=0.73, u_pd=0.64)          # 셀 9의 상태별 VAS/100 평균
+for name, pp in [(&quot;효용&quot;, p), (&quot;VAS/100&quot;, p_vas)]:
+    r = model(pp)
+    dq = r[&quot;A&quot;][&quot;qaly&quot;] - r[&quot;B&quot;][&quot;qaly&quot;]
+    print(name, &quot; 증분 QALY&quot;, round(dq, 3),
+          &quot; ICER&quot;, round((r[&quot;A&quot;][&quot;cost&quot;] - r[&quot;B&quot;][&quot;cost&quot;]) / dq))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>VAS/100 QALY: {&#x27;A&#x27;: 1.153, &#x27;B&#x27;: 1.052}<span class="mk">1</span>  차이 0.101<span class="mk">2</span>  95% CI -0.004 0.207<span class="mk">3</span>
+효용  증분 QALY 0.511  ICER 5621
+VAS/100  증분 QALY 0.481<span class="mk">4</span>  ICER 5974<span class="mk">5</span></pre></div></div>

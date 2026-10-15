@@ -1,0 +1,55 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">EQ-5D-3L 가치 세트 두 개로 같은 응답 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># EQ-5D-3L 가치 세트: 상수 감점, 수준 3이 하나라도 있으면 붙는 감점, 영역별 (수준 2, 수준 3) 감점
+KR3 = {&quot;const&quot;: 0.050, &quot;n3&quot;: 0.050,             # 한국 (Lee 등, 2009)
+       &quot;dec&quot;: [(0.096, 0.418), (0.046, 0.136), (0.051, 0.208),
+               (0.037, 0.151), (0.043, 0.158)]}
+UK3 = {&quot;const&quot;: 0.081, &quot;n3&quot;: 0.269,             # 영국 (Dolan, 1997)
+       &quot;dec&quot;: [(0.069, 0.314), (0.104, 0.214), (0.036, 0.094),
+               (0.123, 0.386), (0.071, 0.236)]}
+
+def eq3l(code, vs):
+    &quot;&quot;&quot;다섯 자리 3L 응답 코드 -&gt; 가치 세트 vs의 효용&quot;&quot;&quot;
+    lv = [int(x) for x in code]
+    if lv == [1, 1, 1, 1, 1]:
+        return 1.0
+    u = 1 - vs[&quot;const&quot;]
+    for (d2, d3), level in zip(vs[&quot;dec&quot;], lv):
+        u = u - {1: 0, 2: d2, 3: d3}[level]
+    if 3 in lv:
+        u = u - vs[&quot;n3&quot;]
+    return round(u, 3)
+
+print(&quot;검산 21232 (한국):&quot;, eq3l(&quot;21232&quot;, KR3))
+codes = [&quot;11121&quot;, &quot;21222&quot;, &quot;33333&quot;]
+t3 = pd.DataFrame({&quot;korea&quot;: [eq3l(x, KR3) for x in codes],
+                   &quot;uk&quot;: [eq3l(x, UK3) for x in codes]}, index=codes)
+t3[&quot;diff&quot;] = t3[&quot;korea&quot;] - t3[&quot;uk&quot;]
+t3.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>검산 21232 (한국): 0.559<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>korea</th>
+      <th>uk</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>11121</th>
+      <td>0.913<span class="mk">2</span></td>
+      <td>0.796<span class="mk">3</span></td>
+      <td>0.117</td>
+    </tr>
+    <tr>
+      <th>21222</th>
+      <td>0.723</td>
+      <td>0.620</td>
+      <td>0.103</td>
+    </tr>
+    <tr>
+      <th>33333</th>
+      <td>-0.171</td>
+      <td>-0.594</td>
+      <td>0.423<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

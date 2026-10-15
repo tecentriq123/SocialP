@@ -1,8 +1,10 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">계수를 비용 비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ratio = pd.DataFrame({&quot;cost_ratio&quot;: np.exp(glm.params),
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">계수를 비용 비로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ratio = pd.DataFrame({&quot;cost_ratio&quot;: np.exp(glm.params),
                       &quot;lower&quot;: np.exp(glm.conf_int()[0]),
                       &quot;upper&quot;: np.exp(glm.conf_int()[1]),
                       &quot;p&quot;: glm.pvalues})
-ratio.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+print(&quot;나이 10세당 비용 비:&quot;, np.exp(10 * glm.params[&quot;age&quot;]).round(2),
+      np.exp(10 * glm.conf_int().loc[&quot;age&quot;]).round(2).tolist())
+ratio.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>나이 10세당 비용 비: 0.99 [0.96, 1.01]<span class="mk">5</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -29,7 +31,7 @@ ratio.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력<
     </tr>
     <tr>
       <th>age</th>
-      <td>0.999</td>
+      <td>0.999<span class="mk">4</span></td>
       <td>0.996</td>
       <td>1.001</td>
       <td>0.321</td>

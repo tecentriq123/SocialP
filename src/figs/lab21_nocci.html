@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">동반질환 점수를 뺀 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f2 = &quot;cost ~ trt + age + male + stage4&quot;     # cci를 뺀 공식
+glm2 = smf.glm(f2, data=df, family=fam).fit()
+qA = glm2.predict(df.assign(trt=1)).mean()
+qB = glm2.predict(df.assign(trt=0)).mean()
+print(&quot;비용 비:&quot;, np.exp(glm2.params[&quot;trt&quot;]).round(3))
+print(&quot;모두 A, 모두 B, 차이:&quot;, round(qA, 1), round(qB, 1),
+      round(qA - qB, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>비용 비: 1.181<span class="mk">1</span>
+모두 A, 모두 B, 차이: 2678.2 2267.5 410.8<span class="mk">2</span></pre></div></div>

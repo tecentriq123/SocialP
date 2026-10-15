@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">둘째 해만 할인한 24개월 QALY</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def split_qaly(t, u, cut=12):
+    &quot;&quot;&quot;경로를 cut개월에서 나눠 (앞부분의 QALY, 뒷부분의 QALY)&quot;&quot;&quot;
+    uc = np.interp(cut, t, u)                  # cut개월의 효용 (직선 위의 값)
+    t1, u1 = np.append(t[t &lt; cut], cut), np.append(u[t &lt; cut], uc)
+    t2, u2 = np.insert(t[t &gt; cut], 0, cut), np.insert(u[t &gt; cut], 0, uc)
+    return trapezoid(u1, t1) / 12, trapezoid(u2, t2) / 12
+
+yr = np.array([split_qaly(*paths[i]) for i in pts[&quot;id&quot;]])   # 320행 x 2열
+pts[&quot;qaly_d&quot;] = yr[:, 0] + yr[:, 1] / 1.045               # 둘째 해만 할인
+print(&quot;첫해 + 둘째 해 = 할인 전 QALY:&quot;, np.allclose(yr.sum(axis=1), pts[&quot;qaly&quot;]))
+mq = pts.groupby(&quot;arm&quot;)[[&quot;qaly&quot;, &quot;qaly_d&quot;]].mean()
+print(mq.round(3))
+print(&quot;차이  할인 전&quot;, round(mq.loc[&quot;A&quot;, &quot;qaly&quot;] - mq.loc[&quot;B&quot;, &quot;qaly&quot;], 3),
+      &quot; 둘째 해 할인&quot;, round(mq.loc[&quot;A&quot;, &quot;qaly_d&quot;] - mq.loc[&quot;B&quot;, &quot;qaly_d&quot;], 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>첫해 + 둘째 해 = 할인 전 QALY: True<span class="mk">1</span>
+      qaly  qaly_d
+arm               
+A    1.204   1.181<span class="mk">2</span>
+B    1.087   1.068
+차이  할인 전 0.117  둘째 해 할인 0.113<span class="mk">3</span></pre></div></div>

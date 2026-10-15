@@ -1,0 +1,66 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">진행 후 사망을 군별로 맞추기와 두 구조의 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy.optimize import brentq
+
+def gap(r, arm, target):
+    &quot;&quot;&quot;진행 -&gt; 사망 율이 r일 때 모형의 중앙 OS - 목표 중앙값&quot;&quot;&quot;
+    h = hr if arm == &quot;A&quot; else 1.0
+    return median_os(matrix(0.9 * r_exit * h, 0.1 * r_exit * h, r)) - target
+
+med_B = (np.log(2) / p[&quot;os_lam&quot;]) ** (1 / p[&quot;os_gam&quot;])
+med_A = (np.log(2) / (p[&quot;os_lam&quot;] * p[&quot;hr_os&quot;])) ** (1 / p[&quot;os_gam&quot;])
+r_B = brentq(gap, 0.01, 1.0, args=(&quot;B&quot;, med_B))
+r_A = brentq(gap, 0.01, 1.0, args=(&quot;A&quot;, med_A))
+print(&quot;B: 목표&quot;, round(med_B, 1), &quot;개월, 율&quot;, round(r_B, 7),
+      &quot; 확률&quot;, round(rate_to_prob(r_B), 4))
+print(&quot;A: 목표&quot;, round(med_A, 1), &quot;개월, 율&quot;, round(r_A, 5),
+      &quot; 확률&quot;, round(rate_to_prob(r_A), 4))
+
+tr_A2 = trace(matrix(0.9 * r_exit * hr, 0.1 * r_exit * hr, r_A))
+mk2 = two_arms(arm_result(p, &quot;A&quot;, tr_A2[:, 0], tr_A2[:, 1]), mk[&quot;B&quot;])
+
+def row(r):
+    return [r[&quot;A&quot;][&quot;ly_pf&quot;] - r[&quot;B&quot;][&quot;ly_pf&quot;],
+            r[&quot;A&quot;][&quot;ly_pd&quot;] - r[&quot;B&quot;][&quot;ly_pd&quot;],
+            r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;]]
+
+cmp = pd.DataFrame([row(mk), row(mk2), row(base)],
+                   index=[&quot;Markov&quot;, &quot;Markov, by arm&quot;, &quot;Partitioned&quot;],
+                   columns=[&quot;d_pf&quot;, &quot;d_pd&quot;, &quot;d_cost&quot;, &quot;d_qaly&quot;, &quot;icer&quot;])
+cmp.round(3).round({&quot;d_cost&quot;: 0, &quot;icer&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>B: 목표 28.0 개월, 율 0.0470602<span class="mk">1</span>  확률 0.046
+A: 목표 36.0 개월, 율 0.04372  확률 0.0428<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>d_pf</th>
+      <th>d_pd</th>
+      <th>d_cost</th>
+      <th>d_qaly</th>
+      <th>icer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Markov</th>
+      <td>0.647</td>
+      <td>-0.000</td>
+      <td>2436.0</td>
+      <td>0.416</td>
+      <td>5858.0<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>Markov, by arm</th>
+      <td>0.647</td>
+      <td>0.121<span class="mk">4</span></td>
+      <td>2720.0</td>
+      <td>0.475</td>
+      <td>5723.0<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>Partitioned</th>
+      <td>0.719</td>
+      <td>0.143</td>
+      <td>2872.0</td>
+      <td>0.511</td>
+      <td>5621.0<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

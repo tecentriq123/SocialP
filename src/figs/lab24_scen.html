@@ -1,0 +1,96 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">시나리오 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">scen = {&quot;base&quot;: base,
+        &quot;horizon 5y&quot;: run_model(p, horizon=60),
+        &quot;horizon 10y&quot;: run_model(p, horizon=120),
+        &quot;horizon 15y&quot;: run_model(p, horizon=180),
+        &quot;discount 0%&quot;: run_model(dict(p, disc=0.0)),
+        &quot;discount 3%&quot;: run_model(dict(p, disc=0.03)),
+        &quot;waning 36-60&quot;: run_waning(p, 36, 60),
+        &quot;waning 60-84&quot;: run_waning(p, 60, 84),
+        &quot;loss after 30&quot;: run_waning(p, 30, 30)}
+rows = [[k, r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;]] for k, r in scen.items()]
+sc = pd.DataFrame(rows, columns=[&quot;scenario&quot;, &quot;d_cost&quot;, &quot;d_qaly&quot;,
+                                 &quot;icer&quot;]).set_index(&quot;scenario&quot;)
+sc[&quot;vs_base&quot;] = (sc[&quot;icer&quot;] / base[&quot;icer&quot;] - 1) * 100   # %
+sc.round({&quot;d_cost&quot;: 0, &quot;d_qaly&quot;: 3, &quot;icer&quot;: 0, &quot;vs_base&quot;: 1})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>d_cost</th>
+      <th>d_qaly</th>
+      <th>icer</th>
+      <th>vs_base</th>
+    </tr>
+    <tr>
+      <th>scenario</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>base</th>
+      <td>2872.0</td>
+      <td>0.511</td>
+      <td>5621.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>horizon 5y</th>
+      <td>1875.0</td>
+      <td>0.297</td>
+      <td>6324.0<span class="mk">1</span></td>
+      <td>12.5</td>
+    </tr>
+    <tr>
+      <th>horizon 10y</th>
+      <td>2640.0</td>
+      <td>0.464</td>
+      <td>5686.0</td>
+      <td>1.2</td>
+    </tr>
+    <tr>
+      <th>horizon 15y</th>
+      <td>2836.0</td>
+      <td>0.504</td>
+      <td>5628.0</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <th>discount 0%</th>
+      <td>3508.0</td>
+      <td>0.646</td>
+      <td>5431.0<span class="mk">2</span></td>
+      <td>-3.4</td>
+    </tr>
+    <tr>
+      <th>discount 3%</th>
+      <td>3058.0</td>
+      <td>0.550</td>
+      <td>5555.0</td>
+      <td>-1.2</td>
+    </tr>
+    <tr>
+      <th>waning 36-60</th>
+      <td>2285.0</td>
+      <td>0.372</td>
+      <td>6150.0<span class="mk">3</span></td>
+      <td>9.4</td>
+    </tr>
+    <tr>
+      <th>waning 60-84</th>
+      <td>2576.0</td>
+      <td>0.443</td>
+      <td>5815.0<span class="mk">4</span></td>
+      <td>3.5</td>
+    </tr>
+    <tr>
+      <th>loss after 30</th>
+      <td>1939.0</td>
+      <td>0.282<span class="mk">5</span></td>
+      <td>6876.0</td>
+      <td>22.3<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

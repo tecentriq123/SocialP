@@ -1,0 +1,41 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">EQ VAS ÷ 100과 효용 견주기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">by = df.groupby(&quot;state&quot;).agg(n=(&quot;id&quot;, &quot;size&quot;), utility=(&quot;utility&quot;, &quot;mean&quot;),
+                             vas=(&quot;vas&quot;, &quot;mean&quot;))
+by[&quot;vas_100&quot;] = by[&quot;vas&quot;] / 100                # EQ VAS를 100으로 나눈 값
+by = by.loc[[&quot;PF&quot;, &quot;PD&quot;]]
+gap = by.loc[&quot;PF&quot;] - by.loc[&quot;PD&quot;]              # 무진행 - 진행
+print(&quot;두 상태의 차이  효용:&quot;, round(gap[&quot;utility&quot;], 3),
+      &quot;  VAS/100:&quot;, round(gap[&quot;vas_100&quot;], 3))
+by.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>두 상태의 차이  효용: 0.158<span class="mk">1</span>   VAS/100: 0.096<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>n</th>
+      <th>utility</th>
+      <th>vas</th>
+      <th>vas_100</th>
+    </tr>
+    <tr>
+      <th>state</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>PF</th>
+      <td>1184</td>
+      <td>0.780</td>
+      <td>73.240</td>
+      <td>0.732<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>PD</th>
+      <td>409</td>
+      <td>0.621</td>
+      <td>63.619</td>
+      <td>0.636<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

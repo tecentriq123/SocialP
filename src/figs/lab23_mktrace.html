@@ -1,0 +1,72 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">코호트 추적 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def trace(P, n=240):
+    &quot;&quot;&quot;모두 무진행에서 출발해 n주기 옮긴 상태 비율: (n+1)행 x 3열&quot;&quot;&quot;
+    x = np.array([1.0, 0.0, 0.0])
+    rows = [x]
+    for k in range(n):
+        x = x @ P                      # 행렬 곱 한 번 = 한 달
+        rows.append(x)
+    return np.array(rows)
+
+def median_os(P, n=1200):
+    &quot;&quot;&quot;생존 비율(무진행 + 진행)이 0.5가 되는 시점(개월)&quot;&quot;&quot;
+    alive = trace(P, n)[:, :2].sum(axis=1)
+    k = np.argmax(alive &lt;= 0.5)        # 처음으로 0.5 이하가 된 주기
+    return k - 1 + (alive[k - 1] - 0.5) / (alive[k - 1] - alive[k])
+
+tr_B, tr_A = trace(P_B), trace(P_A)
+print(tr_B.shape)
+print(&quot;행렬 거듭제곱:&quot;, np.linalg.matrix_power(P_B, 24)[0].round(4),
+      &quot; 추적의 24행:&quot;, tr_B[24].round(4))
+print(&quot;모형의 중앙 전체생존: B&quot;, round(median_os(P_B), 1),
+      &quot; A&quot;, round(median_os(P_A), 1))
+pd.DataFrame(tr_B[[0, 1, 2, 3, 12, 24]], index=[0, 1, 2, 3, 12, 24],
+             columns=[&quot;pf&quot;, &quot;pd&quot;, &quot;dead&quot;]).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(241, 3)<span class="mk">1</span>
+행렬 거듭제곱: [0.1895 0.3839 0.4266]  추적의 24행: [0.1895 0.3839 0.4266]<span class="mk">2</span>
+모형의 중앙 전체생존: B 28.0<span class="mk">3</span>  A 34.8<span class="mk">4</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pf</th>
+      <th>pd</th>
+      <th>dead</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.933</td>
+      <td>0.060</td>
+      <td>0.007</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.871</td>
+      <td>0.114<span class="mk">5</span></td>
+      <td>0.016</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.812</td>
+      <td>0.161</td>
+      <td>0.027</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>0.435</td>
+      <td>0.382</td>
+      <td>0.182</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>0.189</td>
+      <td>0.384</td>
+      <td>0.427<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

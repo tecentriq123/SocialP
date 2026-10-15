@@ -1,0 +1,62 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">상태별 기간의 증분으로 결과가 그럴듯한지 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for name, q in [(&quot;drug A&quot;, p),
+                (&quot;hr_os = 1&quot;, dict(p, hr_os=1.0)),
+                (&quot;drug C&quot;, dict(p, hr_pfs=0.60, hr_os=0.90))]:
+    r = run_model(q)
+    rows.append([name, r[&quot;A&quot;][&quot;ly_pf&quot;] - r[&quot;B&quot;][&quot;ly_pf&quot;],
+                 r[&quot;A&quot;][&quot;ly_pd&quot;] - r[&quot;B&quot;][&quot;ly_pd&quot;],
+                 r[&quot;A&quot;][&quot;ly&quot;] - r[&quot;B&quot;][&quot;ly&quot;],
+                 r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;]])
+cols = [&quot;scenario&quot;, &quot;d_pf&quot;, &quot;d_pd&quot;, &quot;d_ly&quot;, &quot;d_cost&quot;, &quot;d_qaly&quot;, &quot;icer&quot;]
+plaus = pd.DataFrame(rows, columns=cols).set_index(&quot;scenario&quot;)
+plaus.round(3).round({&quot;d_cost&quot;: 0, &quot;icer&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>d_pf</th>
+      <th>d_pd</th>
+      <th>d_ly</th>
+      <th>d_cost</th>
+      <th>d_qaly</th>
+      <th>icer</th>
+    </tr>
+    <tr>
+      <th>scenario</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>drug A</th>
+      <td>0.719</td>
+      <td>0.143<span class="mk">1</span></td>
+      <td>0.863</td>
+      <td>2872.0</td>
+      <td>0.511</td>
+      <td>5621.0</td>
+    </tr>
+    <tr>
+      <th>hr_os = 1</th>
+      <td>0.719</td>
+      <td>-0.719<span class="mk">2</span></td>
+      <td>0.000</td>
+      <td>887.0</td>
+      <td>0.096</td>
+      <td>9268.0<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>drug C</th>
+      <td>0.892</td>
+      <td>-0.600<span class="mk">4</span></td>
+      <td>0.292<span class="mk">5</span></td>
+      <td>1537.0</td>
+      <td>0.262</td>
+      <td>5865.0<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">240주기를 더해 표준요법 B의 총비용과 QALY 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">items = [&quot;c_drug&quot;, &quot;c_pf&quot;, &quot;c_pd&quot;, &quot;c_death&quot;]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">240주기를 더해 표준요법 B의 총비용과 QALY 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">items = [&quot;c_drug&quot;, &quot;c_pf&quot;, &quot;c_pd&quot;, &quot;c_death&quot;]
 undisc = cyc[items].sum()                        # 할인 전 합계
 after = cyc[items].mul(cyc[&quot;disc&quot;], axis=0).sum()   # 할인 후 합계
 print(pd.DataFrame({&quot;undiscounted&quot;: undisc,

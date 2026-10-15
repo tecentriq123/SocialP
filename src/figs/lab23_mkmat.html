@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">율에서 전이확률 행렬 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def matrix(r_prog, r_dpf, r_dpd):
+    &quot;&quot;&quot;월 단위 율 세 개 -&gt; 한 달 전이확률 행렬
+    (행: 출발 상태, 열: 도착 상태, 순서: 무진행, 진행, 사망)&quot;&quot;&quot;
+    leave = rate_to_prob(r_prog + r_dpf)         # 무진행 상태를 떠날 확률
+    to_pd = leave * r_prog / (r_prog + r_dpf)    # 그 가운데 진행으로 가는 몫
+    q = rate_to_prob(r_dpd)                      # 진행 상태에서 사망할 확률
+    return np.array([[1 - leave, to_pd, leave - to_pd],
+                     [0.0, 1 - q, q],
+                     [0.0, 0.0, 1.0]])
+
+r_dpd = 0.0470602          # 진행 -&gt; 사망의 율. 23장이 B군 중앙 OS 28개월에 맞춘 값
+hr = p[&quot;hr_pfs&quot;]
+P_B = matrix(0.9 * r_exit, 0.1 * r_exit, r_dpd)
+P_A = matrix(0.9 * r_exit * hr, 0.1 * r_exit * hr, r_dpd)   # 위험비는 율에 곱한다
+print(P_B.round(4))
+print(P_A.round(4))
+print(&quot;행의 합:&quot;, P_B.sum(axis=1), P_A.sum(axis=1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[[0.933  0.0603 0.0067]<span class="mk">1</span>
+ [0.     0.954  0.046 ]
+ [0.     0.     1.    ]]
+[[0.9559 0.0396 0.0044]<span class="mk">2</span>
+ [0.     0.954  0.046 ]
+ [0.     0.     1.    ]]
+행의 합: [1. 1. 1.]<span class="mk">3</span> [1. 1. 1.]</pre></div></div>

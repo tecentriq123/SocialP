@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">임계값 5,000만원에서 순금전편익과 순건강편익</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lam = 5000                             # 이 예시에서 가정한 임계값(만원/QALY)
+nmb = lam * d_qaly - d_cost            # 증분 순금전편익(만원)
+nhb = d_qaly - d_cost / lam            # 증분 순건강편익(QALY)
+print(&quot;순금전편익:&quot;, round(nmb, 1), &quot;만원&quot;)
+print(&quot;순건강편익:&quot;, round(nhb, 3), &quot;QALY&quot;)
+print(&quot;환자 100명이면:&quot;, round(100 * nhb, 1), &quot;QALY&quot;)
+print(&quot;ICER &lt; 임계값:&quot;, icer &lt; lam, &quot;  순금전편익 &gt; 0:&quot;, nmb &gt; 0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>순금전편익: -317.1<span class="mk">1</span> 만원
+순건강편익: -0.063<span class="mk">2</span> QALY
+환자 100명이면: -6.3<span class="mk">3</span> QALY
+ICER &lt; 임계값: False<span class="mk">4</span>   순금전편익 &gt; 0: False</pre></div></div>

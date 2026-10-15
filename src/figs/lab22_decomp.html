@@ -1,0 +1,65 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">모형의 20년 QALY를 상태별로 나누기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = {}
+for arm in [&quot;A&quot;, &quot;B&quot;]:
+    r = res[arm]
+    rows[arm] = {&quot;pf_years&quot;: r[&quot;pf_years&quot;], &quot;pd_years&quot;: r[&quot;pd_years&quot;],
+                 &quot;life_years&quot;: r[&quot;pf_years&quot;] + r[&quot;pd_years&quot;],
+                 &quot;qaly_pf&quot;: p[&quot;u_pf&quot;] * r[&quot;pf_years&quot;],
+                 &quot;qaly_pd&quot;: p[&quot;u_pd&quot;] * r[&quot;pd_years&quot;],
+                 &quot;ae_loss&quot;: -p[&quot;du_ae_&quot; + arm],
+                 &quot;qaly&quot;: r[&quot;qaly&quot;]}
+tab = pd.DataFrame(rows)
+tab[&quot;diff&quot;] = tab[&quot;A&quot;] - tab[&quot;B&quot;]
+tab.round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>A</th>
+      <th>B</th>
+      <th>diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>pf_years</th>
+      <td>1.809<span class="mk">1</span></td>
+      <td>1.186</td>
+      <td>0.623<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>pd_years</th>
+      <td>1.590</td>
+      <td>1.543</td>
+      <td>0.047</td>
+    </tr>
+    <tr>
+      <th>life_years</th>
+      <td>3.399</td>
+      <td>2.729</td>
+      <td>0.670<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>qaly_pf</th>
+      <td>1.411</td>
+      <td>0.925</td>
+      <td>0.486<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>qaly_pd</th>
+      <td>0.986</td>
+      <td>0.957</td>
+      <td>0.029</td>
+    </tr>
+    <tr>
+      <th>ae_loss</th>
+      <td>-0.012</td>
+      <td>-0.008</td>
+      <td>-0.004</td>
+    </tr>
+    <tr>
+      <th>qaly</th>
+      <td>2.385</td>
+      <td>1.874</td>
+      <td>0.511<span class="mk">5</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

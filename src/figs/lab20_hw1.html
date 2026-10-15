@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">과제 1 정답. 임계값 6,000만원 행 풀어 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lam6 = 6000
+value = lam6 * d_qaly                  # 늘어난 QALY를 임계값으로 돈으로 바꾼 값
+print(&quot;늘어난 QALY의 값:&quot;, round(value, 1), &quot;만원&quot;)
+print(&quot;늘어난 비용     :&quot;, round(d_cost, 1), &quot;만원&quot;)
+print(&quot;순금전편익      :&quot;, round(value - d_cost, 1), &quot;만원&quot;)
+print(&quot;순건강편익      :&quot;, round(d_qaly - d_cost / lam6, 3), &quot;QALY&quot;)
+print(&quot;환자 100명이면  :&quot;, round(100 * (value - d_cost)), &quot;만원,&quot;,
+      round(100 * (d_qaly - d_cost / lam6), 1), &quot;QALY&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>늘어난 QALY의 값: 3066.2<span class="mk">1</span> 만원
+늘어난 비용     : 2872.3<span class="mk">2</span> 만원
+순금전편익      : 193.9<span class="mk">3</span> 만원
+순건강편익      : 0.032<span class="mk">4</span> QALY
+환자 100명이면  : 19388<span class="mk">5</span> 만원, 3.2 QALY<span class="mk">6</span></pre></div></div>

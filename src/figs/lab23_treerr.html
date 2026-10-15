@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">상대위험도를 바꾸고, 결과를 분할생존모형에 넣기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for rr in [0.6, 2 / 3, 0.7, 0.8]:
+    r = ae_tree(dict(tp, rr=rr))
+    rows.append([rr, r[&quot;proph&quot;][&quot;cost&quot;], r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;],
+                 r[&quot;icer&quot;], threshold * r[&quot;d_qaly&quot;] - r[&quot;d_cost&quot;]])
+print(pd.DataFrame(rows, columns=[&quot;rr&quot;, &quot;cost&quot;, &quot;d_cost&quot;, &quot;d_qaly&quot;,
+                                  &quot;icer&quot;, &quot;nmb&quot;]).round(
+    {&quot;rr&quot;: 3, &quot;cost&quot;: 1, &quot;d_cost&quot;: 1, &quot;d_qaly&quot;: 4, &quot;icer&quot;: 0, &quot;nmb&quot;: 1}))
+
+p_pro = dict(p, c_ae_A=tree[&quot;proph&quot;][&quot;cost&quot;],
+             du_ae_A=-tree[&quot;proph&quot;][&quot;qaly&quot;])
+print(&quot;예방 요법 없음과 사전의 값:&quot;, round(tree[&quot;none&quot;][&quot;cost&quot;], 6),
+      p[&quot;c_ae_A&quot;], round(-tree[&quot;none&quot;][&quot;qaly&quot;], 6), p[&quot;du_ae_A&quot;])
+print(&quot;예방 요법을 넣은 신약 A 대 B의 ICER:&quot;,
+      round(run_model(p_pro)[&quot;icer&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      rr   cost  d_cost  d_qaly     icer   nmb
+0  0.600  132.0    12.0  0.0048   2500.0  12.0
+1  0.667<span class="mk">1</span>  140.0    20.0  0.0040   5000.0   0.0
+2  0.700  144.0    24.0  0.0036   6667.0<span class="mk">2</span>  -6.0
+3  0.800  156.0    36.0  0.0024  15000.0<span class="mk">3</span> -24.0
+예방 요법 없음과 사전의 값: 120.0 120.0 0.012 0.012<span class="mk">4</span>
+예방 요법을 넣은 신약 A 대 B의 ICER: 5592<span class="mk">5</span></pre></div></div>

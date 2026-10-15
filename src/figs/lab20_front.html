@@ -1,0 +1,75 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">열등, 확장 열등, 효율 경계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def icer_between(df, lo, hi):
+    &quot;&quot;&quot;대안 lo에서 대안 hi로 옮길 때의 ICER&quot;&quot;&quot;
+    return ((df.loc[hi, &quot;cost&quot;] - df.loc[lo, &quot;cost&quot;])
+            / (df.loc[hi, &quot;qaly&quot;] - df.loc[lo, &quot;qaly&quot;]))
+
+def frontier(df):
+    &quot;&quot;&quot;비용순으로 놓고 열등과 확장 열등을 표시한 뒤, 효율 경계 위에서 이웃끼리 ICER를 구한 표&quot;&quot;&quot;
+    df = df.sort_values(&quot;cost&quot;).copy()          # 비용이 낮은 순서
+    df[&quot;status&quot;], df[&quot;vs&quot;], df[&quot;icer&quot;] = &quot;경계&quot;, &quot;&quot;, np.nan
+    keep = []                                   # 경계에 남은 대안의 이름
+    for i in df.index:
+        if any(df.loc[j, &quot;qaly&quot;] &gt;= df.loc[i, &quot;qaly&quot;] for j in keep):
+            df.loc[i, &quot;status&quot;] = &quot;열등&quot;         # 더 싸면서 효과가 같거나 큰 대안이 있음
+            continue
+        keep.append(i)
+        while len(keep) &gt;= 3:                   # 이어진 세 대안의 ICER 순서 확인
+            a, b, c = keep[-3:]
+            if icer_between(df, a, b) &lt;= icer_between(df, b, c):
+                break
+            print(b, &quot;확장 열등:&quot;, round(icer_between(df, a, b)), &quot;&gt;&quot;,
+                  round(icer_between(df, b, c)))
+            df.loc[b, &quot;status&quot;] = &quot;확장 열등&quot;
+            keep.pop(-2)                        # 가운데 대안을 뺌
+    for a, b in zip(keep[:-1], keep[1:]):       # 경계 위의 이웃끼리
+        df.loc[b, &quot;vs&quot;] = a
+        df.loc[b, &quot;icer&quot;] = icer_between(df, a, b)
+    return df
+
+front = frontier(alts)
+front.round({&quot;icer&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>D 확장 열등: 13537 &gt; 3020<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cost</th>
+      <th>qaly</th>
+      <th>status</th>
+      <th>vs</th>
+      <th>icer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>B</th>
+      <td>7689.485</td>
+      <td>1.873640</td>
+      <td>경계</td>
+      <td></td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>C</th>
+      <td>8100.000</td>
+      <td>1.700000</td>
+      <td>열등<span class="mk">2</span></td>
+      <td></td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>D</th>
+      <td>9400.000</td>
+      <td>2.000000</td>
+      <td>확장 열등<span class="mk">3</span></td>
+      <td></td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>A</th>
+      <td>10561.778</td>
+      <td>2.384669</td>
+      <td>경계</td>
+      <td>B</td>
+      <td>5621.0<span class="mk">4</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

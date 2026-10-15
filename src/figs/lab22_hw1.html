@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">과제 1 정답. 무진행 상태의 효용 한 행 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pf_resp = df[df[&quot;state&quot;] == &quot;PF&quot;]
+print(&quot;응답&quot;, len(pf_resp), &quot;건, 환자&quot;, pf_resp[&quot;id&quot;].nunique(), &quot;명&quot;)
+print(&quot;효용이 1인 응답의 비율:&quot;, round((pf_resp[&quot;utility&quot;] == 1).mean(), 3))
+print(&quot;개별 응답의 가운데 95% 범위:&quot;,
+      pf_resp[&quot;utility&quot;].quantile([0.025, 0.975]).round(3).tolist())
+print(&quot;군별 평균:&quot;, pf_resp.groupby(&quot;arm&quot;)[&quot;utility&quot;].mean().round(3).to_dict())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>응답 1184 건, 환자 320 명
+효용이 1인 응답의 비율: 0.147<span class="mk">1</span>
+개별 응답의 가운데 95% 범위: [0.424, 1.0]<span class="mk">2</span>
+군별 평균: {&#x27;A&#x27;: 0.783, &#x27;B&#x27;: 0.775}<span class="mk">3</span></pre></div></div>

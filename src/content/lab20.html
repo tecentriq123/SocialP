@@ -1,0 +1,362 @@
+<p class="lead">20장 d 절의 계산을 빈 노트북에서 직접 합니다. 20–25장 공통 예시의 기준 분석 결과(신약 A와 표준요법 B의 총비용과 QALY)에 20장이 지어낸 대안 두 개(기존약 C, 병용요법 D)를 더해 표로 적고, 신약 A의 증분비용효과비(ICER)를 구해 비용효과평면의 사분면을 판정한 뒤, 열등과 확장 열등을 가려 효율 경계를 만듭니다. 이어서 이 예시에서 가정한 임계값으로 순금전편익과 순건강편익을 구하고, 임계값을 바꿔 결론이 어디서 뒤집히는지 보고, 비용효과평면을 그립니다. 따라 하면 <a href="#ch20">20장</a> 본문의 숫자(ICER 5,621만원/QALY, 순금전편익 −317만원, 확장 열등 13,537 &gt; 3,020)가 그대로 나옵니다.</p>
+
+<dl class="glance">
+<div><dt>관련 이론</dt><dd><a href="#ch20-s4">20장 d 절 증분비용효과비와 비용효과평면</a>. 생존연수당 비용은 <a href="#ch20-s2">b 절</a>, 환자 100명의 기회비용은 <a href="#ch20-s1">a 절</a>. 총비용과 QALY를 계산하는 모형은 <a href="#ch23-s3">23장 c 절</a>과 <a href="#lab23-s3">실습 23 c 절</a></dd></div>
+<div><dt>데이터</dt><dd>자료 파일 없음. 네 대안의 총비용과 QALY 8개를 노트북에 직접 적습니다. 신약 A와 표준요법 B는 공통 예시의 기준 분석 결과, 기존약 C와 병용요법 D는 20장 d 절이 지어낸 대안이고 모두 가상의 값입니다</dd></div>
+<div><dt>사용 패키지</dt><dd>numpy, pandas, matplotlib</dd></div>
+<div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). 설치할 패키지 없음. 모든 셀이 1초 안에 끝남</dd></div>
+</dl>
+<p class="nb-link"><a href="notebooks/lab20.ipynb" download>실습 노트북 내려받기 (lab20.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 엽니다. 셀을 위에서부터 차례로 실행하세요.</p>
+
+<p>이 실습은 20장과 같은 공통 예시와 같은 대안 네 개를 쓰므로, 셀의 출력을 본문의 숫자와 바로 맞춰 볼 수 있습니다. 본문의 각 단계를 이 실습의 어느 셀에서 직접 해 보는지는 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>20장</th><th>이 실습</th><th>직접 해 보는 것</th></tr></thead>
+<tbody>
+<tr><td>d 절 2단계 'ICER는 어떻게 구하나?', '총비용을 QALY로 나눈 값은 왜 쓰지 않나?'</td><td>b 절 셀 3, 과제 3</td><td>증분비용 2,872.3, 증분 QALY 0.511, ICER 5,621, 평균 비 4,429와 4,104</td></tr>
+<tr><td>b 절 2단계</td><td>b 절 셀 3</td><td>생존연수당 4,287</td></tr>
+<tr><td>d 절 2단계 '비용효과평면의 어디에 놓이나?', 3단계의 음수 ICER, '더 알아보기'의 '덜 효과적이고 더 싼 대안'</td><td>b 절 셀 4, c 절 셀 12</td><td>사분면 판정 함수, ICER가 둘 다 −2,500인 두 예, 평면 그림</td></tr>
+<tr><td>d 절 3단계 '비교대안이 여럿이면 어느 대안과 견주나?', '더 알아보기'의 '효율 경계를 만드는 순서와 파이썬 코드'</td><td>b 절 셀 5–7</td><td>열등과 확장 열등(13,537 &gt; 3,020), B와 A를 섞은 전략, 효율 경계 그림</td></tr>
+<tr><td>a 절 2단계 '환자 100명에게 쓰면 무엇을 얻고 무엇을 포기하나?', d 절 2단계 '임계값과 견주면?', 3단계 '비로 낼까, 차로 낼까?'</td><td>c 절 셀 8</td><td>순금전편익 −317.1, 순건강편익 −0.063, 100명이면 −6.3 QALY</td></tr>
+<tr><td>d 절 3단계 '임계값은 무엇으로 두나?'</td><td>c 절 셀 9–11, 과제 1</td><td>임계값별 순금전편익, 부호가 바뀌는 5,620.6, 네 대안의 순금전편익</td></tr>
+<tr><td>d 절 4단계 'ICER가 낮은 약이 더 좋은 약인가?', 스스로 확인하기 2번</td><td>과제 2</td><td>신약 E를 더한 효율 경계, 임계값 5,000과 8,000에서 고르기</td></tr>
+</tbody></table></div>
+<p>셀은 하나의 노트북에서 위에서부터 순서대로 실행합니다. 뒤의 셀이 앞 셀에서 만든 <code>alts</code>, <code>d_cost</code>, <code>frontier</code> 같은 변수와 함수를 쓰기 때문입니다. 출력을 만든 패키지의 버전은 셀 1에서 확인합니다.</p>
+
+<!-- ============================================================ 가 -->
+<section class="sec" id="lab20-s1">
+<h2><span class="sec-no">a.</span>실습 데이터 준비</h2>
+
+<p>경제성 평가 모형은 대안마다 두 숫자를 내놓습니다. 환자 1명당 총비용과 총 QALY입니다. 그 두 숫자를 계산하는 일은 모형이 하고(<a href="#lab23">실습 23</a>), 이 실습은 그 결과에서 출발해 "그래서 어느 대안을 고르나"를 계산합니다. 그래서 자료 파일 없이 네 대안의 값 8개만 있으면 됩니다.</p>
+<div class="tbl-wrap"><table class="tbl" style="max-width:46rem">
+<thead><tr><th>이름</th><th>대안</th><th>값의 출처</th></tr></thead>
+<tbody>
+<tr><td>B</td><td>표준요법 B</td><td rowspan="2">공통 예시의 기준 분석 결과. <a href="#lab23-s3">실습 23 c 절</a>의 모형(셀 15–16)이 계산한 값</td></tr>
+<tr><td>A</td><td>신약 A</td></tr>
+<tr><td>C</td><td>기존약 C (예전에 쓰던 약)</td><td rowspan="2">20장 d 절 3단계가 대안이 여럿인 경우를 보이려고 지어낸 대안(표 20-12)</td></tr>
+<tr><td>D</td><td>병용요법 D (B에 다른 약을 더함)</td></tr>
+</tbody></table></div>
+
+<h3>패키지 버전</h3>
+<p>이 실습에서 쓰는 패키지를 불러오고 버전을 출력해 둡니다. 내 화면의 출력이 이 페이지와 다를 때 가장 먼저 비교해 볼 정보입니다.</p>
+<!--FIG:lab20_versions-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>import matplotlib.pyplot as plt</code>, <code>import matplotlib</code><span>그림을 그리는 도구는 <code>plt</code>로 쓰고, 버전을 확인하려고 matplotlib 패키지를 원래 이름으로 한 번 더 불러옵니다.</span></li>
+<li><code>print("numpy     ", np.__version__)</code><span>패키지마다 <code>__version__</code>(앞뒤로 밑줄 두 개)에 버전 번호가 문자열로 들어 있습니다. 앞 문자열 끝에 공백을 넣어 세 줄의 버전 번호가 같은 자리에서 시작하게 했습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<p>이 페이지의 출력을 만든 환경의 버전입니다(2026년 10월 15일 확인). Colab의 버전이 다르면 끝자리가 조금 다를 수 있습니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>numpy 2.5.3.</b> 배열 계산과 <code>np.nan</code>, <code>np.arange</code>를 씁니다.</span></li>
+<li><span class="mk">2</span><span><b>pandas 3.0.5.</b> 버전이 다르면 표의 줄 맞춤이나 소수 자릿수 같은 모양이 조금 다를 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>matplotlib 3.11.2.</b> 셀 7과 셀 12의 그림을 그립니다.</span></li>
+</ol>
+
+<h3>네 대안의 총비용과 QALY</h3>
+<p>네 대안의 값을 표 하나에 모읍니다. 한 행이 대안 하나이고, 비용이 낮은 순서(B, C, D, A)로 적었습니다.</p>
+<!--FIG:lab20_inputs-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>pd.DataFrame({"cost": […], "qaly": […]}, index=["B", "C", "D", "A"])</code><span>열 이름과 값 목록을 짝지은 딕셔너리로 표를 만듭니다. 목록 안의 순서가 행의 순서이고, <code>index</code>로 준 이름이 행 이름이 됩니다. 행 이름을 글자 하나로 두면 뒤에서 <code>alts.loc["A", "cost"]</code>처럼 짧게 꺼낼 수 있습니다.</span></li>
+<li><code>7689.485</code>, <code>1.873640</code><span>표준요법 B의 총비용(만원)과 QALY입니다. 둘 다 연 4.5%로 할인한 20년 동안의 값입니다(<a href="#ch20-s3">20장 c 절</a>). 실습 23 노트북에서 <code>base["B"]["cost"]</code>, <code>base["B"]["qaly"]</code>로 같은 값을 확인할 수 있습니다.</span></li>
+<li><code>alts.shape</code><span>(행 수, 열 수)입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>(4, 2).</b> 대안 네 개, 열 두 개입니다.</span></li>
+<li><span class="mk">2</span><span><b>표준요법 B의 총비용 7,689.485만원.</b> 20장 표 20-11의 7,689만원입니다.</span></li>
+<li><span class="mk">3</span><span><b>기존약 C의 QALY 1.700.</b> B(1.874)보다 적습니다. 더 비싼데 효과는 적은 대안이라는 것이 표에서 이미 보입니다.</span></li>
+<li><span class="mk">4</span><span><b>신약 A의 총비용 10,561.778만원.</b> 20장의 10,562만원입니다. QALY 2.384669는 2.385입니다.</span></li>
+</ol>
+<div class="callout note"><p class="ct">참고 · 입력값을 몇 자리까지 적나</p>
+<p>B와 A의 값은 모형이 낸 결과를 비용은 소수 셋째 자리까지, QALY는 여섯째 자리까지 남기고 반올림해 옮겼습니다. 20장 '더 알아보기'의 효율 경계 코드는 7,689.5와 1.87364처럼 한두 자리 덜 적었는데, 그 값으로도 ICER(5,621)와 지배 판정은 같지만 순금전편익은 −317.2로 끝자리가 달라집니다. 반올림하지 않은 모형의 순금전편익이 −317.1497로 반올림의 경계(−317.15)에 바짝 붙어 있어서, 입력값을 반올림한 작은 차이만으로도 끝자리가 바뀌기 때문입니다. 실제 분석에서는 모형의 출력을 반올림하지 않은 채 이어서 계산하고, 반올림은 표에 옮길 때 한 번만 합니다.</p></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>ICER와 순편익을 구하는 데 필요한 것은 대안마다 총비용과 총 QALY 두 숫자입니다.</li>
+<li>값은 할인한 값끼리, 같은 분석기간과 관점의 값끼리 견줍니다. 이 실습의 네 대안은 모두 20년, 연 4.5% 할인, 보건의료체계 관점입니다.</li>
+<li>뒤의 계산이 차와 비를 다시 쓰므로 입력값은 반올림하지 않은 값(또는 충분한 자릿수)으로 둡니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 나 -->
+<section class="sec" id="lab20-s2">
+<h2><span class="sec-no">b.</span>증분비용효과비와 지배</h2>
+
+<p>결정할 것은 "표준요법 B 대신 신약 A를 쓸 것인가"입니다. 그래서 A의 값어치는 B에 견주어 더 드는 돈(증분비용)과 더 얻는 건강(증분 QALY)으로 따지고, 그 비가 증분비용효과비<span class="en">(incremental cost-effectiveness ratio, ICER)</span>입니다(<a href="#ch20-s4">20장 d 절</a>). 이 절에서는 ICER를 구하고, 증분의 부호로 사분면을 판정하는 함수와, 대안이 여럿일 때 효율 경계를 만드는 함수를 짭니다.</p>
+
+<h3>신약 A 대 표준요법 B</h3>
+<!--FIG:lab20_icer-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>cost_A, qaly_A = alts.loc["A", "cost"], alts.loc["A", "qaly"]</code><span><code>.loc[행 이름, 열 이름]</code>은 표에서 값 하나를 꺼냅니다. 쉼표 오른쪽의 두 값이 왼쪽의 두 이름에 차례로 들어갑니다.</span></li>
+<li><code>d_cost = cost_A - cost_B</code><span>비교의 기준인 B를 뺍니다. 순서를 바꿔 B − A로 쓰면 증분비용과 증분 QALY의 부호가 둘 다 바뀝니다. 비는 같게 나오지만 사분면은 정반대가 되므로, 무엇에서 무엇을 뺐는지 항상 정해 두고 씁니다.</span></li>
+<li><code>icer = d_cost / d_qaly</code><span>QALY 1을 더 얻는 데 더 드는 돈입니다. 반올림하기 전의 두 증분으로 나눕니다.</span></li>
+<li><code>round(cost_A / qaly_A)</code><span>총비용을 총 QALY로 나눈 평균 비용효과비<span class="en">(average cost-effectiveness ratio)</span>입니다. ICER와 견주려고 함께 출력합니다.</span></li>
+<li><code>ly_A, ly_B = 3.398772, 2.728843</code><span>할인한 생존연수입니다(실습 23 셀 16의 ly_d 행). 같은 증분비용을 생존연수의 증분으로 나누면 생존연수당 비용입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>증분비용 2,872.3만원.</b> 신약 A가 환자 1명당 그만큼 더 듭니다.</span></li>
+<li><span class="mk">2</span><span><b>증분 QALY 0.511.</b></span></li>
+<li><span class="mk">3</span><span><b>ICER 5,621만원/QALY.</b> 20장 표 20-11과 같습니다. 화면에 보이는 2,872 ÷ 0.511로 계산하면 5,620이 나와 끝자리가 다릅니다.</span></li>
+<li><span class="mk">4</span><span><b>신약 A의 평균 비 4,429.</b> 이 예시에서 가정한 임계값 5,000만원/QALY보다 낮지만 ICER가 아닙니다.</span></li>
+<li><span class="mk">5</span><span><b>표준요법 B의 평균 비 4,104.</b></span></li>
+<li><span class="mk">6</span><span><b>생존연수당 4,287만원.</b> 늘어난 생존 1년이 완전한 건강이 아니어서 QALY당 값보다 낮습니다. QALY당 임계값과 견주면 안 됩니다(<a href="#ch20-s2">20장 b 절</a>).</span></li>
+</ol>
+<p>평균 비는 비용도 건강도 0인 대안과 견준 값입니다. 그런데 B를 써도 환자는 이미 1.874 QALY를 얻고 7,689만원이 들므로 그런 대안은 없습니다(<a href="#ch20-s4">20장 d 절</a> 2단계 '총비용을 QALY로 나눈 값은 왜 쓰지 않나?'). 판단에 쓰는 값은 ICER 5,621이고, 이것은 가정한 임계값 5,000을 넘습니다. 다만 ICER 하나로는 두 대안이 각각 얼마를 쓰고 얼마를 얻는지 알 수 없어서, 논문에는 대안별 총비용과 QALY를 함께 싣습니다. 국내 지침도 ICER와 함께 각 대안의 총비용과 총효과를 따로 제시하도록 요구합니다(지침 12쪽)<cite data-ref="hira2021guideline"></cite>.</p>
+
+<h3>사분면 판정과 음수 ICER</h3>
+<p>ICER는 두 증분의 비여서 부호가 사라집니다. 증분비용과 증분 QALY의 부호를 따로 보고 비용효과평면<span class="en">(cost-effectiveness plane)</span>의 어느 사분면에 놓이는지부터 정하는 함수를 만듭니다. 평면의 가로축이 증분 QALY, 세로축이 증분비용입니다.</p>
+<!--FIG:lab20_quad-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def quadrant(dc, dq):</code><span>증분비용 <code>dc</code>와 증분 QALY <code>dq</code>를 받아 사분면의 이름을 문자열로 돌려주는 함수입니다.</span></li>
+<li><code>if dq &gt; 0 and dc &lt;= 0:</code><span>더 효과적이면서 비용이 같거나 적으면 우월<span class="en">(dominant)</span>입니다. <code>and</code>는 두 조건이 모두 참일 때만 참입니다. <code>return</code>을 만나면 함수가 그 자리에서 끝나므로 아래 조건은 보지 않습니다.</span></li>
+<li><code>if dq &lt;= 0 and dc &gt; 0:</code><span>효과가 같거나 적으면서 더 비싸면 열등<span class="en">(dominated)</span>입니다.</span></li>
+<li><code>if dq &gt; 0:</code><span>위의 두 조건에 걸리지 않고 더 효과적이면 남은 경우는 더 비싼 것뿐이므로 오른쪽 위입니다. 마지막 <code>return</code>은 나머지, 곧 왼쪽 아래입니다.</span></li>
+<li><code>cases = {"A vs B": (d_cost, d_qaly), …}</code><span>이름과 (증분비용, 증분 QALY) 짝을 담은 딕셔너리입니다. 예 1–3은 20장 d 절이 든 가상의 숫자입니다.</span></li>
+<li><code>for name, (dc, dq) in cases.items():</code><span><code>.items()</code>가 (이름, 짝)을 하나씩 꺼내고, 괄호를 써서 짝을 다시 두 이름으로 풀어 받습니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>신약 A는 오른쪽 위.</b> 더 비싸고 더 효과적이어서 ICER 5,621을 임계값과 견줘야 합니다.</span></li>
+<li><span class="mk">2</span><span><b>예 1은 ICER −2,500, 우월.</b> 500만원 덜 들고 0.2 QALY를 더 얻습니다.</span></li>
+<li><span class="mk">3</span><span><b>예 2도 ICER −2,500, 열등.</b> 500만원 더 들고 0.2 QALY를 잃습니다. 정반대의 두 약이 같은 숫자가 됩니다.</span></li>
+<li><span class="mk">4</span><span><b>예 3은 ICER 10,000.</b> 양수이지만 1,000만원을 아끼려고 0.1 QALY를 잃는 경우입니다. 이 값은 QALY 1을 포기할 때마다 아끼는 돈이어서 임계값보다 높아야 받아들일 만합니다(<a href="#ch20-s4">20장 d 절</a> '더 알아보기'의 '덜 효과적이고 더 싼 대안').</span></li>
+</ol>
+<p>그래서 음수 ICER는 숫자로 읽지 않고, 논문에서는 숫자 대신 "dominant"나 "dominated"로 적습니다. ICER를 계산하는 코드에는 이 함수처럼 부호를 먼저 보는 줄을 함께 둡니다. 다만 엄밀하게는 증분 QALY가 정확히 0이면 ICER를 계산할 수 없습니다. 이 함수는 그런 경우를 효과가 같거나 적은 쪽으로 보아 더 비싸면 열등, 같거나 싸면 왼쪽 아래로 판정하므로, 증분이 정확히 0인 결과는 함수의 판정보다 두 증분을 직접 보고 읽습니다.</p>
+
+<h3>열등, 확장 열등, 효율 경계</h3>
+<p>대안이 셋 이상이면 신약을 대안마다 따로 짝지어 ICER를 구하지 않습니다. 비용순으로 놓고, 지배당한 대안과 확장 지배<span class="en">(extended dominance)</span>당한 대안을 뺀 뒤, 남은 대안을 이은 효율 경계<span class="en">(efficiency frontier)</span> 위에서 이웃끼리 견줍니다(<a href="#ch20-s4">20장 d 절</a> 3단계). 20장 '더 알아보기'의 코드와 같은 순서를 함수로 묶었습니다. 함수로 만들어 두면 과제 2에서 대안을 하나 더한 표에 그대로 다시 쓸 수 있습니다.</p>
+<!--FIG:lab20_front-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>def icer_between(df, lo, hi):</code><span>표 <code>df</code>에서 대안 <code>lo</code>에서 <code>hi</code>로 옮길 때의 ICER입니다. 셀 3의 계산을 행 이름 두 개로 일반화했습니다. 식이 길어 괄호로 감싸 두 줄에 나눠 적었습니다.</span></li>
+<li><code>def frontier(df):</code><span>네 대안의 표를 받아, 판정(status), 견준 대안(vs), ICER(icer) 세 열을 붙인 새 표를 돌려줍니다.</span></li>
+<li><code>df = df.sort_values("cost").copy()</code><span>비용이 낮은 순서로 줄을 세우고 사본을 만듭니다. <code>.copy()</code>가 없으면 아래에서 열을 더할 때 원래의 <code>alts</code>까지 바뀔 수 있습니다.</span></li>
+<li><code>df["status"], df["vs"], df["icer"] = "경계", "", np.nan</code><span>세 열을 한꺼번에 만들고 기본값을 넣습니다. 모든 대안을 일단 경계에 있다고 두고, 빠지는 대안만 고쳐 적습니다. <code>np.nan</code>은 "값 없음"입니다.</span></li>
+<li><code>if any(df.loc[j, "qaly"] &gt;= df.loc[i, "qaly"] for j in keep):</code><span>이미 경계에 남긴 대안(<code>keep</code>, 모두 지금 대안보다 싸거나 같음) 가운데 QALY가 같거나 큰 것이 하나라도 있으면 참입니다. 더 싸면서 효과도 같거나 큰 대안이 있다는 뜻이므로 열등으로 적고 <code>continue</code>로 다음 대안으로 넘어갑니다.</span></li>
+<li><code>while len(keep) &gt;= 3:</code>, <code>a, b, c = keep[-3:]</code><span>경계에 남은 마지막 세 대안을 꺼냅니다. 경계 위에서는 효과가 큰 쪽으로 갈수록 ICER가 커져야 합니다.</span></li>
+<li><code>if icer_between(df, a, b) &lt;= icer_between(df, b, c): break</code><span>앞 단계(a → b)의 ICER가 뒤 단계(b → c)보다 작거나 같으면 순서가 맞으므로 멈춥니다. 앞 단계가 더 크면 가운데 b가 확장 열등이어서 표에 적고 <code>keep.pop(-2)</code>로 뒤에서 둘째, 곧 b를 뺍니다. 빼고 나면 새 세 대안을 다시 확인하려고 <code>while</code>을 되풀이합니다.</span></li>
+<li><code>for a, b in zip(keep[:-1], keep[1:]):</code><span>경계에 남은 대안을 이웃끼리 짝짓습니다. 남은 것이 [B, A]이면 (B, A) 한 짝입니다. 짝마다 뒤 대안의 행에 견준 대안과 ICER를 적습니다.</span></li>
+<li><code>front.round({"icer": 0})</code><span>icer 열만 정수로 반올림해 보여 줍니다. <code>front</code>에 든 값은 그대로입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>D 확장 열등, 13,537 &gt; 3,020.</b> B에서 D로 가는 데 QALY당 13,537만원, D에서 A로 가는 데 3,020만원이 듭니다. 덜 효과적인 단계가 더 비싼 값을 요구하므로 D가 빠집니다.</span></li>
+<li><span class="mk">2</span><span><b>C 열등.</b> B보다 비싸면서 QALY가 적습니다.</span></li>
+<li><span class="mk">3</span><span><b>D 확장 열등.</b> 지배당하지는 않지만 경계에서 빠집니다.</span></li>
+<li><span class="mk">4</span><span><b>A는 B와 견주어 ICER 5,621.</b> 경계 위에 남은 짝은 B와 A 하나이고, 보고할 ICER도 이것 하나입니다. 20장 표 20-12와 같습니다.</span></li>
+</ol>
+<p>그래서 "A 대 D의 ICER는 3,020만원/QALY"라는 값은 계산은 되지만 보고할 값이 아닙니다. D는 비교대안이 될 수 없는 대안이기 때문입니다(과제 3).</p>
+
+<h3>B와 A를 섞은 전략과 병용요법 D</h3>
+<p>확장 지배가 무슨 뜻인지 숫자로 확인합니다. 환자의 일부에게 A를, 나머지에게 B를 쓰면 평균 비용과 평균 QALY는 B와 A를 잇는 선분 위에 놓입니다. D와 같은 QALY를 내는 비율을 구해 그때의 비용을 D와 견줍니다.</p>
+<!--FIG:lab20_mix-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>f = (alts.loc["D", "qaly"] - qaly_B) / (qaly_A - qaly_B)</code><span>B에서 A까지 늘어나는 QALY 0.511 가운데 D가 B보다 더 얻는 0.126이 차지하는 몫입니다. 환자의 이 비율에게 A를 쓰면 평균 QALY가 D와 같아집니다.</span></li>
+<li><code>mix_cost = cost_B + f * (cost_A - cost_B)</code><span>섞은 전략의 평균 비용입니다. B의 비용에서 출발해 A로 바꾼 환자 몫만큼 증분비용을 더합니다. 다음 줄의 QALY도 같은 방식입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>A를 쓰는 비율 24.7%.</b></span></li>
+<li><span class="mk">2</span><span><b>섞은 전략의 QALY 2.0, 비용 8,399.7만원.</b> D와 QALY는 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>D보다 1,000.3만원 적게 듭니다.</b> 같은 건강을 더 적은 돈으로 얻는 방법이 있으므로 D를 고를 이유가 없습니다. 20장의 "1,000만원 적은 비용"입니다.</span></li>
+</ol>
+<p>이 판단은 환자 일부에게만 A를 쓰는 섞음이 가능하고, 섞은 비율만큼 비용과 효과가 비례해 바뀐다는 가정에 기댑니다(<a href="#ch20-s4">20장 d 절</a> '더 알아보기'의 '효율 경계를 만드는 순서와 파이썬 코드').</p>
+
+<h3>효율 경계 그림</h3>
+<p>가로축에 총 QALY, 세로축에 총비용을 놓고 네 대안을 찍은 그림입니다. 20장 그림 20-4와 같은 그림입니다.</p>
+<!--FIG:lab20_frontplot-->
+<p>파란 선이 효율 경계(B와 A를 잇는 선분)이고, 빈 점이 셀 6의 섞은 전략입니다. 기존약 C는 B보다 위(더 비쌈)이면서 왼쪽(QALY가 적음)에 있어 열등이고, 병용요법 D는 경계보다 위에 떠 있어 확장 열등입니다. 같은 QALY 2.0에서 빈 점과 D 사이의 세로 거리가 1,000만원입니다. 코드에서 <code>front[front["status"] == "경계"]</code>는 status 열이 "경계"인 행만 고르는 줄이고, <code>"-o"</code>는 점을 선으로 이으라는 뜻, <code>mfc="white"</code>는 점의 속을 흰색으로 채우라는 뜻입니다. <code>ax.margins</code>는 가장자리의 대안 이름이 축에 걸리지 않게 그림 둘레에 여백을 줍니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에는 이렇게 씁니다 · 대안이 셋 이상일 때의 결과</b><span>실습 결과로 작성</span></div>
+<div class="paper-b">
+<div class="tbl-wrap"><table class="jt" style="min-width:300px">
+<caption><b>Table 3.</b> Costs, QALYs, and ICERs of four strategies per patient</caption>
+<thead><tr><th><span class="mk">1</span> Strategy</th><th class="r">Cost<sup>a</sup></th><th class="r">QALYs</th><th>ICER<sup>b</sup></th></tr></thead>
+<tbody>
+<tr><td>Standard therapy B</td><td class="r">7,689</td><td class="r">1.874</td><td>Reference</td></tr>
+<tr><td>Existing drug C</td><td class="r">8,100</td><td class="r">1.700</td><td><span class="mk">2</span> Dominated</td></tr>
+<tr><td>Combination therapy D</td><td class="r">9,400</td><td class="r">2.000</td><td><span class="mk">3</span> Extendedly dominated</td></tr>
+<tr class="hi"><td>Drug A</td><td class="r">10,562</td><td class="r">2.385</td><td><span class="mk">4</span> 5,621 vs B</td></tr>
+</tbody></table></div>
+<p class="jt-foot">Strategies are listed in order of increasing cost. Costs and QALYs were discounted at 4.5% per year. <sup>a</sup> Total cost in 10,000 KRW. <sup>b</sup> 10,000 KRW per QALY gained, calculated between adjacent strategies on the efficiency frontier from unrounded values. Dominated, more costly and less effective than another strategy; extendedly dominated, more costly and less effective than a mix of two other strategies.</p>
+<p class="excerpt"><b>Results.</b> Existing drug C was dominated by standard therapy B, and combination therapy D was extendedly dominated by a mix of standard therapy B and drug A. On the efficiency frontier, drug A had an ICER of ₩56.21 million per QALY gained compared with standard therapy B.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>비용순.</b> 셀 5의 <code>sort_values("cost")</code>와 같은 순서입니다. 독자가 이웃한 줄끼리 견주면 ICER를 검산할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>열등.</b> 셀 5의 status 열입니다. 음수 ICER를 적지 않고 말로 적습니다.</span></li>
+<li><span class="mk">3</span><span><b>확장 열등.</b> D의 줄에 ICER를 적지 않습니다. A 대 D의 3,020도 싣지 않습니다.</span></li>
+<li><span class="mk">4</span><span><b>경계 위의 ICER와 견준 대안.</b> 셀 5의 icer와 vs 열입니다. 어느 대안과 견준 값인지를 함께 적어야 독자가 경계를 따라갈 수 있습니다.</span></li>
+</ol>
+</div></div>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>ICER는 <code>(cost_A - cost_B) / (qaly_A - qaly_B)</code>입니다. 공통 예시는 5,621만원/QALY이고, 총비용 ÷ QALY인 평균 비(신약 A 4,429)는 ICER가 아닙니다.</li>
+<li>ICER를 읽기 전에 증분비용과 증분 QALY의 부호로 사분면을 정합니다. 우월과 열등은 ICER가 둘 다 음수(−2,500)여서 숫자로는 구분되지 않습니다.</li>
+<li>대안이 셋 이상이면 비용순으로 놓고 열등(C)과 확장 열등(D, 13,537 &gt; 3,020)을 뺀 뒤 경계 위의 이웃끼리 ICER를 구합니다. 여기서는 A 대 B의 5,621 하나가 남습니다.</li>
+<li>확장 열등은 두 대안을 섞은 전략이 같은 건강을 더 싸게 낸다는 뜻입니다. D는 B와 A를 섞은 전략보다 1,000만원 더 듭니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 다 -->
+<section class="sec" id="lab20-s3">
+<h2><span class="sec-no">c.</span>순편익과 비용효과평면</h2>
+
+<p>같은 판단을 비가 아닌 차로 나타낸 것이 순편익<span class="en">(net benefit)</span>입니다. 늘어난 건강을 임계값으로 돈으로 바꾼 뒤 늘어난 비용을 빼면 순금전편익<span class="en">(net monetary benefit, NMB)</span>, 늘어난 비용을 임계값으로 나눠 건강으로 바꾼 뒤 늘어난 건강에서 빼면 순건강편익<span class="en">(net health benefit, NHB)</span>입니다(<a href="#ch20-s4">20장 d 절</a> 3단계 '비로 낼까, 차로 낼까?'). 임계값<span class="en">(cost-effectiveness threshold)</span>은 QALY 1을 더 얻는 데 낼 수 있는 최대 금액입니다. 이 실습의 5,000만원/QALY는 이 예시에서 가정한 값이고, 우리나라에는 공식적으로 정한 명시적 임계값이 없습니다. 심평원 지침에도 임계값 수치는 없습니다<cite data-ref="hira2021guideline"></cite>.</p>
+
+<h3>임계값 5,000만원에서</h3>
+<!--FIG:lab20_nmb-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>nmb = lam * d_qaly - d_cost</code><span>증분 QALY 0.511을 QALY당 5,000만원으로 돈으로 바꾸면 2,555만원입니다. 여기서 증분비용 2,872만원을 뺍니다.</span></li>
+<li><code>nhb = d_qaly - d_cost / lam</code><span>증분비용 2,872만원으로 다른 곳에서 얻었을 건강(2,872 ÷ 5,000 = 0.574 QALY)을 늘어난 건강에서 뺍니다. 같은 값을 순금전편익 ÷ 임계값으로 구해도 됩니다.</span></li>
+<li><code>icer &lt; lam</code>, <code>nmb &gt; 0</code><span>비교식은 참이면 <code>True</code>, 거짓이면 <code>False</code>를 돌려줍니다. 두 판단이 같은 답을 내는지 봅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>순금전편익 −317.1만원.</b> 음수이므로 가정한 임계값에서 신약 A는 비용효과적이지 않습니다. 20장의 −317만원입니다.</span></li>
+<li><span class="mk">2</span><span><b>순건강편익 −0.063 QALY.</b> 환자 1명에게 A를 쓸 때마다 전체로는 건강이 0.063 QALY 줄어든다는 뜻입니다. 같은 돈이 다른 곳에서 5,000만원마다 1 QALY를 만든다는 가정 아래에서입니다.</span></li>
+<li><span class="mk">3</span><span><b>환자 100명이면 −6.3 QALY.</b> <a href="#ch20-s1">20장 a 절</a> 2단계 '환자 100명에게 쓰면 무엇을 얻고 무엇을 포기하나?'의 51.1 − 57.4 = −6.3 QALY입니다.</span></li>
+<li><span class="mk">4</span><span><b>ICER &lt; 임계값도, 순금전편익 &gt; 0도 False.</b> 오른쪽 위 사분면의 대안에서는 "ICER가 임계값보다 낮다"와 "순금전편익이 양수다"가 같은 말입니다.</span></li>
+</ol>
+
+<h3>임계값을 바꾸면</h3>
+<p>공식 임계값이 없으므로 하나의 임계값보다 여러 임계값에서의 결과를 함께 봅니다(<a href="#ch20-s4">20장 d 절</a> 3단계 '임계값은 무엇으로 두나?').</p>
+<!--FIG:lab20_lams-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>tab = pd.DataFrame({"lam": [2500, 3000, …]})</code><span>임계값 여섯 개를 한 열에 담은 표입니다.</span></li>
+<li><code>tab["nmb"] = tab["lam"] * d_qaly - d_cost</code><span>열 하나에 수를 곱하고 빼면 여섯 행이 한꺼번에 계산되어 새 열이 됩니다. 반복문이 필요 없습니다.</span></li>
+<li><code>tab["ce"] = tab["nmb"] &gt; 0</code><span>행마다 True나 False가 들어간 열입니다. 비용효과적<span class="en">(cost-effective)</span>인지를 뜻하는 ce로 이름을 붙였습니다.</span></li>
+<li><code>d_cost / d_qaly</code><span>순금전편익이 0이 되는 임계값입니다. 식 임계값 × 증분 QALY − 증분비용 = 0을 풀면 임계값 = 증분비용 ÷ 증분 QALY, 곧 ICER입니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>부호가 바뀌는 임계값 5,620.6.</b> ICER 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>2,500만원이면 −1,594.7만원.</b></span></li>
+<li><span class="mk">3</span><span><b>3,000만원이면 −1,339.2만원.</b> 20장의 −1,339만원입니다.</span></li>
+<li><span class="mk">4</span><span><b>6,000만원이면 +193.9만원.</b> 여기서 처음 양수가 되고 ce가 True로 바뀝니다. 20장의 +194만원입니다(과제 1).</span></li>
+<li><span class="mk">5</span><span><b>7,000만원이면 +704.9만원.</b></span></li>
+<li><span class="mk">6</span><span><b>8,000만원이면 +1,215.9만원.</b> 임계값이 1,000만원 오를 때마다 순금전편익은 증분 QALY만큼, 곧 511만원씩 늘어납니다.</span></li>
+</ol>
+<p>그래서 신약 A의 결론은 임계값을 어디에 두느냐에 달려 있고, 그 경계가 ICER 5,620.6만원입니다. 결론을 쓸 때 "가정한 임계값 5,000만원에서"라는 조건을 빼지 않는 이유입니다.</p>
+
+<h3>네 대안의 순금전편익</h3>
+<p>대안이 여럿이면 대안마다 임계값 × QALY − 비용을 구해 가장 큰 것을 고를 수도 있습니다. 증분을 구하지 않고 대안마다 따로 계산하므로 효율 경계를 만들지 않아도 됩니다.</p>
+<!--FIG:lab20_nmb4-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>{lam_: lam_ * alts["qaly"] - alts["cost"] for lam_ in [5000, 6000]}</code><span>임계값마다 네 대안의 순금전편익을 계산해 딕셔너리로 모읍니다. <code>alts["qaly"]</code>는 네 값이 든 열이어서 곱하고 빼면 네 값이 한꺼번에 나옵니다. 셀 8의 <code>lam</code>을 덮어쓰지 않으려고 이름 끝에 밑줄을 붙였습니다.</span></li>
+<li><code>pd.DataFrame(…)</code><span>딕셔너리의 이름(5000, 6000)이 열 이름, 대안의 이름이 행 이름인 표가 됩니다.</span></li>
+<li><code>nmb4.idxmax()</code><span>열마다 가장 큰 값이 있는 행의 이름입니다. <code>.to_dict()</code>로 <code>{열 이름: 행 이름}</code> 꼴로 바꿔 출력합니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>5,000만원에서는 B, 6,000만원에서는 A.</b> 효율 경계에서 고른 답과 같습니다. 임계값이 경계 위의 ICER 5,620.6을 넘는 순간 A로 옮겨 갑니다.</span></li>
+<li><span class="mk">2</span><span><b>B 1,678.7.</b></span></li>
+<li><span class="mk">3</span><span><b>C 400.0.</b></span></li>
+<li><span class="mk">4</span><span><b>D 600.0.</b></span></li>
+<li><span class="mk">5</span><span><b>A 1,361.6.</b> 5,000만원 열의 네 값은 20장 표 20-12의 마지막 열과 같습니다.</span></li>
+<li><span class="mk">6</span><span><b>6,000만원에서 A 3,746.2.</b> B의 3,552.4보다 커집니다.</span></li>
+</ol>
+<p>이 표의 값 하나하나는 "B를 쓰면 1,678.7만원 이득"처럼 읽는 값이 아닙니다. 비용도 건강도 0인 상태와 견준 값이어서 평균 비처럼 혼자서는 뜻이 없고, 대안끼리의 차만 뜻이 있습니다. A의 1,361.6에서 B의 1,678.7을 빼면 셀 8의 증분 순금전편익 −317.1이 됩니다.</p>
+
+<h3>임계값마다 가장 큰 대안</h3>
+<p>임계값을 0부터 2억 원까지 100만원 간격으로 바꿔 가며 순금전편익이 가장 큰 대안을 셉니다. 경계에서 뺀 C와 D가 어떤 임계값에서도 뽑히지 않는지 확인하려는 것입니다.</p>
+<!--FIG:lab20_best-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>grid = np.arange(0, 20001, 100)</code><span>0, 100, 200, …, 20,000의 201개입니다. 끝값 20001은 포함되지 않으므로 20,000에서 멈춥니다.</span></li>
+<li><code>[(g * alts["qaly"] - alts["cost"]).idxmax() for g in grid]</code><span>임계값 201개마다 가장 큰 대안의 이름 하나를 구해 목록으로 모읍니다. 대괄호 안에 <code>for</code>를 쓴 이 꼴을 리스트 컴프리헨션<span class="en">(list comprehension)</span>이라고 합니다.</span></li>
+<li><code>pd.Series(best).value_counts()</code><span>목록에서 이름마다 몇 번 나왔는지 셉니다.</span></li>
+<li><code>grid[best.index("A")]</code><span><code>.index("A")</code>는 목록에서 "A"가 처음 나온 자리 번호이고, 그 자리의 임계값을 꺼냅니다.</span></li>
+</ol>
+<h4>출력 읽기</h4>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>A 144번, B 57번.</b> C와 D는 한 번도 나오지 않습니다. 열등이나 확장 열등인 대안은 어떤 임계값에서도 고를 이유가 없다는 뜻이고, 그래서 경계에서 빼도 결론이 달라지지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>A가 처음 가장 커지는 임계값 5,700.</b> 100만원 간격이어서 5,600과 5,700 사이, 곧 5,620.6에서 바뀐다는 것을 이 격자로 확인했습니다.</span></li>
+</ol>
+
+<h3>비용효과평면 그리기</h3>
+<p>가로축에 증분 QALY, 세로축에 증분비용을 놓고 신약 A 대 B의 점과 임계값 선을 그립니다. 20장 그림 20-3 나에 셀 4의 두 예를 더한 그림입니다.</p>
+<!--FIG:lab20_plane-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>x = np.array([-0.6, 0.8])</code>, <code>ax.plot(x, lam * x, …)</code><span>원점을 지나고 기울기가 임계값 5,000인 직선입니다. 직선은 두 점만 있으면 그려지므로 가로축의 양 끝 두 값만 넣었습니다.</span></li>
+<li><code>ax.fill_between(x, lam * x, -3500, …)</code><span>임계값 선에서 그림 아래 끝까지를 옅게 칠합니다. 이 영역(선의 오른쪽 아래)에 있으면 가정한 임계값에서 비용효과적입니다. <code>alpha=0.08</code>은 투명도입니다.</span></li>
+<li><code>ax.axhline(0, …)</code>, <code>ax.axvline(0, …)</code><span>가로선과 세로선을 0에 그어 사분면을 나눕니다. 원점이 비교대안 B입니다.</span></li>
+<li><code>ax.plot([d_qaly, d_qaly], [lam * d_qaly, d_cost], …)</code><span>같은 가로 위치에서 임계값 선 위의 점(2,555)부터 신약 A의 점(2,872)까지 세로로 잇는 빨간 선분입니다. 그 길이 317이 순금전편익의 크기입니다.</span></li>
+</ol>
+<p>신약 A의 파란 점은 오른쪽 위 사분면에서 임계값 선보다 조금 위에 있고, 빨간 선분만큼 떨어져 있습니다. 순금전편익이 음수라는 것은 점이 선의 위쪽, 칠하지 않은 쪽에 있다는 뜻입니다. 셀 4의 예 1(초록 삼각형)은 오른쪽 아래, 예 2(주황 삼각형)는 왼쪽 위에 놓여 ICER가 같은 −2,500이어도 평면에서는 정반대 자리입니다. 임계값을 6,000으로 올리면 선이 가팔라져 파란 점이 선 아래로 들어갑니다(셀 9의 +193.9).</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>순금전편익은 <code>lam * d_qaly - d_cost</code>, 순건강편익은 <code>d_qaly - d_cost / lam</code>입니다. 가정한 임계값 5,000만원에서 각각 −317.1만원, −0.063 QALY입니다.</li>
+<li>오른쪽 위 사분면에서는 "ICER &lt; 임계값"과 "순금전편익 &gt; 0"이 같은 판단이고, 순금전편익의 부호는 임계값이 ICER(5,620.6)를 지날 때 바뀝니다.</li>
+<li>대안이 여럿이면 대안마다 순금전편익을 구해 가장 큰 것을 골라도 효율 경계와 같은 답이 나옵니다. 열등과 확장 열등인 대안은 어떤 임계값에서도 뽑히지 않습니다.</li>
+<li>우리나라에는 공식 임계값이 없으므로 결과는 가정한 값이라는 것을 밝히고 여러 임계값에서 함께 보입니다. 임계값마다 비용효과적일 확률은 <a href="#lab24-s4">실습 24 d 절</a>에서 구합니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ 라 -->
+<section class="sec" id="lab20-s4">
+<h2><span class="sec-no">d.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 세 과제는 하는 일이 다릅니다. 과제 1은 출력의 한 행을 말로 옮기고, 과제 2는 조건 하나를 바꿔 다시 돌린 결과를 비교하고, 과제 3은 그럴듯하지만 틀린 분석을 찾습니다. 먼저 스스로 코드를 짜 본 뒤 접힌 정답을 열어 보세요.</p>
+
+<h3>과제 1. 임계값 6,000만원의 순금전편익을 말로 옮기기</h3>
+<p>셀 9 표의 넷째 행(lam 6000, nmb 193.9, nhb 0.032, ce True)을 급여 평가 보고서에 쓰듯 한 문장으로 옮기고, 이 값이 뜻하지 <em>않는</em> 것을 두 가지 쓰세요. 힌트. 순금전편익을 늘어난 QALY의 값(임계값 × 증분 QALY)과 늘어난 비용으로 나눠 출력해 보면 문장으로 옮기기 쉽습니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab20_hw1-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>늘어난 QALY의 값 3,066.2만원.</b> 0.511 QALY에 QALY당 6,000만원을 곱했습니다.</span></li>
+<li><span class="mk">2</span><span><b>늘어난 비용 2,872.3만원.</b></span></li>
+<li><span class="mk">3</span><span><b>순금전편익 193.9만원.</b> 두 값의 차입니다.</span></li>
+<li><span class="mk">4</span><span><b>순건강편익 0.032 QALY.</b> 193.9 ÷ 6,000입니다.</span></li>
+<li><span class="mk">5</span><span><b>환자 100명이면 19,388만원.</b> 약 1.94억 원입니다.</span></li>
+<li><span class="mk">6</span><span><b>100명이면 3.2 QALY.</b></span></li>
+</ol>
+<p>한 문장으로 옮기면 "QALY당 6,000만원까지 낼 수 있다고 가정하면, 표준요법 B 대신 신약 A를 쓸 때 환자 1명당 늘어나는 0.511 QALY의 값(3,066만원)이 늘어나는 비용(2,872만원)보다 194만원 커서, 이 임계값에서는 신약 A가 비용효과적이다"입니다. 비교의 기준(B)과 임계값의 조건이 문장에 들어가야 합니다.</p>
+<p>이 값이 뜻하지 않는 것은 두 가지입니다. 첫째, 194만원을 아낀다는 뜻이 아닙니다. 신약 A는 여전히 환자 1명당 2,872만원이 더 들고, 건강보험의 지출은 늘어납니다. 194만원은 늘어난 건강을 임계값으로 돈으로 바꾼 뒤에 남는 차이입니다. 지출이 얼마나 느는지는 재정영향분석이 따로 답합니다(<a href="#ch25-s3">25장 c 절</a>). 둘째, 이 결론은 임계값에 묶여 있습니다. 6,000만원은 공식 기준이 아니라 가정한 값이고, 셀 9에서 보았듯 5,620.6만원 아래로 내리면 부호가 바뀝니다. 그래서 이 행 하나만 결론으로 쓰지 않고 여러 임계값의 결과를 함께 보입니다. 또 이 값은 기준 입력값으로 계산한 하나의 값이어서, 입력값의 불확실성을 넣었을 때 비용효과적일 확률은 따로 구합니다(<a href="#ch24-s3">24장 c 절</a>).</p>
+</div></details>
+
+<h3>과제 2. 신약 E를 더해 다시 고르기</h3>
+<p>표준요법 B보다 600만원 더 들고 0.20 QALY를 더 얻는 신약 E가 나왔다고 합시다(<a href="#ch20-s4">20장 d 절</a> 스스로 확인하기 2번의 약). E를 네 대안의 표에 더해 셀 5의 <code>frontier</code> 함수로 효율 경계를 다시 만들고, 임계값 5,000만원과 8,000만원에서 어느 대안을 고르는지 답하세요. 그다음 셀 5의 결과와 견주어 무엇이 바뀌었는지, 그리고 B와 견준 ICER는 E(3,000)가 A(5,621)보다 낮은데 8,000만원에서 A를 고르는 이유를 설명하세요. 힌트. <code>alts_E = alts.copy()</code>로 표를 복사한 뒤 <code>alts_E.loc["E"] = [비용, QALY]</code>로 한 줄을 더합니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab20_hw2-->
+<p><code>alts_E.loc["E"] = […]</code>는 없는 행 이름에 값을 넣어 새 행을 붙이는 줄입니다. 사본에 붙였으므로 <code>alts</code>는 그대로입니다. 표는 <code>frontier</code> 안에서 비용순으로 다시 정렬되어 E가 C와 D 사이에 들어갑니다. <code>nb_["E"] - nb_["B"]</code>는 대안마다 구한 순금전편익의 차, 곧 B와 견준 증분 순금전편익입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>신약 E의 총비용 8,289.485만원.</b> QALY는 2.073640입니다.</span></li>
+<li><span class="mk">2</span><span><b>병용요법 D가 이번에는 열등.</b> E가 D보다 싸면서(8,289 &lt; 9,400) QALY가 많아서(2.074 &gt; 2.000) D를 지배합니다. 셀 5에서는 확장 열등이었습니다.</span></li>
+<li><span class="mk">3</span><span><b>E 대 B의 ICER 3,000.</b> 600 ÷ 0.20입니다.</span></li>
+<li><span class="mk">4</span><span><b>A 대 E의 ICER 7,306.</b> 2,272.3 ÷ 0.311입니다. 경계는 B, E, A이고 ICER가 3,000에서 7,306으로 커지므로 확장 열등인 대안은 없습니다.</span></li>
+<li><span class="mk">5</span><span><b>5,000만원에서는 E.</b> B 대비 증분 순금전편익이 E +400.0만원, A −317.1만원입니다.</span></li>
+<li><span class="mk">6</span><span><b>8,000만원에서는 A.</b> E +1,000.0만원, A +1,215.9만원입니다. 20장 스스로 확인하기 2번의 답과 같습니다.</span></li>
+</ol>
+<p>고르는 순서는 경계를 따라갑니다. 가장 싼 B에서 출발해, 다음 대안으로 옮기는 ICER가 임계값보다 낮은 동안 옮겨 갑니다. 5,000만원에서는 E로 옮기는 값(3,000)은 낮고 A로 더 옮기는 값(7,306)은 높으므로 E에 머뭅니다. 8,000만원에서는 7,306도 낮으므로 A까지 갑니다.</p>
+<p>바뀐 것은 두 가지입니다. 첫째, 신약 A의 숫자는 하나도 바뀌지 않았는데 보고할 ICER가 5,621(B 대비)에서 7,306(E 대비)으로 바뀌었습니다. 경계 위에서 A의 이웃이 B에서 E로 바뀌었기 때문입니다. ICER가 약의 성질이 아니라 비교대안에 달린 값이라는 것을 보여 줍니다. 둘째, D의 판정이 확장 열등에서 열등으로 바뀌었습니다. 대안이 더해지면 경계 전체를 다시 만들어야 하는 이유입니다.</p>
+<p>B와 견준 ICER가 낮은 E가 8,000만원에서 지는 것은, B와 견준 ICER가 얻는 건강의 크기를 담지 않기 때문입니다. E는 0.20 QALY, A는 0.511 QALY를 더합니다. 둘 가운데 하나를 고를 때 물을 것은 "E 대신 A를 쓰면 0.311 QALY를 더 얻는 데 QALY당 7,306만원이 드는데 그만한 값을 하나"이고, 임계값 8,000만원에서는 그렇습니다(<a href="#ch20-s4">20장 d 절</a> 4단계 'ICER가 낮은 약이 더 좋은 약인가?').</p>
+</div></details>
+
+<h3>과제 3. 평균 비와 확장 열등 대안으로 낸 결론</h3>
+<p>동료가 같은 네 대안으로 이렇게 썼습니다.</p>
+<p>"대안마다 총비용을 QALY로 나눈 비용효과비를 구했더니 신약 A는 4,429만원/QALY로 임계값 5,000만원보다 낮았다. 신약 A를 병용요법 D와 견준 ICER도 3,020만원/QALY로 임계값보다 낮다. 어느 쪽으로 보아도 신약 A는 비용효과적이므로 급여를 권고한다."</p>
+<p>동료의 두 계산을 셀 하나로 재현하고, 이 분석에서 틀린 곳 두 가지를 찾아 왜 틀렸는지 설명하세요. 같은 비용효과비가 기존약 C에서는 얼마인지, 셀 5의 판정과 경계 위의 ICER는 무엇인지 함께 보세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:lab20_hw3-->
+<p><code>ratio[ratio &lt; lam]</code>은 조건이 참인 값만 남기고, <code>.index</code>로 그 대안의 이름을 꺼냅니다. <code>lam</code>은 셀 8의 5,000, <code>front</code>는 셀 5의 결과입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기존약 C의 비용효과비 4,765.</b> B에 지배당하는 C도 5,000보다 낮습니다.</span></li>
+<li><span class="mk">2</span><span><b>네 대안 모두 임계값보다 낮음.</b> 이 기준이면 열등인 C까지 "비용효과적"이 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>동료의 A 대 D 3,020.</b> 계산은 맞습니다.</span></li>
+<li><span class="mk">4</span><span><b>그러나 D는 확장 열등.</b> 셀 5의 판정입니다.</span></li>
+<li><span class="mk">5</span><span><b>경계 위에서 A는 B와 견주어 5,621.</b> 가정한 임계값 5,000보다 높습니다.</span></li>
+<li><span class="mk">6</span><span><b>임계값 5,000에서 순금전편익이 가장 큰 대안은 B.</b></span></li>
+</ol>
+<p>첫째 잘못은 평균 비를 ICER처럼 쓴 것입니다. 총비용 ÷ QALY는 비용도 건강도 0인 대안과 견준 값인데, 결정할 것은 "B 대신 A를 쓸 것인가"이고 B를 써도 환자는 이미 1.874 QALY를 얻습니다. 이 값으로 판단하면 네 대안이 모두 5,000 아래여서, B보다 비싸고 효과도 적은 C까지 비용효과적이라는 말이 됩니다. 대안을 가르지 못하는 기준이라는 뜻입니다. 쓸 값은 B에 견준 증분의 비입니다(<a href="#ch20-s4">20장 d 절</a> 2단계).</p>
+<p>둘째 잘못은 비교대안입니다. D는 B와 A를 섞은 전략보다 같은 건강을 1,000만원 더 들여 얻는 확장 열등 대안이어서 비교대안이 될 수 없습니다. 비효율적인 대안과 견주면 어떤 약도 좋아 보입니다. A 대 D의 3,020은 그래서 낮게 나온 값이고, 경계 위의 이웃인 B와 견준 값은 5,621입니다(<a href="#ch20-s4">20장 d 절</a> 3단계 '비교대안이 여럿이면 어느 대안과 견주나?').</p>
+<p>바르게 쓰면 "신약 A는 표준요법 B보다 더 비싸고 더 효과적이었고(증분비용 2,872만원, 증분 QALY 0.511), ICER는 5,621만원/QALY로 이 예시에서 가정한 임계값 5,000만원/QALY를 넘었다. 기존약 C는 열등, 병용요법 D는 확장 열등이었다"입니다. 결론은 "현재 가격에서는 가정한 임계값 기준으로 비용효과적이지 않다"이고, 같은 임계값에서 순금전편익이 가장 큰 대안은 B입니다.</p>
+</div></details>
+</section>

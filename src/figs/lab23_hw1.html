@@ -1,54 +1,16 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">과제 1 정답. 분석기간에 따른 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
-for years in [3, 5, 10, 20]:
-    r = run_model(p, horizon=years * 12)
-    alive = np.exp(-p[&quot;os_lam&quot;] * p[&quot;hr_os&quot;]
-                   * (years * 12) ** p[&quot;os_gam&quot;])
-    rows.append([years, r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;], alive])
-hw1 = pd.DataFrame(rows, columns=[&quot;years&quot;, &quot;d_cost&quot;, &quot;d_qaly&quot;,
-                                  &quot;icer&quot;, &quot;alive_A&quot;])
-hw1.round({&quot;d_cost&quot;: 0, &quot;d_qaly&quot;: 3, &quot;icer&quot;: 0, &quot;alive_A&quot;: 3})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>years</th>
-      <th>d_cost</th>
-      <th>d_qaly</th>
-      <th>icer</th>
-      <th>alive_A</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>3</td>
-      <td>1316.0</td>
-      <td>0.165</td>
-      <td>7994.0<span class="mk">1</span></td>
-      <td>0.500<span class="mk">2</span></td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>5</td>
-      <td>1875.0</td>
-      <td>0.297</td>
-      <td>6324.0</td>
-      <td>0.287</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>10</td>
-      <td>2640.0</td>
-      <td>0.464</td>
-      <td>5686.0<span class="mk">3</span></td>
-      <td>0.063</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>20</td>
-      <td>2872.0</td>
-      <td>0.511</td>
-      <td>5621.0<span class="mk">4</span></td>
-      <td>0.002</td>
-    </tr>
-  </tbody>
-</table></div></div></div>
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 33</span><span class="cell-t">과제 1 정답. ICER가 임계값과 같아지는 약값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">months = base[&quot;A&quot;][&quot;c_drug&quot;] / p[&quot;c_drug_A&quot;]     # 할인한 투약 개월 수
+nmb = threshold * base[&quot;d_qaly&quot;] - base[&quot;d_cost&quot;]   # 순금전편익
+price = p[&quot;c_drug_A&quot;] + nmb / months
+print(&quot;A군의 할인한 투약 개월 수:&quot;, round(months, 3))
+print(&quot;임계 가격:&quot;, round(price, 2), &quot;만원,&quot;,
+      &quot;인하율:&quot;, round((1 - price / p[&quot;c_drug_A&quot;]) * 100, 1), &quot;%&quot;)
+
+r = run_model(dict(p, c_drug_A=price))
+print(&quot;그 가격에서의 ICER:&quot;, round(r[&quot;icer&quot;], 4))
+for x in [190, 180, 170]:
+    print(x, round(run_model(dict(p, c_drug_A=x))[&quot;icer&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A군의 할인한 투약 개월 수: 21.707<span class="mk">1</span>
+임계 가격: 175.39<span class="mk">2</span> 만원, 인하율: 7.7<span class="mk">3</span> %
+그 가격에서의 ICER: 5000.0<span class="mk">4</span>
+190 5621
+180 5196
+170 4771</pre></div></div>

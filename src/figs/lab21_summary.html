@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">군별 요약통계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(df.groupby(&quot;arm&quot;)[&quot;cost&quot;].describe().round(1).T)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">군별 요약통계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(df.groupby(&quot;arm&quot;)[&quot;cost&quot;].describe().round(1).T)
 
 df.groupby(&quot;arm&quot;)[items].agg([&quot;mean&quot;, &quot;std&quot;]).round(1).T</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>arm          A        B
 count   1203.0   1797.0

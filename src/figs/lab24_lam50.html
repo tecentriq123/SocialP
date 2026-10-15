@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">50% 지점, 평균끼리 나눈 ICER, 모의실험별 ICER</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lam_mean = dc.mean() / dq.mean()       # 순편익의 평균이 0이 되는 임계값
+print(&quot;확률이 50%를 처음 넘는 임계값:&quot;, lam50)
+print(&quot;순편익의 평균이 0이 되는 임계값:&quot;, round(lam_mean),
+      &quot; 그때의 확률:&quot;, p_ce(dc, dq, lam_mean))
+print(&quot;기준 분석의 ICER:&quot;, round(base[&quot;icer&quot;]))
+print(&quot;모의실험별 ICER의 중앙값:&quot;, round(np.median(icer_i)),
+      &quot; 평균:&quot;, round(icer_i.mean()))
+print(&quot;모의실험별 ICER의 2.5, 97.5 백분위수:&quot;,
+      np.percentile(icer_i, [2.5, 97.5]).round(0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>확률이 50%를 처음 넘는 임계값: 5650<span class="mk">1</span>
+순편익의 평균이 0이 되는 임계값: 5586<span class="mk">2</span>  그때의 확률: 0.4718<span class="mk">3</span>
+기준 분석의 ICER: 5621
+모의실험별 ICER의 중앙값: 5625<span class="mk">4</span>  평균: 4237<span class="mk">5</span>
+모의실험별 ICER의 2.5, 97.5 백분위수: [ 4371. 10187.]<span class="mk">6</span></pre></div></div>

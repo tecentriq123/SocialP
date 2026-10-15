@@ -1,0 +1,77 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">설문 응답과 환자 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
+df = pd.read_csv(BASE + &quot;lab22_eq5d.csv&quot;, storage_options=UA,
+                 dtype={&quot;eq5d&quot;: str})          # 응답 코드는 글자로 읽는다
+pts = pd.read_csv(BASE + &quot;lab22_patients.csv&quot;, storage_options=UA)
+print(df.shape, pts.shape)
+print(pts.head(3))
+df.head()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(1593, 7)<span class="mk">1</span> (320, 4)<span class="mk">2</span>
+   id arm     t_prog    t_death
+0   1   A  17.162565  17.300321<span class="mk">3</span>
+1   2   A  16.516417  42.147287
+2   3   A   2.862415   4.299471</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>arm</th>
+      <th>month</th>
+      <th>state</th>
+      <th>eq5d</th>
+      <th>utility</th>
+      <th>vas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>A</td>
+      <td>0</td>
+      <td>PF</td>
+      <td>42444<span class="mk">4</span></td>
+      <td>0.293</td>
+      <td>41</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>A</td>
+      <td>3</td>
+      <td>PF</td>
+      <td>22222</td>
+      <td>0.730</td>
+      <td>85</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>A</td>
+      <td>6</td>
+      <td>PF</td>
+      <td>22333</td>
+      <td>0.676</td>
+      <td>64</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>A</td>
+      <td>12</td>
+      <td>PF</td>
+      <td>32233</td>
+      <td>0.694</td>
+      <td>67</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2</td>
+      <td>A</td>
+      <td>0</td>
+      <td>PF</td>
+      <td>21132</td>
+      <td>0.772</td>
+      <td>80</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

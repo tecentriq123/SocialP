@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 33</span><span class="cell-t">과제 3 정답 (1). 동료의 분석을 재현하고 더하는 수 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rhs = &quot;trt + age + male + cci + stage4&quot;
+for add in [0.01, 1, 10, 100]:            # 0원에 더하는 수
+    lm = smf.ols(&quot;np.log(cost_inp + &quot; + str(add) + &quot;) ~ &quot; + rhs,
+                 data=df).fit()
+    print(&quot;더한 수&quot;, add, &quot; exp(b):&quot;, np.exp(lm.params[&quot;trt&quot;]).round(3),
+          np.exp(lm.conf_int().loc[&quot;trt&quot;]).round(2).tolist(),
+          &quot; P =&quot;, lm.pvalues[&quot;trt&quot;].round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>더한 수 0.01  exp(b): 0.77<span class="mk">1</span> [0.51, 1.16]  P = 0.212
+더한 수 1  exp(b): 0.829<span class="mk">2</span> [0.65, 1.06]  P = 0.135
+더한 수 10  exp(b): 0.862 [0.73, 1.02]  P = 0.079
+더한 수 100  exp(b): 0.904<span class="mk">3</span> [0.82, 0.99]  P = 0.032<span class="mk">4</span></pre></div></div>

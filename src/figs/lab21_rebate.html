@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">약값 환급을 반영한 평균 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">drugA = df.loc[df[&quot;arm&quot;] == &quot;A&quot;, &quot;cost_drug&quot;].mean()   # A군 1인당 약제비
+rebate = 0.10 * drugA                                  # 약값의 10%를 돌려받으면
+print(&quot;A군 1인당 약제비 :&quot;, round(drugA, 1))
+print(&quot;1인당 환급액     :&quot;, round(rebate, 1))
+print(&quot;평균 차이(A - B), 표시 가격:&quot;, round(a.mean() - b.mean(), 1))
+print(&quot;평균 차이(A - B), 환급 반영:&quot;, round(a.mean() - rebate - b.mean(), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A군 1인당 약제비 : 1558.6<span class="mk">1</span>
+1인당 환급액     : 155.9<span class="mk">2</span>
+평균 차이(A - B), 표시 가격: 396.1<span class="mk">3</span>
+평균 차이(A - B), 환급 반영: 240.2<span class="mk">4</span></pre></div></div>

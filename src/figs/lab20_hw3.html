@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 3 정답. 동료의 분석 다시 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ratio = alts[&quot;cost&quot;] / alts[&quot;qaly&quot;]               # 동료가 구한 총비용 ÷ QALY
+print(&quot;동료의 비:&quot;, ratio.round().to_dict())
+print(&quot;임계값보다 낮은 대안:&quot;, list(ratio[ratio &lt; lam].index))
+print(&quot;동료의 A 대 D:&quot;, round(icer_between(alts, &quot;D&quot;, &quot;A&quot;)))
+print(&quot;D의 판정:&quot;, front.loc[&quot;D&quot;, &quot;status&quot;])
+print(&quot;경계 위 A 대&quot;, front.loc[&quot;A&quot;, &quot;vs&quot;], &quot;:&quot;, round(front.loc[&quot;A&quot;, &quot;icer&quot;]))
+print(&quot;임계값 5,000에서 순금전편익이 가장 큰 대안:&quot;,
+      (lam * alts[&quot;qaly&quot;] - alts[&quot;cost&quot;]).idxmax())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>동료의 비: {&#x27;B&#x27;: 4104.0, &#x27;C&#x27;: 4765.0<span class="mk">1</span>, &#x27;D&#x27;: 4700.0, &#x27;A&#x27;: 4429.0}
+임계값보다 낮은 대안: [&#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;A&#x27;]<span class="mk">2</span>
+동료의 A 대 D: 3020<span class="mk">3</span>
+D의 판정: 확장 열등<span class="mk">4</span>
+경계 위 A 대 B : 5621<span class="mk">5</span>
+임계값 5,000에서 순금전편익이 가장 큰 대안: B<span class="mk">6</span></pre></div></div>

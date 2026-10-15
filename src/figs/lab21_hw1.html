@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">과제 1 정답. 항목별 평균 차이와 부트스트랩 구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def boot_diff(col, B=9999, seed=21):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">과제 1 정답. 항목별 평균 차이와 부트스트랩 구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def boot_diff(col, B=9999, seed=21):
     x = df.loc[df[&quot;arm&quot;] == &quot;A&quot;, col].to_numpy()
     y = df.loc[df[&quot;arm&quot;] == &quot;B&quot;, col].to_numpy()
     rng = np.random.default_rng(seed)

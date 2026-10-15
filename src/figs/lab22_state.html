@@ -1,0 +1,45 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">상태별 평균 효용과 환자 단위로 묶은 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">naive = smf.ols(&quot;utility ~ 0 + state&quot;, data=df).fit()
+clus = smf.ols(&quot;utility ~ 0 + state&quot;, data=df).fit(
+    cov_type=&quot;cluster&quot;, cov_kwds={&quot;groups&quot;: df[&quot;id&quot;]})   # 환자 단위로 묶음
+
+ci = clus.conf_int()
+st = pd.DataFrame({&quot;mean&quot;: clus.params,
+                   &quot;se_naive&quot;: naive.bse,
+                   &quot;se_cluster&quot;: clus.bse,
+                   &quot;lo&quot;: ci[0], &quot;hi&quot;: ci[1]})
+st.index = [k[6:-1] for k in st.index]         # &quot;state[PF]&quot; -&gt; &quot;PF&quot;
+st[&quot;n&quot;] = df[&quot;state&quot;].value_counts()
+st.loc[[&quot;PF&quot;, &quot;PD&quot;]].round({&quot;mean&quot;: 3, &quot;se_naive&quot;: 4, &quot;se_cluster&quot;: 4,
+                             &quot;lo&quot;: 3, &quot;hi&quot;: 3})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>se_naive</th>
+      <th>se_cluster</th>
+      <th>lo</th>
+      <th>hi</th>
+      <th>n</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>PF</th>
+      <td>0.780<span class="mk">1</span></td>
+      <td>0.0045<span class="mk">2</span></td>
+      <td>0.0074<span class="mk">3</span></td>
+      <td>0.765<span class="mk">4</span></td>
+      <td>0.794</td>
+      <td>1184</td>
+    </tr>
+    <tr>
+      <th>PD</th>
+      <td>0.621<span class="mk">5</span></td>
+      <td>0.0077</td>
+      <td>0.0133</td>
+      <td>0.595</td>
+      <td>0.647</td>
+      <td>409</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

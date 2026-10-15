@@ -1,11 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">패키지와 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from scipy import stats
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
-
-BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">BASE = &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
 UA = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 df = pd.read_csv(BASE + &quot;rcc_cost.csv&quot;, storage_options=UA)
 print(df.shape)

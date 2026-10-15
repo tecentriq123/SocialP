@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">마르코프 모형의 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">mk = two_arms(arm_result(p, &quot;A&quot;, tr_A[:, 0], tr_A[:, 1]),
+              arm_result(p, &quot;B&quot;, tr_B[:, 0], tr_B[:, 1]))
+tab_mk = pd.DataFrame({&quot;A&quot;: mk[&quot;A&quot;], &quot;B&quot;: mk[&quot;B&quot;]})
+tab_mk[&quot;diff&quot;] = tab_mk[&quot;A&quot;] - tab_mk[&quot;B&quot;]
+print(tab_mk.round(3))
+print(&quot;ICER:&quot;, round(mk[&quot;icer&quot;]))
+
+nohalf = two_arms(arm_result(p, &quot;A&quot;, tr_A[:, 0], tr_A[:, 1], half=False),
+                  arm_result(p, &quot;B&quot;, tr_B[:, 0], tr_B[:, 1], half=False))
+print(&quot;반주기 보정 없이: B 생존연수&quot;, round(nohalf[&quot;B&quot;][&quot;ly&quot;], 3),
+      &quot; ICER&quot;, round(nohalf[&quot;icer&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>              A         B      diff
+ly_pf     1.850     1.203     0.647<span class="mk">1</span>
+ly_pd     1.631     1.631    -0.000<span class="mk">2</span>
+ly        3.481     2.834     0.647
+qaly      2.190     1.774     0.416<span class="mk">3</span>
+cost   9729.981  7294.426  2435.555<span class="mk">4</span>
+ICER: 5858<span class="mk">5</span>
+반주기 보정 없이: B 생존연수 2.876<span class="mk">6</span>  ICER 5942<span class="mk">7</span></pre></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">모형을 함수 하나로 묶기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def run_model(p, horizon=240):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">모형을 함수 하나로 묶기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def run_model(p, horizon=240):
     &quot;&quot;&quot;입력값 사전 p -&gt; 결과 사전 (시간 개월, 비용 만원)&quot;&quot;&quot;
     t = np.arange(0, horizon + 1)            # 주기 경계 시점
     disc = 1 / (1 + p[&quot;disc&quot;]) ** ((t[:-1] + 0.5) / 12)

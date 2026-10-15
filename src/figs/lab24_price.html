@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">ICER가 임계값과 같아지는 약값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">prices = [152.0, 190.0]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">ICER가 임계값과 같아지는 약값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">prices = [152.0, 190.0]
 icers = [run_model(dict(p, c_drug_A=x))[&quot;icer&quot;] for x in prices]
 print(&quot;ICER:&quot;, np.round(icers, 1))
 price_star = np.interp(threshold, icers, prices)

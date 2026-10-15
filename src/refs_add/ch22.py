@@ -7,7 +7,14 @@
 #   lee2009eq5d3l, kim2016eq5d5l, manca2005, wailoo2017mapping, petrou2015maps, hong2021utility, isporkorea2024,
 #   bae2022kguideline, hira2022icer, nice2022manual, cadth2017, sanders2016panel, husereau2022cheers, bertram2021choice.
 #   matthews1990은 refs_add/ch10.py.
+# 2026-10-15 추가(22장 다시 쓰기): PubMed get_article_metadata로 저자·제목·학술지·연도·권(호)·쪽·DOI 확인.
+#   jo2008eq5d PMID 18489498 (한국 EQ-5D-3L 가치 세트, 500명이 42개 상태를 TTO로 평가),
+#   yang2019eq5d PMID 30661633 (5L 가치 세트와 3L로의 crosswalk가 증분 QALY에 주는 영향, 한국 포함 7개국).
 ADD = {
+    "jo2008eq5d": {"text": "Jo MW, Yun SC, Lee SI. Estimating quality weights for EQ-5D health states with the time trade-off method in South Korea. <i>Value Health</i>. 2008;11(7):1186-1189.",
+                   "doi": "10.1111/j.1524-4733.2008.00348.x"},
+    "yang2019eq5d": {"text": "Yang F, Devlin N, Luo N. Cost-utility analysis using EQ-5D-5L data: does how the utilities are derived matter? <i>Value Health</i>. 2019;22(1):45-49.",
+                     "doi": "10.1016/j.jval.2018.05.008"},
     "weinstein2009": {"text": "Weinstein MC, Torrance G, McGuire A. QALYs: the basics. <i>Value Health</i>. 2009;12 Suppl 1:S5-S9.",
                       "doi": "10.1111/j.1524-4733.2009.00515.x"},
     "whitehead2010": {"text": "Whitehead SJ, Ali S. Health outcomes in economic evaluation: the QALY and utilities. <i>Br Med Bull</i>. 2010;96:5-21.",

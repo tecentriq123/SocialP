@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">원래 비용의 선형회귀 (강건 표준오차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = &quot;cost ~ trt + age + male + cci + stage4&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">원래 비용의 선형회귀 (강건 표준오차)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = &quot;cost ~ trt + age + male + cci + stage4&quot;
 ols = smf.ols(f, data=df).fit(cov_type=&quot;HC3&quot;)
 print(ols.summary().tables[1])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>==============================================================================
                  coef    std err          z      P&gt;|z|      [0.025      0.975]

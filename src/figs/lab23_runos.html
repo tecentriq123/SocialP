@@ -1,0 +1,38 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">전체생존 곡선을 바꿔 넣는 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def arm_result(p, arm, pf_t, pd_t, half=True):
+    &quot;&quot;&quot;시점별 상태 비율(0-n개월의 n+1개) -&gt; 한 군의 생존연수, 비용, QALY&quot;&quot;&quot;
+    n = len(pf_t) - 1
+    if half:                                  # 반주기 보정
+        pf = (pf_t[:-1] + pf_t[1:]) / 2
+        pd_ = (pd_t[:-1] + pd_t[1:]) / 2
+    else:                                     # 주기 시작의 값으로 셈
+        pf, pd_ = pf_t[:-1], pd_t[:-1]
+    alive = pf_t + pd_t
+    died = alive[:-1] - alive[1:]             # 주기별 사망
+    disc = 1 / (1 + p[&quot;disc&quot;]) ** ((np.arange(n) + 0.5) / 12)
+    cost = ((pf * (p[&quot;c_drug_&quot; + arm] + p[&quot;c_pf&quot;]) + pd_ * p[&quot;c_pd&quot;]
+             + died * p[&quot;c_death&quot;]) * disc).sum() + p[&quot;c_ae_&quot; + arm]
+    qaly = (((pf * p[&quot;u_pf&quot;] + pd_ * p[&quot;u_pd&quot;]) / 12 * disc).sum()
+            - p[&quot;du_ae_&quot; + arm])
+    return {&quot;ly_pf&quot;: pf.sum() / 12, &quot;ly_pd&quot;: pd_.sum() / 12,
+            &quot;ly&quot;: (pf + pd_).sum() / 12, &quot;qaly&quot;: qaly, &quot;cost&quot;: cost}
+
+def two_arms(rA, rB):
+    &quot;&quot;&quot;두 군의 결과 -&gt; 증분과 ICER&quot;&quot;&quot;
+    dc, dq = rA[&quot;cost&quot;] - rB[&quot;cost&quot;], rA[&quot;qaly&quot;] - rB[&quot;qaly&quot;]
+    return {&quot;A&quot;: rA, &quot;B&quot;: rB, &quot;d_cost&quot;: dc, &quot;d_qaly&quot;: dq, &quot;icer&quot;: dc / dq}
+
+def run_os(p, s_os_B):
+    &quot;&quot;&quot;표준요법 B의 전체생존 곡선(0-240개월의 값 241개)을 받는 분할생존모형&quot;&quot;&quot;
+    t = np.arange(len(s_os_B))
+    res = {}
+    for arm in [&quot;A&quot;, &quot;B&quot;]:
+        s_os = s_os_B ** p[&quot;hr_os&quot;] if arm == &quot;A&quot; else s_os_B   # 비례위험
+        s_pfs = np.minimum(curves(p, arm, t)[0], s_os)          # PFS는 그대로
+        res[arm] = arm_result(p, arm, s_pfs, s_os - s_pfs)
+    return two_arms(res[&quot;A&quot;], res[&quot;B&quot;])
+
+print(&quot;기준 곡선  :&quot;, round(run_os(p, os_B)[&quot;icer&quot;], 6),
+      &quot; run_model:&quot;, round(base[&quot;icer&quot;], 6))
+print(&quot;적합한 와이블:&quot;, round(run_os(p, S[&quot;Weibull&quot;])[&quot;icer&quot;], 6),
+      &quot; 셀 18   :&quot;, round(r_fit[&quot;icer&quot;], 6))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>기준 곡선  : 5620.610246<span class="mk">1</span>  run_model: 5620.610246
+적합한 와이블: 5610.443617<span class="mk">2</span>  셀 18   : 5610.443617</pre></div></div>

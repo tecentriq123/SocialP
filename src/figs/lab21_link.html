@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">연결 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">chk[&quot;ln_pred2&quot;] = chk[&quot;ln_pred&quot;] ** 2      # 선형예측값의 제곱
+link = smf.glm(&quot;cost ~ ln_pred + ln_pred2&quot;, data=chk,
+               family=fam).fit(cov_type=&quot;HC0&quot;)
+print(&quot;제곱항의 계수:&quot;, link.params[&quot;ln_pred2&quot;].round(3),
+      &quot; P =&quot;, link.pvalues[&quot;ln_pred2&quot;].round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>제곱항의 계수: -0.902<span class="mk">1</span>  P = 0.078<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,113 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">명세서 11건에 치료 시작일 붙이기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 대상자 목록 (환자와 치료 시작일)
+cohort = pd.DataFrame({
+    &quot;pid&quot;: [&quot;P01&quot;, &quot;P02&quot;, &quot;P03&quot;],
+    &quot;index_date&quot;: pd.to_datetime([&quot;2024-03-04&quot;, &quot;2024-05-20&quot;,
+                                  &quot;2024-07-01&quot;])})
+# 명세서 11건 (21장 표 21-2, 만원)
+claims = pd.DataFrame([
+    (&quot;P01&quot;, &quot;2024-03-04&quot;, &quot;외래&quot;, 38.0, 1.9),
+    (&quot;P01&quot;, &quot;2024-03-04&quot;, &quot;약국&quot;, 190.0, 9.5),
+    (&quot;P01&quot;, &quot;2024-04-03&quot;, &quot;약국&quot;, 190.0, 9.5),
+    (&quot;P01&quot;, &quot;2024-06-10&quot;, &quot;입원&quot;, 412.0, 20.6),
+    (&quot;P01&quot;, &quot;2025-03-10&quot;, &quot;외래&quot;, 25.0, 1.3),
+    (&quot;P02&quot;, &quot;2024-05-20&quot;, &quot;외래&quot;, 41.0, 2.1),
+    (&quot;P02&quot;, &quot;2024-05-20&quot;, &quot;약국&quot;, 120.0, 6.0),
+    (&quot;P02&quot;, &quot;2024-06-19&quot;, &quot;약국&quot;, 120.0, 6.0),
+    (&quot;P03&quot;, &quot;2024-02-15&quot;, &quot;입원&quot;, 300.0, 15.0),
+    (&quot;P03&quot;, &quot;2024-07-01&quot;, &quot;외래&quot;, 36.0, 1.8),
+    (&quot;P03&quot;, &quot;2024-07-01&quot;, &quot;약국&quot;, 190.0, 9.5)],
+    columns=[&quot;pid&quot;, &quot;date&quot;, &quot;type&quot;, &quot;total&quot;, &quot;oop&quot;])
+claims[&quot;date&quot;] = pd.to_datetime(claims[&quot;date&quot;])
+
+merged = claims.merge(cohort, on=&quot;pid&quot;)   # 치료 시작일을 붙임
+merged[&quot;day&quot;] = (merged[&quot;date&quot;] - merged[&quot;index_date&quot;]).dt.days
+merged[[&quot;pid&quot;, &quot;date&quot;, &quot;type&quot;, &quot;day&quot;]]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pid</th>
+      <th>date</th>
+      <th>type</th>
+      <th>day</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>P01</td>
+      <td>2024-03-04</td>
+      <td>외래</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>P01</td>
+      <td>2024-03-04</td>
+      <td>약국</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>P01</td>
+      <td>2024-04-03</td>
+      <td>약국</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>P01</td>
+      <td>2024-06-10</td>
+      <td>입원</td>
+      <td>98</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>P01</td>
+      <td>2025-03-10</td>
+      <td>외래</td>
+      <td>371<span class="mk">1</span></td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>P02</td>
+      <td>2024-05-20</td>
+      <td>외래</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>P02</td>
+      <td>2024-05-20</td>
+      <td>약국</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>P02</td>
+      <td>2024-06-19</td>
+      <td>약국</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>P03</td>
+      <td>2024-02-15</td>
+      <td>입원</td>
+      <td>-137<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>P03</td>
+      <td>2024-07-01</td>
+      <td>외래</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>P03</td>
+      <td>2024-07-01</td>
+      <td>약국</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

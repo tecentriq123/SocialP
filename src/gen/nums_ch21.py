@@ -94,7 +94,7 @@ def simulate(n, seed, cens=False, cens_seed=1):
             op = op_pf + op_pd
             inp = np.zeros(n)
             i_pd = np.zeros(n)        # 진행 후 입원비
-            i_bg = np.zeros(n)        # 무진행 기간의 그 밖의 입원비
+            i_bg = np.zeros(n)        # 그 밖의 입원비(사망 전 전 기간에 생기며 진행 뒤에 생긴 것도 있음. 상태별 비용에서는 무진행 상태로 묶음, 21장 a 절 '더 알아보기')
             p_ae = (0.20 if arm == "A" else 0.80 / 6)
             inp += np.where((u_ae < p_ae) & (t_ae < end), c_ae, 0.0)
             # 진행 후 입원: 진행 기간(1년 안, 사망 전)에 포아송 과정

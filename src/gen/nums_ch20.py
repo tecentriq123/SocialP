@@ -303,7 +303,7 @@ def check_html():
         f"{tab['share_drug'] * 100:.0f}%", f"{t['cea_paper3']:.0f}만원", f"{t['abstract_icer']:.1f}",
         f"{pr['q3']['sum']:,.1f}만원", f"{t['q3_diff']:.1f}만원", f"{pr['q3']['q_10y']:.3f}", f"{pr['q3']['q_10y_3']:.3f}", f"{t['q2_ratio']:.2f} QALY",
         c(pr["q4"]["Q_vs_P"]), c(pr["q4"]["R_vs_Q"]), c(pr["q4"]["R_vs_P"]), c(pr["q4"]["acer_R"]) + "만원",
-        f"−{c(-pr['q5']['3000'])}만원", f"+{c(pr['q5']['6000'])}만원", f"+{c(pr['q5']['7000'])}만원",
+        f"−{c(-pr['q5']['3000'])}만원", f"+{c(pr['q5']['6000'])}만원",
         c(pr["q1"]["extra"]), f"{pr['q1']['displaced']:.0f} QALY", c(pr["q2"]["icer_ly"]), c(pr["q2"]["icer_q"]),
     ]
     for y in ("3", "5", "10", "20"):

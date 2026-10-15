@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">치료군 변수 만들기, 결측값과 0원 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;trt&quot;] = (df[&quot;arm&quot;] == &quot;A&quot;).astype(int)   # 신약 A = 1, B = 0
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">치료군 변수 만들기, 결측값과 0원 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;trt&quot;] = (df[&quot;arm&quot;] == &quot;A&quot;).astype(int)   # 신약 A = 1, B = 0
 print(df[&quot;arm&quot;].value_counts())
 print(&quot;결측값:&quot;, df.isna().sum().sum(), &quot;개&quot;)
 

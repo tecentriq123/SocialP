@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">한국 EQ-5D-5L 가치 세트 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 한국 EQ-5D-5L 가치 세트(Kim 등, 2016)의 감점. 영역마다 수준 1, 2, 3, 4, 5
+KR5 = {&quot;mobility&quot;: [0, 0.046, 0.058, 0.133, 0.251],
+       &quot;selfcare&quot;: [0, 0.032, 0.050, 0.078, 0.122],
+       &quot;activity&quot;: [0, 0.021, 0.051, 0.100, 0.175],
+       &quot;pain&quot;:     [0, 0.042, 0.053, 0.166, 0.207],
+       &quot;anxiety&quot;:  [0, 0.033, 0.046, 0.102, 0.137]}
+
+def kr5l(code):
+    &quot;&quot;&quot;다섯 자리 응답 코드(글자) -&gt; 한국 EQ-5D-5L 효용&quot;&quot;&quot;
+    lv = [int(x) for x in code]              # &quot;21222&quot; -&gt; [2, 1, 2, 2, 2]
+    if lv == [1, 1, 1, 1, 1]:
+        return 1.0                           # 완전한 건강은 감점 없음
+    u = 1 - 0.096                            # 11111이 아니면 붙는 상수 감점
+    for dim, level in zip(KR5, lv):
+        u = u - KR5[dim][level - 1]          # 영역별 감점 (수준 1이면 0)
+    if max(lv) &gt;= 4:
+        u = u - 0.078                        # 수준 4나 5가 하나라도 있으면
+    return round(u, 3)
+
+for code in [&quot;21222&quot;, &quot;31342&quot;, &quot;11211&quot;, &quot;55555&quot;, &quot;11111&quot;]:
+    print(code, kr5l(code))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>21222 0.762<span class="mk">1</span>
+31342 0.518<span class="mk">2</span>
+11211 0.883<span class="mk">3</span>
+55555 -0.066<span class="mk">4</span>
+11111 1.0<span class="mk">5</span></pre></div></div>

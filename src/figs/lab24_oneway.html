@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">입력값을 하나씩 양 끝으로 바꿔 ICER 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">입력값을 하나씩 양 끝으로 바꿔 ICER 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
 for key in ranges.index:
     low, high = ranges.loc[key, &quot;low&quot;], ranges.loc[key, &quot;high&quot;]
     r_low = run_model(set_input(p, key, low))     # 낮은 값으로

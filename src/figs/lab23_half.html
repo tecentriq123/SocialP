@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">반주기 보정과 상태별 평균 기간 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pf_t = occ_B[&quot;pf&quot;].to_numpy()          # 241개: 0, 1, ..., 240개월
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">반주기 보정과 상태별 평균 기간 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pf_t = occ_B[&quot;pf&quot;].to_numpy()          # 241개: 0, 1, ..., 240개월
 pd_t = occ_B[&quot;pd&quot;].to_numpy()
 pf = (pf_t[:-1] + pf_t[1:]) / 2        # 240개: 주기 시작과 끝의 평균
 pd_ = (pd_t[:-1] + pd_t[1:]) / 2

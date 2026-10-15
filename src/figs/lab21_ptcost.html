@@ -1,0 +1,68 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">환자 한 명의 1년 비용 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">win = merged[(merged[&quot;day&quot;] &gt;= 0) &amp; (merged[&quot;day&quot;] &lt; 365)]   # 1년 창
+print(&quot;창 안의 명세서:&quot;, len(win), &quot;건&quot;)
+print(&quot;입원한 환자만의 평균 입원비:&quot;,
+      win[win[&quot;type&quot;] == &quot;입원&quot;].groupby(&quot;pid&quot;)[&quot;total&quot;].sum().mean())
+
+pt = win.pivot_table(index=&quot;pid&quot;, columns=&quot;type&quot;, values=&quot;total&quot;,
+                     aggfunc=&quot;sum&quot;, fill_value=0)   # 환자 x 구분별 합계
+pt = pt.reindex(cohort[&quot;pid&quot;], fill_value=0)       # 0원 채우기
+pt[&quot;합계&quot;] = pt.sum(axis=1)
+payer = (win[&quot;total&quot;] - win[&quot;oop&quot;]).groupby(win[&quot;pid&quot;]).sum()
+pt[&quot;공단부담&quot;] = payer.reindex(pt.index, fill_value=0)
+pt.loc[&quot;평균&quot;] = pt.mean()                          # 세 환자의 평균
+pt.round(1).T</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>창 안의 명세서: 9 건<span class="mk">1</span>
+입원한 환자만의 평균 입원비: 412.0<span class="mk">2</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th>pid</th>
+      <th>P01</th>
+      <th>P02</th>
+      <th>P03</th>
+      <th>평균</th>
+    </tr>
+    <tr>
+      <th>type</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>약국</th>
+      <td>380.0</td>
+      <td>240.0</td>
+      <td>190.0</td>
+      <td>270.0</td>
+    </tr>
+    <tr>
+      <th>외래</th>
+      <td>38.0</td>
+      <td>41.0</td>
+      <td>36.0</td>
+      <td>38.3</td>
+    </tr>
+    <tr>
+      <th>입원<span class="mk">3</span></th>
+      <td>412.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>137.3<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>합계</th>
+      <td>830.0</td>
+      <td>281.0</td>
+      <td>226.0</td>
+      <td>445.7<span class="mk">5</span></td>
+    </tr>
+    <tr>
+      <th>공단부담</th>
+      <td>788.5</td>
+      <td>266.9</td>
+      <td>214.7</td>
+      <td>423.4<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

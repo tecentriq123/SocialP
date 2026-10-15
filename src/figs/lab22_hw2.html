@@ -1,0 +1,30 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">과제 2 정답. 마지막 측정값을 사망 직전까지 유지</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def path_locf(month, u, t_death, end=24):
+    &quot;&quot;&quot;마지막 측정값이 사망 직전까지 유지된다고 보는 경로&quot;&quot;&quot;
+    t, u = list(month), list(u)
+    if t_death &lt;= end:                    # 사망 직전까지 마지막 값
+        t, u = t + [t_death, t_death], u + [u[-1], 0.0]
+        if t_death &lt; end:
+            t, u = t + [end], u + [0.0]
+    return np.array(t, dtype=float), np.array(u, dtype=float)
+
+t, u = path_locf([0, 3, 6, 12], u_c, t_death=15)
+print(&quot;환자 다:&quot;, round(trapezoid(u, t) / 12, 3))
+
+q2 = []
+for r in pts.itertuples():
+    g = df[df[&quot;id&quot;] == r.id]
+    t, u = path_locf(g[&quot;month&quot;], g[&quot;utility&quot;], r.t_death)
+    q2.append(trapezoid(u, t) / 12)
+pts[&quot;qaly_locf&quot;] = q2
+print(pts.groupby(&quot;arm&quot;)[[&quot;qaly&quot;, &quot;qaly_locf&quot;]].mean().round(3))
+for f in [&quot;qaly_locf ~ A&quot;, &quot;qaly_locf ~ A + base&quot;]:
+    m = smf.ols(f, data=pts).fit()
+    lo, hi = m.conf_int().loc[&quot;A&quot;]
+    print(f, &quot; 차이&quot;, round(m.params[&quot;A&quot;], 3),
+          &quot; 95% CI&quot;, round(lo, 3), round(hi, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>환자 다: 0.868<span class="mk">1</span>
+      qaly  qaly_locf
+arm                  
+A    1.204      1.230<span class="mk">2</span>
+B    1.087      1.118<span class="mk">3</span>
+qaly_locf ~ A  차이 0.112<span class="mk">4</span>  95% CI 0.001 0.223
+qaly_locf ~ A + base  차이 0.089<span class="mk">5</span>  95% CI -0.017 0.195</pre></div></div>

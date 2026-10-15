@@ -54,11 +54,12 @@ json.dump(outs, sys.stdout, ensure_ascii=False)
 '''
 
 
-_STAMP = re.compile(r"\b\d{2}:\d{2}:\d{2}\b|\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} \w{3} \d{4}\b")
+_STAMP = re.compile(r"\b\d{2}:\d{2}:\d{2}\b|\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), \d{2} \w{3} \d{4}\b"
+                    r"|(?<=time fit was run = )\d{4}-\d{2}-\d{2}\b")
 
 
 def norm(t):
-    """statsmodels summary의 날짜·시각 줄은 실행할 때마다 달라지므로 가린다."""
+    """statsmodels summary와 lifelines print_summary의 날짜·시각은 실행할 때마다 달라지므로 가린다."""
     return [_STAMP.sub("#", ln).rstrip() for ln in t.strip("\n").split("\n")] if t.strip() else []
 
 

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">과제 2 정답. 신약 E를 더한 효율 경계</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">alts_E = alts.copy()
+alts_E.loc[&quot;E&quot;] = [cost_B + 600, qaly_B + 0.20]   # 신약 E: B보다 600만원 더, 0.20 QALY 더
+front_E = frontier(alts_E)
+print(front_E.round({&quot;icer&quot;: 0}))
+for lam_ in [5000, 8000]:
+    nb_ = lam_ * alts_E[&quot;qaly&quot;] - alts_E[&quot;cost&quot;]
+    print(lam_, &quot;| 가장 큰 대안:&quot;, nb_.idxmax(),
+          &quot;| B 대비 E&quot;, round(nb_[&quot;E&quot;] - nb_[&quot;B&quot;], 1),
+          &quot; A&quot;, round(nb_[&quot;A&quot;] - nb_[&quot;B&quot;], 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        cost      qaly status vs    icer
+B   7689.485  1.873640     경계        NaN
+C   8100.000  1.700000     열등        NaN
+E   8289.485<span class="mk">1</span>  2.073640     경계  B  3000.0<span class="mk">3</span>
+D   9400.000  2.000000     열등<span class="mk">2</span>        NaN
+A  10561.778  2.384669     경계  E  7306.0<span class="mk">4</span>
+5000 | 가장 큰 대안: E<span class="mk">5</span> | B 대비 E 400.0  A -317.1
+8000 | 가장 큰 대안: A<span class="mk">6</span> | B 대비 E 1000.0  A 1215.9</pre></div></div>

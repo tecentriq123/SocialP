@@ -1,0 +1,36 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">네 대안의 총비용과 QALY</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">alts = pd.DataFrame({
+    &quot;cost&quot;: [7689.485, 8100.0, 9400.0, 10561.778],   # 총비용(만원, 할인 후)
+    &quot;qaly&quot;: [1.873640, 1.700, 2.000, 2.384669],       # 총 QALY(할인 후)
+}, index=[&quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;A&quot;])                         # B 표준요법, C 기존약, D 병용요법, A 신약
+print(alts.shape)
+alts</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(4, 2)<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cost</th>
+      <th>qaly</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>B</th>
+      <td>7689.485<span class="mk">2</span></td>
+      <td>1.873640</td>
+    </tr>
+    <tr>
+      <th>C</th>
+      <td>8100.000</td>
+      <td>1.700000<span class="mk">3</span></td>
+    </tr>
+    <tr>
+      <th>D</th>
+      <td>9400.000</td>
+      <td>2.000000</td>
+    </tr>
+    <tr>
+      <th>A</th>
+      <td>10561.778<span class="mk">4</span></td>
+      <td>2.384669</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

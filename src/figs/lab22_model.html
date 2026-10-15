@@ -1,0 +1,45 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">공통 예시 모형을 함수 하나로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">p = {&quot;pfs_med&quot;: 10, &quot;pfs_gam&quot;: 0.95,    # 표준요법 B 무진행생존: 중앙값(개월), 모양
+     &quot;os_med&quot;: 28, &quot;os_gam&quot;: 1.15,      # 표준요법 B 전체생존
+     &quot;hr_pfs&quot;: 0.65, &quot;hr_os&quot;: 0.75,     # 신약 A의 위험비
+     &quot;u_pf&quot;: 0.78, &quot;u_pd&quot;: 0.62,        # 상태별 효용 (셀 8의 0.780, 0.621)
+     &quot;du_ae_A&quot;: 0.012, &quot;du_ae_B&quot;: 0.008,                         # 이상반응 QALY 손실
+     &quot;c_drug_A&quot;: 190, &quot;c_drug_B&quot;: 120, &quot;c_pf&quot;: 40, &quot;c_pd&quot;: 250,  # 월 비용(만원)
+     &quot;c_death&quot;: 800, &quot;c_ae_A&quot;: 120, &quot;c_ae_B&quot;: 80,                # 1회 비용(만원)
+     &quot;disc&quot;: 0.045}                     # 연 할인율
+
+def model(p, when=&quot;mid&quot;, months=240):
+    &quot;&quot;&quot;공통 예시의 분할생존모형 (1개월 주기, 20년). when: 할인 계수를 매기는 시점&quot;&quot;&quot;
+    t = np.arange(months + 1)           # 주기 경계: 0, 1, ..., 240개월
+    k = np.arange(months)               # 주기 번호: 0, 1, ..., 239
+    years = {&quot;mid&quot;: (k + 0.5) / 12,     # 각 달의 한가운데 (기준 분석)
+             &quot;start&quot;: k / 12,           # 각 달의 시작
+             &quot;end&quot;: (k + 1) / 12,       # 각 달의 끝
+             &quot;annual&quot;: k // 12,         # 연 단위 (첫해는 0년, 할인 없음)
+             &quot;wrong&quot;: k + 0.5}[when]    # 잘못: 개월 수를 연수 자리에
+    disc = 1 / (1 + p[&quot;disc&quot;]) ** years # 주기별 할인 계수 240개
+    res = {}
+    for arm in [&quot;A&quot;, &quot;B&quot;]:
+        hp = p[&quot;hr_pfs&quot;] if arm == &quot;A&quot; else 1
+        ho = p[&quot;hr_os&quot;] if arm == &quot;A&quot; else 1
+        s_os = np.exp(-np.log(2) * ho * (t / p[&quot;os_med&quot;]) ** p[&quot;os_gam&quot;])
+        s_pfs = np.exp(-np.log(2) * hp * (t / p[&quot;pfs_med&quot;]) ** p[&quot;pfs_gam&quot;])
+        s_pfs = np.minimum(s_pfs, s_os)
+        pf = (s_pfs[:-1] + s_pfs[1:]) / 2                 # 반주기 보정
+        pd_ = ((s_os - s_pfs)[:-1] + (s_os - s_pfs)[1:]) / 2
+        died_k = s_os[:-1] - s_os[1:]                     # 주기별 사망
+        r = {&quot;pf_years&quot;: (pf * disc).sum() / 12,          # 할인한 상태별 기간(년)
+             &quot;pd_years&quot;: (pd_ * disc).sum() / 12}
+        r[&quot;qaly&quot;] = (p[&quot;u_pf&quot;] * r[&quot;pf_years&quot;] + p[&quot;u_pd&quot;] * r[&quot;pd_years&quot;]
+                     - p[&quot;du_ae_&quot; + arm])
+        r[&quot;cost&quot;] = ((pf * (p[&quot;c_drug_&quot; + arm] + p[&quot;c_pf&quot;]) + pd_ * p[&quot;c_pd&quot;]
+                      + died_k * p[&quot;c_death&quot;]) * disc).sum() + p[&quot;c_ae_&quot; + arm]
+        res[arm] = r
+    return res
+
+res = model(p)
+print(&quot;QALY   A&quot;, round(res[&quot;A&quot;][&quot;qaly&quot;], 3), &quot; B&quot;, round(res[&quot;B&quot;][&quot;qaly&quot;], 3))
+print(&quot;총비용 A&quot;, round(res[&quot;A&quot;][&quot;cost&quot;], 1), &quot; B&quot;, round(res[&quot;B&quot;][&quot;cost&quot;], 1))
+print(&quot;ICER&quot;, round((res[&quot;A&quot;][&quot;cost&quot;] - res[&quot;B&quot;][&quot;cost&quot;])
+                    / (res[&quot;A&quot;][&quot;qaly&quot;] - res[&quot;B&quot;][&quot;qaly&quot;])))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>QALY   A 2.385<span class="mk">1</span>  B 1.874<span class="mk">2</span>
+총비용 A 10561.8  B 7689.5
+ICER 5621<span class="mk">3</span></pre></div></div>

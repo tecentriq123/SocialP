@@ -1,10 +1,16 @@
 """실습 21 · 비용 자료 분석 — cells run for real with labkit.
 
-run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab21.py && python3 gen/lab_lab21.py
-      (NOMARK=1 을 앞에 붙이면 표식 없이 셀 출력만 화면에 찍는다)
+run:  source /home/claude/pylibs/env.sh && python3 gen/lab_lab21.py
+      then  python3 tools/nbcheck.py lab21   (runs the notebook alone in a fresh process and compares outputs)
+      (NOMARK=1 을 앞에 붙이면 표식 없이 셀 출력만 화면에 찍는다. VERIFY=1 은 본문 문장의 숫자 확인도 찍는다)
 
-자료: pub/data/rcc_cost.csv (gen/data_lab21.py가 21장의 gen/_ch21_cost.csv에서 만든다).
+자료: pub/data/rcc_cost.csv (gen/data_lab21.py가 21장의 gen/_ch21_cost.csv에서 만든다. 이 생성기는 자료를 다시 만들지 않는다).
+a 절 셀 8–9의 명세서 11건은 21장 표 21-2를 노트북에 직접 적는다.
 끝의 대조 블록이 실습 결과를 gen/_ch21_nums.json(21장 본문의 숫자)과 맞춘다.
+(2026-10-15: 21장을 새 틀로 고친 뒤 '실습 21에 더할 것'을 반영했다. 버전 셀 1, 상위 1%를 뺀 평균 셀 7,
+ 명세서에서 환자별 비용 셀 8–9(표 21-2), 가격 기준 연도와 할인 셀 10, 약값 환급 셀 11, 나이 10세당 비용 비(셀 24에 두 줄),
+ 동반질환 점수를 뺀 모형 셀 26, 연결 검정 셀 29를 더했다. 과제는 ① 입원비 줄의 해석 ② 반복 횟수와 seed
+ ③ 0원에 1을 더한 로그 회귀(정답에 이단계 모형, 셀 33–34)로 역할을 맞췄다. 셀 번호가 모두 바뀌었다.)
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -47,13 +53,23 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import matplotlib, scipy, statsmodels
 
+print("numpy      ", np.__version__)
+print("pandas     ", pd.__version__)
+print("matplotlib ", matplotlib.__version__)
+print("scipy      ", scipy.__version__)
+print("statsmodels", statsmodels.__version__)
+''', title="패키지 불러오기와 버전 확인")
+save("lab21_versions", c, marks={"pandas      3.0.5": 1, "scipy       1.18.1": 2, "statsmodels 0.15.0": 3})
+
+c = nb.cell('''
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
 UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 df = pd.read_csv(BASE + "rcc_cost.csv", storage_options=UA)
 print(df.shape)
 df.head()
-''', title="패키지와 자료 불러오기")
+''', title="자료 불러오기")
 save("lab21_load", c, marks={"(3000, 10)": 1}, dfmarks={"arm": 2, "cost_drug": 3, "1974.0": 4})
 
 c = nb.cell('''
@@ -107,6 +123,84 @@ print("상위 5%가 쓴 몫(%)      :",
       round(top.sum() / b.sum() * 100, 1))
 ''', title="평균, 중앙값, 총액")
 save("lab21_total", c, marks={"4084201": 1, "3300011": 2, "66.5": 3, "15.5": 4})
+
+c = nb.cell('''
+k1 = round(len(b) * 0.01)                 # 상위 1%는 18명
+srt = np.sort(b)[::-1]                    # B군 비용을 큰 값부터
+print("상위 1% 인원      :", k1, "명")
+print("뺀 환자의 최소 비용:", srt[k1 - 1])
+print("B군 평균          :", round(b.mean(), 1))
+print("상위 1%를 뺀 평균 :", round(srt[k1:].mean(), 1))
+print("상위 1%가 쓴 몫(%):", round(srt[:k1].sum() / b.sum() * 100, 1))
+''', title="고액 환자를 빼면")
+save("lab21_top1", c, marks={"18 명": 1, "8330.6": 2, "2189.3": 3, "4.6": 4})
+
+c = nb.cell('''
+# 대상자 목록 (환자와 치료 시작일)
+cohort = pd.DataFrame({
+    "pid": ["P01", "P02", "P03"],
+    "index_date": pd.to_datetime(["2024-03-04", "2024-05-20",
+                                  "2024-07-01"])})
+# 명세서 11건 (21장 표 21-2, 만원)
+claims = pd.DataFrame([
+    ("P01", "2024-03-04", "외래", 38.0, 1.9),
+    ("P01", "2024-03-04", "약국", 190.0, 9.5),
+    ("P01", "2024-04-03", "약국", 190.0, 9.5),
+    ("P01", "2024-06-10", "입원", 412.0, 20.6),
+    ("P01", "2025-03-10", "외래", 25.0, 1.3),
+    ("P02", "2024-05-20", "외래", 41.0, 2.1),
+    ("P02", "2024-05-20", "약국", 120.0, 6.0),
+    ("P02", "2024-06-19", "약국", 120.0, 6.0),
+    ("P03", "2024-02-15", "입원", 300.0, 15.0),
+    ("P03", "2024-07-01", "외래", 36.0, 1.8),
+    ("P03", "2024-07-01", "약국", 190.0, 9.5)],
+    columns=["pid", "date", "type", "total", "oop"])
+claims["date"] = pd.to_datetime(claims["date"])
+
+merged = claims.merge(cohort, on="pid")   # 치료 시작일을 붙임
+merged["day"] = (merged["date"] - merged["index_date"]).dt.days
+merged[["pid", "date", "type", "day"]]
+''', title="명세서 11건에 치료 시작일 붙이기", max_rows=12)
+save("lab21_claims", c, dfmarks={"371": 1, "-137": 2})
+
+c = nb.cell('''
+win = merged[(merged["day"] >= 0) & (merged["day"] < 365)]   # 1년 창
+print("창 안의 명세서:", len(win), "건")
+print("입원한 환자만의 평균 입원비:",
+      win[win["type"] == "입원"].groupby("pid")["total"].sum().mean())
+
+pt = win.pivot_table(index="pid", columns="type", values="total",
+                     aggfunc="sum", fill_value=0)   # 환자 x 구분별 합계
+pt = pt.reindex(cohort["pid"], fill_value=0)       # 0원 채우기
+pt["합계"] = pt.sum(axis=1)
+payer = (win["total"] - win["oop"]).groupby(win["pid"]).sum()
+pt["공단부담"] = payer.reindex(pt.index, fill_value=0)
+pt.loc["평균"] = pt.mean()                          # 세 환자의 평균
+pt.round(1).T
+''', title="환자 한 명의 1년 비용 만들기")
+save("lab21_ptcost", c, marks={"창 안의 명세서: 9 건": 1, "입원한 환자만의 평균 입원비: 412.0": 2},
+     dfmarks={"입원": 3, "137.3": 4, "445.7": 5, "423.4": 6})
+
+c = nb.cell('''
+idx_2022, idx_2025 = 100.0, 104.5        # 물가지수 (가정한 값)
+print("2022년 1,000만원, 2025년 가격으로:",
+      round(1000 * idx_2025 / idx_2022, 1))
+
+disc_rate = 0.045                        # 할인율 연 4.5%
+print("1년 뒤 1,000만원의 현재 가치    :", round(1000 / (1 + disc_rate) ** 1, 1))
+print("5년 뒤 1,000만원의 현재 가치    :", round(1000 / (1 + disc_rate) ** 5, 1))
+''', title="가격 기준 연도 맞추기와 할인")
+save("lab21_adjust", c, marks={"1045.0": 1, "956.9": 2, "802.5": 3})
+
+c = nb.cell('''
+drugA = df.loc[df["arm"] == "A", "cost_drug"].mean()   # A군 1인당 약제비
+rebate = 0.10 * drugA                                  # 약값의 10%를 돌려받으면
+print("A군 1인당 약제비 :", round(drugA, 1))
+print("1인당 환급액     :", round(rebate, 1))
+print("평균 차이(A - B), 표시 가격:", round(a.mean() - b.mean(), 1))
+print("평균 차이(A - B), 환급 반영:", round(a.mean() - rebate - b.mean(), 1))
+''', title="약값 환급을 반영한 평균 차이")
+save("lab21_rebate", c, marks={"1558.6": 1, "155.9": 2, "396.1": 3, "240.2": 4})
 
 # ---------------------------------------------------------------- b. 평균 비용의 비교와 부트스트랩
 c = nb.cell('''
@@ -270,7 +364,7 @@ save("lab21_logols", c, marks={"1.295": 1, "570.7": 2, "1.127": 3, "643.2": 4, "
 # 이 셀을 돌리는 동안만 시각을 고정해 figs/lab21_glm.html이 매번 같게 나오게 한다(학생에게 보이는 코드는 그대로).
 import time as _time  # noqa: E402
 _real_localtime = _time.localtime
-_time.localtime = lambda *a: _time.struct_time((2026, 10, 3, 12, 0, 0, 5, 276, 0))
+_time.localtime = lambda *a: _time.struct_time((2026, 10, 15, 12, 0, 0, 3, 288, 0))
 try:
     c = nb.cell('''
     fam = sm.families.Gamma(link=sm.families.links.Log())
@@ -286,9 +380,11 @@ ratio = pd.DataFrame({"cost_ratio": np.exp(glm.params),
                       "lower": np.exp(glm.conf_int()[0]),
                       "upper": np.exp(glm.conf_int()[1]),
                       "p": glm.pvalues})
+print("나이 10세당 비용 비:", np.exp(10 * glm.params["age"]).round(2),
+      np.exp(10 * glm.conf_int().loc["age"]).round(2).tolist())
 ratio.round(3)
 ''', title="계수를 비용 비로 바꾸기")
-save("lab21_ratio", c, dfmarks={"1.241": 1, "1.087": 2, "2037.101": 3})
+save("lab21_ratio", c, marks={"0.99 [0.96, 1.01]": 5}, dfmarks={"1.241": 1, "1.087": 2, "2037.101": 3, "0.999": 4})
 
 c = nb.cell('''
 pA = glm.predict(df.assign(trt=1))   # 모두 A를 썼다고 놓은 예측
@@ -306,6 +402,17 @@ two = pd.DataFrame({"trt": [1, 0, 1, 0], "age": [64, 64, 75, 75],
 print(glm.predict(two).round(1).tolist())
 ''', title="모두 A일 때와 모두 B일 때의 예측 평균")
 save("lab21_std", c, marks={"2759.8 2223.8 536.0": 1, "비: 1.241": 2, "445.1 ~ 795.5": 3, "[2712.5, 2185.7, 3435.1, 2768.0]": 4})
+
+c = nb.cell('''
+f2 = "cost ~ trt + age + male + stage4"     # cci를 뺀 공식
+glm2 = smf.glm(f2, data=df, family=fam).fit()
+qA = glm2.predict(df.assign(trt=1)).mean()
+qB = glm2.predict(df.assign(trt=0)).mean()
+print("비용 비:", np.exp(glm2.params["trt"]).round(3))
+print("모두 A, 모두 B, 차이:", round(qA, 1), round(qB, 1),
+      round(qA - qB, 1))
+''', title="동반질환 점수를 뺀 모형")
+save("lab21_nocci", c, marks={"1.181": 1, "410.8": 2})
 
 c = nb.cell('''
 rng = np.random.default_rng(2101)
@@ -340,6 +447,15 @@ chk["tenth"] = pd.qcut(chk["pred"], 10, labels=False) + 1
 chk.groupby("tenth")[["cost", "pred"]].mean().round(0)
 ''', title="분포와 평균 구조 점검")
 save("lab21_check", c, marks={"기울기: 2.02": 1}, dfmarks={"2878.0": 2, "3019.0": 3})
+
+c = nb.cell('''
+chk["ln_pred2"] = chk["ln_pred"] ** 2      # 선형예측값의 제곱
+link = smf.glm("cost ~ ln_pred + ln_pred2", data=chk,
+               family=fam).fit(cov_type="HC0")
+print("제곱항의 계수:", link.params["ln_pred2"].round(3),
+      " P =", link.pvalues["ln_pred2"].round(3))
+''', title="연결 검정")
+save("lab21_link", c, marks={"-0.902": 1, "P = 0.078": 2})
 
 c = nb.cell('''
 res_tab = pd.DataFrame(
@@ -396,8 +512,18 @@ hw2.round(1)
 save("lab21_hw2", c)
 
 c = nb.cell('''
-df["anyinp"] = (df["cost_inp"] > 0).astype(int)  # 입원비가 생겼으면 1
 rhs = "trt + age + male + cci + stage4"
+for add in [0.01, 1, 10, 100]:            # 0원에 더하는 수
+    lm = smf.ols("np.log(cost_inp + " + str(add) + ") ~ " + rhs,
+                 data=df).fit()
+    print("더한 수", add, " exp(b):", np.exp(lm.params["trt"]).round(3),
+          np.exp(lm.conf_int().loc["trt"]).round(2).tolist(),
+          " P =", lm.pvalues["trt"].round(3))
+''', title="과제 3 정답 (1). 동료의 분석을 재현하고 더하는 수 바꾸기")
+save("lab21_hw3a", c, marks={"0.77": 1, "0.829": 2, "0.904": 3, "P = 0.032": 4})
+
+c = nb.cell('''
+df["anyinp"] = (df["cost_inp"] > 0).astype(int)  # 입원비가 생겼으면 1
 part1 = smf.logit("anyinp ~ " + rhs, data=df).fit(disp=0)
 pos = df[df["cost_inp"] > 0]                     # 입원비가 있는 환자만
 part2 = smf.glm("cost_inp ~ " + rhs, data=pos, family=fam).fit()
@@ -412,7 +538,7 @@ eA = (part1.predict(dA) * part2.predict(dA)).mean()
 eB = (part1.predict(dB) * part2.predict(dB)).mean()
 print("모두 A, 모두 B, 차이:", round(eA, 1), round(eB, 1),
       round(eA - eB, 1))
-''', title="과제 3 정답. 입원비의 이단계 모형")
+''', title="과제 3 정답 (2). 입원비의 이단계 모형")
 save("lab21_hw3", c, marks={"1835": 1, "0.935": 2, "0.923": 3, "645.1 715.9 -70.7": 4})
 
 # ---------------------------------------------------------------- 대조 블록: 21장 본문의 숫자와 맞추기
@@ -436,9 +562,34 @@ chk("mean, SD", [a_.mean(), a_.std(ddof=1), b_.mean(), b_.std(ddof=1)],
     [C["cost"]["mA"], C["cost"]["sA"], C["cost"]["mB"], C["cost"]["sB"]])
 chk("median, quartiles", np.percentile(a_, [25, 50, 75]).tolist() + np.percentile(b_, [25, 50, 75]).tolist(),
     [G["A"]["q1"], G["A"]["med"], G["A"]["q3"], G["B"]["q1"], G["B"]["med"], G["B"]["q3"]])
+chk("max A, B", [a_.max(), b_.max()], [G["A"]["max"], G["B"]["max"]])
 chk("B total, median x n", [b_.sum(), np.median(b_) * len(b_)], [G["B"]["total"], N["budget"]["tot_by_med"]], 1e-4)
 chk("below mean, top 5% (B)", [(b_ < b_.mean()).mean(), ns["top"].sum()], [G["B"]["below_mean"], 90], 1e-9)
+chk("top 5% count (B)", ns["k"], 90, 0.5)
 chk("zero inpatient % by arm", ns["zero"]["cost_inp"].tolist(), [C["inp"]["zeroA"] * 100, C["inp"]["zeroB"] * 100])
+# a 절 셀 7: 상위 1%(21장 b 절 3단계 '0원과 고액 환자는 그대로 두나?')
+k1_, srt_ = ns["k1"], ns["srt"]
+chk("top 1% of B: n, trimmed mean, share", [k1_, srt_[k1_:].mean(), srt_[:k1_].sum() / b_.sum()],
+    [G["B"]["k1"], G["B"]["mean_trim1"], G["B"]["top1"]])
+# a 절 셀 8–9: 명세서 11건(21장 표 21-2와 a 절 '더 알아보기'의 코드)
+CL, pt_, win_ = N["claims"], ns["pt"], ns["win"]
+assert (len(ns["claims"]), len(win_)) == (CL["rows"], CL["kept"])
+COLS = (("약국", "약국"), ("외래", "외래"), ("입원", "입원"), ("합계", "합계"), ("공단부담", "보험자부담"))
+assert pt_.index.tolist() == ["P01", "P02", "P03", "평균"]
+for pid, row in CL["table"].items():
+    chk("claims per patient " + pid, [pt_.loc[pid, k] for k, _ in COLS], [row[j] for _, j in COLS], 1e-9)
+chk("claims means per patient", [pt_.loc["평균", k] for k, _ in COLS], [CL["mean"][j] for _, j in COLS], 1e-9)
+chk("inpatient mean among users", win_[win_["type"] == "입원"].groupby("pid")["total"].sum().mean(), CL["inp_users_mean"])
+assert sorted(ns["merged"]["day"].tolist()) == [-137, 0, 0, 0, 0, 0, 0, 30, 30, 98, 371]
+# a 절 셀 10: 가격 기준 연도와 할인(21장 a 절 2단계 '다른 해의 금액은 어떻게 맞추나?')
+AD = N["adj"]
+chk("price year, discount 1 and 5 years",
+    [1000 * ns["idx_2025"] / ns["idx_2022"], 1000 / (1 + ns["disc_rate"]), 1000 / (1 + ns["disc_rate"]) ** 5],
+    [AD["c1"], AD["disc1"], AD["disc5"]], 1e-9)
+# a 절 셀 11: 약값 10% 환급(21장 a 절 3단계 '청구 금액은 곧 비용인가?')
+chk("rebate and difference", [ns["drugA"], ns["rebate"], a_.mean() - ns["rebate"] - b_.mean()],
+    [C["drug"]["mA"], 0.1 * C["drug"]["mA"], C["cost"]["diff"] - 0.1 * C["drug"]["mA"]], 1e-9)
+assert (round(ns["drugA"]), round(ns["rebate"]), round(a_.mean() - ns["rebate"] - b_.mean(), 1)) == (1559, 156, 240.2)
 # b 절: 평균 차이, Welch t, 부트스트랩(백분위수, BCa), Mann-Whitney, 로그 변환
 chk("mean difference", ns["diff"], C["cost"]["diff"])
 chk("Welch t, df, CI", [ns["tt"].statistic, ns["tt"].df, ns["ci"].low, ns["ci"].high],
@@ -480,10 +631,25 @@ chk("gamma GLM coefficients", [glm_.params[k] for k in ("Intercept", "trt", "age
     [RG["glm"]["coef"][k] for k in ("Intercept", "A", "age", "male", "cci", "stage4")], 1e-8)
 chk("cost ratio, CI, scale", [np.exp(glm_.params["trt"])] + np.exp(glm_.conf_int().loc["trt"]).tolist() + [glm_.scale],
     [RG["glm"]["ratio"]] + RG["glm"]["ratio_ci"] + [RG["glm"]["scale"]], 1e-8)
+# 셀 24의 두 줄: 나이 10세당 비용 비(21장 c 절 4단계 Table 3의 0.99 (0.96 to 1.01))
+chk("age per 10 years: ratio, CI", [np.exp(10 * glm_.params["age"])] + np.exp(10 * glm_.conf_int().loc["age"]).tolist(),
+    [RG["glm"]["expcoef"]["age"] ** 10] + [x ** 10 for x in RG["glm"]["expci"]["age"]], 1e-9)
+assert [round(float(x), 2) for x in [np.exp(10 * glm_.params["age"])] + np.exp(10 * glm_.conf_int().loc["age"]).tolist()] == [0.99, 0.96, 1.01]
 chk("standardized means, difference", [ns["pA"].mean(), ns["pB"].mean(), ns["pA"].mean() - ns["pB"].mean()],
     [RG["glm"]["predA"], RG["glm"]["predB"], RG["glm"]["diff"]])
 two_ = glm_.predict(ns["two"]).to_numpy()
 chk("two example patients", [two_[0] - two_[1], two_[2] - two_[3]], [RG["glm"]["one"]["diff"], RG["glm"]["one2"]["diff"]])
+# 셀 26: 동반질환 점수를 뺀 모형(21장 c 절 3단계 '보정되는 것은 모형에 넣은 변수뿐인가?'의 411만원).
+# nums_ch21.py는 이 값을 json에 남기지 않으므로 같은 계산을 장의 자료(_ch21_cost.csv, 열 이름 A)로 따로 해서 맞춘다.
+import pandas as pd  # noqa: E402
+import statsmodels.api as sm  # noqa: E402
+import statsmodels.formula.api as smf  # noqa: E402
+_src = pd.read_csv(os.path.join(HERE, "_ch21_cost.csv"))
+_g2 = smf.glm("cost ~ A + age + male + stage4", _src, family=sm.families.Gamma(link=sm.families.links.Log())).fit()
+chk("no-cci GLM: ratio, all A, all B (chapter data)",
+    [np.exp(ns["glm2"].params["trt"]), ns["qA"], ns["qB"]],
+    [np.exp(_g2.params["A"]), _g2.predict(_src.assign(A=1)).mean(), _g2.predict(_src.assign(A=0)).mean()], 1e-6)
+assert (round(ns["qA"] - ns["qB"]), round(float(np.exp(ns["glm2"].params["trt"])), 3)) == (411, 1.181)
 bs_ = ns["bs"]
 chk("bootstrap CI of adjusted difference", np.percentile(bs_[:, 2], [2.5, 97.5]), RG["glm"]["ci"], 1e-5)
 chk("bootstrap CI of adjusted means", np.percentile(bs_[:, :2], [2.5, 97.5], axis=0).T.ravel(),
@@ -494,10 +660,14 @@ chk("modified Park test", [ns["park"].params["ln_pred"]] + ns["park"].conf_int()
 dec_ = ns["chk"].groupby("tenth")[["cost", "pred"]].mean()
 chk("observed and predicted means by tenth", dec_["cost"].tolist() + dec_["pred"].tolist(),
     RG["check"]["obs"] + RG["check"]["glm"], 1e-6)
-# 과제: 항목별 부트스트랩 구간, 이단계 모형
+# 셀 29: 연결 검정(21장 c 절 '더 알아보기'의 P = 0.08). 장은 같은 모형을 sm.GLM 배열로 적합했다
+chk("link test P", ns["link"].pvalues["ln_pred2"], RG["check"]["link_p"], 1e-6)
+assert round(float(ns["link"].pvalues["ln_pred2"]), 2) == 0.08
+# 과제: 항목별 부트스트랩 구간, 반복 횟수, 0원에 더한 수, 이단계 모형
 for col, key in (("cost_drug", "drug"), ("cost_op", "op"), ("cost_inp", "inp"), ("cost", "cost")):
     chk("item " + key + " diff, bootstrap CI", ns["hw1"].loc[col, ["diff", "lower", "upper"]].tolist(),
         [C[key]["diff"]] + C[key]["boot"], 1e-9)
+assert [round(x) for x in ns["hw2"]["lower_range"]] == [36, 16, 4], ns["hw2"]["lower_range"].tolist()
 chk("two-part model", [np.exp(ns["part1"].params["trt"]), np.exp(ns["part2"].params["trt"]), ns["eA"], ns["eB"],
                        ns["eA"] - ns["eB"], len(ns["pos"])],
     [TP["or_"], TP["ratio"], TP["predA"], TP["predB"], TP["diff"], TP["n_pos"]], 1e-6)
@@ -509,10 +679,6 @@ print(f"대조: {len(CHECKS)}개 항목 모두 일치 (가장 큰 차이 {max(e 
 # ---------------------------------------------------------------- 본문 문장에 쓴 그 밖의 숫자 확인
 if os.environ.get("VERIFY") or os.environ.get("NOMARK"):
     import warnings
-    import pandas as pd
-    import statsmodels.api as sm
-    import statsmodels.formula.api as smf
-    from scipy import stats
     fam_ = sm.families.Gamma(link=sm.families.links.Log())
     f_ = ns["f"]
     d1, d0 = df_.assign(trt=1), df_.assign(trt=0)
@@ -547,44 +713,71 @@ if os.environ.get("VERIFY") or os.environ.get("NOMARK"):
             print("VERIFY log(0) OLS params:", m0.params.tolist(), [w.category.__name__ + ": " + str(w.message)[:60] for w in wl])
         except Exception as e:  # noqa
             print("VERIFY log(0) OLS error:", type(e).__name__, str(e)[:200], [str(w.message)[:60] for w in wl])
-    print("VERIFY B top 1% removed mean:", round(np.sort(b_)[::-1][18:].mean(), 1), " max A, B:", a_.max(), b_.max())
-    print("VERIFY over 10000:", (a_ > 10000).sum(), (b_ > 10000).sum(), " bins max", df_["cost"].max())
+    print("VERIFY over 10000:", (a_ > 10000).sum(), (b_ > 10000).sum(), " max A, B", a_.max(), b_.max())
     print("VERIFY tail experiment: B mean after", round(ns["b2"].mean(), 1), " cut-off", round(np.percentile(b_, 95), 1),
           " A above cut-off:", (a_ >= np.percentile(b_, 95)).sum())
     print("VERIFY ratio check 2760/2224:", round(ns["pA"].mean() / ns["pB"].mean(), 4), " exp(b)", round(float(np.exp(glm_.params["trt"])), 4))
     print("VERIFY GLM mean of fitted vs observed:", round(glm_.predict(df_).mean(), 1), round(df_["cost"].mean(), 1))
     print("VERIFY IQR A, B:", np.percentile(a_, [25, 75]), np.percentile(b_, [25, 75]))
-    print("VERIFY cci ratio CI:", np.exp(glm_.conf_int().loc["cci"]).round(3).tolist())
+    print("VERIFY cci ratio CI:", np.exp(glm_.conf_int().loc["cci"]).round(3).tolist(), " age per year:", np.exp(glm_.params["age"]).round(4))
     print("VERIFY crude ratio of means", round(a_.mean() / b_.mean(), 3), " share of A patients with cci>=2:",
           round((df_.loc[df_.arm == "A", "cci"] >= 2).mean(), 3), round((df_.loc[df_.arm == "B", "cci"] >= 2).mean(), 3))
     print("VERIFY hw2:\n", ns["hw2"].round(1).to_string())
     print("VERIFY two-part obs:", TP["obs_pA"], TP["obs_pB"], TP["obs_mA"], TP["obs_mB"], " tp p-values", TP["or_p"], TP["ratio_p"])
+    print("VERIFY two-part bootstrap CI (chapter):", np.round(TP["ci"], 1), " crude inp:", round(C["inp"]["diff"], 1), np.round(C["inp"]["boot"], 1))
     h3 = ns["hw1"]
     print("VERIFY hw1 raw:\n", h3.round(1).to_string())
+    print("VERIFY share hospitalized A, B (%):", round(100 - ns["zero"].loc["A", "cost_inp"], 1), round(100 - ns["zero"].loc["B", "cost_inp"], 1))
+    # 셀 7–11
+    print("VERIFY top1: removed share of patients", round(k1_ / len(b_) * 100, 2), " drop in mean", round(b_.mean() - srt_[k1_:].mean(), 1))
+    print("VERIFY claims: days", ns["merged"][["pid", "type", "day"]].values.tolist())
+    print("VERIFY claims: P01 users-only vs per-patient inp", CL["inp_users_mean"], round(CL["mean"]["입원"], 1),
+          " payer share of total", round(CL["mean"]["보험자부담"] / CL["mean"]["합계"], 4))
+    print("VERIFY adjust: 2022 -> 2025 ratio", 104.5 / 100, " 1000/1045", round(1000 / 1045, 3), " disc2", round(AD["disc2"], 1))
+    print("VERIFY rebate: A mean after", round(a_.mean() - ns["rebate"], 1), " drop", round(ns["rebate"] / C["cost"]["diff"] * 100, 1), "% of diff")
+    # 셀 26
+    print("VERIFY no-cci: diff", round(ns["qA"] - ns["qB"], 1), " vs crude", round(C["cost"]["diff"], 1), " vs full", round(RG["glm"]["diff"], 1))
+    # 과제 3: 동료의 문장
+    lm1 = smf.ols("np.log(cost_inp + 1) ~ trt + age + male + cci + stage4", df_).fit()
+    e1 = float(np.exp(lm1.params["trt"]))
+    print("VERIFY hw3 colleague: exp(b)", round(e1, 3), np.exp(lm1.conf_int().loc["trt"]).round(2).tolist(), " P", round(lm1.pvalues["trt"], 3),
+          " B mean inp", round(C["inp"]["mB"], 1), " 760 x (1 - exp b) =", round(C["inp"]["mB"] * (1 - e1), 1),
+          " rounded 760 x 0.171 =", round(760 * 0.171, 1))
+    for add in (0.01, 100):
+        lm_ = smf.ols(f"np.log(cost_inp + {add}) ~ trt + age + male + cci + stage4", df_).fit()
+        print("VERIFY hw3 add", add, round(float(np.exp(lm_.params["trt"])), 3), " P", round(lm_.pvalues["trt"], 3))
+    print("VERIFY hw3 two-part vs colleague:", round(TP["diff"], 1), " ratio", round(TP["predA"] / TP["predB"], 3),
+          " zero-cost patients", int((df_["cost_inp"] == 0).sum()), " 130 / 70.7 =", round(130 / -TP["diff"], 2))
+    pos_ = df_[df_["cost_inp"] > 0]
+    print("VERIFY inpatient users mean A, B:", round(pos_.loc[pos_.trt == 1, "cost_inp"].mean(), 1), round(pos_.loc[pos_.trt == 0, "cost_inp"].mean(), 1))
 
 if os.environ.get("NOMARK"):
     sys.exit(0)
 
 # ---------------------------------------------------------------- 노트북
-HW = {
-    23: ("## 과제 정답\n\n**과제 1.** 약제비(`cost_drug`), 외래 진료비(`cost_op`), 입원 진료비(`cost_inp`), 총비용(`cost`) 각각에 대해 "
-         "평균 차이(A − B)와 부트스트랩 백분위수 95% 신뢰구간(9,999회, seed 21)을 구합니다. 먼저 스스로 풀어 본 뒤 아래 셀을 실행하세요."),
-    24: ("**과제 2.** 반복 횟수를 200, 1,000, 9,999로 바꾸고 seed를 1부터 10까지 바꿔 가며 총비용 평균 차이의 백분위수 구간을 구해, "
-         "구간의 하한과 상한이 seed에 따라 얼마나 달라지는지 비교합니다."),
-    25: ("**과제 3.** 입원 진료비(`cost_inp`)는 38.8%가 0원입니다. 이단계 모형(1부 로지스틱 회귀, 2부 감마 GLM)으로 "
-         "모두 A일 때와 모두 B일 때의 1인당 입원비와 그 차이를 구합니다."),
-}
 notes = {
-    1: "## a. 실습 데이터 준비\n\n환자 한 명이 한 줄인 1년 의료비 자료(가상)를 불러와 군별로 요약하고 분포를 봅니다.",
-    6: "## b. 평균 비용의 비교와 부트스트랩\n\n평균 차이의 신뢰구간을 Welch t 검정과 부트스트랩으로 구하고, 중앙값·Mann-Whitney 검정·로그 변환이 답하는 질문과 견줍니다.",
-    14: "## c. 비용의 회귀분석\n\n두 군의 환자 구성 차이를 선형회귀, 로그 변환 회귀, 감마 GLM으로 보정합니다. 셀 20은 모형을 1,000번 다시 적합하므로 1–2분 걸립니다.",
+    1: ("## a. 실습 데이터 준비\n\n출력을 만든 패키지의 버전을 확인하고, 환자 한 명이 한 줄인 1년 의료비 자료(가상)를 불러와 "
+        "군별로 요약하고 분포를 봅니다. 내 화면의 출력이 사이트와 다를 때 먼저 버전을 비교합니다."),
+    8: ("21장 표 21-2의 명세서 11건(가상)으로 환자 한 명의 1년 비용을 만드는 과정을 따라갑니다. "
+        "그다음 가격 기준 연도 맞추기와 할인, 약값 환급을 계산합니다."),
+    12: ("## b. 평균 비용의 비교와 부트스트랩\n\n평균 차이의 신뢰구간을 Welch t 검정과 부트스트랩으로 구하고, "
+         "중앙값·Mann-Whitney 검정·로그 변환이 답하는 질문과 견줍니다."),
+    20: ("## c. 비용의 회귀분석\n\n두 군의 환자 구성 차이를 선형회귀, 로그 변환 회귀, 감마 GLM으로 보정합니다. "
+         "셀 27은 모형을 1,000번 다시 적합하므로 1–2분 걸립니다."),
+    31: ("## 과제 정답\n\n**과제 1.** 약제비(`cost_drug`), 외래 진료비(`cost_op`), 입원 진료비(`cost_inp`), 총비용(`cost`) 각각에 대해 "
+         "평균 차이(A − B)와 부트스트랩 백분위수 95% 신뢰구간(9,999회, seed 21)을 구하고, 입원 진료비 줄을 한 문장으로 옮긴 뒤 "
+         "이 줄이 말해 주지 않는 것을 두 가지 씁니다. 먼저 스스로 풀어 본 뒤 아래 셀을 실행하세요."),
+    32: ("**과제 2.** 반복 횟수를 200, 1,000, 9,999로 바꾸고 seed를 1부터 10까지 바꿔 가며 총비용 평균 차이의 백분위수 구간을 구해, "
+         "구간의 하한과 상한이 seed에 따라 얼마나 달라지는지 비교하고 그 이유를 설명합니다."),
+    33: ("**과제 3.** 입원비에 1을 더해 로그를 취한 동료의 선형회귀를 재현하고 더하는 수를 바꿔 본 뒤, "
+         "이단계 모형(1부 로지스틱 회귀, 2부 감마 GLM)으로 보정된 1인당 입원비 차이를 구해 동료의 분석에서 틀린 곳 두 가지를 찾습니다."),
 }
-notes.update(HW)
 path = nb.save_ipynb(
     "실습 21. 비용 자료 분석",
     intro=("사회약학 연구방법 노트의 '실습 21 비용 자료 분석'에 나오는 셀을 차례로 모은 노트북입니다. "
            "진행성 신세포암 1차 치료(신약 A 대 표준요법 B, 가상 자료) 환자 3,000명의 1년 의료비로 "
            "평균 비용의 차이와 부트스트랩 신뢰구간을 구하고, 감마 GLM으로 환자 구성의 차이를 보정합니다. "
+           "명세서에서 환자별 비용을 만드는 작은 예도 들어 있습니다. "
            "셀을 위에서부터 차례로 실행하세요. 자료는 사이트에서 바로 읽으므로 인터넷 연결이 필요합니다. "
            "설명과 출력 읽는 법은 사이트의 실습 21 쪽에 있습니다."),
     notes=notes)

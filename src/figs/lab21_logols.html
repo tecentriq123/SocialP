@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">로그 변환 회귀와 되돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">logm = smf.ols(&quot;np.log(cost) ~ trt + age + male + cci + stage4&quot;,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">로그 변환 회귀와 되돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">logm = smf.ols(&quot;np.log(cost) ~ trt + age + male + cci + stage4&quot;,
                data=df).fit()
 print(&quot;exp(b):&quot;, np.exp(logm.params[&quot;trt&quot;]).round(3),
       np.exp(logm.conf_int().loc[&quot;trt&quot;]).round(3).tolist())

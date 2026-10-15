@@ -1,13 +1,19 @@
 """실습 23 · 결정분석 모형 만들기 — cells run for real with labkit.
 
-run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab23.py && python3 gen/lab_lab23.py
+run:  source /home/claude/pylibs/env.sh && python3 gen/lab_lab23.py
+      then  python3 tools/nbcheck.py lab23   (runs the notebook alone in a fresh process and compares outputs)
       (NOMARK=1 을 앞에 붙이면 표식 없이 셀 출력만 화면에 찍는다)
 
-자료: pub/data/rcc_trial.csv (gen/data_lab23.py가 23장의 gen/_ch23_trial.csv에서 만든다).
+자료: pub/data/rcc_trial.csv (gen/data_lab23.py가 23장의 gen/_ch23_trial.csv에서 만든다. 이 생성기는 자료를 다시 만들지 않는다).
 학생 코드는 gen/lib_p4.py를 쓰지 않는다(입력값 사전과 짧은 함수로 다시 짠다).
-끝의 대조 블록이 실습 결과를 lib_p4.run()(20–25장 공통 예시의 기준 분석)과 gen/_ch23_nums.json(23장 d 절)의 값과 맞춘다.
+끝의 대조 블록이 실습 결과를 lib_p4(20–25장 공통 예시의 기준 분석과 23장에서 덧붙인 결정수형·마르코프 함수)와
+gen/_ch23_nums.json(23장 d 절의 적합 결과)의 값과 맞춘다.
+(2026-10-14: 23장을 새 틀로 고친 뒤 '실습 23에 더할 것'을 반영했다. 버전 셀 2, 상태 비율에서 결과를 내는 함수와
+ 곡선 다섯 개의 결과(표 23-12) 셀 19–20, 결정수형 셀 21–22, 결과의 그럴듯함 셀 27, 율과 확률(표 23-7) 셀 28,
+ 마르코프 코호트 모형(표 23-4, 23-5, 23-6, 23-10) 셀 29–32를 더했다. 과제는 ① 임계 가격의 해석 ② 분석기간(30개월 포함)
+ ③ 잘못된 율·확률 변환으로 바꿨다. 셀 번호가 모두 바뀌었다. lab_lab24.py가 적어 둔 '셀 7, 14'는 이제 셀 8, 15이다.)
 """
-import json, os, sys
+import json, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np  # noqa: E402
 from labkit import Notebook, _mark  # noqa: E402
@@ -55,14 +61,24 @@ c = nb.cell('''
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib, scipy, lifelines
 
+print("numpy     ", np.__version__)
+print("pandas    ", pd.__version__)
+print("matplotlib", matplotlib.__version__)
+print("scipy     ", scipy.__version__)
+print("lifelines ", lifelines.__version__)
+''', title="패키지 불러오기와 버전 확인")
+save("lab23_versions", c, marks={"pandas     3.0.5": 1, "scipy      1.18.1": 2, "lifelines  0.30.3": 3})
+
+c = nb.cell('''
 BASE = "https://socialp-ajou.tecentriq12.workers.dev/data/"
 UA = {"User-Agent": "Mozilla/5.0"}   # 사이트가 파이썬 기본 요청을 막아 브라우저처럼 보이게 함
 trial = pd.read_csv(BASE + "rcc_trial.csv", storage_options=UA)
 print(trial.shape)
 print(trial["event"].value_counts().to_dict())
 trial.head()
-''', title="패키지와 시험 자료 불러오기")
+''', title="시험 자료 불러오기")
 save("lab23_load", c, marks={"(300, 3)": 1, "{0: 155, 1: 145}": 2}, dfmarks={"24.903896": 3, "11.711834": 4})
 
 c = nb.cell('''
@@ -362,6 +378,117 @@ print("증분비용", round(r_fit["d_cost"]),
 ''', title="입력값을 바꿔 다시 돌리기 (a 절에서 적합한 곡선)")
 save("lab23_refit", c, marks={"p_fit: 1.1454": 1, "A 3.98": 2, "5610": 3})
 
+c = nb.cell('''
+def arm_result(p, arm, pf_t, pd_t, half=True):
+    """시점별 상태 비율(0-n개월의 n+1개) -> 한 군의 생존연수, 비용, QALY"""
+    n = len(pf_t) - 1
+    if half:                                  # 반주기 보정
+        pf = (pf_t[:-1] + pf_t[1:]) / 2
+        pd_ = (pd_t[:-1] + pd_t[1:]) / 2
+    else:                                     # 주기 시작의 값으로 셈
+        pf, pd_ = pf_t[:-1], pd_t[:-1]
+    alive = pf_t + pd_t
+    died = alive[:-1] - alive[1:]             # 주기별 사망
+    disc = 1 / (1 + p["disc"]) ** ((np.arange(n) + 0.5) / 12)
+    cost = ((pf * (p["c_drug_" + arm] + p["c_pf"]) + pd_ * p["c_pd"]
+             + died * p["c_death"]) * disc).sum() + p["c_ae_" + arm]
+    qaly = (((pf * p["u_pf"] + pd_ * p["u_pd"]) / 12 * disc).sum()
+            - p["du_ae_" + arm])
+    return {"ly_pf": pf.sum() / 12, "ly_pd": pd_.sum() / 12,
+            "ly": (pf + pd_).sum() / 12, "qaly": qaly, "cost": cost}
+
+def two_arms(rA, rB):
+    """두 군의 결과 -> 증분과 ICER"""
+    dc, dq = rA["cost"] - rB["cost"], rA["qaly"] - rB["qaly"]
+    return {"A": rA, "B": rB, "d_cost": dc, "d_qaly": dq, "icer": dc / dq}
+
+def run_os(p, s_os_B):
+    """표준요법 B의 전체생존 곡선(0-240개월의 값 241개)을 받는 분할생존모형"""
+    t = np.arange(len(s_os_B))
+    res = {}
+    for arm in ["A", "B"]:
+        s_os = s_os_B ** p["hr_os"] if arm == "A" else s_os_B   # 비례위험
+        s_pfs = np.minimum(curves(p, arm, t)[0], s_os)          # PFS는 그대로
+        res[arm] = arm_result(p, arm, s_pfs, s_os - s_pfs)
+    return two_arms(res["A"], res["B"])
+
+print("기준 곡선  :", round(run_os(p, os_B)["icer"], 6),
+      " run_model:", round(base["icer"], 6))
+print("적합한 와이블:", round(run_os(p, S["Weibull"])["icer"], 6),
+      " 셀 18   :", round(r_fit["icer"], 6))
+''', title="전체생존 곡선을 바꿔 넣는 함수")
+save("lab23_runos", c, marks={"5620.610246": 1, "5610.443617": 2})
+
+c = nb.cell('''
+rows = []
+for name, s in S.items():              # 셀 5에서 20년까지 늘린 곡선 다섯 개
+    r = run_os(p, s)
+    rows.append([name, r["B"]["ly"], r["A"]["ly"],
+                 r["d_cost"], r["d_qaly"], r["icer"]])
+os5 = pd.DataFrame(rows, columns=["model", "ly_B", "ly_A", "d_cost",
+                                  "d_qaly", "icer"]).set_index("model")
+os5.round(3).round({"ly_B": 2, "ly_A": 2, "d_cost": 0, "icer": 0})
+''', title="외삽 곡선 다섯 개로 돌린 결과")
+save("lab23_os5", c, dfmarks={"3.10": 1, "5610.0": 2, "0.813": 3, "5281.0": 4, "0.383": 5, "5934.0": 6})
+
+c = nb.cell('''
+tp = {"p_ae": 0.30,       # 예방 요법 없이 중증 이상반응이 생길 확률 (시험)
+      "rr": 0.60,         # 예방 요법의 상대위험도 (메타분석)
+      "p_hosp": 0.40,     # 이상반응이 생기면 입원할 확률
+      "c_hosp": 700.0, "c_out": 200.0,    # 입원, 외래 치료비 (만원)
+      "dq_hosp": 0.07, "dq_out": 0.02,    # 입원, 외래 치료의 QALY 손실
+      "c_proph": 60.0}    # 예방 요법 비용 (만원)
+
+def ae_tree(tp):
+    """두 전략의 경로 확률, 기대비용, 기대 QALY 변화와 증분"""
+    out = {}
+    for s, p_ae, add in [("none", tp["p_ae"], 0.0),
+                         ("proph", tp["p_ae"] * tp["rr"], tp["c_proph"])]:
+        prob = np.array([p_ae * tp["p_hosp"],         # 이상반응, 입원
+                         p_ae * (1 - tp["p_hosp"]),   # 이상반응, 외래 치료
+                         1 - p_ae])                   # 이상반응 없음
+        cost = add + np.array([tp["c_hosp"], tp["c_out"], 0.0])
+        qaly = -np.array([tp["dq_hosp"], tp["dq_out"], 0.0])
+        out[s] = {"prob": prob, "cost": (prob * cost).sum(),
+                  "qaly": (prob * qaly).sum()}
+    out["d_cost"] = out["proph"]["cost"] - out["none"]["cost"]
+    out["d_qaly"] = out["proph"]["qaly"] - out["none"]["qaly"]
+    out["icer"] = out["d_cost"] / out["d_qaly"]
+    return out
+
+tree = ae_tree(tp)
+for s in ["none", "proph"]:
+    print(s, "경로 확률", tree[s]["prob"].round(3),
+          "합", round(tree[s]["prob"].sum(), 10),
+          "| 기대비용", round(tree[s]["cost"], 1),
+          " 기대 QALY", round(tree[s]["qaly"], 4))
+print("증분비용", round(tree["d_cost"], 1),
+      " 증분 QALY", round(tree["d_qaly"], 4),
+      " ICER", round(tree["icer"]))
+print("증분 순편익", round(threshold * tree["d_qaly"] - tree["d_cost"], 1))
+''', title="결정수형: 이상반응 예방 요법")
+save("lab23_tree", c, marks={"[0.12 0.18 0.7 ]": 1, "기대비용 120.0": 2, "[0.072 0.108 0.82 ]": 3,
+                             "기대비용 132.0": 4, "ICER 2500": 5, "증분 순편익 12.0": 6})
+
+c = nb.cell('''
+rows = []
+for rr in [0.6, 2 / 3, 0.7, 0.8]:
+    r = ae_tree(dict(tp, rr=rr))
+    rows.append([rr, r["proph"]["cost"], r["d_cost"], r["d_qaly"],
+                 r["icer"], threshold * r["d_qaly"] - r["d_cost"]])
+print(pd.DataFrame(rows, columns=["rr", "cost", "d_cost", "d_qaly",
+                                  "icer", "nmb"]).round(
+    {"rr": 3, "cost": 1, "d_cost": 1, "d_qaly": 4, "icer": 0, "nmb": 1}))
+
+p_pro = dict(p, c_ae_A=tree["proph"]["cost"],
+             du_ae_A=-tree["proph"]["qaly"])
+print("예방 요법 없음과 사전의 값:", round(tree["none"]["cost"], 6),
+      p["c_ae_A"], round(-tree["none"]["qaly"], 6), p["du_ae_A"])
+print("예방 요법을 넣은 신약 A 대 B의 ICER:",
+      round(run_model(p_pro)["icer"]))
+''', title="상대위험도를 바꾸고, 결과를 분할생존모형에 넣기")
+save("lab23_treerr", c, marks={"0.667": 1, "6667.0": 2, "15000.0": 3, "120.0 120.0 0.012 0.012": 4, "5592": 5})
+
 # ---------------------------------------------------------------- d. 모형 점검
 c = nb.cell('''
 for arm in ["A", "B"]:
@@ -417,38 +544,146 @@ print("PFS가 OS를 넘는 시점의 수:", (s_pfs > s_os).sum())
 assert (s_pfs <= s_os).all(), "PFS가 OS를 넘는 주기가 있습니다"
 ''', title="점검에 걸리는 입력값", expect_error=True)
 save("lab23_chkfail", c, marks={"220": 1})
+CHKFAIL = c.n
+
+c = nb.cell('''
+rows = []
+for name, q in [("drug A", p),
+                ("hr_os = 1", dict(p, hr_os=1.0)),
+                ("drug C", dict(p, hr_pfs=0.60, hr_os=0.90))]:
+    r = run_model(q)
+    rows.append([name, r["A"]["ly_pf"] - r["B"]["ly_pf"],
+                 r["A"]["ly_pd"] - r["B"]["ly_pd"],
+                 r["A"]["ly"] - r["B"]["ly"],
+                 r["d_cost"], r["d_qaly"], r["icer"]])
+cols = ["scenario", "d_pf", "d_pd", "d_ly", "d_cost", "d_qaly", "icer"]
+plaus = pd.DataFrame(rows, columns=cols).set_index("scenario")
+plaus.round(3).round({"d_cost": 0, "icer": 0})
+''', title="상태별 기간의 증분으로 결과가 그럴듯한지 보기")
+save("lab23_plaus", c, dfmarks={"0.143": 1, "-0.719": 2, "9268.0": 3, "-0.600": 4, "0.292": 5, "5865.0": 6})
+
+c = nb.cell('''
+def rate_to_prob(r, t=1):
+    """율 r이 일정할 때 길이 t인 기간 안에 사건이 일어날 확률"""
+    return 1 - np.exp(-r * t)
+
+def prob_to_rate(prob, t=1):
+    """길이 t인 기간의 확률 -> 일정한 율"""
+    return -np.log(1 - prob) / t
+
+r_exit = np.log(2) / 10                # 중앙 무진행생존 10개월 -> 월 단위 율
+p_year = rate_to_prob(r_exit, 12)      # 1년 확률
+p_month = rate_to_prob(r_exit)         # 한 달 확률
+print("월 율", round(r_exit, 4), " 1년 확률", round(p_year, 3),
+      " 한 달 확률", round(p_month, 4))
+print("1행 옳은", round(rate_to_prob(prob_to_rate(p_year, 12)), 4),
+      "  틀린", round(p_year / 12, 4))
+print("2행 옳은", round(1 - (1 - p_month) ** 12, 3),
+      "  틀린", round(p_month * 12, 3))
+print("3행 옳은", round(rate_to_prob(r_exit * p["hr_pfs"], 12), 3),
+      "  틀린", round(p_year * p["hr_pfs"], 3))
+''', title="율과 확률 바꾸기 (23장 표 23-7)")
+save("lab23_rate", c, marks={"월 율 0.0693": 1, "1행 옳은 0.067": 2, "2행 옳은 0.565": 3, "3행 옳은 0.418": 4})
+
+c = nb.cell('''
+def matrix(r_prog, r_dpf, r_dpd):
+    """월 단위 율 세 개 -> 한 달 전이확률 행렬
+    (행: 출발 상태, 열: 도착 상태, 순서: 무진행, 진행, 사망)"""
+    leave = rate_to_prob(r_prog + r_dpf)         # 무진행 상태를 떠날 확률
+    to_pd = leave * r_prog / (r_prog + r_dpf)    # 그 가운데 진행으로 가는 몫
+    q = rate_to_prob(r_dpd)                      # 진행 상태에서 사망할 확률
+    return np.array([[1 - leave, to_pd, leave - to_pd],
+                     [0.0, 1 - q, q],
+                     [0.0, 0.0, 1.0]])
+
+r_dpd = 0.0470602          # 진행 -> 사망의 율. 23장이 B군 중앙 OS 28개월에 맞춘 값
+hr = p["hr_pfs"]
+P_B = matrix(0.9 * r_exit, 0.1 * r_exit, r_dpd)
+P_A = matrix(0.9 * r_exit * hr, 0.1 * r_exit * hr, r_dpd)   # 위험비는 율에 곱한다
+print(P_B.round(4))
+print(P_A.round(4))
+print("행의 합:", P_B.sum(axis=1), P_A.sum(axis=1))
+''', title="율에서 전이확률 행렬 만들기")
+save("lab23_mkmat", c, marks={"[[0.933  0.0603 0.0067]": 1, "[[0.9559 0.0396 0.0044]": 2, "행의 합: [1. 1. 1.]": 3})
+
+c = nb.cell('''
+def trace(P, n=240):
+    """모두 무진행에서 출발해 n주기 옮긴 상태 비율: (n+1)행 x 3열"""
+    x = np.array([1.0, 0.0, 0.0])
+    rows = [x]
+    for k in range(n):
+        x = x @ P                      # 행렬 곱 한 번 = 한 달
+        rows.append(x)
+    return np.array(rows)
+
+def median_os(P, n=1200):
+    """생존 비율(무진행 + 진행)이 0.5가 되는 시점(개월)"""
+    alive = trace(P, n)[:, :2].sum(axis=1)
+    k = np.argmax(alive <= 0.5)        # 처음으로 0.5 이하가 된 주기
+    return k - 1 + (alive[k - 1] - 0.5) / (alive[k - 1] - alive[k])
+
+tr_B, tr_A = trace(P_B), trace(P_A)
+print(tr_B.shape)
+print("행렬 거듭제곱:", np.linalg.matrix_power(P_B, 24)[0].round(4),
+      " 추적의 24행:", tr_B[24].round(4))
+print("모형의 중앙 전체생존: B", round(median_os(P_B), 1),
+      " A", round(median_os(P_A), 1))
+pd.DataFrame(tr_B[[0, 1, 2, 3, 12, 24]], index=[0, 1, 2, 3, 12, 24],
+             columns=["pf", "pd", "dead"]).round(3)
+''', title="코호트 추적 (표준요법 B)")
+save("lab23_mktrace", c, marks={"(241, 3)": 1, "추적의 24행: [0.1895 0.3839 0.4266]": 2, "B 28.0": 3, "A 34.8": 4},
+     dfmarks={"0.114": 5, "0.427": 6})
+
+c = nb.cell('''
+mk = two_arms(arm_result(p, "A", tr_A[:, 0], tr_A[:, 1]),
+              arm_result(p, "B", tr_B[:, 0], tr_B[:, 1]))
+tab_mk = pd.DataFrame({"A": mk["A"], "B": mk["B"]})
+tab_mk["diff"] = tab_mk["A"] - tab_mk["B"]
+print(tab_mk.round(3))
+print("ICER:", round(mk["icer"]))
+
+nohalf = two_arms(arm_result(p, "A", tr_A[:, 0], tr_A[:, 1], half=False),
+                  arm_result(p, "B", tr_B[:, 0], tr_B[:, 1], half=False))
+print("반주기 보정 없이: B 생존연수", round(nohalf["B"]["ly"], 3),
+      " ICER", round(nohalf["icer"]))
+''', title="마르코프 모형의 결과")
+save("lab23_mkres", c, marks={"0.647": 1, "-0.000": 2, "0.416": 3, "2435.555": 4, "ICER: 5858": 5,
+                              "2.876": 6, "ICER 5942": 7})
+
+c = nb.cell('''
+from scipy.optimize import brentq
+
+def gap(r, arm, target):
+    """진행 -> 사망 율이 r일 때 모형의 중앙 OS - 목표 중앙값"""
+    h = hr if arm == "A" else 1.0
+    return median_os(matrix(0.9 * r_exit * h, 0.1 * r_exit * h, r)) - target
+
+med_B = (np.log(2) / p["os_lam"]) ** (1 / p["os_gam"])
+med_A = (np.log(2) / (p["os_lam"] * p["hr_os"])) ** (1 / p["os_gam"])
+r_B = brentq(gap, 0.01, 1.0, args=("B", med_B))
+r_A = brentq(gap, 0.01, 1.0, args=("A", med_A))
+print("B: 목표", round(med_B, 1), "개월, 율", round(r_B, 7),
+      " 확률", round(rate_to_prob(r_B), 4))
+print("A: 목표", round(med_A, 1), "개월, 율", round(r_A, 5),
+      " 확률", round(rate_to_prob(r_A), 4))
+
+tr_A2 = trace(matrix(0.9 * r_exit * hr, 0.1 * r_exit * hr, r_A))
+mk2 = two_arms(arm_result(p, "A", tr_A2[:, 0], tr_A2[:, 1]), mk["B"])
+
+def row(r):
+    return [r["A"]["ly_pf"] - r["B"]["ly_pf"],
+            r["A"]["ly_pd"] - r["B"]["ly_pd"],
+            r["d_cost"], r["d_qaly"], r["icer"]]
+
+cmp = pd.DataFrame([row(mk), row(mk2), row(base)],
+                   index=["Markov", "Markov, by arm", "Partitioned"],
+                   columns=["d_pf", "d_pd", "d_cost", "d_qaly", "icer"])
+cmp.round(3).round({"d_cost": 0, "icer": 0})
+''', title="진행 후 사망을 군별로 맞추기와 두 구조의 비교")
+save("lab23_mkcal", c, marks={"율 0.0470602": 1, "확률 0.0428": 2},
+     dfmarks={"5858.0": 3, "0.121": 4, "5723.0": 5, "5621.0": 6})
 
 # ---------------------------------------------------------------- e. 과제
-c = nb.cell('''
-rows = []
-for years in [3, 5, 10, 20]:
-    r = run_model(p, horizon=years * 12)
-    alive = np.exp(-p["os_lam"] * p["hr_os"]
-                   * (years * 12) ** p["os_gam"])
-    rows.append([years, r["d_cost"], r["d_qaly"], r["icer"], alive])
-hw1 = pd.DataFrame(rows, columns=["years", "d_cost", "d_qaly",
-                                  "icer", "alive_A"])
-hw1.round({"d_cost": 0, "d_qaly": 3, "icer": 0, "alive_A": 3})
-''', title="과제 1 정답. 분석기간에 따른 결과")
-save("lab23_hw1", c, dfmarks={"7994.0": 1, "0.500": 2, "5686.0": 3, "5621.0": 4})
-
-c = nb.cell('''
-rows = []
-for rate in [0.0, 0.03, 0.045]:
-    r = run_model(dict(p, disc=rate))
-    rows.append([rate, r["A"]["cost"], r["A"]["qaly"],
-                 r["d_cost"], r["d_qaly"], r["icer"]])
-hw2 = pd.DataFrame(rows, columns=["rate", "cost_A", "qaly_A",
-                                  "d_cost", "d_qaly", "icer"])
-print(hw2.round({"cost_A": 0, "qaly_A": 3, "d_cost": 0,
-                 "d_qaly": 3, "icer": 0}).to_string(index=False))
-
-dq_undisc = base["A"]["qaly_undisc"] - base["B"]["qaly_undisc"]
-print("비용만 4.5%로 할인하고 QALY는 할인하지 않으면:",
-      round(base["d_cost"] / dq_undisc))
-''', title="과제 2 정답. 할인율에 따른 결과")
-save("lab23_hw2", c, marks={"5431.0": 1, "5555.0": 2, "4447": 3})
-
 c = nb.cell('''
 months = base["A"]["c_drug"] / p["c_drug_A"]     # 할인한 투약 개월 수
 nmb = threshold * base["d_qaly"] - base["d_cost"]   # 순금전편익
@@ -461,15 +696,51 @@ r = run_model(dict(p, c_drug_A=price))
 print("그 가격에서의 ICER:", round(r["icer"], 4))
 for x in [190, 180, 170]:
     print(x, round(run_model(dict(p, c_drug_A=x))["icer"]))
-''', title="과제 3 정답. ICER가 임계값과 같아지는 약값")
-save("lab23_hw3", c, marks={"21.707": 1, "175.39": 2, "인하율: 7.7": 3, "5000.0": 4})
+''', title="과제 1 정답. ICER가 임계값과 같아지는 약값")
+save("lab23_hw1", c, marks={"21.707": 1, "175.39": 2, "인하율: 7.7": 3, "5000.0": 4})
+
+c = nb.cell('''
+rows = []
+for m in [30, 36, 60, 120, 240]:
+    r = run_model(p, horizon=m)
+    alive = np.exp(-p["os_lam"] * p["hr_os"] * m ** p["os_gam"])
+    rows.append([m, r["d_cost"], r["d_qaly"], r["icer"], alive,
+                 r["d_qaly"] / base["d_qaly"]])
+hw2 = pd.DataFrame(rows, columns=["months", "d_cost", "d_qaly", "icer",
+                                  "alive_A", "share"])
+hw2.round({"d_cost": 0, "d_qaly": 3, "icer": 0, "alive_A": 3,
+           "share": 2})
+''', title="과제 2 정답. 분석기간에 따른 결과")
+save("lab23_hw2", c, dfmarks={"9056.0": 1, "0.25": 2, "0.570": 3, "7994.0": 4, "5686.0": 5, "0.002": 6})
+
+c = nb.cell('''
+p_wrong = p_year / 12                  # 동료가 넣은 한 달 확률
+r_w = prob_to_rate(p_wrong)            # 율로 바꾸면
+P_Bw = matrix(0.9 * r_w, 0.1 * r_w, r_dpd)
+P_Aw = matrix(0.9 * r_w * hr, 0.1 * r_w * hr, r_dpd)
+tB, tA = trace(P_Bw), trace(P_Aw)
+wrong = two_arms(arm_result(p, "A", tA[:, 0], tA[:, 1]),
+                 arm_result(p, "B", tB[:, 0], tB[:, 1]))
+print("한 달 확률:", round(p_wrong, 4), " 옳은 값:", round(p_month, 4))
+print("모형 속 B의 중앙 무진행생존:", round(np.log(2) / r_w, 1), "개월")
+print("모형 속 B의 중앙 전체생존 :", round(median_os(P_Bw), 1), "개월")
+print("생존연수 B", round(wrong["B"]["ly"], 3), " A", round(wrong["A"]["ly"], 3))
+print("증분비용", round(wrong["d_cost"]), " 증분 QALY", round(wrong["d_qaly"], 3),
+      " ICER", round(wrong["icer"]))
+print("셀 31  :", round(mk["d_cost"]), round(mk["d_qaly"], 3),
+      round(mk["icer"]))
+print("순금전편익", round(threshold * wrong["d_qaly"] - wrong["d_cost"]),
+      " 셀 31:", round(threshold * mk["d_qaly"] - mk["d_cost"]))
+''', title="과제 3 정답. 1년 확률을 12로 나눈 마르코프 모형")
+save("lab23_hw3", c, marks={"0.0471": 1, "14.4": 2, "33.5": 3, "생존연수 B 3.36": 4, "ICER 5894": 5,
+                            "셀 31  : 2436 0.416 5858": 6, "순금전편익 -507": 7})
 
 print("lab23: cells", len(nb.cells))
 for cc in nb.cells:
     if cc.warns:
         print("WARN cell", cc.n, cc.warns)
 
-# ---------------------------------------------------------------- 대조 블록: lib_p4.run()과 본문의 숫자에 맞추기
+# ---------------------------------------------------------------- 대조 블록: lib_p4와 23장의 숫자에 맞추기
 import lib_p4 as L  # noqa: E402  (읽기만 한다. 학생 코드는 이 파일을 쓰지 않는다)
 
 ns = nb.ns
@@ -528,8 +799,8 @@ chk("KM S(12), S(24), S(last)", ns["kmf"].predict([12, 24]).tolist() + [ns["kmf"
     [KM["s12"], KM["s24"], KM["s_last"]], 1e-9, "fit")
 assert np.isinf(ns["kmf"].median_survival_time_) and np.isinf(KM["median"])
 ft = ns["fit_tab"]
-for name, key in (("Exponential", "exp"), ("Weibull", "weib"), ("Log-logistic", "llog"), ("Log-normal", "lnorm"),
-                  ("Gen. gamma", "ggam")):
+FITKEY = (("Exponential", "exp"), ("Weibull", "weib"), ("Log-logistic", "llog"), ("Log-normal", "lnorm"), ("Gen. gamma", "ggam"))
+for name, key in FITKEY:
     x = N["fit"][key]
     assert int(ft.loc[name, "k"]) == x["k"]
     # 본문은 반올림하기 전의 모의 자료로, 실습은 소수 여섯째 자리까지 저장한 CSV로 적합하므로 1e-5쯤의 차이가 난다
@@ -544,25 +815,89 @@ rf = ns["r_fit"]
 chk("fitted Weibull in the model (Table 23-12): LY B, LY A, d_cost, d_qaly, ICER",
     [rf["B"]["ly"], rf["A"]["ly"], rf["d_cost"], rf["d_qaly"], rf["icer"]], [W["ly_B"], W["ly_A"], W["d_cost"], W["d_qaly"], W["icer"]], 0.02, "fit")
 assert round(rf["icer"]) == 5610 and round(rf["d_cost"]) == 2902 and round(rf["d_qaly"], 3) == 0.517
-# d 절: 점검에 쓴 값
+# c 절 셀 19–20: 상태 비율에서 결과를 내는 함수, 곡선 다섯 개(23장 표 23-12)
+run_os_ = ns["run_os"]
+r_chk = run_os_(p_, ns["os_B"])
+chk("run_os(base curve) = lib_p4.run()", [r_chk["d_cost"], r_chk["d_qaly"], r_chk["icer"], r_chk["A"]["cost"], r_chk["B"]["qaly"]],
+    [REF["d_cost"], REF["d_qaly"], REF["icer"], REF["A"]["cost"], REF["B"]["qaly"]], 1e-8)
+chk("run_os(fitted Weibull) = run_model(p_fit)", [run_os_(p_, ns["S"]["Weibull"])["icer"]], [rf["icer"]], 1e-8)
+os5_ = ns["os5"]
+for name, key in FITKEY:
+    x = N["fit"][key]
+    # CSV(소수 여섯째 자리)로 적합한 곡선이라 23장 값과 아주 조금 다르다. 화면에 보이는 자릿수가 같은지는 아래 assert가 본다
+    chk(f"Table 23-12 {name}: LY B, LY A", os5_.loc[name, ["ly_B", "ly_A"]], [x["ly_B"], x["ly_A"]], 1e-3, "fit")
+    chk(f"Table 23-12 {name}: d_qaly", os5_.loc[name, "d_qaly"], x["d_qaly"], 1e-4, "fit")
+    chk(f"Table 23-12 {name}: d_cost, ICER", os5_.loc[name, ["d_cost", "icer"]], [x["d_cost"], x["icer"]], 0.5, "fit")
+assert [(round(a, 2), round(b, 2), round(c), round(d, 3), round(e)) for a, b, c, d, e in os5_.to_numpy()] == \
+    [(3.50, 4.62, 3321, 0.605, 5485), (3.10, 3.98, 2902, 0.517, 5610), (4.62, 6.25, 4103, 0.773, 5311),
+     (5.19, 6.93, 4294, 0.813, 5281), (2.64, 3.20, 2275, 0.383, 5934)]
+# c 절 셀 21–22: 결정수형(23장 a 절)
+TR = L.ae_tree()
+tree_ = ns["tree"]
+for s_ in ("none", "proph"):
+    chk(f"tree {s_}: path probabilities", tree_[s_]["prob"], [x[1] for x in TR[s_]["paths"]], 1e-15)
+    chk(f"tree {s_}: expected cost, QALY", [tree_[s_]["cost"], tree_[s_]["qaly"]], [TR[s_]["cost"], TR[s_]["qaly"]], 1e-9)
+chk("tree: d_cost, d_qaly, ICER", [tree_["d_cost"], tree_["d_qaly"], tree_["icer"]], [TR["d_cost"], TR["d_qaly"], TR["icer"]], 1e-6)
+tp0 = L.ae_tree_params()
+for rr in (0.6, 2 / 3, 0.7, 0.8):
+    a_, b_ = ns["ae_tree"](dict(ns["tp"], rr=rr)), L.ae_tree(dict(tp0, rr_proph=rr))
+    chk(f"tree RR {rr:.3f}", [a_["d_cost"], a_["d_qaly"], a_["icer"]], [b_["d_cost"], b_["d_qaly"], b_["icer"]], 1e-6)
+assert (round(tree_["icer"]), round(ns["ae_tree"](dict(ns["tp"], rr=0.7))["icer"]), round(ns["ae_tree"](dict(ns["tp"], rr=0.8))["icer"])) == (2500, 6667, 15000)
+p_pro_ref = dict(P0, c_ae_A=TR["proph"]["cost"], du_ae_A=-TR["proph"]["qaly"])
+chk("prophylaxis in the partitioned survival model", ns["run_model"](ns["p_pro"])["icer"], L.run(p_pro_ref)["icer"], 1e-8)
+assert round(L.run(p_pro_ref)["icer"]) == 5592
+# d 절 셀 25: 점검에 쓴 값
 chk("discount 0%: A cost, A QALY, ICER", [ns["r0"]["A"]["cost"], ns["r0"]["A"]["qaly"], ns["r0"]["icer"]],
     [L.run(disc=0.0)["A"]["cost"], REF["A"]["qaly_undisc"], L.run(disc=0.0)["icer"]])
-assert round(ns["r0"]["A"]["cost"]) == 12194 and round(ns["r0"]["A"]["qaly"], 3) == 2.732          # 20장 '할인'
-# 과제: 분석기간(20장 표 20-6), 할인율(표 20-8), 임계 가격(24장 a 절)
-hw1_, hw2_ = ns["hw1"], ns["hw2"]
-for i, yrs in enumerate((3, 5, 10, 20)):
-    q = L.run(horizon=yrs * 12)
-    chk(f"horizon {yrs} y: d_cost, d_qaly, ICER", hw1_.loc[i, ["d_cost", "d_qaly", "icer"]], [q["d_cost"], q["d_qaly"], q["icer"]])
-assert [(round(a), round(b, 3), round(c)) for a, b, c in hw1_[["d_cost", "d_qaly", "icer"]].to_numpy()] == \
-    [(1316, 0.165, 7994), (1875, 0.297, 6324), (2640, 0.464, 5686), (2872, 0.511, 5621)]
-for i, rate in enumerate((0.0, 0.03, 0.045)):
-    q = L.run(disc=rate)
-    chk(f"discount {rate}: d_cost, d_qaly, ICER", hw2_.loc[i, ["d_cost", "d_qaly", "icer"]], [q["d_cost"], q["d_qaly"], q["icer"]])
-assert [(round(a), round(b, 3), round(c)) for a, b, c in hw2_[["d_cost", "d_qaly", "icer"]].to_numpy()[:2]] == \
-    [(3508, 0.646, 5431), (3058, 0.550, 5555)]
-assert round(base_["d_cost"] / ns["dq_undisc"]) == 4447                                             # 20장 c 절 흔한 오해
+assert round(ns["r0"]["A"]["cost"]) == 12194 and round(ns["r0"]["A"]["qaly"], 3) == 2.732 and round(ns["r0"]["icer"]) == 5431   # 20장 표 20-8
+# d 절 셀 27: 결과의 그럴듯함(23장 c 절 4단계, 스스로 확인하기의 신약 C)
+pl_ = ns["plaus"]
+for name, q in (("drug A", P0), ("hr_os = 1", dict(P0, hr_os=1.0)), ("drug C", dict(P0, hr_pfs=0.60, hr_os=0.90))):
+    r_ = L.run(q)
+    chk(f"plausibility {name}", pl_.loc[name], [r_["A"]["ly_pf"] - r_["B"]["ly_pf"], r_["A"]["ly_pd"] - r_["B"]["ly_pd"],
+                                                r_["A"]["ly"] - r_["B"]["ly"], r_["d_cost"], r_["d_qaly"], r_["icer"]], 1e-8)
+assert [round(x, 3) for x in pl_.loc["drug C", ["d_pf", "d_pd", "d_ly", "d_qaly"]]] == [0.892, -0.6, 0.292, 0.262]
+assert (round(pl_.loc["drug C", "d_cost"]), round(pl_.loc["drug C", "icer"]), round(pl_.loc["hr_os = 1", "icer"])) == (1537, 5865, 9268)
+# d 절 셀 28: 율과 확률(23장 표 23-7)
+r_exit_ = np.log(2) / 10
+chk("rate and probability", [ns["r_exit"], ns["p_year"], ns["p_month"], ns["prob_to_rate"](ns["p_year"], 12)],
+    [r_exit_, float(L.rate_to_prob(r_exit_, 12)), float(L.rate_to_prob(r_exit_)), float(L.prob_to_rate(L.rate_to_prob(r_exit_, 12), 12))], 1e-15)
+assert ("%.2f %.2f %.1f %.1f %.1f %.1f" % (100 * ns["p_month"], 100 * ns["p_year"] / 12, 100 * ns["p_year"], 100 * ns["p_month"] * 12,
+                                           100 * float(L.rate_to_prob(r_exit_ * 0.65, 12)), 100 * ns["p_year"] * 0.65)) == "6.70 4.71 56.5 80.4 41.8 36.7"
+# d 절 셀 29–32: 마르코프 코호트 모형(23장 표 23-4, 23-5, 23-6, 23-10)
+MI, MI2 = L.markov_inputs(P0), L.markov_inputs(P0, pd_death_by_arm=True)
+chk("transition matrix B", ns["P_B"], MI["B"]["P"], 1e-7)
+chk("transition matrix A", ns["P_A"], MI["A"]["P"], 1e-7)
+MK, MK2, MKN = L.run_markov(P0), L.run_markov(P0, pd_death_by_arm=True), L.run_markov(P0, half_cycle=False)
+chk("cohort trace B", ns["tr_B"].T, [MK["B"]["trace"]["pf"], MK["B"]["trace"]["pd"], MK["B"]["trace"]["dead"]], 1e-6)
+chk("matrix_power(P_B, 24) = trace row 24", np.linalg.matrix_power(ns["P_B"], 24)[0], ns["tr_B"][24], 1e-12)
+chk("model median OS B, A", [ns["median_os"](ns["P_B"]), ns["median_os"](ns["P_A"])], [MI["B"]["med_os_model"], MI["A"]["med_os_model"]], 1e-4)
+mk_, nh_, mk2_ = ns["mk"], ns["nohalf"], ns["mk2"]
+for tag, a_, b_ in (("Markov", mk_, MK), ("Markov, no half-cycle", nh_, MKN), ("Markov, by arm", mk2_, MK2)):
+    # 셀 29는 진행 후 사망 율을 23장처럼 0.0470602로 적었고 lib_p4는 반올림하지 않은 0.04706015…를 쓴다. 비용이 0.01만원 안쪽으로 다르다
+    chk(f"{tag}: cost A, B", [a_["A"]["cost"], a_["B"]["cost"]], [b_["A"]["cost"], b_["B"]["cost"]], 1e-2)
+    chk(f"{tag}: QALY A, B, LY B", [a_["A"]["qaly"], a_["B"]["qaly"], a_["B"]["ly"]], [b_["A"]["qaly"], b_["B"]["qaly"], b_["B"]["ly"]], 1e-5)
+    chk(f"{tag}: ICER", a_["icer"], b_["icer"], 0.05)
+chk("calibrated PD death rates", [ns["r_B"], ns["r_A"]], [MI["B"]["r_death_pd"], MI2["A"]["r_death_pd"]], 1e-9)
+assert (round(mk_["icer"]), round(nh_["icer"]), round(mk2_["icer"])) == (5858, 5942, 5723)
+assert (round(mk_["A"]["cost"]), round(mk_["B"]["cost"]), round(mk_["A"]["qaly"], 3), round(mk_["B"]["qaly"], 3)) == (9730, 7294, 2.19, 1.774)
+assert [round(x, 3) for x in ns["cmp"].loc["Markov, by arm", ["d_pf", "d_pd", "d_qaly"]]] == [0.647, 0.121, 0.475]
+# 과제 1: 임계 가격(24장 a 절), 과제 2: 분석기간(25장 b 절의 30개월), 과제 3: 잘못된 변환(23장 b 절 '더 알아보기')
 chk("threshold price = lib_p4.threshold_price()", ns["price"], L.threshold_price())
 assert round(ns["price"], 1) == 175.4 and round(ns["months"], 1) == 21.7
+hw2_ = ns["hw2"]
+for i, m in enumerate((30, 36, 60, 120, 240)):
+    q = L.run(horizon=m)
+    chk(f"horizon {m} months: d_cost, d_qaly, ICER", hw2_.loc[i, ["d_cost", "d_qaly", "icer"]], [q["d_cost"], q["d_qaly"], q["icer"]])
+assert [(round(a), round(b, 3), round(c)) for a, b, c in hw2_[["d_cost", "d_qaly", "icer"]].to_numpy()] == \
+    [(1157, 0.128, 9056), (1316, 0.165, 7994), (1875, 0.297, 6324), (2640, 0.464, 5686), (2872, 0.511, 5621)]
+r_w_ = float(L.prob_to_rate(L.rate_to_prob(r_exit_, 12) / 12))
+PBw, PAw = (L.markov_matrix(0.9 * r_w_ * h, 0.1 * r_w_ * h, MI["B"]["r_death_pd"]) for h in (1.0, 0.65))
+W3 = {arm: L.markov(P0, arm, P=P_) for arm, P_ in (("A", PAw), ("B", PBw))}
+w_ = ns["wrong"]
+chk("wrong conversion: LY B, LY A", [w_["B"]["ly"], w_["A"]["ly"]], [W3["B"]["ly"], W3["A"]["ly"]], 1e-5)
+chk("wrong conversion: ICER", w_["icer"], (W3["A"]["cost"] - W3["B"]["cost"]) / (W3["A"]["qaly"] - W3["B"]["qaly"]), 1e-2)
+assert (round(math.log(2) / r_w_, 1), round(L._trace_median(PBw), 1), round(w_["icer"])) == (14.4, 33.5, 5894)
 print(f"대조: {len(CHECKS)}개 항목 모두 허용 오차 안 (lib_p4와 견준 {sum(g == 'model' for _, _, g in CHECKS)}개의 가장 큰 차이 "
       f"{max(e for _, e, g in CHECKS if g == 'model'):.2e}, "
       f"23장 d 절과 견준 {sum(g == 'fit' for _, _, g in CHECKS)}개의 가장 큰 차이 {max(e for _, e, g in CHECKS if g == 'fit'):.2e})")
@@ -574,25 +909,35 @@ if os.environ.get("VERIFY") or os.environ.get("NOMARK"):
     print("VERIFY medians of fitted models:", {n_: round(float(f.median_survival_time_), 1) for n_, f in ns["models"].items()})
     print("VERIFY B undiscounted total cost:", round(ns["r0"]["B"]["cost"], 1), " first-cycle cost:",
           round(float(ns["cyc"].loc[1, ["c_drug", "c_pf", "c_pd", "c_death"]].sum()), 1))
-    print("VERIFY price 180, 170 ICER:", [round(ns["run_model"](dict(p_, c_drug_A=x))["icer"]) for x in (180, 170)])
+    print("VERIFY hw1 ICER per 10 (10,000 KRW) price cut:", [round(ns["run_model"](dict(p_, c_drug_A=x))["icer"]) for x in (190, 180, 170)])
+    print("VERIFY hw3 ratios of increments, wrong / right: d_cost %.3f d_qaly %.3f" % (w_["d_cost"] / mk_["d_cost"], w_["d_qaly"] / mk_["d_qaly"]))
+    print("VERIFY hw2 ICER at 30 months / base: %.2f" % (hw2_.loc[0, "icer"] / base_["icer"]))
 
 # ---------------------------------------------------------------- 노트북 (pub/notebooks/lab23.ipynb)
 notes = {
     1: "## a. 생존곡선의 적합과 외삽\n\n가상 임상시험(표준요법 B군 300명)의 전체생존 자료에 모수 모형 다섯 개를 적합하고 20년까지 늘려 그립니다.",
-    7: "## b. 분할생존모형 만들기\n\n입력값 사전, 시간 격자, 군별 생존곡선, 상태 비율을 차례로 만듭니다.",
-    12: "## c. 비용과 QALY, ICER\n\n주기별 비용과 QALY를 할인해 더하고, 모형 전체를 함수 `run_model(p)`로 묶습니다.",
-    18: "## d. 모형 점검\n\n답을 미리 아는 입력값을 넣어 모형이 제대로 계산하는지 확인합니다. "
-        "사이트의 셀 21(점검에 걸리는 입력값을 넣어 일부러 오류를 내는 셀)은 이 노트북에서 뺐습니다.",
-    22: "## 과제 정답\n\n**과제 1.** 분석기간을 3년, 5년, 10년, 20년으로 바꿔 증분비용, 증분 QALY, ICER를 구하세요.",
-    23: "**과제 2.** 할인율을 0%, 3%, 4.5%로 바꿔 신약 A의 총비용과 QALY, 증분비용, 증분 QALY, ICER를 구하세요.",
-    24: "**과제 3.** ICER가 5,000만원/QALY(이 예시에서 가정한 임계값)가 되는 신약 A의 월 약값을 구하세요.",
+    2: "출력을 만든 패키지의 버전을 확인합니다. 내 화면의 출력이 사이트와 다를 때 먼저 비교합니다.",
+    8: "## b. 분할생존모형 만들기\n\n입력값 사전, 시간 격자, 군별 생존곡선, 상태 비율을 차례로 만듭니다.",
+    13: "## c. 비용과 QALY, ICER\n\n주기별 비용과 QALY를 할인해 더하고, 모형 전체를 함수 `run_model(p)`로 묶습니다.",
+    19: "전체생존 곡선을 바꿔 넣을 수 있는 함수를 만들어 셀 5의 다섯 곡선으로 돌립니다(23장 표 23-12).",
+    21: "결정수형으로 이상반응 예방 요법의 기대비용과 QALY를 구하고, 그 결과를 분할생존모형에 넣어 봅니다(23장 a 절).",
+    23: ("## d. 모형 점검\n\n답을 미리 아는 입력값을 넣어 모형이 제대로 계산하는지 확인하고, 결과가 그럴듯한지 본 뒤, "
+                  "같은 입력값으로 만든 마르코프 코호트 모형과 견줍니다. 사이트의 셀 %d(점검에 걸리는 입력값을 넣어 일부러 "
+                  "오류를 내는 셀)은 이 노트북에서 뺐습니다." % CHKFAIL),
+    28: "율과 확률을 바꾸는 함수를 만들고, 같은 입력값으로 마르코프 코호트 모형을 만듭니다(23장 b 절).",
+    33: ("## 과제 정답\n\n**과제 1.** ICER가 5,000만원/QALY(이 예시에서 가정한 임계값)가 되는 신약 A의 월 약값을 구하고, "
+         "그 결과를 한 문장으로 옮긴 뒤 이 가격이 말해 주지 않는 것을 두 가지 씁니다."),
+    34: ("**과제 2.** 분석기간을 30개월, 3년, 5년, 10년, 20년으로 바꿔 증분비용, 증분 QALY, ICER와 분석기간 끝의 신약 A군 "
+         "생존 비율, 기준 분석의 증분 QALY 가운데 쌓인 몫을 구하고 왜 달라지는지 설명합니다."),
+    35: "**과제 3.** 1년 확률을 12로 나눠 한 달 확률로 넣은 동료의 마르코프 모형을 재현하고, 틀린 곳 두 가지를 찾습니다.",
 }
+assert CHKFAIL == 26
 path = nb.save_ipynb(
     "실습 23. 결정분석 모형 만들기",
     intro=("사회약학 연구방법 노트의 '실습 23 결정분석 모형 만들기'에 나오는 셀을 차례로 모은 노트북입니다. "
            "진행성 신세포암 1차 치료(신약 A 대 표준요법 B, 가상의 예시)의 세 상태 분할생존모형을 numpy와 pandas만으로 만들어 "
-           "20–25장 공통 예시의 기준 분석(ICER 5,621만원/QALY)을 재현합니다. "
-           "셀을 위에서부터 차례로 실행하세요. a 절의 자료는 사이트에서 바로 읽으므로 인터넷 연결이 필요합니다. "
-           "설명과 출력 읽는 법은 사이트의 실습 23 쪽에 있습니다."),
-    skip=(21,), notes=notes)
+           "20–25장 공통 예시의 기준 분석(ICER 5,621만원/QALY)을 재현하고, 같은 입력값으로 결정수형과 마르코프 코호트 모형을 "
+           "계산해 23장의 숫자와 맞춰 봅니다. 셀을 위에서부터 차례로 실행하세요. a 절의 자료는 사이트에서 바로 읽으므로 "
+           "인터넷 연결이 필요합니다. 설명과 출력 읽는 법은 사이트의 실습 23 쪽에 있습니다."),
+    skip=(CHKFAIL,), notes=notes)
 print("notebook:", path, len(nb.cells), "cells")

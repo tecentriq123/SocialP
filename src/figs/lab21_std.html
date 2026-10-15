@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">모두 A일 때와 모두 B일 때의 예측 평균</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pA = glm.predict(df.assign(trt=1))   # 모두 A를 썼다고 놓은 예측
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">모두 A일 때와 모두 B일 때의 예측 평균</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pA = glm.predict(df.assign(trt=1))   # 모두 A를 썼다고 놓은 예측
 pB = glm.predict(df.assign(trt=0))   # 모두 B를 썼다고 놓은 예측
 print(&quot;모두 A, 모두 B, 차이:&quot;, round(pA.mean(), 1),
       round(pB.mean(), 1), round(pA.mean() - pB.mean(), 1))

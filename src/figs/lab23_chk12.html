@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">점검 1과 2. 상태 비율의 합과 부호, 두 곡선의 순서</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for arm in [&quot;A&quot;, &quot;B&quot;]:
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">점검 1과 2. 상태 비율의 합과 부호, 두 곡선의 순서</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">for arm in [&quot;A&quot;, &quot;B&quot;]:
     x = occupancy(p, arm, t).to_numpy()          # 241행 x 3열
     assert np.isclose(x.sum(axis=1), 1).all(), &quot;합이 1이 아닌 주기&quot;
     assert (x &gt;= 0).all(), &quot;음수인 비율&quot;

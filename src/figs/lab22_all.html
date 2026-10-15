@@ -1,0 +1,49 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">환자 320명의 24개월 QALY와 생존연수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">paths, q, ly, base = {}, [], [], []
+for r in pts.itertuples():                     # 환자 한 명씩
+    g = df[df[&quot;id&quot;] == r.id]                   # 이 환자의 응답 (시점 순서)
+    t, u = path(g[&quot;month&quot;], g[&quot;utility&quot;], r.t_death)
+    paths[r.id] = (t, u)                       # 뒤의 셀에서 다시 씀
+    q.append(trapezoid(u, t) / 12)
+    ly.append(min(r.t_death, 24) / 12)
+    base.append(g[&quot;utility&quot;].iloc[0])          # 치료 시작 시점의 효용
+pts[&quot;qaly&quot;], pts[&quot;ly&quot;], pts[&quot;base&quot;] = q, ly, base
+
+print(pts.head(3).round(3))
+pts.groupby(&quot;arm&quot;).agg(qaly=(&quot;qaly&quot;, &quot;mean&quot;), qaly_sd=(&quot;qaly&quot;, &quot;std&quot;),
+                       ly=(&quot;ly&quot;, &quot;mean&quot;), base=(&quot;base&quot;, &quot;mean&quot;)).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   id arm  t_prog  t_death   qaly     ly   base
+0   1   A  17.163   17.300  0.799<span class="mk">1</span>  1.442  0.293
+1   2   A  16.516   42.147  1.664  2.000  0.772
+2   3   A   2.862    4.299  0.178  0.358  0.732</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>qaly</th>
+      <th>qaly_sd</th>
+      <th>ly</th>
+      <th>base</th>
+    </tr>
+    <tr>
+      <th>arm</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A</th>
+      <td>1.204<span class="mk">2</span></td>
+      <td>0.529<span class="mk">3</span></td>
+      <td>1.640<span class="mk">4</span></td>
+      <td>0.786</td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td>1.087</td>
+      <td>0.522</td>
+      <td>1.571<span class="mk">5</span></td>
+      <td>0.766</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

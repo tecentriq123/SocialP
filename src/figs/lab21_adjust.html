@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">가격 기준 연도 맞추기와 할인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">idx_2022, idx_2025 = 100.0, 104.5        # 물가지수 (가정한 값)
+print(&quot;2022년 1,000만원, 2025년 가격으로:&quot;,
+      round(1000 * idx_2025 / idx_2022, 1))
+
+disc_rate = 0.045                        # 할인율 연 4.5%
+print(&quot;1년 뒤 1,000만원의 현재 가치    :&quot;, round(1000 / (1 + disc_rate) ** 1, 1))
+print(&quot;5년 뒤 1,000만원의 현재 가치    :&quot;, round(1000 / (1 + disc_rate) ** 5, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>2022년 1,000만원, 2025년 가격으로: 1045.0<span class="mk">1</span>
+1년 뒤 1,000만원의 현재 가치    : 956.9<span class="mk">2</span>
+5년 뒤 1,000만원의 현재 가치    : 802.5<span class="mk">3</span></pre></div></div>

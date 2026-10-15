@@ -1,0 +1,60 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">임계값을 바꾼 순금전편익</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">tab = pd.DataFrame({&quot;lam&quot;: [2500, 3000, 5000, 6000, 7000, 8000]})
+tab[&quot;nmb&quot;] = tab[&quot;lam&quot;] * d_qaly - d_cost      # 순금전편익(만원)
+tab[&quot;nhb&quot;] = tab[&quot;nmb&quot;] / tab[&quot;lam&quot;]           # 순건강편익(QALY)
+tab[&quot;ce&quot;] = tab[&quot;nmb&quot;] &gt; 0                     # 비용효과적인가
+print(&quot;부호가 바뀌는 임계값:&quot;, round(d_cost / d_qaly, 1))
+tab.round({&quot;nmb&quot;: 1, &quot;nhb&quot;: 3})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>부호가 바뀌는 임계값: 5620.6<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>lam</th>
+      <th>nmb</th>
+      <th>nhb</th>
+      <th>ce</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2500</td>
+      <td>-1594.7<span class="mk">2</span></td>
+      <td>-0.638</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3000</td>
+      <td>-1339.2<span class="mk">3</span></td>
+      <td>-0.446</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5000</td>
+      <td>-317.1</td>
+      <td>-0.063</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>6000</td>
+      <td>193.9<span class="mk">4</span></td>
+      <td>0.032</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7000</td>
+      <td>704.9<span class="mk">5</span></td>
+      <td>0.101</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>8000</td>
+      <td>1215.9<span class="mk">6</span></td>
+      <td>0.152</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

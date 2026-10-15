@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">기저 효용 보정 전후의 QALY 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pts[&quot;A&quot;] = (pts[&quot;arm&quot;] == &quot;A&quot;).astype(int)       # 신약 A = 1, B = 0
+m0 = smf.ols(&quot;qaly ~ A&quot;, data=pts).fit()
+m1 = smf.ols(&quot;qaly ~ A + base&quot;, data=pts).fit()
+for name, m in [(&quot;보정 전&quot;, m0), (&quot;보정 후&quot;, m1)]:
+    lo, hi = m.conf_int().loc[&quot;A&quot;]
+    print(name, &quot; 차이&quot;, round(m.params[&quot;A&quot;], 3),
+          &quot; 95% CI&quot;, round(lo, 3), round(hi, 3), &quot; SE&quot;, round(m.bse[&quot;A&quot;], 3))
+
+mb = pts.groupby(&quot;arm&quot;)[&quot;base&quot;].mean()
+print(&quot;기저 효용의 계수:&quot;, round(m1.params[&quot;base&quot;], 3))
+print(&quot;기저 효용의 차이&quot;, round(mb[&quot;A&quot;] - mb[&quot;B&quot;], 4),
+      &quot;x 계수 =&quot;, round((mb[&quot;A&quot;] - mb[&quot;B&quot;]) * m1.params[&quot;base&quot;], 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>보정 전  차이 0.117<span class="mk">1</span>  95% CI 0.001 0.232<span class="mk">2</span>  SE 0.059
+보정 후  차이 0.094<span class="mk">3</span>  95% CI -0.017 0.204<span class="mk">4</span>  SE 0.056
+기저 효용의 계수: 1.186<span class="mk">5</span>
+기저 효용의 차이 0.0195 x 계수 = 0.023<span class="mk">6</span></pre></div></div>

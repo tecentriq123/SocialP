@@ -1,0 +1,69 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">외삽 곡선 다섯 개로 돌린 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for name, s in S.items():              # 셀 5에서 20년까지 늘린 곡선 다섯 개
+    r = run_os(p, s)
+    rows.append([name, r[&quot;B&quot;][&quot;ly&quot;], r[&quot;A&quot;][&quot;ly&quot;],
+                 r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;]])
+os5 = pd.DataFrame(rows, columns=[&quot;model&quot;, &quot;ly_B&quot;, &quot;ly_A&quot;, &quot;d_cost&quot;,
+                                  &quot;d_qaly&quot;, &quot;icer&quot;]).set_index(&quot;model&quot;)
+os5.round(3).round({&quot;ly_B&quot;: 2, &quot;ly_A&quot;: 2, &quot;d_cost&quot;: 0, &quot;icer&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ly_B</th>
+      <th>ly_A</th>
+      <th>d_cost</th>
+      <th>d_qaly</th>
+      <th>icer</th>
+    </tr>
+    <tr>
+      <th>model</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Exponential</th>
+      <td>3.50</td>
+      <td>4.62</td>
+      <td>3321.0</td>
+      <td>0.605</td>
+      <td>5485.0</td>
+    </tr>
+    <tr>
+      <th>Weibull</th>
+      <td>3.10<span class="mk">1</span></td>
+      <td>3.98</td>
+      <td>2902.0</td>
+      <td>0.517</td>
+      <td>5610.0<span class="mk">2</span></td>
+    </tr>
+    <tr>
+      <th>Log-logistic</th>
+      <td>4.62</td>
+      <td>6.25</td>
+      <td>4103.0</td>
+      <td>0.773</td>
+      <td>5311.0</td>
+    </tr>
+    <tr>
+      <th>Log-normal</th>
+      <td>5.19</td>
+      <td>6.93</td>
+      <td>4294.0</td>
+      <td>0.813<span class="mk">3</span></td>
+      <td>5281.0<span class="mk">4</span></td>
+    </tr>
+    <tr>
+      <th>Gen. gamma</th>
+      <td>2.64</td>
+      <td>3.20</td>
+      <td>2275.0</td>
+      <td>0.383<span class="mk">5</span></td>
+      <td>5934.0<span class="mk">6</span></td>
+    </tr>
+  </tbody>
+</table></div></div></div>

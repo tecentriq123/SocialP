@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">생존자만의 평균 효용으로 계산하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python"># 행: 시점, 열: 군. 그 시점에 살아서 답한 사람만의 평균
+alive_mean = df.groupby([&quot;month&quot;, &quot;arm&quot;])[&quot;utility&quot;].mean().unstack()
+alive_n = df.groupby([&quot;month&quot;, &quot;arm&quot;]).size().unstack()
+print(pd.concat({&quot;mean&quot;: alive_mean.round(3), &quot;n&quot;: alive_n}, axis=1))
+
+wrong = trapezoid(alive_mean, visits, axis=0) / 12   # 생존자만의 평균을 이은 곡선 아래 넓이
+print(&quot;생존자만의 평균 곡선:&quot;, wrong.round(3))
+print(&quot;환자별 QALY의 평균  :&quot;, pts.groupby(&quot;arm&quot;)[&quot;qaly&quot;].mean().round(3).to_numpy())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        mean           n     
+arm        A      B    A    B
+month                        
+0      0.786  0.766  160  160
+3      0.779  0.754  152  153
+6      0.743  0.715  144  146
+12     0.753  0.709  132  127
+18     0.736  0.671  116  106
+24     0.719<span class="mk">1</span>  0.676  105   92
+생존자만의 평균 곡선: [1.496 1.411]<span class="mk">2</span>
+환자별 QALY의 평균  : [1.204 1.087]<span class="mk">3</span></pre></div></div>

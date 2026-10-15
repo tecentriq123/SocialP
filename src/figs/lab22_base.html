@@ -1,0 +1,44 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">치료 시작 시점의 세 가지 숫자</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b0 = df[df[&quot;month&quot;] == 0].copy()                # 치료 시작 시점, 환자마다 한 행
+dims = [&quot;mobility&quot;, &quot;selfcare&quot;, &quot;activity&quot;, &quot;pain&quot;, &quot;anxiety&quot;]
+for i, d in enumerate(dims):
+    b0[d] = b0[&quot;eq5d&quot;].str[i].astype(int)       # 코드의 i번째 자리 = 그 영역의 수준
+
+print((b0[dims] &gt; 1).groupby(b0[&quot;arm&quot;]).sum())  # 수준 2-5(문제 있음)인 환자 수
+b0.groupby(&quot;arm&quot;).agg(utility=(&quot;utility&quot;, &quot;mean&quot;), utility_sd=(&quot;utility&quot;, &quot;std&quot;),
+                      vas=(&quot;vas&quot;, &quot;mean&quot;), vas_sd=(&quot;vas&quot;, &quot;std&quot;)).round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     mobility  selfcare  activity  pain  anxiety
+arm                                             
+A          94        49       102   119<span class="mk">1</span>      104
+B         102        53        98   129<span class="mk">2</span>      111</pre><div class="df-wrap"><table class="dataframe dfout">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>utility</th>
+      <th>utility_sd</th>
+      <th>vas</th>
+      <th>vas_sd</th>
+    </tr>
+    <tr>
+      <th>arm</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A</th>
+      <td>0.786<span class="mk">3</span></td>
+      <td>0.138</td>
+      <td>73.456<span class="mk">4</span></td>
+      <td>12.330</td>
+    </tr>
+    <tr>
+      <th>B</th>
+      <td>0.766</td>
+      <td>0.134</td>
+      <td>71.862</td>
+      <td>12.091</td>
+    </tr>
+  </tbody>
+</table></div></div></div>

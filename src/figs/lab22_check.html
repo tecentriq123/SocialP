@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">자료 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">print(&quot;환자:&quot;, pts.groupby(&quot;arm&quot;).size().to_dict())
+print(&quot;시점별 응답:&quot;, df.groupby(&quot;month&quot;).size().to_dict())
+print(&quot;상태별 응답:&quot;, df[&quot;state&quot;].value_counts().to_dict())
+print(&quot;진행 뒤에 응답한 환자:&quot;, df.loc[df[&quot;state&quot;] == &quot;PD&quot;, &quot;id&quot;].nunique(), &quot;명&quot;)
+
+died = pts[&quot;t_death&quot;] &lt;= 24                     # 24개월 안에 사망
+print(&quot;24개월 안의 사망:&quot;, pts[died].groupby(&quot;arm&quot;).size().to_dict())
+print(&quot;진행 없이 사망(t_prog가 inf):&quot;, np.isinf(pts[&quot;t_prog&quot;]).sum(), &quot;명&quot;)
+
+visits = np.array([0, 3, 6, 12, 18, 24])
+alive = pts[&quot;t_death&quot;].apply(lambda d: (visits &lt; d).sum())   # 환자마다 살아 있던 방문 수
+print(&quot;살아 있던 방문:&quot;, alive.sum(), &quot;번, 응답:&quot;, len(df), &quot;건&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>환자: {&#x27;A&#x27;: 160, &#x27;B&#x27;: 160}<span class="mk">1</span>
+시점별 응답: {0: 320, 3: 305, 6: 290, 12: 259, 18: 222, 24: 197}
+상태별 응답: {&#x27;PF&#x27;: 1184, &#x27;PD&#x27;: 409}<span class="mk">2</span>
+진행 뒤에 응답한 환자: 174 명<span class="mk">3</span>
+24개월 안의 사망: {&#x27;A&#x27;: 55, &#x27;B&#x27;: 68}<span class="mk">4</span>
+진행 없이 사망(t_prog가 inf): 47 명<span class="mk">5</span>
+살아 있던 방문: 1593 번<span class="mk">6</span>, 응답: 1593 건</pre></div></div>

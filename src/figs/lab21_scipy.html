@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">scipy 함수로 확인하고 BCa 구간 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def mean_diff(x, y, axis=-1):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">scipy 함수로 확인하고 BCa 구간 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def mean_diff(x, y, axis=-1):
     return x.mean(axis=axis) - y.mean(axis=axis)
 
 for method in [&quot;percentile&quot;, &quot;BCa&quot;]:
