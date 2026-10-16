@@ -24,4 +24,7 @@ ADD = {
     "greenland1986": {"text": "Greenland S, Schlesselman JJ, Criqui MH. The fallacy of employing standardized regression coefficients and correlations as measures of effect. <i>Am J Epidemiol</i>. 1986;123(2):203-208.", "doi": "10.1093/oxfordjournals.aje.a114229"},
     # PMID 11701584
     "vickers2001": {"text": "Vickers AJ, Altman DG. Statistics notes: Analysing controlled trials with baseline and follow up measurements. <i>BMJ</i>. 2001;323(7321):1123-1124.", "doi": "10.1136/bmj.323.7321.1123"},
+    # PMID 22563845
+    "bishara2012": {"text": "Bishara AJ, Hittner JB. Testing the significance of a correlation with nonnormal data: comparison of Pearson, Spearman, transformation, and resampling approaches. <i>Psychol Methods</i>. 2012;17(3):399-417.",
+                    "doi": "10.1037/a0028087"},
 }

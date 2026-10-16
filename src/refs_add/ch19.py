@@ -73,4 +73,7 @@ ADD = {
     # PMID 16467236
     "peters2006": {"text": "Peters JL, Sutton AJ, Jones DR, Abrams KR, Rushton L. Comparison of two methods to detect publication bias in meta-analysis. <i>JAMA</i>. 2006;295(6):676-680.",
                    "doi": "10.1001/jama.295.6.676"},
+    # Cochrane event page (read 2026-10-16): "Version 2 of ROBINS-I was released during 2025", addresses immortal time bias
+    "cochrane_robins2": {"text": "Cochrane. Version 2 ROBINS-I tool [webinar announcement]. Cochrane; 2025. Accessed 16 October 2026.",
+                         "url": "https://www.cochrane.org/events/version-2-robins-i-tool"},
 }

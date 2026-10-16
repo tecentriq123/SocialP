@@ -686,10 +686,12 @@ print("main (random effects):", orci(m["re"], m["se_re"]))
 print("fixed effect         :", orci(m["fe"], m["se_fe"]))
 print(f"low risk of bias, k={m_low['k']}:",
       orci(m_low["re"], m_low["se_re"]))
+p_hk = 2 * stats.t.sf(abs(re / se_hk), k - 1)  # 자유도 k - 1인 t 검정
 print(f"Hartung-Knapp        : SE {se_hk:.4f}, 95% CI"
-      f" {np.exp(re - t9*se_hk):.2f}-{np.exp(re + t9*se_hk):.2f}")
+      f" {np.exp(re - t9*se_hk):.2f}-{np.exp(re + t9*se_hk):.2f},"
+      f" P {p_hk:.3f}")
 ''', title="그 밖의 민감도 분석")
-save("lab19_sens", c, marks={"0.84 (0.78-0.91)": 1, "k=8: 0.82 (0.72-0.94)": 2, "SE 0.0609": 3, "95% CI 0.72-0.94": 4})
+save("lab19_sens", c, marks={"0.84 (0.78-0.91)": 1, "k=8: 0.82 (0.72-0.94)": 2, "SE 0.0609": 3, "95% CI 0.72-0.94": 4, "P 0.010": 5})
 
 c = nb.cell('''
 def risk_with(p0, OR):
@@ -929,6 +931,7 @@ if __name__ == "__main__":
         same(int(row._4), int(round(ref["I2"] * 100)), "loo I2 " + ref["nm"])
     close(ns["m_low"]["re"], R["lowrob"]["re"])
     close(np.exp(ns["re"] - ns["t9"] * ns["se_hk"]), R["hk"][0]); close(np.exp(ns["re"] + ns["t9"] * ns["se_hk"]), R["hk"][1])
+    close(ns["p_hk"], R["hk_p"])
     # absolute effects
     same(float(ns["p0"]), 0.084); same(float(ns["pb0"]), 0.012)
     rw = ns["risk_with"]

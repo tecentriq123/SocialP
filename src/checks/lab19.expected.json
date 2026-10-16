@@ -142,7 +142,7 @@
  {
   "n": 29,
   "title": "그 밖의 민감도 분석",
-  "out": "main (random effects): 0.82 (0.72-0.94)\nfixed effect         : 0.84 (0.78-0.91)\nlow risk of bias, k=8: 0.82 (0.72-0.94)\nHartung-Knapp        : SE 0.0609, 95% CI 0.72-0.94\n"
+  "out": "main (random effects): 0.82 (0.72-0.94)\nfixed effect         : 0.84 (0.78-0.91)\nlow risk of bias, k=8: 0.82 (0.72-0.94)\nHartung-Knapp        : SE 0.0609, 95% CI 0.72-0.94, P 0.010\n"
  },
  {
   "n": 30,

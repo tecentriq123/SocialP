@@ -1,4 +1,4 @@
-<p class="lead">19장의 예제인 가상의 무작위배정 시험 10개(31,725명)를 직접 합쳐 봅니다. 시험마다 로그 오즈비와 표준오차를 구하고, 고정효과 모형과 무작위효과 모형으로 통합한 뒤, 이질성과 예측구간, 하위군 분석, 메타회귀, 깔때기 그림과 Egger 검정, 민감도 분석, NNT·NNH와 간접비교까지 numpy와 pandas로 계산합니다. 계산한 값은 statsmodels로 확인하고 Methods·Results 문장으로 옮깁니다. 따라 하면 <a href="#ch19">19장</a> 본문의 숫자(통합 오즈비 0.82, 예측구간 0.60–1.12, NNT 71)가 그대로 나옵니다.</p>
+<p class="lead">19장의 예제인 가상의 무작위배정 시험 10개(31,725명)를 직접 합쳐 봅니다. 시험마다 로그 오즈비와 표준오차를 구하고, 고정효과 모형과 무작위효과 모형으로 통합한 뒤, 이질성과 예측구간, 하위군 분석, 메타회귀, 깔때기 그림과 Egger·Harbord 검정, 민감도 분석, NNT·NNH와 간접비교까지 numpy와 pandas로 계산합니다. 계산한 값은 statsmodels로 확인하고 Methods·Results 문장으로 옮깁니다. 따라 하면 <a href="#ch19">19장</a> 본문의 숫자(통합 오즈비 0.82, 예측구간 0.60–1.12, NNT 71)가 그대로 나옵니다.</p>
 
 <dl class="glance">
 <div><dt>관련 이론</dt><dd><a href="#ch19">19장 메타분석</a> (a 절 체계적 문헌고찰의 절차, b 절 효과의 통합, c 절 이질성·하위군 분석·메타회귀, d 절 출판 편향과 민감도 분석, e 절 NNT·NNH와 경제성 평가). 2×2 표의 오즈비는 <a href="#ch05-s1">5장 a 절</a>, Mantel–Haenszel 방법은 <a href="#ch08-s6">8장 f 절</a></dd></div>
@@ -650,6 +650,7 @@
 <li><span class="mk">2</span><span><b>편향 위험이 낮은 8개만 0.82 (0.72–0.94).</b> 뺀 두 시험(C, G)의 가중치가 합쳐 2.8%여서 거의 변하지 않습니다.</span></li>
 <li><span class="mk">3</span><span><b>Hartung–Knapp 표준오차 0.0609.</b> REML τ²로 구한 값입니다. 셀 10의 'random effect wls' 줄(0.0591)은 같은 계산을 DL τ²로 한 것입니다. 셀 24의 HKSJ와 같은 값입니다.</span></li>
 <li><span class="mk">4</span><span><b>구간 0.72–0.94.</b> 주 분석과 소수 둘째 자리까지 같습니다. 시험들의 흩어짐이 모형이 예상한 것보다 작아 표준오차는 0.0666에서 0.0609로 줄었지만, 1.96 대신 더 큰 t 값(2.262)을 썼기 때문입니다.</span></li>
+<li><span class="mk">5</span><span><b>P = 0.010.</b> 같은 HKSJ 표준오차와 자유도 9의 t 분포로 구한 P입니다. 주 분석(Wald)의 0.003과 다르므로, 구간 방법을 바꾼 결과를 적을 때는 그 방법의 P를 함께 적습니다.</span></li>
 </ol>
 
 <h3>NNT와 NNH</h3>
@@ -729,7 +730,7 @@
 <div class="paper">
 <div class="paper-h"><b>논문에는 이렇게 씁니다 · 출판 편향, 민감도 분석, 절대적 효과의 Results</b><span>실습 결과로 작성</span></div>
 <div class="paper-b">
-<p class="excerpt">The funnel plot did not suggest asymmetry (<span class="mk">1</span> <span class="hl">Harbord test, P = .45</span>), although the power of this test is limited with 10 trials. The pooled estimate was similar in the fixed-effect analysis (OR, 0.84; 95% CI, 0.78–0.91) and after exclusion of the 2 trials not at low risk of bias (OR, 0.82; 95% CI, 0.72–0.94). <span class="mk">2</span> <span class="hl">In leave-one-out analyses, the pooled OR ranged from 0.79 to 0.85</span>; omitting Trial D reduced I² from 32% to 0%. <span class="mk">3</span> <span class="hl">Applying the pooled ORs to the 12-month risks in the placebo groups of the trials with 12 months of follow-up (8.4% and 1.2%)</span>, treatment of 1,000 patients for 12 months would prevent <span class="mk">4</span> <span class="hl">14 ischemic events (95% CI, 5–22; NNT, 71)</span> and cause <span class="hl">15 major bleeding events (95% CI, 11–20; NNH, 67)</span>.</p>
+<p class="excerpt">The funnel plot did not suggest asymmetry (<span class="mk">1</span> <span class="hl">Harbord test, P = .45</span>), although the power of this test is limited with 10 trials. The pooled estimate was similar in the fixed-effect analysis (OR, 0.84; 95% CI, 0.78–0.91), with the HKSJ method (95% CI, 0.72–0.94; P = .01), and after exclusion of the 2 trials not at low risk of bias (OR, 0.82; 95% CI, 0.72–0.94). <span class="mk">2</span> <span class="hl">In leave-one-out analyses, the pooled OR ranged from 0.79 to 0.85</span>; omitting Trial D reduced I² from 32% to 0%. <span class="mk">3</span> <span class="hl">Applying the pooled ORs to the 12-month risks in the placebo groups of the trials with 12 months of follow-up (8.4% and 1.2%)</span>, treatment of 1,000 patients for 12 months would prevent <span class="mk">4</span> <span class="hl">14 ischemic events (95% CI, 5–22; NNT, 71)</span> and cause <span class="hl">15 major bleeding events (95% CI, 11–20; NNH, 67)</span>.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>Harbord 검정.</b> 셀 27의 Harbord P입니다. 효과가 오즈비여서 Egger 검정 대신 이 변형을 썼습니다. 검정력의 한계를 함께 적습니다.</span></li>
 <li><span class="mk">2</span><span><b>한 시험씩 뺀 범위.</b> 셀 28의 가장 낮은 값과 가장 높은 값입니다. 전체 표는 부록에 싣습니다.</span></li>
