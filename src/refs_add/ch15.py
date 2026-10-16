@@ -34,4 +34,10 @@ ADD = {
                       "doi": "10.1002/sim.5753"},
     "sturmer2006": {"text": "Stürmer T, Joshi M, Glynn RJ, Avorn J, Rothman KJ, Schneeweiss S. A review of the application of propensity score methods yielded increasing use, advantages in specific settings, but not substantially different estimates compared with conventional multivariable methods. <i>J Clin Epidemiol</i>. 2006;59(5):437-447.",
                     "doi": "10.1016/j.jclinepi.2005.07.004"},
+    # PMID 25087884
+    "austin2014boot": {"text": "Austin PC, Small DS. The use of bootstrapping when using propensity-score matching without replacement: a simulation study. <i>Stat Med</i>. 2014;33(24):4306-4319.",
+                       "doi": "10.1002/sim.6276"},
+    # not in PubMed; checked on the Econometric Society page (2026-10-16)
+    "abadie2008boot": {"text": "Abadie A, Imbens GW. On the failure of the bootstrap for matching estimators. <i>Econometrica</i>. 2008;76(6):1537-1557.",
+                       "doi": "10.3982/ECTA6474"},
 }

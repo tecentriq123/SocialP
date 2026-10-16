@@ -640,7 +640,7 @@ BCa 298.0 498.9 51.0 <span class="mk">5</span></pre>
 </ul>
 
 <h4>0원이 많은 입원비는 어떻게 하나?</h4>
-<p>1년 총비용은 모든 환자가 0보다 크지만, 입원 진료비는 3,000명 중 38.8%가 0원입니다. 감마 분포는 0원이 이렇게 많은 자료에 맞지 않습니다. 이런 비용에는 <strong>이단계 모형</strong><span class="en">(two-part model)</span>을 씁니다<cite data-ref="mihaylova2011"></cite>. 비용을 두 질문으로 나눕니다.</p>
+<p>1년 총비용은 모든 환자가 0보다 크지만, 입원 진료비는 3,000명 중 38.8%가 0원입니다. 감마 분포는 0보다 큰 값만 내므로 0원을 설명하지 못하고, 0원이 이렇게 많으면 그 한계가 결과를 크게 좌우합니다. 이런 비용에는 <strong>이단계 모형</strong><span class="en">(two-part model)</span>을 씁니다<cite data-ref="mihaylova2011"></cite>. 비용을 두 질문으로 나눕니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th></th><th>1부</th><th>2부</th></tr></thead>
 <tbody>
@@ -874,7 +874,7 @@ stage4         0.0251      0.021      1.180      0.238      -0.017       0.067
 <h3>내 연구에 쓸 때 <span class="lv deep">심화</span></h3>
 <div class="callout use"><p class="ct">내 연구에 쓸 때</p><ul>
 <li><strong>분석 전에 정할 것</strong>: 보정할 변수는 치료 시작 전에 측정된 값으로 정합니다(<a href="#ch15-s1">15장 a 절</a>). 주 분석 모형(분포와 연결함수), 0원이 많은 항목의 처리, 금액 차이를 평균할 집단, 신뢰구간을 구할 방법을 계획서에 적습니다.</li>
-<li><strong>모형 고르기</strong>: 0원이 없거나 드물면 감마 GLM(로그 연결)을 기본으로 두고, modified Park test로 분포를, 예측값 구간별 관측·예측 평균의 비교로 평균 구조를 확인합니다. 0원이 많으면 이단계 모형을 씁니다. 원래 비용의 선형회귀(강건 표준오차)와 교호작용을 넣은 모형은 민감도 분석으로 함께 냅니다. 성향점수 가중(<a href="#ch15-s3">15장 c 절</a>)으로 두 군의 구성을 맞춘 뒤 b 절의 평균 비교를 하는 방법도 있습니다.</li>
+<li><strong>모형 고르기</strong>: 0원이 없으면 감마 GLM(로그 연결)을 기본으로 두고(드물게라도 있으면 그 처리를 밝힙니다), modified Park test로 분포를, 예측값 구간별 관측·예측 평균의 비교로 평균 구조를 확인합니다. 0원이 많으면 이단계 모형을 씁니다. 원래 비용의 선형회귀(강건 표준오차)와 교호작용을 넣은 모형은 민감도 분석으로 함께 냅니다. 성향점수 가중(<a href="#ch15-s3">15장 c 절</a>)으로 두 군의 구성을 맞춘 뒤 b 절의 평균 비교를 하는 방법도 있습니다.</li>
 <li><strong>보고할 것</strong>: 분포와 연결함수, 보정 변수, 비용 비와 95% CI, 보정된 평균 비용과 그 차이, 신뢰구간을 구한 방법과 부트스트랩 반복 횟수. 이 차이가 증분비용효과비<span class="en">(incremental cost-effectiveness ratio, ICER)</span>의 분자(증분 비용)나 모형의 비용 입력값이 됩니다(20장 d 절, 23장).</li>
 <li><strong>파이썬</strong>: statsmodels의 <code>smf.glm</code>(<code>family=sm.families.Gamma(link=sm.families.links.Log())</code>), <code>smf.logit</code>, <code>smf.ols(...).fit(cov_type="HC3")</code>, <code>predict</code>. 표준화의 부트스트랩 신뢰구간과 modified Park test는 직접 구현합니다.</li>
 </ul></div>

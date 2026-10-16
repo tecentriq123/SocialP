@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">Egger 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">eg = smf.wls(&quot;yi ~ se&quot;, data=es, weights=1 / es[&quot;vi&quot;]).fit()
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">Egger 검정과 Harbord 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">eg = smf.wls(&quot;yi ~ se&quot;, data=es, weights=1 / es[&quot;vi&quot;]).fit()
 print(f&quot;slope {eg.params[&#x27;se&#x27;]:.3f} (SE {eg.bse[&#x27;se&#x27;]:.3f}),&quot;
       f&quot; t {eg.tvalues[&#x27;se&#x27;]:.2f}, df {eg.df_resid:.0f},&quot;
       f&quot; P {eg.pvalues[&#x27;se&#x27;]:.2f}&quot;)
@@ -7,5 +7,18 @@ es[&quot;snd&quot;] = es[&quot;yi&quot;] / es[&quot;se&quot;]             # 표�
 es[&quot;prec&quot;] = 1 / es[&quot;se&quot;]                   # 정밀도
 eg2 = smf.ols(&quot;snd ~ prec&quot;, data=es).fit()
 print(f&quot;original form: intercept {eg2.params[&#x27;Intercept&#x27;]:.3f},&quot;
-      f&quot; P {eg2.pvalues[&#x27;Intercept&#x27;]:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>slope -0.505 (SE 0.667)<span class="mk">1</span>, t -0.76, df 8<span class="mk">2</span>, P 0.47<span class="mk">3</span>
-original form: intercept -0.505<span class="mk">4</span>, P 0.47</pre></div></div>
+      f&quot; P {eg2.pvalues[&#x27;Intercept&#x27;]:.2f}&quot;)
+
+# 오즈비에는 Harbord 검정: 네 칸에서 바로 구한 점수와 그 분산
+n1, n0 = tr[&quot;n_x&quot;], tr[&quot;n_pbo&quot;]
+ev = tr[&quot;mace_x&quot;] + tr[&quot;mace_pbo&quot;]          # 두 군의 사건 수 합
+N = n1 + n0
+es[&quot;Z&quot;] = tr[&quot;mace_x&quot;] - n1 * ev / N        # 관찰 - 기대 사건 수
+es[&quot;V&quot;] = n1 * n0 * ev * (N - ev) / (N**2 * (N - 1))
+es[&quot;zv&quot;] = es[&quot;Z&quot;] / np.sqrt(es[&quot;V&quot;])
+es[&quot;sqv&quot;] = np.sqrt(es[&quot;V&quot;])
+hbd = smf.ols(&quot;zv ~ sqv&quot;, data=es).fit()
+print(f&quot;Harbord: intercept {hbd.params[&#x27;Intercept&#x27;]:.3f}&quot;
+      f&quot; (SE {hbd.bse[&#x27;Intercept&#x27;]:.3f}), P {hbd.pvalues[&#x27;Intercept&#x27;]:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>slope -0.505 (SE 0.667)<span class="mk">1</span>, t -0.76, df 8<span class="mk">2</span>, P 0.47<span class="mk">3</span>
+original form: intercept -0.505<span class="mk">4</span>, P 0.47
+Harbord: intercept -0.533 (SE 0.668), P 0.45<span class="mk">5</span></pre></div></div>

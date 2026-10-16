@@ -644,9 +644,21 @@ es["prec"] = 1 / es["se"]                   # 정밀도
 eg2 = smf.ols("snd ~ prec", data=es).fit()
 print(f"original form: intercept {eg2.params['Intercept']:.3f},"
       f" P {eg2.pvalues['Intercept']:.2f}")
-''', title="Egger 검정")
+
+# 오즈비에는 Harbord 검정: 네 칸에서 바로 구한 점수와 그 분산
+n1, n0 = tr["n_x"], tr["n_pbo"]
+ev = tr["mace_x"] + tr["mace_pbo"]          # 두 군의 사건 수 합
+N = n1 + n0
+es["Z"] = tr["mace_x"] - n1 * ev / N        # 관찰 - 기대 사건 수
+es["V"] = n1 * n0 * ev * (N - ev) / (N**2 * (N - 1))
+es["zv"] = es["Z"] / np.sqrt(es["V"])
+es["sqv"] = np.sqrt(es["V"])
+hbd = smf.ols("zv ~ sqv", data=es).fit()
+print(f"Harbord: intercept {hbd.params['Intercept']:.3f}"
+      f" (SE {hbd.bse['Intercept']:.3f}), P {hbd.pvalues['Intercept']:.2f}")
+''', title="Egger 검정과 Harbord 검정")
 save("lab19_egger", c, marks={"slope -0.505 (SE 0.667)": 1, "t -0.76, df 8": 2, "P 0.47": 3,
-                              "intercept -0.505": 4})
+                              "intercept -0.505": 4, "Harbord: intercept -0.533 (SE 0.668), P 0.45": 5})
 
 c = nb.cell('''
 rows = []
@@ -813,7 +825,7 @@ nb.save_ipynb(
     "실습 19. 메타분석",
     intro=("사회약학 연구방법 노트의 '실습 19. 메타분석'에 나오는 셀을 차례로 모은 노트북입니다. "
            "19장의 예제(급성관상동맥증후군 뒤 약물 X 대 위약, 가상의 무작위배정 시험 10개)와 같은 자료로 시험별 로그 오즈비와 "
-           "표준오차, 고정효과·무작위효과 통합, 이질성과 예측구간, 하위군 분석과 메타회귀, 깔때기 그림과 Egger 검정, 민감도 분석, "
+           "표준오차, 고정효과·무작위효과 통합, 이질성과 예측구간, 하위군 분석과 메타회귀, 깔때기 그림과 Egger·Harbord 검정, 민감도 분석, "
            "NNT·NNH와 간접비교를 numpy와 pandas로 직접 계산하고 statsmodels로 확인합니다. 셀을 위에서부터 차례로 실행하세요. "
            "자료는 사이트가 만든 가상 자료이며 인터넷 연결이 필요합니다."),
     notes={
@@ -824,7 +836,7 @@ nb.save_ipynb(
         17: ("## c. 이질성과 하위군 분석\n\nQ, I², τ², 예측구간과 I²의 신뢰구간을 구하고, 하위군 분석과 차이 검정, "
              "메타회귀를 합니다. 이어서 τ²를 구하는 세 방법, Hartung–Knapp 신뢰구간과 τ²의 신뢰구간을 계산하고, "
              "이질성이 큰 가상의 관찰연구 7개를 여러 방법으로 합쳐 봅니다."),
-        26: ("## d. 깔때기 그림과 민감도 분석\n\n깔때기 그림, Egger 검정, 한 시험씩 빼기, 그 밖의 민감도 분석을 하고, "
+        26: ("## d. 깔때기 그림과 민감도 분석\n\n깔때기 그림, Egger 검정과 Harbord 검정, 한 시험씩 빼기, 그 밖의 민감도 분석을 하고, "
              "통합 오즈비를 NNT·NNH로 바꾼 뒤 간접비교까지 합니다."),
         34: ("## 과제 정답\n\n먼저 스스로 풀어 본 뒤 실행하세요.\n\n**과제 1 (출력 해석).** 임상시험 단계(2상, 3상)로 하위군 "
              "분석을 하고, 3상 시험의 결과와 차이 검정의 P를 말로 옮긴 뒤 이 결과가 말해 주지 않는 것 두 가지를 씁니다."),
@@ -910,6 +922,8 @@ if __name__ == "__main__":
     EG = R["egger"]
     close(ns["eg"].params["se"], EG["b0"], 1e-8); close(ns["eg"].pvalues["se"], EG["p"], 1e-8)
     close(ns["eg2"].params["Intercept"], EG["b0"], 1e-8); close(ns["eg2"].pvalues["Intercept"], EG["p"], 1e-8)
+    HB = R["harbord"]
+    close(ns["hbd"].params["Intercept"], HB["b0"], 1e-8); close(ns["hbd"].pvalues["Intercept"], HB["p"], 1e-8)
     for row, ref in zip(ns["loo"].itertuples(), R["loo"]):
         close(row.OR, ref["or_"][0], 6e-4, "loo " + ref["nm"])
         same(int(row._4), int(round(ref["I2"] * 100)), "loo I2 " + ref["nm"])

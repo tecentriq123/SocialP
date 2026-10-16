@@ -67,4 +67,10 @@ ADD = {
     # Stata manual: "random is a synonym for random(reml)".
     "stata_meta": {"text": "StataCorp. meta summarize. In: Stata Meta-Analysis Reference Manual. College Station, TX: Stata Press. Accessed 15 October 2026.",
                    "url": "https://www.stata.com/manuals/metametasummarize.pdf"},
+    # PMID 16345038
+    "harbord2006": {"text": "Harbord RM, Egger M, Sterne JAC. A modified test for small-study effects in meta-analyses of controlled trials with binary endpoints. <i>Stat Med</i>. 2006;25(20):3443-3457.",
+                    "doi": "10.1002/sim.2380"},
+    # PMID 16467236
+    "peters2006": {"text": "Peters JL, Sutton AJ, Jones DR, Abrams KR, Rushton L. Comparison of two methods to detect publication bias in meta-analysis. <i>JAMA</i>. 2006;295(6):676-680.",
+                   "doi": "10.1001/jama.295.6.676"},
 }

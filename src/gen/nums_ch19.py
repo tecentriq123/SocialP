@@ -195,6 +195,39 @@ def egger(y, v):
     return dict(b0=b[0], se0=np.sqrt(cov[0, 0]), t=t, df=len(y) - 2, p=2 * st.t.sf(abs(t), len(y) - 2), slope=b[1])
 
 
+def harbord(a, n1, c, n0):
+    """Harbord modified Egger test for binary outcomes: Z/sqrt(V) regressed (OLS) on sqrt(V);
+    Z = efficient score (O − E for the treated arm), V = its variance (hypergeometric). The intercept measures asymmetry."""
+    a, n1, c, n0 = (np.asarray(x, float) for x in (a, n1, c, n0))
+    N_ = n1 + n0; m = a + c
+    Z = a - n1 * m / N_
+    V = n1 * n0 * m * (N_ - m) / (N_ ** 2 * (N_ - 1))
+    yy, x = Z / np.sqrt(V), np.sqrt(V)
+    X = np.column_stack([np.ones(len(x)), x])
+    b = np.linalg.lstsq(X, yy, rcond=None)[0]
+    r = yy - X @ b
+    s2 = r @ r / (len(x) - 2)
+    cov = s2 * np.linalg.inv(X.T @ X)
+    tt = b[0] / np.sqrt(cov[0, 0])
+    return dict(b0=b[0], se0=np.sqrt(cov[0, 0]), t=tt, df=len(x) - 2, p=2 * st.t.sf(abs(tt), len(x) - 2), slope=b[1], Z=Z, V=V)
+
+
+def peters(a, n1, c, n0):
+    """Peters test: ln OR regressed on 1/N (total sample size), weights S*F/N (S events, F non-events); the slope measures asymmetry"""
+    a, n1, c, n0 = (np.asarray(x, float) for x in (a, n1, c, n0))
+    N_ = n1 + n0; S = a + c; F = N_ - S
+    y = np.log(a * (n0 - c) / ((n1 - a) * c))
+    w = S * F / N_
+    X = np.column_stack([np.ones(len(y)), 1 / N_])
+    XtW = X.T * w
+    b = np.linalg.solve(XtW @ X, XtW @ y)
+    r = y - X @ b
+    s2 = np.sum(w * r ** 2) / (len(y) - 2)
+    se = np.sqrt(s2 * np.linalg.inv(XtW @ X)[1, 1])
+    tt = b[1] / se
+    return dict(slope=b[1], se=se, t=tt, p=2 * st.t.sf(abs(tt), len(y) - 2))
+
+
 def risk_from_or(p0, OR):
     o = p0 / (1 - p0) * OR
     return o / (1 + o)
@@ -384,6 +417,18 @@ def compute():
     EGb = egger(yb, vb)
     pr("Egger (bleeding): intercept %.3f p %.3f" % (EGb["b0"], EGb["p"]))
     R["egger"] = EG; R["egger_b"] = EGb
+    HB = harbord(eT, nT, eC, nC)
+    HBb = harbord(bT, nT, bC, nC)
+    pr("Harbord (efficacy, k=10): intercept %.3f SE %.3f t %.2f df %d p %.3f ; slope %.3f" % (HB["b0"], HB["se0"], HB["t"], HB["df"], HB["p"], HB["slope"]))
+    pr("Harbord (bleeding): intercept %.3f p %.3f" % (HBb["b0"], HBb["p"]))
+    fh = sm.OLS(HB["Z"] / np.sqrt(HB["V"]), sm.add_constant(np.sqrt(HB["V"]))).fit()
+    assert abs(fh.pvalues[0] - HB["p"]) < 1e-8
+    i = nm.index("I")
+    pr("  Trial I score: Z %.3f V %.3f Z/sqrt(V) %.3f sqrt(V) %.3f" % (HB["Z"][i], HB["V"][i], HB["Z"][i] / np.sqrt(HB["V"][i]), np.sqrt(HB["V"][i])))
+    R["harbord"] = HB; R["harbord_b"] = HBb
+    PT = peters(eT, nT, eC, nC)
+    pr("Peters (efficacy): slope %.1f SE %.1f t %.2f p %.4f" % (PT["slope"], PT["se"], PT["t"], PT["p"]))
+    R["peters"] = PT
     loo = []
     for i, t in enumerate(T):
         m = pool(np.delete(y, i), np.delete(v, i))
@@ -403,6 +448,9 @@ def compute():
     pr("Hartung–Knapp (REML τ²): q %.4f SE %.4f, t9 %.3f, OR CI %.3f-%.3f ; with max(SE, SE_HK) %.3f-%.3f" % (q_hk, se_hk, tc9, np.exp(E["re"] - tc9 * se_hk), np.exp(E["re"] + tc9 * se_hk),
        np.exp(E["re"] - tc9 * max(se_hk, E["re_se"])), np.exp(E["re"] + tc9 * max(se_hk, E["re_se"]))))
     R["hk"] = (np.exp(E["re"] - tc9 * se_hk), np.exp(E["re"] + tc9 * se_hk))
+    t_hk = E["re"] / se_hk
+    R["hk_t"] = t_hk; R["hk_p"] = 2 * st.t.sf(abs(t_hk), E["k"] - 1)
+    pr("  HKSJ test: t %.3f df %d p %.4f (Wald z %.3f p %.4f)" % (t_hk, E["k"] - 1, R["hk_p"], E["re"] / E["re_se"], E["re_p"]))
 
     # publication-bias illustration: 30 hypothetical small-to-medium trials of a drug with NO true effect (OR 1.0);
     # small trials (SE > 0.18) without a clearly favourable result (z > -0.6) stay unpublished.

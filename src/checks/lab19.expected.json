@@ -131,8 +131,8 @@
  },
  {
   "n": 27,
-  "title": "Egger 검정",
-  "out": "slope -0.505 (SE 0.667), t -0.76, df 8, P 0.47\noriginal form: intercept -0.505, P 0.47\n"
+  "title": "Egger 검정과 Harbord 검정",
+  "out": "slope -0.505 (SE 0.667), t -0.76, df 8, P 0.47\noriginal form: intercept -0.505, P 0.47\nHarbord: intercept -0.533 (SE 0.668), P 0.45\n"
  },
  {
   "n": 28,

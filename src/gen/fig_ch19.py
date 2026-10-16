@@ -55,40 +55,39 @@ def prisma():
 
     cx = bx + bw / 2
     # row 1
-    box(bx, 14, bw, 62, ["1,248 Records identified through database searching",
+    box(bx, 14, bw, 62, ["1,248 Records identified from databases",
                          "PubMed 412, Embase 655, CENTRAL 181"])
     arrow_down(cx, 76, 112); arrow_right(cx, ex, 94)
-    box(ex, 76, ew, 36, ["316 Duplicates removed"])
+    box(ex, 76, ew, 36, ["316 Duplicate records removed"])
     # row 2
     box(bx, 112, bw, 44, ["932 Records screened (title and abstract)"])
     arrow_down(cx, 156, 196); arrow_right(cx, ex, 176)
     box(ex, 158, ew, 36, ["884 Records excluded as not relevant"])
-    # row 3
-    box(bx, 196, bw, 44, ["48 Full-text articles assessed for eligibility"])
-    arrow_down(cx, 240, 376); arrow_right(cx, ex, 300)
-    box(ex, 240, ew, 124, ["38 Full-text articles excluded",
-                           "14 Secondary reports of an included trial",
+    # row 3 (PRISMA 2020: reports, not articles; secondary reports are linked to their trial, not excluded)
+    box(bx, 196, bw, 44, ["48 Reports assessed for eligibility"])
+    arrow_down(cx, 240, 352); arrow_right(cx, ex, 290)
+    box(ex, 240, ew, 106, ["24 Reports excluded",
                            "  9 Not randomized",
                            "  8 Comparator not placebo or standard care",
                            "  4 Outcomes of interest not reported",
                            "  3 Ongoing, no results available"])
     # row 4
-    box(bx, 376, bw, 58, ["10 Randomized trials included in the", "meta-analysis (31,725 participants)"], cls="a1 s1")
-    o.append(f'<text x="{bx + 12}" y="{376 + 37}" class="lbl">{escape("meta-analysis (31,725 participants)")}</text>')
+    box(bx, 352, bw, 74, ["10 Trials included in the meta-analysis"], cls="a1 s1")
+    o.append(f'<text x="{bx + 12}" y="{352 + 37}" class="lbl">{escape("(31,725 participants)")}</text>')
+    o.append(f'<text x="{bx + 12}" y="{352 + 60}" class="lbl">{escape("24 Reports of included trials")}</text>')
     o.append(badge(bx + bw, 14, 1))
     o.append(badge(ex + ew, 158, 2))
     o.append(badge(ex + ew, 240, 3))
-    o.append(badge(bx + bw, 376, 4))
+    o.append(badge(bx + bw, 352, 4))
     return (f'<svg viewBox="0 0 {w} {h}" class="viz" role="img" aria-label="PRISMA flow diagram" '
             f'xmlns="http://www.w3.org/2000/svg">{"".join(o)}</svg>')
 
 
 svg = prisma()
-# the second line of the last box was drawn twice (small + normal); keep the normal one only
-svg = svg.replace('<text x="26" y="413" class="lbl small">meta-analysis (31,725 participants)</text>', '')
 save("ch19_prisma", figure(
     [svg],
-    "그림 19-1. 가상의 체계적 문헌고찰의 문헌 선정 흐름도(PRISMA flow diagram). 위에서 아래로 남은 문헌 수를, 오른쪽에 단계마다 빠진 문헌 수와 이유를 적습니다. "
+    "그림 19-1. 가상의 체계적 문헌고찰의 문헌 선정 흐름도(PRISMA 2020 flow diagram). 위에서 아래로 남은 문헌 수를, 오른쪽에 단계마다 빠진 문헌 수와 이유를 적습니다. "
+    "같은 시험의 2차 보고는 빼지 않고 그 시험에 묶으므로, 마지막 칸에 포함된 시험 수와 그 보고서 수를 따로 적습니다. "
     "번호는 아래 해설과 짝을 이룹니다.", cols=1))
 
 
