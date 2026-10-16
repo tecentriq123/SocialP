@@ -21,17 +21,22 @@ tau2 = tau2_reml(es[&quot;yi&quot;], es[&quot;vi&quot;])        # 이 장의 기
 ws = 1 / (es[&quot;vi&quot;] + tau2)                  # 무작위효과 가중치
 re = np.sum(ws * es[&quot;yi&quot;]) / np.sum(ws)
 se_re = 1 / np.sqrt(np.sum(ws))
-p_re = 2 * stats.norm.sf(abs(re / se_re))
+q = np.sum(ws * (es[&quot;yi&quot;] - re)**2) / (k - 1)   # HKSJ의 q
+se_hk = np.sqrt(q) * se_re                  # HKSJ 표준오차
+t9 = stats.t.ppf(0.975, k - 1)              # 1.96 대신 t(9)
+p_re = 2 * stats.t.sf(abs(re / se_hk), k - 1)
 print(f&quot;Q {Q:.2f}, C {C:.1f}, tau2 DL {t2_dl:.4f}, REML {tau2:.4f}&quot;)
-print(f&quot;sum w* = {np.sum(ws):.1f}, log OR {re:.4f}, SE {se_re:.4f},&quot;
-      f&quot; z {re / se_re:.2f}, P {p_re:.4f}&quot;)
-print(f&quot;OR {np.exp(re):.2f} ({np.exp(re - Z*se_re):.2f}&quot;
-      f&quot;-{np.exp(re + Z*se_re):.2f})&quot;)
+print(f&quot;sum w* = {np.sum(ws):.1f}, log OR {re:.4f}, SE {se_re:.4f}&quot;)
+print(f&quot;HKSJ: q {q:.3f}, SE {se_hk:.4f}, t({k - 1}) {t9:.3f},&quot;
+      f&quot; t {re / se_hk:.2f}, P {p_re:.4f}&quot;)
+print(f&quot;OR {np.exp(re):.2f} ({np.exp(re - t9*se_hk):.2f}&quot;
+      f&quot;-{np.exp(re + t9*se_hk):.2f})&quot;)
 
 es[&quot;w_fe&quot;] = 100 * w / np.sum(w)            # 가중치 비율(%)
 es[&quot;w_re&quot;] = 100 * ws / np.sum(ws)
 es[[&quot;trial&quot;, &quot;se&quot;, &quot;w_fe&quot;, &quot;w_re&quot;]].round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Q 13.28, C 436.0, tau2 DL 0.0098, REML 0.0138<span class="mk">1</span>
-sum w* = 225.2<span class="mk">2</span>, log OR -0.1974<span class="mk">3</span>, SE 0.0666, z -2.96<span class="mk">4</span>, P 0.0030<span class="mk">5</span>
+sum w* = 225.2<span class="mk">2</span>, log OR -0.1974<span class="mk">3</span>, SE 0.0666
+HKSJ: q 0.836, SE 0.0609<span class="mk">4</span>, t(9) 2.262, t -3.24, P 0.0102<span class="mk">5</span>
 OR 0.82 (0.72-0.94)<span class="mk">6</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
     <tr style="text-align: right;">

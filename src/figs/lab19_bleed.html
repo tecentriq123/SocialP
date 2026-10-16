@@ -3,7 +3,7 @@ bl[&quot;yi&quot;], bl[&quot;vi&quot;] = log_or(tr[&quot;bleed_x&quot;], tr[&quo
                             tr[&quot;bleed_pbo&quot;], tr[&quot;n_pbo&quot;])
 mb = pool(bl[&quot;yi&quot;], bl[&quot;vi&quot;])
 print(&quot;Trial C:&quot;, orci(bl.loc[2, &quot;yi&quot;], np.sqrt(bl.loc[2, &quot;vi&quot;])))
-print(&quot;pooled :&quot;, orci(mb[&quot;re&quot;], mb[&quot;se_re&quot;]),
+print(&quot;pooled :&quot;, reci(mb),                 # tau2 = 0이라 1.96
       f&quot;Q {mb[&#x27;Q&#x27;]:.2f}, I2 {mb[&#x27;I2&#x27;]:.0%}, tau2 {mb[&#x27;tau2&#x27;]:.4f}&quot;)
 
 cols_b = [&quot;bleed_x&quot;, &quot;n_x&quot;, &quot;bleed_pbo&quot;, &quot;n_pbo&quot;]
@@ -13,8 +13,7 @@ print(&quot;statsmodels, Trial C, no correction:&quot;, e0[2], v0[2])
 e5, v5 = effectsize_2proportions(*args_b, statistic=&quot;odds-ratio&quot;,
                                  zero_correction=0.5)
 m5 = pool(e5, v5)
-print(&quot;statsmodels, zero_correction=0.5  :&quot;,
-      orci(m5[&quot;re&quot;], m5[&quot;se_re&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Trial C: 3.55 (0.18-69.32)<span class="mk">1</span>
+print(&quot;statsmodels, zero_correction=0.5  :&quot;, reci(m5))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Trial C: 3.55 (0.18-69.32)<span class="mk">1</span>
 pooled : 2.28 (1.90-2.74)<span class="mk">2</span> Q 4.06, I2 0%<span class="mk">3</span>, tau2 0.0000
 statsmodels, Trial C, no correction: inf inf<span class="mk">4</span>
 statsmodels, zero_correction=0.5  : 2.24 (1.87-2.68)<span class="mk">5</span></pre><pre class="warn-out">RuntimeWarning: divide by zero encountered in log</pre><pre class="warn-out">RuntimeWarning: divide by zero encountered in divide</pre></div></div>

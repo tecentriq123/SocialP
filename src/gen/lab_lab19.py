@@ -16,6 +16,10 @@ The block at the end checks the lab's numbers against gen/nums_ch19.py compute()
 (2026-10-15 뒤: 19장의 무작위효과 기준을 DerSimonian–Laird에서 REML로 바꿨다. 셀 8이 tau2_reml을 만들고 pool과
  이후 모든 셀이 그것을 쓴다(nums_ch19.pool과 같은 루틴). 셀 10의 statsmodels는 REML이 없어 DL로 확인하고,
  셀 22의 메타회귀도 남은 τ²를 REML로 구한다. 셀 수와 번호는 그대로다.)
+(2026-10-17: 재점검에 따라 19장의 주 분석을 REML + HKSJ + 예측구간 t(k − 1)로 바꿨다. 셀 8이 HKSJ 구간과 P를,
+ 셀 9의 pool이 Cochrane 규칙(τ² > 0이고 연구 3개 이상이면 HKSJ, 아니면 1.96)의 se_ci, crit, p_re를 함께 돌려주고
+ reci()가 그 구간을 쓴다. 메타회귀(셀 22)는 Knapp–Hartung(statsmodels WLS의 기본 fit)으로, 민감도 분석(셀 29)은
+ 보통의 방법(Wald)으로 바꿨다. 셀 수와 번호는 그대로다.)
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -186,24 +190,29 @@ tau2 = tau2_reml(es["yi"], es["vi"])        # 이 장의 기준: REML
 ws = 1 / (es["vi"] + tau2)                  # 무작위효과 가중치
 re = np.sum(ws * es["yi"]) / np.sum(ws)
 se_re = 1 / np.sqrt(np.sum(ws))
-p_re = 2 * stats.norm.sf(abs(re / se_re))
+q = np.sum(ws * (es["yi"] - re)**2) / (k - 1)   # HKSJ의 q
+se_hk = np.sqrt(q) * se_re                  # HKSJ 표준오차
+t9 = stats.t.ppf(0.975, k - 1)              # 1.96 대신 t(9)
+p_re = 2 * stats.t.sf(abs(re / se_hk), k - 1)
 print(f"Q {Q:.2f}, C {C:.1f}, tau2 DL {t2_dl:.4f}, REML {tau2:.4f}")
-print(f"sum w* = {np.sum(ws):.1f}, log OR {re:.4f}, SE {se_re:.4f},"
-      f" z {re / se_re:.2f}, P {p_re:.4f}")
-print(f"OR {np.exp(re):.2f} ({np.exp(re - Z*se_re):.2f}"
-      f"-{np.exp(re + Z*se_re):.2f})")
+print(f"sum w* = {np.sum(ws):.1f}, log OR {re:.4f}, SE {se_re:.4f}")
+print(f"HKSJ: q {q:.3f}, SE {se_hk:.4f}, t({k - 1}) {t9:.3f},"
+      f" t {re / se_hk:.2f}, P {p_re:.4f}")
+print(f"OR {np.exp(re):.2f} ({np.exp(re - t9*se_hk):.2f}"
+      f"-{np.exp(re + t9*se_hk):.2f})")
 
 es["w_fe"] = 100 * w / np.sum(w)            # 가중치 비율(%)
 es["w_re"] = 100 * ws / np.sum(ws)
 es[["trial", "se", "w_fe", "w_re"]].round(3)
 ''', title="연구 간 분산과 무작위효과 모형")
 save("lab19_random", c, marks={"tau2 DL 0.0098, REML 0.0138": 1, "sum w* = 225.2": 2, "log OR -0.1974": 3,
-                               "z -2.96": 4, "P 0.0030": 5, "OR 0.82 (0.72-0.94)": 6},
+                               "q 0.836, SE 0.0609": 4, "P 0.0102": 5, "OR 0.82 (0.72-0.94)": 6},
      dfmarks={"<td>0.916</td>": 7, "<td>42.712</td>": 8, "<td>25.093</td>": 9})
 
 c = nb.cell('''
 def pool(y, v):
-    """역분산 고정효과(fe)와 무작위효과(re, τ²는 REML)"""
+    """역분산 고정효과(fe)와 무작위효과(re, τ²는 REML).
+    무작위효과의 구간은 τ² > 0이고 연구가 3개 이상이면 HKSJ, 아니면 1.96 (19장 b 절)"""
     y, v = np.asarray(y, float), np.asarray(v, float)
     k, w = len(y), 1 / v
     fe = np.sum(w * y) / np.sum(w)
@@ -211,20 +220,33 @@ def pool(y, v):
     tau2 = tau2_reml(y, v)
     ws = 1 / (v + tau2)
     re = np.sum(ws * y) / np.sum(ws)
+    se_re = 1 / np.sqrt(np.sum(ws))
+    if tau2 > 0 and k >= 3:                 # HKSJ
+        q = np.sum(ws * (y - re)**2) / (k - 1)
+        se_ci, crit = np.sqrt(q) * se_re, stats.t.ppf(0.975, k - 1)
+        p_re = 2 * stats.t.sf(abs(re / se_ci), k - 1)
+    else:                                   # 보통의 방법(Wald)
+        se_ci, crit = se_re, Z
+        p_re = 2 * stats.norm.sf(abs(re / se_re))
     return {"k": k, "fe": fe, "se_fe": 1 / np.sqrt(np.sum(w)),
-            "re": re, "se_re": 1 / np.sqrt(np.sum(ws)),
-            "Q": Q, "I2": max(0, (Q - (k - 1)) / Q), "tau2": tau2}
+            "re": re, "se_re": se_re, "se_ci": se_ci, "crit": crit,
+            "p_re": p_re, "Q": Q, "I2": max(0, (Q - (k - 1)) / Q),
+            "tau2": tau2}
 
-def orci(est, se):
-    """로그 척도의 추정값과 표준오차 -> 'OR (하한-상한)'"""
-    lo, hi = np.exp(est - Z * se), np.exp(est + Z * se)
+def orci(est, se, crit=Z):
+    """로그 척도의 추정값, 표준오차, 곱하는 값 -> 'OR (하한-상한)'"""
+    lo, hi = np.exp(est - crit * se), np.exp(est + crit * se)
     return f"{np.exp(est):.2f} ({lo:.2f}-{hi:.2f})"
+
+def reci(r):
+    """pool() 결과 r의 무작위효과 'OR (하한-상한)'"""
+    return orci(r["re"], r["se_ci"], r["crit"])
 
 m = pool(es["yi"], es["vi"])
 print("fixed  :", orci(m["fe"], m["se_fe"]))
-print("random :", orci(m["re"], m["se_re"]))
+print("random :", reci(m), f"P {m['p_re']:.3f}")
 ''', title="통합 계산을 함수로 묶기")
-save("lab19_pool", c, marks={"0.84 (0.78-0.91)": 1, "0.82 (0.72-0.94)": 2})
+save("lab19_pool", c, marks={"0.84 (0.78-0.91)": 1, "0.82 (0.72-0.94)": 2, "P 0.010": 3})
 
 c = nb.cell('''
 from statsmodels.stats.meta_analysis import (
@@ -259,16 +281,16 @@ print(f"Mantel-Haenszel OR {mh.oddsratio_pooled:.2f}"
 save("lab19_mh", c, marks={"0.84 (0.78-0.91)": 1})
 
 c = nb.cell('''
-pi_half = stats.t.ppf(0.975, k - 2) * np.sqrt(tau2 + se_re**2)
-pi = np.exp([re - pi_half, re + pi_half])   # 예측구간(c 절)
+pi_half = t9 * np.sqrt(tau2 + se_hk**2)     # 예측구간(c 절): t(9), HKSJ 표준오차
+pi = np.exp([re - pi_half, re + pi_half])
 ypos = np.arange(k, 0, -1)                  # 10, 9, ..., 1
 
 fig, ax = plt.subplots(figsize=(7.5, 4.6))
 ax.hlines(ypos, es["lo"], es["hi"], color="black", lw=1)
 ax.scatter(es["or"], ypos, s=es["w_re"] * 12, marker="s",
            color="C0", zorder=3)
-ax.fill(np.exp([re - Z*se_re, re, re + Z*se_re, re]),
-        [0, 0.3, 0, -0.3], color="black")   # 마름모
+ax.fill(np.exp([re - t9*se_hk, re, re + t9*se_hk, re]),
+        [0, 0.3, 0, -0.3], color="black")   # 마름모 (HKSJ 구간)
 ax.hlines(-1, pi[0], pi[1], color="gray", lw=3)
 ax.axvline(1, color="gray", ls="--", lw=1)
 ax.set_xscale("log")
@@ -282,7 +304,7 @@ ax.set_yticklabels(list(es["trial"]) + ["Random effects",
 for y, i in zip(ypos, es.index):
     ax.text(6.5, y, orci(es["yi"][i], es["se"][i])
             + f"  {es['w_re'][i]:.1f}%", va="center", fontsize=9)
-ax.text(6.5, 0, orci(re, se_re), va="center", fontsize=9)
+ax.text(6.5, 0, reci(m), va="center", fontsize=9)
 ax.text(6.5, -1, f"{pi[0]:.2f}-{pi[1]:.2f}", va="center", fontsize=9)
 ax.set_xlabel("Odds ratio (95% CI, log scale)")
 plt.tight_layout()
@@ -295,7 +317,7 @@ bl["yi"], bl["vi"] = log_or(tr["bleed_x"], tr["n_x"],
                             tr["bleed_pbo"], tr["n_pbo"])
 mb = pool(bl["yi"], bl["vi"])
 print("Trial C:", orci(bl.loc[2, "yi"], np.sqrt(bl.loc[2, "vi"])))
-print("pooled :", orci(mb["re"], mb["se_re"]),
+print("pooled :", reci(mb),                 # tau2 = 0이라 1.96
       f"Q {mb['Q']:.2f}, I2 {mb['I2']:.0%}, tau2 {mb['tau2']:.4f}")
 
 cols_b = ["bleed_x", "n_x", "bleed_pbo", "n_pbo"]
@@ -305,8 +327,7 @@ print("statsmodels, Trial C, no correction:", e0[2], v0[2])
 e5, v5 = effectsize_2proportions(*args_b, statistic="odds-ratio",
                                  zero_correction=0.5)
 m5 = pool(e5, v5)
-print("statsmodels, zero_correction=0.5  :",
-      orci(m5["re"], m5["se_re"]))
+print("statsmodels, zero_correction=0.5  :", reci(m5))
 ''', title="주요 출혈과 0건인 칸")
 save("lab19_bleed", c, marks={"3.55 (0.18-69.32)": 1, "2.28 (1.90-2.74)": 2, "I2 0%": 3, "inf inf": 4,
                               "2.24 (1.87-2.68)": 5})
@@ -319,8 +340,8 @@ tables_b = [[[r.bleed_x, r.n_x - r.bleed_x],
             for r in tr.itertuples()]
 mh_b = StratifiedTable(tables_b)
 lo, hi = mh_b.oddsratio_pooled_confint()
-print("0.5 added to Trial C:", orci(mb["re"], mb["se_re"]))
-print("Trial C excluded    :", orci(m_noC["re"], m_noC["se_re"]))
+print("0.5 added to Trial C:", reci(mb))
+print("Trial C excluded    :", reci(m_noC))
 print(f"Mantel-Haenszel     : {mh_b.oddsratio_pooled:.2f}"
       f" ({lo:.2f}-{hi:.2f})")
 
@@ -365,15 +386,15 @@ hb = pd.DataFrame({                 # 19장 '더 알아보기'의 가상 시험 
 hb["md"] = hb["m1"] - hb["m0"]                     # 평균 차이
 hb["se"] = np.sqrt(hb["sd1"]**2 / hb["n1"] + hb["sd0"]**2 / hb["n0"])
 
-def mdci(est, se):
+def mdci(est, se, crit=Z):
     """평균 차이 척도의 추정값과 95% CI (지수로 되돌리지 않음)"""
-    return f"{est:.2f} ({est - Z * se:.2f} to {est + Z * se:.2f})"
+    return f"{est:.2f} ({est - crit * se:.2f} to {est + crit * se:.2f})"
 
 m_md = pool(hb["md"], hb["se"]**2)
 print("fixed  :", mdci(m_md["fe"], m_md["se_fe"]))
-print("random :", mdci(m_md["re"], m_md["se_re"]))
+print("random :", mdci(m_md["re"], m_md["se_ci"], m_md["crit"]))   # HKSJ
 print(f"I2 {m_md['I2']:.0%}, tau2 {m_md['tau2']:.3f}")
-h_pi = stats.t.ppf(0.975, 6 - 2) * np.sqrt(m_md["tau2"] + m_md["se_re"]**2)
+h_pi = m_md["crit"] * np.sqrt(m_md["tau2"] + m_md["se_ci"]**2)    # t(5)
 print(f"95% prediction interval: {m_md['re'] - h_pi:.2f}"
       f" to {m_md['re'] + h_pi:.2f}")
 
@@ -381,30 +402,30 @@ g_smd, v_smd = effectsize_smd(hb["m1"].to_numpy(), hb["sd1"].to_numpy(),
                               hb["n1"].to_numpy(), hb["m0"].to_numpy(),
                               hb["sd0"].to_numpy(), hb["n0"].to_numpy())
 m_smd = pool(g_smd, v_smd)
-print("SMD    :", mdci(m_smd["re"], m_smd["se_re"]))   # Hedges g, 무작위효과
+print("SMD    :", mdci(m_smd["re"], m_smd["se_ci"], m_smd["crit"]))   # Hedges g
 hb[["study", "n1", "n0", "md", "se"]].round(3)
 ''', title="연속형 결과를 합칠 때 (HbA1c)")
-save("lab19_hba1c", c, marks={"-0.32 (-0.43 to -0.21)": 1, "-0.46 (-0.75 to -0.17)": 2, "tau2 0.100": 3,
-                              "-1.43 to 0.51": 4, "-0.40 (-0.63 to -0.18)": 5},
+save("lab19_hba1c", c, marks={"-0.32 (-0.43 to -0.21)": 1, "-0.46 (-0.84 to -0.08)": 2, "tau2 0.100": 3,
+                              "-1.36 to 0.44": 4, "-0.40 (-0.70 to -0.11)": 5},
      dfmarks={"<td>0.244</td>": 6})
 
 # ---------------------------------------------------------------- c. 이질성과 하위군 분석
 c = nb.cell('''
 p_q = stats.chi2.sf(m["Q"], m["k"] - 1)
 tau = np.sqrt(m["tau2"])
-tcrit = stats.t.ppf(0.975, m["k"] - 2)
-half = tcrit * np.sqrt(m["tau2"] + m["se_re"]**2)
+tcrit = m["crit"]                           # 신뢰구간과 같은 t(k - 1)
+half = tcrit * np.sqrt(m["tau2"] + m["se_ci"]**2)   # HKSJ 표준오차
 print(f"Q = {m['Q']:.2f}, df = {m['k'] - 1}, P = {p_q:.2f}")
 print(f"I2 = {m['I2']:.0%}")
 print(f"tau2 = {m['tau2']:.4f}, tau = {tau:.3f}")
 print(f"exp(mean +/- 1.96 tau): {np.exp(m['re'] - Z*tau):.2f}"
       f"-{np.exp(m['re'] + Z*tau):.2f}")
-print(f"t({m['k'] - 2}) = {tcrit:.3f}, half-width = {half:.3f}")
+print(f"t({m['k'] - 1}) = {tcrit:.3f}, half-width = {half:.3f}")
 print(f"95% prediction interval: {np.exp(m['re'] - half):.2f}"
       f"-{np.exp(m['re'] + half):.2f}")
 ''', title="이질성 지표와 예측구간")
 save("lab19_het", c, marks={"Q = 13.28, df = 9, P = 0.15": 1, "I2 = 32%": 2, "tau = 0.117": 3,
-                            "0.65-1.03": 4, "t(8) = 2.306": 5, "0.60-1.12": 6})
+                            "0.65-1.03": 4, "t(9) = 2.262": 5, "0.61-1.11": 6})
 
 c = nb.cell('''
 sub["yi"], sub["vi"] = log_or(sub["mace_x"], sub["n_x"],
@@ -416,13 +437,13 @@ for g in ["STEMI", "NSTE-ACS"]:
     r["subgroup"] = g
     r["drug X"] = f"{s['mace_x'].sum()}/{s['n_x'].sum()}"
     r["placebo"] = f"{s['mace_pbo'].sum()}/{s['n_pbo'].sum()}"
-    r["OR (95% CI)"] = orci(r["re"], r["se_re"])
-    r["P"] = 2 * stats.norm.sf(abs(r["re"] / r["se_re"]))
+    r["OR (95% CI)"] = reci(r)              # STEMI는 1.96, NSTE-ACS는 HKSJ
+    r["P"] = r["p_re"]
     rows.append(r)
 sg = pd.DataFrame(rows).set_index("subgroup")
 sg[["k", "drug X", "placebo", "OR (95% CI)", "P", "I2"]].round(4)
 ''', title="하위군별 통합")
-save("lab19_subgroup", c, dfmarks={"528/7006": 1, "0.78 (0.69-0.88)": 2, "0.92 (0.80-1.06)": 3, "0.2408": 4,
+save("lab19_subgroup", c, dfmarks={"528/7006": 1, "0.78 (0.69-0.88)": 2, "0.92 (0.77-1.10)": 3, "0.2918": 4,
                                    "0.0312": 5})
 
 c = nb.cell('''
@@ -493,16 +514,21 @@ if nll_reg(tau2_res) >= nll_reg(0):
     tau2_res = 0.0                            # 남은 연구 간 분산 (REML)
 
 mr = smf.wls("yi ~ stemi10", data=es,
-             weights=1 / (es["vi"] + tau2_res)).fit(
-                 cov_type="fixed scale")
+             weights=1 / (es["vi"] + tau2_res)).fit()   # 기본 fit = Knapp-Hartung
 b, se_b = mr.params["stemi10"], mr.bse["stemi10"]
+t8 = stats.t.ppf(0.975, mr.df_resid)          # 자유도 10 - 2 = 8
+p_b = mr.pvalues["stemi10"]
 print(f"QE {QE:.2f}, residual tau2 {tau2_res:.4f}")
-p_b = 2 * stats.norm.sf(abs(b / se_b))
-print(f"slope {b:.3f} (SE {se_b:.3f}), z {b / se_b:.2f}, P {p_b:.2f}")
-print("ratio of ORs per 10 %p:", orci(b, se_b))
+print(f"slope {b:.3f} (SE {se_b:.3f}), t {b / se_b:.2f},"
+      f" df {mr.df_resid:.0f}, P {p_b:.2f}")
+print("ratio of ORs per 10 %p:", orci(b, se_b, t8))
+mz = smf.wls("yi ~ stemi10", data=es,
+             weights=1 / (es["vi"] + tau2_res)).fit(cov_type="fixed scale")
+print(f"Wald (fixed scale): SE {mz.bse['stemi10']:.3f},"
+      f" P {mz.pvalues['stemi10']:.2f}")
 ''', title="메타회귀 (STEMI 환자 비율)")
-save("lab19_metareg", c, marks={"residual tau2 0.0084": 1, "slope -0.092 (SE 0.064)": 2, "P 0.15": 3,
-                                "0.91 (0.80-1.03)": 4})
+save("lab19_metareg", c, marks={"residual tau2 0.0084": 1, "slope -0.092 (SE 0.059)": 2, "P 0.16": 3,
+                                "0.91 (0.80-1.04)": 4, "SE 0.064, P 0.15": 5})
 
 # (2026-10-15) 19장 c 절 3단계 '이질성이 큰 자료', 'τ²는 어떤 방법으로', '평균의 신뢰구간은'에 맞춰 셀 23–25를 더했다.
 c = nb.cell('''
@@ -599,8 +625,7 @@ mu, se, q, se_q, tq = hksj(ya, va, t2_reml)
 print(f"REML + Wald, tau2 {t2_reml:.3f}:", orci(mu, se))
 print(f"REML + HKSJ, q {q:.2f}, t(6) {tq:.3f}:"
       f" {np.exp(mu - tq*se_q):.2f}-{np.exp(mu + tq*se_q):.2f}")
-tp = stats.t.ppf(0.975, len(ya) - 2)
-half_a = tp * np.sqrt(t2_reml + se**2)
+half_a = tq * np.sqrt(t2_reml + se_q**2)    # 예측구간: t(6), HKSJ 표준오차
 print(f"95% prediction interval: {np.exp(mu - half_a):.2f}"
       f"-{np.exp(mu + half_a):.2f}")
 lo, hi = tau2_qprofile(ya, va)
@@ -610,7 +635,7 @@ print(f"OR > 1 in {n_up} of 7, sign test P"
       f" {stats.binomtest(n_up, 7).pvalue:.3f}")
 ''', title="이질성이 큰 자료 (가상의 관찰연구 7개)")
 save("lab19_bighet", c, marks={"4.6  12.2": 1, "Q 52.90, df 6, I2 89%": 2, "1.48 (1.35-1.61)": 3,
-                             "REML + Wald, tau2 0.132: 1.69 (1.26-2.25)": 4, "1.17-2.43": 5, "0.61-4.63": 6,
+                             "REML + Wald, tau2 0.132: 1.69 (1.26-2.25)": 4, "1.17-2.43": 5, "0.64-4.41": 6,
                              "0.044-0.753": 7, "sign test P 0.016": 8})
 
 # ---------------------------------------------------------------- d. 깔때기 그림과 민감도 분석
@@ -666,7 +691,7 @@ for i in es.index:
     rest = es.drop(index=i)                 # i번 시험을 뺀 9개
     r = pool(rest["yi"], rest["vi"])
     rows.append({"left out": es.loc[i, "trial"],
-                 "OR (95% CI)": orci(r["re"], r["se_re"]),
+                 "OR (95% CI)": reci(r),
                  "OR": np.exp(r["re"]),
                  "I2 (%)": int(round(100 * r["I2"]))})
 loo = pd.DataFrame(rows)
@@ -674,32 +699,31 @@ print(f"range: {loo['OR'].min():.2f}-{loo['OR'].max():.2f}")
 loo.round(3)
 ''', title="한 시험씩 빼기")
 save("lab19_loo", c, marks={"0.79-0.85": 1},
-     dfmarks={"0.79 (0.72-0.87)": 2, "<td>0</td>": 3, "0.81 (0.68-0.96)": 4})
+     dfmarks={"0.79 (0.72-0.87)": 2, "<td>0</td>": 3, "0.81 (0.68-0.97)": 4})
 
 c = nb.cell('''
 low = tr["rob"] == "low"                    # 편향 위험 '낮음' 8개
 m_low = pool(es.loc[low, "yi"], es.loc[low, "vi"])
-q_hk = np.sum(ws * (es["yi"] - re)**2) / (k - 1)
-se_hk = se_re * np.sqrt(q_hk)               # Hartung-Knapp 표준오차
-t9 = stats.t.ppf(0.975, k - 1)
-print("main (random effects):", orci(m["re"], m["se_re"]))
+print("main (REML + HKSJ)   :", reci(m), f"P {m['p_re']:.3f}")
 print("fixed effect         :", orci(m["fe"], m["se_fe"]))
-print(f"low risk of bias, k={m_low['k']}:",
-      orci(m_low["re"], m_low["se_re"]))
-p_hk = 2 * stats.t.sf(abs(re / se_hk), k - 1)  # 자유도 k - 1인 t 검정
-print(f"Hartung-Knapp        : SE {se_hk:.4f}, 95% CI"
-      f" {np.exp(re - t9*se_hk):.2f}-{np.exp(re + t9*se_hk):.2f},"
-      f" P {p_hk:.3f}")
+print(f"low risk of bias, k={m_low['k']}:", reci(m_low))
+p_wald = 2 * stats.norm.sf(abs(m["re"] / m["se_re"]))   # z 검정
+lo_w = np.exp(m["re"] - Z * m["se_re"])
+hi_w = np.exp(m["re"] + Z * m["se_re"])
+print(f"Wald (1.96)          : SE {m['se_re']:.4f}, 95% CI"
+      f" {lo_w:.2f}-{hi_w:.2f}, P {p_wald:.3f}")
 ''', title="그 밖의 민감도 분석")
-save("lab19_sens", c, marks={"0.84 (0.78-0.91)": 1, "k=8: 0.82 (0.72-0.94)": 2, "SE 0.0609": 3, "95% CI 0.72-0.94": 4, "P 0.010": 5})
+save("lab19_sens", c, marks={"0.84 (0.78-0.91)": 1, "k=8: 0.82 (0.71-0.96)": 2, "SE 0.0666": 3, "95% CI 0.72-0.94": 4, "P 0.003": 5})
 
 c = nb.cell('''
 def risk_with(p0, OR):
     odds = p0 / (1 - p0) * OR               # 위험 -> 오즈, x 오즈비
     return odds / (1 + odds)                # 오즈 -> 위험
 
-def absolute(p0, est, se):
-    ORs = np.exp([est, est - Z * se, est + Z * se])
+def absolute(p0, r):
+    """pool() 결과 r의 오즈비와 신뢰구간을 기저 위험 p0에 적용"""
+    est, se, crit = r["re"], r["se_ci"], r["crit"]
+    ORs = np.exp([est, est - crit * se, est + crit * se])
     rd = risk_with(p0, ORs) - p0            # 위험차 [추정값, 양 끝]
     lo, hi = sorted(1 / np.abs(rd[1:]))     # NNT의 양 끝
     print(f"  risk {p0:.1%} -> {risk_with(p0, ORs[0]):.2%}")
@@ -712,28 +736,28 @@ n_ctl = y12["n_pbo"].sum()
 p0 = round(y12["mace_pbo"].sum() / n_ctl, 3)
 pb0 = round(y12["bleed_pbo"].sum() / n_ctl, 3)
 print("MACE, placebo:", y12["mace_pbo"].sum(), "/", n_ctl)
-absolute(p0, m["re"], m["se_re"])
+absolute(p0, m)
 print("Major bleeding, placebo:", y12["bleed_pbo"].sum(), "/", n_ctl)
-absolute(pb0, mb["re"], mb["se_re"])
+absolute(pb0, mb)
 ''', title="NNT와 NNH")
-save("lab19_nnt", c, marks={"662 / 7870": 1, "8.4% -> 7.00%": 2, "-1.40 (-2.20, -0.50)": 3,
-                            "-14 (-22, -5)": 4, "71 (45-200)": 5, "1.2% -> 2.70%": 6,
+save("lab19_nnt", c, marks={"662 / 7870": 1, "8.4% -> 7.00%": 2, "-1.40 (-2.25, -0.45)": 3,
+                            "-14 (-22, -4)": 4, "71 (45-224)": 5, "1.2% -> 2.70%": 6,
                             "15 (11, 20)": 7, "67 (50-94)": 8})
 
 c = nb.cell('''
 print("MACE, OR 0.82 at other baseline risks")
 for p_base in [0.04, 0.12, 0.15]:
-    absolute(p_base, m["re"], m["se_re"])
+    absolute(p_base, m)
 print("Major bleeding, OR 2.28 at baseline risk 3%")
-absolute(0.03, mb["re"], mb["se_re"])
+absolute(0.03, mb)
 print(f"summed counts of all trials: NNT {1 / (r_p - r_x):.0f}")
 ''', title="기저 위험을 바꿔 다시 계산하기")
-save("lab19_baselines", c, marks={"144 (92-402)": 1, "risk 12.0% -> 10.07%": 2, "-19 (-31, -7)": 3,
-                                  "52 (33-145)": 4, "43 (27-120)": 5, "28 (21-39)": 6, "NNT 56": 7})
+save("lab19_baselines", c, marks={"144 (90-449)": 1, "risk 12.0% -> 10.07%": 2, "-19 (-31, -6)": 3,
+                                  "52 (32-163)": 4, "43 (26-134)": 5, "28 (21-39)": 6, "NNT 56": 7})
 
 c = nb.cell('''
-e_n, s_n = sg.loc["NSTE-ACS", "re"], sg.loc["NSTE-ACS", "se_re"]
-ors_n = np.exp([e_n, e_n - Z * s_n, e_n + Z * s_n])   # 0.92 (0.80-1.06)
+e_n, s_n, c_n = sg.loc["NSTE-ACS", ["re", "se_ci", "crit"]]
+ors_n = np.exp([e_n, e_n - c_n * s_n, e_n + c_n * s_n])   # 0.92 (0.77-1.10)
 rd_n = risk_with(p0, ors_n) - p0            # 기저 위험 8.4%에 적용
 print("RD %p   : {:.2f} ({:.2f}, {:.2f})".format(*(100 * rd_n)))
 print(f"NNT     : {1 / abs(rd_n[0]):.0f}")
@@ -742,8 +766,8 @@ print(f"CI ends : NNT {1 / abs(rd_n[1]):.0f}"
 print("absolute() would print: {:.0f}-{:.0f}".format(
     *sorted(1 / np.abs(rd_n[1:]))))
 ''', title="유의하지 않은 결과의 NNT")
-save("lab19_nntns", c, marks={"-0.61 (-1.53, 0.43)": 1, "NNT     : 165": 2, "CI ends : NNT 65": 3,
-                              "NNH 233": 4, "65-233": 5})
+save("lab19_nntns", c, marks={"-0.61 (-1.79, 0.77)": 1, "NNT     : 165": 2, "CI ends : NNT 56": 3,
+                              "NNH 130": 4, "56-130": 5})
 
 c = nb.cell('''
 y_y = np.log(0.90)                          # 약물 Y 대 위약 0.90 (0.80-1.01), 가상
@@ -765,7 +789,7 @@ for ph in [2, 3]:
     s = es[es["phase"] == ph]
     r = pool(s["yi"], s["vi"])
     r["phase"] = ph
-    r["OR (95% CI)"] = orci(r["re"], r["se_re"])
+    r["OR (95% CI)"] = reci(r)              # 2상은 1.96, 3상은 HKSJ
     rows.append(r)
 pg = pd.DataFrame(rows).set_index("phase")
 d = pg.loc[2, "re"] - pg.loc[3, "re"]
@@ -774,7 +798,7 @@ print("P for subgroup difference:",
       round(2 * stats.norm.sf(abs(d / se_d)), 2))
 pg[["k", "OR (95% CI)", "I2", "tau2"]].round(3)
 ''', title="과제 1 정답. 임상시험 단계에 따른 하위군 분석")
-save("lab19_hw1", c, marks={"0.36": 1}, dfmarks={"0.73 (0.57-0.95)": 2, "0.84 (0.73-0.98)": 3, "0.626": 4})
+save("lab19_hw1", c, marks={"0.36": 1}, dfmarks={"0.73 (0.57-0.95)": 2, "0.84 (0.66-1.08)": 3, "0.626": 4})
 
 c = nb.cell('''
 r1 = tr["mace_x"] / tr["n_x"]               # 약물 X군의 위험
@@ -784,19 +808,19 @@ y_rr = np.log(r1 / r0)                      # 로그 상대위험도
 v_rr = (1/tr["mace_x"] - 1/tr["n_x"]
         + 1/tr["mace_pbo"] - 1/tr["n_pbo"])
 m_rr = pool(y_rr, v_rr)
-print("RR:", orci(m_rr["re"], m_rr["se_re"]), f"I2 {m_rr['I2']:.0%}")
+print("RR:", reci(m_rr), f"I2 {m_rr['I2']:.0%}")
 
 y_rd = r1 - r0                              # 위험차 (로그 없음)
 v_rd = r1 * (1 - r1) / tr["n_x"] + r0 * (1 - r0) / tr["n_pbo"]
 m_rd = pool(y_rd, v_rd)
-lo = m_rd["re"] - Z * m_rd["se_re"]
-hi = m_rd["re"] + Z * m_rd["se_re"]
+lo = m_rd["re"] - m_rd["crit"] * m_rd["se_ci"]
+hi = m_rd["re"] + m_rd["crit"] * m_rd["se_ci"]
 print(f"RD: {100 * m_rd['re']:.2f} ({100 * lo:.2f} to {100 * hi:.2f})"
       f" %p, I2 {m_rd['I2']:.0%}")
 print(f"1 / pooled RD = {1 / abs(m_rd['re']):.0f}")
 print("risk in placebo groups:", (100 * r0).round(1).tolist())
 ''', title="과제 2 정답. 상대위험도와 위험차로 통합")
-save("lab19_hw2", c, marks={"0.83 (0.74-0.94)": 1, "I2 33%": 2, "-1.24 (-2.04 to -0.44)": 3, "I2 34%": 4,
+save("lab19_hw2", c, marks={"0.83 (0.73-0.95)": 1, "I2 33%": 2, "-1.24 (-2.11 to -0.37)": 3, "I2 34%": 4,
                             "= 81": 5, "[3.5,": 6})
 
 c = nb.cell('''
@@ -810,7 +834,7 @@ sdsg = np.sqrt((sg["se_" + model]**2).sum())
 print("P for interaction:", round(2 * stats.norm.sf(abs(dsg / sdsg)), 3))
 
 # 계획서대로 한 분석과 비교 (셀 19-21)
-print("planned random effects:", orci(m["re"], m["se_re"]))
+print("planned random effects:", reci(m))
 print("  P for interaction:", round(2 * stats.norm.sf(abs(z)), 3))
 print("  within-trial P   :", round(p_w, 3))
 ''', title="과제 3 정답. 이질성 검정으로 모형을 고른 동료의 분석")
@@ -880,8 +904,11 @@ if __name__ == "__main__":
     close(m_["tau2"], E["t2"])
     close(m_["se_fe"], E["fe_se"]); close(m_["se_re"], E["re_se"])
     close(ns["fe"], E["fe"]); close(ns["re"], E["re"]); close(ns["tau2"], E["t2"]); close(ns["p_re"], E["re_p"])
+    close(ns["se_hk"], E["re_hk_se"]); close(m_["se_ci"], E["re_se_ci"]); close(m_["p_re"], E["re_p"])
+    same(E["ci_method"], "HKSJ"); same(B["ci_method"], "Wald")
     assert np.allclose(es_["w_fe"], E["wfe"] * 100) and np.allclose(es_["w_re"], E["wre"] * 100); n_ok += 1
-    same(orci_(m_["fe"], m_["se_fe"]), "0.84 (0.78-0.91)"); same(orci_(m_["re"], m_["se_re"]), "0.82 (0.72-0.94)")
+    same(orci_(m_["fe"], m_["se_fe"]), "0.84 (0.78-0.91)"); same(ns["reci"](m_), "0.82 (0.72-0.94)")
+    same(orci_(m_["re"], m_["se_re"]), "0.82 (0.72-0.94)", "Wald")
     close(ns["res"].tau2, E["t2_dl"]); close(ns["res"].q, E["Q"]); close(ns["res"].i2, E["I2"])
     close(ns["mh"].oddsratio_pooled, R["mh_eff"][0])
     close(ns["pi"][0], E["pi_or"][0]); close(ns["pi"][1], E["pi_or"][1])
@@ -889,7 +916,7 @@ if __name__ == "__main__":
     close(ns["p_q"], E["pQ"]); close(ns["tcrit"], E["tcrit"])
     # bleeding / zero cell
     close(mb_["re"], B["re"]); close(mb_["se_re"], B["re_se"]); close(mb_["Q"], B["Q"])
-    same(orci_(mb_["re"], mb_["se_re"]), "2.28 (1.90-2.74)")
+    same(orci_(mb_["re"], mb_["se_re"]), "2.28 (1.90-2.74)"); same(ns["reci"](mb_), "2.28 (1.90-2.74)")
     close(ns["m5"]["re"], R["bleed_all05"]["re"])
     close(ns["m_noC"]["re"], R["bleed_exC"]["re"]); close(ns["mh_b"].oddsratio_pooled, R["mh_bleed"][0])
     # SE from a reported CI (19장 b 절 스스로 확인하기 2번과 '더 알아보기')
@@ -901,9 +928,12 @@ if __name__ == "__main__":
     close(ns["m_md"]["fe"], H_["M"]["fe"]); close(ns["m_md"]["re"], H_["M"]["re"]); close(ns["m_md"]["tau2"], H_["M"]["t2"])
     close(ns["m_md"]["re"] - ns["h_pi"], H_["M"]["pi"][0]); close(ns["m_md"]["re"] + ns["h_pi"], H_["M"]["pi"][1])
     close(ns["m_smd"]["re"], H_["smd"]["re"]); close(ns["m_smd"]["se_re"], H_["smd"]["re_se"])
+    close(ns["m_md"]["re"] - ns["m_md"]["crit"] * ns["m_md"]["se_ci"], H_["M"]["re_ci"][0])
+    close(ns["m_smd"]["re"] - ns["m_smd"]["crit"] * ns["m_smd"]["se_ci"], H_["smd"]["re_ci"][0])
     # subgroups
     close(sg_.loc["STEMI", "re"], R["sub"]["S"]["re"]); close(sg_.loc["NSTE-ACS", "re"], R["sub"]["N"]["re"])
     close(sg_.loc["STEMI", "I2"], R["sub"]["S"]["I2"]); close(sg_.loc["NSTE-ACS", "I2"], R["sub"]["N"]["I2"])
+    close(sg_.loc["NSTE-ACS", "P"], R["sub"]["N"]["re_p"]); close(sg_.loc["STEMI", "P"], R["sub"]["S"]["re_p"])
     i2ci = ns["i2_ci"]
     for got, ref in ((i2ci(m_["Q"], m_["k"]), E["I2ci"]), (i2ci(sg_.loc["STEMI", "Q"], sg_.loc["STEMI", "k"]), R["sub"]["S"]["I2ci"]),
                      (i2ci(sg_.loc["NSTE-ACS", "Q"], sg_.loc["NSTE-ACS", "k"]), R["sub"]["N"]["I2ci"])):
@@ -917,8 +947,8 @@ if __name__ == "__main__":
     # meta-regression
     MR = R["mr"]
     # REML의 최적화는 두 곳에서 따로 풀므로 소수 8–9째 자리까지만 맞춘다
-    close(ns["b"], MR["b"][1], 1e-7); close(ns["se_b"], MR["se"][1], 1e-7); close(ns["tau2_res"], MR["t2"], 1e-7)
-    close(ns["p_b"], MR["p"][1], 1e-7)
+    close(ns["b"], MR["b"][1], 1e-7); close(ns["se_b"], MR["se_kh"][1], 1e-7); close(ns["tau2_res"], MR["t2"], 1e-7)
+    close(ns["p_b"], MR["p_kh"][1], 1e-7); close(ns["mz"].bse["stemi10"], MR["se"][1], 1e-7); close(ns["mz"].pvalues["stemi10"], MR["p"][1], 1e-7)
     close(ns["QE"], MR["QE"])
     # Egger, leave-one-out, sensitivity
     EG = R["egger"]
@@ -929,9 +959,9 @@ if __name__ == "__main__":
     for row, ref in zip(ns["loo"].itertuples(), R["loo"]):
         close(row.OR, ref["or_"][0], 6e-4, "loo " + ref["nm"])
         same(int(row._4), int(round(ref["I2"] * 100)), "loo I2 " + ref["nm"])
-    close(ns["m_low"]["re"], R["lowrob"]["re"])
+    close(ns["m_low"]["re"], R["lowrob"]["re"]); same(ns["reci"](ns["m_low"]), "0.82 (0.71-0.96)")
     close(np.exp(ns["re"] - ns["t9"] * ns["se_hk"]), R["hk"][0]); close(np.exp(ns["re"] + ns["t9"] * ns["se_hk"]), R["hk"][1])
-    close(ns["p_hk"], R["hk_p"])
+    close(ns["p_re"], R["hk_p"]); close(ns["p_wald"], R["wald_p"])
     # absolute effects
     same(float(ns["p0"]), 0.084); same(float(ns["pb0"]), 0.012)
     rw = ns["risk_with"]
@@ -939,17 +969,21 @@ if __name__ == "__main__":
     close(1 / abs(rw(0.012, np.exp(mb_["re"])) - 0.012), R["abs_b"]["n"][0])
     for lv in R["levels"]:
         close(1 / abs(rw(lv["p0"], np.exp(m_["re"])) - lv["p0"]), lv["nnt"])
-    ORs_ = np.exp([m_["re"], m_["re"] - ns["Z"] * m_["se_re"], m_["re"] + ns["Z"] * m_["se_re"]])
+    ORs_ = np.exp([m_["re"], m_["re"] - m_["crit"] * m_["se_ci"], m_["re"] + m_["crit"] * m_["se_ci"]])
     rd12 = rw(0.12, ORs_) - 0.12                                    # 19장 e 절 스스로 확인하기 4번
-    same("%.0f (%.0f-%.0f)" % (1 / abs(rd12[0]), *sorted(1 / np.abs(rd12[1:]))), "52 (33-145)")
+    same("%.0f (%.0f-%.0f)" % (1 / abs(rd12[0]), *sorted(1 / np.abs(rd12[1:]))), "52 (32-163)")
+    for got, ref in zip(rw(0.084, ORs_) - 0.084, R["abs_e"]["rd"]):
+        close(got, ref)
     same(int(round(1 / (R["naive"]["pC"] - R["naive"]["pT"]))), 56)
-    for got, ref in zip(ns["rd_n"], R["abs_n"]["rd"]):              # NSTE-ACS: 66 ... inf ... 235
+    for got, ref in zip(ns["rd_n"], R["abs_n"]["rd"]):              # NSTE-ACS: 56 ... inf ... 130
         close(got, ref)
     # indirect comparison (19장 e 절 '더 알아보기': 0.91 (0.77–1.09))
     same(orci_(ns["y_xy"], ns["se_xy"]), "0.91 (0.77-1.09)")
     # homework
     close(ns["pg"].loc[2, "re"], R["phase"]["P2"]["re"]); close(ns["pg"].loc[3, "re"], R["phase"]["P3"]["re"])
     close(ns["m_rr"]["re"], R["rr"]["re"]); close(ns["m_rd"]["re"], R["rdm"]["re"]); close(ns["m_rd"]["se_re"], R["rdm"]["re_se"])
+    close(ns["lo"], R["rdm"]["re_ci"][0]); close(ns["hi"], R["rdm"]["re_ci"][1])
+    same(ns["pg"].loc[3, "OR (95% CI)"], "0.84 (0.66-1.08)")
     dfe = sg_.loc["STEMI", "fe"] - sg_.loc["NSTE-ACS", "fe"]
     close(ns["dsg"], dfe); same(round(2 * N19.st.norm.sf(abs(dfe / np.sqrt((sg_["se_fe"] ** 2).sum()))), 3), 0.043)
     print("대조 블록: 본문 값과 일치", n_ok, "개")
@@ -1025,7 +1059,8 @@ if __name__ == "__main__":
     muB, seB, qB, sehB, tqB = hk_(yB, vB, t2re(yB, vB))
     same("%.2f %.3f %.3f %.3f %s" % (qB, seB, sehB, tqB, ci2(muB, sehB, tqB)), "1.03 0.147 0.149 2.447 1.17-2.43", "adh HK")
     t2B = t2re(yB, vB); spi = np.sqrt(t2B + seB ** 2)
-    same((ci2(muB, spi, st_.t.ppf(0.975, 5)), ci2(muB, spi, st_.t.ppf(0.975, 6))), ("0.61-4.63", "0.65-4.41"), "adh PI k-2, k-1")
+    same((ci2(muB, spi, st_.t.ppf(0.975, 5)), ci2(muB, spi, st_.t.ppf(0.975, 6))), ("0.61-4.63", "0.65-4.41"), "adh PI k-2, k-1 (Wald SE)")
+    same(ci2(muB, np.sqrt(t2B + sehB ** 2), tqB), "0.64-4.41", "adh PI main (HKSJ SE, t6)")
     same("%.3f %.3f %.3f %.3f" % (muB, t2B, spi, st_.t.ppf(0.975, 5) * spi), "0.523 0.132 0.393 1.009", "adh PI parts")
     same("%.3f-%.3f / %.2f-%.2f" % (*qp(yB, vB), *np.sqrt(qp(yB, vB))), "0.044-0.753 / 0.21-0.87", "adh tau2 CI")
     same("%.3f-%.3f" % (vB.min(), vB.max()), "0.008-0.045", "adh SE^2 range")

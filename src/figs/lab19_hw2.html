@@ -5,17 +5,17 @@ y_rr = np.log(r1 / r0)                      # 로그 상대위험도
 v_rr = (1/tr[&quot;mace_x&quot;] - 1/tr[&quot;n_x&quot;]
         + 1/tr[&quot;mace_pbo&quot;] - 1/tr[&quot;n_pbo&quot;])
 m_rr = pool(y_rr, v_rr)
-print(&quot;RR:&quot;, orci(m_rr[&quot;re&quot;], m_rr[&quot;se_re&quot;]), f&quot;I2 {m_rr[&#x27;I2&#x27;]:.0%}&quot;)
+print(&quot;RR:&quot;, reci(m_rr), f&quot;I2 {m_rr[&#x27;I2&#x27;]:.0%}&quot;)
 
 y_rd = r1 - r0                              # 위험차 (로그 없음)
 v_rd = r1 * (1 - r1) / tr[&quot;n_x&quot;] + r0 * (1 - r0) / tr[&quot;n_pbo&quot;]
 m_rd = pool(y_rd, v_rd)
-lo = m_rd[&quot;re&quot;] - Z * m_rd[&quot;se_re&quot;]
-hi = m_rd[&quot;re&quot;] + Z * m_rd[&quot;se_re&quot;]
+lo = m_rd[&quot;re&quot;] - m_rd[&quot;crit&quot;] * m_rd[&quot;se_ci&quot;]
+hi = m_rd[&quot;re&quot;] + m_rd[&quot;crit&quot;] * m_rd[&quot;se_ci&quot;]
 print(f&quot;RD: {100 * m_rd[&#x27;re&#x27;]:.2f} ({100 * lo:.2f} to {100 * hi:.2f})&quot;
       f&quot; %p, I2 {m_rd[&#x27;I2&#x27;]:.0%}&quot;)
 print(f&quot;1 / pooled RD = {1 / abs(m_rd[&#x27;re&#x27;]):.0f}&quot;)
-print(&quot;risk in placebo groups:&quot;, (100 * r0).round(1).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RR: 0.83 (0.74-0.94)<span class="mk">1</span> I2 33%<span class="mk">2</span>
-RD: -1.24 (-2.04 to -0.44)<span class="mk">3</span> %p, I2 34%<span class="mk">4</span>
+print(&quot;risk in placebo groups:&quot;, (100 * r0).round(1).tolist())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RR: 0.83 (0.73-0.95)<span class="mk">1</span> I2 33%<span class="mk">2</span>
+RD: -1.24 (-2.11 to -0.37)<span class="mk">3</span> %p, I2 34%<span class="mk">4</span>
 1 / pooled RD = 81<span class="mk">5</span>
 risk in placebo groups: [3.5,<span class="mk">6</span> 4.7, 2.5, 8.1, 6.7, 12.3, 4.4, 8.2, 9.3, 7.7]</pre></div></div>

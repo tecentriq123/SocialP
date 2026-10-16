@@ -19,12 +19,18 @@ if nll_reg(tau2_res) &gt;= nll_reg(0):
     tau2_res = 0.0                            # 남은 연구 간 분산 (REML)
 
 mr = smf.wls(&quot;yi ~ stemi10&quot;, data=es,
-             weights=1 / (es[&quot;vi&quot;] + tau2_res)).fit(
-                 cov_type=&quot;fixed scale&quot;)
+             weights=1 / (es[&quot;vi&quot;] + tau2_res)).fit()   # 기본 fit = Knapp-Hartung
 b, se_b = mr.params[&quot;stemi10&quot;], mr.bse[&quot;stemi10&quot;]
+t8 = stats.t.ppf(0.975, mr.df_resid)          # 자유도 10 - 2 = 8
+p_b = mr.pvalues[&quot;stemi10&quot;]
 print(f&quot;QE {QE:.2f}, residual tau2 {tau2_res:.4f}&quot;)
-p_b = 2 * stats.norm.sf(abs(b / se_b))
-print(f&quot;slope {b:.3f} (SE {se_b:.3f}), z {b / se_b:.2f}, P {p_b:.2f}&quot;)
-print(&quot;ratio of ORs per 10 %p:&quot;, orci(b, se_b))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>QE 9.56, residual tau2 0.0084<span class="mk">1</span>
-slope -0.092 (SE 0.064)<span class="mk">2</span>, z -1.43, P 0.15<span class="mk">3</span>
-ratio of ORs per 10 %p: 0.91 (0.80-1.03)<span class="mk">4</span></pre></div></div>
+print(f&quot;slope {b:.3f} (SE {se_b:.3f}), t {b / se_b:.2f},&quot;
+      f&quot; df {mr.df_resid:.0f}, P {p_b:.2f}&quot;)
+print(&quot;ratio of ORs per 10 %p:&quot;, orci(b, se_b, t8))
+mz = smf.wls(&quot;yi ~ stemi10&quot;, data=es,
+             weights=1 / (es[&quot;vi&quot;] + tau2_res)).fit(cov_type=&quot;fixed scale&quot;)
+print(f&quot;Wald (fixed scale): SE {mz.bse[&#x27;stemi10&#x27;]:.3f},&quot;
+      f&quot; P {mz.pvalues[&#x27;stemi10&#x27;]:.2f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>QE 9.56, residual tau2 0.0084<span class="mk">1</span>
+slope -0.092 (SE 0.059)<span class="mk">2</span>, t -1.56, df 8, P 0.16<span class="mk">3</span>
+ratio of ORs per 10 %p: 0.91 (0.80-1.04)<span class="mk">4</span>
+Wald (fixed scale): SE 0.064, P 0.15<span class="mk">5</span></pre></div></div>

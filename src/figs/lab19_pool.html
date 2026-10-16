@@ -1,5 +1,6 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">통합 계산을 함수로 묶기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def pool(y, v):
-    &quot;&quot;&quot;역분산 고정효과(fe)와 무작위효과(re, τ²는 REML)&quot;&quot;&quot;
+    &quot;&quot;&quot;역분산 고정효과(fe)와 무작위효과(re, τ²는 REML).
+    무작위효과의 구간은 τ² &gt; 0이고 연구가 3개 이상이면 HKSJ, 아니면 1.96 (19장 b 절)&quot;&quot;&quot;
     y, v = np.asarray(y, float), np.asarray(v, float)
     k, w = len(y), 1 / v
     fe = np.sum(w * y) / np.sum(w)
@@ -7,16 +8,29 @@
     tau2 = tau2_reml(y, v)
     ws = 1 / (v + tau2)
     re = np.sum(ws * y) / np.sum(ws)
+    se_re = 1 / np.sqrt(np.sum(ws))
+    if tau2 &gt; 0 and k &gt;= 3:                 # HKSJ
+        q = np.sum(ws * (y - re)**2) / (k - 1)
+        se_ci, crit = np.sqrt(q) * se_re, stats.t.ppf(0.975, k - 1)
+        p_re = 2 * stats.t.sf(abs(re / se_ci), k - 1)
+    else:                                   # 보통의 방법(Wald)
+        se_ci, crit = se_re, Z
+        p_re = 2 * stats.norm.sf(abs(re / se_re))
     return {&quot;k&quot;: k, &quot;fe&quot;: fe, &quot;se_fe&quot;: 1 / np.sqrt(np.sum(w)),
-            &quot;re&quot;: re, &quot;se_re&quot;: 1 / np.sqrt(np.sum(ws)),
-            &quot;Q&quot;: Q, &quot;I2&quot;: max(0, (Q - (k - 1)) / Q), &quot;tau2&quot;: tau2}
+            &quot;re&quot;: re, &quot;se_re&quot;: se_re, &quot;se_ci&quot;: se_ci, &quot;crit&quot;: crit,
+            &quot;p_re&quot;: p_re, &quot;Q&quot;: Q, &quot;I2&quot;: max(0, (Q - (k - 1)) / Q),
+            &quot;tau2&quot;: tau2}
 
-def orci(est, se):
-    &quot;&quot;&quot;로그 척도의 추정값과 표준오차 -&gt; &#x27;OR (하한-상한)&#x27;&quot;&quot;&quot;
-    lo, hi = np.exp(est - Z * se), np.exp(est + Z * se)
+def orci(est, se, crit=Z):
+    &quot;&quot;&quot;로그 척도의 추정값, 표준오차, 곱하는 값 -&gt; &#x27;OR (하한-상한)&#x27;&quot;&quot;&quot;
+    lo, hi = np.exp(est - crit * se), np.exp(est + crit * se)
     return f&quot;{np.exp(est):.2f} ({lo:.2f}-{hi:.2f})&quot;
+
+def reci(r):
+    &quot;&quot;&quot;pool() 결과 r의 무작위효과 &#x27;OR (하한-상한)&#x27;&quot;&quot;&quot;
+    return orci(r[&quot;re&quot;], r[&quot;se_ci&quot;], r[&quot;crit&quot;])
 
 m = pool(es[&quot;yi&quot;], es[&quot;vi&quot;])
 print(&quot;fixed  :&quot;, orci(m[&quot;fe&quot;], m[&quot;se_fe&quot;]))
-print(&quot;random :&quot;, orci(m[&quot;re&quot;], m[&quot;se_re&quot;]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>fixed  : 0.84 (0.78-0.91)<span class="mk">1</span>
-random : 0.82 (0.72-0.94)<span class="mk">2</span></pre></div></div>
+print(&quot;random :&quot;, reci(m), f&quot;P {m[&#x27;p_re&#x27;]:.3f}&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>fixed  : 0.84 (0.78-0.91)<span class="mk">1</span>
+random : 0.82 (0.72-0.94)<span class="mk">2</span> P 0.010<span class="mk">3</span></pre></div></div>

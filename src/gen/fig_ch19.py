@@ -69,7 +69,7 @@ def prisma():
     box(ex, 240, ew, 106, ["24 Reports excluded",
                            "  9 Not randomized",
                            "  8 Comparator not placebo or standard care",
-                           "  4 Outcomes of interest not reported",
+                           "  4 Population without recent ACS",
                            "  3 Ongoing, no results available"])
     # row 4
     box(bx, 352, bw, 74, ["10 Trials included in the meta-analysis"], cls="a1 s1")
@@ -238,11 +238,12 @@ rows.append(dict(label="Random effects", diamond=True, est=E["re_or"][0], lo=E["
 rows.append(dict(label="Fixed effect", diamond=True, est=E["fe_or"][0], lo=E["fe_or"][1], hi=E["fe_or"][2], s=4))
 rows.append(dict(label="95% prediction interval", est=E["re_or"][0], lo=E["pi_or"][0], hi=E["pi_or"][1], s=4, size=0, ind=True))
 foot = [f'Heterogeneity: Q = {E["Q"]:.2f}, df = {E["df"]}, P {pfmt(E["pQ"])}; I² = {E["I2"] * 100:.0f}%; τ² = {E["t2"]:.4f}',
-        f'Test for overall effect (random effects): z = {abs(E["re"] / E["re_se"]):.2f}, P {pfmt(E["re_p"])}']
+        f'Test for overall effect (random effects, HKSJ): t = {abs(E["re_stat"]):.2f}, df = {E["re_df"]}, P {pfmt(E["re_p"])}']
+assert E["ci_method"] == "HKSJ"
 save("ch19_forest", figure(
     [forest_ma(rows, (0.2, 5.5), (0.25, 0.5, 1, 2, 4), foot=foot)],
     "그림 19-3. 약물 X 추가의 유효성(심혈관 사망·심근경색·뇌졸중) 메타분석 포레스트 플롯(가상의 예시). 한 줄이 한 시험이고, 네모의 크기는 무작위효과 가중치(오른쪽 끝 열), "
-    "가로선은 95% 신뢰구간입니다. 파란 마름모는 무작위효과 모형(τ²는 REML로 추정), 회색 마름모는 고정효과 모형으로 합친 값입니다. 맨 아래 회색 선(예측구간)은 c 절에서 설명합니다.",
+    "가로선은 95% 신뢰구간입니다. 파란 마름모는 무작위효과 모형(τ²는 REML, 신뢰구간은 HKSJ 방법), 회색 마름모는 고정효과 모형으로 합친 값입니다. 맨 아래 회색 선(예측구간)은 c 절에서 설명합니다.",
     cols=1))
 
 # ====================================================================== 19-4 forest plot, bleeding (나, paper box)
@@ -256,6 +257,7 @@ rows.append(dict(label="Total (random effects)", diamond=True, est=B["re_or"][0]
                  n1=f'{N["bT"]:,}/{N["nT"]:,}', n0=f'{N["bC"]:,}/{N["nC"]:,}', wt="100%"))
 foot = [f'Heterogeneity: Q = {B["Q"]:.2f}, df = {B["df"]}, P {pfmt(B["pQ"])}; I² = {B["I2"] * 100:.0f}%; τ² = {B["t2"]:.2f}',
         f'Test for overall effect: z = {abs(B["re"] / B["re_se"]):.2f}, P {pfmt(B["re_p"])}']
+assert B["ci_method"] == "Wald"     # τ² = 0, so the Cochrane rule keeps the normal (Wald) interval
 save("ch19_forest_bleed", figure(
     [forest_ma(rows, (0.1, 30), (0.1, 0.3, 1, 3, 10, 30), foot=foot, right="Favours placebo →",
                badges=[("ev", 3, 1), ("ev", 2, 2), ("wt", 0, 3), ("est", 10, 4), ("foot", 0, 5), ("axis", 0, 6)])],

@@ -2,8 +2,10 @@
     odds = p0 / (1 - p0) * OR               # 위험 -&gt; 오즈, x 오즈비
     return odds / (1 + odds)                # 오즈 -&gt; 위험
 
-def absolute(p0, est, se):
-    ORs = np.exp([est, est - Z * se, est + Z * se])
+def absolute(p0, r):
+    &quot;&quot;&quot;pool() 결과 r의 오즈비와 신뢰구간을 기저 위험 p0에 적용&quot;&quot;&quot;
+    est, se, crit = r[&quot;re&quot;], r[&quot;se_ci&quot;], r[&quot;crit&quot;]
+    ORs = np.exp([est, est - crit * se, est + crit * se])
     rd = risk_with(p0, ORs) - p0            # 위험차 [추정값, 양 끝]
     lo, hi = sorted(1 / np.abs(rd[1:]))     # NNT의 양 끝
     print(f&quot;  risk {p0:.1%} -&gt; {risk_with(p0, ORs[0]):.2%}&quot;)
@@ -16,13 +18,13 @@ n_ctl = y12[&quot;n_pbo&quot;].sum()
 p0 = round(y12[&quot;mace_pbo&quot;].sum() / n_ctl, 3)
 pb0 = round(y12[&quot;bleed_pbo&quot;].sum() / n_ctl, 3)
 print(&quot;MACE, placebo:&quot;, y12[&quot;mace_pbo&quot;].sum(), &quot;/&quot;, n_ctl)
-absolute(p0, m[&quot;re&quot;], m[&quot;se_re&quot;])
+absolute(p0, m)
 print(&quot;Major bleeding, placebo:&quot;, y12[&quot;bleed_pbo&quot;].sum(), &quot;/&quot;, n_ctl)
-absolute(pb0, mb[&quot;re&quot;], mb[&quot;se_re&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MACE, placebo: 662 / 7870<span class="mk">1</span>
+absolute(pb0, mb)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>MACE, placebo: 662 / 7870<span class="mk">1</span>
   risk 8.4% -&gt; 7.00%<span class="mk">2</span>
-  RD %p   : -1.40 (-2.20, -0.50)<span class="mk">3</span>
-  per 1000: -14 (-22, -5)<span class="mk">4</span>
-  NNT/NNH : 71 (45-200)<span class="mk">5</span>
+  RD %p   : -1.40 (-2.25, -0.45)<span class="mk">3</span>
+  per 1000: -14 (-22, -4)<span class="mk">4</span>
+  NNT/NNH : 71 (45-224)<span class="mk">5</span>
 Major bleeding, placebo: 93 / 7870
   risk 1.2% -&gt; 2.70%<span class="mk">6</span>
   RD %p   : 1.50 (1.06, 2.02)

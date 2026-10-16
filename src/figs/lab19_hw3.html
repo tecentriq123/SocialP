@@ -8,7 +8,7 @@ sdsg = np.sqrt((sg[&quot;se_&quot; + model]**2).sum())
 print(&quot;P for interaction:&quot;, round(2 * stats.norm.sf(abs(dsg / sdsg)), 3))
 
 # 계획서대로 한 분석과 비교 (셀 19-21)
-print(&quot;planned random effects:&quot;, orci(m[&quot;re&quot;], m[&quot;se_re&quot;]))
+print(&quot;planned random effects:&quot;, reci(m))
 print(&quot;  P for interaction:&quot;, round(2 * stats.norm.sf(abs(z)), 3))
 print(&quot;  within-trial P   :&quot;, round(p_w, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>model: fe | main: 0.84 (0.78-0.91)<span class="mk">1</span>
   STEMI    : 0.78 (0.69-0.88)<span class="mk">2</span>

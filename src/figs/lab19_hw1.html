@@ -4,7 +4,7 @@ for ph in [2, 3]:
     s = es[es[&quot;phase&quot;] == ph]
     r = pool(s[&quot;yi&quot;], s[&quot;vi&quot;])
     r[&quot;phase&quot;] = ph
-    r[&quot;OR (95% CI)&quot;] = orci(r[&quot;re&quot;], r[&quot;se_re&quot;])
+    r[&quot;OR (95% CI)&quot;] = reci(r)              # 2상은 1.96, 3상은 HKSJ
     rows.append(r)
 pg = pd.DataFrame(rows).set_index(&quot;phase&quot;)
 d = pg.loc[2, &quot;re&quot;] - pg.loc[3, &quot;re&quot;]
@@ -39,7 +39,7 @@ pg[[&quot;k&quot;, &quot;OR (95% CI)&quot;, &quot;I2&quot;, &quot;tau2&quot;]].r
     <tr>
       <th>3</th>
       <td>4</td>
-      <td>0.84 (0.73-0.98)<span class="mk">3</span></td>
+      <td>0.84 (0.66-1.08)<span class="mk">3</span></td>
       <td>0.626<span class="mk">4</span></td>
       <td>0.015</td>
     </tr>

@@ -5,8 +5,8 @@ tables_b = [[[r.bleed_x, r.n_x - r.bleed_x],
             for r in tr.itertuples()]
 mh_b = StratifiedTable(tables_b)
 lo, hi = mh_b.oddsratio_pooled_confint()
-print(&quot;0.5 added to Trial C:&quot;, orci(mb[&quot;re&quot;], mb[&quot;se_re&quot;]))
-print(&quot;Trial C excluded    :&quot;, orci(m_noC[&quot;re&quot;], m_noC[&quot;se_re&quot;]))
+print(&quot;0.5 added to Trial C:&quot;, reci(mb))
+print(&quot;Trial C excluded    :&quot;, reci(m_noC))
 print(f&quot;Mantel-Haenszel     : {mh_b.oddsratio_pooled:.2f}&quot;
       f&quot; ({lo:.2f}-{hi:.2f})&quot;)
 

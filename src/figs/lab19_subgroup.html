@@ -7,8 +7,8 @@ for g in [&quot;STEMI&quot;, &quot;NSTE-ACS&quot;]:
     r[&quot;subgroup&quot;] = g
     r[&quot;drug X&quot;] = f&quot;{s[&#x27;mace_x&#x27;].sum()}/{s[&#x27;n_x&#x27;].sum()}&quot;
     r[&quot;placebo&quot;] = f&quot;{s[&#x27;mace_pbo&#x27;].sum()}/{s[&#x27;n_pbo&#x27;].sum()}&quot;
-    r[&quot;OR (95% CI)&quot;] = orci(r[&quot;re&quot;], r[&quot;se_re&quot;])
-    r[&quot;P&quot;] = 2 * stats.norm.sf(abs(r[&quot;re&quot;] / r[&quot;se_re&quot;]))
+    r[&quot;OR (95% CI)&quot;] = reci(r)              # STEMI는 1.96, NSTE-ACS는 HKSJ
+    r[&quot;P&quot;] = r[&quot;p_re&quot;]
     rows.append(r)
 sg = pd.DataFrame(rows).set_index(&quot;subgroup&quot;)
 sg[[&quot;k&quot;, &quot;drug X&quot;, &quot;placebo&quot;, &quot;OR (95% CI)&quot;, &quot;P&quot;, &quot;I2&quot;]].round(4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
@@ -47,8 +47,8 @@ sg[[&quot;k&quot;, &quot;drug X&quot;, &quot;placebo&quot;, &quot;OR (95% CI)&qu
       <td>6</td>
       <td>663/7774</td>
       <td>688/7330</td>
-      <td>0.92 (0.80-1.06)<span class="mk">3</span></td>
-      <td>0.2408<span class="mk">4</span></td>
+      <td>0.92 (0.77-1.10)<span class="mk">3</span></td>
+      <td>0.2918<span class="mk">4</span></td>
       <td>0.1815</td>
     </tr>
   </tbody>

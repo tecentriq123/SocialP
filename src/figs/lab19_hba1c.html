@@ -11,15 +11,15 @@ hb = pd.DataFrame({                 # 19장 &#x27;더 알아보기&#x27;의 가�
 hb[&quot;md&quot;] = hb[&quot;m1&quot;] - hb[&quot;m0&quot;]                     # 평균 차이
 hb[&quot;se&quot;] = np.sqrt(hb[&quot;sd1&quot;]**2 / hb[&quot;n1&quot;] + hb[&quot;sd0&quot;]**2 / hb[&quot;n0&quot;])
 
-def mdci(est, se):
+def mdci(est, se, crit=Z):
     &quot;&quot;&quot;평균 차이 척도의 추정값과 95% CI (지수로 되돌리지 않음)&quot;&quot;&quot;
-    return f&quot;{est:.2f} ({est - Z * se:.2f} to {est + Z * se:.2f})&quot;
+    return f&quot;{est:.2f} ({est - crit * se:.2f} to {est + crit * se:.2f})&quot;
 
 m_md = pool(hb[&quot;md&quot;], hb[&quot;se&quot;]**2)
 print(&quot;fixed  :&quot;, mdci(m_md[&quot;fe&quot;], m_md[&quot;se_fe&quot;]))
-print(&quot;random :&quot;, mdci(m_md[&quot;re&quot;], m_md[&quot;se_re&quot;]))
+print(&quot;random :&quot;, mdci(m_md[&quot;re&quot;], m_md[&quot;se_ci&quot;], m_md[&quot;crit&quot;]))   # HKSJ
 print(f&quot;I2 {m_md[&#x27;I2&#x27;]:.0%}, tau2 {m_md[&#x27;tau2&#x27;]:.3f}&quot;)
-h_pi = stats.t.ppf(0.975, 6 - 2) * np.sqrt(m_md[&quot;tau2&quot;] + m_md[&quot;se_re&quot;]**2)
+h_pi = m_md[&quot;crit&quot;] * np.sqrt(m_md[&quot;tau2&quot;] + m_md[&quot;se_ci&quot;]**2)    # t(5)
 print(f&quot;95% prediction interval: {m_md[&#x27;re&#x27;] - h_pi:.2f}&quot;
       f&quot; to {m_md[&#x27;re&#x27;] + h_pi:.2f}&quot;)
 
@@ -27,12 +27,12 @@ g_smd, v_smd = effectsize_smd(hb[&quot;m1&quot;].to_numpy(), hb[&quot;sd1&quot;]
                               hb[&quot;n1&quot;].to_numpy(), hb[&quot;m0&quot;].to_numpy(),
                               hb[&quot;sd0&quot;].to_numpy(), hb[&quot;n0&quot;].to_numpy())
 m_smd = pool(g_smd, v_smd)
-print(&quot;SMD    :&quot;, mdci(m_smd[&quot;re&quot;], m_smd[&quot;se_re&quot;]))   # Hedges g, 무작위효과
+print(&quot;SMD    :&quot;, mdci(m_smd[&quot;re&quot;], m_smd[&quot;se_ci&quot;], m_smd[&quot;crit&quot;]))   # Hedges g
 hb[[&quot;study&quot;, &quot;n1&quot;, &quot;n0&quot;, &quot;md&quot;, &quot;se&quot;]].round(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>fixed  : -0.32 (-0.43 to -0.21)<span class="mk">1</span>
-random : -0.46 (-0.75 to -0.17)<span class="mk">2</span>
+random : -0.46 (-0.84 to -0.08)<span class="mk">2</span>
 I2 78%, tau2 0.100<span class="mk">3</span>
-95% prediction interval: -1.43 to 0.51<span class="mk">4</span>
-SMD    : -0.40 (-0.63 to -0.18)<span class="mk">5</span></pre><div class="df-wrap"><table class="dataframe dfout">
+95% prediction interval: -1.36 to 0.44<span class="mk">4</span>
+SMD    : -0.40 (-0.70 to -0.11)<span class="mk">5</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
     <tr style="text-align: right;">
       <th></th>

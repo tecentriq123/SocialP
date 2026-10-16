@@ -76,4 +76,16 @@ ADD = {
     # Cochrane event page (read 2026-10-16): "Version 2 of ROBINS-I was released during 2025", addresses immortal time bias
     "cochrane_robins2": {"text": "Cochrane. Version 2 ROBINS-I tool [webinar announcement]. Cochrane; 2025. Accessed 16 October 2026.",
                          "url": "https://www.cochrane.org/events/version-2-robins-i-tool"},
+    # Cochrane Bias Methods Group page (read 2026-10-17): "A first draft of version 2 of the ROBINS-I tool is now available."
+    "cochrane_bmg_robins": {"text": "Cochrane Bias Methods Group. Risk of bias in non-randomized studies of interventions (ROBINS-I) [web page]. Accessed 17 October 2026.",
+                            "url": "https://methods.cochrane.org/bias/risk-bias-non-randomized-studies-interventions"},
+    # MECIR C40 (mandatory, read 2026-10-17): "Include studies in the review irrespective of whether measured outcome data are
+    # reported in a 'usable' way." Rationale: reviews must not exclude studies solely on the basis of reporting of the outcome data.
+    "mecir_c40": {"text": "Cochrane. MECIR Manual, standard C40: excluding studies without useable data [web page]. Accessed 17 October 2026.",
+                  "url": "https://www.cochrane.org/authors/handbooks-and-manuals/mecir-manual/standards-conduct-new-cochrane-intervention-reviews-c1-c75/performing-review-c24-c75/selecting-studies-include-review-c39-c42"},
+    # Cochrane Statistical Methods Group newsletter, issue 3 (26 January 2025; read 2026-10-17): Handbook v6.5 uses REML as the
+    # default τ² estimator, HKSJ (t with k-1 df) when τ² > 0 and more than 2 studies, and prediction intervals with t on k-1 df
+    # "rather than k-2 as previously recommended".
+    "cochrane_smg2025": {"text": "Cochrane Statistical Methods Group. Newsletter, issue 3 (January 2025) [web page]. Accessed 17 October 2026.",
+                         "url": "https://methods.cochrane.org/statistics/news/issue-3-december-2025-newsletter"},
 }

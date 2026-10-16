@@ -113,8 +113,9 @@ def tau2_reml(y, v):
 
 def pool(y, v):
     """inverse-variance fixed effect and random effects. The main random-effects result uses REML τ² (the default in
-    RevMan, R meta/metafor and Stata). The DerSimonian–Laird τ² and its random-effects result are kept as *_dl keys,
-    because the chapter uses the DL formula to show what τ² means (c 절 2단계)."""
+    RevMan, R meta/metafor and Stata) and the Cochrane interval rule (HKSJ when τ² > 0 and k >= 3, else Wald); the
+    prediction interval uses t with k - 1 df under HKSJ. The DerSimonian–Laird τ² and its (Wald) random-effects result
+    are kept as *_dl keys, because the chapter uses the DL formula to show what τ² means (c 절 2단계)."""
     y = np.asarray(y, float); v = np.asarray(v, float)
     w = 1 / v; k = len(y)
     fe = np.sum(w * y) / w.sum(); fe_se = 1 / np.sqrt(w.sum())
@@ -136,13 +137,33 @@ def pool(y, v):
         out[key + "_ci"] = (e - Z * s, e + Z * s)
         out[key + "_p"] = 2 * st.norm.sf(abs(e / s))
         out[key + "_or"] = (np.exp(e), np.exp(e - Z * s), np.exp(e + Z * s))
+    # The Wald interval of the REML random-effects mean is kept as re_w_* (sensitivity analysis in the chapter).
+    out["re_w_ci"], out["re_w_p"], out["re_w_or"] = out["re_ci"], out["re_p"], out["re_or"]
+    # Main random-effects interval, following Cochrane (Handbook v6.5, 2024; RevMan 2025): HKSJ when τ² > 0 and k >= 3,
+    # otherwise the Wald interval. HKSJ multiplies the SE by sqrt(q) and uses t with k - 1 df.
+    q_hk = np.sum(wr * (y - re) ** 2) / (k - 1) if k > 1 else np.nan
+    out["q_hk"] = q_hk
+    out["re_hk_se"] = re_se * np.sqrt(q_hk) if k > 1 else np.nan
+    if t2 > 1e-8 and k >= 3:
+        out["ci_method"], s, df_ = "HKSJ", out["re_hk_se"], k - 1
+        crit = st.t.ppf(0.975, df_)
+        out["re_p"] = 2 * st.t.sf(abs(re / s), df_)
+    else:
+        out["ci_method"], s, df_ = "Wald", re_se, None
+        crit = Z
+    out["re_se_ci"], out["re_df"], out["re_crit"], out["re_stat"] = s, df_, crit, re / s
+    out["re_ci"] = (re - crit * s, re + crit * s)
+    out["re_or"] = (np.exp(re), np.exp(re - crit * s), np.exp(re + crit * s))
     if k > 2:
-        tc = st.t.ppf(0.975, k - 2)
-        half = tc * np.sqrt(t2 + re_se ** 2)
-        out["tcrit"] = tc
+        # prediction interval: same SE and multiplier as the CI (t with k - 1 df under HKSJ, z under Wald; RevMan 2025,
+        # Handbook v6.5). The former k - 2 version (Higgins 2009) is kept as pi_k2_or for the 'programs differ' box.
+        half = crit * np.sqrt(t2 + s ** 2)
+        out["tcrit"] = crit
         out["pi"] = (re - half, re + half)
         out["pi_or"] = (np.exp(re - half), np.exp(re + half))
-        half_dl = tc * np.sqrt(t2_dl + re_dl_se ** 2)
+        half2 = st.t.ppf(0.975, k - 2) * np.sqrt(t2 + re_se ** 2)
+        out["pi_k2_or"] = (np.exp(re - half2), np.exp(re + half2))
+        half_dl = st.t.ppf(0.975, k - 2) * np.sqrt(t2_dl + re_dl_se ** 2)
         out["pi_dl_or"] = (np.exp(re_dl - half_dl), np.exp(re_dl + half_dl))
     return out
 
@@ -179,8 +200,10 @@ def metareg(y, v, x):
     # Knapp–Hartung: scale the covariance by the weighted residual mean square, t with k - p df
     s2 = np.sum(ws * (y - X @ b) ** 2) / (k - p)
     se_kh = se * np.sqrt(s2)
+    tk = st.t.ppf(0.975, k - p)
     return dict(b=b, se=se, z=zv, p=2 * st.norm.sf(np.abs(zv)), QE=QE, pQE=st.chi2.sf(QE, k - p), t2=t2, t2_mm=t2_mm, k=k,
-                se_kh=se_kh, p_kh=2 * st.t.sf(np.abs(b / se_kh), k - p), ws=ws)
+                se_kh=se_kh, p_kh=2 * st.t.sf(np.abs(b / se_kh), k - p), t_kh=b / se_kh, tk=tk, s2_kh=s2,
+                ci_kh=(b - tk * se_kh, b + tk * se_kh), ws=ws)
 
 
 def egger(y, v):
@@ -260,8 +283,10 @@ def compute():
               E["w"][i], E["wfe"][i] * 100, E["wr"][i], E["wre"][i] * 100))
     pr("sum w %.2f  sum wy %.3f  FE %.4f SE %.4f  OR %.3f (%.3f-%.3f) p=%.2g" % (E["sw"], E["swy"], E["fe"], E["fe_se"], *E["fe_or"], E["fe_p"]))
     pr("Q %.3f df %d p %.4f  I2 %.4f (%.3f-%.3f)  C %.2f tau2 %.5f tau %.4f" % (E["Q"], E["df"], E["pQ"], E["I2"], *E["I2ci"], E["C"], E["t2"], E["tau"]))
-    pr("sum w* %.2f sum w*y %.3f  RE %.4f SE %.4f OR %.3f (%.3f-%.3f) p=%.2g z=%.2f" % (E["swr"], E["swry"], E["re"], E["re_se"], *E["re_or"], E["re_p"], E["re"] / E["re_se"]))
-    pr("prediction interval t=%.3f: OR %.3f-%.3f ; exp(mu ± 1.96 tau) = %.3f-%.3f" % (E["tcrit"], *E["pi_or"], np.exp(E["re"] - Z * E["tau"]), np.exp(E["re"] + Z * E["tau"])))
+    pr("sum w* %.2f sum w*y %.3f  RE %.4f SE %.4f ; Wald OR %.3f (%.3f-%.3f) p=%.2g z=%.2f" % (E["swr"], E["swry"], E["re"], E["re_se"], *E["re_w_or"], E["re_w_p"], E["re"] / E["re_se"]))
+    pr("main CI method %s: q %.4f SE %.4f crit %.3f df %s -> OR %.3f (%.3f-%.3f) p=%.4f stat %.3f" % (E["ci_method"], E["q_hk"], E["re_se_ci"], E["re_crit"], E["re_df"], *E["re_or"], E["re_p"], E["re_stat"]))
+    pr("prediction interval (same SE, multiplier %.3f): OR %.3f-%.3f ; former k-2 version %.3f-%.3f ; exp(mu ± 1.96 tau) = %.3f-%.3f"
+       % (E["tcrit"], *E["pi_or"], *E["pi_k2_or"], np.exp(E["re"] - Z * E["tau"]), np.exp(E["re"] + Z * E["tau"])))
     pr("  [DL for the hand formula] tau2 %.5f sum w* %.2f sum w*y %.3f RE %.4f SE %.4f OR %.3f (%.3f-%.3f) p=%.2g ; PI %.3f-%.3f"
        % (E["t2_dl"], E["swr_dl"], E["swry_dl"], E["re_dl"], E["re_dl_se"], *E["re_dl_or"], E["re_dl_p"], *E["pi_dl_or"]))
     # worked detail: trial I
@@ -309,7 +334,7 @@ def compute():
     R["bleed"] = B
     for i, t in enumerate(T):
         pr("%s bleed OR %.2f (%.2f-%.2f) SE %.3f wRE %.1f%%" % (t["nm"], np.exp(yb[i]), np.exp(yb[i] - Z * B["se"][i]), np.exp(yb[i] + Z * B["se"][i]), B["se"][i], B["wre"][i] * 100))
-    pr("bleeding RE OR %.3f (%.3f-%.3f) p=%.2g; FE %.3f (%.3f-%.3f); Q %.2f p %.3f I2 %.3f tau2 %.4f" % (*B["re_or"], B["re_p"], *B["fe_or"], B["Q"], B["pQ"], B["I2"], B["t2"]))
+    pr("bleeding RE OR %.3f (%.3f-%.3f) p=%.2g [%s]; FE %.3f (%.3f-%.3f); Q %.2f p %.3f I2 %.3f tau2 %.4f" % (*B["re_or"], B["re_p"], B["ci_method"], *B["fe_or"], B["Q"], B["pQ"], B["I2"], B["t2"]))
     ic = nm.index("C")
     pr("trial C with 0.5: a=%.1f b=%.1f c=%.1f d=%.1f OR %.3f SE %.3f" % (bT[ic] + .5, nT[ic] - bT[ic] + .5, bC[ic] + .5, nC[ic] - bC[ic] + .5, np.exp(yb[ic]), B["se"][ic]))
     keep = np.arange(len(T)) != ic
@@ -359,6 +384,11 @@ def compute():
            % (lab, *M["re_or"], M["re_p"], *M["fe_or"], M["Q"], M["df"], M["pQ"], M["I2"], *M["I2ci"], M["t2"],
               g(e1)[rep].sum(), g(n1)[rep].sum(), g(e0)[rep].sum(), g(n0)[rep].sum()))
     # test for subgroup differences (between-subgroup Q on the two pooled estimates) = z test on the difference
+    pr("  subgroup interval methods: STEMI %s (tau2 %.5f), NSTE-ACS %s (tau2 %.5f)" % (S["ci_method"], S["t2"], Nn["ci_method"], Nn["t2"]))
+    # the test compares the subtotals with their model variances 1/sum(w*) (Borenstein; RevMan's chi-square test);
+    # HKSJ only changes how each subtotal's interval is drawn. With HKSJ-scaled variances instead:
+    vv_h = np.array([S["re_se_ci"] ** 2, Nn["re_se_ci"] ** 2]); dh = S["re"] - Nn["re"]
+    pr("  (with HKSJ-scaled variances: z %.3f p %.4f)" % (dh / np.sqrt(vv_h.sum()), 2 * st.norm.sf(abs(dh / np.sqrt(vv_h.sum())))))
     th = np.array([S["re"], Nn["re"]]); vv = np.array([S["re_se"] ** 2, Nn["re_se"] ** 2])
     wq = 1 / vv; mid = np.sum(wq * th) / wq.sum()
     Qb = np.sum(wq * (th - mid) ** 2)
@@ -387,6 +417,7 @@ def compute():
     ph = g("ph")
     P2, P3 = pool(y[ph == 2], v[ph == 2]), pool(y[ph == 3], v[ph == 3])
     dph = P2["re"] - P3["re"]; sph = np.sqrt(P2["re_se"] ** 2 + P3["re_se"] ** 2)
+    pr("  phase interval methods: II %s, III %s" % (P2["ci_method"], P3["ci_method"]))
     pr("phase II (k=%d) RE OR %.3f (%.3f-%.3f) I2 %.2f ; phase III (k=%d) %.3f (%.3f-%.3f) I2 %.2f ; p diff %.3f"
        % (P2["k"], *P2["re_or"], P2["I2"], P3["k"], *P3["re_or"], P3["I2"], 2 * st.norm.sf(abs(dph / sph))))
     R["phase"] = dict(P2=P2, P3=P3, p=2 * st.norm.sf(abs(dph / sph)))
@@ -401,6 +432,9 @@ def compute():
     f = sm.WLS(y, Xs, weights=MR["ws"]).fit(cov_type="fixed scale")
     assert np.allclose(f.params, MR["b"]) and np.allclose(f.bse, MR["se"])
     pr("  statsmodels WLS(cov_type='fixed scale') agrees: slope %.4f se %.4f p %.3f" % (f.params[1], f.bse[1], f.pvalues[1]))
+    tk = st.t.ppf(0.975, MR["k"] - 2)
+    pr("  Knapp–Hartung (main, residual tau2 > 0): SE %.4f t(%d) %.3f p %.3f ; exp(slope) %.3f (%.3f-%.3f)"
+       % (MR["se_kh"][1], MR["k"] - 2, tk, MR["p_kh"][1], np.exp(MR["b"][1]), np.exp(MR["b"][1] - tk * MR["se_kh"][1]), np.exp(MR["b"][1] + tk * MR["se_kh"][1])))
     pr("  fitted OR at 40%% STEMI %.3f, at 65%% %.3f" % (np.exp(MR["b"][0] - MR["b"][1]), np.exp(MR["b"][0] + 1.5 * MR["b"][1])))
     R["mr"] = MR; R["mr_x"] = ps
     # DAPT % as a second covariate for bleeding (not used in text unless stated)
@@ -450,7 +484,10 @@ def compute():
     R["hk"] = (np.exp(E["re"] - tc9 * se_hk), np.exp(E["re"] + tc9 * se_hk))
     t_hk = E["re"] / se_hk
     R["hk_t"] = t_hk; R["hk_p"] = 2 * st.t.sf(abs(t_hk), E["k"] - 1)
-    pr("  HKSJ test: t %.3f df %d p %.4f (Wald z %.3f p %.4f)" % (t_hk, E["k"] - 1, R["hk_p"], E["re"] / E["re_se"], E["re_p"]))
+    pr("  HKSJ test: t %.3f df %d p %.4f (Wald z %.3f p %.4f)" % (t_hk, E["k"] - 1, R["hk_p"], E["re"] / E["re_se"], E["re_w_p"]))
+    assert E["ci_method"] == "HKSJ" and np.isclose(R["hk"][0], E["re_or"][1]) and np.isclose(R["hk_p"], E["re_p"])
+    R["wald"] = E["re_w_or"]; R["wald_p"] = E["re_w_p"]
+    pr("  sensitivity analysis (Wald interval instead of HKSJ): OR %.3f (%.3f-%.3f) p %.4f" % (*E["re_w_or"], E["re_w_p"]))
 
     # publication-bias illustration: 30 hypothetical small-to-medium trials of a drug with NO true effect (OR 1.0);
     # small trials (SE > 0.18) without a clearly favourable result (z > -0.6) stay unpublished.

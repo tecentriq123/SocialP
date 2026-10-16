@@ -21,8 +21,7 @@ mu, se, q, se_q, tq = hksj(ya, va, t2_reml)
 print(f&quot;REML + Wald, tau2 {t2_reml:.3f}:&quot;, orci(mu, se))
 print(f&quot;REML + HKSJ, q {q:.2f}, t(6) {tq:.3f}:&quot;
       f&quot; {np.exp(mu - tq*se_q):.2f}-{np.exp(mu + tq*se_q):.2f}&quot;)
-tp = stats.t.ppf(0.975, len(ya) - 2)
-half_a = tp * np.sqrt(t2_reml + se**2)
+half_a = tq * np.sqrt(t2_reml + se_q**2)    # 예측구간: t(6), HKSJ 표준오차
 print(f&quot;95% prediction interval: {np.exp(mu - half_a):.2f}&quot;
       f&quot;-{np.exp(mu + half_a):.2f}&quot;)
 lo, hi = tau2_qprofile(ya, va)
@@ -42,6 +41,6 @@ fixed effect           : 1.48 (1.35-1.61)<span class="mk">3</span>
 DL   + Wald, tau2 0.117: 1.68 (1.28-2.21)
 REML + Wald, tau2 0.132: 1.69 (1.26-2.25)<span class="mk">4</span>
 REML + HKSJ, q 1.03, t(6) 2.447: 1.17-2.43<span class="mk">5</span>
-95% prediction interval: 0.61-4.63<span class="mk">6</span>
+95% prediction interval: 0.64-4.41<span class="mk">6</span>
 tau2 95% CI 0.044-0.753<span class="mk">7</span>, tau 0.21-0.87
 OR &gt; 1 in 7 of 7, sign test P 0.016<span class="mk">8</span></pre></div></div>

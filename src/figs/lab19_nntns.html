@@ -1,12 +1,12 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">유의하지 않은 결과의 NNT</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">e_n, s_n = sg.loc[&quot;NSTE-ACS&quot;, &quot;re&quot;], sg.loc[&quot;NSTE-ACS&quot;, &quot;se_re&quot;]
-ors_n = np.exp([e_n, e_n - Z * s_n, e_n + Z * s_n])   # 0.92 (0.80-1.06)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">유의하지 않은 결과의 NNT</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">e_n, s_n, c_n = sg.loc[&quot;NSTE-ACS&quot;, [&quot;re&quot;, &quot;se_ci&quot;, &quot;crit&quot;]]
+ors_n = np.exp([e_n, e_n - c_n * s_n, e_n + c_n * s_n])   # 0.92 (0.77-1.10)
 rd_n = risk_with(p0, ors_n) - p0            # 기저 위험 8.4%에 적용
 print(&quot;RD %p   : {:.2f} ({:.2f}, {:.2f})&quot;.format(*(100 * rd_n)))
 print(f&quot;NNT     : {1 / abs(rd_n[0]):.0f}&quot;)
 print(f&quot;CI ends : NNT {1 / abs(rd_n[1]):.0f}&quot;
       f&quot; ... infinity ... NNH {1 / rd_n[2]:.0f}&quot;)
 print(&quot;absolute() would print: {:.0f}-{:.0f}&quot;.format(
-    *sorted(1 / np.abs(rd_n[1:]))))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RD %p   : -0.61 (-1.53, 0.43)<span class="mk">1</span>
+    *sorted(1 / np.abs(rd_n[1:]))))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>RD %p   : -0.61 (-1.79, 0.77)<span class="mk">1</span>
 NNT     : 165<span class="mk">2</span>
-CI ends : NNT 65<span class="mk">3</span> ... infinity ... NNH 233<span class="mk">4</span>
-absolute() would print: 65-233<span class="mk">5</span></pre></div></div>
+CI ends : NNT 56<span class="mk">3</span> ... infinity ... NNH 130<span class="mk">4</span>
+absolute() would print: 56-130<span class="mk">5</span></pre></div></div>
