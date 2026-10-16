@@ -503,20 +503,20 @@ import pandas as pd</code><span>수치 계산 패키지 NumPy와 표 자료를 �
 <p>ECOG처럼 군에 순서가 있으면 7장 c 절의 추세 로그순위 검정이 더 알맞을 수 있습니다. lifelines 0.30에는 추세 검정 전용 함수가 없습니다. 순서 점수(0, 1, 2)를 연속형 변수로 넣은 Cox 모형(<a href="#lab11">실습 11</a>)으로 "수행능력이 한 단계 나빠질 때 위험률이 몇 배인가"를 추정하는 방법이 같은 질문을 다룹니다.</p></div>
 
 <h3>가중 로그순위 검정</h3>
-<p><strong>로그순위 검정은 모든 사망 시점에 같은 무게를 둡니다.</strong> <code>weightings</code> 인자로 7장 c 절의 가중 검정을 할 수 있습니다. 여기서는 여러 검정의 결과가 어떻게 다른지 보기 위해 모두 계산하지만, 실제 연구에서는 <b>주 분석의 검정을 자료를 보기 전에 하나로 정해야 합니다</b>.</p>
+<p><strong>로그순위 검정은 모든 사망 시점에 같은 가중치를 둡니다.</strong> <code>weightings</code> 인자로 7장 c 절의 가중 검정을 할 수 있습니다. 여기서는 여러 검정의 결과가 어떻게 다른지 보기 위해 모두 계산하지만, 실제 연구에서는 <b>주 분석의 검정을 자료를 보기 전에 하나로 정해야 합니다</b>.</p>
 <!--FIG:lab07_weighted-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>tests = {"log-rank": {}, "Gehan-Breslow": {"weightings": "wilcoxon"}, …}</code><span>검정 이름을 이름표로, <code>logrank_test</code>에 추가로 넘길 인자들을 값(딕셔너리)으로 담습니다. lifelines의 이름과 7장의 이름은 "wilcoxon" = Gehan-Breslow(가중치 n<sub>j</sub>), "tarone-ware" = Tarone-Ware(√n<sub>j</sub>), "peto" = Peto-Peto(Peto-Peto의 수정 생존 추정값), "fleming-harrington" = Fleming-Harrington으로 대응합니다.</span></li>
-<li><code>{"weightings": "fleming-harrington", "p": 0, "q": 1}</code><span>Fleming-Harrington 가중치 S(t−)<sup>p</sup>[1 − S(t−)]<sup>q</sup>의 두 모수입니다. 7장의 (ρ, γ)가 lifelines에서는 (p, q)이고, (0, 1)은 후반에 무게를 둡니다. p와 q를 빼면 오류가 납니다.</span></li>
+<li><code>{"weightings": "fleming-harrington", "p": 0, "q": 1}</code><span>Fleming-Harrington 가중치 S(t−)<sup>p</sup>[1 − S(t−)]<sup>q</sup>의 두 모수입니다. 7장의 (ρ, γ)가 lifelines에서는 (p, q)이고, (0, 1)은 후반 사건에 더 큰 가중치를 둡니다. p와 q를 빼면 오류가 납니다.</span></li>
 <li><code>logrank_test(…, **kw)</code><span><code>**kw</code>는 딕셔너리를 풀어서 <code>weightings="wilcoxon"</code>처럼 이름 붙은 인자로 넘긴다는 뜻입니다. 빈 딕셔너리(<code>{}</code>)이면 아무것도 넘기지 않아 보통의 로그순위 검정이 됩니다.</span></li>
 <li><code>f"{name:<24} chi2 = {r.test_statistic:6.2f}"</code><span><code>:&lt;24</code>는 24칸에 왼쪽 정렬, <code>:6.2f</code>는 6칸에 소수 둘째 자리입니다. 결과가 열을 맞춰 출력됩니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>로그순위 χ² 10.33, P = 0.0013.</b> 앞의 결과와 같습니다.</span></li>
-<li><span class="mk">2</span><span><b>Peto-Peto χ² 12.71, P = 0.0004.</b> 초반에 무게를 두는 세 검정(Gehan-Breslow, Tarone-Ware, Peto-Peto)의 χ²가 모두 로그순위보다 큽니다. 두 곡선의 차이가 주로 추적 초중반에 있다는 뜻으로, b 절 그림과 맞습니다.</span></li>
-<li><span class="mk">3</span><span><b>Fleming-Harrington(0,1) χ² 3.46, P = 0.063.</b> 후반에 무게를 두면 차이가 약해집니다. 곡선이 24개월 이후 가까워지고, 그 구간에는 환자가 몇 명 남지 않았기 때문입니다. 같은 자료라도 검정에 따라 P가 0.0004에서 0.063까지 달라지므로, 결과를 보고 검정을 고르면 다중비교 문제가 됩니다(<a href="#ch07-s3">7장 c 절</a> '더 알아보기'의 '검정에 따라 달라지는 결론'에 있는 주의 상자). 가중치의 세부 정의(예: Peto-Peto의 생존 추정값)는 프로그램마다 조금씩 달라, 같은 이름의 검정이라도 다른 프로그램과 끝자리가 다를 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>Peto-Peto χ² 12.71, P = 0.0004.</b> 초반 사건에 더 큰 가중치를 두는 세 검정(Gehan-Breslow, Tarone-Ware, Peto-Peto)의 χ²가 모두 로그순위보다 큽니다. 두 곡선의 차이가 주로 추적 초중반에 있다는 뜻으로, b 절 그림과 맞습니다.</span></li>
+<li><span class="mk">3</span><span><b>Fleming-Harrington(0,1) χ² 3.46, P = 0.063.</b> 후반 사건에 더 큰 가중치를 두면 차이가 약해집니다. 곡선이 24개월 이후 가까워지고, 그 구간에는 환자가 몇 명 남지 않았기 때문입니다. 같은 자료라도 검정에 따라 P가 0.0004에서 0.063까지 달라지므로, 결과를 보고 검정을 고르면 다중비교 문제가 됩니다(<a href="#ch07-s3">7장 c 절</a> '더 알아보기'의 '검정에 따라 달라지는 결론'에 있는 주의 상자). 가중치의 세부 정의(예: Peto-Peto의 생존 추정값)는 프로그램마다 조금씩 달라, 같은 이름의 검정이라도 다른 프로그램과 끝자리가 다를 수 있습니다.</span></li>
 </ol>
 
 <div class="paper">

@@ -372,7 +372,7 @@ save("lab16_periods", c, marks={"비노출 34%": 1, "노출 8%": 2, "단순한 �
                                 "Cox 1.03": 5},
      dfmarks={"28.8": 6, "30.0": 7, "0.94": 8})
 NOTES[c.n] = ("퇴원 후 기간을 0-3, 3-6, 6-12개월로 나눠 같은 시기끼리 노출 상태를 견줍니다"
-              "(16장 c 절 '더 알아보기'의 '퇴원 후 기간을 나눠 같은 시기끼리 견주면').")
+              "(16장 c 절 '더 알아보기'의 '퇴원 후 기간을 나눠 같은 시기끼리 비교하면').")
 
 c = nb.cell('''
 from lifelines.utils import to_long_format, add_covariate_to_timeline

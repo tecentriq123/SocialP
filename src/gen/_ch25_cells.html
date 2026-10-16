@@ -20,9 +20,9 @@ dc_all, dq_all = model(240)                           # 기준 분석: 20년
 dc_obs, dq_obs = model(30)                            # 시험이 관찰한 30개월에서 끊으면
 print(&quot;20년  :&quot;, round(dc_all), round(dq_all, 3), round(dc_all / dq_all))
 print(&quot;30개월:&quot;, round(dc_obs), round(dq_obs, 3), round(dc_obs / dq_obs))
-print(&quot;30개월 뒤의 몫: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quot; 비용&quot;, round(1 - dc_obs / dc_all, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>20년  : 2872 0.511 5621
+print(&quot;30개월 뒤의 비율: QALY&quot;, round(1 - dq_obs / dq_all, 3), &quot; 비용&quot;, round(1 - dc_obs / dc_all, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>20년  : 2872 0.511 5621
 30개월: 1157 0.128 9056
-30개월 뒤의 몫: QALY 0.75  비용 0.597</pre></div>
+30개월 뒤의 비율: QALY 0.75  비용 0.597</pre></div>
 
 <!-- bia -->
 <pre class="cell-in"><code class="language-python">import numpy as np

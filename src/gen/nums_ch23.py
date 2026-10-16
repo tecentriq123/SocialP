@@ -348,7 +348,7 @@ CODE_MARKOV = r'''import numpy as np
 def matrix(r_prog, r_death_pf, r_death_pd):
     """월 단위 율 세 개 → 월 전이확률 행렬 (행: 출발, 열: 도착; 순서는 무진행, 진행, 사망)"""
     leave = 1 - np.exp(-(r_prog + r_death_pf))      # 무진행 상태를 떠날 확률
-    to_pd = leave * r_prog / (r_prog + r_death_pf)  # 그중 진행으로 가는 몫
+    to_pd = leave * r_prog / (r_prog + r_death_pf)  # 무진행에서 진행으로 옮겨 갈 확률(떠날 확률 × 진행의 비중)
     to_d = leave - to_pd                            # 나머지는 사망
     q = 1 - np.exp(-r_death_pd)                     # 진행 상태에서 사망할 확률
     return np.array([[1 - leave, to_pd, to_d],

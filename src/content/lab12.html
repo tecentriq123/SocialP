@@ -196,14 +196,14 @@ import matplotlib.pyplot as plt</code><span>표 자료를 다루는 pandas, 수�
 <!--FIG:lab12_exact-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>share = T["rIFN-g"] / T.sum()</code><span>전체 인년 중 rIFN-g군의 몫입니다. 귀무가설 아래에서 사건 하나가 rIFN-g군에서 나올 확률입니다.</span></li>
-<li><code>stats.binomtest(int(d["rIFN-g"]), int(d.sum()), share)</code><span>사건 76건 중 rIFN-g군 몫이 20건인 결과가, 몫의 기댓값(<code>share</code>)에 비해 관측만큼 또는 그보다 극단적으로 나올 확률(양측)을 이항분포로 계산합니다. 인자 순서는 (성공 수, 시행 수, 귀무가설의 확률)이고, <code>int()</code>는 숫자를 정수로 바꿔 줍니다.</span></li>
-<li><code>res.proportion_ci()</code><span>'76건 중 rIFN-g군 몫'의 정확(Clopper–Pearson) 95% 신뢰구간입니다. 결과의 <code>.low</code>, <code>.high</code>가 하한과 상한입니다.</span></li>
-<li><code>ci.low / (1 - ci.low) * k</code><span>몫 π를 발생률비로 바꾸는 식 IRR = π/(1 − π) × (위약 인년 ÷ rIFN-g 인년)입니다. 몫의 구간 끝을 넣으면 발생률비의 정확 신뢰구간이 됩니다.</span></li>
+<li><code>share = T["rIFN-g"] / T.sum()</code><span>전체 인년 가운데 rIFN-g군의 인년이 차지하는 비율입니다. 귀무가설 아래에서 사건 하나가 rIFN-g군에서 나올 확률입니다.</span></li>
+<li><code>stats.binomtest(int(d["rIFN-g"]), int(d.sum()), share)</code><span>사건 76건 가운데 rIFN-g군에서 일어난 사건이 20건인 결과가, 귀무가설 아래의 기대 비율(<code>share</code>)에 비해 관측만큼 또는 그보다 극단적으로 나올 확률(양측)을 이항분포로 계산합니다. 인자 순서는 (성공 수, 시행 수, 귀무가설의 확률)이고, <code>int()</code>는 숫자를 정수로 바꿔 줍니다.</span></li>
+<li><code>res.proportion_ci()</code><span>'76건 가운데 rIFN-g군 사건의 비율'의 정확(Clopper–Pearson) 95% 신뢰구간입니다. 결과의 <code>.low</code>, <code>.high</code>가 하한과 상한입니다.</span></li>
+<li><code>ci.low / (1 - ci.low) * k</code><span>이 비율 π를 발생률비로 바꾸는 식 IRR = π/(1 − π) × (위약 인년 ÷ rIFN-g 인년)입니다. π의 구간 끝을 넣으면 발생률비의 정확 신뢰구간이 됩니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>기대 몫 0.506.</b> 두 군의 추적 인년이 비슷하므로 효과가 없다면 사건의 약 절반이 rIFN-g군에서 나와야 합니다.</span></li>
+<li><span class="mk">1</span><span><b>기대 비율 0.506.</b> 두 군의 추적 인년이 비슷하므로 효과가 없다면 사건의 약 절반이 rIFN-g군에서 나와야 합니다.</span></li>
 <li><span class="mk">2</span><span><b>관측 20/76 = 0.263.</b> 기대보다 훨씬 적습니다.</span></li>
 <li><span class="mk">3</span><span><b>정확 P = 2.6 × 10<sup>−5</sup>.</b> <code>e-05</code>는 × 10<sup>−5</sup>입니다. 원 논문도 전체 감염 건수 비교에서 P &lt; 0.0001을 보고했습니다<cite data-ref="icgd1991"></cite>.</span></li>
 <li><span class="mk">4</span><span><b>정확 95% CI 0.198–0.591.</b> Wald 구간(0.209–0.582)과 거의 같습니다. 사건이 76건이면 두 방법의 차이가 작습니다.</span></li>

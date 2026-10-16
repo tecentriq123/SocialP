@@ -185,7 +185,7 @@ B = p.h - p.mb
 p.text_px((p.ml + p.w - p.mr) / 2, B + 36, "치료 시작 후 개월 수", anchor="middle", cls="axlab")
 risk_table(p, [0, 12, 24, 36, 48], [("전체", None, [n_risk(t, x) for x in (0, 12, 24, 36, 48)])], 62)
 save("ch07_km12", figure(p.svg("12명 자료의 Kaplan-Meier 생존곡선"),
-     "그림 7-3. 표 7-2의 Kaplan-Meier 곡선. 계단은 사망이 있었던 시점에서만 내려가고, 세로 눈금(|)은 중도절단 시점입니다. 앞쪽 3개월의 작은 계단과 뒤쪽 38개월의 큰 계단을 견주어 보세요. 아래 숫자는 각 시점에 아직 관찰 중인 환자 수입니다."))
+     "그림 7-3. 표 7-2의 Kaplan-Meier 곡선. 계단은 사망이 있었던 시점에서만 내려가고, 세로 눈금(|)은 중도절단 시점입니다. 앞쪽 3개월의 작은 계단과 뒤쪽 38개월의 큰 계단을 비교해 보세요. 아래 숫자는 각 시점에 아직 관찰 중인 환자 수입니다."))
 
 # ======================================================================
 # 7-4 CI bands: 12 patients vs cohort arm A
@@ -297,7 +297,7 @@ p.text(38, 0.12, "Gehan-Breslow: 위험집합 크기 n", anchor="end", cls="lbl 
 p.text(6.5, 0.87, "Peto-Peto: S(t−)", cls="lbl small")
 p.text(46, 0.74, "Fleming-Harrington(0,1): 1 − S(t−)", anchor="end", cls="lbl small")
 save("ch07_weights", figure(p.svg("가중 로그순위 검정의 시점별 가중치"),
-     "그림 7-8. 검정별로 각 사건 시점의 (O − E)에 곱하는 가중치(그림 7-9 (나) 자료). Gehan-Breslow와 Peto-Peto는 초반 사건에, Fleming-Harrington(0,1)은 후반 사건에 무게를 둡니다. 로그순위 검정은 모든 시점을 똑같이 취급합니다."))
+     "그림 7-8. 검정별로 각 사건 시점의 (O − E)에 곱하는 가중치(그림 7-9 (나) 자료). Gehan-Breslow와 Peto-Peto는 초반 사건에, Fleming-Harrington(0,1)은 후반 사건에 더 큰 가중치를 둡니다. 로그순위 검정은 모든 시점을 똑같이 취급합니다."))
 
 # ======================================================================
 # 7-9 early vs crossing scenarios
@@ -323,5 +323,5 @@ for kind, seed, title in (("early", 70, "(가) 초기에만 차이"), ("late", 2
     panel_title(pl, title)
     panels.append(pl.svg(title))
 save("ch07_weighted", figure(panels,
-     "그림 7-9. 가상의 두 무작위배정 연구(군당 200명). (가) 치료 X에서 처음 3개월에 사망이 몰리고 그 뒤 위험은 같습니다. 그림에 표시한 세 검정 중에서는 초반에 무게를 두는 Peto-Peto 검정만 유의합니다. (나) 치료 X가 처음 4개월은 불리하고 그 뒤 유리해 곡선이 교차합니다. 후반에 무게를 두는 FH(0,1) 검정이 가장 강하게 차이를 잡고, Peto-Peto 검정은 차이를 놓칩니다.", cols=2))
+     "그림 7-9. 가상의 두 무작위배정 연구(군당 200명). (가) 치료 X에서 처음 3개월에 사망이 몰리고 그 뒤 위험은 같습니다. 그림에 표시한 세 검정 중에서는 초반 사건에 더 큰 가중치를 두는 Peto-Peto 검정만 유의합니다. (나) 치료 X가 처음 4개월은 불리하고 그 뒤 유리해 곡선이 교차합니다. 후반 사건에 더 큰 가중치를 두는 FH(0,1) 검정이 가장 강하게 차이를 잡고, Peto-Peto 검정은 차이를 놓칩니다.", cols=2))
 print("figures written")

@@ -57,7 +57,7 @@ p1.line(grid, cB[0], s=1, w=2.4)
 p1.text(5, cB[2][-1], f"1 − KM {P1(cB[2][-1])}", dx=6, dy=4, cls="lbl small")
 p1.text(5, cB[0][-1], f"CIF {P1(cB[0][-1])}", dx=6, dy=4, cls="lbl small")
 p1.legend([("1 − Kaplan-Meier (사망을 중도절단)", 2, "dash"), ("누적발생함수 (사망을 경쟁 사건)", 1, "line")])
-panel_title(p1, "(가) 두 방법으로 구한 투석 누적 비율")
+panel_title(p1, "(가) 1 − Kaplan-Meier와 누적발생함수로 구한 투석 누적 비율")
 
 free = 1 - cB[0] - cB[1]
 p2 = Plot((0, 5), (0, 1.0), w=420, h=330, ml=58, mr=88, xlabel="약물 시작 후 연수", ylabel="환자의 비율",

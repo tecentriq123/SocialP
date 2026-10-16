@@ -341,13 +341,13 @@
 <ol class="lines">
 <li><code>uc = np.interp(cut, t, u)</code><span>12개월의 효용을 경로 위에서 읽습니다. 살아 있던 환자는 12개월의 측정값이고, 그 전에 사망한 환자는 0입니다.</span></li>
 <li><code>np.append(t[t &lt; cut], cut)</code><span>12개월 전의 시점들 끝에 12를 붙입니다. <code>np.insert(t[t &gt; cut], 0, cut)</code>는 12개월 뒤의 시점들 맨 앞(0번 자리)에 12를 끼웁니다. 두 조각이 12개월에서 이어집니다.</span></li>
-<li><code>yr[:, 0] + yr[:, 1] / 1.045</code><span>첫해 몫은 그대로, 둘째 해 몫만 할인합니다. <code>yr</code>은 320행 2열이고, 0열이 첫해, 1열이 둘째 해입니다.</span></li>
-<li><code>np.allclose(yr.sum(axis=1), pts["qaly"])</code><span>두 몫의 합이 셀 11의 QALY와 반올림 오차 안에서 같은지 봅니다. 같으면 나누기가 맞은 것입니다.</span></li>
+<li><code>yr[:, 0] + yr[:, 1] / 1.045</code><span>첫해에 생긴 QALY는 그대로 두고, 둘째 해에 생긴 QALY만 할인합니다. <code>yr</code>은 320행 2열이고, 0열이 첫해, 1열이 둘째 해입니다.</span></li>
+<li><code>np.allclose(yr.sum(axis=1), pts["qaly"])</code><span>첫해와 둘째 해 QALY의 합이 셀 11의 QALY와 반올림 오차 안에서 같은지 봅니다. 같으면 나누기가 맞은 것입니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>True.</b> 나눈 두 몫이 할인 전 QALY와 맞습니다.</span></li>
-<li><span class="mk">2</span><span><b>A군 1.181.</b> 할인 전 1.204에서 둘째 해 몫(0.526)의 4.3%가 빠졌습니다.</span></li>
+<li><span class="mk">1</span><span><b>True.</b> 두 해로 나눈 QALY를 더하면 할인 전 QALY와 맞습니다.</span></li>
+<li><span class="mk">2</span><span><b>A군 1.181.</b> 할인 전 1.204에서 둘째 해에 생긴 QALY(0.526)의 4.3%가 빠졌습니다.</span></li>
 <li><span class="mk">3</span><span><b>차이 0.113.</b> 할인 전 0.117에서 조금 줄었습니다. 22장 c 절 3단계의 값입니다.</span></li>
 </ol>
 
@@ -408,7 +408,7 @@
 <li>환자별 QALY는 측정값을 직선으로 이어 사다리꼴 공식(<code>trapezoid(효용, 시점) / 12</code>)으로 구하고, 사망 시점부터 0을 넣습니다. 24개월 평균 QALY는 1.204 대 1.087, 차이 0.117(0.001~0.232)입니다.</li>
 <li>기저 효용을 회귀로 보정하면 차이는 0.094(−0.017~0.204)이고, 줄어든 0.023은 기저 효용 차이 0.0195 × 계수 1.186입니다.</li>
 <li>생존자만의 평균 효용을 이으면 두 군 모두 0.3 안팎 부풀고 차이도 0.084로 틀립니다. 사망은 결측이 아니라 효용 0입니다.</li>
-<li>할인은 각 몫이 생긴 시점에 맞춰 곱합니다. 둘째 해만 할인하면 시험의 차이는 0.113, 모형의 증분 QALY는 기준 분석 0.511(무진행 기간에서 0.486)입니다. 관례 사이의 차이는 작지만 시간 단위를 틀리면 ICER가 9,140만원/QALY가 됩니다.</li>
+<li>할인 계수는 각 QALY가 생긴 시점에 맞춰 곱합니다. 둘째 해만 할인하면 시험의 차이는 0.113, 모형의 증분 QALY는 기준 분석 0.511(무진행 기간에서 0.486)입니다. 관례 사이의 차이는 작지만 시간 단위를 틀리면 ICER가 9,140만원/QALY가 됩니다.</li>
 </ul></div>
 </section>
 

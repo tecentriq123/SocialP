@@ -4,7 +4,7 @@
 공통 예시(gen/lib_p4.py)의 기준 분석, 일원 민감도 분석 L.oneway(), 시나리오 L.scenario_table(), 임계 가격 L.threshold_price(),
 확률적 민감도 분석 L.psa(n=5000, seed=20261002)와 L.ceac, L.evpi, L.psa_summary를 그대로 불러 쓴다(lib_p4.py는 고치지 않는다).
 이 장에서 새로 계산하는 것:
-  b 절  증분 QALY·증분비용 가운데 시험 추적(30개월) 뒤에 생기는 몫, 가상 논문의 표(₩ thousand, ₩ million 단위)
+  b 절  증분 QALY·증분비용 가운데 시험 추적(30개월) 뒤에서 나온 부분, 가상 논문의 표(₩ thousand, ₩ million 단위)
   c 절  환급률과 표시 가격·실제 가격의 ICER, 5년 재정영향분석(가상의 환자 수와 점유율)
 모든 값은 가상의 예시이다. 결과는 gen/_ch25_nums.json(그림용)에 저장한다.
 """
@@ -43,7 +43,7 @@ for k, en in comp + [("cost", "Total costs")]:
     tab[k] = (a_k, b_k, a_k - b_k)
     print(f"  {en:42s} A {a_k:>8,d}  B {b_k:>8,d}  증분 {a_k - b_k:>7,d} (천 원) | 만원 {A[k]:.1f} {B[k]:.1f} {A[k] - B[k]:.1f}")
 assert sum(tab[k][0] for k, _ in comp) == tab["cost"][0] and sum(tab[k][1] for k, _ in comp) == tab["cost"][1]
-print(f"  약값이 증분비용에서 차지하는 몫 {tab['c_drug'][2] / tab['cost'][2]:.3f}")
+print(f"  약값이 증분비용에서 차지하는 비율 {tab['c_drug'][2] / tab['cost'][2]:.3f}")
 print(f"  생존연수(할인 전) A {A['ly']:.3f} B {B['ly']:.3f} 증분 {A['ly'] - B['ly']:.3f} ({(A['ly'] - B['ly']) * 12:.1f}개월)")
 print(f"  생존연수(할인 후) A {A['ly_d']:.3f} B {B['ly_d']:.3f} 증분 {BASE['d_ly']:.3f}")
 print(f"  무진행 기간(할인 전, 년) A {A['ly_pf']:.3f} B {B['ly_pf']:.3f} 증분 {A['ly_pf'] - B['ly_pf']:.3f} ({(A['ly_pf'] - B['ly_pf']) * 12:.1f}개월)")
@@ -70,8 +70,8 @@ for k in ("hr_pfs", "hr_os", "u_pf", "u_pd"):
     print(f"  {k}: {d['base']} (95% {d['lo']:.2f}–{d['hi']:.2f})")
 N["median"] = med
 
-# ====================================================================== b 절: 시험 추적 30개월 뒤에 생기는 몫
-show("나. 증분 결과 가운데 시험 추적 기간(30개월) 뒤에 생기는 몫")
+# ====================================================================== b 절: 시험 추적 30개월 뒤에서 나온 부분
+show("나. 증분 결과 가운데 시험 추적 기간(30개월) 뒤에서 나온 부분")
 FU = 30
 t_chk = np.array([12, 24, FU, 60, 120, 240])
 for arm in L.ARMS:
@@ -90,8 +90,8 @@ share_q = 1 - R30["d_qaly"] / BASE["d_qaly"]
 share_c = 1 - R30["d_cost"] / BASE["d_cost"]
 share_ly = 1 - (R30["A"]["ly"] - R30["B"]["ly"]) / (A["ly"] - B["ly"])
 print(f"  ⇒ 30개월 안: 증분 QALY {R30['d_qaly']:.3f}, 증분비용 {R30['d_cost']:.0f}, ICER {R30['icer']:.0f}")
-print(f"  ⇒ 30개월 뒤의 몫: 증분 QALY {share_q * 100:.1f}% ({BASE['d_qaly'] - R30['d_qaly']:.3f}), 증분비용 {share_c * 100:.1f}%, 증분 생존연수 {share_ly * 100:.1f}%")
-# 군별 QALY 가운데 30개월 뒤의 몫
+print(f"  ⇒ 30개월 뒤의 비율: 증분 QALY {share_q * 100:.1f}% ({BASE['d_qaly'] - R30['d_qaly']:.3f}), 증분비용 {share_c * 100:.1f}%, 증분 생존연수 {share_ly * 100:.1f}%")
+# 군별 QALY 가운데 30개월 뒤의 비율
 for arm in L.ARMS:
     print(f"  {arm}군 QALY 가운데 30개월 뒤: {(1 - R30[arm]['qaly'] / BASE[arm]['qaly']) * 100:.1f}%")
 # 누적 증분 QALY 곡선(그림용): 분석기간 h개월까지의 증분 QALY
@@ -316,7 +316,7 @@ dc_all, dq_all = model(240)                           # 기준 분석: 20년
 dc_obs, dq_obs = model(30)                            # 시험이 관찰한 30개월에서 끊으면
 print("20년  :", round(dc_all), round(dq_all, 3), round(dc_all / dq_all))
 print("30개월:", round(dc_obs), round(dq_obs, 3), round(dc_obs / dq_obs))
-print("30개월 뒤의 몫: QALY", round(1 - dq_obs / dq_all, 3), " 비용", round(1 - dc_obs / dc_all, 3))'''
+print("30개월 뒤의 비율: QALY", round(1 - dq_obs / dq_all, 3), " 비용", round(1 - dc_obs / dc_all, 3))'''
 CELLS["bia"] = '''import numpy as np
 
 cost_A = np.array([2820.7, 2226.8, 1763.1, 1366.9, 1044.3])   # 치료 시작 후 1-5년차의 1인당 비용(만원), 신약 A
