@@ -4,6 +4,9 @@ ADD = {
     # PMID 33782057
     "page2021": {"text": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. <i>BMJ</i>. 2021;372:n71.",
                  "doi": "10.1136/bmj.n71"},
+    # PMID 33781993
+    "page2021ee": {"text": "Page MJ, Moher D, Bossuyt PM, et al. PRISMA 2020 explanation and elaboration: updated guidance and exemplars for reporting systematic reviews. <i>BMJ</i>. 2021;372:n160.",
+                   "doi": "10.1136/bmj.n160"},
     # PMID 31462531
     "sterne2019rob": {"text": "Sterne JAC, Savović J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. <i>BMJ</i>. 2019;366:l4898.",
                       "doi": "10.1136/bmj.l4898"},

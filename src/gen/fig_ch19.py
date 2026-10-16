@@ -34,7 +34,7 @@ def tw(s, size=13):
 
 # ====================================================================== 19-1 PRISMA flow diagram (paper box, 가)
 def prisma():
-    w, h = 720, 448
+    w, h = 720, 490
     o = []
     bx, bw = 14, 372          # main column
     ex, ew = 420, 286         # exclusion column
@@ -65,20 +65,23 @@ def prisma():
     box(ex, 158, ew, 36, ["884 Records excluded as not relevant"])
     # row 3 (PRISMA 2020: reports, not articles; secondary reports are linked to their trial, not excluded)
     box(bx, 196, bw, 44, ["48 Reports assessed for eligibility"])
-    arrow_down(cx, 240, 352); arrow_right(cx, ex, 290)
-    box(ex, 240, ew, 106, ["24 Reports excluded",
-                           "  9 Not randomized",
-                           "  8 Comparator not placebo or standard care",
-                           "  4 Population without recent ACS",
-                           "  3 Ongoing, no results available"])
+    arrow_down(cx, 240, 400); arrow_right(cx, ex, 284)
+    box(ex, 240, ew, 88, ["21 Reports excluded",
+                          "  9 Not randomized",
+                          "  8 Comparator not placebo or standard care",
+                          "  4 Population without recent ACS"])
+    # ongoing trials are not exclusions: PRISMA 2020 E&E item 16a reports them separately
+    arrow_right(cx, ex, 362)
+    box(ex, 340, ew, 44, ["3 Ongoing trials (3 reports)",
+                          "  no results yet, listed separately"])
     # row 4
-    box(bx, 352, bw, 74, ["10 Trials included in the meta-analysis"], cls="a1 s1")
-    o.append(f'<text x="{bx + 12}" y="{352 + 37}" class="lbl">{escape("(31,725 participants)")}</text>')
-    o.append(f'<text x="{bx + 12}" y="{352 + 60}" class="lbl">{escape("24 Reports of included trials")}</text>')
+    box(bx, 400, bw, 74, ["10 Trials included in the meta-analysis"], cls="a1 s1")
+    o.append(f'<text x="{bx + 12}" y="{400 + 37}" class="lbl">{escape("(31,725 participants)")}</text>')
+    o.append(f'<text x="{bx + 12}" y="{400 + 60}" class="lbl">{escape("24 Reports of included trials")}</text>')
     o.append(badge(bx + bw, 14, 1))
     o.append(badge(ex + ew, 158, 2))
     o.append(badge(ex + ew, 240, 3))
-    o.append(badge(bx + bw, 352, 4))
+    o.append(badge(bx + bw, 400, 4))
     return (f'<svg viewBox="0 0 {w} {h}" class="viz" role="img" aria-label="PRISMA flow diagram" '
             f'xmlns="http://www.w3.org/2000/svg">{"".join(o)}</svg>')
 
@@ -88,6 +91,7 @@ save("ch19_prisma", figure(
     [svg],
     "그림 19-1. 가상의 체계적 문헌고찰의 문헌 선정 흐름도(PRISMA 2020 flow diagram). 위에서 아래로 남은 문헌 수를, 오른쪽에 단계마다 빠진 문헌 수와 이유를 적습니다. "
     "같은 시험의 2차 보고는 빼지 않고 그 시험에 묶으므로, 마지막 칸에 포함된 시험 수와 그 보고서 수를 따로 적습니다. "
+    "아직 결과가 없는 진행 중인 시험은 제외 사유가 아니어서 따로 적습니다. "
     "번호는 아래 해설과 짝을 이룹니다.", cols=1))
 
 
