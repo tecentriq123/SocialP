@@ -367,7 +367,7 @@ print(f"단순한 비 {t3.loc[1, 'rate'] / t3.loc[0, 'rate']:.2f},"
       f" Mantel-Haenszel {mh:.2f},"
       f" Cox {ctv.summary.loc['drugx', 'exp(coef)']:.2f}")
 per.round({"rate U": 1, "rate E": 1, "IRR": 2, "PY U": 0, "PY E": 0})
-''', title="기간을 나눠 같은 시기끼리 견주기")
+''', title="기간을 나눠 같은 시기끼리 비교하기")
 save("lab16_periods", c, marks={"비노출 34%": 1, "노출 8%": 2, "단순한 비 0.92": 3, "Mantel-Haenszel 1.01": 4,
                                 "Cox 1.03": 5},
      dfmarks={"28.8": 6, "30.0": 7, "0.94": 8})

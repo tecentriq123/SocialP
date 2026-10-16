@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">EQ VAS ÷ 100과 효용 견주기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">by = df.groupby(&quot;state&quot;).agg(n=(&quot;id&quot;, &quot;size&quot;), utility=(&quot;utility&quot;, &quot;mean&quot;),
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">EQ VAS ÷ 100과 효용 비교하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">by = df.groupby(&quot;state&quot;).agg(n=(&quot;id&quot;, &quot;size&quot;), utility=(&quot;utility&quot;, &quot;mean&quot;),
                              vas=(&quot;vas&quot;, &quot;mean&quot;))
 by[&quot;vas_100&quot;] = by[&quot;vas&quot;] / 100                # EQ VAS를 100으로 나눈 값
 by = by.loc[[&quot;PF&quot;, &quot;PD&quot;]]

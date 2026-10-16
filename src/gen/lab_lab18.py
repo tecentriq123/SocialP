@@ -7,7 +7,7 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab18.py && python3 
 
 자료: pub/data/sedative_district_month.csv (gen/data_lab18.py가 18장의 모의자료를 그대로 내보낸 것).
 끝의 대조 블록에서 실습 결과를 gen/_ch18_nums.json(18장 본문 숫자)과 맞춘다.
-(2026-10-14: 18장을 PART 3의 새 틀로 고친 뒤 '실습 18에 더할 것'을 반영했다. 버전 셀 1, 연도별 평균과 흐름의 몫 셀 8,
+(2026-10-14: 18장을 PART 3의 새 틀로 고친 뒤 '실습 18에 더할 것'을 반영했다. 버전 셀 1, 연도별 평균과 원래 흐름으로 생긴 부분 셀 8,
  평균으로의 회귀 모의실험 셀 9, 시행 첫 달을 0으로 센 모형 셀 15, 포아송 분절회귀 셀 18, 파급 효과 셀 22,
  네 분석의 비교(24개월 평균) 셀 29, 과제 1(출력 해석) 셀 30을 더했고 과제 2를 '분석에 넣는 달 바꾸기' 두 셀로,
  과제 3을 '잘못된 분석 판단'으로 바꿨다. 셀 번호가 모두 바뀌었다.)
@@ -173,7 +173,7 @@ gap = po["time"].mean() - pre["time"].mean()       # 48.5 - 18.5
 change = po["rate"].mean() - pre["rate"].mean()    # 전후 평균의 차이
 print(f"trend only: {slope:.4f} x {gap:.0f} months = {slope * gap:.2f}")
 print(f"before-after {change:.2f} - trend = {change - slope * gap:.2f}")
-''', title="연도별 평균과 원래 흐름의 몫")
+''', title="연도별 평균과 원래 흐름으로 생긴 부분")
 save("lab18_yearly", c, marks={"~2015\\s+94\\.33\\s+82\\.69": 1, "~2017\\s+88\\.50\\s+76\\.98": 2,
                                "= -7.26": 3, "= -10.20": 4})
 

@@ -119,7 +119,7 @@ print("평균보다 적게 쓴 환자(%):",
       round((b < b.mean()).mean() * 100, 1))
 k = round(len(b) * 0.05)                          # 상위 5%는 90명
 top = np.sort(b)[::-1][:k]
-print("상위 5%가 쓴 몫(%)      :",
+print("상위 5%가 쓴 비율(%)    :",
       round(top.sum() / b.sum() * 100, 1))
 ''', title="평균, 중앙값, 총액")
 save("lab21_total", c, marks={"4084201": 1, "3300011": 2, "66.5": 3, "15.5": 4})
@@ -131,7 +131,7 @@ print("상위 1% 인원      :", k1, "명")
 print("뺀 환자의 최소 비용:", srt[k1 - 1])
 print("B군 평균          :", round(b.mean(), 1))
 print("상위 1%를 뺀 평균 :", round(srt[k1:].mean(), 1))
-print("상위 1%가 쓴 몫(%):", round(srt[:k1].sum() / b.sum() * 100, 1))
+print("상위 1%가 쓴 비율(%):", round(srt[:k1].sum() / b.sum() * 100, 1))
 ''', title="고액 환자를 빼면")
 save("lab21_top1", c, marks={"18 명": 1, "8330.6": 2, "2189.3": 3, "4.6": 4})
 
@@ -508,7 +508,7 @@ hw2 = pd.DataFrame(rows, columns=["B", "lower_min", "lower_max",
 hw2["lower_range"] = hw2["lower_max"] - hw2["lower_min"]
 hw2["upper_range"] = hw2["upper_max"] - hw2["upper_min"]
 hw2.round(1)
-''', title="과제 2 정답. 반복 횟수와 구간의 흔들림")
+''', title="과제 2 정답. 반복 횟수에 따라 달라지는 구간의 끝값")
 save("lab21_hw2", c)
 
 c = nb.cell('''

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">기간을 나눠 같은 시기끼리 견주기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cuts = [0, 365 * 3 / 12, 365 * 6 / 12, 365]   # 0, 3, 6, 12개월 (일)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">기간을 나눠 같은 시기끼리 비교하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">cuts = [0, 365 * 3 / 12, 365 * 6 / 12, 365]   # 0, 3, 6, 12개월 (일)
 rows = []
 for a, b in zip(cuts[:-1], cuts[1:]):
     s = long[&quot;start&quot;].clip(lower=a)          # 이 기간 안에서 줄이 시작하는 날

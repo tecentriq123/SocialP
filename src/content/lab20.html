@@ -82,7 +82,7 @@
 <section class="sec" id="lab20-s2">
 <h2><span class="sec-no">b.</span>증분비용효과비와 지배</h2>
 
-<p>결정할 것은 "표준요법 B 대신 신약 A를 쓸 것인가"입니다. 그래서 A의 값어치는 B에 견주어 더 드는 돈(증분비용)과 더 얻는 건강(증분 QALY)으로 따지고, 그 비가 증분비용효과비<span class="en">(incremental cost-effectiveness ratio, ICER)</span>입니다(<a href="#ch20-s4">20장 d 절</a>). 이 절에서는 ICER를 구하고, 증분의 부호로 사분면을 판정하는 함수와, 대안이 여럿일 때 효율 경계를 만드는 함수를 짭니다.</p>
+<p>결정할 것은 "표준요법 B 대신 신약 A를 쓸 것인가"입니다. 그래서 A의 값어치는 B에 비해 더 드는 돈(증분비용)과 더 얻는 건강(증분 QALY)으로 따지고, 그 비가 증분비용효과비<span class="en">(incremental cost-effectiveness ratio, ICER)</span>입니다(<a href="#ch20-s4">20장 d 절</a>). 이 절에서는 ICER를 구하고, 증분의 부호로 사분면을 판정하는 함수와, 대안이 여럿일 때 효율 경계를 만드는 함수를 짭니다.</p>
 
 <h3>신약 A 대 표준요법 B</h3>
 <!--FIG:lab20_icer-->
@@ -91,7 +91,7 @@
 <li><code>cost_A, qaly_A = alts.loc["A", "cost"], alts.loc["A", "qaly"]</code><span><code>.loc[행 이름, 열 이름]</code>은 표에서 값 하나를 꺼냅니다. 쉼표 오른쪽의 두 값이 왼쪽의 두 이름에 차례로 들어갑니다.</span></li>
 <li><code>d_cost = cost_A - cost_B</code><span>비교의 기준인 B를 뺍니다. 순서를 바꿔 B − A로 쓰면 증분비용과 증분 QALY의 부호가 둘 다 바뀝니다. 비는 같게 나오지만 사분면은 정반대가 되므로, 무엇에서 무엇을 뺐는지 항상 정해 두고 씁니다.</span></li>
 <li><code>icer = d_cost / d_qaly</code><span>QALY 1을 더 얻는 데 더 드는 돈입니다. 반올림하기 전의 두 증분으로 나눕니다.</span></li>
-<li><code>round(cost_A / qaly_A)</code><span>총비용을 총 QALY로 나눈 평균 비용효과비<span class="en">(average cost-effectiveness ratio)</span>입니다. ICER와 견주려고 함께 출력합니다.</span></li>
+<li><code>round(cost_A / qaly_A)</code><span>총비용을 총 QALY로 나눈 평균 비용효과비<span class="en">(average cost-effectiveness ratio)</span>입니다. ICER와 비교하려고 함께 출력합니다.</span></li>
 <li><code>ly_A, ly_B = 3.398772, 2.728843</code><span>할인한 생존연수입니다(실습 23 셀 16의 ly_d 행). 같은 증분비용을 생존연수의 증분으로 나누면 생존연수당 비용입니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
@@ -146,7 +146,7 @@
 <li><span class="mk">1</span><span><b>D 확장 열등, 13,537 &gt; 3,020.</b> B에서 D로 가는 데 QALY당 13,537만원, D에서 A로 가는 데 3,020만원이 듭니다. 덜 효과적인 단계가 더 비싼 값을 요구하므로 D가 빠집니다.</span></li>
 <li><span class="mk">2</span><span><b>C 열등.</b> B보다 비싸면서 QALY가 적습니다.</span></li>
 <li><span class="mk">3</span><span><b>D 확장 열등.</b> 지배당하지는 않지만 경계에서 빠집니다.</span></li>
-<li><span class="mk">4</span><span><b>A는 B와 견주어 ICER 5,621.</b> 경계 위에 남은 짝은 B와 A 하나이고, 보고할 ICER도 이것 하나입니다. 20장 표 20-12와 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>A는 B에 대한 ICER 5,621.</b> 경계 위에 남은 짝은 B와 A 하나이고, 보고할 ICER도 이것 하나입니다. 20장 표 20-12와 같습니다.</span></li>
 </ol>
 <p>그래서 "A 대 D의 ICER는 3,020만원/QALY"라는 값은 계산은 되지만 보고할 값이 아닙니다. D는 비교대안이 될 수 없는 대안이기 때문입니다(과제 3).</p>
 
@@ -155,8 +155,8 @@
 <!--FIG:lab20_mix-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>f = (alts.loc["D", "qaly"] - qaly_B) / (qaly_A - qaly_B)</code><span>B에서 A까지 늘어나는 QALY 0.511 가운데 D가 B보다 더 얻는 0.126이 차지하는 몫입니다. 환자의 이 비율에게 A를 쓰면 평균 QALY가 D와 같아집니다.</span></li>
-<li><code>mix_cost = cost_B + f * (cost_A - cost_B)</code><span>섞은 전략의 평균 비용입니다. B의 비용에서 출발해 A로 바꾼 환자 몫만큼 증분비용을 더합니다. 다음 줄의 QALY도 같은 방식입니다.</span></li>
+<li><code>f = (alts.loc["D", "qaly"] - qaly_B) / (qaly_A - qaly_B)</code><span>B에서 A까지 늘어나는 QALY 0.511 가운데 D가 B보다 더 얻는 0.126이 차지하는 비율입니다. 환자의 이 비율에게 A를 쓰면 평균 QALY가 D와 같아집니다.</span></li>
+<li><code>mix_cost = cost_B + f * (cost_A - cost_B)</code><span>섞은 전략의 평균 비용입니다. B의 비용에서 출발해 A로 바꾼 환자 비율만큼 증분비용을 더합니다. 다음 줄의 QALY도 같은 방식입니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -186,7 +186,7 @@
 <p class="jt-foot">Strategies are listed in order of increasing cost. Costs and QALYs were discounted at 4.5% per year. <sup>a</sup> Total cost in 10,000 KRW. <sup>b</sup> 10,000 KRW per QALY gained, calculated between adjacent strategies on the efficiency frontier from unrounded values. Dominated, more costly and less effective than another strategy; extendedly dominated, more costly and less effective than a mix of two other strategies.</p>
 <p class="excerpt"><b>Results.</b> Existing drug C was dominated by standard therapy B, and combination therapy D was extendedly dominated by a mix of standard therapy B and drug A. On the efficiency frontier, drug A had an ICER of ₩56.21 million per QALY gained compared with standard therapy B.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>비용순.</b> 셀 5의 <code>sort_values("cost")</code>와 같은 순서입니다. 독자가 이웃한 줄끼리 견주면 ICER를 검산할 수 있습니다.</span></li>
+<li><span class="mk">1</span><span><b>비용순.</b> 셀 5의 <code>sort_values("cost")</code>와 같은 순서입니다. 독자가 이웃한 줄끼리 비교하면 ICER를 검산할 수 있습니다.</span></li>
 <li><span class="mk">2</span><span><b>열등.</b> 셀 5의 status 열입니다. 음수 ICER를 적지 않고 말로 적습니다.</span></li>
 <li><span class="mk">3</span><span><b>확장 열등.</b> D의 줄에 ICER를 적지 않습니다. A 대 D의 3,020도 싣지 않습니다.</span></li>
 <li><span class="mk">4</span><span><b>경계 위의 ICER와 견준 대안.</b> 셀 5의 icer와 vs 열입니다. 어느 대안과 견준 값인지를 함께 적어야 독자가 경계를 따라갈 수 있습니다.</span></li>
@@ -323,7 +323,7 @@
 </div></details>
 
 <h3>과제 2. 신약 E를 더해 다시 고르기</h3>
-<p>표준요법 B보다 600만원 더 들고 0.20 QALY를 더 얻는 신약 E가 나왔다고 합시다(<a href="#ch20-s4">20장 d 절</a> 스스로 확인하기 2번의 약). E를 네 대안의 표에 더해 셀 5의 <code>frontier</code> 함수로 효율 경계를 다시 만들고, 임계값 5,000만원과 8,000만원에서 어느 대안을 고르는지 답하세요. 그다음 셀 5의 결과와 견주어 무엇이 바뀌었는지, 그리고 B와 견준 ICER는 E(3,000)가 A(5,621)보다 낮은데 8,000만원에서 A를 고르는 이유를 설명하세요. 힌트. <code>alts_E = alts.copy()</code>로 표를 복사한 뒤 <code>alts_E.loc["E"] = [비용, QALY]</code>로 한 줄을 더합니다.</p>
+<p>표준요법 B보다 600만원 더 들고 0.20 QALY를 더 얻는 신약 E가 나왔다고 합시다(<a href="#ch20-s4">20장 d 절</a> 스스로 확인하기 2번의 약). E를 네 대안의 표에 더해 셀 5의 <code>frontier</code> 함수로 효율 경계를 다시 만들고, 임계값 5,000만원과 8,000만원에서 어느 대안을 고르는지 답하세요. 그다음 셀 5의 결과와 비교해 무엇이 바뀌었는지, 그리고 B에 대한 ICER는 E(3,000)가 A(5,621)보다 낮은데 8,000만원에서 A를 고르는 이유를 설명하세요. 힌트. <code>alts_E = alts.copy()</code>로 표를 복사한 뒤 <code>alts_E.loc["E"] = [비용, QALY]</code>로 한 줄을 더합니다.</p>
 <details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
 <!--FIG:lab20_hw2-->
 <p><code>alts_E.loc["E"] = […]</code>는 없는 행 이름에 값을 넣어 새 행을 붙이는 줄입니다. 사본에 붙였으므로 <code>alts</code>는 그대로입니다. 표는 <code>frontier</code> 안에서 비용순으로 다시 정렬되어 E가 C와 D 사이에 들어갑니다. <code>nb_["E"] - nb_["B"]</code>는 대안마다 구한 순금전편익의 차, 곧 B와 견준 증분 순금전편익입니다.</p>
@@ -352,7 +352,7 @@
 <li><span class="mk">2</span><span><b>네 대안 모두 임계값보다 낮음.</b> 이 기준이면 열등인 C까지 "비용효과적"이 됩니다.</span></li>
 <li><span class="mk">3</span><span><b>동료의 A 대 D 3,020.</b> 계산은 맞습니다.</span></li>
 <li><span class="mk">4</span><span><b>그러나 D는 확장 열등.</b> 셀 5의 판정입니다.</span></li>
-<li><span class="mk">5</span><span><b>경계 위에서 A는 B와 견주어 5,621.</b> 가정한 임계값 5,000보다 높습니다.</span></li>
+<li><span class="mk">5</span><span><b>경계 위에서 A는 B에 대해 5,621.</b> 가정한 임계값 5,000보다 높습니다.</span></li>
 <li><span class="mk">6</span><span><b>임계값 5,000에서 순금전편익이 가장 큰 대안은 B.</b></span></li>
 </ol>
 <p>첫째 잘못은 평균 비를 ICER처럼 쓴 것입니다. 총비용 ÷ QALY는 비용도 건강도 0인 대안과 견준 값인데, 결정할 것은 "B 대신 A를 쓸 것인가"이고 B를 써도 환자는 이미 1.874 QALY를 얻습니다. 이 값으로 판단하면 네 대안이 모두 5,000 아래여서, B보다 비싸고 효과도 적은 C까지 비용효과적이라는 말이 됩니다. 대안을 가르지 못하는 기준이라는 뜻입니다. 쓸 값은 B에 견준 증분의 비입니다(<a href="#ch20-s4">20장 d 절</a> 2단계).</p>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">응답 1,593건을 효용으로 바꾸고 utility 열과 견주기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;u_calc&quot;] = df[&quot;eq5d&quot;].map(kr5l)            # 1,593건 모두
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">응답 1,593건을 효용으로 바꾸고 utility 열과 비교하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">df[&quot;u_calc&quot;] = df[&quot;eq5d&quot;].map(kr5l)            # 1,593건 모두
 print(&quot;서로 다른 응답 코드:&quot;, df[&quot;eq5d&quot;].nunique(), &quot;가지&quot;)
 print(&quot;utility 열과의 차이(가장 큰 값):&quot;, (df[&quot;u_calc&quot;] - df[&quot;utility&quot;]).abs().max())
 print(&quot;11111(효용 1) 응답:&quot;, (df[&quot;eq5d&quot;] == &quot;11111&quot;).sum(), &quot;건&quot;)

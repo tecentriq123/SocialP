@@ -42,7 +42,7 @@
  {
   "n": 9,
   "title": "잘못된 분류의 Cox 모형",
-  "out": "<lifelines.CoxPHFitter: fitted with 6000 total observations, 4766 right-censored observations>\n             duration col = 'fu_days'\n                event col = 'died'\n      baseline estimation = breslow\n   number of observations = 6000\nnumber of events observed = 1234\n   partial log-likelihood = -10462.796\n         time fit was run = 2026-10-14 05:47:51 UTC\n\n---\n            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                   \never      -1.004     0.366     0.065          -1.131          -0.877               0.323               0.416\n\n           cmp to       z       p  -log2(p)\ncovariate                                  \never        0.000 -15.465 <0.0005   176.795\n---\nConcordance = 0.619\nPartial AIC = 20927.592\nlog-likelihood ratio test = 271.803 on 1 df\n-log2(p) of ll-ratio test = 200.439\n\nHR (95% CI): 0.37 (0.32-0.42)\n"
+  "out": "<lifelines.CoxPHFitter: fitted with 6000 total observations, 4766 right-censored observations>\n             duration col = 'fu_days'\n                event col = 'died'\n      baseline estimation = breslow\n   number of observations = 6000\nnumber of events observed = 1234\n   partial log-likelihood = -10462.796\n         time fit was run = 2026-10-16 13:35:11 UTC\n\n---\n            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                   \never      -1.004     0.366     0.065          -1.131          -0.877               0.323               0.416\n\n           cmp to       z       p  -log2(p)\ncovariate                                  \never        0.000 -15.465 <0.0005   176.795\n---\nConcordance = 0.619\nPartial AIC = 20927.592\nlog-likelihood ratio test = 271.803 on 1 df\n-log2(p) of ll-ratio test = 200.439\n\nHR (95% CI): 0.37 (0.32-0.42)\n"
  },
  {
   "n": 11,
@@ -92,11 +92,11 @@
  {
   "n": 20,
   "title": "시간의존 Cox 모형",
-  "out": "<lifelines.CoxTimeVaryingFitter: fitted with 8734 periods, 6000 subjects, 1234 events>\n         event col = 'died'\nnumber of subjects = 6000\n number of periods = 8734\n  number of events = 1234\npartial log-likelihood = -10598.599\n  time fit was run = 2026-10-14 05:47:52 UTC\n\n---\n           coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                  \ndrugx     0.031     1.031     0.070          -0.105           0.167               0.900               1.182\n\n           cmp to     z     p  -log2(p)\ncovariate                              \ndrugx       0.000 0.445 0.656     0.608\n---\nPartial AIC = 21199.198\nlog-likelihood ratio test = 0.198 on 1 df\n-log2(p) of ll-ratio test = 0.607\n\n"
+  "out": "<lifelines.CoxTimeVaryingFitter: fitted with 8734 periods, 6000 subjects, 1234 events>\n         event col = 'died'\nnumber of subjects = 6000\n number of periods = 8734\n  number of events = 1234\npartial log-likelihood = -10598.599\n  time fit was run = 2026-10-16 13:35:12 UTC\n\n---\n           coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%\ncovariate                                                                                                  \ndrugx     0.031     1.031     0.070          -0.105           0.167               0.900               1.182\n\n           cmp to     z     p  -log2(p)\ncovariate                              \ndrugx       0.000 0.445 0.656     0.608\n---\nPartial AIC = 21199.198\nlog-likelihood ratio test = 0.198 on 1 df\n-log2(p) of ll-ratio test = 0.607\n\n"
  },
  {
   "n": 21,
-  "title": "기간을 나눠 같은 시기끼리 견주기",
+  "title": "기간을 나눠 같은 시기끼리 비교하기",
   "out": "0-3개월에 든 인년: 비노출 34%, 노출 8%\n단순한 비 0.92, Mantel-Haenszel 1.01, Cox 1.03\n         rate U  rate E   IRR  deaths U    PY U  deaths E    PY E\n0-3 mo     28.8    30.0  1.04       380  1318.0        37   123.0\n3-6 mo     22.0    20.6  0.94       229  1039.0        66   320.0\n6-12 mo    20.5    21.2  1.04       304  1484.0       218  1028.0"
  },
  {

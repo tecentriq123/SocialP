@@ -8,9 +8,9 @@ print(&quot;평균보다 적게 쓴 환자(%):&quot;,
       round((b &lt; b.mean()).mean() * 100, 1))
 k = round(len(b) * 0.05)                          # 상위 5%는 90명
 top = np.sort(b)[::-1][:k]
-print(&quot;상위 5%가 쓴 몫(%)      :&quot;,
+print(&quot;상위 5%가 쓴 비율(%)    :&quot;,
       round(top.sum() / b.sum() * 100, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>B군 총액      : 4084201<span class="mk">1</span>
 평균 x 인원   : 4084201
 중앙값 x 인원 : 3300011<span class="mk">2</span>
 평균보다 적게 쓴 환자(%): 66.5<span class="mk">3</span>
-상위 5%가 쓴 몫(%)      : 15.5<span class="mk">4</span></pre></div></div>
+상위 5%가 쓴 비율(%)    : 15.5<span class="mk">4</span></pre></div></div>

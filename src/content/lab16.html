@@ -446,7 +446,7 @@
 <li><span class="mk">7</span><span><b>P = 0.656.</b> 약물 X와 사망 위험률 사이에 관련이 있다는 근거가 없습니다. 16장 c 절 '더 알아보기'의 lifelines 출력과 숫자가 모두 같습니다.</span></li>
 </ol>
 
-<h3>기간을 나눠 같은 시기끼리 견주기</h3>
+<h3>기간을 나눠 같은 시기끼리 비교하기</h3>
 <p>셀 19의 단순한 발생률비는 0.92인데 셀 20의 위험비는 1.03입니다. 이유는 시기에 있습니다(<a href="#ch16-s3">16장 c 절</a> 2단계 '단순한 사망률의 비와 위험비는 왜 다른가'). 사망률은 누구에게나 퇴원 직후에 가장 높은데, 약은 퇴원 뒤 시간이 지나서 시작하므로 노출 시간은 주로 추적 후반에 있습니다.</p>
 <p>퇴원 후 기간을 0–3, 3–6, 6–12개월로 나눠 같은 시기끼리 비교하면 이것이 숫자로 보입니다.</p>
 <!--FIG:lab16_periods-->
@@ -460,15 +460,15 @@
 <li><code>rows.append([dU / pU * 100, dE / pE * 100, dU, pU, dE, pE])</code><span>기간마다 비노출(U)과 노출(E)의 100인년당 사망률, 사망, 인년을 한 줄로 모읍니다. 휴대폰 화면에서 먼저 보이도록 사망률을 앞에 두었습니다.</span></li>
 <li><code>per.insert(2, "IRR", per["rate E"] / per["rate U"])</code><span>세 번째 자리(0부터 세어 2)에 기간별 발생률비 열을 끼워 넣습니다.</span></li>
 <li><code>first = per.loc["0-3 mo", ["PY U", "PY E"]] / per[["PY U", "PY E"]].sum()</code><span>노출 상태마다 전체 인년 가운데 처음 3개월에 든 인년의 비율입니다.</span></li>
-<li><code>mh = ((per["deaths E"] * per["PY U"] / w).sum() / (per["deaths U"] * per["PY E"] / w).sum())</code><span>기간으로 층화해 합친 Mantel–Haenszel 발생률비입니다(<a href="#ch08-s6">8장 f 절</a>). 기간마다 같은 시기의 노출과 비노출을 견준 비를, 사건과 인년이 많은 기간에 무게를 더 주어 하나로 모은 값입니다.</span></li>
+<li><code>mh = ((per["deaths E"] * per["PY U"] / w).sum() / (per["deaths U"] * per["PY E"] / w).sum())</code><span>기간으로 층화해 합친 Mantel–Haenszel 발생률비입니다(<a href="#ch08-s6">8장 f 절</a>). 기간마다 같은 시기의 노출과 비노출을 비교한 비를, 사건과 인년이 많은 기간에 가중치를 더 주어 하나로 모은 값입니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>비노출 인년의 34%가 처음 3개월.</b> 처음 3개월은 1년의 4분의 1인데, 비노출 인년은 그보다 많은 몫이 이 시기에 있습니다. 약을 시작한 사람의 처방 전 시간이 퇴원 직후에 있기 때문입니다.</span></li>
+<li><span class="mk">1</span><span><b>비노출 인년의 34%가 처음 3개월.</b> 처음 3개월은 1년의 4분의 1인데, 비노출 인년은 그보다 많은 비율이 이 시기에 있습니다. 약을 시작한 사람의 처방 전 시간이 퇴원 직후에 있기 때문입니다.</span></li>
 <li><span class="mk">2</span><span><b>노출 인년은 8%만 처음 3개월.</b> 노출 시간은 대부분 6개월 이후에 있습니다.</span></li>
 <li><span class="mk">3</span><span><b>단순한 비 0.92.</b> 셀 19의 값입니다. 사망률이 높은 시기를 비노출 쪽에 더 많이 담아 조금 낮게 나왔습니다.</span></li>
 <li><span class="mk">4</span><span><b>Mantel–Haenszel 1.01.</b> 같은 시기끼리 견준 비를 모은 값입니다.</span></li>
-<li><span class="mk">5</span><span><b>Cox 1.03.</b> 셀 20의 위험비입니다. Cox 모형은 사망이 일어난 시점마다 그 시점끼리 견주므로, 세 기간보다 훨씬 잘게 나눠 같은 일을 한 셈입니다.</span></li>
+<li><span class="mk">5</span><span><b>Cox 1.03.</b> 셀 20의 위험비입니다. Cox 모형은 사망이 일어난 시점마다 그 시점끼리 비교하므로, 세 기간보다 훨씬 잘게 나눠 같은 일을 한 셈입니다.</span></li>
 <li><span class="mk">6</span><span><b>처음 3개월의 비노출 사망률 28.8.</b> 뒤의 두 기간(22.0, 20.5)보다 높습니다.</span></li>
 <li><span class="mk">7</span><span><b>같은 3개월의 노출 사망률 30.0.</b> 같은 시기끼리는 비노출과 거의 같습니다. 노출의 사망률도 처음 3개월이 가장 높습니다.</span></li>
 <li><span class="mk">8</span><span><b>3–6개월의 발생률비 0.94.</b> 세 기간의 발생률비(1.04, 0.94, 1.04)가 모두 1 근처입니다.</span></li>

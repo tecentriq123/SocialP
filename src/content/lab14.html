@@ -618,7 +618,7 @@
 </div></details>
 
 <h3>과제 2. 유예기간을 30일과 90일로 바꾸기</h3>
-<p>유예기간을 60일에서 30일과 90일로 바꿔 as-treated 추적을 다시 만들고, 군별 사건 수, 발생률, 발생률비, 보정 위험비를 60일의 결과와 한 표로 비교하세요. a 절에서 따라가 본 환자의 추적은 어떻게 달라집니까? <code>cohort.copy()</code>에서 stop_date 열만 바꾼 뒤 <code>follow_up</code>을 다시 부르면 됩니다. 결과를 14장 d 절의 그림 14-5와 견주어 보세요.</p>
+<p>유예기간을 60일에서 30일과 90일로 바꿔 as-treated 추적을 다시 만들고, 군별 사건 수, 발생률, 발생률비, 보정 위험비를 60일의 결과와 한 표로 비교하세요. a 절에서 따라가 본 환자의 추적은 어떻게 달라집니까? <code>cohort.copy()</code>에서 stop_date 열만 바꾼 뒤 <code>follow_up</code>을 다시 부르면 됩니다. 결과를 14장 d 절의 그림 14-5와 비교해 보세요.</p>
 <details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
 <!--FIG:lab14_hw2-->
 <p>반복문 안에서 유예기간마다 중단일을 다시 정하고(<code>stop_date(own, grace)</code>), 추적을 다시 만든 뒤(<code>follow_up</code>) 요약을 한 줄씩 모읍니다. <code>"%d / %d" % tuple(…)</code>은 두 군의 값 두 개를 한 칸에 "SGLT2 억제제 / DPP-4 억제제" 순서로 적습니다. <code>cg.loc[cg["pid"] == p].iloc[0]</code>은 예시 환자의 줄 하나를 꺼냅니다. 마지막 줄의 <code>.set_index("grace")</code>는 grace 열을 행 이름으로 올려 표를 한 열 좁힙니다.</p>

@@ -2,7 +2,7 @@
     &quot;&quot;&quot;월 단위 율 세 개 -&gt; 한 달 전이확률 행렬
     (행: 출발 상태, 열: 도착 상태, 순서: 무진행, 진행, 사망)&quot;&quot;&quot;
     leave = rate_to_prob(r_prog + r_dpf)         # 무진행 상태를 떠날 확률
-    to_pd = leave * r_prog / (r_prog + r_dpf)    # 그 가운데 진행으로 가는 몫
+    to_pd = leave * r_prog / (r_prog + r_dpf)    # 무진행에서 진행으로 옮겨 갈 확률(떠날 확률 × 진행의 비중)
     q = rate_to_prob(r_dpd)                      # 진행 상태에서 사망할 확률
     return np.array([[1 - leave, to_pd, leave - to_pd],
                      [0.0, 1 - q, q],

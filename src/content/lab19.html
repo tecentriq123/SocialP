@@ -202,8 +202,8 @@
 <li><span class="mk">3</span><span><b>로그 오즈비 −0.1974</b>, 표준오차 0.0666.</span></li>
 <li><span class="mk">4</span><span><b>z = −2.96</b>, <span class="mk">5</span> <b>P = 0.0030.</b> 논문에는 P = .003으로 적습니다.</span></li>
 <li><span class="mk">6</span><span><b>오즈비 0.82 (0.72–0.94).</b> 주 분석의 결과입니다. 고정효과(0.78–0.91)보다 구간이 넓습니다.</span></li>
-<li><span class="mk">7</span><span><b>Trial C의 비율 0.356% → 0.916%.</b> 작은 시험의 무게가 늘어납니다.</span></li>
-<li><span class="mk">8</span><span><b>Trial F의 비율 42.7%</b> → <span class="mk">9</span> <b>25.1%.</b> 큰 시험의 무게는 줄어듭니다. τ²를 모든 시험에 똑같이 더하므로 가중치가 고르게 됩니다.</span></li>
+<li><span class="mk">7</span><span><b>Trial C의 비율 0.356% → 0.916%.</b> 작은 시험의 가중치가 늘어납니다.</span></li>
+<li><span class="mk">8</span><span><b>Trial F의 비율 42.7%</b> → <span class="mk">9</span> <b>25.1%.</b> 큰 시험의 가중치는 줄어듭니다. τ²를 모든 시험에 똑같이 더하므로 가중치가 고르게 됩니다.</span></li>
 </ol>
 
 <h3>통합 계산을 함수로 묶기</h3>
@@ -292,7 +292,7 @@
 </ol>
 
 <h3>0건 처리 방법을 바꿔 보기</h3>
-<p>0.5를 더하는 것은 여러 처리 방법 가운데 하나입니다. Trial C를 뺀 결과, 수정 없이 계산할 수 있는 Mantel–Haenszel 방법(셀 11)과 견주어 결과가 처리 방법에 달려 있는지 봅니다. 19장 b 절 '더 알아보기'에 나오는 세 숫자입니다.</p>
+<p>0.5를 더하는 것은 여러 처리 방법 가운데 하나입니다. Trial C를 뺀 결과, 수정 없이 계산할 수 있는 Mantel–Haenszel 방법(셀 11)과 비교해 결과가 처리 방법에 달려 있는지 봅니다. 19장 b 절 '더 알아보기'에 나오는 세 숫자입니다.</p>
 <!--FIG:lab19_bleedsens-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -330,12 +330,12 @@
 <li><code>rr_r, lo_r, hi_r = 0.88, 0.79, 0.98</code><span>보고된 세 숫자를 한 줄에 세 변수로 나눠 담습니다.</span></li>
 <li><code>se_r = (np.log(hi_r) - np.log(lo_r)) / (2 * Z)</code><span>상한과 하한을 로그로 바꿔 빼면 구간 전체의 폭, 곧 2 × 1.96 × 표준오차입니다. 그래서 2 × 1.96으로 나눕니다.</span></li>
 <li><code>w.max()</code><span>셀 7에서 만든 고정효과 가중치 열의 가장 큰 값입니다.</span></li>
-<li><code>es.loc[8, "se"]</code><span>줄 번호 8이 Trial I입니다. 사건 수로 직접 구한 표준오차와 견주려고 꺼냅니다.</span></li>
+<li><code>es.loc[8, "se"]</code><span>줄 번호 8이 Trial I입니다. 사건 수로 직접 구한 표준오차와 비교하려고 꺼냅니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>표준오차 0.055, 가중치 331.</b> 로그 상대위험도는 −0.128입니다. 19장 b 절 스스로 확인하기 2번의 답과 같습니다.</span></li>
-<li><span class="mk">2</span><span><b>254.7.</b> 예제에서 가장 큰 Trial F의 가중치입니다. 이 연구 하나를 넣으면 가장 큰 시험보다 무게가 커서 통합 결과를 주도합니다. 게다가 상대위험도와 오즈비, 관찰연구와 무작위배정 시험을 섞는 일이 되므로, 이 예제의 분석에는 넣지 않고 따로 합칩니다(19장 b 절 3단계 4번).</span></li>
+<li><span class="mk">2</span><span><b>254.7.</b> 예제에서 가장 큰 Trial F의 가중치입니다. 이 연구 하나를 넣으면 가장 큰 시험보다 가중치가 커서 통합 결과를 주도합니다. 게다가 상대위험도와 오즈비, 관찰연구와 무작위배정 시험을 섞는 일이 되므로, 이 예제의 분석에는 넣지 않고 따로 합칩니다(19장 b 절 3단계 4번).</span></li>
 <li><span class="mk">3</span><span><b>표준오차 0.081.</b> 위험비 0.82 (0.70–0.96)도 같은 방법으로 되살립니다.</span></li>
 <li><span class="mk">4</span><span><b>신뢰구간에서 되살린 0.126과 사건 수로 구한 0.124.</b> 보고된 구간이 소수 둘째 자리로 반올림되어 있어 조금 다릅니다. 가중치로는 63 대 65 정도라 결과에 거의 영향이 없지만, 되살린 값은 근삿값입니다.</span></li>
 </ol>
@@ -356,7 +356,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>고정효과 −0.32 (−0.43 to −0.21).</b></span></li>
 <li><span class="mk">2</span><span><b>무작위효과 −0.46 (−0.75 to −0.17).</b> 단위는 %p입니다. 6개월 동안 약사 중재군의 HbA1c가 통상 관리군보다 평균 0.46%p 더 내려갔다는 뜻입니다.</span></li>
-<li><span class="mk">3</span><span><b>I² 78%, τ² 0.100.</b> 연구 사이 차이가 커서 두 모형의 결과가 −0.32와 −0.46으로 뚜렷이 다릅니다. 효과가 큰 작은 연구들(A, C, E)의 무게가 무작위효과 모형에서 늘어났기 때문입니다.</span></li>
+<li><span class="mk">3</span><span><b>I² 78%, τ² 0.100.</b> 연구 사이 차이가 커서 두 모형의 결과가 −0.32와 −0.46으로 뚜렷이 다릅니다. 효과가 큰 작은 연구들(A, C, E)의 가중치가 무작위효과 모형에서 늘어났기 때문입니다.</span></li>
 <li><span class="mk">4</span><span><b>예측구간 −1.43 to 0.51.</b> 0을 넘습니다. 평균으로는 효과가 있지만 어떤 환경에서는 효과가 거의 없을 수도 있다는 뜻이고, 연구가 6개뿐이어서 구간이 매우 넓습니다. 그림 19-5의 회색 선입니다.</span></li>
 <li><span class="mk">5</span><span><b>표준화 평균 차이 −0.40 (−0.63 to −0.18).</b> %p가 아니라 '표준편차 0.40개만큼'이라는 뜻입니다. 측정 도구가 다른 연구를 합칠 때 쓰고, 이 예처럼 모두 HbA1c로 잰 연구라면 단위가 있는 평균 차이가 더 읽기 쉽습니다.</span></li>
 <li><span class="mk">6</span><span><b>Study A의 표준오차 0.244.</b> 19장 상자의 계산과 같습니다.</span></li>
@@ -486,7 +486,7 @@
 <li><code>def nll_reg(t):</code><span>셀 8의 <code>tau2_reml</code> 안에 있던 <code>nll</code>을 회귀로 넓힌 것입니다. 평균 하나 대신 직선(절편과 기울기)을 추정하므로, 평균 자리에 가중최소제곱 직선의 예측값 <code>X @ b_</code>가 들어갑니다.</span></li>
 <li><code>XtWX = X.T @ (X * w_[:, None])</code><span><code>@</code>는 행렬 곱, <code>.T</code>는 전치입니다. <code>X * w_[:, None]</code>은 X의 각 행에 그 시험의 가중치를 곱합니다. 결과는 2 × 2 행렬입니다.</span></li>
 <li><code>np.linalg.solve(XtWX, X.T @ (w_ * yv))</code><span>가중최소제곱의 계수(절편, 기울기)를 구합니다. 역행렬을 직접 구하지 않고 연립방정식으로 푸는 함수입니다.</span></li>
-<li><code>np.linalg.slogdet(XtWX)[1]</code><span>행렬식의 로그입니다. 셀 8의 <code>np.log(np.sum(w_))</code>가 하던 일, 곧 계수를 같은 자료로 추정하느라 쓴 정보의 몫을 회귀에서 맡습니다.</span></li>
+<li><code>np.linalg.slogdet(XtWX)[1]</code><span>행렬식의 로그입니다. 셀 8의 <code>np.log(np.sum(w_))</code>가 하던 일, 곧 계수를 같은 자료로 추정하느라 쓴 정보를 반영하는 항을 회귀에서 맡습니다.</span></li>
 <li><code>optimize.minimize_scalar(nll_reg, …)</code><span>셀 8과 같은 방법으로 <code>nll_reg</code>가 가장 작은 τ²를 찾고, 0에서의 값보다 낫지 않으면 0으로 둡니다. 이것이 남은 연구 간 분산입니다.</span></li>
 <li><code>.fit(cov_type="fixed scale")</code><span>가중치를 이미 아는 분산의 역수로 보고, 잔차의 크기로 표준오차를 다시 조정하지 않게 합니다. 메타분석의 표준오차는 이 방식으로 구합니다. 이 인자를 빼면 표준오차가 달라집니다.</span></li>
 <li><code>p_b = 2 * stats.norm.sf(abs(b / se_b))</code><span>기울기의 z 검정입니다. 버전에 따라 <code>mr.pvalues</code>가 쓰는 분포가 다를 수 있어 직접 계산했습니다.</span></li>
@@ -496,7 +496,7 @@
 <li><span class="mk">1</span><span><b>남은 연구 간 분산 0.0084.</b> 설명변수 없이 구한 0.0138(REML)보다 작습니다.</span></li>
 <li><span class="mk">2</span><span><b>기울기 −0.092 (표준오차 0.064).</b> STEMI 비율이 10%p 높은 시험일수록 로그 오즈비가 0.092 낮습니다.</span></li>
 <li><span class="mk">3</span><span><b>P = 0.15.</b> 유의하지 않습니다. 환자는 31,725명이어도 회귀에 들어간 점은 10개입니다.</span></li>
-<li><span class="mk">4</span><span><b>오즈비의 비 0.91 (0.80–1.03).</b> STEMI 비율이 50%인 시험과 60%인 시험을 견주면 뒤 시험의 오즈비가 0.91배라는 뜻입니다. 시험 수준의 관계여서 환자 개인에게 옮겨 말할 수 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>오즈비의 비 0.91 (0.80–1.03).</b> STEMI 비율이 60%인 시험의 오즈비가 50%인 시험의 오즈비의 0.91배라는 뜻입니다. 시험 수준의 관계여서 환자 개인에게 옮겨 말할 수 없습니다.</span></li>
 </ol>
 
 <h3>τ²를 구하는 세 가지 방법</h3>
@@ -507,7 +507,7 @@
 <li><code>def tau2_dl(y, v):</code><span>로그 오즈비 <code>y</code>와 분산 <code>v</code>를 받아 DL 방법의 τ²를 돌려주는 함수입니다. 안의 계산은 셀 8의 <code>t2_dl</code>과 같습니다. 함수 안에서 만든 변수는 함수 밖의 변수와 섞이지 않지만, 셀 8의 <code>w</code>, <code>Q</code>와 헷갈리지 않도록 이름 끝에 밑줄을 붙였습니다.</span></li>
 <li><code>def gen_q(y, v, t2):</code><span>τ²를 <code>t2</code>로 두고 무작위효과 가중치 1 ÷ (분산 + t2)로 다시 잰 Q입니다. 이것을 일반화 Q라고 부릅니다. t2가 0이면 셀 8의 Q(13.28)와 같고, t2가 커질수록 작아집니다.</span></li>
 <li><code>optimize.brentq(lambda t: gen_q(y, v, t) - df, 0, 10)</code><span>τ²를 0부터 10 사이에서 바꿔 가며 일반화 Q − 자유도가 0이 되는 점, 곧 일반화 Q가 자유도와 같아지는 τ²를 찾습니다. 이것이 PM 방법입니다. <code>brentq</code>는 셀 8에서 불러온 <code>optimize</code>에 들어 있는, 함수가 0이 되는 점을 찾는 도구입니다. <code>lambda t: …</code>는 이름 없이 그 자리에서 만드는 짧은 함수입니다. 일반화 Q가 처음부터 자유도보다 작으면 τ² = 0으로 둡니다.</span></li>
-<li><code>("REML", tau2_reml)</code><span>REML은 셀 8에서 만든 함수를 그대로 씁니다. 그 안의 <code>nll</code>은 τ²가 t일 때의 제한 로그우도에 −1을 곱한 값이고, 세 항은 차례로 분산의 로그 합, 평균을 추정하느라 쓴 정보의 몫(가중치 합의 로그), 관측값이 평균에서 떨어진 정도입니다. 이 값이 가장 작은 t, 곧 제한 우도가 가장 큰 t가 REML 추정값입니다.</span></li>
+<li><code>("REML", tau2_reml)</code><span>REML은 셀 8에서 만든 함수를 그대로 씁니다. 그 안의 <code>nll</code>은 τ²가 t일 때의 제한 로그우도에 −1을 곱한 값이고, 세 항은 차례로 분산의 로그 합, 평균을 추정하느라 쓴 정보를 반영하는 항(가중치 합의 로그), 관측값이 평균에서 떨어진 정도입니다. 이 값이 가장 작은 t, 곧 제한 우도가 가장 큰 t가 REML 추정값입니다.</span></li>
 <li><code>def re_pool(y, v, t2):</code><span>τ²를 넣은 무작위효과 통합값과 표준오차입니다. 셀 8의 계산을 함수로 묶은 것입니다.</span></li>
 <li><code>for name, f in [("DL", tau2_dl), …]:</code><span>이름과 함수의 짝을 차례로 꺼내 같은 계산을 세 번 합니다. 함수도 변수처럼 목록에 넣을 수 있습니다.</span></li>
 </ol>
@@ -552,7 +552,7 @@
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>Study 7의 가중치 4.6% → 12.2%.</b> 가장 작은 연구의 몫이 2.7배로 늘었습니다. 무작위효과 가중치가 12–15%로 거의 같아져, 결과가 단순 평균에 가까워집니다.</span></li>
+<li><span class="mk">1</span><span><b>Study 7의 가중치 4.6% → 12.2%.</b> 가장 작은 연구의 가중치 비율이 2.7배로 늘었습니다. 무작위효과 가중치가 12–15%로 거의 같아져, 결과가 단순 평균에 가까워집니다.</span></li>
 <li><span class="mk">2</span><span><b>Q = 52.90, I² = 89%.</b> 자유도 6보다 훨씬 커서 이질성이 큽니다.</span></li>
 <li><span class="mk">3</span><span><b>고정효과 1.48 (1.35–1.61)</b>, <span class="mk">4</span> <b>REML 무작위효과 1.69 (1.26–2.25).</b> 효과가 큰 연구 4와 7이 작은 연구여서, 가중치가 고르게 되자 평균이 올라갔습니다.</span></li>
 <li><span class="mk">5</span><span><b>HKSJ 1.17–2.43.</b> q = 1.03이어서 표준오차는 거의 그대로이고, 1.96 대신 2.447을 곱해 넓어졌습니다. 연구가 적을수록 이 차이가 커집니다.</span></li>
@@ -568,7 +568,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>이질성 지표.</b> 셀 17의 값입니다. Q와 P, I², τ²를 함께 적습니다.</span></li>
 <li><span class="mk">2</span><span><b>예측구간.</b> 구간이 1을 포함한다는 사실이 "어떤 환경에서는 효과가 거의 없을 수 있다"는 정보입니다.</span></li>
-<li><span class="mk">3</span><span><b>차이 검정.</b> 셀 20의 0.078입니다. 하위군별 유의성을 견주지 않고 이 P로 판단하며, 결론 문장은 이 P가 뒷받침하는 만큼만 씁니다.</span></li>
+<li><span class="mk">3</span><span><b>차이 검정.</b> 셀 20의 0.078입니다. 하위군별 유의성을 비교하지 않고 이 P로 판단하며, 결론 문장은 이 P가 뒷받침하는 만큼만 씁니다.</span></li>
 <li><span class="mk">4</span><span><b>탐색적 분석이라는 표시.</b> 점이 10개뿐이고 시험 사이의 관찰적 비교라는 한계를 밝힌 단어입니다.</span></li>
 </ol>
 </div></div>
@@ -724,7 +724,7 @@
 <h4>출력 읽기</h4>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>약물 Y의 표준오차 0.059</b>, <span class="mk">2</span> <b>X 대 Y의 표준오차 0.089.</b> 두 비교의 불확실성이 더해져 각각의 직접 비교보다 큽니다. 19장 e 절 '더 알아보기'의 간접비교 상자와 같은 값이고, 신뢰구간도 같습니다.</span></li>
-<li><span class="mk">3</span><span><b>간접 오즈비 0.91 (0.77–1.09).</b> 1을 포함하므로 X가 Y보다 낫다고 말할 수 없습니다. 이 값은 두 시험 묶음의 환자, 병용 치료, 추적 기간, 결과 정의가 효과를 바꿀 만큼 다르지 않다는 가정에 기댑니다. 약물 X군과 약물 Y군의 사건 수를 바로 견주면 이 다리를 쓰지 않는 것이어서, a 절 셀 4에서 사건 수를 그냥 더한 것과 같은 문제가 생깁니다.</span></li>
+<li><span class="mk">3</span><span><b>간접 오즈비 0.91 (0.77–1.09).</b> 1을 포함하므로 X가 Y보다 낫다고 말할 수 없습니다. 이 값은 두 시험 묶음의 환자, 병용 치료, 추적 기간, 결과 정의가 효과를 바꿀 만큼 다르지 않다는 가정에 기댑니다. 약물 X군과 약물 Y군의 사건 수를 바로 비교하면 공통 대조군을 거치지 않는 것이어서, a 절 셀 4에서 사건 수를 그냥 더한 것과 같은 문제가 생깁니다.</span></li>
 </ol>
 
 <div class="paper">
@@ -735,7 +735,7 @@
 <li><span class="mk">1</span><span><b>Harbord 검정.</b> 셀 27의 Harbord P입니다. 효과가 오즈비여서 Egger 검정 대신 이 변형을 썼습니다. 검정력의 한계를 함께 적습니다.</span></li>
 <li><span class="mk">2</span><span><b>한 시험씩 뺀 범위.</b> 셀 28의 가장 낮은 값과 가장 높은 값입니다. 전체 표는 부록에 싣습니다.</span></li>
 <li><span class="mk">3</span><span><b>기저 위험의 출처와 기간.</b> 이 두 가지가 있어야 뒤의 숫자를 다른 환자군에 옮겨 쓸 수 있습니다(셀 31).</span></li>
-<li><span class="mk">4</span><span><b>1,000명당 사건 수.</b> 셀 30의 값입니다. 이득과 위해를 같은 분모로 나란히 적습니다. 건수는 비슷하지만 사건의 무게가 달라 이 문장만으로 순이득을 판정하지 않습니다.</span></li>
+<li><span class="mk">4</span><span><b>1,000명당 사건 수.</b> 셀 30의 값입니다. 이득과 위해를 같은 분모로 나란히 적습니다. 건수는 비슷하지만 두 사건이 건강에 미치는 영향이 달라 이 문장만으로 순이득을 판정하지 않습니다.</span></li>
 </ol>
 </div></div>
 

@@ -4,8 +4,8 @@ print(&quot;상위 1% 인원      :&quot;, k1, &quot;명&quot;)
 print(&quot;뺀 환자의 최소 비용:&quot;, srt[k1 - 1])
 print(&quot;B군 평균          :&quot;, round(b.mean(), 1))
 print(&quot;상위 1%를 뺀 평균 :&quot;, round(srt[k1:].mean(), 1))
-print(&quot;상위 1%가 쓴 몫(%):&quot;, round(srt[:k1].sum() / b.sum() * 100, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>상위 1% 인원      : 18 명<span class="mk">1</span>
+print(&quot;상위 1%가 쓴 비율(%):&quot;, round(srt[:k1].sum() / b.sum() * 100, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>상위 1% 인원      : 18 명<span class="mk">1</span>
 뺀 환자의 최소 비용: 8330.6<span class="mk">2</span>
 B군 평균          : 2272.8
 상위 1%를 뺀 평균 : 2189.3<span class="mk">3</span>
-상위 1%가 쓴 몫(%): 4.6<span class="mk">4</span></pre></div></div>
+상위 1%가 쓴 비율(%): 4.6<span class="mk">4</span></pre></div></div>

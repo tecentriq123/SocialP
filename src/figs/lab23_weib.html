@@ -11,10 +11,10 @@ s_ours = np.exp(-lam_fit * grid ** gam_fit)
 print(&quot;두 식으로 구한 생존율의 최대 차이:&quot;,
       np.abs(s_ours - S[&quot;Weibull&quot;]).max())
 print(&quot;중앙값(개월):&quot;, round((np.log(2) / lam_fit) ** (1 / gam_fit), 1))
-print(&quot;관찰 기간(30개월)의 몫:&quot;,
+print(&quot;관찰 기간(30개월)의 비율:&quot;,
       round(((s_ours[:30] + s_ours[1:31]) / 2).sum()
             / ((s_ours[:-1] + s_ours[1:]) / 2).sum(), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>lifelines: lambda_ = 39.059<span class="mk">1</span>  rho_ = 1.1454<span class="mk">2</span>
 이 실습의 식: lam = 0.01502<span class="mk">3</span>  gam = 1.1454
 두 식으로 구한 생존율의 최대 차이:<span class="mk">4</span> 2.498001805406602e-16
 중앙값(개월): 28.4<span class="mk">5</span>
-관찰 기간(30개월)의 몫: 0.58<span class="mk">6</span></pre></div></div>
+관찰 기간(30개월)의 비율: 0.58<span class="mk">6</span></pre></div></div>
