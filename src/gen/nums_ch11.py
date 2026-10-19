@@ -126,7 +126,7 @@ print(f"  LR={f1['lr']:.3f} p={f1['p_lr']:.4f}  Wald={f1['wald']:.3f} p={f1['p_w
 print(f"  z^2 = {f1['z'][0] ** 2:.3f};  log-rank (survdiff) = {logrank(T, S_, G, 1)['chi2']:.3f}")
 print(f"  loglik0={f1['loglik0']:.3f} loglik={f1['loglik']:.3f}")
 print(f"  CI by hand: exp({f1['coef'][0]:.4f} +- 1.96*{f1['se'][0]:.4f}) = {np.exp(f1['coef'][0] - 1.96 * f1['se'][0]):.4f}-{np.exp(f1['coef'][0] + 1.96 * f1['se'][0]):.4f}")
-# expected drug-A deaths for candidate HRs (used in 3. '위험비를 구하는 원리')
+# expected drug-A deaths for candidate HRs (used in 2. '위험률과 위험비', folded box '위험비를 찾는 계산 과정')
 _ut = np.unique(T[S_ == 1])
 def _expA(hr):
     e = 0.0
