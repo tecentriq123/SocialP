@@ -126,6 +126,21 @@ print(f"  LR={f1['lr']:.3f} p={f1['p_lr']:.4f}  Wald={f1['wald']:.3f} p={f1['p_w
 print(f"  z^2 = {f1['z'][0] ** 2:.3f};  log-rank (survdiff) = {logrank(T, S_, G, 1)['chi2']:.3f}")
 print(f"  loglik0={f1['loglik0']:.3f} loglik={f1['loglik']:.3f}")
 print(f"  CI by hand: exp({f1['coef'][0]:.4f} +- 1.96*{f1['se'][0]:.4f}) = {np.exp(f1['coef'][0] - 1.96 * f1['se'][0]):.4f}-{np.exp(f1['coef'][0] + 1.96 * f1['se'][0]):.4f}")
+# expected drug-A deaths for candidate HRs (used in 3. '위험비를 구하는 원리')
+_ut = np.unique(T[S_ == 1])
+def _expA(hr):
+    e = 0.0
+    for t_ in _ut:
+        r_ = T >= t_
+        nA_, nB_ = (r_ & (G == 1)).sum(), (r_ & (G == 0)).sum()
+        e += ((T == t_) & (S_ == 1)).sum() * nA_ * hr / (nA_ * hr + nB_)
+    return e
+print("  expected drug-A deaths (observed", int(S_[G == 1].sum()), "):", ", ".join(f"HR {h}: {_expA(h):.2f}" for h in (1, 0.9, 0.8, 0.73, 0.7, 0.5)))
+_lo, _hi = 0.3, 1.5
+for _ in range(60):
+    _m = (_lo + _hi) / 2
+    _lo, _hi = (_lo, _m) if _expA(_m) > S_[G == 1].sum() else (_m, _hi)
+print(f"  HR solving expected = observed (Breslow score): {_m:.4f};  first death share at HR 0.73: {152 * 0.73 / (152 * 0.73 + 148):.3f}, at HR 1: {152 / 300:.3f}")
 f1b = coxph(T, S_, X[:, :1], ties="breslow")
 print(f"  Breslow: coef={f1b['coef'][0]:.5f} HR={f1b['hr'][0]:.5f} se={f1b['se'][0]:.5f} score={f1b['score']:.3f}")
 fx1 = cox_exact_1d(T, S_, X[:, 0])
