@@ -222,7 +222,7 @@ diff ± t_crit*se</code><span>t 통계량과 신뢰구간의 두 끝입니다.</
 <!--FIG:lab02_levene-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>lev_med = stats.levene(smoker, nonsmoker)</code><span>등분산 검정입니다. scipy의 기본값은 <code>center="median"</code>으로, 각 값이 자기 군의 <b>중앙값</b>에서 떨어진 거리를 비교하는 Brown–Forsythe 변형입니다(<a href="#ch04-s3">4장 c 절</a>). <code>#</code> 뒤는 실행되지 않는 설명(주석)입니다.</span></li>
+<li><code>lev_med = stats.levene(smoker, nonsmoker)</code><span>등분산 검정입니다. scipy의 기본값은 <code>center="median"</code>으로, 각 값이 자기 군의 <b>중앙값</b>에서 떨어진 거리를 비교하는 Brown–Forsythe 변형입니다(<a href="#ch04-s2">4장 b 절</a>). <code>#</code> 뒤는 실행되지 않는 설명(주석)입니다.</span></li>
 <li><code>lev_mean = stats.levene(…, center="mean")</code><span>평균에서의 거리를 쓰는 원래의 Levene 검정입니다.</span></li>
 <li><code>print(lev_med)
 print(f"median: p = {lev_med.pvalue:.3f}")</code><span>결과 객체(<code>statistic</code> = Levene의 F 값, <code>pvalue</code>)를 보고, p-value만 소수 셋째 자리로 정리합니다.</span></li>

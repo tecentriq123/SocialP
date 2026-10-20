@@ -30,7 +30,7 @@ CHAPTERS = [
     ("ch02", "p1", "두 군의 크기 비교", ["독립표본 T 검정", "Mann-Whitney test"]),
     ("ch03", "p1", "치료 전과 후의 크기 비교", ["대응표본 T 검정", "Wilcoxon signed rank test"]),
     ("ch04", "p1", "세 군 이상의 크기 비교",
-     ["독립된 세 군 이상의 크기를 비교하는 방법", "사후분석", "일원배치 분산분석", "Kruskal-Wallis test", "Jonckheere-Terpstra test"]),
+     ["독립된 세 군 이상의 크기를 비교하는 방법", "일원배치 분산분석", "사후분석", "Kruskal-Wallis test", "Jonckheere-Terpstra test"]),
     ("ch05", "p1", "비율을 비교하는 방법", ["카이제곱 검정", "Fisher의 정확한 검정", "선형 대 선형 결합"]),
     ("ch06", "p1", "연속형 변수 사이의 선형관계 추정",
      ["Pearson의 상관분석", "Spearman의 순위상관분석", "단순회귀분석", "다중회귀분석"]),
