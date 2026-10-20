@@ -219,14 +219,23 @@ def _fold_boxes(chunk):
     return ''.join(out)
 
 
-_FOLD = re.compile(r'<!--FOLD:(.*?)-->(.*?)<!--/FOLD-->', re.S)
+_FOLD = re.compile(r'<!--FOLD( do)?:(.*?)-->(.*?)<!--/FOLD-->', re.S)
+DO_TAG = '<span class="lv do">직접 분석</span>'
 
 
 def _fold_markers(src):
-    """<!--FOLD:summary text--> ... <!--/FOLD--> → a collapsed '심화' box (used to fold part of a subsection,
-    e.g. the intermediate steps of a worked example, while a short visible summary stays above)."""
-    return _FOLD.sub(lambda m: f'<details class="deep-box"><summary><span class="ds-t">{html.escape(m.group(1).strip())}</span> '
-                               f'{DEEP_TAG}</summary><div class="deep-body">{m.group(2)}</div></details>', src)
+    """<!--FOLD:summary text--> ... <!--/FOLD--> → a collapsed '심화' box (calculation principles, intermediate
+    steps of a worked example; a short visible summary stays above).
+    <!--FOLD do:summary text--> ... <!--/FOLD--> → the same collapsed box tagged '직접 분석' instead: content the
+    reader can skip on a first reading but needs when analysing their own data (variable choice, functional form,
+    missing data, what to do when an assumption fails)."""
+    def rep(m):
+        do = bool(m.group(1))
+        cls = 'deep-box do-box' if do else 'deep-box'
+        tag = DO_TAG if do else DEEP_TAG
+        return (f'<details class="{cls}"><summary><span class="ds-t">{html.escape(m.group(2).strip())}</span> '
+                f'{tag}</summary><div class="deep-body">{m.group(3)}</div></details>')
+    return _FOLD.sub(rep, src)
 
 
 def fold_deep(src):

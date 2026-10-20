@@ -180,7 +180,7 @@ for x in (12, 36, 60):
     pb.text(x, v, f"{v:.2f}", anchor="middle", dy=-9, cls="lbl small")
 panel_title(pb, "(나) 위험비와 상대위험도")
 save("ch11_hrrr", figure([pa.svg("누적 사망위험 곡선"), pb.svg("위험비와 시점별 상대위험도")],
-     f"그림 11-4. 위험비가 전 기간 {HRc:.2f}로 일정하다고 가정하고, 약물 B의 Kaplan-Meier 곡선(7장 그림 7-6)으로부터 약물 A의 곡선을 S<sub>A</sub>(t) = S<sub>B</sub>(t)<sup>{HRc:.2f}</sup>로 계산했습니다(설명용 계산). "
+     f"그림 11-3. 위험비가 전 기간 {HRc:.2f}로 일정하다고 가정하고, 약물 B의 Kaplan-Meier 곡선(7장 그림 7-6)으로부터 약물 A의 곡선을 S<sub>A</sub>(t) = S<sub>B</sub>(t)<sup>{HRc:.2f}</sup>로 계산했습니다(설명용 계산). "
      f"(가) 누적 사망위험. (나) 위험비는 일정하지만, 누적 사망위험의 비(상대위험도)는 사건이 쌓일수록 1 쪽으로 올라갑니다.", cols=2))
 
 # ======================================================================
@@ -222,7 +222,7 @@ pB_.text(np.log(2.2), -1.0, "비투명세포", anchor="middle", dy=-10, cls="lbl
 pB_.text(np.log(3.2), -2.9, "투명세포", anchor="start", dy=16, cls="lbl strong small")
 pB_.text(np.log(0.6), 0.7, "초반 간격이 크고 뒤로 갈수록 좁아짐", cls="lbl small")
 save("ch11_lml", figure([pA_.svg("약물별 로그-로그 생존 그림"), pB_.svg("조직형별 로그-로그 생존 그림")],
-     "그림 11-6. 로그-로그 생존 그림: x축은 로그 시간, y축은 각 군 Kaplan-Meier 추정값의 log(−log S(t))입니다. 비례위험이 성립하면 두 선의 세로 간격이 log(HR)로 일정합니다. "
+     "그림 11-5. 로그-로그 생존 그림. x축은 로그 시간, y축은 각 군 Kaplan-Meier 추정값의 log(−log S(t))입니다. 비례위험이 성립하면 두 선의 세로 간격이 log(HR)로 일정합니다. "
      "(가) 두 선의 간격이 시간에 따라 한 방향으로 넓어지거나 좁아지는지 보세요. (나) 비투명세포와 투명세포의 선은 오른쪽으로 갈수록 가까워집니다.", cols=2))
 
 # ======================================================================
@@ -259,7 +259,7 @@ for j, nm_, title, yl, yt in ((0, "drug", "(가) 약물 A", (-4, 4), [-4, -2, 0,
     panel_title(pl, title)
     panels.append(pl.svg(title))
 save("ch11_schoen", figure(panels,
-     "그림 11-7. 다변수 모형의 척도화 Schoenfeld 잔차(점: 사망 한 건당 하나)와 평활선. 세로축은 그 시점의 계수 β(t)를 추정한 값으로 읽고, 점선은 모형이 추정한 하나의 β̂입니다. "
+     "그림 11-6. 다변수 모형의 척도화 Schoenfeld 잔차(점: 사망 한 건당 하나)와 평활선. 세로축은 그 시점의 계수 β(t)를 추정한 값으로 읽고, 점선은 모형이 추정한 하나의 β̂입니다. "
      "가로축은 사망 시점을 전체 환자의 Kaplan-Meier 척도(1 − S(t))로 바꿔 사망이 고르게 퍼지게 했습니다. 오른쪽 위의 검정은 이 가로축(km 변환)을 쓴 비례위험 검정입니다. "
      "(가) 약물 변수의 평활선이 점선(β̂) 주위에서 한 방향으로 기울어지는지 보세요. (나) 조직형의 평활선은 초반에 점선보다 높고 뒤로 갈수록 0 근처로 내려옵니다. 그림 밖으로 나가는 점은 가장자리에 붙여 표시했습니다.", cols=2))
 
@@ -311,7 +311,7 @@ pan2 = tv_panel("(나) 곡선이 교차하는 시험 (7장 그림 7-9 (나))", 4
                  (47, np.log(fc["hr"][0]), f"비례위험 가정 {fc['hr'][0]:.2f}", "end", -6),
                  (30, ftc["coef"][0] + ftc["coef"][-1] * np.log(30), "log t 교호작용", "middle", 18)])
 save("ch11_tvhr", figure([pan1, pan2],
-     "그림 11-8. 시간에 따라 변하는 위험비를 추정한 두 가지 방법. 파란 계단과 음영은 추적 기간을 나눠 구간마다 따로 추정한 위험비와 95% 신뢰구간, 주황 곡선은 공변량 × log(t) 교호작용 항으로 추정한 연속적인 위험비, 회색 점선은 비례위험을 가정한 하나의 위험비입니다. "
+     "그림 11-7. 시간에 따라 변하는 위험비를 추정한 두 가지 방법. 파란 계단과 음영은 추적 기간을 나눠 구간마다 따로 추정한 위험비와 95% 신뢰구간, 주황 곡선은 공변량 × log(t) 교호작용 항으로 추정한 연속적인 위험비, 회색 점선은 비례위험을 가정한 하나의 위험비입니다. "
      "(가) 조직형은 첫 1년에는 위험을 높이고, 12개월 이후에는 위험을 높인다는 근거가 없습니다. (나) 7장의 가상 시험에서 치료 X의 위험비는 처음 4개월에는 1보다 크지만 신뢰구간이 1을 포함하고, 그 뒤로는 1보다 작습니다. 두 경우 모두 하나의 위험비는 서로 다른 시기를 섞은 평균입니다.", cols=2))
 
 # ======================================================================
@@ -331,7 +331,7 @@ p.text(86, -3.3, "중도절단 환자: 0 − 누적위험 (항상 음수)", anch
 i45 = np.argmin(np.abs(xs_ - 45)); i75 = np.argmin(np.abs(xs_ - 75))
 p.text(40, -0.5, "평활선 (LOWESS)", cls="lbl strong small")
 save("ch11_mart", figure(p.svg("나이에 따른 마팅게일 잔차"),
-     "그림 11-9. 나이를 뺀 모형의 마팅게일 잔차를 나이에 대해 그린 그림. 채운 점은 사망, 빈 원은 중도절단 환자입니다. 평활선의 모양이 나이가 로그 위험률에 들어가야 할 모양을 대략 보여 줍니다. "
+     "그림 11-8. 나이를 뺀 모형의 마팅게일 잔차를 나이에 대해 그린 그림. 채운 점은 사망, 빈 원은 중도절단 환자입니다. 평활선의 모양이 나이가 로그 위험률에 들어가야 할 모양을 대략 보여 줍니다. "
      "45세 −0.69에서 65세 +0.05까지는 거의 직선으로 오르고 75세 이후에는 평평해집니다. 끝부분은 환자가 적어 불확실하므로 제곱항이나 스플라인을 넣은 모형과 비교해 판단합니다."))
 
 # ======================================================================
@@ -374,7 +374,7 @@ mark(pb, 42, 0.155, 4, dy=-4)
 mark(pb, 24, adj[1][i24], 5, dx=0, dy=-16)
 mark_px(pb, 6 + 250, Bq + 56, 6)
 save("ch11_paperadj", figure([pa.svg("보정하지 않은 Kaplan-Meier 곡선"), pb.svg("표준화한 보정 생존곡선")],
-     "그림 11-5. 학술지 형식의 그림(가상의 예시). 원문 범례: “Figure 2. Overall survival according to first-line treatment. (A) Kaplan–Meier estimates; the hazard ratio was estimated with a univariable Cox model and the P value with the log-rank test. "
+     "그림 11-4. 학술지 형식의 그림(가상의 예시). 원문 범례: “Figure 2. Overall survival according to first-line treatment. (A) Kaplan–Meier estimates; the hazard ratio was estimated with a univariable Cox model and the P value with the log-rank test. "
      "(B) Survival curves standardized to the covariate distribution of the whole cohort, based on the multivariable Cox model (age, sex, IMDC risk group, prior nephrectomy, and histologic type).”", cols=2))
 
 # ======================================================================
@@ -406,7 +406,7 @@ import re as _re
 _h = int(_re.search(r'viewBox="0 0 640 (\d+)"', svg).group(1))
 svg = svg.replace(f'viewBox="0 0 640 {_h}"', f'viewBox="0 0 640 {_h + 20}"')
 svg = svg.replace(f'y="{_h - 10}" text-anchor="middle" class="axlab"', f'y="{_h + 10}" text-anchor="middle" class="axlab"')
-save("ch11_forest", figure(svg, "그림 11-2. 하위군별 위험비(가상의 예시). 각 하위군 안에서 다른 공변량을 보정한 약물 A 대 약물 B의 위험비와 95% 신뢰구간이며, 괄호 안은 환자 수/사망 수입니다. 네모의 크기는 모두 같게 그렸습니다."))
+save("ch11_forest", figure(svg, "그림 11-9. 하위군별 위험비(가상의 예시). 각 하위군 안에서 다른 공변량을 보정한 약물 A 대 약물 B의 위험비와 95% 신뢰구간이며, 괄호 안은 환자 수/사망 수입니다. 네모의 크기는 모두 같게 그렸습니다."))
 print("figures written")
 
 # ======================================================================
@@ -430,6 +430,6 @@ p.text(186, lin_[-1], "직선으로 넣은 모형", anchor="end", dy=18, cls="lb
 p.text(160, est_[np.argmin(np.abs(gx - 160))], "스플라인", anchor="end", dx=-8, dy=-8, cls="lbl strong small")
 p.text(94, tru_[0], "실제 관계", anchor="start", dy=-10, cls="lbl small")
 save("ch11_bpcurve", figure(p.svg("수축기 혈압에 따른 사망 위험비"),
-     "그림 11-3. 수축기 혈압과 사망 위험의 관계(가상의 예시, 3,000명). 120 mmHg 대비 위험비를 로그 눈금으로 그렸습니다. 회색 점선은 자료를 만들 때 쓴 실제 관계, "
+     "그림 11-2. 수축기 혈압과 사망 위험의 관계(가상의 예시, 3,000명). 120 mmHg 대비 위험비를 로그 눈금으로 그렸습니다. 회색 점선은 자료를 만들 때 쓴 실제 관계, "
      "주황 직선은 혈압을 직선으로 넣은 모형(10 mmHg당 1.14배), 파란 곡선과 음영은 매듭 4개(▲)의 제한 삼차 스플라인 모형의 추정값과 95% 신뢰구간입니다. "
      "직선 모형은 100 mmHg의 위험을 0.76배로 낮게, 180 mmHg의 위험을 2.24배로 실제보다 낮게 그립니다."))

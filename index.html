@@ -527,6 +527,8 @@ details.deep-sec > .deep-body { padding: 0 18px 10px; }
 details.deep-sec > .deep-body > :first-child { margin-top: 6px; }
 details.deep-box > :not(summary) { margin: 0 14px 14px; }
 details.deep-box > .deep-body { margin: 0; padding: 0 18px 8px; }
+details.deep-box.do-box { border-left-color: var(--note); }   /* 직접 분석: 내 자료를 분석할 때 펼치는 접힌 상자 */
+details.deep-box.do-box > summary::before { border-color: var(--note); }
 details.deep-box > .deep-body > :first-child { margin-top: 4px; }
 details.lines-box > summary:hover { color: var(--accent-ink); }
 details.lines-box > summary .cnt { font-weight: 400; font-size: 12.5px; color: var(--muted); }
@@ -704,7 +706,7 @@ function typesetNow() {
       <div class="parts">${cards}</div>
       <div class="home-how">
         <div><h3>과목 구성</h3><p>과목마다 이론 장과 파이썬 실습이 있습니다. '보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있습니다.</p></div>
-        <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 논문을 읽는 데 필요한 부분과 직접 분석할 때 읽을 부분을 나눠 알려 줍니다. '심화' 표시가 붙은 부분은 접혀 있어서, 필요할 때 눌러서 펼쳐 봅니다.</p></div>
+        <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 논문을 읽는 데 필요한 부분과 직접 분석할 때 읽을 부분을 나눠 알려 줍니다. 접힌 상자 가운데 '직접 분석' 표시는 내 자료를 분석할 때 꼭 펼쳐 볼 내용이고, '심화' 표시는 계산 원리가 궁금할 때 펼쳐 볼 내용입니다.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>
     </div>`;
@@ -749,7 +751,7 @@ function typesetNow() {
         <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>${esc(COURSE.title)}</span></p>
         <h1>${esc(COURSE.title)}</h1>
         <p>논문을 읽는 데 필요한 통계(PART 1–2), 청구자료 연구의 설계와 편향(PART 3), 약물경제성 평가(PART 4), 파이썬 실습(PART 5)으로 이루어져 있습니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
-        <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. <span class="lv deep">심화</span> 표시가 붙은 부분은 접혀 있습니다. 처음 읽을 때는 건너뛰고, 필요할 때 눌러서 펼쳐 보세요.</p>
+        <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. 접힌 상자는 처음 읽을 때 건너뛰어도 됩니다. <span class="lv do">직접 분석</span> 표시는 내 자료를 분석할 때 꼭 펼쳐 볼 내용이고, <span class="lv deep">심화</span> 표시는 계산 원리가 궁금할 때 펼쳐 볼 내용입니다.</p>
       </header>
       <div class="start-grid">
         <section class="start-card">
@@ -764,7 +766,7 @@ function typesetNow() {
             <div><dt>메타분석</dt><dd>${L("ch19", "19")}</dd></div>
             <div><dt>약물경제성 평가</dt><dd>${L("ch20", "20")} → ${L("ch21", "21")} → ${L("ch22", "22")} → ${L("ch23", "23")} → ${L("ch24", "24")} → ${L("ch25", "25")} (0장과 7장 a·b 절을 읽었다면 바로 시작할 수 있습니다)</dd></div>
           </dl>
-          <p class="path-note">접힌 '심화' 부분과, 확인 문제 가운데 <span class="lv do">직접 분석</span>·<span class="lv deep">심화</span> 표시가 붙은 문제는 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 실습(PART 5)은 직접 분석할 때 짝이 되는 장과 함께 합니다.</p>
+          <p class="path-note">접힌 상자와, 확인 문제 가운데 <span class="lv do">직접 분석</span>·<span class="lv deep">심화</span> 표시가 붙은 문제는 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 실습(PART 5)은 직접 분석할 때 짝이 되는 장과 함께 합니다.</p>
         </section>
         <section class="start-card">
           <h2>논문에서 먼저 찾을 다섯 가지</h2>
