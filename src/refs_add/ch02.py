@@ -16,4 +16,5 @@ ADD = {
     "bamber1975": {"text": "Bamber D. The area above the ordinal dominance graph and the area below the receiver operating characteristic graph. <i>J Math Psychol</i>. 1975;12(4):387-415.", "doi": "10.1016/0022-2496(75)90001-2"},
     "hanley1982": {"text": "Hanley JA, McNeil BJ. The meaning and use of the area under a receiver operating characteristic (ROC) curve. <i>Radiology</i>. 1982;143(1):29-36.", "doi": "10.1148/radiology.143.1.7063747"},
     "fay2010": {"text": "Fay MP, Proschan MA. Wilcoxon-Mann-Whitney or t-test? On assumptions for hypothesis tests and multiple interpretations of decision rules. <i>Stat Surv</i>. 2010;4:1-39.", "doi": "10.1214/09-SS051"},
+    "rochon2012": {"text": "Rochon J, Gondan M, Kieser M. To test or not to test: preliminary assessment of normality when comparing two independent samples. <i>BMC Med Res Methodol</i>. 2012;12:81.", "doi": "10.1186/1471-2288-12-81"},  # 1장 h 절
 }
