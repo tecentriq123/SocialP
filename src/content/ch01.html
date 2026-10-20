@@ -1240,11 +1240,11 @@ print(res.confidence_interval)    <span class="cm"># 평균 차이의 95% CI</sp
 <!--FOLD do:프로그램은 Mann-Whitney의 p를 어떻게 계산하나?-->
 <p>같은 7명씩의 자료에서도 p를 구하는 방법이 세 가지이고, 값이 조금씩 다릅니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
-<thead><tr><th>p를 구하는 방법</th><th>scipy에서 지정</th><th class="r">p</th></tr></thead>
+<thead><tr><th>p를 구하는<br>방법</th><th>scipy에서<br>지정</th><th class="r">p</th></tr></thead>
 <tbody>
 <tr class="hi"><td>정규근사 (동점 보정과 연속성 보정)</td><td>기본값 <code>method='auto'</code>가 이 자료에서 고름</td><td class="r">0.030</td></tr>
 <tr><td>정확 분포 (동점은 없다고 봄)</td><td><code>method='exact'</code></td><td class="r">0.026</td></tr>
-<tr><td>정규근사, 연속성 보정 없음</td><td><code>method='asymptotic'</code><br><code>use_continuity=False</code></td><td class="r">0.025</td></tr>
+<tr><td>정규근사, 연속성 보정 없음</td><td><code>method=<wbr>'asymptotic'</code><br><code>use_continuity=<wbr>False</code></td><td class="r">0.025</td></tr>
 </tbody></table></div>
 <p>정확 검정은 순위를 두 군에 나누는 모든 경우를 세어 p를 구합니다. 표본이 크면 경우의 수가 너무 많으므로 순위합의 분포를 정규분포로 어림하는데, 이것이 정규근사입니다. scipy의 <code>mannwhitneyu</code>는 기본값 <code>method='auto'</code>에서 두 군 가운데 한쪽이 8명 이하이고 같은 값(동점)이 없을 때만 정확 검정을 씁니다. 이 자료는 A군에 3일이 두 명 있어 동점이 있으므로 정규근사로 계산합니다. <code>method='exact'</code>를 지정하면 동점이 없다고 보고 만든 분포로 계산하므로, 이 자료에서는 엄밀한 정확 검정이 아닙니다. 동점의 평균 순위를 그대로 두고 모든 경우를 세면 p = 0.024입니다(<code>method=stats.PermutationMethod()</code>).</p>
 <p>SPSS는 정규근사 p(Asymp. Sig.)와, 표본이 작으면 정확 검정 p(Exact Sig.)를 함께 출력합니다(버전에 따라 다를 수 있음). 그래서 같은 자료로 계산한 p가 논문마다 0.026과 0.030처럼 다를 수 있으므로, 논문에는 p를 어느 방법으로 구했는지 씁니다. 동점 보정과 연속성 보정의 계산은 <a href="#ch02-s2">2장 b 절</a>에서 봅니다.</p>

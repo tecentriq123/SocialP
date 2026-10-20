@@ -787,13 +787,13 @@ F = 450 ÷ 154.2 = 2.92</p>
 <!--FOLD do:파이썬에서는 방법마다 무엇을 지정하나?-->
 <p>사후분석 함수는 넣어 준 군으로 쌍별 차이와 보정한 신뢰구간, 보정한 P를 계산합니다. 어떤 비교 묶음을 지킬지와 어떤 보정을 쓸지는 분석하는 사람이 함수와 인자로 정합니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
-<thead><tr><th>방법</th><th>함수</th><th>내가 정하거나 확인할 것</th></tr></thead>
+<thead><tr><th>방법과 함수</th><th>내가 정하거나<br>확인할 것</th></tr></thead>
 <tbody>
-<tr><td>Tukey</td><td>scipy <code>tukey_hsd()</code></td><td>늘 모든 쌍을 비교함. 출력의 0, 1, 2는 넣은 순서이고, statsmodels의 <code>pairwise_tukeyhsd()</code>는 군 이름의 알파벳순으로 정렬함</td></tr>
-<tr><td>Dunnett</td><td>scipy <code>dunnett()</code></td><td>대조군을 <code>control=</code>에 넣음. 실행마다 끝자리가 달라지므로 <code>rng=</code>로 난수 시드를 지정함</td></tr>
-<tr><td>Games-Howell</td><td>scipy <code>tukey_hsd()</code></td><td><code>equal_var=False</code>를 넣음(scipy 1.16 이상). 빼면 Tukey가 됨. statsmodels 0.15 이상의 <code>pairwise_tukeyhsd()</code>는 <code>use_var="unequal"</code></td></tr>
-<tr><td>Bonferroni·Holm</td><td>statsmodels <code>t_test_pairwise()</code></td><td>기본값이 Holm이 아니라 Holm-Šidák이므로 <code>method="holm"</code>을 넣음</td></tr>
-<tr><td>Dunn</td><td>scipy·statsmodels에 없음</td><td>d 절에서 계산함</td></tr>
+<tr><td>Tukey<br>scipy <code>tukey_hsd()</code></td><td>늘 모든 쌍을 비교함. 출력의 0, 1, 2는 넣은 순서이고, statsmodels의 <code>pairwise_<wbr>tukeyhsd()</code>는 군 이름의 알파벳순으로 정렬함</td></tr>
+<tr><td>Dunnett<br>scipy <code>dunnett()</code></td><td>대조군을 <code>control=</code>에 넣음. 실행마다 끝자리가 달라지므로 <code>rng=</code>로 난수 시드를 지정함</td></tr>
+<tr><td>Games-Howell<br>scipy <code>tukey_hsd()</code></td><td><code>equal_var=False</code>를 넣음(scipy 1.16 이상). 빼면 Tukey가 됨. statsmodels 0.15 이상의 <code>pairwise_<wbr>tukeyhsd()</code>는 <code>use_var="unequal"</code></td></tr>
+<tr><td>Bonferroni·Holm<br>statsmodels <code>t_test_<wbr>pairwise()</code></td><td>기본값이 Holm이 아니라 Holm-Šidák이므로 <code>method="holm"</code>을 넣음</td></tr>
+<tr><td>Dunn<br>scipy·statsmodels에 없음</td><td>d 절에서 계산함</td></tr>
 </tbody></table></div>
 <p>Tukey의 실행과 출력은 '결과 읽기'의 접힌 상자 'scipy의 tukey_hsd() 출력은 어떻게 읽나?'에 있습니다. 나머지 방법은 다음과 같이 실행합니다.</p>
 <ul>
