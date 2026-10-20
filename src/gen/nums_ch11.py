@@ -712,3 +712,17 @@ ids, a, b, ev, ep = survsplit(T, S_, [12])
 fsplit = coxph(b, ev, X[ids], entry=a)
 print(f"  split data without time interaction reproduces the fit: {np.allclose(fsplit['coef'], fm['coef'], atol=1e-8)}")
 print("  counting-process gradient check", num_grad_check(fsplit))
+
+print("=" * 72, "\nBP. hypothetical blood-pressure example (straight line vs restricted cubic spline)")
+from lib_ch11 import bp_demo, bp_curve, bp_true_loghr
+_bp = bp_demo()
+_fl, _fr = _bp["f_lin"], _bp["f_rcs"]
+print(f"  n {len(_bp['sbp'])}, deaths {int(_bp['status'].sum())}, knots {np.round(_bp['knots'], 1)}")
+print(f"  linear: HR per 10 mmHg {_fl['hr'][0]:.3f} ({_fl['lo'][0]:.3f}-{np.exp(_fl['coef'][0] + Z * _fl['se'][0]):.3f})")
+_lr = 2 * (_fr["loglik"] - _fl["loglik"])
+print(f"  nonlinearity LR chi2 = {_lr:.2f}, df {_fr['coef'].size - 1}, p = {st.chi2.sf(_lr, _fr['coef'].size - 1):.2e}")
+_g = np.array([100, 110, 120, 130, 140, 150, 160, 170, 180])
+_e, _lo, _hi, _li = bp_curve(_bp, _g)
+for x, e_, l_, h_, li_ in zip(_g, _e, _lo, _hi, _li):
+    print(f"  SBP {x}: spline HR {np.exp(e_):.2f} ({np.exp(l_):.2f}-{np.exp(h_):.2f}), linear {np.exp(li_):.2f}, "
+          f"true {np.exp(bp_true_loghr(x) - bp_true_loghr(120)):.2f}")

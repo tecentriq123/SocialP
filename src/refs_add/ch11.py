@@ -30,4 +30,6 @@ ADD = {
                    "doi": "10.1097/EDE.0b013e3181c1ea43"},
     "therneau2000": {"text": "Therneau TM, Grambsch PM. <i>Modeling Survival Data: Extending the Cox Model</i>. New York: Springer; 2000.", "book": True},
     "kleinbaum2012": {"text": "Kleinbaum DG, Klein M. <i>Survival Analysis: A Self-Learning Text</i>. 3rd ed. New York: Springer; 2012.", "book": True},
+    "white2009": {"text": "White IR, Royston P. Imputing missing covariate values for the Cox model. <i>Stat Med</i>. 2009;28(15):1982-1998.",
+                  "doi": "10.1002/sim.3618", "append": True},
 }

@@ -582,3 +582,47 @@ def design(D, cols=("drug", "age10", "male", "imdc1", "imdc2", "neph", "ncc")):
              imdc1=(D["imdc"] == 1).astype(int), imdc2=(D["imdc"] == 2).astype(int),
              neph=D["neph"], ncc=D["ncc"])
     return np.column_stack([m[c] for c in cols]).astype(float), list(cols)
+
+
+# ----------------------------------------------------------------------------------------------
+# Hypothetical blood-pressure example (chapter 11, '다른 변수를 보정하면' branch on curved effects)
+def rcs_basis(x, knots):
+    """Restricted cubic spline basis (Harrell): x itself plus k-2 nonlinear terms."""
+    x = np.asarray(x, float); t = np.asarray(knots, float); k = len(t)
+    pos = lambda u: np.where(u > 0, u, 0.0) ** 3
+    cols = [x]
+    for j in range(k - 2):
+        cols.append((pos(x - t[j]) - pos(x - t[k - 2]) * (t[k - 1] - t[j]) / (t[k - 1] - t[k - 2])
+                     + pos(x - t[k - 1]) * (t[k - 2] - t[j]) / (t[k - 1] - t[k - 2])) / (t[k - 1] - t[0]) ** 2)
+    return np.column_stack(cols)
+
+
+def bp_true_loghr(sbp):
+    """J-shaped true log hazard ratio relative to 128 mmHg."""
+    u = np.asarray(sbp, float) - 128.0
+    return 0.00035 * u ** 2 + 0.004 * u
+
+
+def bp_demo(n=3000, seed=11):
+    """Simulated cohort: SBP ~ N(135, 20), exponential baseline hazard 0.08/yr, J-shaped SBP effect,
+    administrative censoring at 5 years plus random loss. Fits Cox with SBP linear (per 10 mmHg) and with a
+    4-knot restricted cubic spline (knots at the 5th, 35th, 65th, 95th percentiles)."""
+    rng = np.random.default_rng(seed)
+    sbp = np.clip(rng.normal(135, 20, n), 85, 205)
+    lam = 0.08 * np.exp(bp_true_loghr(sbp))
+    t_ev = rng.exponential(1 / lam)
+    t_cen = np.minimum(5.0, rng.exponential(1 / 0.03, n))
+    time = np.minimum(t_ev, t_cen); status = (t_ev <= t_cen).astype(int)
+    knots = np.percentile(sbp, [5, 35, 65, 95])
+    f_lin = coxph(time, status, (sbp / 10)[:, None])
+    f_rcs = coxph(time, status, rcs_basis(sbp, knots))
+    return dict(sbp=sbp, time=time, status=status, knots=knots, f_lin=f_lin, f_rcs=f_rcs)
+
+
+def bp_curve(demo, grid, ref=120.0):
+    """log HR (vs ref) and 95% CI from the spline fit; log HR from the linear fit."""
+    B = rcs_basis(grid, demo["knots"]) - rcs_basis([ref], demo["knots"])
+    b, V = demo["f_rcs"]["coef"], demo["f_rcs"]["var"]
+    est = B @ b; se = np.sqrt(np.einsum("ij,jk,ik->i", B, V, B))
+    lin = demo["f_lin"]["coef"][0] * (np.asarray(grid) - ref) / 10
+    return est, est - Z * se, est + Z * se, lin

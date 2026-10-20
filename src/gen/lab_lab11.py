@@ -241,14 +241,17 @@ plt.tight_layout()
 save("lab11_forest", c)
 
 c = nb.cell('''
-for name, f in [("bili", "bili"), ("log2_bili", "log2_bili")]:
+for name, f in [("bili", "bili"), ("log2_bili", "log2_bili"),
+                ("spline", "bs(bili, df=4)")]:
     m = CoxPHFitter().fit(df, "years", "death",
         formula=f"dpca + age10 + female + {f} + albumin"
                 " + C(edema) + protime")
     print(f"{name:<10} partial AIC = {m.AIC_partial_:.1f}"
-          f"  C = {m.concordance_index_:.3f}")
-''', title="빌리루빈을 로그로 넣은 이유 확인")
-save("lab11_aic", c, marks={"bili       partial AIC = 1124.7": 1, "log2_bili  partial AIC = 1094.3": 2})
+          f"  C = {m.concordance_index_:.3f}"
+          f"  dpca HR = {np.exp(m.params_['dpca']):.3f}")
+''', title="빌리루빈을 어떤 형태로 넣을지 비교")
+save("lab11_aic", c, marks={"bili       partial AIC = 1124.7": 1, "log2_bili  partial AIC = 1094.3": 2,
+                            "spline     partial AIC = 1103.0": 3})
 
 # ---------------------------------------------------------------- c. 비례위험 가정 점검
 c = nb.cell('''
@@ -505,7 +508,7 @@ if __name__ == "__main__":
              5: "사건, 시간, 치료 변수 만들기", 6: "결측값 확인과 분석용 자료 만들기", 8: "치료만 넣은 Cox 모형 (단변수)",
              9: "단변수 Cox 모형과 로그순위 검정 비교", 10: "다변수 Cox 모형 (formula 사용)",
              11: "결측값이 있는 변수를 formula에 넣으면", 13: "위험비와 누적위험의 비(상대위험도)는 다르다",
-             14: "논문용 위험비 표 만들기", 16: "빌리루빈을 로그로 넣은 이유 확인", 17: "비례위험 검정 (척도화 Schoenfeld 잔차)",
+             14: "논문용 위험비 표 만들기", 16: "빌리루빈을 어떤 형태로 넣을지 비교", 17: "비례위험 검정 (척도화 Schoenfeld 잔차)",
              19: "척도화 Schoenfeld 잔차 그림", 21: "추적 기간을 3년에서 나눈 긴 자료 만들기",
              22: "기간별 위험비 (시간과의 교호작용)", 23: "부종 범주별 예측 생존곡선 (나머지 변수는 중앙값)",
              24: "직접 표준화한 보정 생존곡선", 25: "부종으로 층화한 Cox 모형", 26: "세 모형의 치료 효과 비교"}
