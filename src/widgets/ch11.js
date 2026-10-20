@@ -3,7 +3,7 @@ window.EXTRA_WIDGETS["ch11_hrrr"] = function (el, H) {
   let hr = 0.73, k = 1.0, med = 20, tq = 36;
   const shapes = [[0.6, "감소 (k = 0.6)"], [1.0, "일정 (k = 1)"], [1.6, "증가 (k = 1.6)"]];
   el.innerHTML = `<p class="wt">직접 바꿔 보기 <span class="pill">계산기</span></p>
-    <p class="wd">대조군(약물 B)의 생존시간이 Weibull 분포를 따르고, 위험비가 전 기간 일정하다고(비례위험) 가정합니다. 이때 치료군의 생존곡선은 S<sub>A</sub>(t) = S<sub>B</sub>(t)<sup>HR</sup>입니다. 위험비, 대조군 위험률의 모양, 대조군 중앙생존기간, 비교 시점을 바꿔 가며 같은 위험비가 시점별 누적 사망위험의 비(상대위험도)와 중앙생존기간의 비로 어떻게 바뀌는지 봅니다.</p>
+    <p class="wd">대조군의 생존시간이 Weibull 분포를 따르고, 위험비가 전 기간 일정하다고(비례위험) 가정합니다. 이때 치료군의 생존곡선은 S<sub>A</sub>(t) = S<sub>B</sub>(t)<sup>HR</sup>입니다. 위험비, 대조군 위험률의 모양, 대조군 중앙생존기간, 비교 시점을 바꿔 가며 같은 위험비가 시점별 누적 사망위험의 비(상대위험도)와 중앙생존기간의 비로 어떻게 바뀌는지 봅니다.</p>
     <div class="wrow"><label for="w11hr">위험비 HR = <b id="w11hrv"></b></label><input id="w11hr" type="range" min="-1.2" max="1.2" step="0.01" value="${Math.log(hr).toFixed(2)}"></div>
     <div class="wrow"><span>대조군 위험률의 모양</span><div class="seg" role="group" aria-label="대조군 위험률의 모양">${shapes.map(([v, lab]) => `<button type="button" data-k="${v}" aria-pressed="${v === k}">${lab}</button>`).join("")}</div></div>
     <div class="wrow"><label for="w11m">대조군 중앙생존기간 = <b id="w11mv"></b>개월</label><input id="w11m" type="range" min="6" max="60" step="1" value="${med}"></div>
@@ -39,8 +39,8 @@ window.EXTRA_WIDGETS["ch11_hrrr"] = function (el, H) {
     const s0t = S0(tq, b), s1t = Math.pow(s0t, hr), r0 = 1 - s0t, r1 = 1 - s1t;
     s += `<line x1="${sx(tq)}" y1="${sy(0)}" x2="${sx(tq)}" y2="${sy(1)}" class="ref" stroke-dasharray="4 4"/>`;
     s += `<circle cx="${sx(tq)}" cy="${sy(r0)}" r="4.5" class="pt f2"/><circle cx="${sx(tq)}" cy="${sy(r1)}" r="4.5" class="pt f1"/>`;
-    s += `<line x1="${L + 14}" y1="${Tp + 10}" x2="${L + 36}" y2="${Tp + 10}" class="ln s2" stroke-width="2.4"/><text x="${L + 42}" y="${Tp + 14}" class="lbl">대조군 (약물 B)</text>`;
-    s += `<line x1="${L + 14}" y1="${Tp + 30}" x2="${L + 36}" y2="${Tp + 30}" class="ln s1" stroke-width="2.4"/><text x="${L + 42}" y="${Tp + 34}" class="lbl">치료군 (약물 A)</text>`;
+    s += `<line x1="${L + 14}" y1="${Tp + 10}" x2="${L + 36}" y2="${Tp + 10}" class="ln s2" stroke-width="2.4"/><text x="${L + 42}" y="${Tp + 14}" class="lbl">대조군</text>`;
+    s += `<line x1="${L + 14}" y1="${Tp + 30}" x2="${L + 36}" y2="${Tp + 30}" class="ln s1" stroke-width="2.4"/><text x="${L + 42}" y="${Tp + 34}" class="lbl">치료군</text>`;
     el.querySelector("#w11chart").innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" class="viz" role="img" aria-label="두 군의 누적 사망위험 곡선">${s}</svg>`;
     const rr = r1 / r0, mr = Math.pow(hr, -1 / k);
     el.querySelector("#w11hrv").textContent = H.fmt(hr, 2);
