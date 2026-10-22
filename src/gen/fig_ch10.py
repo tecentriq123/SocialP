@@ -183,7 +183,7 @@ for kind, lab, s, off in series:
 p.legend(leg, X=p.sx(0.55), Y=p.sy(0.64), gap=17)
 p.text(3, 1.0, "시점 사이 간격: 3, 3, 6, 6, 9, 12개월", anchor="middle", dy=12, cls="lbl mute small")
 save("ch10_corr", figure(p.svg("공분산 구조별 시점 간 상관"),
-     "그림 10-5. 같은 자료(100명, 네 시점)에 네 가지 공분산 구조를 적합했을 때 모형이 가정하는 시점 간 상관. "
+     "그림 10-7. 같은 자료(100명, 네 시점)에 네 가지 공분산 구조를 적합했을 때 모형이 가정하는 시점 간 상관. "
      "구조마다 시점 쌍별 상관이 얼마나 다른지 보고, 특히 3개월 간격인 0–3과 6개월 간격인 6–12를 같은 상관으로 보는 구조가 어느 것인지 봅니다."))
 
 # ------------------------------------------------------------------ 10-6 usual-care means: observed vs full vs MAR-based model
@@ -206,7 +206,7 @@ for j in (1, 2, 3):
 p.legend([("탈락자까지 모두 측정했다면 (실제로는 알 수 없음)", 4, "dash"), ("혼합모형 추정 (MAR 가정, 100명)", 3, "line"),
           ("관측된 사람만의 평균", 2, "line")], X=p.sx(-0.5), Y=p.sy(8.05), gap=17)
 save("ch10_missing", figure(p.svg("탈락이 관측 평균에 미치는 영향"),
-     "그림 10-6. 통상치료군의 시점별 평균 HbA1c. 이 예제는 모의자료라서 탈락자까지 모두 측정했을 때의 값(회색 점선)을 알 수 있습니다. "
+     "그림 10-5. 통상치료군의 시점별 평균 HbA1c. 이 예제는 모의자료라서 탈락자까지 모두 측정했을 때의 값(회색 점선)을 알 수 있습니다. "
      "남은 사람만의 평균(주황)이 회색 점선에서 시간이 지날수록 얼마나 멀어지는지, 혼합모형의 추정(초록, 숫자)이 어느 쪽에 가까운지 봅니다."))
 
 # ------------------------------------------------------------------ 10-7 month-12 difference by method
@@ -228,7 +228,7 @@ for r_, (key, lab, s) in enumerate(rows):
     p.text_px(8, p.sy(yv) + 4.5, lab, cls="lbl")
     p.text_px(p.w - 6, p.sy(yv) + 4.5, f"{c['est']:.2f} ({c['lo']:.2f} to {c['hi']:.2f})".replace("-", "−"), anchor="end", cls="lbl num small")
 save("ch10_methods", figure(p.svg("방법별 12개월 군간 차이"),
-     "그림 10-7. 같은 예제 자료를 결측 처리 방법만 바꿔 분석한 12개월 HbA1c 변화량의 군간 차이(중재군 − 통상치료군). "
+     "그림 10-6. 같은 예제 자료를 결측 처리 방법만 바꿔 분석한 12개월 HbA1c 변화량의 군간 차이(중재군 − 통상치료군). "
      "*맨 위 줄은 모의자료라서 가능한 기준값입니다. 각 줄의 점이 참값 점선에서 얼마나 떨어져 있는지와 막대가 0을 넘는지 봅니다."))
 
 # ------------------------------------------------------------------ 10-8 conditional vs marginal (GLMM estimates, 3-month visit)
@@ -262,6 +262,17 @@ save("ch10_margcond", figure(p.svg("조건부 오즈비와 주변 오즈비"),
 # ------------------------------------------------------------------ 10-9 OR forest by method
 ge = E["gee"]
 nl = E["naive_logit"]
+# AR(1) 줄은 본문 표와 같게 statsmodels 0.15의 기본 추정(α 0.33)으로 구합니다.
+import warnings
+import statsmodels.api as sm
+from statsmodels.genmod.generalized_estimating_equations import GEE
+from nums_ch10 import long_adh
+_A = long_adh(E["D"])
+_Xa = np.column_stack([np.ones(len(_A)), _A[:, 1], _A[:, 2] == 1, _A[:, 2] == 2]).astype(float)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    _ar1 = GEE(_A[:, 3], _Xa, groups=_A[:, 0], time=_A[:, 2].astype(int), family=sm.families.Binomial(),
+               cov_struct=sm.cov_struct.Autoregressive()).fit()
 
 
 def row(label, b, se, s=1, bold=False):
@@ -271,7 +282,7 @@ def row(label, b, se, s=1, bold=False):
 frows = [row("일반 로지스틱 (독립 가정)", nl["beta"][1], nl["se"][1], s=2),
          row("GEE 독립 + 강건 SE", ge["independence"]["beta"][1], ge["independence"]["se_robust"][1]),
          row("GEE 교환가능 + 강건 SE", ge["exchangeable"]["beta"][1], ge["exchangeable"]["se_robust"][1], bold=True),
-         row("GEE AR(1) + 강건 SE", ge["ar1"]["beta"][1], ge["ar1"]["se_robust"][1]),
+         row("GEE AR(1) + 강건 SE", _ar1.params[1], _ar1.bse[1]),
          row("GEE 비구조 + 강건 SE", ge["unstructured"]["beta"][1], ge["unstructured"]["se_robust"][1]),
          row("혼합모형 (조건부 OR)", gm["beta"][1], gm["se"][1], s=3)]
 save("ch10_orforest", figure(forest(frows, (0.8, 12), ref=1.0, log=True, w=640, label_w=220, est_w=130,

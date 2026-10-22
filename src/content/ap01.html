@@ -379,7 +379,7 @@ AUC = (5,919 + 849 ÷ 2) ÷ 8,400 = 0.755</p>
 <p class="et">쉽게 말하면</p>
 <p class="big">값이 빠진 이유에 따라 남은 사람만 분석해도 되는지가 달라집니다. 다중대체<span class="en">(multiple imputation)</span>는 빠진 값을 그럴듯한 값으로 여러 번 채워 각각 분석한 뒤, 채울 때 생긴 불확실성까지 반영해 결과를 하나로 합치는 방법입니다.</p>
 <ul>
-<li><b>비유.</b> 10장 b 절의 기말시험 결시생을 떠올려 봅니다. 버스 고장으로 못 온 학생은 완전 무작위 결측<span class="en">(missing completely at random, MCAR)</span>, 중간고사 성적이 낮았던 학생이 더 많이 결시한 경우는 무작위 결측<span class="en">(missing at random, MAR)</span>, 망칠 것 같아 결시한 경우는 비무작위 결측<span class="en">(missing not at random, MNAR)</span>입니다. 다중대체는 두 번째 경우에 "중간고사 성적이 비슷한 다른 학생들의 기말 점수"를 참고해 결시생의 점수를 여러 번 추정해 보는 것입니다.</li>
+<li><b>비유.</b> 기말시험 결시생으로 비유해 봅니다. 버스 고장으로 못 온 학생은 완전 무작위 결측<span class="en">(missing completely at random, MCAR)</span>, 중간고사 성적이 낮았던 학생이 더 많이 결시한 경우는 무작위 결측<span class="en">(missing at random, MAR)</span>, 망칠 것 같아 결시한 경우는 비무작위 결측<span class="en">(missing not at random, MNAR)</span>입니다. 다중대체는 두 번째 경우에 "중간고사 성적이 비슷한 다른 학생들의 기말 점수"를 참고해 결시생의 점수를 여러 번 추정해 보는 것입니다.</li>
 <li><b>논문에서는.</b> "Missing data were handled by multiple imputation (30 imputations) and results were combined using Rubin's rules"처럼 나옵니다. "빠진 값을 30가지로 채워 30번 분석하고, 정해진 규칙으로 하나로 합쳤다"라고 읽습니다.</li>
 <li><b>기억할 한 가지.</b> 다중대체는 대체모형에 넣은 정보만큼만 결측을 바로잡습니다. 결측을 설명하는 변수가 빠지면 완전사례 분석처럼 치우칠 수 있고, 관측하지 못한 값 자체 때문에 생긴 결측은 어떤 방법으로도 자료만으로 해결되지 않습니다.</li>
 </ul>
@@ -539,7 +539,7 @@ SE = √1.364 = 1.17</p>
 <h4>설계에 따른 보정</h4>
 <ul>
 <li><strong>탈락</strong>: 필요 인원 ÷ (1 − 탈락률).</li>
-<li><strong>군집 설계</strong>: 약국 단위로 배정하면 설계효과 1 + (약국당 환자 수 − 1) × ICC를 곱합니다. 약국당 12.5명, ICC 0.05(10장 c 절)면 1.575배, 즉 군당 170명이 268명이 됩니다.</li>
+<li><strong>군집 설계</strong>: 약국 단위로 배정하면 설계효과 1 + (약국당 환자 수 − 1) × ICC를 곱합니다. 약국당 12.5명, ICC 0.05(10장 d 절)면 1.575배, 즉 군당 170명이 268명이 됩니다.</li>
 <li><strong>비열등성 시험</strong>: 한계와 실제 차이를 넣는 공식을 따로 씁니다(13장).</li>
 </ul>
 

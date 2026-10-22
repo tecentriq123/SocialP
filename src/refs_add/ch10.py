@@ -41,5 +41,8 @@ ADD = {
     # PMID 20220526
     "hubbard2010": {"text": "Hubbard AE, Ahern J, Fleischer NL, et al. To GEE or not to GEE: comparing population average and mixed models for estimating the associations between neighborhood risk factors and health. <i>Epidemiology</i>. 2010;21(4):467-474.",
                     "doi": "10.1097/EDE.0b013e3181caeb90"},
+    # PMID 20119502
+    "kurland2009": {"text": "Kurland BF, Johnson LL, Egleston BL, Diehr PH. Longitudinal data with follow-up truncated by death: match the analysis method to research aims. <i>Stat Sci</i>. 2009;24(2):211-222.",
+                    "doi": "10.1214/09-STS293", "append": True},
     "fitzmaurice2011": {"text": "Fitzmaurice GM, Laird NM, Ware JH. <i>Applied Longitudinal Analysis</i>. 2nd ed. Hoboken, NJ: Wiley; 2011.", "book": True},
 }

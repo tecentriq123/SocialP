@@ -88,7 +88,7 @@ for i, (k, c, lab) in enumerate(N.BECASES):
     p.text_px(W - 176 + 12, p.sy(y) + 15, f"{c['gmr'] * 100:.1f} ({c['lo'] * 100:.1f}–{c['hi'] * 100:.1f})", cls="lbl small")
     p.text_px(W - 176 + 12, p.sy(y) + 30, f"차이 검정 {ptxt}", cls="lbl small mute")
 save("ch13_be", figure(p.svg("생물학적 동등성 판정: 기하평균비의 90% 신뢰구간과 80–125% 범위"),
-     "그림 13-3. 생물학적 동등성 판정의 네 가지 예. 막대는 기하평균비의 90% 신뢰구간이고, 초록 띠(80.00–125.00%) 안에 구간 전체가 들어가야 동등성을 인정합니다. ②는 \"차이가 유의하지 않은데도\"(p = 0.72) 동등성을 인정받지 못하고, ③은 \"차이가 유의한데도\"(p = 0.001) 동등성을 인정받습니다. 가로축은 로그 눈금이라 80%와 125%가 100%에서 같은 거리에 있습니다."))
+     "그림 13-8. 생물학적 동등성 판정의 네 가지 예. 막대는 기하평균비의 90% 신뢰구간이고, 초록 띠(80.00–125.00%) 안에 구간 전체가 들어가야 동등성을 인정합니다. ②는 \"차이가 유의하지 않은데도\"(p = 0.72) 동등성을 인정받지 못하고, ③은 \"차이가 유의한데도\"(p = 0.001) 동등성을 인정받습니다. 가로축은 로그 눈금이라 80%와 125%가 100%에서 같은 거리에 있습니다."))
 
 # ------------------------------------------------------------------ 13-3 margin derivation
 W, H = 640, 300
@@ -163,7 +163,7 @@ for i, lab in enumerate(("ITT", "PP")):
 p2.text(-8, 2.7, "열등 영역", anchor="middle", dy=14, cls="lbl small")
 panel_title(p2, "b. 같은 결론을 신뢰구간으로: 하한이 −5보다 오른쪽")
 save("ch13_pdc", figure([p1.svg("비열등성 검정의 귀무가설 분포와 기각역"), p2.svg("평균 차이의 95% 신뢰구간과 비열등성 한계")],
-     f"그림 13-4. 원격 복약상담 시험(군당 304명, 차이의 표준오차 {se:.2f}). a: 주황 분포는 실제 차이가 한계 −5%p일 때, 회색 분포는 실제 차이가 0일 때 관측 차이가 흩어지는 모양입니다. '관측된 차이'라고 적힌 세로선이 주황 분포의 오른쪽 2.5% 기각역(색칠한 부분) 안에 드는지, 회색 분포에서는 어디쯤 놓이는지 비교해 봅니다. b: 같은 판단을 신뢰구간으로 한 것으로, ITT와 PP 막대의 왼쪽 끝이 −5의 오른쪽에 있는지 봅니다."))
+     f"그림 13-3. 원격 복약상담 시험(군당 304명, 차이의 표준오차 {se:.2f}). a: 주황 분포는 실제 차이가 한계 −5%p일 때, 회색 분포는 실제 차이가 0일 때 관측 차이가 흩어지는 모양입니다. '관측된 차이'라고 적힌 세로선이 주황 분포의 오른쪽 2.5% 기각역(색칠한 부분) 안에 드는지, 회색 분포에서는 어디쯤 놓이는지 비교해 봅니다. b: 같은 판단을 신뢰구간으로 한 것으로, ITT와 PP 막대의 왼쪽 끝이 −5의 오른쪽에 있는지 봅니다."))
 
 # ------------------------------------------------------------------ 13-5 HbA1c direction
 panels = []
@@ -199,7 +199,7 @@ for flip in (False, True):
         panel_title(pp, "a. 신약 − 대조약: 상한을 +0.4와 비교")
     panels.append(pp.svg("HbA1c 변화량 차이의 95% 신뢰구간과 비열등성 한계"))
 save("ch13_hba1c", figure(panels,
-     "그림 13-5. 같은 HbA1c 시험 결과를 두 방향으로 그린 그림. HbA1c는 낮을수록 좋으므로, a(신약 − 대조약)에서는 신뢰구간의 <b>상한</b>이 +0.4보다 작아야 하고, b(대조약 − 신약)에서는 <b>하한</b>이 −0.4보다 커야 합니다. 두 그림은 좌우가 뒤집혔을 뿐 결론은 같습니다. 논문의 그림을 볼 때는 먼저 가로축이 어느 쪽에서 어느 쪽을 뺀 값인지, 열등 영역이 어느 쪽인지 확인하세요.", cols=2))
+     "그림 13-4. 같은 HbA1c 시험 결과를 두 방향으로 그린 그림. HbA1c는 낮을수록 좋으므로, a(신약 − 대조약)에서는 신뢰구간의 <b>상한</b>이 +0.4보다 작아야 하고, b(대조약 − 신약)에서는 <b>하한</b>이 −0.4보다 커야 합니다. 두 그림은 좌우가 뒤집혔을 뿐 결론은 같습니다. 논문의 그림을 볼 때는 먼저 가로축이 어느 쪽에서 어느 쪽을 뺀 값인지, 열등 영역이 어느 쪽인지 확인하세요.", cols=2))
 
 # ------------------------------------------------------------------ 13-6 Wald vs Newcombe
 W, H = 660, 350
@@ -227,7 +227,7 @@ for title, sub_, r in rows:
         yy -= 0.9
     yy -= 0.75
 save("ch13_ci_methods", figure(p.svg("Wald와 Newcombe 신뢰구간의 비교"),
-     "그림 13-7. 같은 자료, 다른 신뢰구간 계산법. 위의 본 시험과 아래의 소규모 시험에서 Wald 막대와 Newcombe 막대의 왼쪽 끝이 진한 세로선(−10)의 어느 쪽에 있는지 비교해 봅니다. 본 시험에서는 두 막대가 거의 겹치고, 소규모 시험에서는 두 방법의 판정이 갈립니다."))
+     "그림 13-6. 같은 자료, 다른 신뢰구간 계산법. 위의 본 시험과 아래의 소규모 시험에서 Wald 막대와 Newcombe 막대의 왼쪽 끝이 진한 세로선(−10)의 어느 쪽에 있는지 비교해 봅니다. 본 시험에서는 두 막대가 거의 겹치고, 소규모 시험에서는 두 방법의 판정이 갈립니다."))
 
 # ------------------------------------------------------------------ 13-7 meaning of a fixed absolute margin
 pc = np.linspace(0.55, 0.9605, 200)
@@ -244,7 +244,7 @@ p.text(0.70, (1 - 0.70 + 0.10) / 0.30, "실패 30% → 40%", anchor="start", dx=
 p.text(0.85, (0.25) / 0.15, "실패 15% → 25%", anchor="start", dx=10, dy=16, cls="lbl small")
 p.text(0.95, 3.0, "실패 5% → 15%", anchor="end", dx=-8, dy=12, cls="lbl small")
 save("ch13_abs_margin", figure(p.svg("대조군 성공률에 따라 달라지는 −10%p 한계의 의미"),
-     "그림 13-6. 같은 −10%p 한계가 허용하는 실패 위험의 비. 가로축의 대조군 성공률이 100%에 가까워질수록 곡선이 가파르게 올라가는 모양을 봅니다. 표본크기 계산 때 가정한 성공률과 실제 성공률이 크게 다르면 한계의 임상적 의미를 다시 따져 봐야 합니다."))
+     "그림 13-5. 같은 −10%p 한계가 허용하는 실패 위험의 비. 가로축의 대조군 성공률이 100%에 가까워질수록 곡선이 가파르게 올라가는 모양을 봅니다. 표본크기 계산 때 가정한 성공률과 실제 성공률이 크게 다르면 한계의 임상적 의미를 다시 따져 봐야 합니다."))
 
 # ------------------------------------------------------------------ 13-8 paper-style figure (English)
 W, H = 660, 262
@@ -266,6 +266,6 @@ for i, (lab, key) in enumerate((("Intention-to-treat", "ITT"), ("Per-protocol", 
 p.text_px(p.sx(0) - 8, H - 34, "← Favors standard therapy", anchor="end", cls="lbl small mute")
 p.text_px(p.sx(0) + 8, H - 34, "Favors new therapy →", anchor="start", cls="lbl small mute")
 save("ch13_paperforest", figure(p.svg("가상 논문의 비열등성 결과 그림"),
-     "그림 13-8. 가상의 논문 그림. <i>Figure 2. Difference in eradication rates between the new dual therapy and bismuth quadruple therapy. Squares indicate point estimates and horizontal lines 95% confidence intervals (Newcombe hybrid score method). The dashed line indicates the prespecified noninferiority margin of −10 percentage points.</i>"))
+     "그림 13-7. 가상의 논문 그림. <i>Figure 2. Difference in eradication rates between the new dual therapy and bismuth quadruple therapy. Squares indicate point estimates and horizontal lines 95% confidence intervals (Newcombe hybrid score method). The dashed line indicates the prespecified noninferiority margin of −10 percentage points.</i>"))
 
 print("figures written")

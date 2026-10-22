@@ -390,8 +390,11 @@ covcols = {"Age": [1, 2, 3, 4, 5, 6], "Sex": [1, 3, 4, 5, 6], "IMDC risk group":
 rows = [dict(label=f"All patients ({len(T)}/{int(S_.sum())})", est=fm["hr"][0], lo=fm["lo"][0], hi=fm["hi"][0], bold=True, diamond=True, s=1)]
 for name, levels, var, dcols in sub_defs:
     inter = (X[:, 0] * var)[:, None] if dcols is None else X[:, [0]] * X[:, dcols]
-    f_int = coxph(T, S_, np.column_stack([X, inter]))
-    lrt = 2 * (f_int["loglik"] - fm["loglik"])
+    # age65 is not a column of X: put its main effect in both models (sex, IMDC, nephrectomy are already in X)
+    base = np.column_stack([X, var]) if name == "Age" else X
+    f_base = coxph(T, S_, base) if name == "Age" else fm
+    f_int = coxph(T, S_, np.column_stack([base, inter]))
+    lrt = 2 * (f_int["loglik"] - f_base["loglik"])
     p_int = st.chi2.sf(lrt, inter.shape[1])
     rows.append(dict(label=f"{name} (P for interaction = {p_int:.2f})", header=True))
     for lab, m in levels:

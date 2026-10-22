@@ -261,7 +261,7 @@ pb.text(lk["lr_hi"], -5.2, f"{lk['lr_hi']:.3f}", anchor="start", dx=4, cls="lbl 
 panel_title(pb, "b. 로그우도와 우도비 신뢰구간")
 save("ch08_lik", figure([pa.svg("우도 곡선"), pb.svg("로그우도 곡선")],
      f"그림 8-7. 환자 50명 중 7명에게 이상반응이 생겼을 때 발생 확률 p의 우도. a: 곡선의 꼭대기와, 그 높이와 비교한 p = 0.05와 0.30에서의 높이를 봅니다. "
-     f"b: 로그우도가 최댓값보다 1.92(= χ²₁ 임계값 3.84 ÷ 2) 이상 떨어지지 않는 범위가 95% 우도비 신뢰구간({lk['lr_lo']:.3f}–{lk['lr_hi']:.3f})입니다. "
+     f"b: 로그우도가 최댓값보다 1.92(= χ²₁ 경계값 3.84 ÷ 2) 이상 떨어지지 않는 범위가 95% 우도비 신뢰구간({lk['lr_lo']:.3f}–{lk['lr_hi']:.3f})입니다. "
      "곡선이 비대칭이라 구간도 0.14를 중심으로 비대칭입니다.", cols=2))
 
 # ------------------------------------------------------------------ 8-8 Wald / LR / score
@@ -346,7 +346,7 @@ def canvas(w, h):
 W, H = 330, 230
 c1 = canvas(W, H)
 C = node(c1, 165, 50, "질병 중증도", cls="s2")
-E = node(c1, 70, 150, "약물 A 처방")
+E = node(c1, 70, 150, "새 약 처방")
 Y = node(c1, 260, 150, "입원")
 arrow(c1, C, E, cls="s2"); arrow(c1, C, Y, cls="s2"); arrow(c1, E, Y, cls="s1", dash=True)
 c1.text_px(165, 200, "E ← C → Y: 뒷문 경로", anchor="middle", cls="lbl small")
@@ -361,7 +361,7 @@ c2.text_px(165, 200, "E → M → Y: 효과가 지나가는 길", anchor="middle
 c2.text_px(165, 218, "총효과를 보려면 M을 보정하지 않음", anchor="middle", cls="lbl strong")
 c2.text_px(10, 18, "b. 매개변수", cls="ptitle")
 c3 = canvas(W, H)
-E3 = node(c3, 70, 60, "약물 A 사용")
+E3 = node(c3, 70, 60, "새 약 사용")
 Y3 = node(c3, 260, 60, "질환 X")
 H3 = node(c3, 165, 150, "입원", cls="s2", dash=True)
 arrow(c3, E3, H3, cls="s4"); arrow(c3, Y3, H3, cls="s4")
@@ -384,25 +384,26 @@ for i, (g, v) in enumerate(groups):
     p.bars([xb], [v["r0"]], 0.32, s=2)
     p.text(xa, v["r1"], f"{v['r1'] * 100:.1f}%", anchor="middle", dy=-6, cls="lbl strong")
     p.text(xb, v["r0"], f"{v['r0'] * 100:.1f}%", anchor="middle", dy=-6, cls="lbl strong")
-    p.text(i + 1, 0, f"A {v['a']}/{v['n1']} · B {v['c']}/{v['n0']}", anchor="middle", dy=38, cls="lbl mute small")
+    p.text(i + 1, 0, f"새 약 {v['a']}/{v['n1']}", anchor="middle", dy=38, cls="lbl mute small")
+    p.text(i + 1, 0, f"기존 약 {v['c']}/{v['n0']}", anchor="middle", dy=52, cls="lbl mute small")
     rrv = v["rr"][0]
     p.text(i + 1, max(v["r1"], v["r0"]), f"RR {rrv:.2f}", anchor="middle", dy=-28, cls="lbl")
 p.vline(2.5, cls="ref", dash=True)
-p.legend([("약물 A (새 약)", 1, "box"), ("약물 B (기존 약)", 2, "box")], X=p.sx(2.55), Y=p.mt + 10)
+p.legend([("새 약", 1, "box"), ("기존 약", 2, "box")], X=p.sx(2.55), Y=p.mt + 10)
 save("ch08_simpson", figure(p.svg("중증도로 층화한 입원 위험"),
-     "그림 8-9. 적응증에 의한 교란의 가상 예. 점선 왼쪽의 중증과 경증 묶음에서는 약물 A의 막대가 B보다 낮은데, 점선 오른쪽의 전체 묶음에서는 A가 더 높습니다. "
-     "막대 아래의 인원을 보면 A군에 중증 환자가 몰려 있습니다."))
+     "그림 8-9. 적응증에 의한 교란의 가상 예. 점선 왼쪽의 중증과 경증 묶음에서는 새 약의 막대가 기존 약보다 낮은데, 점선 오른쪽의 전체 묶음에서는 새 약이 더 높습니다. "
+     "막대 아래의 인원을 보면 새 약을 쓴 환자에 중증 환자가 몰려 있습니다."))
 
 # ------------------------------------------------------------------ 8-11 effect modification depends on scale
 def scale_panel(logy):
     if logy:
         pp = Plot((0.6, 2.4), (L(0.05), L(0.5)), w=420, h=300, ml=54, mr=90, ylabel="입원 위험 (로그 눈금)",
                   yticks=[L(v) for v in (0.05, 0.1, 0.2, 0.3, 0.4, 0.5)], ytickfmt=lambda v: pct(math.exp(v)),
-                  xticks=[1, 2], xticklabels=[(1, "약물 B"), (2, "약물 A")])
+                  xticks=[1, 2], xticklabels=[(1, "기존 약"), (2, "새 약")])
         tf = L
     else:
         pp = Plot((0.6, 2.4), (0, 0.45), w=420, h=300, ml=54, mr=90, ylabel="입원 위험 (일반 눈금)",
-                  yticks=[0, 0.1, 0.2, 0.3, 0.4], ytickfmt=lambda v: pct(v), xticks=[1, 2], xticklabels=[(1, "약물 B"), (2, "약물 A")])
+                  yticks=[0, 0.1, 0.2, 0.3, 0.4], ytickfmt=lambda v: pct(v), xticks=[1, 2], xticklabels=[(1, "기존 약"), (2, "새 약")])
         tf = lambda v: v
     for key, s, lab in (("severe", 2, "중증"), ("mild", 1, "경증")):
         v = cf[key]
