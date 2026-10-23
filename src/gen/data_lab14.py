@@ -42,6 +42,12 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab14.py
     만들고 그 사람들의 기록은 만들지 않는다. 여기서는 단계 × 계열별로 본문 인원의 1/30(반올림)만큼 표지를
     그대로 뽑아 와서, 그 표지에 맞는 처방·상병 기록을 새로 만든다.
 
+제2형 당뇨병 진단이 없는 처방자 (2026-10-23 추가)
+    14장 표 14-3에 첫 제외 단계(첫 처방일까지 E11 진단 없음, 본문 4,666명)를 더했다. nums_ch14.py는 이 사람들을 따로 된
+    난수로 만들어 30만 명과 그 뒤의 숫자를 바꾸지 않는다. 여기서도 본문 인원의 1/30(SGLT2 억제제 65명, DPP-4 억제제
+    91명)을 build_nodm_people()로 만들어 assemble() 뒤에 덧붙인다. 그래서 다른 사람의 pid와 기록은 그대로이고,
+    출발 인원만 10,156명(본문 304,666명)이 된다.
+
 nums_ch14.py와 이론 장은 고치지 않는다. nums_ch14.py의 코호트 생성 부분만 exec로 불러 쓴다(_ch14_nums.json을
 다시 쓰는 뒷부분은 실행하지 않는다).
 """
@@ -73,6 +79,7 @@ REASONS = ["hhf", "death", "switch", "disc", "admin"]      # nums_ch14.follow()�
 # 유예 90일 SGLT2 억제제군 5.4952)에서 표본의 값도 같은 쪽으로 반올림되도록 인년 목표를 조금(0.04% 안쪽) 옮긴다.
 PY_NUDGE = {("at30", "D"): -1.5, ("at60", "D"): 1.5, ("itt", "D"): 1.5, ("at90", "S"): -0.8}
 N_EXTRA = 150                   # 등록 기간(2016–2021) 밖에서만 처방받은 사람(출발 인구가 아님)
+SEED_NODM = 20261023            # 첫 처방일까지 E11 진단이 없는 처방자(2026-10-23 추가). 따로 된 난수라 다른 사람의 기록은 그대로
 
 
 # ====================================================================================== 1. 본문 코호트 다시 만들기
@@ -616,6 +623,62 @@ def build_extra_people(T, rng, n):
         noise_visits(T, rng, k, END, rate=0.8)
 
 
+def nodm_design(J):
+    """제2형 당뇨병 진단이 없어 첫 단계에서 빠지는 사람: 본문 인원의 1/30(반올림)"""
+    d = J["flow"]["nodm"]
+    return int(round(d["S"] / FRAC)), int(round(d["D"] / FRAC))
+
+
+def build_nodm_people(n_s, n_d, pid0):
+    """첫 처방일까지 E11 진단이 없는 두 계열 처방자(2026-10-23 추가, 14장 표 14-3의 첫 제외 단계).
+    SGLT2 억제제는 외래 심부전(I50)이나 만성 신장병(N18) 진료와 함께, DPP-4 억제제는 고혈당(R73.9) 진료와 함께 처방된다.
+    E11은 어느 명세서에도 없고, 심부전 입원·말기신부전·이전 처방도 없다. 다른 사람의 pid와 기록을 바꾸지 않도록
+    assemble() 뒤에 pid0부터 번호를 붙여 덧붙인다."""
+    rng = np.random.default_rng(SEED_NODM)
+    T = Tables()
+    for i in range(n_s + n_d):
+        k = len(T.person)
+        drug = "SGLT2i" if i < n_s else "DPP4i"
+        if drug == "SGLT2i":
+            idx = int(np.floor(2192 * rng.beta(3.0, 1.0)))
+            main = pick(rng, DX["hf"]) if rng.random() < 0.6 else pick(rng, DX["ckd"])
+            age = int(np.clip(round(rng.normal(66, 11)), 25, 92))
+        else:
+            idx = int(np.floor(2192 * rng.beta(1.1, 1.0)))
+            main = "R739"
+            age = int(np.clip(round(rng.normal(60, 12)), 25, 92))
+        T.person.append(dict(sex="F" if rng.random() < 0.45 else "M",
+                             birth_year=(DAY0 + pd.Timedelta(days=idx)).year - age, death=None))
+        simple_fills(T, rng, k, idx, drug, END, int(rng.integers(1, 6)))
+        T.add_visit(k, idx, "O", [main] + (["I10"] if rng.random() < 0.5 else []))
+        for d in days_in(rng, max(idx - 300, DATA_START), END, int(rng.integers(1, 4))):
+            if d != idx:
+                T.add_visit(k, d, "O", [main if rng.random() < 0.7 else pick(rng, OTHER_OUT)])
+    n = len(T.person)
+    pid = pid0 + np.arange(n)
+    p = pd.DataFrame(T.person)
+    person = pd.DataFrame({"pid": pid, "sex": p["sex"], "birth_year": p["birth_year"].astype(int),
+                           "elig_start": "2015-01-01", "elig_end": "2022-12-31", "death_date": ""})
+    v = pd.DataFrame(T.visit, columns=["k", "day", "setting", "dx_main", "dx_sub1", "dx_sub2"]).drop_duplicates()
+    visit = pd.DataFrame({"pid": pid[v["k"].values], "visit_date": to_date(v["day"].values), "setting": v["setting"].values,
+                          "dx_main": v["dx_main"].values, "dx_sub1": v["dx_sub1"].values, "dx_sub2": v["dx_sub2"].values})
+    x = pd.DataFrame(T.rx, columns=["k", "day", "drug", "days"]).drop_duplicates(["k", "day", "drug"])
+    rx = pd.DataFrame({"pid": pid[x["k"].values], "rx_date": to_date(x["day"].values), "drug": x["drug"].values,
+                       "days": x["days"].values})
+    assert not visit[["dx_main", "dx_sub1", "dx_sub2"]].apply(lambda c: c.str.startswith("E11")).any().any()
+    return person, visit, rx
+
+
+def add_nodm(person, visit, rx, J):
+    """build_nodm_people의 사람을 세 표에 덧붙이고 assemble()과 같은 순서로 다시 정렬한다."""
+    n_s, n_d = nodm_design(J)
+    p2, v2, r2 = build_nodm_people(n_s, n_d, int(person["pid"].max()) + 1)
+    person = pd.concat([person, p2]).sort_values("pid").reset_index(drop=True)
+    visit = pd.concat([visit, v2]).sort_values(["visit_date", "pid", "setting", "dx_main"], kind="stable").reset_index(drop=True)
+    rx = pd.concat([rx, r2]).sort_values(["rx_date", "pid", "drug"], kind="stable").reset_index(drop=True)
+    return person, visit, rx
+
+
 def to_date(days):
     return (DAY0 + pd.to_timedelta(np.asarray(days, dtype="int64"), unit="D")).strftime("%Y-%m-%d")
 
@@ -713,6 +776,7 @@ def build(verbose=True):
 
 if __name__ == "__main__":
     (person, visit, rx, cohort), (J, co, sel, ex) = build()
+    person, visit, rx = add_nodm(person, visit, rx, J)
     os.makedirs(PUBDATA, exist_ok=True)
     for name, df in (("claims_person", person), ("claims_visit", visit), ("claims_rx", rx), ("sglt2_cohort", cohort)):
         path = os.path.join(PUBDATA, name + ".csv")
@@ -726,6 +790,6 @@ if __name__ == "__main__":
     assert size < 5_000_000, size
     print(f"sglt2_cohort_full.csv  {check_full(path, J):7d} rows  {size / 1e6:.2f} MB  (table 14-5 reproduced)")
     N0, step_n, n_final, design = flow_design(J)
-    assert len(person) == N0 + N_EXTRA and len(cohort) == n_final
+    assert len(person) == N0 + sum(nodm_design(J)) + N_EXTRA and len(cohort) == n_final
     print("flow design (1/30):", N0, step_n, n_final, design)
     print("cohort:", cohort["arm"].value_counts().to_dict(), " events:", cohort.groupby("arm")["event"].sum().to_dict())

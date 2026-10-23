@@ -8,7 +8,7 @@ visit = pd.read_csv(BASE + &quot;claims_visit.csv&quot;,
 rx = pd.read_csv(BASE + &quot;claims_rx.csv&quot;, parse_dates=[&quot;rx_date&quot;],
                  storage_options=UA)
 print(person.shape, visit.shape, rx.shape)
-print(rx.dtypes)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(10150, 6)<span class="mk">1</span> (53895, 6) (111405, 4)
+print(rx.dtypes)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(10306, 6)<span class="mk">1</span> (54370, 6) (111882, 4)
 pid                 int64
 rx_date    datetime64[us]<span class="mk">2</span>
 drug                  str

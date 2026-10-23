@@ -98,13 +98,15 @@ save("ch14_prevalent", figure(p.svg("기존 사용자와 신규 사용자"),
      "빠지고 남은 사람들입니다. 신규 사용자(파랑)는 첫 처방일부터 따라가므로 초기의 중단과 사건이 모두 자료에 들어옵니다."))
 
 # ====================================================================== 14-3 design diagram (windows around the index date)
-p = Plot((-420, 560), (0.3, 5.7), w=640, h=320, ml=104, mr=16, mt=30, mb=48, xlabel="Index date(첫 처방일) 기준 일수",
+p = Plot((-420, 560), (0.3, 6.7), w=640, h=360, ml=104, mr=16, mt=30, mb=48, xlabel="Index date(첫 처방일) 기준 일수",
          xticks=[-365, -180, 0, 180, 365], yticks=[], ygrid=False, show_yaxis=False)
-p.vline(0, y0=0.3, y1=5.7, cls="ref strongref", dash=False, w=1.6)
-p.text(0, 5.7, "Index date = time 0", anchor="middle", dy=-8, cls="lbl strong small")
-rows = [(5, "세척 기간"), (4, "제외 기준"), (3, "공변량"), (2, "노출군"), (1, "추적")]
+p.vline(0, y0=0.3, y1=6.7, cls="ref strongref", dash=False, w=1.6)
+p.text(0, 6.7, "Index date = time 0", anchor="middle", dy=-8, cls="lbl strong small")
+rows = [(6, "포함 기준"), (5, "세척 기간"), (4, "제외 기준"), (3, "공변량"), (2, "노출군"), (1, "추적")]
 for y, lab in rows:
     p.text_px(6, p.sy(y) + 4, lab, cls="lbl strong small")
+bar(p, -420, 0, 6, cls="a4 s4", extra=' stroke-width="1"')
+p.text(-183, 6, "제2형 당뇨병 진단(E11) [자료 시작, 0]", anchor="middle", dy=4, cls="lbl small")
 bar(p, -365, -1, 5, cls="a4 s4", extra=' stroke-width="1"')
 p.text(-183, 5, "두 계열 처방 없음 [−365, −1]", anchor="middle", dy=4, cls="lbl small")
 bar(p, -365, 0, 4, cls="a4 s4", extra=' stroke-width="1"')
@@ -120,7 +122,8 @@ p.text(-183, 1, "index 이후 정보는", anchor="middle", dy=-3, cls="lbl mute 
 p.text(-183, 1, "선정·공변량에 쓰지 않음", anchor="middle", dy=12, cls="lbl mute small")
 save("ch14_design", figure(p.svg("index date를 기준으로 한 측정 구간"),
      "그림 14-3. 예제 연구의 설계 그림. 세로선이 첫 처방일(index date)이고, 대괄호 안의 숫자는 첫 처방일을 0으로 한 일수입니다. "
-     "대상자 선정(세척 기간, 제외 기준), 공변량, 노출군의 막대가 모두 세로선 왼쪽이나 그 위에서 끝나고, 추적만 오른쪽에 있는지 봅니다. "
+     "대상자 선정(포함 기준, 세척 기간, 제외 기준), 공변량, 노출군의 막대가 모두 세로선 왼쪽이나 그 위에서 끝나고, 추적만 오른쪽에 있는지 봅니다. "
+     "포함 기준 막대는 자료가 시작된 2015년 1월부터이므로 그림 왼쪽 끝 밖까지 이어집니다. "
      "논문의 Methods를 읽을 때 이런 그림을 직접 그려 보면 시점이 어긋난 곳을 찾기 쉽습니다."))
 
 # ====================================================================== 14-4 grace period and the example patient

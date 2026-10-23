@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">첫 365일의 PDC와 1년 지속 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def pdc_365(fills):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">첫 365일의 PDC와 1년 지속 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def pdc_365(fills):
     &quot;&quot;&quot;첫 365일 가운데 약이 있던 날의 비율 (처방이 겹치지 않을 때)&quot;&quot;&quot;
     win_end = fills[&quot;index_date&quot;] + pd.Timedelta(days=365)
     days = (fills[&quot;runout&quot;].clip(upper=win_end)

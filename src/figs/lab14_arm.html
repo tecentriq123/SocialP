@@ -7,9 +7,9 @@ coh[&quot;arm&quot;] = coh[&quot;pid&quot;].map(first.groupby(&quot;pid&quot;)[&
 n_class = first.groupby(&quot;pid&quot;)[&quot;drug&quot;].nunique()
 coh[&quot;both&quot;] = coh[&quot;pid&quot;].map(n_class) &gt; 1
 print(coh[&quot;arm&quot;].value_counts())
-print(&quot;both classes on index date:&quot;, coh[&quot;both&quot;].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>77200 -&gt; 10131 rows<span class="mk">1</span>
+print(&quot;both classes on index date:&quot;, coh[&quot;both&quot;].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>77636 -&gt; 10287 rows<span class="mk">1</span>
 arm
-DPP4i     8755
-SGLT2i    1245<span class="mk">2</span>
+DPP4i     8846
+SGLT2i    1310<span class="mk">2</span>
 Name: count, dtype: int64
 both classes on index date: 131<span class="mk">3</span></pre></div></div>

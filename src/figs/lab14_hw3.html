@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">과제 3 정답. 자료 기간 전체로 만든 동반질환</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">va = v[v[&quot;pid&quot;].isin(cohort[&quot;pid&quot;])]      # 코호트의 모든 명세서
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 33</span><span class="cell-t">과제 3 정답. 자료 기간 전체로 만든 동반질환</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">va = v[v[&quot;pid&quot;].isin(cohort[&quot;pid&quot;])]      # 코호트의 모든 명세서
 pre = va[va[&quot;before&quot;] &gt;= 0]               # 첫 처방일 당일까지
 c_any, c_pre = cohort.copy(), cohort.copy()
 for name, codes in dx_def.items():

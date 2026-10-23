@@ -4,7 +4,7 @@ enroll = study[(study[&quot;rx_date&quot;] &gt;= &quot;2016-01-01&quot;)
 index = enroll.groupby(&quot;pid&quot;)[&quot;rx_date&quot;].min()
 index = index.rename(&quot;index_date&quot;).reset_index()
 print(study[&quot;pid&quot;].nunique(), &quot;-&gt;&quot;, len(index), &quot;people&quot;)
-index.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>10150 -&gt; 10000 people<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
+index.head(3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>10306 -&gt; 10156 people<span class="mk">1</span></pre><div class="df-wrap"><table class="dataframe dfout">
   <thead>
     <tr style="text-align: right;">
       <th></th>

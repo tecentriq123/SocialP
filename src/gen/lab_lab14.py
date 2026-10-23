@@ -113,19 +113,21 @@ Successfully installed ... lifelines-0.30.3"""
 # 출력에 붙이는 번호 표식 (자료를 다시 만들어 숫자가 달라지면 여기서 ValueError가 난다)
 M = {
     "versions": {"pandas      3.0.5": 1, "statsmodels 0.15.0": 2, "lifelines   0.30.3": 3},
-    "load": {"(10150, 6)": 1, "datetime64[us]": 2},
+    "load": {"(10306, 6)": 1, "datetime64[us]": 2},
     "head": {"NaT": 1, "setting": 2, "I209": 3, "NaN": 4, "days": 5},
-    "units": {"person: 10150 rows, 10150 people": 1, "rx    : 111405 rows": 2, "2015-01-01 2022-12-31": 3,
-              "50%          4.0": 4, "DPP4i           86679": 5, "I     1277": 6},
+    "units": {"person: 10306 rows, 10306 people": 1, "rx    : 111882 rows": 2, "2015-01-01 2022-12-31": 3,
+              "50%          4.0": 4, "DPP4i           86956": 5, "I     1277": 6},
     "one": {"2018-02-17  metformin    60": 1, "2018-05-18      DPP4i    90": 2, "2019-07-02      DPP4i    90": 3,
             "I200": 4, "2021-08-22       I    I501": 5},
-    "index": {"10150 -> 10000 people": 1},
-    "arm": {"77200 -> 10131 rows": 1, "SGLT2i    1245": 2, "both classes on index date: 131": 3},
+    "index": {"10306 -> 10156 people": 1},
+    "arm": {"77636 -> 10287 rows": 1, "SGLT2i    1310": 2, "both classes on index date: 131": 3},
     "washout": {"prevalent users: 4103": 1},
     "washout_df": {"38": 2, "SGLT2i": 3},
     "age": {"min         10.0": 1, "age < 18: 14": 2},
     "dxflags": {"esrd         194": 1, "prior_hhf    234": 2},
-    "flow": {"               10000": 1, "4103       5897": 2, "136       5552": 3, "SGLT2i    1028": 4},
+    "t2dm": {"no E11 code by index date: 156": 1, "SGLT2i    65": 2},
+    "flow": {"               10156": 1, "156      10000": 2, "4103       5897": 3, "136       5552": 4,
+             "SGLT2i    1028": 5},
     "washout180": {"3785       6215": 1, "141       5856": 2, "DPP4i     4812": 3, "min      190.0": 4,
                    "max      360.0": 5},
     "gap_df": {"2018-08-16": 1, "12.0": 2, "36.0": 3, "NaN": 4},
@@ -288,7 +290,16 @@ print(coh[["esrd", "prior_hhf"]].sum())
 save("lab14_dxflags", c, marks=M.get("dxflags"))
 
 c = nb.cell('''
-steps = [("prevalent", "Prior use of either class (365 d)"),
+dm = v[(v["before"] >= 0) & has_dx(v, "E11")]
+coh["no_t2dm"] = ~coh["pid"].isin(dm["pid"])
+print("no E11 code by index date:", coh["no_t2dm"].sum())
+print(coh.loc[coh["no_t2dm"], "arm"].value_counts())
+''', title="index date까지의 명세서로 제2형 당뇨병 진단(E11) 확인하기")
+save("lab14_t2dm", c, marks=M.get("t2dm"))
+
+c = nb.cell('''
+steps = [("no_t2dm", "No type 2 diabetes code (E11)"),
+         ("prevalent", "Prior use of either class (365 d)"),
          ("both", "Both classes on index date"),
          ("minor", "Age < 18 years"),
          ("esrd", "ESRD or dialysis (365 d)"),
@@ -663,12 +674,12 @@ for cc in nb.cells:
 
 # ---------------------------------------------------------------- 노트북 (pub/notebooks/lab14.ipynb)
 HW = {
-    30: "## 과제 정답\n\n**과제 1.** 약 중단과 비교약으로의 변경을 무시하는 ITT 방식으로 추적을 다시 만들고, 발생률, 발생률비, "
+    31: "## 과제 정답\n\n**과제 1.** 약 중단과 비교약으로의 변경을 무시하는 ITT 방식으로 추적을 다시 만들고, 발생률, 발생률비, "
         "보정 전과 보정 후의 위험비를 구합니다. 보정 위험비 행을 Results 문장으로 옮기고, as-treated 분석의 0.61과 "
         "어떤 질문의 답이 다른지, 이 값이 말해 주지 않는 것은 무엇인지 씁니다. 전체 코호트 파일로 본문 표 14-5와도 맞춰 봅니다.",
-    31: "**과제 2.** 유예기간을 30일, 60일, 90일로 바꿔 as-treated 추적을 다시 만들고, 군별 사건 수, 발생률, 발생률비, "
+    32: "**과제 2.** 유예기간을 30일, 60일, 90일로 바꿔 as-treated 추적을 다시 만들고, 군별 사건 수, 발생률, 발생률비, "
         "보정 위험비를 비교합니다. a 절에서 따라가 본 환자의 추적이 어떻게 달라지는지도 확인합니다.",
-    32: "**과제 3.** 동료가 자료 기간 전체(2015–2022년)의 명세서로 동반질환을 다시 정의한 분석을 재현하고, 틀린 곳 두 가지를 "
+    33: "**과제 3.** 동료가 자료 기간 전체(2015–2022년)의 명세서로 동반질환을 다시 정의한 분석을 재현하고, 틀린 곳 두 가지를 "
         "찾습니다. 첫 처방일 당일까지의 모든 기록으로 정의한 결과와도 비교합니다.",
 }
 NOTES = {
@@ -676,11 +687,11 @@ NOTES = {
        "Colab에서는 런타임이 새로 배정될 때마다 lifelines를 설치합니다.",
     2: "출력을 만든 패키지의 버전을 확인합니다. 내 화면의 출력이 사이트와 다를 때 먼저 비교합니다.",
     7: "## b. 신규 사용자 코호트 만들기\n\nindex date를 찾고, 선정 기준을 하나씩 표지로 만든 뒤 차례로 적용하며 인원을 셉니다.",
-    13: "세척 기간을 180일로 줄인 민감도 분석입니다. 선정 흐름만 다시 셉니다.",
-    14: "## c. 노출·결과·공변량 만들기\n\n처방 기록에서 중단일과 변경일을, 명세서에서 심부전 입원일과 기저 동반질환을 만듭니다.",
-    16: "14장 c 절의 예제 환자(PDC 315/365)로 함수를 먼저 확인한 뒤 코호트 전체에 적용합니다.",
-    21: "## d. 추적 기간과 발생률\n\n추적 종료일을 정하고 인년, 발생률, 기저 특성 표, 누적발생 곡선, 위험비를 구합니다.",
-    28: "전체 코호트 파일(5MB)을 읽고 Cox 모형 네 개를 적합하므로 Colab에서는 수십 초가 걸릴 수 있습니다.",
+    14: "세척 기간을 180일로 줄인 민감도 분석입니다. 선정 흐름만 다시 셉니다.",
+    15: "## c. 노출·결과·공변량 만들기\n\n처방 기록에서 중단일과 변경일을, 명세서에서 심부전 입원일과 기저 동반질환을 만듭니다.",
+    17: "14장 c 절의 예제 환자(PDC 315/365)로 함수를 먼저 확인한 뒤 코호트 전체에 적용합니다.",
+    22: "## d. 추적 기간과 발생률\n\n추적 종료일을 정하고 인년, 발생률, 기저 특성 표, 누적발생 곡선, 위험비를 구합니다.",
+    29: "전체 코호트 파일(5MB)을 읽고 Cox 모형 네 개를 적합하므로 Colab에서는 수십 초가 걸릴 수 있습니다.",
 }
 NOTES.update(HW)
 path = nb.save_ipynb(
@@ -703,15 +714,16 @@ if __name__ == "__main__":
 
     # (1) 선정 흐름: 단계마다 본문 인원의 1/30(반올림)과 정확히 같다
     flow = ns["flow"]
-    want_left = [round(F["N0"] / FRAC)] + [round(s["left"] / FRAC) for s in F["steps"]]
-    want_out = [round(s["n"] / FRAC) for s in F["steps"]]
+    want_left = ([round(F["nodm"]["N_all"] / FRAC), round(F["N0"] / FRAC)]
+                 + [round(s["left"] / FRAC) for s in F["steps"]])
+    want_out = [round(F["nodm"]["n"] / FRAC)] + [round(s["n"] / FRAC) for s in F["steps"]]
     assert flow["remaining"].tolist() == want_left, (flow["remaining"].tolist(), want_left)
     assert [int(x) for x in flow["excluded"].tolist()[1:]] == want_out
     n_exact += len(want_left) + len(want_out)
     cohort = ns["cohort"]
     assert (cohort["arm"] == "SGLT2i").sum() == round(F["nS"] / FRAC) and len(cohort) == round(F["n"] / FRAC)
     n_exact += 2
-    pct = flow["excluded"].iloc[1] / flow["remaining"].iloc[0]
+    pct = flow["excluded"].iloc[2] / flow["remaining"].iloc[1]
     assert abs(pct - F["steps"][0]["n"] / F["N0"]) < 0.0005          # 41.0%
     print(f"CHECK flow: remaining {want_left}, excluded {want_out} = chapter / 30 (rounded); prevalent {100 * pct:.1f}%")
 
@@ -883,5 +895,5 @@ if __name__ == "__main__":
           " had any primary inpatient I50 after index:", int(cohort.loc[c_any["hf"].astype(bool) & ~c_pre["hf"].astype(bool), "hhf_date"].notna().sum()))
     # 과제 3: 동료의 모형에서 lifelines가 내는 경고(글에서 설명한다). 다른 셀에는 경고가 없어야 한다.
     warned = {cc.n for cc in nb.cells if cc.warns}
-    assert warned == {32} and all("ConvergenceWarning" in w for w in nb.cells[31].warns), warned
+    assert warned == {33} and all("ConvergenceWarning" in w for w in nb.cells[32].warns), warned
     print("VERIFY pandas", pd.__version__, "numpy", np.__version__)

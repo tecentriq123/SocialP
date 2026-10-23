@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">과제 2 정답. 유예기간 30일, 60일, 90일</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = []
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">과제 2 정답. 유예기간 30일, 60일, 90일</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">res = []
 for grace in [30, 60, 90]:
     cg = cohort.copy()
     cg[&quot;stop_date&quot;] = cg[&quot;pid&quot;].map(stop_date(own, grace))

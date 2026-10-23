@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">기저 기간의 상병과 처방으로 공변량 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b = base[base[&quot;pid&quot;].isin(cohort[&quot;pid&quot;])]
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">기저 기간의 상병과 처방으로 공변량 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">b = base[base[&quot;pid&quot;].isin(cohort[&quot;pid&quot;])]
 dx_def = {&quot;htn&quot;: (&quot;I10&quot;, &quot;I11&quot;, &quot;I12&quot;, &quot;I13&quot;, &quot;I15&quot;),
           &quot;ihd&quot;: (&quot;I20&quot;, &quot;I21&quot;, &quot;I22&quot;, &quot;I23&quot;, &quot;I24&quot;, &quot;I25&quot;),
           &quot;hf&quot;: &quot;I50&quot;, &quot;ckd&quot;: &quot;N18&quot;}

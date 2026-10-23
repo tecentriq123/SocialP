@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">기저 특성 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = cohort.groupby(&quot;arm&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">기저 특성 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">g = cohort.groupby(&quot;arm&quot;)
 t1 = g[covs].mean().T
 t1.loc[covs[1:]] = t1.loc[covs[1:]] * 100      # 0/1 변수는 %
 t1.loc[&quot;age SD&quot;] = g[&quot;age&quot;].std()

@@ -3,9 +3,9 @@ coh = coh.merge(info, on=&quot;pid&quot;, how=&quot;left&quot;)
 coh[&quot;age&quot;] = coh[&quot;index_date&quot;].dt.year - coh[&quot;birth_year&quot;]
 coh[&quot;minor&quot;] = coh[&quot;age&quot;] &lt; 18
 print(coh[&quot;age&quot;].describe().round(1))
-print(&quot;age &lt; 18:&quot;, coh[&quot;minor&quot;].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>count    10000.0
+print(&quot;age &lt; 18:&quot;, coh[&quot;minor&quot;].sum())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>count    10156.0
 mean        60.6
-std         12.3
+std         12.2
 min         10.0<span class="mk">1</span>
 25%         52.0
 50%         61.0

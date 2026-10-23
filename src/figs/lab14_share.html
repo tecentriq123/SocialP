@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">사건 비율로 비교하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def share_vs_rate(t):
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">사건 비율로 비교하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def share_vs_rate(t):
     &quot;&quot;&quot;사건 비율(사건 ÷ 인원)과 발생률(사건 ÷ 인년)을 나란히&quot;&quot;&quot;
     s = pd.DataFrame({&quot;events %&quot;: 100 * t[&quot;events&quot;] / t[&quot;n&quot;],
                       &quot;mean FU (y)&quot;: t[&quot;py&quot;] / t[&quot;n&quot;],

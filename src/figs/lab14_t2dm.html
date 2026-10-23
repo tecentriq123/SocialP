@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">index date까지의 명세서로 제2형 당뇨병 진단(E11) 확인하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dm = v[(v[&quot;before&quot;] &gt;= 0) &amp; has_dx(v, &quot;E11&quot;)]
+coh[&quot;no_t2dm&quot;] = ~coh[&quot;pid&quot;].isin(dm[&quot;pid&quot;])
+print(&quot;no E11 code by index date:&quot;, coh[&quot;no_t2dm&quot;].sum())
+print(coh.loc[coh[&quot;no_t2dm&quot;], &quot;arm&quot;].value_counts())</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>no E11 code by index date: 156<span class="mk">1</span>
+arm
+DPP4i     91
+SGLT2i    65<span class="mk">2</span>
+Name: count, dtype: int64</pre></div></div>

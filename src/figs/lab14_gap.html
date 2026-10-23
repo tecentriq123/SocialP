@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">처방 기록에서 약이 떨어지는 날과 공백 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = study.merge(cohort[[&quot;pid&quot;, &quot;index_date&quot;, &quot;arm&quot;]], on=&quot;pid&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">처방 기록에서 약이 떨어지는 날과 공백 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">f = study.merge(cohort[[&quot;pid&quot;, &quot;index_date&quot;, &quot;arm&quot;]], on=&quot;pid&quot;)
 own = f[(f[&quot;drug&quot;] == f[&quot;arm&quot;])
         &amp; (f[&quot;rx_date&quot;] &gt;= f[&quot;index_date&quot;])].copy()
 own = own.sort_values([&quot;pid&quot;, &quot;rx_date&quot;])

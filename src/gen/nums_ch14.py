@@ -90,6 +90,21 @@ OUT["flow"] = dict(N0=N0, srcS=flow[0][2], srcD=flow[0][3], srcB=flow[0][4],
                    steps=[dict(name=f[0], n=f[1], S=f[2], D=f[3], B=f[4], left=f[5]) for f in flow[1:]],
                    nS=nS, nD=nD, n=nS + nD)
 
+# ---- type 2 diabetes check (added 2026-10-23, owner's decision): people who received either class in 2016-2021
+# but have no E11 code on or before the index date (SGLT2 inhibitors are also prescribed for heart failure and
+# chronic kidney disease; a few DPP-4 inhibitor users lack the code in claims). They are excluded as the FIRST step,
+# so the 300,000 diabetic source population and every number after it are unchanged. A separate generator keeps the
+# main random stream (and gen/data_lab14.py, which execs this part) identical.
+rng_dm = np.random.default_rng(20261023)
+p_nodm = dict(S=0.05, D=0.01)
+nodmS = int(rng_dm.binomial(OUT["flow"]["srcS"], p_nodm["S"] / (1 - p_nodm["S"])))
+nodmD = int(rng_dm.binomial(OUT["flow"]["srcD"], p_nodm["D"] / (1 - p_nodm["D"])))
+OUT["flow"]["nodm"] = dict(n=nodmS + nodmD, S=nodmS, D=nodmD, B=0, N_all=N0 + nodmS + nodmD,
+                           srcS_all=OUT["flow"]["srcS"] + nodmS, srcD_all=OUT["flow"]["srcD"] + nodmD)
+pr(f"  type 2 diabetes check (first step): no E11 code {nodmS + nodmD} (S {nodmS}, D {nodmD}); "
+   f"all prescribed {N0 + nodmS + nodmD} -> diabetic {N0}; share without code S {nodmS / (OUT['flow']['srcS'] + nodmS):.3f}, "
+   f"D {nodmD / (OUT['flow']['srcD'] + nodmD):.3f}")
+
 # ---- prevalent-user idea in a few numbers (deterministic)
 early, late, comp = 40.0, 10.0, 10.0          # events per 1,000 PY: first 6 months / afterwards / comparator
 new2y = (early * 0.5 + late * 1.5) / 2.0
