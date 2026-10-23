@@ -101,7 +101,7 @@ pb.text(39, -3.0, f"= 오즈는 {np.exp(5 * b1):.2f}배", anchor="end", dy=16, c
 pb.text(40, 0, "p = 0.5", anchor="end", dy=-5, cls="lbl mute small")
 panel_title(pb, "(나) 로짓 척도: 직선")
 save("ch09_scales", figure([pa.svg("확률 척도의 로지스틱 곡선"), pb.svg("로짓 척도의 직선")],
-     "그림 9-2. 그림 9-1의 로지스틱 회귀 결과를 두 척도로 그린 것입니다. 농도가 5 mg/L씩 높아질 때 오르는 높이(주황 세로선)를 두 그림에서 비교하세요. (나) 로짓 척도에서는 계단의 높이가 어디서나 같습니다. 그러나 (가) 확률 척도에서는 확률이 0.5를 지나는 구간의 계단이 가장 높고, 양 끝으로 갈수록 낮아집니다.", cols=2))
+     "그림 9-3. 그림 9-1의 로지스틱 회귀 결과를 두 척도로 그린 것입니다. 농도가 5 mg/L씩 높아질 때 오르는 높이(주황 세로선)를 두 그림에서 비교하세요. (나) 로짓 척도에서는 계단의 높이가 어디서나 같습니다. 그러나 (가) 확률 척도에서는 확률이 0.5를 지나는 구간의 계단이 가장 높고, 양 끝으로 갈수록 낮아집니다.", cols=2))
 
 # ======================================================================
 # 9-3 profile log-likelihood for beta1
@@ -135,7 +135,7 @@ p.text(wl, -5.8, f"{wl:.3f}", anchor="end", dx=-4, cls="lbl small")
 p.text(wh, -5.8, f"{wh:.3f}", anchor="end", dx=-4, cls="lbl small")
 p.legend([("프로파일 로그 우도 (실제 모양)", 1, "line"), ("Wald 근사 (포물선)", 2, "dash")], X=p.sx(0.136), Y=p.sy(-3.2))
 save("ch09_loglik", figure(p.svg("β1에 대한 프로파일 로그 우도"),
-     f"그림 9-4. 반코마이신 자료에서 β₁ 값을 바꿔 가며(β₀는 그때마다 다시 최적화) 계산한 로그 우도. 꼭대기가 최대우도추정값 {b1:.3f}입니다. 로그 우도가 꼭대기보다 1.92 낮아지는 두 점이 프로파일 우도 95% 신뢰구간({lo:.3f}–{hi:.3f}, 파란 실선)이고, 꼭대기의 곡률로 그린 포물선(주황 점선)에서 같은 방식으로 읽은 것이 Wald 신뢰구간({wl:.3f}–{wh:.3f}, 주황 점선)입니다. 실제 곡선이 오른쪽으로 조금 더 완만해 두 구간이 약간 어긋납니다."))
+     f"그림 9-2. 반코마이신 자료에서 β₁ 값을 바꿔 가며(β₀는 그때마다 다시 최적화) 계산한 로그 우도. 꼭대기가 최대우도추정값 {b1:.3f}입니다. 로그 우도가 꼭대기보다 1.92 낮아지는 두 점이 프로파일 우도 95% 신뢰구간({lo:.3f}–{hi:.3f}, 파란 실선)이고, 꼭대기의 곡률로 그린 포물선(주황 점선)에서 같은 방식으로 읽은 것이 Wald 신뢰구간({wl:.3f}–{wh:.3f}, 주황 점선)입니다. 실제 곡선이 오른쪽으로 조금 더 완만해 두 구간이 약간 어긋납니다."))
 
 # ======================================================================
 # 9-4 forest plot of adjusted ORs (paper box)
@@ -175,7 +175,7 @@ mk = [mark_xy(sxf(1.0) - 14, ry(10), 1),
       mark_xy(sxf(ad["prior"]["orci"][2]) + 16, ry(7), 6)]
 svg = svg.replace("</svg>", extra + "".join(mk) + "</svg>")
 save("ch09_forest", figure(svg,
-     "그림 9-8. 학술지 형식의 포레스트 플롯(가상의 예시). 원문 범례: “Figure 2. Adjusted odds ratios for 1-year all-cause hospitalization. Odds ratios were estimated with a multivariable logistic regression model including all variables shown. Squares indicate point estimates and horizontal lines indicate 95% confidence intervals; the x-axis is on a logarithmic scale.”"))
+     "그림 9-6. 학술지 형식의 포레스트 플롯(가상의 예시). 원문 범례: “Figure 2. Adjusted odds ratios for 1-year all-cause hospitalization. Odds ratios were estimated with a multivariable logistic regression model including all variables shown. Squares indicate point estimates and horizontal lines indicate 95% confidence intervals; the x-axis is on a logarithmic scale.”"))
 
 # ======================================================================
 # 9-5 eGFR linearity
@@ -224,7 +224,7 @@ for i, (k, lab) in enumerate(labs):
 p.legend([("오즈비 (로지스틱 회귀)", 2, "dot")], X=200, Y=18)
 p.legend([("상대위험도 (수정 포아송 회귀)", 1, "dot")], X=392, Y=18)
 save("ch09_orrr", figure(p.svg("같은 자료의 보정 오즈비와 보정 상대위험도"),
-     f"그림 9-3. 같은 코호트(1년 입원 {R['desc']['ev'] / R['desc']['n'] * 100:.1f}%)에 같은 변수를 넣고 로지스틱 회귀로 구한 보정 오즈비(주황)와 수정 포아송 회귀로 구한 보정 상대위험도(파랑). 변수마다 위아래 두 점을 비교하세요. 주황 점이 언제나 1을 나타내는 세로선에서 더 멀리 있고, 이전 1년 입원처럼 효과가 큰 변수일수록 두 점의 간격이 벌어집니다."))
+     f"그림 9-4. 같은 코호트(1년 입원 {R['desc']['ev'] / R['desc']['n'] * 100:.1f}%)에 같은 변수를 넣고 로지스틱 회귀로 구한 보정 오즈비(주황)와 수정 포아송 회귀로 구한 보정 상대위험도(파랑). 변수마다 위아래 두 점을 비교하세요. 주황 점이 언제나 1을 나타내는 세로선에서 더 멀리 있고, 이전 1년 입원처럼 효과가 큰 변수일수록 두 점의 간격이 벌어집니다."))
 
 # ======================================================================
 # 9-7 predicted-probability distributions (mirrored)
@@ -253,7 +253,7 @@ p.text(0.79, 15, f"평균 예측확률 {P['p_by'][0] * 100:.1f}%", anchor="end",
 p.text(0.79, -12, f"입원하지 않은 환자 {int((1 - yv).sum()):,}명", anchor="end", cls="lbl strong")
 p.text(0.79, -12, f"평균 예측확률 {P['p_by'][1] * 100:.1f}%", anchor="end", dy=17, cls="lbl small")
 save("ch09_predhist", figure(p.svg("입원 여부별 예측확률 분포"),
-     f"그림 9-6. 예측모형이 계산한 1년 입원 확률의 분포. 위(주황)는 실제로 입원한 환자, 아래(파랑)는 입원하지 않은 환자이며, 각 군 안에서의 비율로 그렸습니다. 입원한 환자의 예측확률이 전체적으로 오른쪽에 있지만 두 분포가 많이 겹칩니다. C 통계량 {P['auc'][0]:.2f}은 이 겹침의 정도를 한 숫자로 요약한 것이고, 임계값을 어디에 두느냐에 따라 민감도와 특이도가 달라집니다."))
+     f"그림 9-7. 예측모형이 계산한 1년 입원 확률의 분포. 위(주황)는 실제로 입원한 환자, 아래(파랑)는 입원하지 않은 환자이며, 각 군 안에서의 비율로 그렸습니다. 입원한 환자의 예측확률이 전체적으로 오른쪽에 있지만 두 분포가 많이 겹칩니다. C 통계량 {P['auc'][0]:.2f}은 이 겹침의 정도를 한 숫자로 요약한 것이고, 임계값을 어디에 두느냐에 따라 민감도와 특이도가 달라집니다."))
 
 # ======================================================================
 # 9-8 journal-style ROC + calibration (paper box)
@@ -311,7 +311,7 @@ mark(pb, last_d["mean_p"], last_d["obs_rate"], 4, dx=-16, dy=-12)
 mark(pb, last_e["mean_p"], last_e["obs_rate"], 5, dx=14, dy=10)
 mark(pb, 0.012, 0.565, 6, dx=-12, dy=-5)
 save("ch09_paperroc", figure([pa.svg("ROC 곡선: 개발 자료와 외부 검증 자료"), pb.svg("교정 그림: 개발 자료와 외부 검증 자료")],
-     "그림 9-7. 예측모형 논문의 전형적인 성능 그림(가상의 예시). 원문 범례: “Figure 3. Performance of the prediction model in the development cohort (blue) and the external validation cohort (orange). (A) Receiver operating characteristic curves; dots indicate a risk threshold of 0.2. (B) Calibration plots; dots show the mean predicted probability and the observed proportion (95% CI) in each decile of predicted risk, and dashed lines are smoothed calibration curves. The diagonal line represents perfect calibration.”", cols=2))
+     "그림 9-8. 예측모형 논문의 전형적인 성능 그림(가상의 예시). 원문 범례: “Figure 3. Performance of the prediction model in the development cohort (blue) and the external validation cohort (orange). (A) Receiver operating characteristic curves; dots indicate a risk threshold of 0.2. (B) Calibration plots; dots show the mean predicted probability and the observed proportion (95% CI) in each decile of predicted risk, and dashed lines are smoothed calibration curves. The diagonal line represents perfect calibration.”", cols=2))
 
 print("figures written:", [f for f in sorted(os.listdir(OUT)) if f.startswith("ch09_")])
 
