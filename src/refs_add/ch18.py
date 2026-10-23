@@ -27,4 +27,6 @@ ADD = {
                  "doi": "10.1146/annurev-publhealth-040617-013507"},
     "wing2024": {"text": "Wing C, Yozwiak M, Hollingsworth A, Freedman S, Simon K. Designing difference-in-difference studies with staggered treatment adoption: key concepts and practical guidelines. <i>Annu Rev Public Health</i>. 2024;45(1):485-505.",
                  "doi": "10.1146/annurev-publhealth-061022-050825"},
+    "callaway2021": {"text": "Callaway B, Sant'Anna PHC. Difference-in-differences with multiple time periods. <i>J Econom</i>. 2021;225(2):200-230.",
+                     "doi": "10.1016/j.jeconom.2020.12.001", "append": True},
 }
