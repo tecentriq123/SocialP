@@ -732,10 +732,31 @@ def run_waning(p=None, start=36.0, end=60.0, apply_to=("os", "pfs"), horizon=HOR
             "hr_t": {"t_mid": mid, "os": hr_os_t, "pfs": hr_pfs_t}}
 
 
+def gompertz_fitter_class():
+    """lifelines 0.30에는 곰페르츠 모형이 없어 ParametricUnivariateFitter로 정의한다.
+    위험률 h(t) = nu × exp(b × t), 누적위험 H(t) = nu / b × (exp(b × t) − 1), 생존함수 S(t) = exp(−H(t)).
+    b > 0이면 위험률이 시간에 따라 커지고, b < 0이면 줄어들어 생존곡선이 0보다 큰 값에서 평평해진다."""
+    from autograd import numpy as anp
+    from lifelines.fitters import ParametricUnivariateFitter
+
+    class GompertzFitter(ParametricUnivariateFitter):
+        _fitted_parameter_names = ["nu_", "b_"]
+        _bounds = [(1e-12, None), (None, None)]
+
+        def _create_initial_point(self, *args):
+            return np.array([0.02, 0.01])
+
+        def _cumulative_hazard(self, params, times):
+            nu, b = params
+            return nu / b * anp.expm1(b * times)
+
+    return GompertzFitter
+
+
 def os_alternatives(path=None):
     """23장 d 절의 가상 시험 자료(gen/_ch23_trial.csv, 표준요법 B군 300명)에 lifelines의 모수 모형을 적합해
     전체생존 외삽 곡선의 후보를 돌려준다: {key: (우리말 이름, 영어 이름, 함수 t(개월) → S_OS(t))}.
-    key는 exp, weib, llog, lnorm, ggam. run_os()에 함수를 넘겨 쓰면 23장 표 23-12와 같은 결과가 나온다.
+    key는 exp, weib, gomp, llog, lnorm, ggam. run_os()에 함수를 넘겨 쓰면 23장 표 23-12와 같은 결과가 나온다.
     lifelines가 없거나 자료 파일이 없으면 빈 dict를 돌려준다(자료 파일은 gen/nums_ch23.py가 만든다)."""
     import os
     import warnings
@@ -757,6 +778,7 @@ def os_alternatives(path=None):
     out = {}
     for key, ko, en, fitter in (("exp", "지수", "Exponential", ExponentialFitter),
                                 ("weib", "와이블", "Weibull", WeibullFitter),
+                                ("gomp", "곰페르츠", "Gompertz", gompertz_fitter_class()),
                                 ("llog", "로그-로지스틱", "Log-logistic", LogLogisticFitter),
                                 ("lnorm", "로그-정규", "Log-normal", LogNormalFitter),
                                 ("ggam", "일반화 감마", "Generalized gamma", GeneralizedGammaFitter)):
@@ -773,7 +795,7 @@ def scenario_table(p=None, lam=THRESHOLD, os_models=True):
     각 dict: key, group, label(우리말), label_en, d_cost, d_qaly, icer, nmb(임계값 lam에서의 증분 순금전편익).
     group은 "기준 분석", "방법론적 선택"(분석기간, 할인율), "구조적 불확실성"(외삽 모형, 치료 효과 감소, 모형 구조).
       분석기간 5·10·15년, 할인율 0%·3%(비용과 효과에 같은 율. 국내 지침 요약의 민감도 분석 값),
-      전체생존 외삽 모형 4가지(os_alternatives(); os_models=False이거나 lifelines·자료가 없으면 생략),
+      전체생존 외삽 모형 5가지(os_alternatives(); os_models=False이거나 lifelines·자료가 없으면 생략),
       치료 효과 감소 2가지(run_waning: 3→5년, 5→7년 사이에 사라짐), 마르코프 모형 2가지(run_markov).
     """
     p = base_params() if p is None else p
@@ -791,7 +813,7 @@ def scenario_table(p=None, lam=THRESHOLD, os_models=True):
             "Discount rate %g%% (costs and QALYs)" % (rate * 100), run(p, disc=rate))
     if os_models:
         alts = os_alternatives()
-        for key in ("exp", "llog", "lnorm", "ggam"):
+        for key in ("exp", "gomp", "llog", "lnorm", "ggam"):
             if key in alts:
                 ko, en, fn = alts[key]
                 add("os_" + key, "구조적 불확실성", "전체생존 외삽: " + ko, "OS extrapolation: " + en.lower(), run_os(fn, p))

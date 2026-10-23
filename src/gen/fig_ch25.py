@@ -1,4 +1,4 @@
-"""Figures for chapter 25 (경제성 평가 논문 읽기).
+"""Figures for chapter 25 (경제성 평가의 보고와 급여 평가).
 run after nums: source /home/claude/pylibs/env.sh && python3 gen/nums_ch25.py && python3 gen/fig_ch25.py
 Writes figs/ch25_extrap.html, ch25_papertornado.html, ch25_paperpsa.html, ch25_bia.html
 """
@@ -152,6 +152,6 @@ for x, d, v in zip(yrs, drug, net):
 b.legend([("신약 A의 약품비 (대체된 치료를 빼지 않음)", 4, "box"), ("재정영향 = 신약 A를 급여할 때의 지출 − 급여하지 않을 때의 지출", 1, "box")], X=b.ml + 8, Y=12, gap=16)
 save("ch25_bia", figure(
     b.svg("급여 후 5년 동안의 연도별 신약 A 약품비와 재정영향"),
-    "그림 25-4. 연도별 재정영향(가상의 예시, 할인하지 않음). 같은 해의 두 막대를 비교해 봅니다. 회색 막대는 신약 A의 약품비만 센 것이고, "
+    "그림 25-4. 연도별 재정영향(가상의 예시, 할인하지 않음). 같은 해의 두 막대를 비교해 봅니다. 회색 막대는 신약 A 약품비 총액(대체된 치료를 빼지 않음)이고, "
     "파란 막대는 신약 A를 급여할 때와 하지 않을 때의 지출 전체의 차이입니다."))
 print("figures written")

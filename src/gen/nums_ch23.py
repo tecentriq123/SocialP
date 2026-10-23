@@ -265,6 +265,7 @@ KM = {"n": int(len(dur)), "events": int(ev.sum()), "cens": int((1 - ev).sum()),
 print("KM:", KM)
 FITTERS = [("exp", "지수", "Exponential", ExponentialFitter, 1),
            ("weib", "와이블", "Weibull", WeibullFitter, 2),
+           ("gomp", "곰페르츠", "Gompertz", L.gompertz_fitter_class(), 2),
            ("lnorm", "로그-정규", "Log-normal", LogNormalFitter, 2),
            ("llog", "로그-로지스틱", "Log-logistic", LogLogisticFitter, 2),
            ("ggam", "일반화 감마", "Generalized gamma", GeneralizedGammaFitter, 3)]
@@ -412,6 +413,17 @@ CODE_FIT = r'''import numpy as np
 import pandas as pd
 from lifelines import (KaplanMeierFitter, ExponentialFitter, WeibullFitter,
                        LogNormalFitter, LogLogisticFitter, GeneralizedGammaFitter)
+from lifelines.fitters import ParametricUnivariateFitter
+from autograd import numpy as anp
+
+class GompertzFitter(ParametricUnivariateFitter):  # lifelines 0.30에 없어 직접 정의
+    _fitted_parameter_names = ["nu_", "b_"]         # 위험률 h(t) = nu × exp(b × t)
+    _bounds = [(1e-12, None), (None, None)]
+    def _create_initial_point(self, *args):
+        return np.array([0.02, 0.01])               # 반복 계산을 시작할 값
+    def _cumulative_hazard(self, params, times):
+        nu, b = params
+        return nu / b * anp.expm1(b * times)        # 누적위험 H(t)
 
 # 가상의 시험 자료 만들기: 표준요법 B군 300명, 추적 24-30개월
 rng = np.random.default_rng(20261002)
@@ -426,7 +438,7 @@ print("Kaplan-Meier 24개월 생존율", round(KaplanMeierFitter().fit(months, e
 grid = np.arange(0, 241)                           # 0-240개월
 rows = []
 for name, Fitter in [("Exponential", ExponentialFitter), ("Weibull", WeibullFitter),
-                     ("Log-normal", LogNormalFitter), ("Log-logistic", LogLogisticFitter),
+                     ("Gompertz", GompertzFitter), ("Log-normal", LogNormalFitter), ("Log-logistic", LogLogisticFitter),
                      ("Generalized gamma", GeneralizedGammaFitter)]:
     f = Fitter().fit(months, event)                # 최대우도추정
     s = f.survival_function_at_times(grid).values  # 20년까지 늘린 생존곡선

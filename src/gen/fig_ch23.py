@@ -254,7 +254,7 @@ for i in range(n):
 kt.append(td[-1]); ks.append(S)
 assert abs(S - N["km"]["s_last"]) < 1e-9
 F = N["fit"]
-STYLE = {"exp": (1, True), "weib": (1, False), "lnorm": (2, False), "llog": (2, True), "ggam": (3, False)}
+STYLE = {"exp": (1, True), "weib": (1, False), "gomp": (3, True), "lnorm": (2, False), "llog": (2, True), "ggam": (3, False)}
 
 q1 = Plot((0, 30), (0.4, 1.0), w=420, h=330, ml=56, mr=18, xlabel="무작위배정 후 개월", ylabel="전체생존 비율",
           yticks=[0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], ytickfmt=pc, xticks=[0, 6, 12, 18, 24, 30])
@@ -263,7 +263,7 @@ for key, (s, dash) in STYLE.items():
 q1.step(kt, ks, s=4, w=2.6)
 q1.ticks_marks(cens_t[::6], cens_s[::6], s=4, size=4)
 q1.legend([("Kaplan-Meier (관찰 자료)", 4, "line")], X=q1.ml + 150, Y=q1.mt + 12)
-q1.text(1, 0.47, "가는 선: 다섯 모수 모형", cls="lbl small")
+q1.text(1, 0.47, "가는 선: 여섯 모수 모형", cls="lbl small")
 q1.text(1, 0.43, "(색과 선 모양은 오른쪽 그림과 같음)", cls="lbl small")
 panel_title(q1, "(가) 관찰 기간 (30개월까지)")
 
@@ -274,12 +274,12 @@ for key, (s, dash) in STYLE.items():
     q2.line(T, F[key]["S"], s=s, dash=dash, w=2.0)
 q2.step(kt, ks, s=4, w=2.6)
 q2.text(34, 0.95, "← 관찰 기간", cls="lbl mute small")
-q2.legend([("로그-정규", 2, "line"), ("로그-로지스틱", 2, "dash"), ("지수", 1, "dash"), ("와이블", 1, "line"), ("일반화 감마", 3, "line")],
-          X=q2.ml + 196, Y=q2.mt + 46, gap=17)
+q2.legend([("로그-정규", 2, "line"), ("로그-로지스틱", 2, "dash"), ("지수", 1, "dash"), ("와이블", 1, "line"), ("일반화 감마", 3, "line"), ("곰페르츠", 3, "dash")],
+          X=q2.ml + 196, Y=q2.mt + 38, gap=16)
 panel_title(q2, "(나) 20년까지 외삽")
 save("ch23_extrap", figure(
-    [q1.svg("관찰 기간의 Kaplan-Meier 곡선과 다섯 모수 모형"), q2.svg("다섯 모수 모형을 20년까지 외삽한 전체생존 곡선")],
-    "그림 23-6. 표준요법 B군 300명의 가상 시험 자료에 다섯 모수 모형을 적합한 결과. (가) 자료가 있는 30개월까지는 다섯 곡선이 Kaplan-Meier 곡선(회색 계단, 세로 눈금은 중도절단의 일부)을 "
-    f"비슷하게 따라갑니다. (나) 같은 곡선을 20년까지 늘리면 10년 생존율이 {F['ggam']['s120'] * 100:.1f}%(일반화 감마)에서 {F['lnorm']['s120'] * 100:.1f}%(로그-정규)까지 갈립니다. "
+    [q1.svg("관찰 기간의 Kaplan-Meier 곡선과 여섯 모수 모형"), q2.svg("여섯 모수 모형을 20년까지 외삽한 전체생존 곡선")],
+    "그림 23-6. 표준요법 B군 300명의 가상 시험 자료에 여섯 모수 모형을 적합한 결과. (가) 자료가 있는 30개월까지는 여섯 곡선이 Kaplan-Meier 곡선(회색 계단, 세로 눈금은 중도절단의 일부)을 "
+    f"비슷하게 따라갑니다. (나) 같은 곡선을 20년까지 늘리면 10년 생존율이 {F['gomp']['s120'] * 100:.1f}%(곰페르츠)에서 {F['lnorm']['s120'] * 100:.1f}%(로그-정규)까지 갈립니다. "
     "회색으로 칠한 왼쪽 띠만 자료가 있는 구간입니다.", cols=2))
 print("figures written")

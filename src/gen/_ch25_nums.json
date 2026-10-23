@@ -349,6 +349,12 @@
    "icer": 5485.003025058875,
    "label_en": "OS extrapolation: exponential"
   },
+  "os_gomp": {
+   "d_cost": 2204.7563572158397,
+   "d_qaly": 0.3665705814498721,
+   "icer": 6014.547999175259,
+   "label_en": "OS extrapolation: gompertz"
+  },
   "os_llog": {
    "d_cost": 4103.170670721676,
    "d_qaly": 0.7725677280066865,
@@ -395,7 +401,7 @@
  "scen_range": [
   5280.908919395048,
   6324.34884272994,
-  13
+  14
  ],
  "price": {
   "tp": 175.38971163960016,

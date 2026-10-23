@@ -5,12 +5,12 @@
 
 def frontier(df):
     &quot;&quot;&quot;비용순으로 놓고 열등과 확장 열등을 표시한 뒤, 효율 경계 위에서 이웃끼리 ICER를 구한 표&quot;&quot;&quot;
-    df = df.sort_values(&quot;cost&quot;).copy()          # 비용이 낮은 순서
+    df = df.sort_values([&quot;cost&quot;, &quot;qaly&quot;], ascending=[True, False]).copy()  # 비용이 낮은 순서, 같으면 효과가 큰 것부터
     df[&quot;status&quot;], df[&quot;vs&quot;], df[&quot;icer&quot;] = &quot;경계&quot;, &quot;&quot;, np.nan
     keep = []                                   # 경계에 남은 대안의 이름
     for i in df.index:
         if any(df.loc[j, &quot;qaly&quot;] &gt;= df.loc[i, &quot;qaly&quot;] for j in keep):
-            df.loc[i, &quot;status&quot;] = &quot;열등&quot;         # 더 싸면서 효과가 같거나 큰 대안이 있음
+            df.loc[i, &quot;status&quot;] = &quot;열등&quot;         # 비용이 같거나 더 싸면서 효과가 같거나 큰 대안이 있음
             continue
         keep.append(i)
         while len(keep) &gt;= 3:                   # 이어진 세 대안의 ICER 순서 확인

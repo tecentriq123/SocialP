@@ -1,11 +1,11 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">외삽 곡선 다섯 개로 돌린 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
-for name, s in S.items():              # 셀 5에서 20년까지 늘린 곡선 다섯 개
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">외삽 곡선 여섯 개로 돌린 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">rows = []
+for name, s in S.items():              # 셀 5에서 20년까지 늘린 곡선 여섯 개
     r = run_os(p, s)
     rows.append([name, r[&quot;B&quot;][&quot;ly&quot;], r[&quot;A&quot;][&quot;ly&quot;],
                  r[&quot;d_cost&quot;], r[&quot;d_qaly&quot;], r[&quot;icer&quot;]])
-os5 = pd.DataFrame(rows, columns=[&quot;model&quot;, &quot;ly_B&quot;, &quot;ly_A&quot;, &quot;d_cost&quot;,
-                                  &quot;d_qaly&quot;, &quot;icer&quot;]).set_index(&quot;model&quot;)
-os5.round(3).round({&quot;ly_B&quot;: 2, &quot;ly_A&quot;: 2, &quot;d_cost&quot;: 0, &quot;icer&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
+os_res = pd.DataFrame(rows, columns=[&quot;model&quot;, &quot;ly_B&quot;, &quot;ly_A&quot;, &quot;d_cost&quot;,
+                                     &quot;d_qaly&quot;, &quot;icer&quot;]).set_index(&quot;model&quot;)
+os_res.round(3).round({&quot;ly_B&quot;: 2, &quot;ly_A&quot;: 2, &quot;d_cost&quot;: 0, &quot;icer&quot;: 0})</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><div class="df-wrap"><table class="dataframe dfout">
   <thead>
     <tr style="text-align: right;">
       <th></th>
@@ -42,6 +42,14 @@ os5.round(3).round({&quot;ly_B&quot;: 2, &quot;ly_A&quot;: 2, &quot;d_cost&quot;
       <td>5610.0<span class="mk">2</span></td>
     </tr>
     <tr>
+      <th>Gompertz</th>
+      <td>2.60</td>
+      <td>3.12</td>
+      <td>2205.0</td>
+      <td>0.367<span class="mk">5</span></td>
+      <td>6015.0<span class="mk">6</span></td>
+    </tr>
+    <tr>
       <th>Log-logistic</th>
       <td>4.62</td>
       <td>6.25</td>
@@ -62,8 +70,8 @@ os5.round(3).round({&quot;ly_B&quot;: 2, &quot;ly_A&quot;: 2, &quot;d_cost&quot;
       <td>2.64</td>
       <td>3.20</td>
       <td>2275.0</td>
-      <td>0.383<span class="mk">5</span></td>
-      <td>5934.0<span class="mk">6</span></td>
+      <td>0.383</td>
+      <td>5934.0</td>
     </tr>
   </tbody>
 </table></div></div></div>

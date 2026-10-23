@@ -794,8 +794,8 @@ def chk(name, got, want, tol=1e-9):
 
 
 def book(name, got, want):
-    """본문(24장)에 적힌 반올림 값과 실습 값을 같은 자릿수로 반올림해 견준다. want는 본문에 적힌 수
-    (int이면 정수 자리, float이면 적힌 소수 자릿수까지. 목록 안에 int와 float를 섞어 적어도 각자의 자릿수로 견준다)."""
+    """본문(24장)에 적힌 반올림 값과 실습 값을 같은 자릿수로 반올림해 비교한다. want는 본문에 적힌 수
+    (int이면 정수 자리, float이면 적힌 소수 자릿수까지. 목록 안에 int와 float를 섞어 적어도 각자의 자릿수로 비교한다)."""
     got = list(np.atleast_1d(got))
     want = list(want) if isinstance(want, (list, tuple)) else [want]
     assert len(got) == len(want), name
@@ -1076,7 +1076,7 @@ book("SD as SE: positive simulations (base 802)", int((L.inmb(DCS, DQS) > 0).sum
 _w0 = rg.loc["u_pf", "high"] - rg.loc["u_pf", "low"]
 book("SD as SE: utility interval width ratio, EVPI ratio", [(DSU["hi"] - DSU["lo"]) / _w0, SS["evpi"] / PS["evpi"]], [6.1, 4.8])
 
-print(f"대조: lib_p4·_ch24_nums.json과 견준 {len(CHECKS)}개 항목 모두 허용 오차 안 (가장 큰 차이 {max(e for _, e in CHECKS):.2e})")
+print(f"대조: lib_p4·_ch24_nums.json과 비교한 {len(CHECKS)}개 항목 모두 허용 오차 안 (가장 큰 차이 {max(e for _, e in CHECKS):.2e})")
 print(f"      5,000벌 배열: 증분비용의 가장 큰 차이 {E_DC:.2e}만원, 증분 QALY {E_DQ:.2e}, 입력값 5,000벌 × 18개 {E_IN:.2e}"
       f" (비트 단위로 같은가: {np.array_equal(dc, DC)}, {np.array_equal(dq, DQ)})")
 print(f"      본문에 적힌 숫자 {len(BOOK)}개 가운데 {sum(b[3] for b in BOOK)}개가 같은 자릿수에서 일치")

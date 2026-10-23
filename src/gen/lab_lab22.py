@@ -574,8 +574,8 @@ chk("VAS/100 in the model: d_qaly, ICER (lib_p4.run)", [_m["A"]["qaly"] - _m["B"
     [RV["d_qaly"], RV["icer"]], 1e-8, "model")
 assert round(RV["icer"]) == 5974 and round(RV["d_qaly"], 3) == 0.481
 assert round(S["full_pf"], 3) == 0.147
-print(f"대조: {len(CHECKS)}개 항목 모두 허용 오차 안 (22장 숫자와 견준 {sum(g == 'ch22' for _, _, g in CHECKS)}개의 가장 큰 차이 "
-      f"{max(e for _, e, g in CHECKS if g == 'ch22'):.2e}, lib_p4와 견준 {sum(g == 'model' for _, _, g in CHECKS)}개의 가장 큰 차이 "
+print(f"대조: {len(CHECKS)}개 항목 모두 허용 오차 안 (22장 숫자와 비교한 {sum(g == 'ch22' for _, _, g in CHECKS)}개의 가장 큰 차이 "
+      f"{max(e for _, e, g in CHECKS if g == 'ch22'):.2e}, lib_p4와 비교한 {sum(g == 'model' for _, _, g in CHECKS)}개의 가장 큰 차이 "
       f"{max(e for _, e, g in CHECKS if g == 'model'):.2e})")
 
 # ---------------------------------------------------------------- 본문 문장에 쓴 그 밖의 숫자 확인
@@ -604,7 +604,7 @@ if os.environ.get("VERIFY") or os.environ.get("NOMARK"):
 notes = {
     1: ("## a. 실습 데이터 준비\n\n22장의 가상 임상시험(진행성 신세포암, 신약 A 대 표준요법 B, 군당 160명)의 EQ-5D-5L 응답과 "
         "환자별 진행·사망 시점을 읽고 확인합니다. 셀 1은 출력을 만든 패키지의 버전을 찍습니다. 내 화면의 출력이 사이트와 다를 때 먼저 비교합니다."),
-    5: ("## b. 효용 점수 구하기\n\n한국 EQ-5D-5L 가치 세트를 함수로 짜서 응답 코드를 효용으로 바꾸고, 3L 가치 세트 두 개(한국, 영국)를 견준 뒤, "
+    5: ("## b. 효용 점수 구하기\n\n한국 EQ-5D-5L 가치 세트를 함수로 짜서 응답 코드를 효용으로 바꾸고, 3L 가치 세트 두 개(한국, 영국)를 비교한 뒤, "
         "상태별 평균 효용을 환자 단위로 묶은 신뢰구간과 함께 구합니다."),
     10: ("## c. QALY와 할인\n\n사다리꼴 공식으로 환자별 24개월 QALY를 구해 두 군을 비교하고(기저 효용 보정 전후), 생존자만의 평균으로 계산하면 "
          "얼마나 틀리는지 봅니다. 끝에서는 공통 예시 모형의 20년 QALY를 상태별로 나누고 할인 시점을 바꿔 봅니다."),

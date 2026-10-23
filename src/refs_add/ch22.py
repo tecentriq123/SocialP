@@ -36,4 +36,8 @@ ADD = {
                      "url": "https://www.sheffield.ac.uk/nice-dsu/tsds/utilities"},
     "aaronson1993": {"text": "Aaronson NK, Ahmedzai S, Bergman B, et al. The European Organization for Research and Treatment of Cancer QLQ-C30: a quality-of-life instrument for use in international clinical trials in oncology. <i>J Natl Cancer Inst</i>. 1993;85(5):365-376.",
                      "doi": "10.1093/jnci/85.5.365"},
+    # EuroQol news 2026-08-31 (read for P4_FACTS 3부); ABPI blog 2026-08-28 (read 2026-10-23): NICE interim methods statement
+    # 'implementing the EQ-5D-5L value set' (PMG51), 27 August 2026, replaces the EQ-5D-3L value set used since 2012. Start date not stated.
+    "euroqol2026nice": {"text": "EuroQol Group. NICE confirms the adoption of EQ-5D-5L instrument and new UK 5L value set as the preferred approaches [news]. 31 August 2026. Accessed 23 October 2026.",
+                        "url": "https://euroqol.org/nice-confirms-the-adoption-of-eq-5d-5l-instrument-and-new-uk-5l-value-set-as-the-preferred-approaches/"},
 }

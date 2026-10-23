@@ -1,10 +1,22 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">모수 모형 다섯 개의 적합과 외삽</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import (ExponentialFitter, WeibullFitter,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">모수 모형 여섯 개의 적합과 외삽</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from lifelines import (ExponentialFitter, WeibullFitter,
                        LogLogisticFitter, LogNormalFitter,
                        GeneralizedGammaFitter)
+from lifelines.fitters import ParametricUnivariateFitter
+from autograd import numpy as anp
+
+class GompertzFitter(ParametricUnivariateFitter):  # lifelines에 없어 직접 정의
+    _fitted_parameter_names = [&quot;nu_&quot;, &quot;b_&quot;]         # 위험률 h(t) = nu × exp(b × t)
+    _bounds = [(1e-12, None), (None, None)]
+    def _create_initial_point(self, *args):
+        return np.array([0.02, 0.01])               # 반복 계산을 시작할 값
+    def _cumulative_hazard(self, params, times):
+        nu, b = params
+        return nu / b * anp.expm1(b * times)        # 누적위험 H(t)
 
 grid = np.arange(0, 241)               # 0, 1, ..., 240개월
 models = {&quot;Exponential&quot;: ExponentialFitter(),
           &quot;Weibull&quot;: WeibullFitter(),
+          &quot;Gompertz&quot;: GompertzFitter(),
           &quot;Log-logistic&quot;: LogLogisticFitter(),
           &quot;Log-normal&quot;: LogNormalFitter(),
           &quot;Gen. gamma&quot;: GeneralizedGammaFitter()}
@@ -59,13 +71,24 @@ fit_tab.round(3).round({&quot;AIC&quot;: 1, &quot;BIC&quot;: 1})</code></pre><di
     <tr>
       <th>Weibull</th>
       <td>2</td>
-      <td>1375.9<span class="mk">1</span></td>
+      <td>1375.9</td>
       <td>1383.3</td>
       <td>0.564<span class="mk">3</span></td>
       <td>0.195</td>
       <td>0.027</td>
       <td>0.000</td>
       <td>3.101</td>
+    </tr>
+    <tr>
+      <th>Gompertz</th>
+      <td>2</td>
+      <td>1374.9<span class="mk">1</span></td>
+      <td>1382.3</td>
+      <td>0.567</td>
+      <td>0.111</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>2.600<span class="mk">7</span></td>
     </tr>
     <tr>
       <th>Log-logistic</th>
@@ -98,7 +121,7 @@ fit_tab.round(3).round({&quot;AIC&quot;: 1, &quot;BIC&quot;: 1})</code></pre><di
       <td>0.121</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2.642<span class="mk">7</span></td>
+      <td>2.642</td>
     </tr>
   </tbody>
 </table></div></div></div>

@@ -1,4 +1,4 @@
-"""25장(경제성 평가 논문 읽기)의 모든 숫자를 계산한다.
+"""25장(경제성 평가의 보고와 급여 평가)의 모든 숫자를 계산한다.
 실행: source /home/claude/pylibs/env.sh && python3 gen/nums_ch25.py   (그 뒤 python3 gen/fig_ch25.py)
 
 공통 예시(gen/lib_p4.py)의 기준 분석, 일원 민감도 분석 L.oneway(), 시나리오 L.scenario_table(), 임계 가격 L.threshold_price(),
@@ -319,8 +319,21 @@ print("30개월:", round(dc_obs), round(dq_obs, 3), round(dc_obs / dq_obs))
 print("30개월 뒤의 비율: QALY", round(1 - dq_obs / dq_all, 3), " 비용", round(1 - dc_obs / dc_all, 3))'''
 CELLS["bia"] = '''import numpy as np
 
-cost_A = np.array([2820.7, 2226.8, 1763.1, 1366.9, 1044.3])   # 치료 시작 후 1-5년차의 1인당 비용(만원), 신약 A
-cost_B = np.array([2200.1, 1821.0, 1398.5, 1021.5, 723.8])    # 표준요법 B
+def cum_cost(arm, horizon):                       # 분석기간(개월)까지 환자 1명의 누적 비용(만원). 할인하지 않음
+    hr_pfs, hr_os, c_drug, c_ae = {"A": (0.65, 0.75, 190, 120), "B": (1.0, 1.0, 120, 80)}[arm]
+    t = np.arange(0, horizon + 1)
+    os_ = np.exp(-np.log(2) / 28 ** 1.15 * hr_os * t ** 1.15)                    # 전체생존 곡선
+    pfs = np.minimum(np.exp(-np.log(2) / 10 ** 0.95 * hr_pfs * t ** 0.95), os_)  # 무진행생존 곡선
+    pf = (pfs[:-1] + pfs[1:]) / 2                 # 무진행 비율(반주기 보정)
+    pd_ = ((os_ - pfs)[:-1] + (os_ - pfs)[1:]) / 2
+    died = os_[:-1] - os_[1:]
+    return (pf * (c_drug + 40) + pd_ * 250 + died * 800).sum() + c_ae   # 할인 계수를 곱하지 않음
+
+cost_A = np.diff([0] + [cum_cost("A", 12 * k) for k in range(1, 6)])   # 치료 시작 후 1-5년차의 1인당 비용(만원), 신약 A
+cost_B = np.diff([0] + [cum_cost("B", 12 * k) for k in range(1, 6)])   # 표준요법 B
+print(np.round(cost_A, 1))
+print(np.round(cost_B, 1))
+
 n_new = 600                                                    # 해마다 치료를 새로 시작하는 환자 수
 share = np.array([0.10, 0.20, 0.30, 0.40, 0.50])               # 그해 시작하는 환자 가운데 신약 A의 비율
 start_A = n_new * share                                        # 연도별로 신약 A를 시작한 환자 수

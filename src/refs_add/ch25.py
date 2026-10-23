@@ -1,4 +1,4 @@
-# 25장(경제성 평가 논문 읽기) 참고문헌. 서지사항은 2026-10-02 PubMed(mcp PubMed lookup_article_by_citation → get_article_metadata)로
+# 25장(경제성 평가의 보고와 급여 평가) 참고문헌. 서지사항은 2026-10-02 PubMed(mcp PubMed lookup_article_by_citation → get_article_metadata)로
 # 저자·제목·학술지·연도·권(호)·쪽·DOI를 확인했다(PMID는 주석). evers2005는 PubMed 레코드에 DOI가 없어 넣지 않았다.
 # 이 장에서 쓰는 나머지 key는 refs_add/p4.py(husereau2022cheers, husereau2013cheers, sullivan2014bia, bae2018role, bae2022kguideline,
 # bae2022sens, isporkorea2024, yoo2019access, lee2021rsa, hira2022icer, kim2022econ, caro2012ispor, eddy2012ispor, woods2020psm,

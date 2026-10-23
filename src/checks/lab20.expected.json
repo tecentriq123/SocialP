@@ -17,7 +17,7 @@
  {
   "n": 4,
   "title": "사분면 판정과 음수 ICER",
-  "out": "A vs B ICER 5621 | 오른쪽 위, ICER를 임계값과 견줌\n예 1   ICER -2500 | 오른쪽 아래, 우월(dominant)\n예 2   ICER -2500 | 왼쪽 위, 열등(dominated)\n예 3   ICER 10000 | 왼쪽 아래, ICER가 임계값보다 높아야 받아들임\n"
+  "out": "A vs B ICER 5621 | 오른쪽 위, ICER를 임계값과 비교함\n예 1   ICER -2500 | 오른쪽 아래, 우월(dominant)\n예 2   ICER -2500 | 왼쪽 위, 열등(dominated)\n예 3   ICER 10000 | 왼쪽 아래, ICER가 임계값보다 높아야 받아들임\n"
  },
  {
   "n": 5,

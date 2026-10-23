@@ -204,9 +204,9 @@ cost = np.array([7689.5, 8100.0, 9400.0, 10561.8])   # 총비용(만원)
 qaly = np.array([1.87364, 1.70000, 2.00000, 2.38467]) # 총 QALY
 
 keep = []                                    # 효율 경계에 남는 대안의 번호
-for i in np.argsort(cost):                   # 비용이 낮은 것부터 차례로
+for i in np.lexsort((-qaly, cost)):          # 비용이 낮은 것부터, 같으면 효과가 큰 것부터
     if any(qaly[j] >= qaly[i] for j in keep):
-        print(names[i], "-> 열등")           # 더 싸면서 효과가 같거나 큰 대안이 있음
+        print(names[i], "-> 열등")           # 비용이 같거나 더 싸면서 효과가 같거나 큰 대안이 있음
         continue
     keep.append(i)
     while len(keep) >= 3:                    # 이어진 세 대안의 ICER 순서를 확인
@@ -240,6 +240,9 @@ N["text"] = {
     "abstract_icer": (105.6 - 76.9) / 0.511,                      # a 절 초록: 백만 원 단위로 반올림한 값의 검산
     "q3_diff": 1500 - sum(pv),
     "q2_ratio": 0.40 / 0.60,
+    "a_vs_c": (r["A"]["cost"] - 8100.0) / (r["A"]["qaly"] - 1.700),  # c 절 비교대안: A를 기존약 C와 비교한 ICER
+    "pd_3y_B_more": -(lambda x: x["A"]["c_pd"] - x["B"]["c_pd"])(L.run(horizon=36)),  # 처음 3년 진행 상태 비용이 B군에서 더 든 값
+    "e_nmb5000": 5000 * 0.20 - 600,                                # d 절 신약 E의 B 대비 순금전편익(5,000만원)
 }
 
 json.dump(N, open(os.path.join(HERE, "_ch20_nums.json"), "w"), ensure_ascii=False, indent=1, default=float)
@@ -304,6 +307,7 @@ def check_html():
         f"{pr['q3']['sum']:,.1f}만원", f"{t['q3_diff']:.1f}만원", f"{pr['q3']['q_10y']:.3f}", f"{pr['q3']['q_10y_3']:.3f}", f"{t['q2_ratio']:.2f} QALY",
         c(pr["q4"]["Q_vs_P"]), c(pr["q4"]["R_vs_Q"]), c(pr["q4"]["R_vs_P"]), c(pr["q4"]["acer_R"]) + "만원",
         f"−{c(-pr['q5']['3000'])}만원", f"+{c(pr['q5']['6000'])}만원",
+        c(t["a_vs_c"]) + "만원/QALY", f"{t['pd_3y_B_more']:.0f}만원 더 들기", f"E +{t['e_nmb5000']:.0f}만원",
         c(pr["q1"]["extra"]), f"{pr['q1']['displaced']:.0f} QALY", c(pr["q2"]["icer_ly"]), c(pr["q2"]["icer_q"]),
     ]
     for y in ("3", "5", "10", "20"):
@@ -319,7 +323,7 @@ def check_html():
         a_, b_, d_ = tab["thousand"][k]
         neg = lambda v: f"{v:,}".replace("-", "−")
         want += [f"{a_:,}", f"{b_:,}", neg(d_)]
-        want += [f"{A[k]:,.1f}", f"{B[k]:,.1f}", f"{A[k] - B[k]:,.1f}".replace("-", "−")]
+        # 비용 항목별 만원 단위 값(4,124.4 등)은 2026-10-23 c 절 개편 때 본문에서 빠졌습니다.
     for nm in ("disc", "front"):
         import html as _html
         out = _html.escape(N["demo"][nm]["out"].strip(), quote=False)

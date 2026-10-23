@@ -119,7 +119,7 @@ print("시나리오 ICER 범위:", min(ic), max(ic), " 임계값 아래로 내�
 # 23장 표 23-10, 23-12와 같은 값인지
 S = {r["key"]: r for r in SC}
 N23 = json.load(open(os.path.join(HERE, "_ch23_nums.json"), encoding="utf-8"))
-for k in ("exp", "llog", "lnorm", "ggam"):
+for k in ("exp", "gomp", "llog", "lnorm", "ggam"):
     print(f"   23장 표 23-12와 비교 {k}: {S['os_' + k]['icer']:.3f} / {N23['fit'][k]['icer']:.3f}")
     # 자료 파일은 소수 6자리로 저장되어 있어 적합 결과가 아주 조금 다를 수 있다. 표에 적는 자릿수에서는 같아야 한다.
     assert round(S["os_" + k]["icer"]) == round(N23["fit"][k]["icer"]) and round(S["os_" + k]["d_qaly"], 3) == round(N23["fit"][k]["d_qaly"], 3), k

@@ -617,7 +617,7 @@
    "out": "[0.957 0.802 0.644 0.415]\n[957. 802. 644. 415.]\n1500 [478.5 457.9 438.1] 1374.5\n"
   },
   "front": {
-   "code": "import numpy as np\n\nnames = [\"표준요법 B\", \"기존약 C\", \"병용요법 D\", \"신약 A\"]\ncost = np.array([7689.5, 8100.0, 9400.0, 10561.8])   # 총비용(만원)\nqaly = np.array([1.87364, 1.70000, 2.00000, 2.38467]) # 총 QALY\n\nkeep = []                                    # 효율 경계에 남는 대안의 번호\nfor i in np.argsort(cost):                   # 비용이 낮은 것부터 차례로\n    if any(qaly[j] >= qaly[i] for j in keep):\n        print(names[i], \"-> 열등\")           # 더 싸면서 효과가 같거나 큰 대안이 있음\n        continue\n    keep.append(i)\n    while len(keep) >= 3:                    # 이어진 세 대안의 ICER 순서를 확인\n        a, b, c = keep[-3:]\n        icer_ab = (cost[b] - cost[a]) / (qaly[b] - qaly[a])\n        icer_bc = (cost[c] - cost[b]) / (qaly[c] - qaly[b])\n        if icer_ab <= icer_bc:\n            break\n        print(names[b], \"-> 확장 열등\", round(icer_ab), \">\", round(icer_bc))\n        keep.pop(-2)                         # 가운데 대안을 뺌\n\nfor a, b in zip(keep[:-1], keep[1:]):\n    icer = (cost[b] - cost[a]) / (qaly[b] - qaly[a])\n    print(names[b], \"대\", names[a], \"ICER\", round(icer), \"만원/QALY\")\n",
+   "code": "import numpy as np\n\nnames = [\"표준요법 B\", \"기존약 C\", \"병용요법 D\", \"신약 A\"]\ncost = np.array([7689.5, 8100.0, 9400.0, 10561.8])   # 총비용(만원)\nqaly = np.array([1.87364, 1.70000, 2.00000, 2.38467]) # 총 QALY\n\nkeep = []                                    # 효율 경계에 남는 대안의 번호\nfor i in np.lexsort((-qaly, cost)):          # 비용이 낮은 것부터, 같으면 효과가 큰 것부터\n    if any(qaly[j] >= qaly[i] for j in keep):\n        print(names[i], \"-> 열등\")           # 비용이 같거나 더 싸면서 효과가 같거나 큰 대안이 있음\n        continue\n    keep.append(i)\n    while len(keep) >= 3:                    # 이어진 세 대안의 ICER 순서를 확인\n        a, b, c = keep[-3:]\n        icer_ab = (cost[b] - cost[a]) / (qaly[b] - qaly[a])\n        icer_bc = (cost[c] - cost[b]) / (qaly[c] - qaly[b])\n        if icer_ab <= icer_bc:\n            break\n        print(names[b], \"-> 확장 열등\", round(icer_ab), \">\", round(icer_bc))\n        keep.pop(-2)                         # 가운데 대안을 뺌\n\nfor a, b in zip(keep[:-1], keep[1:]):\n    icer = (cost[b] - cost[a]) / (qaly[b] - qaly[a])\n    print(names[b], \"대\", names[a], \"ICER\", round(icer), \"만원/QALY\")\n",
    "out": "기존약 C -> 열등\n병용요법 D -> 확장 열등 13537 > 3020\n신약 A 대 표준요법 B ICER 5621 만원/QALY\n"
   }
  },
@@ -629,6 +629,9 @@
   "cea_paper3": 620.0,
   "abstract_icer": 56.16438356164381,
   "q3_diff": 125.5178228323241,
-  "q2_ratio": 0.6666666666666667
+  "q2_ratio": 0.6666666666666667,
+  "a_vs_c": 3595.574486785037,
+  "pd_3y_B_more": 545.3884485682111,
+  "e_nmb5000": 400.0
  }
 }

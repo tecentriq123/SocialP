@@ -5,7 +5,7 @@
     if dq &lt;= 0 and dc &gt; 0:
         return &quot;왼쪽 위, 열등(dominated)&quot;
     if dq &gt; 0:
-        return &quot;오른쪽 위, ICER를 임계값과 견줌&quot;
+        return &quot;오른쪽 위, ICER를 임계값과 비교함&quot;
     return &quot;왼쪽 아래, ICER가 임계값보다 높아야 받아들임&quot;
 
 cases = {&quot;A vs B&quot;: (d_cost, d_qaly),
@@ -13,7 +13,7 @@ cases = {&quot;A vs B&quot;: (d_cost, d_qaly),
          &quot;예 2  &quot;: (500, -0.2),       # 500만원 더 들고 0.2 QALY를 잃음
          &quot;예 3  &quot;: (-1000, -0.1)}     # 1,000만원 아끼고 0.1 QALY를 잃음
 for name, (dc, dq) in cases.items():
-    print(name, &quot;ICER&quot;, round(dc / dq), &quot;|&quot;, quadrant(dc, dq))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A vs B ICER 5621 | 오른쪽 위<span class="mk">1</span>, ICER를 임계값과 견줌
+    print(name, &quot;ICER&quot;, round(dc / dq), &quot;|&quot;, quadrant(dc, dq))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>A vs B ICER 5621 | 오른쪽 위<span class="mk">1</span>, ICER를 임계값과 비교함
 예 1   ICER -2500 | 오른쪽 아래<span class="mk">2</span>, 우월(dominant)
 예 2   ICER -2500 | 왼쪽 위<span class="mk">3</span>, 열등(dominated)
 예 3   ICER 10000<span class="mk">4</span> | 왼쪽 아래, ICER가 임계값보다 높아야 받아들임</pre></div></div>

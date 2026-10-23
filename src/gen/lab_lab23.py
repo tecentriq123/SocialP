@@ -100,10 +100,22 @@ c = nb.cell('''
 from lifelines import (ExponentialFitter, WeibullFitter,
                        LogLogisticFitter, LogNormalFitter,
                        GeneralizedGammaFitter)
+from lifelines.fitters import ParametricUnivariateFitter
+from autograd import numpy as anp
+
+class GompertzFitter(ParametricUnivariateFitter):  # lifelines에 없어 직접 정의
+    _fitted_parameter_names = ["nu_", "b_"]         # 위험률 h(t) = nu × exp(b × t)
+    _bounds = [(1e-12, None), (None, None)]
+    def _create_initial_point(self, *args):
+        return np.array([0.02, 0.01])               # 반복 계산을 시작할 값
+    def _cumulative_hazard(self, params, times):
+        nu, b = params
+        return nu / b * anp.expm1(b * times)        # 누적위험 H(t)
 
 grid = np.arange(0, 241)               # 0, 1, ..., 240개월
 models = {"Exponential": ExponentialFitter(),
           "Weibull": WeibullFitter(),
+          "Gompertz": GompertzFitter(),
           "Log-logistic": LogLogisticFitter(),
           "Log-normal": LogNormalFitter(),
           "Gen. gamma": GeneralizedGammaFitter()}
@@ -119,9 +131,9 @@ cols = ["model", "k", "AIC", "BIC", "S(2y)", "S(5y)",
         "S(10y)", "S(20y)", "mean_y"]
 fit_tab = pd.DataFrame(rows, columns=cols).set_index("model")
 fit_tab.round(3).round({"AIC": 1, "BIC": 1})
-''', title="모수 모형 다섯 개의 적합과 외삽")
-save("lab23_fit", c, dfmarks={"1375.9": 1, "1380.6": 2, "0.564": 3, "0.058": 4, "0.177": 5, "0.081": 6,
-                              "2.642": 7, "5.187": 8})
+''', title="모수 모형 여섯 개의 적합과 외삽")
+save("lab23_fit", c, dfmarks={"1374.9": 1, "1380.6": 2, "0.564": 3, "0.058": 4, "0.177": 5, "0.081": 6,
+                              "2.600": 7, "5.187": 8})
 
 c = nb.cell('''
 fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.6))
@@ -421,15 +433,15 @@ save("lab23_runos", c, marks={"5620.610246": 1, "5610.443617": 2})
 
 c = nb.cell('''
 rows = []
-for name, s in S.items():              # 셀 5에서 20년까지 늘린 곡선 다섯 개
+for name, s in S.items():              # 셀 5에서 20년까지 늘린 곡선 여섯 개
     r = run_os(p, s)
     rows.append([name, r["B"]["ly"], r["A"]["ly"],
                  r["d_cost"], r["d_qaly"], r["icer"]])
-os5 = pd.DataFrame(rows, columns=["model", "ly_B", "ly_A", "d_cost",
-                                  "d_qaly", "icer"]).set_index("model")
-os5.round(3).round({"ly_B": 2, "ly_A": 2, "d_cost": 0, "icer": 0})
-''', title="외삽 곡선 다섯 개로 돌린 결과")
-save("lab23_os5", c, dfmarks={"3.10": 1, "5610.0": 2, "0.813": 3, "5281.0": 4, "0.383": 5, "5934.0": 6})
+os_res = pd.DataFrame(rows, columns=["model", "ly_B", "ly_A", "d_cost",
+                                     "d_qaly", "icer"]).set_index("model")
+os_res.round(3).round({"ly_B": 2, "ly_A": 2, "d_cost": 0, "icer": 0})
+''', title="외삽 곡선 여섯 개로 돌린 결과")
+save("lab23_os5", c, dfmarks={"3.10": 1, "5610.0": 2, "0.813": 3, "5281.0": 4, "0.367": 5, "6015.0": 6})
 
 c = nb.cell('''
 tp = {"p_ae": 0.30,       # 예방 요법 없이 중증 이상반응이 생길 확률 (시험)
@@ -749,7 +761,7 @@ CHECKS = []
 
 
 def chk(name, got, want, tol=1e-9, grp="model"):
-    """grp: "model" = lib_p4와 견준 모형 계산, "fit" = 23장 d 절의 적합 결과(_ch23_nums.json)와 견준 것"""
+    """grp: "model" = lib_p4와 비교한 모형 계산, "fit" = 23장 d 절의 적합 결과(_ch23_nums.json)와 비교한 것"""
     got, want = np.asarray(got, dtype=float), np.asarray(want, dtype=float)
     err = float(np.max(np.abs(got - want)))
     CHECKS.append((name, err, grp))
@@ -791,7 +803,7 @@ chk("B: discounted cost items (step by step)", ns["after"][["c_drug", "c_pf", "c
     [REF["B"][k] for k in ("c_drug", "c_pf", "c_pd", "c_death")])
 chk("discount factors: cycles 1, 12, 120", ns["cyc"].loc[[1, 12, 120], "disc"].tolist(),
     [1 / 1.045 ** (0.5 / 12), 1 / 1.045 ** (11.5 / 12), 1 / 1.045 ** (119.5 / 12)], 1e-12)
-# a 절: Kaplan-Meier, 다섯 모형의 적합(23장 표 23-11), 와이블 모수 변환
+# a 절: Kaplan-Meier, 여섯 모형의 적합(23장 표 23-11), 와이블 모수 변환
 KM = N["km"]
 trial_ = ns["trial"]
 assert (len(trial_), int(trial_["event"].sum()), int((trial_["event"] == 0).sum())) == (KM["n"], KM["events"], KM["cens"])
@@ -799,7 +811,7 @@ chk("KM S(12), S(24), S(last)", ns["kmf"].predict([12, 24]).tolist() + [ns["kmf"
     [KM["s12"], KM["s24"], KM["s_last"]], 1e-9, "fit")
 assert np.isinf(ns["kmf"].median_survival_time_) and np.isinf(KM["median"])
 ft = ns["fit_tab"]
-FITKEY = (("Exponential", "exp"), ("Weibull", "weib"), ("Log-logistic", "llog"), ("Log-normal", "lnorm"), ("Gen. gamma", "ggam"))
+FITKEY = (("Exponential", "exp"), ("Weibull", "weib"), ("Gompertz", "gomp"), ("Log-logistic", "llog"), ("Log-normal", "lnorm"), ("Gen. gamma", "ggam"))
 for name, key in FITKEY:
     x = N["fit"][key]
     assert int(ft.loc[name, "k"]) == x["k"]
@@ -815,13 +827,13 @@ rf = ns["r_fit"]
 chk("fitted Weibull in the model (Table 23-12): LY B, LY A, d_cost, d_qaly, ICER",
     [rf["B"]["ly"], rf["A"]["ly"], rf["d_cost"], rf["d_qaly"], rf["icer"]], [W["ly_B"], W["ly_A"], W["d_cost"], W["d_qaly"], W["icer"]], 0.02, "fit")
 assert round(rf["icer"]) == 5610 and round(rf["d_cost"]) == 2902 and round(rf["d_qaly"], 3) == 0.517
-# c 절 셀 19–20: 상태 비율에서 결과를 내는 함수, 곡선 다섯 개(23장 표 23-12)
+# c 절 셀 19–20: 상태 비율에서 결과를 내는 함수, 곡선 여섯 개(23장 표 23-12)
 run_os_ = ns["run_os"]
 r_chk = run_os_(p_, ns["os_B"])
 chk("run_os(base curve) = lib_p4.run()", [r_chk["d_cost"], r_chk["d_qaly"], r_chk["icer"], r_chk["A"]["cost"], r_chk["B"]["qaly"]],
     [REF["d_cost"], REF["d_qaly"], REF["icer"], REF["A"]["cost"], REF["B"]["qaly"]], 1e-8)
 chk("run_os(fitted Weibull) = run_model(p_fit)", [run_os_(p_, ns["S"]["Weibull"])["icer"]], [rf["icer"]], 1e-8)
-os5_ = ns["os5"]
+os5_ = ns["os_res"]
 for name, key in FITKEY:
     x = N["fit"][key]
     # CSV(소수 여섯째 자리)로 적합한 곡선이라 23장 값과 아주 조금 다르다. 화면에 보이는 자릿수가 같은지는 아래 assert가 본다
@@ -829,7 +841,7 @@ for name, key in FITKEY:
     chk(f"Table 23-12 {name}: d_qaly", os5_.loc[name, "d_qaly"], x["d_qaly"], 1e-4, "fit")
     chk(f"Table 23-12 {name}: d_cost, ICER", os5_.loc[name, ["d_cost", "icer"]], [x["d_cost"], x["icer"]], 0.5, "fit")
 assert [(round(a, 2), round(b, 2), round(c), round(d, 3), round(e)) for a, b, c, d, e in os5_.to_numpy()] == \
-    [(3.50, 4.62, 3321, 0.605, 5485), (3.10, 3.98, 2902, 0.517, 5610), (4.62, 6.25, 4103, 0.773, 5311),
+    [(3.50, 4.62, 3321, 0.605, 5485), (3.10, 3.98, 2902, 0.517, 5610), (2.60, 3.12, 2205, 0.367, 6015), (4.62, 6.25, 4103, 0.773, 5311),
      (5.19, 6.93, 4294, 0.813, 5281), (2.64, 3.20, 2275, 0.383, 5934)]
 # c 절 셀 21–22: 결정수형(23장 a 절)
 TR = L.ae_tree()
@@ -898,9 +910,9 @@ w_ = ns["wrong"]
 chk("wrong conversion: LY B, LY A", [w_["B"]["ly"], w_["A"]["ly"]], [W3["B"]["ly"], W3["A"]["ly"]], 1e-5)
 chk("wrong conversion: ICER", w_["icer"], (W3["A"]["cost"] - W3["B"]["cost"]) / (W3["A"]["qaly"] - W3["B"]["qaly"]), 1e-2)
 assert (round(math.log(2) / r_w_, 1), round(L._trace_median(PBw), 1), round(w_["icer"])) == (14.4, 33.5, 5894)
-print(f"대조: {len(CHECKS)}개 항목 모두 허용 오차 안 (lib_p4와 견준 {sum(g == 'model' for _, _, g in CHECKS)}개의 가장 큰 차이 "
+print(f"대조: {len(CHECKS)}개 항목 모두 허용 오차 안 (lib_p4와 비교한 {sum(g == 'model' for _, _, g in CHECKS)}개의 가장 큰 차이 "
       f"{max(e for _, e, g in CHECKS if g == 'model'):.2e}, "
-      f"23장 d 절과 견준 {sum(g == 'fit' for _, _, g in CHECKS)}개의 가장 큰 차이 {max(e for _, e, g in CHECKS if g == 'fit'):.2e})")
+      f"23장 d 절과 비교한 {sum(g == 'fit' for _, _, g in CHECKS)}개의 가장 큰 차이 {max(e for _, e, g in CHECKS if g == 'fit'):.2e})")
 
 # ---------------------------------------------------------------- 본문 문장에 쓴 그 밖의 숫자 확인
 if os.environ.get("VERIFY") or os.environ.get("NOMARK"):
@@ -915,14 +927,14 @@ if os.environ.get("VERIFY") or os.environ.get("NOMARK"):
 
 # ---------------------------------------------------------------- 노트북 (pub/notebooks/lab23.ipynb)
 notes = {
-    1: "## a. 생존곡선의 적합과 외삽\n\n가상 임상시험(표준요법 B군 300명)의 전체생존 자료에 모수 모형 다섯 개를 적합하고 20년까지 늘려 그립니다.",
+    1: "## a. 생존곡선의 적합과 외삽\n\n가상 임상시험(표준요법 B군 300명)의 전체생존 자료에 모수 모형 여섯 개를 적합하고 20년까지 늘려 그립니다.",
     2: "출력을 만든 패키지의 버전을 확인합니다. 내 화면의 출력이 사이트와 다를 때 먼저 비교합니다.",
     8: "## b. 분할생존모형 만들기\n\n입력값 사전, 시간 격자, 군별 생존곡선, 상태 비율을 차례로 만듭니다.",
     13: "## c. 비용과 QALY, ICER\n\n주기별 비용과 QALY를 할인해 더하고, 모형 전체를 함수 `run_model(p)`로 묶습니다.",
-    19: "전체생존 곡선을 바꿔 넣을 수 있는 함수를 만들어 셀 5의 다섯 곡선으로 돌립니다(23장 표 23-12).",
+    19: "전체생존 곡선을 바꿔 넣을 수 있는 함수를 만들어 셀 5의 여섯 곡선으로 돌립니다(23장 표 23-12).",
     21: "결정수형으로 이상반응 예방 요법의 기대비용과 QALY를 구하고, 그 결과를 분할생존모형에 넣어 봅니다(23장 a 절).",
     23: ("## d. 모형 점검\n\n답을 미리 아는 입력값을 넣어 모형이 제대로 계산하는지 확인하고, 결과가 그럴듯한지 본 뒤, "
-                  "같은 입력값으로 만든 마르코프 코호트 모형과 견줍니다. 사이트의 셀 %d(점검에 걸리는 입력값을 넣어 일부러 "
+                  "같은 입력값으로 만든 마르코프 코호트 모형과 비교합니다. 사이트의 셀 %d(점검에 걸리는 입력값을 넣어 일부러 "
                   "오류를 내는 셀)은 이 노트북에서 뺐습니다." % CHKFAIL),
     28: "율과 확률을 바꾸는 함수를 만들고, 같은 입력값으로 마르코프 코호트 모형을 만듭니다(23장 b 절).",
     33: ("## 과제 정답\n\n**과제 1.** ICER가 5,000만원/QALY(이 예시에서 가정한 임계값)가 되는 신약 A의 월 약값을 구하고, "

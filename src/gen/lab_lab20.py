@@ -94,7 +94,7 @@ def quadrant(dc, dq):
     if dq <= 0 and dc > 0:
         return "왼쪽 위, 열등(dominated)"
     if dq > 0:
-        return "오른쪽 위, ICER를 임계값과 견줌"
+        return "오른쪽 위, ICER를 임계값과 비교함"
     return "왼쪽 아래, ICER가 임계값보다 높아야 받아들임"
 
 cases = {"A vs B": (d_cost, d_qaly),
@@ -116,12 +116,12 @@ def icer_between(df, lo, hi):
 
 def frontier(df):
     """비용순으로 놓고 열등과 확장 열등을 표시한 뒤, 효율 경계 위에서 이웃끼리 ICER를 구한 표"""
-    df = df.sort_values("cost").copy()          # 비용이 낮은 순서
+    df = df.sort_values(["cost", "qaly"], ascending=[True, False]).copy()  # 비용이 낮은 순서, 같으면 효과가 큰 것부터
     df["status"], df["vs"], df["icer"] = "경계", "", np.nan
     keep = []                                   # 경계에 남은 대안의 이름
     for i in df.index:
         if any(df.loc[j, "qaly"] >= df.loc[i, "qaly"] for j in keep):
-            df.loc[i, "status"] = "열등"         # 더 싸면서 효과가 같거나 큰 대안이 있음
+            df.loc[i, "status"] = "열등"         # 비용이 같거나 더 싸면서 효과가 같거나 큰 대안이 있음
             continue
         keep.append(i)
         while len(keep) >= 3:                   # 이어진 세 대안의 ICER 순서 확인
@@ -413,7 +413,7 @@ notes = {
             "한 문장으로 옮기고, 이 값이 뜻하지 않는 것을 두 가지 씁니다." % C_LAMS),
     C_HW2: ("**과제 2.** 표준요법 B보다 600만원 더 들고 0.20 QALY를 더 얻는 신약 E를 네 대안에 더해 효율 경계를 다시 만들고, "
             "임계값 5,000만원과 8,000만원에서 어느 대안을 고르는지 답합니다."),
-    C_HW3: ("**과제 3.** 총비용 ÷ QALY와 병용요법 D와 견준 ICER로 신약 A가 비용효과적이라고 결론 낸 동료의 분석에서 "
+    C_HW3: ("**과제 3.** 총비용 ÷ QALY와 병용요법 D와 비교한 ICER로 신약 A가 비용효과적이라고 결론 낸 동료의 분석에서 "
             "틀린 곳 두 가지를 찾습니다."),
 }
 assert (C_ICER, C_NMB, C_HW1, C_HW2, C_HW3) == (3, 8, 13, 14, 15)
