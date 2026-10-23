@@ -54,11 +54,12 @@ p.line(pre_t, b[0] + b[1] * pre_t, s=1, w=2.6)
 p.line(post_t, b[0] + b[1] * post_t + b[2] + b[3] * (post_t - T0), s=1, w=2.6)
 p.line(np.array([36, 60]), b[0] + b[1] * np.array([36, 60]), s=2, dash=True, w=2.2)
 p.text(36.5, 98.3, "시범사업 시작 (2018년 1월)", anchor="start", dx=6, cls="lbl small")
-# level change bracket just after the start
-ya = b[0] + b[1] * 36.5
+# level change: the post-period line traced back to the month before the start (time_after = 0, month 36)
+p.line(np.array([36, 37]), b[0] + b[1] * np.array([36, 37]) + b[2] + b[3] * (np.array([36, 37]) - T0), s=1, dash=True, w=1.4)
+ya = b[0] + b[1] * 36
 yb = ya + b[2]
-p.seg(37.6, ya, 37.6, yb, cls="strongref", w=1.6)
-p.text(36, (ya + yb) / 2, f"수준 변화 {M(b[2])}", anchor="end", dx=-3, dy=11, cls="lbl small")
+p.seg(36, ya, 36, yb, cls="strongref", w=1.6)
+p.text(36, (ya + yb) / 2, f"수준 변화 {M(b[2])}", anchor="end", dx=-4, dy=11, cls="lbl small")
 e12 = N["its_eff"]["12"]
 p.seg(48, e12["cf"], 48, e12["pred"], cls="strongref", w=1.6)
 p.text(48.6, (e12["cf"] + e12["pred"]) / 2, f"12개월째 {M(e12['diff'])}", dy=4, cls="lbl small")
@@ -68,7 +69,8 @@ p.legend([("월별 관측값", 4, "dot"), ("분절회귀 적합선", 1, "line"),
 save("ch18_its", figure(
     [p.svg("중단시계열 분절회귀")],
     "그림 18-2. 시범 지역의 월별 처방률에 분절회귀를 적합한 결과(가상 자료). 시행 전 36개월의 추세를 연장한 주황 점선이 '사업이 없었다면'의 추정(반사실)입니다. "
-    "시행 시점에서 파란 적합선이 주황 점선보다 얼마나 아래에서 시작하는지(수준 변화)와, 그 뒤 두 선의 간격이 점점 벌어지는지(기울기 변화)를 봅니다.",
+    "파란 적합선을 시행 직전 달(2017년 12월)까지 거슬러 이었을 때(가는 점선) 주황 점선보다 얼마나 아래에 있는지(수준 변화)와, 그 뒤 두 선의 간격이 점점 벌어지는지(기울기 변화)를 봅니다. "
+    "실제 첫 달(2018년 1월)의 간격은 수준 변화에 기울기 변화 한 달치를 더한 값입니다.",
     cols=1))
 
 # ============================================================ 그림 18-3. 잔차와 자기상관
@@ -114,9 +116,10 @@ p2.points(t, yd, s=4, r=2.6)
 p2.line(pre_t, cd[0] + cd[1] * pre_t, s=1, w=2.4)
 p2.line(post_t, cd[0] + cd[1] * post_t + cd[2] + cd[3] * (post_t - T0), s=1, w=2.4)
 p2.line(np.array([36, 60]), cd[0] + cd[1] * np.array([36, 60]), s=2, dash=True, w=2.0)
-ya = cd[0] + cd[1] * 36.5
-p2.seg(37.6, ya, 37.6, ya + cd[2], cls="strongref", w=1.6)
-p2.text(36, ya + cd[2] / 2, f"수준 변화 {M(cd[2])}", anchor="end", dx=-3, dy=14, cls="lbl small")
+p2.line(np.array([36, 37]), cd[0] + cd[1] * np.array([36, 37]) + cd[2] + cd[3] * (np.array([36, 37]) - T0), s=1, dash=True, w=1.4)
+ya = cd[0] + cd[1] * 36
+p2.seg(36, ya, 36, ya + cd[2], cls="strongref", w=1.6)
+p2.text(36, ya + cd[2] / 2, f"수준 변화 {M(cd[2])}", anchor="end", dx=-4, dy=14, cls="lbl small")
 d12 = N["cits"]["diff"]["e12"][0]
 cf48 = cd[0] + cd[1] * 48
 p2.seg(48, cf48, 48, cf48 + d12, cls="strongref", w=1.6)
@@ -126,7 +129,7 @@ panel_title(p2, "(b) 두 지역의 차이")
 save("ch18_cits", figure(
     [p1.svg("시범 지역과 비교 지역의 분절회귀"), p2.svg("차이 계열의 분절회귀")],
     "그림 18-4. 대조군이 있는 중단시계열(가상 자료). (a) 사업이 없었던 비교 지역(주황)도 2018년 1월에 한 계단 내려가는지 봅니다. 같은 달 전국에 배포된 안전성 서한처럼 두 지역이 함께 겪은 변화입니다. "
-    "(b) 달마다 두 지역의 차이를 구한 계열에서는 시범 지역에만 있었던 변화가 남습니다. 점들이 (a)보다 선에 가깝게 모여 있는 것도 봅니다.",
+    "(b) 달마다 두 지역의 차이를 구한 계열에서는 시범 지역에만 있었던 변화가 남습니다. (b)는 세로축의 범위가 (a)보다 좁아 같은 크기의 차이가 더 크게 그려지므로 점이 더 흩어져 보이지만, 선에서 벗어난 정도(잔차 표준편차)는 0.84로 시범 지역 계열의 1.52보다 작습니다.",
     cols=2))
 
 # ============================================================ 그림 18-5. DID

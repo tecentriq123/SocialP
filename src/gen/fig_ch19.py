@@ -265,7 +265,7 @@ assert B["ci_method"] == "Wald"     # τ² = 0, so the Cochrane rule keeps the n
 save("ch19_forest_bleed", figure(
     [forest_ma(rows, (0.1, 30), (0.1, 0.3, 1, 3, 10, 30), foot=foot, right="Favours placebo →",
                badges=[("ev", 3, 1), ("ev", 2, 2), ("wt", 0, 3), ("est", 10, 4), ("foot", 0, 5), ("axis", 0, 6)])],
-    "그림 19-4. 약물 X 추가의 안전성(주요 출혈) 메타분석 포레스트 플롯(가상의 예시). 가로축은 로그 눈금이고, 신뢰구간이 그림 범위를 벗어나면 화살표로 표시했습니다. "
+    "그림 19-5. 약물 X 추가의 안전성(주요 출혈) 메타분석 포레스트 플롯(가상의 예시). 가로축은 로그 눈금이고, 신뢰구간이 그림 범위를 벗어나면 화살표로 표시했습니다. "
     "번호는 아래 해설과 짝을 이룹니다.", cols=1))
 
 # ====================================================================== 19-5 subgroup forest (다, paper box)
@@ -397,6 +397,6 @@ svg = svg.replace(f'y="{hgt - 10}" text-anchor="middle" class="axlab"', f'y="{hg
 svg = svg.replace('</svg>', f'<text x="4" y="{hgt + 34}" class="lbl small">{note}</text></svg>')
 save("ch19_forest_md", figure(
     [svg],
-    "그림 19-5. 약사 주도 중재가 6개월 HbA1c 변화에 미친 효과를 합친 가상의 메타분석(연속형 결과). 사각형 크기는 무작위효과 가중치(괄호 안 %)에 비례합니다. "
+    "그림 19-4. 약사 주도 중재가 6개월 HbA1c 변화에 미친 효과를 합친 가상의 메타분석(연속형 결과). 사각형 크기는 무작위효과 가중치(괄호 안 %)에 비례합니다. "
     "세로선 0이 '차이 없음'입니다. 맨 아래 회색 선은 95% 예측구간으로, 0을 넘어섭니다.", cols=1))
 print("figures written")

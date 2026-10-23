@@ -13,6 +13,9 @@ ADD = {
     # PMID 27733354
     "sterne2016robins": {"text": "Sterne JA, Hernán MA, Reeves BC, et al. ROBINS-I: a tool for assessing risk of bias in non-randomised studies of interventions. <i>BMJ</i>. 2016;355:i4919.",
                          "doi": "10.1136/bmj.i4919"},
+    # PMID 29432858 (GRADE guideline 18; full text PMC6692166: with ROBINS-I, start at high and usually rate down at least two levels)
+    "schunemann2019": {"text": "Schünemann HJ, Cuello C, Akl EA, et al. GRADE guidelines: 18. How ROBINS-I and other tools to assess risk of bias in nonrandomized studies should be used to rate the certainty of a body of evidence. <i>J Clin Epidemiol</i>. 2019;111:105-114.",
+                       "doi": "10.1016/j.jclinepi.2018.01.012"},
     # PMID 18436948
     "guyatt2008": {"text": "Guyatt GH, Oxman AD, Vist GE, et al; GRADE Working Group. GRADE: an emerging consensus on rating quality of evidence and strength of recommendations. <i>BMJ</i>. 2008;336(7650):924-926.",
                    "doi": "10.1136/bmj.39489.470347.AD"},
@@ -86,6 +89,7 @@ ADD = {
     # reported in a 'usable' way." Rationale: reviews must not exclude studies solely on the basis of reporting of the outcome data.
     "mecir_c40": {"text": "Cochrane. MECIR Manual, standard C40: excluding studies without useable data [web page]. Accessed 17 October 2026.",
                   "url": "https://www.cochrane.org/authors/handbooks-and-manuals/mecir-manual/standards-conduct-new-cochrane-intervention-reviews-c1-c75/performing-review-c24-c75/selecting-studies-include-review-c39-c42"},
+    # The URL slug says "december-2025", but the page itself reads "Issue 3 January 2025", posted 26 Jan 2025 (rechecked 2026-10-23).
     # Cochrane Statistical Methods Group newsletter, issue 3 (26 January 2025; read 2026-10-17): Handbook v6.5 uses REML as the
     # default τ² estimator, HKSJ (t with k-1 df) when τ² > 0 and more than 2 studies, and prediction intervals with t on k-1 df
     # "rather than k-2 as previously recommended".
