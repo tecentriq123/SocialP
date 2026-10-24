@@ -1678,6 +1678,33 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
   });
   try { history.scrollRestoration = "manual"; } catch (e) {}
 
+  /* ---------- 새로고침해도 읽던 곳에서 (2026-10-24) ----------
+     휴대폰 사파리는 다른 앱에 다녀오면 페이지를 새로 불러오기도 한다. 장 내용을 나중에 받아 그리므로
+     브라우저가 스크롤 위치를 되살리지 못하고 주소에 남은 절(처음 누른 곳)로 간다. 그래서 읽는 동안
+     지금 위치(화면 맨 위 문단, 펼친 상자)를 이 탭의 기록과 기기 안 저장소에 적어 두었다가,
+     같은 주소로 다시 열리면 그 자리로 돌려놓는다. */
+  const POS_KEY = "srn-pos-" + (COURSE.key || "home");
+  let posTimer = 0;
+  function savePos() {
+    if (HOME || !document.getElementById("article")) return;
+    const st = hereState();
+    if (!st.ch || st.ch !== app.dataset.ch) return;
+    st.t = Date.now();
+    try { history.replaceState(st, ""); } catch (e) {}
+    try { localStorage.setItem(POS_KEY, JSON.stringify(st)); } catch (e) {}
+  }
+  function savedPos() {
+    const ok = st => st && typeof st === "object" && st.ch && typeof st.y === "number" && st.hash === location.hash;
+    let st = null;
+    try { if (ok(history.state)) st = history.state; } catch (e) {}
+    if (!st) { try { const s = JSON.parse(localStorage.getItem(POS_KEY) || "null"); if (ok(s)) st = s; } catch (e) {} }
+    return st;
+  }
+  window.addEventListener("scroll", () => { clearTimeout(posTimer); posTimer = setTimeout(savePos, 500); }, { passive: true });
+  document.addEventListener("toggle", () => { clearTimeout(posTimer); posTimer = setTimeout(savePos, 500); }, true);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") savePos(); });
+  window.addEventListener("pagehide", savePos);
+
   function route() {
     closeDrawer();
     const h = decodeURIComponent(location.hash.slice(1));
@@ -1835,6 +1862,7 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
   document.getElementById("courseBtnTxt").textContent = COURSE.title;
   if (COURSE.title) document.title = COURSE.title + " · 사회약학 연구방법 노트";
   window.addEventListener("hashchange", () => { route(); updateBackBtn(); });
+  if (!HOME) pendingRestore = savedPos();   // 같은 주소로 다시 열렸으면 읽던 곳으로
   route(); updateBackBtn();
 })();
 </script>
