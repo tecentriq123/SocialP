@@ -1,4 +1,4 @@
-"""Figures for 14장 아·자·차·카 절 (content/_ch14/sc.html).
+"""Figures for 부록 A c–f 절 (content/ap01.html; 그림 A-2 … A-5).
 run: source /home/claude/pylibs/env.sh && python3 gen/fig_ch14c.py
 Caption numbers (그림 14-n) are provisional; the chapter editor renumbers after merging.
 """

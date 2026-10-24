@@ -1,7 +1,8 @@
-"""Numbers for chapter 14, sections 가 (McNemar), 나 (diagnostic accuracy / ROC), 다 (propensity scores).
+"""Numbers for 부록 A a 절 (McNemar) and b 절 (diagnostic accuracy / ROC); content/ap01.html.
+(Written when these sections were chapter 14 가·나; the old 다 propensity-score part is no longer used in the text.)
 
 Run:  source /home/claude/pylibs/env.sh && python3 gen/nums_ch14a.py
-Every number quoted in content/_ch14/sa.html comes from compute() below.
+Every number quoted in ap01 a·b 절 comes from compute() below.
 """
 import math
 import numpy as np

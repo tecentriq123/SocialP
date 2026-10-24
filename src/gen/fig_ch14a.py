@@ -1,4 +1,4 @@
-"""Figures for chapter 14, sections 나 (ROC) and 다 (propensity scores).
+"""Figures for 부록 A b 절 (ROC, 그림 A-1); the old propensity-score figures are no longer used.
 
 Run:  source /home/claude/pylibs/env.sh && python3 gen/fig_ch14a.py
 Writes figs/ch14_b_roc.html, figs/ch14_c_psdist.html, figs/ch14_c_love.html.

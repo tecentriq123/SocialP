@@ -571,7 +571,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 </tbody></table></div>
 <p class="excerpt">In a logistic regression including treatment group, each 1-percentage-point higher baseline HbA1c was associated with a higher likelihood of a missing 12-month value (<span class="mk">3</span> <span class="hl">OR, 4.72; 95% CI, 2.07 to 10.72</span>), and <span class="mk">4</span> <span class="hl">missingness was less likely in the intervention group (OR, 0.26; 95% CI, 0.08 to 0.83)</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>결측 비율이 군마다 다름.</b> 12개월 결측은 중재군 6/50(12%), 통상치료군 15/50(30%)입니다. 결측이 배정군과 관련 있다는 것만으로도 완전사례 분석이 두 군을 같은 조건에서 비교하지 못할 가능성이 생깁니다.</span></li>
+<li><span class="mk">1</span><span><b>결측 비율이 군마다 다름.</b> 12개월 결측은 중재군 6/50(12%), 통상치료군 15/50(30%)입니다. 결측 비율이 군마다 다르면 빠진 이유도 군마다 다를 수 있습니다. 그 이유가 결과와 관련 있다면 완전사례 분석은 두 군을 같은 조건에서 비교하지 못합니다(<a href="#ap01-s4">부록 A d 절</a> '빠진 이유에 따라 완전사례 분석은 어떻게 달라지나?').</span></li>
 <li><span class="mk">2</span><span><b>탈락자는 기저 HbA1c가 높았습니다.</b> 두 군 모두 결측 환자의 기저값이 약 0.8%p 높습니다. 결측이 관측된 값과 관련 있으므로 MCAR은 맞지 않습니다.</span></li>
 <li><span class="mk">3</span><span><b>결측 여부를 결과로 둔 로지스틱 회귀(9장).</b> 기저 HbA1c가 1%p 높을 때 12개월 값이 결측될 오즈가 4.72배입니다. 이런 분석은 "결측이 관측된 변수와 관련 있다"(MCAR이 아님)는 것을 보여 줄 수 있지만, MAR인지 MNAR인지는 알려 주지 못합니다. 측정되지 않은 12개월 값과의 관련성은 자료로 확인할 수 없기 때문입니다.</span></li>
 <li><span class="mk">4</span><span><b>중재군의 결측 오즈비 0.26과 해석.</b> 기저 HbA1c가 같다면 중재군은 12개월 값이 빠질 오즈가 통상치료군의 약 4분의 1입니다. 혈당 조절이 나쁜 통상치료군 환자가 많이 빠졌으므로, 남은 사람만 분석하면 통상치료군의 12개월 HbA1c가 실제보다 좋아 보이고 중재 효과가 작게 추정될 것이라고 예상할 수 있습니다. c 절에서 이 예상을 확인합니다.</span></li>

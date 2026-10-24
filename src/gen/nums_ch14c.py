@@ -1,4 +1,4 @@
-"""Every number quoted in content/_ch14/sc.html (14장 아·자·차·카 절) is computed and printed here.
+"""Every number quoted in 부록 A c–f 절 (content/ap01.html; once 14장 아·자·차·카 절) is computed and printed here.
 run: source /home/claude/pylibs/env.sh && python3 gen/nums_ch14c.py
 fig_ch14c.py imports the objects defined here.
 """
@@ -54,17 +54,31 @@ print(f"mean diff I-C = {DIFF:.2f}; Welch t = {tt.statistic:.3f}, df = {tt.df:.1
       f"95% CI {ttci.low:.1f} to {ttci.high:.1f}")
 print(f"Mann-Whitney p = {mw.pvalue:.4f}")
 
-B = 2000
-_rb = np.random.default_rng(2026)
-bd, br = np.empty(B), np.empty(B)
-for b in range(B):
-    xc = cC[_rb.integers(0, N_COST, N_COST)]
-    xi = cI[_rb.integers(0, N_COST, N_COST)]
-    bd[b] = xi.mean() - xc.mean()
-    br[b] = xi.mean() / xc.mean()
-BOOT_D = np.percentile(bd, [2.5, 97.5])
-BOOT_R = np.percentile(br, [2.5, 97.5])
-print(f"bootstrap (B={B}) diff 95% CI {BOOT_D[0]:.1f} to {BOOT_D[1]:.1f}; ratio {RATIO:.3f} ({BOOT_R[0]:.2f}-{BOOT_R[1]:.2f})")
+# percentile bootstrap with scipy (same tool as 21장): each group resampled separately, 9,999 times
+B = 9999
+
+
+def _mdiff(x, y, axis=-1):
+    return x.mean(axis=axis) - y.mean(axis=axis)
+
+
+def _mratio(x, y, axis=-1):
+    return x.mean(axis=axis) / y.mean(axis=axis)
+
+
+_bs_d = st.bootstrap((cI, cC), _mdiff, n_resamples=B, method="percentile", rng=np.random.default_rng(2026))
+_bs_r = st.bootstrap((cI, cC), _mratio, n_resamples=B, method="percentile", rng=np.random.default_rng(2026))
+_bs_bca = st.bootstrap((cI, cC), _mdiff, n_resamples=B, rng=np.random.default_rng(2026))  # scipy default method = BCa
+BOOT_D = np.array([_bs_d.confidence_interval.low, _bs_d.confidence_interval.high])
+BOOT_R = np.array([_bs_r.confidence_interval.low, _bs_r.confidence_interval.high])
+BOOT_BCA = np.array([_bs_bca.confidence_interval.low, _bs_bca.confidence_interval.high])
+BOOT_SE = _bs_d.standard_error
+print(f"scipy bootstrap percentile (B={B}, rng 2026) diff 95% CI {BOOT_D[0]:.1f} to {BOOT_D[1]:.1f} (SE {BOOT_SE:.1f}); "
+      f"ratio {RATIO:.3f} ({BOOT_R[0]:.2f}-{BOOT_R[1]:.2f})")
+print(f"  scipy default (BCa) diff 95% CI {BOOT_BCA[0]:.1f} to {BOOT_BCA[1]:.1f}")
+print(f"  Student t (ttest_ind default equal_var=True) CI: {st.ttest_ind(cI, cC).confidence_interval().low:.2f} "
+      f"to {st.ttest_ind(cI, cC).confidence_interval().high:.2f}")
+print(f"  zeros: C {int((cC == 0).sum())}, I {int((cI == 0).sum())}, total {int((cC == 0).sum() + (cI == 0).sum())}")
 
 # two-part decomposition
 pc, pi = CS["C"]["ppos"], CS["I"]["ppos"]
@@ -150,11 +164,13 @@ def rubin(q, u):
                 lo=Q - tcrit * math.sqrt(T), hi=Q + tcrit * math.sqrt(T), fmi=(1 + 1 / m) * Bv / T)
 
 
-def mi_run(data, rng, Xi, m):
+def mi_run(data, rng, Xi, m, keep=None):
     trt, s0, s3, s12, miss = data
     q, u = [], []
     for _ in range(m):
         yy = impute_once(rng, s12, miss, Xi)
+        if keep is not None:
+            keep.append(yy)
         a, b_, _ = ancova(yy, trt, s0)
         q.append(a)
         u.append(b_)
@@ -185,7 +201,8 @@ RES["mean"] = ancova(ymean, trt, s0)
 M_MI = 30
 _rmi = np.random.default_rng(7)
 Q_NOAUX, U_NOAUX = mi_run(MI_DATA, _rmi, sm.add_constant(np.c_[trt, s0]), M_MI)
-Q_AUX, U_AUX = mi_run(MI_DATA, _rmi, sm.add_constant(np.c_[trt, s0, s3]), M_MI)
+IMP_AUX = []
+Q_AUX, U_AUX = mi_run(MI_DATA, _rmi, sm.add_constant(np.c_[trt, s0, s3]), M_MI, keep=IMP_AUX)
 RUB_NOAUX = rubin(Q_NOAUX, U_NOAUX)
 RUB_AUX = rubin(Q_AUX, U_AUX)
 RUB5 = rubin(Q_AUX[:5], U_AUX[:5])
@@ -215,6 +232,64 @@ print(f"  naive CI using mean SE only: {RUB5['Q'] - 1.96 * math.sqrt(RUB5['W']):
 p_mi = 2 * st.t.sf(abs(RUB_AUX["Q"] / RUB_AUX["se"]), RUB_AUX["nu"])
 p_cc = 2 * st.t.sf(abs(RES["cc"][0] / RES["cc"][1]), RES["cc"][2])
 print(f"p MI(aux) = {p_mi:.2g}; p CC = {p_cc:.2g}")
+
+# ---- 결측 기전만 바꿔 400번 반복: 탈락이 무엇에 달렸느냐에 따라 완전사례와 다중대체가 어떻게 달라지나
+# 자료를 만드는 식은 mi_gen과 같고, 탈락 확률의 선형예측만 바꾼다. 참값(전체 자료 기대값)은 -3 - 0.55 x 4 = -5.2.
+# 기울기는 원래 설계(3개월 SBP 1 mmHg당 0.13)를 각 변수의 표준편차 단위로 맞췄다.
+SD_S3 = math.sqrt((0.85 * 12) ** 2 + 9 ** 2)
+SD_S12 = math.sqrt(((0.35 + 0.55 * 0.85) * 12) ** 2 + (0.55 * 9) ** 2 + 7 ** 2)
+BETA_SD = 0.13 * SD_S3
+
+
+def mech_miss(rng, mech, trt, s0, s3, s12):
+    if mech == "mcar":
+        lp = np.full(len(trt), -1.0)
+    elif mech == "model":
+        lp = -1.9 + BETA_SD * (s0 - 152) / 12 + 0.8 * (1 - trt)
+    elif mech == "s3":
+        lp = -2.1 + 0.13 * (s3 - 146) + 0.8 * (1 - trt)
+    else:
+        lp = -1.9 + BETA_SD * (s12 - 147.7) / SD_S12 + 0.8 * (1 - trt)
+    return rng.random(len(trt)) < 1 / (1 + np.exp(-lp))
+
+
+MECH_LAB = {"mcar": "무관(MCAR)", "model": "배정군과 기저 SBP", "s3": "3개월 SBP", "s12": "12개월 SBP 자체"}
+MECH = {}
+_rmech = np.random.default_rng(5)
+NMECH = 400
+for mech in MECH_LAB:
+    acc = {k: [] for k in ("miss", "full", "cc", "mi")}
+    for _ in range(NMECH):
+        t_ = np.r_[np.ones(150), np.zeros(150)]
+        a0 = _rmech.normal(152, 12, 300)
+        a3 = 20 + 0.85 * a0 - 4 * t_ + _rmech.normal(0, 9, 300)
+        y12 = 15 + 0.35 * a0 + 0.55 * a3 - 3 * t_ + _rmech.normal(0, 7, 300)
+        ms = mech_miss(_rmech, mech, t_, a0, a3, y12)
+        acc["miss"].append(ms.mean())
+        acc["full"].append(ancova(y12, t_, a0)[0])
+        acc["cc"].append(ancova(y12[~ms], t_[~ms], a0[~ms])[0])
+        q, u = mi_run((t_, a0, a3, y12, ms), _rmech, sm.add_constant(np.c_[t_, a0, a3]), 10)
+        acc["mi"].append(np.mean(q))
+    MECH[mech] = {k: float(np.mean(v)) for k, v in acc.items()}
+    print(f"mechanism {MECH_LAB[mech]:<14} miss {MECH[mech]['miss'] * 100:.1f}%  full {MECH[mech]['full']:.2f}  "
+          f"CC {MECH[mech]['cc']:.2f}  MI(+3m) {MECH[mech]['mi']:.2f}")
+
+# ---- delta 조정(티핑 포인트): 중재군 탈락자의 대체값에 delta를 더한 뒤 같은 30벌을 Rubin의 규칙으로 합친다
+DELTA = {}
+for dl in np.arange(0, 25.01, 0.5):
+    q, u = [], []
+    for yy in IMP_AUX:
+        y2 = yy.copy()
+        y2[miss & (trt == 1)] += dl
+        a, b_, _ = ancova(y2, trt, s0)
+        q.append(a)
+        u.append(b_)
+    DELTA[float(dl)] = rubin(q, u)
+for dl in (0.0, 5.0, 10.0, 15.0, 20.0):
+    R = DELTA[dl]
+    print(f"delta {dl:>4.0f}: est {R['Q']:.2f}  95% CI {R['lo']:.2f} to {R['hi']:.2f}")
+TIP = min(d for d, R in DELTA.items() if R["hi"] >= 0)
+print(f"tipping point (first delta on 0.5 grid where upper CI >= 0): {TIP}")
 
 # repeated simulation (averages)
 _rs = np.random.default_rng(1)
@@ -310,6 +385,29 @@ for p in (0.05, 0.20, 0.50):
     z = st.norm.ppf(1 - p / 2)
     OBS_POW[p] = st.norm.cdf(z - Z975) + st.norm.cdf(-z - Z975)
     print(f"observed power at p={p}: {OBS_POW[p]:.3f}")
+# ---- 발생률(인년) 비교: 두 군의 관찰 인년이 같을 때 필요한 총 사건 수
+def events_rate(rr, zb=Z80):
+    return (Z975 + zb) ** 2 * (1 + rr) ** 2 / (rr * math.log(rr) ** 2)
+
+
+D_RATE75 = events_rate(0.75)
+PY_C = D_RATE75 / (1 + 0.75) / 0.10
+print(f"rate ratio 0.75: total events {D_RATE75:.1f}; control events {D_RATE75 / 1.75:.1f}; "
+      f"person-years per group at 0.10/PY = {PY_C:.0f}")
+# 사건이 0건일 때 발생률 상한(정확 포아송 95% 양측 상한 = chi2(0.975, 2)/2)
+UP0 = st.chi2.ppf(0.975, 2) / 2
+print(f"zero events: upper limit = {UP0:.3f} / person-years; 2,300 PY -> {UP0 / 2300 * 1000:.2f} per 1,000 PY; "
+      f"to bound rate below 1/1,000 PY need {UP0 * 1000:.0f} PY")
+# ---- 같은 사람을 전후로 재는 설계: 차이 4, SD 7, 전후 상관 rho
+from statsmodels.stats.power import TTestPower
+PREPOST = {}
+for rho in (0.3, 0.5, 0.7):
+    sd_ch = 7 * math.sqrt(2 * (1 - rho))
+    n1 = TTestPower().solve_power(effect_size=4 / sd_ch, alpha=0.05, power=0.8)
+    n_anc = n_mean * (1 - rho ** 2)
+    PREPOST[rho] = dict(sd=sd_ch, n1=n1, n_anc=n_anc)
+    print(f"rho {rho}: SD of change {sd_ch:.2f}; one-group pre-post n {n1:.1f} -> {math.ceil(n1)}; "
+          f"two-group ANCOVA per group {n_mean:.1f} x (1 - rho^2) = {n_anc:.1f} -> {math.ceil(n_anc)}")
 # curve for figure: n per group vs difference, p_C = 0.5
 CURVE_D = np.linspace(0.05, 0.25, 81)
 CURVE80 = np.array([n_two_prop(0.5, 0.5 + d) for d in CURVE_D])
@@ -341,6 +439,13 @@ BA["outside"] = int(np.sum((dif < BA["lo"]) | (dif > BA["hi"])))
 BA["ref_mean"], BA["new_mean"] = REF.mean(), NEW.mean()
 BA["ref_sd"], BA["new_sd"] = REF.std(ddof=1), NEW.std(ddof=1)
 BA["ref_min"], BA["ref_max"] = REF.min(), REF.max()
+# 일치 한계의 95% 신뢰구간 (근사: SE = sqrt(3 s^2 / n), t(n-1))
+BA["loa_se"] = math.sqrt(3 * BA["sd"] ** 2 / N_BP)
+BA["lo_ci"] = (BA["lo"] - tcrit * BA["loa_se"], BA["lo"] + tcrit * BA["loa_se"])
+BA["hi_ci"] = (BA["hi"] - tcrit * BA["loa_se"], BA["hi"] + tcrit * BA["loa_se"])
+# statsmodels mean_diff_plot draws limits with np.std (ddof=0)
+BA["lo_ddof0"] = BA["mean"] - 1.96 * dif.std()
+BA["hi_ddof0"] = BA["mean"] + 1.96 * dif.std()
 # trend of difference vs average
 sl = st.linregress(avg, dif)
 BA["slope"], BA["slope_p"] = sl.slope, sl.pvalue
