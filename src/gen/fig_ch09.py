@@ -175,7 +175,7 @@ mk = [mark_xy(sxf(1.0) - 14, ry(10), 1),
       mark_xy(sxf(ad["prior"]["orci"][2]) + 16, ry(7), 6)]
 svg = svg.replace("</svg>", extra + "".join(mk) + "</svg>")
 save("ch09_forest", figure(svg,
-     "그림 9-6. 학술지 형식의 포레스트 플롯(가상의 예시). 원문 범례: “Figure 2. Adjusted odds ratios for 1-year all-cause hospitalization. Odds ratios were estimated with a multivariable logistic regression model including all variables shown. Squares indicate point estimates and horizontal lines indicate 95% confidence intervals; the x-axis is on a logarithmic scale.”"))
+     "그림 9-7. 학술지 형식의 포레스트 플롯(가상의 예시). 원문 범례: “Figure 2. Adjusted odds ratios for 1-year all-cause hospitalization. Odds ratios were estimated with a multivariable logistic regression model including all variables shown. Squares indicate point estimates and horizontal lines indicate 95% confidence intervals; the x-axis is on a logarithmic scale.”"))
 
 # ======================================================================
 # 9-5 eGFR linearity
@@ -200,7 +200,7 @@ p.text_px(p.sx(62) + 30, p.sy(math.log(5.2)) + 3 * 18 + 4.5, f"범주별 오즈�
 p.legend([("제한 삼차 스플라인 (4개 매듭) + 95% CI", 1, "line"), ("직선 (eGFR 10 낮을 때마다 오즈비 %.2f)" % L["lin_or10"], 2, "dash"),
           ("세 범주 (기준 ≥60)", 3, "line")], X=p.sx(62), Y=p.sy(math.log(5.2)))
 save("ch09_egfr", figure(p.svg("eGFR과 입원 로그 오즈의 관계"),
-     f"그림 9-5. 다른 변수를 보정한 모형에서 eGFR과 1년 입원의 관계를 세 가지 방식으로 넣은 결과. 스플라인(파랑)은 eGFR 60 이상에서는 거의 평평하다가 60 아래에서 가파르게 올라갑니다. 직선(주황 점선)은 이 꺾임을 담지 못해 eGFR 60–90 구간의 차이는 실제보다 크게, 45 미만의 위험은 작게 보여 주고, 90을 넘으면 위험이 계속 줄어드는 것처럼 그립니다. 세 범주(초록 계단)는 꺾임을 대략 담지만 범주 안의 차이는 무시합니다. 아래쪽 회색 눈금은 스플라인의 매듭(eGFR의 5·35·65·95 백분위수 {', '.join(str(int(k)) for k in L['knots'])})입니다."))
+     f"그림 9-6. 다른 변수를 보정한 모형에서 eGFR과 1년 입원의 관계를 세 가지 방식으로 넣은 결과. 스플라인(파랑)은 eGFR 60 이상에서는 거의 평평하다가 60 아래에서 가파르게 올라갑니다. 직선(주황 점선)은 이 꺾임을 담지 못해 eGFR 60–90 구간의 차이는 실제보다 크게, 45 미만의 위험은 작게 보여 주고, 90을 넘으면 위험이 계속 줄어드는 것처럼 그립니다. 세 범주(초록 계단)는 꺾임을 대략 담지만 범주 안의 차이는 무시합니다. 아래쪽 회색 눈금은 스플라인의 매듭(eGFR의 5·35·65·95 백분위수 {', '.join(str(int(k)) for k in L['knots'])})입니다."))
 
 # ======================================================================
 # 9-6 OR vs RR
@@ -224,7 +224,7 @@ for i, (k, lab) in enumerate(labs):
 p.legend([("오즈비 (로지스틱 회귀)", 2, "dot")], X=200, Y=18)
 p.legend([("상대위험도 (수정 포아송 회귀)", 1, "dot")], X=392, Y=18)
 save("ch09_orrr", figure(p.svg("같은 자료의 보정 오즈비와 보정 상대위험도"),
-     f"그림 9-4. 같은 코호트(1년 입원 {R['desc']['ev'] / R['desc']['n'] * 100:.1f}%)에 같은 변수를 넣고 로지스틱 회귀로 구한 보정 오즈비(주황)와 수정 포아송 회귀로 구한 보정 상대위험도(파랑). 변수마다 위아래 두 점을 비교하세요. 주황 점이 언제나 1을 나타내는 세로선에서 더 멀리 있고, 이전 1년 입원처럼 효과가 큰 변수일수록 두 점의 간격이 벌어집니다."))
+     f"그림 9-5. 같은 코호트(1년 입원 {R['desc']['ev'] / R['desc']['n'] * 100:.1f}%)에 같은 변수를 넣고 로지스틱 회귀로 구한 보정 오즈비(주황)와 수정 포아송 회귀로 구한 보정 상대위험도(파랑). 변수마다 위아래 두 점을 비교하세요. 주황 점이 언제나 1을 나타내는 세로선에서 더 멀리 있고, 이전 1년 입원처럼 효과가 큰 변수일수록 두 점의 간격이 벌어집니다."))
 
 # ======================================================================
 # 9-7 predicted-probability distributions (mirrored)
@@ -253,7 +253,7 @@ p.text(0.79, 15, f"평균 예측확률 {P['p_by'][0] * 100:.1f}%", anchor="end",
 p.text(0.79, -12, f"입원하지 않은 환자 {int((1 - yv).sum()):,}명", anchor="end", cls="lbl strong")
 p.text(0.79, -12, f"평균 예측확률 {P['p_by'][1] * 100:.1f}%", anchor="end", dy=17, cls="lbl small")
 save("ch09_predhist", figure(p.svg("입원 여부별 예측확률 분포"),
-     f"그림 9-7. 예측모형이 계산한 1년 입원 확률의 분포. 위(주황)는 실제로 입원한 환자, 아래(파랑)는 입원하지 않은 환자이며, 각 군 안에서의 비율로 그렸습니다. 입원한 환자의 예측확률이 전체적으로 오른쪽에 있지만 두 분포가 많이 겹칩니다. C 통계량 {P['auc'][0]:.2f}은 이 겹침의 정도를 한 숫자로 요약한 것이고, 임계값을 어디에 두느냐에 따라 민감도와 특이도가 달라집니다."))
+     f"그림 9-8. 예측모형이 계산한 1년 입원 확률의 분포. 위(주황)는 실제로 입원한 환자, 아래(파랑)는 입원하지 않은 환자이며, 각 군 안에서의 비율로 그렸습니다. 입원한 환자의 예측확률이 전체적으로 오른쪽에 있지만 두 분포가 많이 겹칩니다. C 통계량 {P['auc'][0]:.2f}은 이 겹침의 정도를 한 숫자로 요약한 것이고, 임계값을 어디에 두느냐에 따라 민감도와 특이도가 달라집니다."))
 
 # ======================================================================
 # 9-8 journal-style ROC + calibration (paper box)
@@ -311,7 +311,7 @@ mark(pb, last_d["mean_p"], last_d["obs_rate"], 4, dx=-16, dy=-12)
 mark(pb, last_e["mean_p"], last_e["obs_rate"], 5, dx=14, dy=10)
 mark(pb, 0.012, 0.565, 6, dx=-12, dy=-5)
 save("ch09_paperroc", figure([pa.svg("ROC 곡선: 개발 자료와 외부 검증 자료"), pb.svg("교정 그림: 개발 자료와 외부 검증 자료")],
-     "그림 9-8. 예측모형 논문의 전형적인 성능 그림(가상의 예시). 원문 범례: “Figure 3. Performance of the prediction model in the development cohort (blue) and the external validation cohort (orange). (A) Receiver operating characteristic curves; dots indicate a risk threshold of 0.2. (B) Calibration plots; dots show the mean predicted probability and the observed proportion (95% CI) in each decile of predicted risk, and dashed lines are smoothed calibration curves. The diagonal line represents perfect calibration.”", cols=2))
+     "그림 9-9. 예측모형 논문의 전형적인 성능 그림(가상의 예시). 원문 범례: “Figure 3. Performance of the prediction model in the development cohort (blue) and the external validation cohort (orange). (A) Receiver operating characteristic curves; dots indicate a risk threshold of 0.2. (B) Calibration plots; dots show the mean predicted probability and the observed proportion (95% CI) in each decile of predicted risk, and dashed lines are smoothed calibration curves. The diagonal line represents perfect calibration.”", cols=2))
 
 print("figures written:", [f for f in sorted(os.listdir(OUT)) if f.startswith("ch09_")])
 

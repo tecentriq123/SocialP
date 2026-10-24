@@ -2,7 +2,7 @@
 
 Run:  source /home/claude/pylibs/env.sh && python3 gen/fig_ch15.py      (about 30 s; calls nums_ch15.compute())
 Writes figs/ch15_dag.html, ch15_psdist.html, ch15_target.html, ch15_love.html, ch15_cuminc.html, ch15_forest.html
-(captions 그림 15-1 … 15-6 in this order of appearance).
+(captions 그림 15-1 … 15-3, 15-5 … 15-7 in this order of appearance; 15-4 is ch15_matched from gen/fig_extra_qc.py).
 """
 import sys, os, math
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -202,7 +202,7 @@ mx_pre = max(abs(r["smd_pre"]) for r in meas); mx_m = max(abs(r["smd_m"]) for r 
 print("love: max |SMD| pre %.3f matched %.3f iptw %.3f" % (mx_pre, mx_m, mx_w))
 save("ch15_love", figure(
     p.svg("성향점수 적용 전후 공변량별 표준화 평균차 (Love plot)"),
-    "그림 15-4. 공변량 균형을 보여 주는 Love plot. 빈 원은 보정 전, 파란 점은 1:1 매칭 후, 초록 점은 IPTW 후의 |SMD|입니다. "
+    "그림 15-5. 공변량 균형을 보여 주는 Love plot. 빈 원은 보정 전, 파란 점은 1:1 매칭 후, 초록 점은 IPTW 후의 |SMD|입니다. "
     "0.1 점선은 흔히 쓰는 기준이고 그 오른쪽에 있는 점은 이 기준으로 균형이 맞지 않은 변수이므로, 변수마다 세 점이 점선의 어느 쪽에 있는지 보세요. "
     "이 그림은 성향점수 모형에 넣은 변수의 균형만 보여 줍니다."))
 
@@ -226,7 +226,7 @@ pa = cum_panel(km["cA"], km["cB"], "a. 보정 전", e["cA"], e["cB"])
 pb = cum_panel(km["wA"], km["wB"], "b. IPTW 가중 후", e["wA"], e["wB"])
 save("ch15_cuminc", figure(
     [pa.svg("보정 전 두 군의 입원 누적 발생률 곡선"), pb.svg("IPTW 가중 후 두 군의 입원 누적 발생률 곡선")],
-    "그림 15-5. 1년 동안의 입원 누적 발생률(1 − Kaplan-Meier 생존확률). 범례의 괄호 안이 1년 누적 발생률입니다. "
+    "그림 15-6. 1년 동안의 입원 누적 발생률(1 − Kaplan-Meier 생존확률). 범례의 괄호 안이 1년 누적 발생률입니다. "
     "(a) 보정 전에는 A군의 곡선이 처음부터 위에 있습니다. (b) 성향점수 가중치를 준 곡선은 측정한 기저특성이 같아진 두 가상 집단의 곡선으로, "
     "두 곡선이 거의 겹치고 A가 조금 아래에 있습니다. 논문에서는 'weighted' 또는 'adjusted cumulative incidence curves'라고 부릅니다.",
     cols=2))
@@ -263,7 +263,7 @@ extra = (f'<line x1="{xt:.1f}" y1="8" x2="{xt:.1f}" y2="{yb}" class="ln s3" stro
 svg = svg.replace("</svg>", extra + "</svg>").replace('aria-label="forest plot"', 'aria-label="보정 방법별 상대위험도 추정값과 참값의 비교"')
 save("ch15_forest", figure(
     svg,
-    "그림 15-6. 같은 코호트를 여러 방법으로 분석한 상대위험도. 초록 점선은 이 가상 자료를 만들 때 정한 참값 0.80입니다. "
+    "그림 15-7. 같은 코호트를 여러 방법으로 분석한 상대위험도. 초록 점선은 이 가상 자료를 만들 때 정한 참값 0.80입니다. "
     "측정한 7개 변수만 쓴 위쪽 줄들이 점선에서 얼마나 떨어져 있는지, 신뢰구간이 1을 포함하는지 보고, "
     "청구자료에 없는 허약까지 넣은 아래 세 줄(초록)과 비교해 보세요. "
     "ATT 가중은 B군을 A 사용자의 구성에 맞춘 가중(c 절의 접힌 상자 '실제 A 사용자 기준 효과를 가중으로 구하려면?'), 겹침 가중은 두 약을 모두 받을 만했던 환자에게 가중치를 더 주는 가중(c 절의 접힌 상자 '두 치료가 모두 고려될 만했던 환자에서의 효과는?'), "
