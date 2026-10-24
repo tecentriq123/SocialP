@@ -589,6 +589,14 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .practice details { border-top: 1px dashed var(--line); padding-top: 6px; }
 .practice summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent-ink); width: fit-content; }
 .practice details > div { padding: 8px 0 2px; font-size: 15px; line-height: 1.75; color: var(--ink-2); }
+/* 잠깐 확인: 개념 소제목 끝의 한 줄 질문과 접힌 답 */
+.quick { margin: 18px 0 22px; border: 1px solid var(--line); border-left: 3px solid var(--good); border-radius: 10px; background: var(--surface); padding: 10px 16px 6px; }
+.quick .qk { font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--good); margin: 0 0 6px; }
+.quick > p:not(.qk) { margin: 0 0 8px; font-size: 15.5px; }
+.quick details { border-top: 1px dashed var(--line); padding-top: 6px; margin-bottom: 4px; }
+.quick summary { cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--accent-ink); width: fit-content; }
+.quick details > div { padding: 6px 0 2px; font-size: 15px; line-height: 1.75; color: var(--ink-2); }
+.quick details > div > p { margin: 0 0 6px; }
 .practice details > div p { margin: 0 0 8px; }
 .cmd-note { font-size: 14px; color: var(--muted); }
 .toc-ch.rv .toc-no { font-size: 17px; padding-top: 6px; }

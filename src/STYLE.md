@@ -140,6 +140,7 @@
 | R 코드 | `<details class="code"><summary>R로 해 보기 · 주제</summary><pre><code>…</code></pre></details>` |
 | 영어 병기 | `<span class="en">(English term)</span>` |
 | 한눈에 보기 | `<dl class="glance"><div><dt>…</dt><dd>…</dd></div>…</dl>` |
+| 잠깐 확인 (2026-10-24) | `<div class="quick"><p class="qk">잠깐 확인</p><p>질문 한두 문장(~나요?)</p><details><summary>답 보기</summary><div><p>답 1–3문장</p></div></details></div>` — 새 개념이나 판단을 가르친 소제목(h3·h4) 끝마다 하나. 방금 읽은 예로 답할 수 있는 개념 질문이고, 계산 위주 문제는 절 끝 '스스로 확인하기'에 둡니다. 접힌 상자 안에는 두지 않습니다. |
 
 R 코드: RStudio(Windows)에서 실행한다는 전제. 짧게(10–20줄), **각 줄에 주석**으로 역할과 출력에서 볼 부분을 설명 ("# 출력의 p-value 줄을 봅니다"). 존재하는 함수·인자만 쓰세요 (base R, survival 패키지 등 표준 패키지 위주).
 
