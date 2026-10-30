@@ -1,4 +1,4 @@
-"""R과 통계분석 6장 자료: pub/data/rcc_switch.csv (대조군의 처치 전환을 허용한 가상 임상시험, 신약 A 대 표준요법 B, 군마다 300명).
+"""R과 통계분석 6장 자료: pub/data/rcc_switch.csv (대조군의 처치전환을 허용한 가상 임상시험, 신약 A 대 표준요법 B, 군마다 300명).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_rc06.py      (정답 값은 gen/_rc06_truth.json)
 

@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">다시 정한 중도절단 없이 맞추기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_nr &lt;- rpsftm(Surv(os, os_event) ~ rand(arm, rx), data = d)    # censor_time을 빼면
+fit_nr$psi
+d$os_nr &lt;- ifelse(d$arm == 1, d$os, fit_nr$Sstar[, &quot;time&quot;])
+d$ev_nr &lt;- ifelse(d$arm == 1, d$os_event, fit_nr$Sstar[, &quot;status&quot;])
+hr_nr &lt;- hr(coxph(Surv(os_nr, ev_nr) ~ arm, data = d))
+hr_nr
+c(max_time_B = max(d$os_nr[d$arm == 0]),
+  deaths_B_no_rc = sum(d$ev_nr[d$arm == 0]), deaths_B_rc = sum(d$ev_rp[d$arm == 0]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] -0.3425335<span class="mk">1</span>
+    HR  2.5 % 97.5 % 
+ 0.610<span class="mk">2</span>  0.494  0.753 
+    max_time_B deaths_B_no_rc    deaths_B_rc 
+        41.732<span class="mk">3</span>        194.000        156.000<span class="mk">4</span></pre></div></div>

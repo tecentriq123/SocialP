@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">두 단계 방법: 진행 뒤 생존의 AFT 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b$t_post &lt;- b$os - b$pfs                                         # 진행 뒤 생존 시간
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">두 단계 방법: 진행 뒤 생존의 AFT 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b$t_post &lt;- b$os - b$pfs                                         # 진행 뒤 생존 시간
 fit_ts &lt;- survreg(Surv(t_post, os_event) ~ switch + ps_prog + ecog + age,
                   data = b, dist = &quot;weibull&quot;)
 round(summary(fit_ts)$table, 3)

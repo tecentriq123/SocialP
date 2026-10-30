@@ -87,13 +87,21 @@
 <li><span class="mk">1</span><span><b>3000 10.</b> 3,000명, 열 10개입니다.</span></li>
 <li><span class="mk">2</span><span><b>R0001.</b> 한 사람이 한 행입니다. <code>cost</code>는 약값(<code>cost_drug</code>), 외래(<code>cost_op</code>), 입원(<code>cost_inp</code>)을 더한 1년 진료비입니다.</span></li>
 </ol>
+<!--FOLD do:자료 주소가 열리지 않으면?-->
+<p>이 과목의 노트북은 모두 이 사이트의 주소(<code>BASE</code>)에서 자료를 읽습니다. 인터넷이 막힌 분석 환경이거나 사이트 주소가 바뀌어 <code>read.csv()</code>가 파일을 찾지 못하면, 파일을 먼저 내려받아 내 경로로 읽습니다.</p>
+<ol>
+<li>인터넷이 되는 컴퓨터의 브라우저에서 <code>BASE</code>의 주소 뒤에 파일 이름을 붙인 주소(예를 들어 <code>…/data/rcc_cost.csv</code>)를 열어 파일을 저장합니다.</li>
+<li>내 컴퓨터라면 <code>read.csv("C:/data/rcc_cost.csv")</code>처럼 저장한 경로를 줍니다. Colab이라면 왼쪽의 파일 창에 파일을 올린 뒤 <code>read.csv("rcc_cost.csv")</code>로 읽습니다.</li>
+<li>노트북의 다른 셀은 고칠 필요가 없습니다. 자료를 읽는 줄만 바꾸면 됩니다.</li>
+</ol>
+<!--/FOLD-->
 
 <h3>열의 형식과 요약은 어떻게 보나?</h3>
 <p><strong><code>str()</code>은 열마다 형식과 앞의 값 몇 개를, <code>summary()</code>는 숫자 열의 분포를 보여 줍니다. 분석 전에 형식, 범위, 결측을 먼저 봅니다.</strong></p>
 <!--FIG:rc00_str-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>arm chr.</b> 군(A, B)이 글자로 읽혔습니다. int는 정수, num은 소수입니다.</span></li>
-<li><span class="mk">2</span><span><b>중앙값 2,218.7, 평균 2,431.6.</b> 평균이 중앙값보다 크고 최댓값이 2억 원이 넘어, 비용이 오른쪽으로 길게 치우친 자료입니다(<a href="stats.html#ch21-s2">21장 b 절</a>).</span></li>
+<li><span class="mk">2</span><span><b>중앙값 2,218.7, 평균 2,431.6.</b> 평균이 중앙값보다 크고 최댓값이 2억 원이 넘어, 비용이 오른쪽으로 길게 치우친 자료입니다(보건통계학 기초 <a href="stats.html#ch21-s2">21장 b 절</a>).</span></li>
 <li><span class="mk">3</span><span><b>[1] 0.</b> 자료 전체에 결측(NA)이 없습니다. 열마다 보려면 <code>colSums(is.na(cost))</code>를 씁니다.</span></li>
 </ol>
 
@@ -129,7 +137,7 @@
 </ol>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>1203.</b> A군 환자 수입니다.</span></li>
-<li><span class="mk">2</span><span><b>2,272.8과 2,668.9.</b> 군별 평균 비용으로 21장 b 절의 2,273만원과 2,669만원입니다.</span></li>
+<li><span class="mk">2</span><span><b>2,272.8과 2,668.9.</b> 군별 평균 비용으로 보건통계학 기초 21장 b 절의 2,273만원과 2,669만원입니다.</span></li>
 <li><span class="mk">3</span><span><b>1,836.4.</b> B군의 중앙값입니다. 평균보다 400만원 넘게 작습니다.</span></li>
 </ol>
 
@@ -145,21 +153,21 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>masked.</b> dplyr의 <code>filter()</code>와 <code>lag()</code>가 기본 R의 같은 이름 함수를 가린다는 안내입니다. 오류가 아닙니다. 가려진 함수는 <code>stats::filter()</code>처럼 패키지 이름을 붙여 부릅니다.</span></li>
 <li><span class="mk">2</span><span><b>tibble 2 x 5.</b> dplyr의 표 형식입니다. 숫자를 보기 좋게 줄여 보여 주므로(2273.) 정확한 값은 <code>as.data.frame()</code>으로 바꿔 봅니다.</span></li>
-<li><span class="mk">3</span><span><b>0.357.</b> B군의 35.7%는 입원비가 0원입니다(21장 b 절의 36%).</span></li>
+<li><span class="mk">3</span><span><b>0.357.</b> B군의 35.7%는 입원비가 0원입니다(보건통계학 기초 21장 b 절의 36%).</span></li>
 </ol>
 
 <h3>파이썬 실습의 코드는 R에서 어떻게 쓰나?</h3>
 <div class="tbl-wrap"><table class="tbl tight">
-<thead><tr><th>파이썬 (pandas, statsmodels)</th><th>R</th></tr></thead>
+<thead><tr><th>파이썬<br>(pandas, statsmodels)</th><th>R</th></tr></thead>
 <tbody>
 <tr><td><code>pd.read_csv(path)</code></td><td><code>read.csv(path)</code></td></tr>
 <tr><td><code>df.shape</code>, <code>df.head()</code>, <code>df.info()</code></td><td><code>dim(df)</code>, <code>head(df)</code>, <code>str(df)</code></td></tr>
 <tr><td><code>df["cost"]</code></td><td><code>df$cost</code></td></tr>
 <tr><td><code>df[df["arm"] == "A"]</code></td><td><code>df[df$arm == "A", ]</code> 또는 <code>filter(df, arm == "A")</code></td></tr>
-<tr><td><code>df.groupby("arm")["cost"].mean()</code></td><td><code>tapply(df$cost, df$arm, mean)</code></td></tr>
+<tr><td><code>df.groupby("arm")<wbr>["cost"].mean()</code></td><td><code>tapply(df$cost, df$arm,<wbr> mean)</code></td></tr>
 <tr><td><code>df.isna().sum()</code></td><td><code>colSums(is.na(df))</code></td></tr>
 <tr><td>위치는 0부터</td><td>위치는 1부터</td></tr>
-<tr><td><code>smf.ols("cost ~ A + age", df).fit()</code></td><td><code>lm(cost ~ arm + age, data = df)</code></td></tr>
+<tr><td><code>smf.ols("cost ~ A + age", df)<wbr>.fit()</code></td><td><code>lm(cost ~ arm + age, data = df)</code></td></tr>
 <tr><td><code>res.summary()</code>, <code>res.conf_int()</code></td><td><code>summary(fit)</code>, <code>confint(fit)</code></td></tr>
 </tbody></table></div>
 </section>
@@ -169,10 +177,10 @@
 <h2><span class="sec-no">e.</span>결과를 읽고 남기기</h2>
 
 <h3>모형의 출력은 어디서 보나?</h3>
-<p><strong>모형을 맞춘 결과는 객체에 담기고, 이름만 쓰면 짧은 요약이, <code>summary()</code>를 쓰면 표준오차와 P까지 나옵니다.</strong> 아래는 21장 c 절의 선형회귀와 같은 모형입니다.</p>
+<p><strong>모형을 맞춘 결과는 객체에 담기고, 이름만 쓰면 짧은 요약이, <code>summary()</code>를 쓰면 표준오차와 P까지 나옵니다.</strong> 아래는 보건통계학 기초 21장 c 절의 선형회귀와 같은 모형입니다.</p>
 <!--FIG:rc00_lm-->
 <ol class="marks">
-<li><span class="mk">1</span><span><b>armA 512.573.</b> 나이, 성별, 동반질환 점수, 4기 여부가 같을 때 신약 A군의 1년 비용이 B군보다 513만원 많다는 계수입니다(<a href="stats.html#ch21-s3">21장 c 절</a>). 기준범주를 B로 정했기 때문에 'armA'라는 이름이 붙었습니다.</span></li>
+<li><span class="mk">1</span><span><b>armA 512.573.</b> 나이, 성별, 동반질환 점수, 4기 여부가 같을 때 신약 A군의 1년 비용이 B군보다 513만원 많다는 계수입니다(보건통계학 기초 <a href="stats.html#ch21-s3">21장 c 절</a>). 기준범주를 B로 정했기 때문에 'armA'라는 이름이 붙었습니다.</span></li>
 </ol>
 <!--FIG:rc00_sum-->
 <ol class="marks">
@@ -182,7 +190,7 @@
 </ol>
 
 <h3>신뢰구간과 강건 표준오차는 어떻게 구하나?</h3>
-<p><strong><code>confint()</code>가 계수의 95% 신뢰구간을 줍니다. 비용처럼 환자마다 흩어짐이 다른 자료에서는 R의 기본 표준오차 대신 강건 표준오차를 씁니다.</strong> R의 <code>lm()</code>은 기본으로 흩어짐이 같다고 가정하고, 21장은 파이썬에서 HC3 강건 표준오차를 따로 지정했습니다. R에서는 sandwich와 lmtest 패키지로 같은 값을 얻습니다.</p>
+<p><strong><code>confint()</code>가 계수의 95% 신뢰구간을 줍니다. 비용처럼 환자마다 흩어짐이 다른 자료에서는 R의 기본 표준오차 대신 강건 표준오차를 씁니다.</strong> R의 <code>lm()</code>은 기본으로 흩어짐이 같다고 가정하고, 보건통계학 기초 21장은 파이썬에서 HC3 강건 표준오차를 따로 지정했습니다. R에서는 sandwich와 lmtest 패키지로 같은 값을 얻습니다.</p>
 <!--FIG:rc00_ci-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -193,8 +201,8 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>406.3–618.9.</b> 기본 표준오차로 구한 군 차이의 신뢰구간입니다.</span></li>
 <li><span class="mk">2</span><span><b>Loading required package: zoo.</b> lmtest가 필요로 하는 패키지를 함께 불러왔다는 안내입니다.</span></li>
-<li><span class="mk">3</span><span><b>Std. Error 50.960.</b> HC3 강건 표준오차로 21장의 값과 같습니다.</span></li>
-<li><span class="mk">4</span><span><b>412.7–612.5.</b> 강건 표준오차로 구한 신뢰구간으로 21장 c 절의 값과 같습니다. 이 자료에서는 기본값과 차이가 작지만, 흩어짐이 군마다 크게 다르면 차이가 커집니다.</span></li>
+<li><span class="mk">3</span><span><b>Std. Error 50.960.</b> HC3 강건 표준오차로 보건통계학 기초 21장의 값과 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>412.7–612.5.</b> 강건 표준오차로 구한 신뢰구간으로 보건통계학 기초 21장 c 절의 값과 같습니다. 이 자료에서는 기본값과 차이가 작지만, 흩어짐이 군마다 크게 다르면 차이가 커집니다.</span></li>
 </ol>
 
 <h3>R은 실수를 어떻게 알려 주나?</h3>

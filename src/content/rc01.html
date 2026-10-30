@@ -229,7 +229,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>family = binomial.</b> 이항분포와 로짓 연결함수입니다(<a href="stats.html#ch08-s4">보건통계학 기초 8장 d 절</a>).</span></li>
 <li><span class="mk">2</span><span><b>0.84640.</b> 흡연의 계수, 곧 로그 오즈비입니다. 실습 9의 0.8464와 같습니다.</span></li>
-<li><span class="mk">3</span><span><b>Residual deviance: 196.83.</b> −2 × 로그우도입니다. 바로 위 Null deviance 234.67과의 차이 37.84가 일곱 변수를 한꺼번에 넣은 효과의 우도비 검정 통계량입니다. 인종이 가변수 둘로 들어가 계수는 여덟 개이고, 자유도도 8입니다(<a href="stats.html#ch08-s5">8장 e 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>Residual deviance: 196.83.</b> −2 × 로그우도입니다. 바로 위 Null deviance 234.67과의 차이 37.84가 일곱 변수를 한꺼번에 넣은 효과의 우도비 검정 통계량입니다. 인종이 가변수 둘로 들어가 계수는 여덟 개이고, 자유도도 8입니다(보건통계학 기초 <a href="stats.html#ch08-s5">8장 e 절</a>).</span></li>
 <li><span class="mk">4</span><span><b>Number of Fisher Scoring iterations: 4.</b> 반복 계산이 네 번 만에 수렴했다는 뜻입니다. statsmodels는 수렴을 판정하는 기준이 달라 반복 수가 6이었지만 추정값은 같습니다.</span></li>
 </ol>
 
@@ -260,7 +260,7 @@
 <li><code>check.names = FALSE</code><span>열 이름 "OR (95% CI)"의 빈칸과 괄호를 그대로 둡니다. 빼면 <code>OR..95..CI.</code>처럼 바뀝니다.</span></li>
 </ol>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>2.33 (1.06-5.29).</b> <code>tidy()</code>는 <code>confint()</code>를 불러 프로파일 구간을 씁니다.</span></li>
+<li><span class="mk">1</span><span><b>2.33 (1.06-5.29).</b> <code>tidy()</code>는 <code>confint()</code>를 불러 프로파일 구간을 씁니다. 그런데 p값 열은 <code>summary()</code>와 같은 Wald 검정 값이라, 한 행 안에서 구간과 p값의 방식이 다릅니다. 이 표에서는 결론이 엇갈리는 행이 없지만, 경계에 있는 결과라면 구간은 1을 포함하는데 p는 0.05보다 작은 표가 나올 수 있습니다. 방식을 맞추려면 구간을 <code>confint.default()</code>의 Wald 구간으로 바꾸거나, p값을 <code>drop1(fit_lr, test = "LRT")</code>의 우도비 검정으로 바꿉니다(변수마다 p값 하나). 어느 쪽이든 표 아래에 적습니다.</span></li>
 <li><span class="mk">2</span><span><b>0.99 (0.97-1.00).</b> 소수 둘째 자리에서는 위 끝이 1.00으로 보여 유의하지 않은 것처럼 읽힙니다(실제 위 끝 0.998, p 0.034). 1 lb라는 단위가 너무 작아서이고, 10 lb당 오즈비로 바꾸면 이런 혼동이 없습니다(과제 2).</span></li>
 <li><span class="mk">3</span><span><b>0.0083.</b> 이 열에서 가장 작은 p값이라 유효숫자 두 자리로 찍혔고, 다른 p값도 같은 소수 넷째 자리에 맞춰졌습니다.</span></li>
 </ol>

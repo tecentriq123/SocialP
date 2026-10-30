@@ -1,4 +1,4 @@
-"""R과 통계분석 6장 · 치료전환 보정 — R cells run for real with rkit (survival, rpsftm).
+"""R과 통계분석 6장 · 처치전환 보정 — R cells run for real with rkit (survival, rpsftm).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_rc06.py && python3 gen/r_rc06.py   (NOMARK=1 … 로 모든 출력)
 
@@ -83,6 +83,17 @@ legend("bottomleft", c("Drug A", "Standard B (as randomised)", "Standard B (RPSF
        col = c("#1f5f8b", "#c8553d", "#c8553d"), lty = c(1, 1, 2), bty = "n")
 ''', title="전환이 없었다면의 대조군 곡선", fig=(7, 4.3))
 
+c_rpnr = nb.cell('''
+fit_nr <- rpsftm(Surv(os, os_event) ~ rand(arm, rx), data = d)    # censor_time을 빼면
+fit_nr$psi
+d$os_nr <- ifelse(d$arm == 1, d$os, fit_nr$Sstar[, "time"])
+d$ev_nr <- ifelse(d$arm == 1, d$os_event, fit_nr$Sstar[, "status"])
+hr_nr <- hr(coxph(Surv(os_nr, ev_nr) ~ arm, data = d))
+hr_nr
+c(max_time_B = max(d$os_nr[d$arm == 0]),
+  deaths_B_no_rc = sum(d$ev_nr[d$arm == 0]), deaths_B_rc = sum(d$ev_rp[d$arm == 0]))
+''', title="다시 정한 중도절단 없이 맞추기")
+
 # d. IPCW
 c_ipw = nb.cell('''
 d$id <- seq_len(nrow(d))
@@ -138,7 +149,8 @@ res <- rbind(ITT            = hr(fit_itt),
              censor_switch  = hr(coxph(Surv(os_c, ev_c) ~ arm, data = d)),
              exclude_switch = hr(coxph(Surv(os, os_event) ~ arm, data = subset(d, switch == 0))),
              RPSFTM         = hr_rp,
-             IPCW           = hr(fit_ipw),
+             RPSFTM_no_rc   = hr_nr,
+             IPCW          = hr(fit_ipw),
              two_stage      = hr_ts,
              two_stage_rc   = hr_tr)
 res
@@ -168,9 +180,10 @@ rm28 <- function(time, event, arm) {
   t <- summary(survfit(Surv(time, event) ~ arm), rmean = 28)$table[, "rmean"]
   round(c(B = unname(t[1]), A = unname(t[2]), diff = unname(t[2] - t[1])), 2)
 }
-rbind(ITT       = rm28(d$os, d$os_event, d$arm),
-      RPSFTM    = rm28(d$os_rp, d$ev_rp, d$arm),
-      two_stage = rm28(d$os_ts, d$ev_ts, d$arm))
+rbind(ITT          = rm28(d$os, d$os_event, d$arm),
+      RPSFTM       = rm28(d$os_rp, d$ev_rp, d$arm),
+      RPSFTM_no_rc = rm28(d$os_nr, d$ev_nr, d$arm),
+      two_stage    = rm28(d$os_ts, d$ev_ts, d$arm))
 ''', title="과제 3 정답: 28개월 평균 생존의 차이")
 
 nb.run()
@@ -191,6 +204,8 @@ assert "0.706" in out[c_itt.n] and "0.950" in out[c_pp.n] and "0.616" in out[c_p
 assert "-0.3357825" in out[c_rp.n]
 assert "0.592" in out[c_rphr.n] and "0.656" in out[c_ipwcox.n] and "0.604" in out[c_ts2.n]
 assert abs(TRUTH["hr_no_switch"] - 0.650) < 0.001
+assert "-0.3425335" in out[c_rpnr.n] and "0.610" in out[c_rpnr.n] and "194.000" in out[c_rpnr.n]
+assert "20.56" in out[c_t3.n]
 
 S = nb.save_fragment
 S("rc06_load", nb.html(c_load, marks={"cens_time": 1, "0 126 174": 2}))
@@ -201,6 +216,7 @@ S("rc06_rx", nb.html(c_rx, marks={"0.54": 1}))
 S("rc06_rp", nb.html(c_rp, marks={"cox.zph": 1, "rx.Mean": 2, "Chisq= 0": 3, "psi: -0.3357825": 4, "exp(psi): 0.7147786": 5, "-0.5823587": 6}))
 S("rc06_rphr", nb.html(c_rphr, marks={"0.592": 1, "0.433 0.810": 2}))
 S("rc06_rpkm", nb.html(c_rpkm))
+S("rc06_rpnr", nb.html(c_rpnr, marks={"-0.3425335": 1, "0.610": 2, "41.732": 3, "156.000": 4}))
 S("rc06_ipw", nb.html(c_ipw, marks={"-2.412": 1, "8.168": 2, "sum_of_weights": 3}))
 S("rc06_ipwcox", nb.html(c_ipwcox, marks={"0.656": 1}))
 S("rc06_ts", nb.html(c_ts, marks={"0.370": 1, "1.447836": 2}))
@@ -209,8 +225,8 @@ S("rc06_sum", nb.html(c_sum))
 S("rc06_t1", nb.html(c_t1))
 S("rc06_t2", nb.html(c_t2))
 S("rc06_t3", nb.html(c_t3, marks={"29.88489": 1}))
-nb.save_ipynb("6장 치료전환 보정 (R과 통계분석)",
-              intro="대조군의 처치 전환을 허용한 가상 시험(rcc_switch.csv)으로 ITT 분석, 단순한 방법, RPSFTM, IPCW, 두 단계 방법의 "
+nb.save_ipynb("6장 처치전환 보정 (R과 통계분석)",
+              intro="대조군의 처치전환을 허용한 가상 시험(rcc_switch.csv)으로 ITT 분석, 단순한 방법, RPSFTM, IPCW, 두 단계 방법의 "
                     "전체생존 위험비를 비교합니다. Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={c_load.n: "## a. 전환이 있는 시험과 ITT 분석", c_pp.n: "## b. 단순한 방법이 틀리는 이유",
                      c_rx.n: "## c. RPSFTM", c_ipw.n: "## d. IPCW", c_ts.n: "## e. 두 단계 방법과 결과 모으기",

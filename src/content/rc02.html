@@ -1,4 +1,4 @@
-<p class="lead">생존분석은 R이 특히 잘 갖춘 분야이고, 그 바탕은 survival 패키지의 두 함수 <code>Surv()</code>와 <code>survfit()</code>입니다. 이 장에서는 폐암 환자 228명의 자료로 생존 자료를 만들고, Kaplan-Meier 곡선과 중앙생존기간을 구하고, 논문 형식의 요약표와 위험집합 표가 붙은 그림을 만들고, 로그순위 검정으로 군을 비교합니다. 보건통계학 기초의 파이썬 실습 7과 같은 자료라서 숫자를 그대로 대조할 수 있습니다. 두 언어가 다른 곳은 신뢰구간입니다. R의 <code>survfit()</code>은 기본으로 log 방식의 구간을 내서, log-log 방식을 쓰는 실습 7과 구간의 끝자리가 다릅니다.</p>
+<p class="lead">생존분석은 R이 특히 잘 갖춘 분야이고, 그 바탕은 survival 패키지의 두 함수 <code>Surv()</code>와 <code>survfit()</code>입니다. 이 장에서는 폐암 환자 228명의 자료로 생존 자료를 만들고, Kaplan-Meier 곡선과 중앙생존기간을 구하고, 논문 형식의 요약표와 위험집합<span class="en">(risk set, number at risk)</span> 표가 붙은 그림을 만들고, 로그순위 검정으로 군을 비교합니다. 보건통계학 기초의 파이썬 실습 7과 같은 자료라서 숫자를 그대로 대조할 수 있습니다. 두 언어가 다른 곳은 신뢰구간입니다. R의 <code>survfit()</code>은 기본으로 log 방식의 구간을 내서, log-log 방식을 쓰는 실습 7과 구간의 끝자리가 다릅니다.</p>
 
 <p class="nb-link"><a href="notebooks/rc02.ipynb" download>이 장의 노트북 내려받기 (rc02.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3, survival 3.8, survminer 0.5로 실제로 실행해 얻었습니다.</p>
 
@@ -43,7 +43,7 @@
 <p>TRUE/FALSE로 적힌 사건 변수는 TRUE를 사건으로 읽습니다. 그러나 0, 1, 2가 섞여 있으면 R은 1/2 부호로 보고 0을 경고와 함께 결측으로 바꿉니다. 경쟁위험 자료처럼 사건의 종류가 여럿이면 사건 변수를 factor로 만들어 넣습니다(<a href="stats.html#ch17">보건통계학 기초 17장</a>). 다른 사람이 만든 자료를 받으면 <code>table()</code>로 값과 인원을 먼저 보고, 어느 값이 사건인지 자료 설명서와 맞춥니다(과제 3).</p>
 
 <h3>중앙 추적기간은 어떻게 구하나?</h3>
-<p><strong>중도절단을 사건으로, 사망을 중도절단으로 바꿔 Kaplan-Meier를 구하면 그 중앙값이 중앙 추적기간입니다.</strong> 역 Kaplan-Meier 방법이라고 부르고, 논문의 결과 첫머리에 적는 값입니다(<a href="stats.html#ch07-s1">보건통계학 기초 7장 a 절</a>)<cite data-ref="schemper1996"></cite>.</p>
+<p><strong>중도절단을 사건으로, 사망을 중도절단으로 바꿔 Kaplan-Meier를 구하면 그 중앙값이 중앙 추적기간입니다.</strong> 역 Kaplan-Meier<span class="en">(reverse Kaplan-Meier)</span> 방법이라고 부르고, 논문의 결과 첫머리에 적는 값입니다(<a href="stats.html#ch07-s1">보건통계학 기초 7장 a 절</a>)<cite data-ref="schemper1996"></cite>.</p>
 <!--FIG:rc02_fu-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">

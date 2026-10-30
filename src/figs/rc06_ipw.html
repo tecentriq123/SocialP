@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">전환을 예측하는 모형과 무게</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$id &lt;- seq_len(nrow(d))
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">전환을 예측하는 모형과 무게</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$id &lt;- seq_len(nrow(d))
 b &lt;- subset(d, arm == 0 &amp; pfs_event == 1)                         # 전환할 수 있었던 환자
 sw_fit &lt;- glm(switch ~ ps_prog + ecog + age, family = binomial, data = b)
 round(summary(sw_fit)$coefficients, 3)
