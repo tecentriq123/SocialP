@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">전환한 환자를 중도절단하거나 빼면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$os_c &lt;- ifelse(d$switch == 1, d$switch_time, d$os)      # 전환한 시점에 중도절단
+d$ev_c &lt;- ifelse(d$switch == 1, 0, d$os_event)
+hr(coxph(Surv(os_c, ev_c) ~ arm, data = d))
+hr(coxph(Surv(os, os_event) ~ arm, data = subset(d, switch == 0)))   # 전환한 환자 빼기</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    HR  2.5 % 97.5 % 
+ 0.950<span class="mk">1</span>  0.727  1.241 
+    HR  2.5 % 97.5 % 
+ 0.616<span class="mk">2</span>  0.473  0.803</pre></div></div>

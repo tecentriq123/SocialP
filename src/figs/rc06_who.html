@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">누가 전환했나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">prog_b &lt;- subset(d, arm == 0 &amp; pfs_event == 1)      # 진행한 대조군
+table(ps_prog = prog_b$ps_prog, switch = prog_b$switch)
+round(tapply(prog_b$switch, prog_b$ps_prog, mean), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       switch
+ps_prog   0   1
+      0  31 145<span class="mk">1</span>
+      1  70  29
+   0    1 
+0.82<span class="mk">2</span> 0.29</pre></div></div>

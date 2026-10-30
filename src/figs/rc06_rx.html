@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">신약을 받은 시간의 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$rx &lt;- ifelse(d$arm == 1, 1,
+               ifelse(d$switch == 1, (d$os - d$switch_time) / d$os, 0))
+round(tapply(d$rx, list(arm = d$arm, switch = d$switch), mean), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   switch
+arm 0    1
+  0 0 0.54<span class="mk">1</span>
+  1 1   NA</pre></div></div>

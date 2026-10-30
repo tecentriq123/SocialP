@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">과제 2 정답: 읽기 오차가 없는 좌표로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">step &lt;- data.frame(time = c(0, rep(km_o$time[km_o$n.event &gt; 0], each = 2)),
+                   surv = c(1, as.vector(rbind(c(1, head(km_o$surv[km_o$n.event &gt; 0], -1)),
+                                               km_o$surv[km_o$n.event &gt; 0]))))
+step &lt;- rbind(step, data.frame(time = max(orig$months), surv = tail(km_o$surv, 1)))
+rec_x &lt;- getIPD(preprocess(step, trisk = trisk, nrisk = nrisk, totalpts = 300, maxy = 1),
+                armID = 1, tot.events = tot_events)$IPD
+c(events = sum(rec_x$status), after24 = sum(rec_x$status[rec_x$time &gt; 24]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> events after24 
+    149      16</pre></div></div>

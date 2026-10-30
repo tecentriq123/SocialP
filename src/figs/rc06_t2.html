@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 2 정답: 전환의 이유를 모르면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">sw_fit2 &lt;- glm(switch ~ ecog + age, family = binomial, data = b)     # ps_prog를 빼면
+b$w2 &lt;- 1 / (1 - predict(sw_fit2, type = &quot;response&quot;))
+long$w2 &lt;- long$w
+long$w2[long$arm == 0 &amp; long$tstart &gt; 0] &lt;- b$w2[match(long$id[long$arm == 0 &amp; long$tstart &gt; 0], b$id)]
+hr(coxph(Surv(tstart, tstop, event) ~ arm, data = long, weights = w2, cluster = id))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    HR  2.5 % 97.5 % 
+ 0.508  0.396  0.652</pre></div></div>

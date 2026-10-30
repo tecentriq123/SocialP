@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">과제 3 정답: 세로축이 백분율이면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">dig_pct &lt;- transform(dig, surv = surv * 100)      # 세로축이 0-100%인 그림
+rec_p &lt;- getIPD(preprocess(dig_pct, trisk = trisk, nrisk = nrisk, totalpts = 300, maxy = 100),
+                armID = 1, tot.events = tot_events)$IPD
+all.equal(rec_p, rec)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] TRUE<span class="mk">1</span></pre></div></div>

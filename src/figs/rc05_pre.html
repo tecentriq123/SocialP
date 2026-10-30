@@ -1,0 +1,41 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">preprocess()로 좌표 정리하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">install.packages(&quot;IPDfromKM&quot;)
+library(IPDfromKM)
+pre &lt;- preprocess(dat = dig, trisk = trisk, nrisk = nrisk,
+                  totalpts = 300, maxy = 1)
+nrow(pre$preprocessdat)
+head(pre$preprocessdat, 4)
+pre$intervalIndex</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Loading required package: ggplot2<span class="mk">1</span>
+Loading required package: dplyr
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Loading required package: survival
+Loading required package: gridExtra
+
+Attaching package: ‘gridExtra’
+
+The following object is masked from ‘package:dplyr’:
+
+    combine
+
+Loading required package: readbitmap
+[1] 233<span class="mk">2</span>
+   time   surv id interval
+1 0.000 1.0000  1        1
+2 0.102 0.9960  2        1
+3 0.220 0.9960  3        1
+4 0.607 0.9927  4        1
+  interval lower upper<span class="mk">3</span> t.risk n.risk
+1        1     1    56      0    300
+2        2    57   103      6    265
+3        3   104   158     12    238
+4        4   159   212     18    202
+5        5   213   233     24    167</pre></div></div>

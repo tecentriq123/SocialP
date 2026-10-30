@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">3개월 간격의 위험집합 표로 다시</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">trisk3 &lt;- seq(0, 27, by = 3)
+nrisk3 &lt;- c(300, 283, 265, 251, 238, 223, 202, 185, 167, 80)
+rec3 &lt;- getIPD(preprocess(dig, trisk = trisk3, nrisk = nrisk3, totalpts = 300, maxy = 1),
+               armID = 1, tot.events = tot_events)$IPD
+c(events = sum(rec3$status), after24 = sum(rec3$status[rec3$time &gt; 24]))
+ext_tab(Surv(time, status) ~ 1, rec3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> events after24<span class="mk">1</span> 
+    144      11 
+         dAIC  S5y RMST20
+exp       0.3 24.7   3.56
+weibull   0.0 20.7   3.19<span class="mk">2</span>
+gompertz  0.1 15.1   2.78
+lnorm    10.6 32.9   5.24
+llogis    2.3 28.9   4.70
+gengamma  1.8 18.2   2.99</pre></div></div>

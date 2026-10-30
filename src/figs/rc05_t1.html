@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">과제 1 정답: 위험집합 표가 없으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rec0 &lt;- getIPD(preprocess(dig, trisk = 0, nrisk = 300, totalpts = 300, maxy = 1),
+               armID = 1, tot.events = tot_events)$IPD
+c(events = sum(rec0$status))
+summary(survfit(Surv(time, status) ~ 1, data = rec0), times = trisk)[c(&quot;n.risk&quot;, &quot;surv&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>events 
+   106 
+$n.risk
+[1] 300 236 182 127  75
+
+$surv
+[1] 1.0000000 0.8842645 0.7917948 0.6754418 0.5525068</pre></div></div>

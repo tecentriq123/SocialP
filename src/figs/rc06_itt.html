@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">배정대로 분석(ITT)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">hr &lt;- function(fit) round(exp(c(HR = unname(coef(fit)[1]), confint(fit)[1, ])), 3)
+fit_itt &lt;- coxph(Surv(os, os_event) ~ arm, data = d)
+hr(fit_itt)
+survdiff(Surv(os, os_event) ~ arm, data = d)$pvalue</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    HR  2.5 % 97.5 % 
+ 0.706<span class="mk">1</span>  0.572  0.870 
+[1] 0.001041796<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">전환이 있는 시험 자료</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(survival)
+options(HTTPUserAgent = &quot;Mozilla/5.0&quot;)
+BASE &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+d &lt;- read.csv(paste0(BASE, &quot;rcc_switch.csv&quot;))
+head(d, 3)
+table(arm = d$arm, switch = d$switch)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   pid arm age ecog    pfs pfs_event ps_prog switch switch_time     os os_event
+1 S001   1  55    1  6.072         1       0      0          NA 13.747        1
+2 S002   1  64    0 31.654         0      NA      0          NA 31.654        0
+3 S003   1  45    0  5.259         1       0      0          NA 30.776        0
+  cens_time<span class="mk">1</span>
+1    38.417
+2    31.654
+3    30.776
+   switch
+arm   0   1
+  0 126 174<span class="mk">2</span>
+  1 300   0</pre></div></div>

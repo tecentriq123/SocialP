@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">rpsftm()으로 ψ 추정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">install.packages(&quot;rpsftm&quot;)
+library(rpsftm)
+fit_rp &lt;- rpsftm(Surv(os, os_event) ~ rand(arm, rx), data = d,
+                 censor_time = cens_time)
+fit_rp
+fit_rp$CI</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Attaching package: ‘rpsftm’
+
+The following object is masked from ‘package:survival’:
+
+    cox.zph<span class="mk">1</span>
+
+  arm   rx.Min. rx.1st Qu. rx.Median   rx.Mean<span class="mk">2</span> rx.3rd Qu.   rx.Max.
+1   0 0.0000000  0.0000000 0.1925314 0.3131349  0.6015617 0.9996346
+2   1 1.0000000  1.0000000 1.0000000 1.0000000  1.0000000 1.0000000
+Call:
+rpsftm(formula = Surv(os, os_event) ~ rand(arm, rx), data = d, 
+    censor_time = cens_time)
+
+         N Observed Expected (O-E)^2/E (O-E)^2/V
+.arm=0 300      156      156  0.000757    0.0015
+.arm=1 300      160      160  0.000741    0.0015
+
+ Chisq= 0<span class="mk">3</span>  on 1 degrees of freedom, p= 1 
+
+psi: -0.3357825<span class="mk">4</span>
+exp(psi): 0.7147786<span class="mk">5</span> 
+[1] -0.5823587<span class="mk">6</span> -0.1558095</pre></div></div>

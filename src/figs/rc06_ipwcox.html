@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">무게를 준 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cols &lt;- c(&quot;id&quot;, &quot;arm&quot;, &quot;tstart&quot;, &quot;tstop&quot;, &quot;event&quot;, &quot;w&quot;)
+pre  &lt;- transform(d, tstart = 0, tstop = pfs, w = 1,
+                  event = ifelse(pfs_event == 1, 0L, os_event))      # 진행 전 구간
+post &lt;- transform(subset(d, pfs_event == 1 &amp; switch == 0),
+                  tstart = pfs, tstop = os, event = os_event, w = 1) # 진행 뒤, 전환한 환자는 없음
+post$w[post$arm == 0] &lt;- b$w[match(post$id[post$arm == 0], b$id)]
+long &lt;- rbind(pre[, cols], post[, cols])
+fit_ipw &lt;- coxph(Surv(tstart, tstop, event) ~ arm, data = long,
+                 weights = w, cluster = id)
+hr(fit_ipw)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    HR  2.5 % 97.5 % 
+ 0.656<span class="mk">1</span>  0.489  0.880</pre></div></div>

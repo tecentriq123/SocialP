@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">여섯 분포로 외삽한 결과 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(flexsurv)
+dists &lt;- c(exp = &quot;exp&quot;, weibull = &quot;weibull&quot;, gompertz = &quot;gompertz&quot;,
+           lnorm = &quot;lnorm&quot;, llogis = &quot;llogis&quot;, gengamma = &quot;gengamma&quot;)
+ext_tab &lt;- function(formula, data) {          # 여섯 분포의 AIC 차이, 5년 생존율, 20년 평균 생존
+  fits &lt;- lapply(dists, function(k) flexsurvreg(formula, data = data, dist = k))
+  aic  &lt;- sapply(fits, AIC)
+  data.frame(dAIC = round(aic - min(aic), 1),
+             S5y  = round(100 * sapply(fits, function(f)
+                      summary(f, t = 60, ci = FALSE, tidy = TRUE)$est), 1),
+             RMST20 = round(sapply(fits, function(f)
+                      summary(f, t = 240, type = &quot;rmst&quot;, ci = FALSE, tidy = TRUE)$est) / 12, 2))
+}
+cbind(ext_tab(Surv(months, event) ~ 1, orig), ext_tab(Surv(time, status) ~ 1, rec))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         dAIC<span class="mk">1</span>  S5y RMST20 dAIC  S5y RMST20
+exp       1.9 24.1   3.50  0.0 25.7   3.67
+weibull   1.0 19.5   3.10<span class="mk">2</span>  0.8 23.1   3.40<span class="mk">3</span>
+gompertz  0.0 11.1   2.60  1.5 21.5   3.17
+lnorm    14.9 32.6   5.19  8.5 33.7   5.37
+llogis    4.8 28.3   4.62  1.4 30.1   4.88
+gengamma  2.0 12.1   2.64  2.7 24.2   3.54</pre></div></div>

@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">그림에서 읽어 낸 좌표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">options(HTTPUserAgent = &quot;Mozilla/5.0&quot;)
+BASE &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+dig &lt;- read.csv(paste0(BASE, &quot;rcc_km_digitized.csv&quot;))
+dim(dig)
+head(dig, 8)
+c(time_reversed = sum(diff(dig$time) &lt; 0), surv_up = sum(diff(dig$surv) &gt; 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 240   2<span class="mk">1</span>
+   time   surv
+1 0.000 1.0000
+2 0.220 0.9960<span class="mk">2</span>
+3 0.102 0.9960
+4 0.842 0.9946
+5 0.607 0.9927
+6 0.729 0.9941
+7 0.739 0.9836
+8 0.676 0.9799
+time_reversed<span class="mk">3</span>       surv_up 
+           74            83</pre></div></div>

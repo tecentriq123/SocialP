@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">getIPD()로 환자 자료 되살리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ipd &lt;- getIPD(prep = pre, armID = 1, tot.events = tot_events)
+summary(ipd)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+The function read in  233 points from the K-M curve, and 5 numbers of patients at risk. 
+Thus the read-in points are divided into  5 time intervals. 
+
+ interval lower upper trisk nrisk nrisk.hat<span class="mk">1</span> censor.hat<span class="mk">2</span> event.hat
+        1     1    56     0   300       300          0        35
+        2    57   103     6   265       265          0        27
+        3   104   158    12   238       238          0        36
+        4   159   212    18   202       202          3        35
+        5   213   233    24   164<span class="mk">3</span>       164          0        15
+
+The root-mean-square error between estimated and read-in survival probabilities is 0.001 . 
+The mean absolute error between estimated and read-in survival probabilities is 0.001 . 
+The max absolute error<span class="mk">4</span> between estimated and read-in survival probabilities is 0.002 . 
+
+The Kolmogorov-Smirnov test: 
+Test statistics D= 0.03433<span class="mk">5</span>       p-value= 0.9992 
+Null hypothesis: distributions of the read-in and estimated survival probabilities are the same.</pre></div></div>

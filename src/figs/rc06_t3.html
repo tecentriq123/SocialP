@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 3 정답: 28개월 평균 생존의 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">c(max_time_RPSFTM_B = max(d$os_rp[d$arm == 0]))
+rm28 &lt;- function(time, event, arm) {
+  t &lt;- summary(survfit(Surv(time, event) ~ arm), rmean = 28)$table[, &quot;rmean&quot;]
+  round(c(B = unname(t[1]), A = unname(t[2]), diff = unname(t[2] - t[1])), 2)
+}
+rbind(ITT       = rm28(d$os, d$os_event, d$arm),
+      RPSFTM    = rm28(d$os_rp, d$ev_rp, d$arm),
+      two_stage = rm28(d$os_ts, d$ev_ts, d$arm))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>max_time_RPSFTM_B 
+         29.88489<span class="mk">1</span> 
+              B     A diff
+ITT       21.44 23.55 2.11
+RPSFTM    20.63 23.55 2.91
+two_stage 20.48 23.55 3.06</pre></div></div>

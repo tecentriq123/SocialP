@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">방법별 위험비 모아 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">res &lt;- rbind(ITT            = hr(fit_itt),
+             censor_switch  = hr(coxph(Surv(os_c, ev_c) ~ arm, data = d)),
+             exclude_switch = hr(coxph(Surv(os, os_event) ~ arm, data = subset(d, switch == 0))),
+             RPSFTM         = hr_rp,
+             IPCW           = hr(fit_ipw),
+             two_stage      = hr_ts)
+res</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                  HR 2.5 % 97.5 %
+ITT            0.706 0.572  0.870
+censor_switch  0.950 0.727  1.241
+exclude_switch 0.616 0.473  0.803
+RPSFTM         0.592 0.466  0.751
+IPCW           0.656 0.489  0.880
+two_stage      0.604 0.489  0.746</pre></div></div>

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">원자료와 생존율 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">orig &lt;- read.csv(paste0(BASE, &quot;rcc_trial.csv&quot;))     # 정답 확인용 원자료
+km_o &lt;- survfit(Surv(months, event) ~ 1, data = orig)
+at &lt;- c(6, 12, 18, 24, 29)
+round(cbind(months = at, original = summary(km_o, times = at)$surv,
+            reconstructed = summary(km_r, times = at)$surv), 4)
+after24 &lt;- function(t, e)            # 24개월 뒤의 사망 수와 위험집합에 머문 기간(사람-월)
+  c(deaths = sum(e[t &gt; 24]), person_months = round(sum(pmax(0, t - 24)), 1))
+rbind(original = after24(orig$months, orig$event), reconstructed = after24(rec$time, rec$status))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     months original reconstructed
+[1,]      6   0.8833        0.8833
+[2,]     12   0.7933        0.7933
+[3,]     18   0.6733        0.6733
+[4,]     24   0.5567<span class="mk">1</span>        0.5558
+[5,]     29   0.5030        0.5084
+              deaths person_months
+original          12         469.6<span class="mk">2</span>
+reconstructed     15         908<span class="mk">3</span>.0</pre></div></div>

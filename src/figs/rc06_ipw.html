@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">전환을 예측하는 모형과 무게</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$id &lt;- seq_len(nrow(d))
+b &lt;- subset(d, arm == 0 &amp; pfs_event == 1)                         # 전환할 수 있었던 환자
+sw_fit &lt;- glm(switch ~ ps_prog + ecog + age, family = binomial, data = b)
+round(summary(sw_fit)$coefficients, 3)
+b$w &lt;- 1 / (1 - predict(sw_fit, type = &quot;response&quot;))             # 전환하지 않을 확률의 역수
+summary(b$w[b$switch == 0])
+c(progressed = nrow(b), sum_of_weights = round(sum(b$w[b$switch == 0]), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)    3.019      1.039   2.906    0.004
+ps_prog       -2.412<span class="mk">1</span>      0.302  -7.974    0.000
+ecog          -0.062      0.301  -0.207    0.836
+age           -0.023      0.016  -1.455    0.146
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  1.238   1.367   1.457   2.770   4.819   8.168<span class="mk">2</span> 
+    progressed sum_of_weights<span class="mk">3</span> 
+         275.0          279.8</pre></div></div>

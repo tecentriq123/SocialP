@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">두 단계 방법: 진행 뒤 생존의 AFT 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b$t_post &lt;- b$os - b$pfs                                         # 진행 뒤 생존 시간
+fit_ts &lt;- survreg(Surv(t_post, os_event) ~ switch + ps_prog + ecog + age,
+                  data = b, dist = &quot;weibull&quot;)
+round(summary(fit_ts)$table, 3)
+af &lt;- unname(exp(coef(fit_ts)[&quot;switch&quot;]))                        # 전환이 진행 뒤 시간을 늘린 배수
+af</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             Value Std. Error      z     p
+(Intercept)  4.421      0.519  8.514 0.000
+switch       0.370<span class="mk">1</span>      0.155  2.388 0.017
+ps_prog     -0.946      0.155 -6.105 0.000
+ecog        -0.456      0.135 -3.386 0.001
+age         -0.022      0.008 -2.866 0.004
+Log(scale)  -0.081      0.060 -1.355 0.175
+[1] 1.447836<span class="mk">2</span></pre></div></div>
