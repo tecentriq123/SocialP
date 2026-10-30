@@ -7,7 +7,7 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/data_lab19.py && python3 
 The data (pub/data/acs_trials.csv, acs_trials_subgroup.csv) are the chapter-19 example exported by gen/data_lab19.py.
 The block at the end checks the lab's numbers against gen/nums_ch19.py compute() and the values printed in ch19.html.
 (2026-10-14: 19장을 PART 3의 새 틀로 고친 뒤 '실습 19에 더할 것'을 반영했다. 버전 셀 1, 더한 사건 수의 신뢰구간(셀 4),
- 주요 출혈의 0건 처리 민감도(셀 14, 옛 과제 3), 신뢰구간에서 표준오차 되살리기(셀 15), 연속형 결과 HbA1c(셀 16),
+ 주요 출혈의 0건 처리 민감도(셀 14, 옛 과제 3), 신뢰구간에서 표준오차 구하기(셀 15), 연속형 결과 HbA1c(셀 16),
  I²의 신뢰구간(셀 19), 시험 안의 차이를 먼저 합치기(셀 21), 기저 위험 바꾸기(셀 28), 유의하지 않은 결과의 NNT(셀 29),
  간접비교(셀 30)를 더했고 포레스트 플롯을 유효성 통합 바로 뒤(셀 12)로 옮겼다. 과제는 ① 출력 해석(임상시험 단계)
  ② 조건 바꾸기(효과 척도) ③ 잘못된 분석 판단(이질성 검정으로 모형 고르기)으로 맞췄다. 셀 번호가 모두 바뀌었다.)
@@ -365,10 +365,10 @@ print(f"largest trial weight: {w.max():.1f}")
 se_h = (np.log(0.96) - np.log(0.70)) / (2 * Z)
 print(f"log HR {np.log(0.82):.3f}, SE {se_h:.3f}")
 
-# 확인: Trial I의 보고된 구간 0.55-0.90에서 되살리면
+# 확인: Trial I의 보고된 구간 0.55-0.90에서 구하면
 print(f"Trial I: SE from CI {(np.log(0.90) - np.log(0.55)) / (2 * Z):.3f}"
       f" vs from counts {es.loc[8, 'se']:.3f}")
-''', title="신뢰구간에서 표준오차 되살리기")
+''', title="신뢰구간에서 표준오차 구하기")
 save("lab19_fromci", c, marks={"SE 0.055, weight 331": 1, "254.7": 2, "SE 0.081": 3,
                                "SE from CI 0.126": 4})
 

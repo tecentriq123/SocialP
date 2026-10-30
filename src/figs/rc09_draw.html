@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">입력값 한 벌 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pairs &lt;- list(c(&quot;pfs_med&quot;, &quot;os_med&quot;), c(&quot;pfs_gam&quot;, &quot;os_gam&quot;), c(&quot;hr_pfs&quot;, &quot;hr_os&quot;))
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">입력값 한 세트 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pairs &lt;- list(c(&quot;pfs_med&quot;, &quot;os_med&quot;), c(&quot;pfs_gam&quot;, &quot;os_gam&quot;), c(&quot;hr_pfs&quot;, &quot;hr_os&quot;))
 u &lt;- setNames(spec$u, spec$key)
 draw_curves &lt;- function(p, rho = 0.5) {           # 짝마다 로그 척도에서 상관 rho로 함께 뽑기
   v &lt;- list()

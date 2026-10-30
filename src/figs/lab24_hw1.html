@@ -1,6 +1,6 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">과제 1 정답. 신약 C의 확률적 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pC = dict(p, hr_pfs=0.60, hr_os=0.90)   # 신약 C의 위험비
 print(&quot;기준 분석 ICER:&quot;, round(run_model(pC)[&quot;icer&quot;]))
-dc_C, dq_C, n_C = run_psa(pC)           # 같은 분포와 seed로 5,000벌
+dc_C, dq_C, n_C = run_psa(pC)           # 같은 분포와 seed로 5,000번
 print(&quot;다시 뽑은 비율:&quot;, round(n_C[&quot;crossed&quot;] / n_C[&quot;tries&quot;], 4))
 inmb_C = 5000 * dq_C - dc_C
 for name, x in [(&quot;d_cost&quot;, dc_C), (&quot;d_qaly&quot;, dq_C), (&quot;inmb&quot;, inmb_C)]:
@@ -8,11 +8,11 @@ for name, x in [(&quot;d_cost&quot;, dc_C), (&quot;d_qaly&quot;, dq_C), (&quot;i
           np.percentile(x, [2.5, 97.5]).round(3))
 for lam in [5000, 6000]:
     print(&quot;임계값&quot;, lam, &quot; 확률&quot;, p_ce(dc_C, dq_C, lam))
-print(&quot;증분 QALY가 0 이하인 벌:&quot;, np.mean(dq_C &lt;= 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>기준 분석 ICER: 5865<span class="mk">1</span>
+print(&quot;증분 QALY가 0 이하인 반복:&quot;, np.mean(dq_C &lt;= 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>기준 분석 ICER: 5865<span class="mk">1</span>
 다시 뽑은 비율: 0.2534<span class="mk">2</span>
 d_cost 1712.129<span class="mk">3</span> [-135.721 3579.386]
 d_qaly 0.297 [-0.088<span class="mk">4</span>  0.732]
 inmb -226.539<span class="mk">5</span> [-1062.556   717.307]
 임계값 5000  확률 0.2754<span class="mk">6</span>
 임계값 6000  확률 0.5482<span class="mk">7</span>
-증분 QALY가 0 이하인 벌: 0.0674<span class="mk">8</span></pre></div></div>
+증분 QALY가 0 이하인 반복: 0.0674<span class="mk">8</span></pre></div></div>

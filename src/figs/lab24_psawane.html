@@ -1,10 +1,10 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">같은 5,000벌을 효과 감소 구조로 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dc_w, dq_w, n_w = run_psa(p, model=run_waning)   # 같은 seed, 같은 벌
-print(&quot;같은 벌을 뽑았는가:&quot;, n_w == count)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">같은 5,000번을 효과 감소 구조로 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">dc_w, dq_w, n_w = run_psa(p, model=run_waning)   # 같은 seed, 같은 반복
+print(&quot;같은 반복을 뽑았는가:&quot;, n_w == count)
 print(&quot;효과 감소 구조: 평균 증분비용&quot;, round(dc_w.mean()),
       &quot; 평균 증분 QALY&quot;, round(dq_w.mean(), 3))
 for lam in [5000, 6000]:
     print(&quot;임계값&quot;, lam, &quot; 기준 구조&quot;, np.mean(lam * dq - dc &gt; 0),
-          &quot; 효과 감소&quot;, np.mean(lam * dq_w - dc_w &gt; 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>같은 벌을 뽑았는가: True<span class="mk">1</span>
+          &quot; 효과 감소&quot;, np.mean(lam * dq_w - dc_w &gt; 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>같은 반복을 뽑았는가: True<span class="mk">1</span>
 효과 감소 구조: 평균 증분비용 2288  평균 증분 QALY 0.371<span class="mk">2</span>
 임계값 5000  기준 구조 0.1604  효과 감소 0.0508<span class="mk">3</span>
 임계값 6000  기준 구조 0.6586  효과 감소 0.4204<span class="mk">4</span></pre></div></div>

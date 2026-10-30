@@ -10,10 +10,10 @@ run:  source /home/claude/pylibs/env.sh && python3 gen/lab_lab24.py
 끝의 대조 블록이 실습 결과를 lib_p4의 oneway(), threshold_price(), scenario_table(), run_waning(), psa(n=5000, seed=20261002),
 psa_inputs(), ceac(), evpi(), twoway()와 gen/_ch24_nums.json(24장 본문의 숫자), 24장 본문에 적힌 숫자에 맞춘다.
 (2026-10-15: 24장을 새 틀로 고친 뒤 '실습 24에 더할 것'을 반영했다. 버전 셀 1, 이원 민감도 분석 셀 10(옛 과제 2),
- 치료 효과 감소·소실을 넣은 모형과 시나리오 분석 셀 11–12, 모의실험 횟수 셀 19(옛 과제 1), 같은 5,000벌을 효과 감소 구조로
+ 치료 효과 감소·소실을 넣은 모형과 시나리오 분석 셀 11–12, 모의실험 횟수 셀 19(옛 과제 1), 같은 5,000번을 효과 감소 구조로
  돌리는 셀 21, 수용곡선과 'ICER가 임계값 이하인 비율' 셀 25, 50% 지점·평균끼리 나눈 ICER·모의실험별 ICER 셀 26을 더했다.
  과제는 ① 신약 C의 출력 해석 ② 약값을 바꾼 수용곡선(옛 과제 3) ③ 표준편차를 표준오차 자리에 넣은 분석으로 바꿨다.
- 셀 번호가 모두 바뀌었다. 5,000벌 셀은 걸린 초 대신 "10초 안에 끝났는가"를 찍는다(nbcheck가 셀 출력을 그대로 비교하므로).)
+ 셀 번호가 모두 바뀌었다. 5,000번 셀은 걸린 초 대신 "10초 안에 끝났는가"를 찍는다(nbcheck가 셀 출력을 그대로 비교하므로).)
 """
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -426,7 +426,7 @@ pairs = [("pfs_med", "os_med"),        # 함께 뽑는 짝 (PFS, OS)
          ("hr_pfs", "hr_os")]
 
 def draw_curves(rng, p, rho=0.5):
-    """곡선과 위험비 한 벌. 짝마다 로그 척도에서 상관 rho"""
+    """곡선과 위험비 한 세트. 짝마다 로그 척도에서 상관 rho"""
     v = {}
     for k1, k2 in pairs:
         z1, z2 = rng.normal(size=2)    # 독립인 표준정규 난수 둘
@@ -457,12 +457,12 @@ print(pd.DataFrame({"base": [get_input(p, k) for k in keys],
                     "draw": [get_input(q, k) for k in keys]},
                    index=keys).round(3))
 print("곡선이 엇갈리는가:", crossed(q))
-''', title="곡선과 위험비 한 벌 뽑기")
+''', title="곡선과 위험비 한 세트 뽑기")
 save("lab24_curves", c, marks={"9.848": 1, "29.601": 2, "0.581": 3, "False": 4})
 
 c = nb.cell('''
 def draw_inputs(rng, p, count, rho=0.5, redraw=True):
-    """입력값 한 벌을 분포에서 뽑는다 (약값과 할인율은 고정)"""
+    """입력값 한 세트를 분포에서 뽑는다 (약값과 할인율은 고정)"""
     while True:
         q = draw_curves(rng, p, rho)   # 1) 곡선과 위험비
         count["tries"] += 1
@@ -486,16 +486,16 @@ q = draw_inputs(rng, p, count)
 show = ["u_pf", "u_pd", "c_pf", "c_pd", "c_death", "c_drug_A"]
 print({k: round(float(q[k]), 3) for k in show})
 r = run_model(q)
-print("첫 벌: 증분비용", round(r["d_cost"]),
+print("첫 반복: 증분비용", round(r["d_cost"]),
       " 증분 QALY", round(r["d_qaly"], 3), " ICER", round(r["icer"]))
 print(count)
-''', title="입력값 한 벌 뽑기와 다시 뽑기")
+''', title="입력값 한 세트 뽑기와 다시 뽑기")
 save("lab24_draw", c, marks={"'u_pf': 0.839": 1, "'c_drug_A': 190.0": 2, "2709": 3, "{'tries': 1, 'crossed': 0}": 4})
 
 c = nb.cell('''
 def run_psa(p, n=5000, seed=20261002, rho=0.5, redraw=True,
             model=run_model):
-    """입력값 n벌을 뽑아 모형을 n번 돌린다"""
+    """입력값 n번을 뽑아 모형을 n번 돌린다"""
     rng = np.random.default_rng(seed)
     count = {"tries": 0, "crossed": 0}
     dc, dq = np.empty(n), np.empty(n)  # 결과를 담을 빈 배열
@@ -510,14 +510,14 @@ print("10초 안에 끝났는가:", time.time() - t0 < 10)
 print("뽑은 횟수", count["tries"], " 버린 횟수", count["crossed"],
       " 비율", round(count["crossed"] / count["tries"], 4))
 print(dc.shape, dq.shape)
-print("처음 세 벌의 증분비용:", dc[:3].round(1))
-print("처음 세 벌의 증분 QALY:", dq[:3].round(4))
-''', title="5,000벌 돌리기")
+print("처음 세 반복의 증분비용:", dc[:3].round(1))
+print("처음 세 반복의 증분 QALY:", dq[:3].round(4))
+''', title="5,000번 돌리기")
 save("lab24_psa", c, marks={"10초 안에 끝났는가: True": 1, "뽑은 횟수 5137": 2, "버린 횟수 137": 3, "(5000,) (5000,)": 4,
                             "[2709.5 4450.7 4428.8]": 5})
 
 c = nb.cell('''
-inmb = threshold * dq - dc             # 벌마다의 증분 순금전편익
+inmb = threshold * dq - dc             # 반복마다의 증분 순금전편익
 rows = []
 for name, x in [("d_cost", dc), ("d_qaly", dq), ("inmb", inmb)]:
     lo, hi = np.percentile(x, [2.5, 97.5])
@@ -556,9 +556,9 @@ print("임계값 선 아래의 점:", int((inmb > 0).sum()))
 save("lab24_plane", c, marks={"'NE': 4958": 1, "'NW': 37": 2, "802": 3})
 
 c = nb.cell('''
-ok = (5000 * dq - dc) > 0              # 벌마다 비용효과적인가
+ok = (5000 * dq - dc) > 0              # 반복마다 비용효과적인가
 for n in [500, 1000, 5000]:
-    pr = ok[:n].mean()                 # 처음 n벌만 쓴 확률
+    pr = ok[:n].mean()                 # 처음 n번만 쓴 확률
     se = np.sqrt(pr * (1 - pr) / n)    # 몬테카를로 표준오차
     print(n, " 확률", round(pr, 4), " 표준오차", round(se, 4),
           " 범위", round(pr - 1.96 * se, 3), "-",
@@ -584,15 +584,15 @@ pd.DataFrame(rows, columns=["rho", "redraw", "tries", "crossed",
 save("lab24_vary", c, dfmarks={"5137": 1, "5503": 2, "0.0914": 3, "141": 4, "427": 5, "0.1702": 6})
 
 c = nb.cell('''
-dc_w, dq_w, n_w = run_psa(p, model=run_waning)   # 같은 seed, 같은 벌
-print("같은 벌을 뽑았는가:", n_w == count)
+dc_w, dq_w, n_w = run_psa(p, model=run_waning)   # 같은 seed, 같은 반복
+print("같은 반복을 뽑았는가:", n_w == count)
 print("효과 감소 구조: 평균 증분비용", round(dc_w.mean()),
       " 평균 증분 QALY", round(dq_w.mean(), 3))
 for lam in [5000, 6000]:
     print("임계값", lam, " 기준 구조", np.mean(lam * dq - dc > 0),
           " 효과 감소", np.mean(lam * dq_w - dc_w > 0))
-''', title="같은 5,000벌을 효과 감소 구조로 돌리기")
-save("lab24_psawane", c, marks={"같은 벌을 뽑았는가: True": 1, "0.371": 2, "효과 감소 0.0508": 3, "효과 감소 0.4204": 4})
+''', title="같은 5,000번을 효과 감소 구조로 돌리기")
+save("lab24_psawane", c, marks={"같은 반복을 뽑았는가: True": 1, "0.371": 2, "효과 감소 0.0508": 3, "효과 감소 0.4204": 4})
 
 # ---------------------------------------------------------------- d. 비용효과 수용곡선
 c = nb.cell('''
@@ -603,15 +603,15 @@ first["inmb_6000"] = 6000 * first["d_qaly"] - first["d_cost"]
 print(first.round({"d_qaly": 3, "d_cost": 0, "inmb_5000": 0,
                    "inmb_6000": 0}))
 
-inmb = 5000 * dq - dc                  # 5,000벌 모두
-print("양수인 벌:", int((inmb > 0).sum()), "/", len(inmb),
+inmb = 5000 * dq - dc                  # 5,000번 모두
+print("양수인 반복:", int((inmb > 0).sum()), "/", len(inmb),
       "=", np.mean(inmb > 0))
 ''', title="증분 순금전편익과 비용효과적일 확률")
 save("lab24_inmb", c, marks={"143.0": 1, "-949.0": 2, "118.0": 3, "802 / 5000": 4, "0.1604": 5})
 
 c = nb.cell('''
 def p_ce(dc, dq, lam):
-    """임계값 lam에서 순금전편익이 양수인 벌의 비율"""
+    """임계값 lam에서 순금전편익이 양수인 반복의 비율"""
     return np.mean(lam * dq - dc > 0)
 
 def evpi(dc, dq, lam):
@@ -652,7 +652,7 @@ save("lab24_ceacplot", c, marks={"0.001 0.9752": 1, "5650": 2})
 
 c = nb.cell('''
 icer_i = dc / dq                       # 모의실험마다의 ICER
-print("ICER가 음수인 벌:", int((icer_i < 0).sum()))
+print("ICER가 음수인 반복:", int((icer_i < 0).sum()))
 for lam in [0, 6000, 12000, 300000]:
     print("임계값", lam, " 수용곡선", p_ce(dc, dq, lam),
           " ICER가 임계값 이하", np.mean(icer_i <= lam))
@@ -671,7 +671,7 @@ axes[1].set_ylim(0.95, 1.002)
 axes[1].set_title("Upper end (y from 0.95)")
 plt.tight_layout()
 ''', title="수용곡선과 'ICER가 임계값 이하인 비율'")
-save("lab24_ceaccdf", c, marks={"ICER가 음수인 벌: 40": 1, "이하 0.008": 2, "이하 0.983": 3, "수용곡선 0.9922": 4, "이하 1.0": 5})
+save("lab24_ceaccdf", c, marks={"ICER가 음수인 반복: 40": 1, "이하 0.008": 2, "이하 0.983": 3, "수용곡선 0.9922": 4, "이하 1.0": 5})
 
 c = nb.cell('''
 lam_mean = dc.mean() / dq.mean()       # 순편익의 평균이 0이 되는 임계값
@@ -687,10 +687,10 @@ print("모의실험별 ICER의 2.5, 97.5 백분위수:",
 save("lab24_lam50", c, marks={"임계값: 5650": 1, "임계값: 5586": 2, "0.4718": 3, "중앙값: 5625": 4, "평균: 4237": 5, "10187.]": 6})
 
 c = nb.cell('''
-pos = inmb[inmb > 0]                   # 신약 A가 더 나았던 벌
+pos = inmb[inmb > 0]                   # 신약 A가 더 나았던 반복
 print("순금전편익의 평균:", round(inmb.mean(), 1))
 print("양수인 비율:", np.mean(inmb > 0),
-      " 양수인 벌의 평균:", round(pos.mean(), 1))
+      " 양수인 반복의 평균:", round(pos.mean(), 1))
 print("둘의 곱:", round(np.mean(inmb > 0) * pos.mean(), 1),
       " evpi():", round(evpi(dc, dq, 5000), 1))
 
@@ -706,7 +706,7 @@ save("lab24_evpi", c, marks={"224.1": 1, "둘의 곱: 35.9": 2, "5590": 3, "164.
 c = nb.cell('''
 pC = dict(p, hr_pfs=0.60, hr_os=0.90)   # 신약 C의 위험비
 print("기준 분석 ICER:", round(run_model(pC)["icer"]))
-dc_C, dq_C, n_C = run_psa(pC)           # 같은 분포와 seed로 5,000벌
+dc_C, dq_C, n_C = run_psa(pC)           # 같은 분포와 seed로 5,000번
 print("다시 뽑은 비율:", round(n_C["crossed"] / n_C["tries"], 4))
 inmb_C = 5000 * dq_C - dc_C
 for name, x in [("d_cost", dc_C), ("d_qaly", dq_C), ("inmb", inmb_C)]:
@@ -714,7 +714,7 @@ for name, x in [("d_cost", dc_C), ("d_qaly", dq_C), ("inmb", inmb_C)]:
           np.percentile(x, [2.5, 97.5]).round(3))
 for lam in [5000, 6000]:
     print("임계값", lam, " 확률", p_ce(dc_C, dq_C, lam))
-print("증분 QALY가 0 이하인 벌:", np.mean(dq_C <= 0))
+print("증분 QALY가 0 이하인 반복:", np.mean(dq_C <= 0))
 ''', title="과제 1 정답. 신약 C의 확률적 분석")
 save("lab24_hw1", c, marks={"기준 분석 ICER: 5865": 1, "0.2534": 2, "d_cost 1712.129": 3, "[-0.088": 4, "inmb -226.539": 5,
                            "확률 0.2754": 6, "확률 0.5482": 7, "0.0674": 8})
@@ -723,7 +723,7 @@ c = nb.cell('''
 fig, ax = plt.subplots(figsize=(6.5, 4))
 for price in [190.0, price_star, 160.0]:
     p2 = dict(p, c_drug_A=price)       # 약값만 바꾼 입력값
-    c2, q2, n2 = run_psa(p2)           # 같은 seed로 5,000벌
+    c2, q2, n2 = run_psa(p2)           # 같은 seed로 5,000번
     print("약값", round(price, 1),
           " ICER", round(run_model(p2)["icer"]),
           " 평균 순금전편익", round((5000 * q2 - c2).mean()),
@@ -767,8 +767,8 @@ for cc in nb.cells:
 # 셀 번호(본문에 '셀 N'으로 적은 것)가 바뀌지 않았는지 확인한다
 TITLES = {1: "패키지 불러오기", 2: "입력값 사전", 3: "모형 함수", 4: "곡선을 중앙값", 5: "입력값의 분포", 6: "입력값별 범위",
           7: "입력값을 하나씩", 8: "토네이도", 9: "ICER가 임계값과", 10: "약값과 무진행생존", 11: "치료 효과 감소",
-          12: "시나리오", 13: "상관 있는", 14: "곡선과 위험비", 15: "입력값 한 벌", 16: "5,000벌", 17: "결과 요약",
-          18: "비용효과평면", 19: "모의실험 횟수", 20: "상관과 다시", 21: "같은 5,000벌", 22: "증분 순금전편익",
+          12: "시나리오", 13: "상관 있는", 14: "곡선과 위험비", 15: "입력값 한 세트", 16: "5,000번", 17: "결과 요약",
+          18: "비용효과평면", 19: "모의실험 횟수", 20: "상관과 다시", 21: "같은 5,000번", 22: "증분 순금전편익",
           23: "임계값별", 24: "수용곡선 그리기", 25: "수용곡선과", 26: "50% 지점", 27: "EVPI 풀어", 28: "과제 1",
           29: "과제 2", 30: "과제 3"}
 assert len(nb.cells) == len(TITLES) and all(nb.cells[n - 1].title.startswith(t) for n, t in TITLES.items()), \
@@ -890,7 +890,7 @@ for k, v in _BOOK_SC.items():
 book("scenario change vs base %", sc["vs_base"].tolist()[1:], [12.5, 1.2, 0.1, -3.4, -1.2, 9.4, 3.5, 22.3])
 book("hr at month 48 (36-60), LY of A under loss", [ns["r1"]["hr_os_t"][47], ns["r2"]["A"]["ly"], base_["A"]["ly"]], [0.87, 3.455, 3.916])
 
-# 다. 확률적 민감도 분석: 5,000벌이 lib_p4.psa()와 배열 단위로 같은가
+# 다. 확률적 민감도 분석: 5,000번이 lib_p4.psa()와 배열 단위로 같은가
 DC, DQ = L.psa(n=5000, seed=SEED)
 dc, dq = ns["dc"], ns["dq"]
 E_DC = chk("PSA 5,000 incremental costs = lib_p4.psa() (array)", dc, DC, 1e-9)
@@ -920,7 +920,7 @@ book("PSA ICER, n cost-effective, quadrant counts", [dc.mean() / dq.mean(), int(
      [5586, 802, 4958, 37, 3, 2])
 book("PSA probability % at 5,000, MC standard error", 100 * ns["p_ce5"], 16.0)
 book("MC standard error", np.sqrt(ns["p_ce5"] * (1 - ns["p_ce5"]) / 5000), 0.0052)
-# 상관 있는 난수를 만드는 줄: 채택된 5,000벌에서 로그 값의 상관이 지정한 0.5 근처인가
+# 상관 있는 난수를 만드는 줄: 채택된 5,000번에서 로그 값의 상관이 지정한 0.5 근처인가
 for k1, k2 in ns["pairs"]:
     r_ = np.corrcoef(np.log([get_input(q, k1) for q in _mine]), np.log([get_input(q, k2) for q in _mine]))[0, 1]
     assert 0.45 < r_ < 0.56, (k1, k2, r_)
@@ -983,7 +983,7 @@ assert (_rows[1][2], _rows[1][3]) == (N["cap"]["tries_indep"], N["cap"]["rejecte
 book("redraw share % when pairs are drawn independently", 100 * _rows[1][4], 9.1)
 book("no redraw: crossed sets, probability % (rho 0.5; rho 0)", [_rows[2][3], _rows[3][3], 100 * _rows[3][5]], [141, 427, 17.0])
 VARY = _rows
-# 셀 21: 같은 5,000벌을 효과 감소 구조로(24장 b 절 3단계 '모형 구조의 불확실성은 들어 있나?')
+# 셀 21: 같은 5,000번을 효과 감소 구조로(24장 b 절 3단계 '모형 구조의 불확실성은 들어 있나?')
 _rw = [L.run_waning(q, 36.0, 60.0) for q in DRAWS]
 DCW, DQW = np.array([r["d_cost"] for r in _rw]), np.array([r["d_qaly"] for r in _rw])
 chk("PSA under waning 36-60: arrays = lib_p4.run_waning on psa_inputs()", np.r_[ns["dc_w"], ns["dq_w"]], np.r_[DCW, DQW], 1e-9)
@@ -1077,7 +1077,7 @@ _w0 = rg.loc["u_pf", "high"] - rg.loc["u_pf", "low"]
 book("SD as SE: utility interval width ratio, EVPI ratio", [(DSU["hi"] - DSU["lo"]) / _w0, SS["evpi"] / PS["evpi"]], [6.1, 4.8])
 
 print(f"대조: lib_p4·_ch24_nums.json과 비교한 {len(CHECKS)}개 항목 모두 허용 오차 안 (가장 큰 차이 {max(e for _, e in CHECKS):.2e})")
-print(f"      5,000벌 배열: 증분비용의 가장 큰 차이 {E_DC:.2e}만원, 증분 QALY {E_DQ:.2e}, 입력값 5,000벌 × 18개 {E_IN:.2e}"
+print(f"      5,000번 배열: 증분비용의 가장 큰 차이 {E_DC:.2e}만원, 증분 QALY {E_DQ:.2e}, 입력값 5,000번 × 18개 {E_IN:.2e}"
       f" (비트 단위로 같은가: {np.array_equal(dc, DC)}, {np.array_equal(dq, DQ)})")
 print(f"      본문에 적힌 숫자 {len(BOOK)}개 가운데 {sum(b[3] for b in BOOK)}개가 같은 자릿수에서 일치")
 
@@ -1115,7 +1115,7 @@ notes = {
     5: "## b. 일원 민감도 분석과 토네이도 그림\n\n입력값마다 범위를 정하고, 하나씩 양 끝으로 바꿔 ICER를 다시 계산합니다. 끝에서 임계 가격, 이원 민감도 분석, 시나리오 분석을 합니다.",
     11: "치료 효과가 줄거나 사라지는 가정을 넣은 모형 함수를 만들고(셀 11), 분석기간·할인율과 함께 시나리오 표를 만듭니다(셀 12).",
     13: "## c. 확률적 민감도 분석\n\n입력값을 분포에서 한꺼번에 뽑아 모형을 5,000번 돌립니다. 셀 16, 19, 20, 21은 몇 초 걸릴 수 있습니다.",
-    22: "## d. 비용효과 수용곡선\n\n셀 16에서 얻은 5,000벌의 증분비용 `dc`와 증분 QALY `dq`를 임계값별로 요약합니다.",
+    22: "## d. 비용효과 수용곡선\n\n셀 16에서 얻은 5,000번의 증분비용 `dc`와 증분 QALY `dq`를 임계값별로 요약합니다.",
     28: ("## 과제 정답\n\n**과제 1.** 신약 C(무진행생존 위험비 0.60, 전체생존 위험비 0.90)를 같은 분포와 seed로 5,000번 돌리고, "
          "임계값 5,000만원/QALY의 결과를 말로 옮긴 뒤 이 확률이 말해 주지 않는 것을 씁니다."),
     29: ("**과제 2.** 신약 A의 월 약값을 임계 가격(셀 9의 `price_star`)과 160만원으로 낮춰 확률적 민감도 분석을 다시 돌리고, "

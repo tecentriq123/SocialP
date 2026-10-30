@@ -1,5 +1,5 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def p_ce(dc, dq, lam):
-    &quot;&quot;&quot;임계값 lam에서 순금전편익이 양수인 벌의 비율&quot;&quot;&quot;
+    &quot;&quot;&quot;임계값 lam에서 순금전편익이 양수인 반복의 비율&quot;&quot;&quot;
     return np.mean(lam * dq - dc &gt; 0)
 
 def evpi(dc, dq, lam):

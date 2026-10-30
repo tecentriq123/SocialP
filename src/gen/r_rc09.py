@@ -157,7 +157,7 @@ set.seed(20261002)
 q <- draw_inputs(p)
 round(unlist(q[c("pfs_lam", "os_lam", "hr_pfs", "hr_os", "u_pf", "c_pd", "c_drug_A")]), 4)
 round(run_model(q), 3)
-''', title="입력값 한 벌 뽑기")
+''', title="입력값 한 세트 뽑기")
 
 c_psa = nb.cell('''
 run_psa <- function(p, n = 5000, seed = 20261002, rho = 0.5, redraw = TRUE) {
@@ -174,7 +174,7 @@ run_psa <- function(p, n = 5000, seed = 20261002, rho = 0.5, redraw = TRUE) {
 elapsed <- system.time(psa <- run_psa(p))["elapsed"]
 c(within_30s = unname(elapsed < 30))
 c(tries = psa$tries, redrawn = psa$tries - 5000, share = round((psa$tries - 5000) / psa$tries, 4))
-''', title="5,000벌 돌리기")
+''', title="5,000번 돌리기")
 
 c_sum = nb.cell('''
 dc <- psa$dc; dq <- psa$dq

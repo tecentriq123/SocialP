@@ -71,7 +71,7 @@
  },
  {
   "n": 15,
-  "title": "신뢰구간에서 표준오차 되살리기",
+  "title": "신뢰구간에서 표준오차 구하기",
   "out": "log RR -0.128, SE 0.055, weight 331\nlargest trial weight: 254.7\nlog HR -0.198, SE 0.081\nTrial I: SE from CI 0.126 vs from counts 0.124\n"
  },
  {

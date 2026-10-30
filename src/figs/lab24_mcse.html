@@ -1,6 +1,6 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">모의실험 횟수와 몬테카를로 오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ok = (5000 * dq - dc) &gt; 0              # 벌마다 비용효과적인가
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">모의실험 횟수와 몬테카를로 오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">ok = (5000 * dq - dc) &gt; 0              # 반복마다 비용효과적인가
 for n in [500, 1000, 5000]:
-    pr = ok[:n].mean()                 # 처음 n벌만 쓴 확률
+    pr = ok[:n].mean()                 # 처음 n번만 쓴 확률
     se = np.sqrt(pr * (1 - pr) / n)    # 몬테카를로 표준오차
     print(n, &quot; 확률&quot;, round(pr, 4), &quot; 표준오차&quot;, round(se, 4),
           &quot; 범위&quot;, round(pr - 1.96 * se, 3), &quot;-&quot;,

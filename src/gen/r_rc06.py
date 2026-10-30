@@ -61,7 +61,7 @@ fit_rp$CI
 ''', title="rpsftm()으로 ψ 추정")
 
 c_rphr = nb.cell('''
-d$os_rp <- ifelse(d$arm == 1, d$os, fit_rp$Sstar[, "time"])        # 대조군은 전환이 없었다면의 시간
+d$os_rp <- ifelse(d$arm == 1, d$os, fit_rp$Sstar[, "time"])        # 대조군은 전환이 없었을 때의 시간
 d$ev_rp <- ifelse(d$arm == 1, d$os_event, fit_rp$Sstar[, "status"])
 hr_rp <- hr(coxph(Surv(os_rp, ev_rp) ~ arm, data = d))
 hr_rp
@@ -81,7 +81,7 @@ lines(km_bc, conf.int = FALSE, col = "#c8553d", lty = 2)
 axis(1, at = seq(0, 42, by = 6))
 legend("bottomleft", c("Drug A", "Standard B (as randomised)", "Standard B (RPSFTM, no switching)"),
        col = c("#1f5f8b", "#c8553d", "#c8553d"), lty = c(1, 1, 2), bty = "n")
-''', title="전환이 없었다면의 대조군 곡선", fig=(7, 4.3))
+''', title="전환이 없었을 때의 대조군 곡선", fig=(7, 4.3))
 
 c_rpnr = nb.cell('''
 fit_nr <- rpsftm(Surv(os, os_event) ~ rand(arm, rx), data = d)    # censor_time을 빼면
@@ -92,7 +92,7 @@ hr_nr <- hr(coxph(Surv(os_nr, ev_nr) ~ arm, data = d))
 hr_nr
 c(max_time_B = max(d$os_nr[d$arm == 0]),
   deaths_B_no_rc = sum(d$ev_nr[d$arm == 0]), deaths_B_rc = sum(d$ev_rp[d$arm == 0]))
-''', title="다시 정한 중도절단 없이 맞추기")
+''', title="재중도절단 없이 맞추기")
 
 # d. IPCW
 c_ipw = nb.cell('''
@@ -103,7 +103,7 @@ round(summary(sw_fit)$coefficients, 3)
 b$w <- 1 / (1 - predict(sw_fit, type = "response"))             # 전환하지 않을 확률의 역수
 summary(b$w[b$switch == 0])
 c(progressed = nrow(b), sum_of_weights = round(sum(b$w[b$switch == 0]), 1))
-''', title="전환을 예측하는 모형과 무게")
+''', title="전환을 예측하는 모형과 가중치")
 
 c_ipwcox = nb.cell('''
 cols <- c("id", "arm", "tstart", "tstop", "event", "w")
@@ -116,7 +116,7 @@ long <- rbind(pre[, cols], post[, cols])
 fit_ipw <- coxph(Surv(tstart, tstop, event) ~ arm, data = long,
                  weights = w, cluster = id)
 hr(fit_ipw)
-''', title="무게를 준 Cox 모형")
+''', title="가중치를 준 Cox 모형")
 
 # e. 2단계
 c_ts = nb.cell('''
@@ -131,7 +131,7 @@ af
 c_ts2 = nb.cell('''
 d$os_ts <- d$os; d$ev_ts <- d$os_event
 i <- which(d$switch == 1)
-d$os_ts[i] <- d$pfs[i] + (d$os[i] - d$pfs[i]) / af               # 전환하지 않았다면의 사망 시간
+d$os_ts[i] <- d$pfs[i] + (d$os[i] - d$pfs[i]) / af               # 전환하지 않았을 때의 사망 시간
 hr_ts <- hr(coxph(Surv(os_ts, ev_ts) ~ arm, data = d))
 hr_ts
 j <- which(d$arm == 0 & d$pfs_event == 1)                        # 진행한 B군 모두

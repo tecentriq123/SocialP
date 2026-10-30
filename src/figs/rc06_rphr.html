@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">보정한 위험비와 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$os_rp &lt;- ifelse(d$arm == 1, d$os, fit_rp$Sstar[, &quot;time&quot;])        # 대조군은 전환이 없었다면의 시간
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">보정한 위험비와 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$os_rp &lt;- ifelse(d$arm == 1, d$os, fit_rp$Sstar[, &quot;time&quot;])        # 대조군은 전환이 없었을 때의 시간
 d$ev_rp &lt;- ifelse(d$arm == 1, d$os_event, fit_rp$Sstar[, &quot;status&quot;])
 hr_rp &lt;- hr(coxph(Surv(os_rp, ev_rp) ~ arm, data = d))
 hr_rp

@@ -1,10 +1,10 @@
-"""R과 통계분석 5장 · 논문의 KM 곡선에서 환자 자료 되살리기 — R cells run for real with rkit (IPDfromKM, survival, flexsurv).
+"""R과 통계분석 5장 · 논문의 KM 곡선에서 환자 자료 재구성하기 — R cells run for real with rkit (IPDfromKM, survival, flexsurv).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_rc05.py && python3 gen/r_rc05.py   (NOMARK=1 … 로 모든 출력)
 
 '논문 그림'은 23장 d 절의 가상 시험(rcc_trial.csv, 표준요법 B군 300명)의 Kaplan-Meier 곡선이고, 읽어 낸 좌표는
-gen/data_rc05.py가 만든 pub/data/rcc_km_digitized.csv다. 원자료가 있으므로 되살린 자료를 정답과 맞춰 볼 수 있다.
-끝의 대조 블록은 원자료 쪽 숫자가 4장(23장 d 절)과 같은지, 되살린 자료의 사건 수와 위험집합이 출력과 본문에 적은 값인지 확인한다.
+gen/data_rc05.py가 만든 pub/data/rcc_km_digitized.csv다. 원자료가 있으므로 재구성한 자료를 정답과 맞춰 볼 수 있다.
+끝의 대조 블록은 원자료 쪽 숫자가 4장(23장 d 절)과 같은지, 재구성한 자료의 사건 수와 위험집합이 출력과 본문에 적은 값인지 확인한다.
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -35,7 +35,7 @@ nrisk <- c(300, 265, 238, 202, 167)     # 그 시점에 위험집합에 남은 �
 tot_events <- 145                       # 본문에 적힌 총 사망 수
 ''', title="위험집합 표와 총 사건 수 옮겨 적기")
 
-# b. 되살리기
+# b. 재구성하기
 c_pre = nb.cell('''
 install.packages("IPDfromKM")
 library(IPDfromKM)
@@ -49,7 +49,7 @@ pre$intervalIndex
 c_get = nb.cell('''
 ipd <- getIPD(prep = pre, armID = 1, tot.events = tot_events)
 summary(ipd)
-''', title="getIPD()로 환자 자료 되살리기")
+''', title="getIPD()로 환자 자료 재구성하기")
 
 c_rec = nb.cell('''
 rec <- ipd$IPD
@@ -58,7 +58,7 @@ table(rec$status)
 library(survival)
 km_r <- survfit(Surv(time, status) ~ 1, data = rec)
 summary(km_r, times = trisk)[c("n.risk", "surv")]
-''', title="되살린 자료 살펴보기")
+''', title="재구성한 자료 살펴보기")
 
 # c. 원자료와 비교
 c_cmp = nb.cell('''
@@ -167,10 +167,10 @@ S("rc05_nar3", nb.html(c_nar3, marks={"events after24": 1, "20.7   3.19": 2}))
 S("rc05_t1", nb.html(c_t1))
 S("rc05_t2", nb.html(c_t2))
 S("rc05_t3", nb.html(c_t3, marks={"TRUE": 1}))
-nb.save_ipynb("5장 논문의 KM 곡선에서 환자 자료 되살리기 (R과 통계분석)",
-              intro="논문의 Kaplan-Meier 그림에서 읽어 낸 좌표와 위험집합 표로 환자 단위 자료를 되살리고(Guyot 방법, IPDfromKM 패키지), "
+nb.save_ipynb("5장 논문의 KM 곡선에서 환자 자료 재구성하기 (R과 통계분석)",
+              intro="논문의 Kaplan-Meier 그림에서 읽어 낸 좌표와 위험집합 표로 환자 단위 자료를 재구성하고(Guyot 방법, IPDfromKM 패키지), "
                     "원자료와 비교합니다. Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
-              notes={c_dig.n: "## a. 그림에서 읽어 낸 것 준비하기", c_pre.n: "## b. 환자 자료 되살리기",
+              notes={c_dig.n: "## a. 그림에서 읽어 낸 것 준비하기", c_pre.n: "## b. 환자 자료 재구성하기",
                      c_cmp.n: "## c. 원자료와 비교하기", c_nar3.n: "## d. 위험집합 표가 촘촘하면",
                      c_t1.n: "## e. 과제 정답"})
 print("rc05 fragments and notebook written")

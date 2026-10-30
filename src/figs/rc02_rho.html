@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">초기 차이에 무게를 둔 검정 (rho = 1)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">survdiff(Surv(months, status) ~ sex_f, data = lung, rho = 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">초기 차이에 가중치를 더 준 검정 (rho = 1)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">survdiff(Surv(months, status) ~ sex_f, data = lung, rho = 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
 survdiff(formula = Surv(months, status) ~ sex_f, data = lung, 
     rho = 1)
 

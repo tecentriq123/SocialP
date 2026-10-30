@@ -1,5 +1,5 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">수용곡선과 &#x27;ICER가 임계값 이하인 비율&#x27;</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">icer_i = dc / dq                       # 모의실험마다의 ICER
-print(&quot;ICER가 음수인 벌:&quot;, int((icer_i &lt; 0).sum()))
+print(&quot;ICER가 음수인 반복:&quot;, int((icer_i &lt; 0).sum()))
 for lam in [0, 6000, 12000, 300000]:
     print(&quot;임계값&quot;, lam, &quot; 수용곡선&quot;, p_ce(dc, dq, lam),
           &quot; ICER가 임계값 이하&quot;, np.mean(icer_i &lt;= lam))
@@ -16,7 +16,7 @@ axes[0].legend(loc=&quot;lower right&quot;, fontsize=8)
 axes[1].set_xticks([0, 100000, 200000, 300000])
 axes[1].set_ylim(0.95, 1.002)
 axes[1].set_title(&quot;Upper end (y from 0.95)&quot;)
-plt.tight_layout()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ICER가 음수인 벌: 40<span class="mk">1</span>
+plt.tight_layout()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ICER가 음수인 반복: 40<span class="mk">1</span>
 임계값 0  수용곡선 0.001  ICER가 임계값 이하 0.008<span class="mk">2</span>
 임계값 6000  수용곡선 0.6586  ICER가 임계값 이하 0.6664
 임계값 12000  수용곡선 0.9752  ICER가 임계값 이하 0.983<span class="mk">3</span>

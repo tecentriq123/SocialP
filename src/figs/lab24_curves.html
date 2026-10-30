@@ -1,9 +1,9 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">곡선과 위험비 한 벌 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pairs = [(&quot;pfs_med&quot;, &quot;os_med&quot;),        # 함께 뽑는 짝 (PFS, OS)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">곡선과 위험비 한 세트 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pairs = [(&quot;pfs_med&quot;, &quot;os_med&quot;),        # 함께 뽑는 짝 (PFS, OS)
          (&quot;pfs_gam&quot;, &quot;os_gam&quot;),
          (&quot;hr_pfs&quot;, &quot;hr_os&quot;)]
 
 def draw_curves(rng, p, rho=0.5):
-    &quot;&quot;&quot;곡선과 위험비 한 벌. 짝마다 로그 척도에서 상관 rho&quot;&quot;&quot;
+    &quot;&quot;&quot;곡선과 위험비 한 세트. 짝마다 로그 척도에서 상관 rho&quot;&quot;&quot;
     v = {}
     for k1, k2 in pairs:
         z1, z2 = rng.normal(size=2)    # 독립인 표준정규 난수 둘

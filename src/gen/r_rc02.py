@@ -87,7 +87,7 @@ lr$pvalue
 
 c_rho = nb.cell('''
 survdiff(Surv(months, status) ~ sex_f, data = lung, rho = 1)
-''', title="초기 차이에 무게를 둔 검정 (rho = 1)")
+''', title="초기 차이에 가중치를 더 준 검정 (rho = 1)")
 
 c_ecog = nb.cell('''
 lung$ecog <- factor(ifelse(lung$ph.ecog >= 2, "2+", lung$ph.ecog))

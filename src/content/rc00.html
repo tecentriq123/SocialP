@@ -1,4 +1,4 @@
-<p class="lead">R은 통계 계산을 위해 만든 무료 프로그램이고, 보건의료 연구와 경제성 평가에서 널리 씁니다. 이 장에서는 R을 어디서 돌리는지, 패키지를 어떻게 설치하고 불러오는지, 자료를 읽어 살펴보고 고르고 요약하는 법, 모형의 출력을 읽고 결과를 파일로 남기는 법을 익힙니다. 예제는 보건통계학 기초 21장의 신세포암 의료비 자료이고, 숫자는 그 장과 그대로 맞습니다.</p>
+<p class="lead">R은 통계 계산을 위해 만든 무료 프로그램이고, 보건의료 연구와 경제성 평가에서 널리 씁니다. 이 장에서는 신세포암 의료비 파일을 R로 읽어 군별 평균을 구하고, 회귀모형의 출력을 읽어 결과를 파일로 남깁니다. 그 과정에서 R을 돌리는 곳, 패키지를 설치하고 불러오는 법, 자료를 고르고 요약하는 문법을 익힙니다. 예제는 보건통계학 기초 21장의 신세포암 의료비 자료이고, 숫자는 그 장과 그대로 맞습니다.</p>
 
 <p class="nb-link"><a href="notebooks/rc00.ipynb" download>이 장의 노트북 내려받기 (rc00.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. 출력은 R 4.5.3, dplyr 1.2, sandwich, lmtest로 실제로 실행해 얻었습니다.</p>
 
@@ -184,25 +184,25 @@
 </ol>
 <!--FIG:rc00_sum-->
 <ol class="marks">
-<li><span class="mk">1</span><span><b>Std. Error 54.222.</b> 계수의 표준오차입니다. 모든 환자에서 오차의 흩어짐이 같다고 가정한 값입니다.</span></li>
+<li><span class="mk">1</span><span><b>Std. Error 54.222.</b> 계수의 표준오차입니다. 모든 환자에서 오차의 분산이 같다는 등분산<span class="en">(homoscedasticity)</span>을 가정하고 구한 값입니다.</span></li>
 <li><span class="mk">2</span><span><b>t 9.453, P &lt; 2e-16.</b> &lt; 2e-16은 R이 보여 주는 가장 작은 값(약 2 × 10<sup>−16</sup>)보다도 작다는 뜻입니다. 논문에는 P &lt; 0.001로 씁니다.</span></li>
-<li><span class="mk">3</span><span><b>R² 0.047.</b> 이 변수들로는 비용의 흩어짐을 4.7%만 설명합니다. 군의 차이를 추정하는 것이 목적이라면 R²가 작아도 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>R² 0.047.</b> 이 변수들로는 비용의 변동을 4.7%만 설명합니다. 군의 차이를 추정하는 것이 목적이라면 R²가 작아도 됩니다.</span></li>
 </ol>
 
 <h3>신뢰구간과 강건 표준오차는 어떻게 구하나?</h3>
-<p><strong><code>confint()</code>가 계수의 95% 신뢰구간을 줍니다. 비용처럼 환자마다 흩어짐이 다른 자료에서는 R의 기본 표준오차 대신 강건 표준오차를 씁니다.</strong> R의 <code>lm()</code>은 기본으로 흩어짐이 같다고 가정하고, 보건통계학 기초 21장은 파이썬에서 HC3 강건 표준오차를 따로 지정했습니다. R에서는 sandwich와 lmtest 패키지로 같은 값을 얻습니다.</p>
+<p><strong><code>confint()</code>가 계수의 95% 신뢰구간을 줍니다. 비용처럼 환자마다 분산이 다른 자료(이분산)에서는 R의 기본 표준오차 대신 강건 표준오차를 씁니다.</strong> R의 <code>lm()</code>은 기본으로 등분산을 가정하고, 보건통계학 기초 21장은 파이썬에서 HC3 강건 표준오차를 따로 지정했습니다. R에서는 sandwich와 lmtest 패키지로 같은 값을 얻습니다.</p>
 <!--FIG:rc00_ci-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>round(confint(fit), 1)</code><span>모든 계수의 95% 신뢰구간을 소수 첫째 자리까지 봅니다.</span></li>
-<li><code>vcovHC(fit, type = "HC3")</code><span>환자마다 흩어짐이 달라도 맞는 계수의 공분산을 계산합니다(sandwich 패키지).</span></li>
+<li><code>vcovHC(fit, type = "HC3")</code><span>환자마다 분산이 달라도 맞는 계수의 공분산을 계산합니다(sandwich 패키지).</span></li>
 <li><code>coeftest(fit, vcov = rob)</code>, <code>coefci(fit, vcov = rob)</code><span>그 공분산으로 다시 구한 검정과 신뢰구간입니다(lmtest 패키지). <code>["armA", ]</code>는 그 행만 고릅니다.</span></li>
 </ol>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>406.3–618.9.</b> 기본 표준오차로 구한 군 차이의 신뢰구간입니다.</span></li>
 <li><span class="mk">2</span><span><b>Loading required package: zoo.</b> lmtest가 필요로 하는 패키지를 함께 불러왔다는 안내입니다.</span></li>
 <li><span class="mk">3</span><span><b>Std. Error 50.960.</b> HC3 강건 표준오차로 보건통계학 기초 21장의 값과 같습니다.</span></li>
-<li><span class="mk">4</span><span><b>412.7–612.5.</b> 강건 표준오차로 구한 신뢰구간으로 보건통계학 기초 21장 c 절의 값과 같습니다. 이 자료에서는 기본값과 차이가 작지만, 흩어짐이 군마다 크게 다르면 차이가 커집니다.</span></li>
+<li><span class="mk">4</span><span><b>412.7–612.5.</b> 강건 표준오차로 구한 신뢰구간으로 보건통계학 기초 21장 c 절의 값과 같습니다. 이 자료에서는 기본값과 차이가 작지만, 분산이 군마다 크게 다르면 차이가 커집니다.</span></li>
 </ol>
 
 <h3>R은 실수를 어떻게 알려 주나?</h3>
@@ -229,7 +229,7 @@
 <li>패키지는 <code>install.packages()</code>로 한 번 설치하고 <code>library()</code>로 세션마다 불러옵니다. Colab은 세션마다 다시 설치합니다.</li>
 <li>자료를 읽은 뒤 <code>dim()</code>, <code>str()</code>, <code>summary()</code>, <code>is.na()</code>로 형식, 범위, 결측을 먼저 확인합니다.</li>
 <li>범주형 변수는 <code>factor()</code>로 바꿔 기준범주를 직접 정합니다. 정하지 않으면 알파벳 순서의 첫째가 기준이 됩니다.</li>
-<li><code>lm()</code>의 표준오차는 흩어짐이 같다는 가정의 값입니다. 치우친 비용 자료에서는 sandwich의 강건 표준오차를 씁니다.</li>
+<li><code>lm()</code>의 표준오차는 등분산 가정의 값입니다. 치우친 비용 자료에서는 sandwich의 강건 표준오차를 씁니다.</li>
 <li>없는 열 이름은 오류 없이 NULL이 되므로, 결과가 NA이거나 경고가 나오면 이름부터 확인합니다.</li>
 </ul></div>
 </section>

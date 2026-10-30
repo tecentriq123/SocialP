@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">전환이 없었다면의 대조군 곡선</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km_a  &lt;- survfit(Surv(os, os_event) ~ 1, data = subset(d, arm == 1))
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">전환이 없었을 때의 대조군 곡선</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km_a  &lt;- survfit(Surv(os, os_event) ~ 1, data = subset(d, arm == 1))
 km_b  &lt;- survfit(Surv(os, os_event) ~ 1, data = subset(d, arm == 0))
 km_bc &lt;- survfit(Surv(os_rp, ev_rp) ~ 1, data = subset(d, arm == 0))
 plot(km_a, conf.int = FALSE, col = &quot;#1f5f8b&quot;, xlab = &quot;Months&quot;, ylab = &quot;Overall survival&quot;,

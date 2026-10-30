@@ -277,7 +277,7 @@
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>rng = np.random.default_rng(21)</code><span>난수 생성기를 같은 seed로 다시 만듭니다. 앞 셀에서 쓴 난수를 되돌려 처음부터 다시 뽑게 됩니다.</span></li>
-<li><code>ia = rng.integers(0, len(a), (B, len(a)))</code><span>세 번째 인자에 숫자 하나 대신 <code>(9999, 1203)</code>을 주면 9,999행 × 1,203열의 번호표가 만들어집니다. 한 행이 "다시 뽑은 A군 한 벌"입니다. 첫 행은 앞 셀의 <code>idx</code>와 같습니다.</span></li>
+<li><code>ia = rng.integers(0, len(a), (B, len(a)))</code><span>세 번째 인자에 숫자 하나 대신 <code>(9999, 1203)</code>을 주면 9,999행 × 1,203열의 번호표가 만들어집니다. 한 행이 "다시 뽑은 A군 한 세트"입니다. 첫 행은 앞 셀의 <code>idx</code>와 같습니다.</span></li>
 <li><code>ib = rng.integers(0, len(b), (B, len(b)))</code><span>B군의 번호표입니다. 9,999행 × 1,797열입니다. A군 번호표를 다 뽑은 다음에 이어서 뽑습니다.</span></li>
 <li><code>a[ia]</code><span>번호표의 칸마다 그 번호 환자의 비용을 넣은 9,999행 × 1,203열의 표가 됩니다. 배열의 대괄호 안에 번호 배열을 넣으면 같은 모양의 값 배열이 나옵니다.</span></li>
 <li><code>a[ia].mean(axis=1)</code><span><code>axis=1</code>은 가로 방향, 곧 행마다 평균을 내라는 뜻입니다. 다시 뽑은 A군 평균 9,999개가 한 줄로 나옵니다.</span></li>

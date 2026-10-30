@@ -1,6 +1,6 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">두 단계 방법: 대조군 시간 줄이기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$os_ts &lt;- d$os; d$ev_ts &lt;- d$os_event
 i &lt;- which(d$switch == 1)
-d$os_ts[i] &lt;- d$pfs[i] + (d$os[i] - d$pfs[i]) / af               # 전환하지 않았다면의 사망 시간
+d$os_ts[i] &lt;- d$pfs[i] + (d$os[i] - d$pfs[i]) / af               # 전환하지 않았을 때의 사망 시간
 hr_ts &lt;- hr(coxph(Surv(os_ts, ev_ts) ~ arm, data = d))
 hr_ts
 j &lt;- which(d$arm == 0 &amp; d$pfs_event == 1)                        # 진행한 B군 모두

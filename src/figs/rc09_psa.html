@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">5,000벌 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">run_psa &lt;- function(p, n = 5000, seed = 20261002, rho = 0.5, redraw = TRUE) {
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">5,000번 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">run_psa &lt;- function(p, n = 5000, seed = 20261002, rho = 0.5, redraw = TRUE) {
   set.seed(seed)
   res &lt;- matrix(NA, n, 2, dimnames = list(NULL, c(&quot;d_cost&quot;, &quot;d_qaly&quot;)))
   tries &lt;- 0

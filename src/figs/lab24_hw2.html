@@ -1,7 +1,7 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">과제 2 정답. 약값을 낮췄을 때의 확률과 수용곡선</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">fig, ax = plt.subplots(figsize=(6.5, 4))
 for price in [190.0, price_star, 160.0]:
     p2 = dict(p, c_drug_A=price)       # 약값만 바꾼 입력값
-    c2, q2, n2 = run_psa(p2)           # 같은 seed로 5,000벌
+    c2, q2, n2 = run_psa(p2)           # 같은 seed로 5,000번
     print(&quot;약값&quot;, round(price, 1),
           &quot; ICER&quot;, round(run_model(p2)[&quot;icer&quot;]),
           &quot; 평균 순금전편익&quot;, round((5000 * q2 - c2).mean()),

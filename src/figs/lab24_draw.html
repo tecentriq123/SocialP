@@ -1,5 +1,5 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">입력값 한 벌 뽑기와 다시 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def draw_inputs(rng, p, count, rho=0.5, redraw=True):
-    &quot;&quot;&quot;입력값 한 벌을 분포에서 뽑는다 (약값과 할인율은 고정)&quot;&quot;&quot;
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">입력값 한 세트 뽑기와 다시 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">def draw_inputs(rng, p, count, rho=0.5, redraw=True):
+    &quot;&quot;&quot;입력값 한 세트를 분포에서 뽑는다 (약값과 할인율은 고정)&quot;&quot;&quot;
     while True:
         q = draw_curves(rng, p, rho)   # 1) 곡선과 위험비
         count[&quot;tries&quot;] += 1
@@ -23,8 +23,8 @@ q = draw_inputs(rng, p, count)
 show = [&quot;u_pf&quot;, &quot;u_pd&quot;, &quot;c_pf&quot;, &quot;c_pd&quot;, &quot;c_death&quot;, &quot;c_drug_A&quot;]
 print({k: round(float(q[k]), 3) for k in show})
 r = run_model(q)
-print(&quot;첫 벌: 증분비용&quot;, round(r[&quot;d_cost&quot;]),
+print(&quot;첫 반복: 증분비용&quot;, round(r[&quot;d_cost&quot;]),
       &quot; 증분 QALY&quot;, round(r[&quot;d_qaly&quot;], 3), &quot; ICER&quot;, round(r[&quot;icer&quot;]))
 print(count)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>{&#x27;u_pf&#x27;: 0.839<span class="mk">1</span>, &#x27;u_pd&#x27;: 0.589, &#x27;c_pf&#x27;: 37.672, &#x27;c_pd&#x27;: 193.297, &#x27;c_death&#x27;: 801.628, &#x27;c_drug_A&#x27;: 190.0<span class="mk">2</span>}
-첫 벌: 증분비용 2709<span class="mk">3</span>  증분 QALY 0.57  ICER 4750
+첫 반복: 증분비용 2709<span class="mk">3</span>  증분 QALY 0.57  ICER 4750
 {&#x27;tries&#x27;: 1, &#x27;crossed&#x27;: 0}<span class="mk">4</span></pre></div></div>

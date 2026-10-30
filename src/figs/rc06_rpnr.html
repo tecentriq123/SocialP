@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">다시 정한 중도절단 없이 맞추기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_nr &lt;- rpsftm(Surv(os, os_event) ~ rand(arm, rx), data = d)    # censor_time을 빼면
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">재중도절단 없이 맞추기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_nr &lt;- rpsftm(Surv(os, os_event) ~ rand(arm, rx), data = d)    # censor_time을 빼면
 fit_nr$psi
 d$os_nr &lt;- ifelse(d$arm == 1, d$os, fit_nr$Sstar[, &quot;time&quot;])
 d$ev_nr &lt;- ifelse(d$arm == 1, d$os_event, fit_nr$Sstar[, &quot;status&quot;])

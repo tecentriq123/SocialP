@@ -1,4 +1,4 @@
-<p class="lead">생존분석은 R이 특히 잘 갖춘 분야이고, 그 바탕은 survival 패키지의 두 함수 <code>Surv()</code>와 <code>survfit()</code>입니다. 이 장에서는 폐암 환자 228명의 자료로 생존 자료를 만들고, Kaplan-Meier 곡선과 중앙생존기간을 구하고, 논문 형식의 요약표와 위험집합<span class="en">(risk set, number at risk)</span> 표가 붙은 그림을 만들고, 로그순위 검정으로 군을 비교합니다. 보건통계학 기초의 파이썬 실습 7과 같은 자료라서 숫자를 그대로 대조할 수 있습니다. 두 언어가 다른 곳은 신뢰구간입니다. R의 <code>survfit()</code>은 기본으로 log 방식의 구간을 내서, log-log 방식을 쓰는 실습 7과 구간의 끝자리가 다릅니다.</p>
+<p class="lead">생존분석은 R이 특히 잘 갖춘 분야이고, 그 바탕은 survival 패키지의 두 함수 <code>Surv()</code>와 <code>survfit()</code>입니다. 이 장에서는 폐암 환자 228명의 자료로 생존 자료를 만들고, Kaplan-Meier 곡선과 중앙생존기간을 구하고, 논문 형식의 요약표와 시점마다 아직 추적 중인 환자 수<span class="en">(number at risk)</span>를 적은 표가 붙은 그림을 만들고, 로그순위 검정으로 군을 비교합니다. 보건통계학 기초의 파이썬 실습 7과 같은 자료라서 숫자를 그대로 대조할 수 있습니다. 중앙값과 생존율 같은 점추정값은 같고, 신뢰구간만 다릅니다. R의 <code>survfit()</code>은 기본으로 log 방식의 구간을 내서, log-log 방식을 쓰는 실습 7과 구간의 끝자리가 다릅니다.</p>
 
 <p class="nb-link"><a href="notebooks/rc02.ipynb" download>이 장의 노트북 내려받기 (rc02.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3, survival 3.8, survminer 0.5로 실제로 실행해 얻었습니다.</p>
 
@@ -84,7 +84,7 @@
 <li><span class="mk">1</span><span><b>9.33–11.9.</b> 중앙생존기간의 구간도 바뀝니다. 중앙값의 구간은 생존율 구간의 두 곡선이 0.5를 지나는 시점으로 정하기 때문입니다. 실습 7의 9.33–11.86과 같습니다.</span></li>
 <li><span class="mk">2</span><span><b>0.3387–0.478.</b> 실습 7의 1년 생존율 구간 0.339–0.478과 같습니다.</span></li>
 </ol>
-<p>log 방식은 계산상 위 끝이 1을 넘을 수 있어 R이 1에서 자르고, log-log 방식은 구간이 처음부터 0과 1 사이에 있습니다. 생존율이 1이나 0에 가까운 시점에서 두 방식의 차이가 커집니다. 어느 쪽이 틀린 것은 아니므로, 방식을 하나 정해 Methods에 적고 모든 군에 같은 방식을 씁니다. 이 장의 나머지 셀은 실습 7과 맞추기 위해 log-log를 씁니다.</p>
+<p>log 방식은 계산상 위 끝이 1을 넘을 수 있어 R이 1에서 자르고, log-log 방식은 구간이 처음부터 0과 1 사이에 있습니다. 생존율이 1이나 0에 가까운 시점에서 두 방식의 차이가 커집니다. 그래서 log-log 방식을 기본으로 쓰는 프로그램이 많습니다(예를 들어 SAS, Stata, 파이썬 lifelines). 어느 방식이든 하나를 정해 Methods에 적고, 모든 군에 같은 방식을 씁니다. 이 장의 나머지 셀은 실습 7과 맞추기 위해 log-log를 씁니다.</p>
 
 <h3>곡선은 어떻게 그리나?</h3>
 <p><strong><code>plot()</code>에 <code>survfit()</code> 결과를 넣으면 계단 모양의 곡선과 신뢰구간(점선)이 그려집니다.</strong> 빠르게 확인하는 그림으로 충분하고, 논문용 그림은 c 절의 survminer로 그립니다.</p>
@@ -113,7 +113,7 @@
 </ol>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>rmean*.</b> 24개월까지의 RMST입니다. 남성 10.2개월, 여성 14.3개월이고, 표 아래 별표 줄에 상한(24)이 적혀 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>남성 8.87 (6.9–10.1).</b> 중앙값은 소수 둘째 자리, 신뢰구간은 첫째 자리로 찍혀 열마다 자릿수가 다릅니다. R은 열마다 소수 자리를 하나로 정하고, 그 열에서 자리가 가장 많이 필요한 값이 유효숫자 세 자리가 되게 합니다. 그래서 여성의 중앙값도 8.87에 맞춰 14.00으로 찍힙니다. 다음 셀처럼 표를 직접 만들면 자릿수를 정할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>남성 8.87 (6.9–10.1).</b> 중앙값은 소수 둘째 자리, 신뢰구간은 첫째 자리로 찍혀 열마다 자릿수가 다릅니다. R은 한 열의 숫자를 모두 같은 소수 자리로 찍고, 그 자리는 열의 어느 값이든 유효숫자가 세 자리 이상 보이도록 정합니다. 8.87은 소수 둘째 자리까지 있어야 세 자리가 되므로, 같은 열의 여성 중앙값도 14.00으로 찍힙니다. 다음 셀처럼 표를 직접 만들면 자릿수를 정할 수 있습니다.</span></li>
 </ol>
 
 <h3>논문에 옮길 요약표는 어떻게 만드나?</h3>
@@ -131,7 +131,7 @@
 </ol>
 
 <h3>위험집합 표가 붙은 그림은 어떻게 그리나?</h3>
-<p><strong>survminer 패키지의 <code>ggsurvplot()</code>은 곡선, 신뢰구간, 로그순위 검정의 p값, 그림 아래의 위험집합 표를 한 번에 그립니다.</strong> 논문의 Kaplan-Meier 그림에는 시점별 위험집합 수를 함께 싣는 것이 권고됩니다<cite data-ref="pocock2002"></cite>.</p>
+<p><strong>survminer 패키지의 <code>ggsurvplot()</code>은 곡선, 신뢰구간, 로그순위 검정의 p값, 그림 아래의 위험집합 표<span class="en">(number at risk table)</span>를 한 번에 그립니다. 위험집합<span class="en">(risk set)</span>은 그 시점에 아직 사건 없이 추적 중인 환자들이고, 표에는 그 인원수를 적습니다.</strong> 논문의 Kaplan-Meier 그림에는 시점별 위험집합 수를 함께 싣는 것이 권고됩니다<cite data-ref="pocock2002"></cite>.</p>
 <!--FIG:rc02_ggs-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -168,11 +168,11 @@
 <li><span class="mk">4</span><span><b>0.001311165.</b> 반올림하지 않은 p값입니다. 그림의 p = 0.0013, 실습 7의 결과와 같습니다.</span></li>
 </ol>
 
-<h3>곡선 앞쪽의 차이에 무게를 두려면?</h3>
-<p><strong><code>rho = 1</code>을 주면 생존율이 높은 앞쪽 시점에 무게를 더 주는 Peto-Peto 검정이 됩니다.</strong> 기본값 <code>rho = 0</code>이 로그순위 검정입니다<cite data-ref="harrington1982"></cite>.</p>
+<h3>곡선 앞쪽의 차이에 가중치를 두려면?</h3>
+<p><strong><code>rho = 1</code>을 주면 생존율이 높은 앞쪽 시점에 가중치를 더 주는 Peto-Peto 검정이 됩니다.</strong> 기본값 <code>rho = 0</code>이 로그순위 검정입니다<cite data-ref="harrington1982"></cite>.</p>
 <!--FIG:rc02_rho-->
 <ol class="marks">
-<li><span class="mk">1</span><span><b>Observed 70.4.</b> 사건 수가 정수가 아닌 것은 시점마다 무게(그 시점의 생존율)를 곱해 더했기 때문입니다.</span></li>
+<li><span class="mk">1</span><span><b>Observed 70.4.</b> 사건 수가 정수가 아닌 것은 시점마다 가중치(그 시점의 생존율)를 곱해 더했기 때문입니다.</span></li>
 <li><span class="mk">2</span><span><b>Chisq= 12.7.</b> 실습 7의 Peto-Peto 결과 12.71과 같습니다. 두 성별의 차이가 앞쪽에서 더 뚜렷해 로그순위 검정(10.3)보다 큽니다.</span></li>
 </ol>
 <p>어느 검정을 쓸지는 결과를 보기 전에 정합니다. 여러 가중 검정을 돌려 p값이 가장 작은 것을 보고하면 제1종 오류가 커집니다(<a href="stats.html#ch07-s3">보건통계학 기초 7장 c 절</a>).</p>
