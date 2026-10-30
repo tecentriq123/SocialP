@@ -160,7 +160,7 @@ S("rc05_pre", nb.html(c_pre, marks={"Loading required package: ggplot2": 1, "[1]
 S("rc05_get", nb.html(c_get, marks={"nrisk.hat": 1, "censor.hat": 2, "     5   213   233    24   164": 3,
                                     "max absolute error": 4, "D= 0.03433": 5}))
 S("rc05_rec", nb.html(c_rec, marks={"time status treat": 1, "152 148": 2, "164": 3}))
-S("rc05_cmp", nb.html(c_cmp, marks={"0.5567": 1, "469.6": 2, "908": 3}))
+S("rc05_cmp", nb.html(c_cmp, marks={"0.5567": 1, "469.6": 2, "908.0": 3}))
 S("rc05_cplot", nb.html(c_cplot))
 S("rc05_fit", nb.html(c_fit, marks={"dAIC": 1, "19.5   3.10": 2, "23.1   3.40": 3}))
 S("rc05_nar3", nb.html(c_nar3, marks={"events after24": 1, "20.7   3.19": 2}))

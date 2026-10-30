@@ -1,4 +1,4 @@
-<p class="lead">생존분석은 R이 가장 강한 분야이고, 그 바탕은 survival 패키지의 두 함수 <code>Surv()</code>와 <code>survfit()</code>입니다. 이 장에서는 폐암 환자 228명의 자료로 생존 자료를 만들고, Kaplan-Meier 곡선과 중앙생존기간을 구하고, 논문 형식의 요약표와 위험집합 표가 붙은 그림을 만들고, 로그순위 검정으로 군을 비교합니다. 보건통계학 기초의 파이썬 실습 7과 같은 자료라서 숫자를 그대로 대조할 수 있습니다. 두 언어가 다른 곳은 신뢰구간입니다. R의 <code>survfit()</code>은 기본으로 log 방식의 구간을 내서, log-log 방식을 쓰는 실습 7과 구간의 끝자리가 다릅니다.</p>
+<p class="lead">생존분석은 R이 특히 잘 갖춘 분야이고, 그 바탕은 survival 패키지의 두 함수 <code>Surv()</code>와 <code>survfit()</code>입니다. 이 장에서는 폐암 환자 228명의 자료로 생존 자료를 만들고, Kaplan-Meier 곡선과 중앙생존기간을 구하고, 논문 형식의 요약표와 위험집합 표가 붙은 그림을 만들고, 로그순위 검정으로 군을 비교합니다. 보건통계학 기초의 파이썬 실습 7과 같은 자료라서 숫자를 그대로 대조할 수 있습니다. 두 언어가 다른 곳은 신뢰구간입니다. R의 <code>survfit()</code>은 기본으로 log 방식의 구간을 내서, log-log 방식을 쓰는 실습 7과 구간의 끝자리가 다릅니다.</p>
 
 <p class="nb-link"><a href="notebooks/rc02.ipynb" download>이 장의 노트북 내려받기 (rc02.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3, survival 3.8, survminer 0.5로 실제로 실행해 얻었습니다.</p>
 
@@ -51,7 +51,7 @@
 <li><code>survfit(… ~ 1, data = lung)</code><span>군을 나누지 않고 곡선 하나를 구합니다. 결과 객체의 이름만 쓰면 사건 수와 중앙값이 출력됩니다.</span></li>
 </ol>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>events 63, median 19.3.</b> 중도절단 63명을 사건으로 셌고, 중앙 추적기간은 19.3개월(95% 신뢰구간 16.8–33.2)입니다. 실습 7과 같습니다.</span></li>
+<li><span class="mk">1</span><span><b>events 63, median 19.3.</b> 중도절단 63명을 사건으로 셌고, 중앙 추적기간은 19.3개월(95% 신뢰구간 16.8–33.2)입니다. 중앙값은 실습 7과 같습니다. 구간은 b 절에서 볼 R의 기본 방식(log)으로 구한 것입니다.</span></li>
 </ol>
 </section>
 
@@ -91,7 +91,7 @@
 <!--FIG:rc02_plot-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>mark.time = TRUE</code><span>중도절단된 시점에 작은 세로선(+)을 찍습니다.</span></li>
+<li><code>mark.time = TRUE</code><span>중도절단된 시점에 + 표시를 찍습니다.</span></li>
 <li><code>xaxt = "n"</code>, <code>axis(1, at = seq(0, 36, by = 6))</code><span>가로축 눈금을 지우고 6개월 간격으로 다시 그립니다.</span></li>
 <li><code>abline(h = 0.5, lty = 3)</code><span>생존율 0.5에 점선을 긋습니다. 곡선이 이 선과 만나는 시점이 중앙생존기간입니다.</span></li>
 </ol>
@@ -113,7 +113,7 @@
 </ol>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>rmean*.</b> 24개월까지의 RMST입니다. 남성 10.2개월, 여성 14.3개월이고, 표 아래 별표 줄에 상한(24)이 적혀 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>남성 8.87 (6.9–10.1).</b> 중앙값의 자릿수가 행마다 달라 보이는 것은 R이 열 전체를 같은 유효숫자로 맞추기 때문입니다. 다음 셀처럼 표를 직접 만들면 자릿수를 정할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>남성 8.87 (6.9–10.1).</b> 중앙값은 소수 둘째 자리, 신뢰구간은 첫째 자리로 찍혀 열마다 자릿수가 다릅니다. R은 열마다 소수 자리를 하나로 정하고, 그 열에서 자리가 가장 많이 필요한 값이 유효숫자 세 자리가 되게 합니다. 그래서 여성의 중앙값도 8.87에 맞춰 14.00으로 찍힙니다. 다음 셀처럼 표를 직접 만들면 자릿수를 정할 수 있습니다.</span></li>
 </ol>
 
 <h3>논문에 옮길 요약표는 어떻게 만드나?</h3>
@@ -198,7 +198,7 @@
 <!--FIG:rc02_rmst-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>[, c("rmean", "se(rmean)")]</code><span>표에서 두 열만 꺼냅니다. 열 이름에 괄호가 있어 따옴표로 씁니다.</span></li>
+<li><code>[, c("rmean", "se(rmean)")]</code><span>표에서 두 열만 꺼냅니다. 대괄호 안에서는 열 이름을 따옴표로 씁니다. 이름에 괄호가 있어 <code>$</code>로는 꺼내기 어렵습니다.</span></li>
 <li><code>sqrt(sum(rm[, "se(rmean)"]^2))</code><span>두 군이 독립이므로 차이의 표준오차는 두 표준오차의 제곱합의 제곱근입니다.</span></li>
 </ol>
 <ol class="marks">

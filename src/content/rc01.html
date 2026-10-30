@@ -1,4 +1,4 @@
-<p class="lead">논문의 첫 표(Table 1)는 비교하는 군의 특성을 나란히 보여 주고, 그 뒤의 표는 군 비교와 회귀모형의 결과입니다. 이 장에서는 MASS 패키지의 출생체중 자료로 R에서 Table 1을 만들고, 두 군의 평균과 비율을 비교하고, 선형회귀와 로지스틱 회귀를 맞춥니다. 같은 분석을 보건통계학 기초의 파이썬 실습 2·5·9가 했으므로 숫자를 그대로 대조할 수 있습니다. 이 장에서 가장 눈여겨볼 것은 R이 기본값으로 대신 정하는 것입니다. <code>t.test()</code>는 Welch 검정을, <code>chisq.test()</code>는 Yates 보정을, <code>confint()</code>는 프로파일 우도 구간을 기본으로 씁니다.</p>
+<p class="lead">논문의 첫 표(Table 1)는 비교하는 군의 특성을 나란히 보여 주고, 그 뒤의 표는 군 비교와 회귀모형의 결과입니다. 이 장에서는 MASS 패키지의 출생체중 자료로 R에서 Table 1을 만들고, 두 군의 평균과 비율을 비교하고, 선형회귀와 로지스틱 회귀를 맞춥니다. 같은 분석을 보건통계학 기초의 파이썬 실습 2·5·9가 했으므로 숫자를 그대로 대조할 수 있습니다. 이 장에서 가장 눈여겨볼 것은 R이 기본값으로 대신 정하는 것입니다. <code>t.test()</code>는 Welch 검정을, <code>chisq.test()</code>는 Yates 보정을, 로지스틱 회귀(<code>glm()</code>)에 쓴 <code>confint()</code>는 프로파일 우도 구간을 기본으로 씁니다.</p>
 
 <p class="nb-link"><a href="notebooks/rc01.ipynb" download>이 장의 노트북 내려받기 (rc01.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3, tableone 0.13, broom으로 실제로 실행해 얻었습니다.</p>
 
@@ -84,7 +84,7 @@
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>nonnormal = c("ftv", "bwt")</code><span>치우친 분포의 변수를 중앙값 [사분위범위]로 요약하고 순위 검정을 씁니다.</span></li>
-<li><code>exact = "ht"</code><span>기대빈도가 5보다 작은 칸이 있는 고혈압 병력(흡연군 5명)에 Fisher의 정확한 검정을 씁니다.</span></li>
+<li><code>exact = "ht"</code><span>기대빈도가 5보다 작은 칸이 있는 고혈압 병력(흡연군 칸의 기대빈도 4.7명)에 Fisher의 정확한 검정을 씁니다.</span></li>
 <li><code>quote = FALSE, noSpaces = TRUE, printToggle = FALSE</code><span>따옴표와 줄맞춤용 공백을 빼고, 화면에 찍는 대신 결과를 글자 행렬로 돌려받습니다.</span></li>
 <li><code>write.csv(tab1, "table1.csv")</code><span>작업 폴더에 CSV 파일로 저장합니다. 엑셀에서 열어 논문 표로 옮깁니다. Colab에서는 왼쪽의 파일 창에서 내려받습니다.</span></li>
 <li><code>noquote(tab1[c("ht = 1 (%)", "bwt (median [IQR])"), ])</code><span>행 이름으로 두 행만 골라 따옴표 없이 봅니다.</span></li>
@@ -143,10 +143,10 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>2775.50.</b> 흡연군의 중앙값입니다. 비흡연군은 3100.00입니다.</span></li>
 <li><span class="mk">2</span><span><b>W = 5249.5.</b> 첫 군(비흡연군)의 순위합에서 그 군이 가질 수 있는 가장 작은 순위합을 뺀 값으로, Mann-Whitney의 U와 같습니다. 실습 2의 U(nonsmoker) 5249.5입니다. scipy가 흡연군을 먼저 넣어 낸 3260.5와 더하면 115 × 74 = 8,510입니다.</span></li>
-<li><span class="mk">3</span><span><b>with continuity correction.</b> 동점이 있어 정확한 p값 대신 정규근사를 쓰고, 기본값으로 연속성 보정을 합니다. p 0.0068은 실습 2와 같고, <code>correct = FALSE</code>로 보정을 빼면 Table 1의 nonnorm 값 0.007(0.0067)이 됩니다.</span></li>
+<li><span class="mk">3</span><span><b>with continuity correction.</b> 두 군이 모두 50명 이상이고 동점도 있어, R은 정확한 p값 대신 정규근사를 쓰고 기본값으로 연속성 보정을 합니다. p 0.0068은 실습 2와 같고, <code>correct = FALSE</code>로 보정을 빼면 Table 1의 nonnorm 값 0.007(0.0067)이 됩니다.</span></li>
 </ol>
 
-<div class="quick"><p class="qk">잠깐 확인</p><p>a 절에서 흡연군이 먼저 오게 수준을 정했다면(<code>levels = c(1, 0)</code>, <code>labels = c("Smoker", "Nonsmoker")</code>) <code>t.test()</code>의 t와 신뢰구간, <code>wilcox.test()</code>의 W는 어떻게 바뀔까요?</p><details><summary>답 보기</summary><div><p>t는 −2.7299로 부호만 바뀌고 신뢰구간은 −489.0 to −78.6 g이 됩니다. W는 흡연군의 값인 8,510 − 5,249.5 = 3,260.5가 됩니다. p값은 모두 그대로입니다. 차이의 방향은 수준의 순서가 정하므로, 결과를 옮겨 적을 때 어느 군에서 어느 군을 뺐는지 확인합니다.</p></div></details></div>
+<div class="quick"><p class="qk">잠깐 확인</p><p>a 절에서 흡연군이 먼저 오게 수준을 정했다면(<code>levels = c(1, 0)</code>, <code>labels = c("Smoker", "Nonsmoker")</code>) <code>t.test()</code>의 t와 신뢰구간, <code>wilcox.test()</code>의 W는 어떻게 바뀔까요?</p><details><summary>답 보기</summary><div><p>t는 −2.7299로 부호만 바뀌고 신뢰구간은 −489.0 g에서 −78.6 g이 됩니다. W는 흡연군의 값인 8,510 − 5,249.5 = 3,260.5가 됩니다. p값은 모두 그대로입니다. 차이의 방향은 수준의 순서가 정하므로, 결과를 옮겨 적을 때 어느 군에서 어느 군을 뺐는지 확인합니다.</p></div></details></div>
 </section>
 
 <!-- ============================================================ d -->
@@ -183,20 +183,20 @@
 </ol>
 <p>파이썬 scipy의 <code>chi2_contingency()</code>도 2×2 표에서 같은 보정을 기본으로 해서, 이 부분은 두 언어가 같습니다. 보정은 2×2 표에만 들어가고 인종(3×2)처럼 더 큰 표에는 들어가지 않습니다. 보정 여부를 고르는 기준은 <a href="stats.html#ch05-s1">보건통계학 기초 5장 a 절</a>에 있습니다.</p>
 
-<h3>Fisher의 정확한 검정의 교차비는 왜 표에서 구한 값과 다른가?</h3>
-<p><strong><code>fisher.test()</code>가 내는 교차비 2.014는 조건부 최대우도 추정값이라, 표의 네 칸으로 바로 구한 교차비 2.022와 조금 다릅니다.</strong></p>
+<h3>Fisher의 정확한 검정의 오즈비는 왜 표에서 구한 값과 다른가?</h3>
+<p><strong><code>fisher.test()</code>가 내는 오즈비(교차비라고도 합니다) 2.014는 조건부 최대우도 추정값이라, 표의 네 칸으로 바로 구한 오즈비 2.022와 조금 다릅니다.</strong></p>
 <!--FIG:rc01_fis-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
-<li><code>fisher.test(tab)</code><span>p값, 교차비의 95% 신뢰구간, 교차비 추정값을 냅니다.</span></li>
+<li><code>fisher.test(tab)</code><span>p값, 오즈비의 95% 신뢰구간, 오즈비 추정값을 냅니다.</span></li>
 <li><code>(tab[2, 2] * tab[1, 1]) / (tab[2, 1] * tab[1, 2])</code><span><code>tab[행, 열]</code>로 칸을 꺼내 (30 × 86) ÷ (44 × 29)를 계산합니다. 2행이 흡연군, 2열이 저체중아입니다.</span></li>
 </ol>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>1.028780 3.964904.</b> 정확한 방법으로 구한 교차비의 95% 신뢰구간입니다. p 0.036은 실습 5와 같습니다.</span></li>
+<li><span class="mk">1</span><span><b>1.028780 3.964904.</b> 정확한 방법으로 구한 오즈비의 95% 신뢰구간입니다. p 0.036은 실습 5와 같습니다.</span></li>
 <li><span class="mk">2</span><span><b>2.014137.</b> 칸의 합계를 고정한 조건부 분포에서 구한 최대우도 추정값입니다.</span></li>
-<li><span class="mk">3</span><span><b>2.021944.</b> 표에서 바로 구한 교차비입니다. 과제 3의 보정하지 않은 로지스틱 회귀 오즈비와 같은 값입니다.</span></li>
+<li><span class="mk">3</span><span><b>2.021944.</b> 표에서 바로 구한 오즈비입니다. 과제 3의 보정하지 않은 로지스틱 회귀 오즈비와 같은 값입니다.</span></li>
 </ol>
-<p>두 값은 표본이 작을수록 더 벌어집니다. 논문에는 어느 교차비를 보고했는지 적습니다.</p>
+<p>두 값은 표본이 작을수록 더 벌어집니다. 논문에는 어느 오즈비를 보고했는지 적습니다.</p>
 
 <div class="quick"><p class="qk">잠깐 확인</p><p>흡연과 고혈압 병력의 교차표를 <code>chisq.test()</code>에 넣으면 결과와 함께 무엇이 나올까요? b 절에서 이 변수에 <code>exact =</code>를 쓴 이유와 연결해 보세요.</p><details><summary>답 보기</summary><div><p>"Chi-squared approximation may be incorrect"라는 경고가 함께 나옵니다. 흡연군에서 고혈압 병력이 있는 칸의 기대빈도가 12 × 74 ÷ 189 = 4.7로 5보다 작기 때문입니다. 그래서 Table 1에서 이 변수는 Fisher의 정확한 검정으로 바꿨습니다.</p></div></details></div>
 </section>
@@ -229,7 +229,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>family = binomial.</b> 이항분포와 로짓 연결함수입니다(<a href="stats.html#ch08-s4">보건통계학 기초 8장 d 절</a>).</span></li>
 <li><span class="mk">2</span><span><b>0.84640.</b> 흡연의 계수, 곧 로그 오즈비입니다. 실습 9의 0.8464와 같습니다.</span></li>
-<li><span class="mk">3</span><span><b>Residual deviance: 196.83.</b> −2 × 로그우도입니다. 바로 위 Null deviance 234.67과의 차이 37.84가 여덟 변수를 한꺼번에 넣은 효과의 우도비 검정 통계량입니다(<a href="stats.html#ch08-s5">8장 e 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>Residual deviance: 196.83.</b> −2 × 로그우도입니다. 바로 위 Null deviance 234.67과의 차이 37.84가 일곱 변수를 한꺼번에 넣은 효과의 우도비 검정 통계량입니다. 인종이 가변수 둘로 들어가 계수는 여덟 개이고, 자유도도 8입니다(<a href="stats.html#ch08-s5">8장 e 절</a>).</span></li>
 <li><span class="mk">4</span><span><b>Number of Fisher Scoring iterations: 4.</b> 반복 계산이 네 번 만에 수렴했다는 뜻입니다. statsmodels는 수렴을 판정하는 기준이 달라 반복 수가 6이었지만 추정값은 같습니다.</span></li>
 </ol>
 
@@ -245,7 +245,7 @@
 <li><span class="mk">1</span><span><b>smoke 2.331 (1.048–5.187).</b> 실습 9의 표와 같은 Wald 구간입니다.</span></li>
 <li><span class="mk">2</span><span><b>Waiting for profiling to be done...</b> 프로파일 구간을 계산하는 동안 찍히는 알림입니다. 오류가 아닙니다.</span></li>
 <li><span class="mk">3</span><span><b>smoke 1.058–5.293.</b> 프로파일 구간은 Wald 구간보다 조금 오른쪽에 있습니다.</span></li>
-<li><span class="mk">4</span><span><b>ht 1.640–27.258.</b> 고혈압 병력이 있는 사람이 12명뿐이라 두 구간의 차이가 더 큽니다(Wald 1.585–24.954). 사건이 적은 변수일수록 차이가 커집니다.</span></li>
+<li><span class="mk">4</span><span><b>ht 1.640–27.258.</b> 고혈압 병력이 있는 사람이 12명뿐이라 두 구간의 차이가 더 큽니다(Wald 1.585–24.954). 해당하는 사람이 적은 변수일수록 차이가 커집니다.</span></li>
 </ol>
 <p>표본이 작거나 사건이 적을 때는 프로파일 구간이 더 정확합니다. 두 구간의 차이는 <a href="stats.html#ch09-s1">보건통계학 기초 9장 a 절</a>의 접힌 상자 'Wald 구간과 프로파일 구간은 언제 달라지나?'에 있습니다. 어느 쪽이든 Methods에 어떤 구간인지 적습니다.</p>
 
@@ -256,20 +256,20 @@
 <ol class="lines">
 <li><code>tidy(fit_lr, exponentiate = TRUE, conf.int = TRUE)[-1, ]</code><span>계수와 구간을 지수로 바꾼 표를 받고, <code>[-1, ]</code>로 첫 행(절편)을 뺍니다.</span></li>
 <li><code>sprintf("%.2f (%.2f-%.2f)", …)</code><span><code>%.2f</code> 자리에 숫자를 소수 둘째 자리까지 차례로 넣어 글자를 만듭니다.</span></li>
-<li><code>format.pval(…, digits = 2, eps = 0.001)</code><span>p값을 유효숫자 두 자리로 쓰고, 0.001보다 작으면 "&lt;0.001"로 씁니다.</span></li>
+<li><code>format.pval(…, digits = 2, eps = 0.001)</code><span>p값 열 전체를 같은 소수 자리로 맞춥니다. 가장 작은 p값이 유효숫자 두 자리가 되도록 자리를 정하므로 이 표에서는 모두 소수 넷째 자리까지 찍히고, 0.001보다 작으면 "&lt;0.001"로 씁니다.</span></li>
 <li><code>check.names = FALSE</code><span>열 이름 "OR (95% CI)"의 빈칸과 괄호를 그대로 둡니다. 빼면 <code>OR..95..CI.</code>처럼 바뀝니다.</span></li>
 </ol>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>2.33 (1.06-5.29).</b> <code>tidy()</code>는 <code>confint()</code>를 불러 프로파일 구간을 씁니다.</span></li>
 <li><span class="mk">2</span><span><b>0.99 (0.97-1.00).</b> 소수 둘째 자리에서는 위 끝이 1.00으로 보여 유의하지 않은 것처럼 읽힙니다(실제 위 끝 0.998, p 0.034). 1 lb라는 단위가 너무 작아서이고, 10 lb당 오즈비로 바꾸면 이런 혼동이 없습니다(과제 2).</span></li>
-<li><span class="mk">3</span><span><b>0.0083.</b> 유효숫자 두 자리의 p값입니다.</span></li>
+<li><span class="mk">3</span><span><b>0.0083.</b> 이 열에서 가장 작은 p값이라 유효숫자 두 자리로 찍혔고, 다른 p값도 같은 소수 넷째 자리에 맞춰졌습니다.</span></li>
 </ol>
 
 <div class="quick"><p class="qk">잠깐 확인</p><p>a 절에서 race를 factor로 바꾸지 않고 1, 2, 3 숫자 그대로 모형에 넣었다면 계수표의 race 줄은 어떻게 나오고, 무엇이 문제일까요?</p><details><summary>답 보기</summary><div><p>race 계수가 한 줄만 나옵니다. 백인(1)에서 흑인(2)으로 갈 때와 흑인(2)에서 기타(3)로 갈 때의 로그 오즈비 변화가 같다고 가정한 기울기입니다. 인종에는 순서가 없으므로 이 가정은 뜻이 없고, 기준범주와의 차이를 범주마다 따로 추정한 지금의 모형이 맞습니다.</p></div></details></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>CreateTableOne()</code>의 p값은 연속형이 Student t 검정, 2×2 범주형이 Yates 보정 카이제곱입니다. 0/1 변수는 <code>factorVars</code>에 적고, <code>nonnormal =</code>과 <code>exact =</code>로 변수별 검정을 바꿉니다.</li>
-<li><code>t.test()</code>의 기본값은 Welch 검정, <code>chisq.test()</code>는 2×2 표에서 Yates 보정입니다. <code>fisher.test()</code>의 교차비는 조건부 최대우도 추정값이라 표의 교차비와 조금 다릅니다.</li>
+<li><code>t.test()</code>의 기본값은 Welch 검정, <code>chisq.test()</code>는 2×2 표에서 Yates 보정입니다. <code>fisher.test()</code>의 오즈비는 조건부 최대우도 추정값이라 표의 오즈비와 조금 다릅니다.</li>
 <li>차이와 계수의 방향, 그리고 기준범주는 factor 수준의 순서가 정합니다.</li>
 <li>로지스틱 회귀는 <code>glm(…, family = binomial)</code>로 맞추고, <code>confint()</code>는 프로파일 우도 구간, <code>confint.default()</code>는 Wald 구간입니다. 표에는 어떤 구간인지 적습니다.</li>
 </ul></div>
@@ -296,9 +296,9 @@
 </div></details>
 
 <h3>과제 3. 보정하지 않은 오즈비</h3>
-<p><code>glm(low ~ smoke)</code>로 보정하지 않은 오즈비를 구하고, d 절의 두 교차비와 비교하세요. e 절의 보정한 오즈비 2.33과는 왜 다를까요?</p>
+<p><code>glm(low ~ smoke)</code>로 보정하지 않은 오즈비를 구하고, d 절의 두 오즈비와 비교하세요. e 절의 보정한 오즈비 2.33과는 왜 다를까요?</p>
 <details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
 <!--FIG:rc01_t3x-->
-<p>2.022로, 표에서 바로 구한 교차비와 정확히 같고 <code>fisher.test()</code>의 2.014와는 다릅니다. 변수 하나짜리 로지스틱 회귀의 오즈비는 2×2 표의 교차비와 같기 때문입니다. 보정하면 2.33으로 커지는데, 인종과 이전 조산 같은 변수의 분포가 두 군에서 달랐기 때문입니다. 예를 들어 흡연군에는 이 자료에서 저체중아 위험이 가장 낮은 백인 산모가 많아(70.3% 대 38.3%), 보정하기 전에는 흡연의 위험이 일부 가려져 있었습니다. 보정 전과 후의 차이를 읽는 법은 <a href="stats.html#ch08-s6">보건통계학 기초 8장 f 절</a>에 있습니다.</p>
+<p>2.022로, 표에서 바로 구한 오즈비와 정확히 같고 <code>fisher.test()</code>의 2.014와는 다릅니다. 변수 하나짜리 로지스틱 회귀의 오즈비는 2×2 표의 오즈비와 같기 때문입니다. 보정하면 2.33으로 커지는데, 주로 인종의 분포가 두 군에서 달랐기 때문입니다. 흡연군에는 이 자료에서 저체중아 위험이 가장 낮은 백인 산모가 많아(70.3% 대 38.3%), 보정하기 전에는 흡연의 위험이 일부 가려져 있었습니다. 인종만 보정하면 오즈비가 3.05입니다. 이전 조산은 반대 방향으로 작용합니다. 흡연군에 더 많아(24.3% 대 10.4%) 이 변수만 보정하면 오즈비가 1.71로 작아집니다. 또 오즈비는 교란이 없어도 예후 변수를 보정하면 1에서 조금 멀어질 수 있어, 보정 전후의 차이를 모두 교란으로 읽지는 않습니다. 보정 전과 후의 차이를 읽는 법은 <a href="stats.html#ch08-s6">보건통계학 기초 8장 f 절</a>에 있습니다.</p>
 </div></details>
 </section>

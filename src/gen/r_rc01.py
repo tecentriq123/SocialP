@@ -80,8 +80,8 @@ chisq.test(tab)$expected
 
 c_fis = nb.cell('''
 fisher.test(tab)
-(tab[2, 2] * tab[1, 1]) / (tab[2, 1] * tab[1, 2])    # 표에서 바로 구한 교차비
-''', title="Fisher의 정확한 검정과 두 가지 교차비")
+(tab[2, 2] * tab[1, 1]) / (tab[2, 1] * tab[1, 2])    # 표에서 바로 구한 오즈비
+''', title="Fisher의 정확한 검정과 두 가지 오즈비")
 
 # e. 회귀
 c_lm = nb.cell('''

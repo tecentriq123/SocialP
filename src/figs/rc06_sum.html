@@ -3,11 +3,13 @@
              exclude_switch = hr(coxph(Surv(os, os_event) ~ arm, data = subset(d, switch == 0))),
              RPSFTM         = hr_rp,
              IPCW           = hr(fit_ipw),
-             two_stage      = hr_ts)
+             two_stage      = hr_ts,
+             two_stage_rc   = hr_tr)
 res</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                  HR 2.5 % 97.5 %
 ITT            0.706 0.572  0.870
 censor_switch  0.950 0.727  1.241
 exclude_switch 0.616 0.473  0.803
 RPSFTM         0.592 0.466  0.751
 IPCW           0.656 0.489  0.880
-two_stage      0.604 0.489  0.746</pre></div></div>
+two_stage      0.604 0.489  0.746
+two_stage_rc   0.610 0.493  0.756</pre></div></div>

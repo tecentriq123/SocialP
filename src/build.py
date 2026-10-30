@@ -573,9 +573,9 @@ def build_home(shell, meta, ml_meta=None, r_meta=None):
          "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]},
         {"tag": "과목 · R", "title": "R과 통계분석", "href": "r.html" if r_ready else None,
          "status": (f"{r_ready}/{len(r_ch)}장 공개" if r_ready else "준비 중"),
-         "desc": "보건통계학 기초에서 배운 분석을 R로 직접 해 봅니다. 중심은 약물경제성 평가에 쓰는 생존분석으로, "
-                 "생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 되살리기, 분할생존모형과 상태전이 모형을 R로 만듭니다. "
-                 "보건통계학 기초와 같은 가상 자료를 써서 숫자가 그대로 맞습니다.",
+         "desc": "보건통계학 기초에서 배운 분석을 R로 직접 해 봅니다. Table 1과 회귀, Kaplan-Meier와 Cox에서 시작해 "
+                 "생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 되살리기, 치료전환 보정, 분할생존모형과 마르코프 모형, "
+                 "확률적 민감도 분석까지 다룹니다. 파이썬 실습과 같은 자료를 써서 숫자가 그대로 맞습니다.",
          "meta": ["0–9장 · 생존분석 · 경제성 평가 모형", "장마다 R 노트북"]},
     ]
     meta_json = json.dumps({"mode": "home", "courses": courses}, ensure_ascii=False)

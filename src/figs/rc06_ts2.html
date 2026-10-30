@@ -1,9 +1,18 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">두 단계 방법: 대조군 시간 줄이기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$os_ts &lt;- d$os; d$ev_ts &lt;- d$os_event
 i &lt;- which(d$switch == 1)
-t_cf  &lt;- d$pfs[i] + (d$os[i] - d$pfs[i]) / af                   # 전환하지 않았다면의 사망 시간
-c_cf  &lt;- d$pfs[i] + (d$cens_time[i] - d$pfs[i]) / af             # 다시 정한 중도절단 시간
-d$os_ts[i] &lt;- pmin(t_cf, c_cf)
-d$ev_ts[i] &lt;- ifelse(t_cf &lt;= c_cf, d$os_event[i], 0)
+d$os_ts[i] &lt;- d$pfs[i] + (d$os[i] - d$pfs[i]) / af               # 전환하지 않았다면의 사망 시간
 hr_ts &lt;- hr(coxph(Surv(os_ts, ev_ts) ~ arm, data = d))
-hr_ts</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    HR  2.5 % 97.5 % 
- 0.604<span class="mk">1</span>  0.489  0.746</pre></div></div>
+hr_ts
+j &lt;- which(d$arm == 0 &amp; d$pfs_event == 1)                        # 진행한 B군 모두
+c_star &lt;- d$pfs[j] + (d$cens_time[j] - d$pfs[j]) / af            # 같은 방식으로 줄인 마감 시간
+d$os_tr &lt;- d$os_ts; d$ev_tr &lt;- d$ev_ts
+d$ev_tr[j] &lt;- ifelse(d$os_ts[j] &lt;= c_star, d$ev_ts[j], 0)
+d$os_tr[j] &lt;- pmin(d$os_ts[j], c_star)
+hr_tr &lt;- hr(coxph(Surv(os_tr, ev_tr) ~ arm, data = d))
+hr_tr
+c(events_lost = sum(d$ev_ts) - sum(d$ev_tr))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    HR  2.5 % 97.5 % 
+ 0.604<span class="mk">1</span>  0.489  0.746 
+    HR  2.5 % 97.5 % 
+ 0.610  0.493  0.756 
+events_lost<span class="mk">2</span> 
+          6</pre></div></div>

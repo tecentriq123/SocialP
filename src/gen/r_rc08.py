@@ -221,10 +221,10 @@ S("rc08_rate", nb.html(c_rate, marks={"0.0693": 1, "0.0670 0.0471": 2, "0.5647 0
 S("rc08_mat", nb.html(c_mat, marks={"0.933 0.0603 0.0067": 1, "0.9559": 2, "B  1  1    1": 3}))
 S("rc08_trace", nb.html(c_trace, marks={"241   3": 1, "0.427": 2, "0.1895 0.3839 0.4266": 3}))
 S("rc08_med", nb.html(c_med, marks={"28.0": 1, "34.8": 2}))
-S("rc08_res", nb.html(c_res, marks={"[1] 5858": 1, "5942": 2}))
+S("rc08_res", nb.html(c_res, marks={"[1] 5858": 1, "5942.282": 2}))
 S("rc08_plot", nb.html(c_plot))
 S("rc08_cal", nb.html(c_cal, marks={"0.04706": 1, "5723": 2, "5621": 3}))
-S("rc08_t1", nb.html(c_t1, marks={"5894": 1}))
+S("rc08_t1", nb.html(c_t1, marks={"5894.238": 1}))
 S("rc08_t2", nb.html(c_t2))
 S("rc08_t3", nb.html(c_t3, marks={"2500": 1}))
 nb.save_ipynb("8장 상태전이(마르코프) 모형 (R과 통계분석)",

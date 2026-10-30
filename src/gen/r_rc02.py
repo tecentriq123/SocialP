@@ -162,13 +162,13 @@ S("rc02_plot", nb.html(c_plot))
 S("rc02_sex", nb.html(c_sex, marks={"rmean*": 1, "8.87     6.9    10.1": 2}))
 S("rc02_tab", nb.html(c_tab, marks={"8.9 (6.9-10.1)": 1, "33.6 (25.3-42.1)": 2}))
 S("rc02_ggs", nb.html(c_ggs, marks={"myeloma": 1, '* colour : "Sex"': 2}))
-S("rc02_lr", nb.html(c_lr, marks={"91.6": 1, "10.3\n": 2, "p= 0.001": 3, "0.001311165": 4}))
+S("rc02_lr", nb.html(c_lr, marks={"91.6": 1, "4.55      10.3": 2, "p= 0.001": 3, "0.001311165": 4}))
 S("rc02_rho", nb.html(c_rho, marks={"70.4": 1, "Chisq= 12.7": 2}))
 S("rc02_ecog", nb.html(c_ecog, marks={"<NA> \n  63  113   51    1": 1, "1 observation deleted due to missingness": 2,
                                       "Chisq= 19": 3, "0.1890": 4}))
-S("rc02_rmst", nb.html(c_rmst, marks={"10.22": 1, "4.06": 2}))
-S("rc02_t1", nb.html(c_t1, marks={"6.0 (": 1}))
-S("rc02_t2", nb.html(c_t2, marks={"Chisq= 11": 1, "Chisq= 10": 2}))
+S("rc02_rmst", nb.html(c_rmst, marks={"10.22281": 1, "4.06": 2}))
+S("rc02_t1", nb.html(c_t1, marks={"6.0 (4.8-9.4)": 1}))
+S("rc02_t2", nb.html(c_t2, marks={"Chisq= 11.1": 1, "Chisq= 10": 2}))
 S("rc02_t3", nb.html(c_t3, marks={"8.39": 1}))
 nb.save_ipynb("2장 생존 자료와 Kaplan-Meier (R과 통계분석)",
               intro="survival 패키지의 폐암 자료(lung)로 Kaplan-Meier 곡선을 그리고 군의 생존을 비교합니다. "

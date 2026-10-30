@@ -2,7 +2,7 @@
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc03.py      (NOMARK=1 … 로 돌리면 모든 셀의 출력을 찍는다)
 
-자료는 survival 패키지의 pbc(원발성 담즙성 간경변 무작위배정 312명). 보건통계학 기초 파이썬 실습 11이 Rdatasets의 pbc.csv로
+자료는 survival 패키지의 pbc(원발성 담즙성 담관염 무작위배정 312명). 보건통계학 기초 파이썬 실습 11이 Rdatasets의 pbc.csv로
 읽는 것과 같은 자료라서 끝의 대조 블록에서 그 숫자(단변수 HR 1.059, 다변수 0.938·1.369·1.842·0.372·2.582, 일치도 0.846,
 부분 AIC 1094.35·1124.7, 층화 0.922, 기간별 1.57·1.06·P 0.0234·dpca 0.913, 이식 포함 사건 144·HR 0.986)와 맞춘다.
 비례위험 검정(cox.zph)은 lifelines와 계산 방식이 달라 숫자가 다르다(본문에서 설명).
@@ -179,7 +179,7 @@ S = nb.save_fragment
 S("rc03_load", nb.html(c_load, marks={"[1] 312": 1, "2 65 60": 2}))
 S("rc03_vars", nb.html(c_vars, marks={"chol": 1}))
 S("rc03_uni", nb.html(c_uni, marks={"n= 312, number of events= 125": 1, "1.05889": 2, "0.7453     1.504": 3,
-                                    "Concordance= 0.499": 4, "Score (logrank) test = 0.1": 5, "[1] 0.1017": 6}))
+                                    "Concordance= 0.499": 4, "Score (logrank) test = 0.1": 5, "[1] 0.1017055": 6}))
 S("rc03_multi", nb.html(c_multi, marks={"log2(bili)  0.61079   1.84188": 1, "edema1      0.94858   2.58203": 2,
                                         "0.6416    1.3699": 3, "Concordance= 0.846": 4, "201.6  on 8 df": 5}))
 S("rc03_na", nb.html(c_na, marks={"n= 284": 1, "(28 observations deleted due to missingness)": 2}))
@@ -191,13 +191,13 @@ S("rc03_zplot", nb.html(c_zplot))
 S("rc03_ll", nb.html(c_ll))
 S("rc03_str", nb.html(c_str, marks={"0.92162": 1, "132.3  on 6 df": 2}))
 S("rc03_split", nb.html(c_split, marks={"312 552": 1, "1.095140": 2, "3.000000": 3, "5.270363": 4}))
-S("rc03_tsp", nb.html(c_tsp, marks={"1.5678": 1, "0.0234": 2, "1.064": 3, "0.9127": 4}))
+S("rc03_tsp", nb.html(c_tsp, marks={"1.5678": 1, "0.0234": 2, "1.064306": 3, "0.9127": 4}))
 S("rc03_std", nb.html(c_std, marks={"0.714": 1}))
 S("rc03_t1", nb.html(c_t1, marks={"1.087613": 1}))
 S("rc03_t2", nb.html(c_t2, marks={"144": 1}))
 S("rc03_t3", nb.html(c_t3, marks={"8.1648": 1}))
 nb.save_ipynb("3장 Cox 모형과 비례위험 점검 (R과 통계분석)",
-              intro="survival 패키지의 원발성 담즙성 간경변 자료(pbc)로 Cox 모형을 맞추고, 비례위험 가정을 점검하고, "
+              intro="survival 패키지의 원발성 담즙성 담관염 자료(pbc)로 Cox 모형을 맞추고, 비례위험 가정을 점검하고, "
                     "보정 생존곡선을 그립니다. 보건통계학 기초의 파이썬 실습 11과 같은 자료입니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={c_load.n: "## a. 분석할 자료 만들기", c_uni.n: "## b. Cox 모형과 위험비",

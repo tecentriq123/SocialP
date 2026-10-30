@@ -120,12 +120,17 @@ af
 c_ts2 = nb.cell('''
 d$os_ts <- d$os; d$ev_ts <- d$os_event
 i <- which(d$switch == 1)
-t_cf  <- d$pfs[i] + (d$os[i] - d$pfs[i]) / af                   # 전환하지 않았다면의 사망 시간
-c_cf  <- d$pfs[i] + (d$cens_time[i] - d$pfs[i]) / af             # 다시 정한 중도절단 시간
-d$os_ts[i] <- pmin(t_cf, c_cf)
-d$ev_ts[i] <- ifelse(t_cf <= c_cf, d$os_event[i], 0)
+d$os_ts[i] <- d$pfs[i] + (d$os[i] - d$pfs[i]) / af               # 전환하지 않았다면의 사망 시간
 hr_ts <- hr(coxph(Surv(os_ts, ev_ts) ~ arm, data = d))
 hr_ts
+j <- which(d$arm == 0 & d$pfs_event == 1)                        # 진행한 B군 모두
+c_star <- d$pfs[j] + (d$cens_time[j] - d$pfs[j]) / af            # 같은 방식으로 줄인 마감 시간
+d$os_tr <- d$os_ts; d$ev_tr <- d$ev_ts
+d$ev_tr[j] <- ifelse(d$os_ts[j] <= c_star, d$ev_ts[j], 0)
+d$os_tr[j] <- pmin(d$os_ts[j], c_star)
+hr_tr <- hr(coxph(Surv(os_tr, ev_tr) ~ arm, data = d))
+hr_tr
+c(events_lost = sum(d$ev_ts) - sum(d$ev_tr))
 ''', title="두 단계 방법: 대조군 시간 줄이기")
 
 c_sum = nb.cell('''
@@ -134,7 +139,8 @@ res <- rbind(ITT            = hr(fit_itt),
              exclude_switch = hr(coxph(Surv(os, os_event) ~ arm, data = subset(d, switch == 0))),
              RPSFTM         = hr_rp,
              IPCW           = hr(fit_ipw),
-             two_stage      = hr_ts)
+             two_stage      = hr_ts,
+             two_stage_rc   = hr_tr)
 res
 ''', title="방법별 위험비 모아 보기")
 
@@ -198,7 +204,7 @@ S("rc06_rpkm", nb.html(c_rpkm))
 S("rc06_ipw", nb.html(c_ipw, marks={"-2.412": 1, "8.168": 2, "sum_of_weights": 3}))
 S("rc06_ipwcox", nb.html(c_ipwcox, marks={"0.656": 1}))
 S("rc06_ts", nb.html(c_ts, marks={"0.370": 1, "1.447836": 2}))
-S("rc06_ts2", nb.html(c_ts2, marks={"0.604": 1}))
+S("rc06_ts2", nb.html(c_ts2, marks={"0.604": 1, "events_lost": 2}))
 S("rc06_sum", nb.html(c_sum))
 S("rc06_t1", nb.html(c_t1))
 S("rc06_t2", nb.html(c_t2))
