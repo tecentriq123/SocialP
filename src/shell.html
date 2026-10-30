@@ -621,6 +621,11 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .pd-body thead th { position: sticky; top: 0; z-index: 1; }
 .pd-body .jt caption { padding-top: 8px; }
 .pindock.collapsed .pd-body { display: none; }
+.pin-bar.ref { margin: -4px 0 10px; }
+.pin-btn .nm { font-weight: 500; }
+.tref[role="button"] { color: var(--accent-ink); text-decoration: underline dotted color-mix(in srgb, var(--accent) 70%, transparent); text-decoration-thickness: 1.5px; text-underline-offset: 3px; cursor: pointer; border-radius: 3px; }
+.tref[role="button"]:hover, .tref.on { background: var(--accent-soft); }
+.tref[role="button"] svg { width: .8em; height: .8em; margin-left: 2px; vertical-align: -.05em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 @media (prefers-reduced-motion: no-preference) { .pindock.bottom { animation: pd-up .18s ease-out; } }
 @keyframes pd-up { from { transform: translateY(14px); opacity: 0; } }
 .practice details > div p { margin: 0 0 8px; }
@@ -1196,25 +1201,35 @@ function typesetNow() {
 
   /* ---------- 표 고정 (시범: PIN_CH의 장만) ----------
      표 위 '표 고정' 단추를 누르면 그 표를 화면에 붙여 둔다. 본문 오른쪽에 자리가 넉넉하면 오른쪽, 아니면 화면 아래쪽.
-     아래쪽일 때는 원래 표가 화면에 보이는 동안 머리줄만 남기고 접어 두고, 그 절을 벗어나면 저절로 풀린다. */
+     아래쪽일 때는 원래 표가 화면에 보이는 동안 머리줄만 남기고 접어 두고, 단추를 누른 절을 벗어나면 저절로 풀린다.
+     본문에서 앞의 표를 가리키는 말(span.tref[data-t])과 앞의 표를 쓰는 소제목의 단추(div.pin-bar.ref[data-t])로도
+     그 표를 붙일 수 있다. 대상 표는 .tbl-wrap의 id, 이름은 data-name. */
   const PIN_CH = new Set(["ch13", "ch15"]);
   const ICON_PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 7 4 4H6l4-4z"/><path d="M12 14v7"/></svg>';
   const ICON_DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   const ICON_X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-  let pin = null;
-  function pinTitle(unit, sec) {
+  let pin = null, pinUI = new Map();
+  const squash = t => t.replace(/\s+/g, " ").trim();
+  function pinTitle(unit) {
+    if (unit.dataset.name) return unit.dataset.name;
     const cap = unit.querySelector("caption");
-    if (cap) return cap.textContent.replace(/\s+/g, " ").trim();
+    if (cap) return squash(cap.textContent);
+    const sec = unit.closest("section.sec");
     let best = null;
-    sec.querySelectorAll("h2, h3, h4").forEach(h => { if (h.compareDocumentPosition(unit) & Node.DOCUMENT_POSITION_FOLLOWING) best = h; });
-    return best ? best.textContent.replace(/\s+/g, " ").trim() : "고정한 표";
+    if (sec) sec.querySelectorAll("h2, h3, h4").forEach(h => { if (h.compareDocumentPosition(unit) & Node.DOCUMENT_POSITION_FOLLOWING) best = h; });
+    return best ? squash(best.textContent) : "고정한 표";
+  }
+  function setPressed(unit, on) {
+    const ui = pinUI.get(unit);
+    if (!ui) return;
+    ui.btns.forEach(b => { b.setAttribute("aria-pressed", String(on)); b.querySelector(".t").textContent = on ? "고정 풀기" : "표 고정"; });
+    ui.refs.forEach(r => r.classList.toggle("on", on));
   }
   function unpin() {
     if (!pin) return;
     pin.obs.forEach(o => o.disconnect());
     pin.dock.remove();
-    pin.btn.setAttribute("aria-pressed", "false");
-    pin.btn.querySelector(".t").textContent = "표 고정";
+    setPressed(pin.unit, false);
     document.body.style.paddingBottom = "";
     window.removeEventListener("resize", placeDock);
     pin = null;
@@ -1240,20 +1255,30 @@ function typesetNow() {
     tg.setAttribute("aria-label", coll ? "표 펼치기" : "표 접기"); tg.setAttribute("aria-expanded", String(!coll));
     requestAnimationFrame(() => { if (pin && pin.dock === d) document.body.style.paddingBottom = d.classList.contains("bottom") ? d.offsetHeight + "px" : ""; });
   }
-  function doPin(unit, btn, sec) {
-    if (pin && pin.unit === unit) { unpin(); return; }
+  const topEdgePx = () => Math.round(document.querySelector(".topbar")?.getBoundingClientRect().bottom || 56);
+  function unitVisible(r, top) {
+    const h = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, top);
+    return r.height > 0 && h >= Math.min(r.height * 0.4, 160);
+  }
+  // mode "toggle": 표 위 단추와 소제목 단추(다시 누르면 풀림). mode "show": 본문의 표 가리키는 말(누르면 늘 보여 줌).
+  function doPin(unit, sec, mode) {
+    if (pin && pin.unit === unit) {
+      if (mode === "toggle") { unpin(); return; }
+      if (pin.sec === sec) { pin.manual = "open"; placeDock(); return; }
+    }
     unpin();
     const dock = document.createElement("div");
     dock.setAttribute("role", "region"); dock.setAttribute("aria-label", "고정한 표");
     dock.innerHTML = `<div class="pd-head"><button type="button" class="pd-title">${ICON_PIN}<span></span></button>`
       + `<button type="button" class="pd-btn tg">${ICON_DOWN}</button><button type="button" class="pd-btn x" aria-label="고정 풀기">${ICON_X}</button></div><div class="pd-body"></div>`;
-    dock.querySelector(".pd-title span").textContent = pinTitle(unit, sec);
+    dock.querySelector(".pd-title span").textContent = pinTitle(unit);
     const clone = unit.cloneNode(true);
     clone.removeAttribute("id"); clone.querySelectorAll("[id]").forEach(e => e.removeAttribute("id"));
     dock.querySelector(".pd-body").appendChild(clone);
     document.body.appendChild(dock);
-    pin = { unit, btn, sec, dock, manual: null, origVisible: true, obs: [] };
-    btn.setAttribute("aria-pressed", "true"); btn.querySelector(".t").textContent = "고정 풀기";
+    const top = topEdgePx();
+    pin = { unit, sec, dock, manual: null, origVisible: unitVisible(unit.getBoundingClientRect(), top), obs: [] };
+    setPressed(unit, true);
     const toggle = () => { if (!pin) return; pin.manual = pin.dock.classList.contains("collapsed") ? "open" : "closed"; placeDock(); };
     dock.querySelector(".pd-title").addEventListener("click", toggle);
     dock.querySelector(".tg").addEventListener("click", toggle);
@@ -1262,7 +1287,6 @@ function typesetNow() {
       const mine = pin;
       const so = new IntersectionObserver(es => { for (const e of es) if (!e.isIntersecting && pin === mine) unpin(); });
       so.observe(sec);
-      const top = Math.round(document.querySelector(".topbar")?.getBoundingClientRect().bottom || 56);
       const uo = new IntersectionObserver(es => {
         for (const e of es) {
           const v = e.isIntersecting && e.intersectionRect.height >= Math.min(e.boundingClientRect.height * 0.4, 160);
@@ -1275,18 +1299,47 @@ function typesetNow() {
     window.addEventListener("resize", placeDock);
     placeDock();
   }
+  function pinButton(label) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "pin-btn"; b.setAttribute("aria-pressed", "false");
+    b.innerHTML = `${ICON_PIN}<span class="t">표 고정</span>`;
+    if (label) { const n = document.createElement("span"); n.className = "nm"; n.textContent = " · " + label; b.appendChild(n); }
+    return b;
+  }
   function initPins(root, id) {
     unpin();
+    pinUI = new Map();
     if (!PIN_CH.has(id)) return;
+    const ui = unit => { if (!pinUI.has(unit)) pinUI.set(unit, { btns: [], refs: [] }); return pinUI.get(unit); };
     root.querySelectorAll("section.sec .tbl-wrap").forEach(unit => {
-      if (unit.closest(".quick, .practice") || !unit.querySelector("table")) return;
+      if (unit.closest(".quick, .practice, .pindock") || !unit.querySelector("table")) return;
       const sec = unit.closest("section.sec");
       const bar = document.createElement("div");
       bar.className = "pin-bar";
-      bar.innerHTML = `<button type="button" class="pin-btn" aria-pressed="false">${ICON_PIN}<span class="t">표 고정</span></button>`;
-      const btn = bar.firstElementChild;
-      btn.addEventListener("click", () => doPin(unit, btn, sec));
-      unit.before(bar);
+      const btn = pinButton("");
+      btn.addEventListener("click", () => doPin(unit, sec, "toggle"));
+      bar.appendChild(btn); unit.before(bar);
+      ui(unit).btns.push(btn);
+    });
+    const target = el => { const t = el.dataset.t && document.getElementById(el.dataset.t); return t && t.classList.contains("tbl-wrap") && root.contains(t) ? t : null; };
+    root.querySelectorAll(".pin-bar.ref[data-t]").forEach(bar => {
+      const unit = target(bar), sec = bar.closest("section.sec");
+      if (!unit || !sec) { bar.remove(); return; }
+      const btn = pinButton(pinTitle(unit));
+      btn.addEventListener("click", () => doPin(unit, sec, "toggle"));
+      bar.appendChild(btn);
+      ui(unit).btns.push(btn);
+    });
+    root.querySelectorAll(".tref[data-t]").forEach(el => {
+      const unit = target(el), sec = el.closest("section.sec");
+      if (!unit || !sec) return;
+      el.setAttribute("role", "button"); el.tabIndex = 0;
+      el.setAttribute("aria-label", squash(el.textContent) + " (표 고정: " + pinTitle(unit) + ")");
+      el.insertAdjacentHTML("beforeend", ICON_PIN);
+      const go = () => doPin(unit, sec, "show");
+      el.addEventListener("click", go);
+      el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+      ui(unit).refs.push(el);
     });
   }
   document.addEventListener("keydown", e => { if (e.key === "Escape" && pin) unpin(); });
