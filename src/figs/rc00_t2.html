@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 2 정답: 고비용 환자의 비율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cost$high &lt;- cost$cost &gt; 5000            # 5,000만원 넘게 쓴 환자
+tapply(cost$high, cost$arm, mean)
+table(cost$arm, cost$high)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         B          A 
+0.04897051<span class="mk">1</span> 0.04405653 
+   
+    FALSE TRUE
+  B  1709   88
+  A  1150   53</pre></div></div>

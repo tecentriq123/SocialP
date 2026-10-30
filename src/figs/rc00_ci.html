@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">신뢰구간과 강건 표준오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(confint(fit), 1)
+library(sandwich)
+library(lmtest)
+rob &lt;- vcovHC(fit, type = &quot;HC3&quot;)         # 이분산에 강건한 공분산 (21장과 같은 HC3)
+round(coeftest(fit, vcov = rob)[&quot;armA&quot;, ], 3)
+round(coefci(fit, vcov = rob)[&quot;armA&quot;, ], 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             2.5 % 97.5 %
+(Intercept) 1668.3 2452.4
+armA         406.3  618.9<span class="mk">1</span>
+age           -9.3    2.4
+male          -6.3  215.1
+cci          156.8  243.4
+stage4       -48.9  155.3
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric<span class="mk">2</span>
+
+  Estimate Std. Error    t value   Pr(&gt;|t|) 
+   512.573     50.960<span class="mk">3</span>     10.058      0.000 
+ 2.5 % 97.5 % 
+ 412.7<span class="mk">4</span>  612.5</pre></div></div>

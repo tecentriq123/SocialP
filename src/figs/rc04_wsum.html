@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">정한 시점의 생존율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">set.seed(2026)   # 신뢰구간을 모의실험으로 구하므로 고정
+s_w &lt;- summary(fit_w, t = c(24, 60, 120, 240), type = &quot;survival&quot;, tidy = TRUE)
+round(s_w, 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  time    est    lcl    ucl
+1   24 0.5641<span class="mk">1</span> 0.5120 0.6149
+2   60 0.1949 0.1239 0.2646
+3  120 0.0269 0.0060 0.0671
+4  240 0.0003<span class="mk">2</span> 0.0000 0.0044<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">summary()로 자세히 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">summary(fit)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Call:
+lm(formula = cost ~ arm + age + male + cci + stage4, data = cost)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2903.8  -653.3  -288.7   246.8 18976.1 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 2060.370    199.953  10.304   &lt;2e-16 ***
+armA         512.573     54.222<span class="mk">1</span>   9.453   &lt;2e-16 ***<span class="mk">2</span>
+age           -3.456      2.994  -1.155   0.2484    
+male         104.402     56.437   1.850   0.0644 .  
+cci          200.143     22.086   9.062   &lt;2e-16 ***
+stage4        53.208     52.060   1.022   0.3068    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1381 on 2994 degrees of freedom
+Multiple R-squared:  0.04681<span class="mk">3</span>,	Adjusted R-squared:  0.04522 
+F-statistic: 29.41 on 5 and 2994 DF,  p-value: &lt; 2.2e-16</pre></div></div>

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">과제 1 정답: 병기별 평균 비용</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cost |&gt;
+  group_by(arm, stage4) |&gt;
+  summarise(n = n(), mean_cost = round(mean(cost), 1), .groups = &quot;drop&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre># A tibble: 4 x 4
+  arm   stage4     n mean_cost
+  &lt;fct&gt;  &lt;int&gt; &lt;int&gt;     &lt;dbl&gt;
+1 B          0   636     2203.
+2 B          1  1161     2311.
+3 A          0   512     2688.
+4 A          1   691     2655.<span class="mk">1</span></pre></div></div>

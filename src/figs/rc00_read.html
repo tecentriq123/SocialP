@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">options(HTTPUserAgent = &quot;Mozilla/5.0&quot;)   # 사이트가 프로그램의 기본 요청을 막을 때를 대비
+BASE &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+cost &lt;- read.csv(paste0(BASE, &quot;rcc_cost.csv&quot;))
+dim(cost)
+head(cost, 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 3000   10<span class="mk">1</span>
+    pid arm age male cci stage4 cost_drug cost_op cost_inp   cost
+1 R0001<span class="mk">2</span>   A  71    1   1      1    1205.0   261.8    507.2 1974.0
+2 R0002   A  72    0   1      0     858.5    93.8   1221.3 2173.6
+3 R0003   A  68    1   1      0    1807.5   164.5      0.0 1972.0</pre></div></div>

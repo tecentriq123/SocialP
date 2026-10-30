@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">관찰한 생존곡선(Kaplan-Meier)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km &lt;- survfit(Surv(months, event) ~ 1, data = d)
+km
+summary(km, times = c(6, 12, 24))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(months, event) ~ 1, data = d)
+
+       n events median 0.95LCL 0.95UCL
+[1,] 300    145     NA<span class="mk">1</span>    24.2      NA
+Call: survfit(formula = Surv(months, event) ~ 1, data = d)
+
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    265      35    0.883  0.0185        0.848        0.920
+   12    238      27    0.793  0.0234        0.749        0.841
+   24    167      71    0.557<span class="mk">2</span>  0.0287        0.503        0.616</pre></div></div>

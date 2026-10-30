@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">스플라인 모형(매듭 1개, 2개)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">spl &lt;- lapply(c(k1 = 1, k2 = 2), function(k)
+  flexsurvspline(Surv(months, event) ~ 1, data = d, k = k, scale = &quot;hazard&quot;))
+data.frame(
+  model = names(spl),
+  AIC   = sapply(spl, AIC),
+  surv_10y = sapply(spl, function(f)
+    summary(f, t = 120, ci = FALSE, tidy = TRUE)$est),
+  rmst_20y = sapply(spl, function(f)
+    summary(f, type = &quot;rmst&quot;, t = 240, ci = FALSE, tidy = TRUE)$est) / 12)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   model      AIC    surv_10y rmst_20y
+k1    k1 1377.120<span class="mk">1</span> 0.016952009<span class="mk">2</span> 2.955244
+k2    k2 1377.813 0.004904977 2.714843</pre></div></div>

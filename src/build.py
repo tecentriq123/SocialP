@@ -141,7 +141,7 @@ def ch_label(cid):
         return "부록 " + "AB"[int(cid[-2:]) - 1]
     if cid.startswith("rv"):
         return "분석 고르기 연습"
-    if cid == "ml90":
+    if cid in ("ml90", "rc90"):
         return "부록 A"
     return f"{int(cid[-2:])}장"
 
@@ -549,12 +549,14 @@ def build():
     return shell, meta
 
 
-def build_home(shell, meta, ml_meta=None):
+def build_home(shell, meta, ml_meta=None, r_meta=None):
     """dist/index.html: the small home page that lists the courses (same shell, META.mode = "home")."""
     theory = [c for c in meta if not c["lab"] and not c.get("refs")]
     stats_course = (STATS_CFG or {}).get("COURSE", COURSE)
     ml_ch = [c for c in (ml_meta or []) if not c.get("refs")]
     ml_ready = sum(c["ready"] for c in ml_ch)
+    r_ch = [c for c in (r_meta or []) if not c.get("refs")]
+    r_ready = sum(c["ready"] for c in r_ch)
     labs = [c for c in meta if c["lab"]]
     courses = [
         {"tag": "과목 · 통계", "title": stats_course["title"], "href": stats_course["file"],
@@ -569,6 +571,12 @@ def build_home(shell, meta, ml_meta=None):
                  "결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. "
                  "모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.",
          "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]},
+        {"tag": "과목 · R", "title": "R로 하는 연구 분석", "href": "r.html" if r_ready else None,
+         "status": (f"{r_ready}/{len(r_ch)}장 공개" if r_ready else "준비 중"),
+         "desc": "보건통계학 기초에서 배운 분석을 R로 직접 해 봅니다. 중심은 약물경제성 평가에 쓰는 생존분석으로, "
+                 "생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 되살리기, 분할생존모형과 상태전이 모형을 R로 만듭니다. "
+                 "보건통계학 기초와 같은 가상 자료를 써서 숫자가 그대로 맞습니다.",
+         "meta": ["0–9장 · 생존분석 · 경제성 평가 모형", "장마다 R 노트북"]},
     ]
     meta_json = json.dumps({"mode": "home", "courses": courses}, ensure_ascii=False)
     out = (shell.replace("{{META}}", meta_json.replace("</", "<\\/")).replace("{{TEMPLATES}}", "")
@@ -588,7 +596,7 @@ BOOKS = None
 
 
 def use_course(name):
-    """Switch the module-level course configuration (stats: defined above, ml: course_ml.py)."""
+    """Switch the module-level course configuration (stats: defined above, ml: course_ml.py, r: course_r.py)."""
     global COURSE, GROUPS, CHAPTERS, GUIDE, REFS_ID, STATS_CFG, BOOKS
     if STATS_CFG is None:
         STATS_CFG = dict(COURSE=COURSE, GROUPS=GROUPS, CHAPTERS=CHAPTERS, GUIDE=GUIDE, REFS_ID=REFS_ID, BOOKS=None)
@@ -610,7 +618,7 @@ if __name__ == "__main__":
     ap.add_argument("--out", help="output html path (default dist/index.html)")
     ap.add_argument("--nofold", action="store_true", help="do not collapse 심화 parts")
     ap.add_argument("--inline", action="store_true", help="full build as one file per course (no chapters/*.json)")
-    ap.add_argument("--course", default=None, help="stats | ml | all (default: all; with --only/--out: stats)")
+    ap.add_argument("--course", default=None, help="stats | ml | r | all (default: all; with --only/--out: stats)")
     a = ap.parse_args()
     if a.course is None:
         a.course = "stats" if (a.only or a.out) else "all"
@@ -628,10 +636,12 @@ if __name__ == "__main__":
     else:
         use_course("stats")
         shell, stats_meta = build()
-        use_course("ml")
-        ml_meta = chapter_meta()
-        if any(c["ready"] for c in ml_meta if not c.get("refs")):
-            build()
-        elif os.path.exists(os.path.join(ROOT, "dist", COURSE["file"])):
-            os.remove(os.path.join(ROOT, "dist", COURSE["file"]))   # no chapter ready: do not deploy a stale page
-        build_home(shell, stats_meta, ml_meta)
+        metas = {}
+        for name in ("ml", "r"):
+            use_course(name)
+            metas[name] = chapter_meta()
+            if any(c["ready"] for c in metas[name] if not c.get("refs")):
+                build()
+            elif os.path.exists(os.path.join(ROOT, "dist", COURSE["file"])):
+                os.remove(os.path.join(ROOT, "dist", COURSE["file"]))   # no chapter ready: do not deploy a stale page
+        build_home(shell, stats_meta, metas["ml"], metas["r"])

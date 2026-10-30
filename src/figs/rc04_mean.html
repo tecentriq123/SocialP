@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">20년까지의 평균 생존과 제한 없는 평균 (년)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rmst20 &lt;- sapply(fits, function(f)
+  summary(f, type = &quot;rmst&quot;, t = 240, ci = FALSE, tidy = TRUE)$est)
+mean_all &lt;- sapply(fits, function(f)
+  summary(f, type = &quot;mean&quot;, ci = FALSE, tidy = TRUE)$est)
+round(data.frame(rmst_20y = rmst20 / 12, mean_unrestricted = mean_all / 12), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         rmst_20y mean_unrestricted
+exp          3.50              3.51
+weibull      3.10              3.10
+gompertz     2.60              2.60
+lnorm        5.19              7.52<span class="mk">1</span>
+llogis       4.62              8.75<span class="mk">2</span>
+gengamma     2.64              2.64</pre></div></div>

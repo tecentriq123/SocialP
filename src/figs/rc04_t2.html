@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">과제 2 정답: 18개월에 마감한 자료로 다시</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d18 &lt;- d
+d18$event  &lt;- ifelse(d$months &gt; 18, 0, d$event)   # 18개월에 자료를 마감했다면
+d18$months &lt;- pmin(d$months, 18)
+fits18 &lt;- lapply(dists, function(k)
+  flexsurvreg(Surv(months, event) ~ 1, data = d18, dist = k))
+data.frame(
+  events = sum(d18$event),
+  AIC    = round(sapply(fits18, AIC), 1),
+  surv_10y_18m = round(100 * sapply(fits18, function(f)
+    summary(f, t = 120, ci = FALSE, tidy = TRUE)$est), 1),
+  surv_10y_30m = round(100 * ext[, &quot;10y&quot;], 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         events   AIC surv_10y_18m surv_10y_30m
+exp          98 949.6<span class="mk">1</span>          7.5          5.8
+weibull      98 950.7          4.4          2.7
+gompertz     98 949.7          0.0          0.0
+lnorm        98 956.6         25.1<span class="mk">2</span>         17.7
+llogis       98 952.3         18.2         13.8
+gengamma     98 951.6          0.0          0.0</pre></div></div>

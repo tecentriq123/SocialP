@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">여섯 분포를 맞추고 AIC·BIC 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">dists &lt;- c(exp = &quot;exp&quot;, weibull = &quot;weibull&quot;, gompertz = &quot;gompertz&quot;,
+           lnorm = &quot;lnorm&quot;, llogis = &quot;llogis&quot;, gengamma = &quot;gengamma&quot;)
+fits &lt;- lapply(dists, function(k)
+  flexsurvreg(Surv(months, event) ~ 1, data = d, dist = k))
+
+fit_tab &lt;- data.frame(
+  model = names(fits),
+  k     = sapply(fits, function(f) f$npars),
+  AIC   = sapply(fits, AIC),
+  BIC   = sapply(fits, BIC))
+fit_tab$dAIC &lt;- fit_tab$AIC - min(fit_tab$AIC)
+fit_tab[order(fit_tab$AIC), ]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            model k      AIC      BIC      dAIC
+gompertz gompertz 2 1374.904<span class="mk">1</span> 1382.311  0.000000
+weibull   weibull 2 1375.921 1383.328  1.016870
+exp           exp 1 1376.849 1380.552<span class="mk">2</span>  1.944965
+gengamma gengamma 3 1376.882 1387.993  1.978097
+llogis     llogis 2 1379.672 1387.079  4.767990
+lnorm       lnorm 2 1389.806 1397.214 14.902453<span class="mk">3</span></pre></div></div>

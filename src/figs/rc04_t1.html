@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">과제 1 정답: 시간 단위를 년으로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$years &lt;- d$months / 12
+fit_wy &lt;- flexsurvreg(Surv(years, event) ~ 1, data = d, dist = &quot;weibull&quot;)
+fit_wy$res[, &quot;est&quot;]
+c(months = AIC(fit_w), years = AIC(fit_wy), diff = AIC(fit_w) - AIC(fit_wy))
+summary(fit_wy, t = 20, ci = FALSE, tidy = TRUE)$est</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   shape    scale 
+1.145428 3.254939<span class="mk">1</span> 
+   months     years      diff 
+1375.9205  655.2976  720.6229<span class="mk">2</span> 
+[1] 0.0003350569</pre></div></div>

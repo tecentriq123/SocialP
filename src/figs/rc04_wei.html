@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">와이블 곡선 맞추기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_w &lt;- flexsurvreg(Surv(months, event) ~ 1, data = d, dist = &quot;weibull&quot;)
+fit_w</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+flexsurvreg(formula = Surv(months, event) ~ 1, data = d, dist = &quot;weibull&quot;)
+
+Estimates: 
+       est      L95%     U95%     se     
+shape   1.1454<span class="mk">1</span>   0.9841   1.3332   0.0887
+scale  39.0593<span class="mk">2</span>  33.2182  45.9275   3.2281
+
+N = 300,  Events: 145,  Censored: 155
+Total time at risk: 6109.445
+Log-likelihood = -685.9603<span class="mk">3</span>, df = 2
+AIC = 1375.921<span class="mk">4</span></pre></div></div>

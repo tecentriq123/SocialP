@@ -654,7 +654,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 <main id="app" class="page"></main>
 <div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
 
-<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 25개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": "ml.html", "status": "5/7장 공개", "desc": "정답이 있는 자료로 예측모형을 만드는 지도학습. 사이킷런으로 자료 나누기와 교차검증을 익힌 뒤 결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. 모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.", "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]}]}</script>
+<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 25개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": "ml.html", "status": "5/7장 공개", "desc": "정답이 있는 자료로 예측모형을 만드는 지도학습. 사이킷런으로 자료 나누기와 교차검증을 익힌 뒤 결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. 모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.", "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]}, {"tag": "과목 · R", "title": "R로 하는 연구 분석", "href": "r.html", "status": "2/10장 공개", "desc": "보건통계학 기초에서 배운 분석을 R로 직접 해 봅니다. 중심은 약물경제성 평가에 쓰는 생존분석으로, 생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 되살리기, 분할생존모형과 상태전이 모형을 R로 만듭니다. 보건통계학 기초와 같은 가상 자료를 써서 숫자가 그대로 맞습니다.", "meta": ["0–9장 · 생존분석 · 경제성 평가 모형", "장마다 R 노트북"]}]}</script>
 
 
 <script>
@@ -745,7 +745,7 @@ function typesetNow() {
       </section>
       <div class="parts">${cards}</div>
       <div class="home-how">
-        <div><h3>과목 구성</h3><p>과목마다 이론 장과 파이썬 실습이 있습니다. '보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있습니다.</p></div>
+        <div><h3>과목 구성</h3><p>'보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있고, 장마다 짝이 되는 파이썬 실습이 있습니다. '머신러닝 기초'는 파이썬으로, 'R로 하는 연구 분석'은 R로 같은 가상 자료를 다룹니다.</p></div>
         <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 논문을 읽는 데 필요한 부분과 직접 분석할 때 읽을 부분을 나눠 알려 줍니다. 접힌 상자 가운데 '직접 분석' 표시는 내 자료를 분석할 때 꼭 펼쳐 볼 내용이고, '심화' 표시는 계산 원리가 궁금할 때 펼쳐 볼 내용입니다.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>
@@ -1151,6 +1151,7 @@ function typesetNow() {
     if (HOME) {
       // old links such as index.html#ch11-s1 pointed at the single-file site: send them to the course page
       if (/^ml\d\d/.test(h) || h === "ml") { location.replace("ml.html#" + (h === "ml" ? "toc" : h)); return; }
+      if (/^rc\d\d/.test(h) || h === "r") { location.replace("r.html#" + (h === "r" ? "toc" : h)); return; }
       if (/^(?:(?:ch|lab|rv|ap)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
       renderHome(); window.scrollTo(0, 0);
     }
@@ -1158,7 +1159,7 @@ function typesetNow() {
     else if (!h || h === "toc" || h === COURSE.key) { renderPart(); window.scrollTo(0, 0); }
     else if (h.startsWith("search")) { renderSearch(h.slice(7)); window.scrollTo(0, 0); }
     else {
-      const m = h.match(/^((?:ch|lab|rv|ap|ml)\d\d)(?:-(.+))?$/);
+      const m = h.match(/^((?:ch|lab|rv|ap|ml|rc)\d\d)(?:-(.+))?$/);
       if (m) {
         cur = m[1];
         if (META.split && byId[cur] && byId[cur].ready && !haveTpl(cur)) {
@@ -1203,7 +1204,7 @@ function typesetNow() {
      아래쪽일 때는 원래 표가 화면에 보이는 동안 머리줄만 남기고 접어 두고, 단추를 누른 절을 벗어나면 저절로 풀린다.
      본문에서 앞의 표를 가리키는 말(span.tref[data-t])과 앞의 표를 쓰는 소제목의 단추(div.pin-bar.ref[data-t])로도
      그 표를 붙일 수 있다. 대상 표는 .tbl-wrap의 id, 이름은 data-name. */
-  const pinOn = id => /^(ch|ap|rv)\d\d$/.test(id);   // 본문 장, 부록, 종합 연습 (실습 제외)
+  const pinOn = id => /^(ch|ap|rv|rc)\d\d$/.test(id);   // 본문 장, 부록, 종합 연습 (실습 제외)
   const ICON_PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 7 4 4H6l4-4z"/><path d="M12 14v7"/></svg>';
   const ICON_DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   const ICON_X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';

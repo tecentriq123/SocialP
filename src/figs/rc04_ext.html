@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">2·5·10·20년 생존율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">times &lt;- c(24, 60, 120, 240)            # 2, 5, 10, 20년 (개월)
+surv_at &lt;- function(f) summary(f, t = times, type = &quot;survival&quot;,
+                               ci = FALSE, tidy = TRUE)$est
+ext &lt;- t(sapply(fits, surv_at))
+colnames(ext) &lt;- paste0(times / 12, &quot;y&quot;)
+round(100 * ext, 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           2y   5y  10y 20y
+exp      56.6<span class="mk">1</span> 24.1  5.8 0.3
+weibull  56.4 19.5  2.7 0.0
+gompertz 56.7 11.1  0.0 0.0
+lnorm    56.9 32.6 17.7<span class="mk">2</span> 8.1
+llogis   56.7 28.3 13.8 6.0
+gengamma 56.7 12.1  0.0 0.0</pre></div></div>

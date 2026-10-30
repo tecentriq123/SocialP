@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">행과 열 고르기, 군별 요약 (기본 R)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">a_only &lt;- cost[cost$arm == &quot;A&quot;, c(&quot;pid&quot;, &quot;age&quot;, &quot;cost&quot;)]
+nrow(a_only)
+cost$cost_m &lt;- cost$cost / 100          # 만원 → 백만원
+tapply(cost$cost, cost$arm, mean)
+aggregate(cost ~ arm, data = cost, FUN = median)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 1203<span class="mk">1</span>
+       B        A 
+2272.788 2668.862<span class="mk">2</span> 
+  arm   cost
+1   B 1836.4<span class="mk">3</span>
+2   A 2462.3</pre></div></div>

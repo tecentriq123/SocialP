@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">dplyr로 군별 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">install.packages(&quot;dplyr&quot;)
+library(dplyr)
+cost |&gt;
+  group_by(arm) |&gt;
+  summarise(n = n(),
+            mean_cost   = mean(cost),
+            median_cost = median(cost),
+            no_inpatient = mean(cost_inp == 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag<span class="mk">1</span>
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+# A tibble: 2 x 5<span class="mk">2</span>
+  arm       n mean_cost median_cost no_inpatient
+  &lt;fct&gt; &lt;int&gt;     &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+1 B      1797     2273.       1836.        0.357<span class="mk">3</span>
+2 A      1203     2669.       2462.        0.436</pre></div></div>

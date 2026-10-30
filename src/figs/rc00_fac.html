@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">범주형 변수(factor)와 교차표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cost$arm &lt;- factor(cost$arm, levels = c(&quot;B&quot;, &quot;A&quot;))   # 표준요법 B를 기준으로
+levels(cost$arm)
+table(cost$arm, cost$stage4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] &quot;B&quot; &quot;A&quot;<span class="mk">1</span>
+   
+       0    1
+  B  636 1161<span class="mk">2</span>
+  A  512  691</pre></div></div>

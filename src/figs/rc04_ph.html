@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">같은 와이블의 두 가지 모수 표현</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_wph &lt;- flexsurvreg(Surv(months, event) ~ 1, data = d, dist = &quot;weibullPH&quot;)
+rbind(AFT = fit_w$res[, &quot;est&quot;], PH = fit_wph$res[, &quot;est&quot;])
+c(AFT = AIC(fit_w), PH = AIC(fit_wph))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       shape       scale
+AFT 1.145428 39.05926295
+PH  1.145428  0.01502429<span class="mk">1</span>
+     AFT       PH 
+1375.921 1375.921<span class="mk">2</span></pre></div></div>

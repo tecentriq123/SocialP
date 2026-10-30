@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">결과를 파일로 남기기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">res &lt;- data.frame(term = names(coef(fit)), estimate = coef(fit), confint(fit))
+write.csv(res, &quot;rcc_cost_lm.csv&quot;, row.names = FALSE)
+read.csv(&quot;rcc_cost_lm.csv&quot;)[2, ]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  term estimate   X2.5..  X97.5..
+2 armA 512.5732<span class="mk">1</span> 406.2574 618.8889</pre></div></div>

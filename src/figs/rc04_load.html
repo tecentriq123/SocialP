@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">install.packages(c(&quot;survival&quot;, &quot;flexsurv&quot;))   # 처음 한 번만
+library(survival)
+library(flexsurv)
+
+options(HTTPUserAgent = &quot;Mozilla/5.0&quot;)   # 사이트가 프로그램의 기본 요청을 막을 때를 대비해 브라우저처럼 요청
+BASE &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+d &lt;- read.csv(paste0(BASE, &quot;rcc_trial.csv&quot;))
+str(d)
+table(d$event)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&#x27;data.frame&#x27;:	300 obs. of  3 variables<span class="mk">1</span>:
+ $ pid   : chr  &quot;T001&quot; &quot;T002&quot; &quot;T003&quot; &quot;T004&quot; ...
+ $ months: num  24.9 25.71 28.35 11.71 4.52 ...
+ $ event : int  0 0 0 1 1 1 1 1 1 0 ...
+
+  0   1 
+155 145<span class="mk">2</span></pre></div></div>
