@@ -606,23 +606,40 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .pin-btn[aria-pressed="true"] { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
 .pin-btn svg, .pindock svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .pindock { position: fixed; z-index: 35; background: var(--surface); border: 1px solid var(--line-strong); display: flex; flex-direction: column; }
-.pindock.bottom { bottom: 0; border-bottom: 0; border-radius: 14px 14px 0 0; max-height: 42vh; max-height: 42svh; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -8px 28px rgba(0,0,0,.14); }
+.pindock.bottom { bottom: 0; border-bottom: 0; border-radius: 14px 14px 0 0; max-height: 42vh; max-height: 42svh; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -8px 28px rgba(0,0,0,.14); overflow: hidden; }
 .pindock.side { top: calc(var(--topbar) + 16px); border-radius: 12px; max-height: calc(100vh - var(--topbar) - 32px); box-shadow: 0 8px 28px rgba(0,0,0,.12); overflow: hidden; }
-.pd-head { display: flex; align-items: center; gap: 2px; padding: 4px 4px 4px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
-.pindock.bottom .pd-head { border-radius: 14px 14px 0 0; }
-.pindock.collapsed .pd-head { border-bottom: 0; }
+/* 고정한 표 한두 개: 아래쪽은 격자(한 개, 두 개 나란히 split, 두 개 탭 tabs), 오른쪽은 위아래로 쌓기(stack) */
+.pd-panes { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); }
+.pindock.n2 .pd-panes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.pd-pane { display: contents; }
+.pd-panes > .pd-btn.tg { grid-row: 1; grid-column: -2 / -1; width: 44px; height: auto; border-radius: 0; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.pd-head { grid-row: 1; display: flex; align-items: center; gap: 2px; min-width: 0; padding: 4px 2px 4px 14px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.pd-body { grid-row: 2; grid-column: 1 / -1; min-height: 0; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 10px 10px; }
+.pindock.n2.split .pd-pane[data-i="0"] .pd-body { grid-column: 1; border-right: 1px solid var(--line); }
+.pindock.n2.split .pd-pane[data-i="1"] .pd-body { grid-column: 2 / -1; }
+.pindock.n2.split .pd-pane[data-i="0"] .pd-head { border-right: 1px solid var(--line); }
+.pindock.n2.tabs .pd-pane:not(.on) .pd-body { display: none; }
+.pindock.n2.tabs .pd-head { padding-left: 10px; box-shadow: inset 0 -2px 0 transparent; }
+.pindock.n2.tabs .pd-pane.on .pd-head { box-shadow: inset 0 -2px 0 var(--accent); background: var(--surface); }
+.pindock.n2.tabs .pd-pane:not(.on) .pd-title { color: var(--muted); }
+.pindock.n2.tabs .pd-pane:not(.on) .pd-title svg { color: var(--muted); }
+.pindock.side .pd-panes { display: flex; flex-direction: column; }
+.pindock.side .pd-pane { display: flex; flex-direction: column; flex: 0 1 auto; min-height: 0; }
+.pindock.side .pd-pane + .pd-pane { border-top: 1px solid var(--line-strong); }
+.pindock.side .pd-panes > .pd-btn.tg { display: none; }
 .pd-title { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; background: none; border: 0; padding: 6px 0; font: 600 13px/1.4 var(--f-sans); color: var(--ink-2); text-align: left; cursor: pointer; }
 .pd-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pd-title svg { color: var(--accent); }
+.pindock.side .pd-title { cursor: default; }
 .pd-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; border-radius: 8px; color: var(--muted); cursor: pointer; flex: none; }
 .pd-btn:hover { background: var(--surface); color: var(--ink); }
 .pd-btn svg { width: 16px; height: 16px; }
 .pindock.collapsed .pd-btn.tg svg { transform: rotate(180deg); }
-.pd-body { overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 0 10px 10px; }
 .pd-body .tbl-wrap { margin: 0; overflow: visible; }
 .pd-body thead th { position: sticky; top: 0; z-index: 1; }
 .pd-body .jt caption { padding-top: 8px; }
 .pindock.collapsed .pd-body { display: none; }
+.pindock.collapsed .pd-head, .pindock.collapsed .pd-panes > .pd-btn.tg { border-bottom: 0; }
 .pin-bar.ref { margin: -4px 0 10px; }
 .pin-btn .nm { font-weight: 500; }
 .tref[role="button"] { color: var(--accent-ink); text-decoration: underline dotted color-mix(in srgb, var(--accent) 70%, transparent); text-decoration-thickness: 1.5px; text-underline-offset: 3px; cursor: pointer; border-radius: 3px; }
@@ -1806,7 +1823,7 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 
   /* ---------- 표 고정 ----------
-     표 위 '표 고정' 단추를 누르면 그 표를 화면에 붙여 둔다. 본문 오른쪽에 자리가 넉넉하면 오른쪽, 아니면 화면 아래쪽.
+     표 위 '표 고정' 단추를 누르면 그 표를 화면에 붙여 둔다(두 개까지). 본문 오른쪽에 자리가 넉넉하면 오른쪽, 아니면 화면 아래쪽.
      아래쪽일 때는 원래 표가 화면에 보이는 동안 머리줄만 남기고 접어 두고, 단추를 누른 절을 벗어나면 저절로 풀린다.
      본문에서 앞의 표를 가리키는 말(span.tref[data-t])과 앞의 표를 쓰는 소제목의 단추(div.pin-bar.ref[data-t])로도
      그 표를 붙일 수 있다. 대상 표는 .tbl-wrap의 id, 이름은 data-name. */
@@ -1814,7 +1831,10 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
   const ICON_PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 7 4 4H6l4-4z"/><path d="M12 14v7"/></svg>';
   const ICON_DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   const ICON_X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-  let pin = null, pinUI = new Map();
+  // 고정한 표는 두 개까지(pins). 셋째를 고정하면 가장 먼저 고정한 표가 풀린다.
+  // 오른쪽(side): 두 개를 위아래로 쌓음. 아래쪽(bottom): 고정 창이 720px 이상이면 두 개를 나란히(split), 좁으면 탭(tabs).
+  let pins = [], pinActive = 0, pinManual = null, pinDock = null, pinUI = new Map();
+  const PIN_MAX = 2;
   const squash = t => t.replace(/\s+/g, " ").trim();
   function pinTitle(unit) {
     if (unit.dataset.name) return unit.dataset.name;
@@ -1831,79 +1851,118 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
     ui.btns.forEach(b => { b.setAttribute("aria-pressed", String(on)); b.querySelector(".t").textContent = on ? "고정 풀기" : "표 고정"; });
     ui.refs.forEach(r => r.classList.toggle("on", on));
   }
-  function unpin() {
-    if (!pin) return;
-    pin.obs.forEach(o => o.disconnect());
-    pin.dock.remove();
-    setPressed(pin.unit, false);
+  function dropPin(p) {                          // 고정 하나를 정리만 한다(다시 그리지 않음)
+    p.obs.forEach(o => o.disconnect());
+    setPressed(p.unit, false);
+    pins = pins.filter(x => x !== p);
+  }
+  function unpin() {                             // 모두 풀기 (장 이동, Esc)
+    pins.slice().forEach(dropPin);
+    pinActive = 0; pinManual = null;
+    if (pinDock) { pinDock.remove(); pinDock = null; }
     document.body.style.paddingBottom = "";
     window.removeEventListener("resize", placeDock);
-    pin = null;
+  }
+  function removePin(p) {
+    dropPin(p);
+    if (!pins.length) { unpin(); return; }
+    pinActive = Math.min(pinActive, pins.length - 1);
+    renderDock(); placeDock();
+  }
+  function renderDock() {
+    if (!pinDock) {
+      pinDock = document.createElement("div");
+      pinDock.setAttribute("role", "region"); pinDock.setAttribute("aria-label", "고정한 표");
+      document.body.appendChild(pinDock);
+      window.addEventListener("resize", placeDock);
+    }
+    const panes = document.createElement("div");
+    panes.className = "pd-panes";
+    pins.forEach((p, i) => {
+      const pane = document.createElement("div");
+      pane.className = "pd-pane"; pane.dataset.i = String(i);
+      pane.innerHTML = `<div class="pd-head"><button type="button" class="pd-title">${ICON_PIN}<span></span></button>`
+        + `<button type="button" class="pd-btn x" aria-label="고정 풀기">${ICON_X}</button></div><div class="pd-body"></div>`;
+      pane.querySelector(".pd-title span").textContent = p.title;
+      pane.querySelector(".pd-title").addEventListener("click", () => {
+        const d = pinDock;
+        if (!d || d.classList.contains("side")) return;
+        if (d.classList.contains("tabs") && pinActive !== i) { pinActive = i; pinManual = "open"; placeDock(); return; }
+        pinManual = d.classList.contains("collapsed") ? "open" : "closed"; placeDock();
+      });
+      pane.querySelector(".x").addEventListener("click", () => removePin(p));
+      pane.querySelector(".pd-body").appendChild(p.clone);
+      panes.appendChild(pane);
+    });
+    const tg = document.createElement("button");
+    tg.type = "button"; tg.className = "pd-btn tg"; tg.innerHTML = ICON_DOWN;
+    tg.addEventListener("click", () => { if (!pinDock) return; pinManual = pinDock.classList.contains("collapsed") ? "open" : "closed"; placeDock(); });
+    panes.appendChild(tg);
+    pinDock.replaceChildren(panes);
   }
   function placeDock() {
-    if (!pin) return;
-    const d = pin.dock, art = document.getElementById("article");
+    const d = pinDock;
+    if (!d || !pins.length) return;
+    const art = document.getElementById("article");
     if (!art) { unpin(); return; }
     const r = art.getBoundingClientRect(), vw = document.documentElement.clientWidth;
     const room = vw - r.right - 40;
-    if (room >= 380) {
-      d.className = "pindock side";
-      d.style.left = Math.round(r.right + 24) + "px"; d.style.width = Math.round(Math.min(room, 640)) + "px";
-    } else {
-      d.className = "pindock bottom";
-      if (vw <= 960) { d.style.left = "0px"; d.style.width = vw + "px"; }
-      else { d.style.left = Math.round(r.left - 12) + "px"; d.style.width = Math.round(r.width + 24) + "px"; }
-    }
-    const auto = d.classList.contains("bottom") && pin.origVisible;
-    const coll = pin.manual ? pin.manual === "closed" : auto;
+    let side = room >= 380, left, width;
+    if (side) { left = r.right + 24; width = Math.min(room, 640); }
+    else if (vw <= 960) { left = 0; width = vw; }
+    else { left = r.left - 12; width = r.width + 24; }
+    const two = pins.length > 1;
+    const layout = !two ? "" : side ? "stack" : width >= 720 ? "split" : "tabs";
+    d.className = ["pindock", side ? "side" : "bottom", two ? "n2" : "n1", layout].filter(Boolean).join(" ");
+    d.style.left = Math.round(left) + "px"; d.style.width = Math.round(width) + "px";
+    d.querySelectorAll(".pd-pane").forEach((pane, i) => {
+      const on = layout !== "tabs" || i === pinActive;
+      pane.classList.toggle("on", on);
+      const t = pane.querySelector(".pd-title");
+      if (layout === "tabs") t.setAttribute("aria-pressed", String(on)); else t.removeAttribute("aria-pressed");
+    });
+    // 아래쪽에서는 원래 표가 화면에 보이는 동안 접어 둔다(탭이면 보고 있는 표, 아니면 고정한 표 모두가 보일 때)
+    const seen = layout === "tabs" ? pins[pinActive].origVisible : pins.every(p => p.origVisible);
+    const coll = side ? false : pinManual ? pinManual === "closed" : seen;
     d.classList.toggle("collapsed", coll);
     const tg = d.querySelector(".tg");
     tg.setAttribute("aria-label", coll ? "표 펼치기" : "표 접기"); tg.setAttribute("aria-expanded", String(!coll));
-    requestAnimationFrame(() => { if (pin && pin.dock === d) document.body.style.paddingBottom = d.classList.contains("bottom") ? d.offsetHeight + "px" : ""; });
+    requestAnimationFrame(() => { if (pinDock === d) document.body.style.paddingBottom = d.classList.contains("bottom") ? d.offsetHeight + "px" : ""; });
   }
   const topEdgePx = () => Math.round(document.querySelector(".topbar")?.getBoundingClientRect().bottom || 56);
   function unitVisible(r, top) {
     const h = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, top);
     return r.height > 0 && h >= Math.min(r.height * 0.4, 160);
   }
-  // mode "toggle": 표 위 단추와 소제목 단추(다시 누르면 풀림). mode "show": 본문의 표 가리키는 말(누르면 늘 보여 줌).
+  // mode "toggle": 표 위 단추와 소제목 단추(다시 누르면 그 표만 풀림). mode "show": 본문의 표 가리키는 말(누르면 늘 보여 줌).
   function doPin(unit, sec, mode) {
-    if (pin && pin.unit === unit) {
-      if (mode === "toggle") { unpin(); return; }
-      if (pin.sec === sec) { pin.manual = "open"; placeDock(); return; }
+    const ex = pins.find(p => p.unit === unit);
+    if (ex) {
+      if (mode === "toggle") { removePin(ex); return; }
+      if (ex.sec === sec) { pinActive = pins.indexOf(ex); pinManual = "open"; placeDock(); return; }
+      dropPin(ex);                                 // 다른 절에서 다시 부르면 풀리는 기준을 새 절로
     }
-    unpin();
-    const dock = document.createElement("div");
-    dock.setAttribute("role", "region"); dock.setAttribute("aria-label", "고정한 표");
-    dock.innerHTML = `<div class="pd-head"><button type="button" class="pd-title">${ICON_PIN}<span></span></button>`
-      + `<button type="button" class="pd-btn tg">${ICON_DOWN}</button><button type="button" class="pd-btn x" aria-label="고정 풀기">${ICON_X}</button></div><div class="pd-body"></div>`;
-    dock.querySelector(".pd-title span").textContent = pinTitle(unit);
+    while (pins.length >= PIN_MAX) dropPin(pins[0]);
     const clone = unit.cloneNode(true);
     clone.removeAttribute("id"); clone.querySelectorAll("[id]").forEach(e => e.removeAttribute("id"));
-    dock.querySelector(".pd-body").appendChild(clone);
-    document.body.appendChild(dock);
     const top = topEdgePx();
-    pin = { unit, sec, dock, manual: null, origVisible: unitVisible(unit.getBoundingClientRect(), top), obs: [] };
+    const p = { unit, sec, clone, title: pinTitle(unit), origVisible: unitVisible(unit.getBoundingClientRect(), top), obs: [] };
+    pins.push(p);
+    pinActive = pins.length - 1; pinManual = null;
     setPressed(unit, true);
-    const toggle = () => { if (!pin) return; pin.manual = pin.dock.classList.contains("collapsed") ? "open" : "closed"; placeDock(); };
-    dock.querySelector(".pd-title").addEventListener("click", toggle);
-    dock.querySelector(".tg").addEventListener("click", toggle);
-    dock.querySelector(".x").addEventListener("click", unpin);
     if ("IntersectionObserver" in window) {
-      const mine = pin;
-      const so = new IntersectionObserver(es => { for (const e of es) if (!e.isIntersecting && pin === mine) unpin(); });
+      const so = new IntersectionObserver(es => { for (const e of es) if (!e.isIntersecting && pins.includes(p)) removePin(p); });
       so.observe(sec);
       const uo = new IntersectionObserver(es => {
         for (const e of es) {
           const v = e.isIntersecting && e.intersectionRect.height >= Math.min(e.boundingClientRect.height * 0.4, 160);
-          if (pin === mine && v !== pin.origVisible) { pin.origVisible = v; pin.manual = null; placeDock(); }
+          if (pins.includes(p) && v !== p.origVisible) { p.origVisible = v; pinManual = null; placeDock(); }
         }
       }, { rootMargin: `-${top}px 0px 0px 0px`, threshold: [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1] });
       uo.observe(unit);
-      pin.obs = [so, uo];
+      p.obs = [so, uo];
     }
-    window.addEventListener("resize", placeDock);
-    placeDock();
+    renderDock(); placeDock();
   }
   function pinButton(label) {
     const b = document.createElement("button");
@@ -1948,7 +2007,7 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
       ui(unit).refs.push(el);
     });
   }
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && pin) unpin(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && pins.length) unpin(); });
 
   // ---------- widgets ----------
   function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
