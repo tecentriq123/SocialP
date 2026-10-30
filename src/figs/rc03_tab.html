@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">논문에 옮길 위험비 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(broom)
+hr &lt;- tidy(fit, exponentiate = TRUE, conf.int = TRUE)
+data.frame(term = hr$term,
+           `HR (95% CI)` = sprintf(&quot;%.2f (%.2f-%.2f)&quot;, hr$estimate,
+                                   hr$conf.low, hr$conf.high),
+           P = format.pval(hr$p.value, digits = 2, eps = 0.001),
+           check.names = FALSE)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        term      HR (95% CI)      P
+1       dpca 0.94 (0.64-1.37)<span class="mk">1</span> 0.7388
+2      age10 1.37 (1.14-1.64) &lt;0.001<span class="mk">2</span>
+3     female 0.70 (0.43-1.16) 0.1663
+4 log2(bili) 1.84 (1.61-2.11) &lt;0.001
+5    albumin 0.37 (0.23-0.59) &lt;0.001
+6   edema0.5 1.22 (0.70-2.13) 0.4880
+7     edema1 2.58 (1.41-4.73) 0.0022
+8    protime 1.28 (1.08-1.52) 0.0037</pre></div></div>

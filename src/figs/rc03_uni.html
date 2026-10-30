@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">치료만 넣은 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit1 &lt;- coxph(Surv(years, death) ~ dpca, data = d)
+summary(fit1)
+survdiff(Surv(years, death) ~ dpca, data = d)$chisq</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+coxph(formula = Surv(years, death) ~ dpca, data = d)
+
+  n= 312, number of events= 125<span class="mk">1</span> 
+
+        coef exp(coef) se(coef)     z Pr(&gt;|z|)
+dpca 0.05722   1.05889<span class="mk">2</span>  0.17916 0.319    0.749
+
+     exp(coef) exp(-coef) lower .95 upper .95
+dpca     1.059     0.9444    0.7453     1.504<span class="mk">3</span>
+
+Concordance= 0.499<span class="mk">4</span>  (se = 0.025 )
+Likelihood ratio test= 0.1  on 1 df,   p=0.7
+Wald test            = 0.1  on 1 df,   p=0.7
+Score (logrank) test = 0.1<span class="mk">5</span>  on 1 df,   p=0.7
+
+[1] 0.1017<span class="mk">6</span>055</pre></div></div>

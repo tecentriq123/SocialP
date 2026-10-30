@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">추적 기간을 3년에서 나눈 긴 자료</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">long &lt;- survSplit(Surv(years, death) ~ ., data = d, cut = 3, episode = &quot;period&quot;)
+c(nrow(d), nrow(long))
+long[long$id %in% c(1, 4), c(&quot;id&quot;, &quot;tstart&quot;, &quot;years&quot;, &quot;death&quot;, &quot;period&quot;, &quot;protime&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 312 552<span class="mk">1</span>
+  id tstart    years death period protime
+1  1      0 1.095140<span class="mk">2</span>     1      1    12.2
+5  4      0 3.000000<span class="mk">3</span>     0      1    10.3
+6  4      3 5.270363<span class="mk">4</span>     1      2    10.3</pre></div></div>

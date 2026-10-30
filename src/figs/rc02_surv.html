@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">Surv()로 생존 자료 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lung$months &lt;- lung$time / 30.4375      # 일 → 개월 (365.25 / 12)
+s &lt;- Surv(lung$months, lung$status)
+head(s)
+table(s[, &quot;status&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 10.053388  14.948665  33.182752+<span class="mk">1</span>  6.899384  29.010267  33.577002+
+
+  0   1<span class="mk">2</span> 
+ 63 165</pre></div></div>

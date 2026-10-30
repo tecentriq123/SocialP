@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">기간별 위험비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">long$late &lt;- as.integer(long$period == 2)
+fit_t &lt;- coxph(Surv(tstart, years, death) ~ dpca + age10 + female + log2(bili) +
+                 albumin + edema + protime + protime:late, data = long)
+round(summary(fit_t)$coefficients[c(&quot;dpca&quot;, &quot;protime&quot;, &quot;protime:late&quot;), ], 4)
+exp(coef(fit_t)[&quot;protime&quot;] + coef(fit_t)[&quot;protime:late&quot;])   # 3년 뒤의 위험비</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                coef exp(coef) se(coef)       z Pr(&gt;|z|)
+dpca         -0.0913    0.9127<span class="mk">4</span>   0.1934 -0.4722   0.6368
+protime       0.4497    1.5678<span class="mk">1</span>   0.1152  3.9035   0.0001
+protime:late -0.3873    0.6789   0.1709 -2.2666   0.0234<span class="mk">2</span>
+ protime 
+1.064<span class="mk">3</span>306</pre></div></div>

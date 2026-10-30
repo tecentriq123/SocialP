@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">중앙값과 Wilcoxon 순위합 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">aggregate(bwt ~ smoke_f, data = bw, FUN = quantile, probs = c(0.25, 0.5, 0.75))
+wilcox.test(bwt ~ smoke_f, data = bw)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    smoke_f bwt.25% bwt.50% bwt.75%
+1 Nonsmoker 2509.00 3100.00 3621.50
+2    Smoker 2370.50 2775.50<span class="mk">1</span> 3245.75
+
+	Wilcoxon rank sum test with continuity correction<span class="mk">3</span>
+
+data:  bwt by smoke_f
+W = 5249.5<span class="mk">2</span>, p-value = 0.006768
+alternative hypothesis: true location shift is not equal to 0</pre></div></div>

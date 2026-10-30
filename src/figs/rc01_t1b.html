@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">중앙값과 정확검정으로 바꾸고 파일로 남기기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tab1 &lt;- print(t1, nonnormal = c(&quot;ftv&quot;, &quot;bwt&quot;), exact = &quot;ht&quot;, smd = TRUE,
+              quote = FALSE, noSpaces = TRUE, printToggle = FALSE)
+write.csv(tab1, &quot;table1.csv&quot;)          # 엑셀에서 열어 논문 표로 옮긴다
+noquote(tab1[c(&quot;ht = 1 (%)&quot;, &quot;bwt (median [IQR])&quot;), ])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                    Stratified by smoke_f
+                     Nonsmoker                  Smoker                    
+  ht = 1 (%)         7 (6.1)                    5 (6.8)                   
+  bwt (median [IQR]) 3100.00 [2509.00, 3621.50]<span class="mk">1</span> 2775.50 [2370.50, 3245.75]
+                    Stratified by smoke_f
+                     p<span class="mk">2</span>     test    SMD  
+  ht = 1 (%)         1.000 exact<span class="mk">3</span>   0.027
+  bwt (median [IQR]) 0.007 nonnorm<span class="mk">4</span> 0.401</pre></div></div>

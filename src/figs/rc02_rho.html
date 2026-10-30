@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">초기 차이에 무게를 둔 검정 (rho = 1)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">survdiff(Surv(months, status) ~ sex_f, data = lung, rho = 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+survdiff(formula = Surv(months, status) ~ sex_f, data = lung, 
+    rho = 1)
+
+               N Observed Expected (O-E)^2/E (O-E)^2/V
+sex_f=Male   138     70.4<span class="mk">1</span>     55.6      3.95      12.7
+sex_f=Female  90     28.7     43.5      5.04      12.7
+
+ Chisq= 12.7<span class="mk">2</span>  on 1 degrees of freedom, p= 4e-04</pre></div></div>

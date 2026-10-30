@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">논문에 옮길 성별 요약표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">st  &lt;- summary(km_sex)$table           # 군별 n, 사건 수, 중앙값과 구간
+s12 &lt;- summary(km_sex, times = 12)     # 12개월 생존율과 구간
+data.frame(group = levels(lung$sex_f),
+           n = st[, &quot;n.max&quot;], deaths = st[, &quot;events&quot;],
+           `median (95% CI)` = sprintf(&quot;%.1f (%.1f-%.1f)&quot;,
+                                       st[, &quot;median&quot;], st[, &quot;0.95LCL&quot;], st[, &quot;0.95UCL&quot;]),
+           `1-yr % (95% CI)` = sprintf(&quot;%.1f (%.1f-%.1f)&quot;,
+                                       100 * s12$surv, 100 * s12$lower, 100 * s12$upper),
+           check.names = FALSE, row.names = NULL)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   group   n deaths  median (95% CI)  1-yr % (95% CI)
+1   Male 138    112   8.9 (6.9-10.1)<span class="mk">1</span> 33.6 (25.3-42.1)<span class="mk">2</span>
+2 Female  90     53 14.0 (11.3-17.2) 52.6 (40.4-63.5)</pre></div></div>

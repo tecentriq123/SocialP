@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 2 정답: 체중 10 lb당 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b  &lt;- coef(fit_lr)[&quot;lwt&quot;]
+ci &lt;- confint.default(fit_lr)[&quot;lwt&quot;, ]
+round(exp(10 * c(OR = b, ci)), 3)        # 10 lb당 오즈비와 Wald 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>OR.lwt  2.5 % 97.5 % 
+ 0.861<span class="mk">1</span>  0.750  0.989</pre></div></div>

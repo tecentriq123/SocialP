@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">범주형 변수에 이름표와 순서 붙이기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">bw$race &lt;- factor(bw$race, levels = 1:3,
+                  labels = c(&quot;white&quot;, &quot;black&quot;, &quot;other&quot;))   # 첫 수준이 기준범주
+bw$smoke_f &lt;- factor(bw$smoke, levels = c(0, 1),
+                     labels = c(&quot;Nonsmoker&quot;, &quot;Smoker&quot;))
+bw$ptd &lt;- as.integer(bw$ptl &gt; 0)       # 이전 조산 1회 이상 = 1
+table(bw$race)
+table(bw$smoke_f, bw$smoke)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+white black other<span class="mk">1</span> 
+   96    26    67 
+           
+              0   1
+  Nonsmoker 115<span class="mk">2</span>   0
+  Smoker      0  74</pre></div></div>

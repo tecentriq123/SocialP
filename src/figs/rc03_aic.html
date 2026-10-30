@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">빌리루빈을 어떤 꼴로 넣을지</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_lin &lt;- update(fit, . ~ . - log2(bili) + bili)   # 빌리루빈을 그대로 넣은 모형
+AIC(fit_lin, fit)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        df      AIC
+fit_lin  8 1124.717<span class="mk">1</span>
+fit      8 1094.350<span class="mk">2</span></pre></div></div>

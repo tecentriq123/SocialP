@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">Kaplan-Meier 추정과 시점별 생존율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km &lt;- survfit(Surv(months, status) ~ 1, data = lung)
+km
+summary(km, times = c(6, 12, 24))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(months, status) ~ 1, data = lung)
+
+       n events median 0.95LCL 0.95UCL
+[1,] 228    165   10.2    9.36    11.9<span class="mk">1</span>
+Call: survfit(formula = Surv(months, status) ~ 1, data = lung)
+
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    156      66    0.708  0.0303       0.6511        0.770
+   12     65      55    0.409<span class="mk">2</span>  0.0358       0.3447        0.486<span class="mk">3</span>
+   24     13      38    0.116  0.0283       0.0716        0.187</pre></div></div>

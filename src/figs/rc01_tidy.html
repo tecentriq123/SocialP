@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">논문에 옮길 회귀 결과 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">or_tab &lt;- tidy(fit_lr, exponentiate = TRUE, conf.int = TRUE)[-1, ]   # 절편 행 빼기
+data.frame(term = or_tab$term,
+           `OR (95% CI)` = sprintf(&quot;%.2f (%.2f-%.2f)&quot;, or_tab$estimate,
+                                   or_tab$conf.low, or_tab$conf.high),
+           P = format.pval(or_tab$p.value, digits = 2, eps = 0.001),
+           check.names = FALSE)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       term       OR (95% CI)      P
+1       age  0.96 (0.89-1.04) 0.3181
+2       lwt  0.99 (0.97-1.00)<span class="mk">2</span> 0.0342
+3 raceblack  3.36 (1.19-9.73) 0.0228
+4 raceother  2.23 (0.94-5.50) 0.0729
+5     smoke  2.33 (1.06-5.29)<span class="mk">1</span> 0.0381
+6       ptd  3.39 (1.38-8.60) 0.0083<span class="mk">3</span>
+7        ht 6.29 (1.64-27.26) 0.0089
+8        ui  2.04 (0.81-5.06) 0.1247</pre></div></div>

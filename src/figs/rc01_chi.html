@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">chisq.test()의 기본값은 Yates 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">chisq.test(tab)
+chisq.test(tab, correct = FALSE)
+chisq.test(tab)$expected</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Pearson&#x27;s Chi-squared test with Yates&#x27; continuity correction<span class="mk">1</span>
+
+data:  tab
+X-squared = 4.2359, df = 1, p-value = 0.03958<span class="mk">2</span>
+
+
+	Pearson&#x27;s Chi-squared test
+
+data:  tab
+X-squared = 4.9237, df = 1, p-value = 0.02649<span class="mk">3</span>
+
+           low
+smoke              0        1
+  Nonsmoker 79.10053 35.89947
+  Smoker    50.89947 23.10053<span class="mk">4</span></pre></div></div>

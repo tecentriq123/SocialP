@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">사건, 시간, 공변량 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$death  &lt;- as.integer(d$status == 2)   # 사망 = 1, 간이식과 생존 = 0
+d$years  &lt;- d$time / 365.25
+d$dpca   &lt;- as.integer(d$trt == 1)      # D-penicillamine = 1, 위약 = 0
+d$female &lt;- as.integer(d$sex == &quot;f&quot;)
+d$age10  &lt;- d$age / 10                  # 10세 단위
+d$edema  &lt;- factor(d$edema)             # 0, 0.5, 1을 범주로
+colSums(is.na(d))[colSums(is.na(d)) &gt; 0]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    chol<span class="mk">1</span>   copper     trig platelet 
+      28        2       30        4</pre></div></div>

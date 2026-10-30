@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">CreateTableOne()으로 Table 1 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">install.packages(&quot;tableone&quot;)
+library(tableone)
+vars &lt;- c(&quot;age&quot;, &quot;lwt&quot;, &quot;race&quot;, &quot;ptd&quot;, &quot;ht&quot;, &quot;ui&quot;, &quot;ftv&quot;, &quot;bwt&quot;, &quot;low&quot;)
+t1 &lt;- CreateTableOne(vars = vars, strata = &quot;smoke_f&quot;, data = bw,
+                     factorVars = c(&quot;ptd&quot;, &quot;ht&quot;, &quot;ui&quot;, &quot;low&quot;))
+print(t1, smd = TRUE)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 Stratified by smoke_f
+                  Nonsmoker        Smoker<span class="mk">1</span>           p      test SMD   
+  n                   115               74                            
+  age (mean (SD))   23.43 (5.47)<span class="mk">2</span>     22.95 (5.05)    0.545       0.091
+  lwt (mean (SD))  130.90 (28.43)   128.14 (33.79)   0.546       0.088
+  race (%)                                          &lt;0.001       0.757<span class="mk">6</span>
+     white             44 (38.3)        52 (70.3)                     
+     black             16 (13.9)        10 (13.5)                     
+     other             55 (47.8)        12 (16.2)                     
+  ptd = 1 (%)<span class="mk">3</span>          12 (10.4)        18 (24.3)    0.019       0.373
+  ht = 1 (%)            7 ( 6.1)         5 ( 6.8)    1.000       0.027
+  ui = 1 (%)           15 (13.0)        13 (17.6)    0.519       0.126
+  ftv (mean (SD))    0.82 (0.98)      0.76 (1.18)    0.702       0.056
+  bwt (mean (SD)) 3055.70 (752.66) 2771.92 (659.63)  0.009 <span class="mk">4</span>      0.401
+  low = 1 (%)          29 (25.2)        30 (40.5)    0.040 <span class="mk">5</span>      0.331</pre></div></div>

@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">과제 1 정답: ECOG 군별 요약표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km_ecog &lt;- survfit(Surv(months, status) ~ ecog, data = lung, conf.type = &quot;log-log&quot;)
+st  &lt;- summary(km_ecog)$table
+s12 &lt;- summary(km_ecog, times = 12)
+data.frame(group = rownames(st), n = st[, &quot;n.max&quot;], deaths = st[, &quot;events&quot;],
+           `median (95% CI)` = sprintf(&quot;%.1f (%.1f-%.1f)&quot;,
+                                       st[, &quot;median&quot;], st[, &quot;0.95LCL&quot;], st[, &quot;0.95UCL&quot;]),
+           `1-yr % (95% CI)` = sprintf(&quot;%.1f (%.1f-%.1f)&quot;,
+                                       100 * s12$surv, 100 * s12$lower, 100 * s12$upper),
+           check.names = FALSE, row.names = NULL)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    group   n deaths  median (95% CI)  1-yr % (95% CI)
+1  ecog=0  63     37 12.9 (11.2-18.3) 53.5 (38.4-66.5)
+2  ecog=1 113     82  10.1 (8.0-14.0) 43.1 (33.0-52.7)
+3 ecog=2+  51     45    6.0 (<span class="mk">1</span>4.8-9.4) 21.0 (10.7-33.7)</pre></div></div>

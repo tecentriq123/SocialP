@@ -1,0 +1,243 @@
+<p class="lead">생존분석은 R이 가장 강한 분야이고, 그 바탕은 survival 패키지의 두 함수 <code>Surv()</code>와 <code>survfit()</code>입니다. 이 장에서는 폐암 환자 228명의 자료로 생존 자료를 만들고, Kaplan-Meier 곡선과 중앙생존기간을 구하고, 논문 형식의 요약표와 위험집합 표가 붙은 그림을 만들고, 로그순위 검정으로 군을 비교합니다. 보건통계학 기초의 파이썬 실습 7과 같은 자료라서 숫자를 그대로 대조할 수 있습니다. 두 언어가 다른 곳은 신뢰구간입니다. R의 <code>survfit()</code>은 기본으로 log 방식의 구간을 내서, log-log 방식을 쓰는 실습 7과 구간의 끝자리가 다릅니다.</p>
+
+<p class="nb-link"><a href="notebooks/rc02.ipynb" download>이 장의 노트북 내려받기 (rc02.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3, survival 3.8, survminer 0.5로 실제로 실행해 얻었습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>중도절단, Kaplan-Meier 추정, 로그순위법의 개념은 보건통계학 기초 <a href="stats.html#ch07">7장</a>에 있습니다. R을 처음 쓴다면 이 과목 <a href="#rc00">0장</a>을 먼저 봅니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 2, b 절의 셀 4–5, c 절의 셀 7–9, d 절의 셀 10.</dd>
+<dt>나중에 읽을 부분</dt><dd>d 절의 가중 검정, 두 군씩 비교, 제한평균생존시간(셀 11–13)은 내 자료의 곡선이 교차하거나 군이 셋 이상일 때 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① <code>Surv()</code>로 생존 자료를 만들고 사건 변수의 부호화를 확인할 수 있다 ② <code>survfit()</code>으로 중앙생존기간과 시점별 생존율을 구하고 신뢰구간 방식을 정할 수 있다 ③ 군별 요약표와 위험집합 표가 붙은 그림을 만들고 <code>survdiff()</code>로 군을 비교할 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rc02-s1">
+<h2><span class="sec-no">a.</span>생존 자료를 R에 알려 주기</h2>
+
+<h3>이 장의 자료는 무엇인가?</h3>
+<p><strong>미국 North Central Cancer Treatment Group(NCCTG)의 진행성 폐암 환자 228명의 자료로, survival 패키지에 <code>lung</code>이라는 이름으로 들어 있습니다.</strong> 원래 환자가 스스로 답한 설문이 생존을 예측하는지 본 연구의 자료입니다<cite data-ref="loprinzi1994"></cite>. 파이썬 실습 7은 같은 자료를 Rdatasets 사이트의 <code>cancer.csv</code>로 읽었습니다.</p>
+<!--FIG:rc02_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>library(survival)</code><span>R과 함께 설치되는 생존분석 패키지입니다<cite data-ref="therneau_survival"></cite>. 자료 <code>lung</code>도 이 패키지에 들어 있습니다.</span></li>
+<li><code>table(lung$status)</code><span>사건 변수의 값별 인원을 봅니다. 생존 자료를 받으면 가장 먼저 할 일입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>time, status.</b> <code>time</code>은 등록부터 사망이나 마지막 관찰까지의 일수, <code>status</code>는 사건 여부입니다. 나머지는 나이, 성별(1 남, 2 여), ECOG 수행능력 같은 공변량입니다.</span></li>
+<li><span class="mk">2</span><span><b>63과 165.</b> status가 1인 63명은 중도절단, 2인 165명은 사망입니다. 0/1이 아니라 1/2로 적혀 있습니다.</span></li>
+</ol>
+
+<h3>Surv()는 사건 변수를 어떻게 읽나?</h3>
+<p><strong><code>Surv(시간, 사건)</code>은 시간과 사건 여부를 묶어 생존 자료를 만들고, 사건이 0/1이든 1/2이든 큰 값을 사건으로 읽습니다.</strong> 그래서 이 자료의 status를 고치지 않고 그대로 넣어도 됩니다. 실습 7에서 lifelines에 1/2를 그대로 넣었다가 모두가 사망한 것으로 계산된 일(오류 없이 틀린 결과)이 R에서는 생기지 않습니다.</p>
+<!--FIG:rc02_surv-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>lung$months &lt;- lung$time / 30.4375</code><span>일을 개월로 바꿉니다. 30.4375일은 1년 365.25일을 12로 나눈 값으로 실습 7과 같습니다.</span></li>
+<li><code>Surv(lung$months, lung$status)</code><span>생존 자료 객체를 만듭니다. 보통은 따로 만들지 않고 <code>survfit()</code> 같은 함수의 식 안에 바로 씁니다.</span></li>
+<li><code>table(s[, "status"])</code><span>Surv 객체 안에 저장된 사건 열을 꺼내 셉니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>33.182752+.</b> 숫자 뒤의 +는 중도절단입니다. 이 환자는 33.2개월까지 살아 있는 것을 확인한 뒤 관찰이 끝났습니다.</span></li>
+<li><span class="mk">2</span><span><b>0과 1.</b> R이 1/2를 0(중도절단)과 1(사망)로 바꿔 저장했습니다. 사망 165명이 그대로입니다.</span></li>
+</ol>
+<p>TRUE/FALSE로 적힌 사건 변수는 TRUE를 사건으로 읽습니다. 그러나 0, 1, 2가 섞여 있으면 R은 1/2 부호로 보고 0을 경고와 함께 결측으로 바꿉니다. 경쟁위험 자료처럼 사건의 종류가 여럿이면 사건 변수를 factor로 만들어 넣습니다(<a href="stats.html#ch17">보건통계학 기초 17장</a>). 다른 사람이 만든 자료를 받으면 <code>table()</code>로 값과 인원을 먼저 보고, 어느 값이 사건인지 자료 설명서와 맞춥니다(과제 3).</p>
+
+<h3>중앙 추적기간은 어떻게 구하나?</h3>
+<p><strong>중도절단을 사건으로, 사망을 중도절단으로 바꿔 Kaplan-Meier를 구하면 그 중앙값이 중앙 추적기간입니다.</strong> 역 Kaplan-Meier 방법이라고 부르고, 논문의 결과 첫머리에 적는 값입니다(<a href="stats.html#ch07-s1">보건통계학 기초 7장 a 절</a>)<cite data-ref="schemper1996"></cite>.</p>
+<!--FIG:rc02_fu-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>Surv(months, status == 1)</code><span><code>status == 1</code>은 중도절단인 사람에서 TRUE입니다. 그래서 중도절단이 '사건'이 됩니다.</span></li>
+<li><code>survfit(… ~ 1, data = lung)</code><span>군을 나누지 않고 곡선 하나를 구합니다. 결과 객체의 이름만 쓰면 사건 수와 중앙값이 출력됩니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>events 63, median 19.3.</b> 중도절단 63명을 사건으로 셌고, 중앙 추적기간은 19.3개월(95% 신뢰구간 16.8–33.2)입니다. 실습 7과 같습니다.</span></li>
+</ol>
+</section>
+
+<!-- ============================================================ b -->
+<section class="sec" id="rc02-s2">
+<h2><span class="sec-no">b.</span>Kaplan-Meier 곡선과 중앙생존기간</h2>
+
+<h3>중앙생존기간과 시점별 생존율은 어떻게 구하나?</h3>
+<p><strong><code>survfit()</code> 결과의 이름만 쓰면 중앙생존기간과 신뢰구간이, <code>summary(…, times =)</code>에 시점을 주면 그 시점의 생존율이 나옵니다.</strong></p>
+<!--FIG:rc02_km-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>km &lt;- survfit(Surv(months, status) ~ 1, data = lung)</code><span>Kaplan-Meier 곡선을 계산해 <code>km</code>에 담습니다.</span></li>
+<li><code>summary(km, times = c(6, 12, 24))</code><span>6, 12, 24개월의 생존율입니다. <code>times</code>를 빼면 사건이 일어난 모든 시점의 표가 나옵니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>median 10.2 (9.36–11.9).</b> 중앙생존기간 10.2개월입니다. 중앙값은 실습 7과 같지만 신뢰구간 아래 끝이 실습 7의 9.33과 다릅니다. 다음 셀에서 이유를 봅니다.</span></li>
+<li><span class="mk">2</span><span><b>12개월 0.409.</b> 1년 생존율 40.9%입니다. 왼쪽의 n.risk 65는 12개월 직전까지 살아 있으며 관찰 중인 사람 수이고, n.event 55는 6개월부터 12개월 사이에 일어난 사망 수입니다.</span></li>
+<li><span class="mk">3</span><span><b>0.3447–0.486.</b> R의 기본 신뢰구간입니다. 표준오차 0.0358은 실습 7과 같은데 구간이 다릅니다.</span></li>
+</ol>
+
+<h3>신뢰구간은 왜 프로그램마다 다른가?</h3>
+<p><strong>생존율의 표준오차는 같은 Greenwood 공식으로 구하지만, 구간을 어느 척도에서 만드는지가 다릅니다. R의 <code>survfit()</code>은 log 척도가, 파이썬 lifelines는 log-log 척도가 기본입니다.</strong> <code>conf.type = "log-log"</code>를 주면 실습 7과 같은 구간이 나옵니다.</p>
+<!--FIG:rc02_ll-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>conf.type = "log-log"</code><span>생존율 S를 log(−log S)로 바꾼 척도에서 구간을 만든 뒤 되돌립니다. 다른 선택지는 <code>"log"</code>(기본), <code>"plain"</code>(생존율 그대로), <code>"logit"</code>, <code>"arcsin"</code>입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>9.33–11.9.</b> 중앙생존기간의 구간도 바뀝니다. 중앙값의 구간은 생존율 구간의 두 곡선이 0.5를 지나는 시점으로 정하기 때문입니다. 실습 7의 9.33–11.86과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>0.3387–0.478.</b> 실습 7의 1년 생존율 구간 0.339–0.478과 같습니다.</span></li>
+</ol>
+<p>log 방식은 계산상 위 끝이 1을 넘을 수 있어 R이 1에서 자르고, log-log 방식은 구간이 처음부터 0과 1 사이에 있습니다. 생존율이 1이나 0에 가까운 시점에서 두 방식의 차이가 커집니다. 어느 쪽이 틀린 것은 아니므로, 방식을 하나 정해 Methods에 적고 모든 군에 같은 방식을 씁니다. 이 장의 나머지 셀은 실습 7과 맞추기 위해 log-log를 씁니다.</p>
+
+<h3>곡선은 어떻게 그리나?</h3>
+<p><strong><code>plot()</code>에 <code>survfit()</code> 결과를 넣으면 계단 모양의 곡선과 신뢰구간(점선)이 그려집니다.</strong> 빠르게 확인하는 그림으로 충분하고, 논문용 그림은 c 절의 survminer로 그립니다.</p>
+<!--FIG:rc02_plot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>mark.time = TRUE</code><span>중도절단된 시점에 작은 세로선(+)을 찍습니다.</span></li>
+<li><code>xaxt = "n"</code>, <code>axis(1, at = seq(0, 36, by = 6))</code><span>가로축 눈금을 지우고 6개월 간격으로 다시 그립니다.</span></li>
+<li><code>abline(h = 0.5, lty = 3)</code><span>생존율 0.5에 점선을 긋습니다. 곡선이 이 선과 만나는 시점이 중앙생존기간입니다.</span></li>
+</ol>
+
+<div class="quick"><p class="qk">잠깐 확인</p><p>동료가 같은 자료로 다른 프로그램에서 1년 생존율이 40.9%(95% CI 34.5–48.6%)라고 보고했습니다. 이 장의 log-log 구간 33.9–47.8%와 다른데, 계산이 틀린 걸까요?</p><details><summary>답 보기</summary><div><p>틀리지 않았습니다. 생존율과 표준오차는 같고 구간을 만드는 척도만 다릅니다. 34.5–48.6%는 R의 기본값인 log 방식의 구간입니다. 두 결과를 한 표에 섞지 않도록 어느 방식인지 확인합니다.</p></div></details></div>
+</section>
+
+<!-- ============================================================ c -->
+<section class="sec" id="rc02-s3">
+<h2><span class="sec-no">c.</span>군별 곡선과 요약표</h2>
+
+<h3>군별 곡선은 어떻게 구하나?</h3>
+<p><strong>식의 오른쪽에 군 변수를 쓰면(<code>~ sex_f</code>) 군마다 곡선이 따로 계산됩니다.</strong> <code>print()</code>에 <code>rmean =</code>을 주면 정한 시점까지의 제한평균생존시간(RMST)도 함께 나옵니다.</p>
+<!--FIG:rc02_sex-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>factor(lung$sex, levels = 1:2, labels = c("Male", "Female"))</code><span>1/2로 적힌 성별에 이름표를 붙입니다. 출력과 그림의 군 이름이 이것으로 나옵니다.</span></li>
+<li><code>print(km_sex, rmean = 24)</code><span>24개월까지 곡선 아래 넓이, 곧 24개월 동안 평균 몇 개월을 살았는지를 함께 봅니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>rmean*.</b> 24개월까지의 RMST입니다. 남성 10.2개월, 여성 14.3개월이고, 표 아래 별표 줄에 상한(24)이 적혀 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>남성 8.87 (6.9–10.1).</b> 중앙값의 자릿수가 행마다 달라 보이는 것은 R이 열 전체를 같은 유효숫자로 맞추기 때문입니다. 다음 셀처럼 표를 직접 만들면 자릿수를 정할 수 있습니다.</span></li>
+</ol>
+
+<h3>논문에 옮길 요약표는 어떻게 만드나?</h3>
+<p><strong><code>summary()</code>의 <code>$table</code>에서 군별 인원, 사건 수, 중앙값과 구간을, <code>summary(…, times = 12)</code>에서 1년 생존율과 구간을 꺼내 한 데이터프레임으로 묶습니다.</strong></p>
+<!--FIG:rc02_tab-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>summary(km_sex)$table</code><span>군마다 한 행인 행렬입니다. <code>n.max</code>는 인원, <code>events</code>는 사건 수, <code>median</code>, <code>0.95LCL</code>, <code>0.95UCL</code>은 중앙값과 구간입니다.</span></li>
+<li><code>s12$surv</code>, <code>s12$lower</code>, <code>s12$upper</code><span>12개월 생존율과 구간을 군 순서대로 담은 벡터입니다.</span></li>
+<li><code>sprintf("%.1f (%.1f-%.1f)", …)</code><span>숫자 세 개를 "중앙값 (아래-위)" 글자로 만듭니다. <a href="#rc01-s5">1장 e 절</a>과 같은 방법입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>8.9 (6.9-10.1).</b> 실습 7의 성별 요약표와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>33.6 (25.3-42.1).</b> 남성의 1년 생존율 33.6%와 log-log 구간입니다.</span></li>
+</ol>
+
+<h3>위험집합 표가 붙은 그림은 어떻게 그리나?</h3>
+<p><strong>survminer 패키지의 <code>ggsurvplot()</code>은 곡선, 신뢰구간, 로그순위 검정의 p값, 그림 아래의 위험집합 표를 한 번에 그립니다.</strong> 논문의 Kaplan-Meier 그림에는 시점별 위험집합 수를 함께 싣는 것이 권고됩니다<cite data-ref="pocock2002"></cite>.</p>
+<!--FIG:rc02_ggs-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ggsurvplot(km_sex, data = lung, …)</code><span>곡선 객체와 그 곡선을 만든 자료를 함께 줍니다.</span></li>
+<li><code>conf.int = TRUE, pval = TRUE, risk.table = TRUE</code><span>신뢰구간 띠, 로그순위 검정의 p값, 위험집합 표를 켭니다.</span></li>
+<li><code>break.time.by = 6</code><span>가로축 눈금과 위험집합 표의 시점을 6개월 간격으로 맞춥니다.</span></li>
+<li><code>legend.title</code>, <code>legend.labs</code>, <code>palette</code><span>범례의 제목과 군 이름, 선의 색입니다. 군 이름을 주지 않으면 <code>sex_f=Male</code>처럼 변수 이름이 붙어 나옵니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>패키지를 불러올 때의 안내.</b> survminer가 ggplot2와 ggpubr을 함께 불러오고, 자기 패키지의 자료 <code>myeloma</code>가 survival의 같은 이름 자료를 가린다고 알립니다. 이 장의 분석과는 관계없습니다.</span></li>
+<li><span class="mk">2</span><span><b>Ignoring unknown labels.</b> ggplot2 4판과 survminer 사이에서 나오는 알림으로, 그림의 범례는 정한 대로 그려집니다.</span></li>
+</ol>
+<p>위험집합 표의 24개월 숫자(남 7명, 여 6명)를 보면, 곡선의 오른쪽 끝은 소수의 환자로 그린 것이라 크게 꺾여 보여도 해석하지 않습니다. 신뢰구간 띠가 오른쪽으로 갈수록 넓어지는 것도 같은 이유입니다.</p>
+
+<div class="quick"><p class="qk">잠깐 확인</p><p>요약표에서 여성의 1년 생존율은 52.6%로 남성보다 19%p 높습니다. 그런데 RMST의 차이는 4.1개월입니다. 둘 중 무엇을 보고해야 "여성이 더 오래 산다"를 더 잘 전할까요?</p><details><summary>답 보기</summary><div><p>둘은 다른 질문에 답합니다. 1년 생존율은 한 시점의 차이이고, RMST는 24개월 동안 곡선 전체의 차이를 개월 단위로 요약한 값입니다. 곡선이 처음부터 끝까지 벌어져 있으면 둘 다 같은 방향을 가리키고, 곡선이 교차하면 한 시점의 생존율만으로는 오해할 수 있습니다. 논문에는 보통 중앙값과 미리 정한 시점의 생존율을 싣고, 필요하면 RMST를 함께 씁니다(<a href="stats.html#ch07-s2">보건통계학 기초 7장 b 절</a>).</p></div></details></div>
+</section>
+
+<!-- ============================================================ d -->
+<section class="sec" id="rc02-s4">
+<h2><span class="sec-no">d.</span>로그순위 검정과 그 밖의 비교</h2>
+
+<h3>survdiff()의 출력은 어떻게 읽나?</h3>
+<p><strong><code>survdiff()</code>는 군마다 관찰한 사건 수(Observed)와 두 군의 생존이 같다면 기대되는 사건 수(Expected)를 보여 주고, 그 차이로 로그순위 검정 통계량을 냅니다.</strong></p>
+<!--FIG:rc02_lr-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>survdiff(Surv(months, status) ~ sex_f, data = lung)</code><span>식은 <code>survfit()</code>과 같습니다.</span></li>
+<li><code>lr$pvalue</code><span>출력에는 p값이 반올림되어 찍히므로, 정확한 값은 결과 객체에서 꺼냅니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>남성 Observed 112, Expected 91.6.</b> 남성이 기대보다 20명쯤 더 사망했습니다. 실습 7에서 손으로 계산한 O = 112, E = 91.58과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>(O−E)²/V 10.3.</b> 로그순위 검정 통계량입니다. 두 군이면 두 행의 값이 같습니다. 바로 왼쪽 열 (O−E)²/E는 근사값이라 검정에 쓰지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>p= 0.001.</b> 자유도 1의 카이제곱 분포로 구한 p값입니다.</span></li>
+<li><span class="mk">4</span><span><b>0.001311165.</b> 반올림하지 않은 p값입니다. 그림의 p = 0.0013, 실습 7의 결과와 같습니다.</span></li>
+</ol>
+
+<h3>곡선 앞쪽의 차이에 무게를 두려면?</h3>
+<p><strong><code>rho = 1</code>을 주면 생존율이 높은 앞쪽 시점에 무게를 더 주는 Peto-Peto 검정이 됩니다.</strong> 기본값 <code>rho = 0</code>이 로그순위 검정입니다<cite data-ref="harrington1982"></cite>.</p>
+<!--FIG:rc02_rho-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Observed 70.4.</b> 사건 수가 정수가 아닌 것은 시점마다 무게(그 시점의 생존율)를 곱해 더했기 때문입니다.</span></li>
+<li><span class="mk">2</span><span><b>Chisq= 12.7.</b> 실습 7의 Peto-Peto 결과 12.71과 같습니다. 두 성별의 차이가 앞쪽에서 더 뚜렷해 로그순위 검정(10.3)보다 큽니다.</span></li>
+</ol>
+<p>어느 검정을 쓸지는 결과를 보기 전에 정합니다. 여러 가중 검정을 돌려 p값이 가장 작은 것을 보고하면 제1종 오류가 커집니다(<a href="stats.html#ch07-s3">보건통계학 기초 7장 c 절</a>).</p>
+
+<h3>세 군 이상은 어떻게 비교하나?</h3>
+<p><strong>군 변수에 셋 이상의 수준이 있으면 <code>survdiff()</code>는 전체 검정을 하고, 두 군씩 비교는 survminer의 <code>pairwise_survdiff()</code>로 다중비교를 보정해 합니다.</strong></p>
+<!--FIG:rc02_ecog-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>ifelse(lung$ph.ecog &gt;= 2, "2+", lung$ph.ecog)</code><span>ECOG 2와 3을 한 군(2+)으로 묶습니다. ECOG 3은 한 명뿐입니다.</span></li>
+<li><code>table(…, useNA = "ifany")</code><span>결측(NA)이 있으면 그 인원도 보여 줍니다.</span></li>
+<li><code>pairwise_survdiff(…, p.adjust.method = "bonferroni")</code><span>세 쌍의 로그순위 검정 p값을 Bonferroni 방법으로 보정합니다. <code>"holm"</code>이나 <code>"BH"</code>도 쓸 수 있습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>NA 1명.</b> ECOG가 기록되지 않은 환자입니다.</span></li>
+<li><span class="mk">2</span><span><b>1 observation deleted due to missingness.</b> 결측인 한 명을 빼고 227명으로 검정했다는 안내입니다. R은 결측을 조용히 빼는 경우가 많으므로 이 줄을 확인합니다.</span></li>
+<li><span class="mk">3</span><span><b>Chisq= 19, 자유도 2.</b> 세 군의 생존이 모두 같다는 귀무가설의 검정입니다. 실습 7의 18.98과 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>0과 1의 비교 0.1890.</b> 보정한 p값입니다. ECOG 2+는 다른 두 군과 차이가 뚜렷하고, 0과 1의 차이는 뚜렷하지 않습니다.</span></li>
+</ol>
+
+<h3>RMST의 차이와 신뢰구간은 어떻게 구하나?</h3>
+<p><strong><code>summary(…, rmean = 24)$table</code>에서 군별 RMST와 표준오차를 꺼내 차이와 95% 신뢰구간을 계산합니다.</strong> 비례위험 가정이 필요 없는 요약값이라, 곡선이 교차하는 자료에서 위험비 대신 쓰입니다<cite data-ref="royston2013"></cite>.</p>
+<!--FIG:rc02_rmst-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>[, c("rmean", "se(rmean)")]</code><span>표에서 두 열만 꺼냅니다. 열 이름에 괄호가 있어 따옴표로 씁니다.</span></li>
+<li><code>sqrt(sum(rm[, "se(rmean)"]^2))</code><span>두 군이 독립이므로 차이의 표준오차는 두 표준오차의 제곱합의 제곱근입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>10.22.</b> 남성의 24개월 RMST입니다. 실습 7의 10.22개월, 14.28개월과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>4.06 (1.91–6.21).</b> 24개월 동안 여성이 평균 4.1개월 더 살았습니다. 실습 7과 같습니다. survRM2 패키지의 <code>rmst2()</code>로도 구할 수 있습니다.</span></li>
+</ol>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>Surv(시간, 사건)</code>은 0/1, 1/2, TRUE/FALSE를 모두 읽고, 큰 값(또는 TRUE)을 사건으로 봅니다. 자료를 받으면 <code>table()</code>로 사건 변수부터 확인합니다.</li>
+<li><code>survfit()</code>의 신뢰구간은 log 방식이 기본이고, lifelines와 같은 구간을 원하면 <code>conf.type = "log-log"</code>를 줍니다. 생존율과 표준오차는 같습니다.</li>
+<li><code>summary(fit)$table</code>과 <code>summary(fit, times =)</code>에서 숫자를 꺼내 요약표를 만들고, 그림은 <code>ggsurvplot()</code>에 위험집합 표를 붙여 그립니다.</li>
+<li><code>survdiff()</code>는 로그순위 검정(<code>rho = 0</code>)이 기본이고, 결측이 있는 행은 안내 한 줄과 함께 빠집니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc02-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. ECOG 군별 요약표</h3>
+<p>셀 8의 요약표 코드를 ECOG 세 군(0, 1, 2+)에 맞게 고쳐 군별 인원, 사망 수, 중앙생존기간, 1년 생존율을 구하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc02_t1-->
+<p>ECOG 2+군의 중앙생존기간은 6.0개월로, ECOG 0군(12.9개월)의 절반쯤입니다. 1년 생존율도 21.0%와 53.5%로 차이가 큽니다. 군 이름 열에 <code>ecog=0</code>처럼 변수 이름이 붙는 것은 <code>rownames(st)</code>를 그대로 썼기 때문이고, <code>levels(lung$ecog)</code>로 바꾸면 이름만 남습니다. 결측 한 명은 세 군 어디에도 들어가지 않아 인원의 합이 227명입니다.</p>
+</div></details>
+
+<h3>과제 2. ECOG로 층화한 로그순위 검정</h3>
+<p>성별의 로그순위 검정을 ECOG(0, 1, 2+)로 층화해 다시 하세요. 식에 <code>strata(ecog)</code>를 더합니다. 층화하지 않은 결과와 비교할 때는 같은 227명에서 비교하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc02_t2-->
+<p>층화한 χ²는 11.1, 같은 227명에서 층화하지 않은 χ²는 10.0입니다. 실습 7의 11.05와 10.01과 같습니다. 층화 검정은 ECOG가 같은 환자끼리 남녀를 비교한 결과를 더한 것인데, 남녀의 ECOG 분포가 비슷해서(실습 7 과제 2) 결론이 거의 같습니다. 비교 대상을 227명으로 맞추려고 <code>subset = !is.na(ecog)</code>를 썼습니다. 228명 전체의 10.3과 비교하면 인원이 달라 차이의 원인을 가릴 수 없습니다.</p>
+</div></details>
+
+<h3>과제 3. 사건 변수를 잘못 만들면</h3>
+<p>status를 0/1로 다시 만들려다 <code>as.integer(lung$status &gt; 0)</code>로 잘못 만들었다고 합시다. 이 변수로 구한 Kaplan-Meier의 사건 수와 중앙생존기간은 어떻게 되나요? 오류 메시지는 나오나요?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc02_t3-->
+<p>status는 1 또는 2이므로 모두 0보다 커서 228명 전원이 사망으로 계산되고, 중앙생존기간이 8.39개월로 짧아집니다. 오류나 경고는 하나도 나오지 않습니다. 맞는 변환은 <code>as.integer(lung$status == 2)</code>입니다. 실습 7의 같은 실수에서는 중앙값이 252일(8.28개월)이었는데, R은 생존율이 정확히 0.5인 구간이 있으면 그 구간의 가운데(252일과 259일의 가운데)를 중앙값으로 삼아 조금 다릅니다. 새로 만든 사건 변수는 <code>table(새 변수, 원래 변수)</code>로 꼭 맞춰 봅니다.</p>
+</div></details>
+</section>

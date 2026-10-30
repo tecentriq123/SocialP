@@ -37,7 +37,11 @@ local({
   res <- list()
   for (i in seq_along(cells)) {
     cl <- cells[[i]]
-    ev <- evaluate::evaluate(cl$run, envir = globalenv(), new_device = TRUE, stop_on_error = 1L,
+    # record on a PNG device of the same kind and size as the final image (evaluate's own device is pdf/ragg at 7 x 7 in),
+    # so base-graphics text widths (legend()) match when the plot is replayed
+    grDevices::png(tempfile(fileext = ".png"), width = cl$fig[[1]], height = cl$fig[[2]], units = "in", res = 100, type = "cairo")
+    grDevices::dev.control(displaylist = "enable")
+    ev <- evaluate::evaluate(cl$run, envir = globalenv(), new_device = FALSE, stop_on_error = 1L,
                              output_handler = evaluate::new_output_handler())
     txt <- character(0); warns <- character(0); err <- NULL; imgs <- character(0); k <- 0
     for (it in ev) {
@@ -62,6 +66,8 @@ local({
         imgs <- c(imgs, f)
       }
     }
+    if (identical(cl$fig_keep, "last") && length(imgs) > 1) imgs <- imgs[length(imgs)]
+    while (grDevices::dev.cur() > 1) grDevices::dev.off()
     res[[i]] <- list(text = paste(txt, collapse = ""), warns = as.list(warns), error = err, images = as.list(imgs))
     if (!is.null(err) && !isTRUE(cl$expect_error)) { res[[i]]$fatal <- TRUE; break }
   }
@@ -71,8 +77,9 @@ local({
 
 
 class RCell:
-    def __init__(self, n, code, title, expect_error, fig, messages, shell_output):
+    def __init__(self, n, code, title, expect_error, fig, messages, shell_output, fig_keep="last"):
         self.n, self.code, self.title = n, code, title
+        self.fig_keep = fig_keep
         self.expect_error, self.fig, self.messages = expect_error, fig, messages
         self.shell_out = (shell_output.rstrip() + "\n") if shell_output else ""
         self.text, self.warns, self.error, self.images = "", [], None, []
@@ -84,9 +91,11 @@ class RNotebook:
         self.cells = []
         self.ran = False
 
-    def cell(self, code, title="", expect_error=False, fig=(7, 4.5), messages=True, shell_output=None):
+    def cell(self, code, title="", expect_error=False, fig=(7, 4.5), messages=True, shell_output=None, fig_keep="last"):
+        """fig_keep="last": a base-graphics cell (plot() then axis(), abline() …) records one plot per call; keep the finished one.
+        fig_keep="all" keeps every recorded plot (a cell that draws several separate figures)."""
         code = textwrap.dedent(code).strip("\n")
-        c = RCell(len(self.cells) + 1, code, title, expect_error, fig, messages, shell_output)
+        c = RCell(len(self.cells) + 1, code, title, expect_error, fig, messages, shell_output, fig_keep)
         self.cells.append(c)
         return c
 
@@ -101,7 +110,7 @@ class RNotebook:
     def run(self):
         with tempfile.TemporaryDirectory(prefix=f"rkit_{self.name}_") as tmp:
             spec = [{"run": self._runnable(c.code), "expect_error": c.expect_error, "fig": list(c.fig),
-                     "messages": c.messages} for c in self.cells]
+                     "messages": c.messages, "fig_keep": c.fig_keep} for c in self.cells]
             sp = os.path.join(tmp, "cells.json"); dp = os.path.join(tmp, "driver.R")
             with open(sp, "w", encoding="utf-8") as f:
                 json.dump(spec, f, ensure_ascii=False)

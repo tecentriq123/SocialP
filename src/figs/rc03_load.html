@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">PBC 자료에서 무작위배정 환자 고르기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(survival)
+d &lt;- subset(pbc, !is.na(trt))      # 무작위배정된 312명만
+nrow(d)
+table(status = d$status, trt = d$trt)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 312<span class="mk">1</span>
+      trt
+status  1  2
+     0 83 85
+     1 10  9
+     2 65 60<span class="mk">2</span></pre></div></div>

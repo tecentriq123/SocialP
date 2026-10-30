@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">결측이 있는 변수를 넣으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">coxph(Surv(years, death) ~ dpca + chol, data = d)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+coxph(formula = Surv(years, death) ~ dpca + chol, data = d)
+
+          coef exp(coef)  se(coef)     z        p
+dpca 0.1308675 1.1398167 0.1878031 0.697 0.485907
+chol 0.0011415 1.0011421 0.0003097 3.685 0.000228
+
+Likelihood ratio test=10.61  on 2 df, p=0.004957
+n= 284<span class="mk">1</span>, number of events= 114 
+   (28 observations deleted due to missingness)<span class="mk">2</span></pre></div></div>

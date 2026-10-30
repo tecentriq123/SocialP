@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">신뢰구간을 log-log 방식으로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km_ll &lt;- survfit(Surv(months, status) ~ 1, data = lung, conf.type = &quot;log-log&quot;)
+km_ll
+summary(km_ll, times = c(6, 12, 24))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(months, status) ~ 1, data = lung, conf.type = &quot;log-log&quot;)
+
+       n events median 0.95LCL 0.95UCL
+[1,] 228    165   10.2    9.33    11.9<span class="mk">1</span>
+Call: survfit(formula = Surv(months, status) ~ 1, data = lung, conf.type = &quot;log-log&quot;)
+
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+    6    156      66    0.708  0.0303       0.6440        0.763
+   12     65      55    0.409  0.0358       0.3387        0.478<span class="mk">2</span>
+   24     13      38    0.116  0.0283       0.0676        0.178</pre></div></div>

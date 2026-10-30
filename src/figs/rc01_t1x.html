@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 1 정답: factorVars를 빼면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">t0 &lt;- CreateTableOne(vars = vars, strata = &quot;smoke_f&quot;, data = bw)   # factorVars 없이
+print(t0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 Stratified by smoke_f
+                  Nonsmoker        Smoker           p      test
+  n                   115               74                     
+  age (mean (SD))   23.43 (5.47)     22.95 (5.05)    0.545     
+  lwt (mean (SD))  130.90 (28.43)   128.14 (33.79)   0.546     
+  race (%)                                          &lt;0.001     
+     white             44 (38.3)        52 (70.3)              
+     black             16 (13.9)        10 (13.5)              
+     other             55 (47.8)        12 (16.2)              
+  ptd (mean (SD))    0.10 (0.31)<span class="mk">1</span>      0.24 (0.43)    0.011<span class="mk">2</span>     
+  ht (mean (SD))     0.06 (0.24)      0.07 (0.25)    0.855     
+  ui (mean (SD))     0.13 (0.34)      0.18 (0.38)    0.395     
+  ftv (mean (SD))    0.82 (0.98)      0.76 (1.18)    0.702     
+  bwt (mean (SD)) 3055.70 (752.66) 2771.92 (659.63)  0.009     
+  low (mean (SD))    0.25 (0.44)      0.41 (0.49)    0.027</pre></div></div>

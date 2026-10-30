@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">24개월 제한평균생존시간(RMST)의 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rm &lt;- summary(km_sex, rmean = 24)$table[, c(&quot;rmean&quot;, &quot;se(rmean)&quot;)]
+rm
+d  &lt;- rm[&quot;sex_f=Female&quot;, &quot;rmean&quot;] - rm[&quot;sex_f=Male&quot;, &quot;rmean&quot;]
+se &lt;- sqrt(sum(rm[, &quot;se(rmean)&quot;]^2))
+round(c(diff = d, lower = d - 1.96 * se, upper = d + 1.96 * se), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                rmean se(rmean)
+sex_f=Male   10.22<span class="mk">1</span>281 0.6343960
+sex_f=Female 14.28497 0.8957579
+ diff lower upper 
+ 4.06<span class="mk">2</span>  1.91  6.21</pre></div></div>

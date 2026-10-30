@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">교차표와 행 백분율</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tab &lt;- table(smoke = bw$smoke_f, low = bw$low)
+addmargins(tab)
+round(100 * prop.table(tab, margin = 1), 1)      # 행 백분율</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           low
+smoke         0   1 Sum
+  Nonsmoker  86  29 115
+  Smoker     44  30  74
+  Sum       130  59 189<span class="mk">1</span>
+           low
+smoke          0    1
+  Nonsmoker 74.8 25.2
+  Smoker    59.5 40.5<span class="mk">2</span></pre></div></div>

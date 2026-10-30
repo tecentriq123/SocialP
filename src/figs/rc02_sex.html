@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">성별 Kaplan-Meier</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lung$sex_f &lt;- factor(lung$sex, levels = 1:2, labels = c(&quot;Male&quot;, &quot;Female&quot;))
+km_sex &lt;- survfit(Surv(months, status) ~ sex_f, data = lung, conf.type = &quot;log-log&quot;)
+print(km_sex, rmean = 24)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(months, status) ~ sex_f, data = lung, 
+    conf.type = &quot;log-log&quot;)
+
+               n events rmean*<span class="mk">1</span> se(rmean) median 0.95LCL 0.95UCL
+sex_f=Male   138    112   10.2     0.634   8.87     6.9    10.1<span class="mk">2</span>
+sex_f=Female  90     53   14.3     0.896  14.00    11.3    17.2
+    * restricted mean with upper limit =  24</pre></div></div>

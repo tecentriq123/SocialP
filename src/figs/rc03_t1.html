@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 1 정답: 빌리루빈과 나이의 위험비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b &lt;- coef(fit)
+exp(b[&quot;log2(bili)&quot;] * log2(c(2 / 1, 10 / 5, 11 / 10)))   # 1→2, 5→10, 10→11 mg/dL
+exp(2 * b[&quot;age10&quot;])                                         # 20세 많을 때</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 1.841882 1.841882 1.087613<span class="mk">1</span>
+   age10 
+1.874345</pre></div></div>

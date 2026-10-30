@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">부종으로 층화한 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_s &lt;- coxph(Surv(years, death) ~ dpca + age10 + female + log2(bili) +
+                 albumin + protime + strata(edema), data = d)
+fit_s</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+coxph(formula = Surv(years, death) ~ dpca + age10 + female + 
+    log2(bili) + albumin + protime + strata(edema), data = d)
+
+               coef exp(coef) se(coef)      z        p
+dpca       -0.08162   0.92162<span class="mk">1</span>  0.19410 -0.421 0.674105
+age10       0.31802   1.37440  0.09428  3.373 0.000743
+female     -0.33855   0.71280  0.25393 -1.333 0.182456
+log2(bili)  0.59318   1.80973  0.06926  8.564  &lt; 2e-16
+albumin    -0.93436   0.39284  0.23858 -3.916 8.99e-05
+protime     0.25693   1.29295  0.08503  3.022 0.002515
+
+Likelihood ratio test=132.3  on 6 df<span class="mk">2</span>, p=&lt; 2.2e-16
+n= 312, number of events= 125</pre></div></div>

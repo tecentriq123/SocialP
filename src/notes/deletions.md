@@ -1976,3 +1976,9 @@ PART4_TWOLEVEL.md에 따라 방법 장·개념 장·종합 장의 다섯 단계 
 - [새 과목] course_r.py(장 id rc00–rc09, 참고문헌 rc90), r.html. 홈 화면에 세 번째 과목 카드. 중심은 경제성 평가를 위한 생존분석(참고: 임성진, 위키독스 '항암제 경제성 평가에서 생존분석: A Primary'의 범위와 순서만 참고, 글·코드는 새로 씀)
 - [새 장] 0장 'R 시작하기'(rcc_cost.csv, 21장과 숫자 대조), 4장 '모수적 생존모형과 외삽'(rcc_trial.csv, 23장 d 절의 AIC·생존율·20년 평균 생존과 대조, 스플라인·PH/AFT 표현, 과제 3개)
 - [도구] gen/rkit.py(R 셀을 한 세션에서 실제로 실행해 labkit과 같은 HTML로, R 노트북 ipynb 저장), gen/r_rc00.py, gen/r_rc04.py. R 4.4.3은 conda-forge에서 /home/claude/renv에 설치(micromamba). refs_add/rc.py에 문헌 7개
+
+## R 과목 이름 변경과 1–3장 (2026-10-30)
+- [이름] 'R로 하는 연구 분석' → 'R과 통계분석'(course_r.py, build.py 홈 카드, shell.html 홈 문구, 노트북 제목). 홈 화면의 과목 카드를 넓은 화면에서 두 칸 배치로(.parts, 700px 이상 2열, 셋째 카드는 아랫줄)
+- [R 판] tableone 설치 때 conda-forge가 R을 4.5.3으로 올림. 0·4장 출력은 그대로(숫자 대조 통과), 본문의 판 표기만 4.5.3으로
+- [새 장] 1장 'Table 1, 군 비교와 회귀'(MASS::birthwt, 실습 2·5·9와 대조. tableone의 기본 검정, t.test의 Welch 기본, chisq.test의 Yates 기본, fisher.test의 조건부 교차비, glm의 Wald·프로파일 구간). 2장 '생존 자료와 Kaplan-Meier'(survival::lung, 실습 7과 대조. Surv의 1/2 부호, survfit의 log 구간 기본과 log-log, 요약표, survminer 그림, survdiff·rho·짝 비교·RMST). 3장 'Cox 모형과 비례위험 점검'(survival::pbc, 실습 11과 대조. 결측 행 제외, 위험비 표, update·AIC, cox.zph가 lifelines와 다른 이유, 잔차·log-log 그림, 층화, survSplit·tt 기간별 위험비, 직접 표준화 곡선과 lifelines 보간 차이)
+- [도구] rkit: 셀의 기본 그림 저장을 마지막 한 장으로(fig_keep), 그림을 최종 PNG와 같은 장치·크기에서 기록해 base 그래픽 범례 글자가 겹치지 않게. refs_add/rc.py에 venables2002mass, yoshida_tableone, robinson_broom

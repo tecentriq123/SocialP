@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">선형회귀로 보정한 체중 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_lm &lt;- lm(bwt ~ age + lwt + race + smoke + ptd + ht + ui, data = bw)
+round(cbind(estimate = coef(fit_lm), confint(fit_lm)), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            estimate  2.5 % 97.5 %
+(Intercept)   2919.2 2307.8 3530.7
+age             -2.4  -21.0   16.3
+lwt              4.1    0.8    7.5
+raceblack     -473.7<span class="mk">2</span> -768.0 -179.5
+raceother     -338.5 -563.7 -113.4
+smoke         -328.1<span class="mk">1</span> -537.2 -119.1
+ptd           -202.2 -470.1   65.6
+ht            -576.6 -970.8 -182.3
+ui            -493.6 -763.3 -223.9</pre></div></div>

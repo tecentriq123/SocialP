@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 3 정답: 사건 변수를 잘못 만들면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lung$dead_wrong &lt;- as.integer(lung$status &gt; 0)    # 실수: 모두 1이 된다
+table(lung$dead_wrong)
+survfit(Surv(months, dead_wrong) ~ 1, data = lung)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+  1 
+228 
+Call: survfit(formula = Surv(months, dead_wrong) ~ 1, data = lung)
+
+       n events median 0.95LCL 0.95UCL
+[1,] 228    228   8.39<span class="mk">1</span>    7.39     9.4</pre></div></div>

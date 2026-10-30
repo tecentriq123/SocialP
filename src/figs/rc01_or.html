@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">오즈비와 두 가지 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(exp(cbind(OR = coef(fit_lr), confint.default(fit_lr))), 3)   # Wald 구간
+round(exp(confint(fit_lr)), 3)                                      # 프로파일 우도 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               OR 2.5 % 97.5 %
+(Intercept) 1.891 0.170 21.078
+age         0.963 0.894  1.037
+lwt         0.985 0.972  0.999
+raceblack   3.363 1.184  9.548
+raceother   2.235 0.928  5.382
+smoke       2.331 1.048  5.187<span class="mk">1</span>
+ptd         3.393 1.369  8.408
+ht          6.288 1.585 24.954
+ui          2.036 0.822  5.047
+Waiting for profiling to be done...<span class="mk">2</span>
+            2.5 % 97.5 %
+(Intercept) 0.175 22.277
+age         0.892  1.036
+lwt         0.971  0.998
+raceblack   1.186  9.734
+raceother   0.938  5.501
+smoke       1.058  5.293<span class="mk">3</span>
+ptd         1.382  8.602
+ht          1.640 27.258<span class="mk">4</span>
+ui          0.812  5.058</pre></div></div>

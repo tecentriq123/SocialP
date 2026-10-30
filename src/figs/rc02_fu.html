@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">중앙 추적기간 (역 Kaplan-Meier)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">survfit(Surv(months, status == 1) ~ 1, data = lung)   # 중도절단을 사건으로 본 역 KM</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(months, status == 1) ~ 1, data = lung)
+
+       n events median 0.95LCL 0.95UCL
+[1,] 228     63   19.3<span class="mk">1</span>    16.8    33.2</pre></div></div>

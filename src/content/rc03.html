@@ -1,0 +1,259 @@
+<p class="lead">Cox 비례위험모형은 R의 survival 패키지를 만든 Therneau가 직접 다듬어 온 분야라, 결측 처리, 동점 처리, 비례위험 검정, 시간에 따라 변하는 효과까지 모두 같은 패키지 안에 있습니다. 이 장에서는 원발성 담즙성 간경변 무작위배정 312명의 자료로 Cox 모형을 맞추고, 위험비 표를 만들고, 비례위험 가정을 점검하고, 가정이 어긋날 때의 대안과 보정 생존곡선을 다룹니다. 보건통계학 기초의 파이썬 실습 11과 같은 자료라서 위험비는 그대로 맞습니다. 비례위험 검정의 숫자만은 두 프로그램의 계산 방식이 달라 다르게 나옵니다.</p>
+
+<p class="nb-link"><a href="notebooks/rc03.ipynb" download>이 장의 노트북 내려받기 (rc03.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3, survival 3.8, broom으로 실제로 실행해 얻었습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>위험비와 비례위험 가정의 개념은 보건통계학 기초 <a href="stats.html#ch11">11장</a>, <code>Surv()</code>와 <code>survfit()</code>은 이 과목 <a href="#rc02">2장</a>에 있습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절, b 절의 셀 4–6, c 절의 셀 8과 10.</dd>
+<dt>나중에 읽을 부분</dt><dd>d 절의 층화, 기간별 위험비, 보정 생존곡선은 내 자료에서 비례위험 가정이 어긋나거나 군별 보정 곡선이 필요할 때 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① <code>coxph()</code>로 모형을 맞추고 위험비, 신뢰구간, 일치도를 읽고 표로 옮길 수 있다 ② <code>cox.zph()</code>의 검정과 그림으로 비례위험 가정을 점검할 수 있다 ③ 층화, 기간별 위험비, 직접 표준화한 보정 생존곡선을 R로 만들 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rc03-s1">
+<h2><span class="sec-no">a.</span>분석할 자료 만들기</h2>
+
+<h3>이 장의 자료는 무엇인가?</h3>
+<p><strong>Mayo Clinic에서 원발성 담즙성 간경변 환자에게 D-penicillamine과 위약을 무작위배정한 시험의 자료로, survival 패키지에 <code>pbc</code>라는 이름으로 들어 있습니다.</strong> 418명 가운데 무작위배정된 312명만 씁니다<cite data-ref="dickson1989"></cite>. 나머지 106명은 시험에 참여하지 않고 기본 정보만 수집된 환자입니다.</p>
+<!--FIG:rc03_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>subset(pbc, !is.na(trt))</code><span>치료군(<code>trt</code>)이 기록된 행만 남깁니다. <code>!</code>는 '아니다'라는 뜻이라 결측이 아닌 행입니다.</span></li>
+<li><code>table(status = d$status, trt = d$trt)</code><span>사건 변수와 치료군의 교차표입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>312.</b> 무작위배정된 환자 수입니다.</span></li>
+<li><span class="mk">2</span><span><b>status 2.</b> status는 0 중도절단, 1 간이식, 2 사망의 세 값입니다. 사망은 D-penicillamine군(trt 1) 65명, 위약군(trt 2) 60명입니다.</span></li>
+</ol>
+
+<h3>사건과 공변량은 어떻게 만드나?</h3>
+<p><strong>status가 세 값이라 <code>Surv()</code>에 그대로 넣을 수 없고, 사망만 1인 사건 변수를 새로 만듭니다.</strong> <a href="#rc02-s1">2장 a 절</a>에서 본 것처럼 0, 1, 2가 섞이면 R은 0을 결측으로 바꾸기 때문입니다. 간이식은 그 시점에 중도절단된 것으로 봅니다.</p>
+<!--FIG:rc03_vars-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>as.integer(d$status == 2)</code><span>사망이면 1, 간이식과 생존이면 0입니다.</span></li>
+<li><code>d$dpca &lt;- as.integer(d$trt == 1)</code><span>치료군을 D-penicillamine = 1, 위약 = 0으로 바꿉니다. 원래 1/2로 적힌 변수를 그대로 넣으면 계수의 방향을 헷갈리기 쉽습니다.</span></li>
+<li><code>factor(d$edema)</code><span>부종(0 없음, 0.5 이뇨제 없이 있거나 이뇨제로 사라짐, 1 이뇨제에도 남음)을 범주로 바꿉니다. 숫자로 두면 0.5와 1 사이를 같은 간격으로 보는 기울기 하나가 됩니다.</span></li>
+<li><code>colSums(is.na(d))[colSums(is.na(d)) &gt; 0]</code><span>열마다 결측의 수를 세고, 결측이 있는 열만 보여 줍니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>chol 28.</b> 콜레스테롤은 28명이 결측입니다. 이 장의 모형에 쓰는 변수에는 결측이 없습니다.</span></li>
+</ol>
+</section>
+
+<!-- ============================================================ b -->
+<section class="sec" id="rc03-s2">
+<h2><span class="sec-no">b.</span>Cox 모형과 위험비</h2>
+
+<h3>coxph()의 출력은 어떻게 읽나?</h3>
+<p><strong><code>coxph()</code>의 식은 <code>survfit()</code>과 같고, <code>summary()</code>는 계수, 위험비와 95% 신뢰구간, 일치도, 모형 전체의 세 가지 검정을 보여 줍니다.</strong> 치료만 넣은 모형부터 봅니다.</p>
+<!--FIG:rc03_uni-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>coxph(Surv(years, death) ~ dpca, data = d)</code><span>Cox 모형을 맞춥니다. 동점 처리는 Efron 방법이 기본이고, lifelines의 기본과 같습니다<cite data-ref="therneau2000"></cite>.</span></li>
+<li><code>survdiff(…)$chisq</code><span>같은 두 군의 로그순위 검정 통계량입니다. Cox 모형의 점수(Score) 검정과 비교하려고 꺼냈습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>n= 312, number of events= 125.</b> 분석에 쓰인 인원과 사건 수입니다. 결측으로 빠진 사람이 있으면 이 숫자가 줄어듭니다.</span></li>
+<li><span class="mk">2</span><span><b>exp(coef) 1.05889.</b> 위험비입니다. 실습 11의 1.059와 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>0.7453–1.504.</b> 위험비의 95% 신뢰구간입니다. 바로 왼쪽의 exp(−coef) 0.9444는 기준을 바꾼 위험비(위약 대 D-penicillamine)입니다.</span></li>
+<li><span class="mk">4</span><span><b>Concordance= 0.499.</b> 모형이 두 환자 가운데 누가 먼저 사망할지 맞히는 비율입니다. 0.5는 동전 던지기와 같다는 뜻으로, 치료군만으로는 사망 순서를 전혀 가리지 못합니다.</span></li>
+<li><span class="mk">5</span><span><b>Score (logrank) test.</b> 우도비, Wald, 점수의 세 검정입니다. 변수가 군 하나뿐이면 점수 검정이 로그순위 검정에 해당합니다.</span></li>
+<li><span class="mk">6</span><span><b>0.1017.</b> 로그순위 검정 통계량입니다. 실습 11의 0.1017과 같습니다.</span></li>
+</ol>
+
+<h3>다변수 모형은 어떻게 맞추나?</h3>
+<p><strong>식에 변수를 더하면 되고, 로그 변환처럼 간단한 변환은 식 안에서 <code>log2(bili)</code>로 바로 씁니다.</strong> 모형은 실습 11과 같습니다.</p>
+<!--FIG:rc03_multi-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>log2(bili)</code><span>빌리루빈을 밑이 2인 로그로 바꿔 넣습니다. 계수는 빌리루빈이 두 배가 될 때의 로그 위험비가 됩니다. 자료에 새 열을 만들 필요가 없고, 출력에도 이 이름 그대로 나옵니다.</span></li>
+<li><code>edema</code><span>factor라서 R이 기준범주(0, 부종 없음)와 비교하는 가변수 둘을 만듭니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>log2(bili) 1.84188.</b> 다른 변수가 같다면 빌리루빈이 두 배일 때 사망 위험이 1.84배입니다.</span></li>
+<li><span class="mk">2</span><span><b>edema1 2.58203.</b> 이뇨제에도 부종이 남는 환자는 부종이 없는 환자보다 사망 위험이 2.58배입니다.</span></li>
+<li><span class="mk">3</span><span><b>D-penicillamine 0.6416–1.3699.</b> 보정한 뒤에도 치료의 위험비 0.938은 1과 가깝고 구간이 넓습니다.</span></li>
+<li><span class="mk">4</span><span><b>Concordance= 0.846.</b> 공변량을 넣으면 사망 순서를 잘 가립니다. 실습 11과 같습니다.</span></li>
+<li><span class="mk">5</span><span><b>201.6 on 8 df.</b> 여덟 계수가 모두 0이라는 귀무가설의 우도비 검정입니다.</span></li>
+</ol>
+
+<h3>결측이 있는 변수를 넣으면 어떻게 되나?</h3>
+<p><strong>R은 결측이 있는 행을 빼고 모형을 맞춘 뒤, 출력 끝에 몇 명을 뺐는지 한 줄로 알려 줍니다.</strong> 실습 11의 lifelines는 같은 상황에서 오류를 내고 멈췄습니다. 오류가 없으니 편하지만, 그만큼 빠진 인원을 놓치기 쉽습니다.</p>
+<!--FIG:rc03_na-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>n= 284.</b> 312명 가운데 284명, 사건 125건 가운데 114건만 분석에 쓰였습니다.</span></li>
+<li><span class="mk">2</span><span><b>28 observations deleted due to missingness.</b> 콜레스테롤이 결측인 28명이 빠졌습니다. 이 줄은 <code>summary()</code>의 출력에서도 확인합니다.</span></li>
+</ol>
+<p>변수를 바꿔 가며 여러 모형을 비교할 때는 인원이 같아야 하므로, 쓸 변수에 결측이 없는 사람으로 분석 자료를 먼저 정해 두고 모든 모형에 같은 자료를 씁니다. 결측이 많으면 다중대체를 생각합니다(<a href="stats.html#ap01-s4">보건통계학 기초 부록 A d 절</a>).</p>
+
+<h3>위험비 표는 어떻게 만드나?</h3>
+<p><strong><a href="#rc01-s5">1장 e 절</a>의 로지스틱 회귀 표와 같은 코드로 만듭니다.</strong> Cox 모형의 <code>confint()</code>는 Wald 구간이라, <code>tidy()</code>의 구간도 Wald 구간이고 실습 11의 표와 같습니다.</p>
+<!--FIG:rc03_tab-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0.94 (0.64-1.37).</b> 실습 11의 위험비 표와 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>&lt;0.001.</b> <code>eps = 0.001</code>보다 작은 p값입니다.</span></li>
+</ol>
+
+<h3>연속형 변수를 어떤 꼴로 넣을지는 어떻게 정하나?</h3>
+<p><strong><code>update()</code>로 식의 일부만 바꾼 모형을 만들고, <code>AIC()</code>로 두 모형을 비교합니다.</strong> 빌리루빈은 오른쪽으로 길게 치우친 변수라 로그로 넣은 모형이 훨씬 잘 맞습니다.</p>
+<!--FIG:rc03_aic-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>update(fit, . ~ . - log2(bili) + bili)</code><span>점(<code>.</code>)은 '원래 식의 그 자리 그대로'라는 뜻입니다. 오른쪽에서 <code>log2(bili)</code>를 빼고 <code>bili</code>를 더한 모형을 같은 자료로 다시 맞춥니다.</span></li>
+<li><code>AIC(fit_lin, fit)</code><span>두 모형의 AIC를 한 표로 봅니다. Cox 모형은 부분우도로 계산합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1124.717.</b> 빌리루빈을 그대로 넣은 모형입니다.</span></li>
+<li><span class="mk">2</span><span><b>1094.350.</b> 로그로 넣은 모형이 30 작습니다. 실습 11의 부분 AIC와 같습니다.</span></li>
+</ol>
+
+<div class="quick"><p class="qk">잠깐 확인</p><p>동료가 같은 모형을 다른 통계 프로그램으로 맞췄더니 D-penicillamine의 위험비가 0.9376으로, 이 장의 0.9375와 넷째 자리가 달랐습니다. 무엇부터 확인할까요?</p><details><summary>답 보기</summary><div><p>동점 처리 방법입니다. R과 lifelines는 Efron 방법이 기본이고, Breslow 방법을 기본으로 쓰는 프로그램도 있습니다. R에서 <code>ties = "breslow"</code>를 주면 0.9376이 나옵니다. 이 자료는 같은 날 사망한 환자가 드물어 차이가 작지만, 날짜가 월 단위로만 기록된 자료처럼 동점이 많으면 차이가 커집니다. Methods에 동점 처리 방법을 적는 이유입니다.</p></div></details></div>
+</section>
+
+<!-- ============================================================ c -->
+<section class="sec" id="rc03-s3">
+<h2><span class="sec-no">c.</span>비례위험 가정 점검</h2>
+
+<h3>cox.zph()의 표는 어떻게 읽나?</h3>
+<p><strong><code>cox.zph()</code>는 변수마다 위험비가 시간에 따라 변하는지 검정하고, 맨 아래에 모든 변수를 한꺼번에 본 전체 검정(GLOBAL)을 붙입니다.</strong> 척도화 Schoenfeld 잔차가 시간과 관련이 있는지 보는 방법입니다(<a href="stats.html#ch11-s1">보건통계학 기초 11장</a>)<cite data-ref="grambsch1994"></cite>.</p>
+<!--FIG:rc03_zph-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>zph &lt;- cox.zph(fit)</code><span>맞춘 Cox 모형을 넣습니다. 결과를 담아 두면 다음의 그림에 다시 씁니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>edema 4.7242, 자유도 2, p 0.094.</b> R은 기본으로 변수(term) 단위로 검정합니다. 범주가 셋인 부종은 가변수 둘을 한꺼번에 검정해 자유도가 2입니다.</span></li>
+<li><span class="mk">2</span><span><b>protime 4.7670, p 0.029.</b> 프로트롬빈 시간의 위험비가 시간에 따라 변한다는 근거가 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>GLOBAL 12.2654, p 0.140.</b> 전체 검정은 뚜렷하지 않습니다. 변수 하나의 위반은 전체 검정에서 묻힐 수 있으므로 변수별 결과와 그림을 함께 봅니다.</span></li>
+</ol>
+
+<h3>lifelines의 결과와는 왜 다른가?</h3>
+<p><strong>시간을 바꾸는 방식과 검정통계량을 계산하는 방식이 둘 다 다릅니다.</strong> R의 시간 변환 기본값은 Kaplan-Meier 척도(<code>"km"</code>)이고, 실습 11은 순위(<code>"rank"</code>)를 썼습니다. 또 lifelines는 공변량의 분산이 시간에 따라 일정하다고 보는 예전 근사식을 쓰고, 지금의 <code>cox.zph()</code>는 그 가정 없이 계산합니다. 아래는 시간 변환을 실습 11과 맞추고 가변수마다 검정한 결과입니다.</p>
+<!--FIG:rc03_zph2-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>transform = "rank"</code><span>사건 시점의 순위를 시간으로 씁니다. 다른 선택지는 <code>"km"</code>(기본), <code>"identity"</code>(시간 그대로), <code>"log"</code>입니다.</span></li>
+<li><code>terms = FALSE</code><span>범주형 변수를 가변수마다 따로 검정합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>D-penicillamine 0.97, p 0.325.</b> 실습 11의 2.136(p 0.144)과 다릅니다. 시간 변환을 맞춰도 계산 방식이 달라 숫자가 같지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>edema0.5 3.86, p 0.049.</b> 실습 11은 4.500(p 0.034)이었습니다.</span></li>
+<li><span class="mk">3</span><span><b>protime 4.31, p 0.038.</b> 실습 11은 4.641(p 0.031)이었습니다.</span></li>
+</ol>
+<p>숫자는 달라도 두 프로그램이 가리키는 변수는 같습니다. 프로트롬빈 시간이 가장 의심스럽고, 부종은 경계에 있습니다. 비례위험 검정은 p값 하나로 판정하기보다 다음의 그림과 함께 위반이 결과를 바꿀 만큼 큰지 보는 도구입니다. 논문에는 어떤 검정과 시간 변환을 썼는지 적습니다.</p>
+
+<h3>잔차 그림은 어떻게 그리고 읽나?</h3>
+<p><strong><code>plot(zph, var = …)</code>는 시간에 따른 β(t)의 추정 곡선과 신뢰대를 그립니다. 곡선이 수평이면 위험비가 일정하다는 뜻입니다.</strong></p>
+<!--FIG:rc03_zplot-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>par(mfrow = c(1, 2))</code><span>그림 창을 1행 2열로 나눕니다. 이어지는 두 그림이 나란히 그려집니다.</span></li>
+<li><code>plot(zph, var = "dpca")</code><span>점은 사건마다의 척도화 Schoenfeld 잔차에 계수를 더한 값, 실선은 평활 곡선, 파선은 그 신뢰대입니다.</span></li>
+<li><code>abline(h = coef(fit)["dpca"], lty = 3)</code><span>모형이 가정한 일정한 계수를 점선으로 긋습니다.</span></li>
+</ol>
+<p>D-penicillamine의 곡선은 점선을 중심으로 조금 오르내리지만 신뢰대가 내내 점선을 품고 있습니다. 프로트롬빈 시간은 초기에 계수가 크고 3–4년 무렵부터 점선 아래로 내려갑니다. 위험비가 처음 몇 년에 더 크다는 뜻입니다. 가로축의 눈금(0.57, 3.2, 4.7 …)이 고르지 않은 것은 시간을 Kaplan-Meier 척도로 바꿔 그리고 눈금에는 원래 시간을 적었기 때문입니다.</p>
+
+<h3>범주형 변수는 log(−log) 그림으로도 볼 수 있나?</h3>
+<p><strong><code>plot(survfit(…), fun = "cloglog")</code>는 범주별 Kaplan-Meier 곡선을 log(−log S(t)) 척도로, 가로축을 로그 시간으로 그립니다. 비례위험이면 곡선들이 평행합니다.</strong></p>
+<!--FIG:rc03_ll-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>fun = "cloglog"</code><span>세로축을 log(−log S)로, 가로축을 로그 척도로 바꿉니다. <code>fun = "event"</code>는 누적발생(1 − S), <code>fun = "cumhaz"</code>는 누적위험을 그립니다.</span></li>
+<li><code>legend("topleft", …, bty = "n")</code><span>왼쪽 위에 테두리 없는 범례를 붙입니다.</span></li>
+</ol>
+<p>부종이 없는 군(검은 선)은 다른 두 군과 간격이 처음에 넓고 나중에 좁아집니다. 부종의 효과가 추적 초기에 더 크다는 뜻이고, 검정의 경계 결과와 같은 방향입니다. 다만 부종이 있는 두 군은 환자가 적어 곡선이 성깁니다.</p>
+
+<div class="quick"><p class="qk">잠깐 확인</p><p>전체 검정(GLOBAL)의 p값이 0.140이라 "비례위험 가정을 만족했다"라고 쓴 초안이 있습니다. 이 문장의 문제는 무엇일까요?</p><details><summary>답 보기</summary><div><p>두 가지입니다. 하나는 p값이 크다고 가정이 맞다는 증거가 되지는 않는다는 점입니다. 다른 하나는 변수별 검정에서 프로트롬빈 시간(p 0.029)이 위반을 보였고 그림에서도 초기와 후기의 계수가 달랐다는 점입니다. "전체 검정에서 뚜렷한 위반은 없었으나 프로트롬빈 시간은 위험비가 추적 초기에 더 컸고, 기간별 위험비로 민감도 분석을 했다"처럼 쓰고 d 절의 분석을 덧붙입니다.</p></div></details></div>
+</section>
+
+<!-- ============================================================ d -->
+<section class="sec" id="rc03-s4">
+<h2><span class="sec-no">d.</span>가정이 어긋날 때와 보정 생존곡선</h2>
+
+<h3>층화 Cox 모형은 어떻게 맞추나?</h3>
+<p><strong>식에 <code>strata(edema)</code>를 넣으면 부종 범주마다 기저위험을 따로 두고, 나머지 변수의 위험비는 공통으로 추정합니다.</strong> 부종의 비례위험을 가정할 필요가 없어지는 대신 부종의 위험비는 구하지 않습니다.</p>
+<!--FIG:rc03_str-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>D-penicillamine 0.92162.</b> 실습 11의 층화 모형 0.922와 같습니다. 층화하지 않은 0.938과 결론이 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>132.3 on 6 df.</b> 부종의 두 계수가 빠져 자유도가 6입니다. 층별 기저위험은 계수가 아니라서 우도비 검정에 들어가지 않습니다.</span></li>
+</ol>
+
+<h3>기간마다 다른 위험비는 어떻게 구하나?</h3>
+<p><strong><code>survSplit()</code>으로 추적 기간을 3년에서 나눈 긴 자료를 만들고, 프로트롬빈 시간과 '3년 뒤' 표시의 교호작용을 넣습니다.</strong> 한 사람의 추적이 여러 줄로 나뉘므로 시간은 (시작, 끝) 두 열로 줍니다(<a href="stats.html#ch16-s3">보건통계학 기초 16장 c 절</a>).</p>
+<!--FIG:rc03_split-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>survSplit(Surv(years, death) ~ ., data = d, cut = 3, episode = "period")</code><span>3년이 넘게 추적된 사람의 줄을 둘로 나눕니다. 시작 시간 열 <code>tstart</code>와 몇 번째 구간인지 나타내는 <code>period</code>가 생기고, 사건은 마지막 구간에만 남습니다.</span></li>
+<li><code>long[long$id %in% c(1, 4), …]</code><span>환자 번호(pbc 자료의 <code>id</code>) 1과 4의 줄만 봅니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>312명이 552줄.</b> 3년 넘게 추적된 240명의 줄이 둘로 나뉘었습니다.</span></li>
+<li><span class="mk">2</span><span><b>1.095140.</b> 환자 1은 1.1년에 사망해 한 줄입니다.</span></li>
+<li><span class="mk">3</span><span><b>3.000000.</b> 환자 4의 첫 줄은 3년에서 끝나고 사건은 0입니다.</span></li>
+<li><span class="mk">4</span><span><b>5.270363.</b> 둘째 줄은 3년에서 시작해 5.3년의 사망으로 끝납니다.</span></li>
+</ol>
+<!--FIG:rc03_tsp-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>Surv(tstart, years, death)</code><span>인자가 셋이면 (시작, 끝, 사건)입니다. 각 줄의 위험집합은 그 구간 동안만 포함됩니다.</span></li>
+<li><code>protime:late</code><span>3년 뒤 구간에서만 더해지는 프로트롬빈 시간의 계수입니다. 3년 뒤의 위험비는 두 계수를 더해 지수로 바꿉니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>처음 3년 1.5678.</b> 프로트롬빈 시간이 1초 길면 사망 위험이 1.57배입니다.</span></li>
+<li><span class="mk">2</span><span><b>교호작용 p 0.0234.</b> 두 기간의 위험비가 다르다는 검정입니다.</span></li>
+<li><span class="mk">3</span><span><b>3년 뒤 1.064.</b> 3년 뒤에는 효과가 거의 없습니다. 실습 11의 1.57과 1.06과 같습니다.</span></li>
+<li><span class="mk">4</span><span><b>D-penicillamine 0.9127.</b> 프로트롬빈 시간의 모형을 바꿔도 치료의 위험비는 거의 그대로입니다.</span></li>
+</ol>
+<p>같은 모형을 긴 자료 없이 <code>tt()</code>로도 맞출 수 있습니다. 식에 <code>tt(protime)</code>을 더하고 <code>tt = function(x, t, ...) x * (t &gt; 3)</code>을 주면 같은 계수가 나옵니다. 자르는 시점(3년)은 그림을 보고 정한 것이므로, 다른 시점으로 바꿔도 결론이 같은지 확인합니다.</p>
+
+<h3>군별 보정 생존곡선은 어떻게 그리나?</h3>
+<p><strong>모든 환자의 치료를 D-penicillamine으로 바꿔 312명의 예측 곡선을 평균하고, 위약으로 바꿔 한 번 더 평균하면 공변량 분포가 같은 두 곡선이 됩니다.</strong> 직접 표준화한 보정 생존곡선이라고 부르고, 공변량을 평균값에 고정한 곡선보다 해석이 분명합니다(<a href="stats.html#ch11-s1">보건통계학 기초 11장</a>의 접힌 상자 '보정 생존곡선은 어떻게 그리나?').</p>
+<!--FIG:rc03_std-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>survfit(fit, newdata = newd)</code><span>Cox 모형으로 <code>newd</code>의 사람마다 생존곡선을 예측합니다. 312명이면 곡선이 312개입니다.</span></li>
+<li><code>rowMeans(summary(…, times = times)$surv)</code><span>시점마다 312개 곡선의 생존율을 평균합니다. <code>$surv</code>는 시점이 행, 사람이 열인 행렬입니다.</span></li>
+<li><code>transform(d, dpca = 1)</code><span>자료의 다른 열은 그대로 두고 치료 열만 1로 바꾼 복사본을 만듭니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>5년 0.714.</b> 모든 환자가 D-penicillamine을 받았다면의 5년 생존율입니다. 위약은 0.704입니다.</span></li>
+</ol>
+<p>실습 11의 5년 값은 0.709와 0.699로 셋째 자리가 조금 다릅니다. lifelines는 시점을 정해 예측하면 사건 시점 사이의 기저 누적위험을 직선으로 이어 값을 구하고, R은 계단 모양 그대로 직전 사건 시점의 값을 씁니다. lifelines에서도 계단 값을 꺼내면 0.714가 나옵니다.</p>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li><code>coxph()</code>는 동점을 Efron 방법으로 처리하고, 결측이 있는 행을 안내 한 줄과 함께 뺍니다. 출력의 n과 사건 수를 확인합니다.</li>
+<li>위험비 표는 <code>tidy(fit, exponentiate = TRUE, conf.int = TRUE)</code>로 만들고, 연속형 변수의 꼴은 <code>update()</code>와 <code>AIC()</code>로 비교합니다.</li>
+<li><code>cox.zph()</code>는 변수 단위 검정과 KM 척도 시간이 기본이고, lifelines와 계산 방식이 달라 숫자가 다릅니다. 검정과 잔차 그림을 함께 봅니다.</li>
+<li>가정이 어긋나면 <code>strata()</code>, <code>survSplit()</code>이나 <code>tt()</code>로 기간별 위험비를 쓰고, 보정 생존곡선은 예측 곡선을 평균해 그립니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc03-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 빌리루빈과 나이의 위험비</h3>
+<p>다변수 모형의 계수로 빌리루빈이 1에서 2, 5에서 10, 10에서 11 mg/dL로 오를 때의 위험비와, 나이가 20세 많을 때의 위험비를 구하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc03_t1-->
+<p>1에서 2, 5에서 10은 둘 다 두 배라서 위험비가 1.842로 같고, 10에서 11은 1.1배라서 1.088입니다. 로그로 넣은 변수는 차이가 아니라 비율이 같을 때 위험비가 같습니다. 나이는 10세당 계수에 2를 곱해 1.874입니다. 실습 11과 같습니다.</p>
+</div></details>
+
+<h3>과제 2. 간이식도 사건으로 세면</h3>
+<p>간이식을 중도절단하지 않고 사망과 함께 사건으로 세어 다변수 모형을 다시 맞추세요. 사건 수와 위험비는 어떻게 바뀌나요? <code>update()</code>로 식의 왼쪽만 바꿀 수 있습니다.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc03_t2-->
+<p>사건이 125건에서 144건으로 늘고, 치료의 위험비는 0.986(0.695–1.398)입니다. 나이의 위험비는 1.369에서 1.180으로 작아지는데, 간이식은 주로 젊은 환자가 받았기 때문입니다(실습 11 과제 2). 사망만 볼지 간이식까지 볼지는 연구 질문이 정하고, 간이식을 중도절단으로 두는 것은 이식받은 환자가 받지 않은 환자와 같은 사망 위험을 가졌다고 가정하는 것입니다. 이 문제는 <a href="stats.html#ch17">보건통계학 기초 17장</a>의 경쟁위험으로 이어집니다.</p>
+</div></details>
+
+<h3>과제 3. 치료 × 추적 시간</h3>
+<p>동료가 치료 효과가 시간에 따라 변하는지 보려고 식에 <code>dpca:years</code>를 더했더니 교호작용이 뚜렷했습니다(위험비 연 0.68배). 무엇이 틀렸는지 찾고, <code>tt()</code>로 바르게 다시 맞추세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc03_t3-->
+<p><code>years</code>는 각 환자의 마지막 관찰 시간이라, 이 값을 공변량으로 넣으면 기준 시점에 미래의 정보(언제 사망하거나 관찰이 끝날지)를 쓰는 셈입니다. 오래 산 사람일수록 값이 커지니 '시간이 지날수록 위험이 낮다'는 결과가 저절로 나옵니다. R은 같은 변수가 식의 양쪽에 있다는 경고를 냅니다. <code>tt()</code>는 위험집합을 계산하는 시점마다 그때의 시간 <code>t</code>를 곱하므로 이 문제가 없고, 교호작용은 1.059(p 0.352)로 뚜렷하지 않습니다. 실습 11은 추적 기간을 0.1년 간격으로 잘라 근사해 1.047(p 0.458)이었고, 결론이 같습니다.</p>
+</div></details>
+</section>

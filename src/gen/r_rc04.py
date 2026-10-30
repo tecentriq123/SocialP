@@ -1,4 +1,4 @@
-"""R과 통계분석 4장 · 모수적 생존모형과 외삽 — R cells run for real with rkit (R 4.4, survival, flexsurv).
+"""R과 통계분석 4장 · 모수적 생존모형과 외삽 — R cells run for real with rkit (R 4.5, survival, flexsurv).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc04.py      (NOMARK=1 … 로 돌리면 모든 셀의 출력을 찍는다)
 

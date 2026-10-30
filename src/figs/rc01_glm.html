@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">glm()으로 로지스틱 회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_lr &lt;- glm(low ~ age + lwt + race + smoke + ptd + ht + ui,
+              family = binomial, data = bw)
+summary(fit_lr)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Call:
+glm(formula = low ~ age + lwt + race + smoke + ptd + ht + ui, 
+    family = binomial<span class="mk">1</span>, data = bw)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)   
+(Intercept)  0.63691    1.23028   0.518  0.60467   
+age         -0.03775    0.03781  -0.998  0.31808   
+lwt         -0.01491    0.00704  -2.118  0.03419 * 
+raceblack    1.21274    0.53248   2.278  0.02275 * 
+raceother    0.80412    0.44843   1.793  0.07294 . 
+smoke        0.84640<span class="mk">2</span>    0.40806   2.074  0.03806 * 
+ptd          1.22175    0.46301   2.639  0.00832 **
+ht           1.83869    0.70324   2.615  0.00893 **
+ui           0.71113    0.46311   1.536  0.12465   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 234.67  on 188  degrees of freedom
+Residual deviance: 196.83<span class="mk">3</span>  on 180  degrees of freedom
+AIC: 214.83
+
+Number of Fisher Scoring iterations: 4<span class="mk">4</span></pre></div></div>

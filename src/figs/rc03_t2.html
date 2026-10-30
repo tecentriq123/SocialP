@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">과제 2 정답: 간이식도 사건으로 세면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit_tx &lt;- update(fit, Surv(years, status &gt; 0) ~ .)    # 사망 또는 간이식
+c(death = fit$nevent, death_or_tx = fit_tx$nevent)
+round(cbind(death = exp(coef(fit)), death_or_tx = exp(coef(fit_tx))), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      death death_or_tx 
+        125         144<span class="mk">1</span> 
+           death death_or_tx
+dpca       0.938       0.986
+age10      1.369       1.180
+female     0.703       0.651
+log2(bili) 1.842       1.824
+albumin    0.372       0.394
+edema0.5   1.218       1.235
+edema1     2.582       2.479
+protime    1.284       1.205</pre></div></div>

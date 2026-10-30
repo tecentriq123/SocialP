@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">Fisher의 정확한 검정과 두 가지 교차비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fisher.test(tab)
+(tab[2, 2] * tab[1, 1]) / (tab[2, 1] * tab[1, 2])    # 표에서 바로 구한 교차비</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Fisher&#x27;s Exact Test for Count Data
+
+data:  tab
+p-value = 0.03618
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 1.028780 3.964904<span class="mk">1</span>
+sample estimates:
+odds ratio 
+  2.014137<span class="mk">2</span> 
+
+[1] 2.021944<span class="mk">3</span></pre></div></div>

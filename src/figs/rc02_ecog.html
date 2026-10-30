@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">세 군 비교와 두 군씩 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lung$ecog &lt;- factor(ifelse(lung$ph.ecog &gt;= 2, &quot;2+&quot;, lung$ph.ecog))
+table(lung$ecog, useNA = &quot;ifany&quot;)
+survdiff(Surv(months, status) ~ ecog, data = lung)
+pairwise_survdiff(Surv(months, status) ~ ecog, data = lung,
+                  p.adjust.method = &quot;bonferroni&quot;)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+   0    1   2+ &lt;NA&gt; 
+  63  113   51    1<span class="mk">1</span> 
+Call:
+survdiff(formula = Surv(months, status) ~ ecog, data = lung)
+
+n=227, 1 observation deleted due to missingness<span class="mk">2</span>.
+
+          N Observed Expected (O-E)^2/E (O-E)^2/V
+ecog=0   63       37     54.2    5.4331    8.2119
+ecog=1  113       82     83.5    0.0279    0.0573
+ecog=2+  51       45     26.3   13.2582   15.9641
+
+ Chisq= 19<span class="mk">3</span>  on 2 degrees of freedom, p= 8e-05 
+
+	Pairwise comparisons using Log-Rank test 
+
+data:  lung and ecog 
+
+   0      1     
+1  0.1890<span class="mk">4</span> -     
+2+ 9e-05  0.0077
+
+P value adjustment method: bonferroni</pre></div></div>
