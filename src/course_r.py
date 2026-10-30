@@ -1,10 +1,10 @@
-"""'R로 하는 연구 분석' 과목의 장 목록과 목차 화면 문구. build.py --course r 이 불러 쓴다.
+"""'R과 통계분석' 과목의 장 목록과 목차 화면 문구. build.py --course r 이 불러 쓴다.
 장 id는 rc00, rc01 … (화면에는 0장, 1장 …), 참고문헌은 rc90(부록 A).
 개념 설명은 '보건통계학 기초'(stats.html)에 맡기고, 이 과목은 R로 직접 하는 일(함수와 패키지 고르기, R이 기본값으로
 정하는 것, 출력 읽기, 결과 정리)을 다룬다. 예제는 보건통계학 기초와 같은 가상 자료를 써서 숫자가 맞게 한다.
 R 출력은 gen/r_rcNN.py가 gen/rkit.py로 실제로 돌려 얻는다(R 4.4, conda-forge)."""
 
-COURSE = {"key": "r", "title": "R로 하는 연구 분석", "file": "r.html"}
+COURSE = {"key": "r", "title": "R과 통계분석", "file": "r.html"}
 
 GROUPS = [
     {"key": "r1", "label": "PART 1", "title": "R로 시작하기"},

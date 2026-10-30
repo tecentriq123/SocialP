@@ -571,7 +571,7 @@ def build_home(shell, meta, ml_meta=None, r_meta=None):
                  "결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. "
                  "모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.",
          "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]},
-        {"tag": "과목 · R", "title": "R로 하는 연구 분석", "href": "r.html" if r_ready else None,
+        {"tag": "과목 · R", "title": "R과 통계분석", "href": "r.html" if r_ready else None,
          "status": (f"{r_ready}/{len(r_ch)}장 공개" if r_ready else "준비 중"),
          "desc": "보건통계학 기초에서 배운 분석을 R로 직접 해 봅니다. 중심은 약물경제성 평가에 쓰는 생존분석으로, "
                  "생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 되살리기, 분할생존모형과 상태전이 모형을 R로 만듭니다. "

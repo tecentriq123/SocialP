@@ -111,7 +111,8 @@ code, kbd { font-family: var(--f-mono); font-size: .9em; background: var(--code-
 .eyebrow { font-size: 13px; letter-spacing: .06em; color: var(--accent-ink); font-weight: 600; margin: 0 0 10px; }
 .home-hero h1 { font-family: var(--f-serif); font-weight: 700; font-size: clamp(30px, 5vw, 42px); margin: 0 0 14px; letter-spacing: -.02em; }
 .home-hero p { color: var(--ink-2); font-size: 17px; margin: 0; }
-.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 36px; }
+.parts { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 36px; }
+@media (min-width: 700px) { .parts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .part-card {
   display: flex; flex-direction: column; gap: 10px; padding: 22px 22px 20px; border: 1px solid var(--line);
   border-radius: 12px; background: var(--surface); text-decoration: none; color: var(--ink); min-width: 0;
@@ -1350,7 +1351,7 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
       </section>
       <div class="parts">${cards}</div>
       <div class="home-how">
-        <div><h3>과목 구성</h3><p>'보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있고, 장마다 짝이 되는 파이썬 실습이 있습니다. '머신러닝 기초'는 파이썬으로, 'R로 하는 연구 분석'은 R로 같은 가상 자료를 다룹니다.</p></div>
+        <div><h3>과목 구성</h3><p>'보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있고, 장마다 짝이 되는 파이썬 실습이 있습니다. '머신러닝 기초'는 파이썬으로, 'R과 통계분석'은 R로 같은 가상 자료를 다룹니다.</p></div>
         <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 논문을 읽는 데 필요한 부분과 직접 분석할 때 읽을 부분을 나눠 알려 줍니다. 접힌 상자 가운데 '직접 분석' 표시는 내 자료를 분석할 때 꼭 펼쳐 볼 내용이고, '심화' 표시는 계산 원리가 궁금할 때 펼쳐 볼 내용입니다.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>

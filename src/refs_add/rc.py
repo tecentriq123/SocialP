@@ -1,4 +1,4 @@
-# 'R로 하는 연구 분석' 과목(course_r.py)에서 새로 쓰는 문헌 (2026-10-30)
+# 'R과 통계분석' 과목(course_r.py)에서 새로 쓰는 문헌 (2026-10-30)
 ADD = {
     "r_core2025": {"text": "R Core Team. <i>R: A Language and Environment for Statistical Computing</i>. Vienna: R Foundation for Statistical Computing; 2025.",
                    "url": "https://www.R-project.org/"},

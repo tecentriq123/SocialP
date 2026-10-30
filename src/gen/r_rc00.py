@@ -1,4 +1,4 @@
-"""R로 하는 연구 분석 0장 · R 시작하기 — R cells run for real with rkit.
+"""R과 통계분석 0장 · R 시작하기 — R cells run for real with rkit.
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc00.py      (NOMARK=1 … 로 돌리면 모든 셀의 출력을 찍는다)
 
@@ -157,7 +157,7 @@ S("rc00_save", nb.html(c_save, marks={"512.5732": 1}))
 S("rc00_t1", nb.html(c_t1, marks={"2655.": 1}))
 S("rc00_t2", nb.html(c_t2, marks={"0.04897051": 1}))
 S("rc00_t3", nb.html(c_t3, marks={"-512.5732": 1}))
-nb.save_ipynb("0장 R 시작하기 (R로 하는 연구 분석)",
+nb.save_ipynb("0장 R 시작하기 (R과 통계분석)",
               intro="보건통계학 기초 21장의 신세포암 의료비 자료(rcc_cost.csv)로 R의 기본을 익힙니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={1: "## a. 값과 함수", 2: "## b. 패키지", 3: "## c. 자료 불러와 살펴보기", 6: "## d. 고르고 요약하기",

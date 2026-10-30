@@ -1,4 +1,4 @@
-"""R로 하는 연구 분석 4장 · 모수적 생존모형과 외삽 — R cells run for real with rkit (R 4.4, survival, flexsurv).
+"""R과 통계분석 4장 · 모수적 생존모형과 외삽 — R cells run for real with rkit (R 4.4, survival, flexsurv).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc04.py      (NOMARK=1 … 로 돌리면 모든 셀의 출력을 찍는다)
 
@@ -200,7 +200,7 @@ S("rc04_ph", nb.html(c_ph, marks={"0.01502429": 1, "1375.921 1375.921": 2}))
 S("rc04_t1", nb.html(c_t1, marks={"3.254939": 1, "720.6229": 2}))
 S("rc04_t2", nb.html(c_t2, marks={"949.6": 1, "25.1": 2}))
 S("rc04_t3", nb.html(c_t3, marks={"0.5": 1}))
-nb.save_ipynb("4장 모수적 생존모형과 외삽 (R로 하는 연구 분석)",
+nb.save_ipynb("4장 모수적 생존모형과 외삽 (R과 통계분석)",
               intro="보건통계학 기초 23장 d 절의 가상 시험(표준요법군 300명)의 전체생존 자료로 여섯 분포와 스플라인 모형을 맞추고 20년까지 외삽합니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={1: "## a. 자료와 관찰한 생존곡선", 3: "## b. 곡선 하나 맞추기", 5: "## c. 여섯 분포 비교",
