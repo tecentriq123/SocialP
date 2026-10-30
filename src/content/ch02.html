@@ -31,7 +31,7 @@
 
 <h4>이 절의 예에서는 무엇을 먼저 보나?</h4>
 <p>이 시험은 2형 당뇨병 환자 72명을 약사 복약상담군 36명과 일반 진료군 36명으로 무작위배정하고, 6개월 동안의 HbA1c 변화량(6개월 값 − 기저값)을 1차 결과로 비교한 가상의 임상시험입니다. 이 시험을 보고한 논문에서 가장 먼저 찾아볼 곳은 결과표의 1차 결과 행입니다. 아래는 그 행을 군별로 나눠 옮긴 것입니다('논문에서 읽기'의 Table 2 가운데 한 행).</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch02-tb00" data-name="복약상담 시험 1차 결과"><table class="tbl tight">
 <thead><tr><th>Group</th><th class="r">Change in<br>HbA1c, %</th><th class="r">Mean<br>difference<br>(95% CI)</th><th class="r">P value</th></tr></thead>
 <tbody>
 <tr><td>Pharmacist counseling <span style="white-space:nowrap">(n = 36)</span></td><td class="r"><span style="white-space:nowrap">−0.90 ± 0.80</span></td><td class="r" rowspan="2">−0.50 <span style="white-space:nowrap">(−0.90</span> <span style="white-space:nowrap">to −0.10)</span></td><td class="r" rowspan="2">0.015</td></tr>
@@ -58,8 +58,8 @@
 
 <h3>2. 숫자로 따라가기</h3>
 <p><strong>t는 두 군 평균의 차이가, 시험을 다시 하면 그 차이가 흔들리는 폭의 몇 배인지를 나타낸 값입니다. 그 폭이 두 평균 차이의 표준오차입니다.</strong></p>
-<p>이제 '이 절의 예에서는 무엇을 먼저 보나?'의 결과 행이 어디서 나오는지, 복약상담 시험의 숫자로 t 검정을 처음부터 끝까지 계산합니다. 두 군의 요약값은 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight" style="max-width:40rem">
+<p>이제 <span class="tref" data-t="ch02-tb00">'이 절의 예에서는 무엇을 먼저 보나?'의 결과 행</span>이 어디서 나오는지, 복약상담 시험의 숫자로 t 검정을 처음부터 끝까지 계산합니다. 두 군의 요약값은 다음과 같습니다.</p>
+<div class="tbl-wrap" id="ch02-tb01" data-name="군별 평균·SD·SE"><table class="tbl tight" style="max-width:40rem">
 <thead><tr><th>군</th><th class="r">n</th><th class="r">평균<br>변화량 (%p)</th><th class="r">표준편차<br>(SD)</th><th class="r">평균의 SE<br>= SD ÷ √n</th></tr></thead>
 <tbody>
 <tr><td>복약상담군</td><td class="r">36</td><td class="r">−0.90</td><td class="r">0.80</td><td class="r">0.80 ÷ 6 = 0.133</td></tr>
@@ -92,7 +92,7 @@
 <h4>개인 값은 크게 겹치는데 왜 차이가 분명한가?</h4>
 <!--FIG:ch02_strip-->
 <p>그림 2-1은 환자 한 명 한 명의 변화량입니다. 복약상담군에도 HbA1c가 오른 환자가 있고 일반 진료군에도 크게 떨어진 환자가 있어서, 개인 값은 두 군이 크게 겹칩니다.</p>
-<p>개인 값이 겹치는 것은 0.50%p 차이가 한 군 안에서 환자들이 퍼진 정도(SD 0.80, 0.90%p)보다 작기 때문입니다. 그런데 t 검정이 비교하는 것은 개인이 아니라 두 군의 평균입니다. 평균은 36명의 빗나감이 서로 상쇄되어 SD를 √36 = 6으로 나눈 만큼만 흔들립니다(표의 0.133과 0.150). 그래서 두 평균 차이의 표준오차는 0.20%p이고, 0.50%p는 이 표준오차의 2.5배입니다.</p>
+<p>개인 값이 겹치는 것은 0.50%p 차이가 한 군 안에서 환자들이 퍼진 정도(SD 0.80, 0.90%p)보다 작기 때문입니다. 그런데 t 검정이 비교하는 것은 개인이 아니라 두 군의 평균입니다. 평균은 36명의 빗나감이 서로 상쇄되어 SD를 √36 = 6으로 나눈 만큼만 흔들립니다(<span class="tref" data-t="ch02-tb01">표의 0.133과 0.150</span>). 그래서 두 평균 차이의 표준오차는 0.20%p이고, 0.50%p는 이 표준오차의 2.5배입니다.</p>
 <p><strong>복약상담군의 HbA1c는 일반 진료군보다 평균 0.50%p 더 떨어졌습니다(95% 신뢰구간 −0.90 ~ −0.10%p, p = 0.015). 개인 값이 겹치는 정도는 SD가, 평균의 차이가 우연인지는 표준오차가 정하므로, 개인 값이 크게 겹쳐도 평균의 차이는 분명할 수 있습니다.</strong></p>
 <div class="quick"><p class="qk">잠깐 확인</p><p>복약상담 시험이 군당 36명이 아니라 군당 9명이었고, 두 군의 평균과 SD는 지금과 같았다고 합시다. 개인 값이 겹치는 정도와 평균 차이가 우연과 구분되는 정도는 각각 어떻게 될까요?</p><details><summary>답 보기</summary><div><p>개인 값은 지금과 비슷하게 겹치지만, 평균 차이는 우연과 구분하기 어려워집니다. 개인 값의 겹침은 인원과 관계없는 SD 0.80, 0.90%p가 정합니다. 그런데 평균의 표준오차는 SD를 √9 = 3으로만 나누므로 차이의 표준오차가 0.2007의 두 배인 약 0.40%p가 되고, 0.50%p는 그 약 1.25배에 그칩니다(p ≈ 0.23).</p></div></details></div>
 
@@ -216,7 +216,7 @@
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 결과표 (Table 2)</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch02-tb08" data-name="결과표 (Table 2)"><table class="jt">
 <caption><b>Table 2.</b> Primary and secondary outcomes at 6 months</caption>
 <thead><tr><th>Outcome</th><th class="r">Pharmacist counseling<br>(n = 36)</th><th class="r">Usual care<br>(n = 36)</th><th class="r">Mean difference<br>(95% CI)<sup>a</sup></th><th class="r">P value<sup>b</sup></th></tr></thead>
 <tbody>
@@ -238,6 +238,7 @@
 </div></div>
 
 <h4>그림의 오차막대는 무엇을 나타내나?</h4>
+<div class="pin-bar ref" data-t="ch02-tb01"></div>
 <p>논문 그림은 군마다 평균과 오차막대만 그리는 경우가 많은데, 오차막대는 SD, SE, 95% 신뢰구간 가운데 하나입니다. 같은 자료라도 무엇을 그렸느냐에 따라 막대 길이가 크게 달라지므로(그림 2-3), 그림 설명에서 막대가 무엇인지 먼저 확인합니다.</p>
 <!--FIG:ch02_errbars-->
 <p>그다음 막대가 겹치는지만 보고 차이가 유의한지 판단하지 않습니다. 95% CI 막대가 겹쳐도 차이는 유의할 수 있고, SE 막대가 떨어져 있어도 유의하지 않을 수 있습니다. 논문 그림으로 이유를 따라가 봅니다.</p><div class="paper">
@@ -343,6 +344,7 @@ print(res)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div
 <p>결측인 환자를 빼고 분석하는 <strong>완전 사례 분석</strong><span class="en">(complete-case analysis)</span>은 같은 군 안에서 결측 여부가 6개월 HbA1c 값과 관련이 없을 때 치우치지 않습니다. 예를 들어 혈당 조절이 나빠 내원하지 않은 환자가 한 군에서 더 많이 빠졌다고 놓습니다. 그러면 그 군에 남은 환자는 HbA1c가 많이 떨어진 쪽으로 몰려, 그 군의 평균 변화량이 실제보다 좋게 나옵니다. 결측이 많거나 결과와 관련될 수 있으면 다중대체<span class="en">(multiple imputation)</span>를 검토합니다(<a href="#ap01-s4">부록 A d 절</a>). 다중대체는 결측값을 그럴듯한 값으로 여러 번 채워 각각 분석한 뒤 결과를 합치는 방법이고, 결측 여부가 자료에 있는 변수로 설명된다는 가정이 필요합니다.</p><!--/FOLD-->
 
 <h3>7. 논문에 쓰기</h3>
+<div class="pin-bar ref" data-t="ch02-tb08"></div>
 <p><strong>Methods에는 검정 이름과 차이의 방향을 씁니다. Results에는 군별 인원과 평균, SD, 평균 차이와 95% 신뢰구간, 정확한 P를 씁니다.</strong></p>
 <p>임상시험 보고 지침인 CONSORT도 결과마다 군별 결과와 효과 추정값, 그 신뢰구간을 쓰라고 권합니다<cite data-ref="moher2010consort"></cite>. 다만 이런 보고 지침은 무엇을 빠짐없이 적을지 알려 줄 뿐이고, 항목을 모두 채웠다고 분석이 타당해지는 것은 아닙니다.</p>
 <p>보고할 것은 다음 다섯 가지입니다.</p>
@@ -471,7 +473,7 @@ Cohen의 d = 평균 차이 ÷ \(s_p\) = −0.50 ÷ 0.8515 = −0.59</p></div>
 
 <h4>이 절의 예에서는 무엇을 먼저 보나?</h4>
 <p>이 예비연구의 결과에서 먼저 볼 숫자를 논문 결과표의 한 행처럼 모으면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch02-tb11" data-name="오피오이드 사용량 결과"><table class="tbl tight">
 <thead><tr><th>Group</th><th class="r">n</th><th class="r">Opioid use<br>over 72 h, MME<br>median (IQR)</th><th class="r">Exact P<br>(Mann-Whitney)</th></tr></thead>
 <tbody>
 <tr><td>Protocol</td><td class="r">8</td><td class="r">21 <span style="white-space:nowrap">(17.3–27.3)</span></td><td class="r" rowspan="2">0.029</td></tr>
@@ -512,7 +514,7 @@ Cohen의 d = 평균 차이 ÷ \(s_p\) = −0.50 ÷ 0.8515 = −0.59</p></div>
 <h3>2. 숫자로 따라가기</h3>
 <p><strong>두 군을 합쳐 순위를 매기면, 한 군이 얼마나 한쪽에 몰렸는지를 U라는 수 하나로 나타낼 수 있습니다. U는 두 군에서 한 명씩 짝지은 쌍 가운데 한 군의 값이 더 큰 쌍의 수입니다.</strong></p>
 <p>이제 작은 예비연구 자료로 순위를 직접 매기고, 한 군이 얼마나 한쪽에 몰렸는지를 숫자 하나로 나타내 봅니다. 프로토콜군 8명과 일반 관리군 7명이 실제로 쓴 양은 아래 표와 같습니다. 일반 관리군 한 명이 115 MME로 매우 많이 썼고, 그래서 표의 일반 관리군 평균 49.7은 중앙값 41보다 크게 올라가 있습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch02-tb13" data-name="15명의 사용량과 순위"><table class="tbl tight">
 <thead><tr><th>군</th><th>72시간 사용량<br>(MME)</th><th>전체 15명<br>중 순위</th><th class="r">중앙값</th><th class="r">평균<br>± SD</th></tr></thead>
 <tbody>
 <tr><td>프로토콜군 (n₁ = 8)</td><td class="num">12, 15, 18, 20, 22, 26, 31, 68</td><td class="num">1, 2, 3, 4, 5, 7, 9, 14</td><td class="r">21</td><td class="r">26.5 ± 17.8</td></tr>
@@ -626,6 +628,7 @@ U = 494.5 − 20 × 21 ÷ 2 = 284.5<br>
 <div class="quick"><p class="qk">잠깐 확인</p><p>우월 확률 0.16을 "프로토콜군 환자 가운데 16%만 일반 관리군 환자보다 많이 썼다"로 읽어도 될까요?</p><details><summary>답 보기</summary><div><p>그렇게 읽지 않습니다. 0.16은 환자의 비율이 아니라, 두 군에서 한 명씩 짝지은 56쌍 가운데 프로토콜군 환자가 더 많이 쓴 9쌍의 비율입니다. 일반 관리군의 누군가보다 많이 쓴 프로토콜군 환자로 세면 26, 31, 68 MME인 3명, 곧 8명 가운데 37.5%입니다.</p></div></details></div>
 
 <h4>우월 확률, Hodges–Lehmann 추정치, 중앙값의 차이는 무엇이 다른가?</h4>
+<div class="pin-bar ref" data-t="ch02-tb13"></div>
 <p>방향과 크기를 말해 주는 값이 셋이라 헷갈리기 쉽습니다. 무엇끼리 비교한 값인지로 나누면 다음과 같습니다. 중앙값의 차이는 각 군의 가운데 값끼리만 비교한 것이고, 나머지 둘은 56쌍을 모두 비교한 값입니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th>값</th><th>무엇끼리<br>비교하나</th><th>이 예에서</th><th>검정과의<br>관계</th></tr></thead>
@@ -642,7 +645,7 @@ U = 494.5 − 20 × 21 ÷ 2 = 284.5<br>
 <li>U₁이 기댓값 28에 가까워져 정확 p는 0.029에서 0.61로 커집니다.</li>
 </ol>
 <p><strong>중앙값이 그대로여도 쌍의 승패가 바뀌면 P가 바뀌므로, Mann-Whitney 검정의 P는 중앙값의 비교가 아니라 한쪽 값이 더 크게 나오는 경향에 대한 검정입니다.</strong> 거꾸로 두 군의 중앙값이 같아도 한 군의 값이 위쪽으로 넓게 퍼져 있으면, 그 군이 이기는 쌍이 많아져 P가 작게 나올 수 있습니다<cite data-ref="hart2001"></cite>. 두 분포의 모양이 같고 위치만 옮겨진 경우에만 이 검정을 중앙값의 비교로 읽을 수 있습니다. 이 오해는 <a href="#ch01-s7">1장 g 절</a>에서 처음 보았습니다.</p>
-<p>이 예제도 두 군의 퍼진 정도가 다릅니다. '이 절의 예에서는 무엇을 먼저 보나?'에서 본 사분위범위(IQR)의 폭이 프로토콜군은 10.0, 일반 관리군은 19.0입니다. 그래서 결과를 중앙값 21과 41의 비교로 읽지 않습니다. 또 퍼진 정도가 다르면 한 분포를 옆으로 옮기기만 해서는 다른 분포가 되지 않으므로, −18.5 MME도 "분포 전체가 18.5 MME 옮겨졌다"보다 "한 명씩 뽑은 사용량 차이의 중앙값"으로 읽습니다. 다만 엄밀하게는 두 군의 퍼진 정도가 다르면, 한쪽 값이 더 클 확률이 정확히 반반이어도 P가 작게 나올 수 있습니다<cite data-ref="fay2010"></cite>. 예를 들어 두 군의 중앙값이 같고 한 군만 위아래로 고르게 더 넓게 퍼져 있다고 놓습니다. 그러면 한 군이 이기는 쌍은 평균적으로 절반이라, U₁도 평균적으로는 기댓값 근처에 있습니다. 그런데 표본을 새로 뽑을 때 U₁이 기댓값에서 벗어나는 폭은 두 분포가 같을 때와 달라지고, 두 군의 인원에 따라서는 더 커집니다. 정확 p는 두 분포가 같을 때의 폭으로 계산하므로, 실제 폭이 더 크면 흔히 나오는 U₁도 드물다고 판단합니다. <strong>이때의 작은 P는 "두 분포가 같다"는 귀무가설을 기각하는 데는 맞지만, 한 군의 값이 더 크게 나오는 경향의 근거는 되지 못합니다.</strong> <a href="#ch02-s1">a 절</a>의 Student t 검정이 흩어짐이 같다고 보고 차이의 표준오차를 작게 잡은 것과 비슷한 일입니다. 이때 함께 볼 수 있는 검정은 '가정과 대안'의 접힌 상자 '두 군의 퍼진 정도가 크게 다르면?'에 있습니다.</p>
+<p>이 예제도 두 군의 퍼진 정도가 다릅니다. <span class="tref" data-t="ch02-tb11">'이 절의 예에서는 무엇을 먼저 보나?'에서 본 사분위범위(IQR)</span>의 폭이 프로토콜군은 10.0, 일반 관리군은 19.0입니다. 그래서 결과를 중앙값 21과 41의 비교로 읽지 않습니다. 또 퍼진 정도가 다르면 한 분포를 옆으로 옮기기만 해서는 다른 분포가 되지 않으므로, −18.5 MME도 "분포 전체가 18.5 MME 옮겨졌다"보다 "한 명씩 뽑은 사용량 차이의 중앙값"으로 읽습니다. 다만 엄밀하게는 두 군의 퍼진 정도가 다르면, 한쪽 값이 더 클 확률이 정확히 반반이어도 P가 작게 나올 수 있습니다<cite data-ref="fay2010"></cite>. 예를 들어 두 군의 중앙값이 같고 한 군만 위아래로 고르게 더 넓게 퍼져 있다고 놓습니다. 그러면 한 군이 이기는 쌍은 평균적으로 절반이라, U₁도 평균적으로는 기댓값 근처에 있습니다. 그런데 표본을 새로 뽑을 때 U₁이 기댓값에서 벗어나는 폭은 두 분포가 같을 때와 달라지고, 두 군의 인원에 따라서는 더 커집니다. 정확 p는 두 분포가 같을 때의 폭으로 계산하므로, 실제 폭이 더 크면 흔히 나오는 U₁도 드물다고 판단합니다. <strong>이때의 작은 P는 "두 분포가 같다"는 귀무가설을 기각하는 데는 맞지만, 한 군의 값이 더 크게 나오는 경향의 근거는 되지 못합니다.</strong> <a href="#ch02-s1">a 절</a>의 Student t 검정이 흩어짐이 같다고 보고 차이의 표준오차를 작게 잡은 것과 비슷한 일입니다. 이때 함께 볼 수 있는 검정은 '가정과 대안'의 접힌 상자 '두 군의 퍼진 정도가 크게 다르면?'에 있습니다.</p>
 <p><strong>즉, 이 자료는 "프로토콜군이 덜 쓰는 경향이 뚜렷했고(우월 확률 0.16, 정확 p = 0.029), 한 명씩 뽑은 사용량 차이의 중앙값은 −18.5 MME였지만 그 크기는 매우 불확실하다"로 읽습니다.</strong></p>
 <div class="quick"><p class="qk">잠깐 확인</p><p>일반 관리군에서 41 MME를 쓴 환자가 실제로는 50 MME를 썼다고 합시다. 두 중앙값의 차이와 Mann-Whitney 검정의 P는 각각 어떻게 될까요?</p><details><summary>답 보기</summary><div><p>중앙값의 차이는 바뀌지만 P는 그대로입니다. 일반 관리군의 중앙값이 45로 올라 차이는 21 − 45 = −24 MME가 됩니다. 그런데 50 MME도 41 MME처럼 프로토콜군의 68 MME보다는 적고 나머지 7명보다는 많아서, 56쌍의 승패가 그대로라 U₁ = 9와 정확 p = 0.029도 바뀌지 않습니다.</p></div></details></div>
 
@@ -729,6 +732,7 @@ print(np.sort(diffs)[[10, 45]])                        # 95% CI 끝값</code></p
 <!--/FOLD-->
 
 <h3>7. 논문에 쓰기</h3>
+<div class="pin-bar ref" data-t="ch02-tb11"></div>
 <p><strong>Methods에는 이 검정을 고른 이유와 P를 구한 방식을 씁니다. Results에는 군별 중앙값(IQR), U와 정확한 P, Hodges–Lehmann 추정치를 씁니다.</strong></p>
 <p>양측 검정, 유의수준, 소프트웨어는 a 절처럼 쓰고, 다음 네 가지를 더 확인합니다.</p>
 <ol>

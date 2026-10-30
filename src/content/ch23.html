@@ -40,7 +40,7 @@
 <h4>모형에 넣을 근거는 어디에 흩어져 있나?</h4>
 <p>신약 A의 회사가 급여를 신청하면서 경제성 평가 자료를 낸다고 합시다. 필요한 것은 A와 표준요법 B를 쓴 환자의 남은 생애 비용과 QALY입니다(<a href="#ch20-s3">20장 c 절</a>). 그런데 손에 있는 근거는 다음과 같이 흩어져 있습니다.</p>
 <p class="tbl-cap"><b>표 23-1.</b> 공통 예시 모형에 들어가는 근거 (가상의 예시)</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch23-tb01" data-name="공통 예시 모형의 근거"><table class="tbl tight">
 <thead><tr><th>모형에 필요한 것</th><th>흔한 출처</th><th>공통 예시의 값</th></tr></thead>
 <tbody>
 <tr><td>표준요법에서 병이 진행하는 속도</td><td>임상시험의 대조군, 국내 등록자료</td><td>중앙 무진행생존 10개월, 중앙 전체생존 28개월</td></tr>
@@ -93,7 +93,7 @@
 <p>결정 마디에서 종결 마디까지 가는 길 하나가 경로입니다. 가지에 적힌 확률은 바로 앞 마디까지 온 사람을 분모로 하는 조건부 확률입니다. 입원 가지의 0.40은 "중증 이상반응이 생긴 사람 가운데 입원하는 비율"이어서, 전체 환자 가운데 입원하는 비율은 0.30 × 0.40 = 0.12, 곧 100명 가운데 12명입니다. 이렇게 지나온 가지의 확률을 모두 곱한 값이 <strong>경로 확률</strong><span class="en">(pathway probability)</span>이고, 한 전략의 경로 확률을 모두 더하면 1입니다.</p>
 <p>전략의 <strong>기대값</strong><span class="en">(expected value)</span>은 경로마다 "경로 확률 × 그 경로의 값"을 구해 모두 더한 것입니다. 예방 요법 전략은 이상반응 확률이 0.30 × 0.6 = 0.18로 바뀌고, 모든 경로에 예방 요법 60만원이 더해집니다.</p>
 <p class="tbl-cap"><b>표 23-2.</b> 두 전략의 경로와 기대값 (가상의 예시)</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch23-tb03" data-name="두 전략의 경로와 기대값"><table class="tbl tight">
 <thead><tr><th>전략</th><th>경로</th><th class="r">경로<br>확률</th><th class="r">비용<br>(만원)</th><th class="r">QALY<br>변화</th></tr></thead>
 <tbody>
 <tr><td rowspan="3">예방 요법 없음</td><td>중증 이상반응, 입원</td><td class="r">0.120</td><td class="r">700</td><td class="r">−0.07</td></tr>
@@ -164,7 +164,7 @@
 <p>결정수형은 사건이 언제 일어나는지를 따로 다루지 않습니다. 이 예는 이상반응이 투여 초기 3개월에 몰리고 그 영향도 3개월 안에 끝난다고 보아 할인하지 않았습니다. 예방 요법이 생존이나 투약 지속에 영향을 준다면 3개월로는 부족하고 더 긴 모형이 필요합니다.</p>
 <p>사건이 일어나는 시점이 중요하거나, 진행과 재발처럼 같은 사건이 여러 번 일어나거나, 분석기간이 길어 해마다 할인해야 하면 가지가 감당할 수 없이 늘어납니다. 그때는 시간이 흐르는 구조를 가진 모형을 씁니다<cite data-ref="sonnenberg1993"></cite><cite data-ref="barton2004"></cite>. 어떤 문제에 어떤 모형이 맞는지는 다음과 같습니다. 마르코프 코호트 모형과 분할생존모형은 b·c 절에서 자세히 봅니다.</p>
 <p class="tbl-cap"><b>표 23-3.</b> 경제성 평가에 쓰이는 모형의 종류</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch23-tb04" data-name="경제성 평가 모형의 종류"><table class="tbl tight">
 <thead><tr><th>모형</th><th>시간을 다루는 방식</th><th>알맞은 문제</th></tr></thead>
 <tbody>
 <tr><td>결정수형</td><td>다루지 않음. 경로마다 한 번 정해짐</td><td>기간이 짧고 사건이 한 번으로 끝나는 문제</td></tr>
@@ -198,8 +198,8 @@
 <li><span class="mk">1</span><span><b>분석기간 3개월.</b> 모형이 다루는 기간입니다. '시간을 다루지 않아도 되나?'에서 본 것처럼 이상반응의 영향이 3개월 안에 끝난다는 가정이 들어 있습니다. 예방 요법이 생존이나 투약 지속을 바꾼다면 이 기간으로는 부족합니다.</span></li>
 <li><span class="mk">2</span><span><b>상대위험도의 출처.</b> 확률 0.30은 시험에서, 상대위험도 0.60은 메타분석에서 왔습니다. 모형이 서로 다른 출처의 근거를 잇는 자리이고 '다른 연구의 상대위험도를 그대로 써도 되나?'의 가정이 걸린 곳입니다. 메타분석의 대상 환자가 이 모형의 환자와 비슷한지 확인합니다.</span></li>
 <li><span class="mk">3</span><span><b>할인하지 않음.</b> 할인은 1년이 넘는 기간의 비용과 효과에 적용합니다(<a href="#ch20-s3">20장 c 절</a>). 3개월짜리 모형에서 할인하지 않은 것은 잘못이 아닙니다.</span></li>
-<li><span class="mk">4</span><span><b>기대비용.</b> 표 23-2에서 구한 120만원입니다. 환자 한 명의 치료비는 0원, 200만원, 700만원 가운데 하나이고 120만원을 쓰는 환자는 없습니다. 환자가 많을 때의 1인당 평균이어서, 예산을 계산할 때 환자 수에 곱하는 값입니다.</span></li>
-<li><span class="mk">5</span><span><b>얻은 QALY.</b> 표 23-2의 두 기대값의 차 0.0048입니다. 완전한 건강으로 약 1.8일에 해당하는 작은 값이어서 단기 모형에서는 소수 넷째 자리까지 적습니다.</span></li>
+<li><span class="mk">4</span><span><b>기대비용.</b> <span class="tref" data-t="ch23-tb03">표 23-2</span>에서 구한 120만원입니다. 환자 한 명의 치료비는 0원, 200만원, 700만원 가운데 하나이고 120만원을 쓰는 환자는 없습니다. 환자가 많을 때의 1인당 평균이어서, 예산을 계산할 때 환자 수에 곱하는 값입니다.</span></li>
+<li><span class="mk">5</span><span><b>얻은 QALY.</b> <span class="tref" data-t="ch23-tb03">표 23-2</span>의 두 기대값의 차 0.0048입니다. 완전한 건강으로 약 1.8일에 해당하는 작은 값이어서 단기 모형에서는 소수 넷째 자리까지 적습니다.</span></li>
 <li><span class="mk">6</span><span><b>ICER.</b> 12 ÷ 0.0048 = 2,500만원/QALY입니다. 분자와 분모가 모두 작은 차이여서 '다른 연구의 상대위험도를 그대로 써도 되나?'에서 본 것처럼 상대위험도가 조금만 달라져도 크게 움직이므로, 이런 표 뒤에는 민감도 분석이 따라 나옵니다(<a href="#ch24-s1">24장</a>).</span></li>
 </ol>
 </div></div>
@@ -345,7 +345,7 @@ ICER = 36 ÷ 0.0024 = 15,000만원/QALY</p>
 <h4>달마다 코호트를 어떻게 옮기나?</h4>
 <p>치료를 시작할 때 코호트 전원이 무진행 상태에 있습니다. 달마다 각 상태의 비율에 전이확률을 곱해 다음 달의 비율을 구합니다. 예를 들어 어느 달의 진행 상태 비율은 그 달에 새로 진행한 사람과, 지난달에 이미 진행 상태였고 이번 달에도 살아 있는 사람을 더한 값입니다. 이렇게 얻은 상태별 비율의 시간표가 <strong>코호트 추적</strong><span class="en">(cohort trace, Markov trace)</span>입니다.</p>
 <p class="tbl-cap"><b>표 23-5.</b> 코호트 추적의 시점별 상태 비율 (가상의 예시)</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch23-tb07" data-name="마르코프 코호트 추적"><table class="tbl tight">
 <thead><tr><th>개월</th><th class="r">무진행</th><th class="r">진행</th><th class="r">사망</th></tr></thead>
 <tbody>
 <tr class="grp"><td colspan="4"><b>표준요법 B</b></td></tr>
@@ -382,10 +382,10 @@ ICER = 36 ÷ 0.0024 = 15,000만원/QALY</p>
 <ol>
 <li>주기마다 각 상태의 비율에 그 상태의 월 비용과 효용을 곱하고, 그 달에 사망한 비율에 임종기 비용을 곱합니다. 한 주기의 비율은 주기의 시작과 끝의 평균으로 셉니다(반주기 보정, '주기 안의 이동은 어떻게 세나?').</li>
 <li>주기별 값을 연 4.5%로 할인합니다. 국내 지침이 비용과 결과 모두에 요구하는 기본값이고, 할인 계수는 주기의 중간 시점을 기준으로 곱합니다(<a href="#ch20-s3">20장 c 절</a> '할인율은 얼마로, 무엇에 적용하나?'와 그 접힌 상자 '모형 안에서는 언제를 기준으로 할인하나?')<cite data-ref="hira2021guideline"></cite>.</li>
-<li>240주기를 더한 뒤, 한 번만 생기는 이상반응 비용과 QALY 손실을 넣습니다. 비용과 효용은 공통 예시의 값입니다.</li>
+<li>240주기를 더한 뒤, 한 번만 생기는 이상반응 비용과 QALY 손실을 넣습니다. 비용과 효용은 <span class="tref" data-t="ch23-tb01">공통 예시의 값</span>입니다.</li>
 </ol>
 <p class="tbl-cap"><b>표 23-6.</b> 마르코프 모형의 결과 (가상의 예시, 1인당)</p>
-<div class="tbl-wrap"><table class="tbl tight" style="max-width:46rem">
+<div class="tbl-wrap" id="ch23-tb08" data-name="마르코프 모형의 결과"><table class="tbl tight" style="max-width:46rem">
 <thead><tr><th></th><th class="r">신약 A</th><th class="r">표준요법 B</th><th class="r">증분</th></tr></thead>
 <tbody>
 <tr><td>무진행 상태에서 보낸 기간(년)</td><td class="r">1.850</td><td class="r">1.203</td><td class="r">0.647</td></tr>
@@ -489,7 +489,7 @@ print(P_B.sum(axis=1), np.allclose(np.linalg.matrix_power(P_B, 24)[0], tB[24]))<
 <h4>율과 확률은 어떻게 다르고, 어디서 틀리나?</h4>
 <p>전이확률을 만들 때 가장 자주 틀리는 곳입니다. 발생률과 위험률이 율이고(<a href="#ch07-s1">7장 a 절</a> '발생률은 위험률과 어떻게 이어지나?'), 율은 0보다 크기만 하면 되므로 1을 넘을 수 있습니다. 예를 들어 발생률이 100인년당 150건이면 율은 연 1.5이고, 1년 안에 사건이 생길 확률은 150%가 아니라 1 − exp(−1.5) = 77.7%입니다. 확률은 0과 1 사이에 머물러야 하므로 기간에 비례해 늘지 않습니다. 그래서 확률을 나누거나 곱해 기간을 바꾸면 틀리고, 위험비도 확률에 곱하면 틀립니다(이유는 '전이확률은 어떻게 만드나?'). 변환식 1 − exp(−r × t)는 율이 그 기간 동안 일정할 때 맞는 식입니다.</p>
 <p class="tbl-cap"><b>표 23-7.</b> 율과 확률을 바꿀 때의 옳은 계산과 틀린 계산</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch23-tb09" data-name="율·확률의 옳은·틀린 계산"><table class="tbl tight">
 <thead><tr><th>하려는 일</th><th>옳은 계산</th><th>틀린 계산</th></tr></thead>
 <tbody>
 <tr><td>1년 확률 56.5%를 한 달 확률로</td><td>율로 바꿉니다. −ln(1 − 0.565) ÷ 12 = 0.0693. 한 달 확률 1 − exp(−0.0693) = <b>6.70%</b></td><td>56.5% ÷ 12 = 4.71%</td></tr>
@@ -540,7 +540,7 @@ print(P_B.sum(axis=1), np.allclose(np.linalg.matrix_power(P_B, 24)[0], tB[24]))<
 <tr><td>단점</td><td>위험률이 일정하다는 강한 가정</td><td>상태에 들어온 뒤의 시간은 여전히 기억하지 못함</td><td>상태 수가 빠르게 늘어남</td></tr>
 <tr><td>논문에서 보이는 말</td><td>constant</td><td>time-dependent</td><td>tunnel states</td></tr>
 </tbody></table></div>
-<p>논문에서는 마지막 줄의 말이 "time-dependent transition probabilities"처럼 transition probabilities 앞에 붙어 나옵니다. 환자마다의 이력이 더 복잡하게 영향을 주면 코호트 모형으로는 감당하기 어렵고 개인 단위 모의실험(a 절 표 23-3)을 씁니다<cite data-ref="siebert2012ispor"></cite>. 시간에 따라 달라지는 전이확률을 생존곡선에서 구하는 법과 터널 상태를 만드는 법은 아래 접힌 상자에 있습니다.</p>
+<p>논문에서는 마지막 줄의 말이 "time-dependent transition probabilities"처럼 transition probabilities 앞에 붙어 나옵니다. 환자마다의 이력이 더 복잡하게 영향을 주면 코호트 모형으로는 감당하기 어렵고 개인 단위 모의실험(<span class="tref" data-t="ch23-tb04">a 절 표 23-3</span>)을 씁니다<cite data-ref="siebert2012ispor"></cite>. 시간에 따라 달라지는 전이확률을 생존곡선에서 구하는 법과 터널 상태를 만드는 법은 아래 접힌 상자에 있습니다.</p>
 <!--FOLD do:시간에 따라 달라지는 전이확률과 터널 상태는 어떻게 만드나?-->
 <p><b>시간에 따라 달라지는 전이확률.</b> 주기마다 다른 행렬을 쓰는 방법입니다. 치료 시작부터 잰 시간에 따라 위험이 달라질 때 씁니다. 생존곡선 S(t)가 있으면 t번째 달의 사망확률은 1 − S(t) ÷ S(t − 1)로 구합니다. 와이블 곡선 S(t) = exp(−λ t<sup>γ</sup>)이면 이 값은 1 − exp{λ[(t − 1)<sup>γ</sup> − t<sup>γ</sup>]}입니다<cite data-ref="briggs2006book"></cite>. 공통 예시의 표준요법 B 전체생존 곡선에서 이 값은 첫 달 1.49%, 12번째 달 2.46%, 24번째 달 2.73%, 60번째 달 3.14%로 조금씩 오릅니다. 나이에 따른 일반 인구 사망률을 생명표에서 가져와 해마다 바꿔 넣는 것도 같은 방법입니다.</p>
 <p><b>터널 상태</b><span class="en">(tunnel state)</span>. 한 상태에 들어온 뒤 지난 시간에 따라 위험이 달라질 때는 그 상태를 '진행 1개월째', '진행 2개월째'처럼 여러 개로 쪼갭니다. 각 상태에는 한 주기만 머물고 다음 상태로 넘어가므로 터널을 지나는 것과 같습니다. 상태마다 다른 사망확률과 비용을 줄 수 있지만 상태 수가 빠르게 늘어납니다<cite data-ref="sonnenberg1993"></cite>.</p>
@@ -553,7 +553,7 @@ print(P_B.sum(axis=1), np.allclose(np.linalg.matrix_power(P_B, 24)[0], tB[24]))<
 <li>두 군 모두 무진행 상태를 떠나는 사람의 90%가 진행 상태로 갑니다. 위험비를 진행과 사망의 두 율에 똑같이 곱해 율의 비가 9 : 1로 같기 때문입니다.</li>
 <li>20년 안에 거의 모두가 무진행 상태를 떠나므로, 진행 상태에 들어오는 사람은 두 군 모두 약 90%입니다. 신약 A군은 더 늦게 들어올 뿐입니다.</li>
 <li>진행 상태에 들어온 사람은 두 군 모두 달마다 4.6%의 확률로 사망하므로, 진행 상태에 머무는 평균 기간도 같습니다.</li>
-<li>그래서 1인당 진행 기간은 두 군에서 같고(표 23-6의 1.631년), 생존 기간은 무진행 기간이 늘어난 만큼(0.647년)만 늘어납니다.</li>
+<li>그래서 1인당 진행 기간은 두 군에서 같고(<span class="tref" data-t="ch23-tb08">표 23-6</span>의 1.631년), 생존 기간은 무진행 기간이 늘어난 만큼(0.647년)만 늘어납니다.</li>
 </ol>
 <p>그 결과 모형이 내는 신약 A의 중앙 전체생존은 34.8개월로, 공통 예시의 전체생존 곡선(위험비 0.75)이 주는 36.0개월보다 짧습니다. 신약 A군의 진행 후 사망확률을 그 군의 중앙 전체생존에 맞춰 교정하면 ICER는 5,858에서 5,723만원/QALY로 내려갑니다(<a href="#ch23-s3">c 절</a> 표 23-10). 논문에서는 진행 후 사망확률의 출처와, 모형이 시험의 전체생존을 재현하는지 봅니다.</p>
 <p><strong>즉, 마르코프 모형에서는 확률을 율에서 바르게 만들었는지, 주기 안의 이동을 어떻게 셌는지, 모형이 무엇을 기억하지 못하게 두었는지가 결과를 바꿉니다.</strong></p>
@@ -580,13 +580,13 @@ print(P_B.sum(axis=1), np.allclose(np.linalg.matrix_power(P_B, 24)[0], tB[24]))<
 <ol class="marks">
 <li><span class="mk">1</span><span><b>세 개의 상호 배타적 상태.</b> 환자는 어느 시점에나 셋 중 한 상태에만 있습니다. 모형 그림에서 임상적으로 일어날 수 있는 이동이 빠지지 않았는지 봅니다. 이 모형에는 진행에서 무진행으로 돌아가는 화살표가 없습니다.</span></li>
 <li><span class="mk">2</span><span><b>주기 1개월.</b> 표의 확률은 모두 한 달 동안의 확률입니다. 주기가 1년인 모형의 확률과 직접 비교할 수 없습니다.</span></li>
-<li><span class="mk">3</span><span><b>율에서 확률로.</b> '전이확률은 어떻게 만드나?'의 방법으로 바꿨고 위험비는 율에 곱했다는 설명입니다. "annual probability was divided by 12"처럼 적혀 있으면 표 23-7의 틀린 계산입니다.</span></li>
+<li><span class="mk">3</span><span><b>율에서 확률로.</b> '전이확률은 어떻게 만드나?'의 방법으로 바꿨고 위험비는 율에 곱했다는 설명입니다. "annual probability was divided by 12"처럼 적혀 있으면 <span class="tref" data-t="ch23-tb09">표 23-7의 틀린 계산</span>입니다.</span></li>
 <li><span class="mk">4</span><span><b>반주기 보정.</b> 주기의 시작과 끝의 평균으로 상태 비율을 셌다는 뜻입니다. 보정 여부가 ICER를 바꾸므로('주기 안의 이동은 어떻게 세나?') 했는지와 방법을 확인합니다.</span></li>
 <li><span class="mk">5</span><span><b>신약 A의 진행 확률 0.040.</b> 율에 위험비를 곱한 뒤 확률로 바꾼 값입니다('전이확률은 어떻게 만드나?'). 한 행의 합이 1인지도 확인합니다(0.956 + 0.040 + 0.004 = 1.000).</span></li>
 <li><span class="mk">6</span><span><b>진행 후 사망확률이 두 군에서 같음.</b> '진행한 뒤의 사망 속도는 두 군에서 같은가?'의 가정이고, 표의 'assumed equal'이 그 표시입니다. 신약 A가 진행한 뒤의 생존에는 영향을 주지 않는다는 뜻이므로, 모형이 내는 신약 A의 중앙 전체생존(이 예에서 34.8개월)이 시험값과 맞는지 Results나 부록에서 찾습니다.</span></li>
 </ol>
 </div></div>
-<p>급여 평가 보고서에서는 하나를 더 봅니다. 국내 지침은 모형의 결과를 표나 그래프로 제시하고, 코호트 모형이면 단계마다 각 상태에 있는 사람의 수와 비용을 기술하도록 요구합니다(지침 43, 47쪽)<cite data-ref="hira2021guideline"></cite>. 표 23-5 같은 코호트 추적이 그 자료이고, 검토자는 이것으로 모형이 그럴듯하게 움직이는지 봅니다.</p>
+<p>급여 평가 보고서에서는 하나를 더 봅니다. 국내 지침은 모형의 결과를 표나 그래프로 제시하고, 코호트 모형이면 단계마다 각 상태에 있는 사람의 수와 비용을 기술하도록 요구합니다(지침 43, 47쪽)<cite data-ref="hira2021guideline"></cite>. <span class="tref" data-t="ch23-tb07">표 23-5</span> 같은 코호트 추적이 그 자료이고, 검토자는 이것으로 모형이 그럴듯하게 움직이는지 봅니다.</p>
 
 <h3>5. 논문에 쓰기</h3>
 <p><strong>모형 구조 문단의 둘째 부분에는 상태와 가능한 이동, 주기와 그 근거, 반주기 보정, 분석기간을 씁니다.</strong></p>
@@ -614,7 +614,7 @@ print(P_B.sum(axis=1), np.allclose(np.linalg.matrix_power(P_B, 24)[0], tB[24]))<
 <p>자주 하는 실수는 다음 두 가지입니다.</p>
 <ul>
 <li>주기 길이만 쓰고 그 근거를 쓰지 않는 것입니다. 지침이 요구하는 것은 주기 길이와 산정 근거입니다.</li>
-<li>전이확률 표에 율에서 바꾼 방법을 적지 않는 것입니다. 문헌의 값이 율인지 확률인지, 몇 년 동안의 값인지 모르면 독자는 표 23-7의 오류가 있는지 확인할 수 없습니다.</li>
+<li>전이확률 표에 율에서 바꾼 방법을 적지 않는 것입니다. 문헌의 값이 율인지 확률인지, 몇 년 동안의 값인지 모르면 독자는 <span class="tref" data-t="ch23-tb09">표 23-7</span>의 오류가 있는지 확인할 수 없습니다.</li>
 </ul>
 
 <p class="lab-link">파이썬 실습 · <a href="#lab23-s2">실습 23 b 절</a>에서 상태 비율에 반주기 보정을 적용하는 한 줄을 직접 계산하고 보정하지 않은 값과 비교합니다. 같은 실습 d 절의 끝에서는 율을 확률로 바꿔 전이확률 행렬을 만들고 마르코프 모형으로 ICER 5,858만원/QALY를 얻습니다. <a href="#lab23-s5">과제 3</a>에서는 1년 확률을 12로 나눈 동료의 모형을 고칩니다.</p>
@@ -720,7 +720,7 @@ t = 12개월이면 p = 0.5647</p></div>
 <tr class="grp"><td colspan="5"><b>신약 A</b></td></tr>
 <tr><td>0</td><td class='r'>100.0</td><td class='r'>100.0</td><td class='r'>0.0</td><td class='r'>0.0</td></tr><tr><td>12</td><td class='r'>82.2</td><td class='r'>58.5</td><td class='r'>23.7</td><td class='r'>17.8</td></tr><tr><td>24</td><td class='r'>64.7</td><td class='r'>35.5</td><td class='r'>29.2</td><td class='r'>35.3</td></tr><tr><td>36</td><td class='r'>50.0</td><td class='r'>21.8</td><td class='r'>28.1</td><td class='r'>50.0</td></tr><tr><td>60</td><td class='r'>28.7</td><td class='r'>8.4</td><td class='r'>20.2</td><td class='r'>71.3</td></tr><tr><td>120</td><td class='r'>6.3</td><td class='r'>0.8</td><td class='r'>5.4</td><td class='r'>93.7</td></tr>
 </tbody></table></div>
-<p>12개월의 표준요법 B는 전체생존 77.0%에서 무진행생존 43.9%를 뺀 33.1%가 진행 상태입니다(표의 값은 따로 반올림해 0.1 다를 수 있습니다). 마르코프 모형의 코호트 추적(표 23-5)과 같은 종류의 표가 전이확률 없이 만들어졌습니다.</p>
+<p>12개월의 표준요법 B는 전체생존 77.0%에서 무진행생존 43.9%를 뺀 33.1%가 진행 상태입니다(표의 값은 따로 반올림해 0.1 다를 수 있습니다). 마르코프 모형의 코호트 추적(<span class="tref" data-t="ch23-tb07">표 23-5</span>)과 같은 종류의 표가 전이확률 없이 만들어졌습니다.</p>
 <!--FIG:ch23_psm-->
 <p>상태별 비율을 시간에 따라 더하면 그 상태에서 보낸 평균 기간이 되고, 그림으로는 면적입니다. 어느 한 달 동안 무진행 상태에 있는 비율이 0.9이면, 코호트의 한 사람이 그달에 무진행 상태로 보낸 기간이 평균 0.9개월이기 때문입니다. 무진행생존 곡선 아래의 면적이 무진행 상태의 평균 기간, 두 곡선 사이의 면적이 진행 상태의 평균 기간입니다. <a href="#ch07-s2">7장 b 절</a>의 제한평균생존시간과 같은 계산이며, 여기서는 분석기간 20년까지의 면적입니다.</p>
 <div class="quick"><p class="qk">잠깐 확인</p><p>표준요법 B의 12개월 진행 상태 비율 33.1%를 '12개월까지 진행을 겪은 환자가 33.1%'로 읽어도 되나요?</p><details><summary>답 보기</summary><div><p>그렇게 읽지 않습니다. 33.1%는 12개월에 살아 있으면서 진행 상태인 환자이고, 그 전에 진행한 뒤 이미 사망한 환자는 사망 23.0%에 섞여 있습니다. 진행이나 사망을 겪은 환자는 100 − 43.9 = 56.1%이지만, 두 곡선만으로는 그 가운데 진행을 거친 환자가 몇 %인지 알 수 없습니다.</p></div></details></div>
@@ -728,7 +728,7 @@ t = 12개월이면 p = 0.5647</p></div>
 <h4>면적에 비용과 효용을 어떻게 붙이나?</h4>
 <p>방법은 마르코프 모형과 같습니다. 달마다 상태 비율(반주기 보정)에 그 상태의 비용과 효용(무진행 0.78, 진행 0.62)을 곱하고 연 4.5%로 할인해 더합니다. 약값은 무진행 상태에 있는 동안만 매깁니다.</p>
 <p class="tbl-cap"><b>표 23-9.</b> 분할생존모형 기준 분석의 구성 (가상의 예시, 1인당)</p>
-<div class="tbl-wrap"><table class="tbl tight" style="max-width:48rem">
+<div class="tbl-wrap" id="ch23-tb14" data-name="분할생존모형 기준 분석"><table class="tbl tight" style="max-width:48rem">
 <thead><tr><th></th><th class="r">신약 A</th><th class="r">표준요법 B</th><th class="r">증분</th></tr></thead>
 <tbody>
 <tr><td>무진행 상태의 기간(년, 할인 전)</td><td class="r">1.974</td><td class="r">1.255</td><td class="r">0.719</td></tr>
@@ -799,7 +799,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <ol>
 <li>두 군의 전체생존 곡선이 같으므로 평균 생존 기간도 3.054년으로 같습니다.</li>
 <li>무진행생존 곡선은 그대로이므로 신약 A의 평균 무진행 기간은 1.974년입니다.</li>
-<li>진행 상태의 기간은 두 곡선 사이의 면적이므로 신약 A는 3.054 − 1.974 = 1.08년이고, 표준요법 B는 1.80년입니다(표 23-9의 1.799년).</li>
+<li>진행 상태의 기간은 두 곡선 사이의 면적이므로 신약 A는 3.054 − 1.974 = 1.08년이고, 표준요법 B는 1.80년입니다(<span class="tref" data-t="ch23-tb14">표 23-9</span>의 1.799년).</li>
 <li>진행 상태의 평균 기간은 '진행에 이르는 환자의 비율'에 '진행한 환자가 그 뒤에 사는 평균 기간'을 곱한 값입니다.</li>
 <li>진행을 늦추는 약이어도 결국 진행에 이르는 환자의 비율이 두 군에서 비슷하다면, 신약 A군에서 진행한 환자는 진행 뒤에 표준요법 B군보다 약 40% 짧게 산다는 뜻입니다(1.08 ÷ 1.80 = 0.60).</li>
 </ol>
@@ -870,7 +870,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 입력값 표</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch23-tb17" data-name="공통 예시의 입력값 표"><table class="jt">
 <caption><b>Table 1.</b> Model inputs</caption>
 <thead><tr><th>Parameter</th><th class="r">Base case</th><th>Distribution <span class="mk">1</span></th><th>Source</th></tr></thead>
 <tbody>
@@ -902,7 +902,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <p>표의 출처 열을 보면 생존곡선과 효용은 시험에서, 상태별 비용은 청구자료에서 왔습니다. 출처가 다른 값이 한 모형에 들어가면, 그 값들이 같은 환자와 같은 상태를 가리키는지 따로 확인해야 합니다. 확인하는 방법은 <a href="#ch23-s4">d 절</a> '5. 내 연구에서 분석하기'의 '출처가 다른 입력값은 서로 맞는지 어떻게 확인하나?'에 모았습니다.</p>
 
 <h4>결과가 그럴듯한지 어떻게 확인하나?</h4>
-<p>결과표에 상태별 평균 기간(표 23-9의 위 세 줄)이 있으면 진행 후 기간을 직접 읽을 수 있습니다. '면적에 비용과 효용을 어떻게 붙이나?'에서 구한 진행 상태의 기간은 신약 A가 0.143년 깁니다. 전체생존의 이득(0.863년)이 무진행생존의 이득(0.719년)보다 커서 그 차이만큼 진행 상태가 길어진 것이고, 신약 A가 진행한 뒤의 생존까지 늘린다는 가정이 곡선에 들어 있는 셈입니다. 진행 후 치료의 근거나 외부 자료로 이것이 그럴듯한지 따집니다. 이런 줄이 없는 논문에서는 '진행한 뒤의 생존은 어디서 정해지나?'에서 본 가정을 독자가 확인할 수 없습니다.</p>
+<p>결과표에 상태별 평균 기간(<span class="tref" data-t="ch23-tb14">표 23-9의 위 세 줄</span>)이 있으면 진행 후 기간을 직접 읽을 수 있습니다. '면적에 비용과 효용을 어떻게 붙이나?'에서 구한 진행 상태의 기간은 신약 A가 0.143년 깁니다. 전체생존의 이득(0.863년)이 무진행생존의 이득(0.719년)보다 커서 그 차이만큼 진행 상태가 길어진 것이고, 신약 A가 진행한 뒤의 생존까지 늘린다는 가정이 곡선에 들어 있는 셈입니다. 진행 후 치료의 근거나 외부 자료로 이것이 그럴듯한지 따집니다. 이런 줄이 없는 논문에서는 '진행한 뒤의 생존은 어디서 정해지나?'에서 본 가정을 독자가 확인할 수 없습니다.</p>
 <p>결과를 해석하기 전에 모형이 계산을 제대로 하는지도 확인합니다. 국내 지침은 모형의 타당도 평가를 필수적이라고 적습니다(지침 45쪽)<cite data-ref="hira2021guideline"></cite>. 공통 예시가 통과한 점검과 지침이 드는 방법은 <a href="#ch23-s4">d 절</a> '5. 내 연구에서 분석하기'의 '계산한 뒤에는 무엇을 확인하나?'에 모았습니다.</p>
 
 <h3>5. 논문에 쓰기</h3>
@@ -925,7 +925,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <li><span class="mk">2</span><span><b>진행 상태 = OS − PFS.</b> 분할생존모형임을 알려 주는 문장이고, 진행 후 생존을 따로 모형화하지 않았다는 뜻이기도 합니다('진행한 뒤의 생존은 어디서 정해지나?').</span></li>
 <li><span class="mk">3</span><span><b>위험비를 전 기간에 적용.</b> 효과가 20년 동안 같은 크기로 이어진다는 가정과 비례위험 가정(<a href="#ch11-s1">11장 a 절</a>)을 함께 밝힌 것입니다. 효과가 줄어드는 시나리오를 했다면 함께 적습니다(d 절 '치료 효과는 언제까지 이어지나?').</span></li>
 <li><span class="mk">4</span><span><b>약값을 매긴 기간.</b> 증분비용의 대부분이 약값이므로 이 문장이 결과를 크게 좌우합니다.</span></li>
-<li><span class="mk">5</span><span><b>두 군의 총값과 증분.</b> 표 23-9의 값을 백만원 단위로 옮겼습니다(10,562만원 = 105.62 million KRW). 증분만 쓰지 않고 군별 총비용과 QALY를 함께 쓰면 독자가 ICER를 검산할 수 있습니다. ICER는 반올림 전 값으로 계산합니다.</span></li>
+<li><span class="mk">5</span><span><b>두 군의 총값과 증분.</b> <span class="tref" data-t="ch23-tb14">표 23-9</span>의 값을 백만원 단위로 옮겼습니다(10,562만원 = 105.62 million KRW). 증분만 쓰지 않고 군별 총비용과 QALY를 함께 쓰면 독자가 ICER를 검산할 수 있습니다. ICER는 반올림 전 값으로 계산합니다.</span></li>
 </ol>
 </div></div>
 
@@ -1011,7 +1011,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <tbody>
 <tr><td>지수</td><td class='r'>1</td><td class='r'>1,376.8</td><td class='r'>1.9</td><td class='r'>1,380.6</td></tr><tr class='hi'><td>와이블</td><td class='r'>2</td><td class='r'>1,375.9</td><td class='r'>1.0</td><td class='r'>1,383.3</td></tr><tr><td>곰페르츠</td><td class='r'>2</td><td class='r'>1,374.9</td><td class='r'>0.0</td><td class='r'>1,382.3</td></tr><tr><td>로그-정규</td><td class='r'>2</td><td class='r'>1,389.8</td><td class='r'>14.9</td><td class='r'>1,397.2</td></tr><tr><td>로그-로지스틱</td><td class='r'>2</td><td class='r'>1,379.7</td><td class='r'>4.8</td><td class='r'>1,387.1</td></tr><tr><td>일반화 감마</td><td class='r'>3</td><td class='r'>1,376.9</td><td class='r'>2.0</td><td class='r'>1,388.0</td></tr>
 </tbody></table></div>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch23-tb19" data-name="모형별 외삽 생존율"><table class="tbl tight">
 <thead><tr><th>모형</th><th class="r">2년<br>생존율</th><th class="r">5년</th><th class="r">10년</th><th class="r">20년</th><th class="r">평균<br>생존(년)</th></tr></thead>
 <tbody>
 <tr><td>지수</td><td class='r'>56.6%</td><td class='r'>24.1%</td><td class='r'>5.8%</td><td class='r'>0.3%</td><td class='r'>3.50</td></tr><tr class='hi'><td>와이블</td><td class='r'>56.4%</td><td class='r'>19.5%</td><td class='r'>2.7%</td><td class='r'>0.0%</td><td class='r'>3.10</td></tr><tr><td>곰페르츠</td><td class='r'>56.7%</td><td class='r'>11.1%</td><td class='r'>0.0%</td><td class='r'>0.0%</td><td class='r'>2.60</td></tr><tr><td>로그-정규</td><td class='r'>56.9%</td><td class='r'>32.6%</td><td class='r'>17.7%</td><td class='r'>8.1%</td><td class='r'>5.19</td></tr><tr><td>로그-로지스틱</td><td class='r'>56.7%</td><td class='r'>28.3%</td><td class='r'>13.8%</td><td class='r'>6.0%</td><td class='r'>4.62</td></tr><tr><td>일반화 감마</td><td class='r'>56.7%</td><td class='r'>12.1%</td><td class='r'>0.0%</td><td class='r'>0.0%</td><td class='r'>2.64</td></tr>
@@ -1028,7 +1028,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <h4>곡선마다 경제성 평가 결과는 얼마나 달라지나?</h4>
 <p>표준요법 B의 전체생존 곡선을 각 모형으로 바꿔 넣고 분할생존모형을 다시 돌렸습니다. 신약 A의 곡선은 위험비 0.75로 만들고 나머지 입력값은 그대로입니다.</p>
 <p class="tbl-cap"><b>표 23-12.</b> 표준요법 B 전체생존의 외삽 모형에 따른 경제성 평가 결과 (가상의 예시)</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch23-tb20" data-name="외삽 모형별 경제성 결과"><table class="tbl tight">
 <thead><tr><th>모형</th><th class="r">평균<br>생존(년)<br>B / A</th><th class="r">증분<br>비용<br>(만원)</th><th class="r">증분<br>QALY</th><th class="r">ICER<br>(만원/<br>QALY)</th></tr></thead>
 <tbody>
 <tr><td>지수</td><td class='r'>3.50 / 4.62</td><td class='r'>3,321</td><td class='r'>0.605</td><td class='r'>5,485</td></tr><tr class='hi'><td>와이블</td><td class='r'>3.10 / 3.98</td><td class='r'>2,902</td><td class='r'>0.517</td><td class='r'>5,610</td></tr><tr><td>곰페르츠</td><td class='r'>2.60 / 3.12</td><td class='r'>2,205</td><td class='r'>0.367</td><td class='r'>6,015</td></tr><tr><td>로그-정규</td><td class='r'>5.19 / 6.93</td><td class='r'>4,294</td><td class='r'>0.813</td><td class='r'>5,281</td></tr><tr><td>로그-로지스틱</td><td class='r'>4.62 / 6.25</td><td class='r'>4,103</td><td class='r'>0.773</td><td class='r'>5,311</td></tr><tr><td>일반화 감마</td><td class='r'>2.64 / 3.20</td><td class='r'>2,275</td><td class='r'>0.383</td><td class='r'>5,934</td></tr>
@@ -1039,7 +1039,7 @@ B 무진행 1.255 년, 진행 1.799 년, 비용 7689 QALY 1.874
 <ol>
 <li>이 표에서 바꾼 것은 표준요법 B의 전체생존 곡선뿐이고 무진행생존 곡선은 그대로입니다. 그래서 곡선마다 달라지는 것은 주로 진행 상태에서 보내는 기간입니다.</li>
 <li>진행 상태에서는 한 달에 250만원이 들고 효용은 0.62입니다. 그래서 진행 상태의 기간이 늘어 1 QALY를 더 얻을 때마다 250 × 12 ÷ 0.62 = 4,839만원이 함께 늘어납니다.</li>
-<li>무진행 상태의 기간이 늘어 얻는 QALY에는 약값이 붙습니다. 표 23-9에서 무진행 상태 쪽의 증분비용(약값 2,417, 관리비 299, 이상반응 40만원)을 무진행 상태 쪽의 증분 QALY(0.486에서 이상반응 손실 0.004를 뺀 0.482)로 나누면 2,756 ÷ 0.482 = 5,718만원입니다.</li>
+<li>무진행 상태의 기간이 늘어 얻는 QALY에는 약값이 붙습니다. <span class="tref" data-t="ch23-tb14">표 23-9</span>에서 무진행 상태 쪽의 증분비용(약값 2,417, 관리비 299, 이상반응 40만원)을 무진행 상태 쪽의 증분 QALY(0.486에서 이상반응 손실 0.004를 뺀 0.482)로 나누면 2,756 ÷ 0.482 = 5,718만원입니다.</li>
 <li>전체 ICER는 두 부분의 증분비용 합을 증분 QALY 합으로 나눈 값이어서, 두 비율을 각 부분의 증분 QALY로 가중평균한 값과 같습니다. 그래서 진행 상태의 기간이 늘어나는 모형에서는 ICER가 두 비율 사이에 놓이고, 진행 상태의 증분이 클수록 4,839만원 쪽으로 내려갑니다. 꼬리가 긴 로그-정규에서는 신약 A군이 진행 상태에서 1.020년을 더 보내 ICER가 5,281만원으로 가장 낮습니다.</li>
 <li>꼬리가 가장 짧은 곰페르츠에서는 전체생존 곡선이 신약 A군은 89개월, 표준요법 B군은 99개월부터 무진행생존 곡선 아래로 내려갑니다. 그러면 모형이 무진행생존을 전체생존 값으로 잘라(<a href="#ch23-s3">c 절</a> '무진행생존 곡선이 전체생존 곡선을 넘으면?') 무진행 기간의 증분이 0.719년에서 0.682년으로 줄고, 생존 기간의 증분(0.521년)은 이보다도 작습니다. 그래서 신약 A군이 진행 상태에서 오히려 0.161년을 덜 보내고, QALY당 4,839만원이 드는 부분이 빠지면서 ICER가 무진행 상태 쪽의 비율보다도 높은 6,015만원이 됩니다.</li>
 </ol>
@@ -1162,8 +1162,8 @@ S(t) = exp(-lam * t^gam) 꼴: 0.01502 1.1454</pre></div></div>
 <tr><td>로그-정규<span class="en">(log-normal)</span></td><td class="r">2</td><td>올랐다가 내림. 꼬리가 김</td></tr>
 <tr><td>일반화 감마<span class="en">(generalized gamma)</span></td><td class="r">3</td><td>여러 모양이 가능. 와이블과 로그-정규를 특수한 경우로 포함</td></tr>
 </tbody></table></div>
-<p>로그-정규와 로그-로지스틱은 위험률이 나중에 낮아지는 모양이어서 오래 사는 환자가 남는다고 예측합니다. 위 예시의 20년 생존율 8%가 진행성 신세포암의 표준요법에서 말이 되는지는 통계가 아니라 임상 지식과 외부 자료로 판단할 문제입니다. 반대쪽 끝에는 위험률이 빨리 오르는 곰페르츠가 있고, 모수가 셋인 일반화 감마도 이 자료에서 10년 생존율을 0.0%로 예측했습니다. 일반화 감마의 셋째 모수(lifelines의 <code>lambda_</code>)는 1이면 와이블, 0이면 로그-정규가 되는데, 추정값 1.58의 95% 신뢰구간이 −0.03–3.19여서 두 모형을 모두 포함합니다. 30개월 자료로는 꼬리의 모양이 정해지지 않았다는 뜻이고, 모수가 많다고 꼬리의 예측이 더 믿을 만해지는 것은 아닙니다.</p>
-<p>이 장의 예는 가상의 국내 등록자료와 비교한 결과 와이블의 10년 생존율 2.7%가 가장 가까웠다고 놓고, 와이블을 기준 분석에 씁니다. 곰페르츠와 일반화 감마의 0.0%는 10년 뒤에 살아 있는 환자가 사실상 없다는 예측이어서(곰페르츠 0.004%, 일반화 감마 0.05%), 등록자료에 장기 생존자가 있다면 받아들이기 어렵습니다. 두 모형으로 외삽한 전체생존 곡선은 분석기간 안에서 무진행생존 곡선 아래로도 내려갑니다(신약 A군에서 곰페르츠 89개월, 일반화 감마 102개월부터). 나머지 다섯 모형은 표 23-12처럼 시나리오로 보입니다. 앞부분은 Kaplan-Meier 곡선을 그대로 쓰고 뒤만 모수 곡선으로 잇는 방법도 있는데, 그때는 이을 시점이 또 하나의 선택이 됩니다(접힌 상자).</p>
+<p>로그-정규와 로그-로지스틱은 위험률이 나중에 낮아지는 모양이어서 오래 사는 환자가 남는다고 예측합니다. <span class="tref" data-t="ch23-tb19">위 예시의 20년 생존율 8%</span>가 진행성 신세포암의 표준요법에서 말이 되는지는 통계가 아니라 임상 지식과 외부 자료로 판단할 문제입니다. 반대쪽 끝에는 위험률이 빨리 오르는 곰페르츠가 있고, 모수가 셋인 일반화 감마도 이 자료에서 10년 생존율을 0.0%로 예측했습니다. 일반화 감마의 셋째 모수(lifelines의 <code>lambda_</code>)는 1이면 와이블, 0이면 로그-정규가 되는데, 추정값 1.58의 95% 신뢰구간이 −0.03–3.19여서 두 모형을 모두 포함합니다. 30개월 자료로는 꼬리의 모양이 정해지지 않았다는 뜻이고, 모수가 많다고 꼬리의 예측이 더 믿을 만해지는 것은 아닙니다.</p>
+<p>이 장의 예는 가상의 국내 등록자료와 비교한 결과 와이블의 10년 생존율 2.7%가 가장 가까웠다고 놓고, 와이블을 기준 분석에 씁니다. 곰페르츠와 일반화 감마의 0.0%는 10년 뒤에 살아 있는 환자가 사실상 없다는 예측이어서(곰페르츠 0.004%, 일반화 감마 0.05%), 등록자료에 장기 생존자가 있다면 받아들이기 어렵습니다. 두 모형으로 외삽한 전체생존 곡선은 분석기간 안에서 무진행생존 곡선 아래로도 내려갑니다(신약 A군에서 곰페르츠 89개월, 일반화 감마 102개월부터). 나머지 다섯 모형은 <span class="tref" data-t="ch23-tb20">표 23-12</span>처럼 시나리오로 보입니다. 앞부분은 Kaplan-Meier 곡선을 그대로 쓰고 뒤만 모수 곡선으로 잇는 방법도 있는데, 그때는 이을 시점이 또 하나의 선택이 됩니다(접힌 상자).</p>
 <!--FOLD do:일반화 감마가 수렴했는지, 셋째 모수를 믿을 수 있는지 어떻게 보나?-->
 <p>lifelines의 일반화 감마 적합은 불안정할 때가 있어 수렴을 따로 확인했습니다. 이 자료에서는 경고 없이 수렴했고, 초깃값을 바꿔 다시 적합해도(<code>fit()</code>의 <code>initial_point=</code>) 같은 값이 나왔습니다. 문제는 수렴이 아니라 정보의 양입니다. 로그우도는 와이블보다 0.52 높을 뿐이어서 우도비 검정으로도 와이블과 구별되지 않습니다(p = 0.31). 30개월까지의 자료는 셋째 모수를 거의 정하지 못하는데, 10년 생존율은 셋째 모수가 1일 때 2.7%(와이블), 1.58일 때 0.0%로 달라집니다. 유연한 모형일수록 꼬리가 자료보다 우연에 좌우될 수 있으므로, 모수의 신뢰구간과 외삽한 생존율을 함께 봅니다.</p>
 <!--/FOLD-->
@@ -1201,7 +1201,7 @@ S(t) = exp(-lam * t^gam) 꼴: 0.01502 1.1454</pre></div></div>
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 외삽 모형별 적합도와 시나리오 결과</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch23-tb25" data-name="외삽 모형별 적합도·ICER"><table class="jt">
 <caption><b>Table 3.</b> Goodness of fit, extrapolated overall survival with standard therapy, and cost-effectiveness results by survival model</caption>
 <thead><tr><th>Model</th><th class="r">AIC</th><th class="r">BIC</th><th class="r">5-year OS, %</th><th class="r">10-year OS, %</th><th class="r">Mean OS, years</th><th class="r">ICER, 10,000 KRW/QALY</th></tr></thead>
 <tbody>
@@ -1222,7 +1222,7 @@ S(t) = exp(-lam * t^gam) 꼴: 0.01502 1.1454</pre></div></div>
 </div></div>
 
 <h4>관찰 자료만의 결과와는 어떻게 비교하나?</h4>
-<p>급여 평가 보고서에서는 관찰 자료만으로 계산한 결과도 함께 봅니다. 국내 지침은 관찰기간을 넘어 외삽했으면 관찰된 자료에 기초한 분석결과를 추가로 제출하고 외삽한 결과와의 차이를 분석·기술하도록 요구하고, 외삽 기간에 생긴 편익이 전체 편익의 상당 부분을 차지하면 그 영향을 고려하도록 요구합니다(지침 7쪽)<cite data-ref="hira2021guideline"></cite>. 공통 예시를 시험이 관찰한 30개월에서 끊으면 증분 QALY의 약 4분의 1만 남습니다(<a href="#ch25-s2">25장 b 절</a>). 위 표 같은 시나리오 결과와 이 비교가 함께 있어야 결과 가운데 자료에서 나온 부분과 가정에서 나온 부분을 가를 수 있습니다.</p>
+<p>급여 평가 보고서에서는 관찰 자료만으로 계산한 결과도 함께 봅니다. 국내 지침은 관찰기간을 넘어 외삽했으면 관찰된 자료에 기초한 분석결과를 추가로 제출하고 외삽한 결과와의 차이를 분석·기술하도록 요구하고, 외삽 기간에 생긴 편익이 전체 편익의 상당 부분을 차지하면 그 영향을 고려하도록 요구합니다(지침 7쪽)<cite data-ref="hira2021guideline"></cite>. 공통 예시를 시험이 관찰한 30개월에서 끊으면 증분 QALY의 약 4분의 1만 남습니다(<a href="#ch25-s2">25장 b 절</a>). <span class="tref" data-t="ch23-tb25">위 표</span> 같은 시나리오 결과와 이 비교가 함께 있어야 결과 가운데 자료에서 나온 부분과 가정에서 나온 부분을 가를 수 있습니다.</p>
 
 <h3>5. 내 연구에서 분석하기</h3>
 <p><strong>결정분석 모형을 내 연구에 쓸 때는 구조, 입력값과 그 출처, 외삽의 후보와 기준을 계산하기 전에 정합니다. 전용 함수가 있는 계산은 곡선 적합뿐이고, 코호트 추적, 반주기 보정, 할인, 합계는 numpy로 직접 짜며, 결과가 그럴듯한지는 분석하는 사람이 확인합니다.</strong></p>
@@ -1231,7 +1231,7 @@ S(t) = exp(-lam * t^gam) 꼴: 0.01502 1.1454</pre></div></div>
 <h4>분석 전에 무엇을 정하나?</h4>
 <p>a–d 절에서 정하라고 한 것을 분석 계획서 한 곳에 모읍니다.</p>
 <ul>
-<li><b>결정 문제와 모형 종류 (a 절).</b> 대상 환자, 비교할 전략, 관점과 분석기간을 정하고(<a href="#ch20-s3">20장 c 절</a>), 그 문제에 맞는 모형의 종류를 표 23-3에서 고릅니다. 모형 그림을 먼저 그리고, 가지와 상태마다 확률, 비용, 효용의 근거가 있는지 확인합니다.</li>
+<li><b>결정 문제와 모형 종류 (a 절).</b> 대상 환자, 비교할 전략, 관점과 분석기간을 정하고(<a href="#ch20-s3">20장 c 절</a>), 그 문제에 맞는 모형의 종류를 <span class="tref" data-t="ch23-tb04">표 23-3</span>에서 고릅니다. 모형 그림을 먼저 그리고, 가지와 상태마다 확률, 비용, 효용의 근거가 있는지 확인합니다.</li>
 <li><b>상태와 주기 (b 절).</b> 비용과 효용이 뚜렷이 다른 단위로 상태를 나누고, 주기 길이와 그 근거를 적습니다. 전이확률이 시간에 따라 달라져야 하는지도 정합니다.</li>
 <li><b>할인과 분석기간.</b> 지침은 비용과 결과 모두 연 4.5%로 할인하도록 요구하고, 분석기간은 주요 임상 결과를 확인할 수 있을 만큼 충분히 길게 잡도록 권장합니다(<a href="#ch20-s3">20장 c 절</a>). 외국 모형의 결과를 옮겨 올 때는 그 나라의 할인율이 다를 수 있습니다(20장 c 절의 접힌 상자 '외국 지침의 관점과 할인율은 어떻게 다른가?').</li>
 <li><b>반주기 보정 (b 절).</b> 지침이 요구하지 않으므로 할지와 방법을 분석자가 정해 적습니다(<a href="#ch23-s2">b 절</a> '주기 안의 이동은 어떻게 세나?'). 비용을 주기의 어느 시점에 매길지도 함께 정합니다.</li>
@@ -1243,7 +1243,7 @@ S(t) = exp(-lam * t^gam) 꼴: 0.01502 1.1454</pre></div></div>
 
 <h4>출처가 다른 입력값은 서로 맞는지 어떻게 확인하나?</h4>
 <p>공통 예시 모형에는 출처가 다른 세 종류의 값이 들어갑니다. 생존곡선과 위험비는 임상시험에서, 상태별 월 비용은 국내 청구자료에서(<a href="#ch21-s1">21장 a 절</a>), 상태별 효용은 시험에서 잰 EQ-5D-5L에서(<a href="#ch22-s2">22장 b 절</a>) 왔습니다. 모형은 이 값들을 한 환자 집단의 값처럼 곱하고 더합니다. 예를 들어 진행 상태의 비용은 시험의 곡선으로 센 진행 상태의 기간에 청구자료의 진행 상태 월 비용을 곱한 값입니다. 두 자료가 말하는 '진행 상태'가 같은 환자의 같은 시기가 아니면, 곱한 값은 어느 자료에도 없는 환자의 비용이 됩니다.</p>
-<p>그래서 입력값 표의 출처 열을 한 줄씩 펼쳐 대상자, 상태의 정의, 시점, 단위를 나란히 적어 봅니다. 공통 예시라면 다음과 같습니다(가상의 예시).</p>
+<p>그래서 <span class="tref" data-t="ch23-tb17">입력값 표의 출처 열</span>을 한 줄씩 펼쳐 대상자, 상태의 정의, 시점, 단위를 나란히 적어 봅니다. 공통 예시라면 다음과 같습니다(가상의 예시).</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th>입력값</th><th>출처와 대상자</th><th>상태의 정의, 시점, 단위</th></tr></thead>
 <tbody>
@@ -1358,9 +1358,9 @@ S(t) = exp(-lam * t^gam) 꼴: 0.01502 1.1454</pre></div></div>
 <p class="excerpt"><b>Methods (continued).</b> Overall survival in the standard therapy arm (n = 300; 145 deaths; <span class="mk">1</span> <span class="hl">maximum follow-up 30 months</span>) was extrapolated to 20 years. Exponential, Weibull, Gompertz, log-normal, log-logistic, and generalized gamma models were fitted to patient-level data. In line with the Korean pharmacoeconomic guideline and the approach of NICE DSU Technical Support Document 14, model selection considered visual fit, <span class="mk">2</span> <span class="hl">AIC and BIC</span>, and <span class="mk">3</span> <span class="hl">the clinical plausibility of long-term survival</span>, which was reviewed by clinical experts and compared with registry data. <span class="mk">4</span> <span class="hl">The Gompertz model had the lowest AIC but predicted that no patients would be alive at 10 years, which was inconsistent with the registry data</span>; the Weibull model, whose AIC was 1.0 higher, was used in the base case, and the other models were examined in scenario analyses. <span class="mk">5</span> <span class="hl">The hazard ratio for drug A was applied to the selected curve.</span></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>최대 추적 30개월.</b> 자료가 있는 구간입니다. 분석기간 20년 가운데 나머지는 외삽이고, 이 예시처럼 추적이 끝날 때 환자의 약 절반이 살아 있으면 결과 가운데 외삽에 기대는 부분이 큽니다.</span></li>
-<li><span class="mk">2</span><span><b>AIC와 BIC.</b> 관찰 기간의 적합도입니다. 작을수록 좋고 BIC가 모수 수에 더 큰 벌점을 줍니다. 후보 모두의 값은 '결과 읽기'의 Table 3처럼 표로 싣습니다.</span></li>
+<li><span class="mk">2</span><span><b>AIC와 BIC.</b> 관찰 기간의 적합도입니다. 작을수록 좋고 BIC가 모수 수에 더 큰 벌점을 줍니다. 후보 모두의 값은 '결과 읽기'의 <span class="tref" data-t="ch23-tb25">Table 3</span>처럼 표로 싣습니다.</span></li>
 <li><span class="mk">3</span><span><b>장기 생존의 임상적 타당성.</b> 무엇과 비교했는지(전문가 의견, 등록자료)까지 씁니다. 이 문장이 없는 논문은 '관찰 구간에 잘 맞는 곡선이 그 뒤도 맞나?'에서 본 함정을 피했는지 알 수 없습니다.</span></li>
-<li><span class="mk">4</span><span><b>AIC가 가장 낮은 모형을 고르지 않은 이유.</b> 관찰 구간의 적합보다 외삽한 장기 생존이 외부 자료와 맞는지를 앞세웠다는 것을 밝힙니다. 이 예문은 가상의 등록자료에 10년 생존자가 있다고 놓았습니다. 이 문장이 있으면 독자는 와이블이 AIC 순위로 고른 모형이 아니라는 것을 알고, 곰페르츠를 쓰면 ICER가 6,015만원/QALY로 오른다는 것(Table 3)과 함께 읽을 수 있습니다.</span></li>
+<li><span class="mk">4</span><span><b>AIC가 가장 낮은 모형을 고르지 않은 이유.</b> 관찰 구간의 적합보다 외삽한 장기 생존이 외부 자료와 맞는지를 앞세웠다는 것을 밝힙니다. 이 예문은 가상의 등록자료에 10년 생존자가 있다고 놓았습니다. 이 문장이 있으면 독자는 와이블이 AIC 순위로 고른 모형이 아니라는 것을 알고, 곰페르츠를 쓰면 ICER가 6,015만원/QALY로 오른다는 것(<span class="tref" data-t="ch23-tb25">Table 3</span>)과 함께 읽을 수 있습니다.</span></li>
 <li><span class="mk">5</span><span><b>위험비를 고른 곡선에 적용.</b> 신약군 곡선을 만든 방법입니다. 꼬리가 긴 곡선에 위험비를 적용하면 두 군의 차이도 더 오래 이어져 증분 QALY가 커집니다('곡선마다 경제성 평가 결과는 얼마나 달라지나?').</span></li>
 </ol>
 </div></div>

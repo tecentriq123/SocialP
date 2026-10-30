@@ -61,7 +61,7 @@
 
 <h4>이 절의 예에서는 무엇을 먼저 보나?</h4>
 <p>예제 연구는 혈당 조절이 불충분한 제2형 당뇨병 환자 100명을 약사 주도 복약관리 중재군과 통상치료군에 50명씩 무작위배정한 가상의 임상시험입니다. 이 연구를 반복측정 분산분석으로 분석한 논문에서 가장 먼저 찾아볼 곳은 Results의 다음 결과입니다('논문에서 읽기'의 Results 문장을 표로 옮김).</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb02" data-name="교호작용 F 검정 결과"><table class="tbl tight">
 <thead><tr><th>검정</th><th class="r">분석 인원<br>(중재/통상치료)</th><th class="r">F<br>(자유도)</th><th class="r">P</th></tr></thead>
 <tbody>
 <tr class="hi"><td>군 × 시간 교호작용</td><td class="r">75 (42/33)</td><td class="r">3.95 <span style="white-space:nowrap">(2.43, 177.11)</span></td><td class="r">.015</td></tr>
@@ -97,7 +97,7 @@
 
 <h4>작은 자료에서는 무엇을 떼어 내나?</h4>
 <p>먼저 계산의 뼈대를 아주 작은 자료로 봅니다. 이 장의 연구를 한 군, 환자 4명, 세 시점으로 줄여 HbA1c를 기저, 3개월, 6개월에 쟀다고 합시다. 가상의 예시입니다.</p>
-<div class="tbl-wrap"><table class="tbl tight" style="max-width:34rem">
+<div class="tbl-wrap" id="ch10-tb04" data-name="환자 4명의 작은 자료"><table class="tbl tight" style="max-width:34rem">
 <thead><tr><th>환자</th><th class="r">기저</th><th class="r">3개월</th><th class="r">6개월</th><th class="r">환자 평균</th></tr></thead>
 <tbody>
 <tr><td>A</td><td class="r">9.2</td><td class="r">9.0</td><td class="r">8.5</td><td class="r">8.9</td></tr>
@@ -121,6 +121,7 @@ F = 0.36 ÷ 0.0167 = 21.6, p = 0.002</p><p>시점 간 평균제곱(신호)이 �
 </div>
 
 <h4>환자 간 변동을 빼면 왜 정밀해지나?</h4>
+<div class="pin-bar ref" data-t="ch10-tb04"></div>
 <p>전체 변동 13.00 가운데 12.18, 곧 94%가 환자마다 수준이 다른 데서 나옵니다. 그런데 환자 간 변동은 시점 비교에는 끼어들지 않습니다. 환자 D는 기저에도 3개월에도 6개월에도 똑같이 높으므로, 시점끼리 비교할 때는 그 높음이 상쇄되기 때문입니다.</p>
 <p>환자 A의 3개월 값으로 보면 9.0%는 그 시점의 평균 8.5%, 환자 A의 높이 0.4%p, 오차 0.1%p의 합입니다. 환자 A의 높이는 환자 A의 평균 8.9%가 전체 평균 8.5%보다 높은 만큼이고, 환자 간 제곱합은 이런 높이들을 모은 것입니다. 시점을 비교할 때 잡음으로 남는 것은 마지막의 0.1%p 같은 오차뿐이므로, 반복측정 분산분석은 환자 간 변동을 오차에서 빼냅니다.</p>
 <p>환자 간 변동을 빼내지 않으면 어떻게 되는지 보려고, 같은 12개 값을 서로 다른 12명의 값으로 보고 일원배치 분산분석을 하면 다음과 같습니다.</p>
@@ -163,6 +164,7 @@ F = 0.36 ÷ 0.0167 = 21.6, p = 0.002</p><p>시점 간 평균제곱(신호)이 �
 <div class="quick"><p class="qk">잠깐 확인</p><p>중재군만 HbA1c가 내려가고 통상치료군은 네 시점 내내 평균이 그대로였다고 합시다. 이때 시간의 주효과도 유의하게 나올 수 있을까요?</p><details><summary>답 보기</summary><div><p>나올 수 있습니다. 시간의 주효과는 두 군을 합친 평균이 시점마다 다른지를 보므로, 한 군만 내려가도 합친 평균이 함께 내려가기 때문입니다. 그래서 시간의 주효과가 유의하다는 것만으로 두 군이 모두 변했다고 읽지 않습니다.</p></div></details></div>
 
 <h4>예제에서는 어떻게 나왔나?</h4>
+<div class="pin-bar ref" data-t="ch10-tb02"></div>
 <p>예제에서는 방문 사이 기간마다 조제 기록으로 PDC도 계산해 80% 이상이면 '순응'으로 정의했으며, 이 자료는 d 절에서 씁니다. 12개월 동안 통상치료군 15명, 중재군 6명이 중도 탈락했고, 방문을 한 번 빠뜨렸다가 다시 온 환자도 몇 명 있습니다. 참값을 알고 만든 모의자료이며, 12개월 HbA1c 변화량의 실제 군간 차이는 −0.48%p입니다.</p>
 <p>네 시점을 모두 잰 환자는 75명(통상치료군 33명, 중재군 42명)이고, 반복측정 분산분석은 이 75명만 분석합니다. 한 번이라도 측정이 빠진 환자는 통째로 빠지기 때문입니다. 그림 10-2의 평균은 각 시점에 측정된 모든 환자로 계산한 값입니다.</p>
 <!--FIG:ch10_profile-->
@@ -268,7 +270,7 @@ F = 0.36 ÷ 0.0167 = 21.6, p = 0.002</p><p>시점 간 평균제곱(신호)이 �
 <h3>4. 결과 읽기</h3>
 <p><strong>반복측정 분산분석은 세 질문의 F를 함께 내놓으므로, 중재 효과는 군 × 시간 교호작용 줄에서 읽습니다. 얼마나 달랐는지는 그 줄에 없어서 주 시점의 군간 차이와 95% 신뢰구간으로 따로 봅니다.</strong></p>
 <p>예제의 세 줄을 나란히 놓으면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb08" data-name="분산분석 결과 세 줄"><table class="tbl tight">
 <thead><tr><th>줄</th><th>예제 결과</th><th>중재 효과로 읽을 수 있나</th></tr></thead>
 <tbody>
 <tr><td>시간의 주효과</td><td>P &lt; 0.001</td><td>읽을 수 없습니다. 두 군을 합친 변화라서, 통상치료군에서도 일어난 감소와 평균으로의 회귀처럼 중재와 관계없는 변화가 섞입니다.</td></tr>
@@ -316,7 +318,7 @@ F = 0.36 ÷ 0.0167 = 21.6, p = 0.002</p><p>시점 간 평균제곱(신호)이 �
 N − 2 = 177.11 ÷ 2.43 ≈ 73<br>
 N = 75<br>
 부분 η² 0.05는 교호작용과 개체내 오차의 제곱합을 합한 것 가운데 교호작용이 차지하는 비율입니다. 작아 보이지만 환자 간 변동이 이미 빠진 값이어서 다른 연구의 η²와 직접 비교하기 어렵습니다. 이 문장은 <em>어느 시점에서 얼마나</em> 달랐는지는 알려 주지 않으므로, 효과의 크기(12개월 군간 차이와 95% CI)가 본문에 따로 있는지 확인합니다. 부분 η²의 계산은 아래 접힌 상자 '부록의 분산분석표는 어떻게 읽나?'의 해설 4번에 있습니다.</span></li>
-<li><span class="mk">5</span><span><b>군의 주효과.</b> 네 시점의 평균을 두 군 사이에 비교한 것이라 차이가 없어야 할 기저값까지 섞여 있습니다. 이 줄을 근거로 "중재 효과가 없었다"고 읽으면 안 됩니다(위 '결과 읽기').</span></li>
+<li><span class="mk">5</span><span><b>군의 주효과.</b> 네 시점의 평균을 두 군 사이에 비교한 것이라 차이가 없어야 할 기저값까지 섞여 있습니다. 이 줄을 근거로 "중재 효과가 없었다"고 읽으면 안 됩니다(<span class="tref" data-t="ch10-tb08">위 '결과 읽기'</span>).</span></li>
 </ol>
 </div></div>
 <!--FOLD do:부록의 분산분석표는 어떻게 읽나?-->
@@ -452,7 +454,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <h4>넓은 형식은 어떻게 생겼나?</h4>
 <p>예제 연구의 환자 4명으로 두 모양을 비교합니다. <strong>넓은 형식</strong><span class="en">(wide format)</span>은 환자 한 명이 한 행이고, 시점마다 열이 하나씩 있습니다. 측정하지 못한 방문의 칸은 NA로 비어 있습니다.</p>
 <p class="tbl-cap"><b>표 10-1.</b> 넓은 형식 · 환자 한 명 = 한 행, NA = 측정 없음</p>
-<div class="tbl-wrap"><table class="tbl tight" style="max-width:40rem">
+<div class="tbl-wrap" id="ch10-tb11" data-name="넓은 형식의 환자 4명"><table class="tbl tight" style="max-width:40rem">
 <thead><tr><th>id</th><th>group</th><th class="r">hba1c_<wbr>0</th><th class="r">hba1c_<wbr>3</th><th class="r">hba1c_<wbr>6</th><th class="r">hba1c_<wbr>12</th></tr></thead>
 <tbody>
 <tr><td>2</td><td>통상치료</td><td class="r">8.7</td><td class="r">NA</td><td class="r">NA</td><td class="r">NA</td></tr>
@@ -606,7 +608,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <p><strong>긴 형식을 만들 때는 시간을 어떤 열로 둘지와 기저값을 어디에 둘지도 정합니다. 둘 다 모형이 무엇을 추정하는지를 바꾸고, 기저값의 자리는 누가 분석에 들어가는지도 바꿉니다.</strong></p>
 <h4>시간은 범주형으로 두나, 연속형으로 두나?</h4>
 <p>시간을 범주형으로 두면 기저, 3개월, 6개월, 12개월을 서로 다른 칸으로 보고 방문마다 평균을 따로 구합니다. 연속형으로 두면 경과 개월을 숫자로 보고 평균 추이를 직선 하나로 그립니다. 두 방식을 나란히 놓으면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb18" data-name="범주형·연속형 시간 비교"><table class="tbl tight">
 <thead><tr><th></th><th>범주형 시간<br>(방문, visit)</th><th>연속형 시간<br>(경과 개월, month)</th></tr></thead>
 <tbody>
 <tr><td>평균 추이에 대한 가정</td><td>없음. 방문마다 평균을 따로 추정</td><td>직선 (또는 미리 정한 곡선)</td></tr>
@@ -619,14 +621,14 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <div class="quick"><p class="qk">잠깐 확인</p><p>시간을 연속형으로 둔 모형이 "중재군이 한 달에 0.043%p 더 감소"라고 추정했다면, 이 모형이 말하는 6개월과 12개월의 변화량 차이는 각각 얼마일까요?</p><details><summary>답 보기</summary><div><p>6개월은 약 −0.26%p, 12개월은 약 −0.52%p입니다. 직선을 가정했으므로 두 군의 차이는 경과 개월에 비례해 벌어지고, 12개월 차이는 늘 6개월 차이의 두 배가 됩니다. 범주형 시간은 방문마다 차이를 따로 추정하므로 이런 비례를 가정하지 않습니다.</p></div></details></div>
 <h4>기저값은 결과로 두나, 공변량으로 두나?</h4>
 <p>무작위배정 임상시험에서는 기저값을 어디에 두느냐에 따라 긴 형식을 두 가지로 만들 수 있습니다. 구조 (가)는 기저 HbA1c를 결과값의 한 시점으로 두고, 구조 (나)는 기저값을 공변량 열로 옮겨 기저 이후의 값만 결과로 둡니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb19" data-name="기저값 구조 (가)·(나)"><table class="tbl tight">
 <thead><tr><th></th><th>구조 (가)<br>기저값도 결과</th><th>구조 (나)<br>기저값은 공변량</th></tr></thead>
 <tbody>
 <tr><td>기저값의 자리</td><td>결과의 첫 시점</td><td>그 환자의 모든 행에 붙는 공변량 열</td></tr>
 <tr class="hi"><td>분석에 들어가는 환자(이 예)</td><td>100명</td><td>92명</td></tr>
 <tr><td>흔히 쓰는 모형</td><td>연속형 시간을 쓰는 혼합모형</td><td>방문을 범주형으로 둔 임상시험의 혼합모형(c 절)</td></tr>
 </tbody></table></div>
-<p>구조 (나)는 기저값으로 보정하는 공분산분석(ANCOVA)을 반복측정으로 넓힌 구조입니다. 기저 이후 측정이 하나도 없는 환자는 결과로 쓸 행이 없어 빠지는데, 예제에서는 표 10-1의 환자 2를 포함한 8명입니다. 그래서 같은 예제라도 분석에 들어가는 환자가 구조 (가)는 100명, 구조 (나)는 92명으로 달라집니다. 공분산분석이 변화량 비교와 어떻게 다른지는 <a href="#ch03-s1">3장 a 절</a>의 '변화량 비교와 ANCOVA는 무엇이 다른가?'에서 보았습니다.</p>
+<p>구조 (나)는 기저값으로 보정하는 공분산분석(ANCOVA)을 반복측정으로 넓힌 구조입니다. 기저 이후 측정이 하나도 없는 환자는 결과로 쓸 행이 없어 빠지는데, 예제에서는 <span class="tref" data-t="ch10-tb11">표 10-1의 환자 2</span>를 포함한 8명입니다. 그래서 같은 예제라도 분석에 들어가는 환자가 구조 (가)는 100명, 구조 (나)는 92명으로 달라집니다. 공분산분석이 변화량 비교와 어떻게 다른지는 <a href="#ch03-s1">3장 a 절</a>의 '변화량 비교와 ANCOVA는 무엇이 다른가?'에서 보았습니다.</p>
 <!--FOLD do:두 구조의 자료는 어떻게 생겼나?-->
 <p>환자 3의 자료로 두 구조를 비교해 보겠습니다.</p>
 <p class="tbl-cap"><b>표 10-4.</b> 기저값을 다루는 두 가지 긴 형식</p>
@@ -668,8 +670,8 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <li><span class="mk">1</span><span><b>분석 대상.</b> 무작위배정한 환자 가운데 기저 이후 측정이 하나라도 있는 환자로 좁힌 분석 집단입니다. 무작위배정한 환자를 배정된 군 그대로 모두 분석하는 것을 치료의향 분석<span class="en">(intention-to-treat, ITT)</span>이라고 하며(<a href="#ch13-s1">13장 a 절</a>), 이 집단은 거기서 조금 좁혔다는 뜻으로 논문에서 흔히 수정된 ITT<span class="en">(modified intention-to-treat)</span> 집단이라고 부릅니다. 위 '결측 방문 다루기'에서 본 것처럼 기저 이후 측정이 없는 8명은 모두 통상치료군이라 이 정의로 빠집니다. 무작위배정 인원(100명)과 분석 인원(92명)의 차이, 그리고 그 차이가 한 군에 몰려 있는지 CONSORT 흐름도에서 확인합니다.</span></li>
 <li><span class="mk">2</span><span><b>관측값의 수.</b> 긴 형식의 행 수입니다. 3개월 90개(49 + 41), 6개월 85개(46 + 39), 12개월 79개(44 + 35)를 더하면 254개이고, 92명 × 3회 = 276개 중 22개가 없습니다. 환자 수와 관측값 수를 함께 적은 논문은 결측 규모를 가늠하게 해 줍니다.</span></li>
 <li><span class="mk">3</span><span><b>대체하지 않음.</b> 결측을 무시했다는 뜻이 아니라, 혼합모형이 있는 관측값만으로 MAR 가정(위 '결측 방문 다루기') 아래 추정한다는 뜻입니다. 빈칸을 마지막 측정값으로 채우는 LOCF(위 접힌 상자 '빈칸을 마지막 값으로 채우면 왜 안 되나?') 같은 단일 대체를 쓰지 않았다는 점이 중요합니다.</span></li>
-<li><span class="mk">4</span><span><b>범주형 방문.</b> 평균 추이의 모양을 가정하지 않고 방문마다 평균(과 군간 차이)을 따로 추정합니다(위 '시간은 범주형으로 두나, 연속형으로 두나?').</span></li>
-<li><span class="mk">5</span><span><b>기저값을 공변량으로.</b> 위 '기저값은 결과로 두나, 공변량으로 두나?'의 구조 (나)입니다. 이 문장이 없고 기저값이 결과의 한 시점으로 들어갔다면 구조 (가)입니다.</span></li>
+<li><span class="mk">4</span><span><b>범주형 방문.</b> 평균 추이의 모양을 가정하지 않고 방문마다 평균(과 군간 차이)을 따로 추정합니다(<span class="tref" data-t="ch10-tb18">위 '시간은 범주형으로 두나, 연속형으로 두나?'</span>).</span></li>
+<li><span class="mk">5</span><span><b>기저값을 공변량으로.</b> <span class="tref" data-t="ch10-tb19">위 '기저값은 결과로 두나, 공변량으로 두나?'의 구조 (나)</span>입니다. 이 문장이 없고 기저값이 결과의 한 시점으로 들어갔다면 구조 (가)입니다.</span></li>
 <li><span class="mk">6</span><span><b>고칠 곳. 이 민감도 분석은 방향이 맞지 않습니다.</b> 완전사례 분석은 MCAR(또는 모형에 든 공변량에만 의존하는 결측)을 가정하는, MAR보다 더 강한 가정의 분석이라 MAR 가정에 대한 민감도 분석이 되지 못합니다. MNAR 가능성을 따지려면 티핑 포인트 분석처럼 탈락자의 값을 더 나쁘게 가정해 보는 분석이 필요합니다(c 절 '가정과 대안').</span></li>
 </ol>
 </div></div>
@@ -752,7 +754,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 
 <h4>이 절의 예에서는 무엇을 먼저 보나?</h4>
 <p>이 질문에 답한 임상시험 논문에서 가장 먼저 찾아볼 곳은 결과표의 다음 행입니다('논문에서 읽기'의 Table 2 한 부분).</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb22" data-name="12개월 변화량 차이"><table class="tbl tight">
 <thead><tr><th>방문</th><th class="r">중재군<br>변화</th><th class="r">통상치료군<br>변화</th><th class="r">차이<br>(95% CI)</th></tr></thead>
 <tbody>
 <tr class="hi"><td>12개월</td><td class="r">−0.64</td><td class="r">−0.18</td><td class="r">−0.47 <span style="white-space:nowrap">(−0.78 to −0.16)</span></td></tr>
@@ -797,6 +799,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <p>두 가지가 눈에 띕니다. 하나는 환자마다 출발점이 7.5%에서 9.9%까지 다르다는 것으로, 수준의 차이입니다. 다른 하나는 같은 군 안에서도 어떤 환자는 가파르게 내려가고 어떤 환자는 거의 그대로이거나 오른다는 것으로, 기울기의 차이입니다.</p>
 
 <h4>측정값 하나를 어떻게 나누나?</h4>
+<div class="pin-bar ref" data-t="ch10-tb11"></div>
 <p>가장 단순한 <strong>무작위 절편 모형</strong><span class="en">(random intercept model)</span>은 먼저 수준의 차이만 담습니다. 환자 한 명의 측정값 하나를 세 부분의 합으로 보는데, 첫째는 군과 시간으로 정해지는 군의 평균 선, 둘째는 그 환자의 선이 군 평균 선보다 얼마나 위나 아래에 있는지를 나타내는 그 환자의 높이, 셋째는 그 환자 자신의 선 주변에서 측정할 때마다 생기는 작은 차이, 곧 잔차입니다. 높이는 환자마다 하나씩 정해져 그 환자의 모든 측정에 똑같이 더해지므로, 같은 환자의 값끼리 닮게 만드는 것이 바로 이 부분입니다.</p>
 <p>기저 8.5%에서 12개월 6.8%까지 내려간 중재군 환자 3으로 보면, 모형으로 예측한 환자 3의 높이는 −0.57%p입니다. 환자 3의 선이 중재군 평균 선보다 0.57%p 아래에 있다는 뜻입니다. 그런데 잔차를 보면 기저에서는 선보다 0.54%p 위, 12개월에서는 0.48%p 아래여서, 아무렇게나 흩어지지 않고 시간이 갈수록 위에서 아래로 기울어 있습니다. 환자 3은 군 평균보다 가파르게 내려가는데, 높이만 다르게 둔 모형은 이 기울기 차이를 잔차로 떠넘기기 때문입니다. 이 문제는 아래 '중재 효과는 어떻게 구하나?'에서 다룹니다.</p>
 
@@ -878,7 +881,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <p class="calc">50명의 12개월 평균 = (35 × 8.017 + 15 × 9.075) ÷ 50 = 8.33%</p>
 <p>이 값은 탈락자까지 모두 잰 실제 평균 8.31%와 거의 같고, 관측된 35명만의 평균 8.02%보다 0.3%p 높습니다. 같은 자료에 적합한 혼합모형이 추정한 통상치료군의 12개월 평균도 8.32%입니다. 모형은 앞뒤 방문의 관계를 두 군의 자료로 함께 추정하므로 손계산과 끝자리가 조금 다릅니다.</p>
 <p><strong>혼합모형의 우도(<a href="#ch08-s5">8장 e 절</a>)는 빈칸을 값으로 채우지 않고, 남은 사람에게서 본 앞뒤 방문의 관계를 빠진 사람의 탈락 전 값에 적용하는 이 계산을 모든 방문과 두 군에 대해 한꺼번에 합니다. 그래서 결측이 MAR이면 탈락이 있어도 평균을 치우침 없이 추정합니다.</strong></p>
-<p>예제의 12개월 군간 차이는 탈락이 없었다면 −0.47%p였고, 이 절 처음 표의 MMRM도 −0.47%p입니다. 네 시점을 모두 잰 75명만 쓰면 기저값을 보정해도 −0.30%p로 효과가 3분의 1 넘게 줄고, 95% CI가 −0.63 ~ 0.03%p로 유의하지도 않습니다. a 절에서 같은 75명의 변화량을 단순 비교한 −0.31%p와 거의 같습니다.</p>
+<p>예제의 12개월 군간 차이는 탈락이 없었다면 −0.47%p였고, <span class="tref" data-t="ch10-tb22">이 절 처음 표</span>의 MMRM도 −0.47%p입니다. 네 시점을 모두 잰 75명만 쓰면 기저값을 보정해도 −0.30%p로 효과가 3분의 1 넘게 줄고, 95% CI가 −0.63 ~ 0.03%p로 유의하지도 않습니다. a 절에서 같은 75명의 변화량을 단순 비교한 −0.31%p와 거의 같습니다.</p>
 <p>다만 이 성질은 결측이 MAR이고 평균과 공분산 구조가 맞을 때만 성립합니다. 탈락이 측정되지 않은 값 자체와 관련 있으면, 곧 MNAR이면 MMRM도 편향됩니다. 공분산 구조가 왜 필요한지는 바로 아래 셋째에서 봅니다.</p>
 <!--FOLD do:결측 처리 방법마다 추정값이 얼마나 다른가?-->
 <p>예제는 모의자료라서 탈락한 환자의 실제 HbA1c를 알고 있습니다. 그림 10-5는 둘째에서 계산한 통상치료군의 세 평균을 방문마다 그린 것입니다.</p>
@@ -918,7 +921,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <p>정해진 방문이 있는 임상시험은 두 모양을 모두 가정하지 않는 쪽을 택합니다. 규제기관에 제출하는 임상시험은 연속형 결과를 흔히 <strong>반복측정 혼합모형</strong><span class="en">(mixed model for repeated measures, MMRM)</span>으로 분석합니다<cite data-ref="mallinckrodt2008"></cite>. 직선을 가정하는 대신 방문을 범주형으로 두어 방문마다 군간 차이를 따로 추정하고, 기저값은 공변량으로 넣습니다(b 절의 구조 (나)). 같은 환자의 방문 사이 상관에도 아무 모양을 가정하지 않는 비구조<span class="en">(unstructured)</span> 공분산을 씁니다.</p>
 <p>MMRM의 결과는 방문마다 두 군의 <strong>최소제곱평균</strong><span class="en">(least-squares mean, LS mean)</span>으로 나옵니다. 최소제곱평균은 공변량을 분석 대상 전체의 평균에 맞췄을 때 모형이 예측하는 군별 평균이며, 여기서는 모든 환자의 기저 HbA1c를 8.43%로 맞췄습니다. 예제의 MMRM은 기저 이후 측정이 하나라도 있는 92명의 관측값 254개로 적합했고, 12개월 변화량의 최소제곱평균은 중재군 −0.64%p, 통상치료군 −0.18%p입니다. 차이는 −0.47%p이고, 95% CI는 −0.78 ~ −0.16%p, P = 0.004입니다.</p>
 <p>'숫자로 따라가기'의 모형과 MMRM을 나란히 놓으면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb27" data-name="두 혼합모형 비교"><table class="tbl tight">
 <thead><tr><th></th><th>무작위 절편·<br>기울기 모형</th><th>MMRM</th></tr></thead>
 <tbody>
 <tr><td>시간</td><td>연속형(경과 개월)</td><td>범주형(방문)</td></tr>
@@ -939,7 +942,7 @@ P = <code>stats.f.sf(2.80, 1.86, 70.68)</code> = 0.071</p>
 <h3>4. 결과 읽기</h3>
 <p><strong>'숫자로 따라가기' 모형의 고정효과 계수 세 개 가운데 중재 효과는 군 × 개월 계수입니다. 군 계수는 기저 시점의 두 군 차이라서 중재 효과로 읽지 않습니다.</strong></p>
 <p>세 계수를 나란히 놓으면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb28" data-name="고정효과 계수 세 개"><table class="tbl tight">
 <thead><tr><th>계수</th><th>답하는 질문</th><th>이 예에서</th><th>논문에서<br>보이는 말</th></tr></thead>
 <tbody>
 <tr><td>군</td><td>기저 시점(개월 = 0)에 두 군의 평균 선이 얼마나 다른가</td><td>0.048. 무작위배정이라 0에 가까움</td><td>group</td></tr>
@@ -1002,7 +1005,7 @@ z = −0.042930 ÷ 0.012711 = −3.38, P = 0.0007<br>
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 방문별 변화량 결과표</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch10-tb29" data-name="방문별 LS mean 변화"><table class="jt">
 <caption><b>Table 2.</b> Least-squares mean change from baseline in HbA1c (%), with 95% CIs, by visit</caption>
 <thead><tr><th><span class="mk">1</span> Visit (n)<sup>a</sup></th><th class="r"><span class="mk">2</span> Intervention</th><th class="r">Usual care</th><th class="r"><span class="mk">3</span> Difference</th><th class="r">P</th></tr></thead>
 <tbody>
@@ -1037,7 +1040,7 @@ z = −0.042930 ÷ 0.012711 = −3.38, P = 0.0007<br>
 
 <h3>6. 논문에 쓰기</h3>
 <p><strong>Methods에는 고정효과와 시간 처리, 무작위효과, 추정 방법과 결측 가정을 씁니다. Results에는 분석한 환자 수와 관측값 수, 군 × 시간 계수와 95% 신뢰구간, 주 시점의 차이로 환산한 값을 씁니다.</strong></p>
-<p>예문은 '숫자로 따라가기'와 '결과 읽기'에서 읽은 무작위 절편·기울기 모형으로 씁니다. 정해진 방문에서 주 시점의 차이를 묻는 임상시험이라면 주 분석은 MMRM이고('가정과 대안'의 비교표), 그 Methods 문단 전체는 아래 접힌 상자 'MMRM의 Methods 문단 전체는 어떻게 쓰나?'에 있습니다.</p>
+<p>예문은 '숫자로 따라가기'와 '결과 읽기'에서 읽은 무작위 절편·기울기 모형으로 씁니다. 정해진 방문에서 주 시점의 차이를 묻는 임상시험이라면 주 분석은 MMRM이고(<span class="tref" data-t="ch10-tb27">'가정과 대안'의 비교표</span>), 그 Methods 문단 전체는 아래 접힌 상자 'MMRM의 Methods 문단 전체는 어떻게 쓰나?'에 있습니다.</p>
 <p>아래는 이 절의 숫자로 만든 기본 예문입니다. MMRM으로 썼다면 예문의 5번 자리에 주 시점의 LS mean 차이와 95% CI를 씁니다. Methods 마지막에 프로그램을 적는 것은 P를 구하는 분포가 프로그램마다 다르기 때문입니다('결과 읽기'의 접힌 상자 '프로그램 출력을 한 줄씩 읽으면?' 6번).</p>
 
 <div class="paper">
@@ -1057,7 +1060,7 @@ z = −0.042930 ÷ 0.012711 = −3.38, P = 0.0007<br>
 <p>자주 하는 실수는 다음 두 가지입니다.</p>
 <ul>
 <li>무작위효과를 밝히지 않는 것입니다. "mixed model"만 쓰면 무작위 절편만 넣었는지 기울기도 넣었는지 알 수 없습니다.</li>
-<li>군 계수를 효과로 쓰는 것입니다. 군 계수 0.048은 기저 시점의 차이이고('결과 읽기'), 중재 효과는 군 × 시간 계수입니다.</li>
+<li>군 계수를 효과로 쓰는 것입니다. 군 계수 0.048은 기저 시점의 차이이고(<span class="tref" data-t="ch10-tb28">'결과 읽기'</span>), 중재 효과는 군 × 시간 계수입니다.</li>
 </ul>
 <!--FOLD do:MMRM의 Methods 문단 전체는 어떻게 쓰나?-->
 <p>MMRM은 이름에 '혼합'이 들어가지만 흔히 무작위효과 없이 공분산 행렬을 직접 지정하며, 보통 다음과 같이 구성합니다.</p>
@@ -1105,7 +1108,7 @@ z = −0.042930 ÷ 0.012711 = −3.38, P = 0.0007<br>
 # chg = 그 방문의 HbA1c − 기저 HbA1c, base_c = 기저 HbA1c − 8.43</span>
 mm = smf.mixedlm("chg ~ 0 + C(visit) + C(visit):group + C(visit):base_c",
                  d2, groups="id", re_formula="0 + C(visit)").fit()</pre>
-<p><code>0 +</code>는 절편 대신 방문마다 평균을 하나씩 두라는 뜻이고, <code>C(visit):group</code>이 방문마다의 군간 차이입니다. <code>re_formula="0 + C(visit)"</code>는 세 방문의 분산과 공분산에 아무 모양도 정하지 않아 비구조 공분산과 같아집니다. 그래서 <code>C(visit)[12]:group</code> 줄이 −0.4664(SE 0.156)로 '논문에서 읽기'의 Table 2와 같습니다. P는 정규분포로 구해 0.003이고, Satterthwaite 자유도를 쓴 Table 2의 .004와 끝자리가 다릅니다. 기저값은 분석 대상 평균 8.43%를 빼서 넣었으므로 <code>C(visit)[12]</code> 줄(−0.175)이 통상치료군의 12개월 LS mean입니다.</p>
+<p><code>0 +</code>는 절편 대신 방문마다 평균을 하나씩 두라는 뜻이고, <code>C(visit):group</code>이 방문마다의 군간 차이입니다. <code>re_formula="0 + C(visit)"</code>는 세 방문의 분산과 공분산에 아무 모양도 정하지 않아 비구조 공분산과 같아집니다. 그래서 <code>C(visit)[12]:group</code> 줄이 −0.4664(SE 0.156)로 <span class="tref" data-t="ch10-tb29">'논문에서 읽기'의 Table 2</span>와 같습니다. P는 정규분포로 구해 0.003이고, Satterthwaite 자유도를 쓴 Table 2의 .004와 끝자리가 다릅니다. 기저값은 분석 대상 평균 8.43%를 빼서 넣었으므로 <code>C(visit)[12]</code> 줄(−0.175)이 통상치료군의 12개월 LS mean입니다.</p>
 <p>이 출력의 방문별 Var 줄과 Scale은 하나하나 해석하지 않습니다. 방문마다 환자의 값을 둔 데다 잔차 분산(Scale)까지 따로 두어, 두 분산의 합만 정해지고 그 합을 둘로 나누는 방법은 정해지지 않기 때문입니다. 방문별 Var에 Scale을 더한 값이 그 방문 변화량의 분산입니다(12개월이면 0.419 + 0.079 = 0.498, SD 0.71). 그래서 최적화 방법을 바꾸면 Log-Likelihood와 군간 차이는 같아도 Scale은 0.079(기본값), 0.078(lbfgs), 0.081(cg)로 달라집니다. 두 방문 사이의 Cov 줄은 그대로 두 방문 변화량의 공분산입니다(6개월과 12개월이면 0.226).</p>
 
 <h4>적합한 뒤에는 무엇을 확인하나?</h4>
@@ -1293,7 +1296,7 @@ z = 0.9269 ÷ 0.3402 = 2.72, P = 0.006<br>
 
 <h4>상관을 무시하면 표준오차는 어떻게 틀리나?</h4>
 <p>상관을 무시한 일반 로지스틱 회귀와 비교하면 강건 표준오차가 하는 일이 보입니다. OR은 2.52로 GEE와 거의 같지만 표준오차가 다릅니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ch10-tb34" data-name="로지스틱·GEE 표준오차"><table class="tbl tight">
 <thead><tr><th>계수<br>(로그 오즈비)</th><th class="r">일반<br>로지스틱 SE</th><th class="r">GEE 독립<br>· 강건 SE</th><th class="r">GEE 교환가능<br>· 강건 SE</th></tr></thead>
 <tbody>
 <tr><td>중재군 (환자 간 비교)</td><td class="r">0.272</td><td class="r">0.342</td><td class="r">0.340</td></tr>
@@ -1443,7 +1446,7 @@ se = np.sqrt(np.diag(np.linalg.inv(approx_hess(fit.x, nll))))</pre>
 <div class="widget" data-widget="ch10_margcond"></div>
 <p>위젯에서 환자 간 SD를 0으로 두면 두 OR이 같아집니다. SD를 키울수록 모집단 평균 OR이 1 쪽으로 줄어듭니다.</p>
 <!--FIG:ch10_orforest-->
-<p>그림 10-10은 지금까지의 결과를 모은 것입니다. 일반 로지스틱 회귀와 GEE는 점추정값이 거의 같고 신뢰구간의 폭만 다릅니다. 독립 가정이 환자 간 비교의 표준오차를 작게 만들기 때문입니다('상관을 무시하면 표준오차는 어떻게 틀리나?'). 혼합모형은 추정 대상이 달라 점추정값 자체가 다릅니다.</p>
+<p>그림 10-10은 지금까지의 결과를 모은 것입니다. 일반 로지스틱 회귀와 GEE는 점추정값이 거의 같고 신뢰구간의 폭만 다릅니다. 독립 가정이 환자 간 비교의 표준오차를 작게 만들기 때문입니다(<span class="tref" data-t="ch10-tb34">'상관을 무시하면 표준오차는 어떻게 틀리나?'</span>). 혼합모형은 추정 대상이 달라 점추정값 자체가 다릅니다.</p>
 <!--FOLD:두 오즈비는 서로 어떻게 바꾸나?-->
 <p>무작위 절편이 정규분포를 따를 때 조건부 계수와 주변 계수 사이에는 다음 근사식이 알려져 있습니다<cite data-ref="zeger1988"></cite>.</p>
 <div class="eq">\[ \beta_{\text{주변}} \approx \frac{\beta_{\text{조건부}}}{\sqrt{1 + 0.346\,\sigma_u^2}} = \frac{\ln 3.77}{\sqrt{1 + 0.346 \times 1.643^2}} = \frac{1.328}{1.391} = 0.955, \qquad e^{0.955} = 2.60 \]
@@ -1494,7 +1497,7 @@ se = np.sqrt(np.diag(np.linalg.inv(approx_hess(fit.x, nll))))</pre>
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 기간별 순응률과 오즈비</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch10-tb41" data-name="기간별 순응률과 OR"><table class="jt">
 <caption><b>Table 3.</b> Patients with a PDC of 80% or more, by interval</caption>
 <thead><tr><th>Interval</th><th class="r"><span class="mk">1</span> Intervention<br>n/N (%)</th><th class="r">Usual care<br>n/N (%)</th><th class="r"><span class="mk">2</span> OR (95% CI)<sup>a</sup></th><th class="r">P value</th></tr></thead>
 <tbody>
@@ -1514,6 +1517,7 @@ se = np.sqrt(np.diag(np.linalg.inv(approx_hess(fit.x, nll))))</pre>
 </div></div>
 
 <h3>6. 논문에 쓰기</h3>
+<div class="pin-bar ref" data-t="ch10-tb41"></div>
 <p><strong>Methods에는 결과의 정의, GEE의 네 요소, 시간과 교호작용, 결측의 가정을 씁니다. Results에는 군집 수와 관측값 수, 교호작용 검정, 전체 오즈비와 95% 신뢰구간을 씁니다.</strong></p>
 <p>아래는 이 절의 숫자로 만든 기본 예문입니다. Methods 첫 문장은 '논문에서 읽기'의 Methods 문단의 두 문장을 한 문장으로 줄인 것이고, 그 문단에 없던 결측의 가정을 셋째 문장에 더했습니다. 교호작용 계수는 두 기간의 로그 오즈비의 차이라서, 지수로 바꾸면 두 기간의 OR의 비가 됩니다(해설 4).</p>
 
@@ -1627,7 +1631,7 @@ z = 0.245 ÷ 0.171 = 1.43, P = 0.15</p>
 <h4>반복측정 분산분석과 구형성</h4>
 <p>한 군에서 n명을 k개 시점에 측정했을 때, 반복측정 분산분석은 전체 제곱합을 세 부분으로 나눕니다.</p>
 <div class="eq">\[ SS_{\text{전체}} = SS_{\text{환자 간}} + SS_{\text{시점 간}} + SS_{\text{오차}}, \qquad F = \frac{SS_{\text{시점 간}} / (k-1)}{SS_{\text{오차}} / \{(n-1)(k-1)\}} \]
-<p>a 절 '숫자로 따라가기'의 작은 예(n = 4, k = 3)로 계산하면 다음과 같습니다.</p>
+<p><span class="tref" data-t="ch10-tb04">a 절 '숫자로 따라가기'의 작은 예</span>(n = 4, k = 3)로 계산하면 다음과 같습니다.</p>
 <p class="calc">전체 제곱합 = 12.18 + 0.72 + 0.10 = 13.00<br>
 F = (0.72 ÷ 2) ÷ (0.10 ÷ 6) = 21.6</p>
 <p>일원배치 분산분석은 환자 간 제곱합을 따로 빼지 않으므로 오차와 그 자유도가 다음과 같이 됩니다.</p>

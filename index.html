@@ -1198,12 +1198,12 @@ function typesetNow() {
   document.getElementById("scrim").addEventListener("click", closeDrawer);
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 
-  /* ---------- 표 고정 (시범: PIN_CH의 장만) ----------
+  /* ---------- 표 고정 ----------
      표 위 '표 고정' 단추를 누르면 그 표를 화면에 붙여 둔다. 본문 오른쪽에 자리가 넉넉하면 오른쪽, 아니면 화면 아래쪽.
      아래쪽일 때는 원래 표가 화면에 보이는 동안 머리줄만 남기고 접어 두고, 단추를 누른 절을 벗어나면 저절로 풀린다.
      본문에서 앞의 표를 가리키는 말(span.tref[data-t])과 앞의 표를 쓰는 소제목의 단추(div.pin-bar.ref[data-t])로도
      그 표를 붙일 수 있다. 대상 표는 .tbl-wrap의 id, 이름은 data-name. */
-  const PIN_CH = new Set(["ch13", "ch15"]);
+  const pinOn = id => /^(ch|ap|rv)\d\d$/.test(id);   // 본문 장, 부록, 종합 연습 (실습 제외)
   const ICON_PIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 7 4 4H6l4-4z"/><path d="M12 14v7"/></svg>';
   const ICON_DOWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   const ICON_X = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
@@ -1308,7 +1308,7 @@ function typesetNow() {
   function initPins(root, id) {
     unpin();
     pinUI = new Map();
-    if (!PIN_CH.has(id)) return;
+    if (!pinOn(id)) return;
     const ui = unit => { if (!pinUI.has(unit)) pinUI.set(unit, { btns: [], refs: [] }); return pinUI.get(unit); };
     root.querySelectorAll("section.sec .tbl-wrap").forEach(unit => {
       if (unit.closest(".quick, .practice, .pindock") || !unit.querySelector("table")) return;

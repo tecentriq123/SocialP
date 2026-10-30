@@ -197,7 +197,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 
 <h4>2×2 표에서 무엇을 무엇으로 나누나?</h4>
 <p>≥5점을 양성으로 정하면 200명은 네 칸으로 나뉩니다.</p>
-<div class="tbl-wrap"><table class="tbl">
+<div class="tbl-wrap" id="ap01-tb04" data-name="설문 ≥5점 2×2 표"><table class="tbl">
 <thead><tr><th></th><th class="r">비순응 (참값)</th><th class="r">순응 (참값)</th><th class="r">합계</th></tr></thead>
 <tbody>
 <tr><td>설문 양성 (≥5점)</td><td class="r">38 (참양성)</td><td class="r">34 (위양성)</td><td class="r">72</td></tr>
@@ -214,7 +214,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 
 <h4>같은 설문인데 왜 약국마다 양성예측도가 다른가?</h4>
 <p>같은 설문(민감도 63.3%, 특이도 75.7%)을 비순응 비율이 다른 곳에서 1만 명에게 쓴다고 놓습니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ap01-tb05" data-name="비순응 비율별 예측도"><table class="tbl tight">
 <thead><tr><th>비순응<br>비율</th><th class="r">참양성</th><th class="r">위양성</th><th class="r">양성<br>예측도</th><th class="r">음성<br>예측도</th></tr></thead>
 <tbody>
 <tr><td>30% (이 연구)</td><td class="r">1,900</td><td class="r">1,700</td><td class="r">52.8%</td><td class="r">82.8%</td></tr>
@@ -232,7 +232,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 
 <h4>기준값을 바꾸면 무엇이 움직이나?</h4>
 <p>공항 금속탐지기의 감도를 올리면 위험물을 더 많이 잡지만 벨트 버클에도 울립니다. 설문의 기준값을 낮추는 것도 같아서, 더 많은 사람이 양성이 되므로 민감도는 오르고 특이도는 내려갑니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ap01-tb06" data-name="기준값별 민감도·특이도·정확도"><table class="tbl tight">
 <thead><tr><th>양성<br>기준</th><th class="r">민감도</th><th class="r">특이도</th><th class="r">1 −<br>특이도</th><th class="r">정확도</th></tr></thead>
 <tbody>
 <tr><td>≥3점</td><td class="r">88.3%</td><td class="r">44.3%</td><td class="r">55.7%</td><td class="r">57.5%</td></tr>
@@ -254,7 +254,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <p>AUC와 정확도는 만드는 계산이 다릅니다.</p>
 <ol>
 <li>AUC는 8,400쌍마다 비순응 환자의 점수가 더 높은지를 세어 만듭니다. 이 계산에는 '몇 점 이상이면 양성'이라는 기준값이 들어가지 않습니다.</li>
-<li>정확도는 기준값 하나로 200명을 나눈 뒤 맞게 분류된 사람을 셉니다. 그래서 위 표에서 정확도는 57.5%(≥3점)부터 74.0%(≥6점)까지 기준값마다 다릅니다.</li>
+<li>정확도는 기준값 하나로 200명을 나눈 뒤 맞게 분류된 사람을 셉니다. 그래서 <span class="tref" data-t="ap01-tb06">위 표</span>에서 정확도는 57.5%(≥3점)부터 74.0%(≥6점)까지 기준값마다 다릅니다.</li>
 <li>정확도에는 유병률도 들어갑니다. 모든 환자를 '순응'으로 판정하는 쓸모없는 규칙도 순응 140명을 모두 맞혀 정확도가 70.0%(140 ÷ 200)입니다.</li>
 </ol>
 <p><strong>AUC는 점수가 환자를 줄 세우는 순서의 성질이고, 정확도는 기준값과 유병률을 정해야 생기는 값입니다.</strong> 예측모형의 C 통계량을 정확도로 읽는 같은 잘못은 <a href="#ch09-s1">9장</a> 'C 통계량 0.70은 환자의 70%를 맞힌다는 뜻인가?'에서 다룹니다. 같은 환자에서 구한 두 AUC는 서로 연관되어 있어 비교할 때 이 연관을 고려합니다(아래 접힌 상자).</p>
@@ -291,7 +291,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <li><span class="mk">5</span><span><b>예측도는 검사 결과 기준으로 나눕니다.</b><br>
 양성예측도<span class="en">(positive predictive value, PPV)</span> = 설문 양성 72명 중 실제 비순응 38명 = 52.8%<br>
 음성예측도<span class="en">(negative predictive value, NPV)</span> = 설문 음성 128명 중 실제 순응 106명 = 82.8%<br>
-"설문에서 비순응 의심이 나온 환자의 절반 정도만 실제로 비순응"이라는 뜻이고, 다른 약국에서는 달라집니다(위 '같은 설문인데 왜 약국마다 양성예측도가 다른가?')<cite data-ref="altman1994ppv"></cite>.</span></li>
+"설문에서 비순응 의심이 나온 환자의 절반 정도만 실제로 비순응"이라는 뜻이고, 다른 약국에서는 달라집니다(<span class="tref" data-t="ap01-tb05">위 '같은 설문인데 왜 약국마다 양성예측도가 다른가?'</span>)<cite data-ref="altman1994ppv"></cite>.</span></li>
 </ol>
 </div></div>
 
@@ -308,7 +308,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <div class="quick"><p class="qk">잠깐 확인</p><p>참값을 확인하는 데 품이 들어, 설문 양성 72명은 모두 확인하고 설문 음성 128명은 무작위로 절반(64명)만 확인했다고 합시다(가상). 확인한 136명만으로 2×2 표를 만들면 민감도는 63.3%보다 커질까요, 작아질까요?</p><details><summary>답 보기</summary><div><p>커져서 약 77.6%가 됩니다. 위음성 22명 가운데 약 11명만 표에 남아 민감도의 분모가 49명(38 + 11)으로 줄어 38 ÷ 49가 되기 때문입니다. 같은 이유로 참음성도 약 53명만 남아 특이도는 60.9%(53 ÷ 87)로 작아집니다.</p></div></details></div>
 
 <h4>청구자료로 만든 정의를 검증하면?</h4>
-<p>"상병코드 + 처방" 같은 정의를 의무기록과 대조하는 검증 연구는 정의에 해당한 사람만 확인하는 경우가 많아 양성예측도만 계산됩니다. 확인한 사람은 위 2×2 표의 양성 줄뿐이므로, 가로로 나누는 양성예측도는 구할 수 있지만 세로(실제 환자 전체)로 나누는 민감도는 음성 줄의 환자 수를 몰라 구할 수 없습니다. 민감도와 특이도까지 얻으려면 해당하지 않은 사람도 뽑아 확인해야 합니다(<a href="#ch14-s1">14장 a 절</a>의 접힌 상자 '이 검증 연구로는 왜 민감도를 구할 수 없나?').</p>
+<p>"상병코드 + 처방" 같은 정의를 의무기록과 대조하는 검증 연구는 정의에 해당한 사람만 확인하는 경우가 많아 양성예측도만 계산됩니다. 확인한 사람은 <span class="tref" data-t="ap01-tb04">위 2×2 표</span>의 양성 줄뿐이므로, 가로로 나누는 양성예측도는 구할 수 있지만 세로(실제 환자 전체)로 나누는 민감도는 음성 줄의 환자 수를 몰라 구할 수 없습니다. 민감도와 특이도까지 얻으려면 해당하지 않은 사람도 뽑아 확인해야 합니다(<a href="#ch14-s1">14장 a 절</a>의 접힌 상자 '이 검증 연구로는 왜 민감도를 구할 수 없나?').</p>
 
 <h4>프로그램에는 무엇을 넣고 무엇이 나오나?</h4>
 <p>환자마다 참값(0/1)과 점수를 두 열로 넣습니다. scikit-learn 1.9, statsmodels 0.15, scipy 1.18에서 확인한 동작입니다.</p>
@@ -401,7 +401,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <div class="quick"><p class="qk">잠깐 확인</p><p>1 대신 0.01(100원)을 더해 log(비용 + 0.01)로 회귀한다면, e<sup>β</sup>는 0.59보다 1에 가까워질까요, 멀어질까요?</p><details><summary>답 보기</summary><div><p>멀어져 약 0.40이 됩니다. 0원 덩어리가 log 0.01 = −4.6으로 내려가 입원한 사람들(평균 약 6.1)과의 거리가 약 10.7로 벌어지므로, β가 거의 −0.086 × 10.7 ≈ −0.92가 되기 때문입니다. 금액의 비 0.73은 그대로인데, 더한 수만 바꿔도 e<sup>β</sup>는 0.85에서 0.40까지 움직입니다.</p></div></details></div>
 
 <h3>방법 고르기</h3>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ap01-tb07" data-name="비용 분석 방법 비교"><table class="tbl tight">
 <thead><tr><th>방법</th><th>추정하는 값</th><th>고르는 경우</th></tr></thead>
 <tbody>
 <tr class="hi"><td>평균 차이와 부트스트랩 CI (<a href="#ch21-s2">21장 b 절</a>)</td><td>1인당 산술평균의 차이(원)</td><td>무작위배정 시험의 주 분석. 공변량은 보정하지 못함</td></tr>
@@ -449,7 +449,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <p>0원과 실제로 쓴 고액 비용은 그대로 둡니다(<a href="#ch21-s2">21장 b 절</a> '0원과 고액 환자는 그대로 두나?'). 구간을 구할 방법(부트스트랩이면 구간의 종류, 반복 횟수, seed)과 관찰 기간이 다른 환자를 다루는 방법(<a href="#ch21-s2">21장 b 절</a> '모든 환자를 같은 기간 관찰했나?')은 분석 전에 적습니다. 표본이 매우 작고 고액 환자가 드물면, 표본에 없는 고액 환자는 다시 뽑아도 나오지 않으므로 부트스트랩도 불확실성을 작게 볼 수 있습니다(<a href="#ch21-s2">21장 b 절</a>의 접힌 상자 '표본이 작고 고액 환자가 드물면 어느 구간을 믿나?').</p>
 
 <h4>관찰연구라 보정해야 하면?</h4>
-<p>치료 시작 전에 잰 교란변수를 회귀모형으로 보정하고, 재활용 예측으로 1인당 금액 차이를 구합니다(<a href="#ch21-s3">21장 c 절</a> '감마 GLM으로 보정한 비와 금액 차이는?'). 금액은 연구 대상 전체나 신약을 쓴 환자처럼 평균할 집단을 정해 구합니다(<a href="#ch21-s3">21장 c 절</a>의 접힌 상자 '금액 차이는 누구에 대해 평균하나?'). 주 분석 모형은 '방법 고르기'의 기준으로 분석 전에 하나를 정하고, 다른 모형을 민감도 분석으로 둡니다(<a href="#ch21-s3">21장 c 절</a> '분석 전에 무엇을 정하나?'). 측정하지 않은 교란은 어떤 비용 모형으로도 보정되지 않습니다.</p>
+<p>치료 시작 전에 잰 교란변수를 회귀모형으로 보정하고, 재활용 예측으로 1인당 금액 차이를 구합니다(<a href="#ch21-s3">21장 c 절</a> '감마 GLM으로 보정한 비와 금액 차이는?'). 금액은 연구 대상 전체나 신약을 쓴 환자처럼 평균할 집단을 정해 구합니다(<a href="#ch21-s3">21장 c 절</a>의 접힌 상자 '금액 차이는 누구에 대해 평균하나?'). 주 분석 모형은 <span class="tref" data-t="ap01-tb07">'방법 고르기'의 기준</span>으로 분석 전에 하나를 정하고, 다른 모형을 민감도 분석으로 둡니다(<a href="#ch21-s3">21장 c 절</a> '분석 전에 무엇을 정하나?'). 측정하지 않은 교란은 어떤 비용 모형으로도 보정되지 않습니다.</p>
 
 <h4>프로그램에는 무엇을 넣고 무엇이 나오나?</h4>
 <p>넣는 것은 두 군 환자의 비용 배열 두 개이고, 나오는 것은 평균 차이의 신뢰구간입니다. 코드는 <a href="#ch21-s2">21장 b 절</a>의 접힌 상자 'scipy로는 어떻게 구하고, 기본값은 무엇인가?'와 같고, 이 자료에서 결과를 바꾸는 기본값은 다음과 같습니다(scipy 1.18, statsmodels 0.15).</p>
@@ -509,7 +509,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <h4>빠진 이유에 따라 완전사례 분석은 어떻게 달라지나?</h4>
 <p>빠진 이유는 세 가지로 나눕니다(<a href="#ch10-s2">10장 b 절</a> '방문이 빠지는 이유는 어떻게 나누나?'). 어떤 값과도 관계없이 빠지면 <strong>완전 무작위 결측</strong><span class="en">(missing completely at random, MCAR)</span>, 이미 관측된 값으로 설명되면 <strong>무작위 결측</strong><span class="en">(missing at random, MAR)</span>, 측정하지 못한 그 값 때문에 빠지면 <strong>비무작위 결측</strong><span class="en">(missing not at random, MNAR)</span>입니다. MAR은 이름과 달리 아무렇게나 빠졌다는 뜻이 아닙니다.</p>
 <p>탈락이 무엇에 달렸는지만 바꿔 같은 설계로 400번 반복한 평균이 아래 표입니다. 결측은 모두 약 27–28%이고, MCAR을 뺀 세 경우는 통상치료군이 더 많이 빠지게 했습니다. 다중대체는 배정군, 기저 SBP, 3개월 SBP로 채웠고, 참값은 −5.2 mmHg입니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ap01-tb10" data-name="탈락 이유별 결측 처리 결과"><table class="tbl tight">
 <thead><tr><th>탈락 이유</th><th class="r">전체</th><th class="r">완전<br>사례</th><th class="r">다중<br>대체</th></tr></thead>
 <tbody>
 <tr><td>무관 (MCAR)</td><td class="r">−5.16</td><td class="r">−5.16</td><td class="r">−5.16</td></tr>
@@ -590,7 +590,7 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <p class="excerpt">Twelve-month SBP was <span class="mk">1</span> <span class="hl">missing for 77 of 300 participants (25.7%; 20.0% intervention, 31.3% usual care)</span>. Participants with missing data <span class="mk">2</span> <span class="hl">had higher SBP at 3 months</span> than those with complete data. Assuming data were <span class="mk">3</span> <span class="hl">missing at random</span>, we performed <span class="mk">4</span> <span class="hl">multiple imputation with 30 imputed datasets; the imputation model included treatment group, baseline SBP, and 3-month SBP</span>. In each dataset the treatment effect was estimated by ANCOVA adjusted for baseline SBP, and estimates were <span class="mk">5</span> <span class="hl">combined using Rubin's rules</span>.</p>
 <p class="excerpt">The adjusted mean difference in 12-month SBP was <span class="mk">6</span> <span class="hl">−5.2 mmHg (95% CI, −7.3 to −3.1)</span>; in the <span class="mk">7</span> <span class="hl">complete-case analysis (n = 223), −4.6 mmHg (95% CI, −6.7 to −2.4)</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>결측 비율을 군별로.</b> 통상치료군에서 결측이 더 많습니다(47명 대 30명). 결측 비율이 군마다 뚜렷이 다르면(20.0% 대 31.3%) MCAR로 보기 어렵습니다. 다만 그것만으로 완전사례 분석이 치우치지는 않으므로, 무엇이 결측을 설명하는지를 찾습니다('빠진 이유에 따라 완전사례 분석은 어떻게 달라지나?').</span></li>
+<li><span class="mk">1</span><span><b>결측 비율을 군별로.</b> 통상치료군에서 결측이 더 많습니다(47명 대 30명). 결측 비율이 군마다 뚜렷이 다르면(20.0% 대 31.3%) MCAR로 보기 어렵습니다. 다만 그것만으로 완전사례 분석이 치우치지는 않으므로, 무엇이 결측을 설명하는지를 찾습니다(<span class="tref" data-t="ap01-tb10">'빠진 이유에 따라 완전사례 분석은 어떻게 달라지나?'</span>).</span></li>
 <li><span class="mk">2</span><span><b>결측이 생긴 이유의 단서.</b> 탈락자의 3개월 SBP 평균은 중재군 158.9 대 142.5, 통상치료군 160.1 대 143.3 mmHg로, 혈압이 잘 조절되지 않던 사람이 더 많이 빠졌습니다. 탈락이 이미 관측된 3개월 혈압과 관련 있다는 뜻입니다. 탈락이 3개월 혈압으로 설명된다면(MAR, 3번) 3개월 혈압이 결측을 바로잡는 열쇠가 됩니다.</span></li>
 <li><span class="mk">3</span><span><b>무작위 결측(MAR) 가정.</b> "배정군과 기저·3개월 혈압이 같은 사람끼리는 탈락 여부가 12개월 혈압과 무관하다"는 가정입니다. 자료로 확인할 수 없는 가정이므로 논문에는 다른 가정의 민감도 분석이 함께 있어야 합니다('MAR 가정이 의심되면 어떤 민감도 분석을 하나?').</span></li>
 <li><span class="mk">4</span><span><b>무엇을 넣어 몇 번 채웠나.</b> 대체모형에 분석모형에는 없는 3개월 SBP(보조변수)를 넣은 것이 핵심입니다. 대체 횟수는 결측이 있는 사람의 비율(%) 이상이 흔히 권장되어, 25.7%면 30번이면 충분합니다<cite data-ref="white2011"></cite>.</span></li>
@@ -898,7 +898,7 @@ n = [1.96 × 0.6991 + 0.842 × 0.6910]² ÷ 0.15² = 1.952² ÷ 0.0225 = 169.3 �
 <p>일치 한계 한 쌍은 혈압 수준과 상관없이 차이가 같은 크기로 흩어진다고 보고 만든 값입니다. 그림 A-5 나에서 점들이 오른쪽으로 갈수록 올라가거나 퍼지면 이 가정이 맞지 않습니다. 차이를 두 측정의 평균에 회귀한 기울기로 확인하며, 이 자료는 0.08(P = 0.18)로 뚜렷한 변화가 없었습니다. 차이가 수준에 비례해 커지면 로그 변환한 값으로 한계를 구하거나 수준별 한계를 씁니다<cite data-ref="bland1999"></cite>.</p>
 <h4>범주형 판정은 왜 일치율 대신 κ를 보나?</h4>
 <p>고혈압 환자 200명에서 자기보고 순응("거의 빠뜨리지 않는다")과 약국 재조제 기록의 PDC 80% 이상을 비교했다고 합시다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
+<div class="tbl-wrap" id="ap01-tb15" data-name="자기보고·PDC 순응 판정"><table class="tbl tight">
 <thead><tr><th></th><th class="r">PDC ≥ 80%</th><th class="r">PDC &lt; 80%</th><th class="r">계</th></tr></thead>
 <tbody>
 <tr><td>자기보고 순응</td><td class="r">110</td><td class="r">50</td><td class="r">160</td></tr>
@@ -921,6 +921,7 @@ n = [1.96 × 0.6991 + 0.842 × 0.6910]² ÷ 0.15² = 1.952² ÷ 0.0225 = 169.3 �
 <div class="quick"><p class="qk">잠깐 확인</p><p>자기보고가 200명 모두를 '순응'으로 판정했다고 합시다(가상). PDC와의 관측 일치율과 κ는 각각 얼마일까요?</p><details><summary>답 보기</summary><div><p>관측 일치율은 60%이지만 κ는 0입니다. PDC 80% 이상인 120명만 일치해 일치율이 120 ÷ 200 = 0.60이고, 한쪽이 모두 '순응'이면 우연히 일치할 비율도 1 × 0.60 = 0.60이라 κ = (0.60 − 0.60) ÷ (1 − 0.60) = 0이기 때문입니다.</p></div></details></div>
 
 <h4>불일치는 어느 쪽으로 몰렸나?</h4>
+<div class="pin-bar ref" data-t="ap01-tb15"></div>
 <p>판정이 엇갈린 60명 가운데 50명이 자기보고로는 순응인데 PDC가 80% 미만이어서, 자기보고가 순응을 높게 평가합니다. κ는 이 방향을 알려 주지 않으므로 표를 함께 봅니다. 방향이 반반에서 벗어났는지는 엇갈린 60명으로 하는 McNemar 검정으로 확인하며, 정확 P &lt; 0.001입니다(<a href="#ap01-s1">a 절</a> '내 연구에서 분석하기'의 '같은 환자에게 두 검사를 했다면?').</p>
 
 <div class="callout warn"><p class="ct">흔한 오해 · 일치도</p>

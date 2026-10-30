@@ -276,7 +276,7 @@ A군의 오즈 = 48 ÷ 352 = 0.136</p>
 
 <h4>세 지표는 각각 무엇을 비교하나?</h4>
 <p>세 효과 지표는 위험이나 오즈를 두 군 사이에서 비교한 것입니다. 위험차와 상대위험도는 둘 다 두 군의 위험을 비교하지만, 위험차는 빼고 상대위험도는 나눕니다. 오즈비는 위험이 아니라 두 군의 오즈를 나눕니다. A군을 B군과 비교해 계산하면 다음과 같습니다.</p>
-<div class="tbl-wrap"><table class="tbl">
+<div class="tbl-wrap" id="ch05-tb08" data-name="세 효과 지표와 95% CI"><table class="tbl">
 <thead><tr><th>효과 지표</th><th>무엇을 비교하나<br>(A 대 B)</th><th class="r">값 (95% CI)</th></tr></thead>
 <tbody>
 <tr><td><strong>위험차</strong><span class="en">(risk difference, RD)</span></td><td>두 군의 위험을 뺀다<br>0.12 − 0.17</td><td class="r">−5.0%p<br>(−9.4 ~ −0.6)</td></tr>
@@ -365,6 +365,7 @@ OR 0.666 0.46 0.96</pre></div></div>
 <p>위험차는 그 역수로도 읽습니다. 1 ÷ 0.05 = 20이므로, 1년 동안 A군 환자 20명당 입원한 사람이 B군보다 1명 적었다는 뜻입니다. 이 값을 치료필요수<span class="en">(number needed to treat, NNT)</span>라고 하며, 보정하지 않은 관찰자료에서는 약 때문에 줄어든 수로 읽지 않습니다(<a href="#ch08-s2">8장 b 절</a>).</p>
 
 <h4>결과 문장은 어떤 순서로 옮기나?</h4>
+<div class="pin-bar ref" data-t="ch05-tb08"></div>
 <ol>
 <li>먼저 효과의 크기와 방향을 봅니다. A군의 입원 위험이 B군보다 100명당 5명, 상대적으로는 29% 낮습니다.</li>
 <li>다음으로 95% 신뢰구간을 봅니다. 차이 없음은 빼서 구한 위험차에서는 0, 나눠서 구한 상대위험도와 오즈비에서는 1입니다. 이 예에서는 세 지표 모두 신뢰구간이 '차이 없음'을 포함하지 않아 카이제곱 검정과 같은 결론입니다. 다만 신뢰구간과 검정은 계산 방식이 달라, 경계에 가까운 자료에서는 결론이 갈릴 수 있습니다(<a href="#ch05-s2">b 절</a> '결과 읽기'의 간독성 예). 상대위험도의 구간 0.51–0.97은 A군의 위험이 3%에서 49%까지 낮을 수 있다는 뜻입니다.</li>
@@ -381,7 +382,7 @@ OR 0.666 0.46 0.96</pre></div></div>
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · Methods 문장과 결과 표</b><span>가상의 예시</span></div>
 <div class="paper-b">
 <p class="excerpt">Categorical variables are <span class="mk">1</span> <span class="hl">presented as numbers and percentages</span> and were compared using the χ² test or Fisher's exact test, <span class="mk">2</span> <span class="hl">as appropriate</span>.</p>
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch05-tb10" data-name="약물 A·B 1년 결과표"><table class="jt">
 <caption><b>Table 2.</b> Outcomes within 1 year after treatment initiation among new users of drug A and drug B</caption>
 <thead><tr><th>Outcome</th><th class="r">Drug A<br>(n = 400)</th><th class="r">Drug B<br>(n = 600)</th><th class="r"><span class="mk">6</span> P value</th></tr></thead>
 <tbody>
@@ -409,6 +410,7 @@ A군 사망 3명의 비율 = 3 ÷ 400 = 0.75%<br>
 <p>기저특성 표(Table 1)의 성별, 동반질환 같은 범주형 변수에도 χ² 검정의 P를 싣는 논문이 많습니다. 그런데 P는 차이의 크기뿐 아니라 표본 수에도 좌우되므로 두 군이 얼마나 다른지를 말해 주지 못합니다. 인원이 많을수록 표준오차가 작아져, 아주 작은 차이도 표준오차의 몇 배가 되기 때문입니다. 예를 들어 군당 10,000명에서 여성 비율 50% 대 52%는 P = 0.005입니다. 그런데 두 비율의 차이를 표준편차 단위로 나타낸 표준화 평균차(SMD)는 0.04로, 흔히 쓰는 불균형 기준 0.1에 한참 못 미칩니다. 그래서 대규모 관찰연구는 범주형 변수도 SMD로 균형을 봅니다(<a href="#ch01-s1">1장 a 절</a>).</p>
 
 <h3>6. 논문에 쓰기</h3>
+<div class="pin-bar ref" data-t="ch05-tb08"></div>
 <p><strong>Methods에는 검정 이름과 Fisher 검정으로 바꾸는 기준, 비교 방향을 씁니다. Results에는 군별 사건 수와 인원, 위험차나 상대위험도와 95% CI, 정확한 P를 씁니다.</strong></p>
 <p>관찰연구 보고 지침인 STROBE는 보정하지 않은 추정값과, 해당되면 교란변수를 보정한 추정값을 95% 신뢰구간 같은 정밀도와 함께 쓰라고 권합니다. 어떤 변수를 왜 보정했는지도 밝히게 합니다. 필요하면 상대위험을 의미 있는 기간의 절대위험으로도 옮겨 보라고 권합니다<cite data-ref="vonelm2007"></cite>. 다만 STROBE는 무엇을 빠짐없이 적을지 알려 주는 지침이고, 항목을 모두 채웠다고 분석이 타당해지는 것은 아닙니다.</p>
 <p>보고할 것은 다음 다섯 가지입니다.</p>
@@ -505,7 +507,7 @@ D군·사건 없음 = 300 × 484 ÷ 500 = 290.4</p>
 <p>묻는 것은 a 절의 카이제곱 검정과 같고, p를 구하는 방법만 다릅니다. 매끄러운 곡선으로 p를 어림하지 않고, "약이 결과와 무관하다면 지금처럼 한쪽으로 치우친 표가 나올 확률"을 경우의 수로 직접 세어 구합니다. 같은 시기에 Irwin도 독립적으로 제안해 Fisher–Irwin 검정이라고도 합니다<cite data-ref="fisher1935"></cite>.</p>
 
 <h4>어떤 표에 쓰나?</h4>
-<p>이 검정이 필요한 표는 a 절의 약물 A·B 연구에도 있었습니다. a 절 '논문에서 읽기' Table 2의 고칼륨혈증 입원은 1,000명 중 11명에게만 생겼으므로, 약과 관련이 없다면 A군 400명에서 기대되는 수는 400 × 11 ÷ 1,000 = 4.4명입니다.</p>
+<p>이 검정이 필요한 표는 a 절의 약물 A·B 연구에도 있었습니다. <span class="tref" data-t="ch05-tb10">a 절 '논문에서 읽기' Table 2</span>의 고칼륨혈증 입원은 1,000명 중 11명에게만 생겼으므로, 약과 관련이 없다면 A군 400명에서 기대되는 수는 400 × 11 ÷ 1,000 = 4.4명입니다.</p>
 <p>a 절 '둘째, 칸마다 기대빈도가 충분히 큰가?'에서 본 것처럼, 기대빈도가 이렇게 몇 명 수준이면 카이제곱 검정의 곡선 근사가 부정확해집니다. 그래서 2×2 표에서 기대빈도가 5 미만인 칸이 있으면 이 검정으로 바꾸는 것이 흔한 관행입니다. Table 2도 이 행에는 Fisher 검정의 p = 0.22를 실었고, 같은 행에 카이제곱 검정을 쓰면 p = 0.14입니다.</p>
 <p>이런 표는 드문 약물 이상반응, 환자 수십 명 규모의 초기 임상시험, 희귀질환이나 단일기관 종양 코호트의 하위군 분석에서 자주 보입니다.</p>
 
@@ -521,7 +523,7 @@ D군·사건 없음 = 300 × 484 ÷ 500 = 290.4</p>
 <h3>2. 숫자로 따라가기</h3>
 <p><strong>약이 간독성과 무관하다면 간독성 환자 7명이 두 군에 어떻게 나뉠지는 순전히 우연입니다. Fisher 검정의 p는 그렇게 나뉜 표 가운데 지금 표만큼 또는 더 드물게 치우친 표가 나올 확률을 직접 센 값입니다.</strong></p>
 <p>이제 '이 절의 예에서는 무엇을 먼저 보나?'의 29명 시험으로 p를 직접 셉니다. 3등급 이상 간독성은 X군 15명 중 1명, Y군 14명 중 6명, 모두 7명에게 생겼습니다. 괄호 안은 a 절과 같은 규칙(행 합계 × 열 합계 ÷ 전체 인원)으로 구한 기대빈도입니다.</p>
-<div class="tbl-wrap"><table class="tbl" style="max-width:34rem">
+<div class="tbl-wrap" id="ch05-tb12" data-name="간독성 2×2 표와 기대빈도"><table class="tbl" style="max-width:34rem">
 <thead><tr><th></th><th class="r">간독성 있음</th><th class="r">없음</th><th class="r">합계</th></tr></thead>
 <tbody>
 <tr><td>약물 X</td><td class="r">1 (3.62)</td><td class="r">14 (11.38)</td><td class="r">15</td></tr>
@@ -541,7 +543,7 @@ D군·사건 없음 = 300 × 484 ÷ 500 = 290.4</p>
 
 <h4>가능한 표는 모두 몇 개인가?</h4>
 <p>여백이 같은 표는 X군 간독성이 0명인 표부터 7명인 표까지, 즉 a = 0부터 7까지 8개뿐입니다. 각 표의 확률을 같은 방법으로 구하면 아래 표와 같고, 합은 1이 됩니다.</p>
-<div class="tbl-wrap"><table class="tbl tight" style="max-width:40rem">
+<div class="tbl-wrap" id="ch05-tb13" data-name="가능한 8개 표의 확률"><table class="tbl tight" style="max-width:40rem">
 <thead><tr><th class="r">a</th><th class="r">X군<br>간독성</th><th class="r">Y군<br>간독성</th><th class="r">그 표의<br>확률</th><th>관측된 표보다<br>확률이 같거나<br>작은가</th></tr></thead>
 <tbody>
 <tr class="hi"><td class="r">0</td><td class="r">0/15</td><td class="r">7/14</td><td class="r">0.0022</td><td>예</td></tr>
@@ -567,13 +569,14 @@ D군·사건 없음 = 300 × 484 ÷ 500 = 290.4</p>
 <p><strong>가정은 a 절과 같은 관측의 독립 하나입니다. 표의 여백을 고정하는 것은 가정이 아니라 계산 방식이고, 이 계산 방식 때문에 검정이 조금 보수적입니다. 어떤 검정을 쓸지는 결과를 보기 전에 정합니다.</strong></p>
 
 <h4>어떤 검정을 쓸지는 언제 정하나?</h4>
-<p>분석 계획 단계에서 미리 정합니다. 기대빈도가 작은 표에서는 방법에 따라 p가 크게 달라지기 때문입니다. 같은 간독성 표에 카이제곱 검정을 쓰면 χ² = 5.18, p = 0.023입니다. a 절의 연속성 보정(Yates 보정)을 하면 χ² = 3.39, p = 0.066입니다. Fisher 검정의 0.035를 사이에 두고 p가 0.023에서 0.066까지 움직이므로, 결과를 본 뒤 고르면 유의한 쪽을 고르게 됩니다.</p>
+<p>분석 계획 단계에서 미리 정합니다. 기대빈도가 작은 표에서는 방법에 따라 p가 크게 달라지기 때문입니다. <span class="tref" data-t="ch05-tb12">같은 간독성 표</span>에 카이제곱 검정을 쓰면 χ² = 5.18, p = 0.023입니다. a 절의 연속성 보정(Yates 보정)을 하면 χ² = 3.39, p = 0.066입니다. Fisher 검정의 0.035를 사이에 두고 p가 0.023에서 0.066까지 움직이므로, 결과를 본 뒤 고르면 유의한 쪽을 고르게 됩니다.</p>
 <p>이 검정은 근사 없이 경우의 수를 세므로 표본이 커도 타당합니다. 예전에는 표본이 크면 계산량이 많아 카이제곱 근사를 썼을 뿐이고, 표본이 크면 두 검정의 p는 거의 같습니다(a 절 약물 A·B 표에서 둘 다 0.030). 그래서 이상반응 표처럼 한 표의 모든 행을 이 검정으로 통일해도 됩니다.</p>
 
 <h4>가정은 무엇인가?</h4>
 <p>a 절과 같은 <strong>관측의 독립</strong> 하나입니다. 이 시험은 환자 29명을 한 번씩 센 표라 이 가정을 지킵니다. 같은 환자를 두 번 본 짝지은 표라면 <a href="#ap01-s1">부록 A a 절</a>의 McNemar 검정을 씁니다.</p>
 
 <h4>정확한 검정인데 왜 유의하게 나오기 어려운가?</h4>
+<div class="pin-bar ref" data-t="ch05-tb13"></div>
 <p>'정확'하다는 말은 근사 없이 확률을 계산한다는 뜻이지, 1종 오류율이 정확히 5%라는 뜻은 아닙니다. 1종 오류율은 약과 결과가 정말 무관할 때 p ≤ 0.05가 나와 '유의'로 판정할 확률입니다(<a href="#ch01-s2">1장 b 절</a>). 간독성 시험에서 이 확률이 5%보다 낮게 정해지는 과정은 다음과 같습니다.</p>
 <ol>
 <li>Fisher 검정은 '숫자로 따라가기'처럼 여백을 고정한 표만 셉니다. 이 시험의 여백에서 가능한 표는 a = 0부터 7까지 8개뿐이므로, 나올 수 있는 양측 p도 몇 개뿐입니다.</li>
@@ -674,6 +677,7 @@ print(round(orc.statistic, 4), round(ci.low, 4), round(ci.high, 4))</code></pre>
 0.1033 0.0019 1.0823</pre></div></div><!--/FOLD-->
 
 <h4>P는 0.05보다 작은데 정확 신뢰구간은 왜 1을 넘나?</h4>
+<div class="pin-bar ref" data-t="ch05-tb13"></div>
 <p>Fisher 검정의 양측 p는 0.035인데, 오즈비의 정확 95% 신뢰구간 0.002–1.08은 1을 조금 넘습니다. 모순처럼 보이지만 두 값은 분포의 꼬리를 다루는 규칙이 다릅니다.</p>
 <ol>
 <li>양측 p는 '숫자로 따라가기'처럼 관측된 표보다 확률이 같거나 작은 표를 양쪽 꼬리에서 모두 더합니다. 간독성 표에서는 X군 쪽 꼬리 0.0311(a = 0, 1)과 반대쪽 꼬리 0.0041(a = 7)을 더해 0.035가 됩니다.</li>
@@ -686,7 +690,7 @@ print(round(orc.statistic, 4), round(ci.low, 4), round(ci.high, 4))</code></pre>
 <div class="quick"><p class="qk">잠깐 확인</p><p>관측된 표가 a = 0(X군 15명 중 0명, Y군 14명 중 7명)이었다면, 이번처럼 양측 p는 0.05보다 작은데 정확 신뢰구간은 1을 포함하는 엇갈림이 생길까요?</p><details><summary>답 보기</summary><div><p>생기지 않습니다. 오즈비 1에서 구한 X군 쪽 꼬리가 a = 0 하나의 확률 0.0022로 0.025보다 작아, 오즈비 1이 구간 밖으로 나가기 때문입니다. 양측 p도 같은 0.0022라서 두 값의 결론이 같습니다.</p></div></details></div>
 
 <h4>임상적 의미는 어떻게 따지나?</h4>
-<p>29명 규모의 시험이므로 p = 0.035는 더 큰 연구에서 확인할 신호로 읽습니다. 반대로 작은 표본의 "유의하지 않음"은 대개 "사건이 너무 적어 판단할 수 없음"이고, a 절 Table 2의 고칼륨혈증 행(P = 0.22)이 그런 예입니다. 약물감시 자료의 드문 이상반응이나 희귀질환 약의 실사용 자료에서 흔한 일입니다. 사건 수와 신뢰구간을 함께 보고하고, 필요한 표본수를 <a href="#ap01-s5">부록 A e 절</a>의 방법으로 계산해 봅니다.</p>
+<p>29명 규모의 시험이므로 p = 0.035는 더 큰 연구에서 확인할 신호로 읽습니다. 반대로 작은 표본의 "유의하지 않음"은 대개 "사건이 너무 적어 판단할 수 없음"이고, <span class="tref" data-t="ch05-tb10">a 절 Table 2의 고칼륨혈증 행</span>(P = 0.22)이 그런 예입니다. 약물감시 자료의 드문 이상반응이나 희귀질환 약의 실사용 자료에서 흔한 일입니다. 사건 수와 신뢰구간을 함께 보고하고, 필요한 표본수를 <a href="#ap01-s5">부록 A e 절</a>의 방법으로 계산해 봅니다.</p>
 <p><strong>즉, 간독성은 X군 쪽으로 적게 치우쳐 우연으로 보기 어렵지만, 그 크기는 오즈비 0.002부터 1.08까지 열려 있어 이 시험만으로는 거의 알 수 없습니다.</strong></p>
 
 <h3>5. 논문에서 읽기</h3>
@@ -696,7 +700,7 @@ print(round(orc.statistic, 4), round(ci.low, 4), round(ci.high, 4))</code></pre>
 <div class="paper">
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · 소규모 시험의 이상반응 표</b><span>가상의 예시</span></div>
 <div class="paper-b">
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch05-tb16" data-name="3등급 이상 이상반응 표"><table class="jt">
 <caption><b>Table 3.</b> Grade 3 or higher adverse events</caption>
 <thead><tr><th>Adverse event</th><th class="r">Drug X<br>(n = 15)</th><th class="r">Drug Y<br>(n = 14)</th><th class="r"><span class="mk">6</span> P value</th></tr></thead>
 <tbody>
@@ -734,7 +738,7 @@ print(round(orc.statistic, 4), round(ci.low, 4), round(ci.high, 4))</code></pre>
 <p class="excerpt"><b>Methods.</b> Grade 3 or higher adverse events were compared between groups using <span class="mk">1</span> <span class="hl">Fisher's exact test because expected cell counts were less than 5 for most events</span>. <span class="mk">2</span> <span class="hl">Two-sided P values</span> are reported. <span class="mk">3</span> <span class="hl">Odds ratios (drug X vs drug Y) were estimated by conditional maximum likelihood with exact 95% CIs</span> using SciPy 1.17.</p>
 <p class="excerpt"><b>Results.</b> Grade 3 or higher hepatotoxicity occurred in 1 of 15 patients (6.7%) receiving drug X and 6 of 14 (42.9%) receiving drug Y (<span class="mk">4</span> <span class="hl">odds ratio, 0.10; exact 95% CI, 0.002 to 1.08; P = 0.035</span>). <span class="mk">5</span> <span class="hl">Because events were few and several adverse events were compared, this finding should be interpreted as exploratory.</span></p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>검정 이름과 고른 이유.</b> 기대빈도 기준을 밝히면 결과를 보고 검정을 고르지 않았다는 것을 보여 줍니다. '논문에서 읽기' Table 3의 다섯 행 중 네 행에 기대빈도 5 미만인 칸이 있습니다. 간독성 행은 3.38과 3.62입니다. 기대빈도가 충분한 나머지 한 행도 같은 검정으로 통일했습니다. 표의 일부 행에만 썼다면 어느 행인지 표 각주에도 밝힙니다.</span></li>
+<li><span class="mk">1</span><span><b>검정 이름과 고른 이유.</b> 기대빈도 기준을 밝히면 결과를 보고 검정을 고르지 않았다는 것을 보여 줍니다. <span class="tref" data-t="ch05-tb16">'논문에서 읽기' Table 3</span>의 다섯 행 중 네 행에 기대빈도 5 미만인 칸이 있습니다. 간독성 행은 3.38과 3.62입니다. 기대빈도가 충분한 나머지 한 행도 같은 검정으로 통일했습니다. 표의 일부 행에만 썼다면 어느 행인지 표 각주에도 밝힙니다.</span></li>
 <li><span class="mk">2</span><span><b>양측 P.</b> 간독성 표의 단측 p는 0.031입니다. 어느 쪽인지 밝혀야 독자가 P를 바르게 읽습니다.</span></li>
 <li><span class="mk">3</span><span><b>오즈비의 방향과 구한 방법.</b> "drug X vs drug Y"는 Y군을 기준으로 X군을 본다는 뜻입니다. 같은 표라도 표본 오즈비는 0.095, 조건부 최대우도 추정값은 0.103입니다. 방법을 밝혀야 독자가 검산할 수 있습니다. 두 값의 차이는 '결과 읽기'의 접힌 상자 '프로그램마다 오즈비가 왜 다르게 나오나?'에 있습니다.</span></li>
 <li><span class="mk">4</span><span><b>오즈비와 정확 신뢰구간, 정확한 P.</b> P는 0.05보다 작은데 구간은 1을 조금 넘습니다. 두 값을 만드는 규칙이 달라 생기는 일이므로('결과 읽기') 둘 다 그대로 씁니다. 구간이 넓다는 점은 결론의 강도에 반영합니다. P는 양측 p 0.0352를 반올림한 값이고, "P &lt; 0.05"로만 쓰지 않습니다.</span></li>
@@ -955,7 +959,7 @@ a. 0 cells (0.0%) have expected count less than 5.
 <div class="paper-h"><b>논문에서는 이렇게 보입니다 · P for trend가 있는 표</b><span>가상의 예시</span></div>
 <div class="paper-b">
 <p class="excerpt">Adherence was measured as the proportion of days covered (PDC) during the first year after treatment initiation and <span class="mk">1</span> <span class="hl">categorized as &lt;40%, 40%–79%, and ≥80%</span>. Cardiovascular hospitalization was assessed during the subsequent year. The linear trend in hospitalization across PDC categories was tested using the <span class="mk">2</span> <span class="hl">Cochran–Armitage test</span>.</p>
-<div class="tbl-wrap"><table class="jt">
+<div class="tbl-wrap" id="ch05-tb21" data-name="순응도 범주별 입원과 RR"><table class="jt">
 <caption><b>Table 4.</b> Cardiovascular hospitalization in the second year by first-year adherence</caption>
 <thead><tr><th>PDC category</th><th class="r">Patients, n</th><th class="r">Hospitalized, n (%)</th><th class="r">Crude RR (95% CI)</th></tr></thead>
 <tbody>
@@ -978,6 +982,7 @@ a. 0 cells (0.0%) have expected count less than 5.
 <p>Mantel은 이 추세 검정을 층화된 자료로 확장해, 예를 들어 성별이나 연령군별로 추세를 구한 뒤 합치는 방법을 제시했습니다<cite data-ref="mantel1963"></cite>. 이 형태로 널리 알려져 논문에서는 <strong>Mantel–Haenszel 추세 검정</strong><span class="en">(Mantel–Haenszel test for trend)</span>이라는 이름으로도 만납니다. 이름이 비슷해 헷갈리는 것이 하나 있습니다. SAS PROC FREQ는 (N − 1)r²를 'Mantel-Haenszel Chi-Square'라는 이름으로 출력하는데, 여러 층의 2×2 표에서 공통 오즈비를 구하는 Cochran–Mantel–Haenszel 방법(8장 f 절)과는 다른 검정입니다.</p><!--/FOLD-->
 
 <h3>6. 논문에 쓰기</h3>
+<div class="pin-bar ref" data-t="ch05-tb21"></div>
 <p><strong>Methods에는 미리 정한 범주, 기준범주, 추세 검정의 이름과 점수를 씁니다. Results에는 범주별 비율과 분자·분모, 추세의 방향, P for trend, 범주별 상대위험도와 95% CI를 씁니다.</strong></p>
 <p>보고할 것은 다음 다섯 가지입니다.</p>
 <ol>
