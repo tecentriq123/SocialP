@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">마르코프 모형의 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">mk &lt;- compare(arm_result(p, &quot;A&quot;, tr_A[, &quot;pf&quot;], tr_A[, &quot;pd&quot;]),
+              arm_result(p, &quot;B&quot;, tr_B[, &quot;pf&quot;], tr_B[, &quot;pd&quot;]))
+round(mk$table, 3)
+round(mk$icer)
+nohalf &lt;- compare(arm_result(p, &quot;A&quot;, tr_A[, &quot;pf&quot;], tr_A[, &quot;pd&quot;], half = FALSE),
+                  arm_result(p, &quot;B&quot;, tr_B[, &quot;pf&quot;], tr_B[, &quot;pd&quot;], half = FALSE))
+round(c(ly_B = unname(nohalf$table[&quot;ly&quot;, &quot;B&quot;]), icer = nohalf$icer), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             A        B     diff
+ly_pf    1.850    1.203    0.647
+ly_pd    1.631    1.631    0.000
+ly       3.481    2.834    0.647
+qaly     2.190    1.774    0.416
+cost  9729.981 7294.426 2435.555
+[1] 5858<span class="mk">1</span>
+    ly_B     icer 
+   2.876 5942<span class="mk">2</span>.282</pre></div></div>

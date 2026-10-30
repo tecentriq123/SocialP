@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">입력값과 결과 계산 함수 (7장과 같음)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">weib_lam &lt;- function(median, gam) log(2) / median^gam
+p &lt;- list(pfs_gam = 0.95, pfs_lam = weib_lam(10, 0.95), os_gam = 1.15, os_lam = weib_lam(28, 1.15),
+          hr_pfs = 0.65, hr_os = 0.75, u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,
+          c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250, c_death = 800,
+          c_ae_A = 120, c_ae_B = 80, disc = 0.045)            # 7장과 같은 입력값
+mid &lt;- function(x) (head(x, -1) + tail(x, -1)) / 2
+arm_result &lt;- function(p, a, pf_t, pd_t, half = TRUE) {   # 상태 비율(0-n개월) -&gt; 한 군의 결과
+  n &lt;- length(pf_t) - 1
+  pf &lt;- if (half) mid(pf_t) else head(pf_t, -1)
+  pd &lt;- if (half) mid(pd_t) else head(pd_t, -1)
+  alive &lt;- pf_t + pd_t
+  died &lt;- head(alive, -1) - tail(alive, -1)
+  disc &lt;- 1 / (1 + p$disc)^((0:(n - 1) + 0.5) / 12)
+  cost &lt;- sum((pf * (p[[paste0(&quot;c_drug_&quot;, a)]] + p$c_pf) + pd * p$c_pd +
+               died * p$c_death) * disc) + p[[paste0(&quot;c_ae_&quot;, a)]]
+  qaly &lt;- sum((pf * p$u_pf + pd * p$u_pd) / 12 * disc) - p[[paste0(&quot;du_ae_&quot;, a)]]
+  c(ly_pf = sum(pf) / 12, ly_pd = sum(pd) / 12, ly = sum(pf + pd) / 12, qaly = qaly, cost = cost)
+}
+compare &lt;- function(rA, rB) {
+  tab &lt;- cbind(A = rA, B = rB, diff = rA - rB)
+  list(table = tab, icer = unname(tab[&quot;cost&quot;, &quot;diff&quot;] / tab[&quot;qaly&quot;, &quot;diff&quot;]))
+}
+t &lt;- 0:240
+S &lt;- function(lam, gam, t) exp(-lam * t^gam)
+psm_arm &lt;- function(a) {                              # 7장의 분할생존모형
+  h1 &lt;- if (a == &quot;A&quot;) p$hr_pfs else 1; h2 &lt;- if (a == &quot;A&quot;) p$hr_os else 1
+  os &lt;- S(p$os_lam * h2, p$os_gam, t); pf &lt;- pmin(S(p$pfs_lam * h1, p$pfs_gam, t), os)
+  arm_result(p, a, pf, os - pf)
+}
+psm &lt;- compare(psm_arm(&quot;A&quot;), psm_arm(&quot;B&quot;))
+round(psm$icer, 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 5620.61<span class="mk">1</span></pre></div></div>

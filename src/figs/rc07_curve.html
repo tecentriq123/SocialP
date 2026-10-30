@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">군별 두 곡선</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">S &lt;- function(lam, gam, t) exp(-lam * t^gam)       # 와이블 생존함수
+t &lt;- 0:240                                         # 주기 경계: 0, 1, ..., 240개월
+pfs_B &lt;- S(p$pfs_lam, p$pfs_gam, t)
+os_B  &lt;- S(p$os_lam,  p$os_gam,  t)
+pfs_A &lt;- S(p$pfs_lam * p$hr_pfs, p$pfs_gam, t)     # 위험비는 lam에 곱한다
+os_A  &lt;- S(p$os_lam  * p$hr_os,  p$os_gam,  t)
+show &lt;- c(0, 12, 24, 36, 60, 120, 240)
+round(data.frame(month = show, PFS_B = pfs_B[show + 1], OS_B = os_B[show + 1],
+                 PFS_A = pfs_A[show + 1], OS_A = os_A[show + 1]), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  month  PFS_B   OS_B  PFS_A   OS_A
+1     0 1.0000 1.0000 1.0000 1.0000
+2    12 0.4386<span class="mk">1</span> 0.7698 0.5852 0.8218
+3    24 0.2035 0.5596 0.3552 0.6470
+4    36 0.0963 0.3964 0.2184 0.4995
+5    60 0.0223 0.1892 0.0844 0.2868
+6   120 0.0006 0.0248 0.0084 0.0626
+7   240 0.0000 0.0003<span class="mk">2</span> 0.0001 0.0021</pre></div></div>

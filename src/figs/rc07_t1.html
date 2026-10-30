@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">과제 1 정답: ICER가 임계값과 같아지는 약값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">inmb_at &lt;- function(price) threshold * run_psm(modifyList(p, list(c_drug_A = price)))$d_qaly -
+                           run_psm(modifyList(p, list(c_drug_A = price)))$d_cost
+price &lt;- uniroot(inmb_at, c(100, 190))$root
+round(c(price = price, cut_pct = 100 * (1 - price / p$c_drug_A),
+        icer = run_psm(modifyList(p, list(c_drug_A = price)))$icer), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  price cut_pct    icer 
+ 175.39<span class="mk">1</span>    7.69 5000.00</pre></div></div>

@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">입력값 목록</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">weib_lam &lt;- function(median, gam) log(2) / median^gam   # S(중앙값) = 0.5가 되는 lam
+p &lt;- list(
+  pfs_gam = 0.95, pfs_lam = weib_lam(10, 0.95),   # 표준요법 B: 중앙 PFS 10개월
+  os_gam  = 1.15, os_lam  = weib_lam(28, 1.15),   #              중앙 OS 28개월
+  hr_pfs = 0.65, hr_os = 0.75,                    # 신약 A의 위험비
+  u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,
+  c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250, c_death = 800,
+  c_ae_A = 120, c_ae_B = 80,                      # 만원
+  disc = 0.045)                                   # 연 할인율
+length(p)
+round(c(pfs_lam = p$pfs_lam, os_lam = p$os_lam), 5)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 18<span class="mk">1</span>
+pfs_lam  os_lam 
+0.07777<span class="mk">2</span> 0.01502</pre></div></div>

@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">모형 함수와 기준 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">weib_lam &lt;- function(median, gam) log(2) / median^gam
+S &lt;- function(lam, gam, t) exp(-lam * t^gam)
+mid &lt;- function(x) (head(x, -1) + tail(x, -1)) / 2
+p &lt;- list(pfs_gam = 0.95, pfs_lam = weib_lam(10, 0.95), os_gam = 1.15, os_lam = weib_lam(28, 1.15),
+          hr_pfs = 0.65, hr_os = 0.75, u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,
+          c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250, c_death = 800,
+          c_ae_A = 120, c_ae_B = 80, disc = 0.045)
+run_model &lt;- function(p, horizon = 240) {           # 7장의 분할생존모형을 줄인 것
+  t &lt;- 0:horizon
+  disc &lt;- 1 / (1 + p$disc)^((head(t, -1) + 0.5) / 12)
+  arm &lt;- function(h_pfs, h_os, c_drug, du_ae, c_ae) {
+    s_os &lt;- S(p$os_lam * h_os, p$os_gam, t)
+    s_pf &lt;- pmin(S(p$pfs_lam * h_pfs, p$pfs_gam, t), s_os)
+    pf &lt;- mid(s_pf); pd &lt;- mid(s_os - s_pf); died &lt;- head(s_os, -1) - tail(s_os, -1)
+    c(cost = sum((pf * (c_drug + p$c_pf) + pd * p$c_pd + died * p$c_death) * disc) + c_ae,
+      qaly = sum((pf * p$u_pf + pd * p$u_pd) / 12 * disc) - du_ae)
+  }
+  d &lt;- arm(p$hr_pfs, p$hr_os, p$c_drug_A, p$du_ae_A, p$c_ae_A) -
+       arm(1, 1, p$c_drug_B, p$du_ae_B, p$c_ae_B)
+  c(d_cost = unname(d[&quot;cost&quot;]), d_qaly = unname(d[&quot;qaly&quot;]), icer = unname(d[&quot;cost&quot;] / d[&quot;qaly&quot;]))
+}
+threshold &lt;- 5000
+base &lt;- run_model(p)
+round(c(base, inmb = threshold * base[[&quot;d_qaly&quot;]] - base[[&quot;d_cost&quot;]]), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   d_cost    d_qaly      icer      inmb 
+2872.2935<span class="mk">1</span>    0.5110 5620.6102<span class="mk">2</span> -317.1497<span class="mk">3</span></pre></div></div>

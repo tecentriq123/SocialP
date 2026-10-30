@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">주기별 비용과 QALY, 할인 계수 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">died_B &lt;- head(os_B, -1) - tail(os_B, -1)            # 그 주기에 사망한 비율
+disc_f &lt;- 1 / (1 + p$disc)^((0:239 + 0.5) / 12)      # 주기 가운데 시점의 할인 계수
+cyc &lt;- data.frame(cycle = 1:240, pf = pf_B, pd = pd_B, died = died_B,
+                  c_drug = pf_B * p$c_drug_B, c_pf = pf_B * p$c_pf,
+                  c_pd = pd_B * p$c_pd, c_death = died_B * p$c_death,
+                  qaly = (pf_B * p$u_pf + pd_B * p$u_pd) / 12, disc = disc_f)
+round(cyc[c(1, 2, 12, 120, 240), ], 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    cycle     pf     pd   died   c_drug    c_pf    c_pd c_death   qaly   disc
+1       1 0.9626 0.0300 0.0149 115.5105 38.5035  7.4900 11.9241 0.0641 0.9982<span class="mk">1</span>
+2       2 0.8928 0.0833 0.0179 107.1403 35.7134 20.8309 14.2970 0.0623 0.9945
+12     12 0.4534 0.3261 0.0194  54.4070 18.1357 81.5322 15.5337 0.0463 0.9587
+120   120 0.0007 0.0246 0.0009   0.0797  0.0266  6.1556  0.7159 0.0013 0.6451<span class="mk">2</span>
+240   240 0.0000 0.0003 0.0000   0.0001  0.0000  0.0698  0.0088 0.0000 0.4154</pre></div></div>

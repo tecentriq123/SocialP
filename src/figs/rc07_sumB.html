@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">240주기를 더해 총비용과 QALY 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">items &lt;- c(&quot;c_drug&quot;, &quot;c_pf&quot;, &quot;c_pd&quot;, &quot;c_death&quot;)
+round(cbind(undiscounted = colSums(cyc[items]),
+            discounted   = colSums(cyc[items] * cyc$disc)), 1)
+cost_B &lt;- sum(cyc[items] * cyc$disc) + p$c_ae_B
+qaly_B &lt;- sum(cyc$qaly * cyc$disc) - p$du_ae_B
+round(c(cost_B = cost_B, qaly_B = qaly_B, qaly_B_undisc = sum(cyc$qaly) - p$du_ae_B), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        undiscounted discounted
+c_drug        1807.1     1707.8
+c_pf           602.4      569.3
+c_pd          5396.1     4628.6<span class="mk">1</span>
+c_death        799.8      703.8
+       cost_B        qaly_B qaly_B_undisc 
+     7689.485<span class="mk">2</span>         1.874<span class="mk">3</span>         2.086</pre></div></div>

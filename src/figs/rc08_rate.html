@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">율과 확률 바꾸기 (23장 표 23-7)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rate_to_prob &lt;- function(r, t = 1) 1 - exp(-r * t)        # 율 -&gt; 길이 t 기간의 확률
+prob_to_rate &lt;- function(pr, t = 1) -log(1 - pr) / t       # 확률 -&gt; 율
+r_exit &lt;- log(2) / 10                                      # 중앙 무진행생존 10개월 -&gt; 월 율
+p_year  &lt;- rate_to_prob(r_exit, 12)
+p_month &lt;- rate_to_prob(r_exit)
+round(c(rate = r_exit, p_year = p_year, p_month = p_month), 4)
+round(rbind(month_from_year = c(right = rate_to_prob(prob_to_rate(p_year, 12)), wrong = p_year / 12),
+            year_from_month = c(right = 1 - (1 - p_month)^12, wrong = p_month * 12),
+            apply_hr        = c(right = rate_to_prob(r_exit * p$hr_pfs, 12), wrong = p_year * p$hr_pfs)), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   rate  p_year p_month 
+ 0.0693<span class="mk">1</span>  0.5647  0.0670 
+                 right  wrong
+month_from_year 0.0670 0.0471<span class="mk">2</span>
+year_from_month 0.5647 0.8036<span class="mk">3</span>
+apply_hr        0.4176<span class="mk">4</span> 0.3671</pre></div></div>

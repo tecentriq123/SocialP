@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">모형 속 중앙 전체생존</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">median_os &lt;- function(P, n = 1200) {            # 생존 비율이 0.5가 되는 시점(개월)
+  alive &lt;- rowSums(trace(P, n)[, c(&quot;pf&quot;, &quot;pd&quot;)])
+  k &lt;- which(alive &lt;= 0.5)[1]                     # 처음으로 0.5 이하가 된 행 (k행 = k - 1개월)
+  (k - 2) + (alive[k - 1] - 0.5) / (alive[k - 1] - alive[k])
+}
+round(c(B = median_os(P_B), A = median_os(P_A)), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   B    A 
+28.0<span class="mk">1</span> 34.8<span class="mk">2</span></pre></div></div>

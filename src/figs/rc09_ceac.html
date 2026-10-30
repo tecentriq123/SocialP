@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p_ce_at &lt;- function(lam) mean(lam * dq - dc &gt; 0)
+evpi_at &lt;- function(lam) { nb &lt;- lam * dq - dc; mean(pmax(nb, 0)) - max(mean(nb), 0) }
+lams &lt;- c(3000, 4000, 5000, 5500, 6000, 7000, 8000, 10000, 12000)
+round(data.frame(threshold = lams, mean_inmb = sapply(lams, function(l) mean(l * dq - dc)),
+                 p_ce = sapply(lams, p_ce_at), evpi = sapply(lams, evpi_at)), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  threshold  mean_inmb   p_ce     evpi
+1      3000 -1363.8958 0.0012   0.2700
+2      4000  -832.9539 0.0046   1.1146
+3      5000  -302.0119 0.1628  36.3905<span class="mk">1</span>
+4      5500   -36.5409 0.4370 141.8953<span class="mk">2</span>
+5      6000   228.9301 0.6648  97.2227
+6      7000   759.8721 0.8678  40.3035
+7      8000  1290.8141 0.9298  24.0029
+8     10000  2352.6980 0.9658  14.4995
+9     12000  3414.5820 0.9796<span class="mk">3</span>  11.9926</pre></div></div>

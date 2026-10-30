@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">곡선을 중앙값과 모양 모수로 읽고 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">get_input &lt;- function(p, key) {                 # 곡선은 중앙값(_med)으로 읽는다
+  if (grepl(&quot;_med$&quot;, key)) {
+    k &lt;- sub(&quot;_med$&quot;, &quot;&quot;, key)
+    return((log(2) / p[[paste0(k, &quot;_lam&quot;)]])^(1 / p[[paste0(k, &quot;_gam&quot;)]]))
+  }
+  p[[key]]
+}
+set_input &lt;- function(p, key, value) {          # 사본에서 값 하나를 바꾼다
+  if (grepl(&quot;_med$&quot;, key)) {                     # 중앙값을 바꾸고 모양은 그대로
+    k &lt;- sub(&quot;_med$&quot;, &quot;&quot;, key)
+    p[[paste0(k, &quot;_lam&quot;)]] &lt;- weib_lam(value, p[[paste0(k, &quot;_gam&quot;)]])
+  } else if (grepl(&quot;_gam$&quot;, key)) {              # 모양을 바꾸고 중앙값은 그대로
+    k &lt;- sub(&quot;_gam$&quot;, &quot;&quot;, key)
+    med &lt;- get_input(p, paste0(k, &quot;_med&quot;))
+    p[[key]] &lt;- value
+    p[[paste0(k, &quot;_lam&quot;)]] &lt;- weib_lam(med, value)
+  } else p[[key]] &lt;- value
+  p
+}
+round(c(pfs_med = get_input(p, &quot;pfs_med&quot;), os_med = get_input(p, &quot;os_med&quot;)), 4)
+q1 &lt;- set_input(p, &quot;os_gam&quot;, 1.29)               # 중앙값을 지키며 모양만 바꿈
+q2 &lt;- modifyList(p, list(os_gam = 1.29))         # 모양 값만 바꿈
+round(rbind(set_input = c(med = get_input(q1, &quot;os_med&quot;), icer = run_model(q1)[[&quot;icer&quot;]]),
+            value_only = c(med = get_input(q2, &quot;os_med&quot;), icer = run_model(q2)[[&quot;icer&quot;]])), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>pfs_med  os_med 
+     10      28 
+            med   icer
+set_input  28.0 5731.3<span class="mk">1</span>
+value_only 19.5 6020.7<span class="mk">2</span></pre></div></div>

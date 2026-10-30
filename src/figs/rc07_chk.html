@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">모형 점검</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">same &lt;- modifyList(p, list(hr_pfs = 1, hr_os = 1, c_drug_A = p$c_drug_B,
+                           du_ae_A = p$du_ae_B, c_ae_A = p$c_ae_B))
+r0 &lt;- run_psm(same)
+round(c(d_cost = r0$d_cost, d_qaly = r0$d_qaly), 10)            # 같은 입력이면 증분 0
+round(run_psm(modifyList(p, list(disc = 0)))$table[&quot;qaly&quot;, &quot;B&quot;], 3)   # 할인 0%
+round(run_psm(modifyList(p, list(u_pf = 1, u_pd = 1, du_ae_B = 0)))$table[c(&quot;ly&quot;, &quot;qaly&quot;), &quot;B&quot;], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>d_cost d_qaly 
+     0      0 
+[1] 2.086
+   ly  qaly 
+3.054 2.729</pre></div></div>

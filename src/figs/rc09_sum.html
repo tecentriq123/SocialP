@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">결과 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">dc &lt;- psa$dc; dq &lt;- psa$dq
+inmb &lt;- threshold * dq - dc
+summ &lt;- rbind(d_cost = c(mean(dc), quantile(dc, c(0.025, 0.975))),
+              d_qaly = c(mean(dq), quantile(dq, c(0.025, 0.975))),
+              inmb   = c(mean(inmb), quantile(inmb, c(0.025, 0.975))))
+colnames(summ)[1] &lt;- &quot;mean&quot;
+round(summ, 3)
+p_ce &lt;- mean(inmb &gt; 0)
+round(c(icer_of_means = mean(dc) / mean(dq), p_ce = p_ce,
+        mc_se = sqrt(p_ce * (1 - p_ce) / length(dc))), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           mean     2.5%    97.5%
+d_cost 2956.722<span class="mk">1</span> 1123.922 5142.351
+d_qaly    0.531<span class="mk">2</span>    0.112    1.026
+inmb   -302.012<span class="mk">3</span> -903.188  422.232
+icer_of_means          p_ce         mc_se 
+    5568.8228        0.1628<span class="mk">4</span>        0.0052<span class="mk">5</span></pre></div></div>

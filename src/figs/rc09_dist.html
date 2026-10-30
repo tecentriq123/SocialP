@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">입력값의 분포와 적률법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">spec &lt;- data.frame(
+  key  = c(&quot;hr_pfs&quot;, &quot;hr_os&quot;, &quot;pfs_med&quot;, &quot;pfs_gam&quot;, &quot;os_med&quot;, &quot;os_gam&quot;, &quot;u_pf&quot;, &quot;u_pd&quot;,
+           &quot;du_ae_A&quot;, &quot;du_ae_B&quot;, &quot;c_pf&quot;, &quot;c_pd&quot;, &quot;c_death&quot;, &quot;c_ae_A&quot;, &quot;c_ae_B&quot;),
+  dist = c(rep(&quot;lognormal&quot;, 6), &quot;beta&quot;, &quot;beta&quot;, rep(&quot;gamma&quot;, 7)),
+  u    = c(0.113, 0.131, 0.07, 0.05, 0.08, 0.06, 0.03, 0.05, 0.25, 0.25, 0.20, 0.20, 0.20, 0.25, 0.25))
+beta_ab  &lt;- function(m, se) { n &lt;- m * (1 - m) / se^2 - 1; c(a = m * n, b = (1 - m) * n) }
+gamma_ks &lt;- function(m, se) { k &lt;- (m / se)^2; c(shape = k, scale = m / k) }
+nrow(spec)
+round(beta_ab(0.78, 0.03), 2)          # 무진행 효용 0.78 (표준오차 0.03)
+gamma_ks(250, 250 * 0.20)              # 진행 상태 비용 250만원 (표준오차 50만원)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 15<span class="mk">1</span>
+     a      b 
+147.94<span class="mk">2</span>  41.73 
+shape scale 
+   25<span class="mk">3</span>    10</pre></div></div>

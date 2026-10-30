@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">5,000벌 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">run_psa &lt;- function(p, n = 5000, seed = 20261002, rho = 0.5, redraw = TRUE) {
+  set.seed(seed)
+  res &lt;- matrix(NA, n, 2, dimnames = list(NULL, c(&quot;d_cost&quot;, &quot;d_qaly&quot;)))
+  tries &lt;- 0
+  for (i in 1:n) {
+    q &lt;- draw_inputs(p, rho, redraw)
+    tries &lt;- tries + attr(q, &quot;tries&quot;)
+    res[i, ] &lt;- run_model(q)[c(&quot;d_cost&quot;, &quot;d_qaly&quot;)]
+  }
+  list(dc = res[, &quot;d_cost&quot;], dq = res[, &quot;d_qaly&quot;], tries = tries)
+}
+elapsed &lt;- system.time(psa &lt;- run_psa(p))[&quot;elapsed&quot;]
+c(within_30s = unname(elapsed &lt; 30))
+c(tries = psa$tries, redrawn = psa$tries - 5000, share = round((psa$tries - 5000) / psa$tries, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>within_30s 
+      TRUE<span class="mk">1</span> 
+    tries   redrawn     share 
+5126.0000<span class="mk">2</span>  126.0000    0.0246</pre></div></div>

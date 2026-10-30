@@ -1,0 +1,27 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">율에서 전이확률 행렬 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tmat &lt;- function(r_prog, r_dpf, r_dpd) {       # 월 율 세 개 -&gt; 한 달 전이확률 행렬
+  leave &lt;- rate_to_prob(r_prog + r_dpf)          # 무진행 상태를 떠날 확률
+  to_pd &lt;- leave * r_prog / (r_prog + r_dpf)     # 그 가운데 진행으로 가는 몫
+  q &lt;- rate_to_prob(r_dpd)                       # 진행 상태에서 사망할 확률
+  matrix(c(1 - leave, to_pd, leave - to_pd,
+           0,         1 - q, q,
+           0,         0,     1), nrow = 3, byrow = TRUE,
+         dimnames = list(from = c(&quot;pf&quot;, &quot;pd&quot;, &quot;dead&quot;), to = c(&quot;pf&quot;, &quot;pd&quot;, &quot;dead&quot;)))
+}
+r_dpd &lt;- 0.0470602                               # 진행 -&gt; 사망의 월 율 (23장)
+P_B &lt;- tmat(0.9 * r_exit, 0.1 * r_exit, r_dpd)
+P_A &lt;- tmat(0.9 * r_exit * p$hr_pfs, 0.1 * r_exit * p$hr_pfs, r_dpd)   # 위험비는 율에 곱한다
+round(P_B, 4)
+round(P_A, 4)
+rbind(B = rowSums(P_B), A = rowSums(P_A))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      to
+from      pf     pd   dead
+  pf   0.933 0.0603 0.0067<span class="mk">1</span>
+  pd   0.000 0.9540 0.0460
+  dead 0.000 0.0000 1.0000
+      to
+from       pf     pd   dead
+  pf   0.9559<span class="mk">2</span> 0.0396 0.0044
+  pd   0.0000 0.9540 0.0460
+  dead 0.0000 0.0000 1.0000
+  pf pd dead
+B  1  1    1<span class="mk">3</span>
+A  1  1    1</pre></div></div>

@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">과제 2 정답: 시간에 따라 변하는 전이확률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">trace_tv &lt;- function(hr, n = 240) {             # 무진행을 떠날 확률이 주기마다 다른 모형
+  s &lt;- S(p$pfs_lam * hr, p$pfs_gam, 0:n)          # 와이블 PFS
+  q &lt;- rate_to_prob(r_dpd)
+  x &lt;- matrix(0, n + 1, 3, dimnames = list(NULL, c(&quot;pf&quot;, &quot;pd&quot;, &quot;dead&quot;)))
+  x[1, ] &lt;- c(1, 0, 0)
+  for (k in 1:n) {
+    leave &lt;- 1 - s[k + 1] / s[k]                  # k번째 주기에 무진행을 떠날 확률
+    P &lt;- matrix(c(1 - leave, 0.9 * leave, 0.1 * leave,
+                  0, 1 - q, q,
+                  0, 0, 1), nrow = 3, byrow = TRUE)
+    x[k + 1, ] &lt;- x[k, ] %*% P
+  }
+  x
+}
+tvB &lt;- trace_tv(1); tvA &lt;- trace_tv(p$hr_pfs)
+tv &lt;- compare(arm_result(p, &quot;A&quot;, tvA[, &quot;pf&quot;], tvA[, &quot;pd&quot;]), arm_result(p, &quot;B&quot;, tvB[, &quot;pf&quot;], tvB[, &quot;pd&quot;]))
+round(tv$table[c(&quot;ly_pf&quot;, &quot;ly_pd&quot;, &quot;ly&quot;, &quot;qaly&quot;, &quot;cost&quot;), ], 3)
+round(tv$icer)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             A        B     diff
+ly_pf    1.974    1.255    0.719
+ly_pd    1.631    1.631   -0.001
+ly       3.605    2.886    0.719
+qaly     2.262    1.806    0.456
+cost  9977.948 7368.183 2609.765
+[1] 5723</pre></div></div>

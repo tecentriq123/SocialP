@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">외삽 곡선 여섯 개로 돌린 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(flexsurv)
+options(HTTPUserAgent = &quot;Mozilla/5.0&quot;)
+BASE &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+trial &lt;- read.csv(paste0(BASE, &quot;rcc_trial.csv&quot;))      # 4장의 표준요법 B 시험 자료
+dists &lt;- c(exp = &quot;exp&quot;, weibull = &quot;weibull&quot;, gompertz = &quot;gompertz&quot;,
+           lnorm = &quot;lnorm&quot;, llogis = &quot;llogis&quot;, gengamma = &quot;gengamma&quot;)
+os_curves &lt;- lapply(dists, function(k) {
+  f &lt;- flexsurvreg(Surv(months, event) ~ 1, data = trial, dist = k)
+  c(1, summary(f, t = 1:240, ci = FALSE, tidy = TRUE)$est)   # 0-240개월의 생존율
+})
+res6 &lt;- t(sapply(dists, function(k) {
+  r &lt;- run_psm(p, os_B = os_curves[[k]])
+  c(ly_B = unname(r$table[&quot;ly&quot;, &quot;B&quot;]), ly_A = unname(r$table[&quot;ly&quot;, &quot;A&quot;]),
+    d_cost = r$d_cost, d_qaly = r$d_qaly, icer = r$icer)
+}))
+res6 &lt;- round(res6, 3); res6[, &quot;icer&quot;] &lt;- round(res6[, &quot;icer&quot;])
+res6</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Loading required package: survival<span class="mk">1</span>
+          ly_B  ly_A   d_cost d_qaly icer
+exp      3.500 4.616 3321.012  0.605 5485
+weibull  3.101 3.980 2901.647  0.517 5610<span class="mk">2</span>
+gompertz 2.601 3.123 2206.142  0.367 6013<span class="mk">3</span>
+lnorm    5.187 6.926 4294.141  0.813 5281<span class="mk">4</span>
+llogis   4.623 6.246 4103.172  0.773 5311
+gengamma 2.642 3.197 2274.975  0.383 5934</pre></div></div>

@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">과제 2 정답: 분석기간에 따른 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(t(sapply(c(30, 36, 60, 120, 240), function(m) {
+  r &lt;- run_psm(p, horizon = m)
+  c(months = m, d_cost = r$d_cost, d_qaly = r$d_qaly, icer = r$icer,
+    share = r$d_qaly / base$d_qaly)
+})), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     months   d_cost d_qaly     icer share
+[1,]     30 1156.855  0.128 9055.886 0.250
+[2,]     36 1316.057  0.165 7994.080 0.322
+[3,]     60 1875.173  0.297 6324.349 0.580
+[4,]    120 2640.080  0.464 5685.846 0.909
+[5,]    240 2872.294  0.511 5620.610 1.000</pre></div></div>

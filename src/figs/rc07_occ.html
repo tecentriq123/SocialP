@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">두 곡선에서 상태 비율 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">occupancy &lt;- function(pfs, os) {
+  pf &lt;- pmin(pfs, os)                    # PFS가 OS를 넘지 않게
+  data.frame(pf = pf, pd = os - pf, dead = 1 - os)
+}
+occ_B &lt;- occupancy(pfs_B, os_B)
+occ_A &lt;- occupancy(pfs_A, os_A)
+dim(occ_B)
+round(unlist(occ_B[24 + 1, ]), 4)        # 24개월(25번째 행)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 241   3<span class="mk">1</span>
+    pf     pd   dead 
+0.2035<span class="mk">2</span> 0.3561 0.4404</pre></div></div>

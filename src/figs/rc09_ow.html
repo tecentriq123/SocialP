@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">입력값을 하나씩 양 끝으로 바꿔 ICER 계산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ow &lt;- t(sapply(rownames(ranges), function(k)
+  c(icer_low  = run_model(set_input(p, k, ranges[k, &quot;low&quot;]))[[&quot;icer&quot;]],
+    icer_high = run_model(set_input(p, k, ranges[k, &quot;high&quot;]))[[&quot;icer&quot;]])))
+ow &lt;- cbind(ow, swing = abs(ow[, &quot;icer_high&quot;] - ow[, &quot;icer_low&quot;]))
+ow &lt;- ow[order(-ow[, &quot;swing&quot;]), ]
+round(ow)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         icer_low icer_high swing
+hr_os        5232      7922<span class="mk">1</span>  2690
+hr_pfs       4784      6499  1715
+c_drug_A     4006<span class="mk">2</span>      5621  1614
+c_drug_B     6289      4952<span class="mk">3</span>  1337
+u_pf         6076      5262   814
+c_pf         5414      5871   457
+c_ae_A       5520      5749   229
+c_pd         5523      5739   215
+os_gam       5519      5734   215
+pfs_gam      5515      5714   199
+pfs_med      5537      5715   177
+os_med       5706      5546   160
+c_ae_B       5688      5535   153
+du_ae_A      5565      5694   129
+u_pd         5673      5572   101
+du_ae_B      5659      5573    86
+c_death      5637      5600    37</pre></div></div>

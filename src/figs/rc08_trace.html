@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">코호트 추적 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">trace &lt;- function(P, n = 240) {                  # 모두 무진행에서 출발해 n주기 추적
+  x &lt;- matrix(0, n + 1, 3, dimnames = list(NULL, colnames(P)))
+  x[1, ] &lt;- c(1, 0, 0)
+  for (k in 1:n) x[k + 1, ] &lt;- x[k, ] %*% P      # 행렬 곱 한 번 = 한 달
+  x
+}
+tr_B &lt;- trace(P_B); tr_A &lt;- trace(P_A)
+dim(tr_B)
+round(tr_B[c(0, 1, 2, 3, 12, 24) + 1, ], 3)
+P24 &lt;- diag(3)
+for (k in 1:24) P24 &lt;- P24 %*% P_B               # 행렬을 24번 곱한 것
+round(rbind(power = P24[1, ], trace = tr_B[24 + 1, ]), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 241   3<span class="mk">1</span>
+        pf    pd  dead
+[1,] 1.000 0.000 0.000
+[2,] 0.933 0.060 0.007
+[3,] 0.871 0.114 0.016
+[4,] 0.812 0.161 0.027
+[5,] 0.435 0.382 0.182
+[6,] 0.189 0.384 0.427<span class="mk">2</span>
+          pf     pd   dead
+power 0.1895 0.3839 0.4266<span class="mk">3</span>
+trace 0.1895 0.3839 0.4266</pre></div></div>

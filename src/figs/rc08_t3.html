@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">과제 3 정답: 이상반응 예방 요법의 결정수형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ae_tree &lt;- function(p_ae = 0.30, rr = 0.60, p_hosp = 0.40, c_hosp = 700, c_out = 200,
+                    dq_hosp = 0.07, dq_out = 0.02, c_proph = 60) {
+  one &lt;- function(p_e, add) {
+    prob &lt;- c(hosp = p_e * p_hosp, out = p_e * (1 - p_hosp), none = 1 - p_e)
+    c(cost = sum(prob * (add + c(c_hosp, c_out, 0))), qaly = -sum(prob * c(dq_hosp, dq_out, 0)))
+  }
+  r &lt;- rbind(none = one(p_ae, 0), proph = one(p_ae * rr, c_proph))
+  d &lt;- r[&quot;proph&quot;, ] - r[&quot;none&quot;, ]
+  list(table = r, icer = unname(d[&quot;cost&quot;] / d[&quot;qaly&quot;]), inmb_5000 = unname(5000 * d[&quot;qaly&quot;] - d[&quot;cost&quot;]))
+}
+ae_tree()</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>$table
+      cost    qaly
+none   120 -0.0120
+proph  132 -0.0072
+
+$icer
+[1] 2500<span class="mk">1</span>
+
+$inmb_5000
+[1] 12</pre></div></div>

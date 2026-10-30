@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">진행 후 사망을 군별로 맞추기와 두 구조의 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">gap &lt;- function(r, hr, target)                   # 진행 -&gt; 사망 율이 r일 때 중앙 OS - 목표
+  median_os(tmat(0.9 * r_exit * hr, 0.1 * r_exit * hr, r)) - target
+med_B &lt;- (log(2) / p$os_lam)^(1 / p$os_gam)
+med_A &lt;- (log(2) / (p$os_lam * p$hr_os))^(1 / p$os_gam)
+r_B &lt;- uniroot(gap, c(0.01, 1), hr = 1, target = med_B, tol = 1e-10)$root
+r_A &lt;- uniroot(gap, c(0.01, 1), hr = p$hr_pfs, target = med_A, tol = 1e-10)$root
+round(c(med_B = med_B, r_B = r_B, med_A = med_A, r_A = r_A), 5)
+tr_A2 &lt;- trace(tmat(0.9 * r_exit * p$hr_pfs, 0.1 * r_exit * p$hr_pfs, r_A))
+mk2 &lt;- compare(arm_result(p, &quot;A&quot;, tr_A2[, &quot;pf&quot;], tr_A2[, &quot;pd&quot;]), mk$table[, &quot;B&quot;])
+row &lt;- function(r) c(d_pf = r$table[&quot;ly_pf&quot;, &quot;diff&quot;], d_pd = r$table[&quot;ly_pd&quot;, &quot;diff&quot;],
+                     d_cost = r$table[&quot;cost&quot;, &quot;diff&quot;], d_qaly = r$table[&quot;qaly&quot;, &quot;diff&quot;], icer = r$icer)
+cmp &lt;- rbind(Markov = row(mk), Markov_by_arm = row(mk2), Partitioned = row(psm))
+cmp &lt;- round(cmp, 3); cmp[, &quot;icer&quot;] &lt;- round(cmp[, &quot;icer&quot;]); cmp</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   med_B      r_B    med_A      r_A 
+28.00000  0.04706<span class="mk">1</span> 35.95840  0.04372 
+               d_pf  d_pd   d_cost d_qaly icer
+Markov        0.647 0.000 2435.555  0.416 5858
+Markov_by_arm 0.647 0.121 2720.374  0.475 5723<span class="mk">2</span>
+Partitioned   0.719 0.143 2872.294  0.511 5621<span class="mk">3</span></pre></div></div>

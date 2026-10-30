@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 3 정답: 곡선을 상관 없이 뽑으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">psa0 &lt;- run_psa(p, rho = 0)
+c(share_redrawn = round((psa0$tries - 5000) / psa0$tries, 4),
+  p_ce = mean(threshold * psa0$dq - psa0$dc &gt; 0))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>share_redrawn          p_ce 
+       0.0869<span class="mk">1</span>        0.1604</pre></div></div>

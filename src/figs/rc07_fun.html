@@ -1,0 +1,27 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">모형을 함수 하나로 묶기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">run_psm &lt;- function(p, horizon = 240, os_B = NULL) {
+  t &lt;- 0:horizon
+  disc &lt;- 1 / (1 + p$disc)^((head(t, -1) + 0.5) / 12)
+  if (is.null(os_B)) os_B &lt;- S(p$os_lam, p$os_gam, t)
+  arm &lt;- function(a) {
+    hr_pfs &lt;- if (a == &quot;A&quot;) p$hr_pfs else 1
+    hr_os  &lt;- if (a == &quot;A&quot;) p$hr_os  else 1
+    s_os  &lt;- os_B[1:(horizon + 1)]^hr_os                 # 비례위험: S_A = S_B^HR
+    s_pfs &lt;- pmin(S(p$pfs_lam * hr_pfs, p$pfs_gam, t), s_os)
+    pf &lt;- mid(s_pfs); pd &lt;- mid(s_os - s_pfs)
+    died &lt;- head(s_os, -1) - tail(s_os, -1)
+    q &lt;- (pf * p$u_pf + pd * p$u_pd) / 12
+    cost &lt;- sum((pf * (p[[paste0(&quot;c_drug_&quot;, a)]] + p$c_pf) + pd * p$c_pd +
+                 died * p$c_death) * disc) + p[[paste0(&quot;c_ae_&quot;, a)]]
+    c(ly_pf = sum(pf) / 12, ly_pd = sum(pd) / 12, ly = sum(pf + pd) / 12,
+      ly_d = sum((pf + pd) * disc) / 12,
+      qaly = sum(q * disc) - p[[paste0(&quot;du_ae_&quot;, a)]],
+      c_drug = sum(pf * p[[paste0(&quot;c_drug_&quot;, a)]] * disc), cost = cost)
+  }
+  res &lt;- cbind(A = arm(&quot;A&quot;), B = arm(&quot;B&quot;))
+  res &lt;- cbind(res, diff = res[, &quot;A&quot;] - res[, &quot;B&quot;])
+  list(table = res, d_cost = res[&quot;cost&quot;, &quot;diff&quot;], d_qaly = res[&quot;qaly&quot;, &quot;diff&quot;],
+       icer = res[&quot;cost&quot;, &quot;diff&quot;] / res[&quot;qaly&quot;, &quot;diff&quot;])
+}
+base &lt;- run_psm(p)
+round(c(func = base$table[&quot;cost&quot;, &quot;B&quot;], step = cost_B), 6)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    func     step 
+7689.485<span class="mk">1</span> 7689.485</pre></div></div>

@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">과제 1 정답: 임계 약값에서의 확률</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p_cut &lt;- modifyList(p, list(c_drug_A = 175.39))      # 7장 과제 1의 임계 약값
+round(run_model(p_cut)[[&quot;icer&quot;]])
+psa_cut &lt;- run_psa(p_cut)
+inmb_cut &lt;- threshold * psa_cut$dq - psa_cut$dc
+round(c(mean_inmb = mean(inmb_cut), p_ce = mean(inmb_cut &gt; 0)), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 5000
+mean_inmb      p_ce 
+  18.0186    0.4978<span class="mk">1</span></pre></div></div>

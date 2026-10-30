@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">군별 결과와 ICER</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(base$table, 3)
+threshold &lt;- 5000                                   # 이 예시에서 가정한 임계값
+round(c(d_cost = base$d_cost, d_qaly = base$d_qaly, icer = base$icer,
+        icer_ly = base$d_cost / base$table[&quot;ly_d&quot;, &quot;diff&quot;],
+        inmb = threshold * base$d_qaly - base$d_cost), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               A        B     diff
+ly_pf      1.974    1.255    0.719
+ly_pd      1.942    1.799    0.143
+ly         3.916<span class="mk">1</span>    3.054    0.863
+ly_d       3.399    2.729    0.670
+qaly       2.385    1.874    0.511
+c_drug  4124.384 1707.815 2416.569
+cost   10561.778 7689.485 2872.294
+   d_cost    d_qaly      icer   icer_ly      inmb 
+2872.2935<span class="mk">2</span>    0.5110 5620.6102<span class="mk">3</span> 4287.4642 -317.1497<span class="mk">4</span></pre></div></div>

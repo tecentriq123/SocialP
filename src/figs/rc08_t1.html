@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">과제 1 정답: 1년 확률을 12로 나누면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p_wrong &lt;- p_year / 12                           # 동료가 넣은 한 달 확률
+r_w &lt;- prob_to_rate(p_wrong)
+tB &lt;- trace(tmat(0.9 * r_w, 0.1 * r_w, r_dpd))
+tA &lt;- trace(tmat(0.9 * r_w * p$hr_pfs, 0.1 * r_w * p$hr_pfs, r_dpd))
+wrong &lt;- compare(arm_result(p, &quot;A&quot;, tA[, &quot;pf&quot;], tA[, &quot;pd&quot;]), arm_result(p, &quot;B&quot;, tB[, &quot;pf&quot;], tB[, &quot;pd&quot;]))
+round(c(p_month_wrong = p_wrong, p_month_right = p_month, median_pfs_B = log(2) / r_w,
+        median_os_B = median_os(tmat(0.9 * r_w, 0.1 * r_w, r_dpd))), 4)
+round(c(ly_B = unname(wrong$table[&quot;ly&quot;, &quot;B&quot;]), d_cost = unname(wrong$table[&quot;cost&quot;, &quot;diff&quot;]),
+        d_qaly = unname(wrong$table[&quot;qaly&quot;, &quot;diff&quot;]), icer = wrong$icer), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>p_month_wrong p_month_right  median_pfs_B   median_os_B 
+       0.0471        0.0670       14.3795       33.5484 
+    ly_B   d_cost   d_qaly     icer 
+   3.360 3342.007    0.567 5894<span class="mk">1</span>.238</pre></div></div>

@@ -1,0 +1,39 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">입력값 한 벌 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pairs &lt;- list(c(&quot;pfs_med&quot;, &quot;os_med&quot;), c(&quot;pfs_gam&quot;, &quot;os_gam&quot;), c(&quot;hr_pfs&quot;, &quot;hr_os&quot;))
+u &lt;- setNames(spec$u, spec$key)
+draw_curves &lt;- function(p, rho = 0.5) {           # 짝마다 로그 척도에서 상관 rho로 함께 뽑기
+  v &lt;- list()
+  for (pr in pairs) {
+    z &lt;- rnorm(2)
+    z[2] &lt;- rho * z[1] + sqrt(1 - rho^2) * z[2]
+    for (j in 1:2) v[[pr[j]]] &lt;- get_input(p, pr[j]) * exp(u[[pr[j]]] * z[j])
+  }
+  q &lt;- modifyList(p, v[c(&quot;hr_pfs&quot;, &quot;hr_os&quot;, &quot;pfs_gam&quot;, &quot;os_gam&quot;)])
+  q$pfs_lam &lt;- weib_lam(v$pfs_med, v$pfs_gam)
+  q$os_lam  &lt;- weib_lam(v$os_med,  v$os_gam)
+  q
+}
+crossed &lt;- function(q, t = 0:240)                 # 어느 군에서든 PFS가 OS를 넘으면 TRUE
+  any(S(q$pfs_lam * q$hr_pfs, q$pfs_gam, t) &gt; S(q$os_lam * q$hr_os, q$os_gam, t)) ||
+  any(S(q$pfs_lam, q$pfs_gam, t) &gt; S(q$os_lam, q$os_gam, t))
+draw_inputs &lt;- function(p, rho = 0.5, redraw = TRUE) {
+  tries &lt;- 0
+  repeat {
+    q &lt;- draw_curves(p, rho); tries &lt;- tries + 1
+    if (!crossed(q) || !redraw) break
+  }
+  for (k in spec$key[spec$dist == &quot;beta&quot;]) {
+    ab &lt;- beta_ab(p[[k]], u[[k]]); q[[k]] &lt;- rbeta(1, ab[&quot;a&quot;], ab[&quot;b&quot;])
+  }
+  for (k in spec$key[spec$dist == &quot;gamma&quot;]) {
+    ks &lt;- gamma_ks(p[[k]], p[[k]] * u[[k]]); q[[k]] &lt;- rgamma(1, shape = ks[&quot;shape&quot;], scale = ks[&quot;scale&quot;])
+  }
+  attr(q, &quot;tries&quot;) &lt;- tries
+  q
+}
+set.seed(20261002)
+q &lt;- draw_inputs(p)
+round(unlist(q[c(&quot;pfs_lam&quot;, &quot;os_lam&quot;, &quot;hr_pfs&quot;, &quot;hr_os&quot;, &quot;u_pf&quot;, &quot;c_pd&quot;, &quot;c_drug_A&quot;)]), 4)
+round(run_model(q), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> pfs_lam   os_lam   hr_pfs    hr_os     u_pf     c_pd c_drug_A 
+  0.0777   0.0162   0.6976<span class="mk">1</span>   0.7212   0.8338 281.2902 190.0000<span class="mk">2</span> 
+  d_cost   d_qaly     icer 
+3127.902    0.547 5723.454</pre></div></div>

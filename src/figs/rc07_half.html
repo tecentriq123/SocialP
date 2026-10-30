@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">반주기 보정과 상태별 평균 기간 (표준요법 B)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">mid &lt;- function(x) (head(x, -1) + tail(x, -1)) / 2   # 주기 시작과 끝의 평균
+pf_B &lt;- mid(occ_B$pf); pd_B &lt;- mid(occ_B$pd)
+length(pf_B)
+round(c(pf = sum(pf_B), pd = sum(pd_B), alive = sum(pf_B + pd_B)) / 12, 3)
+round(sum(head(occ_B$pf + occ_B$pd, -1)) / 12, 3)    # 보정 없이 주기 시작 값으로</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 240<span class="mk">1</span>
+   pf    pd alive 
+1.255<span class="mk">2</span> 1.799 3.054<span class="mk">3</span> 
+[1] 3.095<span class="mk">4</span></pre></div></div>
