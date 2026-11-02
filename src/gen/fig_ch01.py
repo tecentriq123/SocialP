@@ -28,14 +28,14 @@ for v in (tc, -tc):
     p.vline(v, y1=0.30)
 p.text(-tc, 0.31, "−2.00", anchor="middle", dy=-4)
 p.text(tc, 0.31, "+2.00", anchor="middle", dy=-4)
-p.text(0, 0.36, "기각역 경계 (α = 0.05, 양측)", anchor="middle", dy=-18, cls="lbl mute")
+p.text(-3.95, 0.42, "점선은 기각역의 경계", cls="lbl mute")
+p.text(-3.95, 0.42, "(α = 0.05, 양측)", dy=16, cls="lbl mute")
 p.points([tobs], [0], s=1, r=5)
-p.text(tobs, 0.0, "관측된 t = 2.35", dx=6, dy=-40)
-p.seg(tobs + 0.25, 0.012, tobs + 0.1, 0.004, cls="ref", w=1)
-p.text(3.1, 0.07, "p = 0.022", anchor="middle", cls="lbl strong")
-p.text(3.1, 0.07, "양쪽 꼬리 넓이의 합", anchor="middle", dy=16, cls="lbl mute small")
+p.text(tobs, 0.0, "관측된 t = 2.35", dx=10, dy=-22)
+p.text(3.2, 0.15, "p = 0.022", anchor="middle", cls="lbl strong")
+p.text(3.2, 0.15, "양쪽 꼬리 넓이의 합", anchor="middle", dy=16, cls="lbl mute small")
 save("ch01_null", figure(p.svg("귀무가설 하의 t 분포와 관측된 t 값"),
-     "그림 1-1. 귀무가설이 참일 때 t 통계량의 분포(자유도 58). 파란 영역(양쪽 꼬리)의 넓이가 p-value입니다. 관측된 t가 점선(±2.00) 바깥에 있으므로 유의수준 5%에서 귀무가설을 기각합니다."))
+     "그림 1-1. 귀무가설이 참일 때 t 통계량의 분포(자유도 58). 파란 영역(양쪽 꼬리)의 넓이가 p값입니다. 관측된 t가 점선(±2.00) 바깥에 있으므로 유의수준 5%에서 귀무가설을 기각합니다."))
 
 # 2. power
 ncp = 2.213
