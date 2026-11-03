@@ -607,7 +607,7 @@ len(full.params) - 1</code><span>분석에 쓰인 인원과 절편을 뺀 계수
 <p>셀 6의 출력에서 NNH 행(NNH = 6.526, 95% CI 3.444 to 62.221)을 논문의 Results처럼 한 문장으로 옮기세요. 그리고 이 숫자가 말해 주지 <em>않는</em> 것을 두 가지 이상 쓰세요. 셀 20의 인종 보정 모형(<code>m_race</code>)과 셀 26의 다변수 모형(<code>full</code>)으로 "모든 산모가 흡연했다면"과 "모든 산모가 흡연하지 않았다면"의 위험을 구해 위험차와 NNH를 다시 계산하고, 보정 전 값과 비교하세요.</p>
 <details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
 <!--FIG:lab08_hw1-->
-<p>첫 줄은 셀 5에서 구한 두 군의 위험 <code>p1</code>, <code>p0</code>로 보정 전 값을 다시 출력합니다. 반복문은 두 모형에 같은 계산을 합니다. <code>df.assign(smoke=1)</code>은 smoke 열만 모두 1로 바꾼 복사본이고(원본 <code>df</code>는 그대로), <code>model.predict(…)</code>는 189명 각자의 다른 특성은 그대로 둔 채 계산한 예측 확률입니다. 그 평균이 "모두 흡연했다면"의 위험, 즉 표준화 위험입니다(<a href="#ch08-s2">8장 b 절</a> '초록에 나온 세 지표는 어떻게 다른가?'의 표준화 위험, <a href="#lab09-s2">실습 9 b 절</a>과 같은 계산). <code>{name:15s}</code>는 이름을 15칸에 맞춰 세 줄의 숫자가 같은 자리에서 시작하게 합니다.</p>
+<p>첫 줄은 셀 5에서 구한 두 군의 위험 <code>p1</code>, <code>p0</code>로 보정 전 값을 다시 출력합니다. 반복문은 두 모형에 같은 계산을 합니다. <code>df.assign(smoke=1)</code>은 smoke 열만 모두 1로 바꾼 복사본이고(원본 <code>df</code>는 그대로), <code>model.predict(…)</code>는 189명 각자의 다른 특성은 그대로 둔 채 계산한 예측 확률입니다. 그 평균이 "모두 흡연했다면"의 위험, 즉 표준화 위험입니다(<a href="#ch08-s4">8장 d 절</a> '초록에 나온 세 지표는 어떻게 다른가?'의 표준화 위험, <a href="#lab09-s2">실습 9 b 절</a>과 같은 계산). <code>{name:15s}</code>는 이름을 15칸에 맞춰 세 줄의 숫자가 같은 자리에서 시작하게 합니다.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>보정 전 NNH 6.5.</b> 위험 0.405 대 0.252의 차 0.153의 역수입니다.</span></li>
 <li><span class="mk">2</span><span><b>인종만 보정한 표준화 위험 0.458 대 0.229.</b> 189명의 인종 구성을 그대로 두고 흡연 여부만 바꾼 두 위험입니다.</span></li>
