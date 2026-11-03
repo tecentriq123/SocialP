@@ -178,3 +178,6 @@
 {"cid": "07_ch06__u01", "stop": "end_turn", "input": 811, "cache_write": 0, "cache_read": 137455, "output": 39686, "usd": 0.4122}
 {"cid": "18_ch16__all", "stop": "end_turn", "input": 515, "cache_write": 83919, "cache_read": 1639, "output": 26134, "usd": 0.5982}
 {"cid": "03_ch02__all", "stop": "end_turn", "input": 515, "cache_write": 0, "cache_read": 73638, "output": 38895, "usd": 0.3973}
+{"cid": "04_ch03__u01", "stop": "end_turn", "input": 806, "cache_write": 0, "cache_read": 68289, "output": 52677, "usd": 0.5352}
+{"cid": "19_ch17__u02", "stop": "end_turn", "input": 812, "cache_write": 0, "cache_read": 61977, "output": 56682, "usd": 0.5746}
+{"cid": "26_ch24__u01", "stop": "end_turn", "input": 801, "cache_write": 0, "cache_read": 96750, "output": 43678, "usd": 0.4481}
