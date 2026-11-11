@@ -251,6 +251,24 @@ mjx-container { color: var(--ink); }
 .glance dt { color: var(--muted); font-size: 13.5px; font-weight: 600; background: var(--surface-2); }
 .glance > div:first-child dt, .glance > div:first-child dd { border-top: 0; }
 
+/* 절 첫머리 '이 절 한눈에 보기' 표: 개념 / 뜻 / 실무에서 읽는 법 / R (2026-11-11) */
+.qref { margin: 6px 0 30px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.qref-h { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; margin: 0; padding: 9px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 14.5px; font-weight: 700; color: var(--ink); }
+.qref-note { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.qref-wrap { overflow-x: auto; }
+.qref-t { border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.6; }
+.qref-t col.c1 { width: 17%; } .qref-t col.c2 { width: 28%; } .qref-t col.c3 { width: 34%; } .qref-t col.c4 { width: 21%; }
+.qref-t th, .qref-t td { padding: 9px 12px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+.qref-t thead th { border-top: 0; padding-top: 7px; padding-bottom: 7px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.qref-t td:first-child { font-weight: 600; }
+.qref-t td:first-child a { text-decoration: none; }
+.qref-t td:first-child a:hover { text-decoration: underline; }
+.qref-t td:last-child { color: var(--ink-2); }
+.qref-t code { font-size: 12.5px; overflow-wrap: anywhere; }
+.qref-f { margin: 0; padding: 9px 14px; border-top: 1px solid var(--line); background: var(--surface-2); font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+.qref-f b { margin-right: 6px; }
+h3[id], h4[id] { scroll-margin-top: 16px; }
+
 /* callouts */
 .callout { border-radius: 10px; padding: 14px 18px 4px; margin: 22px 0; font-size: 15.5px; line-height: 1.75; }
 .callout .ct { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; margin: 0 0 6px; letter-spacing: .02em; }
@@ -449,6 +467,13 @@ a.cite { font-size: .78em; vertical-align: super; line-height: 0; text-decoratio
   .glance { grid-template-columns: minmax(0, 1fr); }
   .glance dt { border-top: 1px solid var(--line); padding-bottom: 4px; }
   .glance dd { border-top: 0; padding-top: 4px; }
+  .qref-t thead, .qref-t colgroup { display: none; }
+  .qref-t, .qref-t tbody, .qref-t tr, .qref-t td { display: block; width: 100%; }
+  .qref-t tr { padding: 10px 14px 12px; border-top: 1px solid var(--line); }
+  .qref-t tbody tr:first-child { border-top: 0; }
+  .qref-t td { border: 0; padding: 0; }
+  .qref-t td:first-child { font-size: 15.5px; }
+  .qref-t td + td::before { content: attr(data-l); display: block; margin-top: 6px; font-size: 12px; font-weight: 600; color: var(--muted); }
   .matrix { grid-template-columns: 5rem repeat(2, minmax(0, 1fr)); font-size: 13.5px; }
   .toc-ch { grid-template-columns: 2.4rem minmax(0, 1fr); }
   .toc-no { font-size: 22px; }
@@ -1037,7 +1062,7 @@ function typesetNow() {
     if (keepScroll) return;
     if (anchor) {
       const el = document.getElementById(anchor);
-      if (el) { requestAnimationFrame(() => el.scrollIntoView({ block: "start" })); return; }
+      if (el) { openTo(el); requestAnimationFrame(() => el.scrollIntoView({ block: "start" })); return; }
     }
     window.scrollTo(0, 0);
   }
@@ -1198,7 +1223,7 @@ function typesetNow() {
         }
         const already = app.dataset.ch === cur && document.getElementById("article");
         if (already && pr && pr.ch === cur) { restoreTo(pr); return; }
-        if (already && m[2]) { const el = document.getElementById(h); if (el) { el.scrollIntoView({ block: "start" }); return; } }
+        if (already && m[2]) { const el = document.getElementById(h); if (el) { openTo(el); el.scrollIntoView({ block: "start" }); return; } }
         const back = pr && pr.ch === cur;
         renderChapter(cur, m[2] ? h : null, back);
         if (back) { app.dataset.ch = cur; restoreTo(pr); }
@@ -1210,6 +1235,9 @@ function typesetNow() {
     document.getElementById("courseBtn").hidden = HOME;
     document.getElementById("searchBtn").hidden = HOME;
   }
+
+  // 링크로 간 곳이 접힌 상자 안이면 펼친다 (2026-11-11)
+  function openTo(el) { for (let d = el.closest("details"); d; d = d.parentElement ? d.parentElement.closest("details") : null) d.open = true; }
 
   // drawer for small screens
   const dRoot = document.getElementById("drawerRoot");
