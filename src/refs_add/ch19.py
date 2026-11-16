@@ -95,4 +95,15 @@ ADD = {
     # "rather than k-2 as previously recommended".
     "cochrane_smg2025": {"text": "Cochrane Statistical Methods Group. Newsletter, issue 3 (January 2025) [web page]. Accessed 17 October 2026.",
                          "url": "https://methods.cochrane.org/statistics/news/issue-3-december-2025-newsletter"},
+    # 19장 f 절 (네트워크 메타분석) — PubMed로 서지 확인(2026-11-17), netmeta는 JSS 페이지와 CRAN citation으로 확인
+    "salanti2012": {"text": "Salanti G. Indirect and mixed-treatment comparison, network, or multiple-treatments meta-analysis: many names, many benefits, many concerns for the next generation evidence synthesis tool. <i>Res Synth Methods</i>. 2012;3(2):80-97.", "url": "https://doi.org/10.1002/jrsm.1037"},
+    "salanti2011": {"text": "Salanti G, Ades AE, Ioannidis JPA. Graphical methods and numerical summaries for presenting results from multiple-treatment meta-analysis: an overview and tutorial. <i>J Clin Epidemiol</i>. 2011;64(2):163-171.", "url": "https://doi.org/10.1016/j.jclinepi.2010.03.016"},
+    "rucker2012": {"text": "Rücker G. Network meta-analysis, electrical networks and graph theory. <i>Res Synth Methods</i>. 2012;3(4):312-324.", "url": "https://doi.org/10.1002/jrsm.1058"},
+    "rucker2015": {"text": "Rücker G, Schwarzer G. Ranking treatments in frequentist network meta-analysis works without resampling methods. <i>BMC Med Res Methodol</i>. 2015;15:58.", "url": "https://doi.org/10.1186/s12874-015-0060-8"},
+    "higgins2012nma": {"text": "Higgins JPT, Jackson D, Barrett JK, Lu G, Ades AE, White IR. Consistency and inconsistency in network meta-analysis: concepts and models for multi-arm studies. <i>Res Synth Methods</i>. 2012;3(2):98-110.", "url": "https://doi.org/10.1002/jrsm.1044"},
+    "konig2013": {"text": "König J, Krahn U, Binder H. Visualizing the flow of evidence in network meta-analysis and characterizing mixed treatment comparisons. <i>Stat Med</i>. 2013;32(30):5414-5429.", "url": "https://doi.org/10.1002/sim.6001"},
+    "brignardello2018": {"text": "Brignardello-Petersen R, Bonner A, Alexander PE, et al. Advances in the GRADE approach to rate the certainty in estimates from a network meta-analysis. <i>J Clin Epidemiol</i>. 2018;93:36-44.", "url": "https://doi.org/10.1016/j.jclinepi.2017.10.005"},
+    "nikolakopoulou2020": {"text": "Nikolakopoulou A, Higgins JPT, Papakonstantinou T, et al. CINeMA: an approach for assessing confidence in the results of a network meta-analysis. <i>PLoS Med</i>. 2020;17(4):e1003082.", "url": "https://doi.org/10.1371/journal.pmed.1003082"},
+    "hutton2015": {"text": "Hutton B, Salanti G, Caldwell DM, et al. The PRISMA extension statement for reporting of systematic reviews incorporating network meta-analyses of health care interventions: checklist and explanations. <i>Ann Intern Med</i>. 2015;162(11):777-784.", "url": "https://doi.org/10.7326/M14-2385"},
+    "balduzzi2023": {"text": "Balduzzi S, Rücker G, Nikolakopoulou A, et al. netmeta: an R package for network meta-analysis using frequentist methods. <i>J Stat Softw</i>. 2023;106(2):1-40.", "url": "https://doi.org/10.18637/jss.v106.i02"},
 }
