@@ -27,4 +27,6 @@ ADD = {
     # PMID 22563845
     "bishara2012": {"text": "Bishara AJ, Hittner JB. Testing the significance of a correlation with nonnormal data: comparison of Pearson, Spearman, transformation, and resampling approaches. <i>Psychol Methods</i>. 2012;17(3):399-417.",
                     "doi": "10.1037/a0028087"},
+    "ema2015cov": {"text": "Committee for Medicinal Products for Human Use (CHMP). <i>Guideline on Adjustment for Baseline Covariates in Clinical Trials</i> (EMA/CHMP/295050/2013). London: European Medicines Agency; 2015."},
+    "fda2023cov": {"text": "U.S. Food and Drug Administration. <i>Adjusting for Covariates in Randomized Clinical Trials for Drugs and Biological Products: Guidance for Industry</i>. Silver Spring, MD: FDA; 2023."},
 }
