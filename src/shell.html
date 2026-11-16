@@ -1196,6 +1196,7 @@ function typesetNow() {
       // old links such as index.html#ch11-s1 pointed at the single-file site: send them to the course page
       if (/^ml\d\d/.test(h) || h === "ml") { location.replace("ml.html#" + (h === "ml" ? "toc" : h)); return; }
       if (/^rc\d\d/.test(h) || h === "r") { location.replace("r.html#" + (h === "r" ? "toc" : h)); return; }
+      if (/^qz\d\d/.test(h) || h === "quiz") { location.replace("quiz.html#" + (h === "quiz" ? "toc" : h)); return; }
       if (/^(?:(?:ch|lab|rv|ap)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
       renderHome(); window.scrollTo(0, 0);
     }
@@ -1203,7 +1204,7 @@ function typesetNow() {
     else if (!h || h === "toc" || h === COURSE.key) { renderPart(); window.scrollTo(0, 0); }
     else if (h.startsWith("search")) { renderSearch(h.slice(7)); window.scrollTo(0, 0); }
     else {
-      const m = h.match(/^((?:ch|lab|rv|ap|ml|rc)\d\d)(?:-(.+))?$/);
+      const m = h.match(/^((?:ch|lab|rv|ap|ml|rc|qz)\d\d)(?:-(.+))?$/);
       if (m) {
         cur = m[1];
         if (META.split && byId[cur] && byId[cur].ready && !haveTpl(cur)) {

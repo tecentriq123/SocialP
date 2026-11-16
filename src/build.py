@@ -407,6 +407,7 @@ def search_index(bodies, by):
         if not c or not c.get("ready"):
             continue
         t = re.sub(r"<svg\b.*?</svg>|<script\b.*?</script>|<details class=\"code\b.*?</details>", " ", b, flags=re.S)
+        t = re.sub(r'<div class="qz-(?:fb|why-o)">.*?</div>', " ", t, flags=re.S)   # 퀴즈의 해설은 검색에 넣지 않음
         no = c.get("no", "")
         if c.get("lab"):
             label = f"실습 {int(no)} {c['title']}"
@@ -534,6 +535,9 @@ def build():
         tpls = "\n".join(f'<template id="tpl-{cid}">{b}</template>' for cid, b in bodies.items())
     meta_json = json.dumps(page, ensure_ascii=False)
     wjs, css = [], []
+    cw = os.path.join(ROOT, "widgets", "_" + COURSE["key"] + ".js")   # 과목 공통 위젯(퀴즈 엔진 등)
+    if os.path.exists(cw):
+        wjs.append("<script>\n" + open(cw, encoding="utf-8").read() + "\n</script>")
     for c in ready:
         wp = os.path.join(ROOT, "widgets", c["id"] + ".js")
         if os.path.exists(wp):
@@ -551,7 +555,7 @@ def build():
     return shell, meta
 
 
-def build_home(shell, meta, ml_meta=None, r_meta=None):
+def build_home(shell, meta, ml_meta=None, r_meta=None, qz_meta=None):
     """dist/index.html: the small home page that lists the courses (same shell, META.mode = "home")."""
     theory = [c for c in meta if not c["lab"] and not c.get("refs")]
     stats_course = (STATS_CFG or {}).get("COURSE", COURSE)
@@ -560,6 +564,8 @@ def build_home(shell, meta, ml_meta=None, r_meta=None):
     r_ch = [c for c in (r_meta or []) if not c.get("refs")]
     r_ready = sum(c["ready"] for c in r_ch)
     labs = [c for c in meta if c["lab"]]
+    qz_ch = [c for c in (qz_meta or []) if not c.get("refs")]
+    qz_ready = sum(c["ready"] for c in qz_ch)
     courses = [
         {"tag": "과목 · 통계", "title": stats_course["title"], "href": stats_course["file"],
          "status": ("0–25장 공개" if all(c["ready"] for c in theory) else f"{sum(c['ready'] for c in theory)}/{len(theory)}장 공개"),
@@ -579,6 +585,11 @@ def build_home(shell, meta, ml_meta=None, r_meta=None):
                  "생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 재구성하기, 처치전환 보정, 분할생존모형과 마르코프 모형, "
                  "확률적 민감도 분석까지 다룹니다. 파이썬 실습과 같은 자료를 써서 숫자가 그대로 맞습니다.",
          "meta": ["0–9장 · 생존분석 · 경제성 평가 모형", "장마다 R 노트북"]},
+        {"tag": "과목 · 퀴즈", "title": "보건통계학 퀴즈", "href": "quiz.html" if qz_ready else None,
+         "status": (f"{', '.join(str(int(c['id'][-2:])) for c in qz_ch if c['ready'])}장 공개" if qz_ready else "준비 중"),
+         "desc": "보건통계학 기초의 장을 읽은 뒤 푸는 객관식 문제. 개념 구분, 분석 고르기, 표와 숫자 읽기, 잘못된 해석 고치기와 "
+                 "한 연구를 여러 단계로 따라가는 종합 사례로, 해설마다 다시 읽을 소제목으로 바로 갑니다.",
+         "meta": ["장마다 객관식 문제와 종합 사례", "확신도 기록과 다시 볼 문제"]},
     ]
     meta_json = json.dumps({"mode": "home", "courses": courses}, ensure_ascii=False)
     out = (shell.replace("{{META}}", meta_json.replace("</", "<\\/")).replace("{{TEMPLATES}}", "")
@@ -620,7 +631,7 @@ if __name__ == "__main__":
     ap.add_argument("--out", help="output html path (default dist/index.html)")
     ap.add_argument("--nofold", action="store_true", help="do not collapse 심화 parts")
     ap.add_argument("--inline", action="store_true", help="full build as one file per course (no chapters/*.json)")
-    ap.add_argument("--course", default=None, help="stats | ml | r | all (default: all; with --only/--out: stats)")
+    ap.add_argument("--course", default=None, help="stats | ml | r | quiz | all (default: all; with --only/--out: stats)")
     a = ap.parse_args()
     if a.course is None:
         a.course = "stats" if (a.only or a.out) else "all"
@@ -639,11 +650,11 @@ if __name__ == "__main__":
         use_course("stats")
         shell, stats_meta = build()
         metas = {}
-        for name in ("ml", "r"):
+        for name in ("ml", "r", "quiz"):
             use_course(name)
             metas[name] = chapter_meta()
             if any(c["ready"] for c in metas[name] if not c.get("refs")):
                 build()
             elif os.path.exists(os.path.join(ROOT, "dist", COURSE["file"])):
                 os.remove(os.path.join(ROOT, "dist", COURSE["file"]))   # no chapter ready: do not deploy a stale page
-        build_home(shell, stats_meta, metas["ml"], metas["r"])
+        build_home(shell, stats_meta, metas["ml"], metas["r"], metas["quiz"])
