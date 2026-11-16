@@ -33,7 +33,7 @@ CHAPTERS = [
      ["독립된 세 군 이상의 크기를 비교하는 방법", "일원배치 분산분석", "사후분석", "Kruskal-Wallis test", "Jonckheere-Terpstra test"]),
     ("ch05", "p1", "비율을 비교하는 방법", ["카이제곱 검정", "Fisher의 정확한 검정", "선형 대 선형 결합"]),
     ("ch06", "p1", "연속형 변수 사이의 선형관계 추정",
-     ["Pearson의 상관분석", "Spearman의 순위상관분석", "단순회귀분석", "다중회귀분석"]),
+     ["Pearson의 상관분석", "Spearman의 순위상관분석", "단순회귀분석", "다중회귀분석", "공분산분석"]),
     ("ch07", "p1", "생존율의 추정 및 군의 생존율 비교", ["생존 연구의 준비", "Kaplan-Meier 생존분석", "로그순위법"]),
     # PART 1 review: optional 5th element sets extra META fields ("no" label, "review" flag)
     ("rv01", "p1", "분석 고르기 연습", ["분석을 고르는 순서", "같은 주제, 다른 연구 상황", "틀린 해석 고쳐 쓰기", "가상 논문 한 편 읽기",
