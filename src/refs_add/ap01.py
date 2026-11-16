@@ -13,4 +13,17 @@ ADD = {
     # PMID 23573374
     "kim2013survey": {"text": "Kim Y, Park S, Kim NS, Lee BK. Inappropriate survey design analysis of the Korean National Health and Nutrition Examination Survey may produce biased results. <i>J Prev Med Public Health</i>. 2013;46(2):96-104.",
                       "doi": "10.3961/jpmph.2013.46.2.96"},
+    # ---- 부록 A g 절 (복합표본 조사자료 분석), checked 2026-11-17
+    # PMID 24839580 (PMC4017741: 192 PSUs/yr, ~10,000 persons; weights = inverse selection probability x nonresponse x post-stratification; multi-year weights averaged)
+    "kimy2014": {"text": "Kim Y. The Korea National Health and Nutrition Examination Survey (KNHANES): current status and challenges. <i>Epidemiol Health</i>. 2014;36:e2014002.",
+                 "doi": "10.4178/epih/e2014002"},
+    # Ann Stat (not in PubMed)
+    "raoscott1984": {"text": "Rao JNK, Scott AJ. On chi-squared tests for multiway contingency tables with cell proportions estimated from survey data. <i>Ann Stat</i>. 1984;12(1):46-60.",
+                     "doi": "10.1214/aos/1176346391"},
+    # J Stat Softw (not in PubMed)
+    "lumley2004": {"text": "Lumley T. Analysis of complex survey samples. <i>J Stat Softw</i>. 2004;9(8):1-19.",
+                   "doi": "10.18637/jss.v009.i08"},
+    # Stata J (not in PubMed)
+    "west2008": {"text": "West BT, Berglund P, Heeringa SG. A closer examination of subpopulation analysis of complex-sample survey data. <i>Stata J</i>. 2008;8(4):520-531.",
+                 "url": "https://ageconsearch.umn.edu/record/122618"},
 }
