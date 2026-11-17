@@ -1,0 +1,285 @@
+<p class="lead">보건통계학 기초 <a href="stats.html#ch23">23장</a>을 읽은 뒤 푸는 문제입니다. 결정수형의 마디와 경로 확률, 기대값과 ICER의 뜻, 다른 연구의 상대위험도를 빌려 쓰는 가정, 모형 고르기, 마르코프 모형의 상태와 전이확률, 율과 확률의 변환, 반주기 보정, 마르코프 가정, 분할생존모형이 정하는 진행 후 생존, 생존곡선의 외삽과 치료 효과의 지속을 a 절의 13문제로 확인하고, b 절에서는 생존곡선을 외삽한 가상의 분할생존모형 하나를 네 단계로 읽습니다.</p>
+<p>문제는 한 번에 하나씩 나옵니다. 선택지를 누른 뒤 얼마나 확신하는지(확실함, 헷갈림, 추측)를 누르면 정답과 해설이 열리고, 아래의 '다음 문제'로 넘어갑니다. 진행판의 번호를 누르면 그 문제로 바로 가고, '기록 초기화'로 이 장의 기록을 지울 수 있습니다. '2단계'가 붙은 문제는 고른 것과 그렇게 고른 이유를 따로 묻습니다. 해설 끝의 링크는 보건통계학 기초의 해당 소제목을 새 탭으로 엽니다. 문제의 모형과 숫자는 모두 가상이고, 금액 단위는 만원입니다.</p>
+<div class="qz-player" data-widget="qz_player"></div>
+
+<section class="sec" id="qz23-s1">
+<h2><span class="sec-no">a.</span>장 문제</h2>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q01" data-kind="개념 구분" data-lv="처음 읽을 때">
+<p class="qz-stem">결정수형에서 '수술 뒤 감염이 생기는지'가 갈라지는 마디에 대한 설명으로 맞는 것은?</p>
+<ol class="qz-opts">
+<li>결정 마디다. 의사가 감염 여부를 고르는 곳이기 때문이다.<div class="qz-why-o">결정 마디는 비교할 전략이 갈라지는 곳이고, 감염은 고르는 것이 아닙니다.</div></li>
+<li>종결 마디다. 감염이 생기면 그 경로가 끝나기 때문이다.<div class="qz-why-o">종결 마디는 경로의 끝에서 비용과 결과를 적는 곳입니다.</div></li>
+<li data-ok="1">확률 마디다. 가지의 확률은 합이 1이다.<div class="qz-why-o">맞습니다. 사건이 확률에 따라 갈라지는 곳입니다.</div></li>
+<li>확률 마디이지만, 가지의 확률은 서로 독립이라 합이 1이 아니어도 된다.<div class="qz-why-o">한 마디에서 나가는 가지의 확률은 합이 1이어야 합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 결정수형은 결정 마디(네모, 의사결정자가 전략을 고르는 곳), 확률 마디(동그라미, 사건이 확률에 따라 갈라지는 곳), 종결 마디(세모, 경로의 끝에서 비용과 건강 결과를 적는 곳)로 이루어집니다. 확률 마디에서 나가는 가지는 겹치지 않고 빠짐이 없어야 하므로 확률의 합이 1입니다.</p>
+<p><b>조건이 달라지면.</b> 감염이 생긴 환자를 입원시킬지 외래에서 볼지를 의사가 정책으로 고른다면, 그 마디는 결정 마디가 됩니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s1-nodes" target="_blank" rel="noopener">23장 a 절 '나무는 무엇으로 이루어지나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q02" data-kind="계산" data-lv="처음 읽을 때">
+<p class="qz-stem">한 전략에서 감염 확률이 0.20이고, 감염된 환자 가운데 0.25가 입원합니다. 비용은 감염 없음 10만원, 감염 후 외래 50만원, 감염 후 입원 400만원입니다. 이 전략의 기대비용은?</p>
+<ol class="qz-opts">
+<li data-ok="1">35.5만원. 경로 확률 × 경로 비용을 모두 더한다.<div class="qz-why-o">맞습니다. 경로 확률 × 경로의 값을 더했습니다.</div></li>
+<li>118만원. 0.80 × 10 + 0.20 × 50 + 0.25 × 400을 더한다.<div class="qz-why-o">0.25를 전체 환자 가운데 입원 비율처럼 썼습니다.</div></li>
+<li>153만원. 세 경로의 비용 10, 50, 400을 똑같이 평균한다.<div class="qz-why-o">경로마다 일어날 확률이 다르므로 확률로 가중해야 합니다.</div></li>
+<li>400만원. 가장 나쁜 경로의 비용으로 보수적으로 잡는다.<div class="qz-why-o">기대값은 모든 경로를 확률로 가중한 평균입니다.</div></li>
+</ol>
+<div class="qz-step2">
+<p class="qz-stem">입원 경로의 확률을 0.20 × 0.25 = 0.05로 구하는 이유로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>감염과 입원은 서로 독립인 사건이므로, 독립인 두 사건의 확률은 곱하기 때문이다.<div class="qz-why-o">독립이어서가 아니라 0.25가 조건부 확률이기 때문입니다.</div></li>
+<li>확률이 작은 사건일수록 곱해서 더 작게 만들어야 보수적이기 때문이다.<div class="qz-why-o">보수성과는 관계없는 확률의 규칙입니다.</div></li>
+<li>모든 가지의 확률을 곱하면 전략의 합이 1이 되도록 맞춰지기 때문이다.<div class="qz-why-o">곱하는 것은 한 경로 안의 가지들입니다.</div></li>
+<li data-ok="1">0.25는 감염된 사람을 분모로 한 조건부 확률이라, 전체 비율은 0.20을 곱해야 나오기 때문이다.<div class="qz-why-o">맞습니다. 그래서 경로 확률은 지나온 가지의 곱입니다.</div></li>
+</ol>
+</div>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 가지에 적힌 확률은 바로 앞 마디까지 온 사람을 분모로 하는 조건부 확률입니다. 그래서 전체 환자 가운데 입원 경로로 가는 비율은 0.20 × 0.25 = 0.05, 외래 경로는 0.20 × 0.75 = 0.15이고, 세 경로 확률의 합은 1입니다. 기대비용은 0.80 × 10 + 0.15 × 50 + 0.05 × 400 = 8 + 7.5 + 20 = 35.5만원입니다.</p>
+<p><b>조건이 달라지면.</b> 기대값은 환자 한 명의 실제 비용이 아니라 1인당 평균입니다. 실제로 35.5만원이 드는 환자는 없습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s1-path" target="_blank" rel="noopener">23장 a 절 '경로 확률은 왜 곱하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q03" data-kind="해석 고치기" data-lv="처음 읽을 때">
+<p class="qz-stem">결정수형으로 구한 예방 전략의 증분비용은 9만원, 증분 QALY는 0.003, ICER는 3,000만원/QALY입니다. 보도자료에 "예방 전략은 환자 한 명당 3,000만원이 더 든다"고 썼습니다. 바른 지적은?</p>
+<ol class="qz-opts">
+<li>ICER가 곧 환자 1명당 추가 비용이므로 문장은 맞다.<div class="qz-why-o">ICER는 1 QALY를 더 얻는 데 드는 추가 비용입니다.</div></li>
+<li data-ok="1">환자 1명당 추가 비용은 9만원이다. 3,000만원은 1 QALY를 더 얻을 때마다 드는 추가 비용이다.<div class="qz-why-o">맞습니다. 9 ÷ 0.003 = 3,000입니다.</div></li>
+<li>환자 1명당 추가 비용은 3,000만원 × 0.003 QALY = 9만원이지만, 보도에는 ICER를 쓰는 것이 관례다.<div class="qz-why-o">관례 문제가 아니라 단위를 틀리게 쓴 것입니다.</div></li>
+<li>증분 QALY가 0.003으로 너무 작아 ICER를 계산할 수 없으므로 문장 자체가 무의미하다.<div class="qz-why-o">작아도 계산은 되며, 다만 입력값에 민감합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 결정수형의 답은 "예방 전략을 쓰면 환자 1명당 평균 9만원이 더 들고 0.003 QALY를 더 얻는다"는 것이고, 그 비가 3,000만원/QALY입니다. ICER는 1 QALY를 더 얻을 때마다 드는 추가 비용이지 환자 1명당 비용이 아닙니다.</p>
+<p><b>조건이 달라지면.</b> 증분 QALY가 이렇게 작은 단기 모형의 ICER는 상대적 효과가 조금만 달라져도 크게 움직이므로, 민감도 분석과 함께 읽습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s1-icer" target="_blank" rel="noopener">23장 a 절 '두 전략을 비교하면 무엇이 나오나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q04" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">모형의 기저 위험은 신약 시험에서, 예방 요법의 상대위험도 0.60은 다른 환자군을 모은 메타분석에서 가져왔습니다. 저자는 "상대위험도는 환자군과 관계없이 같으므로 따로 검토하지 않았다"고 썼습니다. 바른 지적은?</p>
+<ol class="qz-opts">
+<li>상대위험도는 기저 위험과 무관한 값이므로, 저자의 문장은 그대로 맞다.<div class="qz-why-o">상대적 효과도 효과 수정 요인에 따라 달라질 수 있습니다.</div></li>
+<li>다른 환자군의 상대위험도는 쓸 수 없으므로, 신약 시험에서 예방 요법을 다시 시험해야만 한다.<div class="qz-why-o">기저 위험과 상대적 효과를 따로 가져와 곱하는 것이 모형의 기본 방식입니다.</div></li>
+<li data-ok="1">메타분석의 효과가 이 환자에게도 같다는 가정이다. 검토하고 민감도 분석을 한다.<div class="qz-why-o">맞습니다. 간접비교의 가정과 같은 종류입니다.</div></li>
+<li>상대위험도 대신 메타분석의 위험차를 그대로 쓰면 이 가정이 필요 없다.<div class="qz-why-o">위험차는 기저 위험에 따라 더 크게 달라져 옮겨 쓰기 어렵습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 모형은 기저 위험과 상대적 효과를 서로 다른 출처에서 가져와 곱하는 것이 기본입니다. 이때 메타분석의 환자에서 본 상대적 효과가 모형의 환자에게도 같다고 가정하게 되고, 이 가정은 간접비교의 전이성과 같은 종류입니다. 효과를 바꿀 수 있는 특성이 두 환자군에서 비슷한지 검토하고, 상대위험도의 신뢰구간과 다른 값으로 민감도 분석을 합니다.</p>
+<p><b>조건이 달라지면.</b> 두 약을 함께 시험한 연구가 있다면 그 시험의 결과를 우선 고려합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s1-rr" target="_blank" rel="noopener">23장 a 절 '다른 연구의 상대위험도를 그대로 써도 되나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q05" data-kind="분석 고르기" data-lv="처음 읽을 때">
+<p class="qz-stem">만성 질환의 재발이 평생 여러 번 일어나고, 재발할 때마다 비용과 효용이 바뀌며, 분석기간이 30년입니다. 가장 알맞은 모형은?</p>
+<ol class="qz-opts">
+<li>결정수형. 가지를 충분히 늘리면 어떤 문제도 표현할 수 있다.<div class="qz-why-o">반복 사건과 긴 기간을 가지로 그리면 감당할 수 없이 늘어납니다.</div></li>
+<li>결정수형. 시간을 다루지 않아도 30년 동안의 결과를 한 번에 계산할 수 있다.<div class="qz-why-o">사건의 시점과 해마다의 할인을 반영하지 못합니다.</div></li>
+<li>모형 없이 시험 기간 1년의 결과만으로 비용과 QALY를 비교한다.<div class="qz-why-o">30년 동안의 차이를 담지 못합니다.</div></li>
+<li data-ok="1">마르코프 모형처럼 시간이 흐르는 구조의 모형을 쓴다.<div class="qz-why-o">맞습니다. 반복 사건과 긴 분석기간에 맞습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 결정수형은 사건이 언제 일어나는지를 따로 다루지 않으므로, 사건의 시점이 중요하거나 재발처럼 같은 사건이 여러 번 일어나거나 분석기간이 길어 해마다 할인해야 하면 가지가 감당할 수 없이 늘어납니다. 이때는 건강상태와 주기, 전이확률로 시간의 흐름을 표현하는 마르코프 모형 같은 상태전이 모형을 씁니다.</p>
+<p><b>조건이 달라지면.</b> 사건이 짧은 기간에 한 번 일어나고 영향도 금방 끝난다면(예: 몇 달 안의 이상반응) 결정수형으로 충분합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s1-time" target="_blank" rel="noopener">23장 a 절 '시간을 다루지 않아도 되나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q06" data-kind="해석 고치기" data-lv="처음 읽을 때">
+<p class="qz-stem">마르코프 모형의 전이확률 행렬에서 '무진행' 행이 무진행 0.90, 진행 0.12, 사망 0.03이었습니다. 바른 지적은?</p>
+<ol class="qz-opts">
+<li data-ok="1">행의 합이 1.05라 틀렸다. 각 행의 합은 1이어야 한다.<div class="qz-why-o">맞습니다. 그대로 두면 코호트 비율의 합이 1을 넘습니다.</div></li>
+<li>각 확률이 0과 1 사이에 있으므로 문제가 없다.<div class="qz-why-o">행의 합도 1이어야 합니다.</div></li>
+<li>열의 합이 1이어야 하므로, 행의 합은 1이 아니어도 된다.<div class="qz-why-o">한 상태에서 출발한 사람이 나뉘는 것이므로 행의 합이 1입니다.</div></li>
+<li>사망은 흡수 상태라 행렬에서 빼면 나머지 합이 1이 된다.<div class="qz-why-o">사망으로 가는 확률도 행에 들어가야 합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 마르코프 모형의 건강상태는 겹치지 않고 빠짐이 없어야 하므로, 한 상태에 있던 사람은 한 주기 뒤 정확히 한 상태에 있습니다. 그래서 전이확률 행렬의 각 행(출발 상태)은 합이 1입니다. 이 행의 합은 1.05라 코호트 비율의 합이 주기마다 불어납니다. 계산을 마친 뒤 매 주기 상태 비율의 합이 1인지 확인하는 것도 이 때문입니다.</p>
+<p><b>조건이 달라지면.</b> 머무는 확률을 '1 − 다른 상태로 가는 확률들의 합'으로 계산하도록 만들면 이런 실수를 막을 수 있습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s2-define" target="_blank" rel="noopener">23장 b 절 '무엇을 정하나?'</a>, <a href="stats.html#ch23-s4-check" target="_blank" rel="noopener">d 절 '계산한 뒤에는 무엇을 확인하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q07" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">1년 동안 진행할 확률이 40%입니다. 율이 1년 동안 일정하다고 볼 때, 한 달 주기 모형의 월 전이확률은?</p>
+<ol class="qz-opts">
+<li>3.33%. 1년 확률 40%를 열두 달로 똑같이 나눠 한 달 확률로 쓴다.<div class="qz-why-o">확률은 기간에 비례해 늘지 않으므로 나누면 틀립니다.</div></li>
+<li>40%. 확률은 기간과 관계없으므로 그대로 쓴다.<div class="qz-why-o">한 달 동안 진행할 확률은 1년 동안보다 작습니다.</div></li>
+<li data-ok="1">4.17%. 율 0.511을 12로 나눈 뒤 확률로 되돌린다.<div class="qz-why-o">맞습니다. 기간은 율에서 바꿉니다.</div></li>
+<li>4.26%. 한 달 율 0.0426을 그대로 확률로 쓴다.<div class="qz-why-o">율과 확률을 맞바꿔 쓴 것으로, 확률로 되돌리는 단계가 빠졌습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 확률은 0과 1 사이에 머물러야 하므로 기간에 비례해 늘지 않습니다. 기간을 바꿀 때는 율에서 합니다. 1년 확률 0.40을 율로 바꾸면 −ln(1 − 0.40) = 0.511/년, 한 달 율은 0.0426이고, 이를 확률로 되돌리면 1 − e<sup>−0.0426</sup> = 0.0417입니다. 12로 나눈 3.33%는 1년 동안 진행하는 사람을 적게 셉니다.</p>
+<p><b>조건이 달라지면.</b> 변환식 1 − e<sup>−율 × 기간</sup>은 율이 그 기간 동안 일정할 때 맞습니다. 위험률이 시간에 따라 크게 바뀌면 시점마다 다른 전이확률을 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s2-tp" target="_blank" rel="noopener">23장 b 절 '전이확률은 어떻게 만드나?'</a>, <a href="stats.html#ch23-s2-rate" target="_blank" rel="noopener">'율과 확률은 어떻게 다르고, 어디서 틀리나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q08" data-kind="계산" data-lv="심화">
+<p class="qz-stem">대조군의 1년 사건 확률이 0.50이고, 신약의 위험비는 0.50입니다. 신약군의 1년 사건 확률은?</p>
+<ol class="qz-opts">
+<li>0.25. 확률 0.50에 위험비 0.50을 곱한다.<div class="qz-why-o">위험비는 율의 비이므로 확률에 바로 곱하면 틀립니다.</div></li>
+<li data-ok="1">0.29. 율에 0.50을 곱한 뒤 확률로 되돌린다.<div class="qz-why-o">맞습니다. 위험비는 율에 적용합니다.</div></li>
+<li>0.50. 위험비는 확률에 영향을 주지 않는다.<div class="qz-why-o">위험비 0.50이면 사건이 줄어듭니다.</div></li>
+<li>0.75. 1 − 0.50 × 0.50을 구한다.<div class="qz-why-o">사건이 없을 확률과 혼동했습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 위험비는 위험률(율)의 비이므로 확률이 아니라 율에 적용합니다. 대조군의 율은 −ln(1 − 0.50) = 0.693, 신약군의 율은 0.693 × 0.50 = 0.347, 확률로 되돌리면 1 − e<sup>−0.347</sup> = 0.293입니다. 확률에 바로 곱한 0.25는 사건을 적게 셉니다. 사건 확률이 클수록 두 계산의 차이가 커집니다.</p>
+<p><b>조건이 달라지면.</b> 사건 확률이 아주 작으면(예: 0.02) 확률과 율이 거의 같아 두 계산의 차이가 작습니다. 그래도 율에서 적용하는 것이 원칙입니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s2-rate" target="_blank" rel="noopener">23장 b 절 '율과 확률은 어떻게 다르고, 어디서 틀리나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q09" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">환자 100명을 1년 주기로 추적한 모형에서 해마다 연초 생존자가 100, 70, 40, 20, 0명이었습니다. 사망이 한 해 동안 고르게 일어난다고 볼 때, 반주기 보정으로 구한 총 생존 인년은?</p>
+<ol class="qz-opts">
+<li>230인년. 연초 인원을 모두 더한다.<div class="qz-why-o">중간에 사망한 사람에게도 한 해치를 다 매겨 부풀립니다.</div></li>
+<li>130인년. 연말 인원을 모두 더한다.<div class="qz-why-o">그해 중간까지 살았던 기간을 빼먹어 모자랍니다.</div></li>
+<li>260인년. 연초 인원에 연말 인원의 절반을 더한다.<div class="qz-why-o">시작과 끝의 평균이 아닙니다.</div></li>
+<li data-ok="1">180인년. 연초 합계와 연말 합계의 평균이다.<div class="qz-why-o">맞습니다. 주기의 시작과 끝의 평균을 씁니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 모형은 주기의 경계에서만 사람 수를 세지만 실제 이동은 주기 중간에도 일어납니다. 시작할 때의 수로 계산하면 중간에 사망한 사람에게도 한 주기치를 다 매겨 부풀고(230), 끝날 때의 수로 계산하면 모자랍니다(130). 사망이 고르게 일어났다면 그 가운데인 180인년이 실제에 가깝고, 이것이 반주기 보정입니다.</p>
+<p><b>조건이 달라지면.</b> 주기가 짧을수록(예: 1개월) 보정 여부에 따른 차이가 작아지지만, 결과를 바꿀 수 있으므로 했는지와 방법을 Methods에 적습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s2-hcc" target="_blank" rel="noopener">23장 b 절 '주기 안의 이동은 어떻게 세나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q10" data-kind="분석 고르기" data-lv="심화">
+<p class="qz-stem">진행 직후 1년은 사망 위험이 높고 그 뒤로는 낮아진다는 자료가 있는데, 모형은 진행 상태의 월 사망확률을 하나로 썼습니다. 가장 알맞은 대응은?</p>
+<ol class="qz-opts">
+<li data-ok="1">진행 상태를 머문 기간별 터널 상태로 나눠 사망확률을 다르게 준다.<div class="qz-why-o">맞습니다. 마르코프 가정의 한계를 이렇게 보완합니다.</div></li>
+<li>마르코프 모형은 원래 상태에 머문 기간을 반영할 수 없으므로 그대로 둔다.<div class="qz-why-o">상태를 나눠 기간을 기억하게 만들 수 있습니다.</div></li>
+<li>진행 상태의 월 사망확률을 두 기간의 평균으로 바꾸면 해결된다.<div class="qz-why-o">평균 하나로는 시점에 따른 차이가 여전히 사라집니다.</div></li>
+<li>사망확률을 무진행 상태에서 진행 상태로 옮겨 오면 시점의 차이가 반영된다.<div class="qz-why-o">상태를 바꾸는 것이 아니라 상태 안에서 기간을 구분해야 합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 마르코프 모형에서는 다음 이동이 지금 있는 상태로만 정해지고, 그 상태에 언제 들어왔는지는 계산에 들어가지 않습니다(기억 없음). 그래서 진행한 지 1개월인 환자와 3년인 환자의 사망확률이 같아집니다. 진행 상태를 '진행 1년차', '진행 2년차 이후'처럼 머문 기간별로 나눈 터널 상태를 두면 시점에 따라 다른 확률을 줄 수 있습니다.</p>
+<p><b>조건이 달라지면.</b> 상태에 머문 기간과 환자 특성이 모두 중요하면 환자 단위 모의실험(미시모의실험)을 고려합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s2-markov" target="_blank" rel="noopener">23장 b 절 '다음 이동은 지금 상태로만 정해지나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q11" data-kind="해석 고치기" data-lv="심화">
+<p class="qz-stem">분할생존모형에서 신약의 평균 무진행 기간 이득은 0.2년, 평균 생존 이득은 0.6년이어서 진행 후 기간이 0.4년 늘었습니다. 저자는 "신약은 진행 후에도 생존을 늘린다"고 썼습니다. 진행 후 치료는 두 군이 같았습니다. 바른 지적은?</p>
+<ol class="qz-opts">
+<li>모형이 진행 후 생존을 직접 추정했으므로 그대로 결론으로 쓸 수 있다.<div class="qz-why-o">분할생존모형은 진행에서 사망으로의 이동을 따로 추정하지 않습니다.</div></li>
+<li data-ok="1">진행 후 기간은 두 곡선의 차이로 암묵적으로 정해질 뿐이다. 그럴듯한지 검토하고 상태전이 모형으로 함께 검증한다.<div class="qz-why-o">맞습니다. 이 값이 그럴듯한지는 모형이 보장하지 않습니다.</div></li>
+<li>무진행 기간 이득이 생존 이득보다 작으면 계산 오류이므로 두 이득을 같게 맞춘다.<div class="qz-why-o">두 이득은 같을 필요가 없습니다. 다만 그 차이가 그럴듯한지 봅니다.</div></li>
+<li>진행 후 기간이 늘면 QALY가 커지므로, 결과가 신약에 불리하지 않아 검토할 필요가 없다.<div class="qz-why-o">근거가 약한 진행 후 생존 이득이 ICER를 유리하게 만들 수 있습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 분할생존모형은 무진행 = S<sub>PFS</sub>, 진행 = S<sub>OS</sub> − S<sub>PFS</sub>, 사망 = 1 − S<sub>OS</sub>로 상태 비율을 정할 뿐, 진행한 환자가 그 뒤 얼마나 사는지를 따로 추정하지 않습니다. 그래서 두 곡선을 따로 외삽한 결과로 진행 후 기간이 늘어날 수 있고, 그것이 임상적으로 그럴듯한지는 모형이 보장하지 않습니다. 상태별 평균 기간을 확인하고, 상태전이 모형으로 함께 검증하도록 권고됩니다.</p>
+<p><b>조건이 달라지면.</b> 신약이 진행 후에도 효과를 낸다는 근거(예: 진행 후 생존 자료)가 있다면 그 근거를 제시하고 결과를 해석합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s3-post" target="_blank" rel="noopener">23장 c 절 '진행한 뒤의 생존은 어디서 정해지나?'</a>, <a href="stats.html#ch23-s3-struct" target="_blank" rel="noopener">'모형 구조를 바꾸면 결과는 얼마나 달라지나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q12" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">2년 추적한 시험의 생존곡선에 여섯 가지 모수 모형을 적합하고, AIC가 가장 낮은 모형을 20년 외삽에 썼다고만 Methods에 적었습니다. 바른 지적은?</p>
+<ol class="qz-opts">
+<li>AIC가 가장 낮은 모형이 외삽 구간에서도 가장 정확하므로 충분한 근거다.<div class="qz-why-o">AIC는 관찰 구간의 적합만 평가합니다.</div></li>
+<li>여섯 모형의 결과를 평균하면 외삽의 불확실성이 사라진다.<div class="qz-why-o">평균해도 꼬리의 가정이 그럴듯한지는 따로 판단해야 합니다.</div></li>
+<li data-ok="1">AIC는 관찰 구간만 본다. 외삽의 임상적 타당성과 외부 자료를 보고 민감도 분석을 한다.<div class="qz-why-o">맞습니다. 지침도 선택 근거와 다른 모형의 결과를 요구합니다.</div></li>
+<li>2년 자료로는 외삽할 수 없으므로 분석기간을 2년으로 줄인다.<div class="qz-why-o">분석기간을 줄이면 이후의 차이가 사라집니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 관찰 기간에는 비슷하게 맞는 모형들이 외삽 구간에서는 크게 갈립니다. AIC와 BIC는 관찰된 자료에 대한 적합만 평가하므로, 꼬리의 모양은 알려 주지 않습니다. 모형은 그림, 적합도, 외삽한 생존율이 임상적으로 그럴듯한지, 등록 자료 같은 외부 자료와 맞는지를 함께 보고 고르고, 선택 근거와 다른 모형의 결과를 보고합니다.</p>
+<p><b>조건이 달라지면.</b> 추적이 길어 대부분의 사건이 관찰되었다면 외삽에 기대는 부분이 줄어 모형 선택의 영향도 작아집니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s4-tail" target="_blank" rel="noopener">23장 d 절 '관찰 구간에 잘 맞는 곡선이 그 뒤도 맞나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s1-q13" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">시험은 3년을 관찰했는데, 모형은 신약의 위험비 0.70이 20년 내내 유지된다고 가정했습니다. 효과가 이어진다는 다른 근거는 없습니다. 가장 알맞은 대응은?</p>
+<ol class="qz-opts">
+<li data-ok="1">근거 없이 효과가 계속된다고 볼 수 없다. 효과 감소 시나리오를 함께 보인다.<div class="qz-why-o">맞습니다. 국내 지침도 같은 입장입니다.</div></li>
+<li>위험비는 시험에서 추정한 값이므로, 시험 뒤에도 그대로 유지된다고 보는 것이 표준이다.<div class="qz-why-o">시험 기간 뒤의 효과는 관찰되지 않았습니다.</div></li>
+<li>효과가 사라진다고 가정하면 신약에 불리하므로, 제약사의 가정을 그대로 받아들인다.<div class="qz-why-o">가정은 근거로 정하고, 불확실하면 시나리오로 보여 줍니다.</div></li>
+<li>위험비를 0.50으로 더 낮추면 효과 감소를 상쇄할 수 있다.<div class="qz-why-o">근거 없는 값으로 바꾸는 것은 문제를 키웁니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 위험비 하나로 신약군 곡선을 만들면 상대적 효과가 분석기간 내내 일정하다고 가정하는 셈이고, 시험 기간 뒤의 효과는 외삽의 문제입니다. 국내 지침은 적절한 근거 없이 실제 효과가 외삽 기간 동안 지속된다고 가정하는 것을 부적절하다고 적습니다. 효과가 시험 뒤 점차 1로 돌아가는 감소 시나리오와 관찰 자료만의 결과를 함께 보고합니다.</p>
+<p><b>조건이 달라지면.</b> 장기 추적 자료나 작용 기전으로 효과가 이어진다는 근거가 있다면, 그 근거를 제시하고 유지 가정을 기본 분석에 쓸 수 있습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s4-wane" target="_blank" rel="noopener">23장 d 절 '치료 효과는 언제까지 이어지나?'</a>, <a href="stats.html#ch23-s3-dur" target="_blank" rel="noopener">c 절 '치료 효과와 투약은 언제까지 이어진다고 보나?'</a></p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="qz23-s2">
+<h2><span class="sec-no">b.</span>종합 사례</h2>
+<p>가상의 분할생존모형입니다. 진행성 암에서 신약 V를 표준요법 W와 비교했고, 시험은 3년을 관찰했으며 모형의 분석기간은 15년입니다. 신약군 곡선은 W군 곡선에 위험비(무진행생존 0.70, 전체생존 0.85)를 적용해 만들었습니다. W군 전체생존에 네 모형을 적합한 결과는 다음과 같습니다. 질문마다 필요한 숫자를 다시 줍니다.</p>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:24rem;white-space:nowrap">
+<thead><tr><th>모형</th><th class="r">5년 생존</th><th class="r">AIC</th><th class="r">ICER</th></tr></thead>
+<tbody>
+<tr><td>곰페르츠</td><td class="r">9%</td><td class="r">412.1</td><td class="r">6,200</td></tr>
+<tr><td>와이블</td><td class="r">16%</td><td class="r">413.0</td><td class="r">5,700</td></tr>
+<tr><td>지수</td><td class="r">19%</td><td class="r">420.5</td><td class="r">5,300</td></tr>
+<tr><td>로그-로지스틱</td><td class="r">27%</td><td class="r">415.8</td><td class="r">4,900</td></tr>
+</tbody></table></div>
+<p>ICER의 단위는 만원/QALY입니다. 비슷한 환자의 국내 등록 자료에서 5년 생존율은 15–18%였습니다.</p>
+
+<div class="qz" data-widget="qz" id="qz23-s2-q01" data-kind="분석 고르기" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">기준 분석에 쓸 전체생존 모형으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>곰페르츠. AIC가 가장 낮으므로 가장 잘 맞는 모형이다.<div class="qz-why-o">AIC는 관찰 3년만 평가하고, 5년 생존 9%는 외부 자료보다 낮습니다.</div></li>
+<li>로그-로지스틱. ICER가 가장 낮아 신약의 가치를 가장 잘 보여 준다.<div class="qz-why-o">결과를 보고 모형을 고르면 안 됩니다.</div></li>
+<li>지수. 모수가 하나뿐이라 가장 단순하므로 언제나 기준 분석에 쓴다.<div class="qz-why-o">단순함만으로 고르지 않고, 위험률이 일정하다는 가정이 그럴듯한지 봅니다.</div></li>
+<li data-ok="1">와이블. AIC가 거의 같고 5년 생존 16%가 등록 자료와 맞는다.<div class="qz-why-o">맞습니다. 적합도와 외부 타당성을 함께 봅니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> AIC 차이 1 미만(412.1 대 413.0)은 관찰 구간에서 두 모형이 거의 같게 맞는다는 뜻일 뿐이고, 외삽 구간의 꼬리는 크게 다릅니다. 외부 자료의 5년 생존율 15–18%와 맞는 와이블(16%)이 기준 분석에 알맞고, 곰페르츠(9%)와 로그-로지스틱(27%)은 그럴듯한 범위를 벗어납니다. 다른 모형의 ICER(4,900–6,200만원)도 민감도 분석으로 함께 보입니다.</p>
+<p><b>조건이 달라지면.</b> 외부 자료가 없다면 임상 전문가의 의견으로 장기 생존율이 그럴듯한 범위를 미리 정해 두고 비교합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s4-tail" target="_blank" rel="noopener">23장 d 절 '관찰 구간에 잘 맞는 곡선이 그 뒤도 맞나?'</a>, <a href="stats.html#ch23-s4-match" target="_blank" rel="noopener">'출처가 다른 입력값은 서로 맞는지 어떻게 확인하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s2-q02" data-kind="해석 고치기" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">민감도 분석에서 무진행생존은 로그-로지스틱, 전체생존은 곰페르츠로 바꾸자, 130개월부터 무진행생존 곡선이 전체생존 곡선 위로 올라갔습니다. 가장 알맞은 대응은?</p>
+<ol class="qz-opts">
+<li>130개월 뒤의 일이라 결과에 거의 영향이 없으므로 그대로 둔다.<div class="qz-why-o">진행 비율이 음수가 되는 불가능한 상태가 계산에 들어갑니다.</div></li>
+<li data-ok="1">불가능한 상태다. 무진행생존이 전체생존을 넘지 않게 제약하고 조합을 다시 본다.<div class="qz-why-o">맞습니다. 계산 뒤 확인할 항목입니다.</div></li>
+<li>두 곡선이 엇갈리면 진행 상태가 음수가 되어 비용이 줄어드니 신약에 유리하므로 그대로 둔다.<div class="qz-why-o">불가능한 상태를 결과에 쓰면 안 됩니다.</div></li>
+<li>곡선이 만나는 것은 분할생존모형에서 피할 수 없으므로 Limitations에만 적는다.<div class="qz-why-o">제약을 두거나 조합을 바꿔 바로잡을 수 있습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 분할생존모형은 두 곡선을 따로 그리므로 모양이 다르면 언젠가 만날 수 있습니다. 무진행생존이 전체생존 위로 올라가면 진행 비율(S<sub>OS</sub> − S<sub>PFS</sub>)이 음수가 되는 불가능한 상태입니다. 무진행생존을 전체생존 이하로 제약하고, 곡선 조합이 임상적으로 그럴듯한지 다시 봅니다.</p>
+<p><b>조건이 달라지면.</b> 기준 분석의 조합에서 만나는 시점이 분석기간보다 훨씬 뒤라면 문제가 되지 않지만, 그 시점을 확인해 두고 보고합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s3-cross" target="_blank" rel="noopener">23장 c 절 '무진행생존 곡선이 전체생존 곡선을 넘으면?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s2-q03" data-kind="해석 고치기" data-lv="심화" data-case="1">
+<p class="qz-stem">모형은 위험비 0.70과 0.85가 15년 내내 유지된다고 두었습니다. 또 위험비를 쓰려면 비례위험이 필요한데, 시험의 무진행생존 곡선은 처음 6개월에 거의 겹쳤다가 벌어졌습니다. 가장 알맞은 판단은?</p>
+<ol class="qz-opts">
+<li>위험비는 시험의 주 결과이므로 곡선 모양과 관계없이 그대로 쓰는 것이 지침의 요구다.<div class="qz-why-o">지침은 비례위험이 적절하지 않으면 두 군을 따로 외삽하도록 요구합니다.</div></li>
+<li>곡선이 처음에 겹친 것은 우연이므로, 위험비를 더 작게 바꿔 늦게 벌어진 효과를 반영한다.<div class="qz-why-o">근거 없이 값을 바꾸면 안 됩니다.</div></li>
+<li>15년 유지는 보수적인 가정이므로 효과 감소 시나리오는 필요 없다.<div class="qz-why-o">효과가 계속된다는 가정은 신약에 유리한 쪽입니다.</div></li>
+<li data-ok="1">비례위험이 의심되므로 두 군을 따로 적합해 외삽하는 방법을 검토하고, 효과가 줄어드는 시나리오도 함께 보인다.<div class="qz-why-o">맞습니다. 두 가정 모두 근거로 뒷받침해야 합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 대조군 곡선에 위험비를 적용하는 방법은 분석기간 내내 비례위험이 성립해야 합니다. 곡선이 처음에 겹쳤다가 벌어지면 위험비가 시간에 따라 달라 비례위험이 의심되므로, 지침대로 두 군을 따로 적합해 외삽하는 방법을 검토합니다. 또 시험 3년 뒤에도 효과가 15년 동안 이어진다는 근거가 없다면 효과 감소 시나리오를 함께 보고합니다.</p>
+<p><b>조건이 달라지면.</b> 로그 누적위험 그림과 Schoenfeld 잔차에서 비례위험이 그럴듯하고 장기 효과의 근거가 있다면, 위험비 방식과 유지 가정을 기본 분석에 쓸 수 있습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s4-arm" target="_blank" rel="noopener">23장 d 절 '신약군 곡선은 위험비로 만드나, 따로 적합하나?'</a>, <a href="stats.html#ch23-s4-wane" target="_blank" rel="noopener">'치료 효과는 언제까지 이어지나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz23-s2-q04" data-kind="보고 문장" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">Methods 문장으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>"Overall survival was extrapolated using the Gompertz distribution, which had the lowest AIC and therefore provided the most accurate long-term predictions."<div class="qz-why-o">AIC만으로 고르고, 외삽 구간의 정확성까지 주장했습니다.</div></li>
+<li data-ok="1">"Weibull was chosen for overall survival (AIC within 1 of the lowest; 5-year survival matching registry data, 15–18%); other distributions were scenario analyses."<div class="qz-why-o">맞습니다. 선택 근거와 다른 모형의 처리를 밝혔습니다.</div></li>
+<li>"Overall survival was extrapolated with the log-logistic distribution because it produced the most favorable ICER for drug V."<div class="qz-why-o">결과를 보고 모형을 골랐다고 쓴 셈입니다.</div></li>
+<li>"Survival curves were extrapolated beyond the trial period; the choice of distribution did not matter because all models fitted the observed data well."<div class="qz-why-o">관찰 구간의 적합이 비슷해도 외삽 결과는 크게 갈립니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 외삽을 쓴 모형의 Methods에는 적합한 모형들, 고른 모형과 그 근거(적합도, 그림, 외부 자료와의 일치, 임상적 타당성), 다른 모형으로 한 민감도 분석, 치료 효과의 지속에 대한 가정을 씁니다. 국내 지침도 선택 근거와 다른 모형으로 한 민감도 분석을 요구합니다.</p>
+<p><b>조건이 달라지면.</b> 환자 단위 자료 없이 발표된 곡선만 썼다면 재구성한 환자 단위 자료를 만든 방법(예: Guyot 알고리즘)과 그 한계도 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch23-s4-write" target="_blank" rel="noopener">23장 d 절 '논문에 쓰기'</a>, <a href="stats.html#ch23-s3-write" target="_blank" rel="noopener">c 절 '논문에 쓰기'</a></p>
+</div>
+</div>
+</section>
