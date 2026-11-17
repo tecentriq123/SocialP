@@ -1,0 +1,322 @@
+<p class="lead">보건통계학 기초 <a href="stats.html#ch01">1장</a>을 읽은 뒤 푸는 문제입니다. 자료의 분류, 가설검정, 다중비교, 자유도, 분포와 검정통계량, 중심극한정리, 모수적·비모수적 방법, 자료 탐색과 정규성 검정을 a 절의 14문제로 확인하고, b 절에서는 가상의 체중 감량제 시험 하나를 네 단계로 읽습니다.</p>
+<p>문제는 한 번에 하나씩 나옵니다. 선택지를 누른 뒤 얼마나 확신하는지(확실함, 헷갈림, 추측)를 누르면 정답과 해설이 열리고, 아래의 '다음 문제'로 넘어갑니다. 진행판의 번호를 누르면 그 문제로 바로 가고, '기록 초기화'로 이 장의 기록을 지울 수 있습니다. '2단계'가 붙은 문제는 고른 것과 그렇게 고른 이유를 따로 묻습니다. 해설 끝의 링크는 보건통계학 기초의 해당 소제목을 새 탭으로 엽니다. 문제의 연구와 숫자는 모두 가상입니다.</p>
+<div class="qz-player" data-widget="qz_player"></div>
+
+<section class="sec" id="qz01-s1">
+<h2><span class="sec-no">a.</span>장 문제</h2>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q01" data-kind="개념 구분" data-lv="처음 읽을 때">
+<p class="qz-stem">심부전 환자의 NYHA 기능 분류(I–IV)를 자료표에 1, 2, 3, 4로 저장했고, 프로그램은 이 열을 정수로 읽었습니다. 이 변수는 어떤 자료로 다루나요?</p>
+<ol class="qz-opts">
+<li>숫자로 저장되었으므로 연속형 자료이며, 평균 ± 표준편차로 요약한다.<div class="qz-why-o">저장 형식이 자료의 종류를 정하지 않습니다. 코드 사이의 간격(1→2와 3→4)이 같은 크기라는 보장이 없습니다.</div></li>
+<li>순서가 없는 명목형 자료이다.<div class="qz-why-o">I에서 IV로 갈수록 증상이 심해지는 순서가 있습니다.</div></li>
+<li data-ok="1">순서는 있지만 간격은 정해지지 않은 순서형 범주 자료이며, 단계별 n(%)로 요약한다.<div class="qz-why-o">맞습니다. 순서는 뜻이 있지만 숫자 사이의 거리는 뜻이 없습니다.</div></li>
+<li>값이 네 개뿐이므로 이분형 자료이다.<div class="qz-why-o">이분형은 값이 두 가지인 자료입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 자료의 종류는 값이 무엇을 뜻하는지로 정합니다. NYHA 분류는 순서가 있는 범주이므로 순서형 자료이고, '평균 NYHA 2.4'처럼 코드를 평균 내면 간격이 같다고 가정하는 셈입니다. 회귀모형에 넣을 때도 코드를 그대로 연속형으로 넣지 않고 범주로 지정합니다.</p>
+<p><b>조건이 달라지면.</b> 혈액형이나 요양기관 종별처럼 순서도 없는 범주를 숫자로 저장했다면 명목형입니다. 두 경우 모두 프로그램은 저장 형식만 보므로, 범주로 다루는 일은 분석하는 사람이 정합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s1-kind" target="_blank" rel="noopener">1장 a 절 '① 값의 종류로는 어떻게 나누나?'</a>, <a href="stats.html#ch01-s1-code" target="_blank" rel="noopener">'숫자로 저장되면 수치형인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q02" data-kind="해석 고치기" data-lv="처음 읽을 때">
+<p class="qz-stem">한 관찰연구가 eGFR을 45, 50, 55, 60, 65 mL/min/1.73 m²로 각각 나눠 다섯 번 분석해 보고, P가 가장 작게 나온 55를 기준으로 "eGFR 55 미만은 낙상 위험이 높다(P = 0.03)"고 보고했습니다. 가장 큰 문제는?</p>
+<ol class="qz-opts">
+<li data-ok="1">절단값을 여러 개 시험한 것은 검정을 여러 번 한 것과 같아 우연한 '유의'가 나오기 쉽고, 연속형 변수를 나누면서 정보도 버렸다.<div class="qz-why-o">맞습니다. 자료를 본 뒤 고른 절단값의 P는 액면대로 믿기 어렵습니다.</div></li>
+<li>eGFR은 범주형 변수이므로 처음부터 나누는 것이 맞고, 문제는 없다.<div class="qz-why-o">eGFR은 연속형 변수입니다. 나누려면 임상적으로 확립된 기준을 분석 전에 정합니다.</div></li>
+<li>절단값을 하나만 시험했다면 결과가 더 유의했을 것이다.<div class="qz-why-o">문제는 유의성의 크기가 아니라, 여러 번 시험해 가장 좋은 것을 고른 절차입니다.</div></li>
+<li>P = 0.03은 0.05보다 작으므로 절단값을 어떻게 골랐든 결론은 유효하다.<div class="qz-why-o">여러 번 시험한 뒤 고른 결과는 한 번 검정한 결과와 1종 오류의 확률이 다릅니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 연속형 변수를 둘로 나누면 같은 인원에서 얻는 정보가 줄고(중앙값에서 나누면 효율이 약 64%), 자료를 본 뒤 가장 유의한 절단값을 고르면 다중비교 문제가 더해집니다. 연속형 변수는 그대로 쓰는 것이 기본입니다.</p>
+<p><b>조건이 달라지면.</b> 임상에서 널리 쓰는 기준(예: 만성 신장병 단계를 나누는 eGFR 60)을 분석 전에 계획서에 정해 두었다면 범주로 나눠 분석할 수 있습니다. 그때도 정보를 잃는다는 점은 남습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s1-cut" target="_blank" rel="noopener">1장 a 절 '연속형 변수를 둘로 나눠도 되나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q03" data-kind="표 읽기" data-lv="처음 읽을 때">
+<p class="qz-stem">두 약의 새 사용자를 비교한 청구자료 연구(군마다 20,000명)의 Table 1입니다. 두 군의 균형이 깨졌다고 볼 근거가 있는 변수는?</p>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:30rem;white-space:nowrap">
+<thead><tr><th>평균</th><th class="r">약 A</th><th class="r">약 B</th><th class="r">P</th><th class="r">SMD</th></tr></thead>
+<tbody>
+<tr><td>BMI</td><td class="r">27.1</td><td class="r">26.9</td><td class="r">&lt;0.001</td><td class="r">0.04</td></tr>
+<tr><td>나이</td><td class="r">64.0</td><td class="r">61.0</td><td class="r">&lt;0.001</td><td class="r">0.25</td></tr>
+</tbody></table></div>
+<p class="qz-stem">표준편차는 두 군 모두 BMI 4.5, 나이 12.0입니다.</p>
+<ol class="qz-opts">
+<li>두 변수 모두. P가 모두 0.001보다 작기 때문이다.<div class="qz-why-o">인원이 2만 명씩이면 BMI 0.2처럼 작은 차이도 P &lt; 0.001이 됩니다. P는 균형의 크기를 재지 못합니다.</div></li>
+<li>BMI만. 표준편차가 더 작기 때문이다.<div class="qz-why-o">두 변수의 단위가 달라 표준편차를 그대로 비교할 수 없습니다. 그래서 차이를 표준편차로 나눈 SMD를 봅니다.</div></li>
+<li>어느 변수도 아니다. 관찰연구에서는 균형을 따질 수 없다.<div class="qz-why-o">관찰연구이기 때문에 더욱 Table 1로 균형을 확인합니다. 균형이 깨진 변수는 교란변수 후보가 됩니다.</div></li>
+<li data-ok="1">나이만. SMD 0.25가 흔히 쓰는 기준 0.1을 넘기 때문이다.<div class="qz-why-o">맞습니다. BMI는 P &lt; 0.001이어도 SMD 0.04로 무시할 만한 차이입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> P는 차이를 표준오차로 나눈 값에서 구하므로 인원이 많을수록 작아집니다. SMD는 차이를 환자 사이의 흩어짐인 표준편차로 나누므로 인원과 관계없이 차이의 크기를 보여 줍니다. BMI는 0.2 ÷ 4.5 = 0.04, 나이는 3.0 ÷ 12.0 = 0.25입니다.</p>
+<p><b>조건이 달라지면.</b> 무작위배정 시험의 Table 1이라면 기저 차이는 정의상 우연이므로 P를 붙이지 않는 것이 권장됩니다. 그때도 차이가 크면 보정 분석에서 고려할 수 있습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s1-smd" target="_blank" rel="noopener">1장 a 절 'Table 1에서는 무엇을 보나?'</a>, <a href="stats.html#ch01-s1-whysmd" target="_blank" rel="noopener">'왜 p값 대신 SMD를 쓰나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q04" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">스타틴 복용이 5년 안의 치매 진단에 미치는 전체 효과를 청구자료와 건강검진 자료로 추정하려 합니다. 다음 가운데 보정할 공변량으로 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>스타틴을 시작하고 1년 뒤에 잰 LDL 콜레스테롤<div class="qz-why-o">약을 시작한 뒤 약 때문에 바뀐 값입니다.</div></li>
+<li data-ok="1">스타틴을 시작하기 전 마지막 검진의 LDL 콜레스테롤<div class="qz-why-o">맞습니다. 노출 전의 값이라 약 선택에 영향을 준 교란변수 후보가 됩니다.</div></li>
+<li>두 값 모두. 많이 보정할수록 편향이 줄어든다.<div class="qz-why-o">보정해서는 안 되는 변수가 있습니다. 많이 넣는다고 편향이 늘 줄지는 않습니다.</div></li>
+<li>어느 쪽도 아니다. LDL은 결과변수와 관련이 없다.<div class="qz-why-o">LDL은 스타틴을 처방받을지와 혈관성 위험 모두와 관련될 수 있습니다.</div></li>
+</ol>
+<div class="qz-step2">
+<p class="qz-stem">이 선택을 정하는 조건으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>1년 뒤 LDL은 결측이 많기 때문이다.<div class="qz-why-o">결측이 없어도 보정해서는 안 됩니다. 이유는 측정 시점입니다.</div></li>
+<li>1년 뒤 LDL은 기저 LDL과 상관이 높기 때문이다.<div class="qz-why-o">상관이 높은지는 이 결정의 기준이 아닙니다.</div></li>
+<li data-ok="1">1년 뒤 LDL은 스타틴에서 치매로 가는 경로 위의 매개변수라, 보정하면 LDL을 낮춰서 생긴 효과가 비교에서 빠진다.<div class="qz-why-o">맞습니다. 교란변수는 노출 전부터 있어야 합니다.</div></li>
+<li>공변량은 결과변수와 같은 시점에 잰 값을 써야 하기 때문이다.<div class="qz-why-o">반대입니다. 공변량은 노출을 시작하기 전, 기저 시점의 값으로 씁니다.</div></li>
+</ol>
+</div>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 교란변수는 어떤 약을 고르는지에 영향을 주는 변수이므로 노출 전에 있어야 합니다. 약을 시작한 뒤 바뀐 LDL을 보정하면 1년 뒤 LDL이 같은 환자끼리 비교하게 되어, 'LDL을 낮춰서 생긴 효과'가 사라지고 전체 효과를 작게 추정합니다.</p>
+<p><b>조건이 달라지면.</b> 질문이 'LDL을 거치지 않는 경로의 효과'처럼 매개 분석이라면 매개변수를 다루는 별도의 방법과 가정이 필요합니다. 전체 효과를 묻는 한 노출 뒤의 값은 보정하지 않습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s1-cov" target="_blank" rel="noopener">1장 a 절 '공변량은 언제 잰 값으로 쓰나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q05" data-kind="해석 고치기" data-lv="처음 읽을 때">
+<p class="qz-stem">계획서에는 양측검정을 쓴다고 적었습니다. 결과는 예상한 방향이었지만 양측 P = 0.08이 나와, 연구자가 "효과가 한 방향일 것으로 예상했으므로 단측검정을 쓴다. 단측 P = 0.04로 유의하다"고 썼습니다. 무엇이 문제인가요?</p>
+<ol class="qz-opts">
+<li>단측검정은 어떤 경우에도 쓸 수 없다.<div class="qz-why-o">반대 방향은 볼 필요가 없는 설계에서 자료를 보기 전에 정했다면 쓸 수 있습니다(예: 비열등성 시험).</div></li>
+<li>단측 P는 양측 P의 두 배이므로 0.16이 맞다.<div class="qz-why-o">관측한 방향의 단측 P는 양측 P의 절반입니다.</div></li>
+<li>표본이 작아서 단측검정을 쓰면 안 된다.<div class="qz-why-o">표본 크기는 이 문제의 핵심이 아닙니다.</div></li>
+<li data-ok="1">결과를 본 뒤 단측으로 바꾸면 양측 P가 0.10보다 작기만 해도 '유의'가 되어, 효과 없는 약을 유의하다고 할 확률이 5%에서 10%로 늘어난다.<div class="qz-why-o">맞습니다. 단측검정의 방향은 자료를 보기 전에 정해야 합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 효과가 없는 약이라도 관측한 차이는 어느 한쪽으로 나옵니다. 나온 방향을 보고 그쪽으로 단측검정을 하면 사실상 유의수준을 0.10으로 올린 것과 같습니다. 그래서 결론은 계획서대로 양측 P = 0.08, 곧 유의하지 않음입니다.</p>
+<p><b>조건이 달라지면.</b> 계획서에 미리 단측검정과 그 방향, 단측 유의수준(보통 0.025)을 정해 두었다면 그대로 따릅니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s2-side" target="_blank" rel="noopener">1장 b 절 '양측검정과 단측검정은 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q06" data-kind="개념 구분" data-lv="처음 읽을 때">
+<p class="qz-stem">실제로는 효과가 있는 약을 시험했는데, 이번 시험에서는 차이가 작게 나와 P = 0.21로 '유의하지 않음'이라고 결론 냈습니다. 이 결론은 무엇에 해당하나요?</p>
+<ol class="qz-opts">
+<li data-ok="1">2종 오류(위음성). 효과가 있을 때 이 오류가 생길 확률을 β라고 한다.<div class="qz-why-o">맞습니다. 있는 효과를 놓친 경우입니다.</div></li>
+<li>1종 오류(위양성). 그 확률이 유의수준 α이다.<div class="qz-why-o">1종 오류는 효과가 없는데 '유의함'으로 결론 내리는 경우입니다.</div></li>
+<li>검정력. 효과를 놓칠 확률을 검정력이라고 한다.<div class="qz-why-o">검정력(1 − β)은 반대로 실제 효과를 잡아낼 확률입니다.</div></li>
+<li>오류가 아니다. P가 0.05보다 크면 효과가 없다는 것이 증명된다.<div class="qz-why-o">유의하지 않은 결과는 효과가 없다는 증거가 아닙니다. 이 경우처럼 효과가 있어도 놓칠 수 있습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 결론은 표본 하나에서 나오므로 실제와 어긋날 수 있습니다. 없는 효과를 '유의함'으로 결론 내리면 1종 오류, 있는 효과를 '유의하지 않음'으로 놓치면 2종 오류입니다. 검정력 80%로 설계한 시험이라도, 가정한 효과가 실제로 있을 때 다섯 번에 한 번은 이렇게 놓칩니다.</p>
+<p><b>조건이 달라지면.</b> 실제로 효과가 없는 약이었다면 '유의하지 않음'은 맞는 결론입니다. 하나의 시험만으로는 어느 쪽인지 알 수 없으므로, 효과크기와 신뢰구간이 어디까지 걸쳐 있는지를 함께 봅니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s2-err" target="_blank" rel="noopener">1장 b 절 '두 오류는 무엇인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q07" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">군당 50명, 두 군의 표준편차 10, 양측 α 0.05로 설계한 시험은 실제 효과가 5일 때 검정력이 약 70%입니다(정규근사: 차이의 표준오차 2.0, 중심 5 ÷ 2.0 = 2.5). 실제 효과가 그 절반인 2.5라면 검정력은 약 얼마인가요?</p>
+<ol class="qz-opts">
+<li>약 70%. 검정력은 효과의 크기와 관계없다.<div class="qz-why-o">검정력은 가정한 효과의 크기에 따라 달라집니다.</div></li>
+<li>약 35%. 효과가 절반이면 검정력도 절반이다.<div class="qz-why-o">검정력은 효과에 비례하지 않습니다. 정규분포의 넓이로 구합니다.</div></li>
+<li data-ok="1">약 24%<div class="qz-why-o">맞습니다. 중심이 2.5 ÷ 2.0 = 1.25로 옮겨 가고, 1.96보다 오른쪽의 넓이는 0.24입니다.</div></li>
+<li>5%. 효과가 작으면 유의수준과 같아진다.<div class="qz-why-o">검정력이 α까지 내려가는 것은 효과가 0일 때입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 효과가 있을 때 검정통계량은 '효과 ÷ 표준오차'를 중심으로 흩어집니다. 중심이 1.25이면 '유의함' 경계 1.96을 넘을 확률은 Φ(1.25 − 1.96) = Φ(−0.71) ≈ 0.24입니다. 같은 시험이 이 효과는 네 번에 세 번 놓칩니다.</p>
+<p><b>조건이 달라지면.</b> 효과 2.5에서 다시 검정력 70%를 얻으려면 표준오차를 절반(1.0)으로 줄여야 하고, 표준오차는 √n에 반비례하므로 군당 인원을 네 배인 200명으로 늘려야 합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s2-power" target="_blank" rel="noopener">1장 b 절 '검정력은 어떻게 구하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q08" data-kind="계산" data-lv="처음 읽을 때">
+<p class="qz-stem">효과가 전혀 없는 약으로 서로 독립인 검정을 8번, 각각 유의수준 0.05로 합니다. 적어도 하나가 우연히 '유의'할 확률은?</p>
+<ol class="qz-opts">
+<li>5%. 검정마다 유의수준이 0.05이므로<div class="qz-why-o">0.05는 검정 한 번에 대한 약속입니다. 여러 번 하면 적어도 하나가 걸릴 확률이 커집니다.</div></li>
+<li data-ok="1">약 34%<div class="qz-why-o">맞습니다. 1 − 0.95⁸ = 1 − 0.66 = 0.34입니다.</div></li>
+<li>40%<div class="qz-why-o">0.05 × 8로 더했습니다. 덧셈은 확률을 겹쳐 세어 실제보다 크게 나옵니다(검정이 많아지면 1을 넘기도 합니다).</div></li>
+<li>0.6%. 0.05를 8로 나눈 값이다.<div class="qz-why-o">0.05 ÷ 8은 Bonferroni 보정에서 검정 하나에 쓰는 기준입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 효과가 없을 때 검정 한 번이 '유의하지 않음'으로 끝날 확률은 0.95이고, 독립이면 8번 모두 그럴 확률은 0.95⁸ = 0.66입니다. 그 나머지 0.34가 적어도 하나에서 1종 오류가 생길 확률, 곧 가족단위 오류율(FWER)입니다.</p>
+<p><b>조건이 달라지면.</b> 검정마다 기준을 0.05 ÷ 8 = 0.00625로 낮추면(Bonferroni) 가족단위 오류율은 5%를 넘지 않습니다. 검정들이 서로 상관되어 있으면 실제 가족단위 오류율은 34%보다 작아집니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s3-fwer" target="_blank" rel="noopener">1장 c 절 '검정을 열 번 하면 우연한 '유의'는 얼마나 늘어나나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q09" data-kind="표 읽기" data-lv="직접 분석할 때">
+<p class="qz-stem">논문의 Table 1에는 두 군이 24명과 25명으로 적혀 있고, Results에는 1차 결과를 독립표본 Student t 검정으로 비교해 "t(46) = 2.10, P = 0.041"이라고 적혀 있습니다. 이 자유도에서 알 수 있는 것은?</p>
+<ol class="qz-opts">
+<li data-ok="1">분석한 인원은 46 + 2 = 48명으로, 등록한 49명 가운데 1명이 1차 분석에서 빠졌다.<div class="qz-why-o">맞습니다. Student t의 자유도는 n₁ + n₂ − 2입니다. 누가 왜 빠졌는지는 본문에서 확인합니다.</div></li>
+<li>자유도는 n − 1이므로 분석 인원은 47명이다.<div class="qz-why-o">n − 1은 일표본·대응표본 t 검정의 자유도입니다. 두 군의 평균을 하나씩 추정했으므로 2를 뺍니다.</div></li>
+<li>자유도는 인원과 관계가 없으므로 알 수 있는 것이 없다.<div class="qz-why-o">Student t 검정이라면 자유도로 분석 인원을 거꾸로 셀 수 있습니다.</div></li>
+<li>모든 대상자가 분석되었다. 자유도는 인원에서 3을 뺀 값이기 때문이다.<div class="qz-why-o">두 군 비교의 Student t에서 빼는 수는 추정한 평균의 수인 2입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 자유도는 대략 '관측값 수 − 추정해 쓴 값의 수'입니다. 두 군을 비교하는 Student t 검정은 군마다 평균을 하나씩 추정하므로 n₁ + n₂ − 2이고, 46이면 분석 인원은 48명입니다. 표의 49명과 다르므로 결측이나 제외가 있었는지 확인할 단서가 됩니다.</p>
+<p><b>조건이 달라지면.</b> Welch t 검정이었다면 자유도가 두 군의 표준편차와 인원으로 근사한 값(예: 45.3처럼 소수)이라 인원을 거꾸로 셀 수 없습니다. 그래서 역산하기 전에 어떤 검정인지 먼저 확인합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s4-count" target="_blank" rel="noopener">1장 d 절 '검정마다 자유도를 어떻게 세나'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q10" data-kind="개념 구분" data-lv="처음 읽을 때">
+<p class="qz-stem">두 군(군마다 30명)을 비교하자 한 프로그램은 Student t 검정으로 t = 2.50을, 다른 프로그램은 일원배치 분산분석으로 F 값을 보여 주었습니다. F와 P는 어떻게 나왔을까요?</p>
+<ol class="qz-opts">
+<li>F = 2.50, P는 t 검정보다 크다.<div class="qz-why-o">F는 t와 같은 값이 아니라 t를 제곱한 값입니다.</div></li>
+<li>F = 1.58, P는 t 검정보다 작다.<div class="qz-why-o">√2.50을 구했습니다. 관계는 제곱근이 아니라 제곱입니다.</div></li>
+<li>두 검정은 서로 다른 가설을 검정하므로 비교할 수 없다.<div class="qz-why-o">군이 둘이면 두 검정은 같은 가설(두 평균이 같다)을 같은 합동분산으로 검정합니다.</div></li>
+<li data-ok="1">F = 6.25, P는 t 검정과 같다.<div class="qz-why-o">맞습니다. 군이 둘이면 F = t²이고 P도 같습니다(이 예에서 0.015).</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 군이 둘이면 F의 분자는 두 평균의 차이 하나로 정해지고 분모는 Student t가 쓰는 합동분산과 같아, F는 t를 제곱한 모양이 됩니다. 같은 원리로 z를 제곱하면 자유도 1인 χ²가 됩니다. 통계량의 이름이 달라도 같은 검정일 수 있습니다.</p>
+<p><b>조건이 달라지면.</b> 군이 셋 이상이면 F는 '적어도 한 군의 평균이 다르다'를 묻고, 하나의 t로 바꿀 수 없습니다(4장). Welch t 검정과 비교하면 분모가 달라 두 P가 조금 다를 수 있습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s5-same" target="_blank" rel="noopener">1장 e 절 '이름이 다르면 다른 검정인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q11" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">새 항응고제를 급여하면 건강보험 지출이 얼마나 달라질지 추정하려고, 두 약 사용자의 연간 의료비(군마다 300명, 오른쪽으로 크게 치우침)를 비교합니다. 알맞은 분석은?</p>
+<ol class="qz-opts">
+<li data-ok="1">1인당 평균 비용의 차이를 Welch t 검정으로 구하고, 부트스트랩 신뢰구간으로 확인한다.<div class="qz-why-o">맞습니다. 평균의 차이가 곧 질문의 답이고, 치우침에 대한 근사를 부트스트랩으로 점검합니다.</div></li>
+<li>치우친 자료이므로 Mann-Whitney 검정으로 비교한다.<div class="qz-why-o">한 군의 값이 더 크게 나오는 경향은 알려 주지만, 1인당 몇 원 차이인지는 주지 않습니다.</div></li>
+<li>두 군의 중앙값 차이를 구한다.<div class="qz-why-o">중앙값에 환자 수를 곱하면 고액 환자의 비용이 빠져 총액보다 작게 나옵니다.</div></li>
+<li>로그 변환한 뒤 t 검정을 해 기하평균의 비를 구한다.<div class="qz-why-o">'몇 배인가'에는 답하지만, 원래 단위의 1인당 비용 차이(원)로 바로 되돌릴 수 없습니다.</div></li>
+</ol>
+<div class="qz-step2">
+<p class="qz-stem">이 선택을 정하는 조건으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>표본이 300명이면 비용 자료가 정규분포가 되기 때문이다.<div class="qz-why-o">환자 한 명 한 명의 비용은 표본이 커져도 치우친 그대로입니다. 정규분포에 가까워지는 것은 표본평균의 분포입니다.</div></li>
+<li>비모수 검정은 표본이 클 때 쓸 수 없기 때문이다.<div class="qz-why-o">비모수 검정은 표본이 커도 쓸 수 있습니다. 질문에 답하지 못할 뿐입니다.</div></li>
+<li>정규성 검정에서 P &lt; 0.05가 나왔기 때문이다.<div class="qz-why-o">정규성 검정의 P로 방법을 고르지 않습니다. 방법은 연구 질문으로 정합니다.</div></li>
+<li data-ok="1">질문이 환자 전체의 지출, 곧 1인당 평균 × 환자 수이므로 평균을 비교해야 한다.<div class="qz-why-o">맞습니다. 치우침보다 질문이 방법을 정합니다.</div></li>
+</ol>
+</div>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 예산영향분석과 비용효과분석은 '환자 전체에 얼마가 드는가'를 묻고, 총액은 산술평균에 환자 수를 곱해야 나옵니다. 그래서 비용은 치우쳐 있어도 평균을 비교하고, 중심극한정리에 기대는 근사가 맞는지 부트스트랩 신뢰구간으로 확인합니다.</p>
+<p><b>조건이 달라지면.</b> 질문이 '어느 약 사용자의 비용이 더 크게 나오는 경향이 있는가'라면 순위 검정이, '몇 배인가'라면 로그 변환이 답합니다. 표본이 아주 작고 극단값이 심하면 부트스트랩도 포함률을 지키지 못할 수 있어 한계로 밝힙니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s6-cost" target="_blank" rel="noopener">1장 f 절 '비용은 왜 중앙값이 아니라 평균을 비교하나?'</a>, <a href="stats.html#ch01-s8-choose" target="_blank" rel="noopener">h 절 '정규분포가 아니면 무엇을 고르나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q12" data-kind="해석 고치기" data-lv="처음 읽을 때">
+<p class="qz-stem">"두 진통제 군의 통증 점수를 Mann-Whitney 검정으로 비교한 결과 P = 0.01이었으므로, A군의 중앙값이 B군보다 낮다." 이 문장을 바르게 고친 것은?</p>
+<ol class="qz-opts">
+<li>A군의 평균이 B군보다 낮다.<div class="qz-why-o">Mann-Whitney 검정은 순위를 쓰므로 평균의 차이를 알려 주지 않습니다.</div></li>
+<li data-ok="1">A군의 점수가 B군보다 낮게 나오는 경향이 있다. 효과의 크기는 Hodges–Lehmann 추정치처럼 따로 구해 보고한다.<div class="qz-why-o">맞습니다. 두 군에서 한 명씩 뽑았을 때 어느 쪽이 클 확률이 0.5인지를 묻는 검정입니다.</div></li>
+<li>두 군의 분포가 다르다는 것만 알 수 있고 방향은 알 수 없다.<div class="qz-why-o">순위 합을 비교하므로 어느 군이 더 낮게 나오는 경향인지 방향을 알 수 있습니다.</div></li>
+<li>원래 문장이 맞다. Mann-Whitney 검정은 늘 중앙값을 비교한다.<div class="qz-why-o">중앙값 비교로 읽을 수 있는 것은 두 군의 분포 모양이 같을 때뿐입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> Mann-Whitney 검정이 묻는 것은 "한 군의 값이 다른 군보다 크게(작게) 나오는 경향이 있는가"입니다. 두 군의 퍼진 정도가 다르면 중앙값이 같아도 유의할 수 있으므로, 결과를 중앙값의 차이로 바로 옮기지 않습니다.</p>
+<p><b>조건이 달라지면.</b> 두 군의 분포 모양이 같고 위치만 옮겨진 경우라면 중앙값의 차이로 읽을 수 있습니다. 질문이 평균의 차이라면 처음부터 t 검정(Welch)을 계획합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s7-tell" target="_blank" rel="noopener">1장 g 절 '비모수 검정은 무엇을 말해 주나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q13" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">두 군(군마다 100명)의 혈압 감소량을 t 검정으로 비교하기 전에, 두 군을 합친 200명의 값으로 Shapiro–Wilk 검정을 해 P &lt; 0.001이 나오자 Mann-Whitney 검정으로 바꿨습니다. 무엇이 문제인가요?</p>
+<ol class="qz-opts">
+<li>Shapiro–Wilk 대신 Kolmogorov–Smirnov 검정을 썼어야 한다.<div class="qz-why-o">검정의 종류보다 무엇을 검정했는지와, 그 결과로 방법을 바꾼 절차가 문제입니다.</div></li>
+<li>200명이면 정규성 검정을 할 필요가 없으므로 문제가 없다.<div class="qz-why-o">문제가 있습니다. 확인 대상도 틀렸고, 결과를 보고 방법을 바꿨습니다.</div></li>
+<li data-ok="1">정규성은 군마다 따로 확인한다. 두 군의 평균이 다르면 합친 값은 봉우리가 둘인 모양이 되어 기각될 수 있다. 또 방법은 연구 질문으로 미리 정하고 정규성 검정의 P로 바꾸지 않는다.<div class="qz-why-o">맞습니다. 확인 대상과 결정 방식 두 가지가 모두 틀렸습니다.</div></li>
+<li>P &lt; 0.001이므로 자료가 정규분포라는 것이 확인되었다.<div class="qz-why-o">정규성 검정의 귀무가설이 '정규분포를 따른다'이므로, P가 작으면 정규분포가 아니라는 쪽입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 정규성 가정은 검정이 계산에 쓰는 값, 곧 군별 값(t 검정·분산분석), 대응 차이(대응표본 t), 잔차(회귀)에 대한 것입니다. 합친 값의 비정규성은 군의 차이가 만든 것일 수 있습니다. 게다가 정규성 검정은 큰 표본에서 사소한 차이에도 기각되므로, 요약 형식은 분포로 정하되 검정은 질문과 표본 크기로 자료를 보기 전에 정합니다.</p>
+<p><b>조건이 달라지면.</b> 군별 히스토그램과 Q-Q plot에서 심한 치우침이 보이고 표본이 작다면, 계획서에 미리 정한 대안(부트스트랩, 비모수 검정, 로그 변환 가운데 질문에 맞는 것)을 따릅니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s8-what" target="_blank" rel="noopener">1장 h 절 '무엇의 정규성을 확인하나?'</a>, <a href="stats.html#ch01-s8-sw" target="_blank" rel="noopener">'정규성 검정은 b 절의 검정과 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s1-q14" data-kind="표 읽기" data-lv="직접 분석할 때">
+<p class="qz-stem">CRP에 자연로그를 씌워 두 군을 t 검정으로 비교했더니, 로그 척도의 평균 차이(치료군 − 대조군)가 −0.357이었습니다. 원래 단위로 바르게 읽은 것은?</p>
+<ol class="qz-opts">
+<li>치료군의 CRP가 평균 0.357 mg/L 낮다.<div class="qz-why-o">로그 척도의 차이는 원래 단위의 차이가 아닙니다. 지수함수로 되돌려 읽습니다.</div></li>
+<li data-ok="1">치료군의 CRP 기하평균이 대조군의 0.70배, 곧 약 30% 낮다.<div class="qz-why-o">맞습니다. e<sup>−0.357</sup> = 0.70이고, 로그 척도의 평균을 되돌린 값이 기하평균이므로 기하평균의 비입니다.</div></li>
+<li>치료군의 CRP 산술평균이 약 30% 낮다.<div class="qz-why-o">되돌린 비는 산술평균이 아니라 기하평균의 비입니다. 치우친 자료에서는 둘이 다릅니다.</div></li>
+<li>치료군의 CRP가 35.7% 낮다.<div class="qz-why-o">로그 차이를 백분율로 그대로 옮겼습니다. 작은 차이에서는 비슷하지만 여기서는 30%입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 로그는 나눗셈을 뺄셈으로 바꾸므로, 로그 척도의 평균 차이를 지수함수로 되돌리면 두 군의 비가 됩니다. 로그 척도의 평균을 되돌린 값이 기하평균이므로 e<sup>−0.357</sup> = 0.70은 기하평균의 비입니다. 신뢰구간도 끝점을 각각 되돌려 비로 보고합니다.</p>
+<p><b>조건이 달라지면.</b> 질문이 원래 단위의 차이(몇 mg/L)라면 로그 변환이 아니라 평균 비교를 계획합니다. 로그 대신 상용로그(밑 10)를 썼다면 10<sup>차이</sup>로 되돌립니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s8-log" target="_blank" rel="noopener">1장 h 절 '로그 변환한 결과는 어떻게 읽나?'</a></p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="qz01-s2">
+<h2><span class="sec-no">b.</span>종합 사례</h2>
+<p>가상의 무작위배정 시험입니다. 비만 환자 80명을 신약군과 위약군에 40명씩 배정했고, 1차 결과변수는 24주 체중 변화(kg, 24주 − 기저)입니다. 2차 결과변수 6개는 계획서에 미리 정했고, 다중비교는 Holm 방법으로 보정하기로 했습니다. 아래 표의 1차 결과는 논문 각주에 따라 <b>mean ± SEM</b>(평균의 표준오차)입니다. 질문마다 필요한 숫자를 다시 줍니다.</p>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:34rem">
+<thead><tr><th>1차 결과</th><th class="r">신약 (40명)</th><th class="r">위약 (40명)</th></tr></thead>
+<tbody>
+<tr><td>체중 변화, kg</td><td class="r">−6.2 ± 0.63</td><td class="r">−1.8 ± 0.70</td></tr>
+</tbody></table></div>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:34rem">
+<thead><tr><th>2차 결과 (신약 − 위약)</th><th class="r">보정 전 P</th></tr></thead>
+<tbody>
+<tr><td>허리둘레</td><td class="r">0.0004</td></tr>
+<tr><td>수축기혈압</td><td class="r">0.009</td></tr>
+<tr><td>HbA1c</td><td class="r">0.034</td></tr>
+<tr><td>삶의 질 점수</td><td class="r">0.048</td></tr>
+<tr><td>LDL 콜레스테롤</td><td class="r">0.21</td></tr>
+<tr><td>중성지방</td><td class="r">0.47</td></tr>
+</tbody></table></div>
+
+<div class="qz" data-widget="qz" id="qz01-s2-q01" data-kind="계산" data-lv="처음 읽을 때" data-case="1">
+<p class="qz-stem">각주에 따르면 1차 결과의 ± 뒤 숫자는 평균의 표준오차(SEM)입니다. 신약군(40명) 환자들의 체중 변화 표준편차는 대략 얼마인가요? (신약군 −6.2 ± 0.63)</p>
+<ol class="qz-opts">
+<li>0.63 kg<div class="qz-why-o">표준오차를 표준편차로 읽었습니다. 그러면 환자들이 실제보다 훨씬 비슷해 보입니다.</div></li>
+<li>0.10 kg<div class="qz-why-o">√40으로 나누었습니다. 표준오차에서 표준편차로 되돌릴 때는 곱합니다.</div></li>
+<li data-ok="1">약 4.0 kg<div class="qz-why-o">맞습니다. 0.63 × √40 = 0.63 × 6.32 ≈ 4.0입니다.</div></li>
+<li>25.2 kg<div class="qz-why-o">40을 그대로 곱했습니다. 표준오차는 표준편차를 √n으로 나눈 값입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 서로 독립인 관측값으로 구한 평균의 표준오차는 SD ÷ √n이므로, SE에 √n을 곱하면 SD로 돌아옵니다. 신약군 0.63 × √40 ≈ 4.0 kg, 위약군 0.70 × √40 ≈ 4.4 kg입니다. 환자마다 체중 변화가 평균에서 4 kg 안팎 다르다는 뜻입니다.</p>
+<p><b>조건이 달라지면.</b> 각주가 mean ± SD였다면 0.63 kg이 그대로 표준편차입니다. 그래서 '±'나 오차막대를 읽기 전에 각주나 그림 설명에서 무엇인지 먼저 확인합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s5-sdse" target="_blank" rel="noopener">1장 e 절 '논문의 '±'와 오차막대는 무엇의 흩어짐인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s2-q02" data-kind="계산" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">1차 결과를 Student t 검정으로 비교합니다. 차이는 −6.2 − (−1.8) = −4.4 kg이고, 차이의 표준오차는 √(0.63² + 0.70²) = 0.94입니다. 자유도와 95% 신뢰구간으로 바른 것은? (자유도 78의 t 경계값 1.99)</p>
+<ol class="qz-opts">
+<li data-ok="1">자유도 78, −6.3 to −2.5 kg<div class="qz-why-o">맞습니다. 40 + 40 − 2 = 78, −4.4 ± 1.99 × 0.94입니다.</div></li>
+<li>자유도 79, −6.3 to −2.5 kg<div class="qz-why-o">구간은 맞지만 자유도는 n − 1이 아니라 두 군의 평균을 하나씩 추정했으므로 n₁ + n₂ − 2입니다.</div></li>
+<li>자유도 78, −16.3 to 7.5 kg<div class="qz-why-o">차이의 표준오차 대신 두 표준편차(4.0, 4.4)를 합쳐 넣었습니다. 환자 사이의 흩어짐으로 만든 범위라 지나치게 넓습니다.</div></li>
+<li>자유도 79, −7.0 to −1.8 kg<div class="qz-why-o">두 표준오차를 그냥 더했고(1.33), 자유도도 틀렸습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 서로 다른 환자로 이루어진 두 군 평균 차이의 표준오차는 두 표준오차를 제곱해 더한 뒤 제곱근을 씌운 0.94이고, t = −4.4 ÷ 0.94 = −4.67, 자유도 78에서 P &lt; 0.001입니다. 95% CI는 −4.4 ± 1.99 × 0.94 = −6.3 to −2.5 kg입니다.</p>
+<p><b>조건이 달라지면.</b> 두 군의 인원이 같으므로 Welch t 검정으로 해도 표준오차는 같고, 자유도만 77.1처럼 소수가 됩니다. 그래서 논문에는 어떤 t 검정을 썼는지를 밝힙니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s4-count" target="_blank" rel="noopener">1장 d 절 '검정마다 자유도를 어떻게 세나'</a>, <a href="stats.html#ch01-s5-zt" target="_blank" rel="noopener">e 절 'z와 t는 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s2-q03" data-kind="계산" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">2차 결과 6개의 보정 전 P는 0.0004, 0.009, 0.034, 0.048, 0.21, 0.47입니다. 계획대로 Holm 방법으로 보정하면 α 0.05에서 유의한 결과는 몇 개인가요?</p>
+<ol class="qz-opts">
+<li>0개<div class="qz-why-o">가장 작은 0.0004는 6을 곱해도 0.0024로 유의합니다.</div></li>
+<li>1개<div class="qz-why-o">Bonferroni의 답입니다(기준 0.05 ÷ 6 = 0.0083). Holm은 두 번째 P에 5만 곱합니다.</div></li>
+<li>4개<div class="qz-why-o">보정하지 않은 답입니다.</div></li>
+<li data-ok="1">2개 (허리둘레, 수축기혈압)<div class="qz-why-o">맞습니다. 0.0004 × 6 = 0.0024, 0.009 × 5 = 0.045까지 통과하고, 0.034 × 4 = 0.136에서 멈춥니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> Holm은 P를 작은 순서로 세운 뒤 곱하는 수를 6, 5, 4, …로 하나씩 줄여 가다가, 처음으로 0.05를 넘는 곳에서 멈춥니다. 가족단위 오류율은 Bonferroni처럼 5%로 묶으면서도, 유의하다고 찾는 결과는 늘 같거나 많습니다. 이 예에서 Bonferroni는 1개, Holm은 2개입니다.</p>
+<p><b>조건이 달라지면.</b> 유의하다고 고른 결과 가운데 가짜의 비율(거짓발견율)을 묶는 Benjamini-Hochberg 방법을 썼다면 더 많이 남을 수 있지만, 묶는 오류가 다르므로 계획서에 정한 방법을 따릅니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s3-holm" target="_blank" rel="noopener">1장 c 절 'Holm과 Benjamini-Hochberg는 Bonferroni와 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz01-s2-q04" data-kind="보고 문장" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">초록의 결과 문장으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>"신약은 체중을 줄였고(P &lt; 0.001), 삶의 질(P = 0.048)과 HbA1c(P = 0.034)도 개선했다."<div class="qz-why-o">보정 전 P로 2차 결과를 결론지었습니다. Holm 보정 뒤 두 결과는 유의하지 않습니다. 1차 결과의 크기와 신뢰구간도 빠졌습니다.</div></li>
+<li data-ok="1">"24주 체중 변화의 군 간 차이는 −4.4 kg (95% CI −6.3 to −2.5; P &lt; 0.001)이었다. 미리 정한 2차 결과 6개 가운데 Holm 보정 뒤 유의한 것은 허리둘레와 수축기혈압이었다."<div class="qz-why-o">맞습니다. 효과크기, 신뢰구간, P, 다중비교 처리를 모두 밝혔습니다.</div></li>
+<li>"신약은 LDL 콜레스테롤에는 효과가 없었다(P = 0.21)."<div class="qz-why-o">유의하지 않은 것은 효과가 없다는 증거가 아닙니다. 차이와 신뢰구간을 보아야 합니다.</div></li>
+<li>"Shapiro–Wilk 검정에서 P &gt; 0.05였으므로 t 검정을 썼고, 신약은 유의하게 체중을 줄였다(P &lt; 0.05)."<div class="qz-why-o">검정은 정규성 검정의 P가 아니라 미리 정한 질문으로 고르고, P는 부등호 대신 정확한 값(0.001 미만이면 &lt;0.001)을 씁니다. 효과의 크기도 빠졌습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 결과 문장에는 1차 결과의 효과크기와 95% CI, 정확한 P를 쓰고, 2차 결과는 미리 정했는지, 몇 개를 검정했는지, 어떤 방법으로 보정했는지를 밝힙니다. 보정 뒤 유의하지 않은 결과는 탐색적으로 읽습니다.</p>
+<p><b>조건이 달라지면.</b> 2차 결과를 보정하지 않기로 계획했다면, 그 사실과 2차 결과를 탐색적으로 해석한다는 점을 씁니다. 하위군 하나에서만 유의한 결과도 같은 이유로 조심해 읽고, 하위군 사이의 차이는 교호작용 검정으로 판단합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch01-s3-write" target="_blank" rel="noopener">1장 c 절 '논문에 쓰기'</a>, <a href="stats.html#ch01-s2-write" target="_blank" rel="noopener">b 절 '논문에 쓰기'</a></p>
+</div>
+</div>
+</section>
