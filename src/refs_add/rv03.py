@@ -23,4 +23,8 @@ ADD = {
     # ---------- c 절 (PubMed: PMID 18794220, 2190942) ----------
     "knol2008": {"text": "Knol MJ, Vandenbroucke JP, Scott P, Egger M. What do case-control studies estimate? Survey of methods and assumptions in published case-control research. <i>Am J Epidemiol</i>. 2008;168(9):1073-1081.", "doi": "10.1093/aje/kwn217"},
     "rodrigues1990": {"text": "Rodrigues L, Kirkwood BR. Case-control designs in the study of common diseases: updates on the demise of the rare disease assumption and the choice of sampling scheme for controls. <i>Int J Epidemiol</i>. 1990;19(1):205-213.", "doi": "10.1093/ije/19.1.205"},
+    # ---------- d 절 (PubMed: PMID 15252064, 25080530, 38555664) ----------
+    "delgado2004": {"text": "Delgado-Rodríguez M, Llorca J. Bias. <i>J Epidemiol Community Health</i>. 2004;58(8):635-641.", "doi": "10.1136/jech.2003.008466"},
+    "lash2014": {"text": "Lash TL, Fox MP, MacLehose RF, Maldonado G, McCandless LC, Greenland S. Good practices for quantitative bias analysis. <i>Int J Epidemiol</i>. 2014;43(6):1969-1985.", "doi": "10.1093/ije/dyu149"},
+    "higgins2024robinse": {"text": "Higgins JPT, Morgan RL, Rooney AA, et al. A tool to assess risk of bias in non-randomized follow-up studies of exposure effects (ROBINS-E). <i>Environ Int</i>. 2024;186:108602.", "doi": "10.1016/j.envint.2024.108602"},
 }
