@@ -43,6 +43,8 @@ CHAPTERS = [
      {"no": "종합 1", "review": True, "kicker": "CASE STUDY 1"}),
     ("qz92", "q5", "청구자료 코호트 연구 한 편", ["설계", "교란 보정", "결과 분석", "민감도 분석과 보고"],
      {"no": "종합 2", "review": True, "kicker": "CASE STUDY 2"}),
+    ("qz93", "q5", "예측모형 개발과 검증 한 편", ["설계와 예측변수", "모형 만들기와 내부 검증", "성능 읽기", "외부 검증과 보고"],
+     {"no": "종합 3", "review": True, "kicker": "CASE STUDY 3"}),
 ]
 
 GUIDE = []
