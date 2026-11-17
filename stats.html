@@ -1336,7 +1336,7 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
     doc: '<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>'
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const numLabel = c => c.lab ? `실습 ${+c.no}.` : (c.review ? "종합." : (c.appendix ? `부록 ${c.no}.` : `${c.no}.`));
+  const numLabel = c => c.lab ? `실습 ${+c.no}.` : (c.review ? (c.no && c.no !== "종합" ? `${c.no}.` : "종합.") : (c.appendix ? `부록 ${c.no}.` : `${c.no}.`));
 
   // PART 안의 접히는 묶음(PART 5 A·B): 펼쳐 둔 묶음을 이 탭에서 기억한다
   const SUB_KEY = "srn-sub-open-" + (COURSE.key || "home");
@@ -1618,7 +1618,7 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
       <article class="article" id="article">
         <header class="ch-head">
           <p class="crumbs"><a href="index.html">홈</a><span>/</span><a href="#toc">${esc(COURSE.title)}</a><span>/</span><span>${esc(g.label)}</span></p>
-          <p class="ch-no">${c.appendix ? "APPENDIX " + c.no : (c.lab ? "PYTHON LAB " + c.no : (c.review ? "PART 1 REVIEW" : "CHAPTER " + c.no))}</p>
+          <p class="ch-no">${c.appendix ? "APPENDIX " + c.no : (c.lab ? "PYTHON LAB " + c.no : (c.review ? (c.kicker || "PART 1 REVIEW") : "CHAPTER " + c.no))}</p>
           <h1>${esc(c.title)}</h1>
           <div id="leadSlot"></div>
           ${secs.length > 1 ? `<nav class="ch-map" aria-label="이 장의 절">${secs.map(s => `<a href="#${s.id}">${esc(s.no)}. ${esc(s.title)}</a>`).join("")}</nav>`
@@ -1682,7 +1682,7 @@ window.EXTRA_WIDGETS["ch13_ni"] = function (el, H) {
   let backStack = [];
   try { backStack = JSON.parse(sessionStorage.getItem(BACK_KEY) || "[]") || []; } catch (e) { backStack = []; }
   const saveBack = () => { try { sessionStorage.setItem(BACK_KEY, JSON.stringify(backStack)); } catch (e) {} };
-  const chName = c => c.lab ? `실습 ${+c.no}` : (c.review ? "종합" : (c.appendix ? `부록 ${c.no}` : `${+c.no}장`));
+  const chName = c => c.lab ? `실습 ${+c.no}` : (c.review ? (c.no && c.no !== "종합" ? c.no : "종합") : (c.appendix ? `부록 ${c.no}` : `${+c.no}장`));
   const topEdge = () => (document.querySelector(".topbar")?.getBoundingClientRect().bottom || 56) + 8;
 
   function hereState() {

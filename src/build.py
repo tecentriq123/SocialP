@@ -295,6 +295,8 @@ def chapter_meta():
         for flag in ("review", "appendix", "refs"):
             if extra.get(flag):
                 d[flag] = True
+        if extra.get("kicker"):
+            d["kicker"] = extra["kicker"]   # 장 머리의 영문 꼬리표(예: 퀴즈 종합 연습 'CASE STUDY 1')
         d.update({
             "group": grp, "title": title, "ready": ready,
             "sections": [{"id": f"{cid}-s{i + 1}", "no": KO[i], "title": t} for i, t in enumerate(secs)],
@@ -596,7 +598,9 @@ def build_home(shell, meta, ml_meta=None, r_meta=None, qz_meta=None):
                  "확률적 민감도 분석까지 다룹니다. 파이썬 실습과 같은 자료를 써서 숫자가 그대로 맞습니다.",
          "meta": ["0–9장 · 생존분석 · 경제성 평가 모형", "장마다 R 노트북"]},
         {"tag": "과목 · 퀴즈", "title": "보건통계학 퀴즈", "href": "quiz.html" if qz_ready else None,
-         "status": (f"{_ranges([int(c['id'][-2:]) for c in qz_ch if c['ready']])}장 공개" if qz_ready else "준비 중"),
+         "status": ((f"{_ranges([int(c['id'][-2:]) for c in qz_ch if c['ready'] and not c.get('review')])}장 공개"
+                     + (f" · 종합 {sum(1 for c in qz_ch if c['ready'] and c.get('review'))}세트" if any(c['ready'] and c.get('review') for c in qz_ch) else ""))
+                    if qz_ready else "준비 중"),
          "desc": "보건통계학 기초의 장을 읽은 뒤 푸는 객관식 문제. 개념 구분, 분석 고르기, 표와 숫자 읽기, 잘못된 해석 고치기와 "
                  "한 연구를 여러 단계로 따라가는 종합 사례로, 해설마다 다시 읽을 소제목으로 바로 갑니다.",
          "meta": ["장마다 객관식 문제와 종합 사례", "확신도 기록과 다시 볼 문제"]},
