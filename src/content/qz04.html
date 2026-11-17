@@ -1,0 +1,283 @@
+<p class="lead">보건통계학 기초 <a href="stats.html#ch04">4장</a>을 읽은 뒤 푸는 문제입니다. 세 군 이상의 비교에서 생기는 다중비교 문제, 전체 검정과 사후분석, 일원배치 분산분석(F, 분산분석표, η², 등분산), 사후분석 방법 고르기(Tukey, Dunnett, Bonferroni·Holm, Games-Howell)와 위첨자 문자, Kruskal-Wallis 검정, Jonckheere-Terpstra 추세 검정을 a 절의 13문제로 확인하고, b 절에서는 세 군을 비교한 가상의 시험 하나를 네 단계로 읽습니다.</p>
+<p>문제는 한 번에 하나씩 나옵니다. 선택지를 누른 뒤 얼마나 확신하는지(확실함, 헷갈림, 추측)를 누르면 정답과 해설이 열리고, 아래의 '다음 문제'로 넘어갑니다. 진행판의 번호를 누르면 그 문제로 바로 가고, '기록 초기화'로 이 장의 기록을 지울 수 있습니다. '2단계'가 붙은 문제는 고른 것과 그렇게 고른 이유를 따로 묻습니다. 해설 끝의 링크는 보건통계학 기초의 해당 소제목을 새 탭으로 엽니다. 문제의 연구와 숫자는 모두 가상입니다.</p>
+<div class="qz-player" data-widget="qz_player"></div>
+
+<section class="sec" id="qz04-s1">
+<h2><span class="sec-no">a.</span>장 문제</h2>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q01" data-kind="계산" data-lv="처음 읽을 때">
+<p class="qz-stem">효과가 모두 같은 네 군(군 크기 같음)을 두 군씩 t 검정으로 모두 비교합니다(각각 α = 0.05). 비교하는 쌍의 수와, 적어도 한 쌍이 우연히 '유의'할 확률은?</p>
+<ol class="qz-opts">
+<li>4쌍, 5%<div class="qz-why-o">쌍의 수는 군 수 × (군 수 − 1) ÷ 2입니다. 또 쌍마다 5%이면 여러 쌍 가운데 하나라도 걸릴 확률은 5%보다 큽니다.</div></li>
+<li>6쌍, 30%<div class="qz-why-o">0.05 × 6으로 더했습니다. 덧셈은 실제보다 크게 셉니다.</div></li>
+<li data-ok="1">6쌍, 약 20%<div class="qz-why-o">맞습니다. 네 군이면 6쌍이고, 같은 군을 여러 쌍이 나눠 써서 쌍끼리 상관되므로 독립일 때의 26%보다 조금 작은 약 20%입니다.</div></li>
+<li>12쌍, 약 46%<div class="qz-why-o">A–B와 B–A를 따로 셌습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 쌍의 수는 4 × 3 ÷ 2 = 6이고, 비교 기회가 늘어난 만큼 우연한 '유의'가 하나라도 나올 확률(가족단위 오류율)이 커집니다. 6쌍이 서로 독립이라면 1 − 0.95⁶ = 26%이지만, 같은 군이 여러 쌍에 들어가 쌍끼리 상관되므로 실제로는 약 20%입니다. 세 군이면 약 12%, 다섯 군이면 약 29%입니다.</p>
+<p><b>조건이 달라지면.</b> 처음부터 특정 쌍 하나만 비교하기로 정했다면 그 한 쌍은 5%로 검정할 수 있습니다. 여러 쌍을 보려면 비교 묶음을 지키는 사후분석 방법을 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s1-fwer" target="_blank" rel="noopener">4장 a 절 '두 군씩 t 검정을 세 번 하면 무엇이 문제인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q02" data-kind="표 읽기" data-lv="처음 읽을 때">
+<p class="qz-stem">세 진통제 군의 통증 점수를 비교한 표에 P 열이 하나 있고, 값은 0.03입니다. 각주에는 "One-way ANOVA"라고 적혀 있습니다. 이 P가 말해 주는 것은?</p>
+<ol class="qz-opts">
+<li data-ok="1">세 평균이 모두 같다고 보기 어렵다는 것까지이고, 어느 쌍이 다른지는 말하지 않는다.<div class="qz-why-o">맞습니다. 전체 검정의 대립가설은 '적어도 한 군이 다르다'입니다.</div></li>
+<li>세 진통제 군의 평균 통증 점수가 모두 서로 다르다는 것이다.<div class="qz-why-o">한 군만 달라도 전체 검정은 유의할 수 있습니다.</div></li>
+<li>평균이 가장 큰 군과 가장 작은 군의 차이가 5% 수준에서 유의하다는 것이다.<div class="qz-why-o">어느 쌍의 비교도 아닙니다. 쌍별 결론은 사후분석으로 봅니다.</div></li>
+<li>표의 첫 번째 군(기준군)과 나머지 두 군의 차이가 각각 유의하다는 것이다.<div class="qz-why-o">P 열 하나는 특정 쌍의 비교가 아닙니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 일원배치 분산분석의 귀무가설은 '세 군의 평균이 모두 같다'이고, 대립가설은 '적어도 한 군이 다르다'입니다. 그래서 P = 0.03은 어떤 모양으로든 평균이 퍼져 있다는 것까지만 말합니다. 어느 쌍이 다른지는 미리 정한 사후분석의 보정한 P와 신뢰구간으로 봅니다.</p>
+<p><b>조건이 달라지면.</b> 같은 표의 다른 행에 "Kruskal–Wallis" 각주가 붙어 있다면 그 행의 P는 '세 군의 분포가 모두 같다'를 기각한다는 뜻입니다. 행마다 각주의 위첨자를 확인합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s1-pcol" target="_blank" rel="noopener">4장 a 절 '세 군 비교 표에서 P 열은 무엇을 비교한 값인가?'</a>, <a href="stats.html#ch04-s1-omnibus" target="_blank" rel="noopener">'전체 검정은 무엇을 묻고, 사후분석은 왜 따로 필요한가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q03" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">위약과 신약 세 용량(10, 20, 40 mg)을 비교하는 무작위배정 시험입니다. 연구 질문은 "각 용량이 위약보다 효과가 있는가"입니다. 계획서에 적을 사후 비교 방법은?</p>
+<ol class="qz-opts">
+<li>Tukey 방법으로 위약과 세 용량의 여섯 쌍을 모두 비교한다.<div class="qz-why-o">용량끼리의 비교까지 지키느라 문턱이 필요 이상으로 높아집니다.</div></li>
+<li>분산분석이 먼저 유의할 때만 Fisher의 LSD로 위약 대비 비교를 한다.<div class="qz-why-o">LSD는 군이 넷 이상이면 가족단위 오류율을 지키지 못해 권장되지 않습니다.</div></li>
+<li>자료를 본 뒤 위약과 차이가 큰 용량만 골라 t 검정한다.<div class="qz-why-o">고른 쌍은 우연히 차이가 커 보이는 쌍일 가능성이 높아 1종 오류가 늘어납니다.</div></li>
+<li data-ok="1">Dunnett 방법으로 각 용량을 위약과 비교한다.<div class="qz-why-o">맞습니다. 질문이 대조군 대비 비교뿐이므로 그 세 비교만 지킵니다.</div></li>
+</ol>
+<div class="qz-step2">
+<p class="qz-stem">이 선택을 정하는 조건으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>Dunnett 방법은 대조군 비교에서 P를 보정할 필요가 없어, 세 비교를 각각 5%로 검정할 수 있기 때문이다.<div class="qz-why-o">Dunnett 방법도 비교 묶음의 가족단위 오류율을 5%로 묶도록 보정합니다.</div></li>
+<li data-ok="1">지킬 비교가 위약 대비 세 개뿐이라 Tukey보다 문턱이 낮아 그 비교의 검정력이 높기 때문이다.<div class="qz-why-o">맞습니다. 비교 묶음을 질문에 맞게 정했습니다.</div></li>
+<li>용량이 10, 20, 40 mg으로 순서대로 놓여 있어, 순서를 쓰는 방법이 더 강력하기 때문이다.<div class="qz-why-o">순서를 쓰는 것은 추세 검정입니다. 이 질문은 각 용량 대 위약입니다.</div></li>
+<li>용량이 높을수록 반응이 다양해져 군마다 분산이 다를 것이기 때문이다.<div class="qz-why-o">분산이 다를 때의 대안은 Games-Howell 같은 방법입니다.</div></li>
+</ol>
+</div>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 사후분석 방법마다 지키는 비교 묶음이 다릅니다. 모든 쌍이면 Tukey, 하나의 대조군과만 비교하면 Dunnett, 미리 정한 몇 쌍이면 Bonferroni나 Holm입니다. 비교가 적을수록 문턱을 덜 올려도 되므로, 질문에 맞는 가장 작은 묶음을 고릅니다.</p>
+<p><b>조건이 달라지면.</b> Dunnett 방법은 용량끼리 비교하지 않으므로 "40 mg이 20 mg보다 낫다"는 결론은 낼 수 없습니다. 질문이 '용량이 늘수록 효과가 커지는가'라면 추세 검정이나 용량을 점수로 넣은 회귀를 미리 정합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s3-dunnett" target="_blank" rel="noopener">4장 c 절 '대조군과만 비교할 때는?'</a>, <a href="stats.html#ch04-s3-compare" target="_blank" rel="noopener">'다섯 방법은 어떻게 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q04" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">네 군, 모두 100명의 분산분석에서 군간 제곱합이 300, 군내 제곱합이 4,800이었습니다. F 값(두 자유도 포함)과 η²는?</p>
+<ol class="qz-opts">
+<li>F(4, 100) = 0.0625, η² = 0.0625<div class="qz-why-o">제곱합끼리 나누었고 자유도도 틀렸습니다. 두 흩어짐은 자유도로 나눈 평균제곱으로 비교합니다.</div></li>
+<li data-ok="1">F(3, 96) = 2.0, η² = 0.059<div class="qz-why-o">맞습니다. 군간 평균제곱 300 ÷ 3 = 100, 군내 4,800 ÷ 96 = 50, F = 2.0, η² = 300 ÷ 5,100입니다.</div></li>
+<li>F(3, 99) = 2.06, η² = 0.0625<div class="qz-why-o">군내 자유도는 인원 − 1이 아니라 인원 − 군 수입니다. η²는 전체 제곱합(5,100)으로 나눕니다.</div></li>
+<li>F(3, 96) = 16.0, η² = 0.94<div class="qz-why-o">분자와 분모를 뒤바꿔 나누었습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 군간 자유도 = 군 수 − 1 = 3, 군내 자유도 = 인원 − 군 수 = 96입니다. F = 군간 평균제곱 ÷ 군내 평균제곱 = 100 ÷ 50 = 2.0, P ≈ 0.12입니다. η²는 전체 변동 가운데 군 차이로 설명되는 비율로, 300 ÷ (300 + 4,800) = 0.059입니다.</p>
+<p><b>조건이 달라지면.</b> 인원이 1,000명으로 늘고 평균과 흩어짐이 같다면 F는 커져 유의하게 나올 수 있지만 η²는 비슷하게 남습니다. P와 효과크기는 따로 봅니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s2-table" target="_blank" rel="noopener">4장 b 절 '분산분석표는 어떻게 읽나?'</a>, <a href="stats.html#ch04-s2-eta" target="_blank" rel="noopener">'차이의 크기는 무엇으로 보나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q05" data-kind="개념 구분" data-lv="처음 읽을 때">
+<p class="qz-stem">세 군의 효과가 실제로 모두 같다면, 일원배치 분산분석의 F는 시험을 되풀이할 때 대체로 어디 근처에 나오나요?</p>
+<ol class="qz-opts">
+<li>0 근처<div class="qz-why-o">효과가 같아도 표본의 세 평균은 우연히 조금씩 벌어지므로 군간 흩어짐이 0이 되지 않습니다.</div></li>
+<li>1.96 근처<div class="qz-why-o">1.96은 정규분포에서 양쪽 5%를 자르는 경계값입니다.</div></li>
+<li data-ok="1">1 근처<div class="qz-why-o">맞습니다. 군간 평균제곱과 군내 평균제곱이 같은 크기의 흩어짐을 재게 됩니다.</div></li>
+<li>군의 수 근처<div class="qz-why-o">F는 군 수와 관계없이 두 평균제곱의 비입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 효과가 같으면 세 평균은 환자를 뽑을 때의 우연으로만 다르고, 그 흩어짐을 환자 한 명 단위로 되돌린 군간 평균제곱은 군내 평균제곱(환자 사이의 흩어짐)과 같은 크기가 됩니다. 그래서 F = 신호 ÷ 잡음은 1 근처에 머물고, 군 평균 차이가 군 안의 흩어짐에 비해 클수록 커집니다.</p>
+<p><b>조건이 달라지면.</b> 군이 둘이면 F는 Student t를 제곱한 값과 같습니다(1장 e 절).</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s2-f" target="_blank" rel="noopener">4장 b 절 'F는 어떻게 읽나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q06" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">세 군의 인원이 12, 25, 50명이고 군 안의 SD가 20, 12, 6입니다. 평균을 비교하는 전체 검정으로 알맞은 것은?</p>
+<ol class="qz-opts">
+<li data-ok="1">Welch 분산분석<div class="qz-why-o">맞습니다. 군 크기와 분산이 함께 다를 때 씁니다.</div></li>
+<li>일반 일원배치 분산분석<div class="qz-why-o">세 분산을 자유도에 비례해 섞으면 50명 군의 작은 분산 쪽으로 끌려가, 12명 군 평균의 흔들림을 작게 잡습니다.</div></li>
+<li>Levene 검정이 유의하지 않으면 일반 분산분석, 유의하면 Welch 분산분석<div class="qz-why-o">예비 검정으로 고르는 절차는 1종 오류율이 보장되지 않습니다. 작은 군에서는 Levene 검정이 차이를 놓치기도 쉽습니다.</div></li>
+<li>세 군을 두 군씩 Student t 검정으로 비교<div class="qz-why-o">다중비교 문제와 등분산 문제가 겹칩니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 일반 분산분석의 군내 평균제곱은 (11 × 400 + 24 × 144 + 49 × 36) ÷ 84 = 114.5로 공통 SD는 10.7입니다. 이 값으로 12명 군 평균의 표준오차를 구하면 3.09이지만 실제는 20 ÷ √12 = 5.77입니다. 인원이 적은 군의 분산이 클 때 '유의'가 너무 쉽게 나오므로 Welch 분산분석을 씁니다.</p>
+<p><b>조건이 달라지면.</b> 군 크기가 같으면 분산이 조금 달라도 일반 분산분석이 크게 틀어지지 않습니다. Welch 분산분석 뒤의 쌍별 비교는 Games-Howell 방법으로 짝을 맞춥니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s2-var" target="_blank" rel="noopener">4장 b 절 '셋째, 군마다 분산이 같아야 하나?'</a>, <a href="stats.html#ch04-s3-gh" target="_blank" rel="noopener">c 절 '가정이 맞지 않을 때는?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q07" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">청구자료로 세 스타틴(A, B, C) 사용자의 1년 LDL을 일원배치 분산분석으로 비교해 P = 0.002를 얻고, "스타틴 C가 LDL을 가장 많이 낮춘다"고 결론 냈습니다. 가장 알맞은 지적은?</p>
+<ol class="qz-opts">
+<li>P = 0.002로 세 군의 차이가 뚜렷하고 청구자료라 인원도 많으므로, 결론에 문제가 없다.<div class="qz-why-o">전체 검정의 P로는 어느 쌍이 다른지도, 그 차이가 약 때문인지도 알 수 없습니다.</div></li>
+<li>어느 스타틴이 나은지 알려면 분산분석 대신 두 군씩 t 검정을 세 번 해서 C가 다른 둘보다 낮은지 봐야 한다.<div class="qz-why-o">반복 t 검정은 다중비교 문제를 키웁니다.</div></li>
+<li>LDL은 오른쪽으로 치우친 자료이므로, 분산분석 대신 Kruskal-Wallis 검정으로 다시 분석해야 한다.<div class="qz-why-o">검정을 바꿔도 보정하지 않은 비교라는 문제는 그대로입니다.</div></li>
+<li data-ok="1">보정하지 않은 비교이고 전체 P는 어느 쌍이 다른지도 말하지 않는다. 교란변수를 넣은 회귀모형이 필요하다.<div class="qz-why-o">맞습니다. 두 문제를 모두 짚었습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 관찰연구에서 어떤 환자가 어느 스타틴을 받았는지는 기저 LDL, 심혈관 위험, 처방 의사의 선택에 따라 달라집니다. 분산분석은 이 차이를 보정하지 못하고, 전체 P는 '적어도 한 군이 다르다'까지만 말합니다. 보정은 군과 교란변수를 함께 넣은 회귀모형(6장 d 절)이나 성향점수(15장)로 합니다.</p>
+<p><b>조건이 달라지면.</b> 무작위배정 시험이었다면 군의 차이를 약의 차이로 읽을 수 있고, 쌍별 결론은 미리 정한 사후분석으로 냅니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s2-adjust" target="_blank" rel="noopener">4장 b 절 '나이나 기저값을 보정해야 하면?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q08" data-kind="표 읽기" data-lv="처음 읽을 때">
+<p class="qz-stem">네 군의 평균 옆에 Tukey 사후분석의 위첨자가 붙어 있습니다. A<sup>a</sup>, B<sup>ab</sup>, C<sup>bc</sup>, D<sup>c</sup>. 유의하게 다른 쌍을 모두 고른 것은?</p>
+<ol class="qz-opts">
+<li>A–D만<div class="qz-why-o">A와 C도 공유하는 문자가 없고, B와 D도 공유하는 문자가 없습니다.</div></li>
+<li data-ok="1">A–C, A–D, B–D<div class="qz-why-o">맞습니다. 공유하는 문자가 없는 쌍만 유의하게 다릅니다.</div></li>
+<li>A–B, B–C, C–D<div class="qz-why-o">이웃한 쌍은 모두 문자를 하나씩 공유하므로 유의한 차이가 없습니다.</div></li>
+<li>B와 C는 문자가 둘이므로 모든 군과 다르다.<div class="qz-why-o">반대입니다. 문자가 둘인 군은 양쪽 어느 군과도 차이를 입증하지 못했다는 뜻입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 규칙은 하나입니다. 같은 문자를 하나라도 공유하는 군끼리는 유의한 차이가 없고, 공유하는 문자가 없는 군끼리는 유의하게 다릅니다. A(a)와 B(ab)는 a를, B와 C(bc)는 b를, C와 D(c)는 c를 공유합니다. 공유가 없는 쌍은 A–C, A–D, B–D입니다.</p>
+<p><b>조건이 달라지면.</b> 'ab'는 모순이 아니라, B가 A와도 C와도 차이를 입증할 만큼 떨어져 있지 않다는 뜻입니다. 유의하지 않은 것을 '같다'로 읽지 않습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s3-letters" target="_blank" rel="noopener">4장 c 절 '표의 위첨자 문자는 어떻게 읽나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q09" data-kind="개념 구분" data-lv="직접 분석할 때">
+<p class="qz-stem">대조군과 두 중재군의 분산분석은 P = 0.04로 유의했는데, Tukey 사후분석에서는 어느 쌍도 유의하지 않았습니다. 두 중재군의 평균은 거의 같고 둘 다 대조군보다 조금 높았습니다. 어떻게 이해하나요?</p>
+<ol class="qz-opts">
+<li>전체 검정이 유의하면 적어도 한 쌍은 반드시 유의해야 하므로, 계산 오류를 의심하고 다시 분석한다.<div class="qz-why-o">오류가 아니라 두 방법이 묻는 질문과 쓰는 정보가 달라 생기는 일입니다.</div></li>
+<li>사후분석이 더 자세한 분석이므로, 유의한 쌍이 없으면 전체 검정 결과는 무시하고 '차이 없음'으로 쓴다.<div class="qz-why-o">두 결과 모두 그 질문에 대해서는 맞는 답입니다.</div></li>
+<li data-ok="1">모순이 아니다. 전체 검정은 두 중재군의 정보를 함께 쓰지만, Tukey는 한 쌍씩 보며 문턱도 높다.<div class="qz-why-o">맞습니다. 차이가 한 쌍이 아니라 군 조합에 있을 때 생깁니다.</div></li>
+<li>Tukey가 너무 엄격하므로, 가장 차이가 큰 쌍을 골라 보정 없이 t 검정해 유의한 쌍을 확인한다.<div class="qz-why-o">자료를 보고 쌍을 고르면 1종 오류가 늘어납니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 차이가 '대조군 대 두 중재군의 평균' 같은 군 조합에 있으면, 분산분석은 중재군 두 개의 인원을 모두 써서 차이를 잡아내지만, 쌍별 비교는 한 쌍의 인원만 쓰고 문턱도 올라가 증거가 모자랄 수 있습니다. 결론은 '중재군이 대조군보다 높은 경향은 있으나 어느 쌍인지는 입증하지 못했다'입니다.</p>
+<p><b>조건이 달라지면.</b> '대조군 대 중재군 전체'가 처음부터 질문이었다면 그 대비(contrast)를 미리 정해 한 번 검정합니다. 자료를 본 뒤 정하면 같은 다중비교 문제가 생깁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s3-nopair" target="_blank" rel="noopener">4장 c 절 '전체 검정은 유의한데 유의한 쌍이 없으면?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q10" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">다음 상황에 짝지은 사후분석 방법 가운데 알맞은 것은?</p>
+<ol class="qz-opts">
+<li data-ok="1">군마다 분산이 크게 다르고 모든 쌍이 궁금함 → Games-Howell 방법<div class="qz-why-o">맞습니다. 쌍마다 두 군 각자의 분산으로 표준오차를 구하는 Tukey의 변형입니다.</div></li>
+<li>Kruskal-Wallis 검정 뒤 어느 쌍이 다른지 → Tukey 방법<div class="qz-why-o">순위 검정 뒤에는 순위로 쌍을 비교하는 Dunn 검정(보정 방법과 함께)을 씁니다.</div></li>
+<li>모든 쌍이 궁금하고 등분산 → Duncan 방법<div class="qz-why-o">Duncan과 Student-Newman-Keuls 방법은 가족단위 오류율을 지키지 못해 권장되지 않습니다.</div></li>
+<li>미리 정한 두 쌍만 비교 → Dunnett 방법<div class="qz-why-o">Dunnett 방법은 하나의 대조군 대비 비교 묶음에 씁니다. 미리 정한 몇 쌍은 Bonferroni나 Holm입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 사후분석은 지킬 비교 묶음과 가정으로 고릅니다. 모든 쌍·등분산은 Tukey, 모든 쌍·분산이 다름은 Games-Howell, 대조군 대비는 Dunnett, 미리 정한 몇 쌍은 Bonferroni·Holm(Holm이 늘 같거나 덜 엄격), Kruskal-Wallis 뒤에는 Dunn 검정입니다.</p>
+<p><b>조건이 달라지면.</b> 어느 방법이든 결과에는 방법 이름과 보정한 P, 가능하면 보정한 신뢰구간을 함께 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s3-compare" target="_blank" rel="noopener">4장 c 절 '다섯 방법은 어떻게 다른가?'</a>, <a href="stats.html#ch04-s3-gh" target="_blank" rel="noopener">'가정이 맞지 않을 때는?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q11" data-kind="해석 고치기" data-lv="처음 읽을 때">
+<p class="qz-stem">"세 군의 재원일수를 Kruskal-Wallis 검정으로 비교한 결과 P = 0.01이었으므로, 세 군의 중앙값이 모두 다르다." 이 문장을 바르게 고친 것은?</p>
+<ol class="qz-opts">
+<li>순위로 바꿔 평균 순위를 비교했으므로, 세 군의 평균 재원일수가 모두 다르다.<div class="qz-why-o">순위 검정은 평균을 비교하지 않습니다.</div></li>
+<li>원래 문장이 맞다. Kruskal-Wallis 검정은 세 군 이상의 중앙값을 비교하는 검정이다.<div class="qz-why-o">전체 P는 '모두 같다'를 기각할 뿐 '모두 다르다'를 말하지 않고, 중앙값의 비교로 읽으려면 분포의 모양이 비슷해야 합니다.</div></li>
+<li>세 군이 모두 다르지는 않더라도, 중앙값이 가장 큰 군과 가장 작은 군은 유의하게 다르다.<div class="qz-why-o">어느 쌍이 다른지는 사후분석으로 확인합니다.</div></li>
+<li data-ok="1">세 군의 분포가 모두 같다고 보기는 어렵다. 어느 군끼리 다른지는 Dunn 검정으로 확인한다.<div class="qz-why-o">맞습니다. 전체 P가 말하는 범위와 해석의 조건을 함께 밝혔습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> Kruskal-Wallis 검정은 전체 순위에서 군별 평균 순위가 얼마나 떨어져 있는지(H)를 보고, 전체 P는 '세 군의 분포가 모두 같다'를 기각합니다. 한 군의 값이 더 크게 나오는 경향으로 읽으려면 군마다 퍼진 정도와 모양이 비슷해야 하고, 중앙값의 비교로 읽으려면 위치만 옮겨진 분포여야 합니다.</p>
+<p><b>조건이 달라지면.</b> 군 크기와 퍼진 정도가 함께 다르면 경향이 없어도 '유의'가 자주 나올 수 있습니다. 군당 인원이 작으면 카이제곱 근사가 부정확하므로 정확검정을 고려합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s4-read" target="_blank" rel="noopener">4장 d 절 '결과 읽기'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q12" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">하루 커피 섭취(0잔, 1–2잔, 3잔 이상)에 따라 수면 질 점수가 순서대로 나빠지는지를 보려 합니다. 점수는 치우쳐 있고, 방향은 자료를 보기 전에 정했습니다. 알맞은 검정은?</p>
+<ol class="qz-opts">
+<li>Kruskal-Wallis 검정<div class="qz-why-o">군의 순서를 쓰지 않으므로, 순서대로의 경향이 실제로 있을 때 덜 강력합니다.</div></li>
+<li data-ok="1">Jonckheere-Terpstra 검정<div class="qz-why-o">맞습니다. 순서가 있는 군에서 '순서대로 커진다(작아진다)'는 경향을 봅니다.</div></li>
+<li>세 쌍을 Mann-Whitney 검정으로 각각 비교<div class="qz-why-o">경향이라는 하나의 질문을 세 번의 검정으로 나눠 다중비교 문제가 생깁니다.</div></li>
+<li>Cochran-Armitage 검정<div class="qz-why-o">결과가 이분형일 때 쓰는 추세 검정입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> Jonckheere-Terpstra 검정의 J는 순서가 있는 모든 군 쌍의 Mann-Whitney U를 더한 값으로, 뒤 군의 값이 더 큰 짝이 기댓값(절반)보다 얼마나 많은지를 봅니다. 경향이 실제로 있으면 순서를 쓰지 않는 Kruskal-Wallis 검정보다 대개 강력합니다.</p>
+<p><b>조건이 달라지면.</b> 가운데 군만 높은 봉우리형 차이가 예상되면 이 검정은 거의 잡아내지 못하므로 다른 방법을 씁니다. 한 단계당 평균 변화가 궁금하면 군을 점수로 넣은 선형회귀를 씁니다. 관찰자료라면 커피를 많이 마시는 사람의 다른 특성이 교란이 될 수 있습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s5-vskw" target="_blank" rel="noopener">4장 e 절 'Kruskal-Wallis 검정과 언제 무엇을 쓰나?'</a>, <a href="stats.html#ch04-s5-alt" target="_blank" rel="noopener">'언제 다른 방법을 쓰나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s1-q13" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">관찰연구가 진통제 사용량을 네 단계로 나눠 "P for trend &lt; 0.001이므로 사용량이 한 단계 늘 때마다 위장관 출혈 위험이 커지며, 이는 진통제의 용량-반응 효과이다"라고 썼습니다. 가장 알맞은 지적은?</p>
+<ol class="qz-opts">
+<li>P for trend는 순서대로의 경향을 보는 표준 검정 하나로 계산되므로, 결론에 문제가 없다.<div class="qz-why-o">'P for trend'는 여러 방법을 가리키므로 어느 방법인지 Methods에서 확인합니다.</div></li>
+<li>추세가 유의하므로 네 단계의 모든 인접 단계에서 위험이 커졌다는 것과, 그 원인이 진통제라는 것이 증명되었다.<div class="qz-why-o">유의한 추세가 모든 단계의 증가를 뜻하지는 않습니다.</div></li>
+<li data-ok="1">추세가 모든 인접 단계의 증가를 뜻하지 않고, 관찰연구의 용량-반응은 교란으로도 생기므로 보정해 다시 본다.<div class="qz-why-o">맞습니다. 추세가 말하는 범위와 교란을 함께 짚었습니다.</div></li>
+<li>네 단계는 단계마다 인원이 적어 추세가 불안정하므로, 사용·비사용 두 단계로 합쳐 다시 분석해야 한다.<div class="qz-why-o">단계를 합치면 정보를 버립니다. 문제는 해석의 범위와 교란입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 추세 검정은 순서대로 커지는 경향이 전체적으로 있는지를 볼 뿐이라, 어떤 인접 단계는 차이가 없을 수도 있습니다. 또 약을 많이 쓴 사람이 원래 더 아프거나 다른 위험 요인을 가졌다면, 약과 관계없이 사용량 순서대로 결과가 나빠집니다. 이 검정은 그런 교란을 보정하지 못합니다.</p>
+<p><b>조건이 달라지면.</b> 단계별 크기를 보려면 쌍별 비교의 보정한 결과를 함께 보고, 교란을 보정한 추세는 사용량을 점수로 넣은 회귀모형 안에서 구합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s5-read" target="_blank" rel="noopener">4장 e 절 '결과 읽기'</a>, <a href="stats.html#ch04-s5-alt" target="_blank" rel="noopener">'언제 다른 방법을 쓰나?'</a></p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="qz04-s2">
+<h2><span class="sec-no">b.</span>종합 사례</h2>
+<p>가상의 무작위배정 시험입니다. 고혈압 환자 60명을 일반 관리, 원격 혈압 모니터링(A), 원격 모니터링 + 약사 상담(B)에 20명씩 배정하고 12주 수축기혈압 변화(12주 − 기저, mmHg)를 비교했습니다. 계획서는 일원배치 분산분석과 Tukey 사후분석을 정해 두었습니다. 세 군의 SD는 모두 9입니다. 질문마다 필요한 숫자를 다시 줍니다.</p>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:30rem;white-space:nowrap">
+<thead><tr><th>군</th><th class="r">인원</th><th class="r">변화 평균</th><th class="r">SD</th></tr></thead>
+<tbody>
+<tr><td>일반 관리</td><td class="r">20</td><td class="r">−3.0</td><td class="r">9</td></tr>
+<tr><td>A (원격)</td><td class="r">20</td><td class="r">−8.0</td><td class="r">9</td></tr>
+<tr><td>B (원격 + 약사)</td><td class="r">20</td><td class="r">−10.0</td><td class="r">9</td></tr>
+</tbody></table></div>
+
+<div class="qz" data-widget="qz" id="qz04-s2-q01" data-kind="계산" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">전체 평균 −7.0을 기준으로 군간 제곱합은 20 × (4² + 1² + 3²) = 520이고, 군내 평균제곱은 공통 분산 9² = 81입니다. 분산분석의 결과는?</p>
+<ol class="qz-opts">
+<li data-ok="1">F(2, 57) = 3.21, P = 0.048<div class="qz-why-o">맞습니다. 군간 평균제곱 520 ÷ 2 = 260, F = 260 ÷ 81 = 3.21입니다.</div></li>
+<li>F(2, 59) = 3.21, P = 0.047<div class="qz-why-o">군내 자유도는 인원 − 군 수 = 60 − 3 = 57입니다.</div></li>
+<li>F(3, 57) = 2.14, P = 0.10<div class="qz-why-o">군간 자유도는 군 수 − 1 = 2이고, 군간 제곱합을 3으로 나누었습니다.</div></li>
+<li>F(2, 57) = 6.42, P = 0.003<div class="qz-why-o">군간 제곱합 520을 자유도 2로 나누지 않고 바로 81로 나누었습니다. 평균제곱끼리 나눕니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> F = 군간 평균제곱 ÷ 군내 평균제곱 = (520 ÷ 2) ÷ 81 = 3.21이고, 자유도는 (군 수 − 1, 인원 − 군 수) = (2, 57)입니다. P = 0.048로 '세 군의 평균이 모두 같다'를 기각합니다. η² = 520 ÷ (520 + 81 × 57) = 0.10으로, 혈압 변화의 개인차 가운데 약 10%가 어느 관리를 받았는지로 설명됩니다.</p>
+<p><b>조건이 달라지면.</b> 군마다 SD가 크게 다르고 인원도 달랐다면 Welch 분산분석을 미리 정했을 것입니다. 이 시험은 인원과 SD가 같아 일반 분산분석이 맞습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s2-table" target="_blank" rel="noopener">4장 b 절 '분산분석표는 어떻게 읽나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s2-q02" data-kind="표 읽기" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">Tukey 사후분석 결과입니다. A − 일반 −5.0 (95% CI −11.8 to 1.8, P = 0.19), B − 일반 −7.0 (−13.8 to −0.2, P = 0.044), B − A −2.0 (−8.8 to 4.8, P = 0.76). 표에 붙일 위첨자 문자로 바른 것은? (평균은 일반 −3.0, A −8.0, B −10.0)</p>
+<ol class="qz-opts">
+<li>일반<sup>a</sup>, A<sup>b</sup>, B<sup>b</sup><div class="qz-why-o">A와 일반은 유의하게 다르지 않으므로 문자를 공유해야 합니다.</div></li>
+<li>일반<sup>a</sup>, A<sup>a</sup>, B<sup>a</sup><div class="qz-why-o">B와 일반은 유의하게 다르므로 문자를 공유하면 안 됩니다.</div></li>
+<li>일반<sup>a</sup>, A<sup>b</sup>, B<sup>c</sup><div class="qz-why-o">유의한 쌍은 B–일반 하나뿐입니다.</div></li>
+<li data-ok="1">일반<sup>a</sup>, A<sup>ab</sup>, B<sup>b</sup><div class="qz-why-o">맞습니다. 유의한 B–일반만 문자를 공유하지 않습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 유의한 쌍은 B − 일반 하나이므로 둘은 문자를 공유하지 않고(a와 b), 유의하지 않은 A − 일반과 B − A는 문자를 하나씩 공유하도록 A에 ab를 줍니다. A의 'ab'는 A가 일반 관리와도, B와도 차이를 입증하지 못했다는 뜻입니다.</p>
+<p><b>조건이 달라지면.</b> 보정하지 않은 t 검정이었다면 B − 일반의 P는 0.017, A − 일반은 0.084로 더 작게 나오지만, 세 쌍을 함께 보는 계획이었으므로 Tukey의 보정한 값을 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s3-letters" target="_blank" rel="noopener">4장 c 절 '표의 위첨자 문자는 어떻게 읽나?'</a>, <a href="stats.html#ch04-s3-sci" target="_blank" rel="noopener">'신뢰구간으로 보면 무엇이 달라지나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s2-q03" data-kind="해석 고치기" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">연구팀이 보도자료에 "약사 상담을 더한 B가 원격 모니터링만 한 A보다 효과가 크다"고 쓰려 합니다. B − A의 Tukey 결과는 −2.0 mmHg (95% CI −8.8 to 4.8, P = 0.76)입니다. 가장 알맞은 고침은?</p>
+<ol class="qz-opts">
+<li>B의 평균(−10.0)이 A(−8.0)보다 크게 내려갔고 분산분석도 유의했으므로, 문장을 그대로 둔다.<div class="qz-why-o">평균의 순서만으로는 B와 A의 차이를 말할 수 없습니다.</div></li>
+<li data-ok="1">B가 일반 관리보다 낮췄다는 근거는 있지만, B − A는 구간이 넓어 약사 상담의 효과는 판단할 수 없다고 쓴다.<div class="qz-why-o">맞습니다. 유의한 쌍과 판단할 수 없는 쌍을 구분했습니다.</div></li>
+<li>B − A는 미리 관심이 있던 비교이므로, Tukey 대신 보정 없는 t 검정으로 다시 분석해 결과를 확인한다.<div class="qz-why-o">결과를 보고 쌍을 골라 보정을 빼면 1종 오류가 늘어나고, 이 예에서는 보정 없이도 P = 0.49입니다.</div></li>
+<li>B − A의 P = 0.76으로 차이가 거의 없으므로, 약사 상담을 더해도 효과는 같다고 쓴다.<div class="qz-why-o">유의하지 않은 것은 같다는 증거가 아닙니다. 구간은 B가 8.8 mmHg 더 낮출 가능성과도 맞습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 사후분석은 쌍마다 결론이 다를 수 있습니다. B − 일반은 신뢰구간이 0을 포함하지 않아 차이가 있다고 할 수 있지만, B − A는 구간이 넓게 0을 걸쳐 있어 효과가 같다고도 다르다고도 할 수 없습니다. 약사 상담을 더한 효과를 보려면 그 비교를 1차 질문으로 정하고 인원을 계산한 시험이 필요합니다.</p>
+<p><b>조건이 달라지면.</b> 계획서가 처음부터 'B 대 A' 한 쌍만을 1차 비교로 정했다면 보정 없이 그 쌍을 검정했을 것입니다. 이 시험은 세 쌍을 함께 보는 계획이었습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s3-sci" target="_blank" rel="noopener">4장 c 절 '신뢰구간으로 보면 무엇이 달라지나?'</a>, <a href="stats.html#ch04-s1-plan" target="_blank" rel="noopener">a 절 '무엇을 미리 정하고, 무엇을 자료를 보고 확인하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz04-s2-q04" data-kind="보고 문장" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">Results의 문장으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>"The mean change in systolic blood pressure differed among the three groups (one-way ANOVA, F(2, 57) = 3.21, P = 0.048), indicating that the three strategies had different effects, with group B being the most effective."<div class="qz-why-o">전체 검정은 '적어도 한 군이 다르다'까지만 말합니다. 세 전략이 모두 다르다거나 B가 가장 효과적이라는 근거는 없고, 쌍별 차이와 신뢰구간도 빠졌습니다.</div></li>
+<li>"The mean change differed among groups (one-way ANOVA, F(2, 57) = 3.21, P = 0.048). In pairwise t-tests, the change was greater with group B than with usual care (difference, −7.0 mmHg; P = 0.017), whereas A versus usual care (P = 0.084) and B versus A (P = 0.49) did not differ significantly."<div class="qz-why-o">계획한 Tukey 대신 보정하지 않은 t 검정의 P를 썼고, 차이의 신뢰구간도 빠졌습니다.</div></li>
+<li data-ok="1">"The mean change in systolic blood pressure differed among the three groups (one-way ANOVA, F(2, 57) = 3.21, P = 0.048). In Tukey-adjusted comparisons, the change was greater with group B than with usual care (difference, −7.0 mmHg; 95% CI, −13.8 to −0.2; P = 0.044); the differences for A versus usual care (−5.0; −11.8 to 1.8) and B versus A (−2.0; −8.8 to 4.8) were not significant."<div class="qz-why-o">맞습니다. 전체 검정의 F·자유도·P, 사후분석 이름, 보정한 차이와 CI·P를 모두 썼습니다.</div></li>
+<li>"The mean change differed among groups (one-way ANOVA, F(2, 57) = 3.21, P = 0.048). Tukey-adjusted comparisons showed that group B was superior to usual care (P = 0.044) and that groups A and B were equally effective (P = 0.76)."<div class="qz-why-o">유의하지 않은 B − A를 '똑같이 효과적'이라고 썼습니다. 동등성을 말하려면 그것을 위한 설계가 필요합니다(13장). 차이와 신뢰구간도 빠졌습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 세 군 이상의 결과에는 전체 검정의 이름, F와 두 자유도, 정확한 P를 쓰고, 쌍별 결과는 사후분석 이름과 함께 보정한 차이, 신뢰구간, P를 씁니다. 군별 인원, 평균, SD도 표나 본문에 함께 둡니다.</p>
+<p><b>조건이 달라지면.</b> Kruskal-Wallis 검정을 썼다면 군별 중앙값(IQR), H와 자유도, P와 계산 방식, Dunn 검정의 보정 방법과 보정한 P를 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch04-s2-write" target="_blank" rel="noopener">4장 b 절 '논문에 쓰기'</a>, <a href="stats.html#ch04-s3-write" target="_blank" rel="noopener">c 절 '논문에 쓰기'</a></p>
+</div>
+</div>
+</section>

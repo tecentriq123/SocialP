@@ -38,10 +38,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q03" data-kind="해석 고치기" data-lv="직접 분석할 때">
 <p class="qz-stem">약국 10곳을 복약지도 프로그램군과 대조군에 5곳씩 배정하고, 약국마다 환자 30명의 복약순응도 점수를 모았습니다. 분석은 환자 300명을 서로 독립인 관측값으로 보고 t 검정을 해 P = 0.004를 얻었습니다. 가장 큰 문제는?</p>
 <ol class="qz-opts">
-<li data-ok="1">같은 약국의 환자끼리 닮아 독립이 아니므로 표준오차가 실제보다 작게 계산되었고, P도 지나치게 작을 수 있다.<div class="qz-why-o">맞습니다. 배정 단위가 약국인데 환자를 독립으로 셌습니다.</div></li>
-<li>환자가 300명으로 많아 t 검정의 정규분포 가정이 깨진다.<div class="qz-why-o">표본이 크면 정규분포 가정은 오히려 덜 중요해집니다.</div></li>
-<li>약국이 10곳뿐이라 t 검정 대신 Mann-Whitney 검정을 써야 한다.<div class="qz-why-o">순위 검정으로 바꿔도 같은 약국 환자끼리 닮은 문제는 그대로입니다.</div></li>
-<li>두 군의 인원이 같으므로 독립 여부는 결과에 영향이 없다.<div class="qz-why-o">인원이 같아도 독립이 아니면 표준오차부터 틀립니다.</div></li>
+<li data-ok="1">같은 약국 환자끼리 닮아 독립이 아니므로, 표준오차와 P가 지나치게 작을 수 있다.<div class="qz-why-o">맞습니다. 배정 단위가 약국인데 환자를 독립으로 셌습니다.</div></li>
+<li>환자가 300명으로 많으면 아주 작은 차이도 유의하게 나오므로, P = 0.004는 의미 없는 차이를 잡아낸 것이다.<div class="qz-why-o">표본이 크면 작은 차이도 유의해질 수 있지만, 여기서 먼저 볼 문제는 환자 300명이 서로 독립인 정보가 아니라는 점입니다.</div></li>
+<li>약국이 10곳뿐이라 정규분포 가정을 확인할 수 없으므로, t 검정 대신 Mann-Whitney 검정을 써야 한다.<div class="qz-why-o">순위 검정으로 바꿔도 같은 약국 환자끼리 닮은 문제는 그대로입니다.</div></li>
+<li>두 군의 인원이 150명씩 같으므로, 환자끼리 닮았는지는 표준오차에 영향을 주지 않는다.<div class="qz-why-o">인원이 같아도 독립이 아니면 표준오차부터 틀립니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> 독립은 표준오차 식의 전제라서 가장 중요한 가정입니다. 닮은 값이 한 군 안에 몰려 있는 군집 자료를 독립으로 보고 계산하면, 실제로는 약국 10곳의 정보를 환자 300명의 정보처럼 세어 표준오차가 작아집니다. 이 오류는 환자를 더 모아도 줄지 않습니다.</p>
@@ -53,18 +53,18 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q04" data-kind="분석 고르기" data-lv="직접 분석할 때">
 <p class="qz-stem">한 군은 60명에 표준편차 5, 다른 군은 20명에 표준편차 15입니다. 두 평균을 어떤 t 검정으로 비교하나요?</p>
 <ol class="qz-opts">
-<li>Student t 검정. 자유도가 78로 커서 더 정확하다.<div class="qz-why-o">자유도가 크다고 더 정확한 것이 아닙니다. 이 경우 Student t 검정의 표준오차가 틀어집니다.</div></li>
-<li data-ok="1">Welch t 검정<div class="qz-why-o">맞습니다. 군마다 자기 표준편차로 표준오차를 구해 합칩니다.</div></li>
-<li>등분산 검정을 먼저 해서 P &gt; 0.05면 Student, 아니면 Welch를 쓴다.<div class="qz-why-o">예비 검정 결과로 방법을 바꾸는 절차는 권장되지 않습니다. 등분산 검정은 작은 표본에서 차이를 놓치기 쉽습니다.</div></li>
-<li>두 군의 표준편차가 다르므로 t 검정은 쓸 수 없다.<div class="qz-why-o">Welch t 검정은 두 군의 흩어짐이 달라도 쓸 수 있습니다.</div></li>
+<li>Student t 검정. 두 분산을 합쳐 자유도가 78로 커지므로 더 정확하다.<div class="qz-why-o">자유도가 크다고 더 정확한 것이 아닙니다. 이 경우 Student t 검정의 표준오차가 틀어집니다.</div></li>
+<li data-ok="1">Welch t 검정. 군마다 자기 분산으로 표준오차를 구한다.<div class="qz-why-o">맞습니다. 군마다 자기 표준편차로 표준오차를 구해 합칩니다.</div></li>
+<li>Levene 검정을 먼저 해서 P &gt; 0.05면 Student, 아니면 Welch를 쓴다.<div class="qz-why-o">예비 검정 결과로 방법을 바꾸는 절차는 권장되지 않습니다. 등분산 검정은 작은 표본에서 차이를 놓치기 쉽습니다.</div></li>
+<li>표준편차가 세 배나 달라 t 검정은 쓸 수 없으므로 Mann-Whitney 검정을 쓴다.<div class="qz-why-o">Welch t 검정은 두 군의 흩어짐이 달라도 쓸 수 있습니다.</div></li>
 </ol>
 <div class="qz-step2">
 <p class="qz-stem">이 선택을 정하는 조건으로 가장 알맞은 것은?</p>
 <ol class="qz-opts">
-<li>두 군 모두 30명이 넘어야 Student t 검정을 쓸 수 있기 때문이다.<div class="qz-why-o">인원 기준은 없습니다. 문제는 크기와 흩어짐이 함께 다르다는 점입니다.</div></li>
-<li>Welch t 검정이 늘 P를 더 작게 주기 때문이다.<div class="qz-why-o">어느 쪽 P가 작은지는 자료에 따라 다르고, 그것으로 방법을 고르지 않습니다.</div></li>
-<li>표준편차가 다르면 평균을 비교할 수 없기 때문이다.<div class="qz-why-o">평균은 비교할 수 있습니다. 표준오차를 구하는 방식이 문제입니다.</div></li>
-<li data-ok="1">인원이 적은 군의 흩어짐이 더 크면, 인원에 비례해 섞은 합동분산이 큰 군의 작은 분산 쪽으로 끌려가 표준오차가 작게 계산되기 때문이다.<div class="qz-why-o">맞습니다. 이 예에서 Student의 표준오차는 2.22, Welch는 3.42입니다.</div></li>
+<li>Student t 검정은 두 군 모두 30명이 넘어야 쓸 수 있는데, 한 군이 20명뿐이기 때문이다.<div class="qz-why-o">인원 기준은 없습니다. 문제는 크기와 흩어짐이 함께 다르다는 점입니다.</div></li>
+<li>Welch t 검정은 자유도가 작아 늘 P를 더 크게, 곧 보수적으로 주기 때문이다.<div class="qz-why-o">어느 쪽 P가 작은지는 자료에 따라 다르고, 그것으로 방법을 고르지 않습니다.</div></li>
+<li>표준편차가 다르면 두 군의 평균이 서로 다른 척도에 놓이므로 직접 비교할 수 없기 때문이다.<div class="qz-why-o">평균은 비교할 수 있습니다. 표준오차를 구하는 방식이 문제입니다.</div></li>
+<li data-ok="1">작은 군의 분산이 클 때 합동분산은 큰 군의 작은 분산 쪽으로 끌려가 표준오차가 작게 나오기 때문이다.<div class="qz-why-o">맞습니다. 이 예에서 Student의 표준오차는 2.22, Welch는 3.42입니다.</div></li>
 </ol>
 </div>
 <div class="qz-fb">
@@ -77,10 +77,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q05" data-kind="해석 고치기" data-lv="처음 읽을 때">
 <p class="qz-stem">"t 검정은 각 군의 값이 정규분포를 따라야 하는데, 군마다 150명인 이 자료의 히스토그램은 오른쪽으로 약간 치우쳐 있으므로 t 검정을 쓸 수 없다." 이 판단을 바르게 고친 것은?</p>
 <ol class="qz-opts">
-<li>정규성 검정에서 P &gt; 0.05가 나오면 t 검정을 쓸 수 있다.<div class="qz-why-o">150명이면 정규성 검정은 사소한 치우침에도 기각되기 쉽고, 그 P로 방법을 정하지 않습니다.</div></li>
-<li>맞는 판단이다. 치우친 자료에는 언제나 Mann-Whitney 검정을 쓴다.<div class="qz-why-o">치우침이 약하고 표본이 크면 t 검정이 대체로 문제없습니다. 방법은 질문으로 정합니다.</div></li>
-<li data-ok="1">t 분포에 맞춰 보는 것은 개인 값이 아니라 평균 차이이며, 치우침이 약하고 군마다 150명이면 중심극한정리에 따라 평균 차이의 분포가 정규분포에 가까워 t 검정을 쓸 수 있다.<div class="qz-why-o">맞습니다. 정규분포 가정은 표본이 작고 심하게 치우쳤을 때 주로 문제가 됩니다.</div></li>
-<li>값을 모두 순위로 바꾼 뒤 t 검정을 하면 해결된다.<div class="qz-why-o">애초에 바꿀 필요가 없는 상황입니다.</div></li>
+<li>판단을 확정하려면 Shapiro–Wilk 검정을 해서, P &gt; 0.05가 나올 때만 t 검정을 쓴다.<div class="qz-why-o">150명이면 정규성 검정은 사소한 치우침에도 기각되기 쉽고, 그 P로 방법을 정하지 않습니다.</div></li>
+<li>맞는 판단이다. 치우친 자료에서는 평균이 대표값이 아니므로 언제나 Mann-Whitney 검정을 쓴다.<div class="qz-why-o">치우침이 약하고 표본이 크면 t 검정이 대체로 문제없습니다. 방법은 질문으로 정합니다.</div></li>
+<li data-ok="1">t 분포에 맞춰 보는 것은 평균 차이이고, 150명씩이면 그 분포가 정규분포에 가까워 t 검정을 쓸 수 있다.<div class="qz-why-o">맞습니다. 정규분포 가정은 표본이 작고 심하게 치우쳤을 때 주로 문제가 됩니다.</div></li>
+<li>값을 모두 순위로 바꾼 뒤 t 검정을 하면 치우침이 사라지므로 해결된다.<div class="qz-why-o">애초에 바꿀 필요가 없는 상황입니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> P를 구할 때 t 분포에 맞춰 보는 것은 시험을 되풀이할 때 달라지는 평균 차이의 분포입니다. 개인 값이 조금 치우쳐 있어도 표본이 크면 평균의 분포는 종 모양에 가까워집니다. 정규분포 가정과 달리 독립 가정이 깨진 오류는 표본을 키워도 줄지 않습니다.</p>
@@ -92,10 +92,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q06" data-kind="해석 고치기" data-lv="직접 분석할 때">
 <p class="qz-stem">두 연구가 같은 혈압약의 효과를 위약과 비교했습니다. 평균 차이는 모두 5 mmHg였고, 연구 1(선정 기준이 엄격함)의 합동 SD는 8 mmHg, 연구 2(실제 진료 환자)는 16 mmHg였습니다. 연구 1의 Cohen의 d는 0.63, 연구 2는 0.31입니다. 바른 해석은?</p>
 <ol class="qz-opts">
-<li data-ok="1">두 연구의 혈압 차이는 같다. d가 다른 것은 환자들이 얼마나 비슷한지(SD)가 달라서이므로, 임상적 의미는 mmHg로 판단한다.<div class="qz-why-o">맞습니다. d는 분모인 SD에 좌우됩니다.</div></li>
-<li>연구 1에서 약의 효과가 두 배 크다.<div class="qz-why-o">원래 단위의 차이는 5 mmHg로 같습니다.</div></li>
-<li>연구 2는 d가 0.5보다 작으므로 임상적으로 의미가 없다.<div class="qz-why-o">0.2, 0.5, 0.8은 분야를 모를 때 쓰는 잠정 기준일 뿐, 임상적 의미의 기준이 아닙니다.</div></li>
-<li>d는 표본 수에 따라 달라지므로 두 연구의 인원이 달랐을 것이다.<div class="qz-why-o">d는 표준오차가 아니라 표준편차로 나누므로 인원과 관계가 없습니다.</div></li>
+<li data-ok="1">혈압 차이는 같고, d는 SD가 달라 다를 뿐이다. 임상적 의미는 mmHg로 판단한다.<div class="qz-why-o">맞습니다. d는 분모인 SD에 좌우됩니다.</div></li>
+<li>표준화한 효과크기가 두 배이므로, 선정 기준이 엄격한 연구 1에서 약의 효과가 두 배 크다.<div class="qz-why-o">원래 단위의 차이는 5 mmHg로 같습니다.</div></li>
+<li>Cohen의 기준으로 연구 2는 '작은 효과'(0.5 미만)이므로 임상적으로 의미가 없다.<div class="qz-why-o">0.2, 0.5, 0.8은 분야를 모를 때 쓰는 잠정 기준일 뿐, 임상적 의미의 기준이 아닙니다.</div></li>
+<li>d는 표본 수에 따라 달라지므로, 연구 1의 인원이 더 많아 d가 크게 나왔을 것이다.<div class="qz-why-o">d는 표준오차가 아니라 표준편차로 나누므로 인원과 관계가 없습니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> Cohen의 d는 평균 차이를 합동 SD로 나눈 값(5 ÷ 8 = 0.63, 5 ÷ 16 = 0.31)입니다. 선정 기준이 엄격해 환자들이 비슷한 연구일수록 SD가 작아 d가 커집니다. 그래서 모집단이 다른 연구끼리 d를 비교하면 오해가 생기고, 임상적 의미는 원래 단위로 판단합니다.</p>
@@ -107,10 +107,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q07" data-kind="표 읽기" data-lv="처음 읽을 때">
 <p class="qz-stem">논문 그림의 설명에 "Error bars indicate 95% CIs"라고 적혀 있습니다. 군마다 50명이고, A군 평균 10.0 (95% CI 8.0–12.0), B군 평균 13.0 (11.0–15.0)으로 두 막대가 11.0–12.0에서 겹칩니다. 두 군의 차이에 대해 바른 것은?</p>
 <ol class="qz-opts">
-<li>두 신뢰구간이 겹치므로 차이는 유의하지 않다.<div class="qz-why-o">한 군 평균의 신뢰구간이 겹치는지로는 차이가 유의한지 알 수 없습니다.</div></li>
-<li data-ok="1">겹쳐도 유의할 수 있다. 차이의 표준오차를 따로 구하면 차이 3.0의 95% CI는 약 0.2–5.8이고 P ≈ 0.04이다.<div class="qz-why-o">맞습니다. 차이의 표준오차는 두 표준오차의 합보다 작습니다.</div></li>
-<li>오차막대가 신뢰구간이므로 겹치는 부분의 길이가 P와 같다.<div class="qz-why-o">겹친 길이와 P 사이에 그런 관계는 없습니다.</div></li>
-<li>오차막대가 표준오차였다면 결론이 같았을 것이다.<div class="qz-why-o">막대가 무엇이든, 막대가 겹치는지로 차이의 유의성을 판단하지 않습니다.</div></li>
+<li>두 95% 신뢰구간이 11.0–12.0에서 겹치므로, 차이는 5% 수준에서 유의하지 않다.<div class="qz-why-o">한 군 평균의 신뢰구간이 겹치는지로는 차이가 유의한지 알 수 없습니다.</div></li>
+<li data-ok="1">겹쳐도 유의할 수 있다. 차이 3.0의 95% CI는 약 0.2–5.8, P ≈ 0.04이다.<div class="qz-why-o">맞습니다. 차이의 표준오차는 두 표준오차의 합보다 작습니다.</div></li>
+<li>오차막대가 신뢰구간이므로, 겹치는 길이(1.0)를 막대 길이(4.0)로 나눈 0.25가 P에 해당한다.<div class="qz-why-o">겹친 길이와 P 사이에 그런 관계는 없습니다.</div></li>
+<li>막대가 신뢰구간이 아니라 표준오차였다면 막대가 짧아 겹치지 않으므로, 그때는 유의하다고 할 수 있다.<div class="qz-why-o">막대가 무엇이든, 막대가 겹치는지로 차이의 유의성을 판단하지 않습니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> 막대의 반폭 2.0은 t 경계값 2.01 × SE이므로 군마다 SE ≈ 1.0입니다. 차이의 표준오차는 √(1.0² + 1.0²) = 1.41로, 두 SE를 그냥 더한 2.0보다 작습니다. 그래서 두 막대가 조금 겹쳐도 차이 3.0의 95% CI(0.2–5.8)는 0을 포함하지 않습니다.</p>
@@ -122,10 +122,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q08" data-kind="해석 고치기" data-lv="직접 분석할 때">
 <p class="qz-stem">전자의무기록으로 두 당뇨병약을 새로 시작한 환자를 군마다 5,000명 모아 6개월 HbA1c를 t 검정으로 비교했더니, 차이가 0.08%p이고 P &lt; 0.001이었습니다. 저자는 "약 A가 혈당 조절에 더 효과적이다"라고 썼습니다. 가장 알맞은 지적은?</p>
 <ol class="qz-opts">
-<li>P &lt; 0.001이므로 저자의 결론에 문제가 없다.<div class="qz-why-o">P가 작은 것은 인원이 많아 표준오차가 작기 때문입니다. 차이의 크기와 비교의 성격은 따로 봅니다.</div></li>
-<li>표본이 너무 커서 t 검정을 쓸 수 없다.<div class="qz-why-o">표본이 커도 t 검정은 쓸 수 있습니다.</div></li>
-<li>HbA1c는 정규분포가 아니므로 Mann-Whitney 검정을 써야 한다.<div class="qz-why-o">검정을 바꿔도 아래 두 문제는 그대로입니다.</div></li>
-<li data-ok="1">0.08%p는 임상적으로 작은 차이이고, 관찰자료의 t 검정은 두 군의 환자 특성을 보정하지 않은 비교이므로 약의 효과로 읽을 수 없다.<div class="qz-why-o">맞습니다. 크기와 교란을 함께 따졌습니다.</div></li>
+<li>5,000명씩 모아 P &lt; 0.001이 나왔으므로 우연일 가능성이 거의 없고, 저자의 결론에 문제가 없다.<div class="qz-why-o">P가 작은 것은 인원이 많아 표준오차가 작기 때문입니다. 차이의 크기와 비교의 성격은 따로 봅니다.</div></li>
+<li>표본이 너무 크면 t 분포가 정규분포와 같아지므로 t 검정 대신 z 검정을 써야 한다.<div class="qz-why-o">표본이 커도 t 검정은 쓸 수 있습니다.</div></li>
+<li>HbA1c는 오른쪽으로 치우친 자료이므로, 평균 비교 대신 Mann-Whitney 검정을 써야 한다.<div class="qz-why-o">검정을 바꿔도 아래 두 문제는 그대로입니다.</div></li>
+<li data-ok="1">0.08%p는 임상적으로 작고, 관찰자료의 t 검정은 보정하지 않은 비교라 약 효과로 읽을 수 없다.<div class="qz-why-o">맞습니다. 크기와 교란을 함께 따졌습니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> 환자가 수천 명이면 표준오차가 아주 작아져 임상적으로 의미 없는 차이도 P가 작게 나옵니다. 그래서 P보다 평균 차이와 그 신뢰구간을 봅니다. 또 관찰연구에서는 어떤 환자가 어느 약을 받았는지가 무작위가 아니므로, t 검정의 차이는 약의 효과와 환자 특성의 차이가 섞인 값입니다.</p>
@@ -152,10 +152,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q10" data-kind="보고 문장" data-lv="처음 읽을 때">
 <p class="qz-stem">두 군의 재원일수를 비교한 논문의 Methods에 "Groups were compared using the Wilcoxon test"라고만 적혀 있습니다. 무엇이 문제인가요?</p>
 <ol class="qz-opts">
-<li data-ok="1">Wilcoxon 순위합 검정(= Mann-Whitney)인지, 짝지은 자료에 쓰는 Wilcoxon 부호순위 검정인지 구별되지 않는다.<div class="qz-why-o">맞습니다. 검정 이름을 끝까지 씁니다.</div></li>
-<li>Wilcoxon 검정은 재원일수에 쓸 수 없다.<div class="qz-why-o">치우친 재원일수의 '경향'을 묻는다면 순위합 검정을 쓸 수 있습니다.</div></li>
-<li>Wilcoxon 검정은 평균을 비교하므로 평균을 보고해야 한다.<div class="qz-why-o">순위 검정은 평균을 비교하지 않습니다.</div></li>
-<li>문제가 없다. Wilcoxon 검정은 한 가지뿐이다.<div class="qz-why-o">이름이 비슷한 두 검정이 있고, 하나는 독립인 두 군, 다른 하나는 짝지은 자료에 씁니다.</div></li>
+<li data-ok="1">Wilcoxon 순위합 검정인지, 짝지은 자료의 부호순위 검정인지 구별되지 않는다.<div class="qz-why-o">맞습니다. 검정 이름을 끝까지 씁니다.</div></li>
+<li>재원일수는 정수라서 순위를 매길 때 동점이 많으므로, Wilcoxon 검정을 쓸 수 없다.<div class="qz-why-o">치우친 재원일수의 '경향'을 묻는다면 순위합 검정을 쓸 수 있고, 동점은 순위의 평균(중간순위)으로 처리합니다.</div></li>
+<li>Wilcoxon 검정은 두 군의 평균 순위를 비교하므로, 결과에 평균과 SD를 보고해야 한다.<div class="qz-why-o">순위 검정은 평균을 비교하지 않습니다.</div></li>
+<li>문제가 없다. 두 독립 군의 순위 검정은 Wilcoxon 검정 한 가지뿐이다.<div class="qz-why-o">이름이 비슷한 두 검정이 있고, 하나는 독립인 두 군, 다른 하나는 짝지은 자료에 씁니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> Mann-Whitney 검정은 Wilcoxon 순위합 검정이라고도 부르고, Wilcoxon 부호순위 검정은 같은 환자의 전후 값처럼 짝지은 자료에 쓰는 다른 검정입니다(3장 b 절). 그래서 검정 이름을 끝까지 쓰고, 군별 중앙값(IQR), Hodges–Lehmann 추정치와 95% CI, P와 그 계산 방식(정확 p, 정규근사)을 함께 씁니다.</p>
@@ -182,10 +182,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q12" data-kind="해석 고치기" data-lv="직접 분석할 때">
 <p class="qz-stem">청구자료로 두 항생제 사용자의 재원일수를 Mann-Whitney 검정으로 비교한 연구가 "약 A 사용자의 재원일수가 짧았으므로(P = 0.002) 약 A가 회복을 앞당긴다"고 결론 냈습니다. 가장 알맞은 지적은?</p>
 <ol class="qz-opts">
-<li>재원일수는 정수라서 순위 검정을 쓸 수 없다.<div class="qz-why-o">정수 자료도 순위로 바꿀 수 있습니다. 동점이 많으면 동점 보정을 합니다.</div></li>
-<li>P = 0.002이므로 결론에 문제가 없다.<div class="qz-why-o">P는 우연만 다룹니다. 두 군의 환자가 처음부터 달랐을 가능성은 다루지 않습니다.</div></li>
-<li>Mann-Whitney 검정은 평균을 비교하므로 평균 재원일수를 보고해야 한다.<div class="qz-why-o">이 검정은 순위를 비교하며 평균에 대해서는 말하지 않습니다.</div></li>
-<li data-ok="1">이 검정은 나이나 중증도 같은 다른 변수를 보정하지 못하므로 결과는 보정하지 않은 비교이고, 약의 효과로 읽으려면 회귀모형이나 성향점수 방법이 필요하다.<div class="qz-why-o">맞습니다. 관찰연구에서는 교란을 먼저 따집니다.</div></li>
+<li>재원일수는 동점이 많은 정수라서 순위 검정의 P를 믿을 수 없으므로, t 검정으로 다시 분석해야 한다.<div class="qz-why-o">정수 자료도 순위로 바꿀 수 있습니다. 동점이 많으면 동점 보정을 합니다.</div></li>
+<li>청구자료라 인원이 많고 P = 0.002로 매우 작으므로, 결론에 문제가 없다.<div class="qz-why-o">P는 우연만 다룹니다. 두 군의 환자가 처음부터 달랐을 가능성은 다루지 않습니다.</div></li>
+<li>Mann-Whitney 검정은 평균을 비교하므로, 결론에 평균 재원일수의 차이를 함께 써야 한다.<div class="qz-why-o">이 검정은 순위를 비교하며 평균에 대해서는 말하지 않습니다.</div></li>
+<li data-ok="1">이 검정은 나이·중증도를 보정하지 못하므로, 약 효과로 읽으려면 회귀모형이나 성향점수가 필요하다.<div class="qz-why-o">맞습니다. 관찰연구에서는 교란을 먼저 따집니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> Mann-Whitney 검정은 두 군의 값만 순위로 비교할 뿐, 다른 변수를 함께 고려하지 못합니다. 관찰연구에서 경증 환자가 약 A를 더 많이 받았다면, 재원일수의 차이는 약이 아니라 중증도 때문일 수 있습니다.</p>
@@ -197,10 +197,10 @@
 <div class="qz" data-widget="qz" id="qz02-s1-q13" data-kind="표 읽기" data-lv="직접 분석할 때">
 <p class="qz-stem">응급실 신속 진료 프로그램군과 기존 진료군의 응급실 체류 시간을 Mann-Whitney 검정으로 비교한 결과입니다. "중앙값 4.0시간 대 6.0시간, 우월 확률(프로그램군이 더 오래 머물 확률) 0.30, Hodges–Lehmann 추정치(프로그램군 − 기존 진료군) −1.5시간 (95% CI −2.8 to −0.3)". 바른 해석은?</p>
 <ol class="qz-opts">
-<li>검정이 본 양은 두 중앙값의 차이 −2.0시간이다.<div class="qz-why-o">중앙값의 차이는 요약값이고, 검정은 두 군에서 한 명씩 짝지은 모든 쌍의 승패를 셉니다.</div></li>
-<li>프로그램군의 평균 체류 시간이 1.5시간 짧다.<div class="qz-why-o">Hodges–Lehmann 추정치는 평균 차이가 아닙니다.</div></li>
-<li data-ok="1">한 명씩 짝지으면 프로그램군 환자가 더 오래 머무는 쌍은 30%이고, 짝지은 쌍의 차이를 모두 모은 중앙값이 −1.5시간이다.<div class="qz-why-o">맞습니다. 두 값 모두 모든 쌍을 비교한 값입니다.</div></li>
-<li>우월 확률이 0.30이므로 P = 0.30이다.<div class="qz-why-o">우월 확률은 효과의 크기이고 P가 아닙니다. 차이가 없으면 우월 확률은 0.5입니다.</div></li>
+<li>검정이 본 양은 두 군 중앙값의 차이 −2.0시간이고, Hodges–Lehmann 추정치는 그 신뢰구간을 구하는 값이다.<div class="qz-why-o">중앙값의 차이는 요약값이고, 검정은 두 군에서 한 명씩 짝지은 모든 쌍의 승패를 셉니다.</div></li>
+<li>Hodges–Lehmann 추정치는 순위로 구한 평균 차이이므로, 프로그램군의 평균 체류 시간이 1.5시간 짧다.<div class="qz-why-o">Hodges–Lehmann 추정치는 평균 차이가 아닙니다.</div></li>
+<li data-ok="1">한 명씩 짝지으면 프로그램군이 더 오래 머무는 쌍이 30%, 짝지은 차이의 중앙값이 −1.5시간이다.<div class="qz-why-o">맞습니다. 두 값 모두 모든 쌍을 비교한 값입니다.</div></li>
+<li>우월 확률 0.30은 P와 같은 값이므로, 차이는 유의하지 않다(P = 0.30).<div class="qz-why-o">우월 확률은 효과의 크기이고 P가 아닙니다. 차이가 없으면 우월 확률은 0.5입니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> 우월 확률은 U를 쌍의 수로 나눈 값으로, 검정이 보는 바로 그 양입니다. Hodges–Lehmann 추정치는 같은 쌍에서 나온 차이의 크기(짝지은 차이의 중앙값)이고, 두 중앙값의 차이는 각 군의 가운데 값 하나씩만 비교한 요약값입니다. 셋은 서로 다를 수 있습니다.</p>
@@ -238,10 +238,10 @@
 <div class="qz" data-widget="qz" id="qz02-s2-q02" data-kind="해석 고치기" data-lv="직접 분석할 때" data-case="1">
 <p class="qz-stem">공동연구자가 같은 자료를 Student t 검정으로 다시 돌려 P = 0.026을 얻고, "Welch는 P = 0.087이니 유의한 Student 결과를 보고하자"고 제안했습니다. 가장 알맞은 답은?</p>
 <ol class="qz-opts">
-<li data-ok="1">계획대로 Welch 결과를 보고한다. 이 자료는 인원이 적은 군의 흩어짐이 커서 Student의 표준오차가 작게 계산되었고, 결과를 보고 유리한 방법을 고르면 1종 오류가 늘어난다.<div class="qz-why-o">맞습니다. 방법 선택의 근거와 절차를 모두 지켰습니다.</div></li>
-<li>두 P의 평균인 0.057을 보고한다.<div class="qz-why-o">두 P를 평균 내는 방법은 없습니다.</div></li>
-<li>등분산 검정을 해서 P &gt; 0.05면 Student 결과를 보고한다.<div class="qz-why-o">결과를 본 뒤 예비 검정으로 방법을 바꾸는 것도 같은 문제입니다. SD 60 대 25는 흩어짐이 분명히 다릅니다.</div></li>
-<li>두 결과가 다르므로 Mann-Whitney 검정으로 바꾼다.<div class="qz-why-o">질문은 평균 차이이고, 결과에 따라 검정을 바꾸는 것도 같은 문제입니다.</div></li>
+<li data-ok="1">계획대로 Welch 결과를 보고한다. Student는 이 자료에서 표준오차를 작게 잡고, 결과를 보고 고르면 1종 오류가 는다.<div class="qz-why-o">맞습니다. 방법 선택의 근거와 절차를 모두 지켰습니다.</div></li>
+<li>두 방법이 서로 다른 답을 냈으므로, 두 P의 평균인 0.057을 대표값으로 보고한다.<div class="qz-why-o">두 P를 평균 내는 방법은 없습니다.</div></li>
+<li>Levene 검정을 해서 P &gt; 0.05면 등분산이 확인된 것이므로 Student 결과를 보고한다.<div class="qz-why-o">결과를 본 뒤 예비 검정으로 방법을 바꾸는 것도 같은 문제입니다. SD 60 대 25는 흩어짐이 분명히 다릅니다.</div></li>
+<li>두 t 검정의 결과가 엇갈려 정규분포 가정을 믿을 수 없으므로 Mann-Whitney 검정으로 바꾼다.<div class="qz-why-o">질문은 평균 차이이고, 결과에 따라 검정을 바꾸는 것도 같은 문제입니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> Welch t 검정을 기본으로 정해 둔 이유가 바로 이런 자료입니다. 앱군(20명)의 SD 60이 일반 교육군(40명)의 25보다 커서, Student t 검정은 표준오차를 11.0으로 작게 잡고 P를 0.026으로 작게 만듭니다. 두 방법 가운데 결과를 보고 고르면, 효과 없는 중재를 '유의'로 결론 낼 확률이 늘어납니다.</p>
@@ -253,10 +253,10 @@
 <div class="qz" data-widget="qz" id="qz02-s2-q03" data-kind="정보 부족" data-lv="직접 분석할 때" data-case="1">
 <p class="qz-stem">Welch t 검정의 결과는 차이 25 m (95% CI −4.0 to 54.0), P = 0.087입니다. 임상적으로 의미 있는 최소 차이는 30 m입니다. 가장 알맞은 결론은?</p>
 <ol class="qz-opts">
-<li>P &gt; 0.05이므로 앱은 효과가 없다.<div class="qz-why-o">유의하지 않은 것은 효과가 없다는 증거가 아닙니다. 구간은 54 m 개선과도 맞습니다.</div></li>
-<li>점추정값 25 m가 30 m보다 작으므로 임상적으로 의미 없는 효과가 확인되었다.<div class="qz-why-o">구간의 위쪽 끝 54 m는 30 m를 훌쩍 넘습니다. 확인되었다고 할 수 없습니다.</div></li>
-<li data-ok="1">자료는 약간의 감소(−4 m)부터 임상 기준을 넘는 개선(54 m)까지와 맞으므로 효과의 유무와 크기 모두 판단하기 어렵다. 예비시험의 결과로 다음 본시험의 설계(인원, 탈락 대책)를 정한다.<div class="qz-why-o">맞습니다. 구간 전체를 0과 임상 기준선에 비추어 읽었습니다.</div></li>
-<li>앱군의 평균이 더 크므로 앱이 효과적이다.<div class="qz-why-o">구간이 0을 포함해 우연으로도 이만한 차이가 나올 수 있습니다.</div></li>
+<li>P = 0.087로 0.05보다 크므로, 앱은 6분 보행거리에 효과가 없다고 결론 낸다.<div class="qz-why-o">유의하지 않은 것은 효과가 없다는 증거가 아닙니다. 구간은 54 m 개선과도 맞습니다.</div></li>
+<li>점추정값 25 m가 기준 30 m보다 작으므로, 효과가 있더라도 임상적으로 의미 없는 크기임이 확인되었다.<div class="qz-why-o">구간의 위쪽 끝 54 m는 30 m를 훌쩍 넘습니다. 확인되었다고 할 수 없습니다.</div></li>
+<li data-ok="1">구간이 −4 m부터 54 m까지라 0과 30 m를 모두 걸쳐, 효과의 유무와 크기 모두 판단하기 어렵다.<div class="qz-why-o">맞습니다. 구간 전체를 0과 임상 기준선에 비추어 읽었습니다.</div></li>
+<li>앱군의 평균이 25 m 더 크고 P가 0.10보다 작으므로, 예비시험 기준으로는 앱이 효과적이다.<div class="qz-why-o">구간이 0을 포함해 우연으로도 이만한 차이가 나올 수 있습니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> 95% CI = 25 ± 2.07 × 14.0 = −4.0 to 54.0 m입니다(자유도 22.4의 t 경계값 2.07). 구간이 0도, 30 m 기준선도 걸쳐 있어 결론을 내기에는 정보가 부족합니다. 효과가 없다는 결론에도, 의미 있는 효과가 있다는 결론에도 이르지 못합니다.</p>
@@ -268,10 +268,10 @@
 <div class="qz" data-widget="qz" id="qz02-s2-q04" data-kind="보고 문장" data-lv="직접 분석할 때" data-case="1">
 <p class="qz-stem">Results의 문장으로 가장 알맞은 것은?</p>
 <ol class="qz-opts">
-<li>"The app improved walking distance (45 ± 60 vs 20 ± 25 m, NS)."<div class="qz-why-o">'improved'는 결과와 맞지 않고, ± 뒤가 SD인지 밝히지 않았으며, 'NS' 대신 정확한 P와 차이의 신뢰구간이 필요합니다.</div></li>
-<li>"There was no difference between groups (t-test, P &gt; 0.05)."<div class="qz-why-o">효과가 없다는 뜻으로 읽히고, 검정 이름과 차이의 크기, 신뢰구간, 정확한 P가 빠졌습니다.</div></li>
-<li>"Using Student's t-test, the app significantly increased walking distance (P = 0.026)."<div class="qz-why-o">계획과 다른, 이 자료에 맞지 않는 방법의 P를 골라 보고했습니다.</div></li>
-<li data-ok="1">"The mean change was +45 m (SD, 60) in the app group (n = 20) and +20 m (SD, 25) in the education group (n = 40); the mean difference (app minus education) was 25 m (95% CI, −4 to 54; P = 0.09, Welch's t-test)."<div class="qz-why-o">맞습니다. 군별 인원·평균·SD, 차이의 방향, 차이와 95% CI, 정확한 P, 검정 이름을 모두 썼습니다.</div></li>
+<li>"The app group improved walking distance more than the education group (45 ± 60 vs 20 ± 25 m; mean difference, 25 m; P = 0.026, t-test)."<div class="qz-why-o">계획과 다른 Student t 검정의 P(0.026)를 't-test'라고만 적어 썼고, ± 뒤가 SD인지와 차이의 신뢰구간이 빠졌습니다.</div></li>
+<li>"The mean change was +45 m in the app group and +20 m in the education group, and there was no difference between groups (Welch's t-test, P &gt; 0.05)."<div class="qz-why-o">'no difference'는 효과가 없다는 뜻으로 읽히고, 차이와 신뢰구간, 정확한 P, 군별 인원과 SD가 빠졌습니다.</div></li>
+<li>"The mean difference (app minus education) was 25 m (95% CI, 3 to 47; Student's t-test, P = 0.026), indicating a significant improvement with the app."<div class="qz-why-o">계획과 다른, 이 자료에 맞지 않는 방법의 P를 골라 보고했습니다.</div></li>
+<li data-ok="1">"The mean change was +45 m (SD, 60; n = 20) with the app and +20 m (SD, 25; n = 40) with education; difference, 25 m (95% CI, −4 to 54; Welch's t-test, P = 0.09)."<div class="qz-why-o">맞습니다. 군별 인원·평균·SD, 차이의 방향, 차이와 95% CI, 정확한 P, 검정 이름을 모두 썼습니다.</div></li>
 </ol>
 <div class="qz-fb">
 <p><b>핵심 이유.</b> 결과 문장에는 군별 인원·평균·SD, 어느 군에서 어느 군을 뺐는지, 평균 차이와 95% CI, 정확한 P, 그리고 Student인지 Welch인지까지 밝힌 검정 이름을 씁니다. 인원과 SD가 있으면 독자가 t를 검산하고 메타분석에 넣을 수 있습니다.</p>
