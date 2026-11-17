@@ -20,4 +20,7 @@ ADD = {
     "vandenbroucke2007": {"text": "Vandenbroucke JP, von Elm E, Altman DG, et al. Strengthening the Reporting of Observational Studies in Epidemiology (STROBE): explanation and elaboration. <i>PLoS Med</i>. 2007;4(10):e297.", "doi": "10.1371/journal.pmed.0040297"},
     "campbell2012": {"text": "Campbell MK, Piaggio G, Elbourne DR, Altman DG; CONSORT Group. Consort 2010 statement: extension to cluster randomised trials. <i>BMJ</i>. 2012;345:e5661.", "doi": "10.1136/bmj.e5661"},
     "loudon2015": {"text": "Loudon K, Treweek S, Sullivan F, Donnan P, Thorpe KE, Zwarenstein M. The PRECIS-2 tool: designing trials that are fit for purpose. <i>BMJ</i>. 2015;350:h2147.", "doi": "10.1136/bmj.h2147"},
+    # ---------- c 절 (PubMed: PMID 18794220, 2190942) ----------
+    "knol2008": {"text": "Knol MJ, Vandenbroucke JP, Scott P, Egger M. What do case-control studies estimate? Survey of methods and assumptions in published case-control research. <i>Am J Epidemiol</i>. 2008;168(9):1073-1081.", "doi": "10.1093/aje/kwn217"},
+    "rodrigues1990": {"text": "Rodrigues L, Kirkwood BR. Case-control designs in the study of common diseases: updates on the demise of the rare disease assumption and the choice of sampling scheme for controls. <i>Int J Epidemiol</i>. 1990;19(1):205-213.", "doi": "10.1093/ije/19.1.205"},
 }
