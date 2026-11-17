@@ -62,6 +62,9 @@ CHAPTERS = [
     ("ch19", "p3", "메타분석",
      ["체계적 문헌고찰의 절차", "효과의 통합: 고정효과와 무작위효과", "이질성, 하위군 분석, 메타회귀", "출판 편향과 민감도 분석",
       "통합 결과의 활용: NNT·NNH와 경제성 평가", "네트워크 메타분석"]),
+    # PART 3 정리: 번호 없는 정리 장(rv01과 같은 방식). 절은 쓰는 대로 늘림
+    ("rv03", "p3", "연구 설계 정리", ["연구 질문에서 설계로"],
+     {"no": "설계", "review": True, "kicker": "PART 3 REVIEW"}),
     ("ch20", "p4", "경제성 평가의 틀",
      ["경제성 평가가 답하는 질문", "경제성 평가의 네 가지 유형", "관점, 비교대안, 분석기간, 할인", "증분비용효과비와 비용효과평면"]),
     ("ch21", "p4", "비용 자료 분석",
@@ -152,7 +155,7 @@ def ch_label(cid):
     if cid.startswith("ap"):
         return "부록 " + "AB"[int(cid[-2:]) - 1]
     if cid.startswith("rv"):
-        return "분석 고르기 연습"
+        return {"rv01": "분석 고르기 연습", "rv03": "연구 설계 정리"}.get(cid, "정리")
     if cid in ("ml90", "rc90"):
         return "부록 A"
     return f"{int(cid[-2:])}장"
@@ -424,7 +427,7 @@ def search_index(bodies, by):
         if c.get("lab"):
             label = f"실습 {int(no)} {c['title']}"
         elif c.get("review"):
-            label = f"종합 {c['title']}"
+            label = f"종합 {c['title']}" if c.get("no") == "종합" else c["title"]
         elif c.get("appendix"):
             label = f"부록 {no} {c['title']}"
         else:

@@ -1,0 +1,214 @@
+<p class="lead">PART 3의 14–19장에서는 청구자료로 두 약을 비교하는 연구를 설계했고, 그 위에 시간 관련 편향, 경쟁위험, 정책 평가, 메타분석을 더해 보았습니다. 이 장은 그 내용을 '연구 설계'라는 하나의 틀로 다시 묶어 정리합니다. 여기에 앞 장들에서 다루지 않은 설계의 기본도 더합니다. 연구 질문을 정하는 법, 단면연구와 환자-대조군 연구, 편향의 분류, 계획서와 보고 지침이 그것입니다.</p>
+
+<p><b>이 장의 흐름.</b> 새로운 계산은 거의 없습니다. 절마다 앞 장에서 본 내용을 한곳에 모으고, 자세한 설명은 그 장으로 링크합니다. 앞 장에서 다루지 않은 내용은 이 장에서 처음부터 설명합니다. 절마다 답하는 질문은 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>절</th><th>이 절이 답하는 질문</th></tr></thead>
+<tbody>
+<tr><td><a href="#rv03-s1">a. 연구 질문에서 설계로</a></td><td>무엇을 묻는 연구인가? 누구에게서 무엇과 무엇을 비교해, 정확히 어떤 값을 구하나?</td></tr>
+</tbody></table></div>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>먼저 읽을 부분</dt><dd>연구 질문을 정하거나 논문의 Methods를 읽기 전에 a 절을 먼저 읽습니다. 14–16장을 읽지 않았어도 읽을 수 있게 썼고, 자세한 설명이 필요한 곳에는 해당 장의 링크를 달았습니다.</dd>
+<dt>이 장의 핵심</dt><dd>① 설계는 자료가 아니라 질문에서 출발합니다. 질문이 기술, 인과, 예측 가운데 무엇인지 정합니다. 그리고 누구에게서 무엇과 무엇을 비교해 어떤 값을 구할지(추정 대상)를 분석 방법보다 먼저 적습니다.</dd>
+<dt>미뤄도 되는 것</dt><dd>접힌 상자는 그 자리에서 질문이 생겼을 때 펼칩니다.</dd>
+</dl>
+<details class="route-more"><summary>미리 알아 둘 것과 이 장의 목표</summary>
+<dl>
+<dt>미리 알아 둘 것</dt><dd><a href="#ch08-s8">8장 h 절</a>의 원인 추정과 예측, <a href="#ch13-s1">13장 a 절</a>의 치료의향 분석, <a href="#ch14-s2">14장 b 절</a>의 신규 사용자·활성 비교군 설계.</dd>
+<dt>이 장을 마치면</dt><dd><ol>
+<li>연구 질문을 기술, 인과, 예측으로 나누고, 그에 따라 비교군, 보정, 보고할 값이 어떻게 달라지는지 말할 수 있다.</li>
+<li>인과 질문을 PICO 또는 PECO와 추정 대상의 다섯 요소로 적고, 약 중단·전환·사망 같은 중간 사건을 어떻게 다룰지 정할 수 있다.</li>
+<li>논문의 목적 문장과 Methods에서 질문의 요소를 찾아, 서로 맞는지 대조할 수 있다.</li>
+</ol></dd>
+</dl></details>
+</div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rv03-s1">
+<div class="qref">
+<p class="qref-h"><span>이 절 한눈에 보기</span><span class="qref-note">개념 이름을 누르면 본문의 그 자리로 갑니다</span></p>
+<div class="qref-wrap"><table class="qref-t">
+<colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
+<thead><tr><th>개념</th><th>뜻</th><th>실무에서 읽는 법</th><th>R에서</th></tr></thead>
+<tbody>
+<tr><td data-l="개념"><a href="#rv03-s1-kind">기술·인과·예측</a></td><td data-l="뜻">자료로 답하는 질문의 세 종류입니다. 기술은 지금 어떤 상태인지 그립니다. 인과는 무엇을 하면 결과가 얼마나 달라지는지 묻습니다. 예측은 누구에게 결과가 생길지 미리 계산합니다.</td><td data-l="실무에서 읽는 법">세 질문은 비교군이 필요한지, 교란을 보정하는지, 결과로 무엇을 보고하는지가 모두 다릅니다. 논문에서는 Introduction 마지막 문단의 목적 문장에서 어느 질문인지 먼저 확인합니다. '위험인자 탐색'처럼 둘이 섞인 질문은 하나로 정합니다.</td><td data-l="R">—</td></tr>
+<tr><td data-l="개념"><a href="#rv03-s1-pico">PICO와 PECO</a></td><td data-l="뜻">질문을 대상(P), 중재(I) 또는 노출(E), 비교(C), 결과(O)로 나눠 적는 틀입니다. 중재는 연구자가 배정하는 치료이고, 노출은 배정하지 않고 관찰하는 요인(약 사용, 환경, 행동)입니다.</td><td data-l="실무에서 읽는 법">비교(C)가 비어 있으면 아직 인과 질문이 아닙니다. 비교를 '쓰지 않은 사람'으로 두느냐 '다른 약을 쓴 사람'으로 두느냐에 따라 질문 자체가 바뀝니다. 결과에는 언제까지 재는지 기간을 붙입니다.</td><td data-l="R">—</td></tr>
+<tr><td data-l="개념"><a href="#rv03-s1-estimand">추정 대상(estimand)</a></td><td data-l="뜻">'정확히 무엇의 효과를 구하나'를 다섯 요소로 적은 것입니다. 대상 집단, 비교할 치료, 결과변수, 중간 사건의 처리, 요약 지표가 그 다섯입니다(ICH E9(R1)).</td><td data-l="실무에서 읽는 법">같은 자료라도 약을 중간에 끊거나 바꾼 환자를 어떻게 세느냐에 따라 답이 달라집니다. 그래서 분석 방법보다 먼저 정하고 계획서에 적습니다.</td><td data-l="R">—</td></tr>
+<tr><td data-l="개념"><a href="#rv03-s1-ice">중간 사건과 다섯 전략</a></td><td data-l="뜻">치료를 시작한 뒤에 생겨서 결과의 해석을 바꾸는 사건입니다. 약 중단, 다른 약으로 전환, 구조 치료 추가, 사망이 그 예입니다. 이 사건을 다루는 전략으로 치료 정책, 가상, 복합 변수, 치료 중, 주층의 다섯 가지가 있습니다.</td><td data-l="실무에서 읽는 법">약을 끊어도 끝까지 따라가는 분석은 치료 정책 전략입니다. 약을 끊은 날 추적을 멈추는 분석은 '계속 썼다면'을 묻는 가상 전략에 가깝고, 중단이 결과와 관계없다는 가정이 필요합니다. 사망은 결과를 더 관찰할 수 없게 만드는 사건이라 무시하지 못하고, 복합 변수나 경쟁 사건으로 다룹니다.</td><td data-l="R">—</td></tr>
+<tr><td data-l="개념"><a href="#rv03-s1-map">질문이 정하는 설계</a></td><td data-l="뜻">대상자 선정, 비교군, 추적 시작일, 결과 정의, 추적 종료 규칙, 효과 지표는 모두 질문의 요소에서 정해집니다.</td><td data-l="실무에서 읽는 법">Methods를 읽을 때는 각 설계 요소가 목적 문장의 요소와 맞는지 대조합니다. 예를 들어 목적은 1년 위험인데 Results에는 전체 추적의 위험비만 있다면 질문과 분석이 어긋난 것입니다.</td><td data-l="R">—</td></tr>
+</tbody></table></div>
+<p class="qref-f"><b><a href="#rv03-s1-write">논문에 보고할 것</a></b> 목적 문장의 대상·노출·비교·결과와 기간, 질문의 종류가 드러나는 동사(기술 describe, 인과 effect … compared with, 예측 predict), Methods 첫머리의 추정 대상(중간 사건의 처리와 요약 지표), 계획서 등록 여부</p>
+</div>
+<h2><span class="sec-no">a.</span>연구 질문에서 설계로</h2>
+
+<h3>1. 막으려는 문제</h3>
+<p><strong>설계는 자료가 아니라 질문에서 출발합니다. 같은 자료라도 질문이 다르면 누구와 비교할지, 무엇을 보정할지, 결과로 어떤 숫자를 보고할지가 모두 달라집니다.</strong></p>
+
+<h4 id="rv03-s1-kind">같은 자료로 세 가지를 물으면 무엇이 달라지나?</h4>
+<p>가상의 자료로 봅니다. 65세 이상 외래 환자의 5년치 청구자료가 있고, 관심은 벤조디아제핀(불안이나 불면에 쓰는 진정·수면제)과 고관절 골절입니다. 같은 자료로 다음 세 질문을 할 수 있습니다.</p>
+<ol>
+<li><b>기술</b><span class="en">(description)</span>: 65세 이상에서 벤조디아제핀을 90일 넘게 이어 처방받는 사람은 몇 %이고, 지역마다 얼마나 다른가?</li>
+<li><b>인과</b><span class="en">(causal inference)</span>: 벤조디아제핀을 새로 시작하면, 시작하지 않았을 때보다 1년 안의 고관절 골절이 얼마나 늘어나는가?</li>
+<li><b>예측</b><span class="en">(prediction)</span>: 벤조디아제핀을 처방하는 날의 정보로, 1년 안에 고관절 골절이 생길 확률이 높은 환자를 가려낼 수 있는가?</li>
+</ol>
+<p>자료로 답하는 질문은 이렇게 셋으로 나뉩니다<cite data-ref="hernan2019chance"></cite>. 자료가 같아도 세 질문은 설계의 거의 모든 선택이 다릅니다.</p>
+<div class="tbl-wrap" id="rv03-tb01" data-name="기술·인과·예측 질문의 차이"><table class="tbl tight">
+<thead><tr><th></th><th>기술</th><th>인과</th><th>예측</th></tr></thead>
+<tbody>
+<tr><td>묻는 것</td><td>지금 어떤 상태인가, 집단 사이에 어떻게 다른가</td><td>무엇을 하면 결과가 얼마나 달라지나</td><td>누구에게 결과가 생길까</td></tr>
+<tr><td>비교군</td><td>필요 없음. 집단끼리 나란히 놓을 수는 있음</td><td>반드시 필요. 시작하지 않은 사람이나 다른 약을 시작한 사람</td><td>필요 없음</td></tr>
+<tr><td>교란 보정</td><td>하지 않음. 나이 구조가 다른 집단끼리 견줄 때는 표준화</td><td>설계의 중심</td><td>하지 않음. 원인이 아니어도 예측에 도움이 되면 넣음</td></tr>
+<tr class="hi"><td>보고하는 값</td><td>비율, 평균과 그 신뢰구간</td><td>위험차, 위험비 같은 효과 지표</td><td>환자별 예측 확률, 판별과 교정</td></tr>
+<tr><td>좋은 연구인지 보는 기준</td><td>표본이 대상 집단을 대표하는가</td><td>교란과 편향을 막았는가</td><td>새 환자에서도 잘 맞는가</td></tr>
+<tr><td>자세히</td><td><a href="#ch00-s2">0장 b 절</a>, <a href="#ap01-s7">부록 A g 절</a></td><td><a href="#ch08-s6">8장 f 절</a>, 14–16장</td><td><a href="#ch09-s1-pm">9장 a 절</a></td></tr>
+</tbody></table></div>
+<p>세 질문은 각각 따로 가치가 있습니다.</p>
+<ul>
+<li><b>기술 질문.</b> 비교군도 보정도 필요 없어 쉬운 연구로 여겨지기 쉽습니다. 하지만 표본이 대상 집단을 대표하는지가 결과의 전부를 좌우합니다. 약이 실제로 어떻게 쓰이는지 보는 약물사용 연구가 대부분 여기에 속합니다.</li>
+<li><b>인과 질문.</b> 세 질문 가운데 교란의 영향을 받는 것은 인과 질문뿐입니다<cite data-ref="hernan2019chance"></cite>. 그래서 14–16장의 설계 장치(신규 사용자, 활성 비교군, 추적 시작일)와 15장의 성향점수는 모두 인과 질문을 위한 것입니다.</li>
+<li><b>예측 질문.</b> 원인인지는 따지지 않고, 예측하는 시점에 얻을 수 있는 정보만 씁니다. 판별과 교정, 새 환자에서의 성능으로 평가합니다(<a href="#ch09-s1-valid">9장 a 절</a>).</li>
+</ul>
+<p>인과 질문과 예측 질문은 같은 회귀모형을 쓰는 일이 많아서 섞이기 쉽습니다. 모형은 같아도 변수를 고르는 기준과 결과를 읽는 법이 다릅니다(<a href="#ch08-s8-aim">8장 h 절 '두 목적은 무엇이 다른가?'</a>).</p>
+<div class="quick"><p class="qk">잠깐 확인</p><p>"벤조디아제핀을 처방받은 65세 이상 환자 가운데 1년 안에 고관절 골절이 생긴 비율은 2.1%였다(가상)." 이 숫자는 세 질문 가운데 어느 질문의 답일까요? 이 숫자만으로 벤조디아제핀이 골절을 늘린다고 말할 수 있을까요?</p><details><summary>답 보기</summary><div><p>기술 질문의 답입니다. 처방받은 사람만 보았고 비교가 없으므로, 벤조디아제핀이 골절을 늘리는지는 알 수 없습니다. 같은 나이대의 다른 환자도 2% 안팎으로 골절될 수 있기 때문입니다. 인과 질문에 답하려면 비교군이 있어야 하고, 두 군의 차이가 약 때문인지 환자의 원래 상태 때문인지 가려야 합니다.</p></div></details></div>
+
+<p><strong>즉, 연구를 설계하기 전에 그 연구가 기술, 인과, 예측 가운데 무엇을 묻는지부터 정합니다. 이 장의 나머지 절은 주로 인과 질문의 설계를 다룹니다.</strong></p>
+
+<h3>2. 질문을 설계의 말로 옮기기</h3>
+<p><strong>인과 질문을 설계로 옮기려면 질문의 요소를 하나씩 적습니다. 먼저 대상, 노출, 비교, 결과를 적습니다(PECO). 그다음 약 중단이나 사망처럼 중간에 생기는 일을 어떻게 다룰지까지 정해, 정확히 무엇을 구하는지 적습니다.</strong></p>
+
+<h4 id="rv03-s1-pico">PICO와 PECO에는 무엇을 적나?</h4>
+<p>PICO는 <a href="#ch19-s1-pico">19장 a 절</a>에서 체계적 문헌고찰의 질문을 정할 때 보았습니다. 대상<span class="en">(Population)</span>, 중재<span class="en">(Intervention)</span>, 비교<span class="en">(Comparator)</span>, 결과<span class="en">(Outcome)</span>의 머리글자입니다. 같은 틀을 연구 한 편의 질문에도 씁니다.</p>
+<p>중재는 연구자가 배정하는 치료입니다. 관찰연구에서는 연구자가 배정하지 않고, 환자가 실제로 받은 약이나 지낸 환경을 관찰합니다. 이런 요인을 <strong>노출</strong><span class="en">(exposure)</span>이라고 하고, I 자리에 E를 넣어 <strong>PECO</strong>라고 부릅니다<cite data-ref="morgan2018peco"></cite>. 앞의 인과 질문을 PECO로 적으면 다음과 같습니다.</p>
+<div class="tbl-wrap" id="rv03-tb02" data-name="인과 질문의 PECO"><table class="tbl tight">
+<thead><tr><th>요소</th><th>예제 질문에서</th></tr></thead>
+<tbody>
+<tr><td>P 대상</td><td>65세 이상 외래 환자 가운데, 최근 1년 동안 벤조디아제핀과 Z-약물 처방이 모두 없던 사람</td></tr>
+<tr><td>E 노출</td><td>벤조디아제핀을 새로 시작</td></tr>
+<tr class="hi"><td>C 비교</td><td>Z-약물(졸피뎀처럼 벤조디아제핀이 아닌 수면제)을 새로 시작</td></tr>
+<tr><td>O 결과</td><td>시작 뒤 1년 안의 첫 고관절 골절 입원</td></tr>
+</tbody></table></div>
+<p>결과에는 언제까지 재는지 기간을 붙입니다. 기간<span class="en">(Time)</span>을 따로 떼어 PICOT로 적기도 합니다. 기간이 없으면 '1년 위험'인지 '추적한 전체 기간의 위험률'인지 정해지지 않습니다.</p>
+<p>네 요소 가운데 질문을 가장 크게 바꾸는 것은 비교(C)입니다.</p>
+<ul>
+<li><b>시작하지 않은 사람과 비교하면</b> '불면을 약으로 치료할지 말지'를 묻는 질문이 됩니다. 이때 약을 시작하지 않은 사람의 추적 시작일을 정하기 어렵고, 두 군의 병의 상태가 크게 다릅니다(<a href="#ch14-s2-nonuser">14장 b 절 '약을 쓰지 않는 사람과 비교하면 무엇이 틀어지나?'</a>).</li>
+<li><b>다른 수면제를 시작한 사람과 비교하면</b> '약으로 치료하기로 했다면 어느 약으로 할지'를 묻는 질문이 됩니다. 두 군 모두 같은 증상으로 약을 시작한 사람이어서 교란이 줄어듭니다. 이것이 활성 비교군 설계입니다(<a href="#ch14-s2">14장 b 절</a>).</li>
+</ul>
+<div class="quick"><p class="qk">잠깐 확인</p><p>"노인에서 벤조디아제핀과 골절의 관련을 알아본다." 이 목적 문장을 PECO로 옮기려면 무엇이 빠져 있을까요?</p><details><summary>답 보기</summary><div><p>비교(C)와 결과의 기간이 빠져 있습니다. 무엇과 비교하는지 없으므로, 쓰지 않은 사람과 비교하는 질문인지 다른 약과 비교하는 질문인지 알 수 없습니다. '골절'도 언제까지, 어떤 기록으로 세는지 정해지지 않았습니다. 대상(P)도 '노인'만으로는 선정 기준이 되지 못합니다. 나이 기준과, 이미 약을 쓰던 사람을 넣을지를 정해야 합니다.</p></div></details></div>
+
+<h4 id="rv03-s1-estimand">PECO를 적어도 아직 정해지지 않는 것은?</h4>
+<p>PECO를 다 적어도 남는 질문이 있습니다. 예제에서 추적하는 1년 동안 다음과 같은 일이 생깁니다.</p>
+<ul>
+<li>벤조디아제핀을 2개월 쓰고 끊은 사람</li>
+<li>중간에 Z-약물로 바꾼 사람</li>
+<li>골절 전에 사망한 사람</li>
+</ul>
+<p>이 사람들을 어떻게 셀지에 따라, 같은 자료에서도 답이 달라집니다. 이처럼 치료를 시작한 뒤에 생겨서 결과의 해석을 바꾸는 사건을 <strong>중간 사건</strong><span class="en">(intercurrent event)</span>이라고 합니다.</p>
+<p>임상시험 지침 ICH E9(R1)은 '정확히 무엇의 효과를 구하는지'를 다섯 요소로 적게 합니다<cite data-ref="ich2019e9r1"></cite>. 이렇게 적은 것을 <strong>추정 대상</strong><span class="en">(estimand)</span>이라고 합니다. 예제에 적용하면 다음과 같습니다.</p>
+<div class="tbl-wrap" id="rv03-tb03" data-name="추정 대상의 다섯 요소"><table class="tbl tight">
+<thead><tr><th>요소</th><th>묻는 것</th><th>예제에서</th></tr></thead>
+<tbody>
+<tr><td>대상 집단</td><td>누구의 효과인가</td><td>PECO의 P</td></tr>
+<tr><td>치료 조건</td><td>무엇과 무엇을 비교하나</td><td>벤조디아제핀 시작 대 Z-약물 시작</td></tr>
+<tr><td>결과변수</td><td>무엇을 언제까지 재나</td><td>1년 안의 첫 고관절 골절 입원</td></tr>
+<tr class="hi"><td>중간 사건의 처리</td><td>시작 뒤에 생긴 일을 어떻게 다루나</td><td>중단과 전환은 무시하고 처음 시작한 약으로 셈. 사망은 경쟁 사건</td></tr>
+<tr><td>요약 지표</td><td>어떤 숫자로 비교하나</td><td>1년 위험차와 위험비</td></tr>
+</tbody></table></div>
+<p>ICH E9(R1)은 임상시험을 위한 지침이지만, 같은 생각을 관찰연구에도 씁니다. 관찰연구를 무작위배정 시험처럼 설계하는 목표시험 모방(<a href="#ch14-s1">14장 a 절</a>)도 결국 이 요소들을 먼저 적는 일입니다.</p>
+
+<h4 id="rv03-s1-ice">중간 사건은 어떻게 다루나?</h4>
+<p>ICH E9(R1)은 중간 사건을 다루는 전략을 다섯 가지로 나눕니다<cite data-ref="ich2019e9r1"></cite>. 전략마다 묻는 질문이 다르고, 그에 따라 분석도 달라집니다.</p>
+<div class="tbl-wrap" id="rv03-tb04" data-name="중간 사건을 다루는 다섯 전략"><table class="tbl tight">
+<thead><tr><th>전략</th><th>묻는 질문</th><th>예제에서 하는 일</th></tr></thead>
+<tbody>
+<tr><td>치료 정책<br><span class="en">(treatment policy)</span></td><td>처음 시작한 치료의 효과. 그 뒤에 끊거나 바꿔도 상관없음</td><td>중단·전환과 관계없이 1년 끝까지 따라감(<a href="#ch13-s1">13장 a 절</a>의 치료의향 분석, <a href="#ch14-s4">14장 d 절</a>의 끝까지 따라가는 분석)</td></tr>
+<tr><td>가상<br><span class="en">(hypothetical)</span></td><td>중간 사건이 없었다면의 효과. 예: 끝까지 계속 썼다면</td><td>중단·전환한 날 추적을 멈춤(중도절단). 중단이 골절 위험과 관계없다는 가정을 두거나, 가중치로 그 가정에 맞춤(<a href="#ch11-s1-cens">11장 '다섯째, 중도절단이 비정보적이고 관측이 서로 독립인가?'</a>)</td></tr>
+<tr><td>복합 변수<br><span class="en">(composite variable)</span></td><td>중간 사건 자체를 결과의 일부로 봄</td><td>'골절 또는 사망'을 사건으로 셈</td></tr>
+<tr><td>치료 중<br><span class="en">(while on treatment)</span></td><td>치료를 이어 가는 동안 생긴 결과</td><td>약을 쓰는 동안의 골절만 세고, 중단은 경쟁 사건으로 둠(<a href="#ch17-s1">17장</a>)</td></tr>
+<tr><td>주층<br><span class="en">(principal stratum)</span></td><td>중간 사건이 생기지 않았을 사람들에서의 효과</td><td>어느 약을 받았어도 1년 동안 계속 먹었을 사람에 한정. 관찰연구에서는 드물게 씀</td></tr>
+</tbody></table></div>
+<p>사망은 다른 중간 사건과 다릅니다. 사망한 뒤에는 골절을 더 관찰할 수 없기 때문입니다. 그래서 사망은 치료 정책 전략처럼 '무시하고 끝까지 따라가는' 방식으로 다룰 수 없습니다. 복합 변수로 묶거나 경쟁 사건으로 다룹니다(<a href="#ch17-s1-compete">17장 a 절</a>).</p>
+<p>순서는 추정 대상이 먼저이고 분석이 그 뒤입니다. 치료 정책 전략을 골랐다면 끝까지 따라가는 분석이 따라옵니다. 가상 전략을 골랐다면 중단에서 중도절단하는 분석을 하고, 중단이 결과와 관계없다는 가정이 맞는지 점검합니다. 반대로 '치료의향 분석을 했다'는 문장은 분석의 이름일 뿐입니다. 어떤 질문에 답했는지는 추정 대상으로 따로 적어야 독자가 압니다.</p>
+<div class="quick"><p class="qk">잠깐 확인</p><p>약을 끊은 날 추적을 멈춘 분석에서 Z-약물 대비 벤조디아제핀의 골절 위험이 더 높게 나왔습니다(가상). 저자는 Discussion에 "의사가 벤조디아제핀 대신 Z-약물을 처방하도록 정책을 바꾸면 골절이 이만큼 줄어든다"고 썼습니다. 무엇이 어긋났을까요?</p><details><summary>답 보기</summary><div><p>추정 대상과 해석이 어긋났습니다. 중단일에 추적을 멈춘 분석은 '두 약을 끝까지 계속 썼다면'을 묻는 가상 전략에 가깝습니다. 그런데 처방 정책을 바꿨을 때의 효과는, 처방받은 뒤 끊거나 바꾸는 일까지 포함한 치료 정책 전략의 질문입니다. 처방 정책을 말하려면 처음부터 끝까지 따라가는 분석을 주 분석으로 정해야 합니다. 또 가상 전략의 결과는 중단이 골절 위험과 관계없다는 가정이 맞을 때만 믿을 수 있습니다.</p></div></details></div>
+
+<h4 id="rv03-s1-map">질문의 요소는 설계의 어디로 가나?</h4>
+<p>질문을 이렇게 적어 두면 설계의 선택이 대부분 따라 정해집니다. 아래 표는 질문의 요소마다 정해지는 설계와, 그 설계를 자세히 다룬 곳을 모은 것입니다.</p>
+<div class="tbl-wrap" id="rv03-tb05" data-name="질문의 요소와 설계"><table class="tbl tight">
+<thead><tr><th>질문의 요소</th><th>정해지는 설계</th><th>자세히</th></tr></thead>
+<tbody>
+<tr><td>질문의 종류</td><td>비교군이 필요한가, 어떤 연구 유형을 쓰나</td><td>이 장 b 절, <a href="#ch08-s8">8장 h 절</a></td></tr>
+<tr><td>P 대상</td><td>선정·제외 기준, 세척 기간</td><td><a href="#ch14-s2">14장 b 절</a></td></tr>
+<tr><td>E·C 노출과 비교</td><td>비교군, 추적 시작일</td><td><a href="#ch14-s2">14장 b 절</a>, <a href="#ch16-s1">16장 a 절</a></td></tr>
+<tr><td>O 결과와 기간</td><td>결과의 정의와 타당도, 추적 기간</td><td><a href="#ch14-s3">14장 c 절</a>, <a href="#ch14-s4">d 절</a></td></tr>
+<tr><td>중간 사건의 처리</td><td>추적 종료 규칙, 분석군, 경쟁위험</td><td><a href="#ch13-s1">13장 a 절</a>, <a href="#ch14-s4">14장 d 절</a>, <a href="#ch17-s1">17장</a></td></tr>
+<tr><td>요약 지표</td><td>효과 지표와 모형</td><td>이 장 c 절, <a href="#ch05-s1">5장</a>, <a href="#ch08-s2">8장 b 절</a>, <a href="#ch11-s1">11장</a>, <a href="#ch12-s1">12장</a></td></tr>
+</tbody></table></div>
+
+<p><strong>즉, 분석 방법을 고르기 전에 질문의 종류, PECO, 중간 사건의 처리, 요약 지표를 먼저 적습니다. 대상자 선정부터 효과 지표까지의 설계는 이 요소들에서 정해집니다.</strong></p>
+
+<h3 id="rv03-s1-trap">3. 흔한 함정과 확인할 것</h3>
+<p><strong>질문을 정할 때의 함정은 대부분 질문의 종류가 섞이거나, 질문을 적지 않은 채 분석부터 고르는 데서 생깁니다.</strong></p>
+<ol>
+<li><b>목적이 섞인 '위험인자 탐색'.</b> 여러 변수를 한 모형에 넣고, 모든 변수의 오즈비를 각각의 효과로 읽는 연구입니다. 원인을 묻는다면 노출 하나를 정하고, 그 노출의 교란변수를 골라 넣어야 합니다. 함께 넣은 다른 변수의 오즈비는 효과로 읽지 않습니다(<a href="#ch09-s1-cov">9장 a 절 '함께 넣은 다른 변수의 오즈비는 어떻게 읽나?'</a>)<cite data-ref="westreich2013"></cite>. 예측을 묻는다면 예측모형으로 만들고 평가합니다.</li>
+<li><b>인과 질문을 '연관'이라는 말 뒤에 숨기는 것.</b> 교란을 보정한다는 것 자체가 인과 질문을 하고 있다는 뜻입니다. 목적을 '관련을 알아본다'로만 적으면, 무엇을 보정해야 하고 결과를 어디까지 해석할 수 있는지가 흐려집니다<cite data-ref="hernan2018cword"></cite>. 목적 문장에서는 인과 질문을 분명히 적습니다. Results 문장의 표현은 근거의 강도에 맞춥니다. 관찰연구라면 보통 연관으로 씁니다.</li>
+<li><b>기술 결과로 인과를 말하는 것.</b> "벤조디아제핀 장기 처방률이 높은 지역에 골절 입원이 많았다"는 기술 결과입니다. 여기서 '약이 골절을 늘린다'는 결론을 낼 수는 없습니다. 지역의 노인 비율 같은 다른 차이가 섞여 있고, 지역 단위의 관계가 개인에게도 성립한다는 보장이 없기 때문입니다(<a href="#ch06-s1-cause">6장 a 절 '상관이 강하면 원인이라고 말할 수 있나?'</a>).</li>
+<li><b>예측모형의 계수를 원인으로 읽는 것.</b> 예측모형의 변수는 예측에 도움이 되도록 고른 것입니다. 그래서 계수가 크다고 그 변수를 바꾸면 결과가 바뀐다는 뜻이 아닙니다(<a href="#ch09-s1-pm">9장 a 절 '원인 모형과 예측모형은 무엇이 다른가?'</a>).</li>
+<li><b>결과를 본 뒤 질문을 바꾸는 것.</b> 주 결과, 비교군, 추적 기간, 하위군을 결과를 보고 바꾸면 원하는 답이 나오는 질문을 고른 셈이 됩니다. 질문은 자료를 보기 전에 정해 계획서에 적어 둡니다(<a href="#ch19-s1-steps">19장 a 절 '예제가 거친 여섯 단계'</a>).</li>
+<li><b>중간 사건의 처리를 정하지 않고 분석부터 고르는 것.</b> '쓰는 동안만 따라갈까, 끝까지 따라갈까'를 결과가 더 그럴듯한 쪽으로 고르게 됩니다. 처리 전략을 먼저 정하면 주 분석이 정해지고, 다른 전략은 민감도 분석으로 함께 보입니다.</li>
+</ol>
+
+<h3 id="rv03-s1-read">4. 논문에서 읽기</h3>
+<p><strong>질문은 Introduction의 마지막 문단과 Methods의 첫머리에 있습니다. 여기서 질문의 종류, PECO, 중간 사건의 처리, 요약 지표를 찾고, Results의 표가 그 질문에 답하는지 대조합니다.</strong></p>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 목적 문장과 Methods 첫머리</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt"><b>Introduction.</b> We aimed to <span class="mk">1</span> <span class="hl">estimate the effect of initiating benzodiazepines, compared with initiating Z-drugs,</span> on <span class="mk">2</span> <span class="hl">the 1-year risk of hip fracture</span> among <span class="mk">3</span> <span class="hl">adults aged 65 years or older with no use of either drug class in the previous year</span>.</p>
+<p class="excerpt"><b>Methods.</b> <span class="mk">4</span> <span class="hl">Patients were followed from the first prescription regardless of subsequent discontinuation or switching (treatment-policy strategy)</span>, and <span class="mk">5</span> <span class="hl">death before hip fracture was treated as a competing event</span>. <span class="mk">6</span> <span class="hl">The effect measures were the 1-year risk difference and risk ratio.</span></p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>질문의 종류와 비교.</b> 'estimate the effect … compared with'는 인과 질문이라는 뜻이고, 비교군(Z-약물을 시작한 사람)이 함께 적혀 있습니다. 활성 비교군 설계이므로 '어느 약으로 치료할지'의 질문입니다.</span></li>
+<li><span class="mk">2</span><span><b>결과와 기간.</b> 1년 위험이므로 Results에 1년 시점의 누적 위험이 있어야 합니다. 전체 추적 기간의 위험비만 있다면 질문과 답이 어긋난 것입니다.</span></li>
+<li><span class="mk">3</span><span><b>대상.</b> 지난 1년 동안 두 계열을 모두 쓰지 않은 사람이므로 신규 사용자 설계입니다(<a href="#ch14-s2">14장 b 절</a>).</span></li>
+<li><span class="mk">4</span><span><b>중간 사건의 처리.</b> 치료 정책 전략입니다. 그래서 결과는 '처음 처방한 약의 효과'로 읽습니다. 끝까지 계속 먹었을 때의 효과가 아닙니다.</span></li>
+<li><span class="mk">5</span><span><b>사망.</b> 사망을 경쟁 사건으로 다루므로, 1년 위험은 사망을 중도절단으로 둔 Kaplan–Meier가 아니라 누적발생함수로 구했을 것입니다(<a href="#ch17-s1">17장 a 절</a>).</span></li>
+<li><span class="mk">6</span><span><b>요약 지표.</b> 위험차와 위험비를 함께 보고하므로, 절대적 크기와 상대적 크기를 모두 읽을 수 있습니다.</span></li>
+</ol>
+</div></div>
+<p>여섯 가지 가운데 논문에서 가장 자주 빠지는 것은 4번, 곧 중간 사건의 처리입니다. 이것이 없으면 Methods의 추적 종료 규칙(중단일에 끝내는지, 끝까지 가는지)에서 거꾸로 짐작해야 합니다.</p>
+
+<h3 id="rv03-s1-write">5. 논문에 쓰기</h3>
+<p><strong>목적 문장에는 질문의 종류가 드러나는 동사와 함께 대상, 노출, 비교, 결과, 기간을 씁니다. Methods 첫머리에는 중간 사건의 처리와 요약 지표를 씁니다.</strong></p>
+<div class="paper">
+<div class="paper-h"><b>논문에 이렇게 씁니다 · 세 종류의 목적 문장</b><span>이 절의 예로 쓴 예문</span></div>
+<div class="paper-b">
+<p class="excerpt"><span class="mk">1</span> <span class="hl">We described the prevalence of long-term (&gt;90 days) benzodiazepine use among adults aged 65 years or older in 2023 and its variation across regions.</span></p>
+<p class="excerpt"><span class="mk">2</span> <span class="hl">We aimed to estimate the effect of initiating benzodiazepines, compared with initiating Z-drugs, on the 1-year risk of hip fracture among adults aged 65 years or older without prior use.</span></p>
+<p class="excerpt"><span class="mk">3</span> <span class="hl">We developed and internally validated a model to predict the 1-year risk of hip fracture at the time of benzodiazepine prescription.</span></p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기술.</b> describe, prevalence처럼 상태를 그리는 말을 쓰고, 대상 집단과 시점을 밝힙니다. 비교나 보정을 암시하는 말은 쓰지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>인과.</b> effect와 compared with로 질문의 종류와 비교군을 밝히고, 결과에 기간을 붙입니다. 관찰연구라도 목적 문장은 이렇게 쓰고, Results에서 근거의 강도에 맞는 표현을 고릅니다.</span></li>
+<li><span class="mk">3</span><span><b>예측.</b> develop, validate, predict를 쓰고, 예측하는 시점(처방하는 날)을 밝힙니다. 예측변수를 쓸 수 있는 시점이 여기서 정해집니다.</span></li>
+</ol>
+</div></div>
+<p>자주 하는 실수는 다음 두 가지입니다.</p>
+<ul>
+<li>"to investigate the association between benzodiazepines and risk factors for hip fracture"처럼, 질문의 종류도 비교군도 드러나지 않는 목적 문장입니다. 이 문장으로는 교란을 보정할지, 무엇과 비교할지 정할 수 없습니다.</li>
+<li>목적은 인과 질문인데 Methods에 중간 사건의 처리를 쓰지 않는 것입니다. 독자는 결과를 '처방의 효과'로 읽어야 할지 '계속 복용의 효과'로 읽어야 할지 모릅니다.</li>
+</ul>
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>연구 질문은 기술, 인과, 예측으로 나뉩니다. 셋은 비교군이 필요한지, 무엇을 보정하는지, 무엇을 보고하는지, 좋은 연구의 기준이 모두 다릅니다. 교란은 인과 질문에서만 문제가 됩니다.</li>
+<li>인과 질문은 PICO(배정하는 중재) 또는 PECO(관찰하는 노출)로 적고, 결과에는 기간을 붙입니다. 비교(C)가 바뀌면 질문 자체가 바뀝니다.</li>
+<li>추정 대상은 대상 집단, 비교할 치료, 결과변수, 중간 사건의 처리, 요약 지표의 다섯 요소로 '정확히 무엇을 구하는지' 적은 것입니다. 약 중단·전환·사망을 어떻게 다루느냐에 따라 같은 자료에서도 답이 달라집니다.</li>
+<li>대상자 선정, 비교군, 추적 시작일, 결과 정의, 추적 종료 규칙, 효과 지표는 질문의 요소에서 정해지므로, 분석 방법보다 질문을 먼저 적습니다.</li>
+</ul></div>
+<p>b 절에서는 질문에 맞는 연구 유형을 고릅니다.</p>
+<div class="practice"><p class="pt">스스로 확인하기</p>
+<ol>
+<li><p><span class="qt">분석 고르기</span>다음 세 목적은 각각 기술, 인과, 예측 가운데 무엇일까요? (가) 지역약국 항생제 처방전 가운데 광범위 항생제의 비율을 2019년과 2023년에 견준다. (나) 약사의 복약상담이 6개월 뒤 혈압 조절률을 높이는지 본다. (다) 퇴원하는 날의 정보로 30일 안에 재입원할 환자를 가려낸다.</p>
+<details><summary>답과 풀이</summary><div><p>(가)는 기술, (나)는 인과, (다)는 예측입니다. (가)는 두 해를 견주지만, 두 해의 상태를 나란히 그리는 것이라 기술입니다. 다만 그 사이에 시행된 정책의 효과를 묻는다면 인과 질문이 됩니다. 그때는 정책이 없었다면 어땠을지를 추정하는 설계, 곧 중단시계열이나 이중차분이 필요합니다(<a href="#ch18-s1">18장</a>). (나)는 상담을 받은 사람과 받지 않은 사람을 비교해야 하므로 비교군과 교란 보정(또는 무작위배정)이 필요합니다. (다)는 원인인지를 따지지 않고, 퇴원하는 날 얻을 수 있는 정보만 씁니다.</p></div></details></li>
+<li><p><span class="qt">해석 고치기</span>한 연구가 Z-약물 대비 벤조디아제핀 시작의 골절 위험비를 보고했습니다. 이 값은 약을 끊거나 바꾼 날 추적을 멈춘 분석에서 나왔습니다. 저자는 "벤조디아제핀을 처방하지 않는 정책이 골절을 줄일 것"이라고 결론 내렸습니다. 추정 대상의 관점에서 무엇을 고쳐야 할까요?</p>
+<details><summary>답과 풀이</summary><div><p>분석이 겨냥한 것은 '두 약을 계속 썼다면'의 효과(가상 전략)입니다. 그런데 결론은 처방 정책의 효과(치료 정책 전략)에 관한 것입니다. 처방 정책을 말하려면, 처방받은 뒤 끊거나 바꾼 일까지 포함해 처음부터 끝까지 따라간 분석이 필요합니다. 또 가상 전략의 결과는 약을 끊는 일이 골절 위험과 관계없을 때만 믿을 수 있습니다. 어지럼이나 낙상 직후에 약을 끊는 일이 흔하다면 이 가정은 깨집니다. 고쳐 쓰면 "계속 사용을 가정한 분석에서 위험이 더 높았다"이고, 처방 정책에 관한 결론은 치료 정책 전략의 분석으로 따로 냅니다.</p></div></details></li>
+<li><p><span class="qt">설계</span>"임신 초기의 항우울제 노출과 선천 기형"을 인과 질문으로 다듬으려 합니다. P, E, C, O를 적고, C를 무엇으로 두느냐에 따라 질문이 어떻게 달라지는지 말해 보세요.</p>
+<details><summary>답과 풀이</summary><div><p>예를 들어 P는 임신 전에 우울증 진단을 받은 산모, E는 임신 첫 3개월 동안 항우울제 처방, O는 출생 후 1년 안에 진단된 주요 선천 기형입니다. C에는 두 가지 선택이 있습니다. '임신 전에는 항우울제를 썼지만 임신을 알고 끊은 산모'로 두면, 같은 병을 가진 산모 안에서 약의 효과를 묻는 질문이 됩니다. '항우울제를 쓰지 않은 모든 산모'로 두면, 우울증 자체나 함께 따라오는 생활습관의 영향이 약의 효과에 섞입니다. 이것이 적응증에 의한 교란입니다. 앞의 비교가 교란이 작고, 임상에서 실제로 고민하는 '계속 쓸지 끊을지'의 질문에도 가깝습니다.</p></div></details></li>
+</ol></div>
+</section>
