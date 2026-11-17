@@ -1,0 +1,268 @@
+<p class="lead">보건통계학 기초 <a href="stats.html#ch13">13장</a>을 읽은 뒤 푸는 문제입니다. 비열등성과 동등성의 뜻, 신뢰구간이 놓인 자리에 따른 결론, 단측 α 0.025, 한계(M1, M2)와 그 전제, 허술한 시험과 분석군, 비열등성의 P, 낮을수록 좋은 결과, 비율의 한계와 신뢰구간, 생물학적 동등성을 a 절의 12문제로 확인하고, b 절에서는 가상의 항생제 비열등성 시험 하나를 네 단계로 읽습니다.</p>
+<p>문제는 한 번에 하나씩 나옵니다. 선택지를 누른 뒤 얼마나 확신하는지(확실함, 헷갈림, 추측)를 누르면 정답과 해설이 열리고, 아래의 '다음 문제'로 넘어갑니다. 진행판의 번호를 누르면 그 문제로 바로 가고, '기록 초기화'로 이 장의 기록을 지울 수 있습니다. '2단계'가 붙은 문제는 고른 것과 그렇게 고른 이유를 따로 묻습니다. 해설 끝의 링크는 보건통계학 기초의 해당 소제목을 새 탭으로 엽니다. 문제의 연구와 숫자는 모두 가상입니다.</p>
+<div class="qz-player" data-widget="qz_player"></div>
+
+<section class="sec" id="qz13-s1">
+<h2><span class="sec-no">a.</span>장 문제</h2>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q01" data-kind="해석 고치기" data-lv="처음 읽을 때">
+<p class="qz-stem">우월성 시험으로 설계한 연구에서 두 진통제의 통증 감소 차이가 P = 0.40으로 유의하지 않았습니다. 저자는 "두 약의 효과는 동등하다"고 결론 냈습니다. 바른 지적은?</p>
+<ol class="qz-opts">
+<li>P가 0.05보다 크므로 동등하다는 결론이 맞고, 신뢰구간만 덧붙이면 충분하다.<div class="qz-why-o">유의하지 않은 것은 차이를 보여 줄 증거가 부족하다는 뜻이지, 같다는 증거가 아닙니다.</div></li>
+<li data-ok="1">'같다'를 말하려면 허용 범위(한계)를 미리 정하고 구간이 그 안에 드는지 보는 설계가 필요하다.<div class="qz-why-o">맞습니다. 동등성이나 비열등성은 그것을 위한 질문과 한계로 판단합니다.</div></li>
+<li>P = 0.40은 두 약의 효과가 다를 확률이 40%라는 뜻이므로, '같을 확률이 60%'라고 고쳐 써야 정확하다.<div class="qz-why-o">P는 그런 확률이 아닙니다.</div></li>
+<li>표본을 두 배로 늘려 다시 검정하면 P가 작아지므로, 그때 동등성을 판단한다.<div class="qz-why-o">표본을 늘려 차이 검정을 다시 해도 동등성을 보이는 방법은 되지 않습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 차이 검정의 귀무가설은 '차이가 없다'이므로, 기각하지 못한 것은 '차이를 보이지 못했다'일 뿐입니다. '못하지 않다'나 '같다'를 보이려면 시험 전에 받아들일 수 있는 차이의 선(한계)을 정하고, 차이의 신뢰구간이 그 선을 넘지 않는지로 판단해야 합니다.</p>
+<p><b>조건이 달라지면.</b> 구간이 예를 들어 −1.5 to +1.0점처럼 좁고 임상적으로 의미 있는 차이(예: ±2점)를 모두 배제한다면, 사후적으로라도 '큰 차이는 없을 것'이라는 근거는 됩니다. 그때도 한계가 미리 정해지지 않았다는 한계를 밝힙니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-nsig" target="_blank" rel="noopener">13장 a 절 '차이가 유의하지 않으면 같다고 할 수 있나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q02" data-kind="표 읽기" data-lv="직접 분석할 때">
+<p class="qz-stem">완치율 차이(신약 − 표준치료)의 비열등성 한계를 −10%p로 정했습니다. 결과가 −4.5%p (95% CI −8.0 to −1.0)였습니다. 바른 결론은?</p>
+<ol class="qz-opts">
+<li>구간 전체가 0보다 작아 신약이 통계적으로 더 나쁘므로, 그 자체로 열등하다는 뜻이고 비열등성도 입증하지 못했다.<div class="qz-why-o">비열등성은 한계(−10)와 비교합니다. 하한 −8.0은 한계보다 큽니다.</div></li>
+<li>구간이 0을 포함하지 않으므로 우월성까지 입증되었다.<div class="qz-why-o">구간 전체가 0보다 작으면 신약이 통계적으로 더 나쁜 쪽입니다.</div></li>
+<li>점추정값 −4.5가 한계의 절반보다 작으므로 결론을 낼 수 없다.<div class="qz-why-o">판단은 점추정값이 아니라 신뢰구간의 끝으로 합니다.</div></li>
+<li data-ok="1">하한 −8.0이 −10보다 커 비열등성은 입증되었고, 신약이 조금 더 나쁘다는 점도 밝힌다.<div class="qz-why-o">맞습니다. 비열등하지만 차이가 0보다 작은 경우입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 비열등성은 차이의 95% 신뢰구간에서 신약이 나쁜 쪽 끝(여기서는 하한)이 한계를 넘지 않는지로 판단합니다. 하한 −8.0 &gt; −10이므로 '10%p 넘게 나쁘지는 않다'를 보였습니다. 동시에 상한 −1.0 &lt; 0이라 신약이 통계적으로 조금 더 나쁘다는 것도 사실이므로 둘 다 보고합니다.</p>
+<p><b>조건이 달라지면.</b> 구간이 −12 to −1처럼 하한이 −10보다 작았다면 비열등성을 입증하지 못하고, 구간이 +0.5 to +6처럼 0보다 컸다면 우월성까지 입증합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-cases" target="_blank" rel="noopener">13장 a 절 '구간이 놓인 자리에 따라 결론은 어떻게 나뉘나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q03" data-kind="개념 구분" data-lv="직접 분석할 때">
+<p class="qz-stem">비열등성을 95% 신뢰구간의 하한 하나로 판단하는 것은 어떤 검정과 같은가요?</p>
+<ol class="qz-opts">
+<li data-ok="1">한계에 대한 단측 α 0.025 검정. 95% 구간은 양쪽에 2.5%씩 남기므로 한쪽 끝만 본다.<div class="qz-why-o">맞습니다. 95% 구간은 양쪽 꼬리에 2.5%씩 남기므로 한쪽 끝은 단측 2.5%입니다.</div></li>
+<li>한계에 대한 단측 α 0.05 검정. 한쪽만 보므로 유의수준도 5%를 한쪽에 다 쓴다.<div class="qz-why-o">단측 0.05는 90% 신뢰구간의 한쪽 끝과 같은 판단입니다.</div></li>
+<li>0에 대한 양측 α 0.05 검정. 보통의 차이 검정과 같은 판단이다.<div class="qz-why-o">기준점이 0이 아니라 한계입니다.</div></li>
+<li>한계에 대한 양측 α 0.10 검정. 양쪽 끝을 모두 보므로 유의수준을 두 배로 쓴다.<div class="qz-why-o">비열등성은 한쪽 방향만 묻는 검정입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 비열등성은 '신약이 한계 이상 나쁘다'는 한쪽 방향의 귀무가설을 기각하는 단측 검정입니다. 95% 신뢰구간은 양쪽에 2.5%씩 남기므로, 그 하한이 한계보다 큰 것은 단측 α 0.025로 귀무가설을 기각하는 것과 같습니다. 보통의 양측 5% 검정과 한쪽 기준이 같도록 0.025를 씁니다.</p>
+<p><b>조건이 달라지면.</b> 생물학적 동등성처럼 두 한계에 단측 5% 검정을 한 번씩 하는 경우는 90% 신뢰구간이 두 한계 안에 드는지로 판단합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-strict" target="_blank" rel="noopener">13장 a 절 '하한 하나로 판단하면 얼마나 엄격한가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q04" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">과거 위약 대조 시험들을 메타분석한 결과, 표준치료의 완치율이 위약보다 평균 22%p 높았고 95% CI 하한은 16%p였습니다. 표준치료 효과의 절반을 지키도록 한계를 정하면 비열등성 한계(M2)는?</p>
+<ol class="qz-opts">
+<li>11%p. 평균 효과 22%p의 절반이다.<div class="qz-why-o">과거 시험의 효과는 보수적으로, 흔히 신뢰구간 하한을 M1으로 씁니다.</div></li>
+<li>16%p. 신뢰구간 하한이 곧 잃어도 되는 양이다.<div class="qz-why-o">16%p는 M1(표준치료가 위약보다 나은 양)입니다. 그 전부를 잃으면 신약이 위약보다 낫다는 보장도 사라집니다.</div></li>
+<li data-ok="1">8%p. 보수적인 M1 16%p의 절반이다.<div class="qz-why-o">맞습니다. M1의 50%를 지키면 M2는 8%p입니다.</div></li>
+<li>22%p. 평균 효과 전체를 한계로 두어야 신약이 위약보다 낫다고 말할 수 있다.<div class="qz-why-o">한계를 표준치료의 효과 전체로 두면 신약이 위약과 같아도 '비열등'이 될 수 있습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 활성 대조 시험에는 위약군이 없으므로, 표준치료가 위약보다 나은 양(M1)을 과거 시험에서 보수적으로 가져옵니다. 신약이 잃어도 되는 양(M2)을 M1의 일부(흔히 50%)로 잡으면, 비열등성이 입증될 때 신약도 위약보다는 낫고 표준치료 효과의 절반 이상을 지킨다고 말할 수 있습니다.</p>
+<p><b>조건이 달라지면.</b> 임상적으로 더 작은 손실만 받아들일 수 있다면 M2를 M1보다 훨씬 작게(예: 5%p) 잡습니다. 한계와 그 근거는 시험 전에 정하고 논문에 밝힙니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-basis" target="_blank" rel="noopener">13장 a 절 '근거는 어디서 오나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q05" data-kind="개념 구분" data-lv="심화">
+<p class="qz-stem">한계의 근거가 된 위약 대조 시험들은 20년 전에 수행되었고, 그 사이 표준 항생제에 대한 내성이 크게 늘었습니다. 이 상황에서 흔들리는 전제는?</p>
+<ol class="qz-opts">
+<li>비열등성 시험은 단측 검정이라는 전제가 흔들린다.<div class="qz-why-o">검정 방식은 그대로입니다. 문제는 한계가 기대는 과거 효과입니다.</div></li>
+<li data-ok="1">과거 시험의 표준치료 효과가 지금도 같다는 불변성 가정이 흔들린다.<div class="qz-why-o">맞습니다. 한계의 근거가 된 효과가 지금도 유지되어야 합니다.</div></li>
+<li>표본크기 계산에 쓴 완치율 가정이 흔들리므로, 최근 완치율로 인원을 다시 계산해 늘리면 문제가 해결된다.<div class="qz-why-o">인원을 늘려도 한계의 근거가 된 효과가 줄어든 문제는 그대로입니다.</div></li>
+<li>내성이 늘면 두 군 모두 완치율이 낮아지므로, 차이는 그대로라 아무 전제도 흔들리지 않는다.<div class="qz-why-o">표준치료의 위약 대비 효과(M1) 자체가 줄어 한계의 의미가 달라집니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 한계에 기댄 추론은 과거 시험의 대조약 효과가 이번 시험에서도 같다는 불변성 가정과, 이번 시험이 두 치료를 구별할 만큼 잘 수행되었다는 분석 민감도를 전제로 합니다. 내성 증가로 표준치료의 효과가 줄었다면, 같은 한계 안에 들어와도 신약이 위약보다 낫다는 결론을 장담하기 어렵습니다.</p>
+<p><b>조건이 달라지면.</b> 최근 자료로 표준치료 효과를 다시 추정해 한계를 보수적으로 정하거나, 가능하면 위약군을 함께 둔 3군 설계를 검토합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-prem" target="_blank" rel="noopener">13장 a 절 '이 추론에는 어떤 전제가 필요한가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q06" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">비열등성 시험에서 두 군 모두 25%가 약 복용을 중단했고, 중단자의 결과는 어느 군이든 비슷하게 나빴습니다. 비열등성 판단에 쓸 분석은?</p>
+<ol class="qz-opts">
+<li data-ok="1">ITT와 PP 분석을 모두 하고, 두 결과가 함께 비열등일 때 결론을 낸다.<div class="qz-why-o">맞습니다. 두 분석군의 결과를 함께 봅니다.</div></li>
+<li>ITT 분석만 한다. 우월성 시험처럼 ITT는 언제나 가장 보수적인 분석이다.<div class="qz-why-o">비열등성 시험에서는 ITT가 반드시 보수적이지 않습니다.</div></li>
+<li>PP 분석만 한다. 약을 끝까지 먹은 환자만이 약의 효과를 보여 주기 때문이다.<div class="qz-why-o">PP만 보면 순응한 환자가 두 군에서 달라지며 생기는 치우침을 놓칩니다.</div></li>
+<li>중단한 환자는 두 군에서 같은 값으로 채운 뒤 ITT 분석만 한다.<div class="qz-why-o">두 군에 같은 값을 채우면 차이가 0 쪽으로 줄어 비열등 결론이 쉬워집니다.</div></li>
+</ol>
+<div class="qz-step2">
+<p class="qz-stem">이 선택을 정하는 조건으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>ITT와 PP는 늘 같은 결과를 내므로, 두 분석을 모두 보고해도 결론에는 영향이 없기 때문이다.<div class="qz-why-o">두 분석은 다른 결과를 낼 수 있고, 바로 그 때문에 함께 봅니다.</div></li>
+<li>PP 분석은 표본이 작아 검정력이 낮으므로, ITT를 보완하는 정도로만 쓰기 때문이다.<div class="qz-why-o">검정력 때문이 아니라, 두 분석이 서로 다른 치우침에 약하기 때문입니다.</div></li>
+<li data-ok="1">두 군을 비슷하게 만드는 허술함은 ITT를 비열등 쪽으로 기울일 수 있기 때문이다.<div class="qz-why-o">맞습니다. 비열등성 시험에서는 그 방향의 치우침이 결론을 유리하게 만듭니다.</div></li>
+<li>규제기관은 PP 분석만 인정하므로, ITT는 참고용으로만 보고하기 때문이다.<div class="qz-why-o">규제 지침은 두 분석군의 결과를 함께 요구합니다.</div></li>
+</ol>
+</div>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 우월성 시험에서는 두 군을 비슷하게 만드는 허술함이 차이를 줄여 보수적으로 작용하지만, 비열등성 시험에서는 바로 그 허술함이 '비열등'을 쉽게 만듭니다. 그래서 ITT와 PP의 결과를 함께 제시하고, 둘 다 비열등일 때 결론을 단단하다고 봅니다.</p>
+<p><b>조건이 달라지면.</b> 중단이 거의 없고 잘 수행된 시험이라면 두 분석의 결과가 비슷해, 어느 쪽으로도 결론이 흔들리지 않습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-sloppy" target="_blank" rel="noopener">13장 a 절 '허술한 시험은 왜 어떤 두 치료든 비슷하게 만드나?'</a>, <a href="stats.html#ch13-s1-pop" target="_blank" rel="noopener">'분석군은 무엇인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q07" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">높을수록 좋은 결과에서 차이(신약 − 대조)가 −1.0, 표준오차 1.5, 비열등성 한계가 −4입니다. 비열등성의 단측 P와, 같은 자료로 '차이가 0인가'를 검정한 양측 P는?</p>
+<ol class="qz-opts">
+<li>두 P 모두 0.50. 같은 자료이므로 기준점과 관계없이 P는 하나다.<div class="qz-why-o">기준점이 다르면 같은 자료에서도 P가 전혀 다릅니다.</div></li>
+<li>비열등성 P 0.50, 차이 검정 P 0.023. 비열등성은 0에서, 차이 검정은 한계에서 잰다.<div class="qz-why-o">두 기준점을 뒤바꿨습니다.</div></li>
+<li>비열등성 P 0.046. 단측 P 0.023을 양측으로 바꾸려고 두 배로 한다.<div class="qz-why-o">비열등성은 단측 검정이고 그 P를 0.025와 비교합니다.</div></li>
+<li data-ok="1">비열등성 단측 P 0.023, 차이 검정 양측 P 0.50. 기준점이 한계(−4)와 0으로 서로 다르다.<div class="qz-why-o">맞습니다. (−1.0 + 4) ÷ 1.5 = 2.0과 −1.0 ÷ 1.5 = −0.67입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 비열등성 검정은 기준점을 한계(−4)로 옮겨, 관측 차이가 한계에서 표준오차 몇 개만큼 떨어져 있는지 잽니다. (−1.0 + 4) ÷ 1.5 = 2.0, 단측 P = 0.023 &lt; 0.025로 비열등성이 입증되고, 95% CI 하한 −3.94 &gt; −4와 같은 결론입니다. 차이 검정의 P 0.50은 전혀 다른 질문의 답입니다.</p>
+<p><b>조건이 달라지면.</b> 논문에 P가 하나만 있다면 어느 기준점의 P인지 이름("P for noninferiority")을 보고 확인합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s2-p" target="_blank" rel="noopener">13장 b 절 '비열등성의 P는 무엇을 재나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q08" data-kind="표 읽기" data-lv="직접 분석할 때">
+<p class="qz-stem">새 당뇨병약과 표준약의 24주 HbA1c 변화 차이(신약 − 표준약)가 +0.10%p (95% CI −0.05 to +0.25)이고, 비열등성 한계는 +0.30%p입니다. HbA1c는 낮을수록 좋습니다. 바른 결론은?</p>
+<ol class="qz-opts">
+<li>하한 −0.05가 −0.30보다 크므로 비열등성이 입증되었다.<div class="qz-why-o">낮을수록 좋은 결과에서 신약 − 표준약이 양수이면 신약에 불리합니다. 볼 끝은 상한입니다.</div></li>
+<li data-ok="1">상한 +0.25가 +0.30보다 작으므로 비열등성이 입증되었다.<div class="qz-why-o">맞습니다. 신약이 나쁜 쪽 끝은 상한입니다.</div></li>
+<li>점추정값이 +0.10으로 양수이고 HbA1c는 낮을수록 좋으므로 신약이 열등하다.<div class="qz-why-o">판단은 점추정값이 아니라 신뢰구간의 끝과 한계로 합니다.</div></li>
+<li>구간이 0을 포함하므로 결론을 낼 수 없다.<div class="qz-why-o">비열등성은 0이 아니라 한계와 비교합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 읽는 순서는 차이의 정의(신약 − 표준약), 결과의 좋은 방향(낮을수록), 신약이 나쁜 쪽(양수)과 한계의 부호(+0.30), 그쪽 신뢰한계(상한)입니다. 상한 +0.25 &lt; +0.30이므로 '0.3%p 넘게 나쁘지는 않다'를 보였습니다.</p>
+<p><b>조건이 달라지면.</b> 차이를 표준약 − 신약으로 정의한 논문이라면 부호가 바뀌어 하한을 −0.30과 비교합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s3-diff" target="_blank" rel="noopener">13장 c 절 'b 절과 무엇이 다른가?'</a>, <a href="stats.html#ch13-s3-end" target="_blank" rel="noopener">'어느 쪽 끝을 볼지 어떻게 정하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q09" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">두 시험 모두 위험차 한계를 −10%p로 정했습니다. 시험 1의 대조군 성공률은 90%, 시험 2는 60%입니다. 각 한계가 허용하는 실패 위험의 상대적 증가는?</p>
+<ol class="qz-opts">
+<li>두 시험 모두 같다. 한계가 둘 다 −10%p이기 때문이다.<div class="qz-why-o">같은 %p라도 대조군 비율에 따라 상대적 의미가 다릅니다.</div></li>
+<li>시험 1은 1.11배, 시험 2는 1.17배다. 성공률을 기준으로 나눈다.<div class="qz-why-o">허용하는 손실은 실패율이 몇 배 늘어나는지로 봅니다.</div></li>
+<li data-ok="1">시험 1은 실패율이 10%에서 20%로 2배, 시험 2는 40%에서 50%로 1.25배까지 늘어나는 것을 허용한다.<div class="qz-why-o">맞습니다. 대조군 성공률이 높을수록 같은 %p 한계가 더 큰 상대적 손실을 허용합니다.</div></li>
+<li>시험 1은 1.25배, 시험 2는 2배다. 성공률이 낮을수록 실패가 더 많이 늘어난다.<div class="qz-why-o">두 시험의 값을 뒤바꿨습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 위험차 한계는 대조군 비율에 따라 허용하는 상대적 손실이 달라집니다. 대조군 성공률 90%(실패 10%)에서 −10%p는 실패를 20%로, 곧 2배까지 허용하지만, 60%(실패 40%)에서는 50%로 1.25배까지만 허용합니다.</p>
+<p><b>조건이 달라지면.</b> 결과를 읽을 때 실제 대조군 성공률이 설계 때 가정보다 높게 나왔다면, 같은 한계가 설계 때보다 느슨해졌는지 확인합니다. 상대적 손실을 고정하고 싶다면 비(RR) 척도의 한계를 미리 정합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s4-ctrl" target="_blank" rel="noopener">13장 d 절 '같은 −10%p라도 허용하는 손실이 다른가?'</a>, <a href="stats.html#ch13-s4-scale" target="_blank" rel="noopener">'한계는 어떤 척도로 정하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q10" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">두 군 각 60명의 비열등성 시험에서 성공률이 96%와 98%로 1에 가깝습니다. 위험차의 95% 신뢰구간을 구하는 방법으로 알맞은 것은?</p>
+<ol class="qz-opts">
+<li data-ok="1">Newcombe 하이브리드 점수 구간이나 Miettinen–Nurminen 구간<div class="qz-why-o">맞습니다. 포함 확률이 95%에 가까워 1종 오류를 덜 부풀립니다.</div></li>
+<li>Wald 구간. 가장 널리 쓰이고 계산이 간단하며, 군마다 60명이면 정규근사가 충분히 맞으므로 기본으로 쓴다.<div class="qz-why-o">비율이 0이나 1에 가깝거나 표본이 작으면 Wald 구간은 너무 좁아 1종 오류를 부풀립니다.</div></li>
+<li>두 비율 각각의 95% 구간을 구해 겹치는지로 판단한다.<div class="qz-why-o">각 군의 구간이 겹치는지는 차이의 구간과 다른 판단입니다.</div></li>
+<li>성공률이 높아 차이가 작으므로 신뢰구간 없이 점추정값만 한계와 비교한다.<div class="qz-why-o">비열등성은 신뢰구간의 끝으로 판단합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> Wald 구간은 비율이 0이나 1에 가깝거나 표본이 작을 때 포함 확률이 95%보다 낮아져, 비열등성 시험에서 1종 오류를 부풀립니다. Newcombe 하이브리드 점수 구간이나 Miettinen–Nurminen 구간은 이런 상황에서도 포함 확률이 95%에 가깝습니다. 어떤 방법을 쓸지는 계획서에 정하고 이름을 밝힙니다.</p>
+<p><b>조건이 달라지면.</b> 비율이 30–70%이고 군마다 수백 명이면 방법에 따른 차이가 작습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s4-ci" target="_blank" rel="noopener">13장 d 절 '차이와 신뢰구간은 어떻게 구하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q11" data-kind="표 읽기" data-lv="처음 읽을 때">
+<p class="qz-stem">제네릭 정제의 생물학적 동등성 시험 결과입니다. AUC의 기하평균비 0.95 (90% CI 0.86–1.08), Cmax의 기하평균비 0.92 (90% CI 0.78–1.07). 바른 판정은?</p>
+<ol class="qz-opts">
+<li>두 기하평균비의 점추정값이 모두 0.80–1.25 안에 있으므로 동등하다.<div class="qz-why-o">판정은 점추정값이 아니라 90% 신뢰구간 전체로 합니다.</div></li>
+<li>AUC가 기준을 만족하므로 동등하다. Cmax는 보조 지표다.<div class="qz-why-o">AUC와 Cmax 모두 기준을 만족해야 합니다.</div></li>
+<li>두 구간 모두 1을 포함하므로 차이가 없어 동등하다.<div class="qz-why-o">1을 포함하는지가 아니라 0.80–1.25 안에 드는지로 판정합니다.</div></li>
+<li data-ok="1">Cmax의 하한 0.78이 0.80보다 작아 동등성을 입증하지 못했다.<div class="qz-why-o">맞습니다. 두 지표의 90% 구간이 모두 80.00–125.00% 안에 들어야 합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 생물학적 동등성은 로그 척도에서 계산한 기하평균비의 90% 신뢰구간이 AUC와 Cmax 모두에서 80.00–125.00% 안에 드는지로 판정합니다. 이것은 두 한계에 단측 5% 검정을 한 번씩 하는 두 단측 검정(TOST)과 같은 판단입니다. Cmax의 하한이 0.78이라 동등성을 입증하지 못했습니다.</p>
+<p><b>조건이 달라지면.</b> 변동이 매우 큰 약물은 규제기관에 따라 Cmax의 범위를 넓히는 별도 기준을 두기도 하지만, 그 기준도 시험 전에 정합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s5-ci90" target="_blank" rel="noopener">13장 e 절 '왜 90% 구간과 같은 판단인가?'</a>, <a href="stats.html#ch13-s5-range" target="_blank" rel="noopener">'80–125%는 무엇을 허용하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s1-q12" data-kind="해석 고치기" data-lv="심화">
+<p class="qz-stem">큰 생물학적 동등성 시험에서 AUC 기하평균비가 1.06 (90% CI 1.01–1.11)이었고, '차이가 0인가'를 검정한 P는 0.03이었습니다. 한 검토자가 "유의한 차이가 있으니 동등하지 않다"고 썼습니다. 바른 판단은?</p>
+<ol class="qz-opts">
+<li>차이 검정이 유의하면 동등성은 성립할 수 없으므로 검토자의 판단이 맞다.<div class="qz-why-o">두 판단은 서로 다른 질문에 답합니다.</div></li>
+<li>P = 0.03은 0.05보다 작지만 0.025보다는 크므로, 동등성 판정을 보류한다.<div class="qz-why-o">동등성 판정은 차이 검정의 P와 무관하게 신뢰구간과 범위로 합니다.</div></li>
+<li data-ok="1">90% 구간 1.01–1.11이 0.80–1.25 안에 들므로 동등하다.<div class="qz-why-o">맞습니다. 작지만 확실한 차이는 허용 범위 안의 차이일 수 있습니다.</div></li>
+<li>구간이 1을 포함하지 않으므로 기하평균비를 1로 고정해 다시 계산해야 한다.<div class="qz-why-o">자료를 바꿔 계산할 이유가 없습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 차이 검정은 '차이가 0인가'를, 동등성 판정은 '차이가 허용 범위 안인가'를 묻습니다. 표본이 크면 6%처럼 작은 차이도 유의해지지만, 그 구간 전체가 80–125% 안이면 동등합니다. 반대로 표본이 작으면 차이가 유의하지 않아도 구간이 넓어 동등성을 입증하지 못할 수 있습니다.</p>
+<p><b>조건이 달라지면.</b> 구간이 1.15–1.32처럼 125%를 넘으면 차이 검정의 결과와 관계없이 동등하지 않습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s5-vs" target="_blank" rel="noopener">13장 e 절 '차이 검정과 동등성 판정은 왜 반대로 갈리나?'</a></p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="qz13-s2">
+<h2><span class="sec-no">b.</span>종합 사례</h2>
+<p>가상의 비열등성 시험입니다. 급성 신우신염으로 입원한 환자 600명을, 정맥 항생제 3일 뒤 경구 항생제로 바꾸는 군과 정맥 항생제를 계속하는 군에 300명씩 배정했습니다. 1차 결과는 치료 종료 시점의 임상적 완치이고, 비열등성 한계는 위험차 −10%p(경구 − 정맥), 설계 때 두 군의 완치율은 85%로 가정했습니다. 질문마다 필요한 숫자를 다시 줍니다.</p>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:34rem;white-space:nowrap">
+<thead><tr><th>분석군</th><th class="r">경구 전환</th><th class="r">정맥 지속</th><th class="r">차이 (95% CI)</th></tr></thead>
+<tbody>
+<tr><td>ITT</td><td class="r">270/300 (90.0%)</td><td class="r">276/300 (92.0%)</td><td class="r">−2.0 (−6.7 to 2.6)</td></tr>
+<tr><td>PP</td><td class="r">240/260 (92.3%)</td><td class="r">250/265 (94.3%)</td><td class="r">−2.0 (−6.5 to 2.3)</td></tr>
+</tbody></table></div>
+<p>신뢰구간은 Newcombe 하이브리드 점수 방법으로 구했습니다.</p>
+
+<div class="qz" data-widget="qz" id="qz13-s2-q01" data-kind="표 읽기" data-lv="처음 읽을 때" data-case="1">
+<p class="qz-stem">ITT 결과 −2.0%p (95% CI −6.7 to 2.6)로 내릴 수 있는 결론은?</p>
+<ol class="qz-opts">
+<li data-ok="1">하한 −6.7이 −10보다 커 비열등성이 입증되었고, 우월성은 보이지 못했다.<div class="qz-why-o">맞습니다. 비열등성 시험의 전형적인 성공입니다.</div></li>
+<li>구간이 0을 포함하므로 두 치료는 차이가 없어 동등하고, 경구 전환을 표준으로 바꿀 근거가 된다.<div class="qz-why-o">동등성은 양쪽 한계를 정하고 판단합니다. 이 시험은 비열등성 시험입니다.</div></li>
+<li>점추정값이 음수이므로 경구 전환이 열등하다.<div class="qz-why-o">판단은 점추정값이 아니라 구간의 끝과 한계로 합니다.</div></li>
+<li>상한 2.6이 10보다 작으므로 경구 전환이 우월하다.<div class="qz-why-o">우월성은 구간 전체가 0보다 클 때입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 높을수록 좋은 결과(완치)에서 경구 − 정맥이 음수이면 경구에 불리하므로, 볼 끝은 하한입니다. −6.7 &gt; −10이라 '완치율이 10%p 넘게 낮지는 않다'를 보였습니다. 구간이 0을 걸쳐 우월성은 보이지 못했습니다.</p>
+<p><b>조건이 달라지면.</b> 하한이 −11처럼 한계를 넘었다면, 점추정값이 −2.0이어도 비열등성을 입증하지 못합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-cases" target="_blank" rel="noopener">13장 a 절 '구간이 놓인 자리에 따라 결론은 어떻게 나뉘나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s2-q02" data-kind="정보 부족" data-lv="심화" data-case="1">
+<p class="qz-stem">설계 때는 두 군의 완치율을 85%로 가정했는데, 실제 정맥 지속군은 92%였습니다. 이 사실이 한계 −10%p의 의미에 주는 영향은?</p>
+<ol class="qz-opts">
+<li>완치율이 가정보다 높으면 두 치료가 모두 잘 들었다는 뜻이므로, 한계의 의미는 그대로다.<div class="qz-why-o">같은 %p 한계라도 대조군 비율이 바뀌면 허용하는 상대적 손실이 달라집니다.</div></li>
+<li>대조군 완치율이 높아졌으므로 한계를 −5%p로 바꿔 다시 판정해야 한다.<div class="qz-why-o">결과를 본 뒤 한계를 바꾸지 않습니다. 의미를 해석에 반영합니다.</div></li>
+<li>대조군 완치율이 높을수록 실패율이 작아 표본이 부족해지므로, 결과를 쓸 수 없다.<div class="qz-why-o">결과를 쓸 수 없는 것은 아닙니다. 한계가 허용하는 손실의 크기를 다시 읽습니다.</div></li>
+<li data-ok="1">설계 때는 실패율 약 1.7배, 지금은 약 2.3배까지 허용해 한계가 상대적으로 느슨해졌다.<div class="qz-why-o">맞습니다. 대조군 비율로 한계의 실제 의미를 다시 읽었습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 위험차 한계가 허용하는 상대적 손실은 대조군 비율에 따라 달라집니다. 대조군 완치율 85%라면 −10%p는 실패율을 15%에서 25%로(1.67배), 92%라면 8%에서 18%로(2.25배) 늘리는 것까지 허용합니다. 결론은 바뀌지 않지만, 한계가 설계 때보다 느슨해졌다는 점을 독자가 알 수 있게 씁니다.</p>
+<p><b>조건이 달라지면.</b> 이 시험의 실제 구간 하한(−6.7)은 −10보다 꽤 여유가 있어, 더 엄격한 한계(예: 실패율 1.67배에 해당하는 약 −5.4%p)를 적용해도 결론이 유지되는지 민감도 분석으로 보일 수 있습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s4-ctrl" target="_blank" rel="noopener">13장 d 절 '같은 −10%p라도 허용하는 손실이 다른가?'</a>, <a href="stats.html#ch13-s4-other" target="_blank" rel="noopener">'그 밖에 무엇을 확인하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s2-q03" data-kind="개념 구분" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">ITT와 PP 결과가 모두 비열등이었습니다. 두 분석을 함께 제시하는 이유로 바른 것은?</p>
+<ol class="qz-opts">
+<li>ITT는 늘 보수적이라 PP는 필요 없지만, 관례상 함께 싣는다.<div class="qz-why-o">비열등성 시험에서는 ITT가 반드시 보수적이지 않습니다.</div></li>
+<li data-ok="1">ITT는 허술함 때문에 비열등 쪽으로 기울 수 있어, 두 분석이 같은 결론이어야 단단하다.<div class="qz-why-o">맞습니다. 두 결과가 함께 비열등일 때 결론을 믿습니다.</div></li>
+<li>PP는 표본이 작아 신뢰구간이 넓으므로, 두 구간 가운데 좁은 쪽으로 판정하려고 함께 싣는다.<div class="qz-why-o">좁은 쪽을 골라 판정하는 것은 결과를 보고 고르는 일입니다.</div></li>
+<li>ITT는 우월성을, PP는 비열등성을 판단하는 분석이므로 질문마다 하나씩 쓴다.<div class="qz-why-o">두 분석은 같은 질문에 서로 다른 분석군으로 답합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> ITT는 배정된 대로 모든 환자를 분석해 무작위배정의 비교 가능성을 지키지만, 중단이나 교차처럼 두 군을 비슷하게 만드는 일이 있으면 차이가 0 쪽으로 줄어 비열등이 쉬워집니다. PP는 계획대로 치료받은 환자만 보아 그 치우침은 줄이지만, 남은 환자가 두 군에서 달라질 수 있습니다. 둘이 같은 결론이어야 단단합니다.</p>
+<p><b>조건이 달라지면.</b> ITT는 비열등인데 PP는 아니라면(또는 그 반대), 결론을 조심스럽게 쓰고 그 이유(중단의 양상, 결측 처리)를 따집니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-pop" target="_blank" rel="noopener">13장 a 절 '분석군은 무엇인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz13-s2-q04" data-kind="보고 문장" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">Results 문장으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li data-ok="1">"Cure: 270/300 (90.0%) oral vs 276/300 (92.0%) IV; ITT difference −2.0 points (95% CI, −6.7 to 2.6; Newcombe), above the −10-point margin; PP −2.0 (−6.5 to 2.3)."<div class="qz-why-o">맞습니다. 군별 n/N, 차이의 방향, 신뢰구간과 방법, 한계와 판단 기준, 두 분석군을 모두 담았습니다.</div></li>
+<li>"There was no significant difference in cure rates between oral and IV therapy (90.0% vs 92.0%; P = 0.39), demonstrating that oral step-down therapy is equivalent to continued IV therapy."<div class="qz-why-o">차이 검정의 P로 동등성을 주장했고, 한계와 신뢰구간이 빠졌습니다.</div></li>
+<li>"Oral step-down therapy was noninferior (P &lt; 0.05). Cure rates were high in both groups, and oral therapy should replace IV therapy in all patients with pyelonephritis."<div class="qz-why-o">어떤 P인지와 한계, 신뢰구간이 빠졌고, 결론을 모든 환자로 지나치게 넓혔습니다.</div></li>
+<li>"In the per-protocol population, the difference was −2.0 points (95% CI, −6.5 to 2.3), which was within the margin; ITT results were not considered because of protocol deviations."<div class="qz-why-o">ITT 결과를 빼고 PP만 보고했습니다. 비열등성 시험은 두 분석군을 모두 씁니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 비열등성 결과에는 한계와 그 근거, 차이의 방향(어느 군에서 어느 군을 뺐나), 판단 기준(95% 신뢰구간의 하한 대 한계), 신뢰구간을 구한 방법, 군별 n/N, ITT와 PP 결과를 모두 씁니다. 비열등성은 '같다'가 아니라 '한계 이상 나쁘지 않다'로 표현합니다.</p>
+<p><b>조건이 달라지면.</b> 비열등성이 입증된 뒤 우월성을 미리 정한 순서에 따라 검정했다면, 그 결과도 정해진 순서와 함께 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch13-s1-write" target="_blank" rel="noopener">13장 a 절 '논문에 쓰기'</a>, <a href="stats.html#ch13-s4-write" target="_blank" rel="noopener">d 절 '논문에 쓰기'</a></p>
+</div>
+</div>
+</section>
