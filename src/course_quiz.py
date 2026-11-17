@@ -47,6 +47,8 @@ CHAPTERS = [
      {"no": "종합 3", "review": True, "kicker": "CASE STUDY 3"}),
     ("qz94", "q5", "체계적 문헌고찰과 메타분석 한 편", ["질문과 문헌 선정", "효과의 통합", "이질성과 치우침", "결과의 활용과 보고"],
      {"no": "종합 4", "review": True, "kicker": "CASE STUDY 4"}),
+    ("qz95", "q5", "급여 신청용 경제성 평가 한 편", ["질문과 분석의 틀", "모형과 입력값", "결과와 불확실성", "약가와 재정영향, 보고"],
+     {"no": "종합 5", "review": True, "kicker": "CASE STUDY 5"}),
 ]
 
 GUIDE = []
