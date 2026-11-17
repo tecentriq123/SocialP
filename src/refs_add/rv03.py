@@ -27,4 +27,10 @@ ADD = {
     "delgado2004": {"text": "Delgado-Rodríguez M, Llorca J. Bias. <i>J Epidemiol Community Health</i>. 2004;58(8):635-641.", "doi": "10.1136/jech.2003.008466"},
     "lash2014": {"text": "Lash TL, Fox MP, MacLehose RF, Maldonado G, McCandless LC, Greenland S. Good practices for quantitative bias analysis. <i>Int J Epidemiol</i>. 2014;43(6):1969-1985.", "doi": "10.1093/ije/dyu149"},
     "higgins2024robinse": {"text": "Higgins JPT, Morgan RL, Rooney AA, et al. A tool to assess risk of bias in non-randomized follow-up studies of exposure effects (ROBINS-E). <i>Environ Int</i>. 2024;186:108602.", "doi": "10.1016/j.envint.2024.108602"},
+    # ---------- e 절 (PubMed: PMID 36508210, 22016461, 37097356, 28976864, 32386426; TARGET: JAMA 2025, equator-network) ----------
+    "hernan2022jama": {"text": "Hernán MA, Wang W, Leaf DE. Target trial emulation: a framework for causal inference from observational data. <i>JAMA</i>. 2022;328(24):2446-2447.", "doi": "10.1001/jama.2022.21383"},
+    "danaei2013": {"text": "Danaei G, Rodríguez LA, Cantero OF, Logan R, Hernán MA. Observational data for comparative effectiveness research: an emulation of randomised trials of statins and primary prevention of coronary heart disease. <i>Stat Methods Med Res</i>. 2013;22(1):70-96.", "doi": "10.1177/0962280211403603"},
+    "wang2023": {"text": "Wang SV, Schneeweiss S; RCT-DUPLICATE Initiative. Emulation of randomized clinical trials with nonrandomized database analyses: results of 32 clinical trials. <i>JAMA</i>. 2023;329(16):1376-1385.", "doi": "10.1001/jama.2023.4221"},
+    "hernan2017nejm": {"text": "Hernán MA, Robins JM. Per-protocol analyses of pragmatic trials. <i>N Engl J Med</i>. 2017;377(14):1391-1398.", "doi": "10.1056/NEJMsm1605385"},
+    "cashin2025target": {"text": "Cashin AG, Hansford HJ, Hernán MA, et al. Transparent reporting of observational studies emulating a target trial: the TARGET statement. <i>JAMA</i>. 2025;334(12):1084-1093.", "doi": "10.1001/jama.2025.13350"},
 }
