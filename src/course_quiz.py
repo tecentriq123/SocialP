@@ -45,6 +45,8 @@ CHAPTERS = [
      {"no": "종합 2", "review": True, "kicker": "CASE STUDY 2"}),
     ("qz93", "q5", "예측모형 개발과 검증 한 편", ["설계와 예측변수", "모형 만들기와 내부 검증", "성능 읽기", "외부 검증과 보고"],
      {"no": "종합 3", "review": True, "kicker": "CASE STUDY 3"}),
+    ("qz94", "q5", "체계적 문헌고찰과 메타분석 한 편", ["질문과 문헌 선정", "효과의 통합", "이질성과 치우침", "결과의 활용과 보고"],
+     {"no": "종합 4", "review": True, "kicker": "CASE STUDY 4"}),
 ]
 
 GUIDE = []
