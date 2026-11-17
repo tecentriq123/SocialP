@@ -1,0 +1,259 @@
+<p class="lead">보건통계학 기초 <a href="stats.html#ch10">10장</a>을 읽은 뒤 푸는 문제입니다. 반복측정 분산분석(상관을 무시할 때의 표준오차, 군 × 시간 교호작용, 구형성과 엡실론, 완전사례 분석), 자료구조와 결측(긴 형식, MCAR·MAR·MNAR, LOCF), 선형 혼합모형(급내상관계수와 설계효과, 무작위효과의 역할, MMRM), 일반화 추정 방정식(군집 단위와 수, 조건부 오즈비와 주변 오즈비)을 a 절의 12문제로 확인하고, b 절에서는 탈락이 있는 가상의 시험 하나를 네 단계로 읽습니다.</p>
+<p>문제는 한 번에 하나씩 나옵니다. 선택지를 누른 뒤 얼마나 확신하는지(확실함, 헷갈림, 추측)를 누르면 정답과 해설이 열리고, 아래의 '다음 문제'로 넘어갑니다. 진행판의 번호를 누르면 그 문제로 바로 가고, '기록 초기화'로 이 장의 기록을 지울 수 있습니다. '2단계'가 붙은 문제는 고른 것과 그렇게 고른 이유를 따로 묻습니다. 해설 끝의 링크는 보건통계학 기초의 해당 소제목을 새 탭으로 엽니다. 문제의 연구와 숫자는 모두 가상입니다.</p>
+<div class="qz-player" data-widget="qz_player"></div>
+
+<section class="sec" id="qz10-s1">
+<h2><span class="sec-no">a.</span>장 문제</h2>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q01" data-kind="개념 구분" data-lv="처음 읽을 때">
+<p class="qz-stem">환자 80명에게서 네 번씩 잰 혈압 320개를 서로 다른 320명의 값처럼 다뤄 분석했습니다. 표준오차는 어느 쪽으로 틀리나요?</p>
+<ol class="qz-opts">
+<li>두 군의 비교도, 시점끼리의 비교도 표준오차가 작게 나온다. 관측값이 네 배로 부풀었기 때문이다.<div class="qz-why-o">시점 비교는 반대로 틀립니다. 같은 환자의 전후 값이 함께 움직이는 점을 버리기 때문입니다.</div></li>
+<li data-ok="1">두 군의 비교는 표준오차가 작게, 같은 환자 안의 시점 비교는 크게 나온다.<div class="qz-why-o">맞습니다. 무엇을 비교하느냐에 따라 반대 방향으로 틀립니다.</div></li>
+<li>두 군의 비교는 크게, 시점끼리의 비교는 작게 나온다. 환자 사이의 차이가 군 비교의 잡음으로 더해지기 때문이다.<div class="qz-why-o">방향이 거꾸로입니다.</div></li>
+<li>관측값 수와 관계없이 표준오차는 같으므로, 계수의 해석만 조심하면 된다.<div class="qz-why-o">표준오차 식이 독립을 전제로 하므로 독립이 깨지면 표준오차부터 틀립니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 한 환자의 값 네 개는 그 환자의 평소 수준을 함께 지녀, 군을 비교할 때는 '한 명분에 가까운 정보'인데 네 명분으로 세어 표준오차가 작아집니다. 반대로 같은 환자 안의 시점 비교에서는 평소 수준이 차이에서 빠지는데, 독립으로 보면 그 상쇄를 반영하지 못해 표준오차가 커집니다.</p>
+<p><b>조건이 달라지면.</b> 같은 약국 환자처럼 닮은 값이 군 안에 몰린 군집 자료도 같은 원리로, 약국 사이 비교의 표준오차가 작게 나옵니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s1-se" target="_blank" rel="noopener">10장 a 절 '서로 다른 사람의 값처럼 다루면 표준오차는 어느 쪽으로 틀리나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q02" data-kind="표 읽기" data-lv="처음 읽을 때">
+<p class="qz-stem">무작위배정 시험의 반복측정 분산분석 결과가 군 주효과 P = 0.42, 시간 주효과 P &lt; 0.001, 군 × 시간 교호작용 P = 0.01이었습니다. 중재 효과에 대해 바른 것은?</p>
+<ol class="qz-opts">
+<li>군 주효과가 유의하지 않으므로 중재는 효과가 없다.<div class="qz-why-o">군 주효과는 모든 시점을 평균한 두 군의 차이라, 기저(차이가 없는 시점)까지 섞여 중재 효과를 직접 보여 주지 않습니다.</div></li>
+<li>시간 주효과가 유의하므로 중재 덕분에 두 군 모두 좋아졌다.<div class="qz-why-o">시간 주효과는 두 군을 합쳐 시간에 따라 변했다는 뜻일 뿐입니다.</div></li>
+<li data-ok="1">교호작용이 유의하므로 두 군의 변화가 달랐다는 근거가 있다.<div class="qz-why-o">맞습니다. 무작위배정 연구의 중재 효과는 군 × 시간 교호작용으로 봅니다.</div></li>
+<li>세 P 가운데 가장 작은 시간 주효과의 P로 판단하며, 중재군이 포함된 전체에서 시간에 따른 개선이 확인되었다.<div class="qz-why-o">질문에 맞는 줄을 읽어야지, 가장 작은 P를 고르지 않습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 무작위배정한 두 군은 기저 평균이 같다고 기대하므로, 중재가 효과가 있다면 시간이 지나며 두 군이 벌어집니다. 추이가 평행하지 않은지를 보는 교호작용은 결국 '두 군의 변화량이 다른가'를 묻는 검정입니다. 크기는 주 시점의 군간 차이와 신뢰구간으로 따로 제시합니다.</p>
+<p><b>조건이 달라지면.</b> 관찰연구라면 두 군의 기저부터 다를 수 있어, 교호작용도 교란을 보정한 모형에서 봐야 합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s1-intx" target="_blank" rel="noopener">10장 a 절 '왜 교호작용 줄이 중재 효과인가?'</a>, <a href="stats.html#ch10-s1-order" target="_blank" rel="noopener">'교호작용 줄은 어떤 순서로 읽나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q03" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">두 군 60명을 네 시점에 잰 반복측정 분산분석에서, 시간 효과의 F는 보정 전 F(3, 174)였고 논문에는 Greenhouse–Geisser 보정 후 F(2.1, 121.8)로 적혀 있습니다. 엡실론(ε)과 F 값의 변화는?</p>
+<ol class="qz-opts">
+<li data-ok="1">ε = 0.70. F는 그대로이고 두 자유도에만 0.70을 곱해 P를 다시 구했다.<div class="qz-why-o">맞습니다. 2.1 ÷ 3 = 121.8 ÷ 174 = 0.70입니다.</div></li>
+<li>ε = 1.43. F에 1.43을 곱해 더 엄격하게 만들었다.<div class="qz-why-o">ε은 1 이하의 값이고, F 자체는 바꾸지 않습니다.</div></li>
+<li>ε = 0.70. F도 0.70을 곱해 작아졌으므로 P가 커졌다.<div class="qz-why-o">F는 그대로이고, 자유도가 작아져 같은 F에서 P가 커집니다.</div></li>
+<li>ε = 0.30. 구형성이 깨진 정도가 30%라서 자유도를 30%만큼 남겼다.<div class="qz-why-o">자유도에 곱하는 값이 ε이므로 0.70입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 구형성이 깨지면 F는 그대로 두고 두 자유도에 ε(1 이하)을 곱해 P를 다시 구합니다. 2.1 ÷ 3 = 0.70이고, 자유도가 작아지면 같은 F에서 P가 커져 보수적인 판정이 됩니다. F(2.1, 121.8)처럼 소수 자유도는 보정했다는 표시입니다.</p>
+<p><b>조건이 달라지면.</b> ε이 1에 가까우면 구형성이 거의 성립해 보정 전과 결과가 비슷합니다. 시점이 둘뿐이면 변화량이 하나라 구형성 문제가 없습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s1-sph" target="_blank" rel="noopener">10장 a 절 '다섯째, 구형성이 성립하나?'</a>, <a href="stats.html#ch10-s1-eps" target="_blank" rel="noopener">'구형성이 깨지면 무엇을 하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q04" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">우울증 약 시험에서 증상이 나빠진 환자가 주로 위약군에서 중도 탈락했습니다. 연구팀은 네 시점을 모두 잰 환자만으로 반복측정 분산분석을 했습니다. 가장 큰 문제는?</p>
+<ol class="qz-opts">
+<li>탈락으로 인원이 줄어 검정력만 떨어질 뿐, 결과의 방향은 치우치지 않는다.<div class="qz-why-o">탈락이 결과와 관련 있으면 인원만이 아니라 추정값 자체가 치우칩니다.</div></li>
+<li>구형성이 깨졌을 가능성이 높아 Greenhouse–Geisser 보정만 하면 해결된다.<div class="qz-why-o">구형성 보정은 결측으로 생긴 치우침을 바로잡지 못합니다.</div></li>
+<li>탈락한 환자의 마지막 값을 끝까지 이어 붙이면(LOCF) 모든 환자를 쓸 수 있으므로 해결된다.<div class="qz-why-o">LOCF는 증상이 그대로 머문다고 가정해 다른 치우침을 만들고, 주 분석으로 권장되지 않습니다.</div></li>
+<li data-ok="1">나빠진 위약군 환자가 빠져 위약군이 좋아 보이므로 효과가 작게 추정된다.<div class="qz-why-o">맞습니다. 완전사례 분석은 탈락이 결과와 관련 있으면 편향됩니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 반복측정 분산분석은 모든 시점을 잰 환자만 쓰는 완전사례 분석입니다. 탈락이 나빠진 증상과 관련 있으면, 남은 사람만으로는 그 군이 실제보다 좋아 보입니다. 혼합모형은 탈락 전에 측정된 값까지 모두 쓰고, 결측이 무작위 결측(MAR)이며 모형이 맞으면 편향 없이 추정합니다.</p>
+<p><b>조건이 달라지면.</b> 탈락이 결과와 무관한 사정(이사, 기기 고장)뿐이라면 완전사례 분석도 인원이 줄어드는 정도에 그칩니다. 탈락이 관측되지 않은 값 자체에 달려 있을 수 있으면(MNAR) 민감도 분석을 더합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s1-cc" target="_blank" rel="noopener">10장 a 절 '셋째, 모든 시점을 잰 환자만 들어가도 괜찮은가?'</a>, <a href="stats.html#ch10-s3-mar" target="_blank" rel="noopener">c 절 '둘째, 결측은 무작위 결측인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q05" data-kind="개념 구분" data-lv="처음 읽을 때">
+<p class="qz-stem">다음 가운데 무작위 결측(MAR)에 해당하는 상황은?</p>
+<ol class="qz-opts">
+<li>검사 장비가 고장 나 한 주 동안 모든 환자의 검사를 하지 못했다.<div class="qz-why-o">환자의 어떤 값과도 관계없이 빠졌으므로 완전 무작위 결측(MCAR)입니다.</div></li>
+<li data-ok="1">지난 방문에서 HbA1c가 높게 나온 환자가 다음 방문에 더 많이 오지 않았다.<div class="qz-why-o">맞습니다. 빠진 이유가 이미 관측된 값(지난 방문의 HbA1c)으로 설명됩니다.</div></li>
+<li>이번 방문에 잴 HbA1c가 높았을 환자가, 그 사실을 짐작하고 이번 방문에 오지 않았다.<div class="qz-why-o">빠진 이유가 관측되지 않은 그 값 자체에 달려 있으므로 무작위가 아닌 결측(MNAR)입니다.</div></li>
+<li>결측이 군마다 비슷한 비율로 생겼으므로, 결측의 이유와 관계없이 무작위 결측으로 본다.<div class="qz-why-o">결측 기전은 비율이 아니라 빠진 이유가 무엇과 관련 있는지로 나눕니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 결측은 빠진 이유가 무엇과 관련 있는지로 나눕니다. 환자의 어떤 값과도 관계없으면 MCAR, 배정군·기저값·지난 방문 값처럼 이미 관측된 값으로 설명되면 MAR, 관측되지 않은 그 값 자체에 달려 있으면 MNAR입니다. 혼합모형은 MAR까지 편향 없이 다룹니다.</p>
+<p><b>조건이 달라지면.</b> MAR인지 MNAR인지는 자료로 확인할 수 없습니다. 그래서 주 분석은 MAR로 하고, MNAR을 가정한 민감도 분석으로 결론이 바뀌는지 봅니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s2-mech" target="_blank" rel="noopener">10장 b 절 '방문이 빠지는 이유는 어떻게 나누나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q06" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">치매 약 시험의 Methods에 "중도 탈락한 환자는 마지막으로 관측된 인지 점수를 이후 모든 방문에 이어 붙여(LOCF) 주 분석했다"고 적혀 있습니다. 가장 알맞은 지적은?</p>
+<ol class="qz-opts">
+<li>모든 무작위배정 환자를 분석에 넣었으므로 가장 보수적이고 바람직한 주 분석이다.<div class="qz-why-o">모든 환자를 넣었다고 해서 보수적인 것은 아닙니다. LOCF는 어느 쪽으로든 치우칠 수 있습니다.</div></li>
+<li>LOCF는 탈락 뒤의 값을 관측된 값으로 채우므로 결측이 MNAR이어도 편향이 없고, 따라서 민감도 분석은 필요 없다.<div class="qz-why-o">LOCF는 어떤 결측 기전에서도 '점수가 그대로 머문다'는 별도의 강한 가정을 둡니다.</div></li>
+<li data-ok="1">점수가 계속 떨어지는 질환에서 마지막 값을 고정하면 일찍 탈락한 군이 유리해 보일 수 있다.<div class="qz-why-o">맞습니다. 값이 변하지 않는다는 가정이 질환의 경과와 맞지 않습니다.</div></li>
+<li>LOCF의 문제는 표준오차가 커지는 것뿐이므로, 신뢰구간만 넓게 해석하면 된다.<div class="qz-why-o">반대로 같은 값을 복사해 넣어 변동이 작아지고, 표준오차도 작게 나옵니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> LOCF는 탈락 뒤에도 값이 그대로 머문다고 가정합니다. 치매처럼 점수가 계속 나빠지는 질환에서는 일찍 탈락할수록 좋은 값이 고정되어, 탈락이 많은 군이 유리해 보일 수 있습니다. 같은 값을 복사해 넣어 변동도 작게 잡습니다. 그래서 MAR을 가정한 혼합모형을 주 분석으로 두고 LOCF는 쓰지 않습니다.</p>
+<p><b>조건이 달라지면.</b> 값이 시간에 따라 거의 변하지 않는 결과라면 LOCF의 치우침이 작을 수 있지만, 그 가정을 자료로 확인할 수 없다는 점은 같습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s2-assume" target="_blank" rel="noopener">10장 b 절 '그래서 무엇을 가정하고 분석하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q07" data-kind="분석 고르기" data-lv="처음 읽을 때">
+<p class="qz-stem">자료표가 환자 한 명이 한 행이고 열이 HbA1c_0, HbA1c_3, HbA1c_6, HbA1c_12인 넓은 형식입니다. 일부 환자는 6개월 방문만 빠졌습니다. 혼합모형으로 분석하려면?</p>
+<ol class="qz-opts">
+<li>한 방문이라도 빠진 환자를 지우고 넓은 형식 그대로 혼합모형에 넣는다.<div class="qz-why-o">그러면 완전사례 분석이 되어 혼합모형을 쓰는 이점이 사라집니다.</div></li>
+<li>빠진 6개월 값을 3개월 값으로 채운 뒤 넓은 형식 그대로 넣는다.<div class="qz-why-o">값을 채워 넣는 것은 LOCF와 같은 문제를 만듭니다.</div></li>
+<li>시점마다 따로 t 검정을 네 번 해서 결과를 모은다.<div class="qz-why-o">반복측정의 상관을 쓰지 못하고, 다중비교 문제도 생깁니다.</div></li>
+<li data-ok="1">측정 한 번이 한 행인 긴 형식으로 바꿔, 빠진 방문의 행만 없앤다.<div class="qz-why-o">맞습니다. 혼합모형과 GEE는 긴 형식을 씁니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 긴 형식은 (환자 id, 방문, 값) 한 줄이 측정 한 번입니다. 6개월 방문이 빠지면 그 한 줄만 없고, 같은 환자의 기저·3개월·12개월 값은 그대로 분석에 들어갑니다. 측정 시점이 환자마다 다르거나 시간에 따라 변하는 공변량이 있어도 다룰 수 있습니다.</p>
+<p><b>조건이 달라지면.</b> 반복측정 분산분석은 넓은 형식을 쓰고 한 방문이라도 빠진 환자를 통째로 뺍니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s2-two" target="_blank" rel="noopener">10장 b 절 '두 형식은 분석에서 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q08" data-kind="계산" data-lv="직접 분석할 때">
+<p class="qz-stem">무작위 절편 모형에서 환자 사이의 SD가 0.6, 한 환자 안의 SD가 0.8이었습니다. 급내상관계수(ICC)와, 환자당 5번 잴 때의 설계효과는?</p>
+<ol class="qz-opts">
+<li>ICC 0.75, 설계효과 4.0. 두 SD의 비 0.6 ÷ 0.8을 쓴다.<div class="qz-why-o">ICC는 SD가 아니라 분산의 비율이고, 분모는 두 분산의 합입니다.</div></li>
+<li data-ok="1">ICC 0.36, 설계효과 2.44. 분산의 비율로 ICC를 구한다.<div class="qz-why-o">맞습니다. 측정 500개는 독립 측정 약 205개의 정보에 해당합니다.</div></li>
+<li>ICC 0.43, 설계효과 2.71. SD의 비율 0.6 ÷ (0.6 + 0.8)을 쓴다.<div class="qz-why-o">SD가 아니라 분산(SD의 제곱)으로 비율을 구합니다.</div></li>
+<li>ICC 0.36, 설계효과 1.80. 설계효과는 1 + 5 × ICC로 구한다.<div class="qz-why-o">설계효과는 1 + (측정 수 − 1) × ICC입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> ICC는 전체 분산 가운데 환자 사이 분산의 비율로, 0.36 ÷ (0.36 + 0.64) = 0.36입니다. 상관을 무시하면 군을 비교하는 분산을 설계효과 1 + (m − 1) × ICC = 2.44배만큼 작게 잡습니다. 같은 원리가 약국·병원 군집 자료에도 그대로 적용됩니다.</p>
+<p><b>조건이 달라지면.</b> ICC가 0.05처럼 작아도 군집당 인원이 100명이면 설계효과는 약 6으로 커집니다. 군집 무작위배정 시험의 표본크기에 이 값을 곱해 계획합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s3-icc" target="_blank" rel="noopener">10장 c 절 '두 흩어짐과 급내상관계수는 무엇을 말하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q09" data-kind="해석 고치기" data-lv="직접 분석할 때">
+<p class="qz-stem">청구자료의 반복 측정 자료로 두 당뇨병약을 비교한 연구가 "환자별 무작위 절편을 넣은 혼합모형으로 분석했으므로 환자 사이의 차이, 곧 교란이 보정되었다"고 썼습니다. 바른 지적은?</p>
+<ol class="qz-opts">
+<li>무작위 절편은 환자마다의 높이를 따로 두므로 측정한 교란과 측정하지 않은 교란을 모두 흡수한다. 문장은 맞다.<div class="qz-why-o">무작위효과는 노출과 무관하다고 가정하고 상관을 다룰 뿐, 교란을 보정하지 않습니다.</div></li>
+<li>무작위 기울기까지 넣으면 교란이 보정되므로, 모형에 무작위 기울기를 더하면 문장이 맞게 된다.<div class="qz-why-o">무작위 기울기도 환자마다 다른 변화를 다루는 장치일 뿐, 교란을 보정하지 않습니다.</div></li>
+<li data-ok="1">무작위효과는 같은 환자 값끼리의 상관을 다룰 뿐 교란을 보정하지 않는다. 노출 이전의 교란변수를 고정효과로 넣어야 한다.<div class="qz-why-o">맞습니다. 관찰연구에서는 교란변수를 따로 넣습니다.</div></li>
+<li>혼합모형은 무작위배정 시험에서만 쓸 수 있으므로, 관찰연구에서는 GEE로 바꿔야 한다.<div class="qz-why-o">관찰연구에서도 쓸 수 있습니다. GEE도 교란을 보정하지 않는 점은 같습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 선형 혼합모형은 자료를 공통의 고정효과(군의 평균 선)와 환자마다 다른 무작위효과(각자의 높이와 기울기)로 나누고, 같은 환자 값끼리의 상관을 무작위효과로 설명합니다. 그래서 표준오차를 바로잡지만, 어떤 환자가 어느 약을 받았는지에 섞인 교란은 그대로 남습니다.</p>
+<p><b>조건이 달라지면.</b> 무작위배정 시험에서는 교란이 설계로 다뤄지므로 혼합모형이 상관만 다루면 됩니다. 관찰연구에서는 교란변수를 고정효과로 넣거나 성향점수 방법을 함께 씁니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s3-fixran" target="_blank" rel="noopener">10장 c 절 '고정효과와 무작위효과는 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q10" data-kind="표 읽기" data-lv="직접 분석할 때">
+<p class="qz-stem">임상시험 논문의 1차 결과가 "MMRM, 24주 HbA1c 변화의 최소제곱평균 차이 −0.45%p (95% CI −0.70 to −0.20)"로 적혀 있습니다. 바른 해석은?</p>
+<ol class="qz-opts">
+<li data-ok="1">방문을 범주형으로, 기저값을 공변량으로 둔 모형에서 24주의 두 군 차이를 추정한 값이다.<div class="qz-why-o">맞습니다. MMRM의 결과는 방문별 최소제곱평균 차이로 나옵니다.</div></li>
+<li>24주까지 모든 방문을 평균한 두 군의 차이로, 시간 전체에 걸친 중재 효과다.<div class="qz-why-o">MMRM은 방문마다 군간 차이를 따로 추정하고, 1차 결과는 보통 미리 정한 마지막 방문의 차이입니다.</div></li>
+<li>24주까지 남은 환자만의 단순 평균 차이로, 탈락한 환자는 계산에 들어가지 않는다.<div class="qz-why-o">MMRM은 탈락 전에 측정된 값도 모두 써서, 결측이 MAR이면 편향 없이 추정합니다.</div></li>
+<li>변화 추이가 직선이라고 가정한 기울기의 차이로, 주당 0.45%p씩 더 떨어진다는 뜻이다.<div class="qz-why-o">MMRM은 직선을 가정하지 않고 방문을 범주형으로 둡니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> MMRM은 방문을 범주형으로 두어 평균 추이의 모양을 가정하지 않고, 같은 환자 방문 사이의 상관에도 모양을 가정하지 않는 비구조 공분산을 씁니다. 기저값은 공변량으로 넣고, 결과는 방문마다 공변량을 평균에 맞춘 최소제곱평균과 그 차이로 보고합니다.</p>
+<p><b>조건이 달라지면.</b> 방문이 불규칙하거나 시점이 많아 추이의 모양이 관심이면, 시간을 연속형으로 넣고 무작위 기울기를 둔 모형을 씁니다. 그때는 기울기(단위 시간당 변화)의 차이를 보고합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s3-mmrm" target="_blank" rel="noopener">10장 c 절 'MMRM은 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q11" data-kind="분석 고르기" data-lv="직접 분석할 때">
+<p class="qz-stem">약국 12곳을 6곳씩 중재와 대조에 배정하고, 약국마다 환자 50명의 월별 복약순응(예·아니요)을 6개월 동안 기록했습니다. GEE로 분석할 때 알맞은 설정은?</p>
+<ol class="qz-opts">
+<li>환자를 군집으로 두고 강건 표준오차를 쓴다. 군집이 600개라 강건 표준오차가 정확하다.<div class="qz-why-o">배정 단위가 약국이므로 약국 환자끼리의 닮음이 표준오차에 빠져 작게 나옵니다.</div></li>
+<li>약국을 군집으로 두고 일반 강건 표준오차를 쓴다. 관측값이 3,600개라 충분하다.<div class="qz-why-o">강건 표준오차의 정확성은 관측값 수가 아니라 군집 수에 달려 있습니다.</div></li>
+<li>군집을 두지 않고 일반 로지스틱 회귀를 쓴다. 무작위배정했으므로 상관은 문제가 되지 않는다.<div class="qz-why-o">무작위배정은 교란을 다룰 뿐, 같은 약국·같은 환자 값끼리의 상관은 그대로 남습니다.</div></li>
+<li data-ok="1">약국을 군집으로 두고, 군집이 12개뿐이므로 소표본 보정한 강건 표준오차를 쓴다.<div class="qz-why-o">맞습니다. 배정 단위를 군집으로 두고, 적은 군집 수를 보정합니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 강건 표준오차는 잔차를 군집 안에서 먼저 더하므로 서로 다른 군집은 독립이라고 봅니다. 약국 단위로 배정했다면 같은 약국 환자끼리 닮으므로 약국을 군집으로 둡니다. 또 강건 표준오차의 정확성은 군집 수에 달려 있어, 12개처럼 적으면 표준오차가 작게 추정되므로 소표본 보정을 씁니다.</p>
+<p><b>조건이 달라지면.</b> 환자 한 명씩 배정한 시험이라면 환자를 군집으로 두고, 군집이 수백 개면 일반 강건 표준오차로 충분합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s4-cluster" target="_blank" rel="noopener">10장 d 절 '둘째, 군집은 서로 독립이고 그 수가 충분한가?'</a>, <a href="stats.html#ch10-s4-three" target="_blank" rel="noopener">'세 요소는 각각 무엇을 하나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s1-q12" data-kind="개념 구분" data-lv="심화">
+<p class="qz-stem">같은 반복측정 이분형 자료에서 GEE는 중재의 오즈비 1.6, 무작위 절편을 둔 혼합 로지스틱 모형은 2.4를 냈습니다. 바른 설명은?</p>
+<ol class="qz-opts">
+<li data-ok="1">혼합모형은 조건부 오즈비, GEE는 주변 오즈비라 서로 다른 양을 추정한 것이다.<div class="qz-why-o">맞습니다. 환자 사이 차이가 클수록 두 값이 더 벌어집니다.</div></li>
+<li>둘 중 하나는 계산이 틀렸으므로, 두 값이 같아질 때까지 작업상관 구조를 바꿔 다시 분석한다.<div class="qz-why-o">오류가 아니라 서로 다른 양을 추정한 결과입니다.</div></li>
+<li>GEE가 상관을 무시해 오즈비를 작게 잡았으므로, 혼합모형의 2.4가 실제 효과다.<div class="qz-why-o">GEE는 상관을 무시하지 않습니다. 강건 표준오차로 다루며, 추정하는 양이 다를 뿐입니다.</div></li>
+<li>두 값의 평균인 2.0을 최종 효과로 보고하는 것이 가장 공정하다.<div class="qz-why-o">서로 다른 양을 평균 낼 근거가 없습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 이분형 결과에서 혼합모형의 계수는 '평균적인 환자 한 명'에서 중재를 받았을 때와 받지 않았을 때의 오즈비(조건부)이고, GEE는 집단 전체의 순응 확률을 평균한 뒤의 오즈비(주변)입니다. 오즈비의 비붕괴성 때문에 환자 사이 차이가 클수록 조건부 오즈비가 1에서 더 멉니다.</p>
+<p><b>조건이 달라지면.</b> 연속형 결과의 선형 모형에서는 두 방법의 계수가 같은 양(평균의 차이)을 추정해 값이 거의 같습니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s4-nc" target="_blank" rel="noopener">10장 d 절 '같은 자료에서 왜 두 오즈비가 다른가?'</a>, <a href="stats.html#ch10-s4-glmm" target="_blank" rel="noopener">'같은 자료를 혼합모형으로 분석하면 무엇이 나오나?'</a></p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="qz10-s2">
+<h2><span class="sec-no">b.</span>종합 사례</h2>
+<p>가상의 무작위배정 시험입니다. 고혈압 환자 120명을 약사 중재군과 통상치료군에 60명씩 배정하고, 수축기혈압을 기저, 3, 6, 12개월에 쟀습니다. 20명이 중도 탈락했고(통상치료 14명, 중재 6명), 탈락한 환자는 직전 방문의 혈압이 높았습니다. 두 가지 분석 결과는 다음과 같습니다. 질문마다 필요한 숫자를 다시 줍니다.</p>
+<div class="tbl-wrap"><table class="tbl tight" style="max-width:36rem;white-space:nowrap">
+<thead><tr><th>분석</th><th class="r">분석 인원</th><th class="r">결과</th></tr></thead>
+<tbody>
+<tr><td>반복측정 분산분석</td><td class="r">100</td><td class="r">군 × 시간 F(2.16, 211.7) = 3.12, P = 0.03</td></tr>
+<tr><td>MMRM (12개월 차이)</td><td class="r">120</td><td class="r">−5.2 mmHg (−9.1 to −1.3)</td></tr>
+<tr><td>12개월 완료자 t 검정</td><td class="r">100</td><td class="r">−3.0 mmHg (−7.4 to 1.4)</td></tr>
+</tbody></table></div>
+
+<div class="qz" data-widget="qz" id="qz10-s2-q01" data-kind="표 읽기" data-lv="처음 읽을 때" data-case="1">
+<p class="qz-stem">반복측정 분산분석은 100명, MMRM은 120명을 분석했습니다. 차이가 나는 이유는?</p>
+<ol class="qz-opts">
+<li>MMRM이 탈락한 20명의 빠진 값을 마지막 값으로 채워 넣었기 때문이다.<div class="qz-why-o">MMRM은 값을 채워 넣지 않고, 측정된 값만으로 추정합니다.</div></li>
+<li data-ok="1">반복측정 분산분석은 모든 시점을 잰 환자만 쓰고, MMRM은 탈락 전에 측정된 값까지 모두 쓰기 때문이다.<div class="qz-why-o">맞습니다. 긴 형식에서는 빠진 방문의 행만 없어집니다.</div></li>
+<li>반복측정 분산분석은 기저 혈압을 재지 못한 20명을 분석에서 뺐기 때문이다.<div class="qz-why-o">탈락한 환자도 기저값은 있습니다. 빠진 것은 이후 방문입니다.</div></li>
+<li>MMRM은 무작위배정한 120명을 결과와 관계없이 모두 같은 값으로 넣기 때문이다.<div class="qz-why-o">결과를 같은 값으로 넣지 않습니다. 측정된 값을 씁니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 반복측정 분산분석은 넓은 형식에서 한 방문이라도 빠진 환자를 통째로 빼는 완전사례 분석입니다. MMRM은 긴 형식으로 탈락 전의 기저·3개월·6개월 값까지 모두 쓰므로 120명 전원이 분석에 들어갑니다.</p>
+<p><b>조건이 달라지면.</b> 탈락이 없었다면 두 분석의 인원이 같고, 결과도 비슷하게 나옵니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s1-cc" target="_blank" rel="noopener">10장 a 절 '셋째, 모든 시점을 잰 환자만 들어가도 괜찮은가?'</a>, <a href="stats.html#ch10-s2-two" target="_blank" rel="noopener">b 절 '두 형식은 분석에서 무엇이 다른가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s2-q02" data-kind="해석 고치기" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">12개월 완료자 t 검정은 −3.0 mmHg, MMRM은 −5.2 mmHg입니다. 탈락은 통상치료군에 많았고 직전 방문의 혈압이 높았던 환자가 탈락했습니다. 바른 해석은?</p>
+<ol class="qz-opts">
+<li>완료자 분석이 실제로 측정된 값만 썼으므로 더 정확하고, MMRM은 효과를 부풀렸다.<div class="qz-why-o">완료자 분석은 혈압이 높던 통상치료군 환자가 빠져 통상치료군이 좋아 보입니다.</div></li>
+<li>두 값의 차이는 우연이므로 평균 −4.1 mmHg를 보고한다.<div class="qz-why-o">두 분석은 서로 다른 가정에 기대므로, 평균 낼 근거가 없습니다.</div></li>
+<li>탈락이 군마다 다르므로 어느 분석도 쓸 수 없고, 결론을 내릴 수 없다.<div class="qz-why-o">MAR이면 혼합모형으로 편향 없이 추정할 수 있고, 민감도 분석으로 결론의 단단함을 봅니다.</div></li>
+<li data-ok="1">탈락은 MAR에 가깝고, 완료자 분석은 통상치료군을 좋게 보이게 해 효과를 작게 잡았다.<div class="qz-why-o">맞습니다. 결측 기전으로 두 결과의 차이를 설명했습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 빠진 이유가 이미 관측된 값(직전 방문 혈압)으로 설명되면 MAR입니다. 혈압이 높던 통상치료군 환자가 많이 빠지면, 완료자만으로는 통상치료군의 12개월 혈압이 실제보다 낮아 보여 두 군의 차이가 줄어듭니다. 혼합모형은 탈락 전 값으로 그들의 추이를 반영해 이 치우침을 줄입니다.</p>
+<p><b>조건이 달라지면.</b> 탈락이 관측되지 않은 12개월 혈압 자체에 달려 있다면(MNAR) 혼합모형도 편향될 수 있으므로, MNAR을 가정한 민감도 분석을 함께 보고합니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s2-mech" target="_blank" rel="noopener">10장 b 절 '방문이 빠지는 이유는 어떻게 나누나?'</a>, <a href="stats.html#ch10-s3-mar" target="_blank" rel="noopener">c 절 '둘째, 결측은 무작위 결측인가?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s2-q03" data-kind="계산" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">반복측정 분산분석의 군 × 시간 결과가 F(2.16, 211.7)로 적혀 있습니다. 완료자 100명, 두 군, 네 시점입니다. 보정 전 자유도와 엡실론은?</p>
+<ol class="qz-opts">
+<li data-ok="1">보정 전 F(3, 294), ε = 0.72<div class="qz-why-o">맞습니다. (4 − 1) = 3, (4 − 1) × (100 − 2) = 294이고, 2.16 ÷ 3 = 0.72입니다.</div></li>
+<li>보정 전 F(3, 396), ε = 0.53. 오차 자유도는 (시점 − 1) × 인원이다.<div class="qz-why-o">오차 자유도에서는 인원이 아니라 인원 − 군 수를 씁니다.</div></li>
+<li>보정 전 F(4, 300), ε = 0.54. 자유도는 시점 수와 관측값 수로 정한다.<div class="qz-why-o">자유도는 시점 수 − 1과 (시점 수 − 1) × (인원 − 군 수)입니다.</div></li>
+<li>보정 전 F(2, 98), ε = 1.08. 군 × 시간의 자유도는 군 수로 정한다.<div class="qz-why-o">ε은 1 이하이고, 군이 둘일 때 군 × 시간의 자유도는 (군 − 1) × (시점 − 1) = 3입니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 두 군, 네 시점이면 군 × 시간의 분자 자유도는 (2 − 1) × (4 − 1) = 3이고, 환자 안 오차의 자유도는 (4 − 1) × (100 − 2) = 294입니다. Greenhouse–Geisser 보정은 두 자유도에 ε을 곱하므로 ε = 2.16 ÷ 3 = 211.7 ÷ 294 = 0.72입니다.</p>
+<p><b>조건이 달라지면.</b> ε이 0.75보다 크면 Huynh–Feldt 보정을 쓰기도 합니다. 어느 보정을 썼는지 Methods에 밝힙니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s1-eps" target="_blank" rel="noopener">10장 a 절 '구형성이 깨지면 무엇을 하나?'</a>, <a href="stats.html#ch10-s1-threef" target="_blank" rel="noopener">'두 군이 되면 어떤 F가 나오나?'</a></p>
+</div>
+</div>
+
+<div class="qz" data-widget="qz" id="qz10-s2-q04" data-kind="보고 문장" data-lv="직접 분석할 때" data-case="1">
+<p class="qz-stem">계획서가 MMRM을 주 분석으로 정했다면, Results 문장으로 가장 알맞은 것은?</p>
+<ol class="qz-opts">
+<li>"Among the 100 patients who completed all visits, the pharmacist intervention significantly reduced systolic blood pressure over 12 months compared with usual care (repeated-measures ANOVA, group × time interaction, P = 0.03)."<div class="qz-why-o">계획한 주 분석이 아니고, 효과의 크기와 신뢰구간, 분석 인원의 근거가 빠졌습니다.</div></li>
+<li>"Using LOCF for the 20 patients who dropped out, the mean difference at 12 months was −5.2 mmHg (95% CI, −9.1 to −1.3), confirming the efficacy of the intervention."<div class="qz-why-o">MMRM의 결과를 LOCF로 구한 것처럼 썼고, '효능 확인' 같은 표현도 과합니다.</div></li>
+<li data-ok="1">"In the MMRM including all 120 randomized patients (missing at random assumed), the 12-month difference was −5.2 mmHg (95% CI, −9.1 to −1.3); 20 (usual care 14, intervention 6) discontinued."<div class="qz-why-o">맞습니다. 분석 방법과 인원, 결측 가정, 주 시점의 차이와 95% CI, 군별 탈락을 담았습니다.</div></li>
+<li>"There was no difference at 12 months among completers (−3.0 mmHg; 95% CI, −7.4 to 1.4), so the intervention had no effect on blood pressure."<div class="qz-why-o">주 분석이 아닌 완료자 결과를 근거로 '효과 없음'이라 썼고, 유의하지 않은 결과를 효과가 없다는 뜻으로 읽었습니다.</div></li>
+</ol>
+<div class="qz-fb">
+<p><b>핵심 이유.</b> 반복측정 자료의 결과에는 분석 방법(고정효과, 시간 처리, 공분산 구조), 무작위배정 인원과 분석 인원, 군별 결측과 결측 가정, 주 시점의 군간 차이와 95% CI를 씁니다. 완료자 분석이나 다른 가정의 결과는 민감도 분석으로 함께 보고합니다.</p>
+<p><b>조건이 달라지면.</b> 반복측정 분산분석을 썼다면 구형성 보정 방법과 보정한 자유도, 정확한 P를 함께 쓰고, 완전사례 분석이라는 한계를 밝힙니다.</p>
+<p class="qz-read"><b>다시 읽을 곳.</b> <a href="stats.html#ch10-s3-write" target="_blank" rel="noopener">10장 c 절 '논문에 쓰기'</a>, <a href="stats.html#ch10-s2-write" target="_blank" rel="noopener">b 절 '논문에 쓰기'</a></p>
+</div>
+</div>
+</section>
