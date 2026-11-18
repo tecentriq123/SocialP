@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">직접 근거와 간접 근거 나눠 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ns &lt;- netsplit(nm)
+data.frame(comparison = ns$random$comparison, k = ns$k,
+           direct.share = round(ns$prop.random, 2),
+           direct = round(exp(ns$direct.random$TE), 2),
+           indirect = round(exp(ns$indirect.random$TE), 2),
+           P.diff = round(ns$compare.random$p, 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  comparison  k direct.share direct indirect P.diff
+1        X:P 10         0.85   0.84     0.86   0.81
+2        Y:P  5         0.73   0.90     0.87   0.81
+3        Z:P  2         1.00   0.73       NA     NA
+4        X:Y  2         0.42   0.96     0.93   0.81<span class="mk">1</span>
+5        X:Z  0         0.00<span class="mk">2</span>     NA     1.15     NA
+6        Y:Z  0         0.00     NA     1.22     NA</pre></div></div>

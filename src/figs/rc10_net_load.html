@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">네트워크 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(netmeta)
+d2 &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch19f_network.csv&quot;)
+d2[c(1, 11, 16, 18), ]                 # 비교마다 한 줄씩 보기
+table(paste(d2$t1, &quot;vs&quot;, d2$t0))      # 비교마다 시험 수</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Loading &#x27;netmeta&#x27; package (version 3.7-0).
+Type &#x27;help(&quot;netmeta-package&quot;)&#x27; for a brief overview.
+   study year t1 t0   n1   n0  e1  e0 mo
+1      A 2008  X  P  620  310  23  11  6
+11     K 2012  Y  P 1300 1300 109 109 12
+16     Q 2017  X  Y<span class="mk">1</span> 2100 2100 162 170 12
+18     S 2021  Z  P  420  420  15  16  6
+
+X vs P X vs Y Y vs P Z vs P<span class="mk">2</span> 
+    10      2      5      2</pre></div></div>

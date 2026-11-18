@@ -140,6 +140,45 @@ c_nnt = nb.cell('''
 nnt(m, p.c = 0.084)             # p.c: 대조군의 위험(기저 위험)
 ''', title="NNT로 옮기기")
 
+# e. 네트워크 메타분석 (보건통계학 기초 19장 f 절)
+c_net_load = nb.cell(f'''
+library(netmeta)
+d2 <- read.csv("{URL}ch19f_network.csv")
+d2[c(1, 11, 16, 18), ]                 # 비교마다 한 줄씩 보기
+table(paste(d2$t1, "vs", d2$t0))      # 비교마다 시험 수
+''', title="네트워크 자료 불러오기")
+
+c_net = nb.cell('''
+p  <- pairwise(treat = list(t1, t0), event = list(e1, e0), n = list(n1, n0),
+               studlab = study, data = d2, sm = "OR")
+nm <- netmeta(p, reference.group = "P", method.tau = "REML", common = FALSE)
+nm
+c(tau = netmeta(p, reference.group = "P")$method.tau)   # 적지 않으면
+''', title="네트워크 전체를 한 번에 합치기")
+
+c_split = nb.cell('''
+ns <- netsplit(nm)
+data.frame(comparison = ns$random$comparison, k = ns$k,
+           direct.share = round(ns$prop.random, 2),
+           direct = round(exp(ns$direct.random$TE), 2),
+           indirect = round(exp(ns$indirect.random$TE), 2),
+           P.diff = round(ns$compare.random$p, 2))
+''', title="직접 근거와 간접 근거 나눠 보기")
+
+c_rank = nb.cell('''
+netrank(nm, small.values = "desirable")      # 작은 오즈비가 좋은 결과
+''', title="순위(P-score)")
+
+c_league = nb.cell('''
+netleague(nm, common = FALSE, digits = 2, bracket = "(", separator = "-",
+          seq = c("Z", "X", "Y", "P"))
+''', title="리그 표")
+
+c_graph = nb.cell('''
+netgraph(nm, number.of.studies = TRUE, thickness = "number.of.studies",
+         plastic = FALSE, col = "gray60", offset = 0.06)
+''', title="네트워크 그림", fig=(6, 5))
+
 # e. 과제 정답
 c_t1 = nb.cell('''
 mp <- update(m, subgroup = paste("Phase", phase), method.random.ci = "classic")
@@ -184,6 +223,10 @@ assert "0.4477" in out[c_bias.n] and "0.471" in out[c_bias.n] and "0.535" in out
 assert "0.793" in out[c_sens.n] and "0.845" in out[c_sens.n] and "0.708" in out[c_sens.n] and "0.948" in out[c_sens.n]
 assert "0.73" in out[c_t1.n] and "0.84" in out[c_t1.n] and "0.361" in out[c_t1.n] and "0.327" in out[c_t1.n]
 assert "71.4451 [44.5324; 223.5188]" in out[c_nnt.n]
+for v in ("X 0.8400 [0.7683; 0.9185]", "Z 0.7317 [0.4768; 1.1230]", "tau^2 = 0.0032", "0.03    1  0.8634", '"DL"'):
+    assert v in out[c_net.n], v
+assert "X:Y  2         0.42   0.96     0.93   0.81" in out[c_split.n]
+assert "Z  0.8223" in out[c_rank.n] and "0.94 (0.83-1.06)" in out[c_league.n] and "0.87 (0.56-1.35)" in out[c_league.n]
 print("all numbers match ch19")
 
 S = nb.save_fragment
@@ -208,14 +251,21 @@ S("rc10_funnel", nb.html(c_funnel))
 S("rc10_bias", nb.html(c_bias, marks={"p-value = 0.4477": 1, "0.471   0.448   0.535": 2}))
 S("rc10_sens", nb.html(c_sens, marks={"0.793 0.845": 1, "0.823 0.708 0.958": 2, "0.834 0.733 0.948": 3}))
 S("rc10_nnt", nb.html(c_nnt, marks={"71.4451 [44.5324; 223.5188]": 1}))
+S("rc10_net_load", nb.html(c_net_load, marks={"16     Q 2017  X  Y": 1, "X vs P X vs Y Y vs P Z vs P": 2}))
+S("rc10_net", nb.html(c_net, marks={"X 0.8400 [0.7683; 0.9185]": 1, "Z 0.7317 [0.4768; 1.1230]": 2, "tau^2 = 0.0032": 3,
+                                    "Between designs  0.03    1  0.8634": 4, '"DL"': 5}))
+S("rc10_split", nb.html(c_split, marks={"X:Y  2         0.42   0.96     0.93   0.81": 1, "X:Z  0         0.00": 2}))
+S("rc10_rank", nb.html(c_rank, marks={"Z  0.8223": 1}))
+S("rc10_league", nb.html(c_league, marks={"0.87 (0.56-1.35)": 1, "0.96 (0.79-1.16)": 2, "Lower triangle": 3}))
+S("rc10_graph", nb.html(c_graph))
 S("rc10_t1", nb.html(c_t1, marks={"0.73   0.84": 1, "0.833 0.361": 2, "[1] 0.327": 3}))
 S("rc10_t2", nb.html(c_t2, marks={"0.84   0.78   0.91": 1, "0.82   0.72   0.94": 2}))
 nb.save_ipynb("10장 메타분석 (R과 파이썬으로 하는 통계분석)",
               intro="보건통계학 기초 19장의 가상 메타분석(급성관상동맥증후군 시험 10개)을 R의 meta 패키지로 합치고, "
-                    "이질성, 하위군, 메타회귀, 출판 편향, 민감도 분석, NNT까지 차례로 구합니다. "
+                    "이질성, 하위군, 메타회귀, 출판 편향, 민감도 분석, NNT, 네트워크 메타분석까지 차례로 구합니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요. "
                     "meta 패키지가 없으면 먼저 install.packages(\"meta\")를 실행합니다.",
               notes={c_load.n: "## a. 메타분석 자료 준비", c_main.n: "## b. 두 모형으로 합치기와 방법 고르기",
-                     c_het.n: "## c. 이질성, 하위군, 메타회귀", c_funnel.n: "## d. 출판 편향, 민감도 분석, NNT",
-                     c_t1.n: "## e. 과제 정답"})
+                     c_het.n: "## c. 이질성, 하위군, 메타회귀", c_funnel.n: "## d. 출판 편향, 민감도 분석, NNT", c_net_load.n: "## e. 네트워크 메타분석",
+                     c_t1.n: "## f. 과제 정답"})
 print("rc10 fragments and notebook written")
