@@ -1,4 +1,4 @@
-"""R과 파이썬으로 하는 통계분석 11장 자료: pub/data/rcc_km_digitized.csv (논문 그림에서 읽어 낸 것으로 가정한 Kaplan-Meier 좌표).
+"""R과 파이썬으로 하는 통계분석 12장 자료: pub/data/rcc_km_digitized.csv (논문 그림에서 읽어 낸 것으로 가정한 Kaplan-Meier 좌표).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_rc05.py
 

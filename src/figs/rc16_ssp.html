@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">비율 차이의 비열등성 표본크기와 검정력</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">z &lt;- qnorm(0.975) + qnorm(0.80)                       # 단측 α 0.025, 검정력 80%
+n &lt;- z^2 * 2 * 0.85 * 0.15 / 0.10^2                   # 두 군 모두 85%, 한계 −10%p
+c(n = n, enrolled = ceiling(ceiling(n) / 0.9))
+pw &lt;- function(p, n = 201, margin = 0.10) {          # 실제 차이가 0일 때의 검정력
+  se &lt;- sqrt(2 * p * (1 - p) / n)
+  pnorm((margin - qnorm(0.975) * se) / se)
+}
+round(sapply(c(0.70, 0.85, 0.95), pw), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       n enrolled 
+200.1<span class="mk">1</span>464 224.0000 
+[1] 0.590 0.802 0.996<span class="mk">2</span></pre></div></div>

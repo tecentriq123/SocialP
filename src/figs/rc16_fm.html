@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">Farrington–Manning 비열등성 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fm_test &lt;- function(x1, n1, x2, n2, delta) {   # Farrington–Manning 검정, 귀무가설: p1 - p2 = delta
+  nll &lt;- function(p2) -(dbinom(x1, n1, p2 + delta, log = TRUE) + dbinom(x2, n2, p2, log = TRUE))
+  p2 &lt;- optimize(nll, c(max(0, -delta), min(1, 1 - delta)) + c(1e-9, -1e-9), tol = 1e-12)$minimum
+  p1 &lt;- p2 + delta                               # 귀무가설 아래에서 가장 그럴듯한 두 비율
+  z  &lt;- (x1 / n1 - x2 / n2 - delta) / sqrt(p1 * (1 - p1) / n1 + p2 * (1 - p2) / n2)
+  round(c(p1_null = p1, p2_null = p2, z = z, p = pnorm(z, lower.tail = FALSE)), 5)
+}
+rbind(ITT = fm_test(186, 224, 190, 224, delta = -0.10),
+      PP  = fm_test(180, 205, 185, 208, delta = -0.10))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    p1_null p2_null       z       p
+ITT 0.77954 0.87954 2.33251 0.00984<span class="mk">1</span>
+PP  0.81879 0.91879 2.69370 0.00353<span class="mk">2</span></pre></div></div>

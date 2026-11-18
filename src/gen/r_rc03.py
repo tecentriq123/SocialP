@@ -1,4 +1,4 @@
-"""R과 파이썬으로 하는 통계분석 8장 · Cox 모형과 비례위험 점검 — R cells run for real with rkit (survival).
+"""R과 파이썬으로 하는 통계분석 9장 · Cox 모형과 비례위험 점검 — R cells run for real with rkit (survival).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc03.py      (NOMARK=1 … 로 돌리면 모든 셀의 출력을 찍는다)
 
@@ -330,7 +330,7 @@ S('rc03_c11bp', nb.html(c11_bp, marks={'102.4 128.2 142.8 167.9': 1, '1.144': 2,
 S("rc03_t1", nb.html(c_t1, marks={"1.087613": 1}))
 S("rc03_t2", nb.html(c_t2, marks={"144": 1}))
 S("rc03_t3", nb.html(c_t3, marks={"8.1648": 1}))
-nb.save_ipynb("8장 Cox 모형과 비례위험 점검 (R과 파이썬으로 하는 통계분석)",
+nb.save_ipynb("9장 Cox 모형과 비례위험 점검 (R과 파이썬으로 하는 통계분석)",
               intro="survival 패키지의 원발성 담즙성 담관염 자료(pbc)로 Cox 모형을 맞추고, 비례위험 가정을 점검하고, "
                     "보정 생존곡선을 그립니다. 보건통계학 기초의 파이썬 실습 11과 같은 자료입니다. e 절에서는 보건통계학 기초 11장의 예를 계산합니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",

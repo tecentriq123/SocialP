@@ -5,7 +5,7 @@ p &lt;- list(pfs_gam = 0.95, pfs_lam = weib_lam(10, 0.95), os_gam = 1.15, os_lam
           hr_pfs = 0.65, hr_os = 0.75, u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,
           c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250, c_death = 800,
           c_ae_A = 120, c_ae_B = 80, disc = 0.045)
-run_model &lt;- function(p, horizon = 240) {           # 13장의 분할생존모형을 줄인 것
+run_model &lt;- function(p, horizon = 240) {           # 14장의 분할생존모형을 줄인 것
   t &lt;- 0:horizon
   disc &lt;- 1 / (1 + p$disc)^((head(t, -1) + 0.5) / 12)
   arm &lt;- function(h_pfs, h_os, c_drug, du_ae, c_ae) {

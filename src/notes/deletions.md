@@ -2149,3 +2149,10 @@ PART4_TWOLEVEL.md에 따라 방법 장·개념 장·종합 장의 다섯 단계 
   - 계산 줄 이름: 10장 10곳(stats.f.sf 코드 → 'F 분포에서 …보다 클 확률'), 11장 7곳.
   - 직접 해 보기(lab-link): 10장 4곳, 11장 1곳을 R 6장·8장 e 절과 실습(파이썬)으로 함께 안내하게 바꾸고, 지운 상자 자리에 4곳 새로. 장 머리 '직접 분석할 때'도 R 장으로.
   - 따옴표 제목 고침: 10·11장 안, lab10(지운 상자 두 곳 → R 6장 a·c 절), lab11(11장 소제목 10곳), ch06·ch07·ch08·ch09·ch12·ch14·ch17·ch18·ch19·lab07(fixgeneric). generic_map.json에 ch10·ch11 추가, /tmp/ana/quote7.py, quote8.py.
+- [PART 2 셋째 묶음: 13장, 2026-11-18] 같은 방식. 원본 보관: /tmp/ana/p4orig/ch13.html. 편집 스크립트: /tmp/ana/p4edit/ch13.py, calc13.py(+ fixgeneric, ch13b.py에 적은 직접 고침 3곳).
+  - 3과목에 R 7장 '동등성과 비열등성 검정'(rc16, 6장 뒤) 신설: content/rc16.html(템플릿 /tmp/ana/p5/rc16_tpl.html, 조립 /tmp/ana/rc16_assemble.py), gen/r_rc16.py(셀 11개, R 4.3.3, DescTools; 13장 숫자와 대조하는 assert), gen/data_rc16.py → pub/data/ch13_pdc.csv(pyout_ch13.py와 같은 seed 1302), ch13_be24.csv(nums_ch13.py의 crossover()), figs/rc16_*.html, pub/notebooks/rc16.ipynb. a 절에 R의 기본값 점검표(본문)와 scipy·statsmodels 점검표(파이썬 상자), b 절에 Farrington–Manning 검정을 optimize()로 직접 계산.
+  - R 장 번호 여섯 번째 다시 매기기(rc16이 7장): rc02 8, rc03 9, rc10 10, rc04 11, rc05 12, rc06 13, rc07 14, rc08 15, rc09 16(/tmp/ana/renum6/renum6.py). course_r.py 목차 문구(0–16장)·자료 카드, build.py 홈 카드(R 0–16장). R 9장(rc03) e 절의 맨 '7장 e 절'은 링크로 바꿔 번호가 따라가게 함. 주의: /tmp/ana/p4edit/ch10.py·ch11.py는 다시 매기기 전 번호(R 6장·8장)로 링크를 만든다 — 다시 돌리면 renum6을 다시 적용.
+  - 13장: 번호 소제목 a 2–5와 b–e의 '숫자로 따라가기'·'가정과 대안'·'결과 읽기'를 질문 꼴로. a '프로그램이 하는 일과 내가 정할 일은 무엇인가?'의 scipy·statsmodels 기본값 표 → 프로그램 중립 점검표(원래 표는 R 7장 a 절 파이썬 상자). b–e '프로그램에는 무엇을 넣나?' → '검정할 때 무엇을 지정하나?'(함수·인자 삭제, 숫자는 남김). 상자 삭제: b '프로그램 출력을 한 줄씩 읽으면?', d 'statsmodels로 돌리면 왜 숫자가 조금 다른가?'(→ R 7장 a·b 절). 상자 이름에서 '프로그램' 뺌: '기저 HbA1c를 보정한 차이는 어떻게 구하나?'(→ R 4장 f 절 공분산분석), '교차설계 자료는 어떻게 분석하나?'. ttest_ind_from_stats·tt_ind_solve_power·confint_proportions_2indep·NotImplementedError·stats.norm.cdf 문장을 R 7장 안내로.
+  - 계산 줄 이름: 13장 2곳.
+  - 직접 해 보기(lab-link): 13장 5곳을 R 7장과 실습(파이썬)으로 함께 안내하게 바꾸고, 지운 상자 자리에 2곳 새로. 장 머리 '직접 분석할 때'도 R 7장으로.
+  - 따옴표 제목 고침: 13장 안, lab13(12곳 fixgeneric + 2곳 직접). generic_map.json에 ch13 추가, /tmp/ana/quote9.py.

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">2×2 교차설계 분석 (13장 e 절 Table 2)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">be &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch13_be24.csv&quot;)              # 대상자 한 명의 한 기간이 한 줄
+be$subject     &lt;- factor(be$subject)
+be$period      &lt;- factor(be$period)
+be$formulation &lt;- factor(be$formulation, levels = c(&quot;R&quot;, &quot;T&quot;))   # 대조약이 기준
+head(be, 4)
+fit &lt;- lm(log(auc) ~ subject + period + formulation, data = be)
+ci &lt;- confint(fit, &quot;formulationT&quot;, level = 0.90)           # 90% 신뢰구간 (로그 척도)
+round(100 * exp(c(GMR = unname(coef(fit)[&quot;formulationT&quot;]), lower = ci[1], upper = ci[2])), 2)
+round(100 * sqrt(exp(sigma(fit)^2) - 1), 1)              # 개체내 변동계수(%)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  subject sequence period formulation      auc     cmax
+1       1       TR      1           T 3553.139 407.9967
+2       1       TR      2           R 2882.840 687.1152
+3       2       TR      1           T 3809.670 444.8854
+4       2       TR      2           R 4964.887 646.9306
+   GMR  lower  upper 
+ 97.31<span class="mk">1</span>  91.20 103.82 
+[1] 13.1<span class="mk">2</span></pre></div></div>

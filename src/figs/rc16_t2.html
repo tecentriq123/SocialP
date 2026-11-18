@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">과제 2 정답: Cmax의 동등성</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fc &lt;- lm(log(cmax) ~ subject + period + formulation, data = be)
+ci &lt;- confint(fc, &quot;formulationT&quot;, level = 0.90)
+round(100 * exp(c(GMR = unname(coef(fc)[&quot;formulationT&quot;]), lower = ci[1], upper = ci[2])), 2)
+round(100 * sqrt(exp(sigma(fc)^2) - 1), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   GMR  lower  upper 
+ 93.93<span class="mk">1</span>  84.42 104.52 
+[1] 21.8</pre></div></div>

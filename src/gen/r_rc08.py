@@ -1,4 +1,4 @@
-"""R과 파이썬으로 하는 통계분석 14장 · 상태전이(마르코프) 모형 — R cells run for real with rkit (base R 행렬 계산).
+"""R과 파이썬으로 하는 통계분석 15장 · 상태전이(마르코프) 모형 — R cells run for real with rkit (base R 행렬 계산).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc08.py      (NOMARK=1 … 로 모든 출력)
 
@@ -19,7 +19,7 @@ weib_lam <- function(median, gam) log(2) / median^gam
 p <- list(pfs_gam = 0.95, pfs_lam = weib_lam(10, 0.95), os_gam = 1.15, os_lam = weib_lam(28, 1.15),
           hr_pfs = 0.65, hr_os = 0.75, u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,
           c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250, c_death = 800,
-          c_ae_A = 120, c_ae_B = 80, disc = 0.045)            # 13장과 같은 입력값
+          c_ae_A = 120, c_ae_B = 80, disc = 0.045)            # 14장과 같은 입력값
 mid <- function(x) (head(x, -1) + tail(x, -1)) / 2
 arm_result <- function(p, a, pf_t, pd_t, half = TRUE) {   # 상태 비율(0-n개월) -> 한 군의 결과
   n <- length(pf_t) - 1
@@ -39,14 +39,14 @@ compare <- function(rA, rB) {
 }
 t <- 0:240
 S <- function(lam, gam, t) exp(-lam * t^gam)
-psm_arm <- function(a) {                              # 13장의 분할생존모형
+psm_arm <- function(a) {                              # 14장의 분할생존모형
   h1 <- if (a == "A") p$hr_pfs else 1; h2 <- if (a == "A") p$hr_os else 1
   os <- S(p$os_lam * h2, p$os_gam, t); pf <- pmin(S(p$pfs_lam * h1, p$pfs_gam, t), os)
   arm_result(p, a, pf, os - pf)
 }
 psm <- compare(psm_arm("A"), psm_arm("B"))
 round(psm$icer, 2)
-''', title="입력값과 결과 계산 함수 (13장과 같음)")
+''', title="입력값과 결과 계산 함수 (14장과 같음)")
 
 # b. 율과 확률
 c_rate = nb.cell('''
@@ -227,8 +227,8 @@ S("rc08_cal", nb.html(c_cal, marks={"0.04706": 1, "5723": 2, "5621": 3}))
 S("rc08_t1", nb.html(c_t1, marks={"5894.238": 1}))
 S("rc08_t2", nb.html(c_t2))
 S("rc08_t3", nb.html(c_t3, marks={"2500": 1}))
-nb.save_ipynb("14장 상태전이(마르코프) 모형 (R과 파이썬으로 하는 통계분석)",
-              intro="보건통계학 기초 23장 b 절의 마르코프 모형(무진행, 진행, 사망)을 R의 행렬 계산으로 만들고, 13장의 분할생존모형과 비교합니다. "
+nb.save_ipynb("15장 상태전이(마르코프) 모형 (R과 파이썬으로 하는 통계분석)",
+              intro="보건통계학 기초 23장 b 절의 마르코프 모형(무진행, 진행, 사망)을 R의 행렬 계산으로 만들고, 14장의 분할생존모형과 비교합니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={c_inp.n: "## a. 준비", c_rate.n: "## b. 율과 확률", c_mat.n: "## c. 전이확률 행렬과 코호트 추적",
                      c_res.n: "## d. 비용, QALY, ICER", c_cal.n: "## e. 맞추기와 두 구조의 비교",

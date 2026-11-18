@@ -1,4 +1,4 @@
-"""R과 파이썬으로 하는 통계분석 12장 · 처치전환 보정 — R cells run for real with rkit (survival, rpsftm).
+"""R과 파이썬으로 하는 통계분석 13장 · 처치전환 보정 — R cells run for real with rkit (survival, rpsftm).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/data_rc06.py && python3 gen/r_rc06.py   (NOMARK=1 … 로 모든 출력)
 
@@ -225,7 +225,7 @@ S("rc06_sum", nb.html(c_sum))
 S("rc06_t1", nb.html(c_t1))
 S("rc06_t2", nb.html(c_t2))
 S("rc06_t3", nb.html(c_t3, marks={"29.88489": 1}))
-nb.save_ipynb("12장 처치전환 보정 (R과 파이썬으로 하는 통계분석)",
+nb.save_ipynb("13장 처치전환 보정 (R과 파이썬으로 하는 통계분석)",
               intro="대조군의 처치전환을 허용한 가상 시험(rcc_switch.csv)으로 ITT 분석, 단순한 방법, RPSFTM, IPCW, 두 단계 방법의 "
                     "전체생존 위험비를 비교합니다. Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={c_load.n: "## a. 전환이 있는 시험과 ITT 분석", c_pp.n: "## b. 단순한 방법이 틀리는 이유",

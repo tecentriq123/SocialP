@@ -4,7 +4,7 @@
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>미리 알아 둘 것</dt><dd>위험비와 비례위험 가정의 개념은 보건통계학 기초 <a href="stats.html#ch11">11장</a>, <code>Surv()</code>와 <code>survfit()</code>은 이 과목 <a href="#rc02">7장</a>에 있습니다.</dd>
+<dt>미리 알아 둘 것</dt><dd>위험비와 비례위험 가정의 개념은 보건통계학 기초 <a href="stats.html#ch11">11장</a>, <code>Surv()</code>와 <code>survfit()</code>은 이 과목 <a href="#rc02">8장</a>에 있습니다.</dd>
 <dt>먼저 읽을 부분</dt><dd>a 절, b 절의 셀 4–6, c 절의 셀 8과 10.</dd>
 <dt>나중에 읽을 부분</dt><dd>d 절의 층화, 기간별 위험비, 보정 생존곡선은 내 자료에서 비례위험 가정이 어긋나거나 군별 보정 곡선이 필요할 때 봅니다. e 절은 보건통계학 기초 11장을 읽으며 본문의 숫자가 R 출력의 어디서 나오는지 확인할 때 봅니다.</dd>
 <dt>이 장을 마치면</dt><dd>① <code>coxph()</code>로 모형을 맞추고 위험비, 신뢰구간, 일치도를 읽고 표로 옮길 수 있다 ② <code>cox.zph()</code>의 검정과 그림으로 비례위험 가정을 점검할 수 있다 ③ 층화, 기간별 위험비, 직접 표준화한 보정 생존곡선을 R로 만들 수 있다</dd>
@@ -28,7 +28,7 @@
 </ol>
 
 <h3>사건과 공변량은 어떻게 만드나?</h3>
-<p><strong>status가 세 값이라 <code>Surv()</code>에 그대로 넣을 수 없고, 사망만 1인 사건 변수를 새로 만듭니다.</strong> <a href="#rc02-s1">7장 a 절</a>에서 본 것처럼 0, 1, 2가 섞이면 R은 0을 결측으로 바꾸기 때문입니다. 간이식은 그 시점에 중도절단된 것으로 봅니다.</p>
+<p><strong>status가 세 값이라 <code>Surv()</code>에 그대로 넣을 수 없고, 사망만 1인 사건 변수를 새로 만듭니다.</strong> <a href="#rc02-s1">8장 a 절</a>에서 본 것처럼 0, 1, 2가 섞이면 R은 0을 결측으로 바꾸기 때문입니다. 간이식은 그 시점에 중도절단된 것으로 봅니다.</p>
 <!--FIG:rc03_vars-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -234,7 +234,7 @@
 <section class="sec" id="rc03-s5">
 <h2><span class="sec-no">e.</span>보건통계학 기초 11장의 예</h2>
 
-<p>보건통계학 기초 <a href="stats.html#ch11">11장</a>의 예를 R로 계산합니다. 자료는 이 과목 <a href="#rc02-s5">7장 e 절</a>의 신세포암 300명 코호트(약물 A 152명, B 148명, 사망 210건)에 나이, 성별, IMDC 위험군, 신장절제술, 조직형을 더한 가상 자료(<code>ch11_cohort.csv</code>)와, 11장 그림 11-2의 가상 혈압 코호트 3,000명(<code>ch11_bp.csv</code>)입니다. 함수는 앞 절과 같으므로, 여기서는 11장 본문의 숫자가 출력의 어디서 나오는지 확인합니다. 파이썬 lifelines로 하는 방법은 소제목마다 접힌 상자에 있습니다.</p>
+<p>보건통계학 기초 <a href="stats.html#ch11">11장</a>의 예를 R로 계산합니다. 자료는 이 과목 <a href="#rc02-s5">8장 e 절</a>의 신세포암 300명 코호트(약물 A 152명, B 148명, 사망 210건)에 나이, 성별, IMDC 위험군, 신장절제술, 조직형을 더한 가상 자료(<code>ch11_cohort.csv</code>)와, 11장 그림 11-2의 가상 혈압 코호트 3,000명(<code>ch11_bp.csv</code>)입니다. 함수는 앞 절과 같으므로, 여기서는 11장 본문의 숫자가 출력의 어디서 나오는지 확인합니다. 파이썬 lifelines로 하는 방법은 소제목마다 접힌 상자에 있습니다.</p>
 
 <h3>약물만 넣은 모형의 위험비와 검정은 어디서 읽나?</h3>
 <p><strong><code>summary()</code>의 exp(coef)가 위험비이고, lower .95와 upper .95가 그 95% 신뢰구간입니다. 아래쪽 세 줄은 모형 전체의 우도비, Wald, 점수 검정입니다.</strong> 약물 B를 기준으로 두려고 <code>factor()</code>의 첫 수준을 B로 정했습니다.</p>
@@ -244,7 +244,7 @@
 <li><span class="mk">2</span><span><b>coef −0.3163, exp(coef) 0.7289, se(coef) 0.1391, z −2.274, P 0.023.</b> 11장의 위험비 0.73과 그 계수입니다. 계수와 표준오차는 로그 척도라서, 신뢰구간은 −0.3163 ± 1.96 × 0.1391을 지수로 바꿔 구합니다.</span></li>
 <li><span class="mk">3</span><span><b>0.555–0.9573.</b> 논문에 "HR 0.73 (95% CI 0.55–0.96)"으로 적는 구간입니다. 옆의 exp(-coef) 1.372는 기준을 바꾼 약물 B 대 A의 위험비입니다.</span></li>
 <li><span class="mk">4</span><span><b>Concordance= 0.545.</b> Harrell의 C 지수입니다. 약물 하나로는 누가 먼저 사망할지 거의 가르지 못한다는 뜻이고, 효과의 크기와는 다른 정보입니다.</span></li>
-<li><span class="mk">5</span><span><b>세 검정 5.18, 5.17, 5.21.</b> 계수가 하나뿐이라 셋 다 약물의 검정입니다. 점수 검정 5.21은 이 과목 7장 e 절의 로그순위 검정 5.24와 동점 처리만 다른 같은 검정입니다. P가 p=0.02처럼 짧게 나오므로, 필요하면 <code>summary(f1)$logtest</code>, <code>$waldtest</code>, <code>$sctest</code>에서 꺼냅니다.</span></li>
+<li><span class="mk">5</span><span><b>세 검정 5.18, 5.17, 5.21.</b> 계수가 하나뿐이라 셋 다 약물의 검정입니다. 점수 검정 5.21은 이 과목 <a href="#rc02-s5">8장 e 절</a>의 로그순위 검정 5.24와 동점 처리만 다른 같은 검정입니다. P가 p=0.02처럼 짧게 나오므로, 필요하면 <code>summary(f1)$logtest</code>, <code>$waldtest</code>, <code>$sctest</code>에서 꺼냅니다.</span></li>
 <li><span class="mk">6</span><span><b>−1055.689와 −1053.100.</b> 계수가 0일 때와 추정값에서의 로그 부분우도입니다. 우도비 검정통계량 = 2 × (−1053.100 − (−1055.689)) = 5.18입니다.</span></li>
 </ol>
 <!--FOLD py:파이썬으로 하면: lifelines의 CoxPHFitter 출력-->

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">평균 차이의 비열등성 표본크기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">z &lt;- qnorm(0.975) + qnorm(0.90)                       # 단측 α 0.025, 검정력 90%
+c(HbA1c = 2 * 1.1^2 * z^2 / 0.4^2, PDC = 2 * 18^2 * z^2 / 5^2)   # 정규분포 공식(군당)
+power.t.test(delta = 0.4, sd = 1.1, sig.level = 0.025, power = 0.9, alternative = &quot;one.sided&quot;)$n
+power.t.test(delta = 5,   sd = 18,  sig.level = 0.025, power = 0.9, alternative = &quot;one.sided&quot;)$n
+ceiling(159 / 0.85)                                   # 탈락 15%를 감안한 인원</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   HbA1c      PDC 
+158.9248<span class="mk">1</span> 272.3524 
+[1] 159.8913<span class="mk">2</span>
+[1] 273.3163
+[1] 188<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">요약값으로 하는 비열등성 검정 (13장 b·c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ni_t &lt;- function(m1, s1, n1, m2, s2, n2, margin, higher = TRUE) {   # 요약값으로 하는 Welch 비열등성 검정
+  v1 &lt;- s1^2 / n1; v2 &lt;- s2^2 / n2; se &lt;- sqrt(v1 + v2)
+  df &lt;- (v1 + v2)^2 / (v1^2 / (n1 - 1) + v2^2 / (n2 - 1))
+  d  &lt;- m1 - m2; q &lt;- qt(0.975, df)
+  t  &lt;- if (higher) (d + margin) / se else (margin - d) / se     # 한계 쪽 끝을 검정
+  round(c(diff = d, lower = d - q * se, upper = d + q * se, t = t, df = df,
+          p_NI = pt(t, df, lower.tail = FALSE)), 5)
+}
+rbind(PDC_ITT  = ni_t(83.9, 16.8, 304, 85.2, 17.5, 304, margin = 5),
+      PDC_PP   = ni_t(85.0, 15.9, 262, 85.6, 17.1, 275, margin = 5),
+      PDC_ex   = ni_t(85.0, 18.0, 250, 87.5, 17.0, 250, margin = 5),
+      HbA1c_FAS = ni_t(-0.74, 1.02, 185, -0.83, 1.06, 183, margin = 0.4, higher = FALSE),
+      HbA1c_PP  = ni_t(-0.79, 1.00, 162, -0.85, 1.04, 165, margin = 0.4, higher = FALSE),
+      SBP_ex    = ni_t(135.6, 10.6, 150, 132.2, 10.6, 150, margin = 5, higher = FALSE))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           diff    lower   upper       t       df    p_NI
+PDC_ITT   -1.30 -4.03244 1.43244 2.65931<span class="mk">1</span> 604.9929 0.00402
+PDC_PP    -0.60 -3.39764 2.19764 3.08954 534.6865 0.00105
+PDC_ex    -2.50 -5.57658 0.57658 1.59654 496.3818 0.05550<span class="mk">2</span>
+HbA1c_FAS  0.09 -0.12329 0.30329 2.85818<span class="mk">3</span> 365.1112 0.00225
+HbA1c_PP   0.06 -0.16195 0.28195 3.01369 324.8594 0.00139
+SBP_ex     3.40  0.99126 5.80874 1.30721 298.0000 0.09607<span class="mk">4</span></pre></div></div>

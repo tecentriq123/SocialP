@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">성공률이 100%에 가까울 때</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">BinomDiffCI(48, 50, 50, 50, method = c(&quot;wald&quot;, &quot;score&quot;, &quot;mn&quot;))     # 소규모 시험 (13장 &#x27;결과는 어떻게 읽나?&#x27;)
+BinomDiffCI(94, 100, 98, 100, method = c(&quot;wald&quot;, &quot;score&quot;, &quot;mn&quot;))   # 군당 100명
+fm_test(48, 50, 50, 50, delta = -0.10)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        est      lwr.ci     upr.ci
+wald  -0.04 -0.09431612 0.01431612<span class="mk">1</span>
+score -0.04 -0.13460091<span class="mk">2</span> 0.03700147
+mn    -0.04 -0.13527945 0.03348175
+        est      lwr.ci     upr.ci
+wald  -0.04 -0.09403248 0.01403248
+score -0.04 -0.10637098<span class="mk">3</span> 0.01948876
+mn    -0.04 -0.10765982 0.01779808
+p1_null p2_null       z       p 
+0.90000 1.00000 1.41421<span class="mk">4</span> 0.07865</pre></div></div>

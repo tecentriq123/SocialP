@@ -72,7 +72,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <ol class="lines">
 <li><code>stats.ttest_ind(new, ref, equal_var=False)</code><span>등분산을 가정하지 않는 Welch t 검정입니다. 차이는 항상 <b>첫 번째 인자 − 두 번째 인자</b>(신약 − 대조약)로 계산되므로 인자 순서가 차이의 부호를 정합니다.</span></li>
 <li><code>d = new.mean() - ref.mean()</code><span>관측된 평균 차이입니다.</span></li>
-<li><code>res.confidence_interval(confidence_level=0.95)</code><span>차이의 95% 신뢰구간입니다. 결과의 <code>.low</code>와 <code>.high</code>가 하한과 상한입니다. 단측 α 0.025 기준의 비열등성 판단은 양측 95% 구간과 같습니다(13장 a 절 '신뢰구간을 한계와 비교하기').</span></li>
+<li><code>res.confidence_interval(confidence_level=0.95)</code><span>차이의 95% 신뢰구간입니다. 결과의 <code>.low</code>와 <code>.high</code>가 하한과 상한입니다. 단측 α 0.025 기준의 비열등성 판단은 양측 95% 구간과 같습니다(13장 a 절 '신뢰구간은 한계와 어떻게 비교하나?').</span></li>
 <li><code>res.pvalue</code><span>"차이 = 0"에 대한 양측 p입니다. 참고용으로 출력합니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
@@ -99,7 +99,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <li><span class="mk">1</span><span><b>t = −2.41.</b> (d − Δ)/SE = (0.145 − 0.4) ÷ 0.1058입니다. 13장의 식 t<sub>NI</sub> = (Δ − d)/SE로 계산한 2.41과 부호만 반대입니다. 값을 빼는 방향이 반대이기 때문이고, 판단은 같습니다. df = 365.5는 Welch 자유도입니다.</span></li>
 <li><span class="mk">2</span><span><b>단측 P = 0.0081.</b> 귀무가설 "신약이 0.4%p 이상 덜 낮춘다" 아래에서 이만큼 또는 더 극단적인 결과가 나올 확률입니다. 0.025보다 작으므로 비열등성을 입증합니다. 신뢰구간 상한이 0.4보다 작다는 판단과 항상 일치합니다. 이 p를 "두 약의 차이가 유의하다"로 읽으면 정반대가 됩니다(차이 = 0에 대한 p는 0.172).</span></li>
 <li><span class="mk">3</span><span><b>SE = 0.1058.</b> 직접 계산한 t가 scipy의 값과 같습니다.</span></li>
-<li><span class="mk">4</span><span><b>단측 97.5% 신뢰구간의 상한 0.353.</b> 셀 3의 양측 95% 신뢰구간 상한과 같은 값입니다. <code>confidence_level</code>을 적지 않으면 기본값 0.95가 적용되어 상한이 0.319로 나옵니다. 이것은 양측 90% 신뢰구간의 상한이라 비열등성 판단에는 너무 느슨합니다(13장 b 절 '숫자로 따라가기'의 접힌 상자 '프로그램 출력을 한 줄씩 읽으면?' 해설 3번).</span></li>
+<li><span class="mk">4</span><span><b>단측 97.5% 신뢰구간의 상한 0.353.</b> 셀 3의 양측 95% 신뢰구간 상한과 같은 값입니다. <code>confidence_level</code>을 적지 않으면 기본값 0.95가 적용되어 상한이 0.319로 나옵니다. 이것은 양측 90% 신뢰구간의 상한이라 비열등성 판단에는 너무 느슨합니다(<a href="#rc16-s1">R과 파이썬으로 하는 통계분석 7장 a 절</a>의 접힌 상자 'scipy의 ttest_ind로 비열등성 검정' 해설 3번).</span></li>
 </ol>
 <div class="callout note"><p class="ct">참고 · statsmodels로 하면</p>
 <p><code>statsmodels.stats.weightstats.ttest_ind(new, ref, alternative="smaller", usevar="unequal", value=0.4)</code>처럼 statsmodels의 함수는 <code>value=</code>로 귀무가설의 차이를 직접 줄 수 있어 값을 빼는 과정이 필요 없습니다. 결과는 (t, p, 자유도) 세 값의 묶음으로 나오며 위와 같은 t = −2.414, P = 0.0081입니다.</p></div>
@@ -122,7 +122,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>def ni_from_stats(label, m1, s1, n1, m2, s2, n2, margin, higher_better):</code><span>함수를 새로 정의합니다. 출력에 붙일 이름표(<code>label</code>), 신약의 평균·SD·인원(<code>m1, s1, n1</code>), 대조의 평균·SD·인원(<code>m2, s2, n2</code>), 한계(<code>margin</code>), 결과가 높을수록 좋은지(<code>higher_better</code>, True 또는 False)를 받아 결과 한 줄을 출력합니다.</span></li>
-<li><code>v1, v2 = s1**2 / n1, s2**2 / n2</code><span>각 군 평균의 분산, 즉 표준오차의 제곱입니다. <code>**</code>는 거듭제곱입니다. 다음 줄의 <code>se</code>는 두 값을 더해 제곱근을 씌운 차이의 표준오차입니다(13장 b 절 '숫자로 따라가기').</span></li>
+<li><code>v1, v2 = s1**2 / n1, s2**2 / n2</code><span>각 군 평균의 분산, 즉 표준오차의 제곱입니다. <code>**</code>는 거듭제곱입니다. 다음 줄의 <code>se</code>는 두 값을 더해 제곱근을 씌운 차이의 표준오차입니다(13장 b 절 '비열등성은 어떻게 검정하나?').</span></li>
 <li><code>df = (v1 + v2)**2 / (v1**2 / (n1 - 1) + v2**2 / (n2 - 1))</code><span>Welch 자유도입니다(2장 a 절). <code>ttest_ind_from_stats</code>가 이 값을 돌려주지 않으므로 직접 계산합니다.</span></li>
 <li><code>tc = stats.t.ppf(0.975, df)</code><span>그 자유도의 t 분포에서 가운데 95%를 남기는 임계값입니다. 13장의 1.964, 1.966이 이 값입니다.</span></li>
 <li><code>if higher_better:</code> … <code>else:</code><span>높을수록 좋으면 한계가 −margin이므로 신약 평균에 margin을 더하고 대립가설을 "greater"로 둡니다. 낮을수록 좋으면 한계가 +margin이므로 margin을 빼고 "less"로 둡니다. 셀 4에서 개인 자료에 한 것과 같은 방법입니다.</span></li>
@@ -131,10 +131,10 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>PDC 차이 −1.30%p.</b> 원격 상담의 PDC가 1.30%p 낮습니다. 13장 b 절 '숫자로 따라가기'의 값입니다.</span></li>
+<li><span class="mk">1</span><span><b>PDC 차이 −1.30%p.</b> 원격 상담의 PDC가 1.30%p 낮습니다. 13장 b 절 '비열등성은 어떻게 검정하나?'의 값입니다.</span></li>
 <li><span class="mk">2</span><span><b>95% CI −4.03 ~ 1.43.</b> 높을수록 좋은 결과이므로 하한 −4.03을 한계 −5와 견줍니다. −5보다 크므로 비열등입니다.</span></li>
 <li><span class="mk">3</span><span><b>단측 P 0.0040.</b> 13장의 "P = .004 for noninferiority"입니다. t = 2.66은 13장의 (−1.30 + 5) ÷ 1.391과 같습니다.</span></li>
-<li><span class="mk">4</span><span><b>HbA1c 차이 0.09%p.</b> 13장 c 절 '숫자로 따라가기'의 값입니다.</span></li>
+<li><span class="mk">4</span><span><b>HbA1c 차이 0.09%p.</b> 13장 c 절 '낮을수록 좋으면 무엇이 달라지나?'의 값입니다.</span></li>
 <li><span class="mk">5</span><span><b>95% CI −0.12 ~ 0.30.</b> 낮을수록 좋은 결과이므로 상한 0.30을 한계 +0.4와 견줍니다.</span></li>
 <li><span class="mk">6</span><span><b>t −2.86, 단측 P 0.0023.</b> 13장의 t<sub>NI</sub> = 2.86과 부호만 반대인 이유는 셀 4와 같습니다. 13장은 P를 .002로 적었습니다.</span></li>
 </ol>
@@ -152,7 +152,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <p class="excerpt">The mean change in HbA1c from baseline to week 24 was <span class="mk">1</span> <span class="hl">−0.75% with drug X (n = 185) and −0.89% with the comparator (n = 183)</span>. The <span class="mk">2</span> <span class="hl">difference (drug X minus comparator) was 0.14 percentage points (95% CI, −0.06 to 0.35)</span>; because the <span class="mk">3</span> <span class="hl">upper limit of the CI was below the prespecified noninferiority margin of 0.4 percentage points</span>, drug X was noninferior to the comparator (<span class="hl">one-sided P = .008 for noninferiority</span>). Drug X was <span class="mk">4</span> <span class="hl">not superior to the comparator (P = .17)</span>.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>군별 평균.</b> 표본평균 −0.749와 −0.893을 반올림했습니다. 군별 값을 함께 쓰면 독자가 차이의 방향(−0.75 − (−0.89) = +0.14)을 직접 확인할 수 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>차이의 정의와 95% CI.</b> 0.1447(−0.063 to 0.353)을 반올림했습니다. "drug X minus comparator"를 밝혀야 양수가 신약에 불리한 방향이라는 것이 분명해집니다(13장 c 절 '결과 읽기').</span></li>
+<li><span class="mk">2</span><span><b>차이의 정의와 95% CI.</b> 0.1447(−0.063 to 0.353)을 반올림했습니다. "drug X minus comparator"를 밝혀야 양수가 신약에 불리한 방향이라는 것이 분명해집니다(13장 c 절 '결과는 어떻게 읽나?').</span></li>
 <li><span class="mk">3</span><span><b>상한과 한계를 비교, 단측 P.</b> 낮을수록 좋은 결과이므로 상한(0.35)을 +0.4와 비교했습니다. P = 0.0081은 귀무가설 "차이 ≥ 0.4"에 대한 단측 p입니다.</span></li>
 <li><span class="mk">4</span><span><b>우월성.</b> 차이 = 0에 대한 양측 P = 0.172입니다. 비열등성을 먼저 입증한 뒤 우월성을 보는 순서는 다중성 보정 없이 허용됩니다(13장 a 절). 실제 당뇨병 시험이라면 기저 HbA1c를 보정한 ANCOVA나 MMRM(10장 c 절)의 최소제곱 평균 차이로 이 문장을 채웁니다.</span></li>
 </ol>
@@ -186,7 +186,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <li><code>pd.DataFrame(rows, columns=[...])</code><span>네 줄을 표로 만듭니다.</span></li>
 <li><code>tab["lower"] &gt; -0.10</code><span>하한이 −0.10보다 큰지(비열등성 입증) True/False로 판정한 열을 붙입니다.</span></li>
 </ol>
-<p>본 시험(main)에서는 두 방법이 거의 같습니다. Wald −0.0859 ~ 0.0501, Newcombe −0.0862 ~ 0.0506으로 13장의 −8.59 ~ 5.01%p, −8.62 ~ 5.06%p와 같고, 둘 다 하한이 −10%p보다 커서 비열등성이 입증됩니다. 소규모 시험(small)에서는 결론이 갈립니다. Wald 하한 −0.0943은 한계를 통과하지만 Newcombe 하한 −0.1346은 통과하지 못합니다. 표준치료군이 50명 모두 성공해 Wald 표준오차에서 그 군 비율의 분산이 0이 되기 때문입니다(13장 d 절 '결과 읽기').</p>
+<p>본 시험(main)에서는 두 방법이 거의 같습니다. Wald −0.0859 ~ 0.0501, Newcombe −0.0862 ~ 0.0506으로 13장의 −8.59 ~ 5.01%p, −8.62 ~ 5.06%p와 같고, 둘 다 하한이 −10%p보다 커서 비열등성이 입증됩니다. 소규모 시험(small)에서는 결론이 갈립니다. Wald 하한 −0.0943은 한계를 통과하지만 Newcombe 하한 −0.1346은 통과하지 못합니다. 표준치료군이 50명 모두 성공해 Wald 표준오차에서 그 군 비율의 분산이 0이 되기 때문입니다(13장 d 절 '결과는 어떻게 읽나?').</p>
 
 <!--FIG:lab13_prop_plot-->
 <h4>코드 한 줄씩</h4>
@@ -298,7 +298,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <p>대상자 1의 AUC<sub>0–t</sub>는 148.92 mg·h/L, Cmax는 10.50 mg/L(1.12시간)입니다. AUC는 73.78–148.92로 대상자마다 두 배 넘게 다릅니다. 실제 생물학적 동등성 시험에서는 여기에 마지막 농도 이후의 넓이를 소실 속도로 외삽한 AUC<sub>0–∞</sub>도 함께 보고합니다(13장 e 절 '논문에서 읽기'의 Table 2).</p>
 
 <h3>기하평균비와 90% 신뢰구간</h3>
-<p>이제 시험약(T)과 대조약(R)의 AUC로 판정합니다. 13장 e 절 '숫자로 따라가기'의 가상 자료(12명)를 그대로 씁니다. 두 가지를 기억합니다. 첫째, <b>로그 척도</b>에서 계산합니다. 로그를 취하면 비가 차이로 바뀌어 t 분포를 쓸 수 있고, 결과를 지수로 되돌리면 기하평균비가 됩니다. 둘째, 동등성은 두 번의 단측 검정(각 α = 0.05)이므로 <b>90% 신뢰구간</b>을 씁니다. 판정 범위 80.00–125.00%는 로그 척도에서 ±0.2231로 0을 중심으로 대칭입니다. 로그 척도를 쓰는 이유는 13장 e 절 '언제 쓰나'의 '왜 로그 척도에서 계산하나?'에, 90% 신뢰구간을 쓰는 이유는 같은 절 '숫자로 따라가기'의 '왜 90% 구간과 같은 판단인가?'에 있습니다.</p>
+<p>이제 시험약(T)과 대조약(R)의 AUC로 판정합니다. 13장 e 절 '두 단측 검정은 어떻게 하나?'의 가상 자료(12명)를 그대로 씁니다. 두 가지를 기억합니다. 첫째, <b>로그 척도</b>에서 계산합니다. 로그를 취하면 비가 차이로 바뀌어 t 분포를 쓸 수 있고, 결과를 지수로 되돌리면 기하평균비가 됩니다. 둘째, 동등성은 두 번의 단측 검정(각 α = 0.05)이므로 <b>90% 신뢰구간</b>을 씁니다. 판정 범위 80.00–125.00%는 로그 척도에서 ±0.2231로 0을 중심으로 대칭입니다. 로그 척도를 쓰는 이유는 13장 e 절 '언제 쓰나'의 '왜 로그 척도에서 계산하나?'에, 90% 신뢰구간을 쓰는 이유는 같은 절 '두 단측 검정은 어떻게 하나?'의 '왜 90% 구간과 같은 판단인가?'에 있습니다.</p>
 <!--FIG:lab13_be-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -365,7 +365,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 
 <div class="callout tip"><p class="ct">직접 바꿔 보기</p>
 <ul>
-<li>시뮬레이션의 <code>rng.normal(0, 0.13)</code>을 <code>0.30</code>으로 바꿔 변동이 큰 약을 흉내 내 보세요. 같은 24명으로는 90% CI가 넓어져 80–125%를 벗어나기 쉽습니다(13장 e 절 '가정과 대안'의 접힌 상자 '개체내 변동이 큰 약은 어떻게 판정하나?').</li>
+<li>시뮬레이션의 <code>rng.normal(0, 0.13)</code>을 <code>0.30</code>으로 바꿔 변동이 큰 약을 흉내 내 보세요. 같은 24명으로는 90% CI가 넓어져 80–125%를 벗어나기 쉽습니다(13장 e 절 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 접힌 상자 '개체내 변동이 큰 약은 어떻게 판정하나?').</li>
 <li><code>np.log(0.97)</code>을 <code>np.log(0.85)</code>로 바꾸면 참 기하평균비가 85%인 시험약이 됩니다. 점추정값이 80–125% 안이어도 구간 하한이 80%를 밑돌 수 있습니다.</li>
 <li>Theoph의 Cmax로도 같은 계산을 할 수 있습니다. 실제 판정은 AUC와 Cmax 모두에서 90% CI가 범위 안이어야 합니다.</li>
 </ul></div>
@@ -421,7 +421,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <li><span class="mk">3</span><span><b>성공의 비의 로그 척도 SE 0.041</b></span></li>
 <li><span class="mk">4</span><span><b>실패의 비의 로그 척도 SE 0.216.</b> 성공은 186명과 190명, 실패는 38명과 34명이라 실패의 비의 표준오차가 성공의 비보다 다섯 배 넘게 큽니다(0.216 ÷ 0.041 = 5.3).</span></li>
 </ol>
-<p>같은 자료가 위험차로는 비열등(하한 −8.6%p &gt; −10%p), 성공의 비로도 비열등, 실패의 비로는 입증 실패로 갈렸습니다. 이유는 둘입니다. 첫째, 같은 −10%p가 척도에 따라 다른 크기의 한계가 됩니다. 성공의 비로는 11.8% 상대 감소이지만 실패의 비로는 67% 상대 증가이고, 그나마 기준 제균율을 85%로 가정했을 때의 값입니다. 둘째, 로그를 씌운 비의 표준오차는 분자의 사건 수가 적을수록 커집니다. 실패는 사건이 적어 로그 척도의 구간이 넓고, 그래서 비율로는 작은 차이도 실패의 비로는 넓은 구간이 됩니다. 그래서 한계의 척도와 값은 결과를 보기 전에 정하고 그 근거를 밝혀야 하며, 결과를 본 뒤 유리한 척도를 골라서는 안 됩니다(<a href="stats.html#ch13-s4">13장 d 절</a> '가정과 대안'의 접힌 상자 '같은 자료인데 척도를 바꾸면 결론이 바뀌나?').</p>
+<p>같은 자료가 위험차로는 비열등(하한 −8.6%p &gt; −10%p), 성공의 비로도 비열등, 실패의 비로는 입증 실패로 갈렸습니다. 이유는 둘입니다. 첫째, 같은 −10%p가 척도에 따라 다른 크기의 한계가 됩니다. 성공의 비로는 11.8% 상대 감소이지만 실패의 비로는 67% 상대 증가이고, 그나마 기준 제균율을 85%로 가정했을 때의 값입니다. 둘째, 로그를 씌운 비의 표준오차는 분자의 사건 수가 적을수록 커집니다. 실패는 사건이 적어 로그 척도의 구간이 넓고, 그래서 비율로는 작은 차이도 실패의 비로는 넓은 구간이 됩니다. 그래서 한계의 척도와 값은 결과를 보기 전에 정하고 그 근거를 밝혀야 하며, 결과를 본 뒤 유리한 척도를 골라서는 안 됩니다(<a href="stats.html#ch13-s4">13장 d 절</a> '무엇을 가정하고, 어긋나면 어떻게 하나?'의 접힌 상자 '같은 자료인데 척도를 바꾸면 결론이 바뀌나?').</p>
 </div></details>
 
 <h3>과제 3. 소규모 시험을 '차이 없음'과 Wald 구간으로 판단한 분석</h3>
@@ -439,7 +439,7 @@ import matplotlib.pyplot as plt</code><span>수치 계산용 NumPy, 표 자료�
 <li><span class="mk">5</span><span><b>score(Farrington–Manning) 검정 z = 1.414, 단측 P = 0.0786.</b> 0.025보다 커서 비열등성을 입증하지 못합니다.</span></li>
 </ol>
 <p>첫째 잘못은 차이 검정의 P를 근거로 쓴 것입니다. P = 0.49는 50명씩의 작은 시험이 차이를 보여 줄 증거가 부족하다는 뜻일 뿐, 두 요법이 같거나 새 요법이 나쁘지 않다는 증거가 아닙니다. 이 논리로는 시험을 작게 할수록 '같다'는 결론을 얻기 쉬워집니다(<a href="stats.html#ch13-s1">13장 a 절</a> '왜 알아야 하나'의 '차이가 유의하지 않으면 같다고 할 수 있나?').</p>
-<p>둘째 잘못은 Wald 구간을 쓴 것입니다. 표준 요법은 50명 모두 성공해 관측 비율이 1이므로, Wald 표준오차에서 그 군 비율의 분산(1 × 0 ÷ 50)이 0이 됩니다. 표준오차가 √(0.96 × 0.04 ÷ 50) = 0.0277로 새 요법 쪽 비율의 분산만 남아 구간이 너무 좁아집니다. 비율 자료에 권장되는 Newcombe 구간은 −13.5 ~ 3.7%p로 하한이 한계를 넘고, Farrington–Manning 검정의 단측 P도 0.079로 0.025보다 큽니다. Wald 방식의 검정(P = 0.015)만 '비열등'으로 판정합니다(b 절 '위험차의 Wald 구간과 Newcombe 구간', <a href="stats.html#ch13-s4">13장 d 절</a> '결과 읽기').</p>
-<p>셋째 잘못은 비열등성을 '같다'로 옮긴 것입니다. 비열등성이 입증되었더라도 그것은 "한계 이상 나쁘지 않다"는 한쪽 방향의 결론이고, 효과가 같다는 동등성과 다릅니다(13장 a 절 '신뢰구간을 한계와 비교하기'의 흔한 오해). 바르게 고쳐 쓰면 "새 요법의 제균율은 96.0%, 표준 요법은 100%로 차이는 −4.0%p(95% CI −13.5 ~ 3.7, Newcombe)였다. 하한이 미리 정한 한계 −10%p보다 낮아 비열등성을 입증하지 못했다"입니다. 13장 그림 13-1로는 D, 즉 결론을 내릴 수 없는 경우입니다.</p>
+<p>둘째 잘못은 Wald 구간을 쓴 것입니다. 표준 요법은 50명 모두 성공해 관측 비율이 1이므로, Wald 표준오차에서 그 군 비율의 분산(1 × 0 ÷ 50)이 0이 됩니다. 표준오차가 √(0.96 × 0.04 ÷ 50) = 0.0277로 새 요법 쪽 비율의 분산만 남아 구간이 너무 좁아집니다. 비율 자료에 권장되는 Newcombe 구간은 −13.5 ~ 3.7%p로 하한이 한계를 넘고, Farrington–Manning 검정의 단측 P도 0.079로 0.025보다 큽니다. Wald 방식의 검정(P = 0.015)만 '비열등'으로 판정합니다(b 절 '위험차의 Wald 구간과 Newcombe 구간', <a href="stats.html#ch13-s4">13장 d 절</a> '결과는 어떻게 읽나?').</p>
+<p>셋째 잘못은 비열등성을 '같다'로 옮긴 것입니다. 비열등성이 입증되었더라도 그것은 "한계 이상 나쁘지 않다"는 한쪽 방향의 결론이고, 효과가 같다는 동등성과 다릅니다(13장 a 절 '신뢰구간은 한계와 어떻게 비교하나?'의 흔한 오해). 바르게 고쳐 쓰면 "새 요법의 제균율은 96.0%, 표준 요법은 100%로 차이는 −4.0%p(95% CI −13.5 ~ 3.7, Newcombe)였다. 하한이 미리 정한 한계 −10%p보다 낮아 비열등성을 입증하지 못했다"입니다. 13장 그림 13-1로는 D, 즉 결론을 내릴 수 없는 경우입니다.</p>
 </div></details>
 </section>

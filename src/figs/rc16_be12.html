@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">12명 AUC의 두 단측 검정과 90% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">R &lt;- c(412, 538, 365, 620, 488, 297, 554, 431, 702, 389, 515, 460)   # 대조약 AUC (13장 e 절의 12명)
+T &lt;- c(366, 455, 303, 548, 556, 268, 535, 510, 639, 429, 412, 525)   # 시험약 AUC
+lo &lt;- t.test(log(T), log(R), paired = TRUE, mu = log(0.8),  alternative = &quot;greater&quot;)
+up &lt;- t.test(log(T), log(R), paired = TRUE, mu = log(1.25), alternative = &quot;less&quot;)
+round(c(t_L = unname(lo$statistic), p_L = lo$p.value, t_U = unname(up$statistic), p_U = up$p.value), 6)
+exp(t.test(log(T), log(R), paired = TRUE, conf.level = 0.90)$conf.int)   # 기하평균비의 90% 구간
+t.test(log(T), log(R), paired = TRUE)$p.value                           # 차이 = 0의 검정
+c(t.test(log(T), log(R), var.equal = TRUE, mu = log(0.8),  alternative = &quot;greater&quot;)$p.value,
+  t.test(log(T), log(R), var.equal = TRUE, mu = log(1.25), alternative = &quot;less&quot;)$p.value)   # 짝을 무시하면</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      t_L       p_L       t_U       p_U 
+ 4.482221<span class="mk">1</span>  0.000464 -6.650708  0.000018 
+[1] 0.8909597 1.0289384<span class="mk">2</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.9
+[1] 0.3014489<span class="mk">3</span>
+[1] 0.046501879<span class="mk">4</span> 0.008073055</pre></div></div>

@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">제균율 차이의 세 가지 신뢰구간 (13장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(DescTools))
+BinomDiffCI(186, 224, 190, 224, method = c(&quot;wald&quot;, &quot;score&quot;, &quot;mn&quot;))   # ITT: 신약 186/224, 표준 190/224
+BinomDiffCI(180, 205, 185, 208, method = c(&quot;wald&quot;, &quot;score&quot;, &quot;mn&quot;))   # PP</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>              est      lwr.ci     upr.ci
+wald  -0.01785714 -0.08585463 0.05014034<span class="mk">1</span>
+score -0.01785714 -0.08620709 0.05056550<span class="mk">2</span>
+mn    -0.01785714 -0.08669073 0.05079652<span class="mk">3</span>
+             est      lwr.ci     upr.ci
+wald  -0.0113743 -0.07320400 0.05045541
+score -0.0113743 -0.07437873 0.05131118
+mn    -0.0113743 -0.07483863 0.05155297</pre></div></div>

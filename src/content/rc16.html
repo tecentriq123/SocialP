@@ -1,0 +1,240 @@
+<p class="lead">보건통계학 기초 13장의 예를 R로 다시 계산합니다. 평균 차이와 비율 차이의 비열등성 검정, 생물학적 동등성의 두 단측 검정과 교차설계 분석, 비열등성 시험의 표본크기를 다룹니다. 차이 검정과 같은 함수를 쓰지만 한계, 단측 방향, 신뢰수준을 기본값과 다르게 지정해야 하므로, 무엇을 바꾸는지에 집중합니다. 숫자는 모두 보건통계학 기초 13장 본문과 같습니다.</p>
+
+<p class="nb-link"><a href="notebooks/rc16.ipynb" download>이 장의 노트북 내려받기 (rc16.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. 출력은 R 4.3.3과 DescTools 패키지로 실제로 실행해 얻었습니다. 자료는 보건통계학 기초 13장 예의 CSV 두 개(ch13_pdc.csv, ch13_be24.csv)와 요약값이고, 셀이 사이트에서 바로 읽습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>비열등성 한계, 세 질문의 가설, 신뢰구간으로 판단하는 법은 보건통계학 기초 <a href="stats.html#ch13">13장</a>에 있습니다. <code>t.test()</code>의 출력은 이 과목 <a href="#rc01">2장</a>에서 먼저 보았습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 1과 '비열등성에서 바꿔야 할 기본값은?', b 절의 셀 3, c 절의 셀 6.</dd>
+<dt>나중에 읽을 부분</dt><dd>b 절의 Farrington–Manning 검정, c 절의 교차설계, d 절의 표본크기는 내 연구에서 그 설계를 쓸 때 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① <code>t.test()</code>에 한계(<code>mu</code>), 단측 방향, 신뢰수준 97.5%를 지정해 비열등성을 검정하고, 요약값만으로도 같은 계산을 할 수 있다 ② 비율 차이의 Newcombe·Miettinen–Nurminen 구간과 Farrington–Manning 검정을 구할 수 있다 ③ 로그 척도의 두 단측 검정과 90% 신뢰구간으로 동등성을 판정하고, 교차설계를 선형모형으로 분석할 수 있다 ④ 비열등성 시험의 표본크기와 검정력을 구할 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rc16-s1">
+<h2><span class="sec-no">a.</span>평균 차이의 비열등성</h2>
+
+<h3>환자별 자료로 비열등성을 검정하려면?</h3>
+<p><strong><code>t.test()</code>에 한계를 귀무가설의 차이로(<code>mu = -5</code>), 비열등 쪽을 대립가설의 방향으로(<code>alternative = "greater"</code>), 신뢰수준을 97.5%로(<code>conf.level = 0.975</code>) 적습니다.</strong> 예는 보건통계학 기초 <a href="stats.html#ch13-s2">13장 b 절</a>의 원격 상담 시험입니다. 높을수록 좋은 PDC(%)를 비교하고, 원격 상담이 대면 상담보다 5%p 넘게 나쁘지 않은지 봅니다.</p>
+<!--FIG:rc16_pdc-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>t = 2.6593, df = 604.99, p = 0.004019.</b> 비열등성의 단측 P입니다. t는 (−1.3 − (−5)) ÷ 1.391로, 차이가 한계에서 표준오차 몇 개만큼 떨어졌는지입니다. <code>t.test()</code>는 Welch 검정이 기본이라 분산 가정을 따로 적지 않았습니다.</span></li>
+<li><span class="mk">2</span><span><b>97.5% 단측 구간의 하한 −4.03.</b> 상한은 Inf입니다. 이 하한이 양측 95% 신뢰구간의 하한과 같고, 한계 −5보다 크므로 비열등입니다. 구간은 <code>mu</code>와 관계없이 차이 자체의 구간이라 5를 더하거나 뺄 필요가 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>양측 95% 구간 −4.03 ~ 1.43.</b> 논문에 적는 구간입니다. 단측 검정과 같은 하한을 줍니다.</span></li>
+<li><span class="mk">4</span><span><b><code>conf.level</code>을 빼면 하한 −3.59.</b> 기본값 0.95가 단측 95%, 곧 양측 90% 구간의 하한이 되어 기준이 느슨해집니다.</span></li>
+<li><span class="mk">5</span><span><b>두 군의 순서를 바꾸면 p = 0.0000036.</b> <code>t.test(x, y)</code>는 x − y를 계산하므로, 대면군을 앞에 두면 '대면 상담이 원격보다 5%p 넘게 나쁘지 않은가'를 검정합니다. R은 경고하지 않습니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: scipy의 ttest_ind로 비열등성 검정-->
+<p>보건통계학 기초 13장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>내 자료로 이 검정을 할 때 프로그램에 넣는 것은 두 군의 PDC 배열입니다. scipy의 <code>ttest_ind</code>에는 기준점을 0에서 −5로 옮기는 인자가 없으므로(1.18 기준), 원격군 배열에 한계 5를 더해 넣습니다. "차이 &gt; −5"와 "(원격 + 5) − 대면 &gt; 0"은 같은 말이라, 프로그램이 늘 쓰는 기준점 0에서 검정해도 −5에서 검정한 것이 됩니다. 여기에 단측 방향(<code>alternative="greater"</code>)과 Welch 방식(<code>equal_var=False</code>)을 지정하면 t와 비열등성의 단측 p가 나옵니다.</p>
+<p>판단에 쓸 하한은 결과의 <code>confidence_interval(<wbr>confidence_level=0.975)</code>로 받은 값에서 5를 다시 빼서 얻습니다. 단측 검정에서는 신뢰수준을 0.975로 넣어야 이 하한이 양측 95% 신뢰구간의 하한과 같아집니다. 넣지 않으면 기본값 0.95가 적용되어 단측 95%, 즉 양측 90% 구간의 하한이 나오고 기준이 느슨해집니다. 배열의 순서, 방향, 분산 가정을 잘못 넣어도 프로그램은 경고하지 않습니다. 논문의 평균, SD, 인원만 있다면 <code>ttest_ind_from_stats</code>로 같은 t와 p를 구할 수 있지만, 신뢰구간은 나오지 않습니다. 파이썬에서 바꿔야 할 기본값은 이 절 끝의 접힌 상자 'scipy와 statsmodels에서 바꿔야 할 기본값'에 모았습니다.</p>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · scipy의 ttest_ind로 비열등성 검정</b><span>가상의 예시 (scipy 1.18)</span></div>
+<div class="paper-b">
+<p>셀 1과 같은 자료를 파이썬에서 분석하면 이렇게 출력됩니다. remote와 inperson은 원격 상담군과 대면 상담군 환자들의 PDC(%)를 담은 배열입니다(예를 들어 <code>itt.loc[itt["arm"] == "remote", "pdc"]</code>). 원격군의 값에 한계 5를 더해 기준점을 −5로 옮겼습니다. 아래는 scipy 1.18.1로 실제 실행한 출력이며, 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; from scipy import stats</span>
+<span class="cm">&gt;&gt;&gt; res = stats.ttest_ind(remote + 5, inperson, equal_var=False,</span>
+<span class="cm">...                       alternative="greater")</span> <span class="mk">1</span>
+<span class="cm">&gt;&gt;&gt; res</span>
+TtestResult(statistic=np.float64(2.6593100335186795), pvalue=np.float64(0.004018718675956278), df=np.float64(604.9929374405626))
+<span class="cm">&gt;&gt;&gt; print(round(res.statistic, 4), round(res.pvalue, 6), round(res.df, 2))</span> <span class="mk">2</span>
+2.6593 0.004019 604.99
+<span class="cm">&gt;&gt;&gt; ci = res.confidence_interval(confidence_level=0.975)</span>
+<span class="cm">&gt;&gt;&gt; print(ci.low - 5, ci.high - 5)</span> <span class="mk">3</span>
+-4.032439429980957 inf
+<span class="cm">&gt;&gt;&gt; print(round(remote.mean(), 1), round(inperson.mean(), 1))</span> <span class="mk">4</span>
+83.9 85.2</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>세 가지 설정이 비열등성 검정을 만듭니다.</b> <code>remote + 5</code>는 "차이 &gt; −5"를 "(원격 + 5) − 대면 &gt; 0"으로 바꾼 것입니다. <code>ttest_ind</code>는 늘 차이를 0과 비교하므로, 이렇게 하면 기준점이 −5인 검정이 됩니다. <code>alternative="greater"</code>는 그 대립가설의 방향(단측)입니다. <code>equal_var=False</code>는 Welch 검정입니다(<a href="stats.html#ch02-s1">보건통계학 기초 2장 a 절</a>). 이 인자를 빼면 scipy는 기본값 <code>equal_var=True</code>로 두 군의 분산이 같다고 가정하는 Student t 검정을 합니다. 차이는 "첫 번째 인자 − 두 번째 인자"이므로 두 배열의 순서가 바뀌면 부호가 뒤집혀 엉뚱한 방향을 검정하게 됩니다. 기준점을 직접 지정하는 함수도 있습니다. statsmodels의 <code>statsmodels.stats.weightstats.ttest_ind(remote, inperson, alternative="larger", usevar="unequal", value=-5)</code>는 같은 t, p, 자유도를 줍니다.</span></li>
+<li><span class="mk">2</span><span><b>t, p, 자유도.</b> t = (−1.3 − (−5)) ÷ 1.3913 = 2.6593, Welch 자유도 604.99, 단측 p = 0.004019입니다. 논문에 "P = .004 for noninferiority"로 적는 값이 이것입니다. 결과 객체 res를 그대로 출력하면 TtestResult(statistic=…, pvalue=…, df=…)로 세 값이 한 줄에 나오고(numpy 2 이상에서는 숫자가 np.float64(…)로 감싸여 보임), 각 값은 <code>res.statistic</code>, <code>res.pvalue</code>, <code>res.df</code>로 꺼낼 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>한쪽만 있는 신뢰구간.</b> 단측 검정의 결과이므로 <code>confidence_interval()</code>은 하한만 있는 신뢰구간(상한 inf)을 줍니다. 원격군에 5를 더했으므로 5를 다시 빼야 차이의 신뢰한계가 됩니다. 신뢰수준 97.5%의 하한 −4.032는 양측 95% 신뢰구간의 하한과 정확히 같습니다. 신뢰수준을 지정하지 않으면 기본값 0.95가 적용되어 하한이 −3.59로 나오는데, 이것은 단측 α 0.05(양측 90%)에 해당하는 더 느슨한 기준입니다. 양측 95% 신뢰구간 전체가 필요하면 5를 더하지 않은 <code>stats.ttest_ind(remote, inperson, equal_var=False)</code>의 <code>confidence_interval()</code>을 봅니다(−4.03 ~ 1.43).</span></li>
+<li><span class="mk">4</span><span><b>군별 평균.</b> 차이의 방향을 여기서 확인합니다. 83.9 − 85.2 = −1.3입니다.</span></li>
+</ol>
+
+</div></div>
+<!--/FOLD-->
+
+<h3>논문의 평균, SD, 인원만 있으면?</h3>
+<p><strong>Welch의 표준오차와 자유도를 직접 계산하는 함수 하나로 차이, 95% 신뢰구간, 비열등성의 t와 P를 모두 구합니다.</strong> 높을수록 좋은 결과는 (차이 + 한계) ÷ 표준오차를, 낮을수록 좋은 결과는 (한계 − 차이) ÷ 표준오차를 검정합니다. 13장 b·c 절에 나오는 요약값을 한꺼번에 넣었습니다.</p>
+<!--FIG:rc16_stats-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>PDC ITT.</b> 환자별 자료로 구한 셀 1과 숫자가 같습니다. 그 아래 PP 분석도 하한 −3.40으로 비열등입니다.</span></li>
+<li><span class="mk">2</span><span><b>13장 b 절 '결과는 어떻게 읽나?'의 예: 하한 −5.58, 단측 p 0.056.</b> 하한이 한계를 넘어 비열등성을 입증하지 못했습니다. 차이 = 0의 양측 p도 0.11이라 '판단할 수 없음'입니다.</span></li>
+<li><span class="mk">3</span><span><b>HbA1c(낮을수록 좋음, 한계 +0.4): 차이 0.09, 상한 0.303, 단측 p 0.0023.</b> 13장 c 절의 숫자입니다. 이번에는 신약에 불리한 쪽인 상한을 한계와 비교합니다.</span></li>
+<li><span class="mk">4</span><span><b>혈압 예(한계 +5 mmHg): 상한 5.81, 단측 p 0.096.</b> 13장 c 절 '논문에 쓰기'의 예로, 상한이 한계를 넘어 비열등성을 입증하지 못했습니다.</span></li>
+</ol>
+<p>환자별 자료로 낮을수록 좋은 결과를 검정할 때는 <code>t.test(new, ctrl, mu = 0.4, alternative = "less", conf.level = 0.975)</code>처럼 한계를 양수로, 방향을 "less"로 적습니다. 비열등을 뒷받침하는 결과에서도 t는 음수(이 자료에서 −2.86)로 나오고, 판단할 상한은 <code>$conf.int</code>의 둘째 값입니다. 높을수록 좋은 경우처럼 <code>mu = -0.4</code>, "greater"로 넣으면 신약에 유리한 쪽 끝을 검정하게 되어 p가 지나치게 작게 나옵니다. 기저 HbA1c를 보정한 차이는 <code>lm(chg ~ arm + base)</code>의 arm 계수로 구하는 공분산분석으로, 이 과목 <a href="#rc13-s6">4장 f 절</a>과 같습니다.</p>
+<!--FOLD py:파이썬으로 하면: 요약값으로 검산하기와 낮을수록 좋은 경우-->
+<p>논문의 평균, SD, 인원만 있으면 scipy의 <code>stats.ttest_ind_from_stats</code>로 셀 2와 같은 t와 p를 구할 수 있지만, 신뢰구간은 나오지 않습니다. 기준점을 옮기는 인자가 없으므로 신약 평균에 한계를 더하거나 빼서 넣습니다.</p>
+<ul>
+<li>PDC 예: <code>stats.ttest_ind_from_stats(85.0 + 5, 18.0, 250, 87.5, 17.0, 250, equal_var=False, alternative="greater")</code> → t = 1.60, p = 0.0555</li>
+<li>혈압 예: <code>stats.ttest_ind_from_stats(135.6 - 5, 10.6, 150, 132.2, 10.6, 150, equal_var=False, alternative="less")</code> → 단측 p = 0.096</li>
+</ul>
+<p>내 자료로 이 검정을 할 때 넣는 것은 두 군의 HbA1c 변화량 배열입니다. 이번에는 기준점이 +0.4이므로 신약 배열에서 0.4를 빼고, 방향을 <code>alternative="less"</code>로 넣습니다. 보건통계학 기초 13장 b 절처럼 신약 배열에 0.4를 더하고 <code>alternative="greater"</code>로 넣으면 하한이 −0.4보다 큰지, 즉 신약에 유리한 쪽 끝을 검정하게 되어 p가 지나치게 작게 나옵니다(이 자료에서는 0.000004). 프로그램은 이 잘못을 경고하지 않습니다. <code>stats.ttest_ind(new - 0.4, ctrl, equal_var=False, alternative="less")</code>는 "차이 &lt; 0.4"를 대립가설로 하는 단측 검정입니다. 프로그램은 (신약 − 0.4) − 대조를 표준오차로 나누므로, 비열등을 뒷받침하는 결과에서도 t가 음수로 나옵니다. 판단에 쓸 상한은 결과의 <code>confidence_interval(<wbr>confidence_level=0.975).high</code>에 0.4를 다시 더해 읽습니다.</p>
+<p>이 한 줄로 위 자료를 계산하면 t = −2.86, 단측 p = 0.0023이 나옵니다. 빼는 순서가 반대라 위의 2.86과 부호만 반대이고, p는 같습니다. 실제 시험처럼 기저 HbA1c를 보정하려면 t 검정 대신 회귀모형에 넣습니다.</p>
+<!--/FOLD-->
+
+<h3>비열등성에서 바꿔야 할 기본값은?</h3>
+<p><strong>R의 기본값은 차이 검정에 맞춰져 있으므로, 비열등성 검정에서는 다음을 직접 지정하거나 확인합니다.</strong> 보건통계학 기초 <a href="stats.html#ch13-s1">13장 a 절</a> '내 연구에서 분석하기'의 점검표를 R에 맞춰 옮긴 것입니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>정할 것</th><th>R의 기본값과 지정하는 법</th></tr></thead>
+<tbody>
+<tr><td>차이의 방향</td><td><code>t.test(x, y)</code>는 x − y. 신약을 앞에 둡니다. 순서가 바뀌어도 경고하지 않습니다(셀 1의 5번).</td></tr>
+<tr><td>한계</td><td><code>mu</code>(기본 0)에 귀무가설의 차이를 적습니다. 높을수록 좋으면 −한계, 낮을수록 좋으면 +한계입니다.</td></tr>
+<tr><td>단측 방향과 신뢰수준</td><td><code>alternative</code>의 기본은 "two.sided"입니다. 단측으로 바꾸면 <code>conf.level</code>(기본 0.95)도 0.975로 바꿔야 양측 95% 구간의 끝과 같습니다.</td></tr>
+<tr><td>분산 가정</td><td><code>var.equal = FALSE</code>(Welch)가 기본이라 그대로 둡니다.</td></tr>
+<tr><td>비율 차이의 방법</td><td><code>prop.test()</code>는 차이가 0인 귀무가설만 검정합니다. 구간은 <code>DescTools::BinomDiffCI()</code>에 방법을 적고(기본 "ac"는 Agresti–Caffo), 비열등성 검정은 b 절처럼 직접 계산합니다.</td></tr>
+<tr><td>분석군과 결측</td><td><code>t.test()</code>는 NA를 경고 없이 뺍니다. ITT와 PP 자료를 결측 규칙에 따라 직접 만들고 각각 분석합니다.</td></tr>
+<tr><td>대응 자료</td><td>같은 사람의 두 값이면 <code>paired = TRUE</code>(c 절). 빼면 독립 두 군으로 계산해 p가 커집니다.</td></tr>
+<tr><td>표본크기</td><td><code>power.t.test()</code>의 기본은 <code>sig.level = 0.05</code>, "two.sided"입니다. 단측 0.025를 직접 적습니다(d 절).</td></tr>
+</tbody></table></div>
+<!--FOLD py:파이썬으로 하면: scipy와 statsmodels에서 바꿔야 할 기본값-->
+<p>보건통계학 기초 13장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>scipy와 statsmodels는 넣어 준 두 배열의 차이, 신뢰구간, P를 계산합니다. 이 계산을 비열등성 검정으로 만들려면 설정을 바꿔야 하는데, 그 설정은 대부분 기본값과 다르므로 분석하는 사람이 직접 지정합니다. 아래 표는 그 설정을 scipy 1.18과 statsmodels 0.15의 기본값과 함께 모은 점검표로, 위의 R 표와 짝을 이룹니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>내가 정할 것</th><th>정하지 않으면 생기는 일</th></tr></thead>
+<tbody>
+<tr><td>차이의 방향<br>(인자 순서)</td><td>두 프로그램 모두 '첫 인자 − 둘째 인자'를 계산하고, 순서가 바뀌어도 경고하지 않습니다. 예를 들어 보건통계학 기초 13장 b 절의 원격 상담 시험(한계 −5%p)에서 순서를 바꿔 대면군 배열에 5를 더해 첫 인자로 넣으면 '대면 상담이 원격보다 5%p 넘게 나쁘지 않은가'를 검정하게 되어, p가 0.004 대신 0.000004로 나옵니다.</td></tr>
+<tr><td>한계를 넣는 자리</td><td>scipy <code>ttest_ind</code>에는 귀무가설의 차이를 정하는 인자가 없어, 신약 값에 Δ를 더하거나(높을수록 좋음, 보건통계학 기초 13장 b 절) 빼서(낮을수록 좋음, 보건통계학 기초 13장 c 절) 기준점을 옮깁니다. statsmodels의 <code>ttest_ind</code>와 <code>test_<wbr>proportions_<wbr>2indep</code>는 <code>value=</code>로 받습니다.</td></tr>
+<tr><td>단측 방향과<br>신뢰수준</td><td><code>alternative</code>의 기본값이 양측이라 비열등성의 단측 P가 나오지 않습니다. 단측으로 지정해도 <code>confidence_<wbr>interval()</code>을 기본값(0.95)으로 부르면 양측 90% 구간의 끝이 나와 기준이 느슨해집니다. <code>confidence_<wbr>level=0.975</code>를 넣어야 양측 95% 구간의 끝과 같은 값을 받습니다(보건통계학 기초 13장 b 절).</td></tr>
+<tr><td>분산 가정</td><td>scipy는 <code>equal_var=True</code>, statsmodels는 <code>usevar=<wbr>"pooled"</code>가 기본이라 두 군의 분산이 같다고 가정하는 Student t 검정이 됩니다. 그러므로 Welch 검정을 직접 지정합니다.</td></tr>
+<tr><td>비율 차이의<br>구간과 검정 방법</td><td><code>confint_<wbr>proportions_<wbr>2indep</code>의 기본은 Newcombe 구간이지만 <code>test_<wbr>proportions_<wbr>2indep</code>의 기본은 Agresti–Caffo 검정이라, 두 함수가 서로 다른 방법을 씁니다. 방법을 지정하고 그 이름을 Methods에 적습니다(보건통계학 기초 13장 d 절).</td></tr>
+<tr><td>분석군과 결측</td><td>프로그램은 넣어 준 행만 계산합니다. 결측(NaN)이 섞이면 경고 없이 nan을 돌려주고, scipy에서 <code>nan_<wbr>policy="omit"</code>을 쓰면 그 환자가 조용히 빠집니다. 결측 처리 규칙을 정해 ITT와 PP 자료를 직접 만들고, 각각 분석합니다.</td></tr>
+<tr><td>동등성의 설계</td><td>같은 사람의 두 값인 대응 자료는 <code>ttost_<wbr>paired</code>, 독립 두 군은 <code>ttost_ind</code>를 씁니다. 대응 자료에 <code>ttost_ind</code>를 쓰면 같은 사람의 두 값을 다른 사람처럼 다뤄 p가 커집니다. 실제 교차설계 자료는 기간을 넣은 선형모형으로 분석합니다(보건통계학 기초 13장 e 절).</td></tr>
+<tr><td>표본크기</td><td>평균 차이는 <code>tt_ind_<wbr>solve_<wbr>power</code>로 구할 수 있습니다. 비율 차이는 statsmodels의 비율 전용 함수가 귀무가설의 차이가 0이 아닌 비열등성 설계를 지원하지 않아(NotImplementedError), 공식이나 <code>NormalIndPower</code>로 구합니다(보건통계학 기초 13장 d 절).</td></tr>
+</tbody></table></div>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ b -->
+<section class="sec" id="rc16-s2">
+<h2><span class="sec-no">b.</span>비율 차이의 비열등성</h2>
+
+<h3>제균율 차이의 신뢰구간은 어떤 방법으로 구하나?</h3>
+<p><strong><code>DescTools::BinomDiffCI()</code>에 두 군의 성공 수와 인원을 넣고, <code>method</code>로 Wald("wald"), Newcombe("score"), Miettinen–Nurminen("mn")을 지정합니다.</strong> 예는 보건통계학 기초 <a href="stats.html#ch13-s4">13장 d 절</a>의 제균 시험(신약 186/224, 표준 요법 190/224, 한계 −10%p)입니다. 차이는 첫째 군 − 둘째 군이라 신약을 앞에 넣습니다.</p>
+<!--FIG:rc16_prop-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Wald −8.59 ~ 5.01%p.</b> 정규근사의 단순한 구간입니다.</span></li>
+<li><span class="mk">2</span><span><b>Newcombe −8.62 ~ 5.06%p.</b> 두 군의 Wilson 구간을 합친 구간으로, 13장에서 판단에 쓴 구간입니다. DescTools에서는 이름이 "score"입니다. 하한이 −10보다 커서 비열등입니다.</span></li>
+<li><span class="mk">3</span><span><b>Miettinen–Nurminen −8.67 ~ 5.08%p.</b> 비열등성 검정과 짝이 맞는 점수 구간입니다. 이 시험에서는 세 방법의 결론이 같습니다.</span></li>
+</ol>
+
+<h3>비열등성의 P는 어떻게 구하나?</h3>
+<p><strong>귀무가설(차이 = −10%p) 아래에서 가장 그럴듯한 두 비율을 <code>optimize()</code>로 찾고, 그 비율로 표준오차를 구해 z를 계산합니다.</strong> Farrington–Manning 검정입니다. R의 기본 함수에는 차이가 0이 아닌 귀무가설을 검정하는 비율 검정이 없어 몇 줄로 직접 씁니다.</p>
+<!--FIG:rc16_fm-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>귀무가설 아래의 두 비율 77.95%와 87.95%, z = 2.33, 단측 p = 0.0098.</b> 13장 d 절 '비열등성의 P는 어떻게 구하나?'의 숫자입니다.</span></li>
+<li><span class="mk">2</span><span><b>PP: z = 2.69, p = 0.0035.</b> 두 분석군 모두 비열등입니다.</span></li>
+</ol>
+
+<h3>성공률이 100%에 가까우면 무엇이 달라지나?</h3>
+<p><strong>같은 함수로 Wald 구간과 Newcombe 구간을 비교합니다.</strong> 13장 d 절 '결과는 어떻게 읽나?'의 소규모 시험(48/50 대 50/50)과 군당 100명 시험(94/100 대 98/100)입니다.</p>
+<!--FIG:rc16_small-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>48/50 대 50/50의 Wald 구간 −9.43 ~ 1.43%p.</b> 표준 요법 군의 분산이 0으로 계산되어 구간이 지나치게 좁고, 하한이 한계 안이라 '비열등'으로 잘못 판단합니다.</span></li>
+<li><span class="mk">2</span><span><b>Newcombe 하한 −13.46%p.</b> 한계를 넘어 비열등성을 입증하지 못합니다.</span></li>
+<li><span class="mk">3</span><span><b>94/100 대 98/100의 Newcombe 하한 −10.64%p.</b> Wald(−9.40)로는 비열등, Newcombe로는 입증하지 못함으로 결론이 갈립니다.</span></li>
+<li><span class="mk">4</span><span><b>Farrington–Manning z = 1.41, p = 0.079.</b> 48/50 대 50/50도 검정으로는 비열등성을 입증하지 못합니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 비율 함수-->
+<p>보건통계학 기초 13장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>비율을 비교할 때는 환자별 자료가 없어도 됩니다. 두 군의 성공한 사람 수와 인원, 모두 네 숫자를 statsmodels의 두 함수에 넣습니다. 두 함수는 <code>method</code>를 넣지 않으면 서로 다른 방법을 씁니다. 신뢰구간 함수는 Newcombe 방법을 쓰지만, 검정 함수는 Agresti–Caffo 방법을 써서 z = 2.37, p = 0.0090을 줍니다. 그래서 아래 표처럼 방법을 각각 지정하고 그 이름을 Methods에 적습니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>구하는 값</th><th>함수와 지정한 방법</th><th>출력</th></tr></thead>
+<tbody>
+<tr><td>신뢰구간</td><td><code>confint_<wbr>proportions_<wbr>2indep(186, 224, 190, 224, method="newcomb", compare="diff")</code></td><td>Newcombe 95% CI<br>−0.0862 ~ 0.0506</td></tr>
+<tr><td>비열등성의 P</td><td><code>test_<wbr>proportions_<wbr>2indep(…, value=-0.10, method="score", compare="diff", alternative="larger", correction=False)</code></td><td>z = 2.31,<br>단측 p = 0.0105</td></tr>
+</tbody></table></div>
+<p>두 함수는 차이를 첫째 군 − 둘째 군으로 계산합니다. 신약을 첫째 군으로 넣는 순서, 한계(<code>value</code>)의 부호, 추적 검사를 받지 않은 환자를 실패로 셀지는 내가 정합니다.</p>
+<p>같은 자료를 statsmodels 0.15의 <code>test_proportions_2indep(186, 224, 190, 224, value=-0.10, method="score", compare="diff", alternative="larger", correction=False)</code>에 넣으면 z = 2.31, 단측 p = 0.0105가 나옵니다. 셀 4의 Farrington–Manning 검정 2.33, 0.0098과 둘째 자리가 다릅니다. 이 버전은 귀무가설 아래의 두 비율을 위의 최대우도 값(77.95%, 87.95%)이 아닌 77.52%와 87.52%로 잡습니다. 최대우도를 구하는 3차식의 계수 하나가 원식과 다르게 구현된 것으로 보입니다. 같은 계산을 쓰는 <code>confint_proportions_2indep(…, method="score")</code>도 −8.73 ~ 5.10%p를 주어 Miettinen–Nurminen 구간(−8.67 ~ 5.08%p)과 조금 다릅니다. 보건통계학 기초 13장 d 절 '결과는 어떻게 읽나?'의 소규모 시험처럼 한 군이 모두 성공한 자료(48/50 대 50/50)에서는 이 신뢰구간 함수가 ValueError로 멈춥니다. 검정 함수는 같은 자료에서 z = 1.41, 단측 p = 0.079를 줍니다. 이 시험에서는 결론이 같지만, 하한이 한계에 가까우면 직접 계산한 값이나 다른 프로그램의 결과와 비교합니다. 직접 계산하는 코드는 <a href="#lab13-s2">실습 13 b 절</a>에 있습니다.</p>
+<p>군당 100명 시험(94/100 대 98/100)의 Newcombe 구간은 <code>confint_proportions_2indep(94, 100, 98, 100, method="newcomb", compare="diff")</code>로 구합니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ c -->
+<section class="sec" id="rc16-s3">
+<h2><span class="sec-no">c.</span>동등성과 생물학적 동등성</h2>
+
+<h3>두 단측 검정과 90% 신뢰구간은 어떻게 구하나?</h3>
+<p><strong>로그 AUC로 <code>t.test(…, paired = TRUE)</code>를 두 번 실행합니다. 한 번은 <code>mu = log(0.8)</code>, "greater", 다른 한 번은 <code>mu = log(1.25)</code>, "less"입니다. 90% 신뢰구간은 <code>conf.level = 0.90</code>으로 구해 <code>exp()</code>로 되돌립니다.</strong> 예는 보건통계학 기초 <a href="stats.html#ch13-s5">13장 e 절</a>의 12명 AUC입니다. R의 기본 패키지에는 두 단측 검정을 한 번에 하는 함수가 없습니다.</p>
+<!--FIG:rc16_be12-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>t<sub>L</sub> = 4.48(p = 0.00046), t<sub>U</sub> = −6.65(p = 0.000018).</b> 두 p가 모두 0.05보다 작아 동등입니다. 판정에는 둘 중 큰 p(0.00046)를 씁니다. 두 번째 검정은 방향이 "less"라 t가 음수로 나옵니다.</span></li>
+<li><span class="mk">2</span><span><b>기하평균비의 90% 신뢰구간 89.10–102.89%.</b> 80–125% 안에 들어 두 단측 검정과 같은 판정입니다.</span></li>
+<li><span class="mk">3</span><span><b>차이 = 0의 검정 p = 0.30.</b> 차이가 유의하지 않다는 것과 동등하다는 것은 다른 판단입니다.</span></li>
+<li><span class="mk">4</span><span><b>짝을 무시하면 p = 0.047.</b> <code>paired = TRUE</code>를 빼고 독립 두 군으로 계산하면, 대상자 사이의 차이까지 표준오차에 들어가 판정을 정하는 p가 0.00046에서 0.047로 커집니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 ttost_paired-->
+<p>보건통계학 기초 13장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>대상자마다 시험약과 대조약의 AUC(또는 Cmax)가 한 쌍씩 있는 자료를 씁니다. 두 값에 로그를 씌워 넣고, 한계도 로그 척도의 ln 0.8과 ln 1.25로 넣습니다. statsmodels의 <code>ttost_paired(np.log(T), np.log(R), np.log(0.8), np.log(1.25))</code>는 두 단측 검정을 한 번에 하고, 둘 중 큰 p를 첫 값으로 돌려줍니다. 이 p가 0.05보다 작으면 동등입니다. 90% 신뢰구간은 scipy의 <code>stats.ttest_rel(np.log(T), np.log(R)).confidence_interval(0.90)</code>로 구해 지수로 되돌립니다. scipy의 기본값은 95%이므로 신뢰수준 0.90을 직접 넣습니다.</p>
+<p>같은 사람이 두 약을 모두 먹었으므로 대응 자료용 함수를 씁니다. 독립 두 군용 <code>ttost_ind</code>를 쓰면 같은 사람의 두 값을 다른 사람처럼 다뤄 대상자 사이의 차이까지 표준오차에 들어가므로 p가 커집니다. 같은 12명 자료에서는 판정을 정하는 p가 0.0005에서 0.047로 커집니다. 실제 교차설계 자료는 기간을 넣은 선형모형으로 분석합니다(다음 소제목).</p>
+<!--/FOLD-->
+
+<h3>교차설계 자료는 어떻게 분석하나?</h3>
+<p><strong>대상자 한 명의 한 기간이 한 줄인 긴 형식 자료로, 로그 AUC를 결과로 하고 대상자, 기간, 제제를 요인으로 넣은 <code>lm()</code>을 적합합니다.</strong> 제제 계수가 로그 기하평균비이고, <code>confint(…, level = 0.90)</code>을 지수로 되돌리면 90% 신뢰구간입니다. 예는 13장 e 절 '논문에서 읽기' Table 2의 24명입니다.</p>
+<!--FIG:rc16_cross-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>AUC<sub>0–t</sub>의 기하평균비 97.31%(91.20–103.82%).</b> Table 2의 값입니다. 대상자 요인이 순서군의 차이까지 담으므로, 순서군과 '순서군 안의 대상자'를 넣은 모형과 제제의 추정값이 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>개체내 변동계수 13.1%.</b> 잔차 분산 σ²로 √(exp(σ²) − 1)을 계산한 값입니다. 다음 시험의 표본크기를 정할 때 씁니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 교차설계 분석-->
+<p>보건통계학 기초 13장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>자료를 대상자 한 명의 한 기간이 한 행인 긴 형식으로 만듭니다. 열은 대상자, 기간, 제제(T 또는 R), AUC입니다. 그다음 로그 AUC를 결과로, 대상자·기간·제제를 범주형 요인으로 넣은 선형모형을 적합합니다.</p>
+<pre class="out"><span class="cm"># 파이썬 (statsmodels)</span>
+fit = smf.ols("np.log(auc) ~ C(subject) + C(period) + C(form)", data=be).fit()
+lo, hi = fit.conf_int(alpha=0.10).loc["C(form)[T.T]"]</pre>
+<p>제제 계수가 로그 기하평균비이고, <code>alpha=0.10</code>으로 구한 90% 신뢰한계를 지수로 되돌리면 기하평균비의 90% 신뢰구간이 됩니다. 개체내 변동계수는 잔차 평균제곱으로 <code>np.sqrt(np.exp(fit.mse_resid) - 1)</code>입니다. 전체 코드와 출력은 <a href="#lab13-s3">실습 13 c 절</a>의 '교차설계 분산분석으로 하기'에 있습니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ d -->
+<section class="sec" id="rc16-s4">
+<h2><span class="sec-no">d.</span>표본크기와 검정력</h2>
+
+<h3>평균 차이의 비열등성 시험은 몇 명이 필요한가?</h3>
+<p><strong><code>power.t.test()</code>의 <code>delta</code>에 '한계까지 남은 거리'(한계 + 가정한 실제 차이)를 넣고, <code>sig.level = 0.025</code>, <code>alternative = "one.sided"</code>를 직접 적습니다.</strong> 13장 a 절 HbA1c 시험(한계 0.4, SD 1.1, 검정력 90%)과 b 절 PDC 시험(한계 5, SD 18)입니다.</p>
+<!--FIG:rc16_ssm-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>정규분포 공식 158.9명, 272.4명.</b> 13장 본문의 계산입니다.</span></li>
+<li><span class="mk">2</span><span><b><code>power.t.test()</code> 159.9명.</b> t 분포를 써서 공식보다 1명 안팎 많고, 올림하면 160명입니다. PDC 시험은 273.3명 → 274명입니다.</span></li>
+<li><span class="mk">3</span><span><b>탈락 15%를 감안하면 군당 188명.</b> 13장 a 절 '논문에서 읽기'의 159명과 188명입니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 tt_ind_solve_power-->
+<p>HbA1c 시험: statsmodels의 <code>tt_ind_<wbr>solve_<wbr>power(effect_size=0.4/1.1, alpha=0.025, power=0.9, alternative="larger")</code>로 같은 계산을 합니다. z 대신 t 분포를 쓰므로 159.9가 나와, 위 공식보다 한 명 많은 160명으로 올림합니다.</p>
+<p>PDC 시험: statsmodels로는 <code>tt_ind_solve_power(<wbr>effect_size=(5 + 0) / 18, alpha=0.025, power=0.9, alternative="larger")</code>가 군당 273.3명을 주어 274명이 됩니다. z 대신 t 분포를 쓰므로 공식(272.4 → 273명)보다 1명 많습니다. 효과크기 자리에는 (한계 + 가정한 실제 차이) ÷ SD를 넣고, 단측 α 0.025를 직접 지정합니다.</p>
+<!--/FOLD-->
+
+<h3>비율 차이의 비열등성 시험은?</h3>
+<p><strong>R의 기본 함수에는 귀무가설의 차이가 0이 아닌 비율 설계가 없어 공식으로 계산합니다.</strong> 13장 d 절의 제균 시험(두 군 모두 85%, 한계 −10%p, 검정력 80%)입니다. 검정력은 관측 차이가 −10 + 1.96 × 표준오차를 넘을 확률이고, 실제 성공률을 바꿔 가며 다시 구합니다.</p>
+<!--FIG:rc16_ssp-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>군당 200.1명 → 201명, 탈락 10%를 감안해 224명.</b> 13장의 설계입니다.</span></li>
+<li><span class="mk">2</span><span><b>실제 성공률 70%, 85%, 95%에서 검정력 0.59, 0.80, 0.996.</b> 성공률이 50% 쪽으로 낮을수록 분산이 커져 검정력이 떨어집니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 비율 표본크기 함수-->
+<p>보건통계학 기초 13장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>statsmodels 0.15의 비율 표본크기 함수(<code>samplesize_proportions_2indep_onetail</code>)와 검정력 함수(<code>power_proportions_2indep</code>)는 귀무가설의 차이가 0이 아닌 비열등성 설계를 지원하지 않아 NotImplementedError를 냅니다. 그래서 보건통계학 기초 13장 d 절 '수식으로 보기'의 공식으로 직접 계산하거나, 일반 검정력 함수 <code>NormalIndPower</code>에 차이를 표준편차로 나눈 효과크기(0.10 ÷ √0.1275)를 넣어 구합니다(군당 200.1명).</p>
+<p>검정력 계산의 Φ(표준정규분포의 누적확률)는 <code>scipy.stats.norm.cdf</code>입니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc16-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 한계를 4%p로 좁히면</h3>
+<p>a 절의 원격 상담 시험에서 한계를 5%p 대신 4%p로 정했다면 ITT 결론은 어떻게 되나요? 같은 SD(18)와 검정력 90%로 설계했다면 군당 몇 명이 필요했을까요?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc16_t1-->
+<p>하한 −4.03이 한계 −4를 넘고 단측 p = 0.026으로 0.025보다 커서 비열등성을 입증하지 못합니다. 한계를 1%p 좁혔을 뿐인데 필요한 인원은 군당 274명에서 427명으로 늘어납니다. 필요한 인원은 한계까지 남은 거리의 제곱에 반비례하기 때문입니다(보건통계학 기초 <a href="stats.html#ch13-s1">13장 a 절</a>).</p>
+</div></details>
+
+<h3>과제 2. Cmax의 동등성</h3>
+<p>c 절의 교차설계 자료로 Cmax의 기하평균비와 90% 신뢰구간, 개체내 변동계수를 구하고 동등성을 판정하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc16_t2-->
+<p>기하평균비 93.93%(84.42–104.52%)로 80–125% 안이라 동등입니다. 개체내 변동계수가 21.8%로 AUC(13.1%)보다 커서 구간이 더 넓습니다. 13장 e 절 Table 2의 Cmax 줄과 같습니다.</p>
+</div></details>
+</section>
