@@ -1,0 +1,42 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">네 번 모두 잰 75명의 반복측정 분산분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages({library(tidyr); library(dplyr); library(afex)})
+w &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch10_hba1c.csv&quot;)                        # 환자 한 명이 한 줄 (넓은 형식)
+cc &lt;- w |&gt; filter(!is.na(hba1c_0), !is.na(hba1c_3), !is.na(hba1c_6), !is.na(hba1c_12)) |&gt;
+  pivot_longer(starts_with(&quot;hba1c_&quot;), names_to = &quot;month&quot;, names_prefix = &quot;hba1c_&quot;, values_to = &quot;hba1c&quot;) |&gt;
+  mutate(month = factor(month, levels = c(&quot;0&quot;, &quot;3&quot;, &quot;6&quot;, &quot;12&quot;)), group = factor(group))
+table(cc$group) / 4                                       # 네 번 모두 잰 환자 (군별)
+a &lt;- aov_ez(&quot;id&quot;, &quot;hba1c&quot;, cc, between = &quot;group&quot;, within = &quot;month&quot;, type = 3)
+summary(a)                                                # 구형성 가정, Mauchly 검정, GG·HF 보정</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+ 0  1 
+33 42<span class="mk">1</span> 
+Contrasts set to contr.sum for the following variables: group
+
+Univariate Type III Repeated-Measures ANOVA Assuming Sphericity
+
+             Sum Sq num Df Error SS den Df   F value    Pr(&gt;F)    
+(Intercept) 19571.3      1  185.077     73 7719.5236 &lt; 2.2e-16 ***
+group           0.4      1  185.077     73    0.1688  0.682409    
+month           8.5      3   34.224    219   18.0437 1.682e-10 ***
+group:month     1.8      3   34.224    219    3.9456  0.009078<span class="mk">2</span> ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Mauchly Tests for Sphericity
+
+            Test statistic    p-value
+month              0.70302 0.00012366<span class="mk">3</span>
+group:month        0.70302 0.00012366
+
+
+Greenhouse-Geisser and Huynh-Feldt Corrections
+ for Departure from Sphericity
+
+             GG eps Pr(&gt;F[GG])    
+month       0.80874  6.509e-09 ***
+group:month 0.80874    0.01484<span class="mk">4</span> *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+               HF eps   Pr(&gt;F[HF])
+month       0.8385514 3.678113e-09
+group:month 0.8385514<span class="mk">5</span> 1.373898e-02</pre></div></div>

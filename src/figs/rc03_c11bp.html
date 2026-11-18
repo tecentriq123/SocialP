@@ -1,0 +1,29 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">혈압을 스플라인으로 넣기 (그림 11-2)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">bp &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch11_bp.csv&quot;)
+kn &lt;- quantile(bp$sbp, c(0.05, 0.35, 0.65, 0.95))    # 매듭: 5·35·65·95번째 백분위수
+round(kn, 1)
+rcs4 &lt;- function(x) Hmisc::rcspline.eval(x, knots = kn, inclx = TRUE)   # 제한 삼차 스플라인
+f_lin &lt;- coxph(Surv(time, status) ~ I(sbp / 10), data = bp)
+f_rcs &lt;- coxph(Surv(time, status) ~ rcs4(sbp), data = bp)
+round(exp(coef(f_lin)), 3)                            # 10 mmHg당 위험비(직선)
+anova(f_lin, f_rcs)                                   # 곡선이 필요한가(자유도 2)
+at &lt;- c(100, 140, 160, 180)
+X  &lt;- sweep(rcs4(at), 2, rcs4(120))                   # 120 mmHg와의 차이
+lp &lt;- drop(X %*% coef(f_rcs)); se &lt;- sqrt(diag(X %*% vcov(f_rcs) %*% t(X)))
+round(cbind(sbp = at, HR = exp(lp), lower = exp(lp - 1.96 * se), upper = exp(lp + 1.96 * se)), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   5%   35%   65%   95% 
+102.4 128.2 142.8 167.9<span class="mk">1</span> 
+I(sbp/10) 
+    1.144<span class="mk">2</span> 
+Analysis of Deviance Table
+ Cox model: response is  Surv(time, status)
+ Model 1: ~ I(sbp/10)
+ Model 2: ~ rcs4(sbp)
+   loglik  Chisq Df Pr(&gt;|Chi|)    
+1 -8136.0                         
+2 -8113.4 45.173  2  1.552e-10<span class="mk">3</span> ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+     sbp   HR lower upper
+[1,] 100 1.18  0.97  1.42
+[2,] 140 1.12  0.99  1.27
+[3,] 160 1.86  1.58  2.19<span class="mk">4</span>
+[4,] 180 3.57  2.89  4.42</pre></div></div>

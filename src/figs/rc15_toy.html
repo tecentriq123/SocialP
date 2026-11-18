@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">환자 4명 × 방문 3회의 반복측정 분산분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">toy &lt;- data.frame(id = factor(rep(1:4, each = 3)), visit = factor(rep(c(0, 3, 6), 4)),
+                  hba1c = c(9.2, 9.0, 8.5,  7.4, 7.3, 6.9,  8.4, 7.8, 7.8,  10.2, 9.9, 9.6))
+summary(aov(hba1c ~ visit + Error(id / visit), data = toy))   # 환자 간 변동을 떼어 낸 반복측정 분산분석
+summary(aov(hba1c ~ visit, data = toy))                       # 환자를 무시한 일원분산분석</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Error: id
+          Df Sum Sq Mean Sq F value Pr(&gt;F)
+Residuals  3  12.18    4.06<span class="mk">1</span>               
+
+Error: id:visit
+          Df Sum Sq Mean Sq F value  Pr(&gt;F)   
+visit      2   0.72  0.3600    21.6 0.00181<span class="mk">2</span> **
+Residuals  6   0.10  0.0167                   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+            Df Sum Sq Mean Sq F value Pr(&gt;F)
+visit        2   0.72   0.360   0.264  0.774<span class="mk">3</span>
+Residuals    9  12.28   1.364</pre></div></div>

@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">ε으로 자유도를 줄여 P 다시 읽기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">F &lt;- 3.946; eps &lt;- 0.809                                  # 교호작용의 F와 Greenhouse–Geisser ε
+round(c(sphericity = pf(F, 3, 219, lower.tail = FALSE),
+        GG = pf(F, 3 * eps, 219 * eps, lower.tail = FALSE),
+        lower_bound = pf(F, 1, 73, lower.tail = FALSE)), 4)
+nice(a, correction = &quot;GG&quot;)                                # 보정한 자유도를 함께 적은 표</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> sphericity          GG lower_bound 
+     0.0091      0.0148      0.0507<span class="mk">1</span> 
+Anova Table (Type 3 tests)
+
+Response: hba1c
+       Effect           df  MSE         F  ges p.value
+1       group        1, 73 2.54      0.17 .002    .682
+2       month 2.43, 177.11 0.19 18.04 *** .037   &lt;.001
+3 group:month 2.43, 177.11<span class="mk">2</span> 0.19    3.95 * .008    .015
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘+’ 0.1 ‘ ’ 1
+
+Sphericity correction method: GG</pre></div></div>

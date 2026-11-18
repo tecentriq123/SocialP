@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">공분산 구조 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(nlme))
+L$fmonth &lt;- factor(L$month); L$vn &lt;- as.integer(L$fmonth)
+cov_fit &lt;- function(cor, w = NULL)
+  gls(hba1c ~ fmonth * group, data = L, correlation = cor, weights = w, method = &quot;REML&quot;)
+fits &lt;- list(CS  = cov_fit(corCompSymm(form = ~ 1 | id)),
+             AR1 = cov_fit(corAR1(form = ~ vn | id)),
+             UN  = cov_fit(corSymm(form = ~ vn | id), varIdent(form = ~ 1 | fmonth)))
+t(sapply(fits, function(f) c(m2REML = -2 * as.numeric(logLik(f)), AIC = AIC(f),
+                             diff12 = unname(coef(f)[&quot;fmonth12:group&quot;]))))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      m2REML      AIC     diff12
+CS  630.8549<span class="mk">1</span> 650.8549 -0.3975497
+AR1 633.3094<span class="mk">2</span> 653.3094 -0.4065088
+UN  594.2031<span class="mk">3</span> 630.2031 -0.4662492</pre></div></div>

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">과제 3 정답: 치료 × 추적 시간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">wrong &lt;- coxph(Surv(years, death) ~ dpca + age10 + female + log2(bili) +
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">과제 3 정답: 치료 × 추적 시간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">wrong &lt;- coxph(Surv(years, death) ~ dpca + age10 + female + log2(bili) +
                  albumin + edema + protime + dpca:years, data = d)
 round(summary(wrong)$coefficients[c(&quot;dpca&quot;, &quot;dpca:years&quot;), ], 4)
 right &lt;- coxph(Surv(years, death) ~ dpca + age10 + female + log2(bili) +

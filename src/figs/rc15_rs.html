@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">무작위 절편 + 기울기 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rs &lt;- lmer(hba1c ~ group * month + (month | id), data = L,
+           control = lmerControl(optimizer = &quot;bobyqa&quot;))  # 무작위 절편 + 기울기
+summary(rs)$coefficients
+as.data.frame(VarCorr(rs))[, c(&quot;var1&quot;, &quot;var2&quot;, &quot;vcov&quot;, &quot;sdcor&quot;)]
+contest(rs, c(0, 0, 0, 12), joint = FALSE)               # 12개월 군간 차이 = 12 × 군 × 개월
+c(nobs = nobs(rs), patients = ngrps(rs))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Estimate  Std. Error       df   t value     Pr(&gt;|t|)
+(Intercept)  8.47270731 0.110633527 98.61833 76.583542 1.149264e-89
+group        0.04767536 0.156024129 97.57846  0.305564 7.605875e-01
+month       -0.01296952 0.009366888 86.99472 -1.384614 1.697117e-01
+group:month -0.04293037 0.012631169 85.76935<span class="mk">1</span> -3.398765 1.028883e-03
+         var1  var2        vcov      sdcor
+1 (Intercept)  &lt;NA&gt; 0.538710593 0.73396907<span class="mk">2</span>
+2       month  &lt;NA&gt; 0.001911400 0.04371957<span class="mk">3</span>
+3 (Intercept) month 0.007751969 0.24157860<span class="mk">4</span>
+4        &lt;NA&gt;  &lt;NA&gt; 0.107562806 0.32796769<span class="mk">5</span>
+    Estimate Std. Error       df   t value      lower      upper    Pr(&gt;|t|)
+1 -0.5151645   0.151574 85.76935 -3.398765 -0.8164952 -0.2138337<span class="mk">6</span> 0.001028883
+       nobs patients.id 
+        354         100</pre></div></div>

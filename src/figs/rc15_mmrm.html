@@ -1,0 +1,43 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">MMRM: 비구조 공분산과 Satterthwaite 자유도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressWarnings(suppressPackageStartupMessages({library(mmrm); library(emmeans)}))
+C &lt;- w |&gt; pivot_longer(c(hba1c_3, hba1c_6, hba1c_12), names_to = &quot;visit&quot;, names_prefix = &quot;hba1c_&quot;,
+                       values_to = &quot;y&quot;) |&gt;
+  filter(!is.na(y)) |&gt;
+  mutate(chg = y - hba1c_0, visit = factor(visit, levels = c(&quot;3&quot;, &quot;6&quot;, &quot;12&quot;)),
+         group = factor(group), id = factor(id))
+C$cbase &lt;- C$hba1c_0 - mean(w$hba1c_0[w$id %in% C$id])   # 기저값을 분석 환자 평균으로 중심화
+c(patients = nlevels(droplevels(C$id)), rows = nrow(C))
+m &lt;- mmrm(chg ~ visit + group:visit + cbase:visit + us(visit | id), data = C,
+          method = &quot;Satterthwaite&quot;)                       # 비구조 공분산, REML
+em &lt;- emmeans(m, ~ group | visit, at = list(cbase = 0))
+em
+contrast(em, &quot;revpairwise&quot;)                              # 방문마다 중재군 − 일반 진료군</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>patients     rows 
+      92      254<span class="mk">1</span> 
+NOTE: A nesting structure was detected in the fitted model:
+    group %in% visit
+visit = 3:
+ group  emmean     SE   df lower.CL upper.CL
+ 0     -0.0928 0.0682 88.7   -0.228   0.0426
+ 1     -0.0463 0.0624 88.6   -0.170   0.0777
+
+visit = 6:
+ group  emmean     SE   df lower.CL upper.CL
+ 0     -0.0793 0.0841 84.8   -0.247   0.0879
+ 1     -0.3353 0.0769 84.5   -0.488  -0.1824
+
+visit = 12:
+ group  emmean     SE   df lower.CL upper.CL
+ 0     -0.1755 0.1162 85.3   -0.406   0.0555
+ 1     -0.6419 0.1041 82.6<span class="mk">2</span>   -0.849  -0.4349
+
+Confidence level used: 0.95 
+visit = 12:
+ contrast        estimate     SE   df t.ratio p.value
+ group1 - group0  -0.4664 0.1557 83.8  -2.995  0.0036<span class="mk">3</span>
+
+visit = 3:
+ contrast        estimate     SE   df t.ratio p.value
+ group1 - group0   0.0465 0.0925 88.6   0.503  0.6165
+
+visit = 6:
+ contrast        estimate     SE   df t.ratio p.value
+ group1 - group0  -0.2560 0.1140 84.6  -2.245  0.0274<span class="mk">4</span></pre></div></div>

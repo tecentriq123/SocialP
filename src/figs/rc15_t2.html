@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">과제 2 정답</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">gi &lt;- geeglm(adh ~ group * visit, id = id, data = A, family = binomial, corstr = &quot;exchangeable&quot;)
+anova(ge, gi)                                             # 군 × 기간 곱셈항 2개의 Wald 검정</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Analysis of &#x27;Wald statistic&#x27; Table
+
+Model 1 adh ~ group * visit 
+Model 2 adh ~ group + visit
+  Df   X2 P(&gt;|Chi|)
+1  2 2.29      0.32<span class="mk">1</span></pre></div></div>

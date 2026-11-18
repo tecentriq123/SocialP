@@ -200,12 +200,12 @@ import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루�
 <ol class="lines">
 <li><code>from statsmodels.stats.anova import AnovaRM</code><span>statsmodels에서 반복측정 분산분석 도구를 불러옵니다.</span></li>
 <li><code>AnovaRM(sleep, depvar="Reaction",
-       subject="Subject", within=["Days"])</code><span>긴 형식 자료, 결과변수(<code>depvar</code>), 사람을 구별하는 열(<code>subject</code>), 개체내 요인(<code>within</code>)을 지정합니다. <code>within</code>은 목록으로 받으므로 요인이 하나여도 대괄호로 감쌉니다. Days는 숫자지만 여기서는 10개 수준의 범주로 취급됩니다. 시간을 순서 없는 범주로 다루는 것이 반복측정 분산분석의 특징입니다(10장 a 절 '가정과 대안').</span></li>
+       subject="Subject", within=["Days"])</code><span>긴 형식 자료, 결과변수(<code>depvar</code>), 사람을 구별하는 열(<code>subject</code>), 개체내 요인(<code>within</code>)을 지정합니다. <code>within</code>은 목록으로 받으므로 요인이 하나여도 대괄호로 감쌉니다. Days는 숫자지만 여기서는 10개 수준의 범주로 취급됩니다. 시간을 순서 없는 범주로 다루는 것이 반복측정 분산분석의 특징입니다(10장 a 절 '무엇을 가정하고, 어긋나면 어떻게 하나?').</span></li>
 <li><code>.fit()</code>, <code>print(aov)</code><span>계산을 실행하고 분산분석표를 출력합니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>F = 18.70.</b> 날짜 사이의 평균 차이(날짜 평균제곱)를 참가자 안의 오차 평균제곱으로 나눈 값입니다. 참가자마다 반응시간 수준이 다른 부분은 오차에서 빠져 있습니다(10장 a 절 '숫자로 따라가기').</span></li>
+<li><span class="mk">1</span><span><b>F = 18.70.</b> 날짜 사이의 평균 차이(날짜 평균제곱)를 참가자 안의 오차 평균제곱으로 나눈 값입니다. 참가자마다 반응시간 수준이 다른 부분은 오차에서 빠져 있습니다(10장 a 절 '시점 사이의 차이는 어떻게 검정하나?').</span></li>
 <li><span class="mk">2</span><span><b>분자 자유도 9</b> = 시점 수 − 1 = 10 − 1.</span></li>
 <li><span class="mk">3</span><span><b>분모 자유도 153</b> = (시점 수 − 1) × (참가자 수 − 1) = 9 × 17.</span></li>
 <li><span class="mk">4</span><span><b>Pr &gt; F 0.0000.</b> p가 0이라는 뜻이 아니라 소수 넷째 자리에서 반올림한 결과입니다. 다음 셀에서 보듯 실제 p는 9.0 × 10<sup>−21</sup>이므로 논문에는 P &lt; .001로 씁니다. "10일의 평균이 모두 같다"는 귀무가설이 기각되었다는 뜻일 뿐, 하루에 얼마나 느려지는지는 이 표에 없습니다. 효과의 크기는 c 절의 혼합모형 계수로 봅니다.</span></li>
@@ -224,7 +224,7 @@ import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루�
      - S.mean(axis=1)[:, None] + S.mean()</code><span>이중 중심화입니다. <code>S.mean(axis=0)</code>은 열 평균 10개, <code>S.mean(axis=1)[:, None]</code>은 행 평균 10개를 세로로 세운 (10, 1) 모양입니다. 모양이 다른 배열을 빼면 numpy가 칸마다 맞춰 계산합니다(broadcasting).</span></li>
 <li><code>eps = np.trace(Sc)**2 / ((k - 1) * np.sum(Sc**2))</code><span>위 식 그대로입니다. <code>np.trace</code>는 대각합, <code>np.sum(Sc**2)</code>는 모든 칸의 제곱합으로, 대칭 행렬에서는 \(\operatorname{tr}(\tilde S^2)\)와 같습니다.</span></li>
 <li><code>aov.anova_table.loc["Days", "F Value"]</code><span>셀 8 결과의 분산분석표(<code>anova_table</code>, DataFrame)에서 Days 행, F Value 열의 값 18.70을 꺼냅니다.</span></li>
-<li><code>stats.f.sf(F, eps * df1, eps * df2)</code><span>F 분포의 오른쪽 꼬리 넓이, 즉 p입니다. F는 그대로 두고 자유도에만 ε을 곱합니다(10장 a 절의 접힌 상자 '보정한 P는 파이썬에서 어떻게 구하나?'와 같은 계산). 하한 보정은 ε = 1/(k − 1)이므로 자유도가 (1, n − 1)이 됩니다.</span></li>
+<li><code>stats.f.sf(F, eps * df1, eps * df2)</code><span>F 분포의 오른쪽 꼬리 넓이, 즉 p입니다. F는 그대로 두고 자유도에만 ε을 곱합니다(<a href="#rc15-s1">R과 파이썬으로 하는 통계분석 6장 a 절</a>의 셀 3과 그 절의 접힌 상자). 하한 보정은 ε = 1/(k − 1)이므로 자유도가 (1, n − 1)이 됩니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
@@ -309,7 +309,7 @@ import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루�
 </ol>
 <h4>출력 읽기</h4>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>Method: REML.</b> 분산성분을 제한최대우도로 추정했습니다(10장 c 절 '결과 읽기'의 접힌 상자 '모형을 비교할 때 REML과 ML 중 무엇으로 적합하나?'). ML과의 차이는 셀 15에서 직접 비교합니다.</span></li>
+<li><span class="mk">1</span><span><b>Method: REML.</b> 분산성분을 제한최대우도로 추정했습니다(10장 c 절 '결과는 어떻게 읽나?'의 접힌 상자 '모형을 비교할 때 REML과 ML 중 무엇으로 적합하나?'). ML과의 차이는 셀 15에서 직접 비교합니다.</span></li>
 <li><span class="mk">2</span><span><b>No. Groups: 18.</b> <code>groups</code>로 준 군집, 즉 참가자 수입니다. statsmodels는 군집을 'Group'이라고 부릅니다. Min·Max group size가 모두 10이므로 모든 참가자가 10번 측정되었습니다.</span></li>
 <li><span class="mk">3</span><span><b>Scale = 960.46.</b> 잔차 분산 σ²입니다. 참가자 자신의 평균 수준 주변에서 날마다 오르내리는 정도로, SD는 √960.46 = 31.0 ms입니다.</span></li>
 <li><span class="mk">4</span><span><b>Log-Likelihood = −893.23.</b> REML 로그우도입니다. 혼자서는 의미가 없고, 무작위 기울기 모형과 비교할 때 씁니다.</span></li>
@@ -347,7 +347,7 @@ import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루�
 <ol class="marks">
 <li><span class="mk">1</span><span><b>Scale이 960.46에서 654.94로 줄었습니다.</b> 사람마다 기울기가 다른 부분이 잔차에서 빠져나가 무작위효과로 옮겨 갔기 때문입니다. 잔차 SD는 25.6 ms입니다.</span></li>
 <li><span class="mk">2</span><span><b>Log-Likelihood = −871.81.</b> 무작위 절편 모형(−893.23)보다 큽니다(덜 음수). 다음 셀에서 검정합니다.</span></li>
-<li><span class="mk">3</span><span><b>Days = 10.467, SE 1.546.</b> 점추정값은 같지만 표준오차가 두 배 가까이 커졌습니다. 95% CI 7.44–13.50입니다. SAS PROC MIXED나 R lmerTest처럼 Satterthwaite 근사로 t 분포의 자유도를 구하는 프로그램에서는 이 계수의 자유도가 17 정도로 계산되어 신뢰구간이 조금 넓게(약 7.2–13.7) 나옵니다(10장 c 절 '결과 읽기'의 접힌 상자 '프로그램 출력을 한 줄씩 읽으면?' 6번).</span></li>
+<li><span class="mk">3</span><span><b>Days = 10.467, SE 1.546.</b> 점추정값은 같지만 표준오차가 두 배 가까이 커졌습니다. 95% CI 7.44–13.50입니다. SAS PROC MIXED나 R lmerTest처럼 Satterthwaite 근사로 t 분포의 자유도를 구하는 프로그램에서는 이 계수의 자유도가 17 정도로 계산되어 신뢰구간이 조금 넓게(약 7.2–13.7) 나옵니다(<a href="#rc15-s3">R과 파이썬으로 하는 통계분석 6장 c 절</a>의 셀 7과 그 절의 접힌 상자).</span></li>
 <li><span class="mk">4</span><span><b>Group Var = 612.10.</b> 이제는 '0일 시점'의 무작위 절편 분산입니다. SD 24.7 ms. 무작위 절편 모형의 1378과 뜻이 달라 직접 비교하지 않습니다.</span></li>
 <li><span class="mk">5</span><span><b>Group x Days Cov = 9.605.</b> 절편과 기울기의 공분산입니다. 상관계수로 바꾸면 9.605 ÷ (24.74 × 5.922) = 0.07로, 출발점이 높은 사람이 조금 더 가파르다는 경향이 있지만 거의 0입니다.</span></li>
 <li><span class="mk">6</span><span><b>Days Var = 35.07.</b> 기울기의 분산입니다. SD는 √35.07 = 5.92 ms/일이므로 참가자의 약 95%가 10.47 ± 1.96 × 5.92, 즉 하루 −1.1 ms에서 22.1 ms 사이의 기울기를 가진다고 추정됩니다. 수면 제한에 거의 영향을 받지 않는 사람부터 하루 20 ms 넘게 느려지는 사람까지 있다는 뜻입니다.</span></li>
@@ -533,7 +533,7 @@ import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루�
 <li><span class="mk">3</span><span><b>하루 5 ms보다 작은 참가자 2명.</b></span></li>
 </ol>
 <p>한 문장으로 옮기면 "수면 제한 일수가 하루 늘 때마다 18명의 평균 반응시간은 10.5 ms(95% CI 7.4–13.5) 길어졌다"입니다. 이 숫자가 말해 주지 않는 것은 세 가지입니다.</p>
-<p>첫째, 수면 제한이 반응시간을 하루 10.5 ms씩 늘린다는 인과의 크기가 아닙니다. 이 자료는 원 연구에서 잠자리 시간이 가장 짧았던 3시간 군만 담고 있어 비교군이 없습니다. 같은 과제를 매일 반복한 데서 오는 연습과 피로, 측정 환경의 변화도 날짜와 함께 움직이므로 이 기울기에는 그 영향이 모두 섞입니다. 10장 a 절 '결과 읽기'에서 시간의 주효과를 중재 효과로 읽지 않은 것과 같은 이유입니다. 수면 제한의 효과를 말하려면 같은 기간 잠을 충분히 잔 군의 기울기와 견줘야 하고, 그것이 10장의 군 × 시간 교호작용입니다.</p>
+<p>첫째, 수면 제한이 반응시간을 하루 10.5 ms씩 늘린다는 인과의 크기가 아닙니다. 이 자료는 원 연구에서 잠자리 시간이 가장 짧았던 3시간 군만 담고 있어 비교군이 없습니다. 같은 과제를 매일 반복한 데서 오는 연습과 피로, 측정 환경의 변화도 날짜와 함께 움직이므로 이 기울기에는 그 영향이 모두 섞입니다. 10장 a 절 '결과는 어떻게 읽나?'에서 시간의 주효과를 중재 효과로 읽지 않은 것과 같은 이유입니다. 수면 제한의 효과를 말하려면 같은 기간 잠을 충분히 잔 군의 기울기와 견줘야 하고, 그것이 10장의 군 × 시간 교호작용입니다.</p>
 <p>둘째, 모든 참가자가 하루 10.5 ms씩 느려진다는 뜻이 아닙니다. 혼합모형의 참가자별 기울기는 −0.3 ms부터 19.7 ms까지 퍼져 있고, 2명은 하루 5 ms보다 작았습니다. 모형이 추정한 기울기의 분포로는 참가자의 약 95%가 하루 −1.1–22.1 ms 사이에 있습니다(셀 14).</p>
 <p>셋째, 10일 내내 같은 속도로 느려졌다는 것도 이 숫자 하나로는 알 수 없습니다. 0–1일은 적응과 훈련 기간이었고(a 절), 직선이라는 가정은 과제 3에서 확인합니다.</p>
 </div></details>
@@ -557,7 +557,7 @@ import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루�
 <h3>과제 3. 시간을 범주형으로 넣은 모형과 비교하기</h3>
 <p>동료가 sleepstudy의 반응시간이 날짜에 따라 직선으로 늘어나는지 확인하려고 이렇게 분석했습니다. 셀 12의 무작위 절편 모형(<code>m1</code>)은 그대로 두고, Days를 범주형으로 바꾼 무작위 절편 모형 <code>smf.mixedlm("Reaction ~ C(Days)", data=sleep, groups=sleep["Subject"]).fit()</code>을 적합한 뒤, 셀 15처럼 두 모형의 로그우도로 우도비 검정을 했습니다.</p>
 <p>"날짜를 범주형으로 둔 모형이 직선 모형보다 훨씬 잘 맞았다(LR = 56.97, 자유도 8, P &lt; 0.001). 반응시간은 직선으로 늘지 않으므로 시간을 범주형으로 두어야 한다."</p>
-<p>동료의 계산을 재현하고, 무엇이 왜 틀렸는지 찾아 바른 방법으로 다시 비교하세요. 셀 15 아래 문단과 10장 c 절 '결과 읽기'의 접힌 상자 '모형을 비교할 때 REML과 ML 중 무엇으로 적합하나?'를 참고하세요.</p>
+<p>동료의 계산을 재현하고, 무엇이 왜 틀렸는지 찾아 바른 방법으로 다시 비교하세요. 셀 15 아래 문단과 10장 c 절 '결과는 어떻게 읽나?'의 접힌 상자 '모형을 비교할 때 REML과 ML 중 무엇으로 적합하나?'를 참고하세요.</p>
 <details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
 <!--FIG:lab10_hw3-->
 <p>첫 세 줄이 동료의 계산입니다. 기본 설정의 <code>fit()</code>은 REML로 적합하므로 <code>m_cat.llf</code>와 <code>m1.llf</code>는 모두 REML 로그우도입니다. 그다음 두 모형을 <code>reml=False</code>(ML)로 다시 적합해 같은 우도비 검정을 하고 AIC도 봅니다. statsmodels는 REML로 적합한 모형의 AIC를 nan으로 돌려주므로 AIC도 ML 적합에서 꺼냅니다. 마지막 두 줄의 <code>wald_test_terms(scalar=True)</code>는 변수마다 계수를 한꺼번에 검정한 Wald 검정 표를 돌려줍니다. <code>.table</code>에서 C(Days) 행의 통계량(<code>statistic</code> 열)을 꺼내면 날짜 계수 9개(1–9일, 기준 0일)가 모두 0인지 함께 본 χ²입니다.</p>

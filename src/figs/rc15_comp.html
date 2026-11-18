@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">결측을 다루는 방법에 따라 달라지는 12개월 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">w$chg12 &lt;- w$hba1c_12 - w$hba1c_0
+w$cb &lt;- w$hba1c_0 - mean(w$hba1c_0)
+cc12 &lt;- lm(chg12 ~ group + cb, data = w)                 # 12개월 값이 있는 환자만 (79명)
+ccall &lt;- lm(chg12 ~ group + cb, data = subset(w, !is.na(hba1c_3) &amp; !is.na(hba1c_6)))  # 네 번 모두 잰 75명
+locf &lt;- w |&gt; mutate(last = coalesce(hba1c_12, hba1c_6, hba1c_3)) |&gt; filter(!is.na(last))
+lo &lt;- lm(I(last - hba1c_0) ~ group + cb, data = locf)    # 마지막 값을 끌어온 분석 (92명)
+round(rbind(completers12 = coef(summary(cc12))[&quot;group&quot;, 1:2], completers_all = coef(summary(ccall))[&quot;group&quot;, 1:2],
+            LOCF = coef(summary(lo))[&quot;group&quot;, 1:2]), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Estimate Std. Error
+completers12     -0.375      0.161<span class="mk">1</span>
+completers_all   -0.301      0.165<span class="mk">2</span>
+LOCF             -0.449      0.142<span class="mk">3</span></pre></div></div>

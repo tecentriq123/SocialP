@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">동점 처리 방법과 위험비 (표 11-3)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ties &lt;- c(&quot;efron&quot;, &quot;breslow&quot;, &quot;exact&quot;)
+hr_by &lt;- function(tm) sapply(ties, function(m)
+  exp(coef(coxph(Surv(tm, status) ~ drug, data = co, ties = m))))
+co$t6 &lt;- ceiling(co$time / 6) * 6          # 사망 시간을 6개월 단위로 뭉뚱그림
+round(rbind(original = hr_by(co$time), by_6_months = hr_by(co$t6)), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            efron.drugA breslow.drugA exact.drugA
+original         0.7289        0.7287      0.7278<span class="mk">1</span>
+by_6_months      0.7243        0.7435      0.7059<span class="mk">2</span></pre></div></div>

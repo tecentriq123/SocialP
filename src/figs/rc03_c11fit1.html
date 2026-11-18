@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">약물만 넣은 Cox 모형 (11장 &#x27;위험률과 위험비&#x27;)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">co &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch11_cohort.csv&quot;)
+co$drug      &lt;- factor(co$drug, levels = c(&quot;B&quot;, &quot;A&quot;))            # 약물 B가 기준
+co$imdc      &lt;- factor(co$imdc, levels = c(&quot;favorable&quot;, &quot;intermediate&quot;, &quot;poor&quot;))
+co$histology &lt;- factor(co$histology, levels = c(&quot;clear&quot;, &quot;nonclear&quot;))
+f1 &lt;- coxph(Surv(time, status) ~ drug, data = co)
+summary(f1)
+f1$loglik                     # 계수가 모두 0일 때와 추정값에서의 로그 부분우도</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+coxph(formula = Surv(time, status) ~ drug, data = co)
+
+  n= 300, number of events= 210<span class="mk">1</span> 
+
+         coef exp(coef) se(coef)      z Pr(&gt;|z|)  
+drugA -0.3163    0.7289   0.1391 -2.274    0.023<span class="mk">2</span> *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+      exp(coef) exp(-coef) lower .95 upper .95
+drugA    0.7289      1.372     0.555    0.9573<span class="mk">3</span>
+
+Concordance= 0.545<span class="mk">4</span>  (se = 0.019 )
+Likelihood ratio test= 5.18<span class="mk">5</span>  on 1 df,   p=0.02
+Wald test            = 5.17  on 1 df,   p=0.02
+Score (logrank) test = 5.21  on 1 df,   p=0.02
+
+[1] -1055.689 -1053.100<span class="mk">6</span></pre></div></div>

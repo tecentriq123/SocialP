@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">로지스틱 혼합모형의 조건부 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(lme4))
+lap &lt;- glmer(adh ~ group + visit + (1 | id), data = A, family = binomial)              # 라플라스 근사
+quad &lt;- glmer(adh ~ group + visit + (1 | id), data = A, family = binomial, nAGQ = 40)   # 적분점 40개
+se &lt;- sqrt(vcov(quad)[&quot;group&quot;, &quot;group&quot;])
+round(rbind(Laplace = c(OR = exp(fixef(lap)[[&quot;group&quot;]]), SD = attr(VarCorr(lap)$id, &quot;stddev&quot;)[[1]], NA, NA),
+            quadrature = c(exp(fixef(quad)[[&quot;group&quot;]]), attr(VarCorr(quad)$id, &quot;stddev&quot;)[[1]],
+                           exp(fixef(quad)[[&quot;group&quot;]] + c(-1, 1) * 1.96 * se))), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             OR   SD          
+Laplace    3.66 1.47<span class="mk">1</span>  NA    NA
+quadrature 3.77 1.64 1.4 10.19<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">강건 표준오차와 한 명씩 빼고 다시 적합하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fr &lt;- update(fm, robust = TRUE)           # 환자 한 명이 한 줄이면 id가 군집
+round(summary(fr)$coefficients[&quot;drugA&quot;, c(&quot;se(coef)&quot;, &quot;robust se&quot;)], 4)
+loo &lt;- sapply(seq_len(nrow(co)), function(i)         # 한 명씩 빼고 다시 적합
+  coef(update(fm, data = co[-i, ]))[&quot;drugA&quot;])
+round(exp(range(loo)), 3)
+se &lt;- sqrt(fm$var[1, 1])
+round(max(abs(coef(fm)[&quot;drugA&quot;] - loo)) / se, 2)              # 가장 큰 변화 ÷ 표준오차
+round(max(abs(residuals(fm, type = &quot;dfbeta&quot;)[, 1])) / se, 2)  # 다시 적합하지 않은 근사</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> se(coef) robust se 
+   0.1441    0.1474<span class="mk">1</span> 
+[1] 0.831 0.891<span class="mk">2</span>
+[1] 0.28<span class="mk">3</span>
+[1] 0.24<span class="mk">4</span></pre></div></div>

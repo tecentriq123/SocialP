@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">무작위 기울기가 필요한가</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">anova(ri, rs, refit = FALSE)                             # 같은 고정효과: REML 우도로 비교
+c(REML_ri = REMLcrit(ri), REML_rs = REMLcrit(rs))        # −2 × REML 로그우도</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Data: L
+Models:
+ri: hba1c ~ group * month + (1 | id)
+rs: hba1c ~ group * month + (month | id)
+   npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(&gt;Chisq)    
+ri    6 642.58 665.80 -315.29    630.58                         
+rs    8 613.23<span class="mk">2</span> 644.18 -298.61    597.23 33.359  2  5.704e-08<span class="mk">1</span> ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+ REML_ri  REML_rs 
+630.5848 597.2260</pre></div></div>

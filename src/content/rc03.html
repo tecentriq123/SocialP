@@ -1,12 +1,12 @@
 <p class="lead">R에서는 survival 패키지 하나로 Cox 모형을 맞추고, 동점과 결측을 처리하고, 비례위험 가정을 검정하고, 시간에 따라 변하는 효과까지 다룰 수 있습니다. 이 장에서는 원발성 담즙성 담관염 시험에서 D-페니실라민과 위약에 무작위배정된 312명의 자료로 Cox 모형을 맞추고, 위험비 표를 만들고, 비례위험 가정을 점검하고, 가정이 어긋날 때의 대안과 보정 생존곡선을 다룹니다. 이 과목의 파이썬 실습 11과 같은 자료라서 위험비는 그대로 맞습니다. 비례위험 검정의 숫자와 보정 생존곡선의 셋째 자리는 두 프로그램의 계산 방식이 달라 다르게 나옵니다(c 절과 d 절).</p>
 
-<p class="nb-link"><a href="notebooks/rc03.ipynb" download>이 장의 노트북 내려받기 (rc03.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3, survival 3.8, broom으로 실제로 실행해 얻었습니다.</p>
+<p class="nb-link"><a href="notebooks/rc03.ipynb" download>이 장의 노트북 내려받기 (rc03.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.3.3, survival 3.5, broom, Hmisc로 실제로 실행해 얻었습니다.</p>
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>미리 알아 둘 것</dt><dd>위험비와 비례위험 가정의 개념은 보건통계학 기초 <a href="stats.html#ch11">11장</a>, <code>Surv()</code>와 <code>survfit()</code>은 이 과목 <a href="#rc02">6장</a>에 있습니다.</dd>
+<dt>미리 알아 둘 것</dt><dd>위험비와 비례위험 가정의 개념은 보건통계학 기초 <a href="stats.html#ch11">11장</a>, <code>Surv()</code>와 <code>survfit()</code>은 이 과목 <a href="#rc02">7장</a>에 있습니다.</dd>
 <dt>먼저 읽을 부분</dt><dd>a 절, b 절의 셀 4–6, c 절의 셀 8과 10.</dd>
-<dt>나중에 읽을 부분</dt><dd>d 절의 층화, 기간별 위험비, 보정 생존곡선은 내 자료에서 비례위험 가정이 어긋나거나 군별 보정 곡선이 필요할 때 봅니다.</dd>
+<dt>나중에 읽을 부분</dt><dd>d 절의 층화, 기간별 위험비, 보정 생존곡선은 내 자료에서 비례위험 가정이 어긋나거나 군별 보정 곡선이 필요할 때 봅니다. e 절은 보건통계학 기초 11장을 읽으며 본문의 숫자가 R 출력의 어디서 나오는지 확인할 때 봅니다.</dd>
 <dt>이 장을 마치면</dt><dd>① <code>coxph()</code>로 모형을 맞추고 위험비, 신뢰구간, 일치도를 읽고 표로 옮길 수 있다 ② <code>cox.zph()</code>의 검정과 그림으로 비례위험 가정을 점검할 수 있다 ③ 층화, 기간별 위험비, 직접 표준화한 보정 생존곡선을 R로 만들 수 있다</dd>
 </dl></div>
 
@@ -28,7 +28,7 @@
 </ol>
 
 <h3>사건과 공변량은 어떻게 만드나?</h3>
-<p><strong>status가 세 값이라 <code>Surv()</code>에 그대로 넣을 수 없고, 사망만 1인 사건 변수를 새로 만듭니다.</strong> <a href="#rc02-s1">6장 a 절</a>에서 본 것처럼 0, 1, 2가 섞이면 R은 0을 결측으로 바꾸기 때문입니다. 간이식은 그 시점에 중도절단된 것으로 봅니다.</p>
+<p><strong>status가 세 값이라 <code>Surv()</code>에 그대로 넣을 수 없고, 사망만 1인 사건 변수를 새로 만듭니다.</strong> <a href="#rc02-s1">7장 a 절</a>에서 본 것처럼 0, 1, 2가 섞이면 R은 0을 결측으로 바꾸기 때문입니다. 간이식은 그 시점에 중도절단된 것으로 봅니다.</p>
 <!--FIG:rc03_vars-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -232,7 +232,290 @@
 
 <!-- ============================================================ e -->
 <section class="sec" id="rc03-s5">
-<h2><span class="sec-no">e.</span>과제</h2>
+<h2><span class="sec-no">e.</span>보건통계학 기초 11장의 예</h2>
+
+<p>보건통계학 기초 <a href="stats.html#ch11">11장</a>의 예를 R로 계산합니다. 자료는 이 과목 <a href="#rc02-s5">7장 e 절</a>의 신세포암 300명 코호트(약물 A 152명, B 148명, 사망 210건)에 나이, 성별, IMDC 위험군, 신장절제술, 조직형을 더한 가상 자료(<code>ch11_cohort.csv</code>)와, 11장 그림 11-2의 가상 혈압 코호트 3,000명(<code>ch11_bp.csv</code>)입니다. 함수는 앞 절과 같으므로, 여기서는 11장 본문의 숫자가 출력의 어디서 나오는지 확인합니다. 파이썬 lifelines로 하는 방법은 소제목마다 접힌 상자에 있습니다.</p>
+
+<h3>약물만 넣은 모형의 위험비와 검정은 어디서 읽나?</h3>
+<p><strong><code>summary()</code>의 exp(coef)가 위험비이고, lower .95와 upper .95가 그 95% 신뢰구간입니다. 아래쪽 세 줄은 모형 전체의 우도비, Wald, 점수 검정입니다.</strong> 약물 B를 기준으로 두려고 <code>factor()</code>의 첫 수준을 B로 정했습니다.</p>
+<!--FIG:rc03_c11fit1-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>n= 300, number of events= 210.</b> 분석에 들어간 환자와 사망 수입니다. 위험비의 정밀도는 환자 수보다 사건 수에 좌우되므로 먼저 봅니다. 결측으로 빠진 환자가 있으면 n이 줄고 출력에 '… observations deleted due to missingness' 줄이 붙습니다(b 절 셀 5).</span></li>
+<li><span class="mk">2</span><span><b>coef −0.3163, exp(coef) 0.7289, se(coef) 0.1391, z −2.274, P 0.023.</b> 11장의 위험비 0.73과 그 계수입니다. 계수와 표준오차는 로그 척도라서, 신뢰구간은 −0.3163 ± 1.96 × 0.1391을 지수로 바꿔 구합니다.</span></li>
+<li><span class="mk">3</span><span><b>0.555–0.9573.</b> 논문에 "HR 0.73 (95% CI 0.55–0.96)"으로 적는 구간입니다. 옆의 exp(-coef) 1.372는 기준을 바꾼 약물 B 대 A의 위험비입니다.</span></li>
+<li><span class="mk">4</span><span><b>Concordance= 0.545.</b> Harrell의 C 지수입니다. 약물 하나로는 누가 먼저 사망할지 거의 가르지 못한다는 뜻이고, 효과의 크기와는 다른 정보입니다.</span></li>
+<li><span class="mk">5</span><span><b>세 검정 5.18, 5.17, 5.21.</b> 계수가 하나뿐이라 셋 다 약물의 검정입니다. 점수 검정 5.21은 이 과목 7장 e 절의 로그순위 검정 5.24와 동점 처리만 다른 같은 검정입니다. P가 p=0.02처럼 짧게 나오므로, 필요하면 <code>summary(f1)$logtest</code>, <code>$waldtest</code>, <code>$sctest</code>에서 꺼냅니다.</span></li>
+<li><span class="mk">6</span><span><b>−1055.689와 −1053.100.</b> 계수가 0일 때와 추정값에서의 로그 부분우도입니다. 우도비 검정통계량 = 2 × (−1053.100 − (−1055.689)) = 5.18입니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: lifelines의 CoxPHFitter 출력-->
+<p>보건통계학 기초 11장의 '직접 분석' 상자에 있던 내용입니다.</p>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · lifelines의 CoxPHFitter</b><span>가상의 예시 (lifelines 0.30)</span></div>
+<div class="paper-b">
+<p>자료에는 약물 A이면 1, 약물 B이면 0인 열 drug_A를 만들어 넣었으므로 약물 B가 기준범주입니다. 예제 자료를 lifelines 0.30.3으로 실제 실행한 출력이며, 출력의 배치와 줄바꿈은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; cph = CoxPHFitter().fit(df[["time", "status", "drug_A"]], duration_col="time", event_col="status")
+&gt;&gt;&gt; cph.print_summary(decimals=3)</span>
+&lt;lifelines.CoxPHFitter: fitted with 300 total observations, 90 right-censored observations&gt;
+             duration col = 'time'
+                event col = 'status'
+      baseline estimation = breslow
+   number of observations = 300 <span class="mk">1</span>
+number of events observed = 210
+   partial log-likelihood = -1053.100 <span class="mk">2</span>
+         time fit was run = 2026-09-29 16:59:53 UTC
+
+---
+            coef exp(coef)  se(coef)  coef lower 95%  coef upper 95% exp(coef) lower 95% exp(coef) upper 95%
+covariate
+drug_A    -0.316     0.729     0.139          -0.589          -0.044               0.555               0.957
+            <span class="mk">3</span>        <span class="mk">4</span>        <span class="mk">5</span>                                                  <span class="mk">6</span>
+
+           cmp to      z     p  -log2(p)
+covariate
+drug_A      0.000 -2.274 0.023     5.444
+                  <span class="mk">7</span>     <span class="mk">8</span>
+---
+Concordance = 0.545 <span class="mk">9</span>
+Partial AIC = 2108.200 <span class="mk">10</span>
+log-likelihood ratio test = 5.178 on 1 df <span class="mk">11</span>
+-log2(p) of ll-ratio test = 5.450 <span class="mk">12</span></pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>관측 수와 사건 수.</b> 분석에 들어간 환자 300명, 사망 210건, 중도절단 90명입니다. Cox 모형의 정밀도와 검정력은 환자 수보다 사건 수에 좌우되므로 이 숫자를 먼저 봅니다. 결측값이 있는 환자는 적합 전에 처리해야 하므로, 여기의 관측 수가 논문의 대상자 수보다 작다면 결측으로 빠진 환자가 있다는 뜻입니다.</span></li>
+<li><span class="mk">2</span><span><b>baseline estimation과 partial log-likelihood.</b> 'breslow'는 예측 생존곡선에 쓰는 기저위험률을 Breslow 방법으로 추정했다는 뜻이고, 같은 날 사망한 환자를 다루는 동점 처리(lifelines는 Efron 방법)와는 다른 이야기입니다. −1053.100은 β̂에서의 로그 부분우도로, 부분우도 곡선의 꼭대기 높이입니다. 이런 곡선을 12명 자료로 그린 그림 11-10이 보건통계학 기초 11장 '수식으로 보기'의 '부분우도'에 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>coef = β̂ = −0.316.</b> 로그 척도의 위험비입니다. 음수이므로 약물 A의 위험률이 약물 B보다 낮습니다. 열 이름 drug_A가 무엇을 1로 부호화했는지 알려 주며, 0인 범주(약물 B)가 기준범주입니다.</span></li>
+<li><span class="mk">4</span><span><b>exp(coef) = e<sup>−0.3163</sup> = 0.729.</b> 위험비입니다. 논문에는 보통 0.73으로 적습니다.</span></li>
+<li><span class="mk">5</span><span><b>se(coef) = 0.139.</b> β̂(로그 척도)의 표준오차입니다. 위험비 0.729의 표준오차가 아닙니다. 로그 부분우도 곡선이 꼭대기 근처에서 얼마나 뾰족한지(곡률)로 구하며, 뾰족할수록 작습니다.</span></li>
+<li><span class="mk">6</span><span><b>95% 신뢰구간.</b> coef lower/upper 95%는 계수의 신뢰구간이고, exp(coef) lower/upper 95%가 논문에 적는 위험비의 신뢰구간 0.555–0.957입니다. 두 구간 사이의 계산은 보건통계학 기초 11장 '결과는 어떻게 읽나?'의 접힌 상자 '신뢰구간과 P는 계수로 어떻게 계산하나?'에 있습니다. 논문에는 "HR 0.73 (95% CI 0.55–0.96)"로 적습니다.</span></li>
+<li><span class="mk">7</span><span><b>cmp to와 z.</b> cmp to는 비교하는 귀무가설 값(β = 0)입니다. z는 Wald 검정통계량이고(<a href="stats.html#ch01-s5">보건통계학 기초 1장 e 절</a>), 제곱하면 Wald χ²입니다.<br>
+Wald χ² = (−2.274)² = 5.17</span></li>
+<li><span class="mk">8</span><span><b>p = 0.023과 −log2(p) = 5.444.</b> p는 양측 P 값입니다. −log2(p)는 P 값을 '공정한 동전을 던져 앞면이 연속으로 몇 번 나온 정도로 놀라운가'로 바꾼 값(S 값)으로, P 값과 같은 정보를 다른 척도로 보여 줄 뿐입니다. 5.4는 동전 앞면이 대여섯 번 연속으로 나온 정도의 놀라움입니다.</span></li>
+<li><span class="mk">9</span><span><b>Concordance = 0.545.</b> Harrell의 C 지수입니다. 0.545는 약물 하나로는 누가 먼저 사망할지 거의 예측하지 못한다는 뜻입니다. 뜻과 계산, 효과 추정과의 차이는 보건통계학 기초 11장 '결과는 어떻게 읽나?'의 접힌 상자 'C 지수(Concordance)는 무엇인가?'에 있습니다.</span></li>
+<li><span class="mk">10</span><span><b>Partial AIC = 2108.200.</b> −2 × (−1053.100) + 2 × (계수 1개) = 2108.200입니다. 같은 자료로 적합한 여러 모형을 비교할 때 작을수록 낫다고 보는 값이며, 하나만 놓고는 의미가 없습니다.</span></li>
+<li><span class="mk">11</span><span><b>log-likelihood ratio test = 5.178 on 1 df.</b> 계수가 모두 0인 모형과 비교한 우도비 검정입니다. 계수가 모두 0인 모형의 로그 부분우도는 −1055.689로, 출력에는 나오지 않습니다. 검정통계량은 두 로그 부분우도 차이의 2배인 2 × [−1053.100 − (−1055.689)] = 5.178입니다. 이 줄은 <em>모형 전체</em>에 대한 검정입니다. 변수가 하나뿐이라 약물 효과의 검정과 같지만, 다변수 모형에서는 여기의 P를 약물 효과의 P로 인용하면 안 됩니다. Wald 검정(5.17), 점수 검정(5.21)과의 관계는 보건통계학 기초 11장 '결과는 어떻게 읽나?'의 접힌 상자 'Wald, 우도비, 점수 검정은 무엇이 다른가?'에 있습니다.</span></li>
+<li><span class="mk">12</span><span><b>−log2(p) of ll-ratio test = 5.450.</b> 우도비 검정의 P를 S 값으로 나타낸 것입니다. P = 2<sup>−5.450</sup> = 0.023입니다. lifelines의 요약에는 P 대신 이 값만 나오므로 P가 필요하면 이렇게 되돌립니다.</span></li>
+</ol>
+</div></div>
+<p>R의 <code>summary()</code>와 숫자가 같습니다. 다만 lifelines는 모형 전체의 우도비 검정만 내고 Wald 검정과 점수 검정 줄은 없으며, P 대신 −log2(p)를 보여 줍니다.</p>
+<!--/FOLD-->
+
+<h3>같은 날 사망이 많으면 위험비가 달라지나?</h3>
+<p><strong><code>coxph()</code>의 <code>ties</code>에 "efron"(기본값), "breslow", "exact"를 적어 비교합니다.</strong> 11장 표 11-3의 숫자입니다. 동점이 많은 경우도 보려고 사망 시간을 6개월 단위로 올림한 열 t6을 만들었습니다.</p>
+<!--FIG:rc03_c11ties-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>원래 자료: Efron 0.7289, Breslow 0.7287, exact 0.7278.</b> 사망 210건이 161개 시점에 흩어져 있어 동점이 적으므로 세 방법이 거의 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>6개월 단위: Efron 0.7243, Breslow 0.7435, exact 0.7059.</b> Breslow는 1 쪽으로, exact는 1에서 먼 쪽으로 움직입니다. R의 <code>"exact"</code>는 discrete 방법이라 구간별 사망 오즈의 비를 추정하고, 동점이 많으면 계산이 오래 걸립니다.</span></li>
+</ol>
+<p>SAS와 Stata의 기본값은 Breslow라서, 같은 자료를 R과 이 프로그램들로 분석하면 끝자리가 다를 수 있습니다. 어느 방법을 썼는지 Methods에 적습니다.</p>
+<!--FOLD py:파이썬으로 하면: 동점 처리-->
+<p>lifelines의 CoxPHFitter는 Efron 방법만 쓰고 바꾸는 옵션이 없습니다(0.30). statsmodels의 PHReg는 Breslow가 기본값이고 <code>ties="efron"</code>으로 바꿀 수 있습니다. discrete(R의 <code>"exact"</code>) 방법은 두 패키지 모두 없습니다. 아래의 <code>df</code>는 다음 상자 '다변수 모형과 IMDC 전체의 우도비 검정'에서 만든 표입니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; import statsmodels.api as sm
+&gt;&gt;&gt; for t in ["breslow", "efron"]:
+...     r = sm.PHReg(df["time"], df[["drug_A"]], status=df["status"], ties=t).fit()
+...     print(t, np.exp(r.params).round(4).tolist())</span>
+breslow [0.7287]
+efron [0.7289]</pre>
+<p>같은 자료를 lifelines와 statsmodels(기본값)로 분석했을 때 위험비의 끝자리가 다르다면 먼저 동점 처리 방법을 확인합니다.</p>
+<!--/FOLD-->
+
+<h3>Table 2의 보정 위험비와 IMDC 전체의 P는?</h3>
+<p><strong>나이는 <code>I(age / 10)</code>로 10세 단위로 넣고, 범주가 셋인 IMDC 위험군 전체의 P는 IMDC를 뺀 모형과의 <code>anova()</code>로 구합니다.</strong> 11장 '논문에서 읽기'의 Table 2와 같은 모형입니다. P 열의 0.000은 0.001 미만이라는 뜻입니다.</p>
+<!--FIG:rc03_c11multi-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>drugA 0.856 (0.645–1.135), P 0.280.</b> 보정 위험비 0.86입니다. 보정 전 0.73에서 1 쪽으로 움직였습니다.</span></li>
+<li><span class="mk">2</span><span><b>histologynonclear 1.833.</b> 비례위험 가정이 깨진 변수라, 시기마다 다른 위험비를 평균한 값입니다(셀 19와 20).</span></li>
+<li><span class="mk">3</span><span><b>χ² = 30.825, 자유도 2, P = 2.0 × 10<sup>−7</sup>.</b> Table 2 각주의 'P &lt; 0.001 for the overall effect of IMDC risk group'입니다. 가변수마다의 P(0.041과 0.000) 대신 이 값 하나로 IMDC 전체를 판단합니다.</span></li>
+<li><span class="mk">4</span><span><b>poor 대 intermediate 2.44 (1.72–3.47).</b> <code>relevel()</code>로 기준범주를 intermediate로 바꿔 다시 적합한 값입니다. 3.59 ÷ 1.47로 점추정값은 구할 수 있지만, 신뢰구간은 이렇게 다시 적합해야 나옵니다(11장 접힌 상자 '공분산을 무시하면 왜 구간이 넓어지나?').</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: 다변수 모형과 IMDC 전체의 우도비 검정-->
+<p>lifelines에는 범주형 변수를 넣는 방법이 공식(<code>formula</code>)과 가변수 열 두 가지인데, 여기서는 가변수 열을 직접 만들어 넣습니다. 약물 A와 비투명세포 조직형이 1, IMDC 위험군은 favorable이 기준입니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; import numpy as np, pandas as pd
+&gt;&gt;&gt; from lifelines import CoxPHFitter
+&gt;&gt;&gt; from scipy import stats
+&gt;&gt;&gt; df = pd.read_csv("https://socialp-ajou.tecentriq12.workers.dev/data/ch11_cohort.csv")
+&gt;&gt;&gt; df["drug_A"] = (df["drug"] == "A").astype(int)
+&gt;&gt;&gt; df["age10"] = df["age"] / 10
+&gt;&gt;&gt; df["imdc_int"] = (df["imdc"] == "intermediate").astype(int)
+&gt;&gt;&gt; df["imdc_poor"] = (df["imdc"] == "poor").astype(int)
+&gt;&gt;&gt; df["histology"] = (df["histology"] == "nonclear").astype(int)
+&gt;&gt;&gt; cols = ["drug_A", "age10", "male", "imdc_int", "imdc_poor", "nephrectomy", "histology"]
+&gt;&gt;&gt; cph = CoxPHFitter().fit(df[["time", "status"] + cols], duration_col="time", event_col="status")
+&gt;&gt;&gt; cph.summary[["exp(coef)", "exp(coef) lower 95%", "exp(coef) upper 95%", "p"]].round(3)</span>
+             exp(coef)  exp(coef) lower 95%  exp(coef) upper 95%      p
+covariate
+drug_A           0.856                0.645                1.135  0.280
+age10            1.401                1.201                1.634  0.000
+male             1.124                0.821                1.537  0.467
+imdc_int         1.473                1.017                2.135  0.041
+imdc_poor        3.594                2.256                5.725  0.000
+nephrectomy      0.811                0.604                1.089  0.164
+histology        1.833                1.253                2.680  0.002
+<span class="cm">&gt;&gt;&gt; no_imdc = [c for c in cols if not c.startswith("imdc")]
+&gt;&gt;&gt; red = CoxPHFitter().fit(df[["time", "status"] + no_imdc], duration_col="time", event_col="status")
+&gt;&gt;&gt; lr = 2 * (cph.log_likelihood_ - red.log_likelihood_)
+&gt;&gt;&gt; print(f"{lr:.2f} {stats.chi2.sf(lr, 2):.2e}")</span>
+30.82 2.03e-07</pre>
+<p>요약표에는 가변수마다의 Wald P만 있으므로, IMDC 위험군 전체의 P는 두 모형의 로그 부분우도(<code>log_likelihood_</code>)로 직접 구합니다.</p>
+<p>Cox 모형은 넣은 변수 가운데 하나라도 결측인 환자를 쓸 수 없습니다. 파이썬 lifelines는 결측이 있으면 오류를 내고 멈춥니다. 같은 파이썬이라도 statsmodels의 PHReg는 기본값(<code>missing=<wbr>"drop"</code>)에서 그 환자를 경고 없이 빼고 분석합니다. 논문에 많이 쓰이는 R, SAS, Stata는 기본 설정에서 그 환자를 빼고 분석하며, 빠진 사실은 출력의 한 줄에만 나타납니다. 어느 쪽이든 결측을 어떻게 다룰지는 분석하는 사람이 정합니다.</p>
+<!--/FOLD-->
+
+<h3>비례위험 검정의 P는 어디서 읽나?</h3>
+<p><strong><code>cox.zph(fm)</code>의 p 열입니다. 범주형 변수는 가변수를 묶어 한 줄(자유도 2)로 검정하고, 끝의 GLOBAL 줄이 모든 계수를 한꺼번에 본 전체 검정입니다.</strong> 시간 변환은 <code>transform</code>으로 바꾸며 기본값은 "km"입니다.</p>
+<!--FIG:rc03_c11zph-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>drug P = 0.97.</b> 관심 노출인 약물에는 비례위험 위반의 근거가 없습니다. 11장 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 첫째와 Results 예문의 P입니다.</span></li>
+<li><span class="mk">2</span><span><b>histology χ² 9.70, P = 0.0018.</b> 조직형은 가정이 깨졌습니다. 11장 Table 2 각주와 Results 예문의 P = 0.002입니다.</span></li>
+<li><span class="mk">3</span><span><b>GLOBAL χ² 13.55, 자유도 7, P = 0.060.</b> 전체 검정은 한 변수의 위반을 희석해, 조직형이 뚜렷이 위반했는데도 0.05를 넘었습니다. 변수별 줄과 그림을 함께 봅니다.</span></li>
+<li><span class="mk">4</span><span><b>identity 변환에서 male P = 0.012.</b> 성별의 P는 km 0.075, rank 0.047, log 0.15로 변환에 따라 0.05의 양쪽을 오갑니다. 이런 경계선 결과는 과신하지 않고, 변환은 결과를 보기 전에 정합니다. 조직형은 어느 변환에서도 P ≤ 0.01입니다.</span></li>
+</ol>
+<p>survival 3.0 이후의 <code>cox.zph()</code>는 다른 계수의 불확실성까지 고려한 점수 검정을 계산합니다. 계수마다 잔차만 따로 보는 근사(survival 2.x, 파이썬 lifelines)와 값이 달라, 약물은 0.97 대 0.75, 조직형은 0.0018 대 0.0009입니다. 잔차 그림은 c 절 셀 10처럼 <code>plot(cox.zph(fm), var = "histology")</code>로 그리며, 11장 그림 11-6이 이 그림입니다.</p>
+<!--FOLD py:파이썬으로 하면: lifelines의 비례위험 검정-->
+<p>보건통계학 기초 11장의 '직접 분석' 상자에 있던 내용입니다.</p>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · lifelines의 비례위험 검정</b><span>가상의 예시 (lifelines 0.30)</span></div>
+<div class="paper-b">
+<p>앞 상자 '다변수 모형과 IMDC 전체의 우도비 검정'의 모형(객체 이름 cph, 열 이름 drug_A, age10, male, imdc_int, imdc_poor, nephrectomy, histology)에 대한 비례위험 검정을 lifelines 0.30.3의 <code>proportional_hazard_test</code> 함수로 실행한 출력입니다. CoxPHFitter의 <code>check_assumptions</code> 메서드는 같은 검정에 조언 문장과 잔차 그림(<code>show_plots=True</code>일 때)을 덧붙여 보여 주고, 가로축을 km 변환(보건통계학 기초 11장 그림 11-6의 가로축과 같음)과 rank 변환으로 바꾼 그림 두 장을 함께 그립니다. 행은 모형에 넣은 순서가 아니라 변수 이름의 알파벳 순서로 정렬되어 나오며, 출력 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; from lifelines.statistics import proportional_hazard_test
+&gt;&gt;&gt; res = proportional_hazard_test(cph, df, time_transform=["km", "rank"])</span> <span class="mk">1</span>
+<span class="cm">&gt;&gt;&gt; res.print_summary(decimals=3)</span>
+&lt;lifelines.StatisticalResult: proportional_hazard_test&gt;
+ null_distribution = chi squared
+degrees_of_freedom = 1 <span class="mk">2</span>
+             model = &lt;lifelines.CoxPHFitter: fitted with 300 total observations, 90 right-censored observations&gt;
+         test_name = proportional_hazard_test
+
+---
+                  test_statistic     p  -log2(p)
+age10       km             0.011 0.918     0.123
+            rank           0.067 0.795     0.331
+drug_A      km             0.104 0.747     0.422 <span class="mk">3</span>
+            rank           0.192 0.662     0.596
+histology   km            10.949 0.001    10.060 <span class="mk">6</span>
+            rank          11.759 0.001    10.689
+imdc_int    km             0.280 0.597     0.745 <span class="mk">5</span>
+            rank           0.312 0.576     0.795
+imdc_poor   km             0.665 0.415     1.270
+            rank           0.725 0.395     1.341
+male        km             3.214 0.073     3.775 <span class="mk">4</span>
+            rank           2.895 0.089     3.492
+nephrectomy km             0.018 0.892     0.165
+            rank           0.022 0.882     0.181</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>time_transform.</b> 잔차의 추세를 볼 시간 변환입니다. km과 rank 두 가지를 요청해 변수마다 두 줄이 나왔습니다. lifelines의 rank는 사망을 시간 순서대로 1, 2, 3, …으로 센 값이라 같은 날 사망한 환자에게도 서로 다른 번호가 붙습니다. 동점에 평균 순위를 주는 프로그램에서는 값이 조금 달라집니다. 예를 들어 drug_A의 rank 검정통계량은 0.192가 아니라 0.163이 됩니다. 같은 모형에 identity(시간 그대로)를 쓰면 male의 P가 0.021로 0.05보다 작아지고, log를 쓰면 histology의 P가 0.001보다 훨씬 작아집니다. 변환에 따라 결론이 바뀔 수 있으므로 어떤 변환을 쓸지는 결과를 보기 전에 정하고, 그림과 함께 판단합니다.</span></li>
+<li><span class="mk">2</span><span><b>degrees_of_freedom = 1.</b> Grambsch와 Therneau가 제안한 검정으로<cite data-ref="grambsch1994"></cite>, 열(변수)마다 척도화 Schoenfeld 잔차가 시간을 따라 기울어지는지를 따로 검정한 자유도 1의 χ² 검정입니다. 가변수가 둘인 IMDC 위험군도 두 줄로 따로 검정되고, 모든 변수를 한꺼번에 보는 전체 검정은 출력되지 않습니다. 이 모형의 일곱 계수를 한꺼번에 검정하는 전체 검정은 셀 19의 GLOBAL 줄(χ² = 13.55, 자유도 7, P = 0.060)입니다. R의 <code>cox.zph()</code>처럼 다른 계수의 불확실성까지 고려한 점수 검정으로 계산하면 조직형의 χ²는 9.70(km)으로, 이 출력의 10.949와 조금 다릅니다. 이렇게 프로그램과 계산 방식에 따라 같은 자료라도 값이 조금씩 다를 수 있습니다<cite data-ref="therneau2000"></cite>.</span></li>
+<li><span class="mk">3</span><span><b>drug_A.</b> km 0.747, rank 0.662로 관심 노출인 약물에서는 비례위험 위반의 근거가 없습니다. 약물만 넣은 단변수 모형에서도 P = 0.57입니다. 보건통계학 기초 11장 그림 11-5 (가), 11-6 (가)와 일치합니다. R의 점수 검정으로는 P = 0.97입니다.</span></li>
+<li><span class="mk">4</span><span><b>male P = 0.073(km), 0.089(rank).</b> 경계선의 값입니다. 변수 7개를 두 가지 변환으로 검정했으므로 우연히 작은 P가 나올 수 있고(<a href="stats.html#ch01-s3">보건통계학 기초 1장 c 절</a>), 잔차 그림에서 뚜렷한 추세가 없다면 가정 위반으로 보지 않는 것이 보통입니다. 변환을 identity로 바꾸기만 해도 P = 0.021이 되므로(해설 1), 이런 경계선 결과는 과신하지 않습니다.</span></li>
+<li><span class="mk">5</span><span><b>imdc_int, imdc_poor.</b> 가변수가 하나씩 따로 검정되었습니다. 두 변환 모두 P ≥ 0.39로 IMDC 위험군의 위험비가 시간에 따라 변한다는 근거는 없습니다.</span></li>
+<li><span class="mk">6</span><span><b>histology: km 10.949, rank 11.759.</b> 반올림하지 않은 P는 0.0009와 0.0006이고, −log2(p)가 약 10이라는 것은 P가 약 2<sup>−10</sup> ≈ 0.001이라는 뜻입니다. 비례위험 가정이 깨졌다는 강한 증거이며, 보건통계학 기초 11장 그림 11-5 (나)와 11-6 (나)의 모양과 일치합니다. 셀 18의 조직형 HR 1.83은 시기별로 다른 위험비의 평균입니다.</span></li>
+</ol>
+</div></div>
+<p>잔차 그림을 직접 그릴 때는 한 가지를 조심합니다. lifelines의 <code>compute_residuals(kind=<wbr>"scaled_schoenfeld")</code>와 <code>check_assumptions</code> 그림은 추정한 계수를 더하지 않은 값을 쓰므로, β(t)로 읽으려면 그 변수의 계수(<code>cph.params_</code>)를 더합니다. R의 <code>plot(cox.zph(fm))</code>은 계수를 더한 값을 그립니다.</p>
+<!--/FOLD-->
+
+<h3>조직형처럼 가정이 깨지면 무엇을 맞추나?</h3>
+<p><strong>12개월에서 자료를 나눠 기간별 위험비를 구하고(<code>survSplit()</code>), 조직형으로 층화한 모형(<code>strata()</code>)과 로그 시간과의 교호작용(<code>tt()</code>)을 차례로 맞춥니다.</strong> 11장 표 11-2의 두 대안 모형과, 그 아래 접힌 상자의 시간과의 교호작용입니다. 기간을 나눈 자료는 환자의 한 기간이 한 줄이라 <code>Surv(tstart, time, status)</code>처럼 세 열로 넣습니다.</p>
+<!--FIG:rc03_c11period-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>조직형 0–12개월 3.30 (2.03–5.35), 12개월 이후 0.95 (0.50–1.78).</b> 비투명세포 조직형은 초반에만 위험이 큽니다. 같은 모형의 약물은 0.86 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>χ² = 10.41, P = 0.0013.</b> 두 기간의 위험비가 같은지 본 우도비 검정입니다. 조직형을 한 열로 넣은 모형과 비교했습니다.</span></li>
+<li><span class="mk">3</span><span><b>층화 모형의 약물 0.86 (0.65–1.14).</b> Table 2 각주와 Results 예문의 민감도 분석 값입니다. 층으로 쓴 조직형의 위험비는 나오지 않고, 나머지 변수의 비례위험 검정은 모두 P ≥ 0.07입니다(바로 아래 줄).</span></li>
+<li><span class="mk">4</span><span><b>tt(nonclear) −0.4833 (SE 0.1437).</b> 조직형의 로그 위험비가 1.6666 − 0.4833 × log(개월)로 줄어든다는 뜻입니다. 12개월이면 exp(1.6666 − 0.4833 × 2.485) = 1.59입니다.</span></li>
+</ol>
+<p>추적 중에 시작한 약처럼 값이 바뀌는 노출도 같은 모양의 자료로 넣습니다. 그런 자료는 survival 패키지의 <code>tmerge()</code>로 만듭니다(11장 접힌 상자 '추적 중에 시작한 약은 자료를 어떻게 만드나?').</p>
+<!--FOLD py:파이썬으로 하면: 층화와 기간을 나눈 자료-->
+<p>층화는 <code>fit()</code>의 <code>strata</code>에 변수 이름을 적습니다. 앞 상자의 <code>df</code>와 <code>cols</code>를 그대로 씁니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; cs = CoxPHFitter().fit(df[["time", "status"] + cols], duration_col="time",
+...                        event_col="status", strata=["histology"])
+&gt;&gt;&gt; np.exp(cs.summary.loc["drug_A", ["coef", "coef lower 95%", "coef upper 95%"]]).round(2).tolist()</span>
+[0.86, 0.65, 1.14]</pre>
+<p>기간을 나눈 자료는 환자의 한 기간이 한 줄이고 환자 번호, 시작, 끝, 사건 열이 있는 표입니다. R의 <code>survSplit()</code> 같은 함수가 없으므로 pandas로 12개월 전후 두 줄을 만들고(이 자료에서 501행), lifelines의 <code>CoxTimeVaryingFitter</code>에 <code>id_col</code>, <code>start_col</code>, <code>stop_col</code>, <code>event_col</code>을 지정해 적합합니다. 조직형의 위험비는 0–12개월 3.30, 12개월 이후 0.95로 셀 20과 같습니다. <code>tt()</code>처럼 시간의 함수를 곱한 항은 lifelines에 없으므로, 사망 시점마다 자료를 나눈 뒤 그 시점의 log(개월)을 곱한 열을 만들어 같은 방법으로 넣습니다.</p>
+<p>'변수 × 추적 시간' 열을 환자 한 명이 한 줄인 원래 자료에 바로 만들어 넣으면 안 됩니다. 추적 시간은 그 환자의 마지막 관찰 시점이라, 각 사망 시점에서 '그 환자가 앞으로 얼마나 더 살지'라는 미래 정보를 담아 심한 편향이 생깁니다(보건통계학 기초 11장 접힌 상자 '기간별 위험비는 자료를 어떻게 나눠 구하나?'). 위처럼 (시작, 끝] 구간으로 나눈 자료에서 각 사망 시점의 값으로 계산합니다.</p>
+<!--/FOLD-->
+
+<h3>보정 생존율은 어떻게 구하나?</h3>
+<p><strong>모든 환자의 약물을 A로 바꾼 자료와 B로 바꾼 자료를 <code>survfit(fm, newdata = …)</code>에 넣고, 환자마다 나온 생존율을 시점별로 평균합니다.</strong> d 절 셀 15의 직접 표준화와 같은 방법이고, 11장 접힌 상자 '보정 생존곡선은 어떻게 그리나?'의 숫자입니다.</p>
+<!--FIG:rc03_c11std-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>A 0.700, 0.507, 0.317 / B 0.663, 0.460, 0.272.</b> 12, 24, 48개월의 보정 생존율입니다. 24개월에서 약물 A가 4.7%p 높습니다.</span></li>
+<li><span class="mk">2</span><span><b>24개월 약물 B 0.486, A 0.540.</b> 70세 남성, IMDC intermediate, 신장절제술, 투명세포인 환자 한 명의 예측입니다. 0.486<sup>0.856</sup> = 0.540으로, 기준군 생존율을 위험비만큼 거듭제곱한 값입니다(11장 '위험비는 사망 확률로 어떻게 옮기나?').</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: lifelines로 보정 생존율-->
+<pre class="out"><span class="cm">&gt;&gt;&gt; X = df[["time", "status"] + cols]
+&gt;&gt;&gt; for g in (1, 0):        # 모두 약물 A(1), 모두 약물 B(0)
+...     s = cph.predict_survival_function(X.assign(drug_A=g), times=[12, 24, 48])
+...     print(g, s.mean(axis=1).round(3).tolist())</span>
+1 [0.701, 0.508, 0.313]
+0 [0.664, 0.461, 0.268]</pre>
+<p>위험비는 같아도 생존율의 끝자리가 셀 21과 0.001–0.004 다릅니다. 예측 생존곡선에 쓰는 기저위험률을 lifelines는 Breslow 방법으로 추정하고(출력의 <code>baseline estimation = breslow</code>), R은 동점 처리와 같은 Efron 방법으로 추정하기 때문입니다. 보건통계학 기초 11장의 숫자는 R과 같습니다.</p>
+<!--/FOLD-->
+
+<h3>가중 Cox 모형의 표준오차는 무엇을 쓰나?</h3>
+<p><strong>성향점수로 만든 가중치를 <code>coxph()</code>의 <code>weights</code>에 넣습니다. 가중치가 0이나 1이 아니면 R이 강건 표준오차(robust se)를 기본으로 쓰고, 신뢰구간도 이 값으로 구합니다.</strong> 11장 접힌 상자 '가중 Cox 모형의 위험비는 왜 다변수 모형과 다를 수 있나?'의 숫자입니다.</p>
+<!--FIG:rc03_c11iptw-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>안정화 가중치 0.67–2.35.</b> 군의 비율(0.507)을 분자에 둔 가중치라 평균이 1 근처입니다.</span></li>
+<li><span class="mk">2</span><span><b>se(coef) 0.1378 대 robust se 0.1435.</b> 앞이 모형 기반, 뒤가 강건 표준오차입니다. z와 P는 강건 값으로 계산되었습니다.</span></li>
+<li><span class="mk">3</span><span><b>HR 0.87 (0.657–1.152).</b> 코호트 전체가 약물 A를 받은 경우와 B를 받은 경우를 비교한 위험비입니다.</span></li>
+<li><span class="mk">4</span><span><b>안정화하지 않은 가중치: 모형 기반 0.0974, 강건 0.1435.</b> 가중치의 합이 환자 수의 두 배(약 600명)로 부풀어 모형 기반 표준오차가 부당하게 작아집니다. 강건 표준오차는 그대로입니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: lifelines의 가중 Cox 모형-->
+<pre class="out"><span class="cm">&gt;&gt;&gt; import statsmodels.api as sm
+&gt;&gt;&gt; ps = sm.Logit(df["drug_A"], sm.add_constant(df[cols[1:]])).fit(disp=0).predict()
+&gt;&gt;&gt; pA = df["drug_A"].mean()
+&gt;&gt;&gt; df["w"] = np.where(df["drug_A"] == 1, pA / ps, (1 - pA) / (1 - ps))
+&gt;&gt;&gt; cw = CoxPHFitter().fit(df[["time", "status", "drug_A", "w"]], duration_col="time",
+...                        event_col="status", weights_col="w", robust=True)
+&gt;&gt;&gt; cw.summary.loc["drug_A", ["exp(coef)", "se(coef)", "exp(coef) lower 95%", "exp(coef) upper 95%"]].round(4).tolist()</span>
+[0.87, 0.1434, 0.6568, 1.1523]</pre>
+<p>R과 달리 lifelines는 <code>robust=True</code>를 적어야 강건 표준오차를 씁니다. 빼면 모형 기반 표준오차(0.1378)로 계산하고, 가중치가 정수가 아니니 <code>robust=True</code>를 쓰라는 경고를 냅니다.</p>
+<!--/FOLD-->
+
+<h3>결과가 환자 몇 명에게 좌우되지 않는지는 어떻게 보나?</h3>
+<p><strong>환자를 한 명씩 빼고 <code>update(fm, data = co[-i, ])</code>로 다시 적합해 약물 계수가 얼마나 움직이는지 봅니다. <code>residuals(fm, type = "dfbeta")</code>는 다시 적합하지 않은 근사값입니다.</strong> 11장 '내 연구에서 분석하기'의 숫자입니다.</p>
+<!--FIG:rc03_c11infl-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>se(coef) 0.1441 대 robust se 0.1474.</b> 환자 한 명이 한 줄이고 모형이 대체로 맞아 거의 같습니다. 같은 병원 환자처럼 군집이 있으면 공식에 <code>cluster(병원)</code>을 더하거나 <code>cluster =</code> 인자를 적습니다(11장 접힌 상자 '같은 병원 환자나 반복 입원처럼 관측이 닮았으면?').</span></li>
+<li><span class="mk">2</span><span><b>0.831–0.891.</b> 300번 다시 적합한 약물의 보정 위험비 범위입니다. 누구 한 명을 빼도 0.86에서 크게 벗어나지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>0.28.</b> 계수의 가장 큰 변화가 표준오차의 0.28배입니다.</span></li>
+<li><span class="mk">4</span><span><b>근사 dfbeta로는 0.24.</b> 빠르지만 실제 변화보다 조금 작게 나옵니다. 영향력이 큰 환자를 골라내는 데 쓰고, 변화의 크기는 그 환자를 빼고 다시 적합해 확인합니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: 군집 강건 표준오차와 한 명씩 빼고 다시 적합하기-->
+<p>lifelines의 CoxPHFitter에서는 <code>fit()</code>의 <code>cluster_col</code>에 군집 변수를 적으면 강건 표준오차를 씁니다. 환자 번호를 넣으면 0.1472로, R의 0.1474와 끝자리만 다릅니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; loo = [CoxPHFitter().fit(X.drop(index=i), duration_col="time", event_col="status").params_["drug_A"]
+...        for i in X.index]
+&gt;&gt;&gt; np.exp([min(loo), max(loo)]).round(3).tolist()</span>
+[0.831, 0.891]</pre>
+<p>lifelines에도 다시 적합하지 않고 근사하는 <code>compute_residuals(X, kind="delta_beta")</code>가 있지만, 이 자료에서는 가장 큰 값이 표준오차의 0.09배로 R의 dfbeta(0.24배)나 실제로 다시 적합한 변화(0.28배)와 크기가 많이 다릅니다. 영향력이 큰 환자를 골라내는 데도 그대로 믿지 말고, 위처럼 한 명씩 빼고 다시 적합해 확인합니다.</p>
+<!--/FOLD-->
+
+<h3>혈압처럼 곡선인 변수는 어떻게 넣나?</h3>
+<p><strong>매듭을 5·35·65·95번째 백분위수에 둔 제한 삼차 스플라인 열을 Hmisc 패키지의 <code>rcspline.eval()</code>로 만들어 넣고, 직선 모형과 <code>anova()</code>로 비교합니다.</strong> 11장 접힌 상자 '혈압처럼 위험이 곡선으로 변하는 변수는 어떻게 넣나?'와 그림 11-2의 숫자입니다. 기준값 120 mmHg 대비 위험비는 두 혈압의 스플라인 열 차이에 계수를 곱해 구하고, 신뢰구간은 같은 차이와 <code>vcov()</code>로 구합니다.</p>
+<!--FIG:rc03_c11bp-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>매듭 102.4, 128.2, 142.8, 167.9 mmHg.</b> 매듭 4개인 제한 삼차 스플라인은 계수를 3개 씁니다.</span></li>
+<li><span class="mk">2</span><span><b>직선 모형 10 mmHg당 1.144.</b> 혈압의 효과를 숫자 하나로 요약한 값입니다.</span></li>
+<li><span class="mk">3</span><span><b>χ² = 45.17, 자유도 2.</b> 스플라인이 직선보다 계수가 2개 많아 자유도가 2입니다. P &lt; 0.001로 곡선이 필요합니다.</span></li>
+<li><span class="mk">4</span><span><b>160 mmHg 1.86 (1.58–2.19).</b> 100 mmHg 1.18, 180 mmHg 3.57과 함께 그림 11-2의 곡선입니다.</span></li>
+</ol>
+<p>rms 패키지의 <code>rcs(sbp, 4)</code>를 공식에 넣어도 매듭 4개를 같은 백분위수에 두고 같은 모형을 적합합니다(로그 부분우도 −8113.4). 매듭 위치를 바꾸려면 <code>rcs(sbp, c(…))</code>처럼 값을 적습니다.</p>
+<!--FOLD py:파이썬으로 하면: lifelines 공식의 스플라인-->
+<pre class="out"><span class="cm">&gt;&gt;&gt; bp = pd.read_csv("https://socialp-ajou.tecentriq12.workers.dev/data/ch11_bp.csv")
+&gt;&gt;&gt; k = np.percentile(bp["sbp"], [5, 35, 65, 95])
+&gt;&gt;&gt; f = (f"cr(sbp, knots=[{k[1]:.4f}, {k[2]:.4f}], lower_bound={k[0]:.4f}, "
+...      f"upper_bound={k[3]:.4f}, constraints='center')")
+&gt;&gt;&gt; spl = CoxPHFitter().fit(bp, duration_col="time", event_col="status", formula=f)
+&gt;&gt;&gt; lin = CoxPHFitter().fit(bp, duration_col="time", event_col="status", formula="I(sbp / 10)")
+&gt;&gt;&gt; lr = 2 * (spl.log_likelihood_ - lin.log_likelihood_)
+&gt;&gt;&gt; print(f"{lr:.2f}", len(spl.params_))</span>
+45.17 3</pre>
+<p>보건통계학 기초 11장의 '직접 분석' 상자에 있던 내용입니다.</p>
+<p>lifelines 공식의 <code>cr()</code>은 제한 삼차 스플라인과 같은 계열의 자연 삼차 스플라인이고, df=3으로 계수 3개를 쓰므로 직선 모형과 비교하면 역시 자유도가 2입니다. 실습 11에 나오는 <code>bs()</code>는 B-스플라인이며, 이때도 df만큼 계수를 씁니다. 다만 <code>cr()</code>은 기본으로 가장 바깥 두 매듭을 자료의 최솟값과 최댓값에 둡니다. 그래서 자료 안의 양 끝이 직선으로 제한되지 않고(<a href="stats.html#ch06-s4">보건통계학 기초 6장 d 절</a>), 기본 매듭으로 그림 11-2의 자료를 분석하면 자료가 적은 양 끝의 위험비가 그림과 크게 다를 수 있습니다. 그림처럼 매듭을 5·35·65·95번째 백분위수에 두려면 <code>knots</code>에 안쪽 두 매듭을, <code>lower_bound</code>와 <code>upper_bound</code>에 바깥 두 매듭을 지정합니다. 함께 적은 <code>constraints="center"</code>는 보건통계학 기초 6장 d 절과 같은 지정입니다. 이 지정을 빼면 스플라인의 열을 모두 더한 값이 모든 환자에게 1이 되어 기저위험률과 구분되지 않습니다. 그러면 계수를 정할 수 없어 lifelines가 오류(ConvergenceError)를 내고 멈춥니다.</p>
+<!--/FOLD-->
+</section>
+
+
+<!-- ============================================================ f -->
+<section class="sec" id="rc03-s6">
+<h2><span class="sec-no">f.</span>과제</h2>
 
 <p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
 

@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">역확률 가중 Cox 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ps &lt;- glm(drug == &quot;A&quot; ~ I(age / 10) + male + imdc + nephrectomy + histology,
+          family = binomial, data = co)$fitted.values      # 약물 A를 받을 확률
+pA &lt;- mean(co$drug == &quot;A&quot;)
+co$w_s &lt;- ifelse(co$drug == &quot;A&quot;, pA / ps, (1 - pA) / (1 - ps))   # 안정화 가중치
+co$w_u &lt;- ifelse(co$drug == &quot;A&quot;, 1 / ps, 1 / (1 - ps))           # 안정화하지 않은 가중치
+round(range(co$w_s), 2)
+fw &lt;- coxph(Surv(time, status) ~ drug, data = co, weights = w_s)
+summary(fw)$coefficients
+round(summary(fw)$conf.int, 3)
+fu &lt;- coxph(Surv(time, status) ~ drug, data = co, weights = w_u)
+round(summary(fu)$coefficients[, c(&quot;se(coef)&quot;, &quot;robust se&quot;)], 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.67 2.35<span class="mk">1</span>
+            coef exp(coef)  se(coef) robust se          z  Pr(&gt;|z|)
+drugA -0.1393019 0.8699653 0.1377523 0.1434797<span class="mk">2</span> -0.9708827 0.3316067
+      exp(coef) exp(-coef) lower .95 upper .95
+drugA      0.87      1.149     0.657     1.152<span class="mk">3</span>
+ se(coef) robust se 
+   0.0974    0.1435<span class="mk">4</span></pre></div></div>

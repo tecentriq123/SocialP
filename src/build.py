@@ -587,7 +587,7 @@ def build_home(shell, meta, ml_meta=None, r_meta=None, qz_meta=None):
          "desc": "보건통계학 기초에서 배운 분석을 코드로 직접 해 봅니다. 코드를 짜고, 자료를 넣고, 출력을 읽어 해석하는 법을 다룹니다. "
                  "R이 본문이고, 같은 분석의 파이썬 코드는 접힌 상자에 두었습니다. Table 1과 회귀, 생존분석, 청구자료 연구, "
                  "경제성 평가 모형까지 보건통계학 기초와 같은 자료를 써서 숫자가 그대로 맞습니다.",
-         "meta": ["R 0–14장 + 파이썬 실습 0–24", "장마다 R·파이썬 노트북"]},
+         "meta": ["R 0–15장 + 파이썬 실습 0–24", "장마다 R·파이썬 노트북"]},
         {"tag": "과목 · 퀴즈", "title": "보건통계학 퀴즈", "href": "quiz.html" if qz_ready else None,
          "status": ((f"{_ranges([int(c['id'][-2:]) for c in qz_ch if c['ready'] and not c.get('review')])}장"
                      + "".join(f" · {c['title']}" for c in qz_ch if c['ready'] and c.get('review') and not str(c.get('no', '')).startswith("종합"))

@@ -230,7 +230,6 @@ save("ch11_lml", figure([pA_.svg("약물별 로그-로그 생존 그림"), pB_.s
 terms = {"drug": [0], "age": [1], "sex": [2], "imdc": [3, 4], "nephrectomy": [5], "histology": [6]}
 zr, gt, sc = zph(fm, terms, "km")
 scl = sc["scaled"]; tev = sc["time"]
-PHT = ph_test_approx(fm, "km")
 # km transform for tick labels
 rows_all = km(T, S_)
 kt = np.array([r["t"] for r in rows_all]); kS = np.array([r["S"] for r in rows_all])
@@ -253,7 +252,7 @@ for j, nm_, title, yl, yt in ((0, "drug", "(가) 약물 A", (-4, 4), [-4, -2, 0,
     xs_, ys_ = lowess(gt, scl[:, j], frac=0.4)
     pl.line(xs_, ys_, s=1 if j == 0 else 2, w=2.6)
     pl.line([0, 0.8], [fm["coef"][j]] * 2, s=4, w=1.6, dash=True)
-    chi, pv = PHT[0][j], PHT[1][j]
+    chi, _, pv = zr[nm_]          # score test as R survival::cox.zph (>= 3.0), km transform
     pl.text(0.79, yl[1], f"비례위험 검정(km): χ² = {chi:.2f}, P = {pv:.3f}", anchor="end", dy=16, cls="lbl small")
     pl.text(0.79, fm["coef"][j], f"β̂ = {fm['coef'][j]:.2f}", anchor="end", dy=(16 if j == 0 else -6), cls="lbl small")
     panel_title(pl, title)

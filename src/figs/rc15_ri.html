@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">무작위 절편 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(lmerTest))       # lme4의 lmer()에 Satterthwaite 자유도를 더함
+ri &lt;- lmer(hba1c ~ group * month + (1 | id), data = L)  # 무작위 절편, REML이 기본값
+summary(ri)$coefficients
+as.data.frame(VarCorr(ri))[, c(&quot;grp&quot;, &quot;vcov&quot;, &quot;sdcor&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Estimate  Std. Error       df    t value     Pr(&gt;|t|)
+(Intercept)  8.47758448 0.121074611 113.1282 70.0195063 5.379340e-95
+group        0.04383041 0.170670830 111.7989  0.2568125 7.977955e-01
+month       -0.01884216 0.007330502 258.0970 -2.5703785 1.072032e-02
+group:month -0.03757659 0.009881633 255.7804<span class="mk">1</span> -3.8026705 1.790591e-04
+       grp      vcov     sdcor
+1       id 0.6281669 0.7925698<span class="mk">2</span>
+2 Residual 0.1552926 0.3940718<span class="mk">3</span></pre></div></div>

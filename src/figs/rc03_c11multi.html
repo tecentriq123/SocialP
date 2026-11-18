@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">다변수 모형 (11장 &#x27;논문에서 읽기&#x27;의 Table 2)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fm &lt;- coxph(Surv(time, status) ~ drug + I(age / 10) + male + imdc +
+              nephrectomy + histology, data = co)
+round(cbind(HR = exp(coef(fm)), exp(confint(fm)),
+            P = summary(fm)$coefficients[, &quot;Pr(&gt;|z|)&quot;]), 3)
+anova(update(fm, . ~ . - imdc), fm)        # IMDC 위험군 전체(자유도 2)의 우도비 검정
+fm_i &lt;- update(fm, . ~ . - imdc + relevel(imdc, ref = &quot;intermediate&quot;))
+round(exp(cbind(coef(fm_i), confint(fm_i)))[7, ], 2)   # poor 대 intermediate</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                     HR 2.5 % 97.5 %     P
+drugA             0.856 0.645  1.135 0.280<span class="mk">1</span>
+I(age/10)         1.401 1.201  1.634 0.000
+male              1.124 0.821  1.537 0.467
+imdcintermediate  1.473 1.017  2.135 0.041
+imdcpoor          3.594 2.256  5.725 0.000
+nephrectomy       0.811 0.604  1.089 0.164
+histologynonclear 1.833<span class="mk">2</span> 1.253  2.680 0.002
+Analysis of Deviance Table
+ Cox model: response is  Surv(time, status)
+ Model 1: ~ drug + I(age/10) + male + nephrectomy + histology
+ Model 2: ~ drug + I(age/10) + male + imdc + nephrectomy + histology
+   loglik  Chisq Df Pr(&gt;|Chi|)    
+1 -1033.5                         
+2 -1018.0 30.825  2  2.025e-07<span class="mk">3</span> ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+        2.5 % 97.5 % 
+  2.44   1.72   3.47<span class="mk">4</span></pre></div></div>

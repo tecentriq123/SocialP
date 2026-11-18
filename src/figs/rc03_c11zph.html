@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">비례위험 검정과 시간 변환</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cox.zph(fm)                                       # 기본 transform = &quot;km&quot;
+rbind(identity = cox.zph(fm, transform = &quot;identity&quot;)$table[c(&quot;male&quot;, &quot;histology&quot;, &quot;GLOBAL&quot;), &quot;p&quot;],
+      rank     = cox.zph(fm, transform = &quot;rank&quot;)$table[c(&quot;male&quot;, &quot;histology&quot;, &quot;GLOBAL&quot;), &quot;p&quot;],
+      log      = cox.zph(fm, transform = &quot;log&quot;)$table[c(&quot;male&quot;, &quot;histology&quot;, &quot;GLOBAL&quot;), &quot;p&quot;])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               chisq df      p
+drug         0.00112  1 0.9733<span class="mk">1</span>
+I(age/10)    0.00232  1 0.9616
+male         3.16625  1 0.0752
+imdc         0.10715  2 0.9478
+nephrectomy  0.01643  1 0.8980
+histology    9.70096  1 0.0018<span class="mk">2</span>
+GLOBAL      13.54944  7 0.0598<span class="mk">3</span>
+               male    histology     GLOBAL
+identity 0.01159328<span class="mk">4</span> 0.0100163627 0.04615842
+rank     0.04687369 0.0023969482 0.05400565
+log      0.14738792 0.0002743443 0.01381665</pre></div></div>

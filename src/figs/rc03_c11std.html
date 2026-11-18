@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">직접 표준화한 보정 생존율과 한 환자의 예측</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">std_surv &lt;- function(g, times) {          # 모두 약물 g를 받았다고 놓은 곡선의 평균
+  nd &lt;- transform(co, drug = factor(g, levels = c(&quot;B&quot;, &quot;A&quot;)))
+  rowMeans(summary(survfit(fm, newdata = nd), times = times)$surv)
+}
+at &lt;- c(12, 24, 48)
+round(rbind(A = std_surv(&quot;A&quot;, at), B = std_surv(&quot;B&quot;, at)), 3)
+summary(survfit(fm, newdata = data.frame(drug = c(&quot;B&quot;, &quot;A&quot;), age = 70, male = 1,
+  imdc = &quot;intermediate&quot;, nephrectomy = 1, histology = &quot;clear&quot;)), times = c(12, 24))$surv</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   [,1]  [,2]  [,3]
+A 0.700 0.507 0.317<span class="mk">1</span>
+B 0.663 0.460 0.272
+             1         2
+[1,] 0.7049585 0.7414297
+[2,] 0.4862459 0.5395545<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,31 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">교환가능 작업상관 GEE</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(geepack))
+ge &lt;- geeglm(adh ~ group + visit, id = id, data = A, family = binomial, corstr = &quot;exchangeable&quot;)
+summary(ge)
+b &lt;- coef(ge)[&quot;group&quot;]; se &lt;- summary(ge)$coefficients[&quot;group&quot;, &quot;Std.err&quot;]
+round(exp(c(OR = b, b - 1.96 * se, b + 1.96 * se)), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Call:
+geeglm(formula = adh ~ group + visit, family = binomial, data = A, 
+    id = id, corstr = &quot;exchangeable&quot;)
+
+ Coefficients:
+            Estimate Std.err  Wald Pr(&gt;|W|)   
+(Intercept)   0.4992  0.2828 3.117  0.07749 . 
+group         0.9269  0.3402 7.422  0.00644<span class="mk">1</span> **
+visit6       -0.2726  0.2908 0.879  0.34857   
+visit12      -0.5513  0.2583 4.556  0.03280<span class="mk">2</span> * 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation structure = exchangeable 
+Estimated Scale Parameters:
+
+            Estimate Std.err
+(Intercept)    1.006   0.111<span class="mk">3</span>
+  Link = identity 
+
+Estimated Correlation Parameters:
+      Estimate Std.err
+alpha   0.3016   0.088<span class="mk">4</span>
+Number of clusters:   93  Maximum cluster size: 3<span class="mk">5</span> 
+OR.group    group    group 
+    2.53     1.30     4.92<span class="mk">6</span></pre></div></div>

@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">결측 양상과 탈락자의 기저값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pat &lt;- apply(!is.na(w[, c(&quot;hba1c_0&quot;, &quot;hba1c_3&quot;, &quot;hba1c_6&quot;, &quot;hba1c_12&quot;)]), 1,
+             function(o) paste(ifelse(o, &quot;O&quot;, &quot;-&quot;), collapse = &quot;&quot;))
+table(pattern = pat, group = w$group)                     # O = 잰 방문, - = 빈 방문
+has12 &lt;- !is.na(w$hba1c_12)
+aggregate(hba1c_0 ~ group + has12, data = cbind(w, has12), FUN = function(x) round(c(n = length(x), mean = mean(x)), 2))
+m12 &lt;- glm(!has12 ~ group + I(hba1c_0 - mean(hba1c_0)), family = binomial, data = w)
+round(exp(cbind(OR = coef(m12), confint.default(m12)))[-1, ], 2)   # 12개월 값이 빌 오즈</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       group
+pattern  0  1
+   O---  8  0<span class="mk">1</span>
+   O-OO  1  1
+   OO--  2  3
+   OO-O  1  1
+   OOO-  5  3
+   OOOO 33 42<span class="mk">2</span>
+  group has12 hba1c_0.n hba1c_0.mean
+1     0 FALSE     15.00         9.06<span class="mk">3</span>
+2     1 FALSE      6.00         9.18
+3     0  TRUE     35.00         8.25
+4     1  TRUE     44.00         8.39
+                             OR 2.5 % 97.5 %
+group                      0.26  0.08   0.83
+I(hba1c_0 - mean(hba1c_0)) 4.72  2.07  10.72<span class="mk">4</span></pre></div></div>

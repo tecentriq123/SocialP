@@ -1,0 +1,34 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">기간별 위험비, 층화, 시간과의 교호작용</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">long &lt;- survSplit(Surv(time, status) ~ ., data = co, cut = 12, episode = &quot;period&quot;)
+long$nc_0_12  &lt;- as.integer(long$histology == &quot;nonclear&quot; &amp; long$period == 1)
+long$nc_after &lt;- as.integer(long$histology == &quot;nonclear&quot; &amp; long$period == 2)
+fp &lt;- coxph(Surv(tstart, time, status) ~ drug + I(age / 10) + male + imdc +
+              nephrectomy + nc_0_12 + nc_after, data = long)
+round(exp(cbind(HR = coef(fp), confint(fp)))[c(&quot;drugA&quot;, &quot;nc_0_12&quot;, &quot;nc_after&quot;), ], 2)
+anova(update(fp, . ~ . - nc_0_12 - nc_after + I(nc_0_12 + nc_after)), fp)   # 두 기간의 HR이 같은가
+fs &lt;- update(fm, . ~ . - histology + strata(histology))            # 조직형으로 층화
+round(exp(cbind(coef(fs), confint(fs)))[&quot;drugA&quot;, ], 2)
+round(cox.zph(fs)$table[, &quot;p&quot;], 3)                                  # 층화 뒤 나머지 변수의 비례위험 검정
+co$nonclear &lt;- as.integer(co$histology == &quot;nonclear&quot;)
+ft &lt;- coxph(Surv(time, status) ~ drug + I(age / 10) + male + imdc + nephrectomy +
+              histology + tt(nonclear), data = co,
+            tt = function(x, t, ...) x * log(t))                   # 조직형 × log(개월)
+round(summary(ft)$coefficients[c(&quot;histologynonclear&quot;, &quot;tt(nonclear)&quot;), 1:3], 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           HR 2.5 % 97.5 %
+drugA    0.86  0.65   1.14
+nc_0_12  3.30  2.03   5.35<span class="mk">1</span>
+nc_after 0.95  0.50   1.78
+Analysis of Deviance Table
+ Cox model: response is  Surv(tstart, time, status)
+ Model 1: ~ drug + I(age/10) + male + imdc + nephrectomy + I(nc_0_12 + nc_after)
+ Model 2: ~ drug + I(age/10) + male + imdc + nephrectomy + nc_0_12 + nc_after
+   loglik  Chisq Df Pr(&gt;|Chi|)   
+1 -1018.0                        
+2 -1012.8 10.413  1   0.001251<span class="mk">2</span> **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+        2.5 % 97.5 % 
+  0.86   0.65   1.14<span class="mk">3</span> 
+       drug   I(age/10)        male        imdc nephrectomy      GLOBAL 
+      0.995       0.862       0.071       0.767       0.930       0.708 
+                     coef exp(coef) se(coef)
+histologynonclear  1.6666    5.2942   0.3551
+tt(nonclear)      -0.4833<span class="mk">4</span>    0.6168   0.1437</pre></div></div>

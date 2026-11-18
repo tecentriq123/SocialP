@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">작업상관 네 가지와 상관을 무시한 표준오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">t(sapply(c(&quot;independence&quot;, &quot;exchangeable&quot;, &quot;ar1&quot;, &quot;unstructured&quot;), function(cs) {
+  g &lt;- geeglm(adh ~ group + visit, id = id, waves = as.integer(visit), data = A,
+              family = binomial, corstr = cs)
+  s &lt;- summary(g)$coefficients[&quot;group&quot;, &quot;Std.err&quot;]
+  round(c(OR = exp(coef(g)[[&quot;group&quot;]]), lower = exp(coef(g)[[&quot;group&quot;]] - 1.96 * s),
+          upper = exp(coef(g)[[&quot;group&quot;]] + 1.96 * s), robust_SE = s, QIC = QIC(g)[[&quot;QIC&quot;]]), 3)
+}))
+gl0 &lt;- glm(adh ~ group + visit, family = binomial, data = A)   # 같은 환자의 상관을 무시하면
+round(summary(gl0)$coefficients[&quot;group&quot;, 1:2], 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                OR lower upper robust_SE   QIC
+independence 2.523 1.291 4.931     0.342 324.0
+exchangeable 2.527 1.297 4.922     0.340 324.0
+ar1          2.587 1.311 5.102<span class="mk">1</span>     0.347 324.1
+unstructured 2.500 1.286 4.859     0.339 323.9<span class="mk">2</span>
+  Estimate Std. Error 
+    0.9253     0.2724<span class="mk">3</span></pre></div></div>
