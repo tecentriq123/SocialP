@@ -1,0 +1,48 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">진단별 하위군과 하위군 간 차이 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">sg &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/acs_trials_subgroup.csv&quot;)
+ms &lt;- metabin(mace_x, n_x, mace_pbo, n_pbo, studlab = trial, data = sg,
+              sm = &quot;OR&quot;, method.tau = &quot;REML&quot;, method.random.ci = &quot;HK&quot;,
+              subgroup = subgroup, common = FALSE)
+summary(ms)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            OR           95% CI %W(random) subgroup
+Trial A 0.8258<span class="mk">1</span> [0.2950; 2.3114]        1.2    STEMI
+Trial A 1.3195 [0.4608; 3.7783]        1.1 NSTE-ACS
+Trial B 1.2882 [0.6324; 2.6243]        2.3    STEMI
+Trial B 0.5783 [0.2926; 1.1429]        2.5 NSTE-ACS
+Trial D 0.9252 [0.7076; 1.2098]       11.0    STEMI
+Trial D 1.1090 [0.8959; 1.3728]       14.2 NSTE-ACS
+Trial F 0.7699 [0.6455; 0.9184]       16.9    STEMI
+Trial F 0.8947 [0.7539; 1.0619]       17.3 NSTE-ACS
+Trial H 0.6689 [0.4665; 0.9591]        7.3    STEMI
+Trial H 0.8722 [0.6658; 1.1426]       10.9 NSTE-ACS
+Trial I 0.6689 [0.4921; 0.9091]        9.2    STEMI
+Trial I 0.7760 [0.5206; 1.1568]        6.2 NSTE-ACS
+
+Number of studies: k = 12
+Number of observations: o = 28620 (o.e = 14780, o.c = 13840)
+Number of events: e = 2515
+
+                         OR           95% CI     t p-value
+Random effects model 0.8511 [0.7546; 0.9598]<span class="mk">5</span> -2.95  0.0132
+
+Quantifying heterogeneity (with 95% CIs):
+ tau^2 = 0.0114 [0.0000; 0.0941]; tau = 0.1070 [0.0000; 0.3067]
+ I^2 = 28.3% [0.0%; 63.8%]; H = 1.18 [1.00; 1.66]
+
+Test of heterogeneity:
+     Q d.f. p-value
+ 15.35   11  0.1671
+
+Results for subgroups (random effects model):
+                      k     OR           95% CI  tau^2    tau    Q   I^2
+subgroup = STEMI      6 0.7822 [0.6649; 0.9201]<span class="mk">2</span>      0      0 5.16  3.1%
+subgroup = NSTE-ACS   6 0.9218 [0.7718; 1.1010]<span class="mk">3</span> 0.0055 0.0739 6.11 18.1%
+
+Test for subgroup differences (random effects model):
+                  Q d.f. p-value
+Between groups 3.08    1  0.0794<span class="mk">4</span>
+
+Details of meta-analysis methods:
+- Inverse variance method
+- Restricted maximum-likelihood estimator for tau^2
+- Q-Profile method for confidence interval of tau^2 and tau
+- Calculation of I^2 based on Q
+- Hartung-Knapp adjustment for random effects model (df = 11)</pre></div></div>

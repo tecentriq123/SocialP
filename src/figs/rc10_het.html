@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">이질성 지표를 꺼내 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(c(Q = m$Q, df = m$df.Q, P = m$pval.Q), 4)
+round(c(I2 = m$I2, lower = m$lower.I2, upper = m$upper.I2), 3)
+round(c(tau2 = m$tau2, lower = m$lower.tau2, upper = m$upper.tau2, tau = m$tau), 4)
+round(exp(c(pi.lower = m$lower.predict, pi.upper = m$upper.predict)), 3)
+round(update(m, method.I2 = &quot;tau2&quot;)$I2, 3)              # I²를 τ²로 구하면
+sapply(c(&quot;DL&quot;, &quot;PM&quot;, &quot;REML&quot;), function(t) round(update(m, method.tau = t)$tau2, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      Q      df       P 
+13.2849<span class="mk">1</span>  9.0000  0.1501 
+   I2 lower upper 
+0.323 0.000 0.677<span class="mk">2</span> 
+  tau2  lower  upper    tau 
+0.0138 0.0000 0.1278 0.1174<span class="mk">3</span> 
+pi.lower pi.upper 
+   0.609    1.107<span class="mk">4</span> 
+[1] 0.4<span class="mk">5</span>
+    DL     PM   REML 
+0.0098 0.0077 0.0138<span class="mk">6</span></pre></div></div>

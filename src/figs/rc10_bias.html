@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">비대칭 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">metabias(m)                     # 오즈비의 기본: Harbord 검정
+round(sapply(c(&quot;Egger&quot;, &quot;Harbord&quot;, &quot;Peters&quot;),
+             function(b) metabias(m, method.bias = b)$pval), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Linear regression test of funnel plot asymmetry
+
+Test result: t = -0.80, df = 8, p-value = 0.4477<span class="mk">1</span>
+Bias estimate: -0.5334 (SE = 0.6680)
+
+Details:
+- multiplicative residual heterogeneity variance (tau^2 = 1.5784)
+- predictor: standard error of score
+- weight:    inverse variance of score
+- reference: Harbord et al. (2006), Stat Med
+  Egger Harbord  Peters 
+  0.471   0.448   0.535<span class="mk">2</span></pre></div></div>

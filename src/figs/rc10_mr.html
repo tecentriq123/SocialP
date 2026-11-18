@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">STEMI 비율로 메타회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">mr &lt;- metareg(m, ~ stemi10)
+mr
+round(exp(c(ratio = coef(mr)[[&quot;stemi10&quot;]], lower = mr$ci.lb[2], upper = mr$ci.ub[2])), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Mixed-Effects Model (k = 10; tau^2 estimator: REML)
+
+tau^2 (estimated amount of residual heterogeneity):     0.0084<span class="mk">1</span> (SE = 0.0148)
+tau (square root of estimated tau^2 value):             0.0914
+I^2 (residual heterogeneity / unaccounted variability): 27.04%
+H^2 (unaccounted variability / sampling variability):   1.37
+R^2 (amount of heterogeneity accounted for):            39.29%<span class="mk">2</span>
+
+Test for Residual Heterogeneity:
+QE(df = 8) = 9.5627, p-val = 0.2971
+
+Test of Moderators (coefficient 2):
+F(df1 = 1, df2 = 8) = 2.4352, p-val = 0.1573<span class="mk">3</span>
+
+Model Results:
+
+         estimate      se     tval  df    pval    ci.lb   ci.ub    
+intrcpt    0.2576  0.2917   0.8830   8  0.4030  -0.4151  0.9302    
+stemi10   -0.0921  0.0590  -1.5605   8  0.1573  -0.2282  0.0440    
+
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+ratio lower upper 
+0.912 0.796 1.045<span class="mk">4</span></pre></div></div>

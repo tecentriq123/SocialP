@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 1 정답: 시험 단계로 나눈 하위군</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">mp &lt;- update(m, subgroup = paste(&quot;Phase&quot;, phase), method.random.ci = &quot;classic&quot;)
+round(exp(c(phase2 = mp$TE.random.w[[&quot;Phase 2&quot;]], phase3 = mp$TE.random.w[[&quot;Phase 3&quot;]])), 2)
+round(c(Q = mp$Q.b.random, P = mp$pval.Q.b.random), 3)
+round(update(mp, method.random.ci = &quot;HK&quot;)$pval.Q.b.random, 3)   # HKSJ 표준오차로 검정하면</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>phase2 phase3 
+  0.73   0.84<span class="mk">1</span> 
+    Q     P 
+0.833 0.361<span class="mk">2</span> 
+[1] 0.327<span class="mk">3</span></pre></div></div>

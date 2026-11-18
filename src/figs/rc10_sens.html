@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">한 시험씩 빼기와 그 밖의 민감도 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">inf &lt;- metainf(m, pooled = &quot;random&quot;)
+round(exp(range(inf$TE)), 3)                              # 한 시험씩 뺀 10번의 범위
+low &lt;- update(m, subset = rob == &quot;low&quot;)                   # 편향 위험 &#x27;낮음&#x27;만
+rr  &lt;- update(m, sm = &quot;RR&quot;)                               # 상대위험도로
+est &lt;- function(x) exp(c(OR = x$TE.random, lower = x$lower.random, upper = x$upper.random))
+round(rbind(low_rob = est(low), risk_ratio = est(rr)), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.793 0.845<span class="mk">1</span>
+              OR lower upper
+low_rob    0.823 0.708 0.958<span class="mk">2</span>
+risk_ratio 0.834 0.733 0.948<span class="mk">3</span></pre></div></div>

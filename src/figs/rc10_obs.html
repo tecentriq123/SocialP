@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">오즈비와 신뢰구간만 있는 연구 넣기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">o &lt;- data.frame(study = paste(&quot;Study&quot;, 1:7),
+                or = c(1.15, 1.90, 1.45, 2.60, 1.05, 1.70, 3.10),
+                lo = c(0.95, 1.55, 1.10, 1.90, 0.88, 1.30, 2.05),
+                hi = c(1.39, 2.33, 1.91, 3.56, 1.25, 2.22, 4.69))
+mo &lt;- metagen(log(or), lower = log(lo), upper = log(hi), studlab = study,
+              data = o, sm = &quot;OR&quot;, method.tau = &quot;REML&quot;,
+              method.random.ci = &quot;HK&quot;, prediction = TRUE, method.predict = &quot;HK&quot;)
+data.frame(study = o$study, logOR = round(mo$TE, 3), SE = round(mo$seTE, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    study logOR    SE
+1 Study 1 0.140 0.097<span class="mk">1</span>
+2 Study 2 0.642 0.104
+3 Study 3 0.372 0.141
+4 Study 4 0.956 0.160
+5 Study 5 0.049 0.090
+6 Study 6 0.531 0.137
+7 Study 7 1.131 0.211<span class="mk">2</span></pre></div></div>

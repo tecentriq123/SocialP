@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">시험 하나가 한 줄인 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(meta)
+d &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/acs_trials.csv&quot;)
+d$stemi10 &lt;- d$stemi_pct / 10        # 메타회귀에 쓸 10%p 단위
+d[, c(&quot;trial&quot;, &quot;phase&quot;, &quot;stemi_pct&quot;, &quot;rob&quot;, &quot;n_x&quot;, &quot;mace_x&quot;, &quot;n_pbo&quot;, &quot;mace_pbo&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Loading required package: metabook
+Loading &#x27;meta&#x27; package (version 8.5-0<span class="mk">1</span>).
+Type &#x27;help(meta)&#x27; for a brief overview.
+     trial phase stemi_pct           rob  n_x mace_x n_pbo mace_pbo<span class="mk">3</span>
+1  Trial A<span class="mk">2</span>     2        55           low  620     23   310       11
+2  Trial B     2        52           low 1160     47   580       27
+3  Trial C     2        68 some concerns  240      8   120        3
+4  Trial D     3        41           low 3650    306  3640      296
+5  Trial E     2        60           low  900     33   450       30
+6  Trial F     3        50           low 5100    532  5080      624
+7  Trial G     2        47          high  410     10   205        9
+8  Trial H     3        36           low 2450    161  2440      199
+9  Trial I     3        63           low 1800    122  1790      167
+10 Trial J     2        58           low  520     29   260       20</pre></div></div>

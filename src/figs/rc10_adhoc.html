@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">q가 1보다 작을 때의 수정판</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ma &lt;- metabin(mace_x, n_x, mace_pbo, n_pbo, studlab = trial, data = d,
+              sm = &quot;OR&quot;, method.tau = &quot;REML&quot;, method.random.ci = &quot;HK&quot;,
+              adhoc.hakn.ci = &quot;se&quot;)      # q가 1보다 작으면 원래 표준오차를 씀
+round(exp(c(OR = ma$TE.random, lower = ma$lower.random, upper = ma$upper.random)), 3)
+round(ma$pval.random, 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   OR lower upper 
+0.821 0.706<span class="mk">1</span> 0.954 
+[1] 0.0159<span class="mk">2</span></pre></div></div>

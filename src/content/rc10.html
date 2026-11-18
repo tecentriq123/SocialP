@@ -1,0 +1,316 @@
+<p class="lead">보건통계학 기초 19장에서 읽은 메타분석을 R의 meta 패키지로 직접 합칩니다. 자료를 넣는 법부터 고정효과와 무작위효과로 합치기, τ²와 신뢰구간의 방법 정하기, 이질성 지표와 하위군 분석, 메타회귀, 깔때기 그림과 비대칭 검정, 민감도 분석, NNT까지 차례로 구합니다. 자료는 19장과 같은 가상 메타분석(급성관상동맥증후군 환자에게 약물 X와 위약을 비교한 시험 10개)이라 숫자가 그대로 맞습니다. 같은 분석의 파이썬 코드는 절마다 '파이썬' 접힌 상자에 있습니다.</p>
+
+<p class="nb-link"><a href="notebooks/rc10.ipynb" download>이 장의 노트북 내려받기 (rc10.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.3.3, meta 8.5-0(메타회귀는 metafor 5.2-1)으로 실제로 실행해 얻었습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>고정효과와 무작위효과, τ², I², 예측구간의 뜻은 보건통계학 기초 <a href="stats.html#ch19-s2">19장 b 절</a>과 <a href="stats.html#ch19-s3">c 절</a>에 있습니다. 자료를 불러오는 법은 이 과목 <a href="#rc00">0장</a>에 있습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 1, b 절의 셀 3–5, c 절의 셀 8–9, d 절의 셀 13–14.</dd>
+<dt>나중에 읽을 부분</dt><dd>오즈비와 신뢰구간만 있는 연구 넣기(셀 2), 방법을 바꿔 비교하기(셀 6–7), 메타회귀(셀 11), NNT(셀 15)는 내 메타분석에서 필요할 때 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① <code>metabin()</code>과 <code>metagen()</code>으로 자료를 넣고, 계획서에 적은 방법대로 합칠 수 있다 ② meta가 기본값으로 정하는 것을 알고, τ²와 신뢰구간의 방법을 바꿔 민감도 분석을 할 수 있다 ③ 이질성 지표, 하위군 간 차이 검정, 메타회귀, 비대칭 검정, 한 시험씩 빼기의 출력을 읽고 표로 옮길 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rc10-s1">
+<h2><span class="sec-no">a.</span>메타분석 자료 준비</h2>
+
+<h3>자료는 어떤 모양으로 준비하나?</h3>
+<p><strong>시험 하나가 한 줄이고, 군마다 사건 수와 인원이 열로 있는 표입니다.</strong> 체계적 문헌고찰에서 만든 추출표(보건통계학 기초 <a href="stats.html#ch19-s1">19장 a 절</a>)를 그대로 CSV로 저장하면 됩니다.</p>
+<!--FIG:rc10_load-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>library(meta)</code><span>meta 패키지를 불러옵니다. 처음이면 <code>install.packages("meta")</code>로 먼저 설치합니다.</span></li>
+<li><code>read.csv("…acs_trials.csv")</code><span>이 사이트의 자료를 주소로 바로 읽습니다. 내 자료는 엑셀에서 CSV로 저장한 뒤 파일 이름을 넣습니다.</span></li>
+<li><code>d$stemi10 &lt;- d$stemi_pct / 10</code><span>c 절의 메타회귀를 'STEMI 비율 10%p당'으로 읽으려고 미리 만들어 둡니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>version 8.5-0.</b> 패키지를 불러올 때 버전을 알려 줍니다. meta는 판에 따라 기본값이 바뀌어 왔으므로(b 절), Methods에 버전을 함께 적습니다.</span></li>
+<li><span class="mk">2</span><span><b>Trial A.</b> 한 줄이 시험 하나입니다. <code>phase</code>는 시험 단계, <code>stemi_pct</code>는 ST분절 상승 심근경색(STEMI) 환자의 비율, <code>rob</code>는 편향 위험 판정입니다.</span></li>
+<li><span class="mk">3</span><span><b>mace_pbo.</b> 위약군의 주요 심혈관 사건 수입니다. 약물 X군은 <code>n_x</code>와 <code>mace_x</code>입니다. 이 네 열이 b 절에서 <code>metabin()</code>에 넣을 값입니다.</span></li>
+</ol>
+
+<h3>오즈비와 신뢰구간만 보고한 연구는 어떻게 넣나?</h3>
+<p><strong>오즈비와 신뢰구간의 로그값을 <code>metagen()</code>에 넣으면, 표준오차를 알아서 구해 합칩니다.</strong> 관찰연구는 사건 수 대신 보정한 오즈비와 95% 신뢰구간만 보고하는 경우가 많습니다. 예로 보건통계학 기초 19장 c 절 '이질성이 큰 자료에서는 무엇이 달라지나?'의 가상 관찰연구 7개를 넣습니다.</p>
+<!--FIG:rc10_obs-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>metagen(log(or), lower = log(lo), upper = log(hi), …)</code><span>효과와 구간을 모두 로그 척도로 넣습니다. <code>metagen()</code>은 넣은 값을 그대로 가중평균하므로, 오즈비를 로그로 바꾸지 않고 넣으면 결과가 틀립니다.</span></li>
+<li><code>sm = "OR"</code><span>결과를 보여 줄 때 로그를 풀어 오즈비로 되돌리라는 뜻입니다.</span></li>
+<li><code>method.tau</code>, <code>method.random.ci</code>, <code>method.predict</code><span>무작위효과의 방법입니다. b 절에서 다룹니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Study 1의 SE 0.097.</b> (ln 1.39 − ln 0.95) ÷ (2 × 1.96)입니다. 보건통계학 기초 19장 b 절에서 손으로 구한 식과 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>Study 7의 SE 0.211.</b> 구간이 넓은 연구는 표준오차가 커서 가중치가 작아집니다.</span></li>
+</ol>
+<p>논문의 신뢰구간은 반올림되어 있어, 이렇게 되살린 표준오차는 원래 값과 끝자리가 조금 다를 수 있습니다. 같은 연구에서 사건 수도 함께 보고했다면, 보정하지 않은 결과를 원하는지 보정한 결과를 원하는지를 계획서에 정해 두고 그대로 넣습니다.</p>
+
+<!--FOLD py:파이썬으로 하면: 자료 불러오기와 신뢰구간에서 표준오차 구하기-->
+<p>파이썬 실습 19의 셀을 그대로 옮겼습니다. 앞 셀에서 만든 변수를 쓰므로, 처음부터 따라 하려면 <a href="#lab19-s1">실습 19 a 절</a>부터 실행합니다. 출력의 번호 설명은 실습 19 a 절 '자료 불러오기'와 b 절 '신뢰구간에서 표준오차 구하기'에 있습니다.</p>
+<!--FIG:lab19_load-->
+<!--FIG:lab19_fromci-->
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ b -->
+<section class="sec" id="rc10-s2">
+<h2><span class="sec-no">b.</span>두 모형으로 합치기와 방법 고르기</h2>
+
+<h3>계획서에 적은 방법대로 합치려면?</h3>
+<p><strong><code>metabin()</code>에 사건 수와 인원 네 열을 넣고, τ²의 방법, 평균의 신뢰구간 방법, 예측구간의 방법을 직접 적습니다.</strong> 이 장은 보건통계학 기초 19장과 같이 τ²는 제한최대우도(REML), 신뢰구간은 Hartung–Knapp–Sidik–Jonkman(HKSJ) 방법으로 구합니다.</p>
+<!--FIG:rc10_main-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>metabin(mace_x, n_x, mace_pbo, n_pbo, …)</code><span>순서는 약물군 사건 수, 약물군 인원, 대조군 사건 수, 대조군 인원입니다. 대조군을 앞에 넣으면 오즈비가 뒤집힙니다.</span></li>
+<li><code>sm = "OR"</code><span>효과 척도입니다. 상대위험도는 <code>"RR"</code>, 위험차는 <code>"RD"</code>입니다.</span></li>
+<li><code>method.tau = "REML"</code><span>τ²를 REML로 구합니다.</span></li>
+<li><code>method.random.ci = "HK"</code><span>무작위효과 통합값의 신뢰구간을 HKSJ 방법으로 구합니다.</span></li>
+<li><code>prediction = TRUE, method.predict = "HK"</code><span>예측구간을 HKSJ 표준오차와 자유도 '시험 수 − 1'로 구합니다. 19장과 같은 방법입니다.</span></li>
+<li><code>summary(m)</code><span>시험별 결과까지 모두 출력합니다. <code>m</code>만 치면 통합 결과만 나옵니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Trial F의 가중치 43.0%와 25.1%.</b> 가장 큰 시험의 가중치가 고정효과에서는 43%, 무작위효과에서는 25%입니다(보건통계학 기초 <a href="stats.html#ch19-s2-weights">19장 b 절</a> '모형에 따라 가중치 주기').</span></li>
+<li><span class="mk">2</span><span><b>Common effect model 0.8441 [0.7791; 0.9145].</b> 고정효과 모형의 결과입니다. meta는 고정효과를 'common effect'라고 부르고, 사건 수가 있으면 Mantel–Haenszel 방법으로 구합니다.</span></li>
+<li><span class="mk">3</span><span><b>Random effects model 0.8208 [0.7151; 0.9421], t = −3.24, P = 0.0102.</b> HKSJ 방법이라 z 대신 자유도 9의 t 통계량을 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>Prediction interval [0.6086; 1.1070].</b> 비슷한 새 시험의 참 효과가 있을 범위입니다(보건통계학 기초 <a href="stats.html#ch19-s3-pi">19장 c 절</a>).</span></li>
+<li><span class="mk">5</span><span><b>tau^2 = 0.0138 [0.0000; 0.1278].</b> τ²와 그 95% 신뢰구간입니다.</span></li>
+<li><span class="mk">6</span><span><b>I^2 = 32.3% [0.0%; 67.7%].</b> I²와 그 95% 신뢰구간입니다.</span></li>
+<li><span class="mk">7</span><span><b>Q 13.28, 자유도 9, P 0.1501.</b> 이질성 검정입니다. 이 P로 모형을 고르지는 않습니다.</span></li>
+<li><span class="mk">8</span><span><b>Hartung-Knapp adjustment.</b> 맨 아래 'Details'에 실제로 쓴 방법이 모두 적힙니다. 내 Methods와 맞는지 이 줄로 확인합니다.</span></li>
+</ol>
+<p>논문의 표와 초록에는 "OR 0.82 (95% CI 0.72–0.94; prediction interval 0.61–1.11), I² = 32%"처럼 옮깁니다.</p>
+
+<h3>포레스트 플롯은 어떻게 그리나?</h3>
+<p><strong><code>forest(m)</code>이 시험별 결과, 두 모형의 통합값, 예측구간, 이질성 지표를 한 그림에 그립니다.</strong></p>
+<!--FIG:rc10_forest-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>sortvar = TE</code><span>효과의 크기 순으로 시험을 늘어놓습니다. 빼면 자료의 순서대로 그립니다.</span></li>
+<li><code>leftcols</code>, <code>leftlabs</code><span>왼쪽에 보여 줄 열과 그 이름입니다.</span></li>
+<li><code>label.left</code>, <code>label.right</code><span>축 아래에 어느 쪽이 어느 군에 유리한지 적습니다. 오즈비가 1보다 작으면 약물 X에 유리합니다.</span></li>
+</ol>
+<p>파일로 저장하려면 <code>png("forest.png", width = 10, height = 4.7, units = "in", res = 300)</code>으로 파일을 연 뒤 <code>forest()</code>를 실행하고 <code>dev.off()</code>로 닫습니다. 시험이 많으면 <code>height</code>를 늘려 그림이 잘리지 않게 합니다.</p>
+
+<h3>방법을 적지 않으면 무엇이 달라지나?</h3>
+<p><strong>meta의 기본값은 τ²는 REML이지만, 신뢰구간은 보통의 방법입니다. 그래서 방법을 적지 않으면 19장과 P가 달라집니다.</strong></p>
+<!--FIG:rc10_default-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>metabin(…, sm = "OR", prediction = TRUE)</code><span>방법을 하나도 적지 않고 합칩니다.</span></li>
+<li><code>m0$method.tau</code>, <code>m0$method.random.ci</code>, <code>m0$method.predict</code><span>결과 객체에서 실제로 쓴 방법을 꺼냅니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>"REML", "classic", "V".</b> τ²는 REML, 신뢰구간은 보통의 방법(Wald 방법), 예측구간은 보통의 표준오차와 자유도 '시험 수 − 1'의 t 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>신뢰구간 0.720–0.935.</b> 반올림하면 HKSJ의 0.72–0.94와 같아 보입니다.</span></li>
+<li><span class="mk">3</span><span><b>예측구간 0.605–1.114.</b> HKSJ 표준오차로 구한 0.609–1.107과 끝자리가 다릅니다.</span></li>
+<li><span class="mk">4</span><span><b>P 0.003과 0.0102.</b> 구간은 반올림하면 같아도 P는 세 배 차이가 납니다. 그래서 P는 Methods에 적은 방법으로 구한 값을 보고합니다.</span></li>
+</ol>
+<p>meta 8.5에서 결과를 바꾸는 기본값을 모으면 다음과 같습니다. 이 장은 신뢰구간과 예측구간의 방법만 바꿨습니다.</p>
+<div class="tbl-wrap" data-name="meta의 기본값과 이 장의 선택"><table class="tbl tight">
+<thead><tr><th>인자</th><th>meta 8.5의 기본값</th><th>이 장</th></tr></thead>
+<tbody>
+<tr><td><code>method</code><br>(고정효과)</td><td><code>"MH"</code> Mantel–Haenszel</td><td>그대로</td></tr>
+<tr><td><code>method.tau</code></td><td><code>"REML"</code></td><td>그대로</td></tr>
+<tr class="hi"><td><code>method.random.ci</code></td><td><code>"classic"</code> 보통의 방법</td><td><code>"HK"</code></td></tr>
+<tr class="hi"><td><code>method.predict</code></td><td><code>"V"</code> 보통의 표준오차</td><td><code>"HK"</code></td></tr>
+<tr><td><code>method.I2</code></td><td><code>"Q"</code> Q로 구함</td><td>그대로</td></tr>
+</tbody></table></div>
+
+<h4 id="rc10-s2-defaults">프로그램마다 기본값은 무엇인가?</h4>
+<p>같은 자료라도 기본값으로 돌렸는지 직접 골랐는지에 따라 숫자가 달라지므로, 내 분석의 Methods에는 프로그램과 τ² 방법을 함께 적고, 논문을 읽을 때도 둘을 함께 확인합니다. 주요 프로그램의 τ² 기본값은 다음과 같습니다<cite data-ref="cochrane_reexplainer"></cite><cite data-ref="meta_pkg"></cite><cite data-ref="metafor_recs"></cite><cite data-ref="stata_meta"></cite>.</p>
+<div class="tbl-wrap" data-name="프로그램별 τ² 기본값"><table class="tbl tight">
+<thead><tr><th>프로그램</th><th>τ² 기본값</th><th>DL로 바꾸려면<br>(민감도 분석)</th></tr></thead>
+<tbody>
+<tr><td>RevMan<br>(현재 판)</td><td>REML</td><td>분석 설정에서 고름</td></tr>
+<tr><td>RevMan 5<br>(예전 판)</td><td>DL</td><td>REML 없음</td></tr>
+<tr><td>R metafor</td><td>REML</td><td><code>rma(..., <wbr>method="DL")</code></td></tr>
+<tr><td>R meta</td><td>REML<br>(버전 4까지 DL)</td><td><code>method.tau <wbr>= "DL"</code></td></tr>
+<tr><td>Stata meta</td><td>REML</td><td><code>random(dlaird)</code></td></tr>
+<tr><td>Python statsmodels</td><td>PM</td><td><code>method_re=<wbr>"dl"</code><br>REML 없음</td></tr>
+</tbody></table></div>
+<p>RevMan은 2025년 1월에 REML을 넣으면서 τ²의 기본값을 REML로 바꿨습니다<cite data-ref="revman2025notes"></cite>. DL은 DerSimonian–Laird, PM은 Paule–Mandel 방법입니다. 그래서 예전 논문의 결과와 비교할 때는 DL로 다시 합친 결과를 민감도 분석으로 함께 봅니다.</p>
+
+<h3>방법을 바꾸면 결과가 얼마나 달라지나?</h3>
+<p><strong><code>update()</code>로 인자 하나만 바꿔 다시 합칠 수 있어, 민감도 분석의 표를 몇 줄로 만듭니다.</strong> 차이가 잘 보이도록 a 절의 관찰연구 7개(이질성이 큰 예)로 τ²의 세 방법과 신뢰구간의 두 방법을 모두 조합해 봅니다.</p>
+<!--FIG:rc10_combo-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>expand.grid(tau2 = …, ci = …)</code><span>두 인자의 모든 조합(3 × 2 = 6줄)을 표로 만듭니다.</span></li>
+<li><code>update(mo, method.tau = …, method.random.ci = …)</code><span><code>mo</code>의 다른 설정은 그대로 두고 두 인자만 바꿔 다시 계산합니다.</span></li>
+<li><code>t(sapply(seq_len(nrow(grid)), function(i) {…}))</code><span>조합마다 오즈비, 구간, P, τ²를 구해 모읍니다. <code>t()</code>로 행과 열을 바꿔 조합 하나가 한 줄이 되게 합니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>DL + 보통의 방법 1.68 (1.28–2.21), P = 0.0002.</b> 예전 논문에서 가장 흔했던 조합입니다.</span></li>
+<li><span class="mk">2</span><span><b>REML + HKSJ 1.69 (1.17–2.43), P = 0.013.</b> 이 장의 방법입니다. 통합값은 거의 같지만 구간이 훨씬 넓습니다.</span></li>
+<li><span class="mk">3</span><span><b>고정효과 1.48 (1.35–1.61).</b> 연구 사이의 차이를 무시해 구간이 가장 좁습니다. 큰 연구들의 효과가 작아서 추정값도 작습니다.</span></li>
+</ol>
+<p>이 결과가 보건통계학 기초 19장 c 절의 <a href="stats.html#ch19-tb21">표 '방법 조합별 통합 결과'</a>입니다. 어떤 조합을 주 분석으로 할지는 결과를 보기 전에 계획서에 정합니다.</p>
+
+<h3>q가 1보다 작으면 어떻게 하나?</h3>
+<p><strong><code>adhoc.hakn.ci = "se"</code>를 주면, HKSJ 표준오차가 보통의 표준오차보다 작을 때 보통의 표준오차를 씁니다.</strong> 예제는 q가 0.836이라 HKSJ 표준오차(0.061)가 보통의 표준오차(0.067)보다 작습니다. 이럴 때 이 수정판을 민감도 분석으로 권하는 연구가 있습니다<cite data-ref="rover2015"></cite>.</p>
+<!--FIG:rc10_adhoc-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0.821 (0.706–0.954).</b> 원래 HKSJ 구간 0.715–0.942보다 조금 넓어졌습니다.</span></li>
+<li><span class="mk">2</span><span><b>P = 0.0159.</b> 원래 0.0102보다 커졌지만 결론은 같습니다.</span></li>
+</ol>
+<p>meta 8.5에서는 이 인자를 <code>update()</code>로 바꾸면 오류가 나서, <code>metabin()</code>을 처음부터 다시 불렀습니다.</p>
+
+<!--FOLD py:파이썬으로 하면: statsmodels로 합치기와 REML 직접 계산-->
+<p>statsmodels의 <code>combine_effects()</code>는 τ²를 DL이나 PM(기본값)으로만 구하고 REML이 없습니다. 그래서 실습 19는 statsmodels로 DL 결과를 확인한 뒤, REML τ²는 반복 계산으로 직접 구합니다. 앞 셀의 변수를 쓰므로, 처음부터 따라 하려면 <a href="#lab19-s1">실습 19 a 절</a>부터 실행합니다. 출력의 번호 설명은 <a href="#lab19-s2">실습 19 b 절</a> '연구 간 분산과 무작위효과 모형'과 'statsmodels로 확인하기'에 있습니다.</p>
+<!--FIG:lab19_random-->
+<!--FIG:lab19_sm-->
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ c -->
+<section class="sec" id="rc10-s3">
+<h2><span class="sec-no">c.</span>이질성, 하위군, 메타회귀</h2>
+
+<h3>이질성 지표는 어디서 꺼내나?</h3>
+<p><strong>결과 객체 <code>m</code>에 Q, I², τ², 예측구간이 모두 들어 있어, <code>$</code>로 꺼내 표나 본문에 옮깁니다.</strong> 각 숫자를 어떻게 읽는지는 보건통계학 기초 <a href="stats.html#ch19-s3-four">19장 c 절</a> '흩어짐을 재는 네 숫자'에 있습니다.</p>
+<!--FIG:rc10_het-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>m$Q</code>, <code>m$df.Q</code>, <code>m$pval.Q</code><span>Q, 자유도, Q 검정의 P입니다.</span></li>
+<li><code>m$I2</code>, <code>m$lower.I2</code>, <code>m$upper.I2</code><span>I²와 그 신뢰구간입니다. 퍼센트가 아니라 비율로 들어 있습니다.</span></li>
+<li><code>m$tau2</code>, <code>m$lower.tau2</code>, <code>m$upper.tau2</code>, <code>m$tau</code><span>τ², 그 신뢰구간, τ입니다.</span></li>
+<li><code>exp(c(m$lower.predict, m$upper.predict))</code><span>예측구간입니다. 로그 척도로 들어 있어 <code>exp()</code>로 되돌립니다.</span></li>
+<li><code>update(m, method.I2 = "tau2")$I2</code><span>I²를 Q 대신 τ²로 구합니다.</span></li>
+<li><code>sapply(c("DL", "PM", "REML"), function(t) …)</code><span>τ²를 세 방법으로 구해 나란히 놓습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Q = 13.28.</b> 자유도 9, P = 0.15입니다.</span></li>
+<li><span class="mk">2</span><span><b>I² 0.323 (0–0.677).</b> 32%이고, 시험 10개라 신뢰구간이 0–68%로 넓습니다. 그래서 I²는 신뢰구간과 함께 적습니다.</span></li>
+<li><span class="mk">3</span><span><b>τ² 0.0138 (0–0.128), τ 0.117.</b></span></li>
+<li><span class="mk">4</span><span><b>예측구간 0.609–1.107.</b></span></li>
+<li><span class="mk">5</span><span><b>0.4.</b> I²를 τ²로 구하면 40%입니다. 같은 자료라도 프로그램이 I²를 어떻게 구하느냐에 따라 32%와 40%로 다르게 나옵니다(보건통계학 기초 19장 c 절 '논문에서 읽기').</span></li>
+<li><span class="mk">6</span><span><b>DL 0.0098, PM 0.0077, REML 0.0138.</b> 방법에 따라 τ²가 다릅니다.</span></li>
+</ol>
+
+<h3>하위군별로 합치고 차이를 검정하려면?</h3>
+<p><strong><code>subgroup =</code>에 하위군 변수를 넣으면, 하위군별 통합값과 하위군 간 차이 검정이 함께 나옵니다.</strong> 자료는 시험 6개가 STEMI와 비ST분절 상승 급성관상동맥증후군(NSTE-ACS)으로 나눠 보고한 결과로, 시험 하나가 두 줄입니다.</p>
+<!--FIG:rc10_sub-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>subgroup = subgroup</code><span>앞은 인자 이름, 뒤는 자료의 열 이름입니다.</span></li>
+<li><code>common = FALSE</code><span>하위군 소계를 무작위효과로만 구합니다. 고정효과로 구하면 하위군 안의 시험 사이 차이가 무시되어 차이 검정의 P가 실제보다 작아집니다(보건통계학 기초 <a href="stats.html#ch19-s3-trap">19장 c 절</a> '흔한 함정').</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Trial A가 두 줄.</b> 한 시험이 하위군마다 한 줄입니다.</span></li>
+<li><span class="mk">2</span><span><b>STEMI 0.7822 [0.6649; 0.9201], τ² = 0.</b> τ²가 0인데도 HKSJ 방법으로 구간을 구했습니다. 아래 '하위군의 τ²가 0이면?'에서 다시 구합니다.</span></li>
+<li><span class="mk">3</span><span><b>NSTE-ACS 0.9218 [0.7718; 1.1010].</b></span></li>
+<li><span class="mk">4</span><span><b>Between groups Q = 3.08, P = 0.0794.</b> 하위군 간 차이 검정입니다. 하위군 하나가 유의한지가 아니라 이 줄로 효과가 다른지 판단합니다.</span></li>
+<li><span class="mk">5</span><span><b>Random effects model 0.8511.</b> 12줄을 모두 합친 값입니다. 하위군을 나눠 보고한 시험 6개만 들어가므로, 시험 10개의 주 결과(셀 3)와 다릅니다.</span></li>
+</ol>
+<p>meta는 <code>method.random.ci = "HK"</code>이면 하위군 간 차이 검정에도 HKSJ로 고친 분산을 씁니다. 보건통계학 기초 19장과 파이썬 실습 19는 하위군 소계의 모형 분산으로 검정해 Q = 3.11, P = 0.078이었습니다. 이 예에서는 거의 같지만, 과제 1처럼 차이가 커지기도 하므로 Methods에 어느 쪽으로 검정했는지 적습니다.</p>
+
+<h3>하위군의 τ²가 0이면?</h3>
+<p><strong>meta는 τ²가 0이어도 HKSJ 방법을 그대로 적용합니다. 'τ²가 0이면 보통의 방법'이라는 Cochrane의 규칙을 따르려면, 그 하위군만 보통의 방법으로 다시 구합니다.</strong> 규칙은 보건통계학 기초 <a href="stats.html#ch19-s2-re">19장 b 절</a>에 있습니다.</p>
+<!--FIG:rc10_rule-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>τ² = 0, 0.782 (0.692–0.884).</b> 19장 c 절 표의 STEMI 결과입니다. HKSJ 구간(0.665–0.920)이 더 넓었던 것은 1.96 대신 자유도 5의 t 값(2.57)을 썼기 때문입니다.</span></li>
+</ol>
+
+<h3>메타회귀는 어떻게 하나?</h3>
+<p><strong><code>metareg(m, ~ 변수)</code>가 metafor 패키지로 메타회귀를 맞추고, <code>m</code>에서 고른 τ² 방법과 신뢰구간 방법을 그대로 씁니다.</strong> 여기서는 시험마다의 STEMI 환자 비율로 효과의 차이를 설명해 봅니다.</p>
+<!--FIG:rc10_mr-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>metareg(m, ~ stemi10)</code><span>시험의 로그 오즈비를 STEMI 비율(10%p 단위)로 회귀합니다.</span></li>
+<li><code>exp(coef(mr)[["stemi10"]])</code><span>기울기를 지수로 되돌리면 'STEMI 비율이 10%p 높을 때 오즈비가 몇 배가 되나'입니다.</span></li>
+<li><code>mr$ci.lb[2]</code>, <code>mr$ci.ub[2]</code><span>두 번째 계수(기울기)의 신뢰구간 하한과 상한입니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>τ² = 0.0084.</b> STEMI 비율로 설명하고 남은 시험 사이의 차이입니다. 원래 0.0138에서 줄었습니다.</span></li>
+<li><span class="mk">2</span><span><b>R² = 39.29%.</b> τ²가 줄어든 비율입니다. 시험 10개로 구한 값이라 매우 불확실합니다.</span></li>
+<li><span class="mk">3</span><span><b>P = 0.1573.</b> 기울기의 검정입니다. HKSJ 방법을 골랐으므로 F 분포(자유도 1, 8)로 검정합니다.</span></li>
+<li><span class="mk">4</span><span><b>0.912 (0.796–1.045).</b> STEMI 비율이 10%p 높은 시험에서 오즈비가 0.91배였다는 뜻입니다. 시험 수준의 관계여서 'STEMI 환자에게서 효과가 크다'로 옮기지 않습니다(보건통계학 기초 <a href="stats.html#ch19-s3-metareg">19장 c 절</a> '메타회귀').</span></li>
+</ol>
+<p>시험이 10개 정도면 설명 변수는 하나나 둘이 한계입니다. 어떤 변수를 넣을지는 계획서에 미리 정해 둡니다.</p>
+
+<!--FOLD py:파이썬으로 하면: 이질성 지표, 하위군 간 차이 검정, 메타회귀-->
+<p>statsmodels에는 하위군 간 차이 검정과 메타회귀의 전용 함수가 없어, 실습 19는 통합 결과로 직접 계산합니다. 앞 셀의 변수를 쓰므로 <a href="#lab19-s1">실습 19 a 절</a>부터 실행합니다. 출력의 번호 설명은 <a href="#lab19-s3">실습 19 c 절</a>의 같은 이름의 소절에 있습니다.</p>
+<!--FIG:lab19_het-->
+<!--FIG:lab19_interaction-->
+<!--FIG:lab19_metareg-->
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ d -->
+<section class="sec" id="rc10-s4">
+<h2><span class="sec-no">d.</span>출판 편향, 민감도 분석, NNT</h2>
+
+<h3>깔때기 그림과 비대칭 검정은 어떻게 하나?</h3>
+<p><strong><code>funnel(m)</code>이 깔때기 그림을, <code>metabias(m)</code>이 비대칭 검정을 줍니다. 오즈비를 <code>metabin()</code>으로 합쳤다면 Harbord 검정이 기본입니다.</strong> 오즈비에 Egger 검정을 그대로 쓰지 않는 까닭은 보건통계학 기초 <a href="stats.html#ch19-s4-funnel">19장 d 절</a>에 있습니다.</p>
+<!--FIG:rc10_funnel-->
+<p>가로는 오즈비, 세로는 표준오차이고 위로 갈수록 정밀한 시험입니다. 가운데 세로선 두 개는 고정효과와 무작위효과의 통합값입니다. 오른쪽 아래 끝의 점이 가장 작은 Trial C입니다.</p>
+<!--FIG:rc10_bias-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>metabias(m)</code><span>기본 검정(여기서는 Harbord 검정)을 합니다.</span></li>
+<li><code>metabias(m, method.bias = b)$pval</code><span>Egger, Harbord, Peters 검정의 P만 꺼내 나란히 놓습니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>P = 0.4477.</b> Harbord 검정입니다. 비대칭의 근거가 약하다는 뜻이지, 출판 편향이 없다는 뜻은 아닙니다.</span></li>
+<li><span class="mk">2</span><span><b>Egger 0.471, Harbord 0.448, Peters 0.535.</b> 주 검정은 계획서에 하나로 정하고, 나머지는 민감도 분석으로 봅니다.</span></li>
+</ol>
+<p><code>metabias()</code>는 시험이 10개보다 적으면 검정하지 않고 경고만 냅니다(<code>k.min = 10</code>). 시험이 적으면 검정의 힘이 너무 약하기 때문이며, 이 기준을 낮추기보다 깔때기 그림과 함께 '판단할 수 없었다'고 적습니다.</p>
+
+<h3>한 시험씩 빼고, 조건을 바꿔 다시 합치려면?</h3>
+<p><strong><code>metainf()</code>가 한 시험씩 뺀 결과를, <code>update()</code>의 <code>subset</code>과 <code>sm</code>이 조건을 바꾼 결과를 줍니다.</strong> 어떤 민감도 분석을 할지는 보건통계학 기초 <a href="stats.html#ch19-s4-sens">19장 d 절</a>에 있습니다.</p>
+<!--FIG:rc10_sens-->
+<h4>코드 한 줄씩</h4>
+<ol class="lines">
+<li><code>metainf(m, pooled = "random")</code><span>한 시험씩 빼고 무작위효과로 다시 합친 10개의 결과입니다. <code>forest(inf)</code>로 그림으로도 볼 수 있습니다.</span></li>
+<li><code>update(m, subset = rob == "low")</code><span>편향 위험이 '낮음'인 시험 8개만 합칩니다.</span></li>
+<li><code>update(m, sm = "RR")</code><span>효과 척도를 상대위험도로 바꿉니다.</span></li>
+</ol>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>0.793–0.845.</b> 어느 시험을 빼도 통합 오즈비가 이 범위에 있어, 한 시험이 결론을 좌우하지 않습니다.</span></li>
+<li><span class="mk">2</span><span><b>편향 위험 낮음 0.823 (0.708–0.958).</b></span></li>
+<li><span class="mk">3</span><span><b>상대위험도 0.834 (0.733–0.948).</b> 사건이 드물지 않아 오즈비보다 1에 조금 더 가깝습니다.</span></li>
+</ol>
+
+<h3>NNT는 어떻게 구하나?</h3>
+<p><strong><code>nnt(m, p.c = 기저 위험)</code>이 통합 오즈비를 그 기저 위험에 적용해, 치료가 필요한 환자 수(NNT)와 신뢰구간을 구합니다.</strong> 여기서는 위약군의 12개월 위험 8.4%를 넣었습니다. 어떤 기저 위험을 쓸지는 보건통계학 기초 <a href="stats.html#ch19-s5-base">19장 e 절</a>에 있습니다.</p>
+<!--FIG:rc10_nnt-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>무작위효과 NNTB 71.4 [44.5; 223.5].</b> NNTB는 이로운 쪽의 NNT입니다. 19장 e 절의 NNT 71 (45–224)과 같습니다.</span></li>
+</ol>
+<p><code>p.c = c(0.05, 0.084)</code>처럼 기저 위험을 여러 개 넣으면 한 번에 구합니다. 기저 위험이 5%인 환자군이면 NNT가 116으로 커집니다.</p>
+
+<!--FOLD py:파이썬으로 하면: 비대칭 검정, 한 시험씩 빼기, NNT-->
+<p>statsmodels에는 깔때기 그림과 비대칭 검정의 전용 함수가 없어, 실습 19는 회귀 한 줄씩으로 직접 검정합니다. 앞 셀의 변수를 쓰므로 <a href="#lab19-s1">실습 19 a 절</a>부터 실행합니다. 출력의 번호 설명은 <a href="#lab19-s4">실습 19 d 절</a>의 같은 이름의 소절에 있습니다.</p>
+<!--FIG:lab19_egger-->
+<!--FIG:lab19_loo-->
+<!--FIG:lab19_nnt-->
+<!--/FOLD-->
+
+<div class="keypoints"><p class="kt">정리</p><ul>
+<li>사건 수가 있으면 <code>metabin()</code>, 오즈비와 신뢰구간만 있으면 <code>metagen()</code>에 로그값을 넣습니다.</li>
+<li>meta의 기본 신뢰구간은 보통의 방법이므로, HKSJ를 쓰려면 <code>method.random.ci = "HK"</code>를 적습니다. 출력 맨 아래 'Details'로 실제로 쓴 방법을 확인하고 Methods에 버전과 함께 적습니다.</li>
+<li><code>update()</code>로 인자 하나씩 바꿔 τ²와 신뢰구간의 방법, 포함 기준, 효과 척도에 대한 민감도 분석을 합니다.</li>
+<li>하위군의 효과 차이는 하위군 간 차이 검정으로 판단합니다. τ²가 0인 하위군은 보통의 방법으로 다시 구합니다.</li>
+<li>비대칭 검정은 오즈비면 Harbord 검정이 기본이고, 시험이 10개보다 적으면 검정하지 않습니다.</li>
+</ul></div>
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc10-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 시험 단계로 나눈 하위군</h3>
+<p><code>phase</code> 열(2상, 3상)로 하위군을 나눠 합치고, 하위군 간 차이 검정의 P를 구하세요. 차이 검정을 보통의 방법으로 할 때와 HKSJ로 할 때 P는 어떻게 다른가요? 이 결과로 '3상 시험에서 효과가 작았다'고 말할 수 있을까요?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc10_t1-->
+<p>2상 0.73, 3상 0.84이고, 하위군 간 차이 검정의 P는 보통의 방법으로 0.36, HKSJ로 0.33입니다. 보건통계학 기초 19장 c 절 표 '차이의 원인을 찾는 세 방법'의 P = 0.36은 보통의 방법으로 구한 값입니다. 어느 쪽이든 차이가 있다는 근거가 되지 못합니다. 게다가 이것은 시험 사이의 비교여서, 2상 시험은 단계 말고도 배정 비율(2:1), 크기, 시기가 3상 시험과 다릅니다. 차이가 보였더라도 그것이 단계 때문이라고 말할 수 없습니다.</p>
+</div></details>
+
+<h3>과제 2. 고정효과로 바꾸면</h3>
+<p>같은 자료를 고정효과 모형으로만 합치면 결과가 어떻게 달라지나요? 구간이 더 좁으니 이것을 주 분석으로 보고해도 될까요?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc10_t2-->
+<p>고정효과는 0.84 (0.78–0.91), 무작위효과는 0.82 (0.72–0.94)입니다. 고정효과는 Trial F 하나에 가중치 43%를 주고 시험 사이의 차이를 무시하므로 구간이 좁습니다. 주 분석의 모형은 결과를 본 뒤 구간이 좁은 쪽으로 고르지 않고, 계획서에 적은 대로 보고합니다. 어떤 상황에서 어떤 모형을 고르는지는 보건통계학 기초 <a href="stats.html#ch19-s3-choose">19장 c 절</a> '상황에 따라 무엇을 고르나?'에 있습니다.</p>
+</div></details>
+</section>

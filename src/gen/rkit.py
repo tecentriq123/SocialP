@@ -25,7 +25,7 @@ import html, json, os, re, subprocess, tempfile, textwrap, base64
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIGS = os.path.join(ROOT, "figs")
 PUB = os.path.join(ROOT, "pub")
-RSCRIPT = "/home/claude/renv/bin/Rscript"
+RSCRIPT = "/home/claude/renv/bin/Rscript" if os.path.exists("/home/claude/renv/bin/Rscript") else "Rscript"   # 2026-11-18: conda R가 없으면 시스템 R(4.3.3)
 SITE_DATA = "https://socialp-ajou.tecentriq12.workers.dev/data/"
 
 DRIVER = r'''

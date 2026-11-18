@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">관찰연구 7개를 여러 방법으로 합치기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">grid &lt;- expand.grid(tau2 = c(&quot;DL&quot;, &quot;PM&quot;, &quot;REML&quot;), ci = c(&quot;classic&quot;, &quot;HK&quot;),
+                    stringsAsFactors = FALSE)
+res &lt;- t(sapply(seq_len(nrow(grid)), function(i) {
+  x &lt;- update(mo, method.tau = grid$tau2[i], method.random.ci = grid$ci[i])
+  c(OR = exp(x$TE.random), lower = exp(x$lower.random),
+    upper = exp(x$upper.random), P = x$pval.random, tau2 = x$tau2)
+}))
+cbind(grid, round(res, 4))
+round(exp(c(common = mo$TE.common, lower = mo$lower.common, upper = mo$upper.common)), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  tau2      ci     OR  lower  upper      P   tau2
+1   DL classic 1.6822 1.2807 2.2096 0.0002<span class="mk">1</span> 0.1169
+2   PM classic 1.6874 1.2601 2.2594 0.0004 0.1366
+3 REML classic 1.6864 1.2643 2.2493 0.0004 0.1325
+4   DL      HK 1.6822 1.1693 2.4201 0.0128 0.1169
+5   PM      HK 1.6874 1.1720 2.4294 0.0126 0.1366
+6 REML      HK 1.6864 1.1715 2.4277 0.0127<span class="mk">2</span> 0.1325
+common  lower  upper 
+  1.48   1.35   1.61<span class="mk">3</span></pre></div></div>

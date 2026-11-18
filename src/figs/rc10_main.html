@@ -1,0 +1,40 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">계획서대로 합치기: REML, HKSJ 구간, 예측구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">m &lt;- metabin(mace_x, n_x, mace_pbo, n_pbo, studlab = trial, data = d,
+             sm = &quot;OR&quot;, method.tau = &quot;REML&quot;, method.random.ci = &quot;HK&quot;,
+             prediction = TRUE, method.predict = &quot;HK&quot;)
+summary(m)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            OR           95% CI %W(common) %W(random)
+Trial A 1.0472 [0.5038; 2.1769]        1.1        2.9
+Trial B 0.8649 [0.5330; 1.4036]        2.7        5.9
+Trial C 1.3448 [0.3502; 5.1637]        0.3        0.9
+Trial D 1.0338 [0.8749; 1.2215]       20.9       21.1
+Trial E 0.5329 [0.3206; 0.8856]        3.0        5.5
+Trial F 0.8317 [0.7356; 0.9403]       43.0       25.1<span class="mk">1</span>
+Trial G 0.5444 [0.2177; 1.3615]        0.9        1.9
+Trial H 0.7921 [0.6384; 0.9828]       14.3       17.2
+Trial I 0.7066 [0.5541; 0.9011]       12.0       15.2
+Trial J 0.7088 [0.3928; 1.2789]        1.9        4.3
+
+Number of studies: k = 10
+Number of observations: o = 31725 (o.e = 16850, o.c = 14875)
+Number of events: e = 2657
+
+                         OR           95% CI   z|t  p-value
+Common effect model  0.8441 [0.7791; 0.9145]<span class="mk">2</span> -4.14 &lt; 0.0001
+Random effects model 0.8208 [0.7151; 0.9421] -3.24   0.0102<span class="mk">3</span>
+Prediction interval         [0.6086; 1.1070]<span class="mk">4</span>               
+
+Quantifying heterogeneity (with 95% CIs):
+ tau^2 = 0.0138 [0.0000; 0.1278]<span class="mk">5</span>; tau = 0.1174 [0.0000; 0.3576]
+ I^2 = 32.3% [0.0%; 67.7%]<span class="mk">6</span>; H = 1.21 [1.00; 1.76]
+
+Test of heterogeneity:
+     Q d.f. p-value
+ 13.28    9  0.1501<span class="mk">7</span>
+
+Details of meta-analysis methods:
+- Mantel-Haenszel method (common effect model)
+- Inverse variance method (random effects model)
+- Restricted maximum-likelihood estimator for tau^2
+- Q-Profile method for confidence interval of tau^2 and tau
+- Calculation of I^2 based on Q
+- Hartung-Knapp adjustment<span class="mk">8</span> for random effects model (df = 9)
+- Hartung-Knapp prediction interval (df = 9)</pre></div></div>

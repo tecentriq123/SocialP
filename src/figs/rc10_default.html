@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">기본값으로 돌리면 무엇이 달라지나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">m0 &lt;- metabin(mace_x, n_x, mace_pbo, n_pbo, studlab = trial, data = d,
+              sm = &quot;OR&quot;, prediction = TRUE)            # 기본값 그대로
+c(tau = m0$method.tau, ci = m0$method.random.ci, predict = m0$method.predict)
+round(exp(c(lower = m0$lower.random, upper = m0$upper.random,
+            pi.lower = m0$lower.predict, pi.upper = m0$upper.predict)), 3)
+c(P.default = m0$pval.random, P.plan = m$pval.random)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      tau        ci   predict 
+   &quot;REML&quot; &quot;classic&quot;       &quot;V&quot;<span class="mk">1</span> 
+   lower    upper pi.lower pi.upper 
+   0.720    0.935<span class="mk">2</span>    0.605    1.114<span class="mk">3</span> 
+  P.default      P.plan 
+0.003048625<span class="mk">4</span> 0.010152664</pre></div></div>
