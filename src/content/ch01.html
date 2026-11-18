@@ -24,7 +24,7 @@
 <dl>
 <dt>미리 알아 둘 것</dt><dd><a href="#ch00-s5">0장 e 절</a>의 표준오차와 t 경계값, <a href="#ch00-s6">0장 f 절</a>의 효과크기·신뢰구간·p값입니다. 여러 절이 0장의 혈압 시험(신약군과 위약군 30명씩, 8주 수축기혈압 감소량)을 이어 씁니다.</dd>
 <dt>이 장을 마치면</dt><dd>① 결과변수의 종류에 맞는 요약 형식과 검정을 말하고, Table 1을 요약 형식과 표준화 평균차(SMD)로 쓸 수 있다 ② 차이, 신뢰구간, p값 한 줄을 풀어 말하고, p값과 유의수준, 1종 오류와 2종 오류, 통계적 유의성과 임상적 의미를 구분할 수 있다 ③ 두 군 비교 결과를 차이, 95% CI, 정확한 P로 쓸 수 있다 ④ 검정을 여러 번 하면 우연한 '유의'가 왜 늘어나는지 말하고, 다중비교 처리를 Methods에 쓸 수 있다 ⑤ 비모수 검정의 결과를 "한쪽 값이 더 큰 경향"으로 읽을 수 있다 ⑥ d·e·h 절까지 읽으면 t(58)에서 분석 인원을 읽고, "±" 뒤의 SD와 SE, 정규성 판단을 논문 문장으로 쓸 수 있다 ⑦ 내 자료를 분석하기 전에 결과변수의 종류, 1차 결과변수·α·양측 여부, 다중성을 따질 검정의 범위, 평균과 순위 가운데 무엇을 비교할지 정하고, 결과를 바꾸는 프로그램 기본값(Student·Welch, 보정 방법)을 직접 지정할 수 있다</dd>
-<dt>직접 분석할 때</dt><dd><a href="#lab01">실습 1</a>에서 공개 자료로 Table 1과 SMD를 계산하고, 분포와 정규성을 확인하고, c 절 표의 다섯 p값부터 다중비교 보정을 직접 해 봅니다. 뒤 장에서 통계량으로 p를 검산하는 방법은 <a href="#ch01-s5-check">e 절의 접힌 상자 '논문의 통계량과 자유도로 p를 검산하려면? (검산 도구)'</a>에 있습니다. 표본수는 b 절의 접힌 상자 '내 연구의 표본크기는 어떻게 정하나?'와 <a href="#ap01-s5">부록 A e 절</a>에 있습니다. 분석 전에 정할 것은 장 끝의 '내 연구에서 분석 계획 세우기'에 모았습니다.</dd>
+<dt>직접 분석할 때</dt><dd><a href="r.html#lab01">실습 1</a>에서 공개 자료로 Table 1과 SMD를 계산하고, 분포와 정규성을 확인하고, c 절 표의 다섯 p값부터 다중비교 보정을 직접 해 봅니다. 뒤 장에서 통계량으로 p를 검산하는 방법은 <a href="#ch01-s5-check">e 절의 접힌 상자 '논문의 통계량과 자유도로 p를 검산하려면? (검산 도구)'</a>에 있습니다. 표본수는 b 절의 접힌 상자 '내 연구의 표본크기는 어떻게 정하나?'와 <a href="#ap01-s5">부록 A e 절</a>에 있습니다. 분석 전에 정할 것은 장 끝의 '내 연구에서 분석 계획 세우기'에 모았습니다.</dd>
 </dl></details>
 </div>
 
@@ -117,7 +117,7 @@
 <h4 id="ch01-s1-code">숫자로 저장되면 수치형인가?</h4>
 <p>그렇지 않습니다. 혈액형을 1, 2, 3, 4로 코딩해 두어도 그 숫자는 종류를 가리키는 이름표일 뿐이라 명목형 자료입니다. 그래서 프로그램이 평균을 계산해 주더라도 '평균 혈액형 2.3'은 아무 뜻이 없습니다.</p>
 <!--FOLD do:숫자 코드로 저장된 범주는 프로그램에서 어떻게 다루나?-->
-<p>청구자료의 성별(1, 2)이나 요양기관 종별은 범주를 숫자 코드로 저장한 열이라, pandas가 정수(<code>int64</code>)로 읽습니다. 프로그램은 저장 형식만 보므로 이 열을 수치형으로 다룹니다. <a href="#lab00-s6">실습 0 f 절</a>의 birthwt 자료에서 <code>race</code>(1, 2, 3)가 같은 예입니다.</p>
+<p>청구자료의 성별(1, 2)이나 요양기관 종별은 범주를 숫자 코드로 저장한 열이라, pandas가 정수(<code>int64</code>)로 읽습니다. 프로그램은 저장 형식만 보므로 이 열을 수치형으로 다룹니다. <a href="r.html#lab00-s6">실습 0 f 절</a>의 birthwt 자료에서 <code>race</code>(1, 2, 3)가 같은 예입니다.</p>
 <p>이 열을 그대로 statsmodels 공식에 넣으면 회귀모형은 코드를 연속형 값으로 계산합니다. 예를 들어 요양기관 종별을 1(상급종합병원), 2(종합병원), 3(병원), 4(의원)로 저장했다고 합시다. 모형은 코드가 1에서 2로 갈 때와 3에서 4로 갈 때 결과가 같은 크기만큼 바뀐다고 보고 계수 하나만 추정합니다. 코드 번호의 간격에는 아무 뜻이 없으므로 이 계수도 뜻이 없습니다.</p>
 <p>범주로 다루려면 공식에 <code>C(종별)</code>처럼 넣거나, pandas에서 <code>astype("category")</code>로 범주형으로 바꾼 뒤 넣습니다. 그러면 프로그램은 범주 하나를 기준범주<span class="en">(reference category)</span>로 두고, 나머지 범주마다 기준범주와 비교한 계수를 하나씩 추정합니다(<a href="#ch06-s4">6장 d 절</a>). Table 1에도 평균 대신 범주별 n (%)을 씁니다.</p>
 <!--/FOLD-->
@@ -237,7 +237,7 @@
 <li>자료를 본 뒤 범주의 경계를 정하는 것입니다. 범주화 기준은 분석 전에 정하고, 그 기준을 Methods에 씁니다.</li>
 </ul>
 
-<p class="lab-link">관련 실습 · <a href="#lab01-s2">실습 1 b 절</a>에서 공개 자료로 Table 1의 평균 ± SD, 중앙값(IQR), SMD를 직접 계산합니다. 변수를 살펴보는 기초는 <a href="#lab00-s6">실습 0</a>의 'pandas로 데이터 살펴보기'에 있습니다.</p>
+<p class="lab-link">관련 실습 · <a href="r.html#lab01-s2">실습 1 b 절</a>에서 공개 자료로 Table 1의 평균 ± SD, 중앙값(IQR), SMD를 직접 계산합니다. 변수를 살펴보는 기초는 <a href="r.html#lab00-s6">실습 0</a>의 'pandas로 데이터 살펴보기'에 있습니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>분석 방법은 결과변수의 유형에서 출발해 고릅니다.</li>
@@ -495,7 +495,7 @@ p ≈ 1.5 × 10⁻¹²</p>
 <li>결과를 본 뒤 단측 P로 바꾸는 것입니다. 그러면 효과 없는 약을 '유의'로 결론 내릴 확률이 10%로 늘어나므로('양측검정과 단측검정은 무엇이 다른가?'), 단측 검정은 방향을 자료를 보기 전에 정했을 때만 씁니다.</li>
 </ul>
 
-<p class="lab-link">관련 실습 · <a href="#lab02">실습 2</a>에서 독립표본 t 검정으로 가설검정을 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">관련 실습 · <a href="r.html#lab02">실습 2</a>에서 독립표본 t 검정으로 가설검정을 공개 데이터로 직접 해 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>검정통계량은 대부분 "관측된 차이 ÷ 표준오차"입니다. 효과가 없다는 귀무가설 아래에서 그 통계량이 그리는 분포로 p값을 구하므로, p값은 귀무가설이 참이라는 가정에서 계산한 확률입니다.</li>
@@ -652,7 +652,7 @@ multipletests(p, method="holm")[1]        <span class="cm"># 0.020 0.048 0.063 0
 multipletests(p, method="fdr_bh")[1]      <span class="cm"># 0.020 0.030 0.035 0.0475 0.26</span>
 multipletests(p, method="bonferroni")[1]  <span class="cm"># 0.020 0.060 0.105 0.190 1.0</span></pre>
 <p>Holm–Šidák는 Holm과 같은 순서로 보정하되, p에 남은 검정 수를 곱하는 대신 1 − (1 − p)<sup>남은 검정 수</sup>로 계산해 값이 조금 작게 나옵니다. 기본값이 Holm이 아니므로, Methods에 쓴 방법과 프로그램의 <code>method</code>가 같은지 확인합니다. 논문에 흔한 R의 <code>p.adjust</code>는 Holm이 기본값입니다.</p>
-<p>프로그램이 정하지 못하는 것은 검정의 수입니다. <code>multipletests</code>는 넣어 준 p값의 개수를 검정 수로 쓰므로, 유의하게 나온 p값만 골라 넣으면 검정 수가 줄어 보정이 약해집니다. 어떤 검정을 한 묶음으로 넣을지는 '논문에서는 언제 검정을 여러 번 하나?'의 접힌 상자처럼 분석 전에 정합니다(<a href="#lab01-s4">실습 1 d 절</a>).</p>
+<p>프로그램이 정하지 못하는 것은 검정의 수입니다. <code>multipletests</code>는 넣어 준 p값의 개수를 검정 수로 쓰므로, 유의하게 나온 p값만 골라 넣으면 검정 수가 줄어 보정이 약해집니다. 어떤 검정을 한 묶음으로 넣을지는 '논문에서는 언제 검정을 여러 번 하나?'의 접힌 상자처럼 분석 전에 정합니다(<a href="r.html#lab01-s4">실습 1 d 절</a>).</p>
 <!--/FOLD-->
 <p>세 보정 방법(Bonferroni, Holm, BH)을 표로 비교하면 다음과 같습니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
@@ -735,7 +735,7 @@ multipletests(p, method="bonferroni")[1]  <span class="cm"># 0.020 0.060 0.105 0
 <li>탐색적 결과를 초록에서 효과로 쓰는 것입니다. 보정하지 않은 2차 결과는 가설을 만드는 결과로 씁니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab01-s4">실습 1 d 절</a>에서 이 절 표의 다섯 p값을 <code>multipletests</code>에 보정 방법을 지정해 다시 보정해 보고, 30개 변수를 한꺼번에 검정할 때 세 보정 방법이 무엇을 바꾸는지 공개 데이터로 확인합니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="r.html#lab01-s4">실습 1 d 절</a>에서 이 절 표의 다섯 p값을 <code>multipletests</code>에 보정 방법을 지정해 다시 보정해 보고, 30개 변수를 한꺼번에 검정할 때 세 보정 방법이 무엇을 바꾸는지 공개 데이터로 확인합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>α = 0.05는 한 번의 검정에 대한 약속입니다. 검정 수가 늘면 우연한 '유의'가 나올 확률이 빠르게 커집니다.</li>
@@ -861,7 +861,7 @@ Bonferroni 기준 = 0.05 ÷ 6 = 0.0083</p>
 <div class="paper-b">
 <p class="excerpt">Systolic blood pressure reduction differed between groups, <span class="mk">1</span> <span class="hl">t(58) = 2.35</span>, P = .022. Mean adherence scores differed across the three pharmacist-intervention arms, <span class="mk">2</span> <span class="hl">F(2, 87) = 4.12</span>, P = .020, and the proportion of patients with adverse events differed between groups, <span class="mk">3</span> <span class="hl">χ²(1) = 5.31</span>, P = .021.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>독립표본 t 검정, 자유도 58.</b> 자유도가 정수이므로 등분산을 가정한 Student t 검정(자유도 n₁ + n₂ − 2)으로 보이며, 그렇다면 두 군 합계 60명(58 + 2)입니다. Welch t 검정이었다면 자유도가 41.7처럼 소수인 근사값으로 나와, 인원을 바로 역산할 수 없습니다. <a href="#lab02">실습 2</a>의 189명 자료에서도 자유도가 Student는 187, Welch는 170.1로 다릅니다. 그래서 자유도가 대상자 수와 맞지 않으면 결측을 단정하기 전에 먼저 어떤 검정인지 Methods에서 확인합니다. Student t나 분산분석처럼 인원과 바로 연결되는 자유도가 대상자 수보다 작다면, 분석에서 빠진 환자가 있다는 신호입니다(결측을 다루는 방법은 부록 A d 절).</span></li>
+<li><span class="mk">1</span><span><b>독립표본 t 검정, 자유도 58.</b> 자유도가 정수이므로 등분산을 가정한 Student t 검정(자유도 n₁ + n₂ − 2)으로 보이며, 그렇다면 두 군 합계 60명(58 + 2)입니다. Welch t 검정이었다면 자유도가 41.7처럼 소수인 근사값으로 나와, 인원을 바로 역산할 수 없습니다. <a href="r.html#lab02">실습 2</a>의 189명 자료에서도 자유도가 Student는 187, Welch는 170.1로 다릅니다. 그래서 자유도가 대상자 수와 맞지 않으면 결측을 단정하기 전에 먼저 어떤 검정인지 Methods에서 확인합니다. Student t나 분산분석처럼 인원과 바로 연결되는 자유도가 대상자 수보다 작다면, 분석에서 빠진 환자가 있다는 신호입니다(결측을 다루는 방법은 부록 A d 절).</span></li>
 <li><span class="mk">2</span><span><b>분산분석, 자유도 (2, 87).</b> 군간 자유도 2 → 3개 군(2 + 1), 군내 자유도 87 → 총 90명(87 + 3).</span></li>
 <li><span class="mk">3</span><span><b>카이제곱 검정, 자유도 1.</b> 2 × 2 표(두 군 × 이상반응 있음/없음)의 카이제곱 검정입니다. 2 × 2 표는 행과 열의 합계가 정해지면 칸 하나만으로 나머지가 정해지므로 자유도가 1입니다('검정마다 자유도를 어떻게 세나'의 접힌 상자). 다만 자유도 1만으로 2 × 2 표라고 단정하지는 못합니다. χ²는 McNemar 검정, 두 군의 로그순위법, 우도비 검정에도 나오고, 이 검정들도 자유도가 1일 수 있기 때문입니다. 이 문장에서는 "between groups"와 "proportion of patients with adverse events"로 두 군의 비율을 비교한 2 × 2 표임을 압니다.</span></li>
 </ol>
@@ -876,7 +876,7 @@ Bonferroni 기준 = 0.05 ÷ 6 = 0.0083</p>
 <p>예를 들어 대상자가 210명인 연구에서 설명변수 5개를 넣은 다중선형회귀(6장 d 절)의 잔차 자유도가 190이라고 합시다. 계수는 설명변수 5개와 절편 1개로 모두 6개이므로 분석 인원은 190 + 6 = 196명이고, 210 − 196 = 14명이 빠졌습니다. 절편을 빼먹고 195명으로 계산하기 쉬우니 주의합니다. 범주가 셋 이상인 변수가 있으면 그 변수 하나가 계수를 (범주 수 − 1)개 쓰므로, 계수를 다시 셉니다. 빠진 14명이 어떤 환자인지 확인하고, 결측을 다루는 방법은 <a href="#ap01-s4">부록 A d 절</a>에서 고릅니다. 논문에는 분석에 들어간 인원을 함께 씁니다.</p>
 <!--/FOLD-->
 
-<p class="lab-link">관련 실습 · t 검정과 분산분석은 <a href="#lab02">실습 2</a>와 <a href="#lab04">실습 4</a>에서 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">관련 실습 · t 검정과 분산분석은 <a href="r.html#lab02">실습 2</a>와 <a href="r.html#lab04">실습 4</a>에서 공개 데이터로 직접 해 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>자유도는 자유롭게 변할 수 있는 값의 수이며, 대략 "관측값 수 − 추정한 모수 수"입니다.</li>
@@ -1108,7 +1108,7 @@ print(np.round(np.exp([b, b - 1.96*se, b + 1.96*se]), 2))   # OR과 95% CI</code
 
 <p>자주 하는 실수는 "±"만 쓰고 SD인지 SE인지 밝히지 않는 것입니다. 그러면 독자가 군당 인원으로 어느 쪽인지 짐작해야 합니다.</p>
 
-<p class="lab-link">관련 실습 · 로지스틱 회귀계수의 z 검정은 <a href="#lab09">실습 9</a>에서 공개 데이터로 직접 해 봅니다.</p>
+<p class="lab-link">관련 실습 · 로지스틱 회귀계수의 z 검정은 <a href="r.html#lab09">실습 9</a>에서 공개 데이터로 직접 해 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>자료의 분포와 통계량의 표본분포를 구분합니다. p값은 표본분포에서 구합니다.</li>
@@ -1280,7 +1280,7 @@ print(res.confidence_interval)    <span class="cm"># 평균 차이의 95% CI</sp
 </ol>
 <p>Methods 문장은 예를 들어 "Mean costs were compared using Welch's t-test, and 95% CIs for the mean difference were also obtained by nonparametric bootstrapping (percentile method, 2,000 resamples within each group)."처럼 씁니다.</p>
 
-<p class="lab-link">관련 실습 · <a href="#lab01-s2">실습 1 b·c 절</a>에서 실제 자료의 분포를 요약통계와 그래프로 살펴보고, 같은 분포에서 표본크기만 바꾸면 정규성 검정의 결과가 어떻게 달라지는지 봅니다.</p>
+<p class="lab-link">관련 실습 · <a href="r.html#lab01-s2">실습 1 b·c 절</a>에서 실제 자료의 분포를 요약통계와 그래프로 살펴보고, 같은 분포에서 표본크기만 바꾸면 정규성 검정의 결과가 어떻게 달라지는지 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>표본평균의 분포는 n이 커질수록 정규분포에 가까워지고, 폭은 모집단의 표준편차 ÷ √n으로 좁아집니다.</li>
@@ -1451,7 +1451,7 @@ print(res.confidence_interval)    <span class="cm"># 평균 차이의 95% CI</sp
 <p>Methods에 "as appropriate"만 쓰고 검정을 고른 기준을 밝히지 않으면 독자가 판단을 따라갈 수 없습니다. 분포를 판단한 방법, 변수별 요약 형식, 검정을 고른 근거를 쓰는 법은 h 절의 '논문에 쓰기'에 모았습니다.</p>
 <p>p는 정확 검정과 정규근사 가운데 어느 쪽으로 구했는지 밝힙니다. 같은 자료라도 두 방법의 p가 조금 다를 수 있기 때문입니다('숫자로 따라가기'의 접힌 상자 '프로그램은 Mann-Whitney의 p를 어떻게 계산하나?'). 이 결과를 쓴 예문은 <a href="#ch02-s2">2장 b 절</a>에 있습니다.</p>
 
-<p class="lab-link">관련 실습 · <a href="#lab02">실습 2</a>에서 독립표본 t 검정과 Mann-Whitney 검정을 공개 데이터로 직접 해 봅니다. <a href="#lab01-s5">실습 1 과제 2</a>에서는 치우치고 극단값이 있는 변수에서 두 검정의 P가 크게 갈리는 경우를 봅니다.</p>
+<p class="lab-link">관련 실습 · <a href="r.html#lab02">실습 2</a>에서 독립표본 t 검정과 Mann-Whitney 검정을 공개 데이터로 직접 해 봅니다. <a href="r.html#lab01-s5">실습 1 과제 2</a>에서는 치우치고 극단값이 있는 변수에서 두 검정의 P가 크게 갈리는 경우를 봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>모수적 방법은 분포를 가정하고 평균·분산을 비교하며, 비모수적 방법은 주로 순위를 이용합니다.</li>
@@ -1532,7 +1532,7 @@ print(res.confidence_interval)    <span class="cm"># 평균 차이의 95% CI</sp
 <tr><td>g 절 A군 7명의 IQR</td><td>2.5–4.5</td><td>2–5</td></tr>
 <tr><td>재원일수 60명의 왜도</td><td>2.32</td><td>2.38</td></tr>
 </tbody></table></div>
-<p>Q1 같은 분위수가 이웃한 두 관측값 사이의 어디에 놓이는지 정하는 규칙이 프로그램마다 다릅니다. numpy의 <code>percentile</code>과 pandas의 <code>quantile</code>은 선형 보간이 기본값입니다. SPSS의 기본값(가중평균)은 numpy에서 <code>method='weibull'</code>로 지정하면 같은 값이 나옵니다. 왜도는 프로그램마다 기본값이 다릅니다. scipy의 <code>stats.skew</code>는 표본 그대로의 값을 주고(<code>bias=True</code>), pandas의 <code>.skew()</code>와 SPSS는 표본 크기를 보정한 값을 줍니다. scipy에서 <code>bias=False</code>로 지정하면 같아집니다. <a href="#lab01">실습 1</a>은 scipy의 <code>stats.skew</code>로 계산하므로 이 절과 같은 방식의 값이 나옵니다. 같은 자료에 pandas의 <code>.skew()</code>를 쓰면 표처럼 2.32가 2.38로 조금 커집니다.</p>
+<p>Q1 같은 분위수가 이웃한 두 관측값 사이의 어디에 놓이는지 정하는 규칙이 프로그램마다 다릅니다. numpy의 <code>percentile</code>과 pandas의 <code>quantile</code>은 선형 보간이 기본값입니다. SPSS의 기본값(가중평균)은 numpy에서 <code>method='weibull'</code>로 지정하면 같은 값이 나옵니다. 왜도는 프로그램마다 기본값이 다릅니다. scipy의 <code>stats.skew</code>는 표본 그대로의 값을 주고(<code>bias=True</code>), pandas의 <code>.skew()</code>와 SPSS는 표본 크기를 보정한 값을 줍니다. scipy에서 <code>bias=False</code>로 지정하면 같아집니다. <a href="r.html#lab01">실습 1</a>은 scipy의 <code>stats.skew</code>로 계산하므로 이 절과 같은 방식의 값이 나옵니다. 같은 자료에 pandas의 <code>.skew()</code>를 쓰면 표처럼 2.32가 2.38로 조금 커집니다.</p>
 <p>이 차이로 분포에 대한 판단이 바뀌는 경우는 드뭅니다. 다만 논문의 숫자를 재현하거나 다른 연구와 숫자를 맞춰 볼 때는 어떤 정의로 계산했는지 먼저 확인합니다.</p>
 <!--/FOLD-->
 <div class="quick"><p class="qk">잠깐 확인</p><p>재원일수와 반대로 어떤 변수의 평균이 중앙값보다 뚜렷하게 작다면, 어느 쪽 꼬리가 긴 분포일 가능성이 크고 왜도의 부호는 어떻게 나올까요?</p><details><summary>답 보기</summary><div><p>왼쪽 꼬리가 긴 분포일 가능성이 크고, 그렇다면 왜도도 음수로 나옵니다. 평균은 소수의 작은 값에 끌려 내려가지만 중앙값은 가운데 사람의 값이라 끌려가지 않기 때문입니다.</p></div></details></div>
@@ -1663,7 +1663,7 @@ print(res.confidence_interval)    <span class="cm"># 평균 차이의 95% CI</sp
 <li>로그 변환한 결과를 원래 단위의 차이로 쓰는 것입니다. 지수함수로 되돌린 값은 기하평균의 비입니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="#lab01-s2">실습 1 b·c 절</a>에서 이 절의 네 가지 증거(평균과 중앙값, 왜도, 상자그림, Shapiro-Wilk 검정)와 Q-Q plot을 공개 자료로 직접 확인합니다.</p>
+<p class="lab-link">파이썬 실습 · <a href="r.html#lab01-s2">실습 1 b·c 절</a>에서 이 절의 네 가지 증거(평균과 중앙값, 왜도, 상자그림, Shapiro-Wilk 검정)와 Q-Q plot을 공개 자료로 직접 확인합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>검정 전에 요약통계(평균과 중앙값, 왜도)와 그림(히스토그램, 상자그림, Q-Q plot)으로 분포를 확인합니다.</li>

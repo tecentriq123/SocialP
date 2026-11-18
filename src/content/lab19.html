@@ -1,7 +1,7 @@
-<p class="lead">19장의 예제인 가상의 무작위배정 시험 10개(31,725명)를 직접 합쳐 봅니다. 먼저 시험마다의 효과를 하나로 합치고, 시험 사이의 차이가 얼마나 크고 어디서 오는지 확인합니다. 이어서 출판 편향을 살피고 민감도 분석으로 결론이 바뀌지 않는지 점검한 뒤, 환자에게 적용할 절대 효과(NNT·NNH)를 계산하고 대조약이 다른 시험을 간접비교로 잇습니다. 계산은 numpy와 pandas로 하고, statsmodels로 확인한 뒤 Methods·Results 문장으로 옮깁니다. 따라 하면 <a href="#ch19">19장</a> 본문의 숫자(통합 오즈비 0.82, 예측구간 0.61–1.11, NNT 71)가 그대로 나옵니다.</p>
+<p class="lead">19장의 예제인 가상의 무작위배정 시험 10개(31,725명)를 직접 합쳐 봅니다. 먼저 시험마다의 효과를 하나로 합치고, 시험 사이의 차이가 얼마나 크고 어디서 오는지 확인합니다. 이어서 출판 편향을 살피고 민감도 분석으로 결론이 바뀌지 않는지 점검한 뒤, 환자에게 적용할 절대 효과(NNT·NNH)를 계산하고 대조약이 다른 시험을 간접비교로 잇습니다. 계산은 numpy와 pandas로 하고, statsmodels로 확인한 뒤 Methods·Results 문장으로 옮깁니다. 따라 하면 <a href="stats.html#ch19">19장</a> 본문의 숫자(통합 오즈비 0.82, 예측구간 0.61–1.11, NNT 71)가 그대로 나옵니다.</p>
 
 <dl class="glance">
-<div><dt>관련 이론</dt><dd><a href="#ch19">19장 메타분석</a> (a 절 체계적 문헌고찰의 절차, b 절 효과의 통합, c 절 이질성·하위군 분석·메타회귀, d 절 출판 편향과 민감도 분석, e 절 NNT·NNH와 경제성 평가). 2×2 표의 오즈비는 <a href="#ch05-s1">5장 a 절</a>, Mantel–Haenszel 방법은 <a href="#ch08-s6">8장 f 절</a></dd></div>
+<div><dt>관련 이론</dt><dd><a href="stats.html#ch19">19장 메타분석</a> (a 절 체계적 문헌고찰의 절차, b 절 효과의 통합, c 절 이질성·하위군 분석·메타회귀, d 절 출판 편향과 민감도 분석, e 절 NNT·NNH와 경제성 평가). 2×2 표의 오즈비는 <a href="stats.html#ch05-s1">5장 a 절</a>, Mantel–Haenszel 방법은 <a href="stats.html#ch08-s6">8장 f 절</a></dd></div>
 <div><dt>데이터</dt><dd>19장 예제와 같은 가상 자료. <code>acs_trials.csv</code>(시험 10개, 한 줄이 시험 하나)와 <code>acs_trials_subgroup.csv</code>(하위군 결과를 보고한 시험 6개 × 하위군 2개 = 12줄). 급성관상동맥증후군 뒤 표준 항혈소판요법에 약물 X 또는 위약을 더한 시험의 군별 인원, 허혈 사건 수, 주요 출혈 수. b 절 접힌 상자의 연속형 결과(HbA1c) 예는 셀 안에서 직접 입력</dd></div>
 <div><dt>사용 패키지</dt><dd>pandas, numpy, scipy, matplotlib, statsmodels(<code>effectsize_2proportions</code>, <code>effectsize_smd</code>, <code>combine_effects</code>, <code>StratifiedTable</code>, <code>smf.wls</code>)</dd></div>
 <div><dt>실행 환경</dt><dd>Google Colab 권장 (<a href="#lab00">실습 0</a> 참고). 따로 설치할 패키지는 없습니다</dd></div>
@@ -30,7 +30,7 @@
 <h2><span class="sec-no">a.</span>실습 데이터 준비</h2>
 
 <p><strong>메타분석의 자료는 환자가 아니라 연구이고, 분석은 연구 하나가 한 줄인 표에서 시작합니다.</strong></p>
-<p>체계적 문헌고찰에서 논문마다 추출한 숫자를 이런 표로 정리해 둡니다(<a href="#ch19-s1">19장 a 절</a>). 이 실습의 두 파일은 19장의 예제를 그대로 옮긴 것이고, 실제 임상시험의 결과가 아니라 이 사이트가 설명을 위해 만든 가상 자료입니다.</p>
+<p>체계적 문헌고찰에서 논문마다 추출한 숫자를 이런 표로 정리해 둡니다(<a href="stats.html#ch19-s1">19장 a 절</a>). 이 실습의 두 파일은 19장의 예제를 그대로 옮긴 것이고, 실제 임상시험의 결과가 아니라 이 사이트가 설명을 위해 만든 가상 자료입니다.</p>
 <div class="tbl-wrap"><table class="tbl tight" style="max-width:40rem">
 <thead><tr><th>열</th><th>뜻</th></tr></thead>
 <tbody>
@@ -88,7 +88,7 @@
 </ol>
 
 <h3>사건 수를 그냥 더하면 안 되는 이유</h3>
-<p>분석에 앞서 전체 규모를 확인하고, 열 개 시험의 사건 수를 단순히 더해 비교하면 어떤 값이 나오는지 봅니다(<a href="#ch19-s2">19장 b 절</a> '막으려는 문제'와 '흔한 함정과 확인할 것'의 둘째 함정).</p>
+<p>분석에 앞서 전체 규모를 확인하고, 열 개 시험의 사건 수를 단순히 더해 비교하면 어떤 값이 나오는지 봅니다(<a href="stats.html#ch19-s2">19장 b 절</a> '막으려는 문제'와 '흔한 함정과 확인할 것'의 둘째 함정).</p>
 <!--FIG:lab19_naive-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -128,7 +128,7 @@
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>t = tr[tr["trial"] == "Trial I"].iloc[0]</code><span>Trial I의 줄을 골라 첫 줄을 Series로 꺼냅니다. <code>t["mace_x"]</code>처럼 열 이름으로 값을 읽습니다.</span></li>
-<li><code>v_i = 1/a + 1/b + 1/c + 1/d</code><span>로그 오즈비의 분산은 2×2 표 네 칸의 역수를 더한 값입니다(<a href="#ch19-s2">19장 b 절</a> '수식으로 보기').</span></li>
+<li><code>v_i = 1/a + 1/b + 1/c + 1/d</code><span>로그 오즈비의 분산은 2×2 표 네 칸의 역수를 더한 값입니다(<a href="stats.html#ch19-s2">19장 b 절</a> '수식으로 보기').</span></li>
 <li><code>Z = stats.norm.ppf(0.975)</code><span>표준정규분포에서 아래쪽 넓이가 0.975인 값 1.959964입니다. 1.96을 직접 적어도 되지만, 본문과 끝자리까지 맞추려고 반올림하지 않은 값을 씁니다. <code>ppf</code>는 <a href="#lab08-s1">실습 8 a 절</a>의 <code>stats.t.ppf</code>와 같은 분위수 함수입니다.</span></li>
 </ol>
 <h4>출력 읽기</h4>
@@ -230,7 +230,7 @@
 <p><code>NameError: name 'pool' is not defined</code>는 이 셀을 실행하지 않고 뒤의 셀을 실행했을 때 납니다. 이 실습은 뒤의 셀이 앞에서 만든 <code>Z</code>, <code>log_or</code>, <code>pool</code>, <code>orci</code>, <code>reci</code>, <code>es</code>를 계속 쓰므로, 런타임이 새로 시작되면 셀 1부터 차례로 다시 실행합니다.</p></div>
 
 <h3>statsmodels로 확인하기</h3>
-<p>statsmodels의 <code>meta_analysis</code> 모듈로 같은 계산이 맞는지 봅니다. statsmodels에는 REML이 없어서, τ²를 DerSimonian–Laird 방법으로 구하게 하고 셀 8의 DL τ²(0.0098)와 비교합니다. τ²만 다르고 나머지 계산(가중평균과 표준오차)은 같은 식이므로, 이것이 맞으면 REML로 한 셀 8의 계산도 함께 확인됩니다. 출력의 모양은 <a href="#ch19-s2">19장 b 절</a>의 접힌 상자 '프로그램 출력을 한 줄씩 읽으면?'과 같습니다.</p>
+<p>statsmodels의 <code>meta_analysis</code> 모듈로 같은 계산이 맞는지 봅니다. statsmodels에는 REML이 없어서, τ²를 DerSimonian–Laird 방법으로 구하게 하고 셀 8의 DL τ²(0.0098)와 비교합니다. τ²만 다르고 나머지 계산(가중평균과 표준오차)은 같은 식이므로, 이것이 맞으면 REML로 한 셀 8의 계산도 함께 확인됩니다. 출력의 모양은 <a href="stats.html#ch19-s2">19장 b 절</a>의 접힌 상자 '프로그램 출력을 한 줄씩 읽으면?'과 같습니다.</p>
 <!--FIG:lab19_sm-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -281,7 +281,7 @@
 <p>가로축(Odds ratio, 로그 눈금)의 1이 '차이 없음'이고 왼쪽이 약물 X에 유리한 쪽입니다. 네모가 큰 D, F, H, I가 결과를 주도하고, 선이 긴 C와 G는 정보가 적습니다. 마름모(Random effects)는 0.82 (0.72–0.94)로 기준선에 닿지 않고, 회색 선(Prediction interval)은 0.61–1.11로 1을 넘습니다. 19장 그림 19-3과 같은 내용입니다.</p>
 
 <h3>주요 출혈과 0건인 칸</h3>
-<p>안전성 결과인 주요 출혈을 같은 함수로 합칩니다. Trial C의 위약군이 0건이어서 <code>log_or</code>의 연속성 수정이 여기서 작동합니다(<a href="#ch19-s2">19장 b 절</a> '논문에서 읽기'의 그림 19-5와 접힌 상자 '사건이 0건인 칸은 어떻게 처리하나?').</p>
+<p>안전성 결과인 주요 출혈을 같은 함수로 합칩니다. Trial C의 위약군이 0건이어서 <code>log_or</code>의 연속성 수정이 여기서 작동합니다(<a href="stats.html#ch19-s2">19장 b 절</a> '논문에서 읽기'의 그림 19-5와 접힌 상자 '사건이 0건인 칸은 어떻게 처리하나?').</p>
 <!--FIG:lab19_bleed-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -352,7 +352,7 @@
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
 <li><code>hb = pd.DataFrame({"study": […], "n1": […], …})</code><span>열 이름(왼쪽)마다 값 목록(오른쪽)을 짝지은 딕셔너리로 표를 만듭니다. 한 줄이 연구 하나이고, 1로 끝나는 열은 중재군, 0으로 끝나는 열은 통상 관리군입니다.</span></li>
-<li><code>hb["se"] = np.sqrt(hb["sd1"]**2 / hb["n1"] + hb["sd0"]**2 / hb["n0"])</code><span>두 군 평균 차이의 표준오차입니다(<a href="#ch02-s1">2장 a 절</a>). Study A는 √(1.1²/45 + 1.2²/44) = 0.244입니다.</span></li>
+<li><code>hb["se"] = np.sqrt(hb["sd1"]**2 / hb["n1"] + hb["sd0"]**2 / hb["n0"])</code><span>두 군 평균 차이의 표준오차입니다(<a href="stats.html#ch02-s1">2장 a 절</a>). Study A는 √(1.1²/45 + 1.2²/44) = 0.244입니다.</span></li>
 <li><code>def mdci(est, se, crit=Z):</code><span>평균 차이는 로그를 취하지 않았으므로 <code>orci</code>처럼 지수로 되돌리지 않고 ± 곱하는 값 × 표준오차만 합니다. 무작위효과에는 <code>pool</code>이 돌려준 <code>se_ci</code>와 <code>crit</code>를 넣습니다. 범위를 "to"로 적은 것은 음수 사이의 줄표가 빼기표와 헷갈리지 않게 하려는 것입니다.</span></li>
 <li><code>pool(hb["md"], hb["se"]**2)</code><span><code>pool</code>은 분산을 받으므로 표준오차를 제곱해 넣습니다.</span></li>
 <li><code>h_pi = m_md["crit"] * …</code><span>예측구간의 반쪽 길이입니다. 식은 c 절 셀 17과 같고, 연구가 6개라 t 분포의 자유도는 5입니다.</span></li>
@@ -392,7 +392,7 @@
 <h2><span class="sec-no">c.</span>이질성과 하위군 분석</h2>
 
 <p><strong>통합 추정값은 평균이고, 그 평균 주위에서 시험들이 우연 이상으로 얼마나 다른지가 이질성입니다.</strong></p>
-<p>이질성<span class="en">(heterogeneity)</span>을 네 숫자로 재고 그 불확실성을 본 뒤, 왜 다른지를 하위군 분석<span class="en">(subgroup analysis)</span>과 메타회귀<span class="en">(meta-regression)</span>로 살펴봅니다(<a href="#ch19-s3">19장 c 절</a> '예제 메타분석에서 따라가기').</p>
+<p>이질성<span class="en">(heterogeneity)</span>을 네 숫자로 재고 그 불확실성을 본 뒤, 왜 다른지를 하위군 분석<span class="en">(subgroup analysis)</span>과 메타회귀<span class="en">(meta-regression)</span>로 살펴봅니다(<a href="stats.html#ch19-s3">19장 c 절</a> '예제 메타분석에서 따라가기').</p>
 
 <h3>이질성 지표와 예측구간</h3>
 <!--FIG:lab19_het-->
@@ -448,7 +448,7 @@
 </ol>
 
 <h3>하위군 간 차이 검정</h3>
-<p>한 하위군만 유의하다는 것은 두 하위군의 효과가 다르다는 증거가 아닙니다(<a href="#ch06-s4">6장 d 절</a>). 두 소계의 차이를 직접 검정합니다(19장 c 절 '수식으로 보기').</p>
+<p>한 하위군만 유의하다는 것은 두 하위군의 효과가 다르다는 증거가 아닙니다(<a href="stats.html#ch06-s4">6장 d 절</a>). 두 소계의 차이를 직접 검정합니다(19장 c 절 '수식으로 보기').</p>
 <!--FIG:lab19_interaction-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -508,7 +508,7 @@
 </ol>
 
 <h3>τ²를 구하는 세 가지 방법</h3>
-<p>셀 8에서 τ²를 DerSimonian–Laird(DL)와 REML로 구했고, 이후의 계산은 REML 값을 썼습니다. 여기서는 Paule–Mandel(PM) 방법을 더해 세 방법을 함수로 나란히 놓고 비교합니다. 세 방법의 생각과 고르는 기준은 <a href="#ch19-s3">19장 c 절</a> '이질성이 크면 무엇을 고르나?'의 'τ²는 어떤 방법으로 구하나?'에 있습니다. 뒤의 두 셀이 이 셀의 함수를 다시 씁니다.</p>
+<p>셀 8에서 τ²를 DerSimonian–Laird(DL)와 REML로 구했고, 이후의 계산은 REML 값을 썼습니다. 여기서는 Paule–Mandel(PM) 방법을 더해 세 방법을 함수로 나란히 놓고 비교합니다. 세 방법의 생각과 고르는 기준은 <a href="stats.html#ch19-s3">19장 c 절</a> '이질성이 크면 무엇을 고르나?'의 'τ²는 어떤 방법으로 구하나?'에 있습니다. 뒤의 두 셀이 이 셀의 함수를 다시 씁니다.</p>
 <!--FIG:lab19_tau2m-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -596,7 +596,7 @@
 <h2><span class="sec-no">d.</span>깔때기 그림과 민감도 분석</h2>
 
 <p><strong>통합 결과가 무엇에 기대고 있는지 점검한 뒤, 상대적 효과를 '1,000명을 치료하면 몇 명'으로 바꿉니다.</strong></p>
-<p>작은 시험일수록 효과가 크게 나오는 경향이 있는지 깔때기 그림<span class="en">(funnel plot)</span>과 비대칭 검정(Egger 검정과 오즈비에 맞춘 Harbord 검정)으로 살펴보고, 분석의 선택을 하나씩 바꿔 결론이 유지되는지 확인하는 민감도 분석<span class="en">(sensitivity analysis)</span>을 합니다(<a href="#ch19-s4">19장 d 절</a>). 이어서 통합 오즈비를 NNT<span class="en">(number needed to treat)</span>와 NNH<span class="en">(number needed to harm)</span>로 바꾸고, 대조약이 다른 시험과 잇는 간접비교까지 계산합니다(<a href="#ch19-s5">19장 e 절</a>).</p>
+<p>작은 시험일수록 효과가 크게 나오는 경향이 있는지 깔때기 그림<span class="en">(funnel plot)</span>과 비대칭 검정(Egger 검정과 오즈비에 맞춘 Harbord 검정)으로 살펴보고, 분석의 선택을 하나씩 바꿔 결론이 유지되는지 확인하는 민감도 분석<span class="en">(sensitivity analysis)</span>을 합니다(<a href="stats.html#ch19-s4">19장 d 절</a>). 이어서 통합 오즈비를 NNT<span class="en">(number needed to treat)</span>와 NNH<span class="en">(number needed to harm)</span>로 바꾸고, 대조약이 다른 시험과 잇는 간접비교까지 계산합니다(<a href="stats.html#ch19-s5">19장 e 절</a>).</p>
 
 <h3>깔때기 그림</h3>
 <!--FIG:lab19_funnel-->
@@ -612,7 +612,7 @@
 <p>세로축(Standard error)은 위가 큰 시험입니다. 큰 시험 D, F, H, I는 위쪽에 모여 있고, 작은 시험 여섯 개는 아래에서 좌우로 퍼져 있습니다. 효과가 큰 쪽(E, G)과 반대쪽(A, C)이 섞여 있어, 점 열 개로는 대칭인지 아닌지 가릴 수 없습니다.</p>
 
 <h3>Egger 검정과 Harbord 검정</h3>
-<p>Egger 검정은 효과를 표준오차에 대해 가중회귀시켜 기울기가 0인지 보는 검정입니다<cite data-ref="egger1997"></cite>. 19장 d 절은 같은 검정을 원래 논문의 형태인 절편으로 설명하며, 두 식의 값과 P는 같습니다(출력 4번). 앞 절의 <code>smf.wls</code>를 그대로 씁니다. 다만 이 예처럼 효과가 오즈비이면 로그 오즈비와 표준오차가 같은 네 칸에서 나와 서로 얽히므로, 19장의 주 분석은 이 얽힘을 줄인 Harbord 검정입니다(<a href="#ch19-s4">19장 d 절</a> '깔때기 그림과 비대칭 검정')<cite data-ref="harbord2006"></cite>. 같은 셀에서 두 검정을 함께 구합니다.</p>
+<p>Egger 검정은 효과를 표준오차에 대해 가중회귀시켜 기울기가 0인지 보는 검정입니다<cite data-ref="egger1997"></cite>. 19장 d 절은 같은 검정을 원래 논문의 형태인 절편으로 설명하며, 두 식의 값과 P는 같습니다(출력 4번). 앞 절의 <code>smf.wls</code>를 그대로 씁니다. 다만 이 예처럼 효과가 오즈비이면 로그 오즈비와 표준오차가 같은 네 칸에서 나와 서로 얽히므로, 19장의 주 분석은 이 얽힘을 줄인 Harbord 검정입니다(<a href="stats.html#ch19-s4">19장 d 절</a> '깔때기 그림과 비대칭 검정')<cite data-ref="harbord2006"></cite>. 같은 셀에서 두 검정을 함께 구합니다.</p>
 <!--FIG:lab19_egger-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">

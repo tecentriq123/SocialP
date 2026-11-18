@@ -555,6 +555,8 @@ details.deep-box > :not(summary) { margin: 0 14px 14px; }
 details.deep-box > .deep-body { margin: 0; padding: 0 18px 8px; }
 details.deep-box.do-box { border-left-color: var(--note); }   /* 직접 분석: 내 자료를 분석할 때 펼치는 접힌 상자 */
 details.deep-box.do-box > summary::before { border-color: var(--note); }
+details.deep-box.py-box { border-left-color: var(--good); }   /* 파이썬 실습 본문 */
+details.deep-box.py-box > summary::before { border-color: var(--good); }
 details.deep-box > .deep-body > :first-child { margin-top: 4px; }
 details.lines-box > summary:hover { color: var(--accent-ink); }
 details.lines-box > summary .cnt { font-weight: 400; font-size: 12.5px; color: var(--muted); }
@@ -577,6 +579,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .lv { display: inline-block; vertical-align: .15em; margin-left: 8px; font-family: var(--f-sans); font-size: 12px; font-weight: 600; line-height: 1; padding: 4px 8px; border-radius: 999px; letter-spacing: .02em; white-space: nowrap; }
 .lv.deep { background: var(--deep-soft); color: var(--deep); }
 .lv.do { background: var(--note-soft); color: var(--note); }   /* 직접 분석: 접지 않는 수준 표시 */
+.lv.py { background: var(--good-soft); color: var(--good); }   /* 파이썬: R 과목 안의 파이썬 실습 상자 (2026-11-18) */
 /* 목차 화면의 읽는 순서 카드 */
 .start-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; margin-bottom: 40px; }
 .start-card { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 18px 20px 16px; }
@@ -697,7 +700,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 <main id="app" class="page"></main>
 <div id="drawerRoot" hidden><div class="scrim" id="scrim"></div><nav class="drawer" id="drawer" aria-label="장 목록"></nav></div>
 
-<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "파이썬 실습 25개 공개"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": "ml.html", "status": "5/7장 공개", "desc": "정답이 있는 자료로 예측모형을 만드는 지도학습. 사이킷런으로 자료 나누기와 교차검증을 익힌 뒤 결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. 모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.", "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]}, {"tag": "과목 · R", "title": "R과 통계분석", "href": "r.html", "status": "10/10장 공개", "desc": "보건통계학 기초에서 배운 분석을 R로 직접 해 봅니다. Table 1과 회귀, Kaplan-Meier와 Cox에서 시작해 생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 재구성하기, 처치전환 보정, 분할생존모형과 마르코프 모형, 확률적 민감도 분석까지 다룹니다. 파이썬 실습과 같은 자료를 써서 숫자가 그대로 맞습니다.", "meta": ["0–9장 · 생존분석 · 경제성 평가 모형", "장마다 R 노트북"]}, {"tag": "과목 · 퀴즈", "title": "보건통계학 퀴즈", "href": "quiz.html", "status": "0–25장 · 연구 설계 정리 공개 · 종합 5세트", "desc": "보건통계학 기초의 장을 읽은 뒤 푸는 객관식 문제. 개념 구분, 분석 고르기, 표와 숫자 읽기, 잘못된 해석 고치기와 한 연구를 여러 단계로 따라가는 종합 사례로, 해설마다 다시 읽을 소제목으로 바로 갑니다.", "meta": ["장마다 객관식 문제와 종합 사례", "확신도 기록과 다시 볼 문제"]}]}</script>
+<script type="application/json" id="meta">{"mode": "home", "courses": [{"tag": "과목 · 통계", "title": "보건통계학 기초", "href": "stats.html", "status": "0–25장 공개", "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. 논문의 표와 그림에서 수치를 읽는 법과 내 연구를 설계하고 쓰는 법을 다룹니다. 코드로 분석하는 법은 'R과 파이썬으로 하는 통계분석'에 있습니다.", "meta": ["이론 0–25장 + 종합 연습 + 부록", "논문 읽기 · 연구 설계 · 논문 쓰기"]}, {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": "ml.html", "status": "5/7장 공개", "desc": "정답이 있는 자료로 예측모형을 만드는 지도학습. 사이킷런으로 자료 나누기와 교차검증을 익힌 뒤 결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. 모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.", "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]}, {"tag": "과목 · R과 파이썬", "title": "R과 파이썬으로 하는 통계분석", "href": "r.html", "status": "R 10장 · 파이썬 실습 25개 공개", "desc": "보건통계학 기초에서 배운 분석을 코드로 직접 해 봅니다. 코드를 짜고, 자료를 넣고, 출력을 읽어 해석하는 법을 다룹니다. R이 본문이고, 같은 분석의 파이썬 코드는 접힌 상자에 두었습니다. Table 1과 회귀, 생존분석, 청구자료 연구, 경제성 평가 모형까지 보건통계학 기초와 같은 자료를 써서 숫자가 그대로 맞습니다.", "meta": ["R 0–9장 + 파이썬 실습 0–24", "장마다 R·파이썬 노트북"]}, {"tag": "과목 · 퀴즈", "title": "보건통계학 퀴즈", "href": "quiz.html", "status": "0–25장 · 연구 설계 정리 공개 · 종합 5세트", "desc": "보건통계학 기초의 장을 읽은 뒤 푸는 객관식 문제. 개념 구분, 분석 고르기, 표와 숫자 읽기, 잘못된 해석 고치기와 한 연구를 여러 단계로 따라가는 종합 사례로, 해설마다 다시 읽을 소제목으로 바로 갑니다.", "meta": ["장마다 객관식 문제와 종합 사례", "확신도 기록과 다시 볼 문제"]}]}</script>
 
 
 <script>
@@ -788,7 +791,7 @@ function typesetNow() {
       </section>
       <div class="parts">${cards}</div>
       <div class="home-how">
-        <div><h3>과목 구성</h3><p>'보건통계학 기초'에는 통계 검정과 회귀모형뿐 아니라 청구자료 연구의 설계와 약물경제성 평가도 들어 있고, 장마다 짝이 되는 파이썬 실습이 있습니다. '머신러닝 기초'는 파이썬으로, 'R과 통계분석'은 R로 같은 가상 자료를 다룹니다.</p></div>
+        <div><h3>과목 구성</h3><p>'보건통계학 기초'는 통계 검정과 회귀모형, 청구자료 연구의 설계, 약물경제성 평가를 논문을 읽고 연구를 설계하고 쓰는 데 필요한 만큼 다룹니다. 같은 분석을 코드로 하는 법은 'R과 파이썬으로 하는 통계분석'에서 R을 본문으로, 파이썬을 접힌 상자로 다룹니다. '머신러닝 기초'는 파이썬으로 예측모형을 만듭니다.</p></div>
         <div><h3>읽는 방법</h3><p>장 첫머리의 '처음 읽을 때' 상자가 논문을 읽는 데 필요한 부분과 직접 분석할 때 읽을 부분을 나눠 알려 줍니다. 접힌 상자 가운데 '직접 분석' 표시는 내 자료를 분석할 때 꼭 펼쳐 볼 내용이고, '심화' 표시는 계산 원리가 궁금할 때 펼쳐 볼 내용입니다.</p></div>
         <div><h3>예시 자료</h3><p>본문의 숫자 예제와 표는 설명을 위해 만든 가상 자료이며, 통계량은 실제로 계산한 값입니다. '실제 논문으로 읽어 보기' 상자만 실제 논문의 수치입니다.</p></div>
       </div>
@@ -833,7 +836,7 @@ function typesetNow() {
       <header class="part-head">
         <p class="crumbs"><a href="index.html">홈</a><span>/</span><span>${esc(COURSE.title)}</span></p>
         <h1>${esc(COURSE.title)}</h1>
-        <p>논문을 읽는 데 필요한 통계(PART 1–2), 청구자료 연구의 설계와 편향(PART 3), 약물경제성 평가(PART 4), 파이썬 실습(PART 5)으로 이루어져 있습니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
+        <p>논문을 읽는 데 필요한 통계(PART 1–2), 청구자료 연구의 설계와 편향(PART 3), 약물경제성 평가(PART 4)로 이루어져 있습니다. 코드로 분석하는 법은 <a href="r.html">R과 파이썬으로 하는 통계분석</a>에 있습니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
         <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. 접힌 상자는 처음 읽을 때 건너뛰어도 됩니다. <span class="lv do">직접 분석</span> 표시는 내 자료를 분석할 때 꼭 펼쳐 볼 내용이고, <span class="lv deep">심화</span> 표시는 계산 원리가 궁금할 때 펼쳐 볼 내용입니다.</p>
       </header>
       <div class="start-grid">
@@ -849,7 +852,7 @@ function typesetNow() {
             <div><dt>메타분석</dt><dd>${L("ch19", "19")}</dd></div>
             <div><dt>약물경제성 평가</dt><dd>${L("ch20", "20")} → ${L("ch21", "21")} → ${L("ch22", "22")} → ${L("ch23", "23")} → ${L("ch24", "24")} → ${L("ch25", "25")} (0장과 7장 a·b 절을 읽었다면 바로 시작할 수 있습니다)</dd></div>
           </dl>
-          <p class="path-note">접힌 상자와, 확인 문제 가운데 <span class="lv do">직접 분석</span>·<span class="lv deep">심화</span> 표시가 붙은 문제는 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 실습(PART 5)은 직접 분석할 때 짝이 되는 장과 함께 합니다.</p>
+          <p class="path-note">접힌 상자와, 확인 문제 가운데 <span class="lv do">직접 분석</span>·<span class="lv deep">심화</span> 표시가 붙은 문제는 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 직접 분석할 때는 R과 파이썬으로 하는 통계분석의 짝이 되는 장을 함께 봅니다.</p>
         </section>
         <section class="start-card">
           <h2>논문에서 먼저 찾을 다섯 가지</h2>
@@ -1196,10 +1199,12 @@ function typesetNow() {
       if (/^ml\d\d/.test(h) || h === "ml") { location.replace("ml.html#" + (h === "ml" ? "toc" : h)); return; }
       if (/^rc\d\d/.test(h) || h === "r") { location.replace("r.html#" + (h === "r" ? "toc" : h)); return; }
       if (/^qz\d\d/.test(h) || h === "quiz") { location.replace("quiz.html#" + (h === "quiz" ? "toc" : h)); return; }
-      if (/^(?:(?:ch|lab|rv|ap)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
+      if (/^lab\d\d/.test(h)) { location.replace("r.html#" + h); return; }   // 파이썬 실습은 2026-11-18 R 과목으로 옮김
+      if (/^(?:(?:ch|rv|ap)\d\d|stats$|toc$|search)/.test(h)) { location.replace("stats.html#" + (h === "stats" ? "toc" : h)); return; }
       renderHome(); window.scrollTo(0, 0);
     }
     else if (h === "home") { location.href = "index.html"; return; }
+    else if (COURSE.key === "stats" && /^lab\d\d/.test(h)) { location.replace("r.html#" + h); return; }   // 옛 실습 주소
     else if (!h || h === "toc" || h === COURSE.key) { renderPart(); window.scrollTo(0, 0); }
     else if (h.startsWith("search")) { renderSearch(h.slice(7)); window.scrollTo(0, 0); }
     else {

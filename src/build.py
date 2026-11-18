@@ -14,10 +14,6 @@ GROUPS = [
     {"key": "p2", "label": "PART 2", "title": "중급 보건의학통계 맛보기"},
     {"key": "p3", "label": "PART 3", "title": "약물역학 연구 설계"},
     {"key": "p4", "label": "PART 4", "title": "약물경제성 평가"},
-    {"key": "p5", "label": "PART 5", "title": "파이썬 실습",
-     # 목차와 장 목록에서 접어 두는 묶음. 실습 번호가 upto 이하이면 그 묶음에 들어간다
-     "subs": [{"key": "p5a", "label": "A", "title": "검정별 실습", "note": "1–13장과 짝", "upto": 13},
-              {"key": "p5b", "label": "B", "title": "연구 유형별 실습", "note": "약물역학(14–19장)과 약물경제성 평가(20–25장)", "upto": 99}]},
     {"key": "ap", "label": "부록", "title": "추가 검정과 참고문헌"},
 ]
 
@@ -77,34 +73,6 @@ CHAPTERS = [
      ["결정론적 민감도 분석", "확률적 민감도 분석", "비용효과 수용곡선과 순편익"]),
     ("ch25", "p4", "경제성 평가의 보고와 급여 평가",
      ["보고 기준 CHEERS 2022", "모형 기반 경제성 평가 논문 읽기", "국내 급여 평가와 재정영향분석"]),
-    ("lab00", "p5", "실습 환경 준비",
-     ["파이썬과 주피터 노트북", "Google Colab으로 시작하기", "내 컴퓨터(Windows 11)에 설치하기", "셀 실행과 패키지 설치",
-      "데이터 불러오기", "pandas로 데이터 살펴보기", "오류 메시지 읽는 법"]),
-    ("lab01", "p5", "자료 탐색과 정규성 검정", ["실습 데이터 준비", "요약통계와 그래프", "Q-Q plot과 정규성 검정", "다중비교 보정", "과제"]),
-    ("lab02", "p5", "두 군의 크기 비교", ["실습 데이터 준비", "독립표본 t 검정", "Mann-Whitney 검정", "과제"]),
-    ("lab03", "p5", "치료 전과 후의 크기 비교", ["실습 데이터 준비", "대응표본 t 검정", "Wilcoxon 부호순위 검정", "과제"]),
-    ("lab04", "p5", "세 군 이상의 크기 비교", ["실습 데이터 준비", "분산분석과 사후분석", "Kruskal-Wallis 검정", "Jonckheere-Terpstra 검정", "과제"]),
-    ("lab05", "p5", "비율 비교", ["실습 데이터 준비", "카이제곱 검정", "Fisher의 정확한 검정", "선형 대 선형 결합", "과제"]),
-    ("lab06", "p5", "상관분석과 선형회귀", ["실습 데이터 준비", "상관분석", "단순회귀분석", "다중회귀분석", "과제"]),
-    ("lab07", "p5", "Kaplan-Meier와 로그순위법", ["실습 데이터 준비", "Kaplan-Meier 생존곡선", "로그순위법", "과제"]),
-    ("lab08", "p5", "신뢰구간, 효과크기, 교란", ["신뢰구간과 효과크기", "일반화 선형모형과 우도비 검정", "교란과 층화 분석", "가변수와 다변수 분석", "과제"]),
-    ("lab09", "p5", "로지스틱 회귀분석", ["실습 데이터 준비", "다변수 로지스틱 회귀", "모형 점검", "예측모형과 성능 평가", "과제"]),
-    ("lab10", "p5", "반복측정 자료 분석", ["실습 데이터와 자료구조 변환", "반복측정 분산분석", "선형 혼합모형", "일반화 추정 방정식", "과제"]),
-    ("lab11", "p5", "Cox 비례위험모형", ["실습 데이터 준비", "Cox 모형과 위험비", "비례위험 가정 점검", "보정 생존곡선과 층화 Cox", "과제"]),
-    ("lab12", "p5", "포아송 회귀와 음이항 회귀", ["실습 데이터 준비", "발생률과 발생률비", "포아송 회귀와 과산포", "음이항 회귀", "과제"]),
-    ("lab13", "p5", "동등성·비열등성 검정", ["평균 차이의 비열등성", "비율 차이의 비열등성", "생물학적 동등성", "과제"]),
-    # PART 5 B: 14장 이후와 짝인 실습 (절 제목은 쓸 때 정한다)
-    ("lab14", "p5", "청구자료에서 코호트 만들기", ["청구자료의 표 구조", "신규 사용자 코호트 만들기", "노출·결과·공변량 만들기", "추적 기간과 발생률", "과제"]),
-    ("lab15", "p5", "성향점수 분석", ["실습 데이터 준비", "성향점수 추정과 겹침", "매칭과 가중", "균형 진단과 효과 추정", "과제"]),
-    ("lab16", "p5", "불멸시간 편향과 시간의존 Cox 모형", ["실습 데이터 준비", "불멸시간 편향 재현하기", "랜드마크 분석", "시간의존 Cox 모형", "과제"]),
-    ("lab17", "p5", "경쟁위험 분석", ["실습 데이터 준비", "누적발생함수", "원인별 위험비와 Fine–Gray 위험비", "과제"]),
-    ("lab18", "p5", "중단시계열분석과 이중차분법", ["실습 데이터 준비", "중단시계열분석", "대조군이 있는 중단시계열", "이중차분법", "과제"]),
-    ("lab19", "p5", "메타분석", ["실습 데이터 준비", "효과의 통합", "이질성과 하위군 분석", "깔때기 그림과 민감도 분석", "과제"]),
-    ("lab20", "p5", "ICER와 순편익 계산", ["실습 데이터 준비", "증분비용효과비와 지배", "순편익과 비용효과평면", "과제"]),
-    ("lab21", "p5", "비용 자료 분석", ["실습 데이터 준비", "평균 비용의 비교와 부트스트랩", "비용의 회귀분석", "과제"]),
-    ("lab22", "p5", "효용과 QALY 계산", ["실습 데이터 준비", "효용 점수 구하기", "QALY와 할인", "과제"]),
-    ("lab23", "p5", "결정분석 모형 만들기", ["생존곡선의 적합과 외삽", "분할생존모형 만들기", "비용과 QALY, ICER", "모형 점검", "과제"]),
-    ("lab24", "p5", "민감도 분석", ["실습 준비", "일원 민감도 분석과 토네이도 그림", "확률적 민감도 분석", "비용효과 수용곡선", "과제"]),
     ("ap01", "ap", "추가로 알아야 할 방법",
      ["McNemar 검정", "진단검사 정확도와 ROC 곡선", "의료비용 자료의 분석", "결측자료와 다중대체", "표본크기와 검정력", "일치도 분석",
       "복합표본 조사자료 분석"],
@@ -252,6 +220,21 @@ def _fold_markers(src):
         return (f'<details class="{cls}"><summary><span class="ds-t">{html.escape(m.group(2).strip())}</span> '
                 f'{tag}</summary><div class="deep-body">{m.group(3)}</div></details>')
     return _FOLD.sub(rep, src)
+
+
+PY_TAG = '<span class="lv py">파이썬</span>'
+
+
+def py_fold(src):
+    """Python labs moved into the R course (2026-11-18): keep each section heading visible and fold the body
+    into a '파이썬' box. The chapter lead and the glance list above the first section stay open."""
+    def rep(m):
+        return (m.group(1) + '<details class="deep-box py-box"><summary><span class="ds-t">파이썬 코드와 설명</span> '
+                + PY_TAG + '</summary><div class="deep-body">' + m.group(2) + '</div></details>' + m.group(3))
+    src = re.sub(r'(<section class="sec" id="lab\d\d-s\d+">\s*<h2\b.*?</h2>)(.*?)(</section>)', rep, src, flags=re.S)
+    note = ('<p class="toc-note">이 실습에서 \'5장\', \'8장 b 절\'처럼 적은 장은 모두 보건통계학 기초의 장입니다. '
+            '이 과목의 R 장과 번호가 다르니, 링크를 누르면 보건통계학 기초의 그 장이 열립니다.</p>')
+    return re.sub(r'(<p class="lead">.*?</p>)', lambda m: m.group(1) + note, src, count=1, flags=re.S)
 
 
 def fold_deep(src):
@@ -489,6 +472,8 @@ def build():
                 sec["steps"] = steps
         body = collapse_lines(inject_real(c["id"], src))
         bodies[c["id"]] = body if NOFOLD else fold_deep(body)
+        if COURSE["key"] == "r" and c["id"].startswith("lab"):
+            bodies[c["id"]] = py_fold(bodies[c["id"]])
     # refs flagged "append" are numbered after all others (keeps already published numbers stable)
     order = [k for k in order if not REFS[k].get("append")] + [k for k in order if REFS[k].get("append")]
     num = {k: i + 1 for i, k in enumerate(order)}
@@ -578,28 +563,28 @@ def build_home(shell, meta, ml_meta=None, r_meta=None, qz_meta=None):
     ml_ready = sum(c["ready"] for c in ml_ch)
     r_ch = [c for c in (r_meta or []) if not c.get("refs")]
     r_ready = sum(c["ready"] for c in r_ch)
-    labs = [c for c in meta if c["lab"]]
     qz_ch = [c for c in (qz_meta or []) if not c.get("refs")]
     qz_ready = sum(c["ready"] for c in qz_ch)
     courses = [
         {"tag": "과목 · 통계", "title": stats_course["title"], "href": stats_course["file"],
          "status": ("0–25장 공개" if all(c["ready"] for c in theory) else f"{sum(c['ready'] for c in theory)}/{len(theory)}장 공개"),
          "desc": "평균·표준편차와 표준오차에서 시작해 통계 검정과 회귀모형, 청구자료 연구의 설계와 성향점수, 약물경제성 평가까지. "
-                 "논문의 표와 그림에서 수치를 읽는 법을 먼저 다루고, 직접 분석에 필요한 내용과 파이썬 실습을 따로 두었습니다.",
+                 "논문의 표와 그림에서 수치를 읽는 법과 내 연구를 설계하고 쓰는 법을 다룹니다. 코드로 분석하는 법은 'R과 파이썬으로 하는 통계분석'에 있습니다.",
          "meta": ["이론 0–25장 + 종합 연습 + 부록",
-                  f"파이썬 실습 {sum(c['ready'] for c in labs)}개 공개" + (f", {sum(not c['ready'] for c in labs)}개 준비 중" if any(not c['ready'] for c in labs) else "")]},
+                  "논문 읽기 · 연구 설계 · 논문 쓰기"]},
         {"tag": "과목 · 머신러닝", "title": "머신러닝 기초", "href": "ml.html" if ml_ready else None,
          "status": (f"{ml_ready}/{len(ml_ch)}장 공개" if ml_ready else "준비 중"),
          "desc": "정답이 있는 자료로 예측모형을 만드는 지도학습. 사이킷런으로 자료 나누기와 교차검증을 익힌 뒤 "
                  "결정트리, 랜덤 포레스트, 부스팅으로 분류를, 선형회귀와 규제 회귀로 회귀를 다룹니다. "
                  "모든 장이 같은 가상 청구자료로 다음 해의 응급 입원과 의료비를 예측합니다.",
          "meta": ["0–6장 · 분류 · 회귀", "장마다 노트북과 과제"]},
-        {"tag": "과목 · R", "title": "R과 통계분석", "href": "r.html" if r_ready else None,
-         "status": (f"{r_ready}/{len(r_ch)}장 공개" if r_ready else "준비 중"),
-         "desc": "보건통계학 기초에서 배운 분석을 R로 직접 해 봅니다. Table 1과 회귀, Kaplan-Meier와 Cox에서 시작해 "
-                 "생존곡선의 외삽, 논문의 생존곡선에서 환자 자료 재구성하기, 처치전환 보정, 분할생존모형과 마르코프 모형, "
-                 "확률적 민감도 분석까지 다룹니다. 파이썬 실습과 같은 자료를 써서 숫자가 그대로 맞습니다.",
-         "meta": ["0–9장 · 생존분석 · 경제성 평가 모형", "장마다 R 노트북"]},
+        {"tag": "과목 · R과 파이썬", "title": "R과 파이썬으로 하는 통계분석", "href": "r.html" if r_ready else None,
+         "status": ((f"R {sum(c['ready'] for c in r_ch if not c['lab'])}장 · 파이썬 실습 {sum(c['ready'] for c in r_ch if c['lab'])}개 공개")
+                    if r_ready else "준비 중"),
+         "desc": "보건통계학 기초에서 배운 분석을 코드로 직접 해 봅니다. 코드를 짜고, 자료를 넣고, 출력을 읽어 해석하는 법을 다룹니다. "
+                 "R이 본문이고, 같은 분석의 파이썬 코드는 접힌 상자에 두었습니다. Table 1과 회귀, 생존분석, 청구자료 연구, "
+                 "경제성 평가 모형까지 보건통계학 기초와 같은 자료를 써서 숫자가 그대로 맞습니다.",
+         "meta": ["R 0–9장 + 파이썬 실습 0–24", "장마다 R·파이썬 노트북"]},
         {"tag": "과목 · 퀴즈", "title": "보건통계학 퀴즈", "href": "quiz.html" if qz_ready else None,
          "status": ((f"{_ranges([int(c['id'][-2:]) for c in qz_ch if c['ready'] and not c.get('review')])}장"
                      + "".join(f" · {c['title']}" for c in qz_ch if c['ready'] and c.get('review') and not str(c.get('no', '')).startswith("종합"))

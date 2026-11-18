@@ -1,7 +1,7 @@
 <p class="lead">실습 0에서는 뒤의 모든 실습에 필요한 준비를 합니다. 설치 없이 브라우저에서 쓰는 Google Colab과 내 컴퓨터(Windows 11)의 JupyterLab에서 셀을 실행하는 방법, 패키지 설치, 공개 데이터 불러오기, pandas로 표 살펴보기, 오류 메시지 읽는 법을 차례로 익힙니다. 코드를 처음 써 보는 분을 기준으로 한 줄씩 설명합니다.</p>
 
 <dl class="glance">
-  <div><dt>관련 이론</dt><dd><a href="#ch01-s1">1장 a 절 자료의 분류</a>(pandas 자료형과 자료 유형의 관계). 실습 1부터는 같은 번호의 장과 짝을 이룹니다(실습 1 ↔ 1장, …, 실습 13 ↔ 13장).</dd></div>
+  <div><dt>관련 이론</dt><dd><a href="stats.html#ch01-s1">1장 a 절 자료의 분류</a>(pandas 자료형과 자료 유형의 관계). 실습 1부터는 같은 번호의 장과 짝을 이룹니다(실습 1 ↔ 1장, …, 실습 13 ↔ 13장).</dd></div>
   <div><dt>데이터</dt><dd>위스콘신 유방암 진단 자료(scikit-learn 내장, 569건·설명변수 30개), birthwt(Rdatasets, 산모 189명·10변수, 1986년 미국 한 병원의 저체중아 위험인자 자료), 직접 만든 한글 CSV·엑셀 파일</dd></div>
   <div><dt>사용 패키지</dt><dd>pandas, numpy, scikit-learn (버전 확인에서 scipy, statsmodels, lifelines)</dd></div>
   <div><dt>실행 환경</dt><dd>Google Colab 권장. 이 페이지의 출력은 Python 3.11.15, pandas 3.0.2, numpy 2.4.4, scipy 1.17.1, statsmodels 0.15.0, scikit-learn 1.8.0, lifelines 0.30.3에서 실제로 실행한 결과입니다. 버전이 다르면 출력의 표시 형식이 조금 다를 수 있으며, 이는 정상입니다.</dd></div>
@@ -259,7 +259,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>소프트웨어 이름과 버전.</b> SAS 9.4, R 4.x, Stata 18처럼 쓰는 것과 같은 자리입니다. 셀 4 출력의 첫 줄에서 옮깁니다.</span></li>
 <li><span class="mk">2</span><span><b>분석에 실제로 쓴 패키지와 버전.</b> 기본값이나 계산 방법이 버전에 따라 바뀔 수 있으므로, 다른 연구자가 결과를 재현하려면 버전이 필요합니다. 쓰지 않은 패키지는 넣지 않습니다. 패키지에 따라 인용해 달라고 요청하는 논문이 있으며(예: SciPy<cite data-ref="virtanen2020"></cite>, lifelines<cite data-ref="davidsonpilon2019"></cite>), 학술지 규정에 따라 참고문헌에 넣습니다.</span></li>
-<li><span class="mk">3</span><span><b>유의수준과 양측검정.</b> 소프트웨어 문장과 함께 쓰는 경우가 많습니다. 다중비교 보정을 했다면 이 문장 뒤에 이어서 씁니다(<a href="#ch01-s3">1장 c 절</a>, <a href="#lab01-s4">실습 1 d 절</a>).</span></li>
+<li><span class="mk">3</span><span><b>유의수준과 양측검정.</b> 소프트웨어 문장과 함께 쓰는 경우가 많습니다. 다중비교 보정을 했다면 이 문장 뒤에 이어서 씁니다(<a href="stats.html#ch01-s3">1장 c 절</a>, <a href="#lab01-s4">실습 1 d 절</a>).</span></li>
 </ol>
 </div></div>
 
@@ -358,7 +358,7 @@
 <li><code>df = df.drop(columns="rownames")</code><span><code>.drop(columns=…)</code>은 그 열을 뺀 <b>새 표</b>를 돌려줍니다. 원래 <code>df</code>는 그대로이므로, 결과를 다시 <code>df</code>에 저장해야 반영됩니다. <code>df.drop(columns="rownames")</code>만 쓰고 저장하지 않으면 출력에만 보이고 df는 바뀌지 않습니다.</span></li>
 <li><code>df.columns.tolist()</code><span><code>df.columns</code>는 열 이름들이고, <code>.tolist()</code>는 이를 보기 쉬운 리스트로 바꿉니다.</span></li>
 </ol>
-<p>출력 <span class="mk">1</span>에서 열이 10개로 줄었습니다. 각 변수의 뜻은 설명서 페이지(doc)에서 확인합니다. 숫자로 저장되어 있어도 자료 유형은 제각각이라는 점을 <a href="#ch01-s1">1장 a 절</a>과 연결해 보세요.</p>
+<p>출력 <span class="mk">1</span>에서 열이 10개로 줄었습니다. 각 변수의 뜻은 설명서 페이지(doc)에서 확인합니다. 숫자로 저장되어 있어도 자료 유형은 제각각이라는 점을 <a href="stats.html#ch01-s1">1장 a 절</a>과 연결해 보세요.</p>
 <div class="tbl-wrap"><table class="tbl">
 <thead><tr><th>변수</th><th>뜻</th><th>값</th><th>자료 유형</th></tr></thead>
 <tbody>
@@ -436,7 +436,7 @@
 <tr><td><code>bool</code></td><td>참/거짓(True/False)</td><td>조건 비교의 결과</td></tr>
 <tr><td><code>category</code></td><td>정해진 범주 중 하나</td><td>진단(악성/양성), 병기</td></tr>
 </tbody></table></div>
-<p>자료형은 <a href="#ch01-s1">1장 a 절</a>의 자료 유형과 다릅니다. birthwt의 <code>race</code>(1, 2, 3)는 int64로 저장되어 있지만 명목형 자료이고, <code>low</code>(0, 1)는 이분형 자료입니다. 컴퓨터는 숫자로 저장된 열을 모두 수치로 취급하므로, 자료 유형은 연구자가 판단해야 합니다.</p>
+<p>자료형은 <a href="stats.html#ch01-s1">1장 a 절</a>의 자료 유형과 다릅니다. birthwt의 <code>race</code>(1, 2, 3)는 int64로 저장되어 있지만 명목형 자료이고, <code>low</code>(0, 1)는 이분형 자료입니다. 컴퓨터는 숫자로 저장된 열을 모두 수치로 취급하므로, 자료 유형은 연구자가 판단해야 합니다.</p>
 
 <h3>표의 구조: head()와 info()</h3>
 <p>e 절에서 불러온 <code>df</code>(birthwt, rownames 제거)를 계속 씁니다.</p>
@@ -452,7 +452,7 @@
 <p><b>출력 읽기</b></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>189 entries, 0 to 188.</b> 행이 189개이고, 인덱스는 0부터 188까지입니다(0부터 세므로 마지막 번호는 행 수 − 1).</span></li>
-<li><span class="mk">2</span><span><b>189 non-null.</b> 결측이 아닌 값이 189개, 즉 이 열에는 결측이 없습니다. 이 숫자가 전체 행 수보다 작으면 그 차이만큼 결측값이 있다는 뜻입니다. 실제 연구 자료에서는 여기서 결측을 처음 발견하는 경우가 많습니다(결측자료의 처리는 <a href="#ap01-s4">부록 A d 절</a>).</span></li>
+<li><span class="mk">2</span><span><b>189 non-null.</b> 결측이 아닌 값이 189개, 즉 이 열에는 결측이 없습니다. 이 숫자가 전체 행 수보다 작으면 그 차이만큼 결측값이 있다는 뜻입니다. 실제 연구 자료에서는 여기서 결측을 처음 발견하는 경우가 많습니다(결측자료의 처리는 <a href="stats.html#ap01-s4">부록 A d 절</a>).</span></li>
 <li><span class="mk">3</span><span><b>int64.</b> 모든 열이 정수입니다. 숫자여야 할 열이 object나 str로 나오면 값 중에 글자(예: "&lt;5", "N/A", 쉼표가 들어간 "1,200")가 섞여 있다는 신호입니다.</span></li>
 </ol>
 <p>첫 줄의 <code>&lt;class 'pandas.DataFrame'&gt;</code>은 pandas 2에서는 <code>&lt;class 'pandas.core.frame.DataFrame'&gt;</code>로 나옵니다. 같은 뜻입니다.</p>
@@ -467,7 +467,7 @@
 <ol class="marks">
 <li><span class="mk">1</span><span><b>bwt 평균 2944.59 g.</b></span></li>
 <li><span class="mk">2</span><span><b>bwt 표준편차 729.21 g.</b> pandas의 <code>std</code>는 n − 1로 나누는 표본표준편차입니다. numpy의 <code>np.std()</code>는 기본값이 n으로 나누는 방식이라 값이 조금 다르므로, 논문용 SD는 pandas의 <code>.std()</code>를 쓰는 것이 안전합니다.</span></li>
-<li><span class="mk">3</span><span><b>bwt 중앙값 2977.00 g.</b> 평균(2944.59)과 가까우므로 출생체중 분포는 크게 치우치지 않았다고 짐작할 수 있습니다(<a href="#ch01-s8">1장 h 절</a>, 실습 1).</span></li>
+<li><span class="mk">3</span><span><b>bwt 중앙값 2977.00 g.</b> 평균(2944.59)과 가까우므로 출생체중 분포는 크게 치우치지 않았다고 짐작할 수 있습니다(<a href="stats.html#ch01-s8">1장 h 절</a>, 실습 1).</span></li>
 <li><span class="mk">4</span><span><b>race의 평균 1.85는 의미가 없습니다.</b> describe는 숫자로 저장된 열이면 무조건 계산합니다. 명목형 코드의 평균·표준편차는 해석하지 않고, 범주별 빈도(value_counts)로 요약합니다. 반면 0/1 변수의 평균은 비율이므로 쓸모가 있습니다. smoke의 평균 0.39는 흡연 산모가 39%라는 뜻입니다.</span></li>
 </ol>
 
@@ -520,7 +520,7 @@
 <li><code>["bwt"]</code><span>각 묶음에서 bwt 열만 씁니다.</span></li>
 <li><code>.agg(["count", "mean", "std"])</code><span>묶음마다 개수, 평균, 표준편차를 한 번에 계산합니다. 결과는 묶음이 행, 요약이 열인 표입니다. 평균 하나만 필요하면 <code>.mean()</code>을 씁니다.</span></li>
 </ol>
-<p>출력에서 <span class="mk">1</span> 비흡연 산모(smoke = 0, 115명)의 아기 평균 출생체중은 3055.7 g(SD 752.7), <span class="mk">2</span> 흡연 산모(74명)는 2771.9 g(SD 659.6)입니다. 차이는 약 284 g입니다. 이 차이가 우연으로 설명될 정도인지는 독립표본 t 검정으로 판단합니다(<a href="#ch02-s1">2장 a 절</a>, 실습 2).</p>
+<p>출력에서 <span class="mk">1</span> 비흡연 산모(smoke = 0, 115명)의 아기 평균 출생체중은 3055.7 g(SD 752.7), <span class="mk">2</span> 흡연 산모(74명)는 2771.9 g(SD 659.6)입니다. 차이는 약 284 g입니다. 이 차이가 우연으로 설명될 정도인지는 독립표본 t 검정으로 판단합니다(<a href="stats.html#ch02-s1">2장 a 절</a>, 실습 2).</p>
 
 <h3>교차표: crosstab()</h3>
 <!--FIG:lab00_pd_ct-->
@@ -531,7 +531,7 @@
 <p><b>출력 읽기</b></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>합계(All).</b> 흡연 산모 74명 중 30명, 비흡연 산모 115명 중 29명이 저체중아를 낳았습니다. 전체로는 189명 중 59명입니다.</span></li>
-<li><span class="mk">2</span><span><b>흡연 산모의 저체중아 비율 0.405(40.5%)</b>로, 비흡연 산모의 0.252(25.2%)보다 높습니다. 두 비율의 비인 상대위험도는 0.405 ÷ 0.252 = 1.61입니다. 2×2 표에서 위험차·상대위험도·오즈비를 구하는 방법은 <a href="#ch05-s1">5장 a 절</a>, 두 비율의 차이를 검정하는 카이제곱 검정은 실습 5에서 다룹니다.</span></li>
+<li><span class="mk">2</span><span><b>흡연 산모의 저체중아 비율 0.405(40.5%)</b>로, 비흡연 산모의 0.252(25.2%)보다 높습니다. 두 비율의 비인 상대위험도는 0.405 ÷ 0.252 = 1.61입니다. 2×2 표에서 위험차·상대위험도·오즈비를 구하는 방법은 <a href="stats.html#ch05-s1">5장 a 절</a>, 두 비율의 차이를 검정하는 카이제곱 검정은 실습 5에서 다룹니다.</span></li>
 </ol>
 
 <div class="paper">
