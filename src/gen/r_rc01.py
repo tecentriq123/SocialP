@@ -1,4 +1,4 @@
-"""R과 통계분석 1장 · Table 1, 군 비교와 회귀 — R cells run for real with rkit.
+"""R과 파이썬으로 하는 통계분석 2장 · Table 1, 군 비교와 회귀 — R cells run for real with rkit.
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc01.py      (NOMARK=1 … 로 돌리면 모든 셀의 출력을 찍는다)
 
@@ -174,7 +174,7 @@ S("rc01_tidy", nb.html(c_tidy, marks={"2.33 (1.06-5.29)": 1, "0.99 (0.97-1.00)":
 S("rc01_t1x", nb.html(c_t1x, marks={"ptd (mean (SD))    0.10 (0.31)": 1, "0.011": 2}))
 S("rc01_t2x", nb.html(c_t2x, marks={"0.861": 1}))
 S("rc01_t3x", nb.html(c_t3x, marks={"2.022": 1}))
-nb.save_ipynb("1장 Table 1, 군 비교와 회귀 (R과 통계분석)",
+nb.save_ipynb("2장 Table 1, 군 비교와 회귀 (R과 파이썬으로 하는 통계분석)",
               intro="MASS 패키지의 출생체중 자료(birthwt)로 Table 1을 만들고, 두 군의 평균과 비율을 비교하고, "
                     "선형회귀와 로지스틱 회귀를 맞춥니다. 보건통계학 기초의 파이썬 실습 2·5·9와 같은 자료입니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",

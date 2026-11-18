@@ -1,4 +1,4 @@
-"""R과 통계분석 7장 · 분할생존모형 — R cells run for real with rkit (base R, flexsurv, ggplot2).
+"""R과 파이썬으로 하는 통계분석 9장 · 분할생존모형 — R cells run for real with rkit (base R, flexsurv, ggplot2).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc07.py      (NOMARK=1 … 로 모든 출력)
 
@@ -137,7 +137,7 @@ c_fit = nb.cell('''
 library(flexsurv)
 options(HTTPUserAgent = "Mozilla/5.0")
 BASE <- "https://socialp-ajou.tecentriq12.workers.dev/data/"
-trial <- read.csv(paste0(BASE, "rcc_trial.csv"))      # 4장의 표준요법 B 시험 자료
+trial <- read.csv(paste0(BASE, "rcc_trial.csv"))      # 6장의 표준요법 B 시험 자료
 dists <- c(exp = "exp", weibull = "weibull", gompertz = "gompertz",
            lnorm = "lnorm", llogis = "llogis", gengamma = "gengamma")
 os_curves <- lapply(dists, function(k) {
@@ -223,9 +223,9 @@ S("rc07_chk", nb.html(c_chk))
 S("rc07_t1", nb.html(c_t1, marks={"175.39": 1}))
 S("rc07_t2", nb.html(c_t2))
 S("rc07_t3", nb.html(c_t3))
-nb.save_ipynb("7장 분할생존모형 (R과 통계분석)",
+nb.save_ipynb("9장 분할생존모형 (R과 파이썬으로 하는 통계분석)",
               intro="보건통계학 기초 23장의 공통 예시(신약 A 대 표준요법 B)를 R로 만듭니다. 와이블 곡선과 위험비로 상태 비율을 만들고, "
-                    "반주기 보정과 할인으로 비용과 QALY를 더해 ICER를 구한 뒤, 4장의 외삽 곡선을 바꿔 넣습니다. "
+                    "반주기 보정과 할인으로 비용과 QALY를 더해 ICER를 구한 뒤, 6장의 외삽 곡선을 바꿔 넣습니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={c_inp.n: "## a. 입력값과 곡선", c_occ.n: "## b. 상태 비율과 반주기 보정",
                      c_cyc.n: "## c. 비용, QALY, ICER", c_fit.n: "## d. 외삽 곡선 바꿔 넣기와 점검",

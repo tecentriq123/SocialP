@@ -1,4 +1,4 @@
-"""R과 통계분석 2장 · 생존 자료와 Kaplan-Meier — R cells run for real with rkit (survival, survminer).
+"""R과 파이썬으로 하는 통계분석 3장 · 생존 자료와 Kaplan-Meier — R cells run for real with rkit (survival, survminer).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc02.py      (NOMARK=1 … 로 돌리면 모든 셀의 출력을 찍는다)
 
@@ -170,7 +170,7 @@ S("rc02_rmst", nb.html(c_rmst, marks={"10.22281": 1, "4.06": 2}))
 S("rc02_t1", nb.html(c_t1, marks={"6.0 (4.8-9.4)": 1}))
 S("rc02_t2", nb.html(c_t2, marks={"Chisq= 11.1": 1, "Chisq= 10": 2}))
 S("rc02_t3", nb.html(c_t3, marks={"8.39": 1}))
-nb.save_ipynb("2장 생존 자료와 Kaplan-Meier (R과 통계분석)",
+nb.save_ipynb("3장 생존 자료와 Kaplan-Meier (R과 파이썬으로 하는 통계분석)",
               intro="survival 패키지의 폐암 자료(lung)로 Kaplan-Meier 곡선을 그리고 군의 생존을 비교합니다. "
                     "보건통계학 기초의 파이썬 실습 7과 같은 자료입니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",

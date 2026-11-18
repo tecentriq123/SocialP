@@ -126,6 +126,9 @@ def ch_label(cid):
         return {"rv01": "분석 고르기 연습", "rv03": "연구 설계 정리"}.get(cid, "정리")
     if cid in ("ml90", "rc90"):
         return "부록 A"
+    for c in CHAPTERS:   # 화면 번호를 따로 매긴 장(R 과목, 2026-11-18)
+        if c[0] == cid and len(c) > 4 and str(c[4].get("no", "")).isdigit():
+            return f"{int(c[4]['no'])}장"
     return f"{int(cid[-2:])}장"
 
 

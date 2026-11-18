@@ -174,7 +174,7 @@ print(stats.f.sf(4.12, 2, 87))      # F(2, 87) = 4.12의 p</code></pre><div clas
 <li><code>p = 2 * pt(-abs(t), df)</code><span>b 절의 양측 p입니다. 신뢰구간은 차이 ± <code>qt(0.975, df)</code> × SE입니다.</span></li>
 </ol>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>0장의 숫자 그대로.</b> 차이 4.3, SE 1.83, t = 2.35, 자유도 58, p = 0.022, 95% 신뢰구간 0.63–7.97 mmHg입니다. 원자료가 있다면 <code>t.test()</code>에 두 군의 값을 넣고 <code>var.equal = TRUE</code>를 더하면 같은 값을 줍니다(이 과목 <a href="#rc01-s3">1장 c 절</a>).</span></li>
+<li><span class="mk">1</span><span><b>0장의 숫자 그대로.</b> 차이 4.3, SE 1.83, t = 2.35, 자유도 58, p = 0.022, 95% 신뢰구간 0.63–7.97 mmHg입니다. 원자료가 있다면 <code>t.test()</code>에 두 군의 값을 넣고 <code>var.equal = TRUE</code>를 더하면 같은 값을 줍니다(이 과목 <a href="#rc01-s3">2장 c 절</a>).</span></li>
 </ol>
 
 <h3>Welch와 Student는 언제 다른 답을 내나?</h3>
@@ -267,7 +267,7 @@ print(res)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div
 <p>SPSS는 보정하지 않은 값(Pearson Chi-Square)과 보정한 값(Continuity Correction)을 두 줄로 함께 출력합니다. 같은 표로 계산한 p가 논문마다 0.19와 0.28처럼 다르면 연속성 보정 여부부터 확인합니다.</p>
 
 <h3>회귀 출력의 z와 SAS의 Wald χ²는 같은 검정인가?</h3>
-<p><strong>같은 검정입니다. 계수 ÷ 표준오차가 z이고, 그 제곱이 자유도 1인 Wald χ²입니다.</strong> R의 <code>glm()</code>과 파이썬 statsmodels는 z를, SAS의 PROC LOGISTIC은 Wald χ²를 보여 줍니다. 30일 재입원에 대한 로지스틱 회귀에서 흡연의 계수 0.6420, 표준오차 0.2110을 받아 세 값을 다시 구합니다. 로지스틱 회귀 자체는 보건통계학 기초 9장과 이 과목 <a href="#rc01-s5">1장 e 절</a>에서 다룹니다.</p>
+<p><strong>같은 검정입니다. 계수 ÷ 표준오차가 z이고, 그 제곱이 자유도 1인 Wald χ²입니다.</strong> R의 <code>glm()</code>과 파이썬 statsmodels는 z를, SAS의 PROC LOGISTIC은 Wald χ²를 보여 줍니다. 30일 재입원에 대한 로지스틱 회귀에서 흡연의 계수 0.6420, 표준오차 0.2110을 받아 세 값을 다시 구합니다. 로지스틱 회귀 자체는 보건통계학 기초 9장과 이 과목 <a href="#rc01-s5">2장 e 절</a>에서 다룹니다.</p>
 <!--FIG:rc11_wald-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>z와 Wald χ².</b> z = 0.642 ÷ 0.211 = 3.04, z² = 9.26입니다. SAS 출력의 Wald Chi-Square 9.2572와 끝자리가 조금 다른 것은 반올림된 계수와 표준오차로 계산했기 때문입니다.</span></li>

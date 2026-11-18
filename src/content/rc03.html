@@ -4,7 +4,7 @@
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
-<dt>미리 알아 둘 것</dt><dd>위험비와 비례위험 가정의 개념은 보건통계학 기초 <a href="stats.html#ch11">11장</a>, <code>Surv()</code>와 <code>survfit()</code>은 이 과목 <a href="#rc02">2장</a>에 있습니다.</dd>
+<dt>미리 알아 둘 것</dt><dd>위험비와 비례위험 가정의 개념은 보건통계학 기초 <a href="stats.html#ch11">11장</a>, <code>Surv()</code>와 <code>survfit()</code>은 이 과목 <a href="#rc02">3장</a>에 있습니다.</dd>
 <dt>먼저 읽을 부분</dt><dd>a 절, b 절의 셀 4–6, c 절의 셀 8과 10.</dd>
 <dt>나중에 읽을 부분</dt><dd>d 절의 층화, 기간별 위험비, 보정 생존곡선은 내 자료에서 비례위험 가정이 어긋나거나 군별 보정 곡선이 필요할 때 봅니다.</dd>
 <dt>이 장을 마치면</dt><dd>① <code>coxph()</code>로 모형을 맞추고 위험비, 신뢰구간, 일치도를 읽고 표로 옮길 수 있다 ② <code>cox.zph()</code>의 검정과 그림으로 비례위험 가정을 점검할 수 있다 ③ 층화, 기간별 위험비, 직접 표준화한 보정 생존곡선을 R로 만들 수 있다</dd>
@@ -28,7 +28,7 @@
 </ol>
 
 <h3>사건과 공변량은 어떻게 만드나?</h3>
-<p><strong>status가 세 값이라 <code>Surv()</code>에 그대로 넣을 수 없고, 사망만 1인 사건 변수를 새로 만듭니다.</strong> <a href="#rc02-s1">2장 a 절</a>에서 본 것처럼 0, 1, 2가 섞이면 R은 0을 결측으로 바꾸기 때문입니다. 간이식은 그 시점에 중도절단된 것으로 봅니다.</p>
+<p><strong>status가 세 값이라 <code>Surv()</code>에 그대로 넣을 수 없고, 사망만 1인 사건 변수를 새로 만듭니다.</strong> <a href="#rc02-s1">3장 a 절</a>에서 본 것처럼 0, 1, 2가 섞이면 R은 0을 결측으로 바꾸기 때문입니다. 간이식은 그 시점에 중도절단된 것으로 봅니다.</p>
 <!--FIG:rc03_vars-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -89,7 +89,7 @@
 <p>변수를 바꿔 가며 여러 모형을 비교할 때는 인원이 같아야 하므로, 쓸 변수에 결측이 없는 사람으로 분석 자료를 먼저 정해 두고 모든 모형에 같은 자료를 씁니다. 결측이 많으면 다중대체를 생각합니다(<a href="stats.html#ap01-s4">보건통계학 기초 부록 A d 절</a>).</p>
 
 <h3>위험비 표는 어떻게 만드나?</h3>
-<p><strong><a href="#rc01-s5">1장 e 절</a>의 로지스틱 회귀 표와 같은 코드로 만듭니다.</strong> Cox 모형의 <code>confint()</code>는 Wald 구간이라, <code>tidy()</code>의 구간도 Wald 구간이고 실습 11의 표와 같습니다.</p>
+<p><strong><a href="#rc01-s5">2장 e 절</a>의 로지스틱 회귀 표와 같은 코드로 만듭니다.</strong> Cox 모형의 <code>confint()</code>는 Wald 구간이라, <code>tidy()</code>의 구간도 Wald 구간이고 실습 11의 표와 같습니다.</p>
 <!--FIG:rc03_tab-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>0.94 (0.64-1.37).</b> 실습 11의 위험비 표와 같습니다.</span></li>

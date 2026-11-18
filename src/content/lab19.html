@@ -247,7 +247,7 @@
 <li><span class="mk">3</span><span><b>fixed effect −0.1702 (0.0409)</b>, <span class="mk">4</span> <b>random effect −0.1921 (0.0612).</b> DL τ²로 합친 값으로, 셀 23에서 직접 구하는 DL 결과 0.83 (0.73–0.93)과 같습니다. 19장의 기준인 REML 결과(셀 8의 −0.1974)와는 τ²만큼 다릅니다.</span></li>
 <li><span class="mk">5</span><span><b>random effect wls의 표준오차 0.0591.</b> 추정값은 같고 표준오차를 자료의 흩어짐에 맞춰 다시 계산한 줄로, DL τ²일 때의 Hartung–Knapp 표준오차입니다. 셀 8과 셀 24에서는 REML τ²로 같은 계산을 합니다(0.0609).</span></li>
 <li><span class="mk">6</span><span><b>Q 13.2849, I² 0.3225, τ² 0.009827.</b> 셀 8에서 직접 계산한 Q와 DL τ²와 같습니다. 다만 <code>method_re="chi2"</code>는 Q가 자유도보다 작을 때 τ²를 0으로 바꾸지 않고 음수 그대로 씁니다(0.15 버전에서 확인). 그러면 random effect 줄이 틀린 값이 됩니다. <code>res.tau2</code>가 음수이면 fixed effect 줄을 읽거나 직접 짠 <code>pool</code>을 씁니다. 뒤의 주요 출혈이 그런 경우입니다.</span></li>
-<li><span class="mk">7</span><span><b>기본값으로 두면 τ² = 0.007689.</b> <code>method_re</code>를 주지 않으면 기본값 <code>"iterated"</code>(Paule–Mandel 방법)로 추정해 τ²가 달라지고, 통합 오즈비는 0.83 (0.74–0.93)이 됩니다. 프로그램마다 기본 추정 방법이 다르므로 Methods에 방법 이름을 적습니다(<a href="#rc10-s2">10장 b 절</a> '프로그램마다 기본값은 무엇인가?').</span></li>
+<li><span class="mk">7</span><span><b>기본값으로 두면 τ² = 0.007689.</b> <code>method_re</code>를 주지 않으면 기본값 <code>"iterated"</code>(Paule–Mandel 방법)로 추정해 τ²가 달라지고, 통합 오즈비는 0.83 (0.74–0.93)이 됩니다. 프로그램마다 기본 추정 방법이 다르므로 Methods에 방법 이름을 적습니다(<a href="#rc10-s2">5장 b 절</a> '프로그램마다 기본값은 무엇인가?').</span></li>
 </ol>
 
 <h4>기본값을 그대로 두면 무엇이 달라지나?</h4>
@@ -261,7 +261,7 @@
 <tr><td><code>use_t</code></td><td>기본값 <code>False</code>는 1.96을 쓰는 보통의 방법입니다. <code>True</code>로 두면 HKSJ 구간을 얻지만, 출력에서 읽을 줄을 골라야 합니다(아래 문단).</td></tr>
 </tbody></table></div>
 <p><code>use_t=True</code>로 다시 돌리면 'random effect wls' 행의 구간이 HKSJ 구간(오즈비로 0.72–0.94)이 됩니다. 같은 출력에서 'random effect' 행의 구간도 0.72–0.95로 바뀌는데, 이 행은 표준오차를 보정하지 않고 1.96만 t 값으로 바꾼 구간이어서 HKSJ 구간이 아닙니다. 이때 연구별 신뢰구간에 대한 경고(InvalidTestWarning)도 나오지만 통합 결과와는 관계가 없습니다.</p>
-<p>statsmodels가 주지 않는 것은 REML로 구한 τ², 통합값의 검정(z나 t 값과 P), 예측구간, I²와 τ²의 신뢰구간입니다. 이 실습은 REML 결과와 그 P를 셀 8의 함수로, 예측구간과 I²·τ²의 신뢰구간을 c 절에서 직접 구합니다. R의 meta 패키지는 이것을 한 번에 줍니다(<a href="#rc10-s2">10장 b 절</a>).</p>
+<p>statsmodels가 주지 않는 것은 REML로 구한 τ², 통합값의 검정(z나 t 값과 P), 예측구간, I²와 τ²의 신뢰구간입니다. 이 실습은 REML 결과와 그 P를 셀 8의 함수로, 예측구간과 I²·τ²의 신뢰구간을 c 절에서 직접 구합니다. R의 meta 패키지는 이것을 한 번에 줍니다(<a href="#rc10-s2">5장 b 절</a>).</p>
 
 <h3>Mantel–Haenszel 방법</h3>
 <p>이분형 결과에는 2×2 표의 사건 수로 직접 가중평균하는 Mantel–Haenszel 방법도 널리 씁니다. <a href="#lab08-s3">실습 8 c 절</a>의 <code>StratifiedTable</code>에 시험 10개를 층으로 넣으면 됩니다.</p>

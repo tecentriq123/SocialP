@@ -219,6 +219,9 @@ details.rail-sub > ol { margin-left: 6px; padding-left: 6px; border-left: 1px so
 .ch-map { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
 .ch-map a { font-size: 13.5px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--ink-2); background: var(--surface); }
 .ch-map a:hover { border-color: var(--accent); color: var(--accent-ink); }
+.ch-map a.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent-ink); font-weight: 600; }
+/* 절마다 한 화면(2026-11-18): 지금 절만 보이고 나머지는 숨긴다 */
+#body.paged > [hidden], #leadSlot[hidden] { display: none !important; }
 
 /* article typography */
 .sec { padding-top: 12px; margin-bottom: 64px; }
@@ -416,11 +419,12 @@ input[type="range"] { accent-color: var(--accent); width: min(320px, 100%); }
 
 /* pager */
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 56px; border-top: 1px solid var(--line); padding-top: 22px; }
-.pager a, .pager span { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); background: var(--surface); min-width: 0; }
+.pager a, .pager > span { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); background: var(--surface); min-width: 0; }
 .pager a:hover { border-color: var(--accent); }
 .pager small { color: var(--muted); font-size: 12.5px; }
 .pager .nx { text-align: right; grid-column: 2; }
-.pager span { visibility: hidden; }
+.pager > span { visibility: hidden; }
+.pager a span { font-weight: 600; font-size: 14.5px; line-height: 1.45; overflow-wrap: anywhere; }
 
 /* citations & references */
 a.cite { font-size: .78em; vertical-align: super; line-height: 0; text-decoration: none; margin-left: 1px; font-variant-numeric: tabular-nums; }
@@ -579,7 +583,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .lv.deep { background: var(--deep-soft); color: var(--deep); }
 .lv.do { background: var(--note-soft); color: var(--note); }   /* 직접 분석: 접지 않는 수준 표시 */
 .lv.py { background: var(--good-soft); color: var(--good); }   /* 파이썬: R 과목 안의 파이썬 실습 상자 (2026-11-18) */
-/* 목차 화면의 읽는 순서 카드 */
+/* 목차 화면의 안내 카드 */
 .start-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; margin-bottom: 40px; }
 .start-card { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 18px 20px 16px; }
 .start-card h2 { font-size: 16px; margin: 0 0 6px; }
@@ -596,6 +600,7 @@ details.lines-box > ol.lines { margin: 0 14px 10px !important; }
 .five { margin: 0 0 10px; padding-left: 1.3rem; font-size: 14.5px; line-height: 1.65; color: var(--ink-2); }
 .five li { margin-bottom: 5px; }
 .five b { color: var(--ink); margin-right: 6px; }
+.start-grid.one { grid-template-columns: minmax(0, 1fr); max-width: 52rem; }
 @media (max-width: 960px) { .start-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 620px) { .path-topics { display: block; } .path-topics > div { display: block; margin-bottom: 4px; } .path-topics dt, .path-topics dd { display: inline; } .path-topics dt { margin-right: 8px; } }
 .route { border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); padding: 14px 18px 4px; margin: 0 0 32px; font-size: 15px; line-height: 1.7; }
@@ -712,8 +717,20 @@ window.MathJax = {
 function typesetNow() {
   const el = document.getElementById("app");
   if (window.__mj && window.MathJax && MathJax.typesetPromise) {
-    MathJax.typesetClear && MathJax.typesetClear([el]);
-    return MathJax.typesetPromise([el]).catch(() => {});
+    const body = document.getElementById("body");
+    let targets = [el];
+    if (body && body.classList.contains("paged")) {
+      // 절마다 한 화면: 지금 보이는 부분만 그리고, 다른 절은 처음 펼칠 때 그린다
+      targets = [...document.querySelectorAll("#article > .ch-head, #body > :not([hidden])")].filter(x => !x.dataset.mj);
+      targets.forEach(x => { x.dataset.mj = "1"; });
+      if (!targets.length) return Promise.resolve();
+    }
+    // 그리기는 한 번에 하나씩 차례로(절을 빨리 옮겨 다녀도 겹치지 않게)
+    window.__mjq = (window.__mjq || Promise.resolve()).then(() => {
+      MathJax.typesetClear && MathJax.typesetClear(targets);
+      return MathJax.typesetPromise(targets);
+    }).catch(() => {});
+    return window.__mjq;
   }
   return Promise.resolve();
 }
@@ -788,7 +805,7 @@ function typesetNow() {
       <section class="home-hero">
         <p class="eyebrow">사회약학 · 약물역학 · 약물경제학</p>
         <h1>사회약학 연구방법 노트</h1>
-        <p>연구실에 새로 들어온 대학원생이 논문을 읽고 분석을 시작하기 전에 알아야 할 내용을 정리한 자료입니다. 처음이라면 과목 목차 맨 위의 '읽는 순서'부터 봅니다.</p>
+        <p>연구실에 새로 들어온 대학원생이 논문을 읽고 분석을 시작하기 전에 알아야 할 내용을 정리한 자료입니다.</p>
       </section>
       <div class="parts">${cards}</div>
       <div class="home-how">
@@ -828,7 +845,7 @@ function typesetNow() {
         <h1>${esc(COURSE.title)}</h1>
         ${COURSE.intro.head}
       </header>
-      <div class="start-grid">${COURSE.intro.start}</div>
+      <div class="start-grid${(COURSE.intro.start.match(/class="start-card"/g) || []).length < 2 ? " one" : ""}">${COURSE.intro.start}</div>
       <div class="part-grid one"><div>${toc}</div></div>
     </div>`;
       return;
@@ -840,21 +857,7 @@ function typesetNow() {
         <p>논문을 읽는 데 필요한 통계(PART 1–2), 청구자료 연구의 설계와 편향(PART 3), 약물경제성 평가(PART 4)로 이루어져 있습니다. 코드로 분석하는 법은 <a href="r.html">R과 파이썬으로 하는 통계분석</a>에 있습니다. 가끔 만나는 검정은 부록 A에, 인용한 문헌은 부록 B에 모았습니다.</p>
         <p class="toc-note">각 장 첫머리의 '처음 읽을 때' 상자가 먼저 읽을 부분과 나중에 읽을 부분을 알려 줍니다. 접힌 상자는 처음 읽을 때 건너뛰어도 됩니다. <span class="lv do">직접 분석</span> 표시는 내 자료를 분석할 때 꼭 펼쳐 볼 내용이고, <span class="lv deep">심화</span> 표시는 계산 원리가 궁금할 때 펼쳐 볼 내용입니다.</p>
       </header>
-      <div class="start-grid">
-        <section class="start-card">
-          <h2>읽는 순서</h2>
-          <p>순서대로 다 읽을 필요는 없습니다. 먼저 아래 경로를 읽고, 그다음은 연구 주제에 맞는 장으로 갑니다.</p>
-          <p class="path"><b>처음 읽을 때</b><br>${L("ch00", "0장")} → ${L("ch01", "1장")} a·b·c·g → ${L("ch02-s1", "2장 a")} → ${L("ch03-s1", "3장 a")} → ${L("ch05-s1", "5장 a")} → ${L("ch06", "6장")} a·c·d → ${L("ch07", "7장")} a·b → ${L("rv01", "분석 고르기 연습")} → ${L("ch08", "8장")}(c·d·e 절은 핵심만) → ${L("ch09", "9장")}</p>
-          <dl class="path-topics">
-            <div><dt>청구자료·약물역학</dt><dd>${L("ch14", "14")} → ${L("ch11", "11")} → ${L("ch15", "15")} → ${L("ch16", "16")} (필요하면 ${L("ch17", "17")}, ${L("ch12", "12")})</dd></div>
-            <div><dt>반복측정 자료</dt><dd>${L("ch10", "10")}</dd></div>
-            <div><dt>비열등성 시험</dt><dd>${L("ch13-s1", "13 가")}</dd></div>
-            <div><dt>정책 평가</dt><dd>${L("ch18", "18")}</dd></div>
-            <div><dt>메타분석</dt><dd>${L("ch19", "19")}</dd></div>
-            <div><dt>약물경제성 평가</dt><dd>${L("ch20", "20")} → ${L("ch21", "21")} → ${L("ch22", "22")} → ${L("ch23", "23")} → ${L("ch24", "24")} → ${L("ch25", "25")} (0장과 7장 a·b 절을 읽었다면 바로 시작할 수 있습니다)</dd></div>
-          </dl>
-          <p class="path-note">접힌 상자와, 확인 문제 가운데 <span class="lv do">직접 분석</span>·<span class="lv deep">심화</span> 표시가 붙은 문제는 건너뛰어도 다음 장을 읽을 수 있습니다. 4장과 2·3·5장의 나머지 절은 논문에서 그 방법을 만났을 때 읽습니다. 직접 분석할 때는 R과 파이썬으로 하는 통계분석의 짝이 되는 장을 함께 봅니다.</p>
-        </section>
+      <div class="start-grid one">
         <section class="start-card">
           <h2>논문에서 먼저 찾을 다섯 가지</h2>
           <p>예: SGLT2 억제제와 심부전 입원을 다룬 청구자료 연구</p>
@@ -1024,10 +1027,7 @@ function typesetNow() {
             : (secs.length === 1 && (secs[0].steps || []).length ? `<nav class="ch-map" aria-label="이 장의 단계">${secs[0].steps.map(t => `<a href="#${t.id}">${esc(t.title)}</a>`).join("")}</nav>` : "")}
         </header>
         <div id="body"></div>
-        <nav class="pager" aria-label="이전·다음 장">
-          ${prev ? `<a href="#${prev.id}"><small>← 이전</small><span>${numLabel(prev)} ${esc(prev.title)}</span></a>` : "<span></span>"}
-          ${next ? `<a class="nx" href="#${next.id}"><small>다음 →</small><span>${numLabel(next)} ${esc(next.title)}</span></a>` : ""}
-        </nav>
+        <nav class="pager" id="pager" aria-label="이전·다음"></nav>
       </article>
       <aside class="onpage">${secs.length ? `<h4>이 장의 구성</h4><ol>${secs.map(s => `<li><a href="#${s.id}" data-sec="${s.id}">${esc(s.no)}. ${esc(s.title)}</a>${(s.steps || []).length ? `<ol class="steps">${s.steps.map(t => `<li><a href="#${t.id}" data-step="${t.id}">${esc(t.title)}</a></li>`).join("")}</ol>` : ""}</li>`).join("")}</ol>` : ""}</aside>
     </div>`;
@@ -1035,13 +1035,16 @@ function typesetNow() {
     body.appendChild(tpl.content.cloneNode(true));
     const lead = body.querySelector(":scope > .lead");
     if (lead) document.getElementById("leadSlot").appendChild(lead);
+    const paged = setupPaging(body);
+    if (paged) showSection(anchor ? document.getElementById(anchor) : null);
+    else renderPager(c, null);
     initWidgets(body);
     highlightCode(body);
     initPins(body, id);
     lastTypeset = typesetNow() || Promise.resolve();
     if (spy) spy.disconnect();
     const links = [...document.querySelectorAll(".onpage a[data-sec]")];
-    if (links.length && "IntersectionObserver" in window) {
+    if (links.length && !paged && "IntersectionObserver" in window) {
       spy = new IntersectionObserver(entries => {
         for (const e of entries) if (e.isIntersecting) {
           links.forEach(l => l.classList.toggle("on", l.dataset.sec === e.target.id));
@@ -1067,6 +1070,67 @@ function typesetNow() {
       if (el) { openTo(el); requestAnimationFrame(() => el.scrollIntoView({ block: "start" })); return; }
     }
     window.scrollTo(0, 0);
+  }
+
+  /* ---------- 절마다 한 화면 (2026-11-18) ----------
+     절이 둘 이상인 장은 지금 읽는 절만 보이고, 장 머리의 절 목록·이전/다음 단추로 절을 옮겨 다닌다.
+     장 내용은 지금처럼 장마다 한 번 받으므로, 같은 장 안의 절을 옮기거나 다른 절의 소제목 링크를 눌러도 다시 받지 않는다.
+     첫 절 앞의 '처음 읽을 때' 상자와 장 소개 문단은 첫 절에서만 보인다. 퀴즈는 따로 한 문제씩 보여 주므로 제외. */
+  function setupPaging(body) {
+    const secs = [...body.querySelectorAll(":scope > section.sec")];
+    if (secs.length < 2 || COURSE.key === "quiz" || body.querySelector(".qz-player")) return false;
+    const intro = document.createElement("div");
+    intro.className = "ch-intro";
+    while (body.firstChild && body.firstChild !== secs[0]) intro.appendChild(body.firstChild);
+    if (intro.childNodes.length) body.prepend(intro);
+    body.classList.add("paged");
+    return true;
+  }
+  const secTitle = sec => {
+    const h = sec.querySelector("h2"); if (!h) return sec.id;
+    const n = h.querySelector(".sec-no"), t = h.textContent.replace(/\s+/g, " ").trim();
+    return n ? n.textContent.trim() + " " + t.slice(n.textContent.trim().length).trim() : t;
+  };
+  function showSection(target) {
+    const body = document.getElementById("body");
+    if (!body || !body.classList.contains("paged")) return null;
+    const secs = [...body.querySelectorAll(":scope > section.sec")];
+    let cur = typeof target === "string" ? document.getElementById(target) : target;
+    if (cur && cur.nodeType === 1 && !cur.matches("section.sec")) cur = cur.closest("section.sec");
+    if (!cur || !secs.includes(cur)) cur = secs[0];
+    if (body.dataset.cur === cur.id) return cur;
+    unpin();
+    secs.forEach(x => { x.hidden = x !== cur; });
+    const first = cur === secs[0];
+    const intro = body.querySelector(":scope > .ch-intro");
+    if (intro) intro.hidden = !first;
+    const ls = document.getElementById("leadSlot");
+    if (ls) ls.hidden = !first;
+    body.dataset.cur = cur.id;
+    document.querySelectorAll(".ch-map a, .onpage a[data-sec]").forEach(a => {
+      const on = a.getAttribute("href") === "#" + cur.id;
+      a.classList.toggle("on", on);
+      if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    renderPager(byId[(cur.id.match(/^[a-z]+\d\d/) || [""])[0]] || byId[app.dataset.ch], cur.id);
+    lastTypeset = typesetNow() || Promise.resolve();
+    window.dispatchEvent(new Event("resize"));
+    return cur;
+  }
+  function renderPager(c, secId) {
+    const nav = document.getElementById("pager");
+    if (!nav || !c) return;
+    const readyList = CH.filter(x => x.ready), i = readyList.findIndex(x => x.id === c.id);
+    const prevC = readyList[i - 1], nextC = readyList[i + 1];
+    const secs = secId ? [...document.querySelectorAll("#body > section.sec")] : [];
+    const k = secs.findIndex(x => x.id === secId);
+    const card = (href, small, label, cls) => `<a${cls ? ` class="${cls}"` : ""} href="${href}"><small>${small}</small><span>${esc(label)}</span></a>`;
+    let prev = "", next = "";
+    if (k > 0) prev = card("#" + secs[k - 1].id, "← 이전 절", secTitle(secs[k - 1]));
+    else if (prevC) prev = card("#" + prevC.id, "← 이전 장", numLabel(prevC) + " " + prevC.title);
+    if (k >= 0 && k < secs.length - 1) next = card("#" + secs[k + 1].id, "다음 절 →", secTitle(secs[k + 1]), "nx");
+    else if (nextC) next = card("#" + nextC.id, "다음 장 →", numLabel(nextC) + " " + nextC.title, "nx");
+    nav.innerHTML = (prev || "<span></span>") + next;
   }
 
   /* ---------- 읽던 곳으로 돌아가기 ----------
@@ -1096,7 +1160,8 @@ function typesetNow() {
       if (r.height > 0 && r.bottom > edge) { st.a = { i, off: Math.round(r.top) }; break; }
     }
     let sec = null;
-    body.querySelectorAll("section.sec").forEach(x => { if (x.getBoundingClientRect().top <= edge + 80) sec = x; });
+    body.querySelectorAll("section.sec:not([hidden])").forEach(x => { if (x.getBoundingClientRect().top <= edge + 80) sec = x; });
+    if (body.dataset.cur) st.sec = body.dataset.cur;
     const sm = sec && (c.sections || []).find(x => x.id === sec.id);
     st.label = chName(c) + (sm ? ` ${sm.no} 절` : "");
     return st;
@@ -1105,6 +1170,7 @@ function typesetNow() {
   function restoreTo(st) {
     const body = document.getElementById("body");
     const token = ++restoreToken;
+    if (body && st.sec) showSection(st.sec);
     if (body && st.open) { const ds = body.querySelectorAll("details"); st.open.forEach(i => { if (ds[i]) ds[i].open = true; }); }
     const place = () => {
       if (token !== restoreToken) return;
@@ -1228,7 +1294,17 @@ function typesetNow() {
         }
         const already = app.dataset.ch === cur && document.getElementById("article");
         if (already && pr && pr.ch === cur) { restoreTo(pr); return; }
-        if (already && m[2]) { const el = document.getElementById(h); if (el) { openTo(el); el.scrollIntoView({ block: "start" }); return; } }
+        if (already && m[2]) {
+          const el = document.getElementById(h);
+          if (el) {
+            const paged = document.getElementById("body").classList.contains("paged");
+            if (paged) showSection(el);
+            openTo(el);
+            el.scrollIntoView({ block: "start" });
+            return;
+          }
+        }
+        if (already && !m[2] && document.getElementById("body").classList.contains("paged")) { showSection(null); window.scrollTo(0, 0); return; }
         const back = pr && pr.ch === cur;
         renderChapter(cur, m[2] ? h : null, back);
         if (back) { app.dataset.ch = cur; restoreTo(pr); }
