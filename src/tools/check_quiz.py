@@ -24,9 +24,9 @@ for f in files:
             if ol.count('<div class="qz-why-o">') != len(lis): print(qid, "option explanations", ol.count('<div class="qz-why-o">'), "of", len(lis)); bad += 1
         if '<div class="qz-fb">' not in body or "다시 읽을 곳" not in body: print(qid, "feedback/read missing"); bad += 1
         for h in re.findall(r'href="stats\.html#([^"]+)"', body):
-            if h not in ids and not re.fullmatch(r"ch\d\d", h): print(qid, "broken link", h); bad += 1
+            if h not in ids and not re.fullmatch(r"(?:ch|rv)\d\d", h): print(qid, "broken link", h); bad += 1
         if body.count("<div") != body.count("</div>") - 0 and body.count("<div") != body.count("</div>"): pass
     for h in re.findall(r'href="stats\.html#([^"]+)"', s):
-        if h not in ids and not re.fullmatch(r"ch\d\d", h): print(f, "broken link", h); bad += 1
+        if h not in ids and not re.fullmatch(r"(?:ch|rv)\d\d", h): print(f, "broken link", h); bad += 1
     print(f, len(qs), "questions; correct letters", dict(sorted(letters.items())))
 print("OK" if not bad else f"{bad} problem(s)")
