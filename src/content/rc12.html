@@ -259,7 +259,7 @@ arm        2.0   1148.334222  574.167111  4.116789  0.019576
 Residual  87.0  12133.859667  139.469651       NaN       NaN  <span class="mk">1</span></pre>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>행 이름.</b> statsmodels는 군간 변동을 요인 이름(arm)으로, 군내 변동을 Residual(잔차)로 표시합니다. SPSS는 Between Groups / Within Groups / Total, SAS는 Model / Error / Corrected Total로 표시합니다. 이름만 다르고 같은 값입니다. 전체 행은 출력에 없으므로 필요하면 두 행을 더합니다(1148.3 + 12133.9 = 13282.2). Residual 행의 NaN은 해당 칸이 비어 있다(해당 없음)는 뜻입니다.</span></li>
-<li><span class="mk">2</span><span><b>df.</b> 이 열의 df는 자유도(degrees of freedom)로, 데이터프레임 이름 df와는 관계없습니다. 2 = 군 수 − 1, 87 = 분석에 들어간 인원 − 군 수. Residual의 df로 결측 없이 90명이 모두 분석되었는지 확인할 수 있습니다(1장 d 절).</span></li>
+<li><span class="mk">2</span><span><b>df.</b> 이 열의 df는 자유도(degrees of freedom)로, 데이터프레임 이름 df와는 관계없습니다. 2 = 군 수 − 1, 87 = 분석에 들어간 인원 − 군 수. Residual의 df로 결측 없이 90명이 모두 분석되었는지 확인할 수 있습니다(보건통계학 기초 1장 d 절).</span></li>
 <li><span class="mk">3</span><span><b>sum_sq와 mean_sq.</b> mean_sq = sum_sq ÷ df입니다.<br>
 arm의 mean_sq = 1148.334 ÷ 2 = 574.167<br>
 Residual의 mean_sq = 12133.860 ÷ 87 = 139.470<br>
@@ -402,7 +402,7 @@ Tukey 문턱 = 7.27, 보정 없는 문턱 = 6.06
 </ol>
 
 <h3>어느 쌍이 다른지는 어떻게 찾나?</h3>
-<p><strong>rstatix 패키지의 <code>dunn_test()</code>로 Dunn 검정을 하고 보정 방법을 적습니다.</strong> 예는 4장의 PDC 90명입니다.</p>
+<p><strong>rstatix 패키지의 <code>dunn_test()</code>로 Dunn 검정을 하고 보정 방법을 적습니다.</strong> 예는 보건통계학 기초 4장의 PDC 90명입니다.</p>
 <!--FIG:rc12_kw-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>Kruskal-Wallis.</b> H = 7.45, P = 0.024입니다. 동점 보정은 R이 자동으로 합니다.</span></li>
@@ -449,7 +449,7 @@ print(f&quot;카이제곱 근사 p = {stats.kruskal(usual, brief, intensive).pva
 KruskalResult(statistic=np.float64(7.446840090553576), pvalue=np.float64(0.024151228145830986))</pre>
 <p class="excerpt">PDC differed across the three arms (<span class="mk">1</span> <span class="hl">Kruskal–Wallis H = 7.45, df = 2</span>, <span class="mk">2</span> <span class="hl">P = 0.024</span>). <span class="mk">3</span> <span class="hl">Post hoc Dunn's tests with Holm adjustment</span> showed a higher PDC in the intensive-counselling arm than in the usual-care arm (P = 0.020).</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>statistic이 H입니다.</b> scipy는 H를 statistic이라고만 표시합니다. H를 카이제곱 분포에 비교하므로 "chi-squared"나 "χ²"로 표시하는 프로그램도 있고, 논문은 흔히 "H"라고 씁니다. 논문에 "χ²(2) = 7.45"로 적혀 있어도 카이제곱 검정(5장)이 아니라 Kruskal-Wallis 검정일 수 있으니 Methods를 확인합니다. 자유도 2는 군 수 − 1이며 scipy 출력에는 나오지 않으므로 직접 적습니다. 분산분석의 F와 달리 표본 크기와 관련된 자유도가 없습니다.</span></li>
+<li><span class="mk">1</span><span><b>statistic이 H입니다.</b> scipy는 H를 statistic이라고만 표시합니다. H를 카이제곱 분포에 비교하므로 "chi-squared"나 "χ²"로 표시하는 프로그램도 있고, 논문은 흔히 "H"라고 씁니다. 논문에 "χ²(2) = 7.45"로 적혀 있어도 카이제곱 검정(보건통계학 기초 5장)이 아니라 Kruskal-Wallis 검정일 수 있으니 Methods를 확인합니다. 자유도 2는 군 수 − 1이며 scipy 출력에는 나오지 않으므로 직접 적습니다. 분산분석의 F와 달리 표본 크기와 관련된 자유도가 없습니다.</span></li>
 <li><span class="mk">2</span><span><b>P = 0.024.</b> 카이제곱 근사에 의한 값이며, 동률 보정이 자동으로 적용되어 있습니다(보정 전 H = 7.4462, 보정 후 7.4468). 군당 인원이 작은 연구라면 정확검정을 썼는지 확인합니다.</span></li>
 <li><span class="mk">3</span><span><b>짝이 맞는 사후분석.</b> Kruskal-Wallis 뒤에 Tukey를 쓰는 것은 짝이 맞지 않습니다(Tukey는 평균과 합동분산에 기반한 방법). Dunn 검정이나 보정한 쌍별 Mann-Whitney 검정이 짝입니다.</span></li>
 </ol>
@@ -482,7 +482,7 @@ KruskalResult(statistic=np.float64(7.446840090553576), pvalue=np.float64(0.02415
 </ol>
 
 <h3>세 군의 비율은 어떻게 비교하나?</h3>
-<p><strong>3 × 2 표를 <code>chisq.test()</code>에 넣어 전체 검정을 하고, 수정 표준화 잔차(<code>$stdres</code>)나 <code>pairwise.prop.test()</code>로 어느 군이 다른지 찾습니다.</strong> 예는 5장 a 절의 저혈당 표(군마다 300명)입니다.</p>
+<p><strong>3 × 2 표를 <code>chisq.test()</code>에 넣어 전체 검정을 하고, 수정 표준화 잔차(<code>$stdres</code>)나 <code>pairwise.prop.test()</code>로 어느 군이 다른지 찾습니다.</strong> 예는 보건통계학 기초 5장 a 절의 저혈당 표(군마다 300명)입니다.</p>
 <!--FIG:rc12_3x2-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>전체 검정.</b> χ² = 13.82, 자유도 2, P = 0.001입니다.</span></li>
@@ -495,7 +495,7 @@ KruskalResult(statistic=np.float64(7.446840090553576), pvalue=np.float64(0.02415
 <!--FIG:rc12_mcn-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b><code>mcnemar.test()</code>의 기본값.</b> 연속성 보정을 한 χ²로 P = 0.003입니다.</span></li>
-<li><span class="mk">2</span><span><b>정확 검정.</b> 바뀐 32명 가운데 7명이 한쪽으로 바뀌었는지 이항분포로 보면 P = 0.002입니다. 5장 a 절의 P가 이 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>정확 검정.</b> 바뀐 32명 가운데 7명이 한쪽으로 바뀌었는지 이항분포로 보면 P = 0.002입니다. 보건통계학 기초 5장 a 절의 P가 이 값입니다.</span></li>
 <li><span class="mk">3</span><span><b>잘못된 분석.</b> 같은 사람을 다른 240명처럼 넣은 카이제곱 검정의 P 0.020입니다.</span></li>
 </ol>
 <!--FOLD:SPSS 출력과 대조하려면?-->
@@ -519,7 +519,7 @@ b. Computed only for a 2x2 table</pre>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>Pearson Chi-Square: 본문에서 손으로 계산한 χ² = 4.71입니다.</b> 기대빈도가 충분할 때 보고하는 기본값입니다. SPSS는 p를 소수점 셋째 자리까지 보여 주므로 ".000"이 나오면 논문에는 "P = 0.000"이 아니라 "P &lt; 0.001"로 씁니다.</span></li>
 <li><span class="mk">2</span><span><b>Continuity Correction: Yates 보정 χ² = 4.32입니다.</b> 각주 b대로 2×2 표에서만 출력되고, scipy를 기본값(<code>correction=True</code>)으로 실행했을 때의 값(p = 0.038)과 같습니다.</span></li>
-<li><span class="mk">3</span><span><b>Likelihood Ratio: 우도비 카이제곱</b><span class="en">(G², likelihood ratio χ²)</span>입니다. 단순 교차표 비교에서는 거의 보고하지 않습니다. 기대빈도와 관측빈도의 차이를 \(G^2 = 2\sum O \ln(O/E)\)로 재며(우도의 개념은 8장 e 절), 표본이 크면 Pearson 값과 거의 같습니다(4.82 대 4.71). 파이썬에서는 <code>stats.chi2_contingency(t, correction=False, lambda_="log-likelihood")</code>로 같은 값 4.815를 얻습니다(<code>t</code>는 [[48, 352], [102, 498]]). <code>correction=False</code>를 빼면 2×2 표에서 Yates 보정이 먼저 적용되어 4.42가 나옵니다.</span></li>
+<li><span class="mk">3</span><span><b>Likelihood Ratio: 우도비 카이제곱</b><span class="en">(G², likelihood ratio χ²)</span>입니다. 단순 교차표 비교에서는 거의 보고하지 않습니다. 기대빈도와 관측빈도의 차이를 \(G^2 = 2\sum O \ln(O/E)\)로 재며(우도의 개념은 보건통계학 기초 8장 e 절), 표본이 크면 Pearson 값과 거의 같습니다(4.82 대 4.71). 파이썬에서는 <code>stats.chi2_contingency(t, correction=False, lambda_="log-likelihood")</code>로 같은 값 4.815를 얻습니다(<code>t</code>는 [[48, 352], [102, 498]]). <code>correction=False</code>를 빼면 2×2 표에서 Yates 보정이 먼저 적용되어 4.42가 나옵니다.</span></li>
 <li><span class="mk">4</span><span><b>Fisher's Exact Test: 정확검정의 양측 p = .030, 단측 p = .018입니다.</b> 근사가 아니라 확률을 직접 계산하므로 'Asymptotic' 열은 비어 있습니다. 표본이 크면 Pearson 검정과 거의 같은 p를 줍니다. 계산 원리는 b 절에서 다룹니다.</span></li>
 <li><span class="mk">5</span><span><b>Linear-by-Linear Association: 2×2 표에서는 새로운 정보가 없는 행입니다.</b> 4.706 × 999/1,000 = 4.701로 Pearson 값에 (N − 1)/N을 곱한 것과 같습니다. 이 행이 의미를 갖는 경우는 <a href="#rc12-s8">h 절</a>과 보건통계학 기초 5장 c 절 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 접힌 상자 '프로그램은 점수를 어디서 가져오나?'에서 설명합니다.</span></li>
 <li><span class="mk">6</span><span><b>기대빈도 규칙을 확인하는 각주입니다.</b> 이 줄에 "1 cells (25.0%) have expected count less than 5"처럼 나오면, 흔한 관행대로 Pearson 대신 Fisher's Exact Test 행을 보고합니다. 이 자료는 최소 기대빈도가 60이므로 Pearson 행을 보고하면 됩니다.</span></li>
@@ -571,7 +571,7 @@ OR 0.666 0.46 0.96</pre></div></div>
 <!--FIG:rc12_fisher-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>양측 P.</b> 관측된 표보다 확률이 같거나 작은 표를 모두 더한 0.035입니다.</span></li>
-<li><span class="mk">2</span><span><b>정확 95% 신뢰구간.</b> 0.002 ~ 1.08로 1을 포함합니다. P는 0.05보다 작은데 구간은 1을 넘는 이유는 5장 b 절에 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>정확 95% 신뢰구간.</b> 0.002 ~ 1.08로 1을 포함합니다. P는 0.05보다 작은데 구간은 1을 넘는 이유는 보건통계학 기초 5장 b 절에 있습니다.</span></li>
 <li><span class="mk">3</span><span><b>조건부 최대우도 추정값.</b> 0.103입니다.</span></li>
 <li><span class="mk">4</span><span><b>단측 P.</b> X군의 간독성이 더 적다는 방향으로 0.031입니다.</span></li>
 <li><span class="mk">5</span><span><b>표본 오즈비.</b> (1 × 8) ÷ (14 × 6) = 0.095로, 1번 줄의 추정값과 다릅니다.</span></li>

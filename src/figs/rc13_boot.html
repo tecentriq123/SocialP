@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(boot))
+set.seed(2026)
+d8 &lt;- data.frame(age, sbp)
+b &lt;- boot(d8, function(d, i) cor(d$age[i], d$sbp[i]), R = 4000)   # 환자를 짝지은 채 다시 뽑기
+boot.ci(b, type = c(&quot;perc&quot;, &quot;bca&quot;))                 # 백분위수 구간과 BCa 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+Based on 4000 bootstrap replicates
+
+CALL : 
+boot.ci(boot.out = b, type = c(&quot;perc&quot;, &quot;bca&quot;))
+
+Intervals : 
+Level     Percentile            BCa          
+95%   ( 0.3571,  0.9810 )<span class="mk">1</span>   ( 0.1785,  0.9724 )<span class="mk">2</span>  
+Calculations and Intervals on Original Scale</pre></div></div>

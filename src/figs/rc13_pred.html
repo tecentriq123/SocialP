@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">평균의 신뢰구간과 개인의 예측구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">new &lt;- data.frame(age = 70)
+predict(fit, new, interval = &quot;confidence&quot;)          # 70세 평균의 95% 신뢰구간
+predict(fit, new, interval = &quot;prediction&quot;)          # 70세 한 사람의 95% 예측구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       fit      lwr      upr
+1 134.3051 129.9629 138.6473<span class="mk">1</span>
+       fit     lwr      upr
+1 134.3051 105.203 163.4072<span class="mk">2</span></pre></div></div>

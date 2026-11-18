@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">청구 기록을 time과 status로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d &lt;- data.frame(pt = c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;),          # 가상의 환자 4명 (7장 a 절의 가·나·다·라)
+  index   = as.Date(c(&quot;2021-02-15&quot;, &quot;2021-06-01&quot;, &quot;2022-01-10&quot;, &quot;2022-03-20&quot;)),   # 첫 처방일
+  last_rx = as.Date(c(&quot;2021-11-10&quot;, &quot;2021-09-01&quot;, &quot;2022-04-10&quot;, &quot;2022-12-10&quot;)),   # 마지막 처방일
+  supply  = c(90, 90, 30, 90),                                                     # 마지막 처방의 공급일수
+  hhf     = as.Date(c(&quot;2022-01-20&quot;, &quot;2022-04-18&quot;, NA, NA)),                        # 심부전 입원일
+  death   = as.Date(c(NA, NA, &quot;2022-05-02&quot;, NA)))                                  # 사망일
+data_end &lt;- as.Date(&quot;2022-12-31&quot;)                      # 자료 기간 종료
+d$stop &lt;- d$last_rx + d$supply + 60                    # 중단일 = 마지막 처방 + 공급일수 + 유예 60일
+d$end_at  &lt;- pmin(d$hhf, d$death, d$stop, data_end, na.rm = TRUE)   # as-treated: 가장 이른 날
+d$end_itt &lt;- pmin(d$hhf, d$death, data_end, na.rm = TRUE)           # ITT 유사: 중단은 끝이 아님
+for (a in c(&quot;at&quot;, &quot;itt&quot;)) {
+  end &lt;- d[[paste0(&quot;end_&quot;, a)]]
+  d[[paste0(&quot;time_&quot;, a)]]   &lt;- as.numeric(end - d$index)            # 날짜 차이(일)
+  d[[paste0(&quot;status_&quot;, a)]] &lt;- as.integer(!is.na(d$hhf) &amp; end == d$hhf)   # 입원으로 끝나면 1
+}
+d[, c(&quot;pt&quot;, &quot;stop&quot;, &quot;end_at&quot;, &quot;time_at&quot;, &quot;status_at&quot;, &quot;time_itt&quot;, &quot;status_itt&quot;)]
+round(colSums(d[, c(&quot;time_at&quot;, &quot;time_itt&quot;)]) / 365.25, 2)           # 총 인년</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  pt       stop     end_at time_at status_at time_itt status_itt
+1  A 2022-04-09 2022-01-20     339         1<span class="mk">1</span>      339          1
+2  B 2022-01-29 2022-01-29     242         0      321          1
+3  C 2022-07-09 2022-05-02     112         0      112          0
+4  D 2023-05-09 2022-12-31     286         0      286          0
+ time_at time_itt 
+    2.68     2.90<span class="mk">2</span></pre></div></div>

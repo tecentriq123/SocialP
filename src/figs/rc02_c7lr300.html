@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">300명의 로그순위 검정과 층화</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">survdiff(Surv(time, status) ~ drug, data = co)                  # 층화하지 않음
+survdiff(Surv(time, status) ~ drug + strata(imdc), data = co)   # IMDC 위험군으로 층화</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+survdiff(formula = Surv(time, status) ~ drug, data = co)
+
+         N Observed Expected (O-E)^2/E (O-E)^2/V
+drug=A 152      100    116.4      2.30      5.24<span class="mk">1</span>
+drug=B 148      110     93.6      2.86      5.24
+
+ Chisq= 5.2  on 1 degrees of freedom, p= 0.02 
+Call:
+survdiff(formula = Surv(time, status) ~ drug + strata(imdc), 
+    data = co)
+
+         N Observed Expected (O-E)^2/E (O-E)^2/V
+drug=A 152      100      107     0.472      1.03<span class="mk">2</span>
+drug=B 148      110      103     0.491      1.03
+
+ Chisq= 1  on 1 degrees of freedom, p= 0.3</pre></div></div>

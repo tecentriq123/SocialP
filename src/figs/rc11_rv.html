@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">가상 논문의 숫자 검산 (분석 고르기 연습 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">t_from_stats(84.9, 15.1, 150, 79.1, 19.3, 150)                    # 평균 PDC: Welch (논문의 선택)
+t_from_stats(84.9, 15.1, 150, 79.1, 19.3, 150, var.equal = TRUE)  # Student로 바꾸면
+tab &lt;- matrix(c(108, 42,
+                90, 60), nrow = 2, byrow = TRUE)                  # PDC ≥ 80%: 순응, 비순응 (인원)
+unlist(chisq.test(tab, correct = FALSE)[c(&quot;statistic&quot;, &quot;p.value&quot;)])   # 연속성 보정 없이 (논문의 선택)
+unlist(chisq.test(tab)[c(&quot;statistic&quot;, &quot;p.value&quot;)])                    # R 기본값: Yates 보정</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    diff       se        t       df        p    lower    upper 
+  5.8000   2.0008   2.8988 281.6933   0.0040   1.8615   9.7385<span class="mk">1</span> 
+    diff       se        t       df        p    lower    upper 
+  5.8000   2.0008   2.8988 298.0000   0.0040   1.8624   9.7376 
+statistic.X-squared             p.value 
+         4.81283422          0.02824855<span class="mk">2</span> 
+statistic.X-squared             p.value 
+         4.29292929          0.03827117<span class="mk">3</span></pre></div></div>

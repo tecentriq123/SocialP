@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">고혈압 코호트 240명: 보정 전과 기저 SBP 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch06_htn240.csv&quot;)
+d$inst &lt;- factor(d$inst, levels = c(&quot;clinic&quot;, &quot;hospital&quot;, &quot;tertiary&quot;))   # 첫 수준 = 기준범주
+d$sbp0_10 &lt;- d$sbp0 / 10                            # 기저 SBP, 10 mmHg 단위
+d$age10 &lt;- d$age / 10                               # 나이, 10세 단위
+m1 &lt;- lm(sbp6 ~ classes, data = d)                  # 보정 전
+m2 &lt;- lm(sbp6 ~ classes + sbp0, data = d)           # 기저 SBP만 보정
+rbind(crude = coef(summary(m1))[&quot;classes&quot;, ], base_adjusted = coef(summary(m2))[&quot;classes&quot;, ])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Estimate Std. Error   t value     Pr(&gt;|t|)
+crude          3.688303  0.9308424<span class="mk">1</span>  3.962328 9.813923e-05
+base_adjusted -4.431045  1.1027896<span class="mk">2</span> -4.018033 7.884740e-05</pre></div></div>

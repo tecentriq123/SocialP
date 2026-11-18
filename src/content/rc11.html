@@ -5,8 +5,8 @@
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
 <dt>미리 알아 둘 것</dt><dd>평균, 표준편차, 표준오차, 신뢰구간, p값의 뜻은 보건통계학 기초 <a href="stats.html#ch00">0장</a>에, t 검정과 Mann-Whitney 검정은 <a href="stats.html#ch02">2장</a>에 있습니다. R을 여는 법과 자료를 불러오는 법은 이 과목 <a href="#rc00">0장</a>에 있습니다.</dd>
-<dt>먼저 읽을 부분</dt><dd>a 절의 셀 1–3, b 절의 셀 6, c 절의 셀 7–8, g 절의 셀 17.</dd>
-<dt>나중에 읽을 부분</dt><dd>d 절(같은 검정을 다른 통계량으로 보여 줄 때), e 절의 부트스트랩, f 절의 분위수와 정규성 검정, g 절의 셀 16과 18–19는 논문의 숫자를 재현하다 값이 맞지 않을 때 찾아봅니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 1–3, b 절의 셀 6, c 절의 셀 7–8, g 절의 셀 18.</dd>
+<dt>나중에 읽을 부분</dt><dd>d 절(같은 검정을 다른 통계량으로 보여 줄 때), e 절의 부트스트랩, f 절의 분위수와 정규성 검정, g 절의 셀 17과 19–20은 논문의 숫자를 재현하다 값이 맞지 않을 때 찾아봅니다.</dd>
 <dt>이 장을 마치면</dt><dd>① 처방 단위 자료를 환자 단위로 모으고, 결측을 확인하며 요약할 수 있다 ② 통계량과 자유도로 p를, 확률로 경계값을 구해 논문의 숫자를 검산할 수 있다 ③ 같은 자료에서 프로그램마다 숫자가 다르게 나올 때 어느 기본값 때문인지 찾을 수 있다</dd>
 </dl></div>
 
@@ -249,6 +249,51 @@ print(res)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div
 <p>원자료가 없어도 논문 표의 평균 ± SD와 인원으로 위 상자와 같은 t = −2.49, p = 0.0151을 재현할 수 있습니다(맨 끝 자릿수가 조금 다른 것은 계산 순서 때문이라 무시해도 됩니다). 다만 이 함수는 t와 p만 돌려주고 자유도와 신뢰구간은 주지 않으므로, 신뢰구간은 앞의 '신뢰구간과 p값' 셀처럼 평균 차이 ± 임계값 × SE로 직접 계산합니다.</p>
 <p>6개월 HbA1c를 재지 못한 환자가 있으면 변화량 열에 NaN이 생깁니다. scipy의 기본값(<code>nan_policy='propagate'</code>)에서는 NaN이 하나만 있어도 t와 P가 nan으로 나옵니다. <code>nan_policy='omit'</code>을 넣거나 결측 행을 미리 빼면 계산되지만, 이때는 분석에 들어간 군별 인원을 보고합니다.</p>
 <p>논문에서 군의 크기와 SD가 모두 크게 다른데 Student t 검정을 썼다면, 표의 평균·SD·인원을 <code>stats.ttest_ind_from_stats</code>에 <code>equal_var=False</code>와 함께 넣어 Welch t 검정으로 다시 계산해 봅니다. 기저값을 보정하는 공분산분석(보건통계학 기초 <a href="stats.html#ch02-s1">2장 a 절</a>)은 statsmodels로 <code>smf.ols("hba1c_6m ~ group + hba1c_0", data=df).fit()</code>처럼 적합하고 group 계수와 그 신뢰구간을 읽습니다.</p>
+<!--/FOLD-->
+
+<h3>논문의 평균, SD, 인원과 표로 결과를 검산하려면?</h3>
+<p><strong>위의 <code>t_from_stats()</code>와 <code>chisq.test()</code>로 논문이 밝힌 방법 그대로 다시 계산해 보고, 기본값으로 바꾸면 무엇이 달라지는지 함께 봅니다.</strong> 예는 보건통계학 기초 <a href="stats.html#rv01-s4">분석 고르기 연습 d 절</a>의 가상 논문(복약상담군과 일반 관리군 150명씩)입니다. 논문은 평균 PDC를 Welch t 검정으로, PDC ≥ 80% 비율을 연속성 보정 없이 카이제곱 검정으로 비교했다고 밝혔습니다.</p>
+<!--FIG:rc11_rv-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Welch t 검정.</b> 차이 5.8%p, t = 2.90, 자유도 281.7, P = 0.004, 95% CI 1.9–9.7로 논문과 맞습니다. 두 군 인원이 같아 Student로 바꿔도 t는 같고 자유도(298)와 구간만 조금 다릅니다.</span></li>
+<li><span class="mk">2</span><span><b>연속성 보정 없는 χ².</b> 4.81, P = 0.028로 논문의 P = 0.03과 맞습니다. 표에는 백분율이 아니라 인원을 넣습니다.</span></li>
+<li><span class="mk">3</span><span><b>R 기본값(Yates 보정).</b> 4.29, P = 0.038입니다. 논문이 'without continuity correction'이라고 밝혔으므로 맞는 값은 0.028입니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: ttest_ind_from_stats와 chi2_contingency-->
+<p>보건통계학 기초 분석 고르기 연습 d 절의 '직접 분석' 상자에 있던 내용입니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">가상 논문의 숫자 검산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy import stats
+import numpy as np
+
+# ⟨5⟩ 평균 PDC: 두 군의 평균, SD, 인원만으로 Welch t 검정
+res = stats.ttest_ind_from_stats(84.9, 15.1, 150, 79.1, 19.3, 150, equal_var=False)
+print(res)
+
+# equal_var를 빼면 scipy 기본값인 Student t 검정
+res_s = stats.ttest_ind_from_stats(84.9, 15.1, 150, 79.1, 19.3, 150)
+print(round(res.pvalue, 5), round(res_s.pvalue, 5))
+
+# 평균 차이의 95% CI = 차이 ± 임계값 × 차이의 SE
+v1, v2 = 15.1**2 / 150, 19.3**2 / 150        # 각 군 평균의 분산(SE의 제곱)
+se = np.sqrt(v1 + v2)                          # 차이의 SE
+df = (v1 + v2)**2 / (v1**2 / 149 + v2**2 / 149)  # Welch 자유도
+tc = stats.t.ppf(0.975, df)                    # 양측 5% 임계값
+print(round(se, 3), round(df, 1), round(tc, 3))
+print(round(5.8 - tc * se, 1), round(5.8 + tc * se, 1))
+
+# PDC ≥ 80% 비율: 2×2 표의 카이제곱 검정(연속성 보정 없이)
+table = [[108, 42], [90, 60]]
+chi2, p, dof, expected = stats.chi2_contingency(table, correction=False)
+print(round(chi2, 2), round(p, 3))
+
+# correction을 빼면 scipy 기본값인 Yates 연속성 보정
+chi2_y, p_y, dof_y, expected_y = stats.chi2_contingency(table)
+print(round(chi2_y, 2), round(p_y, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Ttest_indResult(statistic=np.float64(2.8987924213509375), pvalue=np.float64(0.00404065209247238))
+0.00404 0.00402
+2.001 281.7 1.968
+1.9 9.7
+4.81 0.028
+4.29 0.038</pre></div></div>
+
 <!--/FOLD-->
 </section>
 

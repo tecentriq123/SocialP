@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">기준범주와 숫자 코드</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$inst_h &lt;- relevel(d$inst, ref = &quot;hospital&quot;)       # 기준범주를 병원으로 바꾸면
+coef(update(full, . ~ . - inst + inst_h))[c(&quot;inst_hclinic&quot;, &quot;inst_htertiary&quot;)]
+d$inst_code &lt;- as.integer(d$inst)                   # 1, 2, 3 코드를 factor 없이 넣으면
+coef(update(full, . ~ . - inst + inst_code))[&quot;inst_code&quot;]   # 연속형으로 계수 하나</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  inst_hclinic inst_htertiary 
+     -2.101074       2.177373<span class="mk">1</span> 
+inst_code 
+ 2.132961<span class="mk">2</span></pre></div></div>

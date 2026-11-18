@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">약물 A·B 300명의 Kaplan-Meier (7장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">co &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch07_cohort.csv&quot;)
+km7 &lt;- survfit(Surv(time, status) ~ drug, data = co, conf.type = &quot;log-log&quot;)
+km7
+summary(km7, times = c(12, 24, 36))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(time, status) ~ drug, data = co, conf.type = &quot;log-log&quot;)
+
+         n events median 0.95LCL 0.95UCL
+drug=A 152    100   32.4    21.7    39.7<span class="mk">1</span>
+drug=B 148    110   19.3    15.7    23.7
+Call: survfit(formula = Surv(time, status) ~ drug, data = co, conf.type = &quot;log-log&quot;)
+
+                drug=A 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+   12    107      42    0.718  0.0369        0.638        0.783<span class="mk">2</span>
+   24     81      22    0.566  0.0410        0.481        0.641
+   36     53      16    0.440  0.0423        0.356        0.521
+
+                drug=B 
+ time n.risk n.event survival std.err lower 95% CI upper 95% CI
+   12     96      50    0.656  0.0394        0.573        0.727
+   24     58      36    0.404  0.0410        0.323        0.483
+   36     32      16    0.278  0.0386        0.206        0.355</pre></div></div>

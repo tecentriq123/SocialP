@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">신뢰구간 방법과 추적기간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">survfit(Surv(time, status) ~ drug, data = co)          # 기본값 conf.type = &quot;log&quot;
+survfit(Surv(time, status == 0) ~ 1, data = co)        # 역 Kaplan-Meier: 중앙 추적기간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(time, status) ~ drug, data = co)
+
+         n events median 0.95LCL 0.95UCL
+drug=A 152    100   32.4      22    41.6<span class="mk">1</span>
+drug=B 148    110   19.3      16    23.7
+Call: survfit(formula = Surv(time, status == 0) ~ 1, data = co)
+
+       n events median 0.95LCL 0.95UCL
+[1,] 300     90   51.4    48.5    56.2<span class="mk">2</span></pre></div></div>

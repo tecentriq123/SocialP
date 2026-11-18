@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">다중비교 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p &lt;- c(0.004, 0.012, 0.021, 0.038, 0.260)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">다중비교 보정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p &lt;- c(0.004, 0.012, 0.021, 0.038, 0.260)
 rbind(holm = p.adjust(p),                    # 기본값이 Holm
       BH = p.adjust(p, method = &quot;BH&quot;),
       bonferroni = p.adjust(p, method = &quot;bonferroni&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           [,1]  [,2]  [,3]   [,4] [,5]

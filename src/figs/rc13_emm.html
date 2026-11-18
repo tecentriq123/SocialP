@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">군별 보정 평균과 기울기 점검</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(emmeans))
+h$arm_f &lt;- factor(h$arm, labels = c(&quot;usual&quot;, &quot;counsel&quot;))
+emmeans(lm(hba1c_6m ~ arm_f + hba1c_0, data = h), ~ arm_f)   # 기저값을 전체 평균에 둔 군별 평균
+anova(anc, lm(hba1c_6m ~ arm * hba1c_0, data = h))          # 두 군의 기울기가 같은가</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> arm_f   emmean    SE df lower.CL upper.CL
+ usual     7.78 0.126<span class="mk">1</span> 69     7.53     8.03
+ counsel   7.40 0.126<span class="mk">2</span> 69     7.15     7.65
+
+Confidence level used: 0.95 
+Analysis of Variance Table
+
+Model 1: hba1c_6m ~ arm + hba1c_0
+Model 2: hba1c_6m ~ arm * hba1c_0
+  Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+1     69 38.779                           
+2     68 38.761  1  0.017602 0.0309  0.861<span class="mk">3</span></pre></div></div>

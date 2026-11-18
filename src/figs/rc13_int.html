@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">교호작용</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fi &lt;- lm(sbp6 ~ classes * diabetes + sbp0_10 + age10 + female + bmi + adherent + inst, data = d)
+coef(summary(fi))[c(&quot;classes&quot;, &quot;diabetes&quot;, &quot;classes:diabetes&quot;), ]
+suppressPackageStartupMessages(library(multcomp))
+confint(glht(fi, linfct = &quot;classes + `classes:diabetes` = 0&quot;))$confint[1, ]   # 당뇨 환자의 기울기와 95% CI
+fi2 &lt;- lm(sbp6 ~ classes * inst + sbp0_10 + age10 + female + diabetes + bmi + adherent, data = d)
+anova(full, fi2)                                    # 계열 수 × 요양기관 종별 (자유도 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                  Estimate Std. Error    t value    Pr(&gt;|t|)
+classes          -3.524927   1.235234<span class="mk">1</span> -2.8536507 0.004718018
+diabetes          3.239552   3.572258  0.9068639 0.365432021
+classes:diabetes -1.421994   1.560662 -0.9111478 0.363175582<span class="mk">2</span>
+ Estimate       lwr       upr 
+-4.946921<span class="mk">3</span> -7.862013 -2.031829 
+Analysis of Variance Table
+
+Model 1: sbp6 ~ classes + sbp0_10 + age10 + female + diabetes + bmi + 
+    adherent + inst
+Model 2: sbp6 ~ classes * inst + sbp0_10 + age10 + female + diabetes + 
+    bmi + adherent
+  Res.Df   RSS Df Sum of Sq      F Pr(&gt;F)
+1    230 21407                           
+2    228 21403  2    3.8525 0.0205 0.9797<span class="mk">4</span></pre></div></div>

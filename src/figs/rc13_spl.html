@@ -1,0 +1,35 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">직선이 맞는지: 스플라인과 범주</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(splines)
+sp &lt;- lm(sbp6 ~ classes + ns(sbp0_10, df = 3) + age10 + female + diabetes + bmi + adherent + inst, data = d)
+anova(full, sp)                                     # 기저 SBP: 곡선 대 직선
+coef(sp)[&quot;classes&quot;]
+fc &lt;- lm(sbp6 ~ factor(classes) + sbp0_10 + age10 + female + diabetes + bmi + adherent + inst, data = d)
+coef(summary(fc))[2:4, ]                            # 1계열과 비교한 2·3·4계열
+confint(fc)[&quot;factor(classes)4&quot;, ]
+anova(full, fc)                                     # 계열 수: 범주 대 직선</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Analysis of Variance Table
+
+Model 1: sbp6 ~ classes + sbp0_10 + age10 + female + diabetes + bmi + 
+    adherent + inst
+Model 2: sbp6 ~ classes + ns(sbp0_10, df = 3) + age10 + female + diabetes + 
+    bmi + adherent + inst
+  Res.Df   RSS Df Sum of Sq      F  Pr(&gt;F)  
+1    230 21407                              
+2    228 20888  2    519.45 2.8351 0.06079<span class="mk">1</span> .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+  classes 
+-4.106663 
+                   Estimate Std. Error   t value     Pr(&gt;|t|)
+factor(classes)2  -2.584264   1.673180 -1.544522 0.1238487141
+factor(classes)3  -7.324613   2.358823 -3.105198 0.0021424278
+factor(classes)4 -14.934934<span class="mk">2</span>   4.178246 -3.574451 0.0004283149
+     2.5 %     97.5 % 
+-23.167846  -6.702022 
+Analysis of Variance Table
+
+Model 1: sbp6 ~ classes + sbp0_10 + age10 + female + diabetes + bmi + 
+    adherent + inst
+Model 2: sbp6 ~ factor(classes) + sbp0_10 + age10 + female + diabetes + 
+    bmi + adherent + inst
+  Res.Df   RSS Df Sum of Sq      F Pr(&gt;F)
+1    230 21407                           
+2    228 21212  2    195.06 1.0483 0.3522<span class="mk">3</span></pre></div></div>

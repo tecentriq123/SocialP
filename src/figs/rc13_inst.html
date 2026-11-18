@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">범주형 변수 전체의 F 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">red &lt;- update(full, . ~ . - inst)                   # 요양기관 종별을 뺀 모형
+anova(red, full)                                    # 가변수 2개를 한꺼번에: P for type of institution</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Analysis of Variance Table
+
+Model 1: sbp6 ~ classes + sbp0_10 + age10 + female + diabetes + bmi + 
+    adherent
+Model 2: sbp6 ~ classes + sbp0_10 + age10 + female + diabetes + bmi + 
+    adherent + inst
+  Res.Df   RSS Df Sum of Sq      F  Pr(&gt;F)  
+1    232 22042                              
+2    230 21407  2    635.35 3.4132 0.03461<span class="mk">1</span> *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</pre></div></div>

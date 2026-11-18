@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 2 정답</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">predict(fit, data.frame(age = c(40, 90)), interval = &quot;confidence&quot;)
+predict(fit, data.frame(age = c(40, 90)), interval = &quot;prediction&quot;)
+range(bp$age)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       fit      lwr      upr
+1 118.4169 113.7246 123.1091
+2 144.8973 136.4986 153.2960
+       fit       lwr      upr
+1 118.4169  89.26044 147.5733
+2 144.8973 114.92029 174.8742
+[1] 36 80<span class="mk">1</span></pre></div></div>

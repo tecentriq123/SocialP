@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">극단값 한 명이 두 계수에 주는 영향</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">nrs   &lt;- c(2, 4, 5, 7, 8, 9)                        # 통증 점수
+doses &lt;- c(1, 0, 3, 2, 5, 4)                        # 추가 복용 횟수
+doses50 &lt;- replace(doses, 5, 50)                    # 한 명이 50회였다면
+round(c(pearson = cor(nrs, doses), pearson50 = cor(nrs, doses50),
+        spearman = cor(nrs, doses, method = &quot;spearman&quot;),
+        spearman50 = cor(nrs, doses50, method = &quot;spearman&quot;)), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   pearson  pearson50   spearman spearman50 
+     0.790      0.451      0.829      0.829<span class="mk">1</span></pre></div></div>

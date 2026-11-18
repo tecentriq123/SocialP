@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">이분산에 강건한 표준오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages({library(sandwich); library(lmtest)})
+coeftest(fit, vcov = vcovHC(fit, type = &quot;HC3&quot;))     # 이분산에 강건한 표준오차 (계수는 그대로)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+t test of coefficients:
+
+            Estimate Std. Error t value  Pr(&gt;|t|)    
+(Intercept) 97.23256    6.78989 14.3202 &lt; 2.2e-16 ***
+age          0.52961    0.11659  4.5423 1.587e-05<span class="mk">1</span> ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</pre></div></div>

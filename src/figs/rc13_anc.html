@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">HbA1c 시험 72명의 공분산분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">h &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch06_hba1c72.csv&quot;)
+anc &lt;- lm(hba1c_6m ~ arm + hba1c_0, data = h)      # arm: 복약상담 1, 일반 진료 0
+summary(anc)
+confint(anc)[&quot;arm&quot;, ]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Call:
+lm(formula = hba1c_6m ~ arm + hba1c_0, data = h)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.8990 -0.5519  0.1662  0.5512  1.3477 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   3.5616     0.8658   4.114 0.000106 ***
+arm          -0.3829     0.1785  -2.145 0.035482<span class="mk">1</span> *  
+hba1c_0       0.5121     0.1055<span class="mk">2</span>   4.853 7.28e-06 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.7497 on 69 degrees of freedom<span class="mk">3</span>
+Multiple R-squared:  0.2715,	Adjusted R-squared:  0.2504 
+F-statistic: 12.86 on 2 and 69 DF,  p-value: 1.796e-05
+
+      2.5 %      97.5 % 
+-0.73902617 -0.02677408</pre></div></div>

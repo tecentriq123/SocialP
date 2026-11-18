@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">같은 2 × 2 표의 χ²와 z</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tab &lt;- matrix(c(12, 38,
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">같은 2 × 2 표의 χ²와 z</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tab &lt;- matrix(c(12, 38,
                 18, 32), nrow = 2, byrow = TRUE,
               dimnames = list(group = c(&quot;treat&quot;, &quot;control&quot;), event = c(&quot;yes&quot;, &quot;no&quot;)))
 chisq.test(tab)$statistic                    # 기본값: Yates 보정

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">과제 1 정답: ECOG 군별 요약표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km_ecog &lt;- survfit(Surv(months, status) ~ ecog, data = lung, conf.type = &quot;log-log&quot;)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">과제 1 정답: ECOG 군별 요약표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km_ecog &lt;- survfit(Surv(months, status) ~ ecog, data = lung, conf.type = &quot;log-log&quot;)
 st  &lt;- summary(km_ecog)$table
 s12 &lt;- summary(km_ecog, times = 12)
 data.frame(group = rownames(st), n = st[, &quot;n.max&quot;], deaths = st[, &quot;events&quot;],

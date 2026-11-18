@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">평균 재원일수의 부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/explore60.csv&quot;)       # 1장 h 절의 60명
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">평균 재원일수의 부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/explore60.csv&quot;)       # 1장 h 절의 60명
 set.seed(2026)
 m &lt;- replicate(2000, mean(sample(d$los, replace = TRUE)))
 round(quantile(m, c(0.025, 0.975)), 2)      # 백분위수 부트스트랩 95% CI

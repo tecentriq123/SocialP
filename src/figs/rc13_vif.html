@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">VIF와 설명변수의 겹침</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(car))
+round(vif(full), 2)                                 # 범주형 inst가 있어 GVIF 열로 나옴
+fw &lt;- update(full, . ~ . + weight)                  # BMI와 겹치는 체중을 더 넣으면
+round(cor(d$bmi, d$weight), 2)
+coef(summary(fw))[c(&quot;bmi&quot;, &quot;classes&quot;), ]
+round(vif(fw)[c(&quot;bmi&quot;, &quot;weight&quot;), &quot;GVIF&quot;], 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         GVIF Df GVIF^(1/(2*Df))
+classes  2.33<span class="mk">1</span>  1            1.53
+sbp0_10  2.21  1            1.49
+age10    1.06  1            1.03
+female   1.06  1            1.03
+diabetes 1.16  1            1.08
+bmi      1.02  1            1.01
+adherent 1.02  1            1.01
+inst     1.05  2            1.01
+[1] 0.8
+           Estimate Std. Error     t value     Pr(&gt;|t|)
+bmi     -0.03508148   0.401017<span class="mk">2</span> -0.08748129 0.9303654049
+classes -4.03559635   1.097825 -3.67599391 0.0002951751
+   bmi weight 
+  4.56   6.13<span class="mk">3</span></pre></div></div>

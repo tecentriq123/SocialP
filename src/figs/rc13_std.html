@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">표준화 계수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b &lt;- coef(full)
+round(c(classes = b[[&quot;classes&quot;]] * sd(d$classes), sbp0 = b[[&quot;sbp0_10&quot;]] * sd(d$sbp0_10),
+        adherent = b[[&quot;adherent&quot;]] * sd(d$adherent)) / sd(d$sbp6), 2)   # 표준화 계수</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> classes     sbp0 adherent 
+   -0.27     0.75    -0.26<span class="mk">1</span></pre></div></div>

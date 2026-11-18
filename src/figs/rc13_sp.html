@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">Spearman 상관계수와 두 가지 p</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cor.test(age, sbp, method = &quot;spearman&quot;)                  # n &lt; 1290이고 동점이 없으면 정확 p
+cor.test(age, sbp, method = &quot;spearman&quot;, exact = FALSE)   # t 근사 p</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Spearman&#x27;s rank correlation rho
+
+data:  age and sbp
+S = 18, p-value = 0.02793<span class="mk">1</span>
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+      rho 
+0.7857143 
+
+
+	Spearman&#x27;s rank correlation rho
+
+data:  age and sbp
+S = 18, p-value = 0.02082<span class="mk">2</span>
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+      rho 
+0.7857143</pre></div></div>

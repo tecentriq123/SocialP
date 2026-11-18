@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">12명의 로그순위 검정과 순열 P (7장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">time12 &lt;- c(3, 5, 8, 12, 12, 16, 20, 25, 28, 32, 38, 44)   # 7장 표 7-1의 12명 (개월)
+st12   &lt;- c(1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0)             # 1 = 사망
+drugA  &lt;- c(0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1)             # 약물 A = 1
+lr12 &lt;- survdiff(Surv(time12, st12) ~ drugA)
+lr12
+idx  &lt;- combn(12, 6)                                        # A 이름표 6개를 붙이는 924가지
+chis &lt;- apply(idx, 2, function(i) {
+  g &lt;- seq_len(12) %in% i                                   # 이 배정에서 A인 환자
+  survdiff(Surv(time12, st12) ~ g)$chisq
+})
+c(n = length(chis), n_ge = sum(chis &gt;= lr12$chisq - 1e-9), p = mean(chis &gt;= lr12$chisq - 1e-9))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+survdiff(formula = Surv(time12, st12) ~ drugA)
+
+        N Observed Expected (O-E)^2/E (O-E)^2/V
+drugA=0 6        5     2.65      2.08      3.59
+drugA=1 6        2     4.35      1.27      3.59
+
+ Chisq= 3.6<span class="mk">1</span>  on 1 degrees of freedom, p= 0.06 
+           n         n_ge            p 
+924.00000000  66.00000000   0.07142857<span class="mk">2</span></pre></div></div>

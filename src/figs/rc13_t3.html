@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">과제 3 정답</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fem &lt;- lm(sbp6 ~ classes + sbp0_10 + age10 + diabetes + bmi + adherent + inst, data = subset(d, female == 1))
+mal &lt;- lm(sbp6 ~ classes + sbp0_10 + age10 + diabetes + bmi + adherent + inst, data = subset(d, female == 0))
+rbind(women = coef(summary(fem))[&quot;classes&quot;, ], men = coef(summary(mal))[&quot;classes&quot;, ])
+fx &lt;- lm(sbp6 ~ classes * female + sbp0_10 + age10 + diabetes + bmi + adherent + inst, data = d)
+coef(summary(fx))[&quot;classes:female&quot;, ]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       Estimate Std. Error   t value     Pr(&gt;|t|)
+women -2.006383   1.648328 -1.217223 0.2264131226
+men   -5.850290   1.513760 -3.864742 0.0001789595
+  Estimate Std. Error    t value   Pr(&gt;|t|) 
+ 0.4338328  1.4524957  0.2986810  0.7654543<span class="mk">1</span></pre></div></div>

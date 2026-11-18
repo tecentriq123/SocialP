@@ -6,7 +6,7 @@
 <dl>
 <dt>미리 알아 둘 것</dt><dd>중도절단, Kaplan-Meier 추정, 로그순위법의 개념은 보건통계학 기초 <a href="stats.html#ch07">7장</a>에 있습니다. R을 처음 쓴다면 이 과목 <a href="#rc00">0장</a>을 먼저 봅니다.</dd>
 <dt>먼저 읽을 부분</dt><dd>a 절의 셀 2, b 절의 셀 4–5, c 절의 셀 7–9, d 절의 셀 10.</dd>
-<dt>나중에 읽을 부분</dt><dd>d 절의 가중 검정, 두 군씩 비교, 제한평균생존시간(셀 11–13)은 내 자료의 곡선이 교차하거나 군이 셋 이상일 때 봅니다.</dd>
+<dt>나중에 읽을 부분</dt><dd>d 절의 가중 검정, 두 군씩 비교, 제한평균생존시간(셀 11–13)은 내 자료의 곡선이 교차하거나 군이 셋 이상일 때 봅니다. e 절(셀 14–19)은 보건통계학 기초 7장을 읽으며 그 숫자를 확인할 때 봅니다.</dd>
 <dt>이 장을 마치면</dt><dd>① <code>Surv()</code>로 생존 자료를 만들고 사건 변수의 부호화를 확인할 수 있다 ② <code>survfit()</code>으로 중앙생존기간과 시점별 생존율을 구하고 신뢰구간 방식을 정할 수 있다 ③ 군별 요약표와 위험집합 표가 붙은 그림을 만들고 <code>survdiff()</code>로 군을 비교할 수 있다</dd>
 </dl></div>
 
@@ -216,7 +216,239 @@
 
 <!-- ============================================================ e -->
 <section class="sec" id="rc02-s5">
-<h2><span class="sec-no">e.</span>과제</h2>
+<h2><span class="sec-no">e.</span>보건통계학 기초 7장의 예</h2>
+
+<p>보건통계학 기초 <a href="stats.html#ch07">7장</a>의 예를 R로 계산합니다. 앞 절들의 함수를 그대로 쓰므로, 여기서는 7장 본문의 숫자가 어디서 나오는지 확인하는 데 집중합니다. 300명 코호트는 사이트의 CSV(ch07_cohort.csv)로 읽습니다.</p>
+
+<h3>청구 기록을 time과 status로 바꾸려면?</h3>
+<p><strong>날짜 열을 <code>as.Date()</code>로 바꾸고, 추적이 끝나는 날을 <code>pmin(…, na.rm = TRUE)</code>로 고른 뒤, 날짜 차이를 time으로, 끝난 이유가 사건인지를 status로 만듭니다.</strong> 예는 보건통계학 기초 7장 <a href="stats.html#ch07-s1">a 절</a>의 SGLT2 억제제 신규 사용자 4명(가·나·다·라를 A·B·C·D로 적음)이고, 규칙(유예기간 60일, as-treated와 ITT 유사)은 그 절에서 정했습니다.</p>
+<!--FIG:rc02_c7claims-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>환자 A.</b> 중단일(2022-04-09) 전에 심부전으로 입원해 339일, status 1입니다. 환자 B는 as-treated에서 중단일에 끝나 242일, status 0이고, ITT 유사에서는 입원까지 321일, status 1입니다.</span></li>
+<li><span class="mk">2</span><span><b>총 인년.</b> as-treated 2.68인년(사건 1), ITT 유사 2.90인년(사건 2)입니다. 같은 기록이라도 종료 규칙에 따라 사건 수와 인년이 달라집니다.</span></li>
+</ol>
+<p><code>pmin()</code>에 <code>na.rm = TRUE</code>를 빼면 날짜 하나라도 NA인 환자는 종료일이 NA가 됩니다. 사망일처럼 연계해야 얻는 날짜가 빠졌는지도 따로 셉니다.</p>
+<!--FOLD py:파이썬으로 하면: pandas로 날짜를 time과 status로-->
+<p>보건통계학 기초 7장 a 절의 '직접 분석' 상자에 있던 내용입니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">환자 4명의 청구 기록을 (time, status)로 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import pandas as pd
+
+# 가상의 환자 4명: 첫 처방일(index date), 마지막 처방, 입원·사망
+d = pd.DataFrame({
+    &quot;pt&quot;: [&quot;가&quot;, &quot;나&quot;, &quot;다&quot;, &quot;라&quot;],
+    &quot;index_date&quot;: [&quot;2021-02-15&quot;, &quot;2021-06-01&quot;, &quot;2022-01-10&quot;, &quot;2022-03-20&quot;],
+    &quot;last_rx&quot;: [&quot;2021-11-10&quot;, &quot;2021-09-01&quot;, &quot;2022-04-10&quot;, &quot;2022-12-10&quot;],
+    &quot;supply&quot;: [90, 90, 30, 90],                      # 마지막 처방의 공급일수
+    &quot;hhf&quot;: [&quot;2022-01-20&quot;, &quot;2022-04-18&quot;, None, None], # 심부전 입원일
+    &quot;death&quot;: [None, None, &quot;2022-05-02&quot;, None],       # 사망일(사망 자료 연계)
+})
+for col in [&quot;index_date&quot;, &quot;last_rx&quot;, &quot;hhf&quot;, &quot;death&quot;]:
+    d[col] = pd.to_datetime(d[col])                  # 글자 → 날짜
+d[&quot;data_end&quot;] = pd.Timestamp(&quot;2022-12-31&quot;)           # 자료 기간 종료
+
+# 중단일 = 마지막 처방일 + 공급일수 + 유예 60일
+# (앞 처방 사이의 간격은 모두 유예기간 안이라고 가정)
+d[&quot;stop&quot;] = d[&quot;last_rx&quot;] + pd.to_timedelta(d[&quot;supply&quot;] + 60, unit=&quot;D&quot;)
+
+# 가장 이른 날짜가 추적 종료일 (빈칸 NaT는 건너뜀)
+d[&quot;end_at&quot;] = d[[&quot;hhf&quot;, &quot;death&quot;, &quot;stop&quot;, &quot;data_end&quot;]].min(axis=1)  # as-treated
+d[&quot;end_itt&quot;] = d[[&quot;hhf&quot;, &quot;death&quot;, &quot;data_end&quot;]].min(axis=1)         # ITT 유사
+
+for a in [&quot;at&quot;, &quot;itt&quot;]:
+    d[&quot;time_&quot; + a] = (d[&quot;end_&quot; + a] - d[&quot;index_date&quot;]).dt.days  # 날짜 차이(일)
+    d[&quot;status_&quot; + a] = (d[&quot;end_&quot; + a] == d[&quot;hhf&quot;]).astype(int)  # 입원으로 끝나면 1
+
+print(d[[&quot;pt&quot;, &quot;stop&quot;, &quot;end_at&quot;, &quot;time_at&quot;, &quot;status_at&quot;]])
+print(d[[&quot;pt&quot;, &quot;end_itt&quot;, &quot;time_itt&quot;, &quot;status_itt&quot;]])
+print((d[[&quot;time_at&quot;, &quot;time_itt&quot;]].sum() / 365.25).round(2))  # 총 인년</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  pt       stop     end_at  time_at  status_at
+0  가 2022-04-09 2022-01-20      339          1
+1  나 2022-01-29 2022-01-29      242          0
+2  다 2022-07-09 2022-05-02      112          0
+3  라 2023-05-09 2022-12-31      286          0
+  pt    end_itt  time_itt  status_itt
+0  가 2022-01-20       339           1
+1  나 2022-04-18       321           1
+2  다 2022-05-02       112           0
+3  라 2022-12-31       286           0
+time_at     2.68
+time_itt    2.90
+dtype: float64</pre></div></div>
+<!--/FOLD-->
+
+<h3>약물 A·B의 중앙생존기간과 시점별 생존율은?</h3>
+<p><strong>b 절과 같이 <code>survfit()</code>에 <code>conf.type = "log-log"</code>를 적습니다.</strong> 보건통계학 기초 7장 <a href="stats.html#ch07-s2">b 절</a>의 300명 코호트(약물 A 152명, B 148명)입니다.</p>
+<!--FIG:rc02_c7km-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>약물 A의 중앙생존기간 32.4개월(21.7–39.7).</b> 약물 B는 19.3개월(15.7–23.7)입니다.</span></li>
+<li><span class="mk">2</span><span><b>약물 A의 12개월 생존율 0.718(0.638–0.783)과 위험집합 107명.</b> 7장 그림 7-6의 위험집합 표와 Results 상자의 숫자입니다.</span></li>
+</ol>
+<!--FIG:rc02_c7ci-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>log 변환(R의 기본값)으로는 22.0–41.6개월.</b> log-log 변환의 21.7–39.7과 다릅니다. 어느 방법인지 Methods에 적습니다.</span></li>
+<li><span class="mk">2</span><span><b>중앙 추적기간 51.4개월(48.5–56.2).</b> 중도절단을 사건으로 본 역 Kaplan-Meier입니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: lifelines의 KaplanMeierFitter-->
+<p>보건통계학 기초 7장 b 절의 '직접 분석' 상자에 있던 내용입니다.</p>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · lifelines의 KaplanMeierFitter</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>a 절에서 소개한 300명 코호트의 Kaplan-Meier 결과를 파이썬 lifelines 패키지로 구하면 다음과 같습니다. 보건통계학 기초 7장 b 절 '논문에서 읽기'의 그림 7-6과 Results 상자의 숫자가 여기서 나옵니다. rcc는 환자 한 명이 한 줄인 데이터프레임이고, time(개월), status(1 = 사망, 0 = 중도절단), drug(A/B) 열이 있습니다. 숫자는 예제 자료로 계산한 값이며(lifelines 0.30, pandas 3.0), 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
+<pre class="out"><span class="cm"># import pandas as pd
+# from lifelines import KaplanMeierFitter
+# from lifelines.utils import median_survival_times
+# a = rcc[rcc["drug"] == "A"]
+# kmf = KaplanMeierFitter()
+# kmf.fit(a["time"], event_observed=a["status"], label="A")</span>   <span class="mk">1</span>
+&lt;lifelines.KaplanMeierFitter:"A", fitted with 152 total observations, 52 right-censored observations&gt;
+<span class="cm"># print(kmf.median_survival_time_)</span>
+32.4   <span class="mk">2</span>
+<span class="cm"># print(median_survival_times(kmf.confidence_interval_))</span>
+     A_lower_0.95  A_upper_0.95
+0.5          21.7          39.7   <span class="mk">3</span>
+<span class="cm"># t = [12, 24, 36]
+# s = kmf.survival_function_at_times(t)
+# ci = kmf.confidence_interval_.asof(t)
+# print(pd.concat([s, ci], axis=1))</span>
+           A  A_lower_0.95  A_upper_0.95
+12  0.718043      0.638302      0.783194
+24  0.565634      0.481437      0.641356   <span class="mk">4</span>
+36  0.440386      0.356404      0.521050
+<span class="cm"># print([int((a["time"] &gt;= x).sum()) for x in t])</span>
+[107, 81, 53]   <span class="mk">5</span></pre>
+<pre class="out"><span class="cm"># b = rcc[rcc["drug"] == "B"]
+# kmf_b = KaplanMeierFitter().fit(b["time"], event_observed=b["status"], label="B")
+# print(kmf_b.median_survival_time_)</span>
+19.3
+<span class="cm"># print(median_survival_times(kmf_b.confidence_interval_))</span>
+     B_lower_0.95  B_upper_0.95
+0.5          15.7          23.7
+<span class="cm"># s = kmf_b.survival_function_at_times(t)
+# ci = kmf_b.confidence_interval_.asof(t)
+# print(pd.concat([s, ci], axis=1))</span>
+           B  B_lower_0.95  B_upper_0.95
+12  0.656078      0.572734      0.727068
+24  0.403777      0.323267      0.482729
+36  0.278220      0.205574      0.355360
+<span class="cm"># print([int((b["time"] &gt;= x).sum()) for x in t])</span>
+[96, 58, 32]</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>관측 수와 중도절단 수.</b> <code>fit()</code>을 실행하면 바로 아래 줄에 요약이 출력됩니다. 약물 A 152명 중 52명이 중도절단되었으므로 100명이 사망했습니다. <code>event_observed</code>에는 사건이면 1, 중도절단이면 0인 열을 넣습니다. 사건을 2로 부호화한 자료를 그대로 넣으면 결과가 틀리므로 먼저 0/1로 바꿉니다.</span></li>
+<li><span class="mk">2</span><span><b>median_survival_time_ = 32.4개월.</b> 곡선이 처음으로 0.5 이하가 되는 시점입니다. 곡선이 끝까지 0.5 아래로 내려가지 않으면 inf(무한대)가 출력되는데, 이것은 "not reached"라는 뜻이지 생존기간이 무한하다는 뜻이 아닙니다.</span></li>
+<li><span class="mk">3</span><span><b>중앙생존기간의 95% 신뢰구간 21.7–39.7개월.</b> <code>confidence_interval_</code>은 시점마다의 아래쪽·위쪽 신뢰구간 띠이고, <code>median_survival_times()</code>는 각 띠가 처음 0.5 이하가 되는 시점을 읽어 줍니다. 보건통계학 기초 7장 b 절 '신뢰구간은 어떻게 읽나?'에서 설명한 방법 그대로입니다. lifelines의 띠는 log-log 변환으로 계산하므로 12명 자료의 신뢰구간 표, c 절 Table 2와 같은 방식입니다. 다른 프로그램과의 차이는 이 절의 셀 16에서 보았습니다. 위쪽 띠가 끝까지 0.5 아래로 내려가지 않으면 상한이 inf로 나오고, 논문에는 "NR"로 씁니다.</span></li>
+<li><span class="mk">4</span><span><b>시점별 생존율과 95% CI.</b> <code>survival_function_at_times()</code>는 지정한 시점의 S(t)를, <code>confidence_interval_.asof(t)</code>는 각 시점과 같거나 그 이전의 마지막 값, 즉 계단 함수의 그 시점 값을 가져옵니다. 24개월 행의 0.566(0.481–0.641)이 논문 Results에는 "56.6% (95% CI, 48.1 to 64.1)"로 적힙니다. Greenwood 표준오차 자체는 출력하지 않지만 신뢰구간 계산에 쓰였습니다.</span></li>
+<li><span class="mk">5</span><span><b>위험집합 크기.</b> 각 시점에 아직 사건도 중도절단도 없이 관찰 중인 환자 수(time ≥ 12, 24, 36인 환자 수)로, 보건통계학 기초 7장 b 절 그림 7-6 아래 위험집합 표에 그대로 옮겨집니다. <code>kmf.event_table</code>에는 시점별 위험집합(at_risk), 사망(observed), 중도절단(censored) 수가 정리되어 있습니다. 두 시점 사이에 새로 생긴 사망 수는 이 표의 observed 열을 구간별로 더해 구합니다. 약물 A는 0–12개월 42명, 12–24개월 22명, 24–36개월 16명이 사망해 36개월까지 80명, 그 뒤에 20명이 사망했습니다.</span></li>
+</ol>
+</div></div>
+<p>lifelines의 띠는 log-log 변환으로만 계산하고 변환 방법을 바꾸는 옵션은 따로 없습니다(lifelines 0.30). lifelines의 <code>restricted_mean_survival_time(kmf, t=36, return_variance=True)</code>가 돌려주는 분산(12명 자료에서 148.0)은 환자마다의 제한 생존시간 min(T, 36)의 분산이라 RMST 추정값의 표준오차(3.71)를 제곱한 값이 아닙니다. Greenwood형 분산을 계산하는 함수는 <a href="#lab07-s2">실습 7 b 절</a>에 있습니다.</p>
+<!--/FOLD-->
+
+<h3>12명의 로그순위 검정과 순열 P는?</h3>
+<p><strong><code>survdiff()</code>로 χ²를 구하고, A 이름표를 붙일 6명을 고르는 924가지마다 χ²를 다시 구해 실제 값 이상인 비율을 셉니다.</strong> 보건통계학 기초 7장 <a href="stats.html#ch07-s3">c 절</a> 표 7-3의 12명입니다.</p>
+<!--FIG:rc02_c7lr12-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>χ² = 3.59, P = 0.058.</b> 출력의 (O − E)²/V 열이 로그순위 χ²이고, (O − E)²/E 열은 교과서의 근사식입니다.</span></li>
+<li><span class="mk">2</span><span><b>순열 P = 66 ÷ 924 = 0.071.</b> 사건이 적을 때 어림한 P와 함께 확인합니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: 12명의 순열 P-->
+<p>보건통계학 기초 7장 c 절의 '직접 분석' 상자에 있던 내용입니다.</p>
+<p>lifelines는 어림한 P만 주므로 924가지를 직접 셉니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">12명 자료의 순열 P</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import itertools
+import numpy as np
+from lifelines.statistics import logrank_test
+
+time   = np.array([3, 5, 8, 12, 12, 16, 20, 25, 28, 32, 38, 44])   # 표 7-1
+status = np.array([1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0])
+drugA  = np.array([0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1]) == 1
+
+def chi2(a):                       # a: True = 약물 A 이름표, ~a: 나머지 6명
+    return logrank_test(time[a], time[~a], status[a], status[~a]).test_statistic
+
+obs = chi2(drugA)
+chis = np.array([chi2(np.isin(np.arange(12), idx))
+                 for idx in itertools.combinations(range(12), 6)])   # 924가지
+n_ge = (chis &gt;= obs - 1e-9).sum()  # 소수점 오차로 같은 값을 놓치지 않게
+print(round(obs, 2), len(chis), n_ge, round(n_ge / len(chis), 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3.59 924 66 0.071</pre></div></div>
+<!--/FOLD-->
+
+<h3>300명의 로그순위 검정과 층화는?</h3>
+<p><strong>층화는 공식에 <code>strata(imdc)</code>를 더합니다.</strong> IMDC 위험군마다 관찰 사망과 기대 사망을 구해 더한 뒤 검정합니다.</p>
+<!--FIG:rc02_c7lr300-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>층화하지 않음: 관찰 100, 기대 116.4, χ² = 5.24(P = 0.022).</b> 7장 그림 7-6의 Log-rank P입니다.</span></li>
+<li><span class="mk">2</span><span><b>IMDC로 층화: χ² = 1.03(P = 0.31).</b> 약물 B 환자에 고위험군이 많았던 차이를 맞추자 차이가 줄었습니다(7장 c 절 표 7-4).</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: lifelines의 logrank_test-->
+<p>보건통계학 기초 7장 c 절의 '직접 분석' 상자에 있던 내용입니다.</p>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · lifelines의 logrank_test</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p>그림 7-6의 "Log-rank P = 0.022"는 다음 출력에서 나옵니다. b 절의 Kaplan-Meier 출력과 같은 데이터프레임 rcc를 썼고(lifelines 0.30), 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<p class="cmd-note">회색 <code>#</code> 줄은 어떤 명령을 실행했는지 보여 주려고 적은 것이고, 그 아래가 출력입니다. 직접 실행할 때는 <code>#</code>을 빼고 입력합니다.</p>
+<pre class="out"><span class="cm"># from lifelines.statistics import logrank_test
+# a = rcc[rcc["drug"] == "A"]
+# b = rcc[rcc["drug"] == "B"]
+# res = logrank_test(a["time"], b["time"],
+#                    event_observed_A=a["status"], event_observed_B=b["status"])
+# res.print_summary()</span>
+&lt;lifelines.StatisticalResult: logrank_test&gt;
+               t_0 = -1
+ null_distribution = chi squared
+degrees_of_freedom = 1   <span class="mk">1</span>
+         test_name = logrank_test
+
+---
+ test_statistic    p  -log2(p)
+           5.24 0.02      5.50   <span class="mk">2</span><span class="mk">3</span>
+<span class="cm"># print(res.test_statistic, res.p_value)</span>
+5.240213077989034 0.022070570611017   <span class="mk">4</span></pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>검정의 설정.</b> 귀무가설 아래에서 통계량이 자유도 1(= 군의 수 − 1)인 χ² 분포를 따른다는 뜻입니다. t_0 = -1은 특정 시점 이후의 사건을 중도절단으로 바꾸는 옵션의 기본값으로, 추적 기간 전체를 썼다는 표시입니다. 가중치를 지정하지 않았으므로 test_name은 가중치 없는 logrank_test입니다.</span></li>
+<li><span class="mk">2</span><span><b>test_statistic 5.24 = (O − E)²/V.</b> 보건통계학 기초 7장 c 절 표 7-3에서 12명 자료로 손으로 계산한 것과 같은 방식의 로그순위 χ²입니다. lifelines는 관찰 사망(O)과 기대 사망(E)을 출력하지 않으므로 필요하면 표 7-3처럼 직접 계산합니다. 300명 코호트에서 약물 A는 100명이 사망했고, 두 곡선이 같았다면 116.36명이 사망했을 것으로 기대되며, V = 51.10입니다. 이 값들은 보건통계학 기초 7장 c 절 표 7-4의 '층화하지 않음' 행에 있습니다. 약물 B의 기대 사망은 아래와 같고, 두 군의 기대 사망을 더하면 관찰 사망의 합(210)과 같습니다.<br>
+χ² = (−16.36)² ÷ 51.10 = 5.24<br>
+약물 B의 기대 사망 = 210 − 116.36 = 93.64명</span></li>
+<li><span class="mk">3</span><span><b>p 0.02와 −log2(p) 5.50.</b> 요약 표는 p를 소수 둘째 자리까지만 보여 줍니다. −log2(p)는 P 값을 '공정한 동전을 던져 앞면이 연속으로 몇 번 나온 정도로 놀라운가'로 바꾼 값(S 값)으로, P 값과 같은 정보를 다른 척도로 보여 줄 뿐입니다.</span></li>
+<li><span class="mk">4</span><span><b>반올림하지 않은 값.</b> 논문에 쓸 P는 <code>res.p_value</code>로 확인한 0.0221입니다. 자유도 1의 χ² 분포에서 5.24보다 클 확률입니다. 효과의 크기는 이 출력에 없습니다. 위험비와 신뢰구간은 lifelines의 <code>CoxPHFitter</code>로 따로 구합니다(이 과목 <a href="#rc03">6장</a>).</span></li>
+</ol>
+</div></div>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">표 7-3의 로그순위 검정과 300명 코호트의 요약값 검산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+from scipy import stats
+
+# 표 7-1의 12명: time(개월), status(1 = 사망), 약물 A 여부(#4, #6, #8, #9, #10, #12)
+time   = np.array([3, 5, 8, 12, 12, 16, 20, 25, 28, 32, 38, 44])
+status = np.array([1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0])
+drugA  = np.array([0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1])
+
+O = E = V = 0
+for t in np.unique(time[status == 1]):           # 사망이 있었던 시점마다
+    risk = time &gt;= t                             # 위험집합
+    n, nA = risk.sum(), (risk &amp; (drugA == 1)).sum()
+    death = (time == t) &amp; (status == 1)
+    d, dA = death.sum(), (death &amp; (drugA == 1)).sum()
+    O += dA                                      # 관찰 사망(A)
+    E += d * nA / n                              # 기대 사망(A)
+    V += d * (nA / n) * (1 - nA / n) * (n - d) / (n - 1)
+chi2 = (O - E) ** 2 / V
+print(O, round(E, 3), round(V, 3), round(chi2, 2), round(stats.chi2.sf(chi2, df=1), 3))
+
+# 300명 코호트: 표 7-4 '층화하지 않음' 행의 요약값만으로
+chi2_300 = (100 - 116.36) ** 2 / 51.10
+print(round(chi2_300, 2), round(stats.chi2.sf(chi2_300, df=1), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>2 4.35 1.539 3.59 0.058
+5.24 0.0221</pre></div></div>
+<p>첫 줄은 표 7-3의 합계(관찰 사망 2, 기대 사망 4.35, V 1.539, χ² 3.59, P 0.058)와 같고, 둘째 줄은 lifelines 출력의 5.24와 0.0221을 요약값만으로 다시 구한 것입니다. <code>time &gt;= t</code>는 "t 시점까지 사건도 중도절단도 없던 사람"을 True로 표시해 위험집합을 만들고, <code>&amp;</code>는 두 조건을 모두 만족하는 사람만 고릅니다. χ² 값에서 P를 구하는 <code>stats.chi2.sf()</code> 같은 검산 도구는 <a href="stats.html#ch01-s5-check">1장 e 절</a>에 모아 두었습니다.</p>
+<!--/FOLD-->
+
+<h3>제한평균생존시간은?</h3>
+<p><strong><code>print(fit, rmean = τ)</code>나 <code>summary(fit, rmean = τ)$table</code>에서 rmean과 se(rmean)을 읽습니다.</strong> τ는 곡선을 보기 전에 정합니다(7장 b 절).</p>
+<!--FIG:rc02_c7rmst-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>12명의 36개월 RMST 23.5개월, 표준오차 3.71.</b> 7장 b 절의 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>300명의 48개월 RMST 차이 5.40개월(1.35–9.44).</b> 약물 A가 48개월 동안 평균 5.4개월 더 생존했습니다.</span></li>
+</ol>
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc02-s6">
+<h2><span class="sec-no">f.</span>과제</h2>
 
 <p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
 

@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">결측값이 있으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">sbp_na &lt;- replace(sbp, 3, NA)                       # 셋째 환자의 혈압이 빠졌다면
+cor(age, sbp_na)                                    # 결측이 있으면 NA
+cor(age, sbp_na, use = &quot;complete.obs&quot;)              # 두 값이 모두 있는 환자만
+cor.test(age, sbp_na)$parameter                     # 자유도 5 = 분석한 쌍 7 − 2</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] NA<span class="mk">1</span>
+[1] 0.8463583<span class="mk">2</span>
+df 
+ 5<span class="mk">3</span></pre></div></div>

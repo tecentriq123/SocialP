@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">세 분석의 군 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rbind(post   = coef(summary(lm(hba1c_6m ~ arm, data = h)))[&quot;arm&quot;, ],
+      change = coef(summary(lm(I(hba1c_6m - hba1c_0) ~ arm, data = h)))[&quot;arm&quot;, ],
+      ancova = coef(summary(anc))[&quot;arm&quot;, ])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         Estimate Std. Error   t value   Pr(&gt;|t|)
+post   -0.2597222  0.2031792<span class="mk">1</span> -1.278291 0.20536911
+change -0.5002778  0.2007879<span class="mk">2</span> -2.491573 0.01509030
+ancova -0.3829001  0.1785142<span class="mk">3</span> -2.144928 0.03548159</pre></div></div>

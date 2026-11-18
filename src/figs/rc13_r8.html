@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">환자 8명의 Pearson 상관계수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">age &lt;- c(42, 48, 53, 58, 62, 66, 71, 80)            # 나이 (세)
+sbp &lt;- c(125, 127, 133, 141, 129, 139, 137, 149)    # 수축기혈압 (mmHg)
+cor.test(age, sbp)                                  # Pearson r, t, 양측 p, Fisher z 95% CI</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Pearson&#x27;s product-moment correlation
+
+data:  age and sbp
+t = 3.8356, df = 6, p-value = 0.008602<span class="mk">1</span>
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.3401360 0.9708735<span class="mk">2</span>
+sample estimates:
+      cor 
+0.8428022<span class="mk">3</span></pre></div></div>

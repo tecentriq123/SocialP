@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">과제 1 정답</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">r &lt;- 0.45; n &lt;- 28
+t &lt;- r * sqrt(n - 2) / sqrt(1 - r^2)
+c(t = t, p = 2 * pt(-abs(t), n - 2))
+tanh(atanh(r) + c(-1, 1) * qnorm(0.975) / sqrt(n - 3))     # Fisher z 95% CI</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         t          p 
+2.56941255 0.01627228<span class="mk">1</span> 
+[1] 0.09244279 0.70475877<span class="mk">2</span></pre></div></div>

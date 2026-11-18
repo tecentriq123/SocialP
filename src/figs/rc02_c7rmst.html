@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">제한평균생존시간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">k12 &lt;- survfit(Surv(time12, st12) ~ 1)
+print(k12, rmean = 36)                                  # 12명의 36개월 RMST (7장 b 절)
+rm &lt;- summary(km7, rmean = 48)$table[, c(&quot;rmean&quot;, &quot;se(rmean)&quot;)]
+dd &lt;- rm[&quot;drug=A&quot;, &quot;rmean&quot;] - rm[&quot;drug=B&quot;, &quot;rmean&quot;]
+se &lt;- sqrt(sum(rm[, &quot;se(rmean)&quot;]^2))
+round(c(diff = dd, lower = dd - 1.96 * se, upper = dd + 1.96 * se), 2)   # 48개월 RMST 차이</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call: survfit(formula = Surv(time12, st12) ~ 1)
+
+      n events rmean* se(rmean) median 0.95LCL 0.95UCL
+[1,] 12      7   23.5      3.71<span class="mk">1</span>     28      12      NA
+    * restricted mean with upper limit =  36 
+ diff lower upper 
+ 5.40  1.35  9.44<span class="mk">2</span></pre></div></div>

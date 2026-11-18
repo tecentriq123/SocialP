@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">출력의 요약값만으로 두 구간 다시 계산하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">n &lt;- 100; b0 &lt;- 97.2326; b1 &lt;- 0.5296; se_b1 &lt;- 0.1169; s &lt;- 14.5008   # 출력의 요약값
+tc &lt;- qt(0.975, n - 2)
+round(c(t_crit = tc, lo = b1 - tc * se_b1, hi = b1 + tc * se_b1), 3)    # 기울기의 95% CI
+sxx &lt;- (s / se_b1)^2                                # SE(b1) = s / sqrt(Sxx)를 거꾸로 풂
+yhat &lt;- b0 + b1 * 70
+se_m &lt;- s * sqrt(1 / n + (70 - 56)^2 / sxx)         # 70세 평균의 표준오차 (평균 나이 56세)
+se_p &lt;- s * sqrt(1 + 1 / n + (70 - 56)^2 / sxx)     # 70세 한 사람 예측의 표준오차
+round(c(yhat = yhat, se_mean = se_m, se_pred = se_p), 2)
+round(c(yhat - tc * se_m, yhat + tc * se_m, yhat - tc * se_p, yhat + tc * se_p), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>t_crit     lo     hi 
+ 1.984  0.298  0.762<span class="mk">1</span> 
+   yhat se_mean se_pred 
+ 134.30    2.19   14.66<span class="mk">2</span> 
+[1] 130.0 138.6 105.2 163.4<span class="mk">3</span></pre></div></div>

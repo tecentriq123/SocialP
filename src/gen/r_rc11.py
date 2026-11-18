@@ -91,6 +91,15 @@ rbind(Student = t_from_stats(-0.90, 0.60, 40, -0.40, 1.20, 15, var.equal = TRUE)
       Welch   = t_from_stats(-0.90, 0.60, 40, -0.40, 1.20, 15))   # 2장 예비연구
 ''', title="Welch와 Student가 다른 답을 낼 때")
 
+c_rv = nb.cell('''
+t_from_stats(84.9, 15.1, 150, 79.1, 19.3, 150)                    # 평균 PDC: Welch (논문의 선택)
+t_from_stats(84.9, 15.1, 150, 79.1, 19.3, 150, var.equal = TRUE)  # Student로 바꾸면
+tab <- matrix(c(108, 42,
+                90, 60), nrow = 2, byrow = TRUE)                  # PDC ≥ 80%: 순응, 비순응 (인원)
+unlist(chisq.test(tab, correct = FALSE)[c("statistic", "p.value")])   # 연속성 보정 없이 (논문의 선택)
+unlist(chisq.test(tab)[c("statistic", "p.value")])                    # R 기본값: Yates 보정
+''', title="가상 논문의 숫자 검산 (분석 고르기 연습 d 절)")
+
 # d. 같은 표의 χ²와 z, 회귀 출력의 z와 Wald χ² (1장 e 절)
 c_chi = nb.cell('''
 tab <- matrix(c(12, 38,
@@ -230,6 +239,8 @@ assert "W = 9, p-value = 0.0289" in out[c_opioid.n] and "-18.5" in out[c_opioid.
 assert "0.01882743" in out[c_likert.n] and "0.01813197" in out[c_likert.n]
 assert "2.9452" in out[c_bm.n]
 
+assert "2.8988 281.6933   0.0040   1.8615   9.7385" in out[c_rv.n] and "298.0000" in out[c_rv.n]
+assert "4.81283422          0.02824855" in out[c_rv.n] and "4.29292929          0.03827117" in out[c_rv.n]
 S = nb.save_fragment
 S("rc11_rx", nb.html(c_rx, marks={"2024-01-03     3         90": 1}))
 S("rc11_sd", nb.html(c_sd, marks={"1.581139": 1, "[1] 1.414214": 2}))
@@ -239,6 +250,7 @@ S("rc11_se", nb.html(c_se, marks={"1.28 1.31 1.83": 1, "2.57 2.05 2.00 1.96": 2}
 S("rc11_p", nb.html(c_p, marks={"2.001717": 1, "0.02219754": 2, "0.04999579": 3, "0.5987063": 4, "0.02120336": 5, "0.0195184": 6}))
 S("rc11_tfun", nb.html(c_tfun, marks={"2.3454 58.0000  0.0224  0.6301  7.9699": 1}))
 S("rc11_welch", nb.html(c_welch, marks={"69.0509  0.0151": 1, "53.0000 0.0447": 2, "16.6954 0.1416": 3}))
+S("rc11_rv", nb.html(c_rv, marks={"2.8988 281.6933   0.0040   1.8615   9.7385": 1, "4.81283422          0.02824855": 2, "4.29292929          0.03827117": 3}))
 S("rc11_chi", nb.html(c_chi, marks={"1.190476": 1, "[1] 0.1904303": 2, "1.7142857 -1.3093073": 3}))
 S("rc11_wald", nb.html(c_wald, marks={"3.043 9.258": 1, "0.0023  0.0023": 2, "1.90  1.26  2.87": 3}))
 S("rc11_padj", nb.html(c_padj, marks={"holm       0.02 0.048": 1, "BH         0.02 0.030": 2, "bonferroni 0.02": 3}))

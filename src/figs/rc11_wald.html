@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">z, Wald χ², 오즈비를 계수와 표준오차로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b &lt;- 0.6420; se &lt;- 0.2110          # 로지스틱 회귀 출력의 계수와 표준오차
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">z, Wald χ², 오즈비를 계수와 표준오차로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b &lt;- 0.6420; se &lt;- 0.2110          # 로지스틱 회귀 출력의 계수와 표준오차
 z &lt;- b / se
 round(c(z = z, wald = z^2), 3)
 round(c(p_z = 2 * pnorm(-abs(z)), p_chisq = pchisq(z^2, 1, lower.tail = FALSE)), 4)

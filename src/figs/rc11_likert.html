@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">동점이 많은 리커트 점수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">counsel &lt;- rep(1:5, times = c(0, 2, 5, 8, 5))   # 상담군 만족도 20명
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">동점이 많은 리커트 점수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">counsel &lt;- rep(1:5, times = c(0, 2, 5, 8, 5))   # 상담군 만족도 20명
 control &lt;- rep(1:5, times = c(2, 5, 7, 4, 2))   # 대조군 20명
 wilcox.test(counsel, control, exact = FALSE)$p.value     # 동점 보정 + 연속성 보정
 wilcox.test(counsel, control, exact = FALSE, correct = FALSE)$p.value

@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">정규성 검정을 쓸 때의 함정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">shapiro.test(d$los)$p.value
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">정규성 검정을 쓸 때의 함정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">shapiro.test(d$los)$p.value
 ks.test(d$sbp, &quot;pnorm&quot;)$p.value            # 표준정규분포와 비교해 버림
 ks.test(as.numeric(scale(d$los)), &quot;pnorm&quot;)$p.value   # 같은 자료의 평균·SD로 표준화
 library(nortest)

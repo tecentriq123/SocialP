@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">분위수와 왜도는 정의에 따라 다르다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">quantile(d$los, c(0.25, 0.75))                 # 기본값 type = 7
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">분위수와 왜도는 정의에 따라 다르다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">quantile(d$los, c(0.25, 0.75))                 # 기본값 type = 7
 quantile(d$los, c(0.25, 0.75), type = 6)       # SPSS의 기본값과 같음
 library(e1071)
 round(c(type1 = skewness(d$los, type = 1),      # 표본 그대로(scipy 기본값)
