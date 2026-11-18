@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">50명 중 7명의 세 가지 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">x &lt;- 7; n &lt;- 50                                     # 이상반응 7명 / 50명
+p &lt;- x / n
+p + c(-1, 1) * qnorm(0.975) * sqrt(p * (1 - p) / n)   # Wald 구간 (식으로 직접)
+prop.test(x, n, correct = FALSE)$conf.int           # Wilson 구간
+binom.test(x, n)$conf.int                           # 정확(Clopper–Pearson) 구간
+prop.test(x, n)$conf.int                            # 기본값: 연속성 보정을 한 Wilson 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.04382187 0.23617813<span class="mk">1</span>
+[1] 0.06950833 0.26186194<span class="mk">2</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95
+[1] 0.0581917 0.2673960<span class="mk">3</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95
+[1] 0.06277009 0.27356376<span class="mk">4</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95</pre></div></div>

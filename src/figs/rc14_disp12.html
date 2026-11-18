@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 36</span><span class="cell-t">과산포 확인</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(c(pearson = sum(residuals(fit, type = &quot;pearson&quot;)^2), deviance = deviance(fit),
+        df = df.residual(fit)), 1)
+round(c(pearson_df = sum(residuals(fit, type = &quot;pearson&quot;)^2) / df.residual(fit),
+        deviance_df = deviance(fit) / df.residual(fit)), 2)
+round(c(observed_0 = mean(copd$exac == 0), predicted_0 = mean(dpois(0, fitted(fit)))), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> pearson deviance       df 
+  3784.2   3069.8   2394.0<span class="mk">1</span> 
+ pearson_df deviance_df 
+       1.58        1.28<span class="mk">2</span> 
+ observed_0 predicted_0 
+      0.640       0.578<span class="mk">3</span></pre></div></div>

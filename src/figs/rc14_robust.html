@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">수정 포아송 회귀: 포아송 회귀 + 강건 표준오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages({library(sandwich); library(lmtest)})
+coeftest(pois, vcov = vcovHC(pois, type = &quot;HC0&quot;))[&quot;poly&quot;, ]          # 계수는 그대로, SE만 강건하게
+round(exp(c(RR = coef(pois)[[&quot;poly&quot;]],
+            coefci(pois, vcov = vcovHC(pois, type = &quot;HC0&quot;))[&quot;poly&quot;, ])), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  Estimate Std. Error    z value   Pr(&gt;|z|) 
+0.30913153 0.12023600<span class="mk">1</span> 2.57103981 0.01013937 
+    RR  2.5 % 97.5 % 
+  1.36   1.08   1.72<span class="mk">2</span></pre></div></div>

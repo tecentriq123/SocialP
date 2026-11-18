@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 24</span><span class="cell-t">짝지은 환자-대조군 자료의 조건부 로지스틱 회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(survival))
+pr &lt;- data.frame(pair = rep(1:250, each = 2), case = rep(c(1, 0), 250),          # 짝마다 환자 1행, 대조군 1행
+                 thiazide = c(rep(c(1, 1), 30), rep(c(1, 0), 50), rep(c(0, 1), 25), rep(c(0, 0), 145)))
+fc &lt;- clogit(case ~ thiazide + strata(pair), data = pr)                            # 조건부 로지스틱 회귀
+round(exp(cbind(OR = coef(fc), confint(fc))), 2)
+round(exp(coef(glm(case ~ thiazide, family = binomial, data = pr)))[[&quot;thiazide&quot;]], 2)                 # 짝 무시
+round(exp(coef(glm(case ~ thiazide + factor(pair), family = binomial, data = pr)))[[&quot;thiazide&quot;]], 2)  # 짝마다 가변수</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         OR 2.5 % 97.5 %
+thiazide  2  1.24   3.23<span class="mk">1</span>
+[1] 1.67<span class="mk">2</span>
+[1] 4<span class="mk">3</span></pre></div></div>

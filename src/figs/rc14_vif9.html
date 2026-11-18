@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 29</span><span class="cell-t">VIF와 영향력이 큰 환자</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">car::vif(m9)                                        # 범주형 변수는 묶음 단위의 GVIF
+X &lt;- model.matrix(m9)[, -1]                         # 가변수 하나하나의 VIF
+round(sapply(colnames(X), function(j) 1 / (1 - summary(lm(X[, j] ~ X[, -match(j, colnames(X))]))$r.squared)), 2)
+round(rms::vif(m9), 2)                              # 모형의 공분산 행렬로 계산한 값
+summary(cooks.distance(m9))                         # 환자 한 명을 뺐을 때 전체 적합의 변화
+max(abs(dfbeta(m9)[, &quot;sglt2&quot;]))                     # SGLT2 계수가 가장 크게 바뀌는 정도</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           GVIF Df GVIF^(1/(2*Df))
+sglt2  1.113734  1        1.055336
+age10  1.063803  1        1.031408
+female 1.002387  1        1.001193
+cci    1.028644  2<span class="mk">1</span>        1.007085
+prior  1.021114  1        1.010502
+hf     1.016693  1        1.008312
+egfr_c 1.073017  2        1.017775
+      sglt2       age10      female      cci1-2      cci&gt;=3       prior 
+       1.12        1.06        1.00        1.32        1.35<span class="mk">2</span>        1.02 
+         hf egfr_c45-59   egfr_c&lt;45 
+       1.01        1.06        1.08 
+      sglt2       age10      female      cci1-2      cci&gt;=3       prior 
+       1.11        1.06        1.00        1.54        1.55<span class="mk">3</span>        1.02 
+         hf egfr_c45-59   egfr_c&lt;45 
+       1.02        1.08        1.10 
+     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+8.635e-06 3.642e-05 1.044e-04 4.214e-04 5.668e-04 3.445e-03 
+[1] 0.009701652<span class="mk">4</span></pre></div></div>

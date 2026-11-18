@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 28</span><span class="cell-t">Firth 방법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(logistf))
+ff &lt;- logistf(irae ~ autoimmune + combination, data = ici)   # 기본: 프로파일 벌점 우도 구간과 검정
+round(cbind(coef = coef(ff), OR = exp(coef(ff)), lower = exp(ff$ci.lower), upper = exp(ff$ci.upper),
+            chisq = qchisq(1 - ff$prob, 1), p = ff$prob), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               coef      OR  lower     upper   chisq      p
+(Intercept) -1.7752  0.1694 0.0672    0.3622 25.2223 0.0000
+autoimmune   3.7952 44.4862 4.6658 5978.1845 13.6498 0.0002<span class="mk">1</span>
+combination  0.9540  2.5962<span class="mk">2</span> 0.8551    8.3416  2.8349 0.0922</pre></div></div>

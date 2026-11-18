@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">퇴원 환자 1,500명의 로지스틱 회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">dc &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch08_readmit.csv&quot;)
+dc$cci &lt;- factor(dc$cci, levels = c(&quot;0&quot;, &quot;1-2&quot;, &quot;3-4&quot;, &quot;5+&quot;))   # 범주 순서를 정함: 첫 수준이 기준범주
+m &lt;- glm(readm ~ poly + age + female + cci + medaid, family = binomial, data = dc)
+summary(m)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Call:
+glm(formula = readm ~ poly + age + female + cci + medaid, family = binomial, 
+    data = dc)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -6.78631<span class="mk">2</span>    1.00769  -6.735 1.64e-11 ***
+poly         0.38311    0.14850   2.580 0.009884<span class="mk">1</span> ** 
+age          0.06000    0.01284<span class="mk">4</span>   4.673 2.97e-06 ***
+female      -0.24927    0.14156  -1.761 0.078253 .  
+cci1-2       0.31074<span class="mk">3</span>    0.19870   1.564 0.117840    
+cci3-4       0.63191    0.21804   2.898 0.003754 ** 
+cci5+        0.95892    0.27598   3.475 0.000512 ***
+medaid       0.97685    0.23497   4.157 3.22e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1383.4  on 1499  degrees of freedom
+Residual deviance: 1306.9<span class="mk">5</span>  on 1492  degrees of freedom
+AIC: 1322.9
+
+Number of Fisher Scoring iterations: 4<span class="mk">6</span></pre></div></div>

@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">오즈비와 두 가지 95% 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(exp(cbind(OR = coef(m), confint.default(m))), 3)   # Wald 구간: β ± 1.96 × SE를 지수로
+exp(confint(m, &quot;poly&quot;))                                  # 프로파일 우도 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               OR 2.5 % 97.5 %
+(Intercept) 0.001 0.000  0.008
+poly        1.467 1.096  1.962<span class="mk">1</span>
+age         1.062 1.035  1.089
+female      0.779 0.591  1.029<span class="mk">2</span>
+cci1-2      1.364 0.924  2.014
+cci3-4      1.881 1.227  2.884
+cci5+       2.609 1.519  4.481
+medaid      2.656 1.676  4.210
+Waiting for profiling to be done...
+   2.5 %   97.5 % 
+1.096124 1.962852<span class="mk">3</span></pre></div></div>

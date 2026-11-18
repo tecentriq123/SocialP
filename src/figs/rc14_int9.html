@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">SGLT2 × 심부전 교호작용</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">mi9 &lt;- update(m9, . ~ . + sglt2:hf)
+anova(m9, mi9, test = &quot;LRT&quot;)                        # P for interaction
+round(coef(summary(mi9))[&quot;sglt2:hf&quot;, ], 4)
+round(exp(c(coef(mi9)[[&quot;sglt2:hf&quot;]], confint.default(mi9)[&quot;sglt2:hf&quot;, ])), 2)   # 두 오즈비의 비
+round(exp(c(no_hf = coef(mi9)[[&quot;sglt2&quot;]],                          # 심부전 없는 환자의 SGLT2 OR
+            hf    = coef(mi9)[[&quot;sglt2&quot;]] + coef(mi9)[[&quot;sglt2:hf&quot;]])), 2)   # 심부전 환자의 SGLT2 OR</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Analysis of Deviance Table
+
+Model 1: hosp ~ sglt2 + age10 + female + cci + prior + hf + egfr_c
+Model 2: hosp ~ sglt2 + age10 + female + cci + prior + hf + egfr_c + sglt2:hf
+  Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)  
+1      2390     2320.8                       
+2      2389     2315.4  1   5.4114  0.02001<span class="mk">1</span> *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+  Estimate Std. Error    z value   Pr(&gt;|z|) 
+   -0.7203     0.3151    -2.2859     0.0223<span class="mk">2</span> 
+        2.5 % 97.5 % 
+  0.49   0.26   0.90<span class="mk">3</span> 
+no_hf    hf 
+ 0.86  0.42<span class="mk">4</span></pre></div></div>

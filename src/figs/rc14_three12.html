@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 37</span><span class="cell-t">세 방법의 표준오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">qp &lt;- glm(exac ~ drug + agegrp + female + cci + offset(log(py)), family = quasipoisson, data = copd)
+suppressPackageStartupMessages(library(MASS))
+nb2 &lt;- glm.nb(exac ~ drug + agegrp + female + cci + offset(log(py)), data = copd)
+round(c(poisson = sqrt(vcov(fit)[&quot;drugA&quot;, &quot;drugA&quot;]),
+        quasi   = sqrt(vcov(qp)[&quot;drugA&quot;, &quot;drugA&quot;]),
+        robust  = sqrt(vcovHC(fit, type = &quot;HC0&quot;)[&quot;drugA&quot;, &quot;drugA&quot;]),
+        negbin  = sqrt(vcov(nb2)[&quot;drugA&quot;, &quot;drugA&quot;])), 4)   # 약 A 계수의 표준오차
+summary(qp)$dispersion                              # 준포아송의 φ</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>poisson   quasi  robust  negbin 
+ 0.0549  0.0690  0.0705  0.0714<span class="mk">1</span> 
+[1] 1.580697<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 41</span><span class="cell-t">과제 3 정답</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">young &lt;- poisson.test(c(58, 162), c(8076, 16238))   # 65세 미만
+old   &lt;- poisson.test(c(52, 285), c(2991, 11764))   # 65세 이상
+wl &lt;- function(d1, t1, d0, t0) exp(log((d1 / t1) / (d0 / t0)) + c(0, -1, 1) * 1.96 * sqrt(1 / d1 + 1 / d0))
+round(rbind(young_exact = c(young$estimate, young$conf.int), young_wald = wl(58, 8076, 162, 16238),
+            old_exact = c(old$estimate, old$conf.int), old_wald = wl(52, 2991, 285, 11764)), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            rate ratio          
+young_exact       0.72 0.52 0.98<span class="mk">1</span>
+young_wald        0.72 0.53 0.97
+old_exact         0.72 0.52 0.97<span class="mk">2</span>
+old_wald          0.72 0.53 0.96</pre></div></div>

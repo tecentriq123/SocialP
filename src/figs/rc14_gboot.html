@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">금액 차이의 부트스트랩 구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">set.seed(2026)
+bg &lt;- boot(co, function(d, i) {
+  fit &lt;- glm(cost ~ adherent + I(age / 10) + cci, family = Gamma(link = &quot;log&quot;), data = d[i, ])
+  mean(predict(fit, transform(d[i, ], adherent = 1), type = &quot;response&quot;)) -
+    mean(predict(fit, transform(d[i, ], adherent = 0), type = &quot;response&quot;))
+}, R = 1000)
+round(boot.ci(bg, type = &quot;perc&quot;)$percent[4:5], 1)   # 1인당 금액 차이의 95% 구간 (만원)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] -130.7   -9.5<span class="mk">1</span></pre></div></div>

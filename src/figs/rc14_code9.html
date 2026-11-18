@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 30</span><span class="cell-t">결과를 어떻게 부호화하나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ch$hosp_s &lt;- ifelse(ch$hosp == 1, &quot;yes&quot;, &quot;no&quot;)
+coef(glm(factor(hosp_s) ~ sglt2, family = binomial, data = ch))   # 요인: 첫 수준(no)이 0, 나머지가 사건
+coef(glm(hosp == 1 ~ sglt2, family = binomial, data = ch))        # 논리값: TRUE가 사건
+tryCatch(glm(I(hosp + 1) ~ sglt2, family = binomial, data = ch),
+         error = function(e) conditionMessage(e))                 # 1과 2로 넣으면 멈춘다</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>(Intercept)       sglt2 
+ -1.0622446  -0.5861412<span class="mk">1</span> 
+(Intercept)       sglt2 
+ -1.0622446  -0.5861412 
+[1] &quot;y values must be 0 &lt;= y &lt;= 1<span class="mk">2</span>&quot;</pre></div></div>

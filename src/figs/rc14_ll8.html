@@ -1,0 +1,34 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">로그우도, 우도비 검정, AIC와 BIC</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">logLik(m)                                           # 로그우도와 추정한 계수 수(df)
+c(m2LL = -2 * as.numeric(logLik(m)), deviance = deviance(m), null = m$null.deviance)
+c(AIC = AIC(m), BIC = BIC(m))
+m0 &lt;- update(m, . ~ . - poly)                       # 다제약물만 뺀 모형
+anova(m0, m, test = &quot;LRT&quot;)                          # 우도비 검정
+anova(m0, m, test = &quot;Rao&quot;)                          # 같은 비교의 점수 검정
+c(AIC0 = AIC(m0), BIC0 = BIC(m0))
+c(iter = m$iter, converged = m$converged)           # 반복 횟수와 수렴</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&#x27;log Lik.&#x27; -653.4729 (df=8)<span class="mk">1</span>
+    m2LL deviance     null 
+1306.946 1306.946 1383.397<span class="mk">2</span> 
+     AIC      BIC 
+1322.946 1365.452<span class="mk">3</span> 
+Analysis of Deviance Table
+
+Model 1: readm ~ age + female + cci + medaid
+Model 2: readm ~ poly + age + female + cci + medaid
+  Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)  
+1      1493     1313.6                       
+2      1492     1307.0  1   6.6349     0.01<span class="mk">4</span> *
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Deviance Table
+
+Model 1: readm ~ age + female + cci + medaid
+Model 2: readm ~ poly + age + female + cci + medaid
+  Resid. Df Resid. Dev Df Deviance    Rao Pr(&gt;Chi)   
+1      1493     1313.6                               
+2      1492     1307.0  1   6.6349 6.6941 0.009673<span class="mk">5</span> **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+    AIC0     BIC0 
+1327.581 1364.773<span class="mk">6</span> 
+     iter converged 
+        4         1</pre></div></div>

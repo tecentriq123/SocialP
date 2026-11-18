@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">같은 자료의 Wald, 우도비, 점수 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">three &lt;- function(x, n, p0) {                       # H0: p = p0 의 세 검정과 정확검정
+  ph &lt;- x / n
+  wald  &lt;- (ph - p0)^2 / (ph * (1 - ph) / n)        # 추정값에서의 곡률
+  score &lt;- (ph - p0)^2 / (p0 * (1 - p0) / n)        # 귀무가설 값에서의 기울기와 곡률
+  lr    &lt;- 2 * (dbinom(x, n, ph, log = TRUE) - dbinom(x, n, p0, log = TRUE))
+  chi &lt;- c(Wald = wald, LR = lr, score = score)
+  rbind(chi2 = chi, P = pchisq(chi, 1, lower.tail = FALSE)) |&gt;
+    cbind(exact = c(NA, binom.test(x, n, p0)$p.value)) |&gt; round(4)
+}
+three(7, 50, p0 = 0.05)
+three(7, 50, p0 = 0.10)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       Wald     LR  score  exact
+chi2 3.3638 5.8551 8.5263<span class="mk">1</span>     NA
+P    0.0666 0.0155 0.0035 0.0118<span class="mk">2</span>
+       Wald     LR  score  exact
+chi2 0.6645 0.8008 0.8889<span class="mk">3</span>     NA
+P    0.4150 0.3708 0.3458 0.3415</pre></div></div>

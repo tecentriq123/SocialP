@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">CCI 전체의 우도비 검정과 P for trend</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">red &lt;- update(m9, . ~ . - cci)
+anova(red, m9, test = &quot;LRT&quot;)                        # CCI 전체 (자유도 2)
+with(m9, c(LR = null.deviance - deviance, df = df.null - df.residual))   # 모형 전체
+mt &lt;- update(m9, . ~ . - cci + as.numeric(cci))     # 0, 1, 2 점수 하나로
+exp(coef(mt)[[&quot;as.numeric(cci)&quot;]])                  # 한 단계당 보정 오즈비 (P for trend는 이 행의 P)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Analysis of Deviance Table
+
+Model 1: hosp ~ sglt2 + age10 + female + prior + hf + egfr_c
+Model 2: hosp ~ sglt2 + age10 + female + cci + prior + hf + egfr_c
+  Resid. Df Resid. Dev Df Deviance  Pr(&gt;Chi)    
+1      2392     2363.3                          
+2      2390     2320.8  2   42.494 5.922e-10<span class="mk">1</span> ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+      LR       df 
+220.9504   9.0000<span class="mk">2</span> 
+[1] 1.552537<span class="mk">3</span></pre></div></div>

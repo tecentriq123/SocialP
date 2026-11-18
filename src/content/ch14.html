@@ -1435,7 +1435,7 @@ SE(ln ROR) = √(1/40 + 1/9,960 + 1/140 + 1/34,860) = 0.180<br>
 <li><b>Cox 모형의 변수.</b> lifelines <code>CoxPHFitter().fit(df, ...)</code>는 df에 남은 열을 모두 공변량으로 넣습니다. 환자 번호(pid)를 남겨 두면 pid도 변수로 들어갑니다. 실습 14 표본에서는 위험비가 0.6066에서 0.6067로 거의 바뀌지 않았지만, 추적 중에 만든 변수 같은 열이 남으면 결과가 크게 달라질 수 있으므로 넣을 열만 골라 넘깁니다.</li>
 <li><b>0일 이하의 time.</b> lifelines의 Cox 모형과 Kaplan-Meier는 time이 0이나 음수여도 경고 없이 적합합니다. 실습 14 표본에서 30명의 time을 −5일로 바꿔도 위험비가 0.6066에서 0.6070으로 바뀔 뿐 오류가 나지 않았습니다('추적은 언제 시작하고 언제 끝나나?'의 접힌 상자).</li>
 <li><b>비율의 신뢰구간.</b> statsmodels <code>proportion_confint()</code>의 기본 method는 정규근사(normal)입니다. 정의 B의 양성예측도 1,391/1,438은 95.8–97.7%, 결과 정의의 171/200은 80.6–90.4%가 나옵니다. 본문의 Wilson 구간(95.7–97.5%, 80.0–89.7%)은 <code>method=<wbr>"wilson"</code>을 적어야 나옵니다.</li>
-<li><b>발생률의 신뢰구간.</b> statsmodels <code>confint_poisson()</code>은 method에 기본값이 없어 적지 않으면 오류가 납니다. <code>method=<wbr>"exact-c"</code>로 정확 구간을 구하면 SGLT2 억제제군은 1,000인년당 5.54(4.95–6.18)입니다. 발생률비의 구간과 검정은 기본값이 score 방법입니다(<a href="#ch12-s1">12장 a 절</a> '프로그램에는 무엇을 넣고 무엇이 나오나?').</li>
+<li><b>발생률의 신뢰구간.</b> statsmodels <code>confint_poisson()</code>은 method에 기본값이 없어 적지 않으면 오류가 납니다. <code>method=<wbr>"exact-c"</code>로 정확 구간을 구하면 SGLT2 억제제군은 1,000인년당 5.54(4.95–6.18)입니다. 발생률비의 구간과 검정은 기본값이 score 방법입니다(<a href="#ch12-s1">12장 a 절</a> '발생률을 비교할 때 무엇을 정하나?').</li>
 <li><b>같은 날의 사건.</b> 같은 날 사건이 여럿일 때 lifelines는 Efron 방법, statsmodels PHReg는 Breslow 방법이 기본값입니다(<a href="#ch11-s1">11장</a> '내 연구에서 분석하기'의 접힌 상자 '같은 날 사건이 여러 건이면 프로그램은 어떻게 하나?'). 이 코호트에서는 둘 다 보정 위험비가 0.6092였습니다.</li>
 </ul>
 <!--/FOLD-->

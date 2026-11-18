@@ -1,0 +1,43 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 38</span><span class="cell-t">음이항 회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">summary(nb2)
+round(exp(c(IRR = coef(nb2)[[&quot;drugA&quot;]], confint.default(nb2)[&quot;drugA&quot;, ])), 3)
+alpha &lt;- 1 / nb2$theta; se_a &lt;- nb2$SE.theta / nb2$theta^2      # α = 1/θ와 델타 방법 SE
+round(c(theta = nb2$theta, alpha = alpha, lower = alpha - 1.96 * se_a, upper = alpha + 1.96 * se_a), 3)
+lr &lt;- 2 * (as.numeric(logLik(nb2)) - as.numeric(logLik(fit)))
+c(LR = lr, P = pchisq(lr, 1, lower.tail = FALSE) / 2)          # α = 0이 경계라 P를 반으로
+c(AIC_poisson = AIC(fit), AIC_negbin = AIC(nb2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Call:
+glm.nb(formula = exac ~ drug + agegrp + female + cci + offset(log(py)), 
+    data = copd, init.theta = 1.166534972, link = log)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -0.81801    0.07629 -10.722  &lt; 2e-16 ***
+drugA       -0.23524    0.07142  -3.294 0.000988<span class="mk">1</span> ***
+agegrp65-74  0.12402    0.08203   1.512 0.130576    
+agegrp75+    0.53663    0.08524   6.295 3.06e-10 ***
+female      -0.14117    0.07449  -1.895 0.058051 .  
+cci          0.11537    0.02212   5.214 1.84e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for Negative Binomial(1.1665) family taken to be 1)
+
+    Null deviance: 2070.9  on 2399  degrees of freedom
+Residual deviance: 1981.9  on 2394  degrees of freedom
+AIC: 4850.5<span class="mk">3</span>
+
+Number of Fisher Scoring iterations: 1
+
+
+              Theta:  1.167<span class="mk">2</span> 
+          Std. Err.:  0.115 
+
+ 2 x log-likelihood:  -4836.511 
+   IRR  2.5 % 97.5 % 
+ 0.790  0.687  0.909<span class="mk">4</span> 
+theta alpha lower upper 
+1.167 0.857 0.691 1.024<span class="mk">5</span> 
+          LR            P 
+2.771664e+02<span class="mk">6</span> 1.556206e-62 
+AIC_poisson  AIC_negbin 
+   5125.677    4850.511</pre></div></div>

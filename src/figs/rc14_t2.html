@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 40</span><span class="cell-t">과제 2 정답</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">m34 &lt;- update(m, data = transform(dc, cci = relevel(cci, ref = &quot;3-4&quot;)))   # 기준범주를 3–4점으로
+round(exp(c(OR = coef(m34)[[&quot;cci5+&quot;]], confint.default(m34)[&quot;cci5+&quot;, ])), 2)
+round(coef(summary(m34))[&quot;cci5+&quot;, &quot;Pr(&gt;|z|)&quot;], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    OR  2.5 % 97.5 % 
+  1.39   0.87   2.21<span class="mk">1</span> 
+[1] 0.169<span class="mk">2</span></pre></div></div>

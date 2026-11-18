@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">수정 포아송 회귀의 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">mp9 &lt;- glm(hosp ~ sglt2 + age10 + female + cci + prior + hf + egfr_c, family = poisson, data = ch)
+round(exp(cbind(RR = coef(mp9), coefci(mp9, vcov = vcovHC(mp9, type = &quot;HC0&quot;))))[c(&quot;prior&quot;, &quot;sglt2&quot;), ], 2)
+round(c(model_SE = sqrt(vcov(mp9)[&quot;prior&quot;, &quot;prior&quot;]),
+        robust_SE = sqrt(vcovHC(mp9, type = &quot;HC0&quot;)[&quot;prior&quot;, &quot;prior&quot;])), 3)
+tryCatch(glm(formula(m9), family = binomial(link = &quot;log&quot;), data = ch, start = coef(mp9)),
+         error = function(e) conditionMessage(e))   # 이 자료에서는 로그-이항 모형이 시작값을 주어도 멈춘다</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        RR 2.5 % 97.5 %
+prior 2.00  1.73   2.32<span class="mk">1</span>
+sglt2 0.81  0.67   0.97<span class="mk">2</span>
+ model_SE robust_SE 
+    0.091     0.074<span class="mk">3</span> 
+[1] &quot;cannot find valid starting values<span class="mk">4</span>: please specify some&quot;</pre></div></div>

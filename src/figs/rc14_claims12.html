@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 35</span><span class="cell-t">청구 기록에서 악화 건수와 인년 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cl &lt;- data.frame(id = 1,
+                 start = as.Date(c(&quot;2023-05-02&quot;, &quot;2023-05-05&quot;, &quot;2023-05-06&quot;, &quot;2023-06-23&quot;)),
+                 end   = as.Date(c(&quot;2023-05-02&quot;, &quot;2023-05-05&quot;, &quot;2023-05-12&quot;, &quot;2023-06-23&quot;)))
+cl &lt;- cl[order(cl$id, cl$start), ]
+prev_end &lt;- ave(as.numeric(cl$end), cl$id,           # 같은 환자의 앞선 청구가 끝난 가장 늦은 날
+                FUN = function(e) c(NA, head(cummax(e), -1)))
+cl$new_ep &lt;- is.na(prev_end) | (as.numeric(cl$start) - prev_end &gt; 14)   # 14일 넘게 떨어지면 새 악화
+cl
+sum(cl$new_ep)                                      # 이 환자의 악화 건수 (환자가 여럿이면 tapply(cl$new_ep, cl$id, sum))
+as.numeric(as.Date(&quot;2023-11-30&quot;) - as.Date(&quot;2023-03-01&quot;)) / 365.25   # 인년</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  id      start        end new_ep
+1  1 2023-05-02 2023-05-02   TRUE
+2  1 2023-05-05 2023-05-05  FALSE
+3  1 2023-05-06 2023-05-12  FALSE<span class="mk">1</span>
+4  1 2023-06-23 2023-06-23   TRUE<span class="mk">2</span>
+[1] 2
+<span class="mk">3</span>[1] 0.7501711<span class="mk">4</span></pre></div></div>

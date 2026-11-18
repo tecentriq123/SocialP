@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">분리가 생긴 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ici &lt;- data.frame(autoimmune  = rep(c(1, 1, 0, 0), c(4, 2, 30, 44)),
+                  combination = rep(c(1, 0, 1, 0), c(4, 2, 30, 44)),
+                  irae = c(rep(1, 6), rep(c(1, 0), c(9, 21)), rep(c(1, 0), c(6, 38))))
+with(ici, table(autoimmune, irae))                  # 자가면역질환 병력 6명 모두 사건
+gs &lt;- glm(irae ~ autoimmune + combination, family = binomial, data = ici)
+round(coef(summary(gs)), 3)
+c(iter = gs$iter, converged = gs$converged)
+anova(update(gs, . ~ . - autoimmune), gs, test = &quot;LRT&quot;)   # 우도비 검정은 작동한다</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          irae
+autoimmune  0  1
+         0 59 15
+         1  0  6<span class="mk">1</span>
+            Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)   -1.846      0.439  -4.202    0.000
+autoimmune    18.816   1575.855<span class="mk">2</span>   0.012    0.990
+combination    0.999      0.593   1.684    0.092
+     iter converged 
+       16         1<span class="mk">3</span> 
+Analysis of Deviance Table
+
+Model 1: irae ~ combination
+Model 2: irae ~ autoimmune + combination
+  Resid. Df Resid. Dev Df Deviance  Pr(&gt;Chi)    
+1        78     87.741                          
+2        77     71.703  1   16.038 6.207e-05<span class="mk">4</span> ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</pre></div></div>

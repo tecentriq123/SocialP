@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 32</span><span class="cell-t">사건이 적을 때 발생률의 세 구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d &lt;- 3; t &lt;- 1500                                   # 혈관부종 3건 / 1,500인년
+round(1000 * rbind(Wald  = d / t + c(-1, 1) * 1.96 * sqrt(d) / t,
+                   log   = exp(log(d / t) + c(-1, 1) * 1.96 / sqrt(d)),
+                   exact = poisson.test(d, t)$conf.int), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       [,1] [,2]
+Wald  -0.26 4.26<span class="mk">1</span>
+log    0.65 6.20<span class="mk">2</span>
+exact  0.41 5.84<span class="mk">3</span></pre></div></div>

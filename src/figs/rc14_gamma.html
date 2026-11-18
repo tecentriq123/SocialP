@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">의료비의 감마 GLM과 재활용 예측</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">co &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch06_cost400.csv&quot;)              # 제2형 당뇨병 400명의 연간 의료비(만원)
+exp(coef(glm(cost ~ adherent, family = Gamma(link = &quot;log&quot;), data = co)))[2]   # 보정 전: 산술평균의 비
+g &lt;- glm(cost ~ adherent + I(age / 10) + cci, family = Gamma(link = &quot;log&quot;), data = co)
+round(exp(c(ratio = coef(g)[[&quot;adherent&quot;]], confint.default(g)[&quot;adherent&quot;, ])), 3)
+c1 &lt;- mean(predict(g, transform(co, adherent = 1), type = &quot;response&quot;))   # 재활용 예측
+c0 &lt;- mean(predict(g, transform(co, adherent = 0), type = &quot;response&quot;))
+round(c(adherent = c1, nonadherent = c0, diff = c1 - c0), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> adherent 
+0.7676587<span class="mk">1</span> 
+ ratio  2.5 % 97.5 % 
+ 0.790  0.644  0.971<span class="mk">2</span> 
+   adherent nonadherent        diff 
+      254.7       322.3       -67.6<span class="mk">3</span></pre></div></div>

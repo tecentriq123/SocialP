@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 34</span><span class="cell-t">한 군의 사건이 0건이면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">z &lt;- data.frame(drug = factor(c(&quot;신약 X&quot;, &quot;비교약&quot;), levels = c(&quot;비교약&quot;, &quot;신약 X&quot;)),
+                events = c(3, 0), pyears = c(1500, 2300))
+gz &lt;- glm(events ~ drug + offset(log(pyears)), family = poisson, data = z)
+round(coef(summary(gz)), 3)                         # 계수와 표준오차가 끝없이 커진 자리에서 멈춤
+c(iter = gz$iter, converged = gz$converged)
+poisson.test(c(3, 0), c(1500, 2300))$p.value        # 조건부 정확검정</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)  -30.043   42247.17  -0.001    0.999
+drug신약 X    23.829   42247.17<span class="mk">1</span>   0.001    1.000
+     iter converged 
+       20         1<span class="mk">2</span> 
+[1] 0.06150678<span class="mk">3</span></pre></div></div>

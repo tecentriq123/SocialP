@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">보정한 위험차: 선형 확률 모형과 표준화</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tryCatch(glm(f, family = binomial(link = &quot;identity&quot;), data = dc),
+         error = function(e) conditionMessage(e))   # 이항분포 + 항등 연결도 멈춘다
+lpm &lt;- lm(f, data = dc)                             # 선형 확률 모형
+round(100 * c(RD = coef(lpm)[[&quot;poly&quot;]],
+              coefci(lpm, vcov = vcovHC(lpm, type = &quot;HC0&quot;))[&quot;poly&quot;, ]), 1)   # %p
+sum(fitted(lpm) &lt; 0)                                # 예측 확률이 음수인 환자 수
+r1 &lt;- mean(predict(m, transform(dc, poly = 1), type = &quot;response&quot;))   # 모두 다제약물로 놓고 예측
+r0 &lt;- mean(predict(m, transform(dc, poly = 0), type = &quot;response&quot;))   # 모두 아닌 것으로 놓고 예측
+round(100 * c(r1 = r1, r0 = r0, RD = r1 - r0), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] &quot;no valid set of coefficients has been found: please supply starting values<span class="mk">1</span>&quot;
+    RD  2.5 % 97.5 % 
+   5.3    1.1    9.6<span class="mk">2</span> 
+[1] 11<span class="mk">3</span>
+  r1   r0   RD 
+20.2 14.9  5.3<span class="mk">4</span></pre></div></div>

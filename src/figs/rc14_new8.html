@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">새 약 자료: CMH 검정과 MH 상대위험도</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">nd &lt;- array(c(288, 120, 612, 180,                  # 중증: 새 약 288/900, 기존 약 120/300
+              24, 90, 276, 810),                   # 경증: 새 약 24/300,  기존 약 90/900
+            dim = c(2, 2, 2), dimnames = list(drug = c(&quot;새 약&quot;, &quot;기존 약&quot;),
+                                              hosp = c(&quot;입원&quot;, &quot;없음&quot;), stratum = c(&quot;중증&quot;, &quot;경증&quot;)))
+mantelhaen.test(nd, correct = FALSE)$statistic      # CMH χ² (연속성 보정 없음)
+mantelhaen.test(nd)$statistic                       # 기본값: 연속성 보정
+n_k &lt;- apply(nd, 3, sum)                            # MH 상대위험도 (식으로 직접)
+sum(nd[1, 1, ] * colSums(nd[2, , ]) / n_k) / sum(nd[2, 1, ] * colSums(nd[1, , ]) / n_k)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Mantel-Haenszel X-squared 
+                 7.243254<span class="mk">1</span> 
+Mantel-Haenszel X-squared 
+                 6.924909<span class="mk">2</span> 
+[1] 0.8<span class="mk">3</span></pre></div></div>

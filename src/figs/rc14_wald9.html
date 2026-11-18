@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">Wald 구간과 프로파일 구간이 갈리는 자료</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">va &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch09_vanco.csv&quot;)                # 반코마이신 trough와 급성 신손상 150명
+gv &lt;- glm(aki ~ I(trough / 5), family = binomial, data = va)   # 5 mg/L당
+round(exp(cbind(OR = coef(gv), Wald = confint.default(gv), profile = confint(gv)))[2, ], 2)
+round(c(Wald = coef(summary(gv))[2, &quot;z value&quot;]^2,
+        LR = anova(gv, test = &quot;Rao&quot;)[2, &quot;Deviance&quot;], score = anova(gv, test = &quot;Rao&quot;)[2, &quot;Rao&quot;]), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Waiting for profiling to be done...
+    OR  2.5 % 97.5 %  2.5 % 97.5 % 
+  2.72   1.83   4.03   1.89   4.18<span class="mk">1</span> 
+ Wald    LR score 
+ 24.7  38.3  37.6<span class="mk">2</span></pre></div></div>

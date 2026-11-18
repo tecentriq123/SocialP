@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">표준화 위험, 위험차, 위험의 비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">r1 &lt;- mean(predict(m9, transform(ch, sglt2 = 1), type = &quot;response&quot;))
+r0 &lt;- mean(predict(m9, transform(ch, sglt2 = 0), type = &quot;response&quot;))
+round(c(r1 = r1, r0 = r0, RD = r1 - r0, RR = r1 / r0), 3)
+set.seed(2026)
+b9 &lt;- boot(ch, function(d, i) {
+  fit &lt;- update(m9, data = d[i, ])
+  a &lt;- mean(predict(fit, transform(d[i, ], sglt2 = 1), type = &quot;response&quot;))
+  z &lt;- mean(predict(fit, transform(d[i, ], sglt2 = 0), type = &quot;response&quot;))
+  c(a - z, a / z)
+}, R = 1000)
+round(rbind(RD = boot.ci(b9, type = &quot;perc&quot;, index = 1)$percent[4:5],
+            RR = boot.ci(b9, type = &quot;perc&quot;, index = 2)$percent[4:5]), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    r1     r0     RD     RR 
+ 0.194  0.236 -0.042  0.822<span class="mk">1</span> 
+     [,1]   [,2]
+RD -0.078 -0.004<span class="mk">2</span>
+RR  0.687  0.981<span class="mk">3</span></pre></div></div>

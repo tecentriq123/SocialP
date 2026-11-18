@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">CCI 네 층의 Mantel–Haenszel 오즈비와 동질성 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tab &lt;- with(dc, table(poly, readm, cci))[2:1, 2:1, ]   # 층마다 [노출 1행, 사건 1열]이 되게 순서를 뒤집음
+round(apply(tab, 3, function(t) t[1, 1] * t[2, 2] / (t[1, 2] * t[2, 1])), 2)   # 층별 OR
+mantelhaen.test(tab, correct = FALSE)               # MH 오즈비, 구간, CMH 검정
+suppressPackageStartupMessages(library(DescTools))
+BreslowDayTest(tab)$p.value                         # 층별 OR이 모두 같은가
+WoolfTest(tab)$p.value</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   0  1-2  3-4   5+ 
+2.39 1.64 1.48 1.06<span class="mk">1</span> 
+
+	Mantel-Haenszel chi-squared test without continuity correction
+
+data:  tab
+Mantel-Haenszel X-squared = 11.863<span class="mk">4</span>, df = 1, p-value = 0.0005726
+alternative hypothesis: true common odds ratio is not equal to 1
+95 percent confidence interval:
+ 1.228754 2.157713<span class="mk">2</span>
+sample estimates:
+common odds ratio 
+         1.628281<span class="mk">3</span> 
+
+[1] 0.4759352<span class="mk">5</span>
+[1] 0.4802732<span class="mk">6</span></pre></div></div>

@@ -407,7 +407,7 @@ degrees_of_freedom = 1   <span class="mk">1</span>
 χ² = (−16.36)² ÷ 51.10 = 5.24<br>
 약물 B의 기대 사망 = 210 − 116.36 = 93.64명</span></li>
 <li><span class="mk">3</span><span><b>p 0.02와 −log2(p) 5.50.</b> 요약 표는 p를 소수 둘째 자리까지만 보여 줍니다. −log2(p)는 P 값을 '공정한 동전을 던져 앞면이 연속으로 몇 번 나온 정도로 놀라운가'로 바꾼 값(S 값)으로, P 값과 같은 정보를 다른 척도로 보여 줄 뿐입니다.</span></li>
-<li><span class="mk">4</span><span><b>반올림하지 않은 값.</b> 논문에 쓸 P는 <code>res.p_value</code>로 확인한 0.0221입니다. 자유도 1의 χ² 분포에서 5.24보다 클 확률입니다. 효과의 크기는 이 출력에 없습니다. 위험비와 신뢰구간은 lifelines의 <code>CoxPHFitter</code>로 따로 구합니다(이 과목 <a href="#rc03">6장</a>).</span></li>
+<li><span class="mk">4</span><span><b>반올림하지 않은 값.</b> 논문에 쓸 P는 <code>res.p_value</code>로 확인한 0.0221입니다. 자유도 1의 χ² 분포에서 5.24보다 클 확률입니다. 효과의 크기는 이 출력에 없습니다. 위험비와 신뢰구간은 lifelines의 <code>CoxPHFitter</code>로 따로 구합니다(이 과목 <a href="#rc03">7장</a>).</span></li>
 </ol>
 </div></div>
 <div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">표 7-3의 로그순위 검정과 300명 코호트의 요약값 검산</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np

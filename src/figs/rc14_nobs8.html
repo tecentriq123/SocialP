@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">결측이 있으면 분석 인원이 달라진다</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">dm &lt;- dc; dm$age[1:5] &lt;- NA                         # 다섯 명의 나이가 비었다고 하면
+nobs(glm(readm ~ poly + age + female + cci + medaid, family = binomial, data = dm))
+nobs(glm(readm ~ poly + female + cci + medaid, family = binomial, data = dm))
+dd &lt;- na.omit(dm[, c(&quot;readm&quot;, &quot;poly&quot;, &quot;age&quot;, &quot;female&quot;, &quot;cci&quot;, &quot;medaid&quot;)])   # 큰 모형의 변수가 모두 있는 행만
+f1 &lt;- glm(readm ~ poly + age + female + cci + medaid, family = binomial, data = dd)
+f0 &lt;- update(f1, . ~ . - age)
+c(nobs(f0), nobs(f1))                               # 두 값이 같아야 비교할 수 있다</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 1495
+[1] 1500<span class="mk">1</span>
+[1] 1495 1495<span class="mk">2</span></pre></div></div>

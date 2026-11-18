@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">표준화 위험차의 부트스트랩 구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(boot))
+std_rd &lt;- function(d, i) {
+  fit &lt;- glm(f, family = binomial, data = d[i, ])
+  mean(predict(fit, transform(d[i, ], poly = 1), type = &quot;response&quot;)) -
+    mean(predict(fit, transform(d[i, ], poly = 0), type = &quot;response&quot;))
+}
+set.seed(2026)
+b &lt;- boot(dc, std_rd, R = 1000)                     # 환자를 복원추출해 1,000번 다시 적합
+round(100 * boot.ci(b, type = &quot;perc&quot;)$percent[4:5], 1)   # 백분위수 95% 구간 (%p)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 1.2 9.3<span class="mk">1</span></pre></div></div>

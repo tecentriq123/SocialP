@@ -1,0 +1,33 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">SGLT2 억제제 코호트 2,400명의 완전 보정 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ch &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch09_cohort.csv&quot;)
+ch$cci  &lt;- factor(ch$cci, levels = c(&quot;0&quot;, &quot;1-2&quot;, &quot;&gt;=3&quot;))
+ch$egfr_c &lt;- factor(cut(ch$egfr, c(-Inf, 45, 60, Inf), right = FALSE, labels = c(&quot;&lt;45&quot;, &quot;45-59&quot;, &quot;&gt;=60&quot;)),
+                    levels = c(&quot;&gt;=60&quot;, &quot;45-59&quot;, &quot;&lt;45&quot;))      # 기준범주 ≥60
+ch$age10 &lt;- (ch$age - 75) / 10
+m9 &lt;- glm(hosp ~ sglt2 + age10 + female + cci + prior + hf + egfr_c, family = binomial, data = ch)
+summary(m9)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+Call:
+glm(formula = hosp ~ sglt2 + age10 + female + cci + prior + hf + 
+    egfr_c, family = binomial, data = ch)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -2.08159<span class="mk">2</span>    0.13791 -15.093  &lt; 2e-16 ***
+sglt2       -0.27273    0.11944  -2.283 0.022406<span class="mk">1</span> *  
+age10        0.34176    0.08877   3.850 0.000118 ***
+female      -0.16028    0.10361  -1.547 0.121869    
+cci1-2       0.49873<span class="mk">3</span>    0.12983   3.841 0.000122 ***
+cci&gt;=3       0.88446    0.13775   6.421 1.36e-10 ***
+prior        1.02244    0.11311   9.039  &lt; 2e-16 ***
+hf           0.38230    0.14725   2.596 0.009424 ** 
+egfr_c45-59  0.41087    0.12492   3.289 0.001006 ** 
+egfr_c&lt;45    0.89711    0.16866   5.319 1.04e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 2541.8  on 2399  degrees of freedom
+Residual deviance: 2320.8<span class="mk">4</span>  on 2390  degrees of freedom
+AIC: 2340.8
+
+Number of Fisher Scoring iterations: 4</pre></div></div>

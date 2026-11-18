@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">추적기간이 다를 때의 offset</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">er &lt;- data.frame(group = factor(c(&quot;노출&quot;, &quot;비교&quot;), levels = c(&quot;비교&quot;, &quot;노출&quot;)),   # 비교군이 기준
+                 visits = c(120, 90), pyears = c(400, 450))
+exp(coef(glm(visits ~ group, family = poisson, data = er)))[2]                       # 건수의 비
+exp(coef(glm(visits ~ group + offset(log(pyears)), family = poisson, data = er)))[2] # 발생률비</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>group노출 
+ 1.333333<span class="mk">1</span> 
+group노출 
+      1.5<span class="mk">2</span></pre></div></div>

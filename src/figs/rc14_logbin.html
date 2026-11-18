@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">로그-이항 모형: 시작값을 주어 상대위험도 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">f &lt;- readm ~ poly + age + female + cci + medaid
+tryCatch(glm(f, family = binomial(link = &quot;log&quot;), data = dc),
+         error = function(e) conditionMessage(e))   # 기본 시작값으로는 멈춘다
+pois &lt;- glm(f, family = poisson, data = dc)
+lb &lt;- glm(f, family = binomial(link = &quot;log&quot;), data = dc, start = coef(pois))   # 포아송 계수를 시작값으로
+round(exp(c(RR = coef(lb)[[&quot;poly&quot;]], confint.default(lb)[&quot;poly&quot;, ])), 2)
+c(logLik = as.numeric(logLik(lb)), max_risk = max(fitted(lb)), converged = lb$converged)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] &quot;no valid set of coefficients has been found: please supply starting values<span class="mk">1</span>&quot;
+    RR  2.5 % 97.5 % 
+  1.35   1.07   1.71<span class="mk">2</span> 
+     logLik    max_risk   converged 
+-654.134248    0.614409<span class="mk">3</span>    1.000000</pre></div></div>

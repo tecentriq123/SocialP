@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 31</span><span class="cell-t">두 군의 발생률과 발생률비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">poisson.test(110, 11067)$conf.int * 1000            # SGLT2 억제제: 1,000인년당 정확 95% CI
+poisson.test(447, 28002)$conf.int * 1000            # DPP-4 억제제
+poisson.test(c(110, 447), c(11067, 28002))          # 발생률비, 조건부 정확검정과 정확 구간
+r1 &lt;- 110 / 11067; r0 &lt;- 447 / 28002
+exp(log(r1 / r0) + c(-1, 1) * 1.96 * sqrt(1 / 110 + 1 / 447))                 # 로그 척도 Wald 구간
+1000 * (r1 - r0 + c(-1, 1) * 1.96 * sqrt(110 / 11067^2 + 447 / 28002^2))   # 발생률차의 Wald 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1]  8.169027 11.979737<span class="mk">1</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95
+[1] 14.51742 17.51387<span class="mk">2</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95
+
+	Comparison of Poisson rates
+
+data:  c(110, 447) time base: c(11067, 28002)
+count1 = 110, expected count1 = 157.78, p-value = 3.804e-06<span class="mk">3</span>
+alternative hypothesis: true rate ratio is not equal to 1
+95 percent confidence interval:
+ 0.5007309 0.7686958<span class="mk">4</span>
+sample estimates:
+rate ratio 
+ 0.6226504 
+
+[1] 0.5054131 0.7670826<span class="mk">5</span>
+[1] -8.398595 -3.648777<span class="mk">6</span></pre></div></div>
