@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">평균, SD, 인원만으로 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">t_from_stats &lt;- function(m1, s1, n1, m2, s2, n2, var.equal = FALSE) {
+  if (var.equal) {                       # Student: 합동분산
+    sp2 &lt;- ((n1 - 1) * s1^2 + (n2 - 1) * s2^2) / (n1 + n2 - 2)
+    se &lt;- sqrt(sp2 * (1 / n1 + 1 / n2)); df &lt;- n1 + n2 - 2
+  } else {                               # Welch: 분산을 군마다 따로
+    v1 &lt;- s1^2 / n1; v2 &lt;- s2^2 / n2
+    se &lt;- sqrt(v1 + v2); df &lt;- (v1 + v2)^2 / (v1^2 / (n1 - 1) + v2^2 / (n2 - 1))
+  }
+  d &lt;- m1 - m2; t &lt;- d / se; crit &lt;- qt(0.975, df)
+  round(c(diff = d, se = se, t = t, df = df, p = 2 * pt(-abs(t), df),
+          lower = d - crit * se, upper = d + crit * se), 4)
+}
+t_from_stats(12.4, 7.0, 30, 8.1, 7.2, 30, var.equal = TRUE)   # 0장의 혈압 시험</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   diff      se       t      df       p   lower   upper 
+ 4.3000  1.8334  2.3454 58.0000  0.0224  0.6301  7.9699<span class="mk">1</span></pre></div></div>

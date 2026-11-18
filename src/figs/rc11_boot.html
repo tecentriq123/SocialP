@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">평균 재원일수의 부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/explore60.csv&quot;)       # 1장 h 절의 60명
+set.seed(2026)
+m &lt;- replicate(2000, mean(sample(d$los, replace = TRUE)))
+round(quantile(m, c(0.025, 0.975)), 2)      # 백분위수 부트스트랩 95% CI
+library(boot)
+bt &lt;- boot(d$los, function(x, i) mean(x[i]), R = 2000)
+boot.ci(bt, type = c(&quot;perc&quot;, &quot;bca&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> 2.5% 97.5% 
+ 6.42  8.92<span class="mk">1</span> 
+BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+Based on 2000 bootstrap replicates
+
+CALL : 
+boot.ci(boot.out = bt, type = c(&quot;perc&quot;, &quot;bca&quot;))
+
+Intervals : 
+Level     Percentile            BCa          
+95%   ( 6.450,  8.850 )<span class="mk">2</span>   ( 6.550,  9.185 )<span class="mk">3</span>  
+Calculations and Intervals on Original Scale</pre></div></div>

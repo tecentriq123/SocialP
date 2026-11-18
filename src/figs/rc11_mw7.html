@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">같은 자료에서 p를 구하는 세 방법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">A &lt;- c(1, 2, 3, 3, 4, 5, 47); B &lt;- 6:12       # 1장 g 절의 재원일수 7명씩
+wilcox.test(A, B, exact = FALSE)$p.value                    # 정규근사(동점 보정, 연속성 보정)
+wilcox.test(A, B, exact = FALSE, correct = FALSE)$p.value   # 연속성 보정 없이
+suppressPackageStartupMessages(library(coin))
+g &lt;- factor(rep(c(&quot;A&quot;, &quot;B&quot;), each = 7))
+pvalue(wilcox_test(c(A, B) ~ g, distribution = &quot;exact&quot;))   # 중간순위 그대로 정확 p</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.02966226<span class="mk">1</span>
+[1] 0.02518656<span class="mk">2</span>
+[1] 0.02447552<span class="mk">3</span></pre></div></div>

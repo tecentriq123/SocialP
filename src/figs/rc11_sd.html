@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">평균, 분산, 표준편차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">x &lt;- c(8, 12, 9, 11, 10)                  # A 병동 5명의 재원일수(일)
+c(mean = mean(x), var = var(x), sd = sd(x))      # var와 sd는 n − 1로 나눔
+sqrt(sum((x - mean(x))^2) / length(x))           # n으로 나누면</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     mean       var        sd 
+10.000000  2.500000  1.581139<span class="mk">1</span> 
+[1] 1.414214<span class="mk">2</span></pre></div></div>

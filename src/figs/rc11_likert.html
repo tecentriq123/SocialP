@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">동점이 많은 리커트 점수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">counsel &lt;- rep(1:5, times = c(0, 2, 5, 8, 5))   # 상담군 만족도 20명
+control &lt;- rep(1:5, times = c(2, 5, 7, 4, 2))   # 대조군 20명
+wilcox.test(counsel, control, exact = FALSE)$p.value     # 동점 보정 + 연속성 보정
+wilcox.test(counsel, control, exact = FALSE, correct = FALSE)$p.value
+set.seed(2026)
+g2 &lt;- factor(rep(c(&quot;counsel&quot;, &quot;control&quot;), each = 20))
+pvalue(wilcox_test(c(counsel, control) ~ g2,
+                   distribution = approximate(nresample = 10000)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.01882743<span class="mk">1</span>
+[1] 0.01813197<span class="mk">2</span>
+[1] 0.0185<span class="mk">3</span>
+99 percent confidence interval:
+ 0.01520896 0.02225798</pre></div></div>

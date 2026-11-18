@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">z, Wald χ², 오즈비를 계수와 표준오차로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b &lt;- 0.6420; se &lt;- 0.2110          # 로지스틱 회귀 출력의 계수와 표준오차
+z &lt;- b / se
+round(c(z = z, wald = z^2), 3)
+round(c(p_z = 2 * pnorm(-abs(z)), p_chisq = pchisq(z^2, 1, lower.tail = FALSE)), 4)
+round(exp(c(OR = b, lower = b - 1.96 * se, upper = b + 1.96 * se)), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    z  wald 
+3.043 9.258<span class="mk">1</span> 
+    p_z p_chisq 
+ 0.0023  0.0023<span class="mk">2</span> 
+   OR lower upper 
+ 1.90  1.26  2.87<span class="mk">3</span></pre></div></div>

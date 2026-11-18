@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 21</span><span class="cell-t">과제 2 정답: 로그 변환한 재원일수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(c(p_raw = shapiro.test(d$los)$p.value, p_log = shapiro.test(log(d$los))$p.value), 4)
+round(exp(mean(log(d$los))), 2)            # 기하평균</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> p_raw  p_log 
+0.0000 0.5451<span class="mk">1</span> 
+[1] 6.4</pre></div></div>

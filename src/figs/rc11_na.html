@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">값이 빈 환자가 있으면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">x_na &lt;- c(8, 12, NA, 11, 10)              # 셋째 환자의 값이 빔
+mean(x_na)                                # NA가 하나라도 있으면 NA
+c(mean = mean(x_na, na.rm = TRUE), sd = sd(x_na, na.rm = TRUE),
+  n = sum(!is.na(x_na)))
+cost &lt;- c(0, 0, 12, 18, 20)               # 1인당 비용(만 원)
+c(all = mean(cost), drop_zero = mean(cost[cost &gt; 0]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] NA<span class="mk">1</span>
+     mean        sd         n 
+10.250000  1.707825  4.000000<span class="mk">2</span> 
+      all drop_zero 
+ 10.00000  16.66667<span class="mk">3</span></pre></div></div>

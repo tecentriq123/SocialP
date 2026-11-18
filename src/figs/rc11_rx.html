@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">처방 단위 자료를 환자 단위로 모으기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(dplyr, warn.conflicts = FALSE)
+rx &lt;- data.frame(
+  patient = c(&quot;A&quot;, &quot;A&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;C&quot;),
+  date    = as.Date(c(&quot;2024-01-03&quot;, &quot;2024-02-01&quot;, &quot;2024-03-04&quot;,
+                      &quot;2024-01-10&quot;, &quot;2024-01-15&quot;, &quot;2024-03-20&quot;)),
+  days    = c(30, 30, 30, 90, 30, 30))       # 공급일수
+rx |&gt;
+  group_by(patient) |&gt;
+  summarise(first_date = min(date), n_rx = n(), total_days = sum(days))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre># A tibble: 3 x 4
+  patient first_date  n_rx total_days
+  &lt;chr&gt;   &lt;date&gt;     &lt;int&gt;      &lt;dbl&gt;
+1 A       2024-01-03     3         90<span class="mk">1</span>
+2 B       2024-01-10     1         90
+3 C       2024-01-15     2         60</pre></div></div>

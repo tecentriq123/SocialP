@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">Welch와 Student가 다른 답을 낼 때</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">t_from_stats(-0.9, 0.8, 36, -0.4, 0.9, 36)                     # 2장 복약상담, Welch
+rbind(Student = t_from_stats(-0.90, 0.60, 40, -0.40, 1.20, 15, var.equal = TRUE),
+      Welch   = t_from_stats(-0.90, 0.60, 40, -0.40, 1.20, 15))   # 2장 예비연구</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   diff      se       t      df       p   lower   upper 
+-0.5000  0.2007 -2.4914 69.0509  0.0151<span class="mk">1</span> -0.9004 -0.0996 
+        diff     se       t      df      p   lower   upper
+Student -0.5 0.2432 -2.0558 53.0000 0.0447<span class="mk">2</span> -0.9878 -0.0122
+Welch   -0.5 0.3240 -1.5430 16.6954 0.1416<span class="mk">3</span> -1.1846  0.1846</pre></div></div>

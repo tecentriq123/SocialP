@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">표준오차와 t 경계값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">se1 &lt;- 7.0 / sqrt(30)              # 신약군 평균의 SE
+se2 &lt;- 7.2 / sqrt(30)              # 위약군 평균의 SE
+se_diff &lt;- sqrt(se1^2 + se2^2)     # 차이의 SE
+round(c(se1, se2, se_diff), 2)
+round(qt(0.975, df = c(5, 29, 58, 1000)), 2)   # 자유도별 t 경계값</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 1.28 1.31 1.83<span class="mk">1</span>
+[1] 2.57 2.05 2.00 1.96<span class="mk">2</span></pre></div></div>

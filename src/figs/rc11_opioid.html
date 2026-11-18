@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">오피오이드 자료의 Wilcoxon 순위합 검정과 Hodges–Lehmann 추정치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">protocol &lt;- c(12, 15, 18, 20, 22, 26, 31, 68)   # 프로토콜군 8명
+usual    &lt;- c(24, 29, 36, 41, 45, 58, 115)      # 일반 관리군 7명
+wilcox.test(protocol, usual, conf.int = TRUE)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Wilcoxon rank sum exact test
+
+data:  protocol and usual
+W = 9, p-value = 0.0289<span class="mk">1</span>
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -40  -3<span class="mk">2</span>
+sample estimates:
+difference in location 
+                 -18.5<span class="mk">3</span></pre></div></div>

@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">통계량에서 p, 확률에서 임계값</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">qt(0.975, 58)                          # t(58)의 양측 5% 임계값
+2 * pt(2.35, 58, lower.tail = FALSE)   # t(58) = 2.35의 양측 p
+2 * pnorm(1.96, lower.tail = FALSE)    # z = 1.96의 양측 p
+pnorm(0.25)                            # Φ(0.25): 검정력 계산
+pchisq(5.31, 1, lower.tail = FALSE)    # χ²(1) = 5.31의 p
+pf(4.12, 2, 87, lower.tail = FALSE)    # F(2, 87) = 4.12의 p</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 2.001717<span class="mk">1</span>
+[1] 0.02219754<span class="mk">2</span>
+[1] 0.04999579<span class="mk">3</span>
+[1] 0.5987063<span class="mk">4</span>
+[1] 0.02120336<span class="mk">5</span>
+[1] 0.0195184<span class="mk">6</span></pre></div></div>
