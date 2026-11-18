@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 27</span><span class="cell-t">과제 3 정답: 두 군만 뽑은 표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">hypo2 &lt;- hypo[c(&quot;DPP4&quot;, &quot;SU&quot;), ]
+c(pearson = chisq.test(hypo2, correct = FALSE)$p.value, yates = chisq.test(hypo2)$p.value,
+  fisher = fisher.test(hypo2)$p.value)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    pearson       yates      fisher 
+0.006755111 0.010521575 0.009880553<span class="mk">1</span></pre></div></div>

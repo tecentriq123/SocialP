@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 23</span><span class="cell-t">보수성을 줄이는 두 방법</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p_obs &lt;- dhyper(1, 15, 14, 7)                       # 관측된 표의 확률
+c(midp = fisher.test(tabF)$p.value - p_obs / 2,
+  N1 = pchisq(chisq.test(tabF, correct = FALSE)$statistic * 28 / 29, 1, lower.tail = FALSE))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        midp N1.X-squared 
+  0.02075212   0.02533464<span class="mk">1</span></pre><pre class="warn-out">Warning message:
+In chisq.test(tabF, correct = FALSE) :
+  Chi-squared approximation may be incorrect</pre></div></div>

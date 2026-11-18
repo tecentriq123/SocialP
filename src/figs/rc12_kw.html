@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">Kruskal-Wallis 검정과 Dunn 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">kruskal.test(pdc ~ arm, data = pdc)
+kruskal.test(knowledge ~ arm, data = pdc)$statistic      # 동점이 많은 지식 점수
+dunn_test(pdc, pdc ~ arm, p.adjust.method = &quot;holm&quot;)[, c(&quot;group1&quot;, &quot;group2&quot;, &quot;statistic&quot;, &quot;p&quot;, &quot;p.adj&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Kruskal-Wallis rank sum test
+
+data:  pdc by arm
+Kruskal-Wallis chi-squared = 7.4468, df = 2, p-value = 0.02415<span class="mk">1</span>
+
+Kruskal-Wallis chi-squared 
+                  8.993514<span class="mk">2</span> 
+# A tibble: 3 x 5
+  group1 group2    statistic       p  p.adj
+  &lt;chr&gt;  &lt;chr&gt;         &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;
+1 usual  brief          1.66 0.0968  0.194 
+2 usual  intensive      2.71 0.00682 0.0204<span class="mk">3</span>
+3 brief  intensive      1.05 0.296   0.296</pre></div></div>

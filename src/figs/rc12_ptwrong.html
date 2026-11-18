@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">짝을 무시하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d &lt;- after - before
+c(mean = mean(d), sd = sd(d), n = length(d))
+t.test(after, before, var.equal = TRUE)$p.value   # 잘못된 분석: 두 독립 군처럼</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    mean       sd        n 
+-7.00000  5.96962<span class="mk">1</span> 12.00000 
+[1] 0.0988659<span class="mk">2</span></pre></div></div>

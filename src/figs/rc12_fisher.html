@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 22</span><span class="cell-t">Fisher의 정확한 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tabF &lt;- matrix(c(1, 14,
+                 6,  8), nrow = 2, byrow = TRUE,
+               dimnames = list(drug = c(&quot;X&quot;, &quot;Y&quot;), liver = c(&quot;yes&quot;, &quot;no&quot;)))
+fisher.test(tabF)
+fisher.test(tabF, alternative = &quot;less&quot;)$p.value
+(1 * 8) / (14 * 6)                                  # 표본 오즈비</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Fisher&#x27;s Exact Test for Count Data
+
+data:  tabF
+p-value = 0.03518<span class="mk">1</span>
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.001942289 1.082327356<span class="mk">2</span>
+sample estimates:
+odds ratio 
+ 0.1033228<span class="mk">3</span> 
+
+[1] 0.03105947<span class="mk">4</span>
+[1] 0.0952381<span class="mk">5</span></pre></div></div>

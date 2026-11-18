@@ -1,0 +1,4 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">미리 정한 대비 하나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ct &lt;- glht(fit, linfct = mcp(arm = c(&quot;brief + intensive - 2 * usual = 0&quot;)))
+s &lt;- summary(ct)
+c(diff = unname(coef(ct)) / 2, t = unname(s$test$tstat), p = unname(s$test$pvalues))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       diff           t           p 
+7.186666667 2.721464302 0.007849552<span class="mk">1</span></pre></div></div>

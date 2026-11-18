@@ -1,4 +1,4 @@
-"""R과 파이썬으로 하는 통계분석 5장 · 메타분석 — R cells run for real with rkit (meta 패키지).
+"""R과 파이썬으로 하는 통계분석 6장 · 메타분석 — R cells run for real with rkit (meta 패키지).
 
 run:  python3 gen/r_rc10.py      (NOMARK=1 python3 gen/r_rc10.py 로 돌리면 모든 셀의 출력을 찍는다)
 
@@ -260,7 +260,7 @@ S("rc10_league", nb.html(c_league, marks={"0.87 (0.56-1.35)": 1, "0.96 (0.79-1.1
 S("rc10_graph", nb.html(c_graph))
 S("rc10_t1", nb.html(c_t1, marks={"0.73   0.84": 1, "0.833 0.361": 2, "[1] 0.327": 3}))
 S("rc10_t2", nb.html(c_t2, marks={"0.84   0.78   0.91": 1, "0.82   0.72   0.94": 2}))
-nb.save_ipynb("5장 메타분석 (R과 파이썬으로 하는 통계분석)",
+nb.save_ipynb("6장 메타분석 (R과 파이썬으로 하는 통계분석)",
               intro="보건통계학 기초 19장의 가상 메타분석(급성관상동맥증후군 시험 10개)을 R의 meta 패키지로 합치고, "
                     "이질성, 하위군, 메타회귀, 출판 편향, 민감도 분석, NNT, 네트워크 메타분석까지 차례로 구합니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요. "

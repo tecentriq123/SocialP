@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">정확 p, 부호 검정, t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(coin))
+dd &lt;- data.frame(after, before)
+pvalue(wilcoxsign_test(after ~ before, data = dd, zero.method = &quot;Wilcoxon&quot;,
+                       distribution = &quot;exact&quot;))                  # 0을 빼고 정확 p
+binom.test(sum(d &gt; 0), sum(d != 0))$p.value                      # 부호 검정
+t.test(after, before, paired = TRUE)$p.value                     # 대응표본 t 검정</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.009765625<span class="mk">1</span>
+[1] 0.03857422<span class="mk">2</span>
+[1] 0.005818125<span class="mk">3</span></pre></div></div>

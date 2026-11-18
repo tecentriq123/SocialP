@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 20</span><span class="cell-t">세 군의 비율 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">hypo &lt;- matrix(c(12, 288, 15, 285, 33, 267), ncol = 2, byrow = TRUE,
+               dimnames = list(class = c(&quot;SGLT2&quot;, &quot;DPP4&quot;, &quot;SU&quot;), hypo = c(&quot;yes&quot;, &quot;no&quot;)))
+ch &lt;- chisq.test(hypo)
+c(X2 = unname(ch$statistic), df = unname(ch$parameter), p = ch$p.value)
+round(ch$stdres[, &quot;yes&quot;], 2)                                  # 수정 표준화 잔차
+pairwise.prop.test(hypo, correct = FALSE, p.adjust.method = &quot;bonferroni&quot;)$p.value</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          X2           df            p 
+1.382143e+01 2.000000e+00 9.970454e-04<span class="mk">1</span> 
+SGLT2  DPP4    SU 
+-2.27 -1.42  3.69<span class="mk">2</span> 
+           SGLT2       DPP4
+DPP4 1.000000000         NA
+SU   0.003402563 0.02026533<span class="mk">3</span></pre></div></div>

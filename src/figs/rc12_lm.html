@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">분산분석을 회귀로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lmfit &lt;- lm(pdc ~ arm, data = pdc)                        # 기준군은 factor의 첫 수준(usual)
+round(summary(lmfit)$coefficients, 4)
+summary(lmfit)$r.squared</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)   70.1700     2.1562<span class="mk">1</span> 32.5441   0.0000
+armbrief       5.8000     3.0493  1.9021   0.0605
+armintensive   8.5733     3.0493  2.8116   0.0061<span class="mk">2</span>
+[1] 0.08645667<span class="mk">3</span></pre></div></div>

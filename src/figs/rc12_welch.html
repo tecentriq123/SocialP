@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">Welch 분산분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">oneway.test(pdc ~ arm, data = pdc)                        # 기본값이 Welch
+oneway.test(pdc ~ arm, data = pdc, var.equal = TRUE)$p.value</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	One-way analysis of means (not assuming equal variances)
+
+data:  pdc and arm
+F = 3.7695, num df = 2.000, denom df = 57.808, p-value = 0.02892<span class="mk">1</span>
+
+[1] 0.01957574<span class="mk">2</span></pre></div></div>

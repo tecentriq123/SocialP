@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">군당 5명의 Kruskal-Wallis 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tiny &lt;- data.frame(arm = factor(rep(c(&quot;usual&quot;, &quot;brief&quot;, &quot;intensive&quot;), each = 5),
+                                levels = c(&quot;usual&quot;, &quot;brief&quot;, &quot;intensive&quot;)),
+                   pdc = c(58, 63, 67, 69, 73,  62, 68, 71, 77, 82,  70, 74, 79, 81, 86))
+kruskal.test(pdc ~ arm, data = tiny)
+set.seed(2026)
+pvalue(coin::kruskal_test(pdc ~ arm, data = tiny,
+                          distribution = approximate(nresample = 100000)))   # 순열검정 p</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Kruskal-Wallis rank sum test
+
+data:  pdc by arm
+Kruskal-Wallis chi-squared = 5.78, df = 2, p-value = 0.05558<span class="mk">1</span>
+
+[1] 0.04899<span class="mk">2</span>
+99 percent confidence interval:
+ 0.04724832 0.05077476</pre></div></div>

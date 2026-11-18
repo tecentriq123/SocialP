@@ -1,0 +1,2 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 26</span><span class="cell-t">과제 2 정답: 99% 동시 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">TukeyHSD(aov(pdc ~ arm, data = pdc), conf.level = 0.99)$arm[&quot;intensive-usual&quot;, ]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       diff         lwr         upr       p adj 
+ 8.57333333 -0.54897932 17.69564598<span class="mk">1</span>  0.01660797</pre></div></div>

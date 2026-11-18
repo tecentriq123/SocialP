@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">분산분석표</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pdc &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch04_pdc.csv&quot;)
+pdc$arm &lt;- factor(pdc$arm, levels = c(&quot;usual&quot;, &quot;brief&quot;, &quot;intensive&quot;))   # 군의 순서와 기준군
+tapply(pdc$pdc, pdc$arm, mean)
+fit &lt;- aov(pdc ~ arm, data = pdc)
+summary(fit)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    usual     brief intensive 
+ 70.17000  75.97000  78.74333<span class="mk">1</span> 
+            Df Sum Sq Mean Sq F value Pr(&gt;F)  
+arm          2   1148   574.2   4.117 0.0196<span class="mk">2</span> *
+Residuals   87  12134   139.5<span class="mk">3</span>                 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</pre></div></div>

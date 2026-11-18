@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 19</span><span class="cell-t">위험차, 상대위험도, 오즈비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p1 &lt;- 48 / 400; p2 &lt;- 102 / 600
+rd &lt;- p1 - p2; se_rd &lt;- sqrt(p1 * (1 - p1) / 400 + p2 * (1 - p2) / 600)
+rr &lt;- p1 / p2; se_lrr &lt;- sqrt(1/48 - 1/400 + 1/102 - 1/600)
+or &lt;- (48 * 498) / (352 * 102); se_lor &lt;- sqrt(1/48 + 1/352 + 1/102 + 1/498)
+round(rbind(RD = rd + c(0, -1.96, 1.96) * se_rd,
+            RR = exp(log(rr) + c(0, -1.96, 1.96) * se_lrr),
+            OR = exp(log(or) + c(0, -1.96, 1.96) * se_lor)), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     [,1]   [,2]   [,3]
+RD -0.050 -0.094 -0.006<span class="mk">1</span>
+RR  0.706  0.513  0.971<span class="mk">2</span>
+OR  0.666  0.460  0.963<span class="mk">3</span></pre></div></div>

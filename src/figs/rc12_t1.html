@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 25</span><span class="cell-t">과제 1 정답: 극단값 하나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">after2 &lt;- after; after2[9] &lt;- 3                      # 환자 9의 변화가 −4가 아니라 −12
+c(t = t.test(after2, before, paired = TRUE)$p.value,
+  signrank = pvalue(wilcoxsign_test(after2 ~ before, data = data.frame(after2, before),
+                                    zero.method = &quot;Wilcoxon&quot;, distribution = &quot;exact&quot;)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          t    signrank 
+0.029448288 0.009765625<span class="mk">1</span></pre></div></div>

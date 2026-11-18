@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">Holm과 Games-Howell</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pairwise.t.test(pdc$pdc, pdc$arm, p.adjust.method = &quot;holm&quot;)   # 군내 평균제곱으로 t
+suppressPackageStartupMessages(library(rstatix))
+games_howell_test(pdc, pdc ~ arm)[, c(&quot;group1&quot;, &quot;group2&quot;, &quot;estimate&quot;, &quot;p.adj&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Pairwise comparisons using t tests with pooled SD 
+
+data:  pdc$pdc and pdc$arm 
+
+          usual brief
+brief     0.121<span class="mk">1</span> -    
+intensive 0.018 0.366<span class="mk">2</span>
+
+P value adjustment method: holm 
+# A tibble: 3 x 4
+  group1 group2    estimate p.adj
+  &lt;chr&gt;  &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;
+1 usual  brief         5.8  0.147
+2 usual  intensive     8.57 0.023<span class="mk">3</span>
+3 brief  intensive     2.77 0.616</pre></div></div>

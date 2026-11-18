@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 18</span><span class="cell-t">2 × 2 표의 카이제곱 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">tab &lt;- matrix(c(48, 352,
+                102, 498), nrow = 2, byrow = TRUE,
+              dimnames = list(drug = c(&quot;A&quot;, &quot;B&quot;), admit = c(&quot;yes&quot;, &quot;no&quot;)))
+ct &lt;- chisq.test(tab, correct = FALSE)
+ct
+ct$expected
+chisq.test(tab)$p.value                      # 기본값: Yates 보정</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Pearson&#x27;s Chi-squared test
+
+data:  tab
+X-squared = 4.7059, df = 1, p-value = 0.03006<span class="mk">1</span>
+
+    admit
+drug yes  no
+   A  60 340<span class="mk">2</span>
+   B  90 510
+[1] 0.03762499<span class="mk">3</span></pre></div></div>

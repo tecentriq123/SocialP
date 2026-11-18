@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">대응표본 t 검정</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">before &lt;- c(131, 146, 144, 154, 164, 159, 155, 164, 149, 161, 155, 142)   # 교육 전
+after  &lt;- c(126, 144, 131, 147, 162, 150, 154, 147, 142, 154, 139, 144)   # 교육 3개월 뒤
+t.test(after, before, paired = TRUE)          # 후 − 전</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>
+	Paired t-test
+
+data:  after and before
+t = -4.062, df = 11, p-value = 0.001877<span class="mk">1</span>
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+ -10.792916  -3.207084<span class="mk">2</span>
+sample estimates:
+mean difference 
+             -7<span class="mk">3</span></pre></div></div>

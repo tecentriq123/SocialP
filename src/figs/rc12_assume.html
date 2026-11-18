@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">등분산과 잔차의 정규성</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(car))
+leveneTest(pdc ~ arm, data = pdc)                         # 기본값: 중앙값 기준
+leveneTest(pdc ~ arm, data = pdc, center = mean)$`Pr(&gt;F)`[1]
+shapiro.test(residuals(fit))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Levene&#x27;s Test for Homogeneity of Variance (center = median)
+      Df F value Pr(&gt;F)
+group  2  0.1771  0.838<span class="mk">1</span>
+      87               
+[1] 0.769526<span class="mk">2</span>
+
+	Shapiro-Wilk normality test
+
+data:  residuals(fit)
+W = 0.97866, p-value = 0.1455<span class="mk">3</span></pre></div></div>

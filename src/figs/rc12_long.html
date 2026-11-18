@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">측정마다 한 줄인 자료를 환자당 한 줄로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(tidyr)
+long &lt;- data.frame(id = c(1, 1, 2, 2, 3),
+                   time = c(&quot;base&quot;, &quot;m3&quot;, &quot;base&quot;, &quot;m3&quot;, &quot;base&quot;),
+                   sbp = c(131, 126, 146, 144, 144))      # 측정마다 한 줄, 3번은 3개월 값 없음
+wide &lt;- pivot_wider(long, names_from = time, values_from = sbp)
+wide
+sum(complete.cases(wide))                              # 짝이 맞는 환자 수</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre># A tibble: 3 x 3
+     id  base    m3
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     1   131   126
+2     2   146   144
+3     3   144    NA<span class="mk">1</span>
+[1] 2<span class="mk">2</span></pre></div></div>
