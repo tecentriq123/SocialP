@@ -16,8 +16,8 @@
 <tr><td>b 절 '막으려는 문제', 둘째 함정</td><td>a 절<br>셀 4</td><td>사건 수를 그냥 더한 오즈비와 그 신뢰구간</td></tr>
 <tr><td>b 절 '예제 메타분석에서 따라가기'와 그 접힌 상자</td><td>b 절<br>셀 5–12</td><td>시험별 로그 오즈비와 가중치, 두 모형(τ²는 DL과 REML), statsmodels 확인, Mantel–Haenszel, 포레스트 플롯</td></tr>
 <tr><td>b 절의 주요 출혈 그림과 접힌 상자</td><td>b 절<br>셀 13–16</td><td>주요 출혈과 0건 처리, 신뢰구간에서 표준오차 구하기, 연속형 결과</td></tr>
-<tr><td>c 절 '예제 메타분석에서 따라가기', 'I²의 신뢰구간은 어떻게 구하나?'</td><td>c 절<br>셀 17–22</td><td>Q·I²·τ²·예측구간, I²의 신뢰구간, 하위군과 차이 검정, 시험 안의 차이, 메타회귀</td></tr>
-<tr><td>b 절 '무작위효과 모형에서는 무엇을 더 정하나?', c 절 '이질성이 크면 무엇을 고르나?'</td><td>c 절<br>셀 23–25</td><td>τ²를 구하는 세 방법(DL, PM, REML), Hartung–Knapp 신뢰구간, τ²의 신뢰구간, 이질성이 큰 관찰연구 7개</td></tr>
+<tr><td>c 절 '이질성은 어떻게 재나?', '차이의 원인은 어떻게 찾나?'</td><td>c 절<br>셀 17–22</td><td>Q·I²·τ²·예측구간, I²의 신뢰구간, 하위군과 차이 검정, 시험 안의 차이, 메타회귀</td></tr>
+<tr><td>b 절 '② τ²는 어떤 방법으로 구하나?', '③ 평균의 신뢰구간은 어떤 방법으로 구하나?', c 절 '이질성이 큰 자료에서는 무엇이 달라지나?'</td><td>c 절<br>셀 23–25</td><td>τ²를 구하는 세 방법(DL, PM, REML), Hartung–Knapp 신뢰구간, τ²의 신뢰구간, 이질성이 큰 관찰연구 7개</td></tr>
 <tr><td>d 절 '예제 메타분석에서 따라가기'와 접힌 상자</td><td>d 절<br>셀 26–29</td><td>깔때기 그림, Egger·Harbord 검정, 한 시험씩 빼기, 그 밖의 민감도 분석</td></tr>
 <tr><td>e 절 '예제 메타분석에서 따라가기'와 접힌 상자</td><td>d 절<br>셀 30–33</td><td>NNT·NNH와 신뢰구간, 기저 위험 바꾸기, 무한대를 지나는 구간, 간접비교</td></tr>
 <tr><td>c 절 '흔한 함정과 확인할 것'의 원인 찾기 비교표, d 절 '민감도 분석'의 척도 바꾸기</td><td>과제 1, 2</td><td>임상시험 단계로 나눈 하위군, 상대위험도와 위험차로 합치기</td></tr>
@@ -178,7 +178,7 @@
 </ol>
 
 <h3>연구 간 분산과 무작위효과 모형</h3>
-<p>무작위효과 모형<span class="en">(random-effects model)</span>은 모든 시험의 분산에 연구 간 분산 τ²를 더해 가중치를 다시 구합니다. τ²는 두 방법으로 구해 봅니다. Q에서 식 하나로 계산하는 DerSimonian–Laird 방법<cite data-ref="dersimonian1986"></cite>과, 19장의 기준인 REML(제한최대우도) 방법입니다. REML은 식 하나로 풀리지 않아 컴퓨터가 τ²를 바꿔 가며 가장 잘 맞는 값을 찾습니다. RevMan과 R, Stata 같은 주요 메타분석 프로그램은 REML을 기본값으로 쓰지만, statsmodels에는 REML이 없어 이 셀에서 직접 만듭니다. 통합값의 신뢰구간과 P는 19장 b 절 '무작위효과 모형에서는 무엇을 더 정하나?'의 규칙대로 HKSJ 방법으로 구합니다. Q와 τ²를 읽는 법은 c 절에서, REML의 원리와 HKSJ 방법은 19장 c 절 '이질성이 크면 무엇을 고르나?'에서 다룹니다.</p>
+<p>무작위효과 모형<span class="en">(random-effects model)</span>은 모든 시험의 분산에 연구 간 분산 τ²를 더해 가중치를 다시 구합니다. τ²는 두 방법으로 구해 봅니다. Q에서 식 하나로 계산하는 DerSimonian–Laird 방법<cite data-ref="dersimonian1986"></cite>과, 19장의 기준인 REML(제한최대우도) 방법입니다. REML은 식 하나로 풀리지 않아 컴퓨터가 τ²를 바꿔 가며 가장 잘 맞는 값을 찾습니다. RevMan과 R, Stata 같은 주요 메타분석 프로그램은 REML을 기본값으로 쓰지만, statsmodels에는 REML이 없어 이 셀에서 직접 만듭니다. 통합값의 신뢰구간과 P는 19장 b 절 '무작위효과 모형에서는 무엇을 더 정하나?'의 규칙대로 HKSJ 방법으로 구합니다. Q와 τ²를 읽는 법은 c 절에서, REML과 HKSJ 방법을 고르는 기준은 19장 b 절 '② τ²는 어떤 방법으로 구하나?'와 '③ 평균의 신뢰구간은 어떤 방법으로 구하나?'에서 다룹니다.</p>
 <!--FIG:lab19_random-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -392,7 +392,7 @@
 <h2><span class="sec-no">c.</span>이질성과 하위군 분석</h2>
 
 <p><strong>통합 추정값은 평균이고, 그 평균 주위에서 시험들이 우연 이상으로 얼마나 다른지가 이질성입니다.</strong></p>
-<p>이질성<span class="en">(heterogeneity)</span>을 네 숫자로 재고 그 불확실성을 본 뒤, 왜 다른지를 하위군 분석<span class="en">(subgroup analysis)</span>과 메타회귀<span class="en">(meta-regression)</span>로 살펴봅니다(<a href="stats.html#ch19-s3">19장 c 절</a> '예제 메타분석에서 따라가기').</p>
+<p>이질성<span class="en">(heterogeneity)</span>을 네 숫자로 재고 그 불확실성을 본 뒤, 왜 다른지를 하위군 분석<span class="en">(subgroup analysis)</span>과 메타회귀<span class="en">(meta-regression)</span>로 살펴봅니다(<a href="stats.html#ch19-s3-measure">19장 c 절</a> '이질성은 어떻게 재나?'와 '이질성이 크면 어떻게 하나?').</p>
 
 <h3>이질성 지표와 예측구간</h3>
 <!--FIG:lab19_het-->
@@ -508,7 +508,7 @@
 </ol>
 
 <h3>τ²를 구하는 세 가지 방법</h3>
-<p>셀 8에서 τ²를 DerSimonian–Laird(DL)와 REML로 구했고, 이후의 계산은 REML 값을 썼습니다. 여기서는 Paule–Mandel(PM) 방법을 더해 세 방법을 함수로 나란히 놓고 비교합니다. 세 방법의 생각과 고르는 기준은 <a href="stats.html#ch19-s3">19장 c 절</a> '이질성이 크면 무엇을 고르나?'의 'τ²는 어떤 방법으로 구하나?'에 있습니다. 뒤의 두 셀이 이 셀의 함수를 다시 씁니다.</p>
+<p>셀 8에서 τ²를 DerSimonian–Laird(DL)와 REML로 구했고, 이후의 계산은 REML 값을 썼습니다. 여기서는 Paule–Mandel(PM) 방법을 더해 세 방법을 함수로 나란히 놓고 비교합니다. 세 방법의 생각과 고르는 기준은 <a href="stats.html#ch19-s2-tau2">19장 b 절</a> '② τ²는 어떤 방법으로 구하나?'에 있습니다. 뒤의 두 셀이 이 셀의 함수를 다시 씁니다.</p>
 <!--FIG:lab19_tau2m-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">

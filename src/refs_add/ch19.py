@@ -106,4 +106,10 @@ ADD = {
     "nikolakopoulou2020": {"text": "Nikolakopoulou A, Higgins JPT, Papakonstantinou T, et al. CINeMA: an approach for assessing confidence in the results of a network meta-analysis. <i>PLoS Med</i>. 2020;17(4):e1003082.", "url": "https://doi.org/10.1371/journal.pmed.1003082"},
     "hutton2015": {"text": "Hutton B, Salanti G, Caldwell DM, et al. The PRISMA extension statement for reporting of systematic reviews incorporating network meta-analyses of health care interventions: checklist and explanations. <i>Ann Intern Med</i>. 2015;162(11):777-784.", "url": "https://doi.org/10.7326/M14-2385"},
     "balduzzi2023": {"text": "Balduzzi S, Rücker G, Nikolakopoulou A, et al. netmeta: an R package for network meta-analysis using frequentist methods. <i>J Stat Softw</i>. 2023;106(2):1-40.", "url": "https://doi.org/10.18637/jss.v106.i02"},
+    # Cochrane Handbook v6.5.1 chapter 10 (read 2026-11-18): 10.10.3 strategies for addressing heterogeneity
+    # (check data, do not meta-analyse, explore, ignore, random effects, reconsider effect measure, exclude studies);
+    # 10.11.4 "Meta-regression should generally not be considered when there are fewer than ten studies";
+    # 10.11.5.2 pre-specify characteristics in the protocol.
+    "cochrane_hb10": {"text": "Deeks JJ, Higgins JPT, Altman DG, McKenzie JE, Veroniki AA, Simmonds M (editors). Chapter 10: Analysing data and undertaking meta-analyses. In: Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, Welch VA (editors). <i>Cochrane Handbook for Systematic Reviews of Interventions</i>. Version 6.5.1. Cochrane; 2026. Accessed 18 November 2026.",
+                      "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-10"},
 }
