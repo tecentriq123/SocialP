@@ -501,7 +501,7 @@ import pandas as pd</code><span>수치 계산용 NumPy와 표 자료를 다루�
 <div class="paper-b">
 <p class="excerpt">Seizure counts in the four 2-week periods were analyzed with <span class="mk">1</span> <span class="hl">generalized estimating equations with a Poisson distribution and log link, an exchangeable working correlation structure, and robust standard errors, with patients as clusters</span>. The model included <span class="mk">2</span> <span class="hl">treatment group, the logarithm of the baseline seizure rate per 2 weeks, the logarithm of age, and period</span>. The adjusted <span class="mk">3</span> <span class="hl">rate ratio for progabide versus placebo was 0.99 (95% CI, 0.68 to 1.44; P = .96)</span>. The estimated <span class="mk">4</span> <span class="hl">within-patient working correlation was 0.40</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>GEE의 네 요소.</b> 분포와 연결함수, 작업상관 구조, 강건 표준오차, 군집 단위를 모두 적었습니다. 이 중 하나라도 빠지면 독자가 분석을 재현하거나 평가하기 어렵습니다(10장 d 절 '논문에서 읽기'의 Methods 상자).</span></li>
+<li><span class="mk">1</span><span><b>GEE의 네 요소.</b> 분포와 연결함수, 작업상관 구조, 강건 표준오차, 군집 단위를 모두 적었습니다. 이 중 하나라도 빠지면 독자가 분석을 재현하거나 평가하기 어렵습니다(10장 d 절 '논문에서 읽고 쓰기'의 Methods 상자).</span></li>
 <li><span class="mk">2</span><span><b>보정 변수.</b> 모두 무작위배정 이전 값(기저 발작률, 나이)이거나 설계 변수(기간)입니다. 기저 건수를 기간 길이에 맞춰 2주당으로 바꾸고 로그를 취했다는 점을 밝히면 계수를 해석할 수 있습니다.</span></li>
 <li><span class="mk">3</span><span><b>발생률비와 95% CI.</b> 셀 20의 0.989(0.679–1.442)와 셀 19의 P = 0.956을 반올림했습니다. 신뢰구간이 넓다는 점을 Discussion에서 함께 다룹니다.</span></li>
 <li><span class="mk">4</span><span><b>작업상관.</b> <code>cov_struct.summary()</code>의 0.400입니다. 보고하지 않는 논문도 많지만, 같은 환자의 건수가 얼마나 닮았는지 알려 주어 다음 연구의 표본크기 계산(설계효과)에 쓸 수 있습니다.</span></li>

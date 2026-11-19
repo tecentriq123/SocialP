@@ -230,7 +230,7 @@ z = −0.042930 ÷ 0.012711 = −3.38, P = 0.0007<br>
 # chg = 그 방문의 HbA1c − 기저 HbA1c, base_c = 기저 HbA1c − 8.43</span>
 mm = smf.mixedlm("chg ~ 0 + C(visit) + C(visit):group + C(visit):base_c",
                  d2, groups="id", re_formula="0 + C(visit)").fit()</pre>
-<p><code>0 +</code>는 절편 대신 방문마다 평균을 하나씩 두라는 뜻이고, <code>C(visit):group</code>이 방문마다의 군간 차이입니다. <code>re_formula="0 + C(visit)"</code>는 세 방문의 분산과 공분산에 아무 모양도 정하지 않아 비구조 공분산과 같아집니다. 그래서 <code>C(visit)[12]:group</code> 줄이 −0.4664(SE 0.156)로 <span class="tref" data-t="ch10-tb29">보건통계학 기초 10장 c 절 '논문에서 읽기'의 Table 2</span>와 같습니다. P는 정규분포로 구해 0.003이고, Satterthwaite 자유도를 쓴 Table 2의 .004와 끝자리가 다릅니다. 기저값은 분석 대상 평균 8.43%를 빼서 넣었으므로, <code>C(visit)[12]</code> 줄(−0.175)은 기저값이 평균인 통상치료군(group = 0)의 12개월 LS mean입니다.</p>
+<p><code>0 +</code>는 절편 대신 방문마다 평균을 하나씩 두라는 뜻이고, <code>C(visit):group</code>이 방문마다의 군간 차이입니다. <code>re_formula="0 + C(visit)"</code>는 세 방문의 분산과 공분산에 아무 모양도 정하지 않아 비구조 공분산과 같아집니다. 그래서 <code>C(visit)[12]:group</code> 줄이 −0.4664(SE 0.156)로 <span class="tref" data-t="ch10-tb29">보건통계학 기초 10장 c 절 '논문에서 읽고 쓰기'의 Table 2</span>와 같습니다. P는 정규분포로 구해 0.003이고, Satterthwaite 자유도를 쓴 Table 2의 .004와 끝자리가 다릅니다. 기저값은 분석 대상 평균 8.43%를 빼서 넣었으므로, <code>C(visit)[12]</code> 줄(−0.175)은 기저값이 평균인 통상치료군(group = 0)의 12개월 LS mean입니다.</p>
 <p>이 모형의 출력에서 방문별 Var 줄과 Scale은 하나씩 떼어 해석하지 않습니다. 한 방문의 흩어짐을 방문별 무작위효과 분산과 잔차 분산(Scale) 두 곳에 나눠 넣었기 때문에, 자료가 정해 주는 것은 두 분산의 합뿐이고 그 합을 둘에 어떻게 나눌지는 정해지지 않습니다. 실제로 최적화 방법만 바꿔도 Log-Likelihood와 군간 차이는 그대로인데, Scale은 0.079(기본값), 0.078(lbfgs), 0.081(cg)로 달라집니다. 읽을 수 있는 것은 합입니다. 방문별 Var에 Scale을 더하면 그 방문 변화량의 분산이 되며, 12개월이면 0.419 + 0.079 = 0.498(SD 0.71)입니다. 두 방문 사이의 Cov 줄은 더할 것 없이 그대로 두 방문 변화량의 공분산이고, 6개월과 12개월이면 0.226입니다.</p>
 <!--/FOLD-->
 </section>
@@ -315,7 +315,7 @@ OR = e<sup>0.9269</sup> = 2.53<br>
 z = 0.9269 ÷ 0.3402 = 2.72, P = 0.006<br>
 기간을 보정한 모집단 평균 오즈비입니다.</span></li>
 <li><span class="mk">2</span><span><b>Covariance type: robust.</b> std err 열이 강건(sandwich) 표준오차라는 뜻으로, statsmodels GEE의 기본값입니다. 모형 기반 표준오차는 <code>res.standard_errors(cov_type="naive")</code>로 따로 구합니다. 논문에 "robust standard errors"라는 말이 없다면 어떤 표준오차를 썼는지 확인합니다.</span></li>
-<li><span class="mk">3</span><span><b>C(visit)[T.12].</b> 기준범주(0–3개월, 보건통계학 기초 8장 g 절) 대비 6–12개월의 로그 오즈비로 OR = e<sup>−0.5513</sup> = 0.58입니다. 이 모형은 기간 효과가 두 군에서 같다고 가정합니다. 군마다 다른지는 group × visit 교호작용으로 따로 봅니다(보건통계학 기초 10장 d 절 '논문에서 읽기'의 Table 3).</span></li>
+<li><span class="mk">3</span><span><b>C(visit)[T.12].</b> 기준범주(0–3개월, 보건통계학 기초 8장 g 절) 대비 6–12개월의 로그 오즈비로 OR = e<sup>−0.5513</sup> = 0.58입니다. 이 모형은 기간 효과가 두 군에서 같다고 가정합니다. 군마다 다른지는 group × visit 교호작용으로 따로 봅니다(보건통계학 기초 10장 d 절 '논문에서 읽고 쓰기'의 Table 3).</span></li>
 <li><span class="mk">4</span><span><b>Scale = 1.000.</b> 이항 분포에서는 척도모수를 1로 고정합니다. 다른 프로그램은 척도모수를 피어슨 잔차로 추정해 1.02 같은 값을 보여 주기도 하는데, 계수와 강건 표준오차는 이 값의 영향을 받지 않고 모형 기반 표준오차(<code>res.standard_errors(cov_type="naive")</code>)만 √1.02배만큼 달라집니다.</span></li>
 <li><span class="mk">5</span><span><b>군집 수 93.</b> 강건 표준오차의 정확성을 정하는 수입니다(보건통계학 기초 10장 d 절 '세 요소는 각각 무엇을 하나?'). 가장 작은 군집은 관측값이 1개(3개월 이후 탈락), 가장 큰 군집은 3개입니다.</span></li>
 <li><span class="mk">6</span><span><b>작업상관 α = 0.302.</b> 같은 환자의 두 기간 관측값 사이의 상관(피어슨 잔차 기준)입니다. 이분형 자료의 상관이라 혼합모형의 ICC(잠재 척도에서 0.45)와 크기가 다릅니다. 작업상관 α는 요약 출력에 없어서 따로 확인해야 합니다. statsmodels는 Liang–Zeger 방식의 적률 추정식(분모에서 추정한 계수의 수를 뺌)을 쓰며, 프로그램에 따라 분모를 잡는 방식이 달라 셋째 자리가 다를 수 있습니다.</span></li>
