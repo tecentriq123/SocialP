@@ -321,7 +321,7 @@
 차이의 SE = √(신약군 SE² + 위약군 SE²)<br>= √(1.28² + 1.31²) = 1.83 mmHg</p></div></div>
 <div><div><b>검정통계량 계산</b><p>관측한 차이를 차이의 표준오차로 나누면 4.3 ÷ 1.83 = 2.35입니다. 관측한 차이가 우연한 흔들림의 2.35배라는 뜻입니다. 이렇게 차이를 그 불확실성으로 나눈 값을 <strong>검정통계량</strong><span class="en">(test statistic)</span>이라 하고, 두 평균을 비교하는 이 경우에는 t라고 부릅니다. 다른 종류의 검정통계량은 e 절에서 봅니다.</p></div></div>
 <div><div><b>p값 구하기</b><p>t = 2.35가 효과가 없을 때 얼마나 드문 값인지를 확률로 나타냅니다. 효과가 없는 약으로 같은 시험을 되풀이하면 t는 대부분 0 근처에 몰리고 가끔만 크게 나옵니다. 컴퓨터로 신약 자리에 위약을 넣은 '위약 대 위약' 시험(30명씩)을 1만 번 만들어 보면, t 값의 약 95%가 −2와 2 사이에 놓이고 부호를 뗀 t가 2.35 이상인 시험은 209번(2.1%)이었습니다. 실행할 때마다 조금씩 달라지지만 이론값 2.2% 근처에 머뭅니다.</p><p>이런 시험을 끝없이 되풀이했을 때 t 값들이 그리는 모양이 자유도 58인 t 분포입니다. 자유도 58은 30 + 30 − 2이며, 그 뜻은 d 절에서 봅니다. 이 분포에서 t가 2.35 이상이거나 −2.35 이하일 확률이 0.022이고, 이 값이 p값입니다(그림 1-1에서 파란색으로 칠한 양쪽 꼬리의 넓이). <a href="#ch00-s6">0장 f 절</a> 그림 0-3에서 군 이름을 섞어 직접 센 2.3%와 거의 같습니다.</p></div></div>
-<div><div><b>판단과 해석</b><p>p값 0.022가 자료를 보기 전에 정한 유의수준 0.05보다 작으므로 귀무가설을 기각하고, 차이가 '통계적으로 유의하다'고 말합니다. 그다음 차이의 크기와 <a href="#ch00-s6">0장 f 절</a>의 95% 신뢰구간(CI)으로 결과가 임상적으로 의미 있는지 봅니다. 신뢰구간은 4.3 ± 2.00 × 1.83 = 4.3 ± 3.67로 0.6–8.0 mmHg이고, 이 자료와 잘 맞는 차이의 범위로 읽습니다. 2.00은 자유도 58인 t 분포의 임계값(0장 e 절)입니다. 이 구간을 임상적으로 어떻게 읽는지는 '논문에서 읽기'의 Results 해설 ③에서 봅니다.</p></div></div>
+<div><div><b>판단과 해석</b><p>p값 0.022가 자료를 보기 전에 정한 유의수준 0.05보다 작으므로 귀무가설을 기각하고, 차이가 '통계적으로 유의하다'고 말합니다. 그다음 차이의 크기와 <a href="#ch00-s6">0장 f 절</a>의 95% 신뢰구간(CI)으로 결과가 임상적으로 의미 있는지 봅니다. 신뢰구간은 4.3 ± 2.00 × 1.83 = 4.3 ± 3.67로 0.6–8.0 mmHg이고, 이 자료와 잘 맞는 차이의 범위로 읽습니다. 2.00은 자유도 58인 t 분포의 임계값(0장 e 절)입니다. 이 구간을 임상적으로 어떻게 읽는지는 '논문에서 읽고 쓰기'의 예문 해설 ⑥에서 봅니다.</p></div></div>
 </div>
 <!--FIG:ch01_null-->
 <p>대부분의 검정통계량은 이처럼 <strong>"신호 ÷ 잡음"</strong> 구조입니다. 차이(신호)가 클수록, 표준오차(잡음)가 작을수록 통계량의 절댓값이 커집니다. 절댓값이 큰 통계량일수록 효과가 없을 때는 나오기 어려우므로 p값도 작아집니다.</p>
@@ -397,7 +397,7 @@
 <div class="quick"><p class="qk">잠깐 확인</p><p>혈압 시험의 유의수준을 자료를 보기 전에 0.01로 정해 두었다면, p = 0.022인 이번 결과는 어떻게 결론 나고 그 대가로 어느 오류의 확률이 커지나요?</p><details><summary>답 보기</summary><div><p>0.022가 0.01보다 크므로 귀무가설을 기각하지 못하고 '유의하지 않음'으로 끝납니다. 기준이 엄격해져 1종 오류의 확률은 1%로 줄지만, 군당 30명 그대로에서는 진짜 효과도 기준을 넘기 어려워 2종 오류의 확률 β가 커집니다.</p></div></details></div>
 <!--FOLD do:내 연구의 표본크기는 어떻게 정하나?-->
 <p>검정력을 높이는 요인은 네 가지입니다. 실제 효과가 클수록, 표본이 클수록, 측정값의 표준편차가 작을수록, α를 크게 잡을수록 검정력이 올라갑니다. 이 가운데 연구자가 정할 수 있는 것은 주로 표본크기라서, 계획 단계에서 목표 검정력(보통 80% 또는 90%)을 정하고 필요한 인원을 계산합니다.</p>
-<p>계획서에는 자료를 보기 전에 다음을 적습니다. 1차 결과변수 하나, 양측 α 0.05, 임상적으로 의미 있는 최소 차이, 선행연구나 예비연구에서 가져온 표준편차, 목표 검정력, 탈락률입니다. 이 값으로 계산해 Methods에 쓴 예가 '논문에서 읽기'의 표본크기 문단이고, 계산식은 이 절의 '수식으로 보기'에 있습니다. 파이썬으로 계산하는 방법과 두 비율이나 생존시간의 표본크기는 <a href="#ap01-s5">부록 A e 절</a>에서 봅니다.</p>
+<p>계획서에는 자료를 보기 전에 다음을 적습니다. 1차 결과변수 하나, 양측 α 0.05, 임상적으로 의미 있는 최소 차이, 선행연구나 예비연구에서 가져온 표준편차, 목표 검정력, 탈락률입니다. 이 값으로 계산해 Methods에 쓴 예가 '논문에서 읽고 쓰기'의 표본크기 문단이고, 계산식은 이 절의 '수식으로 보기'에 있습니다. 파이썬으로 계산하는 방법과 두 비율이나 생존시간의 표본크기는 <a href="#ap01-s5">부록 A e 절</a>에서 봅니다.</p>
 <!--/FOLD-->
 <!--FOLD do:청구자료처럼 인원이 정해진 연구에서는 검정력을 어떻게 보나?-->
 <p>청구자료나 병원 코호트에서는 인원이 이미 정해져 있어 "몇 명이 필요한가"를 물을 수 없습니다. 대신 표본크기 계산을 거꾸로 써서, 이 인원으로 검정력 80%를 얻을 수 있는 가장 작은 차이를 구합니다. 이 값을 <strong>최소 검출 차이</strong><span class="en">(minimum detectable difference)</span>라고 합니다.</p>
@@ -430,8 +430,8 @@ p ≈ 1.5 × 10⁻¹²</p>
 <tr class="hi"><td>청구자료, 25만 명씩</td><td>0.3 mmHg</td><td>1.5 × 10⁻¹²</td></tr>
 </tbody></table></div>
 
-<h3>5. 논문에서 읽기</h3>
-<p><strong>Methods의 표본크기 문단에서는 가정한 표준편차, 검출하려는 차이, 검정력을 찾고, Results에서는 차이와 신뢰구간, P를 찾습니다.</strong></p>
+<h3 id="ch01-s2-write">5. 논문에서 읽고 쓰기</h3>
+<p><strong>Methods에는 1차 결과변수, 검정 이름, 양측 여부와 유의수준, 표본크기를 정한 근거를 쓰고, Results에는 군별 요약값과 차이, 95% 신뢰구간, 정확한 P를 씁니다. 남의 논문을 읽을 때도 같은 자리에서 이 숫자들을 찾습니다.</strong></p>
 <h4>표본크기 문단에서 무엇을 보나?</h4>
 <p>표본크기 계산은 '두 가지 오류와 검정력'의 검정력 계산을 거꾸로 한 것입니다. 같은 가정(표준편차 7 mmHg, 실제 차이 4 mmHg)에서 군당 30명이면 검정력이 60%였는데, 인원을 늘리면 표준오차가 줄어 대립가설 분포의 중심이 2.21보다 오른쪽으로 옮겨 가고 검정력이 커집니다. 검정력이 80%가 되는 인원을 구해 Methods에 쓴 것이 아래 문단입니다(계산식은 절 끝 '수식으로 보기').</p>
 <div class="paper">
@@ -439,58 +439,30 @@ p ≈ 1.5 × 10⁻¹²</p>
 <div class="paper-b">
 <p class="excerpt">Assuming a <span class="mk">1</span> <span class="hl">standard deviation of 7 mmHg</span>, we estimated that 49 patients per group would provide <span class="mk">2</span> <span class="hl">80% power</span> to detect a <span class="mk">3</span> <span class="hl">between-group difference of 4 mmHg</span> at a two-sided significance level of 0.05. To allow for a dropout rate of 10%, we planned to <span class="mk">4</span> <span class="hl">enroll 55 patients per group</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>SD 가정.</b> 보통 선행연구나 예비연구에서 가져옵니다. 실제 자료의 SD가 가정보다 크면 검정력이 계획보다 낮아집니다.</span></li>
+<li><span class="mk">1</span><span><b>SD 가정.</b> 보통 선행연구나 예비연구에서 가져오고, 쓸 때는 어디서 가져왔는지 밝힙니다. 실제 자료의 SD가 가정보다 크면 검정력이 계획보다 낮아집니다.</span></li>
 <li><span class="mk">2</span><span><b>80% 검정력.</b> β = 0.2. 실제 효과가 4 mmHg일 때 5번 중 1번은 놓치는 설계입니다.</span></li>
 <li><span class="mk">3</span><span><b>검출하려는 차이(δ).</b> '임상적으로 의미 있는 최소 차이'여야 합니다. 표본을 줄이려고 δ를 비현실적으로 크게 잡은 연구는 검정력이 부족할 가능성이 큽니다.</span></li>
 <li><span class="mk">4</span><span><b>탈락을 고려한 모집 인원.</b> 49 ÷ 0.9 = 54.4이므로 올림해 55명입니다.</span></li>
 </ol>
 </div></div>
 <p>표본크기 문단이 없는 연구나, 결과가 유의하지 않은 소규모 연구를 읽을 때는 "효과가 없다"보다 "검정력이 부족했다"는 해석을 먼저 떠올려야 합니다.</p>
-<h4>Results 문장에서는 무엇을 보나?</h4>
-<p>다음은 Results의 한 문장으로, <span class="tref" data-t="ch01-tb07">'p값은 어떻게 구하고 무엇을 뜻하나?'의 혈압 시험 결과</span>를 그대로 옮긴 것입니다.</p>
-<div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Results</b><span>가상의 예시</span></div>
-<div class="paper-b">
-<p class="excerpt">At week 8, the mean reduction in systolic blood pressure was <span class="mk">1</span> <span class="hl">12.4 mmHg in the study-drug group and 8.1 mmHg in the placebo group</span> (<span class="mk">2</span> <span class="hl">between-group difference, 4.3 mmHg</span>; <span class="mk">3</span> <span class="hl">95% CI, 0.6 to 8.0</span>; <span class="mk">4</span> <span class="hl">P = 0.02</span>).</p>
-<ol class="marks">
-<li><span class="mk">1</span><span><b>군별 요약값.</b> 각 군의 평균 감소량입니다. 좋은 논문은 p-value만 쓰지 않고 군별 값과 그 차이를 먼저 제시합니다.</span></li>
-<li><span class="mk">2</span><span><b>효과의 크기.</b> 12.4 − 8.1 = 4.3 mmHg. 이 연구가 답하려는 숫자는 이것이고, p-value는 이 숫자가 우연으로 설명되는지를 따지는 보조 정보입니다.</span></li>
-<li><span class="mk">3</span><span><b>95% 신뢰구간.</b> 'p값은 어떻게 구하고 무엇을 뜻하나?'에서 구한 구간입니다. 실제 차이가 0.6–8.0 mmHg 사이의 값이면 이 자료와 잘 맞는다고 읽습니다. 구간이 0을 포함하지 않으므로 결론은 p &lt; 0.05와 같습니다. 다만 하한 0.6 mmHg는 임상적으로 거의 의미 없는 크기이므로, "신약이 혈압을 더 낮춘다는 근거는 있지만 그 차이가 임상적으로 중요한 크기인지는 불확실하다"고 읽는 것이 정확합니다(8장 a 절).</span></li>
-<li><span class="mk">4</span><span><b>p-value.</b> 'p값은 어떻게 구하고 무엇을 뜻하나?'에서 구한 양측 독립표본 t 검정의 p = 0.022를 두 자리로 반올림한 값입니다. 양측인지 단측인지는 Methods에서 확인합니다.</span></li>
-</ol>
-</div></div>
-
-<h3 id="ch01-s2-write">6. 논문에 쓰기</h3>
-<p><strong>Methods에는 1차 결과변수, 검정 이름, 양측 여부와 유의수준을 쓰고, Results에는 군별 요약값과 차이, 95% 신뢰구간, 정확한 P를 씁니다.</strong></p>
-<p>보고할 것은 다음 다섯 가지입니다.</p>
-<ol>
-<li>1차 결과변수와 비교하는 두 군을 씁니다. 1차 결과변수는 연구가 답하려고 미리 하나로 정한 가장 중요한 결과변수입니다.</li>
-<li>검정 이름, 양측 검정인지 여부, 유의수준을 씁니다. t 검정이면 Student인지 Welch인지까지 씁니다.</li>
-<li>군별 인원과 요약값을 씁니다.</li>
-<li>차이와 95% 신뢰구간, 정확한 P를 씁니다.</li>
-<li>표본크기를 정한 근거를 씁니다. '논문에서 읽기'의 표본크기 상자처럼 표준편차, 검출할 차이, 유의수준, 검정력, 탈락률을 밝힙니다.</li>
-</ol>
-<p>아래는 이 절의 숫자로 만든 예문입니다.</p>
-
+<h4>Methods와 Results 문장에는 무엇이 들어가나?</h4>
+<p>아래 예문은 <span class="tref" data-t="ch01-tb07">'p값은 어떻게 구하고 무엇을 뜻하나?'의 혈압 시험 결과</span>를 그대로 옮긴 것입니다. 해설에는 내 논문에 쓸 것과 남의 논문에서 확인할 것을 함께 적었습니다.</p>
 <div class="paper">
 <div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results</b><span>이 절의 예로 쓴 예문</span></div>
 <div class="paper-b">
 <p class="excerpt"><b>Methods.</b> The primary outcome was <span class="mk">1</span> <span class="hl">the reduction in systolic blood pressure from baseline to week 8</span>. The difference between groups was tested using <span class="mk">2</span> <span class="hl">Student's t-test</span>, and <span class="mk">3</span> <span class="hl">a two-sided P value below 0.05 was considered statistically significant</span>.</p>
-<p class="excerpt"><b>Results.</b> At week 8, systolic blood pressure had decreased by <span class="mk">4</span> <span class="hl">12.4 mmHg (SD, 7.0) in the study-drug group (n = 30) and by 8.1 mmHg (SD, 7.2) in the placebo group (n = 30)</span>. The reduction was <span class="mk">5</span> <span class="hl">4.3 mmHg greater in the study-drug group (95% CI, 0.6 to 8.0; P = 0.022)</span>.</p>
+<p class="excerpt"><b>Results.</b> At week 8, systolic blood pressure had decreased by <span class="mk">4</span> <span class="hl">12.4 mmHg (SD, 7.0) in the study-drug group (n = 30) and by 8.1 mmHg (SD, 7.2) in the placebo group (n = 30)</span>. The reduction was <span class="mk">5</span> <span class="hl">4.3 mmHg greater in the study-drug group</span> (<span class="mk">6</span> <span class="hl">95% CI, 0.6 to 8.0</span>; <span class="mk">7</span> <span class="hl">P = 0.022</span>).</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>1차 결과변수.</b> 무엇을 비교하는지 정해야 귀무가설이 정해집니다. 이 예의 귀무가설은 "두 군의 평균 감소량이 같다"입니다. 결과변수를 여러 개 보았다면 그중 무엇이 1차인지 밝힙니다. 그 이유는 c 절에서 봅니다.</span></li>
+<li><span class="mk">1</span><span><b>1차 결과변수.</b> 연구가 답하려고 미리 하나로 정한 가장 중요한 결과변수입니다. 무엇을 비교하는지 정해야 귀무가설이 정해지고, 이 예의 귀무가설은 "두 군의 평균 감소량이 같다"입니다. 결과변수를 여러 개 보았다면 그중 무엇이 1차인지 밝힙니다. 그 이유는 c 절에서 봅니다.</span></li>
 <li><span class="mk">2</span><span><b>검정 이름.</b> 독립표본 t 검정은 Student와 Welch 두 가지입니다('p를 바꾸는 선택은 언제 정하나?'). 이 예는 두 군의 인원이 같아 두 방법의 t와 P, 신뢰구간이 사실상 같으므로, 자유도 58에 맞춰 Student로 썼습니다. 인원과 분산이 함께 다르면 P가 갈리므로 2장 a 절은 Welch를 기본으로 권합니다. 내 논문에는 실제로 쓴 검정의 이름을 쓰고, 프로그램 기본값을 그대로 썼다면 그 기본값이 어느 쪽인지 확인합니다.</span></li>
-<li><span class="mk">3</span><span><b>양측 검정과 유의수준.</b> 자료를 보기 전에 정한 기준을 씁니다(<span class="tref" data-t="ch01-tb09">'양측검정과 단측검정은 무엇이 다른가?'의 표</span>).</span></li>
-<li><span class="mk">4</span><span><b>군별 인원과 요약값.</b> "SD"라고 밝혀야 SE와 헷갈리지 않습니다. 인원과 SD가 있으면 독자가 t를 검산할 수 있습니다.</span></li>
-<li><span class="mk">5</span><span><b>차이의 크기와 방향, 95% 신뢰구간, 정확한 P.</b> 어느 군이 더 떨어졌는지 함께 씁니다. 이 차이가 연구 질문에 대한 답이고, 신뢰구간은 그 정밀도, P는 차이가 우연으로 설명되는지 따지는 보조 정보입니다. "P &lt; 0.05"만으로는 0.049와 0.001이 구별되지 않으므로 0.022처럼 정확한 값을 씁니다. '논문에서 읽기'의 Results 상자처럼 P = 0.02로 두 자리까지 줄여 쓰는 학술지도 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>양측 검정과 유의수준.</b> 자료를 보기 전에 정한 기준을 씁니다(<span class="tref" data-t="ch01-tb09">'양측검정과 단측검정은 무엇이 다른가?'의 표</span>). 남의 논문에서 P가 양측인지 단측인지는 이 문장에서 확인합니다. 결과를 본 뒤 단측 P로 바꾸면 효과 없는 약을 '유의'로 결론 내릴 확률이 10%로 늘어납니다.</span></li>
+<li><span class="mk">4</span><span><b>군별 인원과 요약값.</b> 좋은 논문은 P만 쓰지 않고 군별 값과 그 차이를 먼저 제시합니다. "SD"라고 밝혀야 SE와 헷갈리지 않고, 인원과 SD가 있으면 독자가 t를 검산할 수 있습니다.</span></li>
+<li><span class="mk">5</span><span><b>차이의 크기와 방향.</b> 12.4 − 8.1 = 4.3 mmHg이고, 어느 군이 더 떨어졌는지 함께 씁니다. 연구가 답하려는 숫자는 이것이고, P는 이 숫자가 우연으로 설명되는지를 따지는 보조 정보입니다.</span></li>
+<li><span class="mk">6</span><span><b>95% 신뢰구간.</b> 차이의 정밀도입니다. 실제 차이가 0.6–8.0 mmHg 사이의 값이면 이 자료와 잘 맞는다고 읽습니다. 구간이 0을 포함하지 않으므로 결론은 P &lt; 0.05와 같습니다. 다만 하한 0.6 mmHg는 임상적으로 거의 의미 없는 크기이므로, "신약이 혈압을 더 낮춘다는 근거는 있지만 그 차이가 임상적으로 중요한 크기인지는 불확실하다"고 읽는 것이 정확합니다(8장 a 절).</span></li>
+<li><span class="mk">7</span><span><b>정확한 P.</b> "P &lt; 0.05"만으로는 0.049와 0.001이 구별되지 않으므로 0.022처럼 정확한 값을 씁니다. P = 0.02처럼 두 자리까지 줄여 쓰는 학술지도 있습니다. 출력이 "0.000"이면 소수 셋째 자리까지만 보여 준 것일 뿐 P는 0이 아니므로 "P &lt; 0.001"로 씁니다.</span></li>
 </ol>
 </div></div>
-
-<p>자주 하는 실수는 다음 두 가지입니다.</p>
-<ul>
-<li>프로그램 출력 그대로 "P = 0.000"으로 쓰는 것입니다. 출력이 소수 셋째 자리까지만 보여 줘서 0.000일 뿐 P는 0이 아니므로 "P &lt; 0.001"로 씁니다.</li>
-<li>결과를 본 뒤 단측 P로 바꾸는 것입니다. 효과 없는 약을 '유의'로 결론 내릴 확률이 10%로 늘어납니다('양측검정과 단측검정은 무엇이 다른가?').</li>
-</ul>
 
 <p class="lab-link">직접 해 보기 · <a href="r.html#rc11-s2">R과 파이썬으로 하는 통계분석 1장 b 절</a>에서 t(58) = 2.35를 p로 바꾸는 계산과 검정력 계산의 Φ(0.25)를, <a href="r.html#rc01-s3">2장 c 절</a>에서 원자료로 하는 t 검정을 R로 해 봅니다. 공개 데이터로 하는 파이썬 실습은 <a href="r.html#lab02">실습 2</a>입니다.</p>
 
@@ -522,7 +494,7 @@ p ≈ 1.5 × 10⁻¹²</p>
 <p>확인할 점은 세 가지입니다. ① P는 1.5 × 10⁻¹²이므로 "P &lt; 0.001"로 씁니다. ② 신뢰구간 전체가 0.4 mmHg보다 작으므로, 차이가 있더라도 매우 작다는 것을 구간으로 보여 줍니다. ③ 관찰연구이므로 "Drug A lowered…"처럼 효과로 쓰지 않고 두 군의 차이로 씁니다.</p></div></details></li>
 <li><p><span class="qt">논문 쓰기</span>약국 복약상담이 혈압을 낮추는지 보는 연구를 계획한다고 합시다. 고혈압 환자를 상담군과 통상관리군에 무작위배정합니다. 1차 결과변수는 6개월 동안 수축기혈압이 떨어진 양입니다. Methods에 넣을 문장 두 개를 써 보세요. 하나는 검정 방법과 유의수준, 다른 하나는 표본크기를 정한 근거입니다. 숫자는 대괄호로 비워 둡니다.</p>
 <details><summary>답과 풀이</summary><div><p>모범 문장은 다음과 같습니다. 대괄호는 자신의 연구에 맞게 바꿉니다. “The primary outcome, the reduction in systolic blood pressure from baseline to 6 months, was compared between groups using Welch's t-test, and a two-sided P value below 0.05 was considered statistically significant.” “Assuming a standard deviation of [SD] mmHg and a dropout rate of [rate]%, we planned to enroll [N] patients per group to provide 80% power to detect a between-group difference of [difference] mmHg at a two-sided significance level of 0.05.”</p>
-<p>확인할 점은 세 가지입니다. ① 검출하려는 차이를 임상적으로 의미 있는 최소 차이로 잡았는지, 표준편차를 선행연구나 예비연구에서 가져왔는지 봅니다. 표본을 줄이려고 차이를 크게 잡으면 검정력이 부족한 연구가 됩니다('논문에서 읽기'의 표본크기 상자 해설 3). ② 검정 이름을 Student인지 Welch인지까지 밝히고, 양측 검정과 유의수준을 자료를 보기 전에 정했는지 봅니다. ③ 모집 인원은 필요한 인원을 (1 − 탈락률)로 나눈 뒤 올림했는지 봅니다. 표본크기 상자의 예라면 49 ÷ 0.9 = 54.4이므로 55명입니다.</p></div></details></li>
+<p>확인할 점은 세 가지입니다. ① 검출하려는 차이를 임상적으로 의미 있는 최소 차이로 잡았는지, 표준편차를 선행연구나 예비연구에서 가져왔는지 봅니다. 표본을 줄이려고 차이를 크게 잡으면 검정력이 부족한 연구가 됩니다('논문에서 읽고 쓰기'의 표본크기 상자 해설 3). ② 검정 이름을 Student인지 Welch인지까지 밝히고, 양측 검정과 유의수준을 자료를 보기 전에 정했는지 봅니다. ③ 모집 인원은 필요한 인원을 (1 − 탈락률)로 나눈 뒤 올림했는지 봅니다. 표본크기 상자의 예라면 49 ÷ 0.9 = 54.4이므로 55명입니다.</p></div></details></li>
 </ol></div>
 
 <h3>더 알아보기</h3>
