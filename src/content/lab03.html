@@ -203,7 +203,7 @@ import matplotlib.pyplot as plt</code><span>이 실습에 쓸 패키지를 모�
 <div class="paper-b">
 <p class="excerpt">In the 10 patients who received both drugs, mean extra sleep was <span class="mk">1</span> <span class="hl">0.75 ± 1.79 h with drug 1 and 2.33 ± 2.00 h with drug 2</span>. Drug 2 increased sleep by a mean of <span class="mk">2</span> <span class="hl">1.58 h more than drug 1 (95% CI, 0.70 to 2.46)</span>; <span class="mk">3</span> <span class="hl">paired t-test, t(9) = 4.06, P = .003</span>.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>약별 평균 ± SD.</b> 각 약에서 환자 간 흩어짐입니다. 이 두 SD로는 차이의 신뢰구간을 계산할 수 없습니다. 두 값의 상관(0.795)이나 차이의 SD(1.23)가 필요합니다(3장 a 절 '논문에서 읽기'의 Results 상자 3번).</span></li>
+<li><span class="mk">1</span><span><b>약별 평균 ± SD.</b> 각 약에서 환자 간 흩어짐입니다. 이 두 SD로는 차이의 신뢰구간을 계산할 수 없습니다. 두 값의 상관(0.795)이나 차이의 SD(1.23)가 필요합니다(3장 a 절 '논문에서 읽고 쓰기'의 Results 상자 3번).</span></li>
 <li><span class="mk">2</span><span><b>환자 내 차이의 평균과 95% CI.</b> "drug 2 − drug 1" 방향이므로 양수는 약 2가 더 효과적이라는 뜻입니다. 신뢰구간은 <code>res.confidence_interval()</code>의 값입니다.</span></li>
 <li><span class="mk">3</span><span><b>t(9)와 P.</b> 자유도 9에서 분석된 쌍이 10개임을 알 수 있습니다. p = 0.0028을 반올림했습니다. 이 자료처럼 한 사람이 두 약을 모두 받는 교차설계는 복용 순서에 따른 시기 효과가 섞일 수 있어 순서군을 고려해 분석하는 것이 표준인데(3장 a 절 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 접힌 상자 '교차설계는 어떻게 분석하나?'), sleep 자료에는 복용 순서 정보가 없어 단순 대응 비교만 했습니다.</span></li>
 </ol>
