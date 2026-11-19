@@ -485,11 +485,11 @@ SE = √(32 − 2.7) ÷ 120 = 0.0451<br>
 <p>치료 시작 전에 잰 교란변수를 회귀모형으로 보정하고, 재활용 예측으로 1인당 금액 차이를 구합니다(<a href="#ch21-s3">21장 c 절</a> '감마 GLM으로 보정한 비와 금액 차이는?'). 이 금액 차이는 어느 집단에 대해 평균할지(연구 대상 전체, 신약을 쓴 환자 등)를 정해 구합니다(<a href="#ch21-s3">21장 c 절</a> 같은 소제목의 끝부분과 그 아래 접힌 상자 '금액 차이는 누구에 대해 평균하나?'). 주 분석 모형은 <span class="tref" data-t="ap01-tb07">'방법 고르기'의 기준</span>으로 분석 전에 하나를 정하고, 다른 모형을 민감도 분석으로 둡니다(<a href="#ch21-s3">21장 c 절</a> '분석 전에 무엇을 정하나?'). 감마 분포가 자료에 맞는지 점검하는 modified Park test는 <a href="#ch21-s3">21장 c 절</a>의 접힌 상자 '모형이 자료에 맞는지는 어떻게 점검하나?'에 있습니다. 측정하지 않은 교란은 어떤 비용 모형으로도 보정되지 않습니다.</p>
 
 <h4>프로그램에는 무엇을 넣고 무엇이 나오나?</h4>
-<p>넣는 것은 두 군 환자의 비용 배열 두 개이고, 나오는 것은 평균 차이의 신뢰구간입니다. 코드는 <a href="#ch21-s2">21장 b 절</a>의 접힌 상자 'scipy로는 어떻게 구하고, 기본값은 무엇인가?'와 같습니다. 이 자료에서 결과를 바꾸는 기본값은 다음과 같습니다(scipy 1.18, statsmodels 0.15).</p>
+<p>넣는 것은 두 군 환자의 비용 배열 두 개이고, 나오는 것은 평균 차이의 신뢰구간입니다. 코드는 <a href="r.html#rc23-s2">R과 파이썬으로 하는 통계분석 20장 b 절</a>의 파이썬 상자와 같습니다. 이 자료에서 결과를 바꾸는 기본값은 다음과 같습니다(scipy 1.18, statsmodels 0.15).</p>
 <ul>
 <li><code>stats.bootstrap</code>에서 <code>method</code>를 빼면 BCa 구간 −147.2 ~ −6.1이 나옵니다. 본문의 −146.7 ~ −5.9는 <code>method="percentile"</code>, <code>n_resamples=9999</code>, <code>rng=np.random.default_rng(2026)</code>으로 구했습니다.</li>
 <li><code>stats.ttest_ind</code>에서 <code>equal_var=False</code>를 빼면 Student t 검정이 됩니다. 이 자료는 두 군이 500명씩이라 구간이 같지만, 군 크기가 다르면 달라집니다.</li>
-<li>이단계 모형의 둘째 부분에 <code>sm.families.Gamma()</code>만 쓰면 역수 연결이 되어 계수를 비로 읽을 수 없으므로 <code>link=sm.families.links.Log()</code>를 적습니다(<a href="#ch21-s3">21장 c 절</a>의 접힌 상자 'statsmodels 출력은 어떻게 읽고, 기본값은 무엇인가?').</li>
+<li>이단계 모형의 둘째 부분에 <code>sm.families.Gamma()</code>만 쓰면 역수 연결이 되어 계수를 비로 읽을 수 없으므로 <code>link=sm.families.links.Log()</code>를 적습니다(<a href="r.html#rc23-s3">R과 파이썬으로 하는 통계분석 20장 c 절</a>의 파이썬 상자).</li>
 </ul>
 <p>계산한 뒤에는 방법마다 구간이 비슷한지, 0원과 고액 비용이 입력 오류가 아닌지 확인합니다.</p>
 

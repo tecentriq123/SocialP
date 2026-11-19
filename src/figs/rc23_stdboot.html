@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">금액 차이의 부트스트랩 구간 (21장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">set.seed(21)
+sb &lt;- boot(d, function(x, i) {                     # 환자를 다시 뽑아 적합부터 표준화까지 되풀이
+  y &lt;- x[i, ]
+  f &lt;- glm(cost ~ A + age + male + cci + stage4, data = y, family = Gamma(link = &quot;log&quot;))
+  mean(predict(f, transform(y, A = 1), type = &quot;response&quot;)) -
+    mean(predict(f, transform(y, A = 0), type = &quot;response&quot;))
+}, R = 1000)
+round(c(se = sd(sb$t), quantile(sb$t, c(0.025, 0.975))), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   se  2.5% 97.5% 
+ 51.0 437.5 636.5<span class="mk">1</span></pre></div></div>

@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">이단계 모형 (21장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$anyinp &lt;- as.integer(d$cost_inp &gt; 0); round(mean(d$anyinp == 0), 3)
+rhs &lt;- ~ A + age + male + cci + stage4
+p1 &lt;- glm(update(rhs, anyinp ~ .), data = d, family = binomial)                        # 1부: 입원비가 생겼나
+p2 &lt;- glm(update(rhs, cost_inp ~ .), data = d[d$cost_inp &gt; 0, ], family = Gamma(link = &quot;log&quot;))   # 2부: 얼마인가
+round(exp(c(odds_ratio = coef(p1)[[&quot;A&quot;]], cost_ratio = coef(p2)[[&quot;A&quot;]])), 3)
+tp &lt;- function(q1, q2, nd) mean(predict(q1, nd, type = &quot;response&quot;) * predict(q2, nd, type = &quot;response&quot;))
+e &lt;- c(all_A = tp(p1, p2, d1), all_B = tp(p1, p2, d0))       # 환자마다 곱한 뒤 평균
+round(c(e, diff = e[[&quot;all_A&quot;]] - e[[&quot;all_B&quot;]]), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.388
+odds_ratio cost_ratio 
+     0.935      0.923<span class="mk">1</span> 
+all_A all_B  diff 
+645.1 715.9 -70.7<span class="mk">2</span></pre></div></div>

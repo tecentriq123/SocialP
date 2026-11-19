@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">평균 차이와 t 검정의 신뢰구간 (21장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">a &lt;- d$cost[d$A == 1]; b &lt;- d$cost[d$A == 0]
+round(c(diff = mean(a) - mean(b),
+        welch = t.test(a, b)$conf.int,                        # 기본: Welch
+        student = t.test(a, b, var.equal = TRUE)$conf.int), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    diff   welch1   welch2 student1 student2 
+   396.1    296.1    496.1<span class="mk">1</span>    293.8    498.4<span class="mk">2</span></pre></div></div>

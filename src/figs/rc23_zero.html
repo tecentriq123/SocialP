@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">0원을 넣은 채 적합하면 (21장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">r &lt;- try(glm(update(rhs, cost_inp ~ .), data = d, family = Gamma(link = &quot;log&quot;)), silent = TRUE)
+cat(r)                                                          # 0원이 있으면 Gamma는 멈춘다
+gq &lt;- glm(update(rhs, cost_inp ~ .), data = d,
+          family = quasi(link = &quot;log&quot;, variance = &quot;mu^2&quot;),      # 감마와 같은 평균·분산 구조
+          mustart = rep(mean(d$cost_inp), nrow(d)))             # 시작값을 주지 않으면 수렴하지 않음
+round(c(ratio = exp(coef(gq)[[&quot;A&quot;]]), diff = std(gq)[[&quot;all_A&quot;]] - std(gq)[[&quot;all_B&quot;]]), 3)
+li &lt;- lm(update(rhs, cost_inp ~ .), data = d)                   # 원래 입원비의 선형회귀
+round(c(diff = coef(li)[[&quot;A&quot;]], coefci(li, vcov. = vcovHC(li, type = &quot;HC3&quot;))[&quot;A&quot;, ]), 1)
+r &lt;- try(lm(update(rhs, log(cost_inp) ~ .), data = d), silent = TRUE)
+cat(r)                                                          # log(0) = -Inf</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Error in eval(family$initialize) : 
+  non-positive values not allowed<span class="mk">1</span> for the &#x27;Gamma&#x27; family
+  ratio    diff 
+  0.907 -66.232<span class="mk">2</span> 
+  diff  2.5 % 97.5 % 
+ -72.0 -161.8   17.7<span class="mk">3</span> 
+Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) : 
+  NA/NaN/Inf in &#x27;y&#x27;<span class="mk">4</span></pre></div></div>

@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">표준화: 금액 차이와 델타 방법 구간 (21장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d1 &lt;- transform(d, A = 1); d0 &lt;- transform(d, A = 0)      # 모두 A로, 모두 B로
+std &lt;- function(f, rows = rep(TRUE, nrow(d)))
+  c(all_A = mean(predict(f, d1[rows, ], type = &quot;response&quot;)),
+    all_B = mean(predict(f, d0[rows, ], type = &quot;response&quot;)))
+r &lt;- rbind(everyone = std(g), A_users = std(g, d$A == 1), B_users = std(g, d$A == 0))
+round(cbind(r, diff = r[, 1] - r[, 2]), 1)
+X1 &lt;- model.matrix(formula(g), d1); X0 &lt;- model.matrix(formula(g), d0)   # 델타 방법
+mu1 &lt;- exp(drop(X1 %*% coef(g))); mu0 &lt;- exp(drop(X0 %*% coef(g)))
+grad &lt;- colMeans(X1 * mu1) - colMeans(X0 * mu0)
+se &lt;- sqrt(drop(t(grad) %*% vcov(g) %*% grad))
+dif &lt;- mean(mu1) - mean(mu0)
+round(c(diff = dif, lower = dif - 1.96 * se, upper = dif + 1.96 * se), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          all_A  all_B  diff
+everyone 2759.8 2223.8 536.0<span class="mk">1</span>
+A_users  2673.9 2154.6 519.3
+B_users  2817.3 2270.2 547.1<span class="mk">2</span>
+ diff lower upper 
+536.0 424.8 647.1<span class="mk">3</span></pre></div></div>

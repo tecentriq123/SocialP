@@ -1,4 +1,4 @@
-"""R과 파이썬으로 하는 통계분석 21장 · 확률적 민감도 분석과 비용효과 수용곡선 — R cells run for real with rkit (base R, ggplot2).
+"""R과 파이썬으로 하는 통계분석 23장 · 확률적 민감도 분석과 비용효과 수용곡선 — R cells run for real with rkit (base R, ggplot2).
 
 run:  source /home/claude/pylibs/env.sh && python3 gen/r_rc09.py      (NOMARK=1 … 로 모든 출력)
 
@@ -22,7 +22,7 @@ p <- list(pfs_gam = 0.95, pfs_lam = weib_lam(10, 0.95), os_gam = 1.15, os_lam = 
           hr_pfs = 0.65, hr_os = 0.75, u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,
           c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250, c_death = 800,
           c_ae_A = 120, c_ae_B = 80, disc = 0.045)
-run_model <- function(p, horizon = 240) {           # 19장의 분할생존모형을 줄인 것
+run_model <- function(p, horizon = 240) {           # 21장의 분할생존모형을 줄인 것
   t <- 0:horizon
   disc <- 1 / (1 + p$disc)^((head(t, -1) + 0.5) / 12)
   arm <- function(h_pfs, h_os, c_drug, du_ae, c_ae) {
@@ -220,7 +220,7 @@ abline(v = threshold, lty = 2, col = "gray50"); abline(h = 0.5, lty = 3, col = "
 
 # e. 과제
 c_t1 = nb.cell('''
-p_cut <- modifyList(p, list(c_drug_A = 175.39))      # 19장 과제 1의 임계 약값
+p_cut <- modifyList(p, list(c_drug_A = 175.39))      # 21장 과제 1의 임계 약값
 round(run_model(p_cut)[["icer"]])
 psa_cut <- run_psa(p_cut)
 inmb_cut <- threshold * psa_cut$dq - psa_cut$dc
@@ -277,7 +277,7 @@ S("rc09_ceplot", nb.html(c_ceplot, marks={"[1] 5620": 1}))
 S("rc09_t1", nb.html(c_t1, marks={"0.4978": 1}))
 S("rc09_t2", nb.html(c_t2))
 S("rc09_t3", nb.html(c_t3, marks={"0.0869": 1}))
-nb.save_ipynb("21장 확률적 민감도 분석과 비용효과 수용곡선 (R과 파이썬으로 하는 통계분석)",
+nb.save_ipynb("23장 확률적 민감도 분석과 비용효과 수용곡선 (R과 파이썬으로 하는 통계분석)",
               intro="보건통계학 기초 24장의 공통 예시로 일원 민감도 분석과 토네이도 그림, 확률적 민감도 분석, 비용효과 수용곡선과 EVPI를 R로 만듭니다. "
                     "Colab에서는 런타임 → 런타임 유형 변경에서 R을 고른 뒤 셀을 위에서부터 차례로 실행하세요.",
               notes={c_model.n: "## a. 모형과 입력값의 분포", c_rng.n: "## b. 일원 민감도 분석",

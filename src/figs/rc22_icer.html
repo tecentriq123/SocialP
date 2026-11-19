@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">신약 A 대 표준요법 B의 ICER (20장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d_cost &lt;- alts[&quot;A&quot;, &quot;cost&quot;] - alts[&quot;B&quot;, &quot;cost&quot;]     # 증분비용
+d_qaly &lt;- alts[&quot;A&quot;, &quot;qaly&quot;] - alts[&quot;B&quot;, &quot;qaly&quot;]     # 증분 QALY
+icer   &lt;- d_cost / d_qaly                           # 증분비용효과비
+round(c(d_cost = d_cost, d_qaly = d_qaly, icer = icer), 3)
+round(alts$cost / alts$qaly)                        # 평균 비(총비용 ÷ 총 QALY): B, C, D, A
+ly &lt;- c(A = 3.398772, B = 2.728843)                 # 할인한 생존연수
+round(d_cost / unname(ly[&quot;A&quot;] - ly[&quot;B&quot;]))           # 늘어난 생존연수 1년당 비용</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  d_cost   d_qaly     icer 
+2872.293    0.511 5620.607<span class="mk">1</span> 
+[1] 4104 4765 4700 4429<span class="mk">2</span>
+[1] 4287<span class="mk">3</span></pre></div></div>

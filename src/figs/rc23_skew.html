@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">중앙값, Mann-Whitney 검정, 기하평균의 비 (21장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(c(median_A = median(a), median_B = median(b), diff = median(a) - median(b)), 1)
+w &lt;- wilcox.test(a, b)                              # Mann-Whitney 검정
+cat(&quot;P(A &gt; B) =&quot;, round(unname(w$statistic) / (length(a) * length(b)), 3), &quot;  P =&quot;, signif(w$p.value, 3), &quot;
+&quot;)
+lt &lt;- t.test(log(a), log(b))                       # 로그 척도의 평균 차이
+round(exp(c(ratio = unname(lt$estimate[1] - lt$estimate[2]), lt$conf.int)), 3)   # 기하평균의 비</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>median_A median_B     diff 
+  2462.3   1836.4    625.9<span class="mk">1</span> 
+P(A &gt; B) = 0.678<span class="mk">2</span>   P = 2.04e-61 
+ratio             
+1.244 1.202 1.288<span class="mk">3</span></pre></div></div>

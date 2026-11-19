@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">같은 자료, 여러 모형 (21장 c 절 표 21-7)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lm1 &lt;- lm(cost ~ A + age + male + cci + stage4, data = d)                     # 원래 비용의 선형회귀
+ll  &lt;- lm(log(cost) ~ A + age + male + cci + stage4, data = d)                # 로그 변환 회귀
+sm  &lt;- mean(exp(resid(ll)))                                                    # smearing 보정 계수
+gp  &lt;- glm(cost ~ A + age + male + cci + stage4, data = d, family = quasipoisson(link = &quot;log&quot;))
+gi  &lt;- glm(cost ~ A * (age + male + cci + stage4), data = d, family = Gamma(link = &quot;log&quot;))
+lg  &lt;- c(mean(exp(predict(ll, d1))), mean(exp(predict(ll, d0))))
+tab &lt;- rbind(linear = c(mean(predict(lm1, d1)), mean(predict(lm1, d0))),
+             log_naive = lg, log_smearing = sm * lg, gamma = std(g),
+             poisson = std(gp), gamma_interaction = std(gi))
+round(cbind(tab, diff = tab[, 1] - tab[, 2]), 1)
+round(coefci(lm1, vcov. = vcovHC(lm1, type = &quot;HC3&quot;))[&quot;A&quot;, ], 1)             # 선형회귀의 HC3 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                   all_A  all_B  diff
+linear            2738.6 2226.1 512.6
+log_naive         2508.2 1937.5 570.7
+log_smearing      2826.9 2183.7 643.2<span class="mk">1</span>
+gamma             2759.8 2223.8 536.0
+poisson           2750.0 2228.7 521.3
+gamma_interaction 2726.9 2220.9 506.1<span class="mk">2</span>
+ 2.5 % 97.5 % 
+ 412.7  612.5<span class="mk">3</span></pre></div></div>

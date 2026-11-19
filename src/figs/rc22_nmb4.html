@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">네 대안의 순금전편익 (20장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">nmb4 &lt;- sapply(c(5000, 6000), function(l) l * alts$qaly - alts$cost)   # 대안마다 λ × QALY − 비용
+dimnames(nmb4) &lt;- list(rownames(alts), c(&quot;lam5000&quot;, &quot;lam6000&quot;)); round(nmb4, 1)
+rownames(alts)[apply(nmb4, 2, which.max)]               # 순금전편익이 가장 큰 대안
+grid &lt;- seq(0, 20000, by = 100)
+best &lt;- sapply(grid, function(l) rownames(alts)[which.max(l * alts$qaly - alts$cost)])
+table(best); grid[match(&quot;A&quot;, best)]                     # A가 처음 가장 커지는 임계값</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  lam5000 lam6000
+B  1678.7  3552.4
+C   400.0  2100.0
+D   600.0  2600.0
+A  1361.6  3746.2
+[1] &quot;B&quot; &quot;A&quot;<span class="mk">1</span>
+best
+  A   B 
+144  57 
+[1] 5700<span class="mk">2</span></pre></div></div>

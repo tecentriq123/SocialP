@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">이단계 모형의 부트스트랩 구간 (21장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">set.seed(21)
+tb &lt;- boot(d, function(x, i) {
+  y  &lt;- x[i, ]
+  q1 &lt;- glm(update(rhs, anyinp ~ .), data = y, family = binomial)
+  q2 &lt;- glm(update(rhs, cost_inp ~ .), data = y[y$cost_inp &gt; 0, ], family = Gamma(link = &quot;log&quot;))
+  tp(q1, q2, transform(y, A = 1)) - tp(q1, q2, transform(y, A = 0))
+}, R = 1000)
+round(quantile(tb$t, c(0.025, 0.975)), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  2.5%  97.5% 
+-162.0   16.4<span class="mk">1</span></pre></div></div>

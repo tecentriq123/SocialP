@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">과제 2 정답. 신약 E를 더해 다시 고르기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">alts_E &lt;- rbind(alts, E = c(alts[&quot;B&quot;, &quot;cost&quot;] + 600, alts[&quot;B&quot;, &quot;qaly&quot;] + 0.20))
+fe &lt;- frontier(alts_E); fe$icer &lt;- round(fe$icer); fe</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       cost     qaly status vs icer
+B  7689.485 1.873640   경계      NA
+C  8100.000 1.700000   열등      NA
+E  8289.485 2.073640   경계  B 3000
+D  9400.000 2.000000   열등      NA
+A 10561.778 2.384669   경계  E 7306</pre></div></div>

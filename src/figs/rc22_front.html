@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">열등, 확장 열등, 효율 경계 (20장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">frontier &lt;- function(df) {
+  df &lt;- df[order(df$cost, -df$qaly), ]               # 비용이 낮은 순서, 같으면 효과가 큰 순서
+  df$status &lt;- &quot;경계&quot;; df$vs &lt;- &quot;&quot;; df$icer &lt;- NA
+  ic &lt;- function(a, b) (df[b, &quot;cost&quot;] - df[a, &quot;cost&quot;]) / (df[b, &quot;qaly&quot;] - df[a, &quot;qaly&quot;])
+  keep &lt;- character(0)                               # 경계에 남은 대안
+  for (i in rownames(df)) {
+    if (any(df[keep, &quot;qaly&quot;] &gt;= df[i, &quot;qaly&quot;])) {    # 더 싸면서 효과가 같거나 큰 대안이 있음
+      df[i, &quot;status&quot;] &lt;- &quot;열등&quot;; next
+    }
+    keep &lt;- c(keep, i)
+    while (length(keep) &gt;= 3) {                      # 이어진 세 대안의 ICER 순서 확인
+      n &lt;- length(keep); x &lt;- keep[n - 2]; y &lt;- keep[n - 1]; z &lt;- keep[n]
+      if (ic(x, y) &lt;= ic(y, z)) break
+      cat(y, &quot;확장 열등:&quot;, round(ic(x, y)), &quot;&gt;&quot;, round(ic(y, z)), &quot;\n&quot;)
+      df[y, &quot;status&quot;] &lt;- &quot;확장 열등&quot;; keep &lt;- keep[-(n - 1)]   # 가운데 대안을 뺌
+    }
+  }
+  for (k in seq_along(keep)[-1]) {                   # 경계 위의 이웃끼리 ICER
+    df[keep[k], &quot;vs&quot;] &lt;- keep[k - 1]; df[keep[k], &quot;icer&quot;] &lt;- ic(keep[k - 1], keep[k])
+  }
+  df
+}
+fr &lt;- frontier(alts); fr$icer &lt;- round(fr$icer); fr</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>D 확장 열등: 13537 &gt; 3020<span class="mk">1</span> 
+       cost     qaly    status vs icer
+B  7689.485 1.873640      경계      NA
+C  8100.000 1.700000      열등      NA
+D  9400.000 2.000000 확장 열등      NA
+A 10561.778 2.384669      경계  B 5621<span class="mk">2</span></pre></div></div>

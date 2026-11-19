@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">사분면 판정과 음수 ICER (20장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">quadrant &lt;- function(dc, dq) {                      # 증분의 부호로 사분면부터 정한다
+  if (dq == 0) return(&quot;증분 QALY 0: ICER를 정의할 수 없음&quot;)
+  if (dq &gt; 0 &amp;&amp; dc &lt;= 0) return(&quot;오른쪽 아래: 우월(dominant)&quot;)
+  if (dq &lt; 0 &amp;&amp; dc &gt;= 0) return(&quot;왼쪽 위: 열등(dominated)&quot;)
+  if (dq &gt; 0) return(sprintf(&quot;오른쪽 위: ICER %.1f&quot;, dc / dq))
+  sprintf(&quot;왼쪽 아래: 아낀 비용 ÷ 잃은 QALY %.1f&quot;, dc / dq)
+}
+quadrant(d_cost, d_qaly); quadrant(-500, 0.2); quadrant(500, -0.2); quadrant(-1000, -0.1)
+c(dominant = -500 / 0.2, dominated = 500 / -0.2)    # 둘 다 −2500: 비만으로는 구분되지 않음
+c(1000 / 0, 0 / 0)                                  # 증분 QALY가 0이면 경고 없이 Inf, NaN</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] &quot;오른쪽 위: ICER 5620.6&quot;
+[1] &quot;오른쪽 아래: 우월(dominant)&quot;
+[1] &quot;왼쪽 위: 열등(dominated)&quot;
+[1] &quot;왼쪽 아래: 아낀 비용 ÷ 잃은 QALY 10000.0&quot;
+ dominant dominated 
+    -2500     -2500<span class="mk">1</span> 
+[1] Inf NaN<span class="mk">2</span></pre></div></div>

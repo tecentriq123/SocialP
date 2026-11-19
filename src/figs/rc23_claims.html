@@ -1,0 +1,28 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">명세서에서 환자 한 명의 1년 비용 만들기 (21장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">claims &lt;- data.frame(                                    # 표 21-2의 명세서 11건(금액은 만원)
+  pid   = c(&quot;P01&quot;, &quot;P01&quot;, &quot;P01&quot;, &quot;P01&quot;, &quot;P01&quot;, &quot;P02&quot;, &quot;P02&quot;, &quot;P02&quot;, &quot;P03&quot;, &quot;P03&quot;, &quot;P03&quot;),
+  date  = as.Date(c(&quot;2024-03-04&quot;, &quot;2024-03-04&quot;, &quot;2024-04-03&quot;, &quot;2024-06-10&quot;, &quot;2025-03-10&quot;, &quot;2024-05-20&quot;,
+                    &quot;2024-05-20&quot;, &quot;2024-06-19&quot;, &quot;2024-02-15&quot;, &quot;2024-07-01&quot;, &quot;2024-07-01&quot;)),
+  type  = c(&quot;outpt&quot;, &quot;pharm&quot;, &quot;pharm&quot;, &quot;inpt&quot;, &quot;outpt&quot;, &quot;outpt&quot;, &quot;pharm&quot;, &quot;pharm&quot;, &quot;inpt&quot;, &quot;outpt&quot;, &quot;pharm&quot;),
+  total = c(38, 190, 190, 412, 25, 41, 120, 120, 300, 36, 190),          # 요양급여비용
+  oop   = c(1.9, 9.5, 9.5, 20.6, 1.3, 2.1, 6.0, 6.0, 15.0, 1.8, 9.5))    # 그중 본인부담금
+cohort &lt;- data.frame(pid = c(&quot;P01&quot;, &quot;P02&quot;, &quot;P03&quot;),
+                     index_date = as.Date(c(&quot;2024-03-04&quot;, &quot;2024-05-20&quot;, &quot;2024-07-01&quot;)))
+m &lt;- merge(claims, cohort, by = &quot;pid&quot;)                   # 명세서마다 치료 시작일을 붙임
+m$day &lt;- as.numeric(m$date - m$index_date)
+win &lt;- m[m$day &gt;= 0 &amp; m$day &lt; 365, ]                     # 관찰 창: 시작일부터 364일째까지
+nrow(win)
+win$pid  &lt;- factor(win$pid, levels = cohort$pid)         # 대상자 목록의 모든 환자를 남김
+win$type &lt;- factor(win$type, levels = c(&quot;pharm&quot;, &quot;outpt&quot;, &quot;inpt&quot;))
+cost &lt;- as.data.frame.matrix(xtabs(total ~ pid + type, data = win))   # 명세서가 없는 칸은 0
+cost$total   &lt;- rowSums(cost)                                         # 보건의료체계 관점
+cost$insurer &lt;- tapply(win$total - win$oop, win$pid, sum)             # 보험자 관점(공단 부담금)
+cost
+round(colMeans(cost), 1)                                              # 1인당 평균
+mean(win$total[win$type == &quot;inpt&quot;])                                   # 입원한 환자만 평균하면</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 9<span class="mk">1</span>
+    pharm outpt inpt total insurer
+P01   380    38  412   830   788.5
+P02   240    41    0   281   266.9
+P03   190    36    0   226   214.7
+  pharm   outpt    inpt   total insurer 
+  270.0    38.3   137.3<span class="mk">2</span>   445.7   423.4 
+[1] 412<span class="mk">3</span></pre></div></div>

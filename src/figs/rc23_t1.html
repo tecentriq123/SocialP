@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 1 정답. 항목별 평균 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">items &lt;- c(&quot;cost_drug&quot;, &quot;cost_op&quot;, &quot;cost_inp&quot;, &quot;cost&quot;)
+t(sapply(items, function(v) {
+  tt &lt;- t.test(d[[v]][d$A == 1], d[[v]][d$A == 0])
+  round(c(mean_A = mean(d[[v]][d$A == 1]), mean_B = mean(d[[v]][d$A == 0]),
+          diff = unname(tt$estimate[1] - tt$estimate[2]), tt$conf.int), 1)
+}))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          mean_A mean_B   diff              
+cost_drug 1558.6  818.7  739.9  694.3  785.5
+cost_op    525.5  694.3 -168.8 -217.0 -120.6
+cost_inp   584.8  759.8 -175.0 -263.9  -86.1
+cost      2668.9 2272.8  396.1  296.1  496.1</pre></div></div>

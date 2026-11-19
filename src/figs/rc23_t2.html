@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 2 정답. 입원비에 1을 더해 로그를 취한 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">do.call(rbind, lapply(c(0.01, 1, 100), function(k) {
+  f &lt;- lm(log(cost_inp + k) ~ A + age + male + cci + stage4, data = d)   # 0원에 k를 더해 로그
+  data.frame(add = k, ratio = round(exp(coef(f)[[&quot;A&quot;]]), 3), p = round(summary(f)$coefficients[&quot;A&quot;, 4], 3))
+}))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    add ratio     p
+1 1e-02 0.770 0.212
+2 1e+00 0.829 0.135
+3 1e+02 0.904 0.032</pre></div></div>

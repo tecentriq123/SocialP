@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">모형 점검: Park test, 구간별 평균, 연결 검정 (21장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">chk &lt;- data.frame(cost = d$cost, pred = fitted(g)); chk$ln &lt;- log(chk$pred)
+pk &lt;- glm(I((cost - pred)^2) ~ ln, data = chk, family = Gamma(link = &quot;log&quot;))   # modified Park test
+round(c(slope = coef(pk)[[&quot;ln&quot;]], coefci(pk, vcov. = vcovHC(pk, type = &quot;HC0&quot;), df = Inf)[&quot;ln&quot;, ]), 2)
+chk$tenth &lt;- cut(rank(chk$pred, ties.method = &quot;first&quot;), 10, labels = FALSE)
+round(aggregate(cbind(cost, pred) ~ tenth, data = chk, mean))               # 구간별 관측·예측 평균
+lk &lt;- glm(cost ~ ln + I(ln^2), data = chk, family = Gamma(link = &quot;log&quot;))     # 연결 검정
+round(coeftest(lk, vcov. = vcovHC(lk, type = &quot;HC0&quot;), df = Inf)[&quot;I(ln^2)&quot;, ], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> slope  2.5 % 97.5 % 
+  2.02   0.64   3.41<span class="mk">1</span> 
+   tenth cost pred
+1      1 1934 1964
+2      2 2082 2084
+3      3 2150 2172
+4      4 2201 2280
+5      5 2392 2378
+6      6 2547 2465
+7      7 2639 2543
+8      8 2745 2655
+9      9 2749 2761
+10    10 2878 3019<span class="mk">2</span>
+  Estimate Std. Error    z value   Pr(&gt;|z|) 
+    -0.902      0.510     -1.770      0.077<span class="mk">3</span></pre></div></div>

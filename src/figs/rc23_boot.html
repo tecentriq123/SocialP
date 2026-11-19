@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">부트스트랩 신뢰구간 (21장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">set.seed(21)
+bt &lt;- boot(d, function(x, i) mean(x$cost[i][x$A[i] == 1]) - mean(x$cost[i][x$A[i] == 0]),
+           R = 9999, strata = d$A)                 # 군 안에서 따로 복원추출
+round(sd(bt$t), 1)                                 # 부트스트랩 표준오차
+ci &lt;- boot.ci(bt, type = c(&quot;perc&quot;, &quot;bca&quot;))
+iv &lt;- rbind(percentile = ci$percent[4:5], bca = ci$bca[4:5]); colnames(iv) &lt;- c(&quot;lower&quot;, &quot;upper&quot;)
+round(iv, 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 51.6<span class="mk">1</span>
+           lower upper
+percentile 296.5 496.2
+bca        296.5 496.3<span class="mk">2</span></pre></div></div>

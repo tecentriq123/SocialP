@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">순금전편익과 순건강편익 (20장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lam &lt;- 5000                                      # 가정한 임계값(만원/QALY)
+round(c(nmb = lam * d_qaly - d_cost,             # 증분 순금전편익(만원)
+        nhb = d_qaly - d_cost / lam,             # 증분 순건강편익(QALY)
+        per_100 = 100 * (d_qaly - d_cost / lam)), 3)
+lams &lt;- c(2500, 3000, 5000, 6000, 7000, 8000)
+data.frame(lam = lams, nmb = round(lams * d_qaly - d_cost, 1),
+           nhb = round(d_qaly - d_cost / lams, 3), ce = lams * d_qaly - d_cost &gt; 0)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     nmb      nhb  per_100 
+-317.148   -0.063   -6.343<span class="mk">1</span> 
+   lam     nmb    nhb    ce
+1 2500 -1594.7 -0.638 FALSE
+2 3000 -1339.2 -0.446 FALSE
+3 5000  -317.1 -0.063 FALSE
+4 6000   193.9  0.032  TRUE<span class="mk">2</span>
+5 7000   704.9  0.101  TRUE
+6 8000  1215.9  0.152  TRUE</pre></div></div>

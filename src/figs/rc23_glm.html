@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">감마 GLM(로그 연결) (21장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">g &lt;- glm(cost ~ A + age + male + cci + stage4, data = d, family = Gamma(link = &quot;log&quot;))
+round(coef(summary(g)), 4)
+round(exp(c(ratio = coef(g)[[&quot;A&quot;]], confint.default(g)[&quot;A&quot;, ])), 3)       # 비용의 비와 95% CI
+round(summary(g)$dispersion, 3)                                            # 분산 비례 상수
+round(exp(coefci(g, vcov. = vcovHC(g, type = &quot;HC0&quot;))[&quot;A&quot;, ]), 3)          # 강건 표준오차로 구한 구간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)   7.6193     0.0816 93.4189   0.0000
+A             0.2159     0.0221  9.7630   0.0000
+age          -0.0012     0.0012 -0.9918   0.3214
+male          0.0397     0.0230  1.7256   0.0845
+cci           0.0832     0.0090  9.2312   0.0000
+stage4        0.0251     0.0212  1.1797   0.2382
+ ratio  2.5 % 97.5 % 
+ 1.241  1.188  1.296<span class="mk">1</span> 
+[1] 0.318<span class="mk">2</span>
+ 2.5 % 97.5 % 
+ 1.192  1.292<span class="mk">3</span></pre></div></div>

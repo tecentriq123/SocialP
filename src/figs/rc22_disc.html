@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">할인 계수와 현재가치 (20장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">r &lt;- 0.045                                   # 연 할인율 4.5%
+years  &lt;- c(1, 5, 10, 20)                    # 몇 년 뒤인가
+factor &lt;- 1 / (1 + r)^years                  # 할인 계수
+round(factor, 3)
+round(1000 * factor)                         # 1,000만원의 현재가치
+cost &lt;- c(500, 500, 500); t &lt;- 1:3           # 1, 2, 3년 뒤에 드는 비용(만원)
+pv &lt;- cost / (1 + r)^t                       # 해마다 따로 할인
+c(total = sum(cost), round(pv, 1), pv_sum = round(sum(pv), 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.957 0.802 0.644 0.415<span class="mk">1</span>
+[1] 957 802 644 415
+ total                      pv_sum 
+1500.0  478.5  457.9  438.1 1374.5<span class="mk">2</span></pre></div></div>

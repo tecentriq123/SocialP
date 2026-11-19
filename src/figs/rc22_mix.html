@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">B와 A를 섞은 전략과 병용요법 D (20장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">f &lt;- (alts[&quot;D&quot;, &quot;qaly&quot;] - alts[&quot;B&quot;, &quot;qaly&quot;]) / d_qaly      # D와 같은 QALY가 되도록 A를 쓸 비율
+mix_cost &lt;- alts[&quot;B&quot;, &quot;cost&quot;] + f * d_cost
+round(c(share_A = f, mix_qaly = alts[&quot;B&quot;, &quot;qaly&quot;] + f * d_qaly,
+        mix_cost = mix_cost, saving_vs_D = alts[&quot;D&quot;, &quot;cost&quot;] - mix_cost), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    share_A    mix_qaly    mix_cost saving_vs_D 
+      0.247       2.000    8399.705    1000.295<span class="mk">1</span></pre></div></div>
