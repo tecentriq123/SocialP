@@ -295,7 +295,7 @@ import pandas as pd</code><span>수치 계산 패키지 NumPy와 표 자료를 �
 </ol>
 
 <h3>생존곡선 그리기</h3>
-<p>논문용 Kaplan-Meier 그림에는 신뢰구간, 중도절단 표시, 위험집합 표가 들어가는 것이 권장됩니다(<a href="stats.html#ch07-s2">7장 b 절</a> '논문에서 읽기'). lifelines는 세 가지를 모두 그릴 수 있습니다. 그림 안의 글자는 영어로 씁니다. Colab에는 한글 글꼴이 없어 한글이 네모로 보이기 때문입니다.</p>
+<p>논문용 Kaplan-Meier 그림에는 신뢰구간, 중도절단 표시, 위험집합 표가 들어가는 것이 권장됩니다(<a href="stats.html#ch07-s2">7장 b 절</a> '논문에서 읽고 쓰기'). lifelines는 세 가지를 모두 그릴 수 있습니다. 그림 안의 글자는 영어로 씁니다. Colab에는 한글 글꼴이 없어 한글이 네모로 보이기 때문입니다.</p>
 <!--FIG:lab07_kmplot-->
 <h4>코드 한 줄씩</h4>
 <ol class="lines">
@@ -402,7 +402,7 @@ import pandas as pd</code><span>수치 계산 패키지 NumPy와 표 자료를 �
 </div></div>
 
 <div class="callout tip"><p class="ct">사회약학 연구에서는</p>
-<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(15장). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 a 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 a 절 '논문에서 읽기'의 Table S3).</p></div>
+<p>청구자료 코호트에서 성향점수 역확률 가중치(IPTW)를 적용한 가중 Kaplan-Meier 곡선이 필요하면 <code>KaplanMeierFitter().fit(time, event, weights=w)</code>처럼 <code>weights</code> 인자에 환자별 가중치를 넣습니다. 가중 곡선의 신뢰구간은 보통의 Greenwood 공식으로는 정확하지 않으므로 부트스트랩 등을 씁니다(15장). 또 약물 중단으로 중도절단하는 as-treated 분석이라면, 곡선을 그리기 전에 a 절의 방식으로 추적 종료 사유별 인원을 군별로 세어 두세요(7장 a 절 '논문에서 읽고 쓰기'의 Table S3).</p></div>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li><code>KaplanMeierFitter().fit(시간, 사건, label=…)</code> 한 번으로 <code>survival_function_</code>(곡선), <code>event_table</code>(위험집합·사망·중도절단), <code>median_survival_time_</code>, <code>confidence_interval_</code>을 얻습니다.</li>
@@ -609,6 +609,6 @@ import pandas as pd</code><span>수치 계산 패키지 NumPy와 표 자료를 �
 <li><span class="mk">5</span><span><b>12개월 생존율 비교 P = 0.013.</b></span></li>
 </ol>
 <p>첫째 잘못은 중도절단된 환자를 뺀 것입니다. 빠진 42명은 모두 중도절단될 때까지 살아 있었던 사람입니다. 이들을 빼면 사망한 사람은 모두 남고 살아 있던 사람만 빠지므로 생존율이 낮아집니다(<a href="stats.html#ch07-s1">7장 a 절</a> '생존율과 생존기간을 단순하게 구하면 왜 틀리나?'의 표에서 '중도절단된 사람을 뺌'). 남성은 33.6%에서 29.2%로 4.4%p, 여성은 52.6%에서 45.5%로 7.1%p 낮아졌습니다. 여성에서 빠진 비율(27%)이 남성(13%)의 두 배라 여성의 생존율이 더 많이 깎였고, 두 군의 차이도 19.0%p에서 16.3%p로 작아졌습니다. 중도절단된 환자를 떠나기 전까지만 넣는 Kaplan-Meier 추정값이 바른 1년 생존율입니다.</p>
-<p>둘째 잘못은 생존 경험 전체를 한 시점의 생존 여부로 바꿔 비교한 것입니다. 12개월 안에 사망했는지만 보면 언제 사망했는지의 정보를 버리고, 어느 시점을 고르느냐에 따라 결론이 바뀝니다(<a href="stats.html#ch07-s3">7장 c 절</a> '논문에서 읽기'의 접힌 상자 '정한 시점의 생존율만 비교하면 안 되나?'). 1년 생존율이 미리 정한 결과라면 Kaplan-Meier 추정값과 그 표준오차로 비교하고(P = 0.013), 생존 전체를 비교하려면 로그순위 검정(셀 18, P = 0.001)을 씁니다. 이 자료에서는 동료의 P도 0.05보다 작아 결론의 방향은 같지만, 보고한 두 생존율이 모두 낮게 치우친 값이라 결과 문장을 그대로 쓸 수 없습니다.</p>
+<p>둘째 잘못은 생존 경험 전체를 한 시점의 생존 여부로 바꿔 비교한 것입니다. 12개월 안에 사망했는지만 보면 언제 사망했는지의 정보를 버리고, 어느 시점을 고르느냐에 따라 결론이 바뀝니다(<a href="stats.html#ch07-s3">7장 c 절</a> '논문에서 읽고 쓰기'의 접힌 상자 '정한 시점의 생존율만 비교하면 안 되나?'). 1년 생존율이 미리 정한 결과라면 Kaplan-Meier 추정값과 그 표준오차로 비교하고(P = 0.013), 생존 전체를 비교하려면 로그순위 검정(셀 18, P = 0.001)을 씁니다. 이 자료에서는 동료의 P도 0.05보다 작아 결론의 방향은 같지만, 보고한 두 생존율이 모두 낮게 치우친 값이라 결과 문장을 그대로 쓸 수 없습니다.</p>
 </div></details>
 </section>

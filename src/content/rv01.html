@@ -60,7 +60,7 @@
 <tr class="grp"><td colspan="3">결과를 읽는 질문</td></tr>
 <tr><td>⑦</td><td>군 사이에 결과에 영향을 주는 다른 차이(교란)가 있나. 있다면 고른 분석의 결과를 보정하지 않은 비교로 읽어야 하나</td><td><a href="#ch06-s4">6장 d 절</a>, <a href="#ch08-s6">8장 f 절</a></td></tr>
 </tbody></table></div>
-<p>아래에서는 두 당뇨병 약 A와 B를 쓰는 환자의 입원을 예로 이 순서를 한 번 따라갑니다. 질문마다 왜 묻는지와 왜 그 자리에서 묻는지를 함께 적었고, b 절의 주제 2에서는 같은 예의 상황을 하나씩 바꿔 가며 다시 풉니다.</p>
+<p>아래에서는 두 당뇨병 약 A와 B를 쓰는 환자의 입원을 예로 이 순서를 한 번 따라갑니다.</p>
 
 <h4>① 연구 질문은 무엇인가?</h4>
 <p>분석은 결국 이 질문에 답하려고 하는 것이므로 가장 먼저 정합니다. 같은 환자들을 두고도 무엇을 묻느냐에 따라 가는 곳이 다릅니다.</p>
@@ -72,7 +72,7 @@
 
 <h4>② 자료표의 한 행은 무엇인가?</h4>
 <p>한 행이 환자 한 명인지 처방 한 건인지, 즉 <a href="#ch00-s1">0장 a 절</a>에서 본 분석 단위를 묻습니다. 결과를 정의하려면 그 값이 환자 한 명의 것인지 처방 한 건의 것인지부터 정해야 하므로, 이 질문을 결과변수 질문보다 앞에 둡니다.</p>
-<p>청구자료는 처방 한 건이 한 행으로 쌓여 있어서, 그대로 두면 1년에 처방을 여러 번 받은 환자가 여러 행에 나옵니다. 같은 환자의 행들은 나이도 병도 같아 서로 닮았으므로, 행이 늘어난 만큼 정보가 늘지는 않습니다. 그런데 프로그램은 행 하나하나를 서로 다른 사람에게서 따로 얻은 정보로 보고, 행 수를 그대로 인원으로 넣어 표준오차를 계산합니다. 표준오차는 인원이 많을수록 작아지므로(<a href="#ch00-s5">0장 e 절</a> '환자를 더 모으면 왜 작아지나?') 실제보다 작게 나옵니다. P는 차이가 표준오차의 몇 배인지로 구하므로, P도 따라서 지나치게 작아집니다.</p>
+<p>청구자료는 처방 한 건이 한 행으로 쌓여 있어서, 그대로 두면 1년에 처방을 여러 번 받은 환자가 여러 행에 나옵니다. 같은 환자의 행들은 나이도 병도 같아 서로 닮았으므로, 행이 늘어난 만큼 정보가 늘지는 않습니다. 그런데 프로그램은 행 수를 그대로 인원으로 넣어 표준오차를 계산하므로(<a href="#ch00-s5">0장 e 절</a> '환자를 더 모으면 왜 작아지나?'), 표준오차와 P가 실제보다 작게 나옵니다.</p>
 <p>예를 들어 환자 100명이 처방을 9건씩 받아 900행이 되었고, 같은 환자의 행끼리 값이 모두 같다고 합시다. 실제 정보는 환자 100명분인데 프로그램은 900명으로 계산합니다. 표준오차는 인원의 제곱근에 반비례하므로, 실제의 약 3분의 1(1/√(900 ÷ 100) = 1/3)로 나옵니다. <strong>한 행이 처방이면 같은 사람이 여러 번 세어져, 결과가 실제보다 확실해 보입니다.</strong></p>
 <p>그래서 환자마다 처방 기록을 '1년 안에 입원했는가'나 처방일수 커버 비율(PDC) 같은 값 하나로 요약해, 한 행을 환자 한 명으로 만듭니다. 처방 기록을 모을 때 정할 것(기간, 환자를 묶을 열, 중복 처방)은 0장 a 절의 접힌 상자 '처방 기록을 환자 한 명 한 행으로 모을 때 무엇을 정하나?'에 있습니다. 처방 단위의 질문이 꼭 필요하면 반복 관측을 다루는 10장의 방법을 씁니다.</p>
 
@@ -106,7 +106,7 @@
 <p>여기까지 답하면 t 검정이나 카이제곱 검정 같은 검정 계열이 정해집니다. 여섯째 질문은 내 자료가 그 검정이 기대는 조건에 맞는지 묻습니다. 결과변수 유형과 설계는 그대로 둔 채 같은 계열 안에서 도구만 고르는 질문이라 앞의 질문들 뒤에 둡니다.</p>
 <p>t 검정은 연구를 되풀이할 때 평균이 정규분포 모양으로 흩어진다는 데 기대어 P를 구합니다. 카이제곱 검정은 두 군의 비율이 같다고 할 때 칸마다 기대되는 인원, 즉 기대빈도가 충분히 많다는 데 기대어 P를 구합니다. 그래서 분포가 심하게 치우쳤는지, 표본이 작은지, 기대빈도가 작은지를 봅니다.</p>
 <p>입원한 날수처럼 소수의 환자가 아주 큰 값을 갖는 결과를 몇십 명으로 비교할 때는 t 검정의 조건이 맞지 않습니다. 입원이 드물어 기대빈도가 5보다 작은 칸이 생길 때는 카이제곱 검정의 조건이 맞지 않습니다. 그때는 평균 비교 대신 순위를 비교하는 비모수 검정(<a href="#ch01-s7">1장 g 절</a>)을, 카이제곱 검정 대신 Fisher의 정확한 검정(<a href="#ch05-s2">5장 b 절</a>)을 고려합니다.</p>
-<p>다만 치우쳤다고 늘 비모수 검정으로 바꾸지는 않습니다. 비모수 검정은 평균이 아니라 한쪽 값이 더 크게 나오는 경향을 보므로, 바꾸면 묻는 것이 달라집니다. 또 표본이 크면 치우친 자료라도 평균의 분포는 정규분포에 가까워집니다(<a href="#ch01-s6">1장 f 절</a>). 그래서 궁금한 것이 평균이고 표본이 크면 평균 비교를 그대로 씁니다. 정규성 검정의 P 하나로 정하지 않는 이유는 <a href="#ch01-s8">1장 h 절</a>의 접힌 상자 '정규성 검정 결과를 보고 t 검정과 Mann-Whitney 검정을 바꿔 써도 되나?'에 있습니다. 이 판단은 이 절 '스스로 확인하기'의 2번에서 연습합니다.</p>
+<p>다만 치우쳤다고 늘 비모수 검정으로 바꾸지는 않습니다. 비모수 검정은 평균이 아니라 한쪽 값이 더 크게 나오는 경향을 보므로, 바꾸면 묻는 것이 달라집니다. 또 표본이 크면 치우친 자료라도 평균의 분포는 정규분포에 가까워집니다(<a href="#ch01-s6">1장 f 절</a>). 그래서 궁금한 것이 평균이고 표본이 크면 평균 비교를 그대로 씁니다. 정규성 검정의 P 하나로 정하지 않는 이유는 <a href="#ch01-s8">1장 h 절</a>의 접힌 상자 '정규성 검정 결과를 보고 t 검정과 Mann-Whitney 검정을 바꿔 써도 되나?'에 있습니다.</p>
 
 <h4>답을 모으면 어떤 분석이 되나?</h4>
 <p>①–⑥에 답하면 쓸 분석과 보고할 효과 지표가 정해집니다. 다만 표를 찾는 순서는 묻는 순서와 다릅니다. ③의 결과 유형으로 표의 묶음을 고르고, ①④⑤의 답으로 그 안의 줄을 고릅니다. ⑥의 조건이 맞지 않거나 묻는 것이 조금 다르면 오른쪽 칸의 방법을 씁니다. PART 1 밖에서 다루는 McNemar 검정(부록 A)과 건수 자료(12장)도 함께 넣었습니다.</p>
@@ -299,13 +299,7 @@
 
 <p><strong>분석을 맞게 했어도 그 숫자를 말로 옮기다 틀리는 경우가 많습니다. 틀린 문장은 숫자가 무엇을 가정했는지, 무엇과 무엇을 비교했는지, 효과의 크기와 불확실성을 어느 숫자가 보여 주는지를 차례로 물어 고칩니다.</strong></p>
 <p>PART 1에서 배운 분석의 결과를 말로 옮길 때 자주 나오는 틀린 문장 열 개를 모았습니다. 끝의 두 문항(11, 12번)에서는 고쳐 쓴 결과를 영어 Results 문장으로 옮깁니다.</p>
-<p>문장을 고칠 때 묻는 세 가지와 그 이유는 다음과 같습니다.</p>
-<ol>
-<li>이 숫자는 무엇을 가정하고 계산한 값인가. 이것을 알아야 그 숫자가 말할 수 있는 범위가 보입니다.</li>
-<li>비교한 것은 무엇과 무엇인가. 이것을 알아야 결론이 무엇에 대한 것인지 보입니다.</li>
-<li>효과의 크기와 그 불확실성은 어느 숫자가 보여 주는가. 이것을 알아야 무엇으로 고쳐 쓸지가 정해집니다.</li>
-</ol>
-<p>1–10번의 답은 먼저 어디가 왜 틀렸는지 말하고, 이어서 고쳐 쓴 문장과 다시 볼 곳을 적었습니다. 고쳐 쓴 문장은 논문에 그대로 쓸 수 있는 형태로 적었습니다. 숫자의 뜻을 쉬운 말로 옮긴 문장은 '풀어 말하면'으로 따로 적었습니다. 각 실수의 자세한 원리는 '다시 볼 곳'에 적은 장에서 다루므로, 여기서는 문장을 고치는 데 필요한 만큼만 짚습니다.</p>
+<p>1–10번의 답에는 어디가 왜 틀렸는지, 논문에 그대로 쓸 수 있게 고쳐 쓴 문장, 다시 볼 곳을 적었습니다. 숫자의 뜻을 쉬운 말로 옮긴 문장은 '풀어 말하면'으로 따로 적었습니다.</p>
 
 <h3>p 값과 신뢰구간</h3>
 <div class="practice"><p class="pt">스스로 확인하기</p>
@@ -457,7 +451,7 @@
 <p>관찰이 끊긴 환자가 있으므로 1년 입원 여부를 비율로 비교하지는 않습니다(a 절 ③). 대신 환자마다 (입원 또는 중도절단까지의 시간, 입원 여부) 한 쌍을 만듭니다. 군별 Kaplan-Meier 곡선을 그리고 로그순위법으로 비교합니다(<a href="#ch07-s2">7장 b 절</a>, <a href="#ch07-s3">7장 c 절</a>). 로그순위법은 P만 주므로, 효과의 크기인 위험비는 Cox 비례위험모형(PART 2의 11장)으로 따로 구합니다(c 절 문항 10). 로그순위법은 입원이 일어난 시점마다 두 군을 비교해 정보를 모으므로, 검정력이 환자 수보다 사건 수에 좌우됩니다(<a href="#ch07-s3">7장 c 절</a> '셋째, 검정력은 무엇에 좌우되나?'). 그래서 300명에서 입원이 몇 건 없으면 효과가 있어도 놓치기 쉽습니다.</p></div></details></li>
 <li><p><span class="qt">논문 쓰기</span>6번 문항의 시간-사건 분석을 설명하는 Methods 문장을 영어로 써 보세요. 결과는 무작위배정 후 첫 심혈관 입원까지 걸린 시간입니다. 입원 없이 이사하거나 연구 기간이 끝나면 관찰이 끊깁니다.</p>
 <details><summary>답과 풀이</summary><div><p>모범 문장은 “Time to first cardiovascular hospitalization was measured from randomization. Patients without hospitalization were censored at relocation out of the study area or at the end of the study period, whichever occurred first. The probability of remaining free of cardiovascular hospitalization was estimated with the Kaplan–Meier method and compared between groups using the log-rank test. The hazard ratio (counseling vs usual care) was estimated with a Cox proportional-hazards model. All tests were two-sided with a significance level of 0.05.”입니다.</p>
-<p>확인할 점은 네 가지입니다. ① 시작 시점을 하나로 정합니다. 이 연구에서는 무작위배정일입니다. ② 사건과 중도절단 규칙을 함께 씁니다. 사건 없이 관찰이 끝난 환자를 언제 중도절단했는지 밝혀야 독자가 곡선을 해석할 수 있습니다. 형식은 <a href="#ch07-s1">7장 a 절</a> '논문에 쓰기'를 따릅니다. ③ 검정과 효과 추정 방법을 나눠 씁니다. 로그순위법은 P만 주므로 위험비를 구한 모형과 비교 방향(counseling vs usual care)을 밝힙니다. 형식은 7장 c 절 '논문에 쓰기'를 따릅니다. ④ 실제 연구라면 다른 원인으로 사망한 환자를 어떻게 다뤘는지도 씁니다. 이 내용은 7장 b 절 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 접힌 상자 '사망이 관심 사건을 막으면 1 − Kaplan-Meier는 얼마나 틀리나?'에 있습니다.</p></div></details></li>
+<p>확인할 점은 네 가지입니다. ① 시작 시점을 하나로 정합니다. 이 연구에서는 무작위배정일입니다. ② 사건과 중도절단 규칙을 함께 씁니다. 사건 없이 관찰이 끝난 환자를 언제 중도절단했는지 밝혀야 독자가 곡선을 해석할 수 있습니다. 형식은 <a href="#ch07-s1">7장 a 절</a> '논문에서 읽고 쓰기'를 따릅니다. ③ 검정과 효과 추정 방법을 나눠 씁니다. 로그순위법은 P만 주므로 위험비를 구한 모형과 비교 방향(counseling vs usual care)을 밝힙니다. 형식은 7장 c 절 '논문에서 읽고 쓰기'를 따릅니다. ④ 실제 연구라면 다른 원인으로 사망한 환자를 어떻게 다뤘는지도 씁니다. 이 내용은 7장 b 절 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 접힌 상자 '사망이 관심 사건을 막으면 1 − Kaplan-Meier는 얼마나 틀리나?'에 있습니다.</p></div></details></li>
 </ol></div>
 
 <!--FOLD do:논문 숫자를 요약값으로 다시 계산하려면?-->
@@ -480,7 +474,7 @@
 <p><strong>내 연구의 분석은 자료를 보기 전에 정합니다. 결론을 내릴 결과와 판단 기준(비교 방향, 양측 여부와 유의수준)을 먼저 적고, a 절의 일곱 질문에 답해 분석을 고른 뒤, 그 답을 Methods와 Limitations 문장으로 옮깁니다.</strong></p>
 
 <h4 id="rv01-s5-plan">분석 전에 무엇을 정해 두나?</h4>
-<p>먼저 아래 표의 네 가지, 곧 결론을 내릴 결과와 비교 방향, 판단 기준, 다중비교 처리, 결측 처리를 분석계획서에 적습니다. 자료를 본 뒤 정하면 결과가 좋게 나오는 선택지를 고를 수 있어, 우연한 '유의'가 늘어나기 때문입니다. 결과를 본 뒤 더 맞아 보이는 검정으로 바꾸는 것도 같은 문제라, P가 작게 나오는 쪽을 고르려고 바꾸지는 않습니다. 두 검정을 해 보고 P가 작은 쪽을 고르면, 효과가 없어도 0.05 아래로 나올 기회가 두 번 생겨 우연한 '유의'가 5%보다 잦아집니다. 예상하지 못한 자료 문제(예를 들어 정한 방법의 가정이 크게 어긋남) 때문에 바꿔야 하면, 이유와 시점을 기록하고 처음 계획한 분석과 바꾼 분석을 구분해 함께 보고합니다.</p>
+<p>먼저 아래 표의 네 가지, 즉 결론을 내릴 결과와 비교 방향, 판단 기준, 다중비교 처리, 결측 처리를 분석계획서에 적습니다. 자료를 본 뒤 정하면 결과가 좋게 나오는 선택지를 고를 수 있어, 우연한 '유의'가 늘어나기 때문입니다. 결과를 본 뒤 더 맞아 보이는 검정으로 바꾸는 것도 같은 문제라, P가 작게 나오는 쪽을 고르려고 바꾸지는 않습니다. 두 검정을 해 보고 P가 작은 쪽을 고르면, 효과가 없어도 0.05 아래로 나올 기회가 두 번 생겨 우연한 '유의'가 5%보다 잦아집니다. 예상하지 못한 자료 문제(예를 들어 정한 방법의 가정이 크게 어긋남) 때문에 바꿔야 하면, 이유와 시점을 기록하고 처음 계획한 분석과 바꾼 분석을 구분해 함께 보고합니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th>정할 것</th><th>적어 둘 내용</th></tr></thead>
 <tbody>
@@ -507,7 +501,7 @@
 <p>청구자료 연구에서는 ②와 ③을 정하는 규칙이 더 있습니다. 세척 기간(첫 처방 전 두 약 모두 처방이 없어야 하는 기간, 아래 Methods 예문에서는 365일)으로 신규 사용자를 정하는 법, 약을 끊거나 바꾼 환자의 추적 종료, 유예기간이 그 예입니다. 이 규칙은 <a href="#ch07-s1">7장 a 절</a>의 접힌 상자 '신규 사용자 설계에서 내가 정할 것은?'에 있습니다. 보정한 Cox 모형까지 이어지는 순서는 <a href="#ch11">11장</a> '내 연구에서 분석하기'에 있습니다.</p>
 
 <h4>자료는 어떤 모양으로 넣나?</h4>
-<p>환자 한 명이 한 줄인 표에 세 열을 둡니다. 추적 시간(time: index date 다음 날부터 사건이나 중도절단까지의 일수), 사건 여부(status: 사건이면 1, 중도절단이면 0), 군입니다. 군별 Kaplan-Meier 곡선을 그리고 로그순위 검정으로 두 곡선을 비교한 P를 구합니다(7장 b 절과 c 절의 '자료는 어떤 모양으로 넣나?', 코드는 <a href="r.html#rc02">R과 파이썬으로 하는 통계분석 8장</a>). 위험비는 이 두 계산에서 나오지 않습니다. 프로그램은 넣어 준 세 열을 그대로 계산하므로, 날짜에서 세 열을 만드는 규칙은 내가 정해 Methods에 씁니다(7장 a 절의 접힌 상자 '처방·입원·사망 날짜에서 time과 status는 어떻게 만드나?').</p>
+<p>환자 한 명이 한 줄인 표에 세 열을 둡니다. 추적 시간(time: index date 다음 날부터 사건이나 중도절단까지의 일수), 사건 여부(status: 사건이면 1, 중도절단이면 0), 군입니다. 군별 Kaplan-Meier 곡선을 그리고 로그순위 검정으로 두 곡선을 비교한 P를 구합니다(7장 b 절과 c 절의 '자료는 어떤 모양으로 넣나?', 코드는 <a href="r.html#rc02">R과 파이썬으로 하는 통계분석 8장</a>). 위험비는 이 두 계산에서 나오지 않습니다. 날짜에서 세 열을 만드는 규칙은 내가 정해 Methods에 씁니다(7장 a 절의 접힌 상자 '처방·입원·사망 날짜에서 time과 status는 어떻게 만드나?').</p>
 
 <h4>Methods와 Limitations는 어떻게 쓰나?</h4>
 <p><span class="tref" data-t="rv01-tb08">a 절의 답</span>을 차례로 옮기면 Methods가 됩니다. ②의 한 행과 시작 시점, ③의 결과 정의와 추적 종료 사유, 고른 분석, ⑦의 보정 여부가 들어갑니다.</p>
@@ -517,7 +511,7 @@
 <p class="excerpt"><b>Methods.</b> <span class="mk">1</span> <span class="hl">Prescription records were aggregated into one record per patient. New users were defined as patients without a prescription for either drug class during the [365] days before their first prescription, and the date of the first prescription for a sulfonylurea or a DPP-4 inhibitor was defined as the index date.</span> <span class="mk">2</span> <span class="hl">The outcome was the first severe hypoglycemia event, defined as a hospitalization or emergency department visit for hypoglycemia ([ICD-10 codes]). Follow-up started on the day after the index date and continued until the first severe hypoglycemia event, death, loss of health insurance eligibility, or the end of the study period ([date]), whichever came first. Patients were followed regardless of treatment discontinuation or switching.</span> Dates of death were obtained from the National Health Insurance Service eligibility database. The probability of remaining free of severe hypoglycemia was estimated with the Kaplan–Meier method and compared between groups using the log-rank test, <span class="mk">3</span> <span class="hl">without adjustment for baseline characteristics</span>. All tests were two-sided with a significance level of 0.05.</p>
 <p class="excerpt"><b>Limitations.</b> Because the drugs were not randomly assigned and this comparison was not adjusted, the difference between the groups may partly reflect differences in age and kidney function rather than an effect of the drugs.</p>
 <ol class="marks">
-<li><span class="mk">1</span><span><b>한 행과 시작 시점(a 절 질문 ②).</b> 한 행이 환자 한 명이라는 점과, 어느 날을 시작 시점으로 삼았는지를 밝힙니다. index date 당일에 생긴 사건은 처방 전인지 후인지 청구자료로 가릴 수 없으므로, 추적은 다음 날부터 셉니다(<a href="#ch07-s1">7장 a 절</a> '논문에서 읽기'). 신규 사용자를 가른 세척 기간도 적습니다.</span></li>
+<li><span class="mk">1</span><span><b>한 행과 시작 시점(a 절 질문 ②).</b> 한 행이 환자 한 명이라는 점과, 어느 날을 시작 시점으로 삼았는지를 밝힙니다. index date 당일에 생긴 사건은 처방 전인지 후인지 청구자료로 가릴 수 없으므로, 추적은 다음 날부터 셉니다(<a href="#ch07-s1">7장 a 절</a> '논문에서 읽고 쓰기'). 신규 사용자를 가른 세척 기간도 적습니다.</span></li>
 <li><span class="mk">2</span><span><b>결과의 정의와 추적 종료 사유(a 절 질문 ③).</b> 사건을 어떻게 정의했는지와 관찰이 끝나는 사유를 모두 적고, 사유들은 "whichever came first"로 한데 묶습니다. 여기에 두 가지를 덧붙입니다. 병원 밖 사망은 청구 명세서에 남지 않으므로 사망 정보를 어디서 얻었는지 쓰고, 약을 끊거나 바꾼 환자를 이 예문처럼 계속 추적했는지 끊거나 바꾼 날 중도절단했는지도 밝힙니다. 자료나 사건의 양상이 다르면 이 정의도 달라집니다. HIRA 청구자료에서는 자격 상실을 알 수 없으므로 추적 종료의 정의를 바꿉니다. 사망이 잦으면 사망을 중도절단으로 두는 대신 따로 다루는 방법이 있습니다(<a href="#ch07-s2">7장 b 절</a>의 접힌 상자 '사망이 관심 사건을 막으면 1 − Kaplan-Meier는 얼마나 틀리나?').</span></li>
 <li><span class="mk">3</span><span><b>보정하지 않은 비교(a 절 질문 ⑦).</b> Methods의 "without adjustment"와 Limitations 문장으로 두 번 밝힙니다.</span></li>
 </ol>
