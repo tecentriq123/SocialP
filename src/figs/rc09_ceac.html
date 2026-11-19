@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p_ce_at &lt;- function(lam) mean(lam * dq - dc &gt; 0)
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p_ce_at &lt;- function(lam) mean(lam * dq - dc &gt; 0)
 evpi_at &lt;- function(lam) { nb &lt;- lam * dq - dc; mean(pmax(nb, 0)) - max(mean(nb), 0) }
 lams &lt;- c(3000, 4000, 5000, 5500, 6000, 7000, 8000, 10000, 12000)
 round(data.frame(threshold = lams, mean_inmb = sapply(lams, function(l) mean(l * dq - dc)),

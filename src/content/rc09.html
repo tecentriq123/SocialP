@@ -1,12 +1,12 @@
 <p class="lead">모형의 입력값은 모두 불확실성을 지니고 있으므로, 경제성 평가는 기준 분석의 ICER 하나로 끝나지 않습니다. 이 장에서는 세 가지를 R로 만듭니다. 입력값을 하나씩 바꿔 보는 일원 민감도 분석<span class="en">(one-way sensitivity analysis)</span>, 모든 입력값을 분포에서 함께 뽑아 모형을 수천 번 돌리는 확률적 민감도 분석<span class="en">(probabilistic sensitivity analysis, PSA)</span>, 그리고 임계값마다 신약이 비용효과적으로 나온 반복의 비율을 이은 비용효과 수용곡선<span class="en">(cost-effectiveness acceptability curve, CEAC)</span>입니다. 모형은 22장의 분할생존모형이고 분포는 보건통계학 기초 24장과 같습니다. 결정론적인 결과는 파이썬 실습 24와 그대로 맞고, 확률적인 결과는 난수가 달라 몬테카를로 오차 안에서 비슷합니다.</p>
 
-<p class="nb-link"><a href="notebooks/rc09.ipynb" download>이 장의 노트북 내려받기 (rc09.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.5.3의 기본 함수만으로 실제로 실행해 얻었습니다.</p>
+<p class="nb-link"><a href="notebooks/rc09.ipynb" download>이 장의 노트북 내려받기 (rc09.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. RStudio에서는 셀의 코드를 차례로 복사해 실행해도 됩니다. 출력은 R 4.3.3의 기본 함수로 실제로 실행해 얻었습니다(셀 8만 flexsurv와 MASS 패키지를 씁니다).</p>
 
 <div class="route"><p class="rt">처음 읽을 때</p>
 <dl>
 <dt>미리 알아 둘 것</dt><dd>민감도 분석의 종류, 분포를 고르는 기준, 수용곡선과 EVPI의 뜻은 보건통계학 기초 <a href="stats.html#ch24">24장</a>에 있습니다. 모형 함수는 이 과목 <a href="#rc07">22장</a>에서 만들었습니다.</dd>
-<dt>먼저 읽을 부분</dt><dd>a 절의 셀 3, b 절의 셀 5–6, c 절의 셀 9–10, d 절의 셀 11–12.</dd>
-<dt>나중에 읽을 부분</dt><dd>c 절의 곡선을 함께 뽑는 방법(셀 7)과 과제는 내 모형의 확률적 민감도 분석을 짤 때 다시 봅니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 3, b 절의 셀 5–6, c 절의 셀 10–11, d 절의 셀 12–13.</dd>
+<dt>나중에 읽을 부분</dt><dd>c 절의 곡선을 함께 뽑는 방법(셀 7과 8)과 과제는 내 모형의 확률적 민감도 분석을 짤 때 다시 봅니다.</dd>
 <dt>이 장을 마치면</dt><dd>① 입력값마다 분포를 정하고 적률법으로 모수를 구할 수 있다 ② 일원 민감도 분석의 표와 토네이도 그림을 만들 수 있다 ③ 확률적 민감도 분석을 돌려 비용효과평면, 수용곡선, EVPI로 요약하고 몬테카를로 오차를 확인할 수 있다</dd>
 </dl></div>
 
@@ -49,6 +49,15 @@
 <li><span class="mk">2</span><span><b>베타(147.94, 41.73).</b> 평균 0.78, 표준오차 0.03인 베타분포입니다. 실습 24와 같습니다.</span></li>
 <li><span class="mk">3</span><span><b>감마(모양 25, 척도 10).</b> 평균 250만원, 표준오차 50만원입니다. R의 <code>rgamma()</code>와 <code>qgamma()</code>는 모양 다음 자리의 인자가 척도가 아니라 율(rate = 1/척도)이므로, 척도는 꼭 <code>scale =</code>로 이름을 붙여 넘깁니다.</span></li>
 </ol>
+<!--FOLD py:파이썬으로 하면: numpy와 scipy의 분포 함수에 모수를 넣는 순서-->
+<p>보건통계학 기초 24장의 '직접 분석' 상자와 '장 마무리'에 있던 내용입니다. 글 속의 a–c 절은 24장의 절입니다.</p>
+<ul>
+<li>numpy의 <code>rng.gamma(shape, scale)</code>는 둘째 인자가 척도입니다. 위의 감마분포는 <code>rng.gamma(25, 10)</code>입니다.</li>
+<li>scipy의 <code>stats.gamma.ppf(q, a, loc, scale)</code>에 이름 없이 셋째로 넣은 값은 척도가 아니라 위치(loc)로 들어갑니다. <code>stats.gamma.ppf(0.5, 25, 10)</code>은 중앙값 246.7이 아니라 34.7을 내므로, 척도는 <code>scale=10</code>처럼 이름을 붙여 넣습니다.</li>
+<li>numpy의 <code>rng.lognormal(mean, sigma)</code>에서 mean은 로그 척도의 평균입니다. 위험비 0.75라면 ln 0.75 = −0.288을 넣어야 하고, 0.75를 넣으면 중앙값이 2.12인 분포에서 뽑힙니다. scipy의 <code>stats.lognorm(s, loc, scale)</code>은 s에 로그 척도의 표준오차(0.131), scale에 위험비(0.75)를 넣습니다.</li>
+<li><b>적률법이 안 되는 베타분포.</b> 표준오차의 제곱이 평균 × (1 − 평균) 이상이면 적률법 식의 n(b 절 접힌 상자 '평균과 표준오차를 분포의 모수로 어떻게 바꾸나?')이 0 이하가 되어 <code>rng.beta</code>가 ValueError를 냅니다(예를 들어 평균 0.9, 표준오차 0.3). 효용의 평균에 비해 이렇게 큰 표준오차는 드물므로, 표준편차를 표준오차 자리에 넣지 않았는지 먼저 봅니다.</li>
+</ul>
+<!--/FOLD-->
 </section>
 
 <!-- ============================================================ b -->
@@ -86,6 +95,71 @@
 <p>토네이도 그림은 폭이 큰 열 개를 위에서부터 그린 것입니다. 파란 막대는 입력값을 낮은 쪽으로, 주황 막대는 높은 쪽으로 바꿨을 때이고, 실선은 기준 분석, 파선은 임계값입니다. 임계값을 넘나드는 입력값은 전체생존 위험비가 아니라 무진행생존 위험비(4,784), 두 약값입니다. 이 그림만으로는 입력값이 함께 움직일 때의 불확실성을 알 수 없어서 다음 절의 확률적 분석이 필요합니다.</p>
 
 <div class="quick"><p class="qk">잠깐 확인</p><p>토네이도 그림에서 막대가 가장 긴 입력값(전체생존 위험비)이 결정에 가장 중요한 입력값이라고 말할 수 있을까요?</p><details><summary>답 보기</summary><div><p>꼭 그렇지는 않습니다. 막대의 길이는 정한 범위에서 ICER가 움직인 폭일 뿐이고, 결정을 바꾸는지는 그 막대가 임계값을 넘는지가 정합니다. 전체생존 위험비의 막대는 길지만 모두 임계값 위에 있습니다. 결론을 뒤집을 수 있는 입력값은 무진행생존 위험비와 두 약값입니다. 또 범위를 어떻게 잡았느냐에 따라 막대의 길이가 바뀝니다.</p></div></details></div>
+<!--FOLD py:파이썬으로 하면: 일원 민감도 분석과 임계 가격-->
+<p>보건통계학 기초 24장의 '직접 분석' 상자와 '장 마무리'에 있던 내용입니다. 글 속의 a–c 절은 24장의 절입니다.</p>
+<p>a 절의 표 24-2와 임계 가격을 내는 코드입니다. 공통 예시의 모형을 함수 하나로 만들고, 입력값을 하나씩 바꿔 넣습니다. 앞부분의 <code>model()</code>은 <a href="stats.html#ch23-s3">보건통계학 기초 23장 c 절</a>의 분할생존모형과 같은 계산입니다. 이 셀을 먼저 실행한 뒤 c 절과 d 절 파이썬 상자의 코드를 이어서 실행합니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">일원 민감도 분석과 임계 가격 (표 24-2)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+from scipy import stats
+from scipy.optimize import brentq
+
+t = np.arange(0, 241)                                   # 0, 1, ..., 240개월
+base = dict(hr_pfs=0.65, hr_os=0.75,                    # 기준 분석 입력값(23장 c 절의 표)
+            pfs_lam=np.log(2) / 10 ** 0.95, pfs_gam=0.95, os_lam=np.log(2) / 28 ** 1.15, os_gam=1.15,
+            u_pf=0.78, u_pd=0.62, du_ae_A=0.012, du_ae_B=0.008,
+            c_pf=40.0, c_pd=250.0, c_death=800.0, c_ae_A=120.0, c_ae_B=80.0,
+            c_drug_A=190.0, c_drug_B=120.0)
+
+def model(v):                                           # 입력값 한 세트 → (증분비용, 증분QALY)
+    res = {}
+    for arm, hr_pfs, hr_os in ((&quot;A&quot;, v[&quot;hr_pfs&quot;], v[&quot;hr_os&quot;]), (&quot;B&quot;, 1.0, 1.0)):
+        os_ = np.exp(-v[&quot;os_lam&quot;] * hr_os * t ** v[&quot;os_gam&quot;])
+        pfs = np.minimum(np.exp(-v[&quot;pfs_lam&quot;] * hr_pfs * t ** v[&quot;pfs_gam&quot;]), os_)
+        pf = (pfs[:-1] + pfs[1:]) / 2                   # 무진행 비율(반주기 보정)
+        pd_ = ((os_ - pfs)[:-1] + (os_ - pfs)[1:]) / 2  # 진행 비율
+        died = os_[:-1] - os_[1:]
+        disc = 1 / 1.045 ** ((t[:-1] + 0.5) / 12)
+        cost = ((pf * (v[&quot;c_drug_&quot; + arm] + v[&quot;c_pf&quot;]) + pd_ * v[&quot;c_pd&quot;] + died * v[&quot;c_death&quot;]) * disc).sum() + v[&quot;c_ae_&quot; + arm]
+        qaly = ((pf * v[&quot;u_pf&quot;] + pd_ * v[&quot;u_pd&quot;]) / 12 * disc).sum() - v[&quot;du_ae_&quot; + arm]
+        res[arm] = (cost, qaly)
+    return res[&quot;A&quot;][0] - res[&quot;B&quot;][0], res[&quot;A&quot;][1] - res[&quot;B&quot;][1]
+
+dc, dq = model(base)
+print(&quot;기준 분석: 증분비용&quot;, round(dc), &quot;증분QALY&quot;, round(dq, 3), &quot;ICER&quot;, round(dc / dq))
+
+z = np.array([-1.96, 1.96])
+ranges = {&quot;hr_os&quot;: np.exp(np.log(0.75) + z * 0.131),    # 위험비: 로그 척도에서 ±1.96 × 표준오차
+          &quot;hr_pfs&quot;: np.exp(np.log(0.65) + z * 0.113),
+          &quot;c_drug_A&quot;: np.array([152.0, 190.0]),         # 표시 가격에서 20% 인하한 값까지
+          &quot;u_pf&quot;: stats.beta.ppf([0.025, 0.975], 147.94, 41.727)}   # 베타분포의 95% 구간(b 절)
+for name, (low, high) in ranges.items():                # 일원 민감도 분석: 하나씩만 바꾼다
+    icers = []
+    for value in (low, high):
+        c, q = model({**base, name: value})
+        icers.append(round(c / q))
+    print(name, &quot;범위&quot;, round(low, 3), &quot;-&quot;, round(high, 3), &quot; ICER&quot;, icers)
+
+def gap(price):                                         # 그 가격에서의 ICER - 5,000
+    c, q = model({**base, &quot;c_drug_A&quot;: price})
+    return c / q - 5000
+print(&quot;ICER가 5,000이 되는 월 약값:&quot;, round(brentq(gap, 100, 190), 2))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>기준 분석: 증분비용 2872 증분QALY 0.511 ICER 5621
+hr_os 범위 0.58 - 0.97  ICER [5232, 7922]
+hr_pfs 범위 0.521 - 0.811  ICER [4784, 6499]
+c_drug_A 범위 152.0 - 190.0  ICER [4006, 5621]
+u_pf 범위 0.719 - 0.836  ICER [6076, 5262]
+ICER가 5,000이 되는 월 약값: 175.39</pre></div></div>
+<ul>
+<li><code>base</code>는 입력값의 이름과 기준값을 묶은 사전(dict)입니다. <code>model(v)</code>는 입력값 한 세트를 받아 증분비용과 증분 QALY를 돌려줍니다. 민감도 분석은 이 함수에 다른 값을 넣어 다시 부르는 일입니다.</li>
+<li><code>{**base, name: value}</code>는 <code>base</code>를 복사하면서 <code>name</code> 하나만 <code>value</code>로 바꾼 새 사전을 만듭니다. 나머지 입력값은 기준값 그대로입니다.</li>
+<li><code>ranges</code>에서 약값을 뺀 세 입력값의 범위는 95% 구간입니다(약값은 표시 가격에서 20% 인하까지). 위험비는 로그 척도에서 ±1.96 × 표준오차를 구해 지수를 취했고, 효용은 베타분포의 2.5와 97.5 백분위수입니다(b 절 '입력값마다 어떤 분포를 주나?').</li>
+<li>출력의 ICER가 a 절 표 24-2와 같습니다. 효용은 낮은 값일 때 ICER가 더 높으므로 순서가 [6076, 5262]로 나옵니다.</li>
+<li><code>brentq(gap, 100, 190)</code>는 <code>gap(price)</code>가 0이 되는 가격을 100과 190 사이에서 찾습니다. 두 끝에서 함수값의 부호가 달라야 합니다. 결과 175.39가 a 절의 임계 가격 175.4만원입니다.</li>
+</ul>
+<p><b>약값이 아닌 입력값의 임계값.</b></p>
+<p>약값이 아닌 입력값은 결과가 입력값의 1차식이 아니어서 나눗셈 한 번으로 풀 수 없습니다. 이때는 'ICER − 5,000'을 그 입력값의 함수로 만들고, 이 값이 0이 되는 곳을 근 찾기 함수 <code>scipy.optimize.brentq</code>로 찾습니다. 위의 0.55, 0.36, 0.88이 이렇게 구한 값입니다. <code>brentq</code>에는 답이 들어 있을 구간의 양 끝을 주는데, 양 끝에서 함수값의 부호가 같으면 답을 찾지 못하고 ValueError를 냅니다. 찾은 값은 그 입력값의 95% 구간과 비교해 근거가 가리키는 범위 안인지 확인합니다. 위 코드는 이 계산을 약값으로 합니다. 그 코드의 <code>gap()</code> 안의 <code>c_drug_A</code>를 <code>hr_pfs</code>로, <code>brentq</code>의 구간을 0.3과 0.81로 바꾸면 0.55가 나옵니다.</p>
+<ul>
+<li><b>근 찾기의 구간.</b> <code>brentq(f, a, b)</code>는 두 끝에서 f의 부호가 같으면 ValueError를 냅니다. 전체생존 위험비로 ICER가 5,000만원이 되는 값을 95% 구간(0.58–0.97) 안에서 찾으면 이 오류가 납니다. 찾는 값(0.36)이 구간 밖에 있다는 뜻이고, 구간 안에 답이 없다는 것이 곧 분석의 결과입니다(a 절 '결론이 바뀌는 약값은 얼마인가?').</li>
+</ul>
+<!--/FOLD-->
 </section>
 
 <!-- ============================================================ c -->
@@ -107,6 +181,49 @@
 <li><span class="mk">1</span><span><b>무진행생존 위험비 0.6976.</b> 첫 반복에서 뽑힌 값입니다.</span></li>
 <li><span class="mk">2</span><span><b>약값 190.</b> 분포를 주지 않은 입력값은 그대로입니다.</span></li>
 </ol>
+
+<h3>환자 자료가 있으면 곡선의 두 모수는 어떻게 함께 뽑나?</h3>
+<p><strong>와이블 모형을 적합한 뒤 로그 척도의 계수(<code>coef()</code>)와 공분산 행렬(<code>vcov()</code>)을 MASS 패키지의 <code>mvrnorm()</code>에 넣어 두 모수를 함께 뽑습니다.</strong> 위 셀은 중앙값과 모양 모수의 표준오차와 상관을 가정해 뽑았습니다. 환자 자료나 발표된 곡선에서 재구성한 자료가 있으면 적합 결과의 공분산 행렬을 그대로 씁니다(보건통계학 기초 <a href="stats.html#ch24-s3">24장</a> '장 마무리'의 접힌 상자 '발표된 생존곡선만 있으면 곡선 모수는 어떻게 뽑나?'). 여기서는 16장의 표준요법군 300명을 재구성한 자료로 봅니다.</p>
+<!--FIG:rc09_wvcov-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>모양 1.145, 척도 39.059개월.</b> flexsurv의 와이블은 S(t) = exp(−(t ÷ scale)<sup>shape</sup>)입니다. <code>coef()</code>는 두 값의 로그를 돌려줍니다.</span></li>
+<li><span class="mk">2</span><span><b>로그 척도 표준오차 0.077과 0.083, 상관 −0.48.</b> flexsurv는 로그 척도에서 적합하므로 <code>vcov()</code>를 그대로 씁니다.</span></li>
+<li><span class="mk">3</span><span><b>뽑은 곡선의 24개월 생존율 95% 구간 0.508–0.615.</b> 난수를 쓰는 값이지만 이 자료에서는 파이썬(lifelines, numpy)과 셋째 자리까지 같았습니다.</span></li>
+<li><span class="mk">4</span><span><b>Kaplan-Meier 추정값 0.557(0.499–0.611).</b> 뽑은 곡선의 구간과 비슷하므로 자료와 맞는 곡선을 뽑았습니다. <code>survfit()</code>의 기본 구간(<code>conf.type = "log"</code>)은 0.503–0.616이어서, 24장에 적은 파이썬 lifelines의 값과 맞추려고 log-log 구간을 썼습니다.</span></li>
+<li><span class="mk">5</span><span><b>이 과목의 꼴(λ, γ)로 적으면 상관 −0.96.</b> 상관의 크기는 모수를 어떤 꼴로 적느냐에 따라 다르므로, 실제로 뽑는 꼴의 공분산 행렬을 씁니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: lifelines로 와이블 모수 함께 뽑기-->
+<p>보건통계학 기초 24장의 '직접 분석' 상자와 '장 마무리'에 있던 접힌 상자 '발표된 생존곡선만 있으면 곡선 모수는 어떻게 뽑나?'입니다. lifelines의 <code>variance_matrix_</code>는 모수 그 자체의 공분산 행렬이어서 델타법으로 로그 척도로 옮기고, Kaplan-Meier 신뢰구간은 log-log 방식이 기본입니다. 글 속의 a–c 절은 24장의 절입니다.</p>
+<p>23장의 가상 시험 자료(표준요법 B군 300명, <a href="#lab23">실습 23</a>의 <code>rcc_trial.csv</code>)를 재구성한 자료라고 보고, lifelines의 와이블 모형으로 해 봅니다. lifelines 0.30.3으로 실행한 출력입니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">곡선 모수를 함께 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+from lifelines import WeibullFitter
+
+d = pd.read_csv(&quot;rcc_trial.csv&quot;)                     # 실습 23의 자료(재구성한 자료 대신)
+wf = WeibullFitter().fit(d[&quot;months&quot;], d[&quot;event&quot;])
+m = wf.params_.to_numpy()                            # [lambda_, rho_]
+V = wf.variance_matrix_.to_numpy()                   # 같은 척도의 공분산 행렬
+J = np.diag(1 / m)                                   # 델타법으로 로그 척도로 옮긴다
+V_log = J @ V @ J
+se = np.sqrt(np.diag(V_log))
+print(&quot;lambda_, rho_:&quot;, m.round(3))
+print(&quot;로그 척도 표준오차:&quot;, se.round(3), &quot; 상관:&quot;, round(V_log[0, 1] / (se[0] * se[1]), 2))
+
+rng = np.random.default_rng(1)
+draws = np.exp(rng.multivariate_normal(np.log(m), V_log, size=20000))
+s24 = np.exp(-(24 / draws[:, 0]) ** draws[:, 1])     # 뽑은 곡선마다 24개월 생존율
+print(&quot;24개월 생존율 95% 구간:&quot;, np.percentile(s24, [2.5, 97.5]).round(3))
+lam = draws[:, 0] ** (-draws[:, 1])                  # 이 책의 꼴 S(t) = exp(-lam * t^gam)의 lam</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>lambda_, rho_: [39.059  1.145]
+로그 척도 표준오차: [0.083 0.077]  상관: -0.48
+24개월 생존율 95% 구간: [0.508 0.615]</pre></div></div>
+<ul>
+<li><code>params_</code>의 <code>lambda_</code>(39.06개월)는 시간의 척도이고 <code>rho_</code>(1.145)는 모양 모수입니다. lifelines의 곡선은 S(t) = exp(−(t ÷ lambda_)<sup>rho_</sup>)이므로, 이 책의 꼴 S(t) = exp(−λ t<sup>γ</sup>)로 옮기면 λ = lambda_<sup>−rho_</sup> = 0.0150, γ = rho_입니다.</li>
+<li><code>variance_matrix_</code>는 <code>lambda_</code>와 <code>rho_</code> 그 자체의 공분산 행렬입니다. 두 모수는 0보다 커야 하므로 로그 척도에서 뽑습니다(표 24-4의 위험비와 같은 이유). <code>J @ V @ J</code>는 행렬을 로그 척도로 옮기는 줄입니다. 각 모수의 표준오차를 그 모수의 값으로 나누는 델타법 계산입니다.</li>
+<li>상관의 크기는 모수를 어떤 꼴로 적느냐에 따라 다릅니다. 이 꼴에서는 −0.48이지만 이 책의 λ와 γ로 적으면 −0.96입니다(b 절 접힌 상자 '와이블 곡선의 두 모수는 왜 함께 뽑아야 하나?'). 그래서 실제로 뽑는 꼴로 옮긴 공분산 행렬을 씁니다.</li>
+<li>뽑은 곡선으로 구한 24개월 생존율의 95% 구간 50.8–61.5%는 Kaplan-Meier 추정값의 신뢰구간(49.9–61.1%)과 비슷합니다. 자료와 맞는 곡선을 뽑았다는 확인입니다.</li>
+<li>공분산 행렬은 한 곡선 안의 두 모수 사이의 상관만 줍니다. 무진행생존과 전체생존처럼 따로 적합한 두 곡선 사이의 상관은 이 행렬에 없습니다. 환자를 부트스트랩으로 다시 뽑아 두 곡선을 함께 다시 적합하거나, 공통 예시처럼 상관을 가정하고 근거를 밝힙니다.</li>
+</ul>
+<!--/FOLD-->
 
 <h3>5,000번 반복은 어떻게 돌리고 얼마나 걸리나?</h3>
 <p><strong>결과를 담을 행렬을 먼저 만들고, 반복문 안에서 입력값을 뽑아 모형을 돌린 결과를 한 행씩 채웁니다.</strong></p>
@@ -136,6 +253,80 @@
 <li><span class="mk">2</span><span><b>NW 21번.</b> 왼쪽 위, 곧 비용은 늘고 효과는 줄어든 반복으로 신약이 열등한 경우입니다.</span></li>
 </ol>
 <p>그림의 빨간 ×는 기준 분석입니다. 점의 구름이 기준 분석을 중심으로 오른쪽 위로 비스듬히 퍼진 것은 효과가 클수록 진행 상태와 약값의 비용도 함께 커지기 때문입니다.</p>
+<!--FOLD py:파이썬으로 하면: numpy로 확률적 분석 5,000회 돌리기-->
+<p>보건통계학 기초 24장의 '직접 분석' 상자와 '장 마무리'에 있던 내용입니다. 24장 본문의 확률적 결과(비용효과적일 확률 0.1604 등)는 이 코드의 출력이고, 위 R 셀과는 난수가 달라 몬테카를로 오차만큼 다릅니다. 글 속의 a–c 절은 24장의 절입니다.</p>
+<p>b 절의 표 24-5를 내는 코드입니다. b 절 파이썬 상자의 코드(<code>model()</code>과 <code>base</code>)를 먼저 실행한 다음 이어서 실행합니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">확률적 민감도 분석 5,000회 (표 24-5)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">pairs = {(&quot;pfs_med&quot;, &quot;os_med&quot;): (10, 28, 0.07, 0.08),         # 함께 뽑는 짝: 기준값 둘, 로그 척도의 표준오차 둘
+         (&quot;pfs_gam&quot;, &quot;os_gam&quot;): (0.95, 1.15, 0.05, 0.06),    # med = 중앙 생존기간(개월), gam = 모양 모수
+         (&quot;hr_pfs&quot;, &quot;hr_os&quot;): (0.65, 0.75, 0.113, 0.131)}
+rho = 0.5                                               # 짝 안의 두 값 사이의 상관계수
+spec = dict(u_pf=(&quot;beta&quot;, 0.03), u_pd=(&quot;beta&quot;, 0.05),   # 따로 뽑는 입력값: (분포, 불확실성의 크기)
+            du_ae_A=(&quot;gamma&quot;, 0.25), du_ae_B=(&quot;gamma&quot;, 0.25),
+            c_pf=(&quot;gamma&quot;, 0.20), c_pd=(&quot;gamma&quot;, 0.20), c_death=(&quot;gamma&quot;, 0.20),
+            c_ae_A=(&quot;gamma&quot;, 0.25), c_ae_B=(&quot;gamma&quot;, 0.25))
+count = {&quot;tries&quot;: 0}                                    # 곡선과 위험비를 뽑은 횟수를 센다
+
+def crossed(v):                                         # 어느 군에서든 무진행생존 곡선이 전체생존 곡선을 넘으면 True
+    for hr_pfs, hr_os in ((v[&quot;hr_pfs&quot;], v[&quot;hr_os&quot;]), (1.0, 1.0)):
+        pfs = np.exp(-v[&quot;pfs_lam&quot;] * hr_pfs * t ** v[&quot;pfs_gam&quot;])
+        os_ = np.exp(-v[&quot;os_lam&quot;] * hr_os * t ** v[&quot;os_gam&quot;])
+        if (pfs &gt; os_).any():
+            return True
+    return False
+
+def draw(rng):                                          # 입력값 한 세트를 분포에서 뽑는다
+    v = dict(base)                                      # 약값은 base의 값 그대로(고정)
+    while True:                                         # 곡선이 엇갈리면 다시 뽑는다
+        count[&quot;tries&quot;] += 1
+        for (k1, k2), (m1, m2, s1, s2) in pairs.items():
+            z1, z2 = rng.normal(size=2)                 # 서로 독립인 표준정규 난수 두 개
+            z2 = rho * z1 + np.sqrt(1 - rho ** 2) * z2  # z2를 z1과 상관 0.5인 값으로 바꾼다
+            v[k1], v[k2] = m1 * np.exp(s1 * z1), m2 * np.exp(s2 * z2)
+        v[&quot;pfs_lam&quot;] = np.log(2) / v[&quot;pfs_med&quot;] ** v[&quot;pfs_gam&quot;]   # 중앙값과 모양 모수에서 척도 모수
+        v[&quot;os_lam&quot;] = np.log(2) / v[&quot;os_med&quot;] ** v[&quot;os_gam&quot;]
+        if not crossed(v):
+            break
+    for name, (dist, u) in spec.items():
+        m = base[name]
+        if dist == &quot;beta&quot;:                              # u = 표준오차
+            n = m * (1 - m) / u ** 2 - 1
+            v[name] = rng.beta(m * n, (1 - m) * n)
+        else:                                           # gamma: u = 표준오차 / 평균
+            se = m * u
+            shape = (m / se) ** 2
+            v[name] = rng.gamma(shape, m / shape)
+    return v
+
+rng = np.random.default_rng(20261002)                   # 난수 seed를 고정해 결과를 재현
+sims = np.array([model(draw(rng)) for _ in range(5000)])
+dc, dq = sims[:, 0], sims[:, 1]                         # 5,000번의 증분비용, 증분QALY
+
+print(&quot;뽑은 횟수&quot;, count[&quot;tries&quot;], &quot; 곡선이 엇갈려 버린 횟수&quot;, count[&quot;tries&quot;] - 5000)
+print(&quot;평균 증분비용&quot;, round(dc.mean()), &quot; 95% 구간&quot;, np.percentile(dc, [2.5, 97.5]).round(0))
+print(&quot;평균 증분QALY&quot;, round(dq.mean(), 3), &quot; 95% 구간&quot;, np.percentile(dq, [2.5, 97.5]).round(3))
+print(&quot;ICER(평균 ÷ 평균)&quot;, round(dc.mean() / dq.mean()))
+print(&quot;더 비싸고 더 효과적인 비율&quot;, np.mean((dc &gt; 0) &amp; (dq &gt; 0)))
+inmb = 5000 * dq - dc                                   # 임계값 5,000에서의 증분 순금전편익
+print(&quot;비용효과적일 확률&quot;, np.mean(inmb &gt; 0), &quot; 몬테카를로 표준오차&quot;, round(np.sqrt(np.mean(inmb &gt; 0) * np.mean(inmb &lt;= 0) / 5000), 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>뽑은 횟수 5137  곡선이 엇갈려 버린 횟수 137
+평균 증분비용 2935  95% 구간 [1061. 5102.]
+평균 증분QALY 0.525  95% 구간 [0.101 1.008]
+ICER(평균 ÷ 평균) 5586
+더 비싸고 더 효과적인 비율 0.9916
+비용효과적일 확률 0.1604  몬테카를로 표준오차 0.0052</pre></div></div>
+<ul>
+<li><code>pairs</code>는 함께 뽑는 세 짝(중앙값, 모양 모수, 위험비)의 기준값과 로그 척도의 표준오차입니다. <code>spec</code>은 따로 뽑는 입력값의 분포와 불확실성의 크기입니다. 크기는 베타분포에서는 표준오차(0.03 등), 감마분포에서는 평균에 대한 표준오차의 비율(0.20이면 평균의 20%)입니다. 약값은 어디에도 없으므로 <code>base</code>의 값이 그대로 쓰입니다.</li>
+<li><code>z2 = rho * z1 + np.sqrt(1 - rho ** 2) * z2</code>가 상관을 만드는 줄입니다. 새 <code>z2</code>는 <code>z1</code>과 상관계수가 0.5인 표준정규 난수입니다. 기준값에 <code>np.exp(표준오차 * z)</code>를 곱하면 로그정규분포에서 뽑은 값이 됩니다.</li>
+<li><code>crossed(v)</code>는 두 군의 곡선을 계산해 무진행생존이 전체생존보다 큰 달이 있는지 봅니다. <code>while True:</code>는 엇갈리지 않는 세트가 나올 때까지 곡선과 위험비를 다시 뽑습니다. 출력 첫 줄이 그 횟수입니다(5,137번 뽑아 137번 버림).</li>
+<li>베타와 감마는 b 절의 적률법 식으로 모수를 구해 <code>rng.beta</code>, <code>rng.gamma</code>에 넣습니다(b 절 접힌 상자 '평균과 표준오차를 분포의 모수로 어떻게 바꾸나?').</li>
+<li><code>np.random.default_rng(20261002)</code>는 난수 생성기입니다. 괄호 안의 수(seed)가 같으면 뽑히는 값이 같아 결과를 그대로 재현할 수 있습니다.</li>
+<li><code>[model(draw(rng)) for _ in range(5000)]</code>가 분석의 전부입니다. 한 세트 뽑고 모형을 돌리는 일을 5,000번 합니다. 결과는 5,000행 2열의 배열입니다.</li>
+<li><code>np.percentile(dc, [2.5, 97.5])</code>가 95% 구간, <code>np.mean(inmb &gt; 0)</code>이 순금전편익이 양수인 비율입니다. 출력이 b 절 표 24-5와 같습니다.</li>
+</ul>
+<ul>
+<li><b>곡선 자르기.</b> 모형 함수의 <code>np.minimum</code>은 무진행생존 곡선이 전체생존 곡선을 넘어도 경고 없이 잘라 냅니다. 상관을 주지 않고 엇갈린 반복을 버리지도 않으면, 공통 예시에서는 그런 반복 427개가 오류 없이 결과에 섞입니다(b 절 '함께 움직이는 입력값을 따로 뽑으면?'). 엇갈린 반복은 따로 세어 보고합니다.</li>
+<li><b>seed.</b> <code>np.random.default_rng()</code>에 seed를 주지 않으면 실행할 때마다 결과가 달라집니다. 보고할 숫자를 재현하려면 seed를 고정하고 그 값을 적습니다.</li>
+</ul>
+<!--/FOLD-->
 </section>
 
 <!-- ============================================================ d -->
@@ -152,7 +343,7 @@
 </ol>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>5,000에서 확률 0.163, EVPI 36.4만원.</b> 1인당 값입니다. 대상 환자 수를 곱하면 추가 연구의 가치를 가늠하는 상한이 됩니다. 실습 24는 35.9만원이었습니다.</span></li>
-<li><span class="mk">2</span><span><b>5,500에서 확률 0.437, EVPI 141.9만원.</b> 평균끼리 나눈 ICER(5,569, 셀 9)에 가까운 임계값이라 결정이 가장 불확실해 EVPI가 큽니다.</span></li>
+<li><span class="mk">2</span><span><b>5,500에서 확률 0.437, EVPI 141.9만원.</b> 평균끼리 나눈 ICER(5,569, 셀 10)에 가까운 임계값이라 결정이 가장 불확실해 EVPI가 큽니다.</span></li>
 <li><span class="mk">3</span><span><b>12,000에서 0.980.</b> 임계값을 아주 높여도 1이 되지 않습니다. ICER가 아주 큰 반복이 남아 있고, 끝까지 가도 신약의 효과가 더 낮게 나온 반복(27번)은 비용효과적이 될 수 없기 때문입니다.</span></li>
 </ol>
 
@@ -160,7 +351,7 @@
 <p><strong>0부터 12,000만원까지 100만원 간격의 임계값마다 확률을 구해 선으로 잇습니다.</strong></p>
 <!--FIG:rc09_ceplot-->
 <ol class="marks">
-<li><span class="mk">1</span><span><b>5,620.</b> 확률이 처음으로 50% 이상이 되는 임계값으로, 순금전편익의 중앙값이 0이 되는 곳입니다. 그래서 평균 순금전편익이 0이 되어 결정이 바뀌는 곳(평균끼리 나눈 ICER 5,569, 셀 9)과는 다릅니다. 기준 분석의 ICER(5,621)와 거의 같지만 두 값이 같아야 할 이유는 없습니다(보건통계학 기초 <a href="stats.html#ch24-s3">24장 c 절</a>의 '수용곡선은 어떻게 잘못 읽히나?'). 실습 24는 5,650이었습니다.</span></li>
+<li><span class="mk">1</span><span><b>5,620.</b> 확률이 처음으로 50% 이상이 되는 임계값으로, 순금전편익의 중앙값이 0이 되는 곳입니다. 그래서 평균 순금전편익이 0이 되어 결정이 바뀌는 곳(평균끼리 나눈 ICER 5,569, 셀 10)과는 다릅니다. 기준 분석의 ICER(5,621)와 거의 같지만 두 값이 같아야 할 이유는 없습니다(보건통계학 기초 <a href="stats.html#ch24-s3">24장 c 절</a>의 '수용곡선은 어떻게 잘못 읽히나?'). 실습 24는 5,650이었습니다.</span></li>
 </ol>
 <p>수용곡선은 'ICER가 임계값보다 작은 반복의 비율'이 아닙니다. ICER는 증분 QALY가 음수인 반복에서 뜻이 뒤집히므로, 확률은 언제나 순금전편익의 부호로 셉니다(보건통계학 기초 <a href="stats.html#ch24-s3">24장 c 절</a>). 논문에는 수용곡선과 함께 몇 번 반복했는지, 난수 seed, 분포 표, 그리고 곡선이 엇갈린 반복을 어떻게 처리했는지를 적습니다.</p>
 
@@ -170,6 +361,29 @@
 <li>확률적 분석은 상관이 있는 곡선을 함께 뽑고 엇갈린 반복을 다시 뽑아 5,000번 돌립니다. 이 예시의 비용효과적일 확률은 0.163(몬테카를로 표준오차 0.005)입니다.</li>
 <li>수용곡선과 EVPI는 순금전편익의 부호와 크기로 계산합니다. R과 파이썬은 난수가 달라 결과가 몬테카를로 오차만큼 다릅니다.</li>
 </ul></div>
+<!--FOLD py:파이썬으로 하면: numpy로 수용곡선의 확률과 EVPI 구하기-->
+<p>보건통계학 기초 24장의 '직접 분석' 상자와 '장 마무리'에 있던 내용입니다. 글 속의 a–c 절은 24장의 절입니다.</p>
+<p>c 절의 확률을 구할 때 프로그램에 넣는 것은 b 절이 낸 두 배열(모의실험 5,000번의 증분비용과 증분 QALY)과 임계값 하나입니다. numpy·scipy·statsmodels에는 수용곡선을 그려 주는 함수가 없습니다. 확률은 <code>np.mean(lam * dq - dc &gt; 0)</code> 한 줄로 직접 계산하고, 임계값을 바꿔 가며 이 줄을 되풀이합니다.</p>
+<p>c 절의 표 24-7과 EVPI를 내는 코드입니다. c 절 파이썬 상자에서 만든 <code>dc</code>, <code>dq</code>(5,000번의 증분비용과 증분 QALY)를 쓰므로 그 상자에 이어서 실행합니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">임계값별 확률과 EVPI</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">lams = np.array([3000, 4000, 5000, 6000, 7000, 8000, 10000])
+for lam in lams:
+    inmb = lam * dq - dc                                # 모의실험마다의 증분 순금전편익
+    p_ce = np.mean(inmb &gt; 0)                            # 양수인 비율 = 비용효과적일 확률
+    evpi = np.maximum(inmb, 0).mean() - max(inmb.mean(), 0)
+    print(lam, &quot; 확률&quot;, round(p_ce, 3), &quot; 평균 순편익&quot;, round(inmb.mean()), &quot; EVPI&quot;, round(evpi, 1))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>3000  확률 0.002  평균 순편익 -1359  EVPI 0.5
+4000  확률 0.007  평균 순편익 -833  EVPI 1.3
+5000  확률 0.16  평균 순편익 -308  EVPI 35.9
+6000  확률 0.659  평균 순편익 218  EVPI 100.7
+7000  확률 0.867  평균 순편익 743  EVPI 42.6
+8000  확률 0.93  평균 순편익 1269  EVPI 27.0
+10000  확률 0.965  평균 순편익 2319  EVPI 18.4</pre></div></div>
+<ul>
+<li><code>lam * dq - dc</code>는 길이 5,000인 배열입니다. 모의실험마다의 증분 순금전편익이 한 줄로 계산됩니다.</li>
+<li><code>np.mean(inmb &gt; 0)</code>은 참(1)과 거짓(0)의 평균이므로 양수인 비율입니다. 임계값마다 이 값을 구해 이으면 수용곡선입니다.</li>
+<li><code>np.maximum(inmb, 0).mean()</code>은 참값을 알고 고를 때의 기대 이득, <code>max(inmb.mean(), 0)</code>은 지금의 정보로 고를 때의 기대 이득입니다. 둘의 차이가 EVPI입니다.</li>
+<li>출력의 확률과 평균 순편익은 표 24-7과 같고, EVPI는 '확률만 보면 무엇을 놓치나?'의 접힌 상자 'EVPI는 어떻게 계산하나?'의 값과 같습니다. 수용곡선을 그리려면 <code>lams</code>를 <code>np.arange(0, 12001, 100)</code>처럼 촘촘하게 잡습니다.</li>
+</ul>
+<!--/FOLD-->
 </section>
 
 <!-- ============================================================ e -->

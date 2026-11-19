@@ -159,6 +159,23 @@ round(unlist(q[c("pfs_lam", "os_lam", "hr_pfs", "hr_os", "u_pf", "c_pd", "c_drug
 round(run_model(q), 3)
 ''', title="입력값 한 세트 뽑기")
 
+c_wvcov = nb.cell('''
+suppressPackageStartupMessages({library(flexsurv); library(MASS)})
+d <- read.csv("https://socialp-ajou.tecentriq12.workers.dev/data/rcc_trial.csv")   # 16장의 표준요법군 300명
+fit <- flexsurvreg(Surv(months, event) ~ 1, data = d, dist = "weibull")
+round(exp(coef(fit)), 3)                          # shape(모양)와 scale(척도). coef()는 로그 척도
+V <- vcov(fit)                                    # 로그 척도의 공분산 행렬
+round(c(se = sqrt(diag(V)), corr = cov2cor(V)[1, 2]), 3)
+set.seed(1)
+dr  <- exp(mvrnorm(20000, coef(fit), V))          # 두 모수를 함께 뽑기
+s24 <- exp(-(24 / dr[, "scale"])^dr[, "shape"])   # 뽑은 곡선마다 24개월 생존율
+round(quantile(s24, c(0.025, 0.975)), 3)
+km <- summary(survfit(Surv(months, event) ~ 1, data = d, conf.type = "log-log"), times = 24)
+round(c(km = km$surv, lower = km$lower, upper = km$upper), 3)
+lam <- dr[, "scale"]^(-dr[, "shape"])             # 이 과목의 꼴 S(t) = exp(-lam * t^gam)의 lam
+round(cor(log(lam), log(dr[, "shape"])), 2)
+''', title="환자 자료에서 와이블 곡선의 두 모수 함께 뽑기")
+
 c_psa = nb.cell('''
 run_psa <- function(p, n = 5000, seed = 20261002, rho = 0.5, redraw = TRUE) {
   set.seed(seed)
@@ -256,6 +273,8 @@ if NOMARK:
 
 out = {c.n: c.text for c in nb.cells}
 assert "5620.6102" in out[c_model.n]
+for v in ("1.145 39.059", "-0.480", "0.508 0.615", "0.499 0.611", "-0.96"):
+    assert v in out[c_wvcov.n], (v, out[c_wvcov.n])
 assert "19.5 6020.7" in out[c_io.n] and "28.0 5731.3" in out[c_io.n]
 assert "147.94" in out[c_dist.n] and "41.73" in out[c_dist.n]
 for v in ("0.521", "8.718", "0.719", "161.787"):
@@ -269,6 +288,7 @@ S("rc09_rng", nb.html(c_rng, marks={"0.521": 1, "161.787": 2}))
 S("rc09_ow", nb.html(c_ow, marks={"hr_os        5232      7922": 1, "c_drug_A     4006": 2, "c_drug_B     6289      4952": 3}))
 S("rc09_tor", nb.html(c_tor))
 S("rc09_draw", nb.html(c_draw, marks={"0.6976": 1, "190.0000": 2}))
+S("rc09_wvcov", nb.html(c_wvcov, marks={"1.145 39.059": 1, "-0.480": 2, "0.508 0.615": 3, "0.499 0.611": 4, "[1] -0.96": 5}))
 S("rc09_psa", nb.html(c_psa, marks={"TRUE": 1, "  126.0000": 2}))
 S("rc09_sum", nb.html(c_sum, marks={"2956.722": 1, "0.531": 2, "-302.012": 3, "0.1628": 4, "0.0052": 5}))
 S("rc09_plane", nb.html(c_plane, marks={"4972": 1, "21": 2}))

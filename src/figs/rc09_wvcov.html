@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">환자 자료에서 와이블 곡선의 두 모수 함께 뽑기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages({library(flexsurv); library(MASS)})
+d &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/rcc_trial.csv&quot;)   # 16장의 표준요법군 300명
+fit &lt;- flexsurvreg(Surv(months, event) ~ 1, data = d, dist = &quot;weibull&quot;)
+round(exp(coef(fit)), 3)                          # shape(모양)와 scale(척도). coef()는 로그 척도
+V &lt;- vcov(fit)                                    # 로그 척도의 공분산 행렬
+round(c(se = sqrt(diag(V)), corr = cov2cor(V)[1, 2]), 3)
+set.seed(1)
+dr  &lt;- exp(mvrnorm(20000, coef(fit), V))          # 두 모수를 함께 뽑기
+s24 &lt;- exp(-(24 / dr[, &quot;scale&quot;])^dr[, &quot;shape&quot;])   # 뽑은 곡선마다 24개월 생존율
+round(quantile(s24, c(0.025, 0.975)), 3)
+km &lt;- summary(survfit(Surv(months, event) ~ 1, data = d, conf.type = &quot;log-log&quot;), times = 24)
+round(c(km = km$surv, lower = km$lower, upper = km$upper), 3)
+lam &lt;- dr[, &quot;scale&quot;]^(-dr[, &quot;shape&quot;])             # 이 과목의 꼴 S(t) = exp(-lam * t^gam)의 lam
+round(cor(log(lam), log(dr[, &quot;shape&quot;])), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> shape  scale 
+ 1.145 39.059<span class="mk">1</span> 
+se.shape se.scale     corr 
+   0.077    0.083   -0.480<span class="mk">2</span> 
+ 2.5% 97.5% 
+0.508 0.615<span class="mk">3</span> 
+   km lower upper 
+0.557 0.499 0.611<span class="mk">4</span> 
+[1] -0.96<span class="mk">5</span></pre></div></div>

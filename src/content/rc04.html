@@ -117,6 +117,92 @@
 <p>파이썬 lifelines에는 곰페르츠가 없어 보건통계학 기초 23장은 직접 정의했고, 일반화 감마도 수렴을 따로 확인해야 했습니다. flexsurv는 여섯 분포가 모두 들어 있고, 일반화 감마도 수치적으로 안정한 모수 표현(Prentice)으로 맞추어 이 자료에서는 경고 없이 수렴했습니다<cite data-ref="jackson2016flexsurv"></cite>.</p>
 
 <div class="quick"><p class="qk">잠깐 확인</p><p>AIC 차이가 2 안쪽인 네 모형 가운데 아무것이나 기준 모형으로 골라도 경제성 평가 결과가 비슷할까요?</p><details><summary>답 보기</summary><div><p>그렇지 않습니다. AIC는 관찰한 30개월 안에서 맞는 정도만 잽니다. 네 모형은 30개월 안에서는 거의 같은 곡선이지만, 다음 절에서 보듯 10년 생존율은 0%(곰페르츠)에서 5.8%(지수)까지 갈리고 20년까지의 평균 생존도 2.6–3.5년으로 다릅니다.</p></div></details></div>
+<!--FOLD py:파이썬으로 하면: lifelines로 여섯 분포 적합하기-->
+<p>보건통계학 기초 23장의 '직접 분석' 상자와 본문에 있던 내용입니다. 글 속의 a–d 절과 따옴표 안의 제목은 23장의 것입니다.</p>
+<p>이 장에서 전용 함수에 맡기는 계산은 곡선 적합 하나입니다. lifelines의 모수 모형 Fitter가 이 일을 하고, 나머지는 numpy로 직접 짭니다.</p>
+<ul>
+<li><b>넣는 것.</b> 군마다 관찰된 시간과 사건 여부(1 = 사망, 0 = 중도절단)의 두 열이고, 환자 한 명이 한 줄입니다(<a href="stats.html#ch07-s1">보건통계학 기초 7장 a 절</a>).</li>
+<li><b>Fitter가 내는 것.</b> 곡선의 모수, 적합도 <code>AIC_</code>와 <code>BIC_</code>, 원하는 시점의 생존율(<code>survival_function_<wbr>at_times</code>)입니다. 생존율은 자료가 끝난 30개월 너머의 시점을 넣어도 경고 없이 계산되어 나옵니다. 모수를 적는 꼴은 Fitter마다 다릅니다. 예를 들어 지수 모형의 <code>lambda_</code>는 율이 아니라 평균 생존 기간(개월)입니다.</li>
+<li><b>직접 하는 것.</b> 곡선 아래 면적으로 평균을 구하고, 모수를 이 장의 식으로 바꾸고, 후보 가운데 하나를 고릅니다. 곰페르츠 모형은 lifelines 0.30에 없어 여덟 줄로 직접 정의합니다.</li>
+</ul>
+
+<p>표 23-11을 만드는 코드입니다. 앞부분에서 곰페르츠 모형을 정의하고 가상의 시험 자료를 만든 뒤, 뒷부분에서 모수 모형 여섯 개를 적합합니다. 코드 아래의 출력은 lifelines 0.30.3으로 실제 실행한 결과입니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">모수 생존 모형의 적합과 외삽</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+from lifelines import (KaplanMeierFitter, ExponentialFitter, WeibullFitter,
+                       LogNormalFitter, LogLogisticFitter, GeneralizedGammaFitter)
+from lifelines.fitters import ParametricUnivariateFitter
+from autograd import numpy as anp
+
+class GompertzFitter(ParametricUnivariateFitter):  # lifelines 0.30에 없어 직접 정의
+    _fitted_parameter_names = [&quot;nu_&quot;, &quot;b_&quot;]         # 위험률 h(t) = nu × exp(b × t)
+    _bounds = [(1e-12, None), (None, None)]
+    def _create_initial_point(self, *args):
+        return np.array([0.02, 0.01])               # 반복 계산을 시작할 값
+    def _cumulative_hazard(self, params, times):
+        nu, b = params
+        return nu / b * anp.expm1(b * times)        # 누적위험 H(t)
+
+# 가상의 시험 자료 만들기: 표준요법 B군 300명, 추적 24-30개월
+rng = np.random.default_rng(20261002)
+lam, gam = np.log(2) / 28 ** 1.15, 1.15            # 중앙 전체생존 28개월인 와이블
+t_event = (-np.log(rng.uniform(size=300)) / lam) ** (1 / gam)
+t_cens = rng.uniform(24, 30, size=300)             # 환자마다 다른 자료 마감 시점
+months = np.minimum(t_event, t_cens)               # 관찰된 시간
+event = (t_event &lt;= t_cens).astype(int)            # 1 = 사망, 0 = 중도절단
+print(&quot;사망&quot;, event.sum(), &quot;명, 중도절단&quot;, (1 - event).sum(), &quot;명&quot;)
+print(&quot;Kaplan-Meier 24개월 생존율&quot;, round(KaplanMeierFitter().fit(months, event).predict(24), 3))
+
+grid = np.arange(0, 241)                           # 0-240개월
+rows = []
+for name, Fitter in [(&quot;Exponential&quot;, ExponentialFitter), (&quot;Weibull&quot;, WeibullFitter),
+                     (&quot;Gompertz&quot;, GompertzFitter), (&quot;Log-normal&quot;, LogNormalFitter), (&quot;Log-logistic&quot;, LogLogisticFitter),
+                     (&quot;Generalized gamma&quot;, GeneralizedGammaFitter)]:
+    f = Fitter().fit(months, event)                # 최대우도추정
+    s = f.survival_function_at_times(grid).values  # 20년까지 늘린 생존곡선
+    rows.append([name, f.AIC_, f.BIC_, s[24], s[60], s[120], np.trapezoid(s, grid) / 12])
+out = pd.DataFrame(rows, columns=[&quot;model&quot;, &quot;AIC&quot;, &quot;BIC&quot;, &quot;S(2y)&quot;, &quot;S(5y)&quot;, &quot;S(10y)&quot;, &quot;mean_years&quot;])
+print(out.round(3).to_string(index=False))
+
+w = WeibullFitter().fit(months, event)
+print(&quot;lifelines:&quot;, round(w.lambda_, 3), round(w.rho_, 4))
+print(&quot;S(t) = exp(-lam * t^gam) 꼴:&quot;, round(w.lambda_ ** -w.rho_, 5), round(w.rho_, 4))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>사망 145 명, 중도절단 155 명
+Kaplan-Meier 24개월 생존율 0.557
+            model      AIC      BIC  S(2y)  S(5y)  S(10y)  mean_years
+      Exponential 1376.849 1380.552  0.566  0.241   0.058       3.500
+          Weibull 1375.921 1383.328  0.564  0.195   0.027       3.101
+         Gompertz 1374.904 1382.311  0.567  0.111   0.000       2.600
+       Log-normal 1389.806 1397.214  0.569  0.326   0.177       5.187
+     Log-logistic 1379.672 1387.079  0.567  0.283   0.138       4.623
+Generalized gamma 1376.882 1387.993  0.567  0.121   0.000       2.642
+lifelines: 39.059 1.1454
+S(t) = exp(-lam * t^gam) 꼴: 0.01502 1.1454</pre></div></div>
+<ul>
+<li><code>GompertzFitter</code>는 lifelines 0.30에 없는 곰페르츠 모형을 직접 정의한 것입니다. <code>ParametricUnivariateFitter</code>를 물려받아 모수의 이름(<code>_fitted_parameter_names</code>), 모수의 범위(<code>_bounds</code>, nu는 0보다 큼), 반복 계산을 시작할 값(<code>_create_initial_point</code>), 누적위험 H(t)(<code>_cumulative_hazard</code>)만 적으면, 생존함수 S(t) = exp(−H(t))와 우도, AIC, BIC는 lifelines가 계산합니다.</li>
+<li>누적위험의 식 안에서는 numpy 대신 autograd의 numpy(<code>anp</code>)를 씁니다. lifelines가 우도를 최대화할 때 이 식을 자동으로 미분하기 때문입니다. <code>anp.expm1(x)</code>는 exp(x) − 1입니다.</li>
+<li><code>months</code>(관찰된 시간)와 <code>event</code>(1 = 사망, 0 = 중도절단)가 생존분석의 기본 자료 두 열입니다(<a href="stats.html#ch07-s1">보건통계학 기초 7장 a 절</a>). 실제 연구에서는 자료를 만드는 앞부분 대신 시험 자료를 불러옵니다.</li>
+<li><code>Fitter().fit(months, event)</code>가 최대우도추정으로 모수를 구합니다. 여섯 모형 모두 사용법이 같습니다.</li>
+<li><code>f.AIC_</code>, <code>f.BIC_</code>가 적합도이고, BIC의 n은 사건 수(145)가 아니라 환자 수(300)입니다. <code>survival_function_at_times(grid)</code>가 0–240개월의 생존율입니다. 자료는 30개월까지지만 식이 있으므로 240개월까지 경고 없이 값이 나옵니다.</li>
+<li><code>np.trapezoid(s, grid) / 12</code>는 곡선 아래 면적(사다리꼴 합)을 연 단위로 바꾼 평균 생존입니다. numpy 2.0보다 낮은 버전에서는 함수 이름이 <code>np.trapz</code>입니다.</li>
+<li>마지막 두 줄은 lifelines의 와이블 모수를 이 장의 식에 맞게 바꾼 것입니다(아래).</li>
+</ul>
+<p>모수의 이름과 뜻은 Fitter마다 다릅니다. 이 자료에 적합한 값으로 보면 다음과 같습니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>모형</th><th>모수와 뜻 (이 자료의 값)</th></tr></thead>
+<tbody>
+<tr><td>지수<br><code>Exponential<wbr>Fitter</code></td><td>S(t) = exp(−t ÷ lambda_). <code>lambda_</code>는 율이 아니라 평균 생존 기간(42.1개월)이고, 월 율은 1 ÷ 42.1 = 0.0237</td></tr>
+<tr><td>와이블<br><code>Weibull<wbr>Fitter</code></td><td>S(t) = exp(−(t ÷ lambda_)<sup>rho_</sup>). <code>lambda_</code>는 생존율이 36.8%가 되는 시점(39.06개월), <code>rho_</code>는 모양(1.15)</td></tr>
+<tr><td>곰페르츠<br>(직접 정의)</td><td>위험률 h(t) = nu_ × exp(b_ × t). <code>nu_</code>는 0개월의 월 위험률(0.0181), <code>b_</code>는 위험률이 변하는 속도(양수이면 커짐. 이 자료는 월 0.0213)</td></tr>
+<tr><td>로그-정규<br><code>LogNormal<wbr>Fitter</code></td><td>로그 시간이 정규분포를 따름. <code>mu_</code>는 로그 시간의 평균(3.43), <code>sigma_</code>는 표준편차(1.46). 중앙값은 exp(mu_) = 31.0개월</td></tr>
+<tr><td>로그-로지스틱<br><code>LogLogistic<wbr>Fitter</code></td><td><code>alpha_</code>는 중앙값(29.5개월), <code>beta_</code>는 모양(1.31)</td></tr>
+<tr><td>일반화 감마<br><code>Generalized<wbr>GammaFitter</code></td><td><code>mu_</code>(3.73), <code>ln_sigma_</code>(−0.47), <code>lambda_</code>(1.58)의 세 모수. <code>lambda_</code>가 1이면 와이블, 0이면 로그-정규. 와이블의 <code>lambda_</code>와 이름만 같고 뜻이 다름</td></tr>
+</tbody></table></div>
+<p>신뢰구간은 모두 95%가 기본값입니다(<code>alpha=0.05</code>). 지수 모형의 <code>lambda_</code>를 율로 잘못 알고 1보다 작은 위험비를 곱하면 신약군의 평균 생존 기간이 오히려 줄어, 신약군 곡선이 효과와 반대 방향으로 움직입니다. 와이블 모수를 이 장의 식으로 바꾸는 계산은 다음과 같습니다.</p>
+<p>같은 와이블 분포라도 프로그램마다 모수를 적는 방식이 다릅니다. 이 장과 공통 예시는 S(t) = exp(−λ t<sup>γ</sup>)로 쓰고, lifelines의 <code>Weibull<wbr>Fitter</code>는 S(t) = exp(−(t ÷ lambda_)<sup>rho_</sup>)로 씁니다. 두 식을 비교하면 γ = rho_, λ = lambda_<sup>−rho_</sup>입니다.</p>
+<p>위 자료의 적합 결과는 lambda_ = 39.06, rho_ = 1.1454(95% CI 0.97–1.32)이고, 바꾸면 λ = 39.06<sup>−1.1454</sup> = 0.01502, γ = 1.1454입니다. 이 자료를 만든 기준 분석의 값(λ = 0.01502, γ = 1.15)과 거의 같습니다. 두 식으로 0–240개월의 생존율을 각각 계산해 비교하면 차이가 0입니다. lambda_는 생존율이 exp(−1) = 36.8%가 되는 시점(개월)이어서 값의 뜻을 읽기 쉽고, λ는 위험비를 곱하기 쉽습니다. 논문이나 다른 프로그램의 모수를 가져다 쓸 때는 어느 식의 모수인지 먼저 확인하고, 중앙값(28.4개월)처럼 모수를 적는 방식과 관계없이 같은 값을 계산해 맞춰 봅니다.</p>
+<p><b>일반화 감마의 수렴(23장 d 절 접힌 상자).</b></p>
+<p>lifelines의 일반화 감마 적합은 불안정할 때가 있어 수렴을 따로 확인했습니다. 이 자료에서는 경고 없이 수렴했고, 초깃값을 바꿔 다시 적합해도(<code>fit()</code>의 <code>initial_point=</code>) 같은 값이 나왔습니다. 문제는 수렴이 아니라 정보의 양입니다. 일반화 감마의 로그우도는 와이블보다 0.52 높을 뿐이어서 우도비 검정으로도 와이블과 구별되지 않습니다(p = 0.31). 30개월까지의 자료는 셋째 모수를 거의 정하지 못하는데, 10년 생존율은 셋째 모수가 1일 때 2.7%(와이블), 1.58일 때 0.0%로 달라집니다. 유연한 모형일수록 꼬리가 자료보다 우연에 좌우될 수 있으므로, 모수의 신뢰구간과 외삽한 생존율을 함께 봅니다.</p>
+<!--/FOLD-->
 </section>
 
 <!-- ============================================================ d -->
@@ -224,6 +310,23 @@
 <li><code>summary()</code>의 신뢰구간은 모의실험으로 구하므로 <code>set.seed()</code>로 고정하고, 분포를 잘못 고른 불확실성은 그 구간에 들어 있지 않습니다.</li>
 <li>위험률 그림과 외부 자료로 꼬리의 가정을 점검하고, 기준 모형과 시나리오를 함께 보고합니다.</li>
 </ul></div>
+<!--FOLD py:파이썬으로 하면: 23장 '내 연구에서 분석하기'의 파이썬 기본값 표-->
+<p>보건통계학 기초 23장 d 절 '내 연구에서 분석하기'의 '프로그램에는 무엇을 입력하나?'에 있던 표입니다. 모형 계산(numpy), 교정(scipy), 곡선 적합(lifelines)이 섞여 있습니다.</p>
+<p>정할 것마다 프로그램이 하는 일과, 결과를 조용히 바꿀 수 있는 기본값을 모으면 다음과 같습니다(numpy 2.5, scipy 1.18, lifelines 0.30.3에서 확인).</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>먼저 정할 것</th><th>프로그램이 하는 일 (기본값)</th></tr></thead>
+<tbody>
+<tr><td>모형의 종류, 상태, 주기, 분석기간</td><td>전용 패키지가 없음. 결정수형은 <code>(prob * cost)<wbr>.sum()</code>, 마르코프는 <code>x @ P</code>의 반복, 분할생존은 두 곡선의 뺄셈</td></tr>
+<tr><td>율을 확률로 바꾸는 방법, 나가는 길이 둘일 때 나누는 비율, 교정 목표</td><td><code>1 - np.exp(-r * t)</code>를 직접 씀. 교정은 <code>scipy.optimize<wbr>.brentq</code> 같은 근 찾기 함수로 직접 풂</td></tr>
+<tr><td>반주기 보정, 비용을 매기는 시점, 할인율과 기준 시점</td><td>자동으로 해 주는 것이 없음. <code>(x[:-1] + x[1:]) / 2</code>와 <code>1 / 1.045 ** ((k + 0.5) / 12)</code>를 직접 씀</td></tr>
+<tr><td>외삽 후보 목록</td><td>lifelines에 지수, 와이블, 로그-정규, 로그-로지스틱, 일반화 감마의 Fitter가 있고 곰페르츠는 없음(직접 정의). 구간별 지수(<code>Piecewise<wbr>Exponential<wbr>Fitter</code>)와 스플라인(<code>SplineFitter</code>) 같은 유연한 모형도 있음</td></tr>
+<tr><td>모수를 옮길 식</td><td>Fitter마다 모수의 꼴이 다름. 지수의 <code>lambda_</code>는 율이 아니라 평균 생존 기간</td></tr>
+<tr><td>적합도 지표</td><td><code>AIC_</code> = 2k − 2 ln L, <code>BIC_</code> = k ln n − 2 ln L. n은 사건 수(145)가 아니라 환자 수(300)</td></tr>
+<tr><td>외삽한 생존율과 평균</td><td><code>survival_function_<wbr>at_times(t)</code>는 30개월 너머에서도 경고 없이 값을 냄. 평균은 <code>np.trapezoid</code>나 <code>restricted_mean_<wbr>survival_time<wbr>(fitter, t=240)</code>(결과가 개월 단위여서 12로 나누면 <code>np.trapezoid</code>로 구한 와이블 3.10년과 같음). Kaplan-Meier의 <code>median_<wbr>survival_time_</code>은 중앙값에 이르지 않으면 <code>inf</code></td></tr>
+<tr><td>신약군 곡선</td><td>위험비 방식은 <code>S_B ** HR</code>을 직접 계산. 군별 방식은 Fitter를 군마다 따로 적합</td></tr>
+<tr><td>신뢰구간의 수준</td><td>95%가 기본값(<code>alpha=0.05</code>)</td></tr>
+</tbody></table></div>
+<!--/FOLD-->
 </section>
 
 <!-- ============================================================ g -->

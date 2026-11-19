@@ -142,6 +142,96 @@
 <li>상태 비율만 만들면 비용과 QALY 계산은 분할생존모형과 같은 함수로 합니다. 이 예시의 ICER는 마르코프 5,858, 군별로 맞춘 마르코프 5,723, 분할생존 5,621만원/QALY입니다.</li>
 <li>두 구조의 차이는 진행 뒤 생존을 어떻게 가정하느냐에서 옵니다. 교정에는 <code>uniroot()</code>를 씁니다.</li>
 </ul></div>
+<!--FOLD py:파이썬으로 하면: numpy로 마르코프 모형과 교정, 결정수형 계산하기-->
+<p>보건통계학 기초 23장의 '직접 분석' 상자와 본문에 있던 내용입니다. 글 속의 a–d 절과 따옴표 안의 제목은 23장의 것입니다.</p>
+<p><b>결정수형(23장 a 절).</b></p>
+<p>결정수형은 곱셈과 덧셈뿐이어서 엑셀로도 충분하고, 따로 계산하는 표준 패키지는 없으며 필요하지도 않습니다. 넣는 것은 가지마다의 확률과 경로마다의 값(비용, QALY 변화)이고, 가지의 확률을 곱해 경로 확률을 만듭니다('경로 확률은 왜 곱하나?'). 경로 확률을 numpy 배열 <code>prob</code>, 경로의 비용을 배열 <code>cost</code>로 두면 <code>(prob * cost).sum()</code> 한 줄로 기대비용이 나옵니다. 두 전략의 차이(증분)와 그 비(ICER)는 이렇게 얻은 기대값으로 직접 계산합니다.</p>
+<p><b>마르코프 모형(23장 b 절).</b></p>
+<p>마르코프 모형에도 전용 함수가 없습니다. 넣는 것은 3 × 3 전이확률 행렬, 상태별 월 비용과 효용, 할인율, 분석기간(240주기)입니다. 전이확률 행렬은 '전이확률은 어떻게 만드나?'에서 본 대로 월 율 세 개로 만듭니다. numpy가 해 주는 일은 행렬 곱 <code>x @ P</code> 한 줄, 곧 지금의 상태 비율에 행렬을 곱해 한 달 뒤의 비율을 내는 계산입니다. 분석하는 사람이 직접 짜는 것은 이 곱을 240번 되풀이해 코호트 추적을 쌓는 일, 반주기 보정, 할인, 합계, 그리고 진행 후 사망확률을 시험의 중앙값에 맞추는 교정입니다. 교정에서 방정식을 푸는 부분만 scipy의 <code>brentq</code>를 씁니다.</p>
+<p>표 23-4, 23-5, 23-6을 numpy로 계산하는 코드입니다. 실습 환경(<a href="#lab00">실습 0</a>)의 주피터 노트북 셀에 붙여 넣어 실행합니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">세 상태 마르코프 코호트 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+
+def matrix(r_prog, r_death_pf, r_death_pd):
+    &quot;&quot;&quot;월 단위 율 세 개 → 월 전이확률 행렬 (행: 출발, 열: 도착; 순서는 무진행, 진행, 사망)&quot;&quot;&quot;
+    leave = 1 - np.exp(-(r_prog + r_death_pf))      # 무진행 상태를 떠날 확률
+    to_pd = leave * r_prog / (r_prog + r_death_pf)  # 무진행에서 진행으로 옮겨 갈 확률(떠날 확률 × 진행의 비중)
+    to_d = leave - to_pd                            # 나머지는 사망
+    q = 1 - np.exp(-r_death_pd)                     # 진행 상태에서 사망할 확률
+    return np.array([[1 - leave, to_pd, to_d],
+                     [0.0, 1 - q, q],
+                     [0.0, 0.0, 1.0]])
+
+def run(P, c_drug, c_ae, dq_ae, n=240):
+    x = np.array([1.0, 0.0, 0.0])                   # 시작: 모두 무진행
+    trace = [x]
+    for k in range(n):                              # 240개월 = 20년
+        x = x @ P                                   # 행렬 곱 한 번 = 한 달
+        trace.append(x)
+    trace = np.array(trace)                         # 241행 × 3열
+    pf = (trace[:-1, 0] + trace[1:, 0]) / 2         # 반주기 보정: 주기 시작과 끝의 평균
+    pd_ = (trace[:-1, 1] + trace[1:, 1]) / 2
+    died = trace[1:, 2] - trace[:-1, 2]             # 그 달에 사망한 비율
+    disc = 1 / 1.045 ** ((np.arange(n) + 0.5) / 12) # 주기 중간 시점의 할인 계수
+    cost = ((pf * (c_drug + 40) + pd_ * 250 + died * 800) * disc).sum() + c_ae
+    qaly = ((pf * 0.78 + pd_ * 0.62) / 12 * disc).sum() - dq_ae
+    return trace, cost, qaly
+
+r_exit = np.log(2) / 10                             # 중앙 무진행생존 10개월 → 월 단위 율
+r_pd_d = 0.0470602                                  # 진행 → 사망 (중앙 전체생존 28개월에 맞춘 값)
+P_B = matrix(0.9 * r_exit, 0.1 * r_exit, r_pd_d)
+P_A = matrix(0.9 * r_exit * 0.65, 0.1 * r_exit * 0.65, r_pd_d)   # 위험비는 율에 곱한다
+
+np.set_printoptions(precision=4, suppress=True)
+print(P_B)
+tB, cB, qB = run(P_B, c_drug=120, c_ae=80, dq_ae=0.008)
+tA, cA, qA = run(P_A, c_drug=190, c_ae=120, dq_ae=0.012)
+print(tB[:4])
+print(&quot;B: 비용&quot;, round(cB), &quot;QALY&quot;, round(qB, 3))
+print(&quot;A: 비용&quot;, round(cA), &quot;QALY&quot;, round(qA, 3))
+print(&quot;ICER&quot;, round((cA - cB) / (qA - qB)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[[0.933  0.0603 0.0067]
+ [0.     0.954  0.046 ]
+ [0.     0.     1.    ]]
+[[1.     0.     0.    ]
+ [0.933  0.0603 0.0067]
+ [0.8706 0.1137 0.0157]
+ [0.8123 0.161  0.0268]]
+B: 비용 7294 QALY 1.774
+A: 비용 9730 QALY 2.19
+ICER 5858</pre></div></div>
+<ul>
+<li><code>matrix()</code>는 율 세 개를 받아 전이확률 행렬을 만듭니다. 출력의 첫 3줄이 표준요법 B의 행렬이고 표 23-4와 같습니다.</li>
+<li><code>x = x @ P</code>가 핵심입니다. <code>@</code>는 행렬 곱 연산자로, 지금의 상태 비율(1행 3열)에 전이확률 행렬을 곱해 한 달 뒤의 비율을 줍니다. 이것을 240번 되풀이해 <code>trace</code>에 쌓습니다. 출력의 가운데 4줄이 0–3개월의 코호트 추적입니다.</li>
+<li><code>pf</code>와 <code>pd_</code>는 주기의 시작과 끝 비율의 평균(반주기 보정), <code>died</code>는 그 달에 사망한 비율, <code>disc</code>는 주기별 할인 계수입니다.</li>
+<li><code>cost</code>와 <code>qaly</code> 줄에서 상태 비율에 비용과 효용을 곱하고 할인해 더합니다. 무진행 상태의 월 비용은 약값과 관리비 40만원의 합입니다.</li>
+<li>마지막 3줄의 출력이 표 23-6의 총비용, QALY, ICER입니다.</li>
+</ul>
+<p>위 셀의 진행 후 사망의 율 0.0470602는 교정으로 찾은 값입니다. 교정과 행렬 점검은 다음 셀로 하고, 위 셀에 이어 실행합니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">진행 후 사망의 율 교정과 행렬 점검</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">from scipy.optimize import brentq
+
+def median_os(P, n=600):
+    &quot;&quot;&quot;전이확률 행렬 → 모형의 중앙 전체생존(개월)&quot;&quot;&quot;
+    x, alive = np.array([1.0, 0.0, 0.0]), [1.0]
+    for k in range(n):
+        x = x @ P
+        alive.append(x[0] + x[1])                   # 살아 있는 비율 = 무진행 + 진행
+    alive = np.array(alive)
+    i = np.argmax(alive &lt;= 0.5)                     # 처음으로 50% 이하가 된 달
+    return i - 1 + (alive[i - 1] - 0.5) / (alive[i - 1] - alive[i])   # 두 달 사이는 직선으로 읽음
+
+gap = lambda r: median_os(matrix(0.9 * r_exit, 0.1 * r_exit, r)) - 28
+r_cal = brentq(gap, 0.01, 0.5)                      # gap이 0이 되는 율을 구간 안에서 찾음
+print(round(r_cal, 7), round(1 - np.exp(-r_cal), 4))
+print(round(median_os(P_B), 1), round(median_os(P_A), 1))
+print(P_B.sum(axis=1), np.allclose(np.linalg.matrix_power(P_B, 24)[0], tB[24]))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>0.0470602 0.046
+28.0 34.8
+[1. 1. 1.] True</pre></div></div>
+<ul>
+<li><code>median_os()</code>는 행렬을 받아 살아 있는 비율(무진행 + 진행)이 처음으로 50% 이하가 되는 달을 찾고, 그 앞 달과의 사이를 직선으로 이어 50%를 지나는 시점을 읽습니다. 주기 사이를 읽는 방법을 바꾸면 교정한 율도 조금 바뀌므로 Methods에 적습니다.</li>
+<li><code>brentq(gap, 0.01, 0.5)</code>는 scipy의 방정식 풀이 함수입니다. 양 끝에서 <code>gap</code>의 부호가 다른 구간을 주면 그 안에서 <code>gap</code>이 0이 되는 율을 찾습니다. 율이 0.01이면 모형의 중앙 전체생존이 74.8개월, 0.5이면 12.4개월이어서 28개월이 되는 율이 이 구간 안에 있습니다. 첫 줄의 0.0470602가 위 셀에 넣은 값이고, 확률로는 0.046입니다.</li>
+<li>둘째 줄은 모형이 내는 중앙 전체생존입니다. 표준요법 B는 목표 28개월에 맞고, 신약 A는 34.8개월로 위험비 0.75의 곡선이 주는 36.0개월보다 짧습니다('진행한 뒤의 사망 속도는 두 군에서 같은가?').</li>
+<li>셋째 줄은 점검입니다. 행렬의 각 행의 합이 1인지 <code>P_B.sum(axis=1)</code>로 보고, 행렬을 24번 곱한 <code>np.linalg.matrix_power(P_B, 24)</code>의 첫 행이 코호트 추적의 24행(<code>tB[24]</code>)과 같은지 봅니다.</li>
+</ul>
+<!--/FOLD-->
 </section>
 
 <!-- ============================================================ f -->

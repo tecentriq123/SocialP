@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">과제 2 정답: 모의실험 횟수와 몬테카를로 오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ok &lt;- inmb &gt; 0
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 2 정답: 모의실험 횟수와 몬테카를로 오차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ok &lt;- inmb &gt; 0
 round(t(sapply(c(500, 1000, 5000), function(n) {
   pr &lt;- mean(ok[1:n]); se &lt;- sqrt(pr * (1 - pr) / n)
   c(n = n, p_ce = pr, se = se, low = pr - 1.96 * se, high = pr + 1.96 * se)

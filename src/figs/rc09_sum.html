@@ -1,4 +1,4 @@
-<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">결과 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">dc &lt;- psa$dc; dq &lt;- psa$dq
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">결과 요약</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">dc &lt;- psa$dc; dq &lt;- psa$dq
 inmb &lt;- threshold * dq - dc
 summ &lt;- rbind(d_cost = c(mean(dc), quantile(dc, c(0.025, 0.975))),
               d_qaly = c(mean(dq), quantile(dq, c(0.025, 0.975))),

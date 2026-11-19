@@ -105,7 +105,7 @@ print(&quot;30개월 뒤의 비율: QALY&quot;, round(1 - dq_obs / dq_all, 3), &
 30개월: 1157 0.128 9056
 30개월 뒤의 비율: QALY 0.75  비용 0.597</pre></div></div>
 <ul>
-<li><code>model(horizon)</code>은 23장 c 절의 코드와 같은 계산입니다. 달라진 것은 시점 배열 <code>t</code>의 끝을 <code>horizon</code>으로 받는다는 점뿐입니다.</li>
+<li><code>model(horizon)</code>은 23장 c 절의 분할생존모형(이 과목 22장 c 절의 파이썬 상자)과 같은 계산입니다. 달라진 것은 시점 배열 <code>t</code>의 끝을 <code>horizon</code>으로 받는다는 점뿐입니다.</li>
 <li>출력 첫 줄이 기준 분석(증분비용 2,872만원, 증분 QALY 0.511, ICER 5,621만원/QALY)입니다.</li>
 <li>둘째 줄은 30개월에서 끊은 결과입니다. 증분 QALY 0.128, ICER 9,056만원/QALY입니다.</li>
 <li>셋째 줄에서 증분 QALY의 75.0%, 증분비용의 59.7%가 30개월 뒤에 생깁니다.</li>
