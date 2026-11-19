@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">입력값 표와 결과표를 모형의 값에서 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">src &lt;- c(pfs_med = &quot;Pivotal trial, arm B&quot;, os_med = &quot;Pivotal trial, arm B&quot;, hr_pfs = &quot;Pivotal trial&quot;,
+         hr_os = &quot;Pivotal trial&quot;, u_pf = &quot;Trial EQ-5D-5L, Korean value set&quot;, u_pd = &quot;Trial EQ-5D-5L, Korean value set&quot;,
+         c_drug_A = &quot;List price&quot;, c_pd = &quot;Claims data&quot;, disc = &quot;HIRA guideline&quot;)
+table1 &lt;- data.frame(base_case = unlist(p[names(src)]), source = src)   # 사전의 값을 그대로 표로
+table1
+res &lt;- data.frame(cost = r[&quot;cost&quot;, ], qaly = r[&quot;qaly&quot;, ])              # 결과표: 반올림하지 않은 값
+res[&quot;A - B&quot;, ] &lt;- res[&quot;A&quot;, ] - res[&quot;B&quot;, ]
+res
+c(icer = res[&quot;A - B&quot;, &quot;cost&quot;] / res[&quot;A - B&quot;, &quot;qaly&quot;],                  # 반올림 전 값으로 나눔
+  from_table = round(res[&quot;A - B&quot;, &quot;cost&quot;]) / round(res[&quot;A - B&quot;, &quot;qaly&quot;], 3))   # 표에 적힌 2,872 / 0.511</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         base_case                           source
+pfs_med     10.000             Pivotal trial, arm B
+os_med      28.000             Pivotal trial, arm B
+hr_pfs       0.650                    Pivotal trial
+hr_os        0.750                    Pivotal trial
+u_pf         0.780 Trial EQ-5D-5L, Korean value set
+u_pd         0.620 Trial EQ-5D-5L, Korean value set
+c_drug_A   190.000                       List price
+c_pd       250.000                      Claims data
+disc         0.045                   HIRA guideline<span class="mk">1</span>
+           cost      qaly
+A     10561.778 2.3846690
+B      7689.485 1.8736402
+A - B  2872.294 0.5110288<span class="mk">2</span>
+      icer from_table 
+  5620.610   5620.352<span class="mk">3</span></pre></div></div>

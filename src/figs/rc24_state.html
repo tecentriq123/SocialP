@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">상태별 평균 효용과 환자 단위로 묶은 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages({library(sandwich); library(lmtest)})
+fit &lt;- lm(utility ~ 0 + state, data = df)           # 절편을 빼면 계수 = 상태별 평균
+V   &lt;- vcovCL(fit, cluster = ~ id)                   # 같은 환자의 응답을 한 묶음으로
+round(cbind(mean = coef(fit), se_naive = sqrt(diag(vcov(fit))),
+            se_cluster = sqrt(diag(V)), coefci(fit, vcov. = V)), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          mean se_naive se_cluster  2.5 % 97.5 %
+statePD 0.6213   0.0077     0.0133<span class="mk">1</span> 0.5952 0.6474
+statePF 0.7795   0.0045     0.0074 0.7651 0.7939<span class="mk">2</span></pre></div></div>

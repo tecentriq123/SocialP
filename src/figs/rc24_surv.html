@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">생존자만의 평균 효용으로 계산하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">am &lt;- tapply(df$utility, list(df$month, df$arm), mean)   # 그 시점에 살아서 답한 사람만의 평균
+round(am, 3)
+round(apply(am, 2, function(u) trap(visits, u)) / 12, 3) # 생존자만의 평균 곡선 아래 넓이
+round(tapply(pts$qaly, pts$arm, mean), 3)                # 환자별 QALY의 평균</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       A     B
+0  0.786 0.766
+3  0.779 0.754
+6  0.743 0.715
+12 0.753 0.709
+18 0.736 0.671
+24 0.719 0.676<span class="mk">1</span>
+    A     B 
+1.496 1.411<span class="mk">2</span> 
+    A     B 
+1.204 1.087</pre></div></div>

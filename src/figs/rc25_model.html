@@ -1,0 +1,29 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">분석기간을 인자로 둔 공통 예시 모형</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p &lt;- list(pfs_med = 10, pfs_gam = 0.95, os_med = 28, os_gam = 1.15,   # 표준요법 B의 곡선(중앙값 개월, 모양)
+          hr_pfs = 0.65, hr_os = 0.75,                                  # 신약 A의 위험비
+          u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,   # 효용과 이상반응의 QALY 손실
+          c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250,        # 월 비용(만원)
+          c_death = 800, c_ae_A = 120, c_ae_B = 80, disc = 0.045)       # 1회 비용(만원), 연 할인율
+model &lt;- function(p, horizon = 240, disc = TRUE) {    # 분석기간(개월)과 할인 여부를 인자로
+  t &lt;- 0:horizon
+  d &lt;- if (disc) 1 / (1 + p$disc)^((head(t, -1) + 0.5) / 12) else 1   # 각 달의 한가운데에서 할인
+  sapply(c(A = &quot;A&quot;, B = &quot;B&quot;), function(arm) {
+    hp &lt;- if (arm == &quot;A&quot;) p$hr_pfs else 1; ho &lt;- if (arm == &quot;A&quot;) p$hr_os else 1
+    s_os  &lt;- exp(-log(2) * ho * (t / p$os_med)^p$os_gam)
+    s_pfs &lt;- pmin(exp(-log(2) * hp * (t / p$pfs_med)^p$pfs_gam), s_os)
+    pf &lt;- (head(s_pfs, -1) + tail(s_pfs, -1)) / 2                     # 반주기 보정
+    pd &lt;- (head(s_os - s_pfs, -1) + tail(s_os - s_pfs, -1)) / 2
+    died &lt;- head(s_os, -1) - tail(s_os, -1)
+    c_drug &lt;- p[[paste0(&quot;c_drug_&quot;, arm)]]
+    c(cost = sum((pf * (c_drug + p$c_pf) + pd * p$c_pd + died * p$c_death) * d) + p[[paste0(&quot;c_ae_&quot;, arm)]],
+      qaly = sum((pf * p$u_pf + pd * p$u_pd) / 12 * d) - p[[paste0(&quot;du_ae_&quot;, arm)]],
+      drug = sum(pf * c_drug * d),                    # 1차 약값
+      pf_months = sum(pf), pd_months = sum(pd))       # 상태에 머문 기간(개월, 할인하지 않음)
+  })
+}
+r &lt;- model(p)
+round(r, 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                  A        B
+cost      10561.778 7689.485<span class="mk">1</span>
+qaly          2.385    1.874
+drug       4124.384 1707.815
+pf_months    23.690   15.059<span class="mk">2</span>
+pd_months    23.306   21.584</pre></div></div>

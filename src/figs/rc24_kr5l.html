@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">한국 EQ-5D-5L 가치 세트 함수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r"># 한국 EQ-5D-5L 가치 세트(Kim 등, 2016)의 감점. 행 = 영역, 열 = 수준 1-5
+KR5 &lt;- rbind(mobility = c(0, 0.046, 0.058, 0.133, 0.251),
+             selfcare = c(0, 0.032, 0.050, 0.078, 0.122),
+             activity = c(0, 0.021, 0.051, 0.100, 0.175),
+             pain     = c(0, 0.042, 0.053, 0.166, 0.207),
+             anxiety  = c(0, 0.033, 0.046, 0.102, 0.137))
+kr5l &lt;- function(code) {
+  lv &lt;- as.integer(strsplit(as.character(code), &quot;&quot;)[[1]])   # &quot;21222&quot; -&gt; 2 1 2 2 2
+  if (all(lv == 1)) return(1)                                # 완전한 건강은 감점 없음
+  u &lt;- 1 - 0.096 - sum(KR5[cbind(1:5, lv)])                  # 상수 감점과 영역별 감점
+  if (max(lv) &gt;= 4) u &lt;- u - 0.078                           # 수준 4나 5가 하나라도 있으면
+  round(u, 3)
+}
+sapply(c(&quot;21222&quot;, &quot;31342&quot;, &quot;11211&quot;, &quot;55555&quot;, &quot;11111&quot;), kr5l)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> 21222  31342  11211  55555  11111 
+ 0.762  0.518  0.883 -0.066  1.000<span class="mk">1</span></pre></div></div>

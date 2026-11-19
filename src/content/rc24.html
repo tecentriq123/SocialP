@@ -1,0 +1,310 @@
+<p class="lead">보건통계학 기초 22장의 가상 시험 자료(진행성 신세포암 환자 320명이 2년 동안 답한 EQ-5D-5L 응답 1,593건)로 효용과 QALY를 R로 계산합니다. 응답 코드를 효용으로 바꾸고, 상태별 효용과 그 신뢰구간을 구한 뒤, 환자마다 24개월 QALY를 사다리꼴 공식으로 구해 두 군을 비교합니다. 마지막으로 할인 계수를 매기는 시점과 단위가 결과를 얼마나 바꾸는지 봅니다. 난수를 쓰지 않으므로 숫자는 22장 본문과 같습니다.</p>
+
+<p class="nb-link"><a href="notebooks/rc24.ipynb" download>이 장의 노트북 내려받기 (rc24.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. 출력은 R 4.3.3, eq5d 0.17.1, sandwich, lmtest, lme4, DescTools로 실제로 실행해 얻었습니다. 자료는 실습 22와 같은 lab22_eq5d.csv와 lab22_patients.csv이고, 셀이 사이트에서 바로 읽습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>효용과 가치 세트, 상태별 효용, 사다리꼴 공식과 사망의 처리, 할인의 뜻은 보건통계학 기초 <a href="stats.html#ch22">22장</a>에 있습니다. 군집 강건 표준오차는 이 과목 <a href="#rc13">4장</a>, 혼합모형은 <a href="#rc15">6장</a>에서 먼저 보았습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 2, b 절의 셀 5, c 절의 셀 8, 10, 11, d 절의 셀 15.</dd>
+<dt>나중에 읽을 부분</dt><dd>a 절의 셀 4(패키지로 검산), b 절의 셀 6(혼합모형과 군별 효용), c 절의 셀 9와 12(빠진 방문, 생존자만의 평균)는 내 자료에서 그 문제를 만날 때 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 가치 세트를 함수로 짜고 공개된 구현으로 검산할 수 있다 ② 한 환자의 반복 응답을 묶어 상태별 효용의 신뢰구간을 구할 수 있다 ③ 사망과 빠진 방문을 처리해 환자별 QALY를 구하고 기저 효용을 보정할 수 있다 ④ 할인 계수를 매기는 시점과 단위를 바꿔 결과가 얼마나 움직이는지 보일 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rc24-s1">
+<h2><span class="sec-no">a.</span>EQ-5D 응답을 효용으로</h2>
+
+<h3>자료는 어떻게 생겼나?</h3>
+<p><strong>응답 한 건이 한 줄인 표(df)와 환자 한 명이 한 줄인 표(pts)입니다. 응답 코드 열 eq5d는 <code>colClasses</code>로 글자로 읽습니다.</strong> 보건통계학 기초 <a href="stats.html#ch22-s1">22장 a 절</a>의 가상 시험 자료입니다. df에는 환자 번호(id), 군(arm), 측정 시점(month), 응답한 때의 상태(state, 무진행 PF 또는 진행 PD), 응답 코드, 효용, EQ VAS가, pts에는 진행 시점(t_prog)과 사망 시점(t_death, 개월)이 있습니다.</p>
+<!--FIG:rc24_load-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>응답 1,593건, 환자 320명.</b></span></li>
+<li><span class="mk">2</span><span><b>진행 뒤 응답 409건, 무진행 상태 응답 1,184건.</b> b 절에서 상태별 효용을 구하는 응답입니다.</span></li>
+<li><span class="mk">3</span><span><b>진행 없이 사망한 환자 47명.</b> 이 환자들의 t_prog는 파일에 inf로 적혀 있고, <code>read.csv()</code>는 이를 무한대(<code>Inf</code>)로 읽습니다.</span></li>
+<li><span class="mk">4</span><span><b>살아 있던 방문 수의 합 1,593.</b> 응답 수와 같으므로 살아 있는데 빠진 응답은 없습니다.</span></li>
+</ol>
+
+<h3>가치 세트는 어떻게 함수로 짜나?</h3>
+<p><strong>영역 다섯 개와 수준 다섯 개의 감점을 5 × 5 행렬로 넣고, 응답 코드를 한 자리씩 잘라 행렬에서 감점을 꺼내 뺍니다.</strong> 한국 EQ-5D-5L 가치 세트는 11111이 아니면 붙는 상수 0.096, 영역과 수준마다의 감점, 수준 4나 5가 하나라도 있으면 붙는 0.078로 이루어집니다(<a href="stats.html#ch22-s2">보건통계학 기초 22장 b 절</a>). <code>KR5[cbind(1:5, lv)]</code>는 1행의 lv[1]열, 2행의 lv[2]열처럼 영역마다 그 수준의 감점 하나씩, 모두 다섯 개를 꺼냅니다.</p>
+<!--FIG:rc24_kr5l-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>21222 → 0.762, 31342 → 0.518, 11211 → 0.883, 55555 → −0.066, 11111 → 1.</b> 22장의 계산 예와 같습니다. 함수를 짜면 먼저 이 다섯 값으로 검산합니다.</span></li>
+</ol>
+<p>함수 안에서 <code>as.character()</code>로 코드를 글자로 바꾸므로, 응답 코드 열을 숫자로 읽었더라도 이 함수는 같은 값을 냅니다. 영역의 수준이 1–5여서 코드가 0으로 시작하는 일이 없기 때문입니다. 다만 자리마다 영역을 뜻하는 코드이므로 처음부터 글자로 읽어 두는 편이 안전합니다.</p>
+
+<h3>모든 응답에 맞게 적용했나?</h3>
+<p><strong><code>sapply()</code>로 응답 1,593건에 함수를 적용하고, 자료에 들어 있던 utility 열과 비교합니다.</strong></p>
+<!--FIG:rc24_apply-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>서로 다른 응답 코드 227가지.</b></span></li>
+<li><span class="mk">2</span><span><b>utility 열과의 차이 0.</b> 함수가 자료의 효용을 그대로 다시 만들었습니다. 효용이 1인 응답(11111)은 180건입니다.</span></li>
+<li><span class="mk">3</span><span><b>0보다 작은 효용 두 건(−0.031, −0.022).</b> 둘 다 진행 상태의 응답입니다. 가장 나쁜 상태 55555의 −0.066보다 작은 값이나 1보다 큰 값이 없으면 함수의 범위는 맞습니다.</span></li>
+</ol>
+
+<h3>공개된 구현과 같은 값인가?</h3>
+<p><strong>eq5d 패키지는 여러 나라의 가치 세트를 담고 있어, <code>eq5d(코드, country = "SouthKorea", version = "5L", type = "VT")</code> 한 줄로 같은 계산을 합니다.</strong> 직접 짠 함수를 이 패키지와 대조하면 계수를 옮겨 적다 틀린 곳을 찾을 수 있습니다. 22장 표 22-3의 3L 비교(같은 응답, 한국과 영국의 가치 세트)도 이 패키지로 만듭니다.</p>
+<!--FIG:rc24_pkg-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>직접 짠 함수와의 차이 0.</b> 1,593건 모두 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>11121: 한국 0.913, 영국 0.796.</b> 같은 응답이라도 가치 세트에 따라 0.117 차이가 납니다.</span></li>
+<li><span class="mk">3</span><span><b>33333: 한국 −0.171, 영국 −0.594.</b> 나쁜 상태일수록 두 나라의 차이(0.423)가 커집니다.</span></li>
+</ol>
+<p>패키지도 검산의 대상입니다. 가치 세트는 나라마다, 같은 나라에서도 판과 출판 연도마다 여럿이므로, <code>country</code>, <code>version</code>, <code>type</code>이 원 논문과 맞는지 확인하고 원 논문의 계산 예와도 맞춥니다. 22장에서 한국 5L과 영국 3L 계수는 이 패키지와 다른 공개 구현이 모든 건강상태에서 같은 값을 주는 것만 확인했다고 적은 이유입니다.</p>
+<!--FOLD py:파이썬으로 하면: 가치 세트 함수와 응답 코드 읽기-->
+<p>파이썬에서는 응답 코드 열을 <code>pd.read_csv(…, dtype=<wbr>{"eq5d": str})</code>로 글자로 읽고, 코드를 한 글자씩 숫자로 바꿔 감점을 뺍니다. 함수 전체는 <a href="#lab22-s2">실습 22 b 절</a>의 셀 5에 있습니다.</p>
+<pre class="out">KR5 = {"mobility": [0, 0.046, 0.058, 0.133, 0.251],   <span class="cm"># 영역마다 수준 1-5의 감점</span>
+       "selfcare": [0, 0.032, 0.050, 0.078, 0.122],
+       "activity": [0, 0.021, 0.051, 0.100, 0.175],
+       "pain":     [0, 0.042, 0.053, 0.166, 0.207],
+       "anxiety":  [0, 0.033, 0.046, 0.102, 0.137]}
+def kr5l(code):
+    lv = [int(x) for x in code]              <span class="cm"># "21222" -> [2, 1, 2, 2, 2]</span>
+    if lv == [1, 1, 1, 1, 1]:
+        return 1.0
+    u = 1 - 0.096 - sum(KR5[d][l - 1] for d, l in zip(KR5, lv))
+    if max(lv) >= 4:
+        u = u - 0.078
+    return round(u, 3)
+df["u_calc"] = df["eq5d"].map(kr5l)        <span class="cm"># 응답마다 적용</span></pre>
+<p>보건통계학 기초 22장의 '직접 분석' 상자와 본문에 있던 검산 목록입니다. R과 다른 점은 첫 항목입니다. pandas는 응답 코드 열을 정수로 읽으면 한 자리를 꺼내는 줄에서 멈추고, R의 함수는 <code>as.character()</code>로 바꿔 계속 계산합니다.</p>
+<ol>
+<li><b>응답 코드를 글자로 읽었는지.</b> <code>pd.read_csv(…, dtype={"eq5d": str})</code>처럼 응답 코드 열을 글자로 지정합니다. 지정하지 않으면 pandas 3.0.5는 이 열을 정수(int64)로 읽고, <code>df["eq5d"].str[0]</code>처럼 한 자리를 꺼내는 줄에서 AttributeError가 납니다.</li>
+<li><b>계산 예와 맞는지.</b> 위의 21222 → 0.762, 31342 → 0.518에 더해 11211 → 0.883, 55555 → −0.066, 11111 → 1이 나오는지 봅니다. 3L 함수라면 21232 → 0.559, 33333 → −0.171과 맞춥니다. 원 논문에 실린 계산 예가 있으면 그것과도 맞춥니다.</li>
+<li><b>모든 응답에 맞게 적용했는지.</b> <code>df["eq5d"].map(함수)</code>로 응답마다 적용한 뒤, 1보다 크거나 가장 나쁜 상태의 값보다 작은 효용이 없는지 봅니다.</li>
+</ol>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ b -->
+<section class="sec" id="rc24-s2">
+<h2><span class="sec-no">b.</span>상태별 효용과 신뢰구간</h2>
+
+<h3>한 환자가 여러 번 답하면 신뢰구간은 어떻게 구하나?</h3>
+<p><strong>상태를 설명변수로 넣고 절편을 뺀 선형회귀(<code>utility ~ 0 + state</code>)의 계수가 상태별 평균입니다. 표준오차는 sandwich 패키지의 <code>vcovCL(fit, cluster = ~ id)</code>로 같은 환자의 응답을 한 묶음으로 보고 구합니다.</strong> 보건통계학 기초 <a href="stats.html#ch22-s2">22장 b 절</a>의 접힌 상자 '한 환자가 여러 번 답하면 상태별 평균과 신뢰구간은 어떻게 구하나?'의 계산입니다.</p>
+<!--FIG:rc24_state-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>진행 상태 0.621, 표준오차 0.0077 → 0.0133.</b> <code>lm()</code>의 기본 표준오차는 응답 409건을 서로 독립으로 봅니다. 한 사람이 평균 2.35번 답했으므로 묶으면 1.7배가 됩니다.</span></li>
+<li><span class="mk">2</span><span><b>무진행 상태 0.780(0.765–0.794), 표준오차 0.0045 → 0.0074.</b> 평균은 그대로이고 구간만 넓어집니다. 22장 본문의 값과 같습니다.</span></li>
+</ol>
+<p><code>vcovCL()</code>의 기본값은 HC1(자유도 보정)과 군집 수 보정을 함께 쓰고, <code>coefci()</code>는 t 분포로 구간을 냅니다. 파이썬 statsmodels의 군집 표준오차와 표준오차는 같고, statsmodels는 구간을 정규분포로 구합니다. 이 자료처럼 응답이 많으면 두 구간이 넷째 자리까지 같습니다.</p>
+
+<h3>혼합모형으로 구하거나 군별로 나누면?</h3>
+<p><strong>환자를 무작위효과로 둔 혼합모형은 lme4 패키지의 <code>lmer(utility ~ 0 + state + (1 | id))</code>입니다. 두 군을 합쳐도 되는지는 상태마다 군의 차이를 넣은 회귀로 봅니다.</strong></p>
+<!--FIG:rc24_mixed-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>혼합모형의 평균 0.623과 0.778.</b> 여러 번 답한 환자의 무게를 줄인 평균이어서 단순 평균(0.621, 0.780)과 조금 다르지만, 모형에 넣는 반올림 값 0.62와 0.78은 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>상태마다 B군 − A군: 진행 −0.022(P 0.434), 무진행 −0.008(P 0.586).</b> 22장의 P 0.43과 0.59입니다.</span></li>
+<li><span class="mk">3</span><span><b>상호작용 항의 P 0.616.</b> 두 상태에서 군의 차이가 서로 같은지를 묻는 값이어서, 두 군을 합쳐도 되는지에는 답하지 않습니다. 차이의 크기(0.008, 0.022)를 함께 봅니다.</span></li>
+</ol>
+
+<h3>EQ VAS를 100으로 나누면 효용과 같은가?</h3>
+<p><strong>상태별로 효용과 VAS ÷ 100을 나란히 평균합니다.</strong></p>
+<!--FIG:rc24_vas-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>두 상태의 차이: 효용 0.158, VAS ÷ 100은 0.096.</b> VAS ÷ 100은 진행의 손실을 작게 잡습니다. 가치 세트를 거치지 않은 점수여서 효용 자리에 넣지 않습니다(과제 2).</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 군집 표준오차와 혼합모형-->
+<p>보건통계학 기초 22장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>statsmodels 0.15.0으로 이 시험의 응답 1,593건에서 확인한 결과입니다. 자료는 응답 한 건이 한 줄인 긴 형식(환자 번호 <code>id</code>, 군 <code>arm</code>, 응답한 때의 상태 <code>state</code>, 효용 <code>utility</code>)입니다.</p>
+<ol>
+<li><code>model = smf.ols("utility ~ 0 + state", data=df)</code><br>절편을 빼면(<code>0 +</code>) 두 계수가 곧 상태별 평균(무진행 0.780, 진행 0.621)이 됩니다.</li>
+<li><code>model.fit()</code><br>기본값은 응답 1,593건을 서로 독립으로 봅니다. 표준오차가 무진행 0.0045, 진행 0.0077로 작게 나옵니다.</li>
+<li><code>model.fit(cov_type="cluster", cov_kwds={"groups": df["id"]})</code><br>같은 환자의 응답을 한 묶음으로 보는 군집 강건 표준오차입니다. 평균은 그대로이고 표준오차가 0.0074와 0.0133으로 1.6배와 1.7배가 됩니다. 이때 statsmodels는 신뢰구간을 t분포가 아니라 정규분포로 계산합니다.</li>
+</ol>
+<p>환자를 무작위효과로 둔 혼합모형(<code>smf.mixedlm("utility ~ 0 + state", data=df, groups=df["id"])</code>, <a href="stats.html#ch10-s4">보건통계학 기초 10장 d 절</a>)으로도 구할 수 있습니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ c -->
+<section class="sec" id="rc24-s3">
+<h2><span class="sec-no">c.</span>환자별 QALY</h2>
+
+<h3>환자 한 명의 QALY는 어떻게 구하나?</h3>
+<p><strong>측정 시점과 효용을 직선으로 이은 아래 넓이를 사다리꼴 공식으로 구하고 12로 나눕니다. 사망 시점에 효용 0인 점을 붙이는 일은 함수 <code>path()</code>가, 넓이는 한 줄짜리 함수 <code>trap()</code>이 합니다.</strong> 보건통계학 기초 <a href="stats.html#ch22-s3">22장 c 절</a>의 표 22-4, 환자 다입니다. 0, 3, 6, 12개월에 응답하고 15개월에 사망했습니다.</p>
+<!--FIG:rc24_one-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>15개월과 24개월에 효용 0.</b> <code>path()</code>가 사망 시점과 추적 끝(24개월)에 0을 붙였습니다. 15–24개월의 넓이는 0이어서 24개월 점은 결과를 바꾸지 않지만, 모든 환자의 경로가 24개월에서 끝나게 해 둡니다.</span></li>
+<li><span class="mk">2</span><span><b>구간별 QALY 0.200, 0.189, 0.333, 0.073.</b> 22장 접힌 상자 '환자 다의 사다리꼴 네 개를 숫자로 계산하면?'의 표와 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>QALY 0.795.</b> 직접 짠 <code>trap()</code>과 DescTools 패키지의 <code>AUC(x, y)</code>가 같은 값을 냅니다. <code>AUC()</code>는 시점이 첫 인자이고 넓이 계산의 기본값이 사다리꼴입니다.</span></li>
+</ol>
+
+<h3>빠진 방문이 있으면 넓이는 어떻게 되나?</h3>
+<p><strong>24개월까지 살아서 여섯 번 답한 환자 가로, 중간이나 마지막 응답이 빠졌을 때 <code>AUC()</code>가 무엇을 내는지 봅니다.</strong></p>
+<!--FIG:rc24_miss-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>12개월이 NA이면 1.703.</b> 오류 없이 6개월과 18개월을 직선으로 이었습니다. 효용이 거의 일정한 환자여서 1.708과 0.005 차이지만, 빠진 사이에 상태가 바뀐 환자라면 차이가 커집니다.</span></li>
+<li><span class="mk">2</span><span><b>24개월이 NA이면 결과도 NA.</b> 첫 방문이나 마지막 방문이 비면 <code>AUC()</code>는 넓이를 내지 않습니다.</span></li>
+<li><span class="mk">3</span><span><b>그 행을 지우면 1.2825.</b> 넓이가 18개월에서 끝나 살아 있던 18–24개월을 효용 0으로 센 것과 같습니다. 그래서 살아 있는 환자의 빠진 응답은 넓이를 구하기 전에 채웁니다(22장 c 절 '사망과 빠진 응답은 어떻게 다루나?').</span></li>
+</ol>
+
+<h3>환자 320명의 QALY와 두 군의 차이는?</h3>
+<p><strong>환자마다 경로를 만들어 리스트 <code>P</code>에 담고, 넓이와 24개월 안의 생존연수, 치료 시작 시점의 효용을 pts에 붙입니다. 두 군의 차이는 기저 효용을 넣은 회귀로 보정합니다.</strong></p>
+<!--FIG:rc24_all-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1번 환자: 17.3개월에 사망, QALY 0.799, 생존연수 1.442.</b> QALY가 생존연수보다 작으므로 단위와 사망의 처리가 맞습니다.</span></li>
+<li><span class="mk">2</span><span><b>평균 QALY A군 1.204, B군 1.087.</b> 생존연수는 1.640과 1.571, 기저 효용은 0.786과 0.766입니다.</span></li>
+</ol>
+<!--FIG:rc24_reg-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정 전 차이 0.117(0.001–0.232).</b></span></li>
+<li><span class="mk">2</span><span><b>기저 효용 보정 후 0.094(−0.017–0.204).</b> 기저 효용이 A군에서 0.020 높았고 그 계수가 1.186이어서, 보정 전 차이 가운데 약 0.023이 출발점의 차이였습니다.</span></li>
+<li><span class="mk">3</span><span><b>강건 표준오차 HC3로도 −0.017–0.204.</b> 사망한 환자와 끝까지 산 환자가 섞여 환자별 QALY가 고르게 퍼지지 않을 수 있어 확인했습니다. 파이썬 statsmodels의 HC3 구간은 정규분포를 써서 −0.016–0.204로 끝자리가 다릅니다.</span></li>
+</ol>
+
+<h3>생존자만의 평균으로 계산하면 왜 틀리나?</h3>
+<p><strong>시점마다 살아서 답한 사람만의 평균 효용을 이어 넓이를 구하면, 사망한 환자의 0이 빠집니다.</strong></p>
+<!--FIG:rc24_surv-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>24개월의 평균 0.719와 0.676.</b> 살아서 답한 105명과 92명만의 평균입니다.</span></li>
+<li><span class="mk">2</span><span><b>생존자만의 곡선 아래 넓이 1.496과 1.411.</b> 환자별 QALY의 평균(1.204, 1.087)보다 0.3가량 큽니다. 사망을 효용 0으로 넣지 않으면 QALY를 크게 잡습니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: scipy의 trapezoid로 QALY 구하기-->
+<p>보건통계학 기초 22장의 '직접 분석' 상자와 본문에 있던 접힌 상자 '사다리꼴 공식 코드를 한 줄씩 읽으면?'입니다. R의 <code>DescTools::AUC(x, y)</code>와 달리 <code>trapezoid(y, x)</code>는 효용이 첫 인자이고, 시점을 빼도 간격을 1로 보고 계산을 마칩니다.</p>
+<p>환자 다의 QALY와, 세 환자의 QALY를 한꺼번에 구하는 코드입니다. 주피터 노트북(Colab 포함)의 셀에 붙여 넣어 실행합니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">사다리꼴 공식으로 QALY 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import numpy as np
+import pandas as pd
+from scipy.integrate import trapezoid
+
+# 환자 다: 측정 시점(개월)과 그때의 효용. 15개월에 사망했으므로 그 시점의 효용은 0
+t = np.array([0, 3, 6, 12, 15])
+u = np.array([0.841, 0.762, 0.751, 0.581, 0.0])
+
+area = trapezoid(u, t)             # 곡선 아래 면적(단위: 효용 × 개월)
+print(&quot;면적:&quot;, round(area, 3), &quot;→ QALY:&quot;, round(area / 12, 3))
+
+# 사다리꼴을 하나씩 계산해 같은 값인지 확인
+width = np.diff(t)                 # 구간의 길이: 3, 3, 6, 3
+height = (u[:-1] + u[1:]) / 2      # 구간 양 끝 효용의 평균
+print(&quot;구간별 QALY:&quot;, np.round(width * height / 12, 3))
+
+# 환자가 여러 명일 때: 긴 형식의 표(한 행 = 측정 한 번)에서 환자별로 계산
+df = pd.DataFrame({
+    &quot;id&quot;:    [&quot;가&quot;] * 6 + [&quot;나&quot;] * 6 + [&quot;다&quot;] * 5,
+    &quot;month&quot;: [0, 3, 6, 12, 18, 24] * 2 + [0, 3, 6, 12, 15],
+    &quot;utility&quot;: [0.862, 0.841, 0.862, 0.862, 0.841, 0.862,
+                0.862, 0.829, 0.762, 0.593, 0.560, 0.518,
+                0.841, 0.762, 0.751, 0.581, 0.0],
+})
+qaly = df.groupby(&quot;id&quot;)[[&quot;month&quot;, &quot;utility&quot;]].apply(
+    lambda g: trapezoid(g[&quot;utility&quot;], g[&quot;month&quot;]) / 12)
+print(qaly.round(3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>면적: 9.541 → QALY: 0.795
+구간별 QALY: [0.2   0.189 0.333 0.073]
+id
+가    1.708
+나    1.307
+다    0.795
+dtype: float64</pre></div></div>
+<ol class="lines">
+<li><code>from scipy.integrate import trapezoid</code><span>사다리꼴 공식 함수를 scipy에서 불러옵니다. SciPy 1.6(2020년 말) 이상이면 numpy 버전과 관계없이 이 이름으로 쓸 수 있어 Colab과 내 컴퓨터에서 같은 코드가 돌아갑니다. numpy에도 같은 계산을 하는 함수가 있지만 이름이 버전에 따라 다릅니다. numpy 2.0 이상은 <code>np.trapezoid</code>, 그 전 버전은 <code>np.trapz</code>이고, 최근 버전에는 <code>np.trapz</code>가 없습니다(numpy 2.5.3에서 확인). 다른 사람의 코드에서 <code>np.trapz</code>를 보고 실행했을 때 <code>AttributeError</code>가 나면 이 때문입니다. 위 출력은 numpy 2.5.3, SciPy 1.18.1에서 실행한 것입니다.</span></li>
+<li><code>trapezoid(u, t)</code><span>사다리꼴 공식으로 넓이를 구합니다. 첫 인자가 높이(효용), 둘째 인자가 가로축(시간)입니다. 순서를 바꾸면 다른 값이 나옵니다. 시간이 개월 단위이므로 12로 나눠 QALY로 바꿉니다. 출력 첫 줄의 0.795가 표 22-4의 값입니다.</span></li>
+<li><code>np.diff(t)</code><span>이웃한 시점의 차이(3, 3, 6, 3)입니다. <code>(u[:-1] + u[1:]) / 2</code>는 각 구간 양 끝 효용의 평균입니다. 둘을 곱한 구간별 QALY가 <a href="stats.html#ch22-s3">보건통계학 기초 22장 c 절</a>의 접힌 상자 '환자 다의 사다리꼴 네 개를 숫자로 계산하면?'의 표와 같은지 확인합니다.</span></li>
+<li><code>u = np.array([..., 0.0])</code><span>사망 시점(15개월)을 효용 0인 측정값으로 직접 넣었습니다. 15–24개월은 넓이가 0이므로, 24개월에 효용 0인 점을 더 붙이지 않아도 결과가 같습니다.</span></li>
+<li><code>df.groupby("id")[...].apply(...)</code><span>환자(id)별로 행을 묶어 같은 계산을 반복합니다. 결과는 환자마다 QALY 하나이고, 이 값을 군별로 평균하거나 회귀의 결과변수로 씁니다.</span></li>
+</ol>
+<p>앞에서 말한 시점과 빠진 방문이 결과를 얼마나 바꾸는지 위 셀에 이어 계산하면 다음과 같습니다(SciPy 1.18.1). 사망 시점의 0은 위 셀에서 직접 붙였습니다.</p>
+<pre class="out"><span class="cm"># t, u는 위 셀의 환자 다. ga는 환자 가의 여섯 번 측정값</span>
+trapezoid(u) / 12                  <span class="cm"># 시점을 빼면: 0.210 (옳은 값 0.795)</span>
+ga = np.array([0.862, 0.841, 0.862, 0.862, 0.841, 0.862])
+m = np.array([0, 3, 6, 12, 18, 24])
+trapezoid(ga, m) / 12              <span class="cm"># 1.708</span>
+keep = m != 12
+trapezoid(ga[keep], m[keep]) / 12  <span class="cm"># 12개월 응답이 빠지면: 1.703</span>
+trapezoid(ga[:-1], m[:-1]) / 12    <span class="cm"># 24개월 응답이 빠지면: 1.2825</span></pre>
+<ul>
+<li><b>시점을 뺀 계산.</b> 함수의 꼴이 <code>trapezoid(y, x=None, dx=1.0)</code>이어서, 시점을 주지 않으면 이웃한 측정의 간격을 모두 1로 봅니다. 환자 다의 넓이는 측정 순번을 가로축으로 쓴 2.51이 되고, 12로 나누면 0.210입니다. 오류도 경고도 나지 않으므로 둘째 인자를 빠뜨리지 않았는지 코드에서 확인합니다.</li>
+<li><b>중간 방문이 빠진 계산.</b> 환자 가의 12개월 응답이 빠지면 6개월과 18개월의 측정을 직선으로 이어 1.703이 됩니다. 이 환자는 효용이 거의 일정해 차이가 0.005뿐이지만, 빠진 방문 동안 상태가 바뀐 환자라면 차이가 커집니다.</li>
+<li><b>마지막 방문이 빠진 계산.</b> 환자 가의 24개월 응답이 빠지면 넓이가 18개월에서 끝나, 1.708에서 0.426이 줄어듭니다. 살아 있던 18–24개월을 효용 0으로 센 것과 같습니다. 그래서 살아 있는 환자의 빠진 응답은 넓이를 구하기 전에 채웁니다(보건통계학 기초 22장 c 절 '사망과 빠진 응답은 어떻게 다루나?').</li>
+</ul>
+<!--/FOLD-->
+<!--FOLD py:파이썬으로 하면: 22장 '내 연구에서 분석하기'의 파이썬 코드 전체-->
+<p>보건통계학 기초 22장 c 절 '내 연구에서 분석하기'에 있던 코드와 주의할 곳입니다. 응답 코드에서 할인 계수까지를 한 번에 잇습니다.</p>
+<p>응답 한 건이 한 줄인 표(환자 번호, 군, 측정 시점, 응답 코드, 응답한 때의 상태)와 환자 한 명이 한 줄인 표(사망 시점)가 있으면, 응답 코드를 효용으로 바꾸는 데서 할인 계수를 만드는 데까지 다음 코드 하나로 이어서 계산합니다. 열 이름은 <a href="#lab22">실습 22</a>와 같고, 가치 세트 함수 <code>kr5l</code>과 사망 시점의 0을 붙이는 함수 <code>path</code>는 실습 22에서 직접 짠 것을 씁니다.</p>
+<pre class="out"><span class="cm"># 파이썬. 불러오기와 함수 kr5l, path는 실습 22와 같음</span>
+df = pd.read_csv("lab22_eq5d.csv", dtype={"eq5d": str})   <span class="cm"># 응답 코드는 글자로</span>
+pts = pd.read_csv("lab22_patients.csv")
+<span class="cm"># 1. 응답 코드 → 효용</span>
+df["utility"] = df["eq5d"].map(kr5l)
+<span class="cm"># 2. 상태별 효용과, 환자 단위로 묶은 표준오차</span>
+st = smf.ols("utility ~ 0 + state", data=df).fit(
+    cov_type="cluster", cov_kwds={"groups": df["id"]})
+<span class="cm"># 3. 환자별 24개월 QALY와 기저 효용</span>
+q, base = [], []
+for r in pts.itertuples():
+    g = df[df["id"] == r.id].sort_values("month")                     <span class="cm"># 측정 시점 순서로 정렬</span>
+    t, u = path(g["month"], g["utility"], r.t_death)
+    q.append(trapezoid(u, t) / 12)               <span class="cm"># 시점 t를 빠뜨리지 않음</span>
+    base.append(g["utility"].iloc[0])
+pts["qaly"], pts["base"] = q, base
+pts["A"] = (pts["arm"] == "A").astype(int)
+<span class="cm"># 4. 기저 효용을 보정한 차이</span>
+fit = smf.ols("qaly ~ A + base", data=pts).fit()
+<span class="cm"># 5. 모형의 할인 계수: k번째 달의 한가운데를 연수로 바꿈</span>
+k = np.arange(240)
+disc = 1 / 1.045 ** ((k + 0.5) / 12)</pre>
+<p>실행하면 이 장의 숫자가 그대로 나옵니다. 상태별 효용은 0.780(0.765–0.794)과 0.621(0.595–0.647)이고, 기저 효용을 보정한 24개월 QALY 차이는 0.094(−0.017~0.204)이며, 12번째 달의 할인 계수 <code>disc[11]</code>은 0.959입니다. 이때 조심할 곳이 다섯 군데 있습니다. 첫 항목은 오류로 멈추지만, 나머지는 경고 없이 넘어가거나 결과를 조용히 바꿉니다.</p>
+<ul>
+<li><b>응답 코드를 읽을 때.</b> <code>read_csv</code>에 dtype을 주지 않으면 eq5d 열을 정수(int64)로 읽습니다. 그러면 코드의 자리를 꺼내는 <code>.str[0]</code>에서 AttributeError가 나고, 글자를 하나씩 읽는 가치 세트 함수는 TypeError로 멈춥니다.</li>
+<li><b>상태별 효용의 표준오차.</b> <code>fit()</code>의 기본값은 응답 1,593건을 서로 독립으로 봐서 표준오차가 무진행 0.0045, 진행 0.0077로 작게 나옵니다. 환자 단위로 묶으면 0.0074와 0.0133이고, 신뢰구간은 t 분포가 아니라 정규분포로 구합니다(b 절 파이썬 상자).</li>
+<li><b>넓이.</b> <code>trapezoid</code>는 시점을 빠뜨리면 간격을 1로 보고, 사망과 빠진 방문을 모릅니다(위의 파이썬 상자).</li>
+<li><b>보정 회귀의 신뢰구간.</b> <code>fit()</code>의 기본값은 오차의 분산이 환자마다 같다고 보고 t 분포로 구간을 냅니다(−0.017~0.204). 환자별 QALY는 사망한 환자와 끝까지 산 환자가 섞여 고르게 퍼지지 않을 수 있으므로, 강건 표준오차(<code>cov_type="HC3"</code>, −0.016~0.204. 정규분포를 쓰는 statsmodels의 기본이어서 R의 −0.017~0.204와 끝자리가 다름)나 부트스트랩(2,000회, −0.021~0.199)으로 비슷한지 확인합니다.</li>
+<li><b>할인.</b> 연수 자리에 개월 수를 넣어도 오류가 나지 않습니다(d 절).</li>
+</ul>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ d -->
+<section class="sec" id="rc24-s4">
+<h2><span class="sec-no">d.</span>할인</h2>
+
+<h3>시험 자료의 24개월 QALY는 어떻게 할인하나?</h3>
+<p><strong>경로를 12개월에서 둘로 나눠 둘째 해의 QALY에만 1 ÷ 1.045를 곱하는 방법과, 0개월부터 QALY가 생긴 때마다 연속으로 할인하는 방법을 비교합니다.</strong> 12개월에 측정이 없으면 그 시점의 효용은 <code>approx()</code>로 직선 위에서 읽습니다. 연속 할인은 0.001개월 간격의 격자에서 효용에 할인 계수를 곱한 넓이입니다.</p>
+<!--FIG:rc24_disc24-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>첫해와 둘째 해를 더하면 할인 전 QALY.</b> 나눈 계산이 맞는지 먼저 확인합니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 전 차이: 할인 전 0.117, 둘째 해만 할인 0.113, 연속 할인 0.110.</b></span></li>
+<li><span class="mk">3</span><span><b>기저 효용 보정 후: 0.094, 0.090, 0.088.</b> 두 관례의 차이는 0.003으로 작지만 어느 쪽을 썼는지 Methods에 적습니다.</span></li>
+</ol>
+
+<h3>모형의 QALY는 어떻게 할인하나?</h3>
+<p><strong>공통 예시의 분할생존모형(1개월 주기, 20년)을 함수 <code>model()</code> 하나로 만들고, 할인 계수를 매기는 시점을 인자 <code>when</code>으로 바꿀 수 있게 합니다.</strong> 기준 분석은 각 달의 한가운데(<code>(k + 0.5) / 12</code>년)에 할인 계수를 매깁니다. 모형의 구조는 이 과목 <a href="#rc07">분할생존모형 장</a>에서 자세히 봅니다.</p>
+<!--FIG:rc24_model-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>할인한 QALY A 2.385, B 1.874.</b> 22장 표 22-5의 값입니다. 총비용은 10,561.8만원과 7,689.5만원입니다.</span></li>
+<li><span class="mk">2</span><span><b>ICER 5,620.6만원/QALY.</b></span></li>
+</ol>
+
+<h3>할인 시점과 단위를 바꾸면?</h3>
+<p><strong>같은 모형을 할인 시점만 바꿔 다섯 번 돌립니다.</strong> <code>wrong</code>은 연수 자리에 개월 수를 넣은 경우입니다. 할인 계수를 직접 만드는 코드에서는 이 실수가 오류 없이 지나갑니다.</p>
+<!--FIG:rc24_when-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>연 단위로 할인하면(첫해 할인 없음) 증분 QALY 0.523, ICER 5,612.</b> 달의 시작, 한가운데, 끝으로 바꾸면 ICER는 5,620–5,621로 거의 그대로입니다.</span></li>
+<li><span class="mk">2</span><span><b>개월 수를 연수 자리에 넣으면 QALY 0.969와 0.870, 증분 QALY 0.099, ICER 9,140.</b> QALY 이득이 비용보다 늦게 생겨서 증분 QALY가 더 크게 줄고 ICER가 오릅니다.</span></li>
+<li><span class="mk">3</span><span><b>12번째 달의 할인 계수 0.959(잘못 넣으면 0.603).</b> 할인 계수를 만든 뒤 이 값 하나만 찍어 보아도 단위의 실수를 잡을 수 있습니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: 할인 계수의 시간 단위-->
+<p>보건통계학 기초 22장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>파이썬에는 할인 함수가 없어 할인 계수 <code>1 / (1 + r) ** years</code>를 직접 만듭니다. years 자리에 연수 대신 개월 수를 넣어도 오류 없이 계산됩니다. 공통 예시에서 이렇게 잘못 할인하면 두 군의 QALY가 2.385와 1.874에서 0.969와 0.870으로 줄어듭니다. 그 결과 증분 QALY는 0.511에서 0.099로, 증분비용은 2,872만원에서 906만원으로 크게 줄어듭니다. 증분 QALY가 증분비용보다 큰 비율로 줄어드는 것은 QALY 이득이 비용보다 늦게 생기기 때문이고, 그래서 ICER는 9,140만원/QALY로 오릅니다.</p>
+<p>할인 시점을 바꾸는 표 전체는 <a href="#lab22-s3">실습 22 c 절</a>의 셀 18에 있습니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc24-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 마지막 측정값을 사망 직전까지 유지하면</h3>
+<p>사망한 환자의 효용이 마지막 측정값에서 사망 시점까지 직선으로 0이 되는 대신, 사망 직전까지 마지막 측정값을 유지하다 사망 시점에 0으로 떨어진다고 보는 규칙으로 <code>path()</code>를 고쳐, 환자 다의 QALY와 두 군의 차이(보정 전후)를 다시 구하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc24_t1-->
+<p>사망 시점에 마지막 값과 0을 두 번 붙이면 됩니다(같은 시점의 두 점은 넓이가 0인 수직선). 환자 다는 0.795에서 0.868로 커지고, 평균 QALY는 A군 1.230, B군 1.118로 둘 다 커집니다. 차이는 0.112(보정 후 0.089)로 기준 규칙(0.117, 0.094)과 거의 같습니다. 사망이 B군에 조금 더 많아 B군이 더 많이 늘었기 때문입니다. 어느 규칙을 썼는지 Methods에 적고, 다른 규칙을 민감도 분석으로 보입니다.</p>
+</div></details>
+
+<h3>과제 2. EQ VAS ÷ 100으로 계산한 동료의 QALY</h3>
+<p>동료가 효용 대신 EQ VAS를 100으로 나눈 값으로 환자별 QALY를 구했습니다. 같은 계산으로 두 군의 평균과 차이를 구하고, 모형의 상태별 효용을 VAS ÷ 100의 평균(0.73, 0.64)으로 바꿨을 때 증분 QALY와 ICER가 얼마나 달라지는지 보이세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc24_t2-->
+<p>시험 자료의 QALY는 A군 1.153, B군 1.052로 둘 다 작아지고, 차이는 0.101(−0.004–0.207)입니다. 모형에서는 진행의 손실을 작게 잡아(b 절의 0.096 대 0.158) 증분 QALY가 0.511에서 0.481로 줄고, ICER가 5,621에서 5,974만원/QALY로 오릅니다. VAS는 가치 세트를 거친 선호 점수가 아니므로 효용 자리에 넣지 않습니다.</p>
+</div></details>
+</section>

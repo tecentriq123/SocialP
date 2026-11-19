@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">과제 1 정답. 환급률에 따른 ICER (표 25-7)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">refund &lt;- c(0, 0.05, 1 - price / 190, 0.10)           # 환급률. 셋째는 ICER가 5,000이 되는 7.7%
+real &lt;- 190 * (1 - refund)                            # 실제로 내는 월 약값
+icer_real &lt;- sapply(real, function(x) inc(model(modifyList(p, list(c_drug_A = x))))[[&quot;icer&quot;]])
+data.frame(refund = round(refund, 3), real = round(real, 1), icer_list = round(inc(r)[[&quot;icer&quot;]]), icer_real = round(icer_real))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  refund  real icer_list icer_real
+1  0.000 190.0      5621      5621
+2  0.050 180.5      5621      5217
+3  0.077 175.4      5621      5000
+4  0.100 171.0      5621      4814</pre></div></div>

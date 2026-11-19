@@ -1,0 +1,34 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">공통 예시 모형을 함수 하나로</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p0 &lt;- list(pfs_med = 10, pfs_gam = 0.95, os_med = 28, os_gam = 1.15,   # 표준요법 B의 곡선
+           hr_pfs = 0.65, hr_os = 0.75,                                  # 신약 A의 위험비
+           u_pf = 0.78, u_pd = 0.62, du_ae_A = 0.012, du_ae_B = 0.008,   # 효용과 이상반응의 QALY 손실
+           c_drug_A = 190, c_drug_B = 120, c_pf = 40, c_pd = 250,        # 월 비용(만원)
+           c_death = 800, c_ae_A = 120, c_ae_B = 80, disc = 0.045)       # 1회 비용(만원), 연 할인율
+model &lt;- function(p, when = &quot;mid&quot;, months = 240) {
+  t &lt;- 0:months; k &lt;- 0:(months - 1)
+  years &lt;- switch(when, mid = (k + 0.5) / 12,         # 각 달의 한가운데 (기준 분석)
+                  start = k / 12, end = (k + 1) / 12, # 각 달의 시작, 끝
+                  annual = k %/% 12,                  # 연 단위 (첫해는 할인 없음)
+                  wrong = k + 0.5)                    # 잘못: 개월 수를 연수 자리에
+  disc &lt;- 1 / (1 + p$disc)^years
+  sapply(c(A = &quot;A&quot;, B = &quot;B&quot;), function(arm) {
+    hp &lt;- if (arm == &quot;A&quot;) p$hr_pfs else 1; ho &lt;- if (arm == &quot;A&quot;) p$hr_os else 1
+    s_os  &lt;- exp(-log(2) * ho * (t / p$os_med)^p$os_gam)
+    s_pfs &lt;- pmin(exp(-log(2) * hp * (t / p$pfs_med)^p$pfs_gam), s_os)
+    pf &lt;- (head(s_pfs, -1) + tail(s_pfs, -1)) / 2                  # 반주기 보정
+    pd &lt;- (head(s_os - s_pfs, -1) + tail(s_os - s_pfs, -1)) / 2
+    died &lt;- head(s_os, -1) - tail(s_os, -1)
+    pf_y &lt;- sum(pf * disc) / 12; pd_y &lt;- sum(pd * disc) / 12        # 할인한 상태별 기간(년)
+    c(pf_years = pf_y, pd_years = pd_y,
+      qaly = p$u_pf * pf_y + p$u_pd * pd_y - p[[paste0(&quot;du_ae_&quot;, arm)]],
+      cost = sum((pf * (p[[paste0(&quot;c_drug_&quot;, arm)]] + p$c_pf) + pd * p$c_pd + died * p$c_death) * disc)
+             + p[[paste0(&quot;c_ae_&quot;, arm)]])
+  })
+}
+r &lt;- model(p0)
+round(r, 3)
+(r[&quot;cost&quot;, &quot;A&quot;] - r[&quot;cost&quot;, &quot;B&quot;]) / (r[&quot;qaly&quot;, &quot;A&quot;] - r[&quot;qaly&quot;, &quot;B&quot;])   # ICER</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 A        B
+pf_years     1.809    1.186
+pd_years     1.590    1.543
+qaly         2.385    1.874<span class="mk">1</span>
+cost     10561.778 7689.485
+[1] 5620.61<span class="mk">2</span></pre></div></div>

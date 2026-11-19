@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">시험 자료의 24개월 QALY 할인하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">split_q &lt;- function(p, cut = 12) {                    # 경로를 12개월에서 나눠 (첫해, 둘째 해)의 QALY
+  uc &lt;- approx(p$t, p$u, xout = cut)$y                # 12개월의 효용(직선 위의 값)
+  a &lt;- p$t &lt; cut; b &lt;- p$t &gt; cut
+  c(trap(c(p$t[a], cut), c(p$u[a], uc)), trap(c(cut, p$t[b]), c(uc, p$u[b]))) / 12
+}
+Y &lt;- t(sapply(P, split_q))
+isTRUE(all.equal(rowSums(Y), pts$qaly))               # 첫해 + 둘째 해 = 할인 전 QALY
+pts$qaly_d &lt;- Y[, 1] + Y[, 2] / 1.045                 # 둘째 해만 할인
+cont &lt;- function(p, r = 0.045) {                      # 0개월부터 연속으로 할인
+  g &lt;- seq(0, 24, by = 0.001)
+  trap(g, approx(p$t, p$u, xout = g)$y / (1 + r)^(g / 12)) / 12
+}
+pts$qaly_c &lt;- sapply(P, cont)
+round(sapply(c(&quot;qaly&quot;, &quot;qaly_d&quot;, &quot;qaly_c&quot;), function(v)       # 군 차이: 보정 전, 기저 효용 보정 후
+  c(unadjusted = coef(lm(pts[[v]] ~ A, pts))[[&quot;A&quot;]], adjusted = coef(lm(pts[[v]] ~ A + base, pts))[[&quot;A&quot;]])), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] TRUE<span class="mk">1</span>
+            qaly qaly_d qaly_c
+unadjusted 0.117  0.113  0.110<span class="mk">2</span>
+adjusted   0.094  0.090  0.088<span class="mk">3</span></pre></div></div>

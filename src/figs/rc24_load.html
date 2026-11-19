@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">설문 응답과 환자 자료 불러오기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">D &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+df  &lt;- read.csv(paste0(D, &quot;lab22_eq5d.csv&quot;), colClasses = c(eq5d = &quot;character&quot;))   # 응답 코드는 글자로
+pts &lt;- read.csv(paste0(D, &quot;lab22_patients.csv&quot;))
+df  &lt;- df[order(df$id, df$month), ]                  # 환자, 측정 시점 순서로 정렬
+dim(df); dim(pts)
+head(df, 3)
+table(df$state)
+sum(is.infinite(pts$t_prog))                         # 진행 없이 사망한 환자: t_prog가 inf
+visits &lt;- c(0, 3, 6, 12, 18, 24)
+sum(sapply(pts$t_death, function(d) sum(visits &lt; d)))   # 살아 있던 방문 수 = 응답 수</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 1593    7<span class="mk">1</span>
+[1] 320   4
+  id arm month state  eq5d utility vas
+1  1   A     0    PF 42444   0.293  41
+2  1   A     3    PF 22222   0.730  85
+3  1   A     6    PF 22333   0.676  64
+
+  PD   PF 
+ 409 1184<span class="mk">2</span> 
+[1] 47<span class="mk">3</span>
+[1] 1593<span class="mk">4</span></pre></div></div>

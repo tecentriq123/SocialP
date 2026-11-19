@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">연차별 1인당 비용</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">yearly &lt;- function(p, what = &quot;cost&quot;) {               # 치료 시작 후 1-5년차의 1인당 값(할인하지 않음)
+  cum &lt;- sapply(1:5, function(k) model(p, horizon = 12 * k, disc = FALSE)[what, ])   # 2행(A, B) x 5열
+  out &lt;- cum - cbind(0, cum[, -5])                    # k년 누적 - (k-1)년 누적
+  colnames(out) &lt;- paste0(&quot;year&quot;, 1:5); out
+}
+cy &lt;- yearly(p)
+round(rbind(cy, diff = cy[&quot;A&quot;, ] - cy[&quot;B&quot;, ]), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      year1  year2  year3  year4  year5
+A    2820.7 2226.8 1763.1 1366.9 1044.3
+B    2200.1 1821.0 1398.5 1021.5  723.8<span class="mk">1</span>
+diff  620.6  405.8  364.6  345.4  320.4<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">기저 효용 보정 전후의 QALY 차이</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pts$A &lt;- as.integer(pts$arm == &quot;A&quot;)                   # 신약 A = 1, B = 0
+m0 &lt;- lm(qaly ~ A, data = pts)
+m1 &lt;- lm(qaly ~ A + base, data = pts)
+round(rbind(unadjusted = c(coef(m0)[&quot;A&quot;], confint(m0)[&quot;A&quot;, ]),
+            adjusted   = c(coef(m1)[&quot;A&quot;], confint(m1)[&quot;A&quot;, ]),
+            adjusted_HC3 = c(coef(m1)[&quot;A&quot;], coefci(m1, vcov. = vcovHC(m1, type = &quot;HC3&quot;))[&quot;A&quot;, ])), 3)
+round(coef(m1)[&quot;base&quot;], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                 A  2.5 % 97.5 %
+unadjusted   0.117  0.001  0.232<span class="mk">1</span>
+adjusted     0.094 -0.017  0.204<span class="mk">2</span>
+adjusted_HC3 0.094 -0.017  0.204<span class="mk">3</span>
+ base 
+1.186</pre></div></div>

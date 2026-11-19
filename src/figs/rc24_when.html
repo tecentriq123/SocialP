@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">할인 계수를 매기는 시점 바꾸기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">W &lt;- t(sapply(c(&quot;mid&quot;, &quot;start&quot;, &quot;end&quot;, &quot;annual&quot;, &quot;wrong&quot;), function(w) {
+  r &lt;- model(p0, w)
+  d_q &lt;- r[&quot;qaly&quot;, &quot;A&quot;] - r[&quot;qaly&quot;, &quot;B&quot;]; d_c &lt;- r[&quot;cost&quot;, &quot;A&quot;] - r[&quot;cost&quot;, &quot;B&quot;]
+  c(qaly_A = r[&quot;qaly&quot;, &quot;A&quot;], qaly_B = r[&quot;qaly&quot;, &quot;B&quot;], d_qaly = d_q, d_cost = d_c, icer = d_c / d_q)
+}))
+round(W, 3)
+round(c(month12 = 1 / 1.045^(11.5 / 12), wrong = 1 / 1.045^11.5), 3)   # 12번째 달의 할인 계수</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       qaly_A qaly_B d_qaly   d_cost     icer
+mid     2.385  1.874  0.511 2872.294 5620.610
+start   2.389  1.877  0.512 2877.493 5620.386
+end     2.380  1.870  0.510 2867.104 5620.835
+annual  2.435  1.913  0.523<span class="mk">1</span> 2932.663 5612.435
+wrong   0.969  0.870  0.099  905.505 9140.496<span class="mk">2</span>
+month12   wrong 
+  0.959   0.603<span class="mk">3</span></pre></div></div>

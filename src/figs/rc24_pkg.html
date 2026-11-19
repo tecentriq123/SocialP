@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">eq5d 패키지로 검산하고 3L 가치 세트 두 개 비교하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(eq5d))       # 여러 나라의 가치 세트를 담은 패키지
+u_pkg &lt;- eq5d(df$eq5d, country = &quot;SouthKorea&quot;, version = &quot;5L&quot;, type = &quot;VT&quot;)
+max(abs(u_pkg - df$u_calc))                          # 직접 짠 함수와 같은가
+codes &lt;- c(&quot;11121&quot;, &quot;21222&quot;, &quot;33333&quot;)                # 표 22-3. 같은 3L 응답, 두 나라의 가치 세트
+t3 &lt;- data.frame(korea = eq5d(codes, country = &quot;SouthKorea&quot;, version = &quot;3L&quot;, type = &quot;TTO&quot;),
+                 uk    = eq5d(codes, country = &quot;UK&quot;, version = &quot;3L&quot;, type = &quot;TTO&quot;), row.names = codes)
+t3$diff &lt;- t3$korea - t3$uk
+t3</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0<span class="mk">1</span>
+       korea     uk  diff
+11121  0.913  0.796 0.117<span class="mk">2</span>
+21222  0.723  0.620 0.103
+33333 -0.171 -0.594 0.423<span class="mk">3</span></pre></div></div>

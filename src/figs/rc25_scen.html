@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">가정을 바꾼 재정영향</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">price &lt;- uniroot(function(x) { r &lt;- model(modifyList(p, list(c_drug_A = x)))
+  inc(r)[[&quot;icer&quot;]] - 5000 }, c(150, 190), tol = 1e-9)$root   # ICER가 5,000이 되는 월 약값
+price
+cy_p &lt;- yearly(modifyList(p, list(c_drug_A = price)))
+sc &lt;- list(base        = bia(cy[&quot;A&quot;, ], cy[&quot;B&quot;, ]),
+           share_half  = bia(cy[&quot;A&quot;, ], cy[&quot;B&quot;, ], share = c(0.05, 0.10, 0.15, 0.20, 0.25)),
+           n_900       = bia(cy[&quot;A&quot;, ], cy[&quot;B&quot;, ], n = 900),
+           price_5000  = bia(cy_p[&quot;A&quot;, ], cy_p[&quot;B&quot;, ]),
+           drug_only   = bia(dy[&quot;A&quot;, ], dy[&quot;B&quot;, ]))
+round(t(sapply(sc, function(b) b[&quot;net&quot;, c(&quot;year3&quot;, &quot;total&quot;)])), 1)
+round(cy_p[&quot;A&quot;, 1] - cy_p[&quot;B&quot;, 1], 1)                 # 그 가격에서 치료 1년차의 1인당 비용 차이</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 175.3897<span class="mk">1</span>
+           year3 total
+base        18.2 101.5
+share_half   9.1  50.7
+n_900       27.3 152.2
+price_5000  14.5  82.1<span class="mk">2</span>
+drug_only   24.0 129.2<span class="mk">3</span>
+[1] 485.8<span class="mk">4</span></pre></div></div>

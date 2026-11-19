@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 1 정답. 마지막 측정값을 사망 직전까지 유지</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">path_locf &lt;- function(month, u, t_death, end = 24) {  # 마지막 측정값이 사망 직전까지 유지
+  if (t_death &lt;= end) {
+    month &lt;- c(month, t_death, t_death); u &lt;- c(u, tail(u, 1), 0)
+    if (t_death &lt; end) { month &lt;- c(month, end); u &lt;- c(u, 0) }
+  }
+  list(t = month, u = unname(u))
+}
+p &lt;- path_locf(c(0, 3, 6, 12), sapply(c(&quot;11221&quot;, &quot;21222&quot;, &quot;21232&quot;, &quot;31241&quot;), kr5l), 15)
+round(trap(p$t, p$u) / 12, 3)                         # 환자 다
+pts$qaly_locf &lt;- sapply(pts$id, function(i) {
+  g &lt;- df[df$id == i, ]
+  p &lt;- path_locf(g$month, g$utility, pts$t_death[pts$id == i]); trap(p$t, p$u) / 12
+})
+round(sapply(split(pts[, c(&quot;qaly&quot;, &quot;qaly_locf&quot;)], pts$arm), colMeans), 3)
+m2 &lt;- lm(qaly_locf ~ A, pts); m3 &lt;- lm(qaly_locf ~ A + base, pts)
+round(rbind(unadjusted = c(coef(m2)[&quot;A&quot;], confint(m2)[&quot;A&quot;, ]),
+            adjusted   = c(coef(m3)[&quot;A&quot;], confint(m3)[&quot;A&quot;, ])), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.868
+              A     B
+qaly      1.204 1.087
+qaly_locf 1.230 1.118
+               A  2.5 % 97.5 %
+unadjusted 0.112  0.001  0.223
+adjusted   0.089 -0.017  0.195</pre></div></div>

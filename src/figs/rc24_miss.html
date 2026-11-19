@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">빠진 방문이 있으면 넓이는 어떻게 되나</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ga &lt;- c(0.862, 0.841, 0.862, 0.862, 0.841, 0.862)     # 환자 가: 24개월까지 살아서 여섯 번 응답
+m  &lt;- c(0, 3, 6, 12, 18, 24)
+DescTools::AUC(m, ga) / 12                            # 1.708
+g12 &lt;- replace(ga, 4, NA)                             # 12개월 응답이 NA
+DescTools::AUC(m, g12) / 12                           # 오류 없이 6개월과 18개월을 직선으로 이음
+g24 &lt;- replace(ga, 6, NA)                             # 24개월 응답이 NA
+DescTools::AUC(m, g24) / 12                           # NA
+DescTools::AUC(m[-6], ga[-6]) / 12                    # 그 행을 지우면 넓이가 18개월에서 끝남</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 1.70825
+[1] 1.703<span class="mk">1</span>
+[1] NA<span class="mk">2</span>
+[1] 1.2825<span class="mk">3</span></pre></div></div>

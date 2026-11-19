@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">과제 2 정답. 어디서 끊느냐에 따른 관찰 기간만의 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">r18 &lt;- model(p, horizon = 18)                         # 중앙 추적 기간 18개월에서 끊으면
+tab2 &lt;- rbind(tab, months18 = inc(r18))
+round(tab2, 3)
+round(1 - sweep(tab2[c(&quot;months30&quot;, &quot;months18&quot;), 1:2], 2, tab2[&quot;years20&quot;, 1:2], &quot;/&quot;), 3)   # 끊은 뒤에서 생긴 비율</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           d_cost d_qaly      icer
+years20  2872.294  0.511  5620.610
+months30 1156.855  0.128  9055.886
+months18  809.846  0.057 14311.648
+         d_cost d_qaly
+months30  0.597  0.750
+months18  0.718  0.889</pre></div></div>

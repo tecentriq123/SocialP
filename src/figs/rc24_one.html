@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">환자 한 명의 QALY (사다리꼴 공식)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">path &lt;- function(month, u, t_death, end = 24) {      # 사망 시점에 효용 0을 붙이고, 추적 끝까지 0
+  if (t_death &lt;= end) {
+    month &lt;- c(month, t_death); u &lt;- c(u, 0)
+    if (t_death &lt; end) { month &lt;- c(month, end); u &lt;- c(u, 0) }
+  }
+  list(t = month, u = unname(u))
+}
+trap &lt;- function(t, u) sum(diff(t) * (head(u, -1) + tail(u, -1)) / 2)   # 사다리꼴 넓이
+
+# 환자 다 (22장 표 22-4). 0, 3, 6, 12개월에 응답하고 15개월에 사망
+p &lt;- path(c(0, 3, 6, 12), sapply(c(&quot;11221&quot;, &quot;21222&quot;, &quot;21232&quot;, &quot;31241&quot;), kr5l), t_death = 15)
+p
+round(diff(p$t) * (head(p$u, -1) + tail(p$u, -1)) / 2 / 12, 3)    # 구간별 QALY
+trap(p$t, p$u) / 12                                                 # QALY
+DescTools::AUC(p$t, p$u) / 12                                       # 패키지 함수로 같은 값</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>$t
+[1]  0  3  6 12 15 24
+
+$u
+[1] 0.841 0.762 0.751 0.581 0.000 0.000<span class="mk">1</span>
+
+[1] 0.200 0.189 0.333 0.073 0.000<span class="mk">2</span>
+[1] 0.795125
+[1] 0.795125<span class="mk">3</span></pre></div></div>

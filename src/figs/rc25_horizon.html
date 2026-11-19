@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">분석기간 20년과 30개월의 증분 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">inc &lt;- function(r) c(d_cost = r[&quot;cost&quot;, &quot;A&quot;] - r[&quot;cost&quot;, &quot;B&quot;], d_qaly = r[&quot;qaly&quot;, &quot;A&quot;] - r[&quot;qaly&quot;, &quot;B&quot;],
+                     icer = (r[&quot;cost&quot;, &quot;A&quot;] - r[&quot;cost&quot;, &quot;B&quot;]) / (r[&quot;qaly&quot;, &quot;A&quot;] - r[&quot;qaly&quot;, &quot;B&quot;]))
+r30 &lt;- model(p, horizon = 30)                         # 시험이 관찰한 30개월에서 끊음
+tab &lt;- rbind(years20 = inc(r), months30 = inc(r30))
+round(tab, 3)
+round(1 - tab[&quot;months30&quot;, 1:2] / tab[&quot;years20&quot;, 1:2], 3)   # 30개월 뒤에서 생긴 비율
+round(r30[c(&quot;pf_months&quot;, &quot;pd_months&quot;), ], 1)               # 30개월 안에 각 상태에 머문 평균 기간</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           d_cost d_qaly     icer
+years20  2872.294  0.511 5620.610
+months30 1156.855  0.128 9055.886<span class="mk">1</span>
+d_cost d_qaly 
+ 0.597  0.750<span class="mk">2</span> 
+             A    B
+pf_months 16.6 12.8
+pd_months  6.8  8.9<span class="mk">3</span></pre></div></div>

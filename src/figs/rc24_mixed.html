@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">혼합모형과 군별 상태 효용</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(lme4))
+round(fixef(lmer(utility ~ 0 + state + (1 | id), data = df)), 3)   # 환자를 무작위효과로
+f2 &lt;- lm(utility ~ 0 + state + state:arm, data = df)                # 상태마다 B군 - A군
+round(coeftest(f2, vcov. = vcovCL(f2, cluster = ~ id))[3:4, ], 3)
+f3 &lt;- lm(utility ~ state * arm, data = df)                          # 상호작용 항
+round(coeftest(f3, vcov. = vcovCL(f3, cluster = ~ id))[&quot;statePF:armB&quot;, ], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>statePD statePF 
+  0.623   0.778<span class="mk">1</span> 
+             Estimate Std. Error t value Pr(&gt;|t|)
+statePD:armB   -0.022      0.028  -0.782    0.434
+statePF:armB   -0.008      0.015  -0.544    0.586<span class="mk">2</span>
+  Estimate Std. Error    t value   Pr(&gt;|t|) 
+     0.013      0.027      0.501      0.616<span class="mk">3</span></pre></div></div>

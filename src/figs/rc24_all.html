@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">환자 320명의 24개월 QALY와 생존연수</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">P &lt;- lapply(pts$id, function(i) {                     # 환자마다 (시점, 효용) 경로
+  g &lt;- df[df$id == i, ]
+  path(g$month, g$utility, pts$t_death[pts$id == i])
+})
+pts$qaly &lt;- sapply(P, function(p) trap(p$t, p$u) / 12)
+pts$ly   &lt;- pmin(pts$t_death, 24) / 12                # 24개월 안의 생존연수
+pts$base &lt;- sapply(pts$id, function(i) df$utility[df$id == i][1])   # 치료 시작 시점의 효용
+print(head(pts, 3), digits = 3)
+round(sapply(split(pts[, c(&quot;qaly&quot;, &quot;ly&quot;, &quot;base&quot;)], pts$arm), colMeans), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  id arm t_prog t_death  qaly    ly  base
+1  1   A  17.16    17.3 0.799 1.442 0.293<span class="mk">1</span>
+2  2   A  16.52    42.1 1.663 2.000 0.772
+3  3   A   2.86     4.3 0.178 0.358 0.732
+         A     B
+qaly 1.204 1.087<span class="mk">2</span>
+ly   1.640 1.571
+base 0.786 0.766</pre></div></div>
