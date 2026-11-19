@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">로짓 성향점수로 1:1 매칭하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">lg  &lt;- qlogis(d$ps)                       # 성향점수의 로짓
+cal &lt;- 0.2 * sd(lg)                       # 허용 한계: 로짓 표준편차의 0.2배
+ord &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ch15_match_order.csv&quot;)$id   # A 사용자를 짝짓는 순서(15장과 같은 무작위 순서)
+ctrl  &lt;- which(d$drugA == 0)
+avail &lt;- rep(TRUE, length(ctrl))          # 아직 짝이 없는 B 사용자
+pt &lt;- pc &lt;- integer(0)
+for (t in match(ord, d$id)) {             # 비복원 1:1 최근접 매칭
+  dist &lt;- abs(lg[ctrl] - lg[t]); dist[!avail] &lt;- Inf
+  j &lt;- which.min(dist)
+  if (dist[j] &lt;= cal) { pt &lt;- c(pt, t); pc &lt;- c(pc, ctrl[j]); avail[j] &lt;- FALSE }
+}
+c(caliper = round(cal, 4), pairs = length(pt), unmatched_A = sum(d$drugA) - length(pt))
+m &lt;- rbind(cbind(d[pt, ], pair = seq_along(pt)), cbind(d[pc, ], pair = seq_along(pt)))   # 매칭 자료
+un &lt;- d$drugA == 1 &amp; !(seq_len(nrow(d)) %in% pt)
+round(rbind(unmatched = colMeans(d[un, c(&quot;ps&quot;, &quot;age&quot;, &quot;hf&quot;, &quot;ckd&quot;)]),
+            matched   = colMeans(d[pt, c(&quot;ps&quot;, &quot;age&quot;, &quot;hf&quot;, &quot;ckd&quot;)])), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    caliper       pairs unmatched_A 
+     0.1232   3516.0000    537.0000<span class="mk">1</span> 
+             ps    age    hf   ckd
+unmatched 0.687 75.747 0.527<span class="mk">2</span> 0.467
+matched   0.418 66.650 0.090 0.156</pre></div></div>

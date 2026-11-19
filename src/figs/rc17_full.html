@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">전체 코호트의 발생률과 발생률비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(survival)
+full &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/sglt2_cohort_full.csv&quot;)   # 14장의 분석용 코호트(time: 일, 유예 60일 as-treated)
+dim(full)
+range(full$time)
+stopifnot(all(full$time &gt; 0))                   # 0일 이하의 time이 있으면 여기서 멈춤
+agg &lt;- aggregate(cbind(n = 1, events = event, py = time / 365.25) ~ sglt2, data = full, FUN = sum)
+agg$rate &lt;- 1000 * agg$events / agg$py           # 1,000인년당 발생률
+agg
+1000 * poisson.test(320, agg$py[agg$sglt2 == 1])$conf.int   # SGLT2 억제제군의 정확 구간
+poisson.test(agg$events[2:1], agg$py[2:1])$conf.int          # 발생률비(SGLT2 ÷ DPP-4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 166548     13
+[1]    1 2556<span class="mk">1</span>
+  sglt2      n events        py      rate
+1     0 135722   3828 295494.64 12.954550
+2     1  30826    320  57781.48  5.538106<span class="mk">2</span>
+[1] 4.947876 6.179367<span class="mk">3</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95
+[1] 0.3802291 0.4792739<span class="mk">4</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95</pre></div></div>

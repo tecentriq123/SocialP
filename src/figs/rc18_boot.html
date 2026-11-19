@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">부트스트랩 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">set.seed(15)
+boot_lrr &lt;- replicate(500, {                       # 성향점수 추정까지 다시 하는 부트스트랩
+  b &lt;- d[sample(nrow(d), replace = TRUE), ]
+  p &lt;- fitted(glm(drugA ~ age + female + hf + ckd + prior_hosp + n_drug + tertiary,
+                  family = binomial, data = b))
+  w &lt;- ifelse(b$drugA == 1, 1 / p, 1 / (1 - p))
+  log(weighted.mean(b$hosp_1y[b$drugA == 1], w[b$drugA == 1]) /
+      weighted.mean(b$hosp_1y[b$drugA == 0], w[b$drugA == 0]))
+})
+round(exp(quantile(boot_lrr, c(0.025, 0.975))), 3)
+round(c(boot_se = sd(boot_lrr), robust_se = sqrt(vcovHC(fw, type = &quot;HC0&quot;)[&quot;drugA&quot;, &quot;drugA&quot;])), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> 2.5% 97.5% 
+0.851 1.054 
+  boot_se robust_se 
+   0.0585    0.0598<span class="mk">1</span></pre></div></div>

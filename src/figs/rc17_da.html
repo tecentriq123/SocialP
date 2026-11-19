@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">보고 단위 자료로 pvda의 da() 돌리기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(pvda))
+n_rep &lt;- c(SGLT2 = 5000, DPP4 = 10000, OTHER_DM = 35000)   # 당뇨병약 보고 5만 건
+n_dka &lt;- c(SGLT2 = 60,   DPP4 = 40,    OTHER_DM = 140)
+rep &lt;- do.call(rbind, lapply(names(n_rep), function(g)
+  data.frame(drug = g, event = rep(c(&quot;DKA&quot;, &quot;other&quot;), c(n_dka[g], n_rep[g] - n_dka[g])))))
+rep$report_id &lt;- seq_len(nrow(rep))                        # 한 줄 = 보고 하나의 약 하나·사건 하나
+head(rep, 3)
+out &lt;- da(rep)$da_df                                       # 모든 약–사건 조합을 한꺼번에
+as.data.frame(subset(out, event == &quot;DKA&quot;,
+  select = c(drug, obs, exp_rrr, ic2.5, ic, ror2.5, ror, ror97.5, prr)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   drug event report_id
+1 SGLT2   DKA         1
+2 SGLT2   DKA         2
+3 SGLT2   DKA         3
+      drug obs exp_rrr ic2.5    ic ror2.5  ror ror97.5 prr
+1    SGLT2  60      24  0.92  1.30   2.25 3.02    4.06<span class="mk">1</span> 3.0
+2 OTHER_DM 140     168 -0.51 -0.26   0.46 0.60    0.77 0.6
+3     DPP4  40      48 -0.74 -0.26   0.57 0.80    1.12 0.8</pre></div></div>

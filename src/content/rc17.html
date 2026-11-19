@@ -1,0 +1,277 @@
+<p class="lead">보건통계학 기초 14장에서 정한 규칙을 R 코드로 옮깁니다. 청구자료 모양의 표 세 개를 잇고, 신규 사용자 코호트의 선정 흐름을 만들고, 처방 기록에서 공백·중단일·PDC를 구합니다. 그다음 분석용 전체 코호트로 발생률, 위험비, 중앙 추적기간을 구하고, 끝으로 자발적 보고 자료의 불균형 분석을 합니다. 어느 기록을 남기고 어느 날짜를 고를지는 프로그램이 정해 주지 않으므로, 그 규칙이 코드의 어느 줄인지에 집중합니다.</p>
+
+<p class="nb-link"><a href="notebooks/rc17.ipynb" download>이 장의 노트북 내려받기 (rc17.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. 출력은 R 4.3.3, survival 3.5, pvda 0.0.4로 실제로 실행해 얻었습니다. 자료는 실습 14와 같은 청구자료 모양의 표 세 개(14장 코호트의 30분의 1 표본)와 14장의 분석용 전체 코호트(166,548명)이고, 셀이 사이트에서 바로 읽습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>신규 사용자·활성 비교군 설계, 노출 정의와 유예기간, 추적 종료의 규칙은 보건통계학 기초 <a href="stats.html#ch14">14장</a>에 있습니다. Cox 모형의 출력은 이 과목 <a href="#rc03">9장</a>에서 먼저 보았습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 2, b 절의 셀 3과 5, c 절의 셀 6, d 절의 셀 9와 10.</dd>
+<dt>나중에 읽을 부분</dt><dd>e 절의 불균형 분석은 자발적 보고 자료를 쓸 때 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 청구 표를 이을 때 행이 사라지지 않게 하고 행 수로 확인할 수 있다 ② 첫 처방일, 세척 기간, 제외 기준으로 선정 흐름표를 만들 수 있다 ③ 처방 기록에서 공백, 유예기간에 따른 중단일, PDC를 구할 수 있다 ④ 추적 종료일을 고르고 발생률, 위험비, 역 Kaplan-Meier 중앙 추적기간을 구할 수 있다 ⑤ 2×2 표와 보고 단위 자료로 ROR과 IC를 구할 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rc17-s1">
+<h2><span class="sec-no">a.</span>청구 표를 잇고 한 줄의 단위 확인하기</h2>
+
+<h3>세 표는 각각 무엇이 한 줄인가?</h3>
+<p><strong>표마다 행 수와 사람 수를 함께 세면 한 줄이 무엇인지 보입니다. 날짜 열은 <code>read.csv()</code>가 글자로 읽으므로 <code>as.Date()</code>로 바꿉니다.</strong> 자료는 보건통계학 기초 <a href="stats.html#ch14-s1">14장 a 절</a>의 예제 코호트를 청구자료 모양으로 되돌린 가상의 표 세 개입니다. 자격 표(person)는 한 사람이 한 줄, 명세서 표(visit)는 진료 한 건이 한 줄, 처방 표(rx)는 처방 한 건이 한 줄입니다.</p>
+<!--FIG:rc17_load-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>rx_date: chr.</b> 날짜가 글자입니다. 이대로는 빼거나 비교할 수 없어 바로 아래 줄에서 날짜로 바꿉니다.</span></li>
+<li><span class="mk">2</span><span><b>행 10,306, 54,370, 111,882.</b> 자격 표만 행 수와 사람 수가 같습니다.</span></li>
+<li><span class="mk">3</span><span><b>사람 10,306명.</b> 세 표 모두 같은 사람들입니다. 명세서와 처방은 한 사람이 여러 줄이라, 이 표로 바로 사람을 세면 안 됩니다.</span></li>
+</ol>
+
+<h3>표를 이을 때 왜 행이 사라지나?</h3>
+<p><strong><code>merge()</code>는 두 표 모두에 있는 행만 남기는 것이 기본값이고(<code>all = FALSE</code>), 짝이 없는 행은 경고 없이 뺍니다. 기준이 되는 표의 사람을 모두 남기려면 <code>all.x = TRUE</code>를 적고, 이은 뒤 행 수와 사람 수를 셉니다.</strong></p>
+<!--FIG:rc17_merge-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기본값 1,277행·1,148명 대 <code>all.x = TRUE</code> 10,435행·10,306명.</b> 자격 표에 입원 명세서를 기본값으로 이으면 입원이 없는 9,158명이 사라집니다. 코호트 표에 다른 표를 붙일 때 이런 일이 생기면 분석 대상이 조용히 바뀝니다.</span></li>
+</ol>
+<p>한 사람의 여러 행을 한 줄로 모으는 일은 <code>aggregate()</code>로 합니다. 마지막 줄은 사람마다 첫 입원일을 구한 것입니다.</p>
+<!--FOLD py:파이썬으로 하면: pandas로 표 잇기-->
+<p>보건통계학 기초 14장의 '직접 분석' 상자에 있던 내용입니다.</p>
+<p>파이썬에서는 파일마다 pandas로 불러와 환자 ID나 명세서 번호로 <code>merge()</code>해 잇습니다. <code>merge()</code>의 기본값은 <code>how="inner"</code>여서 양쪽 파일에 모두 있는 행만 남기고, 짝이 없는 행은 경고 없이 뺍니다. 예를 들어 명세서 일반내역에 원외처방 내역을 이으면 원외처방이 없는 명세서가 모두 사라집니다. 짝이 없는 행도 남겨야 하면 <code>how="left"</code>를 지정하고, 잇기 전후의 행 수와 환자 수를 세어 확인합니다.</p>
+<p>날짜 글자는 <code>pd.to_<wbr>datetime()</code>으로 날짜로 바꾸고, 한 환자의 여러 행은 <code>groupby()<wbr>.agg()</code>로 한 행에 모읍니다.</p>
+<p>같은 일을 pandas로 하는 전체 코드는 <a href="#lab14-s1">실습 14 a 절</a>에 있습니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ b -->
+<section class="sec" id="rc17-s2">
+<h2><span class="sec-no">b.</span>신규 사용자 코호트와 선정 흐름</h2>
+
+<h3>첫 처방일과 기존 사용자는 어떻게 가려내나?</h3>
+<p><strong>등록 기간(2016–2021년)의 SGLT2 억제제나 DPP-4 억제제 처방 가운데 사람마다 가장 이른 날을 첫 처방일로 두고, 그날 이전 1–365일에 두 계열 가운데 하나라도 처방이 있으면 기존 사용자로 표시합니다.</strong> 보건통계학 기초 <a href="stats.html#ch14-s2">14장 b 절</a>의 규칙입니다. 전용 함수가 없어 날짜를 빼서 직접 구합니다.</p>
+<!--FIG:rc17_index-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>10,156명, 같은 날 두 계열 131명, 기존 사용자 4,103명.</b> 세척 기간의 처방은 첫 처방일 하루 전(before = 1)부터 셉니다. 0을 넣으면 첫 처방 자체가 기존 사용의 근거가 되어 모두가 빠집니다.</span></li>
+<li><span class="mk">2</span><span><b>DPP-4 억제제 8,846명, SGLT2 억제제 1,310명.</b> 첫 처방일에 두 계열을 함께 받은 131명은 처방 표에서 먼저 나온 계열로 셌습니다. 이들은 다음 단계에서 빠지므로 최종 인원에는 영향이 없습니다.</span></li>
+</ol>
+
+<h3>제외 기준의 표시는 어떻게 만드나?</h3>
+<p><strong>제외 기준마다 참·거짓 열을 하나씩 만듭니다. 상병코드는 앞부분이 같으면 같은 병으로 보도록 정규표현식 <code>^(N185|Z49|Z992)</code>를 주상병과 부상병 열에 모두 적용합니다.</strong> 기준을 확인하는 기간은 첫 처방일까지 365일이고(before 0–365), 제2형 당뇨병 진단(E11)은 첫 처방일까지의 모든 명세서로 봅니다.</p>
+<!--FIG:rc17_flags-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>18세 미만 14명, 말기신부전 194명, 심부전 입원력 234명, 당뇨병 진단 없음 156명.</b> 아직 겹치는 사람을 빼지 않은 숫자입니다. 흐름표에는 앞 단계에서 이미 빠진 사람을 빼고 적습니다.</span></li>
+</ol>
+
+<h3>선정 흐름표는 어떻게 만드나?</h3>
+<p><strong>기준을 정한 순서대로 하나씩 적용하며, 이 단계에서 처음 빠지는 사람과 남은 사람을 셉니다.</strong> 14장 표 14-3과 같은 흐름이고, 이 표본은 출발 인구가 본문의 30분의 1이라 인원도 그만큼 작습니다.</p>
+<!--FIG:rc17_flow-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기존 사용자 4,103명.</b> 가장 많이 빠지는 단계입니다. 표본에서도 본문처럼 세척 기간이 코호트를 크게 줄입니다.</span></li>
+<li><span class="mk">2</span><span><b>최종 5,552명(DPP-4 억제제 4,524명, SGLT2 억제제 1,028명).</b> 실습 14의 파이썬 코드와 같은 인원입니다.</span></li>
+</ol>
+<p>기준의 순서를 바꾸면 '빠진 사람' 칸의 숫자가 달라지고 최종 인원은 같습니다. 그래서 흐름표에는 연구계획서에 적은 순서를 그대로 씁니다.</p>
+<!--FOLD py:파이썬으로 하면: pandas로 첫 처방일과 선정 흐름-->
+<p>보건통계학 기초 14장의 '직접 분석' 상자에 있던 내용입니다.</p>
+<p>환자별 첫 처방일은 pandas의 <code>groupby("pid")["rx_date"]<wbr>.min()</code>으로 구합니다. 세척 기간의 처방 유무는 첫 처방일에서 365일을 뺀 날짜와 처방일을 비교해 구합니다. 흐름도의 숫자는 조건을 하나씩 적용하며 <code>len()</code>으로 세어 기록합니다. 전용 함수는 없어 직접 구현합니다.</p>
+<p>같은 일을 pandas로 하는 전체 코드는 <a href="#lab14-s2">실습 14 b 절</a>에 있습니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ c -->
+<section class="sec" id="rc17-s3">
+<h2><span class="sec-no">c.</span>공백, 중단일, PDC와 양성예측도</h2>
+
+<h3>처방 기록에서 공백과 중단일은 어떻게 구하나?</h3>
+<p><strong>처방일에 공급일수를 더해 약이 떨어지는 날을 만들고, 다음 처방일과의 차이로 공백을 구합니다. 공백이 유예기간보다 긴 첫 처방에서 '약이 떨어지는 날 + 유예기간'이 중단일입니다.</strong> 예는 보건통계학 기초 <a href="stats.html#ch14-s3">14장 c 절</a>의 가상 환자 한 명입니다. 같은 환자의 다음 처방일은 <code>ave()</code>로 환자마다 한 칸씩 당겨 구하므로, 환자가 여러 명이어도 같은 코드가 환자마다 따로 적용됩니다.</p>
+<!--FIG:rc17_gap-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>네 번째 처방 뒤 45일 공백.</b> 유예기간 30일보다 길어 여기서 중단이 정해집니다. 마지막 처방은 다음 처방이 없어 NA입니다.</span></li>
+<li><span class="mk">2</span><span><b>유예기간 30·60·90일의 중단일 2021-10-03, 2022-06-15, 2022-07-15.</b> 유예기간을 60일로 늘리면 45일 공백을 넘어가 마지막 처방까지 이어집니다.</span></li>
+<li><span class="mk">3</span><span><b>첫 365일의 PDC 315/365 = 0.863.</b> 구간 끝을 넘는 공급일수는 잘라 냈습니다. 처방이 겹치지 않을 때만 맞는 간단한 계산이고, 겹치면 14장의 접힌 상자 '처방이 겹치거나, 입원했거나, 약을 바꾸면?'의 규칙을 먼저 정합니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: pandas로 공백, 중단일, PDC-->
+<p>위 환자의 계산을 pandas로 옮긴 코드입니다. 실습 환경(<a href="#lab00">실습 0</a>)의 주피터 노트북 셀에 그대로 붙여 넣어 실행합니다. 환자가 여러 명이어도 <code>groupby("pt")</code> 덕분에 같은 코드가 환자마다 따로 적용됩니다.</p>
+<div class="cell"><div class="cell-h"><span class="cell-n">직접 실행</span><span class="cell-t">처방 기록에서 공백, 중단일, PDC 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-python">import pandas as pd
+
+# 가상의 환자 한 명의 원외처방 기록 (한 행 = 처방 한 건, supply = 공급일수)
+rx = pd.DataFrame({
+    &quot;pt&quot;: [&quot;P1&quot;] * 6,
+    &quot;date&quot;: [&quot;2021-03-02&quot;, &quot;2021-04-01&quot;, &quot;2021-05-06&quot;,
+             &quot;2021-06-05&quot;, &quot;2021-10-18&quot;, &quot;2022-01-16&quot;],
+    &quot;supply&quot;: [30, 30, 30, 90, 90, 90],
+})
+rx[&quot;date&quot;] = pd.to_datetime(rx[&quot;date&quot;])       # 글자 → 날짜
+rx = rx.sort_values([&quot;pt&quot;, &quot;date&quot;])           # 환자별, 날짜순으로 정렬
+
+# 약이 떨어지는 날 = 처방일 + 공급일수
+rx[&quot;runout&quot;] = rx[&quot;date&quot;] + pd.to_timedelta(rx[&quot;supply&quot;], unit=&quot;D&quot;)
+# 같은 환자의 다음 처방일 (마지막 처방은 빈칸 NaT)
+rx[&quot;next&quot;] = rx.groupby(&quot;pt&quot;)[&quot;date&quot;].shift(-1)
+# 공백 일수 = 다음 처방일 - 약이 떨어지는 날
+rx[&quot;gap&quot;] = (rx[&quot;next&quot;] - rx[&quot;runout&quot;]).dt.days
+print(rx[[&quot;date&quot;, &quot;supply&quot;, &quot;runout&quot;, &quot;gap&quot;]])
+
+def stop_date(g, grace):
+    # 공백이 유예기간보다 길거나 다음 처방이 없는 첫 처방을 찾아
+    # 그 처방의 &#x27;약이 떨어지는 날 + 유예기간&#x27;을 중단일로 돌려줌
+    over = g[&quot;gap&quot;].isna() | (g[&quot;gap&quot;] &gt; grace)
+    return g.loc[over, &quot;runout&quot;].iloc[0] + pd.Timedelta(days=grace)
+
+for grace in [30, 60, 90]:
+    stop = rx.groupby(&quot;pt&quot;).apply(stop_date, grace=grace)   # 환자마다 중단일 하나
+    print(&quot;유예&quot;, grace, &quot;일 → 중단일&quot;, stop.iloc[0].date())
+
+# 첫 365일의 PDC = 구간 안에서 약이 있던 날 수 ÷ 365
+index_date = rx[&quot;date&quot;].min()
+win_end = index_date + pd.Timedelta(days=365)
+days = (rx[&quot;runout&quot;].clip(upper=win_end) - rx[&quot;date&quot;]).dt.days
+covered = days.clip(lower=0).sum()
+print(&quot;PDC =&quot;, covered, &quot;/ 365 =&quot;, round(covered / 365, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        date  supply     runout   gap
+0 2021-03-02      30 2021-04-01   0.0
+1 2021-04-01      30 2021-05-01   5.0
+2 2021-05-06      30 2021-06-05   0.0
+3 2021-06-05      90 2021-09-03  45.0
+4 2021-10-18      90 2022-01-16   0.0
+5 2022-01-16      90 2022-04-16   NaN
+유예 30 일 → 중단일 2021-10-03
+유예 60 일 → 중단일 2022-06-15
+유예 90 일 → 중단일 2022-07-15
+PDC = 315 / 365 = 0.863</pre></div></div>
+<p>출력의 gap 열이 공백 일수이고, 45일 공백이 있는 네 번째 줄에서 유예 30일의 중단이 정해집니다. PDC 줄은 처방이 겹치지 않는 경우에만 맞는 간단한 계산입니다. 겹치는 처방이 있으면 보건통계학 기초 14장 c 절의 접힌 상자 '처방이 겹치거나, 입원했거나, 약을 바꾸면?'의 규칙을 먼저 정해야 합니다. PDC와 유예기간 규칙을 한 번에 계산하는 표준 함수는 없어 이렇게 직접 구현합니다.</p>
+<!--/FOLD-->
+
+<h3>양성예측도의 신뢰구간은 어떤 방법으로 구하나?</h3>
+<p><strong>양성예측도는 비율 하나이므로 <code>prop.test(x, n, correct = FALSE)$conf.int</code>로 Wilson 구간을, <code>binom.test()</code>로 정확 구간을 구합니다.</strong> 14장 a 절 정의 B의 양성예측도 96.7%(1,391 ÷ 1,438)와 c 절 심부전 입원 정의의 171 ÷ 200입니다.</p>
+<!--FIG:rc17_ppv-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Wilson 95.7–97.5%.</b> 14장 본문의 구간입니다. <code>correct = FALSE</code>를 빼면 연속성 보정이 들어가 조금 넓어집니다.</span></li>
+<li><span class="mk">2</span><span><b>Wald 95.8–97.7%.</b> 비율이 1에 가까워 상한이 위로 치우칩니다. 같은 자료라도 방법에 따라 구간이 달라지므로 방법의 이름을 Methods에 적습니다. 171/200은 Wilson으로 80.0–89.7%입니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 proportion_confint-->
+<p>보건통계학 기초 14장의 '직접 분석' 상자에 있던 내용입니다.</p>
+<p>statsmodels의 <code>proportion_<wbr>confint(1391, 1438, method="wilson")</code>으로 구합니다.</p>
+<p><code>method</code>를 빼면 기본값인 Wald 구간(<code>method="normal"</code>)이 나와 95.8–97.7%가 됩니다. c 절에서 볼 심부전 입원 정의의 양성예측도(171 ÷ 200)도 기본값으로는 80.6–90.4%, Wilson 방법으로는 80.0–89.7%입니다. 같은 자료에서도 방법에 따라 구간이 달라지므로 <code>method</code>를 직접 지정하고, 고른 방법의 이름을 Methods에 적습니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ d -->
+<section class="sec" id="rc17-s4">
+<h2><span class="sec-no">d.</span>추적 기간과 분석</h2>
+
+<h3>추적이 끝나는 날은 어떻게 고르나?</h3>
+<p><strong>사건일, 사망일, 중단일, 자료 종료일 같은 후보 가운데 가장 이른 날을 <code>pmin(…, na.rm = TRUE)</code>로 고릅니다.</strong> 사망하지 않은 사람은 사망일이 NA인데, <code>na.rm</code>의 기본값은 FALSE라서 후보 하나만 NA여도 종료일 전체가 NA가 됩니다.</p>
+<!--FIG:rc17_end-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>기본값: 세 사람 모두 NA.</b> 자료 종료일만 있는 셋째 사람까지 종료일을 잃습니다.</span></li>
+<li><span class="mk">2</span><span><b><code>na.rm = TRUE</code>: 사건일, 사망일, 자료 종료일.</b> 있는 날짜 가운데 가장 이른 날입니다. 대신 자료 종료일처럼 모든 사람에게 있어야 하는 후보가 비어 있으면 종료일이 엉뚱하게 정해지므로, 그 열에 NA가 없는지 먼저 확인합니다.</span></li>
+</ol>
+
+<h3>발생률과 위험비는 어떻게 구하나?</h3>
+<p><strong>분석 파일을 만든 뒤 time이 모두 0보다 큰지 <code>stopifnot()</code>으로 확인하고, 군마다 사건 수와 인년을 더해 발생률을, <code>poisson.test()</code>로 정확 신뢰구간을 구합니다. 위험비는 <code>coxph()</code>로 구합니다.</strong> 자료는 14장의 분석용 전체 코호트(유예기간 60일의 as-treated 추적)입니다.</p>
+<!--FIG:rc17_full-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>time 1–2,556일.</b> 0일 이하가 없습니다. R의 <code>coxph()</code>와 <code>survfit()</code>도 파이썬 lifelines처럼 time이 0이나 음수여도 경고 없이 적합하므로, 분석 전에 직접 멈추게 해 둡니다.</span></li>
+<li><span class="mk">2</span><span><b>SGLT2 억제제군 30,826명, 사건 320건, 57,781인년, 1,000인년당 5.54.</b> DPP-4 억제제군은 12.95입니다.</span></li>
+<li><span class="mk">3</span><span><b>정확 구간 4.95–6.18.</b> 14장 본문의 구간입니다.</span></li>
+<li><span class="mk">4</span><span><b>발생률비 0.43(0.38–0.48).</b> <code>poisson.test()</code>는 정확 구간이라 14장의 점수 구간(0.381–0.479)과 하한의 끝자리가 다릅니다.</span></li>
+</ol>
+<!--FIG:rc17_cox-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정 전 0.42(0.38–0.47).</b> 발생률비와 거의 같습니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 후 0.61(0.54–0.68).</b> 14장 표 14-5의 as-treated 분석입니다. 바로 아래 줄처럼 동점 처리를 Breslow로 바꿔도 0.6092로 같았습니다. 공식에 넣을 변수를 직접 적으므로, 환자 번호 같은 열이 공변량으로 잘못 들어갈 일은 없습니다.</span></li>
+</ol>
+
+<h3>중앙 추적기간은 어떻게 구하나?</h3>
+<p><strong>사건과 중도절단의 역할을 바꿔(<code>1 - event</code>) Kaplan-Meier 곡선을 그리고 그 중앙값을 읽습니다.</strong> 역 Kaplan-Meier 방법입니다. 14장 d 절 '논문에서 읽기'의 접힌 상자 '중앙 추적기간은 어떻게 구하나?'의 숫자입니다.</p>
+<!--FIG:rc17_medfu-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1.80년.</b> 사건이 없었다면 관찰할 수 있었던 기간의 중앙값입니다.</span></li>
+<li><span class="mk">2</span><span><b>time의 단순 중앙값 1.75년.</b> 사건으로 일찍 끝난 사람의 짧은 time까지 섞여 조금 짧습니다.</span></li>
+</ol>
+<p>약을 끊은 이유가 예후와 관련될 때 쓰는 역확률 중도절단 가중(14장 d 절)은 추적을 구간으로 나눈 자료에서 구간마다 중도절단 확률의 역수를 가중치로 만들고, <code>coxph(Surv(tstart, tstop, event) ~ sglt2, weights = w, cluster = pid)</code>처럼 가중치와 환자 단위의 군집을 함께 넣어 강건 표준오차로 적합합니다. 구간 자료를 만드는 법은 <a href="#rc03-s4">9장 d 절</a>의 <code>survSplit()</code>과 같습니다.</p>
+<!--FOLD py:파이썬으로 하면: lifelines로 time 확인, 역 Kaplan-Meier, 가중 Cox-->
+<p>보건통계학 기초 14장의 '직접 분석' 상자에 있던 내용입니다.</p>
+<p>0일 이하의 time은 날짜를 빼는 순서가 바뀌었거나, 종료일 후보에 첫 처방일 이전의 날짜(예를 들어 잘못 이어진 이전 입원)가 섞였을 때 생깁니다. lifelines의 <code>CoxPHFitter</code>와 <code>KaplanMeierFitter</code>는 time이 0이나 음수여도 경고 없이 적합합니다. 그래서 분석 파일을 만든 뒤 다음처럼 확인합니다. event_date는 결과 사건일 열입니다.</p>
+<pre class="out"><span class="cm"># 0일 이하의 time이 있으면 여기서 멈춤</span>
+assert (d["time"] &gt; 0).all()
+<span class="cm"># 첫 처방일 당일의 사건 수</span>
+print((d["event_date"] == d["index_date"]).sum())</pre>
+<p>이 장의 전체 코호트 파일(sglt2_cohort_full.csv)에서 time의 최솟값은 1일입니다.</p>
+<p>파이썬에서는 lifelines의 <code>KaplanMeierFitter</code>에 사건 여부를 뒤집어 넣습니다.</p>
+<pre class="out"><span class="cm"># 1 - event: 중도절단을 '사건'으로 바꿔 넣음</span>
+km = KaplanMeierFitter().fit(d["time"] / 365.25,
+                             1 - d["event"])
+print(km.median_survival_time_)   <span class="cm"># 1.80 (as-treated)</span></pre>
+<p>파이썬에서는 구간마다 한 줄인 자료를 만들고 가중치를 직접 계산합니다. 가중치를 넣은 적합에는 lifelines <code>CoxPHFitter</code>에 <code>entry_col</code>, <code>weights_col</code>, 환자 단위로 묶는 <code>cluster_col</code>을 함께 주어 강건 표준오차를 구합니다. <code>CoxTimeVaryingFitter</code>는 가중치를 받기는 하지만 강건 표준오차를 지원하지 않습니다(lifelines 0.30에서 <code>robust=True</code>는 NotImplementedError). 이 과정을 한 번에 해 주는 함수는 lifelines에 없습니다(구간 자료를 만드는 법은 <a href="stats.html#ch16-s3">보건통계학 기초 16장 c 절</a>, 프로그램 동작은 <a href="stats.html#ch16-s4">보건통계학 기초 16장 d 절</a>의 접힌 상자 '가중치를 쓰는 분석은 프로그램에서 어떻게 하나?').</p>
+<!--/FOLD-->
+<!--FOLD py:파이썬으로 하면: pandas, statsmodels, lifelines에서 결과를 바꾸는 기본값-->
+<p>보건통계학 기초 14장의 장 마무리의 '직접 분석' 상자에 있던 내용입니다.</p>
+<p>pandas 3.0, statsmodels 0.15, lifelines 0.30에서 확인한 것입니다. 버전에 따라 다를 수 있습니다.</p>
+<ul>
+<li><b>표 잇기.</b> pandas <code>merge()</code>의 기본값은 <code>how=<wbr>"inner"</code>라서 두 표 모두에 있는 환자만 남기고, 짝이 없는 환자는 경고 없이 뺍니다. 예를 들어 코호트 표에 입원 표를 이으면 입원이 없는 환자가 사라집니다. 코호트에 다른 표를 붙일 때는 <code>how=<wbr>"left"</code>로 잇고, 이은 뒤 행 수가 그대로인지 셉니다.</li>
+<li><b>가장 이른 날 고르기.</b> <code>min(axis=1)</code>은 빈 날짜(NaT)를 건너뛰고 나머지 가운데 가장 이른 날을 고릅니다. 사망하지 않은 사람의 빈 사망일이 무시되는 것은 바라는 동작입니다. 다만 자료 종료일처럼 모든 사람에게 있어야 할 후보가 비어 있으면 종료일이 엉뚱하게 정해지므로, 그 열에 빈칸이 없는지 먼저 확인합니다.</li>
+<li><b>Cox 모형의 변수.</b> lifelines <code>CoxPHFitter().fit(df, ...)</code>는 df에 남은 열을 모두 공변량으로 넣습니다. 환자 번호(pid)를 남겨 두면 pid도 변수로 들어갑니다. 실습 14 표본에서는 위험비가 0.6066에서 0.6067로 거의 바뀌지 않았지만, 추적 중에 만든 변수 같은 열이 남으면 결과가 크게 달라질 수 있으므로 넣을 열만 골라 넘깁니다.</li>
+<li><b>0일 이하의 time.</b> lifelines의 Cox 모형과 Kaplan-Meier는 time이 0이나 음수여도 경고 없이 적합합니다. 실습 14 표본에서 30명의 time을 −5일로 바꿔도 위험비가 0.6066에서 0.6070으로 바뀔 뿐 오류가 나지 않았습니다(보건통계학 기초 14장 d 절 '추적은 언제 시작하고 언제 끝나나?'의 접힌 상자).</li>
+<li><b>비율의 신뢰구간.</b> statsmodels <code>proportion_confint()</code>의 기본 method는 정규근사(normal)입니다. 정의 B의 양성예측도 1,391/1,438은 95.8–97.7%, 결과 정의의 171/200은 80.6–90.4%가 나옵니다. 본문의 Wilson 구간(95.7–97.5%, 80.0–89.7%)은 <code>method=<wbr>"wilson"</code>을 적어야 나옵니다.</li>
+<li><b>발생률의 신뢰구간.</b> statsmodels <code>confint_poisson()</code>은 method에 기본값이 없어 적지 않으면 오류가 납니다. <code>method=<wbr>"exact-c"</code>로 정확 구간을 구하면 SGLT2 억제제군은 1,000인년당 5.54(4.95–6.18)입니다. 발생률비의 구간과 검정은 기본값이 score 방법입니다(<a href="stats.html#ch12-s1">보건통계학 기초 12장 a 절</a> '발생률을 비교할 때 무엇을 정하나?').</li>
+<li><b>같은 날의 사건.</b> 같은 날 사건이 여럿일 때 lifelines는 Efron 방법, statsmodels PHReg는 Breslow 방법이 기본값입니다(<a href="stats.html#ch11-s1">보건통계학 기초 11장</a> '내 연구에서 분석하기'의 접힌 상자 '같은 날 사건이 여러 건이면 프로그램은 어떻게 하나?'). 이 코호트에서는 둘 다 보정 위험비가 0.6092였습니다.</li>
+</ul>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc17-s5">
+<h2><span class="sec-no">e.</span>자발적 보고 자료의 불균형 분석</h2>
+
+<h3>2×2 표 하나로 지표를 구하려면?</h3>
+<p><strong>네 칸(그 약·그 사건, 그 약·다른 사건, 다른 약·그 사건, 다른 약·다른 사건)만 있으면 ROR과 IC는 기본 R의 몇 줄로 계산됩니다.</strong> 보건통계학 기초 <a href="stats.html#ch14-s5">14장 e 절</a>의 가상 보고 자료(보고 100만 건, 당뇨병약 보고 5만 건)입니다. IC의 하한은 감마분포의 2.5% 분위수로 구합니다.</p>
+<!--FIG:rc17_disp-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>당뇨병약 보고를 배경으로 한 SGLT2 억제제–DKA: 관찰 60건, 기대 24건, ROR 3.02(2.25–4.06), IC 1.30(하한 0.92).</b> 14장 본문의 숫자입니다. 바로 위 줄처럼 보고 전체를 배경으로 하면 ROR이 35.53으로 커집니다.</span></li>
+<li><span class="mk">2</span><span><b>시판 첫해 말: 4건, ROR 3.34(1.15–9.71), IC 하한 −0.45.</b> ROR의 하한은 1을 넘지만 IC의 하한은 0 아래라, 지표에 따라 신호 여부가 갈립니다.</span></li>
+<li><span class="mk">3</span><span><b>χ² 3.62(Yates 보정) 대 5.50(보정 없음).</b> <code>chisq.test()</code>는 2×2 표에서 Yates 보정이 기본입니다. Evans 기준(χ² ≥ 4)에 들어가는지가 보정 여부로 갈리므로 어느 쪽을 썼는지 Methods에 적습니다. 칸의 기대 빈도가 작다는 경고도 함께 나옵니다.</span></li>
+</ol>
+
+<h3>보고 단위 자료로 모든 조합을 한 번에 계산하려면?</h3>
+<p><strong>한 줄이 '보고 하나의 약 하나와 사건 하나'인 표를 pvda 패키지의 <code>da()</code>에 넣으면 모든 약–사건 조합의 관찰 수, 기대 수, IC, ROR, PRR이 한 번에 나옵니다.</strong> 여기서는 당뇨병약 보고 5만 건을 그런 표로 만들어 넣었습니다. 배경을 좁히려면 당뇨병약이 있는 보고만 먼저 고른 뒤 넣습니다.</p>
+<!--FIG:rc17_da-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>SGLT2: obs 60, exp_rrr 24, ic 1.30(ic2.5 0.92), ror 3.02(2.25–4.06).</b> 2×2 표로 구한 값과 같습니다.</span></li>
+</ol>
+<p><code>da()</code>의 기본값 가운데 결과를 바꾸는 것이 둘 있습니다. <code>rule_of_N = 3</code>이라 보고가 3건 미만인 조합의 ROR과 PRR은 NA로 비우고(IC는 계산함), <code>number_of_digits = 2</code>라 결과를 소수 둘째 자리로 반올림해 돌려줍니다. 5건 기준을 쓰려면 <code>rule_of_N = 5</code>로 바꾸고, 기준값 근처의 조합은 반올림 전 값으로 판정합니다. 모든 조합의 보고 수로 사전분포를 추정해야 하는 EBGM은 openEBGM 패키지가 계산합니다.</p>
+<!--FOLD py:파이썬으로 하면: numpy와 scipy로 ROR과 IC-->
+<p>파이썬에는 pvda 같은 불균형 분석 패키지가 흔하지 않아, 2×2 표의 지표는 직접 계산합니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; from scipy import stats
+&gt;&gt;&gt; def disp(a, b, c, d):
+...     ror = a * d / (b * c)
+...     se = np.sqrt(1/a + 1/b + 1/c + 1/d)
+...     E = (a + b) * (a + c) / (a + b + c + d)          # 기대 보고 수
+...     ic = np.log2((a + 0.5) / (E + 0.5))
+...     ic025 = np.log2(stats.gamma.ppf(0.025, a + 0.5, scale=1 / (E + 0.5)))
+...     return np.round([a, E, ror, np.exp(np.log(ror) - 1.96 * se),
+...                      np.exp(np.log(ror) + 1.96 * se), ic, ic025], 2)
+&gt;&gt;&gt; print(disp(60, 4940, 180, 44820))</span>
+[60.   24.    3.02  2.25  4.06  1.3   0.92]
+<span class="cm">&gt;&gt;&gt; chi2, p, dof, exp = stats.chi2_contingency([[4, 296], [23, 5677]])   # Yates 보정이 기본
+&gt;&gt;&gt; print(round(chi2, 2))</span>
+3.62</pre>
+<p>scipy의 <code>gamma.ppf()</code>는 R과 달리 비율(rate) 대신 척도(scale = 1/rate)를 받습니다. <code>chi2_contingency()</code>도 2×2 표에서는 Yates 보정이 기본이라, 보정하지 않은 χ²는 <code>correction=False</code>로 구합니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ f -->
+<section class="sec" id="rc17-s6">
+<h2><span class="sec-no">f.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 세척 기간을 180일로 줄이면</h3>
+<p>b 절의 표본에서 세척 기간을 365일 대신 180일로 두고 선정 흐름표를 다시 만드세요. 최종 인원은 얼마나 늘고, 늘어난 사람은 어떤 사람인가요?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc17_t1-->
+<p>기존 사용자로 빠지는 사람이 4,103명에서 3,785명으로 줄어 최종 인원이 5,552명에서 5,856명(DPP-4 억제제 4,812명, SGLT2 억제제 1,044명)으로 늘어납니다. 늘어난 사람은 첫 처방일 181–365일 전에 같은 계열의 처방이 있던 사람, 곧 쓰다가 잠시 쉬고 다시 시작한 사람입니다. 이들이 신규 사용자로 섞이면 약을 견뎌 낸 사람이 들어와 기존 사용자 편향이 다시 생길 수 있습니다(보건통계학 기초 <a href="stats.html#ch14-s2">14장 b 절</a>).</p>
+</div></details>
+
+<h3>과제 2. ITT 유사 분석</h3>
+<p>전체 코호트의 time_itt와 event_itt 열(빈칸은 as-treated와 같음)로 ITT 유사 분석의 보정 위험비와 역 Kaplan-Meier 중앙 추적기간을 구하고, d 절의 as-treated 분석과 비교하세요.</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc17_t2-->
+<p>보정 위험비 0.73(0.67–0.79), 중앙 추적기간 3.50년입니다. as-treated 분석(0.61, 1.80년)보다 1에 가깝고 추적이 깁니다. 약을 끊거나 바꾼 뒤의 기간까지 원래 군으로 세어 두 군의 차이가 희석되기 때문이며, 두 결과는 서로 다른 질문에 답합니다(보건통계학 기초 <a href="stats.html#ch14-s4">14장 d 절</a> 표 14-5).</p>
+</div></details>
+</section>

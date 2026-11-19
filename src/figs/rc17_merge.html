@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">표를 이을 때 행이 사라지지 않게 하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">inp &lt;- subset(visit, setting == &quot;I&quot;)                    # 입원 명세서만
+a &lt;- merge(person, inp, by = &quot;pid&quot;)                     # 기본값: 두 표 모두에 있는 행만
+b &lt;- merge(person, inp, by = &quot;pid&quot;, all.x = TRUE)       # 입원이 없는 사람도 남김
+c(rows_inner = nrow(a), people_inner = length(unique(a$pid)),
+  rows_left = nrow(b), people_left = length(unique(b$pid)))
+first_inp &lt;- aggregate(visit_date ~ pid, data = inp, FUN = min)   # 여러 행을 한 사람 한 줄로
+head(first_inp, 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  rows_inner people_inner    rows_left  people_left 
+        1277         1148        10435        10306<span class="mk">1</span> 
+    pid visit_date
+1 10001 2015-04-02
+2 10025 2021-08-28
+3 10032 2016-04-06</pre></div></div>

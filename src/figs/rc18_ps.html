@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">성향점수 모형과 두 군의 겹침 (15장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ps_fit &lt;- glm(drugA ~ age + female + hf + ckd + prior_hosp + n_drug + tertiary,
+              family = binomial, data = d)
+summary(ps_fit)$coefficients
+d$ps &lt;- fitted(ps_fit)                                    # 환자마다의 성향점수
+nobs(ps_fit)                                              # 분석에 들어간 인원
+sapply(split(d$ps, d$drugA), range)                       # 군별 점수의 범위(0 = B, 1 = A)
+r &lt;- rank(d$ps); n1 &lt;- sum(d$drugA); n0 &lt;- sum(1 - d$drugA)
+(sum(r[d$drugA == 1]) - n1 * (n1 + 1) / 2) / (n1 * n0)   # C 통계량
+ex &lt;- data.frame(age = c(78, 58), female = c(1, 0), hf = c(1, 0), ckd = c(1, 0),
+                 prior_hosp = c(1, 0), n_drug = c(9, 4), tertiary = c(1, 0))
+round(predict(ps_fit, newdata = ex, type = &quot;response&quot;), 4)   # 15장 b 절의 두 환자</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               Estimate  Std. Error    z value     Pr(&gt;|z|)
+(Intercept) -2.91342309 0.151999725 -19.167292 6.943041e-82
+age          0.02648388<span class="mk">1</span> 0.002284999  11.590324 4.613859e-31
+female      -0.07572730 0.042569450  -1.778912 7.525423e-02
+hf           0.75662343 0.074111911  10.209201 1.803429e-24
+ckd          0.47909263 0.060643413   7.900159 2.785473e-15
+prior_hosp   0.47172139 0.054154267   8.710697 3.020129e-18
+n_drug       0.07307614 0.008772453   8.330183 8.071756e-17
+tertiary     0.55928045 0.048406055  11.553936 7.051553e-31
+[1] 10000<span class="mk">2</span>
+             0         1
+[1,] 0.1296727 0.1492039
+[2,] 0.8956509 0.9324756<span class="mk">3</span>
+[1] 0.6575961<span class="mk">4</span>
+     1      2 
+0.8809 0.2526<span class="mk">5</span></pre></div></div>

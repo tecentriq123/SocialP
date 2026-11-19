@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">E-value 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">evalue &lt;- function(rr) { rr &lt;- ifelse(rr &lt; 1, 1 / rr, rr); rr + sqrt(rr * (rr - 1)) }
+ev_ci  &lt;- function(lo, hi) if (lo &lt;= 1 &amp; hi &gt;= 1) 1 else if (hi &lt; 1) evalue(hi) else evalue(lo)   # 1에 가까운 끝
+est &lt;- function(fit, V) {                     # 반올림하지 않은 추정값과 신뢰한계
+  b &lt;- unname(coef(fit)[&quot;drugA&quot;]); se &lt;- sqrt(V[&quot;drugA&quot;, &quot;drugA&quot;])
+  exp(c(b, b - 1.96 * se, b + 1.96 * se))
+}
+f0 &lt;- glm(hosp_1y ~ drugA, family = poisson, data = d)
+e  &lt;- rbind(crude   = est(f0, vcovHC(f0, type = &quot;HC0&quot;)),
+            matched = est(fm, vcovCL(fm, cluster = ~ pair, type = &quot;HC0&quot;)),
+            iptw    = est(fw, vcovHC(fw, type = &quot;HC0&quot;)))
+round(cbind(E_point = evalue(e[, 1]), E_limit = apply(e, 1, function(x) ev_ci(x[2], x[3]))), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        E_point E_limit
+crude     1.988   1.667<span class="mk">1</span>
+matched   1.437   1.000<span class="mk">2</span>
+iptw      1.275   1.000</pre></div></div>

@@ -1,0 +1,26 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">처방 기록에서 공백, 중단일, PDC 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rx1 &lt;- data.frame(pt = &quot;P1&quot;,                     # 14장 c 절의 가상 환자 한 명
+  date = as.Date(c(&quot;2021-03-02&quot;, &quot;2021-04-01&quot;, &quot;2021-05-06&quot;, &quot;2021-06-05&quot;, &quot;2021-10-18&quot;, &quot;2022-01-16&quot;)),
+  supply = c(30, 30, 30, 90, 90, 90))            # 공급일수
+rx1 &lt;- rx1[order(rx1$pt, rx1$date), ]
+rx1$runout &lt;- rx1$date + rx1$supply              # 약이 떨어지는 날
+nxt &lt;- ave(as.numeric(rx1$date), rx1$pt, FUN = function(x) c(x[-1], NA))   # 같은 환자의 다음 처방일
+rx1$gap &lt;- nxt - as.numeric(rx1$runout)          # 공백 일수
+rx1[, c(&quot;date&quot;, &quot;supply&quot;, &quot;runout&quot;, &quot;gap&quot;)]
+stop_date &lt;- function(d, grace) {                # 공백 &gt; 유예기간인 첫 처방의 &#x27;떨어지는 날 + 유예기간&#x27;
+  over &lt;- is.na(d$gap) | d$gap &gt; grace
+  d$runout[over][1] + grace
+}
+sapply(c(grace30 = 30, grace60 = 60, grace90 = 90), function(g) format(stop_date(rx1, g)))
+win_end &lt;- min(rx1$date) + 365
+covered &lt;- sum(pmax(0, as.numeric(pmin(rx1$runout, win_end) - rx1$date)))
+c(covered = covered, PDC = round(covered / 365, 3))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        date supply     runout gap
+1 2021-03-02     30 2021-04-01   0
+2 2021-04-01     30 2021-05-01   5
+3 2021-05-06     30 2021-06-05   0
+4 2021-06-05     90 2021-09-03  45<span class="mk">1</span>
+5 2021-10-18     90 2022-01-16   0
+6 2022-01-16     90 2022-04-16  NA
+     grace30      grace60      grace90 
+&quot;2021-10-03&quot; &quot;2022-06-15&quot; &quot;2022-07-15&quot;<span class="mk">2</span> 
+covered     PDC 
+315.000   0.863<span class="mk">3</span></pre></div></div>

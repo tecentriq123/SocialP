@@ -30,7 +30,7 @@
 <li>측정하지 않은 교란이 결론을 바꿀 수 있는지 점검하는 두 방법의 쓰임을 말할 수 있다. 하나는 추정값을 1(차이 없음)로 되돌리는 데 필요한 교란의 세기(E-value)이고, 다른 하나는 약과 무관해야 할 결과(음성 대조 결과)를 분석하는 것이다.</li>
 <li>성향점수 분석의 Methods를 다섯 부분(공변량, 성향점수 모형과 겹침, 매칭과 결과를 적용할 대상, 균형과 효과 추정, 민감도 분석)으로 나눠 쓰고, Results 첫 문장에 매칭된 인원과 효과 추정값, 95% CI를 쓸 수 있다.</li>
 </ol></dd>
-<dt>직접 분석할 때</dt><dd>분석 순서와, 프로그램이 하는 일과 내가 정할 일은 장 끝 '장 마무리'에 모았습니다. 설정값과 프로그램 출력은 해당 소제목의 직접 분석 상자에 있습니다. 코드는 <a href="r.html#lab15">실습 15</a>에서 이 장과 같은 코호트로 직접 돌려 봅니다.</dd>
+<dt>직접 분석할 때</dt><dd>분석 순서와, 프로그램이 하는 일과 내가 정할 일은 장 끝 '장 마무리'에 모았습니다. 설정값과 프로그램 출력은 해당 소제목의 직접 분석 상자에 있습니다. 코드는 <a href="r.html#rc18">R과 파이썬으로 하는 통계분석 11장</a>(R)과 <a href="r.html#lab15">실습 15</a>(파이썬)에서 이 장과 같은 코호트로 직접 돌려 봅니다.</dd>
 </dl></details>
 </div>
 
@@ -93,7 +93,7 @@
 
 <p><strong>즉, 두 군을 공정하게 비교하려면 약을 시작하기 전의 특성 가운데 무엇을 맞출지부터 정해야 합니다.</strong></p>
 
-<h3>2. 예제 코호트에서 따라가기</h3>
+<h3>2. 보정할 변수는 어떻게 고르나?</h3>
 <p><strong>어떤 변수를 넣느냐에 따라 상대위험도가 1.33에서 0.93까지 움직입니다. 넣지 못한 허약에 의한 교란은 끝까지 남습니다.</strong></p>
 
 <h4 id="ch15-s1-adjust">보정할 변수를 늘리면 상대위험도는 어떻게 움직이나?</h4>
@@ -107,8 +107,9 @@
 <tr class="hi"><td>측정한 7개 변수 모두</td><td class="r">0.93 (0.83–1.05)</td></tr>
 <tr><td>7개 변수 + 허약 (실제 연구에서는 불가능)</td><td class="r">0.80 (0.71–0.90)</td></tr>
 </tbody></table></div>
-<!--FOLD:이 표의 상대위험도는 어떤 모형으로 구했나?--><p>결과가 1년 안 입원 여부(이분형)이고 약 11%로 아주 드물지는 않아서, 오즈비 대신 상대위험도를 바로 주는 수정 포아송 회귀를 썼습니다(<a href="#ch12-s2">12장 b 절</a>의 접힌 상자 '결과가 예/아니오인데 상대위험도를 구하려면?')<cite data-ref="zou2004"></cite>. 입원 여부를 결과로, 약물 A 여부와 각 줄의 변수를 설명변수로 넣고 강건 표준오차로 신뢰구간을 구했습니다. 같은 7개 변수를 로지스틱 회귀에 넣으면 오즈비<span class="en">(odds ratio, OR; 교차비)</span>는 0.92(0.80–1.05)로, 상대위험도 0.93보다 1에서 조금 더 멉니다. 사건이 드물지 않으면 오즈비는 상대위험도보다 1에서 멀리 나옵니다(<a href="#ch08-s2">8장 b 절</a> '오즈비는 왜 상대위험도보다 1에서 멀리 있나?'). 흔히 결과가 10%를 넘으면 그 차이가 눈에 띄기 시작한다고 봅니다. 이 10% 기준은 오즈비를 상대위험도처럼 읽어도 되는지에 대한 것입니다. e 절에서 위험비를 상대위험도처럼 E-value 식에 넣어도 되는지 가를 때 쓰는 기준(대략 15%)과는 다릅니다(e 절의 접힌 상자 'E-value는 어떻게 계산하고, 위험비나 오즈비는 어떻게 넣나?').</p>
-<p>파이썬에서는 statsmodels의 <code>GEE(..., family=Poisson(), cov_struct=Independence())</code> 또는 <code>GLM(..., family=Poisson()).fit(cov_type="HC0")</code>로 적합합니다.</p>
+<!--FOLD:이 표의 상대위험도는 어떤 모형으로 구했나?-->
+<p>결과가 1년 안 입원 여부(이분형)이고 약 11%로 아주 드물지는 않아서, 오즈비 대신 상대위험도를 바로 주는 수정 포아송 회귀를 썼습니다(<a href="#ch12-s2">12장 b 절</a>의 접힌 상자 '결과가 예/아니오인데 상대위험도를 구하려면?')<cite data-ref="zou2004"></cite>. 입원 여부를 결과로, 약물 A 여부와 각 줄의 변수를 설명변수로 넣고 강건 표준오차로 신뢰구간을 구했습니다. 같은 7개 변수를 로지스틱 회귀에 넣으면 오즈비<span class="en">(odds ratio, OR; 교차비)</span>는 0.92(0.80–1.05)로, 상대위험도 0.93보다 1에서 조금 더 멉니다. 사건이 드물지 않으면 오즈비는 상대위험도보다 1에서 멀리 나옵니다(<a href="#ch08-s2">8장 b 절</a> '오즈비는 왜 상대위험도보다 1에서 멀리 있나?'). 흔히 결과가 10%를 넘으면 그 차이가 눈에 띄기 시작한다고 봅니다. 이 10% 기준은 오즈비를 상대위험도처럼 읽어도 되는지에 대한 것입니다. e 절에서 위험비를 상대위험도처럼 E-value 식에 넣어도 되는지 가를 때 쓰는 기준(대략 15%)과는 다릅니다(e 절의 접힌 상자 'E-value는 어떻게 계산하고, 위험비나 오즈비는 어떻게 넣나?').</p>
+<p>코드는 <a href="r.html#rc18-s1">R과 파이썬으로 하는 통계분석 11장 a 절</a>에 있습니다.</p>
 <!--/FOLD-->
 <p>교란변수를 더 넣을수록 추정값이 1.33에서 참값 0.80 쪽으로 움직입니다.</p>
 <ul>
@@ -246,7 +247,7 @@
 <li>잰 기간을 쓰지 않는 것입니다. "baseline covariates"만으로는 첫 처방일 이전의 기록인지 추적 중의 기록인지 알 수 없습니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="r.html#lab15-s1">실습 15 a 절</a>에서 이 장의 코호트를 불러와 보정 전 두 군을 요약하고, '보정할 변수를 늘리면 상대위험도는 어떻게 움직이나?'의 표처럼 보정할 변수를 늘려 가며 상대위험도를 다시 구합니다.</p>
+<p class="lab-link">직접 해 보기 · <a href="r.html#rc18-s1">R과 파이썬으로 하는 통계분석 11장 a 절</a>에서 이 장의 코호트로 보정할 변수를 늘려 가며 수정 포아송 회귀의 상대위험도를 R로 구합니다. 파이썬으로는 <a href="r.html#lab15-s1">실습 15 a 절</a>에서 이 장의 코호트를 불러와 보정 전 두 군을 요약하고, '보정할 변수를 늘리면 상대위험도는 어떻게 움직이나?'의 표처럼 보정할 변수를 늘려 가며 상대위험도를 다시 구합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>두 약의 사용자는 처음부터 다릅니다. 이 장의 코호트에서 그대로 비교한 상대위험도 1.33은 참값 0.80과 방향부터 반대였고, 더 아픈 환자가 A를 받은 적응증에 의한 교란 때문이었습니다.</li>
@@ -309,7 +310,7 @@ Y군의 위험 = 0.3 × 8% + 0.7 × 20% = 16.4%<br>
 <p><strong>성향점수</strong><span class="en">(propensity score, PS)</span>는 "이 환자의 기저특성으로 볼 때 약물 A를 처방받았을 확률"이고, 0과 1 사이의 값입니다<cite data-ref="rosenbaum1983"></cite>. 일곱 변수를 하나하나 맞추는 대신 "A를 받을 확률이 40%였던 환자"끼리 비교하면 짝을 찾기 쉬워집니다. 점수 하나만 같아도 일곱 변수가 함께 맞춰지는 이유는 아래 '점수가 같은 환자끼리는 왜 특성도 비슷해지나?'에서 봅니다. 다만 같은 점수대에 두 약의 사용자가 모두 있어야 비교할 수 있으므로, 점수를 구한 뒤에는 두 군의 점수가 겹치는지 확인합니다.</p>
 
 
-<h3>2. 예제 코호트에서 따라가기</h3>
+<h3>2. 성향점수는 어떻게 구하고 무엇을 보나?</h3>
 <p><strong>성향점수는 'A를 받았는가'를 결과변수로 둔 로지스틱 회귀의 예측확률입니다. 입원은 쓰지 않습니다.</strong></p>
 <p>여기서는 성향점수를 계산하고, 그 점수로 두 가지를 확인합니다. 점수가 같은 환자끼리 특성도 비슷한지, 두 군의 점수 분포가 겹치는지입니다. 점수 모형이 맞지 않으면 점수가 같아도 특성이 다를 수 있고, 한쪽 군에만 있는 점수대의 환자는 비교할 상대가 없기 때문입니다.</p>
 
@@ -416,64 +417,9 @@ Y군의 위험 = 0.3 × 8% + 0.7 × 20% = 16.4%<br>
 <div class="quick"><p class="qk">잠깐 확인</p><p>결과 사건이 40건뿐인 드문 부작용 연구인데, A 사용자도 60명뿐이고 B 사용자는 수천 명이라고 합시다. 이때도 성향점수가 결과 회귀보다 여러 변수를 다루기 쉬울까요?</p><details><summary>답 보기</summary><div><p>그 이점이 크게 줄어듭니다. 성향점수 모형에서 넣을 수 있는 변수의 수를 정하는 것은 두 치료군 가운데 적은 쪽의 인원인데, 여기서는 그것이 A 사용자 60명뿐이라 성향점수 모형에도 많은 변수를 넣기 어렵기 때문입니다.</p></div></details></div>
 
 <h4>프로그램에는 무엇을 넣고 무엇이 나오나?</h4>
-<p>환자 한 명이 한 줄인 표 df가 있으면 앞의 성향점수 모형은 statsmodels에서 다음 두 줄입니다.</p>
-<pre class="out"><span class="cm"># 파이썬 (statsmodels)</span>
-fit = smf.logit("drugA ~ age + female + hf + ckd"
-                " + prior_hosp + n_drug + tertiary", data=df).fit()
-df["ps"] = fit.predict(df)</pre>
-<p>프로그램이 내놓는 것은 변수마다의 계수와, <code>fit.predict(df)</code>로 얻는 환자마다의 성향점수입니다. 두 군의 점수 분포 그림, 점수의 범위, C 통계량은 따로 주지 않으므로 점수 열로 직접 구합니다('두 군의 점수는 겹치는가?'). 나이 같은 연속형 변수를 어떤 형태로 넣을지는 균형을 본 뒤 정하며, 고치는 법은 d 절 '성향점수 모형은 어떻게 고치나?'에 있습니다.</p>
-<!--FOLD do:프로그램 출력을 한 줄씩 읽으면?--><div class="paper">
-<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels의 성향점수 모형</b><span>가상의 예시 (statsmodels 0.15)</span></div>
-<div class="paper-b">
-<p>데이터프레임 df는 환자 한 명이 한 줄이고 drugA(약물 A = 1, B = 0)와 7개 공변량 열이 있습니다. 아래는 statsmodels 0.15.0으로 실제 실행한 출력이며, 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
-<pre class="out"><span class="cm">&gt;&gt;&gt; import statsmodels.formula.api as smf</span>
-<span class="cm">&gt;&gt;&gt; fit = smf.logit("drugA ~ age + female + hf + ckd + prior_hosp + n_drug + tertiary", data=df).fit()</span>
-<span class="cm">&gt;&gt;&gt; print(fit.summary())</span>
-                           Logit Regression Results
-==============================================================================
-Dep. Variable:                  drugA <span class="mk">1</span> No. Observations:                10000
-Model:                          Logit   Df Residuals:                     9992
-Method:                           MLE   Df Model:                            7
-Date:                Fri, 02 Oct 2026   Pseudo R-squ.:                 0.06109 <span class="mk">2</span>
-Time:                        20:17:36   Log-Likelihood:                -6338.6
-converged:                       True   LL-Null:                       -6751.0
-Covariance Type:            nonrobust   LLR p-value:                8.337e-174
-==============================================================================
-                 coef    std err          z      P&gt;|z|      [0.025      0.975]
-------------------------------------------------------------------------------
-Intercept     -2.9134      0.152    -19.167      0.000      -3.211      -2.616
-age            0.0265      0.002     11.590      0.000       0.022       0.031
-female        -0.0757      0.043     -1.779      0.075 <span class="mk">3</span>   -0.159       0.008
-hf             0.7566 <span class="mk">4</span>   0.074     10.209      0.000       0.611       0.902
-ckd            0.4791      0.061      7.900      0.000       0.360       0.598
-prior_hosp     0.4717      0.054      8.711      0.000       0.366       0.578
-n_drug         0.0731      0.009      8.330      0.000       0.056       0.090
-tertiary       0.5593      0.048     11.554      0.000       0.464       0.654
-==============================================================================
-<span class="cm">&gt;&gt;&gt; df["ps"] = fit.predict(df)</span>
-<span class="cm">&gt;&gt;&gt; df.groupby("drugA")["ps"].agg(["mean", "min", "max"]).round(3)</span>
-        mean    min    max
-drugA
-0      0.372  0.130  0.896 <span class="mk">5</span>
-1      0.454  0.149  0.932</pre>
-<ol class="marks">
-<li><span class="mk">1</span><span><b>결과변수가 치료입니다.</b> Dep. Variable이 입원이 아니라 drugA입니다. 성향점수 모형은 "누가 A를 받았는가"를 설명하는 모형입니다.</span></li>
-<li><span class="mk">2</span><span><b>설명력이 낮아도 됩니다.</b> Pseudo R²가 0.06으로 작습니다. 약 선택이 이 변수들만으로 정해지지 않는다는 뜻이고, 두 군이 잘 겹친다는 것과도 맞아떨어집니다. Pseudo R²를 높이는 것이 목표가 아닙니다.</span></li>
-<li><span class="mk">3</span><span><b>유의하지 않은 변수.</b> female은 P = 0.075입니다. 미리 정한 변수이므로 그대로 둡니다.</span></li>
-<li><span class="mk">4</span><span><b>계수는 처방 양상입니다.</b> hf의 계수를 오즈비로 바꾸면 e<sup>0.7566</sup> = 2.13이고, 다른 변수가 같을 때 심부전 환자가 A를 처방받을 오즈가 2.13배라는 뜻입니다. 약의 효과와는 관계가 없습니다.</span></li>
-<li><span class="mk">5</span><span><b>성향점수의 범위.</b> <code>fit.predict(df)</code>가 환자별 성향점수입니다. B군 0.130–0.896, A군 0.149–0.932로 범위가 거의 같아 겹침이 좋습니다.</span></li>
-</ol>
-</div></div>
-<!--/FOLD-->
-<!--FOLD do:결측이 있거나 scikit-learn을 쓰면 무엇이 달라지나?--><p>statsmodels 0.15.0과 scikit-learn 1.9.1로 이 코호트에서 확인한 동작입니다.</p>
-<div class="tbl-wrap"><table class="tbl tight">
-<thead><tr><th>상황</th><th>프로그램이 하는 일</th></tr></thead>
-<tbody>
-<tr><td>공변량에 결측이 있음</td><td>statsmodels의 모형식은 결측이 있는 행을 경고 없이 빼고 적합합니다. 10명의 나이를 결측으로 두면 No. Observations가 9,990이고, <code>fit.predict(df)</code>는 그 10명에게 점수 대신 NaN을 줍니다. 가중 분석(GEE)은 이 10명을 빼고 계산합니다. 그러나 <a href="r.html#lab15-s3">실습 15</a>의 <code>match_1to1</code>처럼 <code>np.argmin</code>으로 짝을 찾는 함수는 B 사용자 한 명의 점수만 NaN이어도 짝을 하나도 만들지 못합니다(이 코호트에서 0쌍, 경고 없음)</td></tr>
-<tr><td>scikit-learn을 기본값으로 씀</td><td><code>LogisticRegression()</code>은 계수를 0 쪽으로 줄이는 규제<span class="en">(penalty)</span>를 기본으로 겁니다(C = 1.0인 L2 규제). statsmodels 점수와의 차이는 이 코호트에서 최대 0.0015이지만, 300명을 뽑은 부분 표본에서는 최대 0.030입니다</td></tr>
-<tr><td>scikit-learn에서 규제를 끔</td><td><code>LogisticRegression(<wbr>C=np.inf)</code>로 끄면 statsmodels 점수와의 차이가 0.001 미만입니다. 점수는 <code>predict_<wbr>proba(X)[:, 1]</code>입니다. 1.8 이전 버전은 <code>penalty=None</code>으로 끄고, 1.9.1에서 <code>penalty</code>를 쓰면 곧 없어질 인자라는 경고가 납니다</td></tr>
-</tbody></table></div>
-<p>그래서 분석 인원 <code>fit.nobs</code>가 코호트 인원과 같은지 먼저 봅니다. 결측으로 빠지는 환자가 있으면 몇 명이 왜 빠지는지 확인하고 처리 방법을 정합니다(<a href="#ch09-s1">9장</a>의 접힌 상자 '결측값이 있으면 프로그램은 어떻게 하나?'). scikit-learn을 쓴다면 표본이 작을수록 규제가 점수를 더 많이 바꾸므로 규제를 끕니다. 다만 규제를 꺼도 반복 계산을 멈추는 기준이 달라 점수가 소수 넷째 자리에서 차이 나고, 이 작은 차이로도 매칭의 짝이 바뀔 수 있습니다(c 절 '프로그램에는 무엇을 넣나?'). C 통계량은 scikit-learn의 <code>roc_auc_<wbr>score(df["drugA"], df["ps"])</code>로 구하고, 이 코호트에서 0.658입니다.</p><!--/FOLD-->
+<p>성향점수 모형에 넣는 것은 환자 한 명이 한 줄인 표의 치료 열(약물 A = 1, B = 0)과 일곱 공변량 열입니다. 결과변수가 입원이 아니라 치료라는 점만 다를 뿐, 보통의 로지스틱 회귀입니다. 프로그램이 내놓는 것은 변수마다의 계수와 환자마다의 성향점수입니다. 두 군의 점수 분포 그림, 점수의 범위, C 통계량은 따로 주지 않으므로 점수 열로 직접 구합니다('두 군의 점수는 겹치는가?'). 나이 같은 연속형 변수를 어떤 형태로 넣을지는 균형을 본 뒤 정하며, 고치는 법은 d 절 '성향점수 모형은 어떻게 고치나?'에 있습니다.</p>
+<p>출력에서는 세 가지를 확인합니다. 결과변수가 치료인지, 분석 인원이 코호트 인원과 같은지, 점수 범위가 두 군에서 겹치는지입니다. 대부분의 프로그램은 공변량이 비어 있는 환자를 경고 없이 빼고 적합하고 그 환자에게 점수를 주지 않으므로, 빠진 환자가 있으면 몇 명이 왜 빠지는지 확인하고 처리 방법을 정합니다(<a href="#ch09-s1">9장</a>의 접힌 상자 '결측값이 있으면 프로그램은 어떻게 하나?'). 계수를 0 쪽으로 줄이는 규제를 기본으로 거는 함수도 있어(파이썬 scikit-learn), 그런 함수로 구한 점수는 표본이 작을수록 보통의 로지스틱 회귀와 달라집니다. Pseudo R²나 C 통계량을 높이는 것은 목표가 아닙니다. 이 코호트의 C 통계량은 0.658입니다.</p>
+<p class="lab-link">직접 해 보기 · <a href="r.html#rc18-s2">R과 파이썬으로 하는 통계분석 11장 b 절</a>에서 이 모형을 R의 <code>glm()</code>으로 적합하고, 계수와 성향점수, 두 군의 점수 범위, C 통계량을 출력에서 읽습니다. 파이썬 statsmodels의 출력 읽기와 결측·규제의 동작은 그 절의 접힌 상자에 있습니다.</p>
 
 <h3 id="ch15-s2-trap">3. 흔한 함정과 확인할 것</h3>
 <p><strong>성향점수 모형은 '누가 A를 받았나'를 설명하는 모형입니다. 그래서 예측모형처럼 평가하면 판단이 틀어집니다.</strong></p>
@@ -532,7 +478,7 @@ drugA
 <li>제외 인원을 쓰지 않는 것입니다. 겹침 때문에 빠진 사람이 있으면 기준과 인원을, 없으면 없다고 씁니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="r.html#lab15-s2">실습 15 b 절</a>에서 일곱 변수가 모두 같은 환자끼리 묶어 보고(칸이 너무 잘게 나뉘는 문제), 같은 코호트로 성향점수 모형을 적합해 두 환자의 점수와 두 군의 분포를 확인합니다. <a href="r.html#lab15-s5">실습 15의 과제 3</a>에서는 교란변수 하나(심부전)를 뺀 성향점수 모형이 무엇을 놓치는지 찾아봅니다.</p>
+<p class="lab-link">직접 해 보기 · <a href="r.html#lab15-s2">실습 15 b 절</a>(파이썬)에서 일곱 변수가 모두 같은 환자끼리 묶어 보고(칸이 너무 잘게 나뉘는 문제), 같은 코호트로 성향점수 모형을 적합해 두 환자의 점수와 두 군의 분포를 확인합니다. <a href="r.html#lab15-s5">실습 15의 과제 3</a>에서는 교란변수 하나(심부전)를 뺀 성향점수 모형이 무엇을 놓치는지 찾아봅니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>성향점수는 기저특성으로 볼 때 약물 A를 받을 확률이고, 입원할 확률이 아닙니다. 치료 여부를 결과변수로 둔 로지스틱 회귀의 예측확률로 구하고, 결과 사건인 입원은 쓰지 않습니다. 모형의 계수는 처방 양상입니다.</li>
@@ -603,7 +549,7 @@ drugA
 </tbody></table></div>
 <p><strong>즉, 매칭과 가중 가운데 무엇을 쓸지는 '누구에서의 효과를 알고 싶은가'와 함께 정합니다.</strong></p>
 
-<h3>2. 예제 코호트에서 따라가기</h3>
+<h3>2. 매칭과 가중은 어떻게 하나?</h3>
 <p><strong>가중은 비슷한 환자들 가운데 드문 치료를 받은 환자를 여러 명으로 셈해 두 군의 구성을 같게 만들고, 매칭은 짝을 찾지 못한 환자를 뺍니다. 그래서 매칭과 가중은 맞추는 대상이 다릅니다.</strong></p>
 
 <h4 id="ch15-s3-iptw">가중치는 어떻게 두 군의 구성을 같게 만드나?</h4>
@@ -717,7 +663,7 @@ B의 위험 = 110 ÷ 700 = 15.7%<br>
 <li><b>층화</b><span class="en">(stratification)</span><b>.</b> 층마다 점수 폭이 넓으면 같은 층 안에도 두 군의 불균형이 남습니다. 이 코호트의 가장 높은 5분위 층에서는 나이의 표준화 평균차가 0.16, 심부전이 0.18로 여전히 0.1을 넘고, 다섯 층을 합친 RR은 1.01(0.90–1.13)입니다.</li>
 <li><b>공변량 보정</b><span class="en">(covariate adjustment)</span><b>.</b> 결과 회귀모형에 치료와 성향점수를 함께 넣습니다. 이 코호트에서 RR 0.93(0.83–1.05)으로 7개 변수를 직접 넣은 회귀(a 절의 0.93)와 같습니다. 성향점수와 결과의 관계를 모형이 맞게 잡아야 하고, 균형을 눈으로 확인하는 단계가 없습니다.</li>
 </ul><!--/FOLD-->
-<!--FOLD do:치료군이 셋 이상이면?--><p>다항 로지스틱 회귀나 부스팅 모형으로 환자마다 각 치료를 받을 확률을 구하고, 실제로 받은 치료의 확률의 역수를 가중치로 줍니다<cite data-ref="mccaffrey2013"></cite>. 균형은 군을 둘씩 짝지어 구한 SMD로 확인하고, 그 가운데 가장 큰 값을 보고하기도 합니다(<a href="#ch04-s1">4장 a 절</a>). 파이썬에서는 statsmodels의 <code>MNLogit</code>으로 확률을 구하고 가중치는 직접 계산합니다.</p><!--/FOLD-->
+<!--FOLD do:치료군이 셋 이상이면?--><p>다항 로지스틱 회귀나 부스팅 모형으로 환자마다 각 치료를 받을 확률을 구하고, 실제로 받은 치료의 확률의 역수를 가중치로 줍니다<cite data-ref="mccaffrey2013"></cite>. 균형은 군을 둘씩 짝지어 구한 SMD로 확인하고, 그 가운데 가장 큰 값을 보고하기도 합니다(<a href="#ch04-s1">4장 a 절</a>). 다항 로지스틱 회귀 함수로 확률을 구하고 가중치는 직접 계산합니다.</p><!--/FOLD-->
 
 <h4 id="ch15-s3-unmatched">예제 코호트에서는 누가 짝을 못 찾았나?</h4>
 <p><strong>A 사용자 4,053명 가운데 3,516명(86.8%)이 짝을 찾았고, 빠진 537명은 가장 나이 많고 아픈 A 사용자입니다.</strong></p>
@@ -769,11 +715,9 @@ B의 위험 = 110 ÷ 700 = 15.7%<br>
 <div class="quick"><p class="qk">잠깐 확인</p><p>환자 가가 드물게 B를 받았을 때의 가중치 8.4를 안정화 가중치로 바꾸면, 이 환자는 B군의 다른 환자에 비해 덜 크게 셈해지나요?</p><details><summary>답 보기</summary><div><p>그렇지 않습니다. 안정화는 B군의 모든 환자에게 B를 받은 환자의 전체 비율 0.595(5,947 ÷ 10,000)를 똑같이 곱하므로, 8.4는 약 5.0이 되지만 B군 안에서 누가 몇 배 크게 셈해지는지는 그대로입니다. 그래서 군별 가중 위험과 상대위험도도 바뀌지 않습니다.</p></div></details></div>
 
 <h4>프로그램에는 무엇을 넣나?</h4>
-<p>매칭과 가중에 넣는 것은 b 절에서 구한 성향점수 열과 치료 열(약물 A = 1, B = 0)입니다. 결과 사건인 입원은 이 단계에서 쓰지 않습니다. 위에서 본 역확률 가중치와 ATT 가중치는 numpy로 한 줄씩 만듭니다.</p>
-<pre class="out"><span class="cm"># 파이썬 (numpy). ps는 성향점수 열</span>
-w_ate = np.where(df["drugA"] == 1, 1 / df["ps"], 1 / (1 - df["ps"]))   <span class="cm"># 역확률 가중치</span>
-w_att = np.where(df["drugA"] == 1, 1, df["ps"] / (1 - df["ps"]))       <span class="cm"># ATT 가중치</span></pre>
-<p>성향점수 매칭 함수는 statsmodels, scipy, lifelines에 없습니다. scikit-learn의 <code>NearestNeighbors</code>로 가장 가까운 상대를 찾을 수는 있지만, 한 번 쓴 B 사용자를 다시 쓰는 복원 매칭만 됩니다. 그래서 비복원 매칭과 허용 한계는 반복문으로 직접 짭니다(<a href="r.html#lab15-s3">실습 15 c 절</a>). 매칭의 비율, 허용 한계, 복원 여부, A 사용자를 짝짓는 순서, 가중치의 종류는 프로그램이 정해 주지 않으므로 분석 전에 정합니다. 이 선택이 결과를 얼마나 바꾸는지는 '예제 코호트에서는 누가 짝을 못 찾았나?'와 '예제 코호트의 가중치는 얼마나 커졌나?'의 접힌 상자들에 있습니다. 성향점수를 어느 프로그램으로 구했는지도 짝을 바꿉니다. scikit-learn에서 규제를 꺼도 점수가 소수 넷째 자리에서 달라, 이 코호트에서는 statsmodels 점수로 매칭했을 때의 상대위험도 0.91(d 절)이 0.92가 됩니다(규제를 켜 둔 기본값이면 0.90, <a href="r.html#lab15-s2">실습 15 b 절</a>).</p>
+<p>매칭과 가중에 넣는 것은 b 절에서 구한 성향점수 열과 치료 열(약물 A = 1, B = 0)입니다. 결과 사건인 입원은 이 단계에서 쓰지 않습니다. 위에서 본 역확률 가중치와 ATT 가중치는 성향점수로 한 줄씩 계산합니다.</p>
+<p>매칭은 전용 함수가 있는 프로그램(R의 MatchIt)도 있고, 반복문으로 직접 짜야 하는 프로그램(파이썬)도 있습니다. 어느 쪽이든 매칭의 비율, 허용 한계, 복원 여부, A 사용자를 짝짓는 순서, 가중치의 종류는 프로그램이 정해 주지 않거나 기본값이 이 장의 설계와 다르므로 분석 전에 정합니다(예를 들어 MatchIt은 점수가 큰 사람부터 짝짓는 것이 기본). 이 선택이 결과를 얼마나 바꾸는지는 '예제 코호트에서는 누가 짝을 못 찾았나?'와 '예제 코호트의 가중치는 얼마나 커졌나?'의 접힌 상자들에 있습니다. 성향점수를 어느 프로그램으로 구했는지도 짝을 바꿉니다. 규제를 거는 함수로 구한 점수는 소수 넷째 자리에서 달라, 이 코호트에서는 상대위험도 0.91(d 절)이 0.90–0.92로 달라집니다.</p>
+<p class="lab-link">직접 해 보기 · <a href="r.html#rc18-s3">R과 파이썬으로 하는 통계분석 11장 c 절</a>에서 15장과 같은 순서로 1:1 매칭을 하고 MatchIt의 결과와 비교하며, 네 가지 가중치의 범위와 유효 표본 크기를 구합니다. 파이썬 코드는 그 절의 접힌 상자에 있습니다.</p>
 
 <h3 id="ch15-s3-trap">3. 흔한 함정과 확인할 것</h3>
 <p><strong>매칭과 가중의 결과를 읽을 때 틀리기 쉬운 것은 '누구에서의 효과'와 '실제 인원'입니다.</strong></p>
@@ -841,7 +785,7 @@ w_att = np.where(df["drugA"] == 1, 1, df["ps"] / (1 - df["ps"]))       <span cla
 <li>매칭된 인원만 쓰고 빠진 사람의 특성을 쓰지 않는 것입니다. "Of 4,053 drug A users, 3,516 were matched"만으로는 빠진 537명이 고위험 환자였다는 것이 드러나지 않으므로, 짝을 찾지 못한 사람의 특성을 부록 표로 싣습니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="r.html#lab15-s3">실습 15 c 절</a>에서 1:1 매칭 함수를 직접 짜서 짝을 만들고, 짝을 못 찾은 환자와 역확률 가중치를 확인합니다. 같은 절의 '가중치의 종류와 맞추는 대상'에서는 ATT 가중과 겹침 가중('두 치료가 모두 고려될 만했던 환자에서의 효과는?')이 두 군을 각각 어디에 맞추는지 비교합니다.</p>
+<p class="lab-link">직접 해 보기 · <a href="r.html#lab15-s3">실습 15 c 절</a>(파이썬)에서 1:1 매칭 함수를 직접 짜서 짝을 만들고, 짝을 못 찾은 환자와 역확률 가중치를 확인합니다. 같은 절의 '가중치의 종류와 맞추는 대상'에서는 ATT 가중과 겹침 가중('두 치료가 모두 고려될 만했던 환자에서의 효과는?')이 두 군을 각각 어디에 맞추는지 비교합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>매칭은 A 사용자마다 성향점수가 가까운 B 사용자를 짝지어 짝이 된 환자만 비교하고, 역확률 가중(IPTW)은 받은 치료를 받을 확률의 역수로 가중해 모든 환자를 씁니다.</li>
@@ -894,7 +838,7 @@ RR = 12.0 ÷ 16.0 = 0.75</p>
 심부전 있는 B 환자의 ATT 가중치 = 0.75 ÷ 0.25 = 3</p></div>
 <div class="eq">\[ sw = \frac{A \cdot P(A = 1)}{e(x)} + \frac{(1 - A) \cdot P(A = 0)}{1 - e(x)}, \qquad \hat{p}_a = \frac{\sum_{i: A_i = a} w_i Y_i}{\sum_{i: A_i = a} w_i} \]
 <p>왼쪽은 안정화 가중치입니다. 예제 코호트에서 환자 가가 A를 받았다면 다음과 같습니다.</p>
-<p class="calc">P(A = 1) = 4,053 ÷ 10,000 = 0.405<br>
+<p class="calc">A 사용자의 비율 P(A = 1) = A 사용자 ÷ 전체 = 4,053 ÷ 10,000 = 0.405<br>
 안정화 가중치 = 0.405 ÷ 0.88 = 0.46</p>
 <p>오른쪽은 가중 위험으로, 군 안에서 가중치를 곱한 사건의 합을 가중치의 합으로 나눕니다.</p></div>
 </section>
@@ -930,7 +874,7 @@ RR = 12.0 ÷ 16.0 = 0.75</p>
 </ol>
 <p><strong>즉, 균형이 먼저이고 결과는 그다음입니다.</strong></p>
 
-<h3>2. 예제 코호트에서 따라가기</h3>
+<h3>2. 균형은 어떻게 보고 효과는 어떻게 추정하나?</h3>
 <p><strong>측정한 일곱 변수의 SMD는 매칭 뒤 모두 0.02 이하가 되었고, 그다음에 결과를 비교하니 상대위험도는 0.91(0.80–1.03)이었습니다.</strong></p>
 
 <h4 id="ch15-s4-smd">두 군이 비슷해졌는지는 무엇으로 보나?</h4>
@@ -943,8 +887,8 @@ RR = 12.0 ÷ 16.0 = 0.75</p>
 <p>흔히 이 값이 0.1 미만이면 균형이 맞았다고 봅니다<cite data-ref="austin2009smd"></cite>. 이 기준은 널리 쓰는 관례이고, 이 선을 넘으면 반드시 편향이 생긴다는 뜻은 아닙니다. 매칭 후에는 매칭된 환자만으로 같은 계산을 다시 하고(심부전 9.0% 대 9.3%이면 0.01), 가중 후에는 가중 평균과 가중 분산으로 계산합니다. 변수마다 매칭·가중 전후의 SMD를 한 그림에 그린 것을 <strong>Love plot</strong>이라고 합니다.</p>
 <!--FIG:ch15_love-->
 <p>그림 15-5처럼 예제 코호트에서는 보정 전에 7개 변수 가운데 6개의 SMD가 0.1을 넘었지만(가장 큰 것은 나이 0.35), 1:1 매칭 후에는 모두 0.02 이하, 역확률 가중(IPTW) 후에는 모두 0.01 이하가 되었습니다.</p>
-<!--FOLD do:SMD는 프로그램에서 어떻게 구하나?-->
-<p>SMD는 위의 세 단계를 몇 줄의 함수로 옮겨 직접 계산합니다(<a href="r.html#lab15-s4">실습 15 d 절</a>의 <code>smd</code> 함수). 가중 후에는 평균과 분산을 모두 가중해서 구합니다. 가중 평균은 <code>np.average(x, weights=w)</code>로 구합니다. 가중 분산은 각 값에서 가중 평균을 뺀 뒤 제곱하고, 그 값들을 같은 가중치로 다시 평균해 구합니다<cite data-ref="austin2015iptw"></cite>.</p>
+<!--FOLD do:SMD는 어떻게 계산하고, 무엇을 정해 두나?-->
+<p>SMD는 위의 세 단계를 몇 줄의 함수로 옮겨 직접 계산하거나, 균형표 전용 패키지(R의 cobalt)로 구합니다(코드는 <a href="r.html#rc18-s4">R과 파이썬으로 하는 통계분석 11장 d 절</a>). 가중 후에는 평균과 분산을 모두 가중해서 구합니다. 가중 분산은 각 값에서 가중 평균을 뺀 뒤 제곱하고, 그 값들을 같은 가중치로 다시 평균해 구합니다<cite data-ref="austin2015iptw"></cite>.</p>
 <p>함수를 짤 때 정할 것이 두 가지 있습니다.</p>
 <ul>
 <li><b>매칭 후의 분모.</b> 매칭된 환자의 표준편차로 나눌지, 매칭 전 코호트의 표준편차로 나눌지 정합니다. 매칭 전 표준편차를 쓰면 매칭 전후의 분모가 같아지므로, 매칭 전후에 SMD가 달라진 만큼은 오로지 두 군의 평균 차이가 달라진 만큼을 나타냅니다. 이 장은 매칭된 환자의 표준편차를 썼습니다. 이 코호트에서는 두 분모로 구한 값이 소수 둘째 자리까지 같았지만(상급종합병원 처방 0.02), 어느 쪽을 썼는지 표의 각주나 Methods에 밝힙니다.</li>
@@ -968,7 +912,7 @@ RR = 12.0 ÷ 16.0 = 0.75</p>
 <p>이 코호트에서는 처음 모형만으로도 1:1 매칭과 역확률 가중 모두에서 측정한 7개 변수의 균형이 맞았으므로, 모형을 고치지 않고 결과를 비교합니다.</p>
 
 <h4 id="ch15-s4-effect">효과는 어떤 모형으로 추정하나?</h4>
-<p>교란은 매칭이나 가중으로 이미 다뤘으므로 결과 모형에는 보통 치료 변수 하나만 넣습니다. 그래서 프로그램에 넣는 것도 간단합니다. 결과 열과 치료 열 하나를 넣고, 매칭 자료에는 짝 번호를, 가중 자료에는 가중치 열을 함께 넣습니다. 이 장의 상대위험도는 statsmodels의 포아송 GEE로, 위험비는 lifelines의 Cox 모형으로 구했습니다(포아송 GEE는 <a href="#ch12-s2">12장 b 절</a>의 접힌 상자 '결과가 예/아니오인데 상대위험도를 구하려면?'). 짝 번호와 가중치를 넣는 인자는 아래 '신뢰구간은 왜 짝과 가중치를 반영해야 하나?'의 접힌 상자에 있습니다.</p>
+<p>교란은 매칭이나 가중으로 이미 다뤘으므로 결과 모형에는 보통 치료 변수 하나만 넣습니다. 그래서 프로그램에 넣는 것도 간단합니다. 결과 열과 치료 열 하나를 넣고, 매칭 자료에는 짝 번호를, 가중 자료에는 가중치 열을 함께 넣습니다. 이 장의 상대위험도는 강건 분산을 쓴 수정 포아송 회귀로(<a href="#ch12-s2">12장 b 절</a>의 접힌 상자 '결과가 예/아니오인데 상대위험도를 구하려면?'), 위험비는 Cox 모형으로 구했습니다. 짝 번호와 가중치를 넣는 코드는 <a href="r.html#rc18-s4">R과 파이썬으로 하는 통계분석 11장 d 절</a>에 있습니다.</p>
 <p>아래 표의 RR은 1년 안 입원 위험의 비(상대위험도)이고, HR은 입원까지의 시간을 Cox 모형(<a href="#ch11-s1">11장</a>)으로 분석한 위험비<span class="en">(hazard ratio)</span>입니다.</p>
 <div class="tbl-wrap" id="ch15-tb21" data-name="효과 추정 결과"><table class="tbl tight">
 <thead><tr><th>분석</th><th class="r">A군<br>1년 입원</th><th class="r">B군<br>1년 입원</th><th class="r">RR<br>(95% CI)</th><th class="r">HR<br>(95% CI)</th></tr></thead>
@@ -998,7 +942,7 @@ RR = 12.0 ÷ 16.0 = 0.75</p>
 </ol>
 <p>그래서 역확률 가중의 0.95에 대해 보통의 가중치를 인원처럼 다뤄 구간을 구하면 0.88–1.04이고, 가중치를 반영하면 0.85–1.07입니다. <strong>즉, 가중치를 인원으로 세면 실제보다 많은 정보가 있는 것처럼 계산되어 신뢰구간이 지나치게 좁아집니다.</strong></p>
 <p>논문에서는 짝과 가중치를 두 방법으로 반영합니다. 하나는 모형이 가정한 흩어짐 대신 실제 자료의 흩어짐을 환자나 짝 단위로 모아 재는 <strong>강건 분산</strong><span class="en">(robust variance)</span>입니다(<a href="#ch11-s1">11장</a>의 접힌 상자 '같은 병원 환자나 반복 입원처럼 관측이 닮았으면?'). 다른 하나는 자료를 다시 뽑아 전 과정을 되풀이하는 <strong>부트스트랩</strong><span class="en">(bootstrap)</span>입니다(<a href="#ch01-s6">1장 f 절</a>의 접힌 상자 '부트스트랩 신뢰구간은 어떻게 구하고 무엇을 밝히나?'). 위 효과 추정 표의 매칭과 역확률 가중 행은 강건 분산으로 구했습니다. 부트스트랩을 쓸 때는 매칭 방식에 맞춰 다시 뽑는 단위를 정합니다(접힌 상자 '부트스트랩은 매칭 방식에 따라 무엇을 다시 뽑나?').</p>
-<!--FOLD do:강건 분산, 부트스트랩, 짝을 층으로 둔 위험비는 프로그램에서 어떻게 구하나?-->
+<!--FOLD do:강건 분산, 부트스트랩, 짝을 층으로 둔 위험비는 무엇이 다른가?-->
 <p>역확률 가중의 0.95로 신뢰구간을 구한 세 방법을 비교하면 다음과 같습니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th>방법 (95% CI)</th><th>하는 일</th><th>장점과 단점</th></tr></thead>
@@ -1008,17 +952,12 @@ RR = 12.0 ÷ 16.0 = 0.75</p>
 <tr><td>부트스트랩<br>(0.85–1.06)</td><td>자료를 다시 뽑아 성향점수 추정부터 전 과정을 500번 되풀이 (<a href="#ch01-s6">1장 f 절</a>). 논문에서는 "bootstrap"</td><td>모든 단계의 불확실성을 담음. 시간이 오래 걸림</td></tr>
 </tbody></table></div>
 <p>안정화 가중치(c 절 '예제 코호트의 가중치는 얼마나 커졌나?')를 인원처럼 다루면 가상 인원이 원래 인원과 비슷해져, 이 코호트에서는 구간이 0.85–1.07로 강건 분산과 거의 같습니다. 그래도 가중치가 고르지 않아 정보가 줄어든 만큼은 이 계산에 반영되지 않으므로, 안정화 가중치를 쓸 때도 강건 분산이나 부트스트랩으로 구합니다.</p>
-<p>프로그램에서는 다음처럼 넣습니다. statsmodels 0.15와 lifelines 0.30에서 확인한 것이고, 버전에 따라 다를 수 있습니다.</p>
-<ul>
-<li><b>상대위험도.</b> statsmodels의 <code>GEE</code>에 포아송 분포와 독립 작업상관을 주고, 가중치는 <code>weights</code>에, 환자 번호(매칭 자료는 짝 번호)는 <code>groups</code>에 넣습니다. GEE는 강건 분산이 기본값입니다. 같은 모형을 <code>GLM</code>으로 적합하면 기본값이 모형 기반 분산이라 <code>cov_type=<wbr>"HC0"</code>를 적어야 합니다. 이때 보통의 가중치를 <code>freq_weights</code>에 넣으면 HC0를 적어도 구간이 0.88–1.03으로 좁고, <code>var_weights</code>에 넣으면 0.85–1.07이 나옵니다.</li>
-<li><b>위험차.</b> 같은 GEE에서 분포를 정규분포(<code>Gaussian()</code>)로 바꾸면 위험차와 그 강건 신뢰구간이 나옵니다. statsmodels의 <code>TreatmentEffect(…).ipw()</code>는 성향점수 추정까지 반영한 위험차와 두 잠재결과의 평균(A 11.04%, B 11.58%)을 주고, <code>effect_group=1</code>이면 A 사용자 기준 효과를 줍니다. 상대위험도는 주지 않습니다.</li>
-<li><b>위험비.</b> lifelines의 <code>CoxPHFitter().fit(…, weights_col="w")</code>는 <code>robust=False</code>가 기본값이라, 가중치가 정수가 아니면 경고를 내고 모형 기반 분산으로 계산합니다. <code>robust=True</code>를 적거나, 매칭 자료에서 <code>cluster_col="pair"</code>로 짝 번호를 주면 강건 분산이 됩니다. 가중 Kaplan-Meier 곡선은 <code>KaplanMeierFitter().fit(T, E, weights=w)</code>입니다.</li>
-</ul>
-<p>다만 강건 분산이 계산에 담지 않는 것이 하나 있습니다. 성향점수를 표본에서 추정했다는 점입니다. 이 점을 빠뜨리면 구간이 좁아질 것 같지만, 코호트 전체에 맞춘 가중에서는 대개 반대입니다. 표본에서 추정한 성향점수는 그 표본에서 우연히 생긴 두 군의 차이까지 맞춰 줍니다. 그래서 표본을 다시 뽑아도 가중 추정값이 강건 분산이 가정하는 것보다 덜 흔들립니다. 강건 분산은 이 정밀도 이득을 모르기 때문에, 코호트 전체에 맞춘 가중에서는 신뢰구간이 대개 약간 넓게, 곧 보수적으로 나옵니다. 이 코호트에서도 위험차의 표준오차는 강건 분산으로 0.0067, 성향점수 추정까지 반영한 <code>TreatmentEffect(…).ipw()</code>로 0.0066이었고, 부트스트랩 구간도 강건 분산보다 조금 좁았습니다.</p>
+<p>프로그램에서는 매칭 자료라면 짝 번호를, 가중 자료라면 가중치와 환자 번호를 함께 넣고 강건 분산을 지정합니다. 강건 분산이 기본값인 함수와 아닌 함수가 섞여 있어(파이썬 statsmodels의 GEE는 기본, GLM은 지정해야 함), 가중 Cox 모형도 프로그램에 따라 강건 분산이 기본이거나(R) 따로 적어야 합니다(파이썬 lifelines). 함수와 인자는 <a href="r.html#rc18-s4">R과 파이썬으로 하는 통계분석 11장 d 절</a>에 있습니다.</p>
+<p>다만 강건 분산이 계산에 담지 않는 것이 하나 있습니다. 성향점수를 표본에서 추정했다는 점입니다. 이 점을 빠뜨리면 구간이 좁아질 것 같지만, 코호트 전체에 맞춘 가중에서는 대개 반대입니다. 표본에서 추정한 성향점수는 그 표본에서 우연히 생긴 두 군의 차이까지 맞춰 줍니다. 그래서 표본을 다시 뽑아도 가중 추정값이 강건 분산이 가정하는 것보다 덜 흔들립니다. 강건 분산은 이 정밀도 이득을 모르기 때문에, 코호트 전체에 맞춘 가중에서는 신뢰구간이 대개 약간 넓게, 곧 보수적으로 나옵니다. 이 코호트에서도 위험차의 표준오차는 강건 분산으로 0.0067, 성향점수 추정까지 반영한 방법으로 0.0066이었고, 부트스트랩 구간도 강건 분산보다 조금 좁았습니다.</p>
 <p>아래는 매칭 자료에서의 계산과, 짝을 층으로 두는 위험비를 숫자로 본 것입니다.</p>
 <ul>
 <li><b>매칭 자료의 분산.</b> 짝 번호를 군집으로 둔 강건 분산을 쓰면 RR 0.91의 95% CI는 0.80–1.03입니다. 짝을 무시해도 이 코호트에서는 거의 같았습니다(0.80–1.03). 가중과는 반대로, 짝 안의 결과가 서로 닮을수록 짝을 무시한 구간은 실제보다 넓어집니다. 짝 3,516쌍 가운데 A 사용자만 입원한 짝이 333쌍, B 사용자만 입원한 짝이 372쌍입니다. 위험차 (333 − 372) ÷ 3,516 = −1.1%p는 짝지은 자료의 비율 차이(<a href="#ap01-s1">부록 A a 절</a>의 McNemar 검정과 같은 구조)입니다.</li>
-<li><b>짝을 층으로 둔 Cox 모형.</b> 짝마다 기저 위험률을 따로 두는 층화 Cox 모형을 쓰면 HR 0.90(0.78–1.03)입니다. 이 값은 A 사용자가 먼저 입원한 짝 357쌍을 B 사용자가 먼저 입원한 짝 398쌍으로 나눈 값입니다. statsmodels에서는 <code>smf.phreg(<wbr>"hosp_day ~ drugA", data=m, status="hosp_1y", strata="pair")</code>로 적합합니다(<a href="r.html#lab15-s4">실습 15 d 절</a>). 강건 분산을 쓴 모형은 집단 전체의 평균 효과(주변 효과)를, 층화 모형은 짝 안에서의 효과(조건부 효과)를 추정합니다. 위험비에서는 효과가 1에서 멀고 짝마다 원래 입원 위험이 크게 다를수록 주변 효과와 조건부 효과가 벌어집니다<cite data-ref="austin2014surv"></cite>. 이 코호트는 짝을 이룬 두 환자의 입원이 거의 닮지 않아 두 효과가 가깝습니다.</li>
+<li><b>짝을 층으로 둔 Cox 모형.</b> 짝마다 기저 위험률을 따로 두는 층화 Cox 모형을 쓰면 HR 0.90(0.78–1.03)입니다. 이 값은 A 사용자가 먼저 입원한 짝 357쌍을 B 사용자가 먼저 입원한 짝 398쌍으로 나눈 값입니다. 강건 분산을 쓴 모형은 집단 전체의 평균 효과(주변 효과)를, 층화 모형은 짝 안에서의 효과(조건부 효과)를 추정합니다. 위험비에서는 효과가 1에서 멀고 짝마다 원래 입원 위험이 크게 다를수록 주변 효과와 조건부 효과가 벌어집니다<cite data-ref="austin2014surv"></cite>. 이 코호트는 짝을 이룬 두 환자의 입원이 거의 닮지 않아 두 효과가 가깝습니다.</li>
 <li><b>부트스트랩.</b> 자료를 복원추출로 다시 뽑아 성향점수 추정부터 가중까지 전 과정을 500번 반복하면 IPTW RR의 95% CI는 0.85–1.06으로, 강건 분산의 결과와 거의 같습니다. 가중 Kaplan-Meier 곡선의 신뢰구간도 Greenwood 공식 대신 부트스트랩으로 구합니다.</li>
 </ul>
 <!--/FOLD-->
@@ -1123,7 +1062,7 @@ SMD 0.02, 20만 명 대 20만 명의 z = 0.02 × √100,000 = 6.32, P &lt; 0.001
 <li>상대위험도만 쓰고 군별 위험이나 위험차를 빼는 것입니다. 0.91만으로는 100명당 몇 명의 차이인지 알 수 없습니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="r.html#lab15-s4">실습 15 d 절</a>에서 표준화 평균차 함수를 짜서 균형을 확인하고(같은 차이가 인원에 따라 P 값이 달라지는 예 포함), 짝과 가중치를 반영한 신뢰구간과 부트스트랩, 짝을 층으로 둔 위험비를 구합니다.</p>
+<p class="lab-link">직접 해 보기 · <a href="r.html#rc18-s4">R과 파이썬으로 하는 통계분석 11장 d 절</a>에서 표준화 평균차로 균형을 보고, 짝과 가중치를 반영한 상대위험도·위험차·위험비와 부트스트랩 구간을 R로 구합니다. 파이썬으로는 <a href="r.html#lab15-s4">실습 15 d 절</a>에서 표준화 평균차 함수를 짜서 균형을 확인하고(같은 차이가 인원에 따라 P 값이 달라지는 예 포함), 짝과 가중치를 반영한 신뢰구간과 부트스트랩, 짝을 층으로 둔 위험비를 구합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>균형은 두 군의 차이를 표준편차 단위로 잰 표준화 평균차(SMD)로 확인합니다. 모든 변수에서 0.1 미만이 흔히 쓰는 기준이고, 매칭 전후 Table 1이나 Love plot으로 보여 줍니다.</li>
@@ -1208,7 +1147,7 @@ SMD의 절댓값 = 0.003 ÷ 0.364 = 0.01</p>
 <p><strong>즉, 균형표가 좋아도 측정하지 않은 교란은 남고, 그것은 설계로 줄이고 민감도 분석으로 점검합니다.</strong></p>
 <div class="quick"><p class="qk">잠깐 확인</p><p>매칭 후에도 허약은 24.9% 대 11.9%로 달랐습니다. 허약이 A 처방과만 관련이 있고 입원 위험과는 무관했다고 합시다. 이 불균형 때문에 매칭 결과가 치우쳤을까요?</p><details><summary>답 보기</summary><div><p>허약 때문에 치우치지는 않았을 것입니다. 교란은 약 선택과 결과 모두에 영향을 주는 변수에서 생기므로, 입원과 무관한 변수는 두 군에서 비율이 달라도 입원 비교를 치우치게 하지 않습니다. 이 예에서 0.91이 참값 0.80에 미치지 못한 것은 허약이 A군에 몰려 있으면서 입원 위험도 2.7배로 높이기 때문입니다.</p></div></details></div>
 
-<h3>2. 예제 코호트에서 따라가기</h3>
+<h3>2. 남는 교란은 어떻게 점검하나?</h3>
 <p><strong>세 가지를 따로 점검합니다. 방법을 바꿔도 같은가, 결론이 얼마나 쉽게 바뀌는가(E-value), 잔여 교란이 실제로 작용한다는 흔적이 있는가(음성 대조 결과)입니다.</strong></p>
 
 <h4 id="ch15-s5-methods">방법을 바꾸면 결론이 달라지나?</h4>
@@ -1338,7 +1277,7 @@ E-value = 1.6667 + √(1.6667 × 0.6667) = 1.6667 + 1.0541 = 2.72<br>
 <div class="paper">
 <div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results</b><span>이 절의 예로 쓴 예문</span></div>
 <div class="paper-b">
-<p class="excerpt"><b>Methods (continued).</b> <span class="mk">1</span> <span class="hl">Prespecified sensitivity analyses included</span> <span class="mk">2</span> <span class="hl">inverse probability of treatment weighting with stabilized weights (to estimate the effect in the whole cohort) and weighting of drug B users by the odds of the propensity score (to estimate the effect among all drug A users)</span>. <span class="mk">3</span> We also prespecified <span class="hl">an analysis of injury-related emergency department visits, which neither drug is expected to affect but which are more frequent in frail patients, as a negative control outcome</span>, <span class="mk">4</span> and <span class="hl">the calculation of E-values for the point estimate and for the confidence limit closer to the null</span>. <span class="mk">5</span> <span class="hl">Analyses were performed using Python (statsmodels 0.15 and lifelines 0.30).</span></p>
+<p class="excerpt"><b>Methods (continued).</b> <span class="mk">1</span> <span class="hl">Prespecified sensitivity analyses included</span> <span class="mk">2</span> <span class="hl">inverse probability of treatment weighting with stabilized weights (to estimate the effect in the whole cohort) and weighting of drug B users by the odds of the propensity score (to estimate the effect among all drug A users)</span>. <span class="mk">3</span> We also prespecified <span class="hl">an analysis of injury-related emergency department visits, which neither drug is expected to affect but which are more frequent in frail patients, as a negative control outcome</span>, <span class="mk">4</span> and <span class="hl">the calculation of E-values for the point estimate and for the confidence limit closer to the null</span>. <span class="mk">5</span> <span class="hl">Analyses were performed using R version 4.3.3 (sandwich and survival packages).</span></p>
 <p class="excerpt"><b>Results (continued).</b> <span class="mk">6</span> <span class="hl">In sensitivity analyses, the risk ratio was 0.95 (95% CI, 0.85 to 1.07) with inverse probability of treatment weighting and 0.97 (95% CI, 0.86 to 1.10) with weighting to all drug A users.</span> <span class="mk">7</span> <span class="hl">In the matched cohort, drug A was associated with a higher risk of the negative control outcome (risk ratio, 1.29; 95% CI, 1.09 to 1.53), and the E-value for the primary estimate was 1.43 (1 for the confidence limit).</span></p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>미리 정했다.</b> 결과를 본 뒤 고른 민감도 분석은 원하는 결론을 뒷받침하는 쪽만 남았을 수 있습니다. 연구계획서에 미리 적었다고 밝힙니다.</span></li>
@@ -1357,7 +1296,7 @@ E-value = 1.6667 + √(1.6667 × 0.6667) = 1.6667 + 1.0541 = 2.72<br>
 <li>E-value를 점추정값에 대해서만 쓰는 것입니다. 신뢰한계에 대한 E-value가 있어야 잔여 교란이 신뢰구간을 1까지 옮길 수 있는지 알 수 있습니다.</li>
 </ul>
 
-<p class="lab-link">파이썬 실습 · <a href="r.html#lab15-s4">실습 15 d 절</a>의 끝에서 성향점수 모형에 넣지 않은 허약과 음성 대조 결과를 확인하고, 허약이 만든 편향의 크기를 식으로 계산합니다. 같은 실습의 과제 1에서는 E-value를 계산합니다.</p>
+<p class="lab-link">직접 해 보기 · <a href="r.html#rc18-s5">R과 파이썬으로 하는 통계분석 11장 e 절</a>에서 음성 대조 결과와 E-value를 R로 구합니다. 파이썬으로는 <a href="r.html#lab15-s4">실습 15 d 절</a>의 끝에서 성향점수 모형에 넣지 않은 허약과 음성 대조 결과를 확인하고, 허약이 만든 편향의 크기를 식으로 계산합니다. 같은 실습의 과제 1에서는 E-value를 계산합니다.</p>
 
 <div class="keypoints"><p class="kt">정리</p><ul>
 <li>성향점수는 측정한 변수만 맞춥니다. 예제에서 측정한 변수의 균형은 모두 맞았지만 청구자료에 없는 허약은 그대로 남아, 추정값(매칭 0.91, 역확률 가중 0.95, ATT 가중 0.97)이 참값 0.80에 미치지 못했습니다.</li>
@@ -1437,41 +1376,22 @@ E-value = 1.6667 + √(1.6667 × 0.6667) = 1.6667 + 1.0541 = 2.72<br>
 </ul>
 
 <h4>프로그램에는 무엇을 입력하나?</h4>
-<p>여기까지 정했으면 프로그램에서는 아래 코드를 차례로 실행합니다. 이 장의 예제와 같은 열 이름으로 적었습니다. 매칭 함수는 statsmodels와 scikit-learn에 없고 균형 진단용 SMD는 몇 줄이면 되므로, 두 함수(<code>match_1to1</code>, <code>smd</code>)는 <a href="r.html#lab15">실습 15</a>에서 직접 짠 것을 씁니다.</p>
-<pre class="out"><span class="cm"># 파이썬 (statsmodels, lifelines). 불러오기와 df는 실습 15와 같음</span>
-covs = ["age", "female", "hf", "ckd", "prior_hosp",
-        "n_drug", "tertiary"]
-<span class="cm"># 1. 성향점수: 결과변수는 치료(drugA). 입원은 넣지 않음</span>
-ps_fit = smf.logit("drugA ~ " + " + ".join(covs), data=df).fit()
-df["ps"] = ps_fit.predict(df)
-<span class="cm"># 2. 겹침: 두 군의 점수 범위 (분포 그림도 함께 봄)</span>
-df.groupby("drugA")["ps"].agg(["min", "max"])
-<span class="cm"># 3. 가중치. a는 A 사용자이면 True</span>
-a = df["drugA"] == 1
-pA = a.mean()
-df["sw"] = np.where(a, pA / df["ps"], (1 - pA) / (1 - df["ps"]))
-df["w_att"] = np.where(a, 1, df["ps"] / (1 - df["ps"]))
-<span class="cm">#    매칭은 실습 15의 match_1to1()로 짝을 만든 표 m (짝 번호 pair)</span>
-<span class="cm"># 4. 균형: 실습 15의 smd()로 매칭 전후, 가중 후의 SMD</span>
-<span class="cm"># 5. 효과와 강건 분산: groups에 매칭은 짝 번호, 가중은 환자 번호</span>
-opt = dict(family=sm.families.Poisson(),
-           cov_struct=sm.cov_struct.Independence())
-fit_m = smf.gee("hosp_1y ~ drugA", groups="pair", data=m, **opt).fit()
-fit_w = smf.gee("hosp_1y ~ drugA", groups="id", data=df,
-                weights=df["sw"], **opt).fit()
-cox_m = CoxPHFitter().fit(m, "hosp_day", "hosp_1y",
-                          formula="drugA", cluster_col="pair")
-<span class="cm"># 6. 민감도: 가중치 열(w_att)이나 결과 열(injury_ed)만 바꿔 다시 실행</span>
-r = np.exp(fit_m.params["drugA"])
-r = 1 / r if r &lt; 1 else r
-evalue = r + np.sqrt(r * (r - 1))     <span class="cm"># E-value (점추정값)</span></pre>
+<p>여기까지 정했으면 프로그램에서는 다음 여섯 단계를 차례로 실행합니다. 코드는 <a href="r.html#rc18">R과 파이썬으로 하는 통계분석 11장</a>(R)과 <a href="r.html#lab15">실습 15</a>(파이썬)에 이 장의 예제와 같은 열 이름으로 있습니다.</p>
+<ol>
+<li><b>성향점수.</b> 치료 열을 결과변수로, 일곱 공변량을 설명변수로 둔 로지스틱 회귀를 적합하고 환자마다의 점수를 구합니다. 입원은 넣지 않습니다.</li>
+<li><b>겹침.</b> 두 군의 점수 범위와 분포 그림을 봅니다.</li>
+<li><b>매칭과 가중치.</b> 정한 순서와 허용 한계로 1:1 매칭을 하고(짝 번호를 남김), 안정화 가중치와 ATT 가중치를 만듭니다.</li>
+<li><b>균형.</b> 매칭 전후, 가중 후의 SMD를 구합니다.</li>
+<li><b>효과와 강건 분산.</b> 치료 변수 하나만 넣은 결과 모형을 매칭 자료(짝 번호로 묶음)와 가중 자료(환자 번호로 묶음)에서 적합합니다.</li>
+<li><b>민감도.</b> 가중치 열이나 결과 열(음성 대조 결과)만 바꿔 다시 실행하고, E-value를 계산합니다.</li>
+</ol>
 <p>실행하면 이 장의 숫자가 그대로 나옵니다. 상대위험도는 매칭 0.91(0.80–1.03), 역확률 가중 0.95(0.85–1.07)이고, 매칭 자료의 위험비는 0.90(0.79–1.04)입니다. E-value는 반올림 전의 RR 0.908로 계산되어 1.44입니다(본문의 1.43은 0.91로 계산한 값).</p>
-<p>이때 프로그램의 기본값이 결과를 바꾸는 곳이 네 군데 있습니다. statsmodels 0.15, scikit-learn 1.9, lifelines 0.30에서 확인한 것이고, 버전에 따라 다를 수 있습니다.</p>
+<p>이때 프로그램의 기본값이 결과를 바꾸는 곳이 네 군데 있습니다.</p>
 <ul>
-<li><b>결측.</b> <code>smf.logit</code>은 공변량이 비어 있는 행을 경고 없이 빼고 모형을 적합합니다. 그다음 <code>predict</code>를 실행하면 해당 환자의 점수가 빈 값(NaN)이 되고, 이 NaN이 남아 있으면 직접 짠 매칭 함수가 짝을 만들지 못합니다. 요약표의 No. Observations가 코호트 인원과 같은지 봅니다(b 절의 접힌 상자 '결측이 있거나 scikit-learn을 쓰면 무엇이 달라지나?').</li>
-<li><b>규제.</b> scikit-learn의 <code>LogisticRegression()</code>은 기본값으로 계수를 줄이는 규제를 걸어 statsmodels와 점수가 조금 다릅니다. 규제를 끄는 법은 같은 접힌 상자에 있습니다.</li>
-<li><b>매칭 순서.</b> 비복원 매칭은 A 사용자를 짝짓는 순서에 따라 짝과 결과가 조금 달라지므로, 순서를 정한 seed를 적어 둡니다(c 절의 접힌 상자 '복원 여부, 매칭 비율, 매칭 순서는 결과를 얼마나 바꾸나?').</li>
-<li><b>분산.</b> statsmodels의 <code>GEE</code>는 강건 분산이 기본값이지만 <code>GLM</code>은 아니고, lifelines의 가중 Cox 모형은 <code>robust=True</code>나 <code>cluster_col</code>을 적어야 강건 분산이 됩니다(d 절의 접힌 상자 '강건 분산, 부트스트랩, 짝을 층으로 둔 위험비는 프로그램에서 어떻게 구하나?').</li>
+<li><b>결측.</b> 대부분의 프로그램은 공변량이 비어 있는 환자를 경고 없이 빼고 성향점수 모형을 적합하고, 그 환자에게 점수를 주지 않습니다. 점수가 빈 환자가 남으면 매칭이 엉뚱하게 되므로, 분석 인원이 코호트 인원과 같은지 봅니다(b 절 '프로그램에는 무엇을 넣고 무엇이 나오나?').</li>
+<li><b>규제.</b> 계수를 줄이는 규제를 기본으로 거는 함수(파이썬 scikit-learn)는 점수가 조금 다릅니다. 규제를 끄고 씁니다.</li>
+<li><b>매칭 순서.</b> 비복원 매칭은 A 사용자를 짝짓는 순서에 따라 짝과 결과가 조금 달라지므로, 순서를 정한 방법과 seed를 적어 둡니다(c 절의 접힌 상자 '복원 여부, 매칭 비율, 매칭 순서는 결과를 얼마나 바꾸나?').</li>
+<li><b>분산.</b> 강건 분산이 기본값인 함수와 아닌 함수가 섞여 있으므로, 매칭 자료는 짝 단위, 가중 자료는 환자 단위의 강건 분산을 쓰는지 확인합니다(d 절의 접힌 상자 '강건 분산, 부트스트랩, 짝을 층으로 둔 위험비는 무엇이 다른가?').</li>
 </ul>
 
 <h4>계산한 뒤에는 무엇을 판단하나?</h4>
@@ -1490,7 +1410,7 @@ evalue = r + np.sqrt(r * (r - 1))     <span class="cm"># E-value (점추정값)<
 <div class="paper">
 <div class="paper-h"><b>논문에 이렇게 씁니다 · 다섯 절 예문을 이은 Methods와 Results</b><span>이 장의 예로 쓴 예문</span></div>
 <div class="paper-b">
-<p class="excerpt"><b>Methods.</b> Covariates were defined from diagnosis codes and prescription records during the 365 days before the index date (code lists in the Supplement). They were selected before the analysis on the basis of clinical knowledge and previous studies as potential confounders or risk factors for hospitalization and included age, sex, heart failure, chronic kidney disease, and three proxies for overall health status: hospitalization in the prior year, number of drug classes dispensed, and type of prescribing institution. Frailty, smoking, body mass index, and laboratory values were not available in the claims data. The propensity score, the probability of initiating drug A rather than drug B given the baseline covariates, was estimated with logistic regression including all seven covariates. Before outcomes were examined, overlap of the propensity score distributions between the two groups was assessed graphically, and no patients were excluded for lack of overlap. Drug A users, in random order (seed reported in the Supplement), were matched 1:1 to drug B users by nearest-neighbor matching without replacement on the logit of the propensity score, within a caliper of 0.2 standard deviations of the logit. Because drug A users without a comparable drug B user were not included, the primary analysis estimated the effect of drug A among drug A users for whom a comparable drug B user was available. Covariate balance was assessed with standardized mean differences (SMDs) before outcomes were compared, with an SMD below 0.1 indicating adequate balance. Risk ratios and risk differences for 1-year hospitalization were estimated in the matched cohort, with robust variance accounting for matched pairs. Prespecified sensitivity analyses included inverse probability of treatment weighting with stabilized weights to estimate the effect in the whole cohort and weighting of drug B users by the odds of the propensity score to estimate the effect among all drug A users, analysis of injury-related emergency department visits, which neither drug is expected to affect but which are more frequent in frail patients, as a negative control outcome, and calculation of E-values for the point estimate and for the confidence limit closer to the null. Analyses were performed using Python (statsmodels 0.15 and lifelines 0.30).</p>
+<p class="excerpt"><b>Methods.</b> Covariates were defined from diagnosis codes and prescription records during the 365 days before the index date (code lists in the Supplement). They were selected before the analysis on the basis of clinical knowledge and previous studies as potential confounders or risk factors for hospitalization and included age, sex, heart failure, chronic kidney disease, and three proxies for overall health status: hospitalization in the prior year, number of drug classes dispensed, and type of prescribing institution. Frailty, smoking, body mass index, and laboratory values were not available in the claims data. The propensity score, the probability of initiating drug A rather than drug B given the baseline covariates, was estimated with logistic regression including all seven covariates. Before outcomes were examined, overlap of the propensity score distributions between the two groups was assessed graphically, and no patients were excluded for lack of overlap. Drug A users, in random order (seed reported in the Supplement), were matched 1:1 to drug B users by nearest-neighbor matching without replacement on the logit of the propensity score, within a caliper of 0.2 standard deviations of the logit. Because drug A users without a comparable drug B user were not included, the primary analysis estimated the effect of drug A among drug A users for whom a comparable drug B user was available. Covariate balance was assessed with standardized mean differences (SMDs) before outcomes were compared, with an SMD below 0.1 indicating adequate balance. Risk ratios and risk differences for 1-year hospitalization were estimated in the matched cohort, with robust variance accounting for matched pairs. Prespecified sensitivity analyses included inverse probability of treatment weighting with stabilized weights to estimate the effect in the whole cohort and weighting of drug B users by the odds of the propensity score to estimate the effect among all drug A users, analysis of injury-related emergency department visits, which neither drug is expected to affect but which are more frequent in frail patients, as a negative control outcome, and calculation of E-values for the point estimate and for the confidence limit closer to the null. Analyses were performed using R version 4.3.3 (sandwich and survival packages).</p>
 <p class="excerpt"><b>Results.</b> Of 4,053 drug A users, 3,516 (86.8%) were matched, and all SMDs after matching were 0.02 or less; 1-year hospitalization occurred in 383 of 3,516 drug A users (10.9%) and 422 of 3,516 drug B users (12.0%) (risk ratio, 0.91; 95% CI, 0.80 to 1.03; risk difference, −1.1 percentage points; 95% CI, −2.6 to 0.4). In sensitivity analyses, the risk ratio was 0.95 (95% CI, 0.85 to 1.07) with inverse probability of treatment weighting and 0.97 (95% CI, 0.86 to 1.10) with weighting to all drug A users. In the matched cohort, drug A was associated with a higher risk of the negative control outcome (risk ratio, 1.29; 95% CI, 1.09 to 1.53), and the E-value for the primary estimate was 1.43 (1 for the confidence limit).</p>
 </div></div>
 

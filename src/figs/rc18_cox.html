@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">매칭과 가중 자료의 위험비</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">hr &lt;- function(fit) round(exp(c(HR = unname(coef(fit)[&quot;drugA&quot;]), confint(fit)[&quot;drugA&quot;, ])), 3)
+rbind(crude   = hr(coxph(Surv(hosp_day, hosp_1y) ~ drugA, data = d)),
+      iptw    = hr(coxph(Surv(hosp_day, hosp_1y) ~ drugA, data = d, weights = w_ate)),  # 강건 분산이 기본
+      matched = hr(coxph(Surv(hosp_day, hosp_1y) ~ drugA, data = m, cluster = pair)),
+      strata  = hr(coxph(Surv(hosp_day, hosp_1y) ~ drugA + strata(pair), data = m)))    # 짝을 층으로</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           HR 2.5 % 97.5 %
+crude   1.354 1.206  1.521
+iptw    0.952 0.840  1.078<span class="mk">1</span>
+matched 0.903 0.787  1.036
+strata  0.897 0.778  1.035<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">첫 처방일과 세척 기간으로 기존 사용자 가려내기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">study  &lt;- subset(rx, drug %in% c(&quot;SGLT2i&quot;, &quot;DPP4i&quot;))
+enroll &lt;- subset(study, rx_date &gt;= as.Date(&quot;2016-01-01&quot;) &amp; rx_date &lt;= as.Date(&quot;2021-12-31&quot;))
+idx &lt;- aggregate(rx_date ~ pid, data = enroll, FUN = min)       # 등록 기간의 첫 처방일
+names(idx)[2] &lt;- &quot;index_date&quot;
+first &lt;- enroll[enroll$rx_date == idx$index_date[match(enroll$pid, idx$pid)], ]   # 첫 처방일의 처방
+n_cls &lt;- tapply(first$drug, first$pid, function(x) length(unique(x)))
+coh &lt;- idx
+coh$arm  &lt;- first$drug[match(coh$pid, first$pid)]
+coh$both &lt;- n_cls[as.character(coh$pid)] &gt; 1                    # 두 계열을 같은 날 시작
+m &lt;- merge(study, idx, by = &quot;pid&quot;)
+m$before &lt;- as.numeric(m$index_date - m$rx_date)                # 첫 처방일 며칠 전의 처방인가
+coh$prevalent &lt;- coh$pid %in% m$pid[m$before &gt;= 1 &amp; m$before &lt;= 365]   # 세척 기간 365일
+c(people = nrow(coh), both = sum(coh$both), prevalent = sum(coh$prevalent))
+table(coh$arm)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   people      both prevalent 
+    10156       131      4103<span class="mk">1</span> 
+
+ DPP4i SGLT2i 
+  8846   1310<span class="mk">2</span></pre></div></div>

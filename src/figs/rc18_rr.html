@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">매칭과 가중 자료의 상대위험도와 위험차</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fm &lt;- glm(hosp_1y ~ drugA, family = poisson, data = m)
+fw &lt;- glm(hosp_1y ~ drugA, family = poisson, data = d, weights = w_ate)
+ft &lt;- glm(hosp_1y ~ drugA, family = poisson, data = d, weights = w_att)
+fo &lt;- glm(hosp_1y ~ drugA, family = poisson, data = d, weights = w_ow)
+rbind(matched = rr_ci(fm, vcovCL(fm, cluster = ~ pair, type = &quot;HC0&quot;)),   # 짝 번호로 묶은 강건 분산
+      iptw    = rr_ci(fw, vcovHC(fw, type = &quot;HC0&quot;)),
+      att     = rr_ci(ft, vcovHC(ft, type = &quot;HC0&quot;)),
+      overlap = rr_ci(fo, vcovHC(fo, type = &quot;HC0&quot;)),
+      iptw_model_based = rr_ci(fw, vcov(fw)))                             # 가중치를 사람 수로 셈
+gw &lt;- glm(hosp_1y ~ drugA, family = gaussian, data = d, weights = w_ate)   # 위험차
+round(coef(gw)[&quot;drugA&quot;] + c(0, -1.96, 1.96) * sqrt(vcovHC(gw, type = &quot;HC0&quot;)[&quot;drugA&quot;, &quot;drugA&quot;]), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                    RR lower upper
+matched          0.908 0.797 1.033<span class="mk">1</span>
+iptw             0.953 0.848 1.072<span class="mk">2</span>
+att              0.972 0.861 1.097
+overlap          0.942 0.839 1.058
+iptw_model_based 0.953 0.878 1.035<span class="mk">3</span>
+[1] -0.0054 -0.0186  0.0078<span class="mk">4</span></pre></div></div>

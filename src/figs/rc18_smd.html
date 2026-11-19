@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">표준화 평균차로 균형 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">smd &lt;- function(x, g, w = rep(1, length(x))) {        # 가중 평균과 가중 분산으로 구한 SMD
+  m1 &lt;- weighted.mean(x[g == 1], w[g == 1]); m0 &lt;- weighted.mean(x[g == 0], w[g == 0])
+  v1 &lt;- weighted.mean((x[g == 1] - m1)^2, w[g == 1]); v0 &lt;- weighted.mean((x[g == 0] - m0)^2, w[g == 0])
+  (m1 - m0) / sqrt((v1 + v0) / 2)
+}
+vars &lt;- c(&quot;age&quot;, &quot;female&quot;, &quot;hf&quot;, &quot;ckd&quot;, &quot;prior_hosp&quot;, &quot;n_drug&quot;, &quot;tertiary&quot;, &quot;frail&quot;)
+round(sapply(vars, function(v) c(before  = smd(d[[v]], d$drugA),
+                                 matched = smd(m[[v]], m$drugA),
+                                 iptw    = smd(d[[v]], d$drugA, d$w_ate))), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           age female     hf    ckd prior_hosp n_drug tertiary frail
+before   0.346 -0.042  0.292  0.241      0.203  0.331    0.229 0.401<span class="mk">1</span>
+matched  0.004  0.006 -0.010 -0.010     -0.003  0.005    0.018 0.341<span class="mk">2</span>
+iptw    -0.006  0.005  0.000  0.002     -0.002 -0.001   -0.001 0.331</pre></div></div>

@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">역 Kaplan-Meier로 중앙 추적기간 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">km &lt;- survfit(Surv(time / 365.25, 1 - event) ~ 1, data = full)   # 사건과 중도절단을 뒤집은 곡선
+quantile(km, 0.5)$quantile                                        # 역 Kaplan-Meier 중앙 추적기간(년)
+median(full$time) / 365.25                                        # time의 단순 중앙값</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     50 
+1.79603<span class="mk">1</span> 
+[1] 1.752225<span class="mk">2</span></pre></div></div>

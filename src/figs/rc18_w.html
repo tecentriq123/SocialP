@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">역확률 가중치와 그 밖의 가중치</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pA &lt;- mean(d$drugA)
+d$w_ate &lt;- ifelse(d$drugA == 1, 1 / d$ps, 1 / (1 - d$ps))               # 역확률 가중치
+d$w_st  &lt;- ifelse(d$drugA == 1, pA / d$ps, (1 - pA) / (1 - d$ps))       # 안정화 가중치
+d$w_att &lt;- ifelse(d$drugA == 1, 1, d$ps / (1 - d$ps))                   # A 사용자 기준(ATT)
+d$w_ow  &lt;- ifelse(d$drugA == 1, 1 - d$ps, d$ps)                         # 겹침 가중치
+ess &lt;- function(w) sum(w)^2 / sum(w^2)                                  # 유효 표본 크기
+round(rbind(ate = range(d$w_ate), stabilized = range(d$w_st),
+            att_B = range(d$w_att[d$drugA == 0])), 3)
+round(c(sum_A = sum(d$w_ate[d$drugA == 1]), sum_B = sum(d$w_ate[d$drugA == 0]),
+        ess_A = ess(d$w_ate[d$drugA == 1]), ess_B = ess(d$w_ate[d$drugA == 0])), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            [,1]  [,2]
+ate        1.072 9.583<span class="mk">1</span>
+stabilized 0.435 5.699<span class="mk">2</span>
+att_B      0.149 8.583
+  sum_A   sum_B   ess_A   ess_B 
+10040.3  9974.6  3597.5  5470.6<span class="mk">3</span></pre></div></div>

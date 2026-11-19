@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">MatchIt으로 같은 설계 매칭하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(MatchIt))
+set.seed(7)
+mi &lt;- matchit(drugA ~ age + female + hf + ckd + prior_hosp + n_drug + tertiary, data = d,
+              method = &quot;nearest&quot;, distance = &quot;glm&quot;, link = &quot;linear.logit&quot;,   # 로짓 성향점수
+              caliper = 0.2, m.order = &quot;random&quot;)                            # 표준편차의 0.2배
+summary(mi)$nn
+md &lt;- match.data(mi)                     # subclass 열이 짝 번호
+fit &lt;- glm(hosp_1y ~ drugA, family = poisson, data = md)
+rr_ci(fit, vcovCL(fit, cluster = ~ subclass, type = &quot;HC0&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>              Control Treated
+All (ESS)        5947    4053
+All              5947    4053
+Matched (ESS)    3521    3521
+Matched          3521    3521<span class="mk">1</span>
+Unmatched        2426     532
+Discarded           0       0
+   RR lower upper 
+0.926 0.815 1.053<span class="mk">2</span></pre></div></div>

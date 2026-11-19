@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">음성 대조 결과로 남은 교란 찾기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fnc &lt;- glm(injury_ed ~ drugA, family = poisson, data = d)                     # 음성 대조 결과
+fnm &lt;- glm(injury_ed ~ drugA, family = poisson, data = m)
+fnw &lt;- glm(injury_ed ~ drugA, family = poisson, data = d, weights = w_ate)
+rbind(crude   = rr_ci(fnc, vcovHC(fnc, type = &quot;HC0&quot;)),
+      matched = rr_ci(fnm, vcovCL(fnm, cluster = ~ pair, type = &quot;HC0&quot;)),
+      iptw    = rr_ci(fnw, vcovHC(fnw, type = &quot;HC0&quot;)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           RR lower upper
+crude   1.467 1.268 1.697<span class="mk">1</span>
+matched 1.289 1.086 1.530
+iptw    1.262 1.081 1.473<span class="mk">2</span></pre></div></div>

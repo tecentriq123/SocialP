@@ -1,7 +1,7 @@
 <div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">외삽 곡선 여섯 개로 돌린 결과</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">library(flexsurv)
 options(HTTPUserAgent = &quot;Mozilla/5.0&quot;)
 BASE &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
-trial &lt;- read.csv(paste0(BASE, &quot;rcc_trial.csv&quot;))      # 11장의 표준요법 B 시험 자료
+trial &lt;- read.csv(paste0(BASE, &quot;rcc_trial.csv&quot;))      # 13장의 표준요법 B 시험 자료
 dists &lt;- c(exp = &quot;exp&quot;, weibull = &quot;weibull&quot;, gompertz = &quot;gompertz&quot;,
            lnorm = &quot;lnorm&quot;, llogis = &quot;llogis&quot;, gengamma = &quot;gengamma&quot;)
 os_curves &lt;- lapply(dists, function(k) {

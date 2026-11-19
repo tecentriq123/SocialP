@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">나이와 기저 기간의 상병 표시 만들기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">coh &lt;- merge(coh, person[, c(&quot;pid&quot;, &quot;sex&quot;, &quot;birth_year&quot;, &quot;death_date&quot;)], by = &quot;pid&quot;, all.x = TRUE)
+coh$age   &lt;- as.numeric(format(coh$index_date, &quot;%Y&quot;)) - coh$birth_year
+coh$minor &lt;- coh$age &lt; 18
+v &lt;- merge(visit, idx, by = &quot;pid&quot;)
+v$before &lt;- as.numeric(v$index_date - v$visit_date)
+base &lt;- subset(v, before &gt;= 0 &amp; before &lt;= 365)                  # 첫 처방일까지 365일
+has_dx &lt;- function(d, codes, cols = c(&quot;dx_main&quot;, &quot;dx_sub1&quot;, &quot;dx_sub2&quot;)) {
+  pat &lt;- paste0(&quot;^(&quot;, paste(codes, collapse = &quot;|&quot;), &quot;)&quot;)       # 코드의 앞부분이 같으면
+  Reduce(`|`, lapply(cols, function(cl) grepl(pat, d[[cl]])))
+}
+coh$esrd      &lt;- coh$pid %in% base$pid[has_dx(base, c(&quot;N185&quot;, &quot;Z49&quot;, &quot;Z992&quot;))]
+coh$prior_hhf &lt;- coh$pid %in% base$pid[base$setting == &quot;I&quot; &amp; has_dx(base, &quot;I50&quot;, &quot;dx_main&quot;)]
+coh$no_t2dm   &lt;- !(coh$pid %in% v$pid[v$before &gt;= 0 &amp; has_dx(v, &quot;E11&quot;)])
+colSums(coh[, c(&quot;minor&quot;, &quot;esrd&quot;, &quot;prior_hhf&quot;, &quot;no_t2dm&quot;)])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    minor      esrd prior_hhf   no_t2dm 
+       14       194       234       156<span class="mk">1</span></pre></div></div>

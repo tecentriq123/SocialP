@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">추적이 끝나는 날을 고를 때의 NA</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">event    &lt;- as.Date(c(&quot;2019-05-01&quot;, NA, NA))        # 결과 사건일
+death    &lt;- as.Date(c(NA, &quot;2020-02-10&quot;, NA))        # 사망일
+data_end &lt;- as.Date(&quot;2022-12-31&quot;)                   # 자료 종료일
+pmin(event, death, data_end)                        # 후보에 NA가 하나라도 있으면 NA
+pmin(event, death, data_end, na.rm = TRUE)          # 있는 날짜 가운데 가장 이른 날</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] NA NA NA<span class="mk">1</span>
+[1] &quot;2019-05-01&quot; &quot;2020-02-10&quot; &quot;2022-12-31&quot;<span class="mk">2</span></pre></div></div>

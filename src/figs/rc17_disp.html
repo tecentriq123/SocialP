@@ -1,0 +1,25 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">2×2 표로 ROR과 IC 구하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">disp &lt;- function(a, b, c, d) {          # a: 그 약·그 사건, b: 그 약·다른 사건, c·d: 다른 약
+  ror &lt;- (a * d) / (b * c); se &lt;- sqrt(1/a + 1/b + 1/c + 1/d)
+  E   &lt;- (a + b) * (a + c) / (a + b + c + d)                     # 기대 보고 수
+  round(c(obs = a, E = E, ROR = ror, lo = exp(log(ror) - 1.96 * se), hi = exp(log(ror) + 1.96 * se),
+          IC = log2((a + 0.5) / (E + 0.5)),
+          IC025 = log2(qgamma(0.025, shape = a + 0.5, rate = E + 0.5))), 2)
+}
+rbind(sglt2_all = disp(60, 4940, 340, 994660),    # 배경: 보고 전체
+      sglt2_dm  = disp(60, 4940, 180, 44820),     # 배경: 당뇨병약 보고
+      dpp4_dm   = disp(40, 9960, 200, 39800),
+      first_yr  = disp(4, 296, 23, 5677))         # 시판 첫해 말
+chisq.test(matrix(c(4, 296, 23, 5677), 2, byrow = TRUE))$statistic                    # Yates 보정(기본)
+chisq.test(matrix(c(4, 296, 23, 5677), 2, byrow = TRUE), correct = FALSE)$statistic</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          obs     E   ROR    lo    hi    IC IC025
+sglt2_all  60  2.00 35.53 26.97 46.82  4.60  4.21
+sglt2_dm   60 24.00  3.02  2.25  4.06  1.30  0.92<span class="mk">1</span>
+dpp4_dm    40 48.00  0.80  0.57  1.12 -0.26 -0.74
+first_yr    4  1.35  3.34  1.15  9.71  1.28 -0.45<span class="mk">2</span>
+X-squared 
+ 3.620581<span class="mk">3</span> 
+X-squared 
+ 5.500385</pre><pre class="warn-out">Warning message:
+In chisq.test(matrix(c(4, 296, 23, 5677), 2, byrow = TRUE)) :
+  Chi-squared approximation may be incorrect</pre><pre class="warn-out">Warning message:
+In chisq.test(matrix(c(4, 296, 23, 5677), 2, byrow = TRUE), correct = FALSE) :
+  Chi-squared approximation may be incorrect</pre></div></div>

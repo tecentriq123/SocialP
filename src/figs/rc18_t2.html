@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">과제 2 정답: 가중치 자르기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">q &lt;- quantile(d$w_st, c(0.01, 0.99))
+d$w_tr &lt;- pmin(pmax(d$w_st, q[1]), q[2])             # 1·99번째 백분위수에서 자름
+round(q, 3)
+ftr &lt;- glm(hosp_1y ~ drugA, family = poisson, data = d, weights = w_tr)
+rr_ci(ftr, vcovHC(ftr, type = &quot;HC0&quot;))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   1%   99% 
+0.508 2.096 
+   RR lower upper 
+0.971 0.865 1.090<span class="mk">1</span></pre></div></div>

@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">청구 표 세 개를 불러와 한 줄의 단위 확인하기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">B &lt;- &quot;https://socialp-ajou.tecentriq12.workers.dev/data/&quot;
+person &lt;- read.csv(paste0(B, &quot;claims_person.csv&quot;))   # 한 줄 = 한 사람(자격)
+visit  &lt;- read.csv(paste0(B, &quot;claims_visit.csv&quot;))    # 한 줄 = 명세서 한 건
+rx     &lt;- read.csv(paste0(B, &quot;claims_rx.csv&quot;))       # 한 줄 = 처방 한 건
+str(rx)
+for (v in c(&quot;elig_start&quot;, &quot;elig_end&quot;, &quot;death_date&quot;)) person[[v]] &lt;- as.Date(person[[v]])
+visit$visit_date &lt;- as.Date(visit$visit_date)       # 글자 → 날짜
+rx$rx_date       &lt;- as.Date(rx$rx_date)
+sapply(list(person = person, visit = visit, rx = rx),
+       function(d) c(rows = nrow(d), people = length(unique(d$pid))))
+table(rx$drug)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&#x27;data.frame&#x27;:	111882 obs. of  4 variables:
+ $ pid    : int  17780 16338 19326 12899 16198 17564 19557 10224 18222 18222 ...
+ $ rx_date: chr<span class="mk">1</span>  &quot;2015-01-04&quot; &quot;2015-01-10&quot; &quot;2015-01-10&quot; &quot;2015-01-12&quot; ...
+ $ drug   : chr  &quot;metformin&quot; &quot;metformin&quot; &quot;metformin&quot; &quot;metformin&quot; ...
+ $ days   : int  90 60 60 60 90 60 30 60 60 60 ...
+       person visit     rx
+rows    10306 54370 111882<span class="mk">2</span>
+people  10306 10306  10306<span class="mk">3</span>
+
+       DPP4i      insulin    metformin       SGLT2i       statin sulfonylurea 
+       86956          791         6558        16788          454          335</pre></div></div>

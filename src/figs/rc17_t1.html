@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">과제 1 정답: 세척 기간을 180일로 줄이면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">coh180 &lt;- coh
+coh180$prevalent &lt;- coh180$pid %in% m$pid[m$before &gt;= 1 &amp; m$before &lt;= 180]   # 세척 기간 180일
+ft180 &lt;- flow_table(coh180)
+print(ft180$flow, row.names = FALSE)
+table(coh180$arm[ft180$keep])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                              step excluded remaining
+           Prescribed in 2016-2021       NA     10156
+     No type 2 diabetes code (E11)      156     10000
+ Prior use of either class (365 d)     3785      6215
+        Both classes on index date       91      6124
+                    Age &lt; 18 years       10      6114
+          ESRD or dialysis (365 d)      117      5997
+        HF hospitalization (365 d)      141      5856
+
+ DPP4i SGLT2i 
+  4812   1044<span class="mk">1</span></pre></div></div>

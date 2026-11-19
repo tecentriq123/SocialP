@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">양성예측도의 신뢰구간</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">prop.test(1391, 1438, correct = FALSE)$conf.int    # Wilson(점수) 구간: 정의 B의 양성예측도
+binom.test(1391, 1438)$conf.int                    # Clopper–Pearson 정확 구간
+p &lt;- 1391 / 1438
+p + c(-1, 1) * qnorm(0.975) * sqrt(p * (1 - p) / 1438)   # Wald 구간
+prop.test(171, 200, correct = FALSE)$conf.int      # 심부전 입원 정의 171/200</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0.9568087 0.9753326<span class="mk">1</span>
+attr(,&quot;conf.level&quot;)
+[1] 0.95
+[1] 0.9567721 0.9758880
+attr(,&quot;conf.level&quot;)
+[1] 0.95
+[1] 0.9581256 0.9765059<span class="mk">2</span>
+[1] 0.7995133 0.8971065
+attr(,&quot;conf.level&quot;)
+[1] 0.95</pre></div></div>

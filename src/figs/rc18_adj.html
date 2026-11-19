@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">보정할 변수를 늘려 가며 상대위험도 구하기 (15장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages({library(sandwich); library(survival)})
+d &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/ps_cohort.csv&quot;)                       # 한 줄 = 환자 한 명
+rr_ci &lt;- function(fit, V) {                             # 상대위험도와 95% 신뢰구간
+  b &lt;- coef(fit)[&quot;drugA&quot;]; se &lt;- sqrt(V[&quot;drugA&quot;, &quot;drugA&quot;])
+  round(exp(c(RR = unname(b), lower = unname(b) - 1.96 * se, upper = unname(b) + 1.96 * se)), 3)
+}
+sets &lt;- list(none   = hosp_1y ~ drugA,
+             agesex = hosp_1y ~ drugA + age + female,
+             hf_ckd = hosp_1y ~ drugA + age + female + hf + ckd,
+             all7   = hosp_1y ~ drugA + age + female + hf + ckd + prior_hosp + n_drug + tertiary,
+             frail  = hosp_1y ~ drugA + age + female + hf + ckd + prior_hosp + n_drug + tertiary + frail)
+t(sapply(sets, function(f) {
+  fit &lt;- glm(f, family = poisson, data = d)              # 수정 포아송 회귀
+  rr_ci(fit, vcovHC(fit, type = &quot;HC0&quot;))                  # 강건 분산
+}))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          RR lower upper
+none   1.328 1.191 1.481<span class="mk">1</span>
+agesex 1.155 1.035 1.288
+hf_ckd 1.035 0.926 1.158
+all7   0.933 0.833 1.046<span class="mk">2</span>
+frail  0.800 0.714 0.897<span class="mk">3</span></pre></div></div>

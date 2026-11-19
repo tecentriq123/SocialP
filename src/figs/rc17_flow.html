@@ -1,0 +1,29 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">선정 기준을 차례로 적용하며 인원 세기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">steps &lt;- c(no_t2dm   = &quot;No type 2 diabetes code (E11)&quot;,
+           prevalent = &quot;Prior use of either class (365 d)&quot;,
+           both      = &quot;Both classes on index date&quot;,
+           minor     = &quot;Age &lt; 18 years&quot;,
+           esrd      = &quot;ESRD or dialysis (365 d)&quot;,
+           prior_hhf = &quot;HF hospitalization (365 d)&quot;)
+flow_table &lt;- function(coh) {
+  keep &lt;- rep(TRUE, nrow(coh))
+  flow &lt;- data.frame(step = &quot;Prescribed in 2016-2021&quot;, excluded = NA, remaining = nrow(coh))
+  for (s in names(steps)) {
+    out  &lt;- keep &amp; coh[[s]]                   # 이 단계에서 처음 빠지는 사람
+    keep &lt;- keep &amp; !coh[[s]]
+    flow &lt;- rbind(flow, data.frame(step = steps[[s]], excluded = sum(out), remaining = sum(keep)))
+  }
+  list(flow = flow, keep = keep)
+}
+ft &lt;- flow_table(coh)
+print(ft$flow, row.names = FALSE)
+table(coh$arm[ft$keep])</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>                              step excluded remaining
+           Prescribed in 2016-2021       NA     10156
+     No type 2 diabetes code (E11)      156     10000
+ Prior use of either class (365 d)     4103      5897<span class="mk">1</span>
+        Both classes on index date       90      5807
+                    Age &lt; 18 years        9      5798
+          ESRD or dialysis (365 d)      110      5688
+        HF hospitalization (365 d)      136      5552
+
+ DPP4i SGLT2i 
+  4524   1028<span class="mk">2</span></pre></div></div>

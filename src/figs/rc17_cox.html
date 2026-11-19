@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">as-treated 분석의 위험비 (표 14-5)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">f0 &lt;- coxph(Surv(time, event) ~ sglt2, data = full)
+fa &lt;- coxph(Surv(time, event) ~ sglt2 + age + female + htn + ihd + hf + ckd + met + ins, data = full)
+round(rbind(crude    = exp(c(coef(f0), confint(f0))),
+            adjusted = exp(c(coef(fa)[1], confint(fa)[1, ]))), 4)
+round(exp(coef(update(fa, ties = &quot;breslow&quot;)))[&quot;sglt2&quot;], 4)   # 동점 처리를 Breslow로</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          sglt2              
+crude    0.4228 0.3772 0.4740<span class="mk">1</span>
+adjusted 0.6092 0.5427 0.6838<span class="mk">2</span>
+ sglt2 
+0.6092</pre></div></div>

@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 2 정답: ITT 유사 분석</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">full$time_itt2  &lt;- ifelse(is.na(full$time_itt),  full$time,  full$time_itt)    # 빈칸은 as-treated와 같음
+full$event_itt2 &lt;- ifelse(is.na(full$event_itt), full$event, full$event_itt)
+fi &lt;- coxph(Surv(time_itt2, event_itt2) ~ sglt2 + age + female + htn + ihd + hf + ckd + met + ins, data = full)
+round(exp(c(coef(fi)[1], confint(fi)[1, ])), 3)
+quantile(survfit(Surv(time_itt2 / 365.25, 1 - event_itt2) ~ 1, data = full), 0.5)$quantile</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre> sglt2  2.5 % 97.5 % 
+ 0.726  0.665  0.791<span class="mk">1</span> 
+      50 
+3.498973</pre></div></div>
