@@ -36,7 +36,7 @@
 <tr><td data-l="개념"><a href="#ch11-s1-nph">비례위험이 깨졌을 때</a></td><td data-l="뜻">위반한 변수의 범주마다 기저위험률을 따로 두는 층화 Cox 모형, 미리 정한 시점에서 기간을 나눈 기간별 위험비, 시점별 생존율 차이나 RMST 차이처럼 위험비가 아닌 요약값, 위험비가 시간의 함수로 변하게 두는 시간과의 교호작용이 있습니다.</td><td data-l="실무에서 읽는 법">위반한 변수가 보정 변수이면 그 변수로 층화하고(그 변수의 위험비는 나오지 않음), 관심 노출이면 곡선, 기간별 위험비, RMST 차이를 함께 보고합니다. 기간을 나누는 시점은 결과를 보기 전에 정하고, '변수 × 추적 시간' 열을 만들어 넣으면 미래 정보가 들어가 심한 편향이 생깁니다.</td><td data-l="R">층화는 식에 <code>strata(x)</code>, 기간별 위험비는 <code>survSplit(…, cut = 시점)</code>으로 나눈 자료, 시간과의 교호작용은 <code>tt(x)</code> 항과 <code>tt = function(x, t, ...) x * log(t)</code>. RMST 차이는 <code>survRM2::rmst2(time, status, arm, tau = 시점)</code>(<code>arm</code>은 0/1)</td></tr>
 <tr><td data-l="개념"><a href="#ch11-s1-time0">추적 시작 시점과 시간에 따라 변하는 노출</a></td><td data-l="뜻">보통의 Cox 모형은 노출과 공변량을 추적 시작 시점(time 0)의 값 하나로 봅니다. 추적 중에 시작하거나 바뀌는 노출은 시작 전 기간은 비사용, 시작 뒤 기간은 사용으로 나눠 넣는 시간에 따라 변하는 노출로 다룹니다.</td><td data-l="실무에서 읽는 법">추적 중 한 번이라도 약을 쓴 사람을 처음부터 사용군으로 두면 처방 전까지 살아 있던 기간(불멸시간)이 사용군의 관찰 기간으로 셈해져 약이 부당하게 유리해집니다. 공변량은 time 0 당일이나 그 이전에 잰 값을 쓰며, 그 뒤에 잰 값은 매개변수일 수 있어 보정하면 약 효과의 일부가 지워집니다. 시간에 따라 변하는 노출(값이 변함)은 시간에 따라 변하는 효과(위험비가 변함, 비례위험 위반)와 다른 문제입니다.</td><td data-l="R">(시작, 끝] 구간마다 한 줄인 자료로 <code>coxph(Surv(tstart, tstop, status) ~ …)</code>. 이런 자료는 <code>tmerge()</code>로 만듦</td></tr>
 <tr><td data-l="개념"><a href="#ch11-s1-epv">사건 수와 변수 수</a></td><td data-l="뜻">위험비의 정밀도와 검정력은 환자 수가 아니라 주로 사건 수로 정해집니다. 로그 위험비의 표준오차는 대략 1/√(사건 수 × p(1 − p))이고, p는 노출군의 비율입니다.</td><td data-l="실무에서 읽는 법">계수 하나당 사건 10개 이상이라는 경험칙(EPV)이 널리 쓰이며, 가변수와 스플라인의 계수, 변수 선택에서 검토한 후보 변수까지 모두 셉니다. 절대적인 기준은 아니어서 사건이 드문 범주가 있으면 더 필요할 수 있습니다. 유의하지 않은 결과는 신뢰구간으로 어떤 크기의 효과까지 배제되는지 보고, 관찰한 위험비로 계산한 검정력은 해석의 근거로 쓰지 않습니다.</td><td data-l="R"><code>summary()</code> 첫 줄의 <code>n=</code>, <code>number of events=</code></td></tr>
-<tr><td data-l="개념"><a href="#ch11-s1-form">연속형 변수의 형태</a></td><td data-l="뜻">연속형 변수를 그대로 넣으면 어느 값에서나 같은 간격마다 위험률이 같은 배수로 변한다고, 곧 로그 위험률이 직선이라고 가정합니다. 실제 관계가 꺾이거나 J자이면 배수 하나가 어떤 구간의 차이는 부풀리고 어떤 구간은 줄여, 보정 변수라면 보정이 덜 됩니다.</td><td data-l="실무에서 읽는 법">직선이 아니면 제한 삼차 스플라인 같은 유연한 함수로 넣고, 매듭 수와 위치(흔히 3–5개를 분위수 위치에)는 결과와의 관계를 보기 전에 정합니다. 곡선이 필요한지는 직선 모형과의 우도비 검정이나 마팅게일 잔차 그림으로 보고, 범주로 나누면 범주 안의 차이를 버려 보정이 덜 됩니다.</td><td data-l="R"><code>rms::rcs(x, 4)</code>는 매듭을 5·35·65·95번째 백분위수에 둠(결측 아닌 값이 100개 미만이면 바깥 두 매듭은 다섯 번째로 작은 값과 큰 값). 직선과의 비교는 <code>anova(직선 모형, 스플라인 모형)</code>, 마팅게일 잔차는 <code>residuals(fit)</code>의 기본값</td></tr>
+<tr><td data-l="개념"><a href="#ch11-s1-form">연속형 변수의 형태</a></td><td data-l="뜻">연속형 변수를 그대로 넣으면 어느 값에서나 같은 간격마다 위험률이 같은 배수로 변한다고, 즉 로그 위험률이 직선이라고 가정합니다. 실제 관계가 꺾이거나 J자이면 배수 하나가 어떤 구간의 차이는 부풀리고 어떤 구간은 줄여, 보정 변수라면 보정이 덜 됩니다.</td><td data-l="실무에서 읽는 법">직선이 아니면 제한 삼차 스플라인 같은 유연한 함수로 넣고, 매듭 수와 위치(흔히 3–5개를 분위수 위치에)는 결과와의 관계를 보기 전에 정합니다. 곡선이 필요한지는 직선 모형과의 우도비 검정이나 마팅게일 잔차 그림으로 보고, 범주로 나누면 범주 안의 차이를 버려 보정이 덜 됩니다.</td><td data-l="R"><code>rms::rcs(x, 4)</code>는 매듭을 5·35·65·95번째 백분위수에 둠(결측 아닌 값이 100개 미만이면 바깥 두 매듭은 다섯 번째로 작은 값과 큰 값). 직선과의 비교는 <code>anova(직선 모형, 스플라인 모형)</code>, 마팅게일 잔차는 <code>residuals(fit)</code>의 기본값</td></tr>
 <tr><td data-l="개념"><a href="#ch11-s1-cens">중도절단과 관측의 독립</a></td><td data-l="뜻">중도절단된 환자는 같은 조건으로 그 시점까지 살아 있는 다른 환자와 같은 위험을 가져야 하고(비정보적 중도절단), 관측은 서로 독립이어야 합니다.</td><td data-l="실무에서 읽는 법">중도절단의 수보다 이유를 보며, 추적 소실처럼 환자 상태와 관련될 수 있는 사유의 비율이 두 군에서 비슷한지 확인합니다. 같은 병원 환자나 한 환자의 반복 사건처럼 서로 닮은 관측을 독립으로 세면 표준오차가 작게 계산되므로 군집 단위 강건 분산이나 취약성 모형을 쓰고, 다른 원인의 사망이 관심 사건을 막으면 원인별 위험률 모형과 Fine–Gray 모형을 구분해 씁니다.</td><td data-l="R"><code>coxph(…, cluster = 병원)</code>이면 <code>robust se</code> 열이 추가되고 신뢰구간도 이 값으로 구함. 취약성 모형은 식에 <code>frailty(병원)</code></td></tr>
 </tbody></table></div>
 <p class="qref-f"><b><a href="#ch11-s1-st9">논문에 보고할 것</a></b> 시간 척도·추적 시작점(time 0)·사건과 중도절단의 정의, 보정 변수와 고른 근거(측정 시점, 단위, 기준범주), 군별 대상자 수와 사건 수, 보정 전후의 위험비(95% CI)와 P를 비교 방향과 함께("adjusted HR (95% CI)" 형식), 비례위험 확인 방법과 결과(위반했으면 그 대응), 동점 처리 방법과 소프트웨어, 추적 기간의 중앙값, 결측 처리와 민감도 분석, 가능하면 보정 생존곡선이나 시점별 생존율 차이, RMST 같은 절대 척도의 결과</p>
@@ -86,7 +86,7 @@
 <div class="quick"><p class="qk">잠깐 확인</p><p>예후 위험군으로 층화하자 로그순위 P가 0.31이 되었습니다. 이 결과를 '예후 위험군이 같으면 두 약의 사망 속도가 같다'로 읽어도 되나요?</p><details><summary>답 보기</summary><div><p>그렇게 읽지 않습니다. P = 0.31은 예후 위험군 안에서 보면 두 생존곡선이 다르다고 볼 근거가 부족하다는 뜻일 뿐, 두 속도가 같다는 증거가 아닙니다. 로그순위법은 P만 주므로, 차이가 얼마나 될 수 있는지는 위험비와 그 신뢰구간으로 따로 봅니다.</p></div></details></div>
 
 <h4 id="ch11-s1-cox">Cox 모형은 무엇을 주나?</h4>
-<p>이 장의 질문에 답할 때 Cox가 1972년에 제안한 Cox 비례위험모형<span class="en">(Cox proportional hazards model)</span>을 씁니다<cite data-ref="cox1972"></cite>. 종양학 임상시험, 약물역학 코호트, 청구자료 연구에서 가장 흔히 보는 생존분석 방법입니다<cite data-ref="bradburn2003"></cite>. 나이와 예후 위험군 등을 약물과 함께 모형에 넣어 두 약물군의 사망 속도를 비교하고, 그 결과를 사망 속도가 몇 배인지 나타내는 위험비로 제시합니다. 환자를 층으로 쪼개지 않으므로 변수가 많아도 쓸 수 있습니다. 대신 각 변수가 위험률을 일정한 배수로 바꾼다는 모형의 가정이 필요하고, 사건 수에 비해 변수가 너무 많으면 추정이 불안정해집니다. 이 두 조건은 '무엇을 가정하고, 어긋나면 어떻게 하나?'에서 확인합니다.</p>
+<p>이 장의 질문에 답할 때 Cox가 1972년에 제안한 Cox 비례위험모형<span class="en">(Cox proportional hazards model)</span>을 씁니다<cite data-ref="cox1972"></cite>. 종양학 임상시험, 약물역학 코호트, 청구자료 연구에서 가장 흔히 보는 생존분석 방법입니다<cite data-ref="bradburn2003"></cite>. 나이와 예후 위험군 등을 약물과 함께 모형에 넣어 두 약물군의 사망 속도를 비교하고, 그 결과를 사망 속도가 몇 배인지 나타내는 위험비로 제시합니다. 환자를 층으로 쪼개지 않으므로 변수가 많아도 쓸 수 있습니다. 대신 각 변수가 위험률을 일정한 배수로 바꾼다는 모형의 가정이 필요하고, 사건 수에 비해 변수가 너무 많으면 추정이 불안정해집니다.</p>
 <p>세 방법을 나란히 놓으면 다음과 같습니다. 표의 위험비(HR)는 <a href="#ch07-s3">7장 c 절</a>에서 처음 보았습니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th></th><th>로그순위법</th><th>층화<br>로그순위법</th><th>Cox 모형</th></tr></thead>
@@ -97,14 +97,14 @@
 <tr><td>가정</td><td>비정보적 중도절단. 비례위험이면 검정력이 가장 높음</td><td>로그순위법과 같음</td><td>여기에 더해 위험비가 추적 기간 내내 일정</td></tr>
 <tr class="hi"><td>이 장의 예</td><td>P = 0.022</td><td>P = 0.31</td><td>보정 전 0.73, 보정 후 0.86</td></tr>
 </tbody></table></div>
-<p>이 장을 마치면 논문 결과표의 다음 행을 읽을 수 있습니다. 아래 '논문에서 읽기'의 Table 2에서 가져온 행입니다.</p>
+<p>이 장을 마치면 논문 결과표의 다음 행을 읽을 수 있습니다. 아래 '논문에서 읽고 쓰기'의 Table 2에서 가져온 행입니다.</p>
 <div class="tbl-wrap" id="ch11-tb02" data-name="약물 A의 보정 전후 위험비"><table class="tbl tight">
 <thead><tr><th>1차 치료</th><th class="r">Unadjusted HR<br>(95% CI)</th><th class="r">Adjusted HR<br>(95% CI)</th></tr></thead>
 <tbody>
 <tr><td style="white-space:nowrap">약물 B</td><td class="r">1.00 (reference)</td><td class="r">1.00 (reference)</td></tr>
 <tr class="hi"><td style="white-space:nowrap">약물 A</td><td class="r">0.73 <span style="white-space:nowrap">(0.55–0.96)</span></td><td class="r">0.86 <span style="white-space:nowrap">(0.65–1.13)</span></td></tr>
 </tbody></table></div>
-<p>'1.00 (reference)'로 적힌 약물 B가 기준군입니다. Unadjusted 열은 약물만 넣은 결과이고, Adjusted 열은 다른 변수를 함께 넣은 결과입니다. 두 열 모두 원인을 가리지 않은 사망까지의 시간(전체 생존)을 분석한 값입니다. 이 숫자를 읽는 법은 '위험률과 위험비는 무엇인가?'와 '결과는 어떻게 읽나?'에서 봅니다.</p>
+<p>'1.00 (reference)'로 적힌 약물 B가 기준군입니다. Unadjusted 열은 약물만 넣은 결과이고, Adjusted 열은 다른 변수를 함께 넣은 결과입니다. 두 열 모두 원인을 가리지 않은 사망까지의 시간(전체 생존)을 분석한 값입니다.</p>
 
 
 <h3>2. 위험률과 위험비는 무엇인가?</h3>
@@ -154,14 +154,14 @@
 
 <h4>왜 사망 비율이나 생존율이 아니라 위험비로 비교하나?</h4>
 <p><span class="tref" data-t="ch11-tb00">표 11-1</span>의 추적 중 사망 비율은 약물 A 65.8%, 약물 B 74.3%입니다. 하지만 환자마다 추적 기간이 달라, 오래 추적된 환자가 많은 군일수록 사망도 더 많이 관찰됩니다. 그래서 사망 비율의 차이에는 약의 차이와 추적 기간의 차이가 섞여 있습니다.</p>
-<p>위험비는 같은 시점에 살아 있고 관찰 중인 환자끼리만 비교합니다. 그래서 추적 기간이 달라도, 중간에 관찰이 끝난 환자(중도절단)가 있어도 두 약을 비교할 수 있습니다. 다만 관찰이 끝난 환자의 위험이, 조건이 같으면서 아직 관찰 중인 환자의 위험과 같아야 합니다. 이 조건은 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 다섯째 가정에서 봅니다.</p>
+<p>위험비는 같은 시점에 살아 있고 관찰 중인 환자끼리만 비교합니다. 그래서 추적 기간이 달라도, 중간에 관찰이 끝난 환자(중도절단)가 있어도 두 약을 비교할 수 있습니다. 다만 관찰이 끝난 환자의 위험이, 조건이 같으면서 아직 관찰 중인 환자의 위험과 같아야 합니다('무엇을 가정하고, 어긋나면 어떻게 하나?'의 다섯째).</p>
 <p>생존율도 7장의 Kaplan-Meier 방법으로 중도절단을 고려해 구할 수 있습니다. 다만 생존율은 정해진 시점까지 살아 있을 확률이라, 어느 시점을 고르느냐에 따라 두 군의 차이가 달라집니다. 7장에서 본 두 약의 생존율 차이는 1년에 6.2%p(71.8% 대 65.6%), 3년에 16.2%p(44.0% 대 27.8%)였습니다. 두 위험률의 비가 추적 기간 내내 같다면 위험비는 시점을 고르지 않고 숫자 하나로 추적 기간 전체를 요약합니다. 또 위험비는 회귀모형에서 나오므로 여러 변수를 함께 보정하기 쉽습니다.</p>
 <p>반대로 위험비는 몇 %가 사망하는지 알려 주지 않습니다. 그래서 논문에서는 정한 시점의 생존율이나 사망위험을 함께 보고합니다. 보정한 생존율을 모형으로 구하는 방법은 '위험비는 사망 확률로 어떻게 옮기나?'에 있습니다.</p>
 
 <h4>위험비는 왜 숫자 하나로 보고하나?</h4>
 <p>3개월째의 위험비와 24개월째의 위험비는 다를 수도 있습니다. Cox 모형은 이 비가 추적 기간 내내 같다고 가정하고, 그 공통의 값 하나를 자료에서 구합니다. 이 가정을 비례위험 가정<span class="en">(proportional hazards assumption)</span>이라고 하고, Cox 비례위험모형이라는 이름도 여기서 왔습니다.</p>
 <p>두 군의 위험률 자체는 그림 11-1처럼 시간에 따라 줄거나 늘어도 됩니다. 두 위험률의 비만 일정하면 됩니다. 예를 들어 기준군 환자 1,000명 가운데 한 달에 사망하는 수가 40명에서 20명으로 줄면, 비례위험일 때 위험비가 0.73인 군은 29.2명에서 14.6명으로 함께 줄어 비는 늘 0.73입니다.</p>
-<p>논문의 'HR 0.73'이 이 공통의 값입니다. 비례위험이 맞다면 약물 A 환자의 사망 속도는 어느 시점에서나 약물 B 환자의 0.73배입니다. 가정이 맞는지, 깨졌을 때 위험비 하나가 무엇을 뜻하는지는 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 첫째에서 봅니다.</p>
+<p>논문의 'HR 0.73'이 이 공통의 값입니다. 비례위험이 맞다면 약물 A 환자의 사망 속도는 어느 시점에서나 약물 B 환자의 0.73배입니다. 이 가정이 깨졌을 때는 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 첫째에서 다룹니다.</p>
 
 <h4>공통의 위험비는 자료에서 어떻게 구하나?</h4>
 <p>한 순간의 위험률은 자료에서 바로 계산하기 어렵습니다. 어느 한 순간에 사망하는 환자는 한두 명뿐이기 때문입니다. 그래서 Cox 모형은 사망 210건을 모두 써서 공통의 위험비를 한 번에 구합니다.</p>
@@ -201,7 +201,7 @@
 
 <h3>3. 다른 변수를 보정하면 위험비는 어떻게 바뀌나?</h3>
 <p><strong>나이와 예후 위험군 같은 변수를 함께 넣으면, 그 변수들이 같은 환자끼리 비교한 위험비가 나옵니다. 이것을 보정 위험비라고 합니다. 이 코호트에서는 0.73이 0.86으로 1에 가까워졌습니다.</strong></p>
-<p>함께 넣을 변수는 약 선택과 사망 모두와 관련된 치료 전 변수, 곧 교란변수를 중심으로 정합니다. <span class="tref" data-t="ch11-tb00">표 11-1</span>의 SMD는 두 군이 얼마나 다른지 보여 주므로 교란을 의심할 단서가 되지만, 넣을지는 임상 지식으로 정합니다. 이 코호트에서는 나이, 성별, 예후 위험군, 신장절제술 과거력, 조직형을 약물과 함께 넣었습니다. 이렇게 여러 변수를 넣은 Cox 모형을 <strong>다변수 Cox 모형</strong><span class="en">(multivariable Cox model)</span>이라고 합니다. 약물과 함께 넣는 나이, 성별 같은 보정 변수는 공변량이라고 부릅니다.</p>
+<p>함께 넣을 변수는 약 선택과 사망 모두와 관련된 치료 전 변수, 즉 교란변수를 중심으로 정합니다. <span class="tref" data-t="ch11-tb00">표 11-1</span>의 SMD는 두 군이 얼마나 다른지 보여 주므로 교란을 의심할 단서가 되지만, 넣을지는 임상 지식으로 정합니다. 이 코호트에서는 나이, 성별, 예후 위험군, 신장절제술 과거력, 조직형을 약물과 함께 넣었습니다. 이렇게 여러 변수를 넣은 Cox 모형을 <strong>다변수 Cox 모형</strong><span class="en">(multivariable Cox model)</span>이라고 합니다. 약물과 함께 넣는 나이, 성별 같은 보정 변수는 공변량이라고 부릅니다.</p>
 <p>모형에 넣은 변수는 모두 치료 시작 시점의 값입니다. 나이는 10세 단위로 넣었습니다. 예후 위험군은 예후가 좋은 군을 기준범주로 두고 가변수(<a href="#ch06-s4">6장 d 절</a>) 두 개로 넣었습니다. 하나는 중간인 군이면 1, 아니면 0이고, 다른 하나는 나쁜 군이면 1, 아니면 0입니다. 그래서 예후 위험군의 위험비는 좋은 군과 비교한 두 개가 나오고, 모형이 추정하는 위험비는 모두 일곱 개입니다.</p>
 <p>보정한다고 환자의 값을 바꾸지는 않습니다. 처음 Cox 모형을 쓸 때 헷갈리기 쉬운 점은 다음과 같습니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
@@ -250,7 +250,7 @@
 <!--FOLD do:약효가 환자마다 다르면?-->
 <p>'약물 A의 효과가 고령 환자에서 다른가'는 <strong>효과수정</strong><span class="en">(effect modification)</span>의 질문입니다. Cox 모형에서는 약물 × 하위군 변수의 <strong>교호작용</strong><span class="en">(interaction)</span> 항을 모형에 추가해 검정합니다(<a href="#ch08-s6">8장 f 절</a>). 고령(65세 이상) 항과 약물 × 고령 항을 함께 넣으면 65세 미만과 65세 이상에서 약물의 위험비를 따로 추정하게 됩니다. 이때 교호작용 항의 위험비는 65세 이상의 약물 위험비를 65세 미만의 약물 위험비로 나눈 값입니다. 이 위험비가 1인지(두 위험비가 같은지)의 검정이 논문의 P for interaction입니다(식은 '수식으로 보기'의 '모형식').</p>
 <p>하위군마다 따로 구한 P 값을 비교하면 안 됩니다. "65세 이상에서만 유의했다"는 두 하위군의 효과가 다르다는 증거가 아닙니다(<a href="#ch01-s3">1장 c 절</a>). 또 Cox 모형의 교호작용은 곱셈 척도, 즉 위험비의 비에 대한 효과수정입니다. 기저위험이 높은 하위군에서는 같은 위험비라도 절대위험의 차이가 더 크므로, 절대 척도에서는 결론이 다를 수 있습니다(<a href="#ch08-s6">8장 f 절</a>).</p>
-<p>논문의 하위군 분석 그림(포레스트 그림)을 읽는 방법은 '논문에서 읽기'의 '하위군 분석 그림은 어떻게 읽나?'에 있습니다.</p>
+<p>논문의 하위군 분석 그림(포레스트 그림)을 읽는 방법은 '논문에서 읽고 쓰기'의 '하위군 분석 그림은 어떻게 읽나?'에 있습니다.</p>
 <!--/FOLD-->
 <div class="quick"><p class="qk">잠깐 확인</p><p>이 모형에서 나이가 10세 많으면 위험률이 1.40배입니다('결과는 어떻게 읽나?'). 갑은 그대로 두고 을만 60세로 바꾸면, 갑의 위험률을 을의 위험률로 나눈 값도 0.86일까요?</p><details><summary>답 보기</summary><div><p>아닙니다. 나이 줄이 약분되지 않고 갑이 을보다 10세 많은 만큼 1.40이 더 곱해져, 0.86 × 1.40 = 1.20이 됩니다. 약물 A를 받은 갑의 위험률이 오히려 을보다 높으므로, 0.86은 모형에 넣은 조건이 모두 같은 두 환자를 비교한 값으로만 읽습니다.</p></div></details></div>
 
@@ -284,7 +284,6 @@
 <div class="quick"><p class="qk">잠깐 확인</p><p>무작위배정 시험에서 보정하지 않은 위험비가 0.80이었는데, 나이와 병기 같은 예후 인자를 보정하자 0.76이 되었다고 합시다. 이 변화를 교란을 보정한 결과로 읽어야 하나요?</p><details><summary>답 보기</summary><div><p>그렇게 읽지 않습니다. 무작위배정이면 두 군의 예후 인자 분포가 우연한 차이 말고는 같아 교란이 없습니다. 교란이 없을 때 예후 인자를 보정하면 위험비가 보통 1에서 더 멀어지므로, 우연한 불균형이 크지 않다면 0.80에서 0.76으로의 변화는 주로 비붕괴성에서 온 것입니다.</p></div></details></div>
 
 <h4 id="ch11-s1-choose">프로그램이 하는 일과 내가 정할 일은 무엇인가?</h4>
-<p>프로그램이 하는 일은 넣어 준 변수로 위험비를 계산하는 것까지입니다. 어떤 변수를 어떤 모양으로 넣을지는 분석하는 사람이 정합니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th>내가 정할 것</th><th>정하지 않으면 생기는 일</th></tr></thead>
 <tbody>
@@ -294,7 +293,7 @@
 <tr><td>단위와 기준범주</td><td>연속형은 1 단위, 범주형은 프로그램이 고른 범주(보통 첫 범주)를 기준으로 위험비가 나옴('결과는 어떻게 읽나?')</td></tr>
 <tr><td>결측값 처리</td><td>프로그램에 따라 결측이 있는 환자를 빼고 분석하거나 오류를 냄</td></tr>
 </tbody></table></div>
-<p>넣을 변수, 변수의 형태, 결측값 처리는 아래 접힌 상자에 있습니다. 변수를 잰 시점은 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 둘째에서, 단위와 기준범주는 '결과는 어떻게 읽나?'에서 봅니다. 설계부터 보고까지의 전체 순서는 '내 연구에서 분석하기'에서 따라갑니다.</p>
+<p>넣을 변수, 변수의 형태, 결측값 처리는 아래 접힌 상자에 있습니다. 변수를 잰 시점은 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 둘째, 단위와 기준범주는 '결과는 어떻게 읽나?', 설계부터 보고까지의 순서는 '내 연구에서 분석하기'에 있습니다.</p>
 <!--FOLD do:어떤 변수를 넣어야 하나?-->
 <p>보정할 변수는 자료를 보기 전에 임상 지식과 선행연구로 정합니다. 노출과 결과 사이의 인과 구조를 그림(DAG)으로 그려 교란변수를 고르는 것이 권장됩니다(<a href="#ch08-s6">8장 f 절</a>의 접힌 상자 '내 연구에서 보정할 변수는 어떤 순서로 고르나?'). P 값으로 변수를 넣고 빼는 단계적 선택법은 쓰지 않습니다. 교란변수가 빠질 수 있고, 같은 자료로 변수를 고른 뒤 검정하므로 P가 실제보다 작고 신뢰구간이 실제보다 좁게 나오기 때문입니다(<a href="#ch06-s4">6장 d 절</a>).</p>
 <p>논문에서는 이런 방법을 이름으로 적습니다. 전진 선택<span class="en">(forward selection)</span>은 변수를 하나씩 넣고, 후진 제거<span class="en">(backward elimination)</span>는 모두 넣은 뒤 하나씩 빼며, 'stepwise'는 넣고 빼기를 함께 합니다. SPSS의 '조건', 'LR', 'Wald'는 변수를 뺄지 판단하는 검정의 종류이고, 이 셋 모두 변수를 넣을 때는 점수 검정을 씁니다. '입력'<span class="en">(enter)</span>은 정한 변수를 한 번에 모두 넣는 방법이라 단계적 선택법이 아닙니다. Methods에 단계적 방법이 적혀 있으면 보정 변수를 자료를 보고 골랐다는 뜻으로 읽고, 보정 위험비의 P와 신뢰구간을 위의 이유로 조심해서 봅니다.</p>
@@ -363,14 +362,14 @@
 <h4>위험비의 해석에서 무엇을 먼저 확인하나?</h4>
 <p>먼저 기준군을 확인합니다. 기준을 약물 A로 바꾸면 위험비와 신뢰구간이 모두 역수가 됩니다. 보정 전 위험비 0.73을 뒤집으면 약물 B의 위험비는 1/0.73 = 1.37입니다. 95% CI 0.555–0.957도 양 끝을 뒤집고 순서를 바꿔 1/0.957 = 1.04에서 1/0.555 = 1.80이 됩니다. 같은 결과가 0.73으로도 1.37로도 적히므로, 위험비가 1보다 큰지 작은지를 보기 전에 어느 쪽이 기준인지부터 봅니다.</p>
 <p>신뢰구간과 P는 같은 추정값과 표준오차로 계산하므로, 95% CI가 1을 포함하지 않으면 P &lt; 0.05입니다(<a href="#ch08-s1">8장 a 절</a>). 보정 전 위험비 0.73은 95% CI 0.555–0.957이 1을 포함하지 않고, P = 0.023입니다. 보정 위험비 0.86은 구간이 1을 포함하고 P = 0.28이라 차이가 있다고 말하기 어렵습니다. 보정 위험비를 읽을 때 하나 더 기억할 점은, 모형에 넣은 교란변수만 보정한 값이라는 것입니다. 이 병원 자료에 없는 전이 부위나 환자의 선호 같은 교란변수는 남을 수 있습니다.</p>
-<p><strong>정리하면 다음과 같습니다. 보정한 다섯 변수가 같은 환자끼리 비교하면 약물 A의 사망 속도는 약물 B의 0.86배로 추정됩니다. 95% 신뢰구간 0.65–1.13은 35% 낮은 경우부터 13% 높은 경우까지 포함하므로, 이 자료만으로는 차이가 있다고 결론 내리기 어렵습니다.</strong></p>
+<p><strong>보정한 다섯 변수가 같은 환자끼리 비교하면 약물 A의 사망 속도는 약물 B의 0.86배로 추정됩니다. 95% 신뢰구간 0.65–1.13은 35% 낮은 경우부터 13% 높은 경우까지 포함하므로, 이 자료만으로는 차이가 있다고 결론 내리기 어렵습니다.</strong></p>
 
 <h4>연속형 변수는 어떻게 읽나?</h4>
 <p>연속형 변수는 단위부터 확인합니다. 나이를 10세 단위로 넣은 보정 모형에서 HR은 1.40, 95% CI는 1.20–1.63입니다. 다른 변수가 같을 때 나이가 10세 많으면 위험률이 1.40배라는 뜻입니다. 1세 단위로 넣었다면 HR은 1.034(95% CI 1.019–1.050)로 표시됩니다. 1.034를 열 번 곱하면 1.40이므로, 같은 모형이고 단위만 다릅니다.</p>
 <p>20세 차이는 이렇게 읽습니다. 55세에서 65세로 10세 많아지면 속도가 1.40배가 되고, 65세에서 75세로 다시 10세 많아지면 그 속도가 또 1.40배가 됩니다. 그래서 75세와 55세의 HR은 2.80이 아니라 1.96입니다.</p>
 <p class="calc">두 배로 잘못 읽은 HR = 1.40 × 2 = 2.80<br>
 75세 대 55세의 HR = 1.40 × 1.40 = 1.40<sup>2</sup> = 1.96</p>
-<p>이 계산은 나이의 효과가 어느 나이에서나 10세당 1.40배라는 가정 위에 있습니다. 이 가정은 '무엇을 가정하고, 어긋나면 어떻게 하나?'의 넷째 가정에서 확인합니다.</p>
+<p>이 계산은 나이의 효과가 어느 나이에서나 10세당 1.40배라는 가정 위에 있습니다('무엇을 가정하고, 어긋나면 어떻게 하나?'의 넷째).</p>
 <div class="quick"><p class="qk">잠깐 확인</p><p>나이 10세당 위험비가 1.40이라면, 55세 환자를 65세 환자와 비교한 위험비는 1 − 0.40 = 0.60일까요?</p><details><summary>답 보기</summary><div><p>아닙니다. 10세 많아지면 위험률에 1.40이 곱해지므로, 10세 적으면 거꾸로 1.40으로 나눠 1 ÷ 1.40 = 0.71입니다. 0.60이라면 55세에서 다시 65세로 돌아갈 때 0.60 × 1.40 = 0.84가 되어 1로 돌아오지 않습니다.</p></div></details></div>
 
 <h4>세 범주 이상의 변수는 어떻게 읽나?</h4>
@@ -615,7 +614,7 @@ z = 계수 ÷ 표준오차 = −0.316 ÷ 0.139 = −2.27, P = 0.023</p>
 <div class="quick"><p class="qk">잠깐 확인</p><p>위에서 본 두 생존곡선이 교차하는 가상 무작위배정 시험에서, 기간별 위험비(처음 4개월 1.41, 그 뒤 0.65)는 그대로 두고 사망 248건 가운데 처음 4개월의 사망만 22%가 아니라 80%였다고 합시다. 비례위험을 가정한 Cox 모형의 위험비 하나는 0.77에서 어느 쪽으로 움직일까요?</p><details><summary>답 보기</summary><div><p>1.41 쪽으로 크게 움직여 1보다 큰 값이 됩니다. 사망이 많이 일어난 시기의 계산이 많이 모이므로, 이번에는 사망의 80%가 일어난 처음 4개월의 비 1.41이 평균에 크게 반영되기 때문입니다. 두 시기의 비는 그대로인데도 사망이 어느 시기에 몰렸는지에 따라 위험비 하나가 이렇게 바뀌므로, 가정이 깨지면 이 값을 어느 시기의 효과로도 읽지 않습니다.</p></div></details></div>
 
 <h4 id="ch11-s1-time0">둘째, 노출과 공변량이 추적 시작 시점에 정해졌나?</h4>
-<p>보통의 Cox 모형은 노출과 공변량을 추적 시작 시점(time 0)의 값 하나로 봅니다. 공변량은 time 0 당일이나 그 이전에 잰 값을 씁니다. 그 뒤에 잰 값은 이미 약의 영향을 받았을 수 있기 때문입니다. 치료 중 생긴 부작용이나 2차 치료는 약의 효과가 결과로 이어지는 중간 단계, 곧 <a href="#ch08-s6">8장 f 절</a>에서 본 매개변수일 수 있습니다. 매개변수를 보정하면 그 단계를 거쳐 나타나는 약의 효과까지 지워 버립니다.</p>
+<p>보통의 Cox 모형은 노출과 공변량을 추적 시작 시점(time 0)의 값 하나로 봅니다. 공변량은 time 0 당일이나 그 이전에 잰 값을 씁니다. 그 뒤에 잰 값은 이미 약의 영향을 받았을 수 있기 때문입니다. 치료 중 생긴 부작용이나 2차 치료는 약의 효과가 결과로 이어지는 중간 단계, 즉 <a href="#ch08-s6">8장 f 절</a>에서 본 매개변수일 수 있습니다. 매개변수를 보정하면 그 단계를 거쳐 나타나는 약의 효과까지 지워 버립니다.</p>
 <p>노출도 time 0에 정해져야 합니다. 추적 중 한 번이라도 약을 쓴 사람을 처음부터 사용군으로 두면, 처방 전까지 살아 있던 기간이 사용군의 관찰 기간으로 셈해집니다. 이 기간에는 사용군 환자가 사망할 수 없었으므로 약이 부당하게 유리해집니다. 이 기간이 <a href="#ch07-s1">7장 a 절</a>에서 본 불멸시간이고, 이 때문에 생기는 편향을 불멸시간 편향<span class="en">(immortal time bias)</span>이라고 합니다.</p>
 <p>추적 중에 시작하거나 바뀌는 노출이라면, 약을 시작하기 전의 기간은 비사용으로, 시작한 뒤의 기간은 사용으로 셉니다. 이렇게 넣는 노출을 <strong>시간에 따라 변하는 노출</strong><span class="en">(time-varying exposure)</span>이라고 합니다.</p>
 <p>이 코호트는 1차 치료 약물이 치료 시작일에 정해지고, 공변량도 모두 그날의 값입니다. time 0을 맞추는 법과 이 편향은 <a href="#ch16-s1">16장 a 절</a>에서, 시간에 따라 변하는 노출을 넣은 Cox 모형은 <a href="#ch16-s3">16장 c 절</a>에서 다룹니다.</p>
@@ -679,68 +678,8 @@ z = 계수 ÷ 표준오차 = −0.316 ÷ 0.139 = −2.27, P = 0.023</p>
 <!--/FOLD-->
 <div class="quick"><p class="qk">잠깐 확인</p><p>이 코호트에서 사망 없이 중도절단된 환자는 약물 A군 52명, 약물 B군 38명입니다. 약물 A군에 중도절단이 더 많다는 것만으로 비정보적 중도절단 가정을 의심해야 하나요?</p><details><summary>답 보기</summary><div><p>그것만으로 의심하지는 않습니다. 약물 A군은 사망이 적어(65.8% 대 74.3%) 연구 종료일까지 살아 있는 환자가 많으니 중도절단도 많은 것이 자연스럽습니다. 따져 볼 것은 중도절단의 수가 아니라 이유이므로, 추적 소실처럼 환자 상태와 관련될 수 있는 사유의 비율이 두 군에서 비슷한지 봅니다.</p></div></details></div>
 
-<h3>7. 논문에서 읽기</h3>
-<p><strong>Cox 회귀표에서는 네 곳을 찾습니다. 보정하지 않은 열을 구한 방법, 기준범주 행, 연속형 변수의 단위, 비례위험 확인 결과입니다. 이 가운데 보정하지 않은 열을 구한 방법과 비례위험 확인 결과는 보통 표 아래 각주에 있습니다.</strong></p>
-<p>예제 코호트를 다변수 Cox 모형으로 분석했다면 결과는 보통 이런 문장과 표로 보고됩니다. 약물의 위험비와 공변량의 보정 위험비는 앞에서 구한 값이고, 공변량의 보정 전 위험비와 일부 해설의 비율은 이 표에서 처음 봅니다. 번호를 따라 표의 어디를 보는지 확인합니다.</p>
-
-<div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Results 문장과 Cox 회귀 결과표</b><span>가상의 예시</span></div>
-<div class="paper-b">
-<p class="excerpt">In the unadjusted analysis, treatment with drug A was associated with a lower hazard of death than treatment with drug B (<span class="mk">1</span> <span class="hl">HR, 0.73; 95% CI, 0.55 to 0.96; P = 0.023</span>). After adjustment for age, sex, IMDC risk group, prior nephrectomy, and histologic type, the association was attenuated and was no longer statistically significant (<span class="mk">2</span> <span class="hl">adjusted HR, 0.86; 95% CI, 0.65 to 1.13; P = 0.28</span>) (Table 2).</p>
-<div class="tbl-wrap"><table class="jt">
-<caption><b>Table 2.</b> Cox proportional-hazards regression analysis of overall survival (n = 300; 210 deaths)</caption>
-<thead><tr><th>Variable</th><th class="r"><span class="mk">3</span> Unadjusted HR<br>(95% CI)</th><th class="r">P</th><th class="r">Adjusted HR<br>(95% CI)<sup>a</sup></th><th class="r">P</th></tr></thead>
-<tbody>
-<tr class="grp"><td colspan="5">First-line treatment</td></tr>
-<tr><td class="ind">Drug B</td><td class="r"><span class="mk">4</span> 1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
-<tr><td class="ind">Drug A</td><td class="r">0.73 (0.55–0.96)</td><td class="r">0.023</td><td class="r">0.86 (0.65–1.13)</td><td class="r">0.28</td></tr>
-<tr><td><span class="mk">5</span> Age, per 10 years</td><td class="r">1.47 (1.26–1.71)</td><td class="r">&lt;0.001</td><td class="r">1.40 (1.20–1.63)</td><td class="r">&lt;0.001</td></tr>
-<tr class="grp"><td colspan="5">Sex</td></tr>
-<tr><td class="ind">Female</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
-<tr><td class="ind">Male</td><td class="r">1.17 (0.85–1.59)</td><td class="r">0.33</td><td class="r">1.12 (0.82–1.54)</td><td class="r">0.47</td></tr>
-<tr class="grp"><td colspan="5"><span class="mk">6</span> IMDC risk group<sup>b</sup></td></tr>
-<tr><td class="ind">Favorable</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
-<tr><td class="ind">Intermediate</td><td class="r">1.61 (1.13–2.29)</td><td class="r">0.008</td><td class="r">1.47 (1.02–2.13)</td><td class="r">0.041</td></tr>
-<tr><td class="ind">Poor</td><td class="r">4.14 (2.74–6.26)</td><td class="r">&lt;0.001</td><td class="r">3.59 (2.26–5.73)</td><td class="r">&lt;0.001</td></tr>
-<tr class="grp"><td colspan="5"><span class="mk">7</span> Prior nephrectomy</td></tr>
-<tr><td class="ind">No</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
-<tr><td class="ind">Yes</td><td class="r">0.62 (0.47–0.82)</td><td class="r">&lt;0.001</td><td class="r">0.81 (0.60–1.09)</td><td class="r">0.16</td></tr>
-<tr class="grp"><td colspan="5">Histologic type</td></tr>
-<tr><td class="ind">Clear-cell</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
-<tr><td class="ind"><span class="mk">8</span> Non-clear-cell<sup>c</sup></td><td class="r">1.43 (0.99–2.07)</td><td class="r">0.055</td><td class="r">1.83 (1.25–2.68)</td><td class="r">0.002</td></tr>
-</tbody></table></div>
-<p class="jt-foot">HR, hazard ratio; CI, confidence interval; IMDC, International Metastatic Renal Cell Carcinoma Database Consortium. Unadjusted HRs were obtained from separate Cox models containing one variable each. <sup>a</sup> Adjusted for all variables in the table. <sup>b</sup> P &lt; 0.001 for the overall effect of IMDC risk group (likelihood-ratio test, 2 df), in both the unadjusted and adjusted models. <sup>c</sup> The proportional-hazards assumption was not met for histologic type (P = 0.002, test based on scaled Schoenfeld residuals). In a model stratified by histologic type, the adjusted HR for drug A was 0.86 (95% CI, 0.65 to 1.14).</p>
-<ol class="marks">
-<li><span class="mk">1</span><span><b>보정하지 않은 위험비.</b> 약물 A 환자의 순간 사망 속도가 약물 B 환자의 0.73배라는 뜻입니다. 약물 하나만 넣은 Cox 모형에서 나온 값으로, 7장 그림 7-6에 적힌 값과 같습니다. 'lower hazard of death'는 사망 위험률이 낮았다는 표현이라 '3년 사망 확률이 27% 낮았다'로 옮기지 않습니다('위험비는 사망 확률로 어떻게 옮기나?'). 관찰연구에서 보정 없이 구한 값이라 두 군의 환자 구성 차이가 섞여 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>보정 위험비.</b> 점추정값이 0.73에서 0.86으로 1에 가까워졌고 신뢰구간이 1을 포함합니다. 'attenuated'는 보정 뒤 연관성이 약해졌다는 표현입니다. 'no longer statistically significant'는 효과가 없다는 뜻이 아닙니다. 신뢰구간 0.65–1.13은 위험률이 35% 낮은 경우부터 13% 높은 경우까지를 모두 포함하므로, 이 자료로는 이득과 해를 가려내지 못했다는 뜻으로 읽습니다.</span></li>
-<li><span class="mk">3</span><span><b>보정하지 않은 열의 값은 변수마다 따로 적합한 모형에서 나왔습니다.</b> 각주의 'separate Cox models containing one variable each'가 그 뜻입니다. 한 모형에서 나온 값이 아니므로, 이 열의 위험비는 어느 것도 표의 다른 변수를 보정하지 않은 값입니다. 다만 예후 위험군(IMDC)처럼 가변수가 둘인 변수는 두 가변수를 한 모형에 함께 넣었습니다.</span></li>
-<li><span class="mk">4</span><span><b>1.00 (reference).</b> 기준범주입니다. 이 줄이 있어야 위험비의 비교 방향(A 대 B)을 확인할 수 있습니다. 기준범주 줄이 없는 표는 Methods에서 부호화를 찾아야 합니다.</span></li>
-<li><span class="mk">5</span><span><b>연속형 변수의 단위.</b> 단위는 이 표처럼 변수 이름 옆('per 10 years')이나 각주, Methods에 적힙니다. 보정 HR 1.40은 10세당 값이고, 같은 모형을 1세 단위로 적으면 1.034입니다('연속형 변수는 어떻게 읽나?'). 단위를 찾지 못하면 위험비의 크기를 판단할 수 없습니다.</span></li>
-<li><span class="mk">6</span><span><b>범주형 변수의 전체 검정.</b> intermediate와 poor는 각각 favorable과의 비교입니다. 예후 위험군(IMDC risk group) 전체의 P(각주 b)는 가변수 두 개를 함께 검정한 자유도 2의 우도비 검정으로 따로 구합니다. poor 대 intermediate의 위험비는 이 표에서 3.59 ÷ 1.47 = 2.44로 구할 수 있지만, 신뢰구간(1.72–3.47)은 공분산이 필요해 표만으로는 구할 수 없습니다.</span></li>
-<li><span class="mk">7</span><span><b>공변량의 보정 위험비를 원인 효과로 읽지 않습니다.</b> 신장절제술 과거력의 위험비는 보정 전 0.62에서 보정 후 0.81로 1에 가까워졌습니다. 예후가 좋은 군(IMDC favorable)은 81%가 수술을 받았고 나쁜 군(poor)은 36%만 받아, 보정 전 0.62에는 예후 위험군의 차이가 섞여 있었던 것으로 보입니다. 그렇다고 보정 후 0.81을 수술의 효과로 읽을 수도 없습니다. 이 모형은 약물의 효과를 추정하도록 교란변수를 고른 모형이라, 수술의 효과를 추정하려면 수술 여부의 교란변수(수행능력, 종양 부담 등)를 따로 생각해야 합니다. 공변량의 계수까지 관심 노출의 계수처럼 원인 효과로 해석하는 이 오류를 'Table 2 오류'라고 합니다<cite data-ref="westreich2013"></cite>(<a href="#ch06-s4">6장 d 절</a>).</span></li>
-<li><span class="mk">8</span><span><b>비례위험 가정이 깨진 변수.</b> 각주 c에 따르면 조직형의 위험비는 시간에 따라 변합니다. 1.83은 첫 1년의 약 3.3과 그 뒤의 약 0.95를 섞은 평균이라(<span class="tref" data-t="ch11-tb18">표 11-2</span>), 조직형의 효과를 위험비 하나로 요약하기 어렵습니다. 보정 전 1.43이 보정 후 1.83으로 1에서 멀어진 것은 예후가 나쁜 군(poor)의 비율이 비투명세포 환자에서 11.4%로, 투명세포 환자의 21.1%보다 낮았기 때문입니다. 보정 전에는 이 환자 구성이 비투명세포 조직형의 불리함을 일부 가리고 있었습니다. 실제로 예후 위험군 하나만 보정해도 1.82입니다. 다만 약물의 위험비는 조직형으로 층화해도 0.86으로 같아서, 주 결론에는 영향이 없습니다.</span></li>
-</ol>
-</div></div>
-
-<h4>하위군 분석 그림은 어떻게 읽나?</h4>
-<p>논문은 약효가 환자군마다 같은지를 하위군 분석 그림(포레스트 그림)으로 보여 주기도 합니다. 하위군마다 구한 위험비를 점으로, 95% 신뢰구간을 가로 막대로 늘어놓은 그림입니다(그림 11-9). 하위군끼리 효과가 다른지는 각 하위군의 P가 아니라 교호작용 P로 판단합니다. 교호작용 P는 약물 × 하위군 항을 넣은 모형과 넣지 않은 모형을 비교한 P입니다('다른 변수를 보정하면 위험비는 어떻게 바뀌나?'의 접힌 상자 '약효가 환자마다 다르면?').</p>
-<div class="paper">
-<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 하위군 분석 포레스트 그림</b><span>가상의 예시</span></div>
-<div class="paper-b">
-<!--FIG:ch11_forest-->
-<p class="excerpt">The association between treatment and overall survival was <span class="mk">1</span> <span class="hl">consistent across prespecified subgroups</span> (Fig. 3). Hazard ratios within subgroups were <span class="mk">2</span> <span class="hl">adjusted for the remaining covariates</span>, and <span class="mk">3</span> <span class="hl">P values for interaction</span> were obtained from likelihood-ratio tests comparing models with and without a treatment-by-subgroup interaction term. The hazard ratio was <span class="mk">4</span> <span class="hl">0.77 (95% CI, 0.53 to 1.10) among patients 65 years of age or older</span> and <span class="mk">5</span> <span class="hl">1.16 (95% CI, 0.65 to 2.08) among patients with poor-risk disease</span>. Subgroup analyses were <span class="mk">6</span> <span class="hl">not adjusted for multiple comparisons</span>.</p>
-<ol class="marks">
-<li><span class="mk">1</span><span><b>"일관되었다"의 근거.</b> 근거는 두 가지입니다. 하위군을 사전에 정했고, 네 교호작용 검정의 P가 0.24–0.96입니다. 그림의 맨 위 다이아몬드(0.86, 0.65–1.13)가 전체 결과이고, 하위군의 점추정값은 모두 그 신뢰구간 근처에 흩어져 있습니다. 다만 '일관됨'은 '다르다는 증거가 없다'는 약한 결론이고, 왜 약한지는 교호작용 항의 표준오차로 보면 알 수 있습니다. 교호작용 항은 두 하위군에서 구한 약물 로그 위험비의 차이입니다. 두 로그 위험비는 나이라면 65세 미만 138명과 65세 이상 162명처럼 각각 자료의 일부로 구하므로, 하나하나의 표준오차부터 전체 자료로 구할 때보다 큽니다. 여기에 두 추정값의 차이를 구하면 분산이 각 분산의 합이 되어(<a href="#ch00-s5">0장 e 절</a> '그러면 어떻게 합치나?') 표준오차가 더 커집니다. 이 코호트에서 나이 교호작용 항의 표준오차는 0.286으로, 약물 주효과의 표준오차 0.144의 약 2배입니다. 표준오차는 자료 수의 제곱근에 반비례하므로, 표준오차가 2배이면 같은 크기의 차이를 같은 검정력으로 잡는 데 자료가 약 4배 필요합니다. <strong>즉, 하위군 사이에 실제로 차이가 있어도 교호작용 검정은 놓치기 쉽습니다.</strong></span></li>
-<li><span class="mk">2</span><span><b>하위군 안의 보정 위험비.</b> 하위군마다 나머지 공변량을 보정해 따로 추정했습니다. 사건이 적은 하위군(poor 53건, favorable 43건)은 신뢰구간이 넓습니다. 괄호 안의 환자 수/사망 수로 각 추정값의 정밀도를 가늠합니다.</span></li>
-<li><span class="mk">3</span><span><b>P for interaction.</b> 전체 모형에 약물 × 하위군 항을 추가한 모형과 추가하지 않은 모형의 우도비 검정입니다. 65세 이상 여부처럼 전체 모형에 없는 하위군 변수는 그 주효과를 두 모형에 함께 넣습니다. 범주가 셋인 IMDC 위험군은 교호작용 항이 두 개라 자유도 2입니다. 나이 0.24, 성별 0.96, IMDC 0.42, 신장절제술 0.42로 모두 효과수정의 근거가 없습니다.</span></li>
-<li><span class="mk">4</span><span><b>65세 이상 HR 0.77(0.53–1.10).</b> 65세 미만의 0.97(0.60–1.56)보다 1에서 멀지만, 신뢰구간이 1을 포함하고 두 신뢰구간도 크게 겹치며 교호작용 P = 0.24입니다. 그러니 "고령 환자에서 약물 A가 더 효과적"이라고 읽으면 안 됩니다.</span></li>
-<li><span class="mk">5</span><span><b>poor 위험군 HR 1.16(0.65–2.08).</b> 점추정값이 1의 반대편에 있는 하위군입니다. 하위군이 아홉 개나 되면 효과가 모두 같더라도 몇 개는 우연히 반대 방향으로 나오는 것이 자연스럽습니다. 교호작용 P = 0.42이므로 poor 위험군에서 약물 A가 해롭다는 근거는 없습니다.</span></li>
-<li><span class="mk">6</span><span><b>다중비교를 보정하지 않았다는 문장.</b> 하위군 분석은 탐색적이라는 뜻입니다(<a href="#ch01-s3">1장 c 절</a>). 사전에 정하지 않은 하위군에서 우연히 유의한 결과가 나왔다면 가설을 만드는 결과로만 읽습니다.</span></li>
-</ol>
-</div></div>
-
-<h3>8. 내 연구에서 분석하기</h3>
-<p><strong>Cox 분석은 설계, 자료, 변수, 적합, 점검, 보고의 순서로 진행합니다. 프로그램이 맡는 것은 적합 단계의 계산이고, 나머지는 분석하는 사람이 정합니다.</strong></p>
+<h3>7. 내 연구에서 분석하기</h3>
+<p><strong>Cox 분석은 설계, 자료, 변수, 적합, 점검, 보고의 순서로 진행합니다.</strong></p>
 <p>'왜 Cox 모형이 필요한가'에서 본 청구자료 연구로 순서를 따라가 봅니다. SGLT2 억제제와 DPP-4 억제제를 새로 시작한 환자의 심부전 입원을 비교하는 연구입니다.</p>
 <div class="tbl-wrap"><table class="tbl tight">
 <thead><tr><th>단계</th><th>내가 정할 것</th><th>프로그램이 하는 일</th></tr></thead>
@@ -807,21 +746,71 @@ z = 계수 ÷ 표준오차 = −0.316 ÷ 0.139 = −2.27, P = 0.023</p>
 <p>그다음 결과가 분석 선택에 따라 크게 바뀌지 않는지 민감도 분석으로 봅니다. 흔히 쓰는 것은 보정 변수의 목록이나 형태를 바꾼 모형, 성향점수 방법(15장), 그리고 측정하지 않은 교란이 결과를 얼마나 바꿀 수 있는지 따지는 분석입니다. 청구자료와 병원 코호트처럼 성격이 다른 두 자료원의 결과가 같은 방향인지 비교하는 것도 좋은 방법입니다. 병원 코호트는 임상 정보가 풍부한 대신 환자 수가 적고 한 기관의 처방 관행에 좌우되어, 청구자료와 장단점이 서로 보완되기 때문입니다.</p>
 
 <h4>무엇을 보고하나?</h4>
-<p>다음 '논문에 쓰기'에서 볼 여섯 가지에 더해 추적 기간의 중앙값, 결측 처리, 민감도 분석을 씁니다. 위험비만으로는 몇 %가 입원하는지 알 수 없으므로, 가능하면 보정 생존곡선이나 시점별 생존율 차이, RMST 같은 절대 척도의 결과도 함께 제시합니다('위험비는 사망 확률로 어떻게 옮기나?').</p>
+<p>아래 '논문에서 읽고 쓰기'에서 볼 항목에 더해 추적 기간의 중앙값, 결측 처리, 민감도 분석을 씁니다. 위험비만으로는 몇 %가 입원하는지 알 수 없으므로, 가능하면 보정 생존곡선이나 시점별 생존율 차이, RMST 같은 절대 척도의 결과도 함께 제시합니다('위험비는 사망 확률로 어떻게 옮기나?').</p>
 
-<h3>9. 논문에 쓰기</h3>
-<p><strong>Methods에는 추적 시작점과 중도절단, 보정 변수와 그 단위, 기준범주를 씁니다. Results에는 군별 사건 수와 보정 전후의 위험비, 95% CI, P를 비교 방향과 함께 씁니다.</strong></p>
-<p>관찰연구 보고 지침인 STROBE는 보정하지 않은 추정값과 교란을 보정한 추정값을 함께 쓰라고 권합니다. 어떤 교란변수를 왜 보정했는지도 밝히라고 합니다<cite data-ref="vonelm2007"></cite>. STROBE는 무엇을 빠짐없이 적을지 알려 주는 지침이고, 항목을 채웠다고 분석이 타당해지는 것은 아닙니다.</p>
-<p>보고할 것은 다음 여섯 가지입니다.</p>
-<ol>
-<li>시간 척도, 추적 시작점, 사건과 중도절단의 정의. 무엇을 time 0으로 했고 시간을 무엇으로 셌는지, 사건 없이 관찰이 끝난 사람을 언제 중도절단했는지 씁니다.</li>
-<li>보정 변수와 고른 근거. 변수마다 측정 시점, 단위, 기준범주를 밝힙니다.</li>
-<li>군별 대상자 수와 사건 수.</li>
-<li>보정 전과 후의 위험비, 95% CI, P. 비교 방향을 함께 씁니다.</li>
-<li>비례위험 가정의 확인 방법과 결과. 위반했다면 어떻게 대응했는지 씁니다.</li>
-<li>같은 시점에 사망한 환자(동점)를 처리한 방법과 소프트웨어.</li>
+<h3>8. 논문에서 읽고 쓰기</h3>
+<p><strong>Cox 회귀표에서는 네 곳을 찾습니다. 보정하지 않은 열을 구한 방법, 기준범주 행, 연속형 변수의 단위, 비례위험 확인 결과이고, 이 가운데 첫째와 넷째는 보통 표 아래 각주에 있습니다. 내 논문의 Methods에는 추적 시작점과 중도절단, 보정 변수와 그 단위, 기준범주를 쓰고, Results에는 군별 사건 수와 보정 전후의 위험비, 95% CI, P를 비교 방향과 함께 씁니다.</strong></p>
+<p>예제 코호트를 다변수 Cox 모형으로 분석했다면 결과는 보통 이런 문장과 표로 보고됩니다. 약물의 위험비와 공변량의 보정 위험비는 앞에서 구한 값이고, 공변량의 보정 전 위험비와 일부 해설의 비율은 이 표에서 처음 봅니다. 번호를 따라 표의 어디를 보는지 확인합니다.</p>
+
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · Results 문장과 Cox 회귀 결과표</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<p class="excerpt">In the unadjusted analysis, treatment with drug A was associated with a lower hazard of death than treatment with drug B (<span class="mk">1</span> <span class="hl">HR, 0.73; 95% CI, 0.55 to 0.96; P = 0.023</span>). After adjustment for age, sex, IMDC risk group, prior nephrectomy, and histologic type, the association was attenuated and was no longer statistically significant (<span class="mk">2</span> <span class="hl">adjusted HR, 0.86; 95% CI, 0.65 to 1.13; P = 0.28</span>) (Table 2).</p>
+<div class="tbl-wrap"><table class="jt">
+<caption><b>Table 2.</b> Cox proportional-hazards regression analysis of overall survival (n = 300; 210 deaths)</caption>
+<thead><tr><th>Variable</th><th class="r"><span class="mk">3</span> Unadjusted HR<br>(95% CI)</th><th class="r">P</th><th class="r">Adjusted HR<br>(95% CI)<sup>a</sup></th><th class="r">P</th></tr></thead>
+<tbody>
+<tr class="grp"><td colspan="5">First-line treatment</td></tr>
+<tr><td class="ind">Drug B</td><td class="r"><span class="mk">4</span> 1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
+<tr><td class="ind">Drug A</td><td class="r">0.73 (0.55–0.96)</td><td class="r">0.023</td><td class="r">0.86 (0.65–1.13)</td><td class="r">0.28</td></tr>
+<tr><td><span class="mk">5</span> Age, per 10 years</td><td class="r">1.47 (1.26–1.71)</td><td class="r">&lt;0.001</td><td class="r">1.40 (1.20–1.63)</td><td class="r">&lt;0.001</td></tr>
+<tr class="grp"><td colspan="5">Sex</td></tr>
+<tr><td class="ind">Female</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
+<tr><td class="ind">Male</td><td class="r">1.17 (0.85–1.59)</td><td class="r">0.33</td><td class="r">1.12 (0.82–1.54)</td><td class="r">0.47</td></tr>
+<tr class="grp"><td colspan="5"><span class="mk">6</span> IMDC risk group<sup>b</sup></td></tr>
+<tr><td class="ind">Favorable</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
+<tr><td class="ind">Intermediate</td><td class="r">1.61 (1.13–2.29)</td><td class="r">0.008</td><td class="r">1.47 (1.02–2.13)</td><td class="r">0.041</td></tr>
+<tr><td class="ind">Poor</td><td class="r">4.14 (2.74–6.26)</td><td class="r">&lt;0.001</td><td class="r">3.59 (2.26–5.73)</td><td class="r">&lt;0.001</td></tr>
+<tr class="grp"><td colspan="5"><span class="mk">7</span> Prior nephrectomy</td></tr>
+<tr><td class="ind">No</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
+<tr><td class="ind">Yes</td><td class="r">0.62 (0.47–0.82)</td><td class="r">&lt;0.001</td><td class="r">0.81 (0.60–1.09)</td><td class="r">0.16</td></tr>
+<tr class="grp"><td colspan="5">Histologic type</td></tr>
+<tr><td class="ind">Clear-cell</td><td class="r">1.00 (reference)</td><td class="r"></td><td class="r">1.00 (reference)</td><td class="r"></td></tr>
+<tr><td class="ind"><span class="mk">8</span> Non-clear-cell<sup>c</sup></td><td class="r">1.43 (0.99–2.07)</td><td class="r">0.055</td><td class="r">1.83 (1.25–2.68)</td><td class="r">0.002</td></tr>
+</tbody></table></div>
+<p class="jt-foot">HR, hazard ratio; CI, confidence interval; IMDC, International Metastatic Renal Cell Carcinoma Database Consortium. Unadjusted HRs were obtained from separate Cox models containing one variable each. <sup>a</sup> Adjusted for all variables in the table. <sup>b</sup> P &lt; 0.001 for the overall effect of IMDC risk group (likelihood-ratio test, 2 df), in both the unadjusted and adjusted models. <sup>c</sup> The proportional-hazards assumption was not met for histologic type (P = 0.002, test based on scaled Schoenfeld residuals). In a model stratified by histologic type, the adjusted HR for drug A was 0.86 (95% CI, 0.65 to 1.14).</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>보정하지 않은 위험비.</b> 약물 A 환자의 순간 사망 속도가 약물 B 환자의 0.73배라는 뜻입니다. 약물 하나만 넣은 Cox 모형에서 나온 값으로, 7장 그림 7-6에 적힌 값과 같습니다. 'lower hazard of death'는 사망 위험률이 낮았다는 표현이라 '3년 사망 확률이 27% 낮았다'로 옮기지 않습니다('위험비는 사망 확률로 어떻게 옮기나?'). 관찰연구에서 보정 없이 구한 값이라 두 군의 환자 구성 차이가 섞여 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>보정 위험비.</b> 점추정값이 0.73에서 0.86으로 1에 가까워졌고 신뢰구간이 1을 포함합니다. 'attenuated'는 보정 뒤 연관성이 약해졌다는 표현입니다. 'no longer statistically significant'는 효과가 없다는 뜻이 아닙니다. 신뢰구간 0.65–1.13은 위험률이 35% 낮은 경우부터 13% 높은 경우까지를 모두 포함하므로, 이 자료로는 이득과 해를 가려내지 못했다는 뜻으로 읽습니다.</span></li>
+<li><span class="mk">3</span><span><b>보정하지 않은 열의 값은 변수마다 따로 적합한 모형에서 나왔습니다.</b> 각주의 'separate Cox models containing one variable each'가 그 뜻입니다. 한 모형에서 나온 값이 아니므로, 이 열의 위험비는 어느 것도 표의 다른 변수를 보정하지 않은 값입니다. 다만 예후 위험군(IMDC)처럼 가변수가 둘인 변수는 두 가변수를 한 모형에 함께 넣었습니다.</span></li>
+<li><span class="mk">4</span><span><b>1.00 (reference).</b> 기준범주입니다. 이 줄이 있어야 위험비의 비교 방향(A 대 B)을 확인할 수 있습니다. 기준범주 줄이 없는 표는 Methods에서 부호화를 찾아야 합니다.</span></li>
+<li><span class="mk">5</span><span><b>연속형 변수의 단위.</b> 단위는 이 표처럼 변수 이름 옆('per 10 years')이나 각주, Methods에 적힙니다. 보정 HR 1.40은 10세당 값이고, 같은 모형을 1세 단위로 적으면 1.034입니다('연속형 변수는 어떻게 읽나?'). 단위를 찾지 못하면 위험비의 크기를 판단할 수 없습니다.</span></li>
+<li><span class="mk">6</span><span><b>범주형 변수의 전체 검정.</b> intermediate와 poor는 각각 favorable과의 비교입니다. 예후 위험군(IMDC risk group) 전체의 P(각주 b)는 가변수 두 개를 함께 검정한 자유도 2의 우도비 검정으로 따로 구합니다. poor 대 intermediate의 위험비는 이 표에서 3.59 ÷ 1.47 = 2.44로 구할 수 있지만, 신뢰구간(1.72–3.47)은 공분산이 필요해 표만으로는 구할 수 없습니다.</span></li>
+<li><span class="mk">7</span><span><b>공변량의 보정 위험비를 원인 효과로 읽지 않습니다.</b> 신장절제술 과거력의 위험비는 보정 전 0.62에서 보정 후 0.81로 1에 가까워졌습니다. 예후가 좋은 군(IMDC favorable)은 81%가 수술을 받았고 나쁜 군(poor)은 36%만 받아, 보정 전 0.62에는 예후 위험군의 차이가 섞여 있었던 것으로 보입니다. 그렇다고 보정 후 0.81을 수술의 효과로 읽을 수도 없습니다. 이 모형은 약물의 효과를 추정하도록 교란변수를 고른 모형이라, 수술의 효과를 추정하려면 수술 여부의 교란변수(수행능력, 종양 부담 등)를 따로 생각해야 합니다. 공변량의 계수까지 관심 노출의 계수처럼 원인 효과로 해석하는 이 오류를 'Table 2 오류'라고 합니다<cite data-ref="westreich2013"></cite>(<a href="#ch06-s4">6장 d 절</a>).</span></li>
+<li><span class="mk">8</span><span><b>비례위험 가정이 깨진 변수.</b> 각주 c에 따르면 조직형의 위험비는 시간에 따라 변합니다. 1.83은 첫 1년의 약 3.3과 그 뒤의 약 0.95를 섞은 평균이라(<span class="tref" data-t="ch11-tb18">표 11-2</span>), 조직형의 효과를 위험비 하나로 요약하기 어렵습니다. 보정 전 1.43이 보정 후 1.83으로 1에서 멀어진 것은 예후가 나쁜 군(poor)의 비율이 비투명세포 환자에서 11.4%로, 투명세포 환자의 21.1%보다 낮았기 때문입니다. 보정 전에는 이 환자 구성이 비투명세포 조직형의 불리함을 일부 가리고 있었습니다. 실제로 예후 위험군 하나만 보정해도 1.82입니다. 다만 약물의 위험비는 조직형으로 층화해도 0.86으로 같아서, 주 결론에는 영향이 없습니다.</span></li>
 </ol>
-<p>아래는 300명 코호트 숫자로 쓴 기본 예문입니다. 위 여섯 항목 가운데 1–4와 5의 확인 방법을 담았습니다. 비례위험 확인 결과(5)와 동점 처리, 소프트웨어(6)까지 넣은 자세한 문단은 예문 아래 접힌 상자에 있습니다.</p>
+</div></div>
+
+<h4>하위군 분석 그림은 어떻게 읽나?</h4>
+<p>논문은 약효가 환자군마다 같은지를 하위군 분석 그림(포레스트 그림)으로 보여 주기도 합니다. 하위군마다 구한 위험비를 점으로, 95% 신뢰구간을 가로 막대로 늘어놓은 그림입니다(그림 11-9). 하위군끼리 효과가 다른지는 각 하위군의 P가 아니라 교호작용 P로 판단합니다. 교호작용 P는 약물 × 하위군 항을 넣은 모형과 넣지 않은 모형을 비교한 P입니다('다른 변수를 보정하면 위험비는 어떻게 바뀌나?'의 접힌 상자 '약효가 환자마다 다르면?').</p>
+<div class="paper">
+<div class="paper-h"><b>논문에서는 이렇게 보입니다 · 하위군 분석 포레스트 그림</b><span>가상의 예시</span></div>
+<div class="paper-b">
+<!--FIG:ch11_forest-->
+<p class="excerpt">The association between treatment and overall survival was <span class="mk">1</span> <span class="hl">consistent across prespecified subgroups</span> (Fig. 3). Hazard ratios within subgroups were <span class="mk">2</span> <span class="hl">adjusted for the remaining covariates</span>, and <span class="mk">3</span> <span class="hl">P values for interaction</span> were obtained from likelihood-ratio tests comparing models with and without a treatment-by-subgroup interaction term. The hazard ratio was <span class="mk">4</span> <span class="hl">0.77 (95% CI, 0.53 to 1.10) among patients 65 years of age or older</span> and <span class="mk">5</span> <span class="hl">1.16 (95% CI, 0.65 to 2.08) among patients with poor-risk disease</span>. Subgroup analyses were <span class="mk">6</span> <span class="hl">not adjusted for multiple comparisons</span>.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>"일관되었다"의 근거.</b> 근거는 두 가지입니다. 하위군을 사전에 정했고, 네 교호작용 검정의 P가 0.24–0.96입니다. 그림의 맨 위 다이아몬드(0.86, 0.65–1.13)가 전체 결과이고, 하위군의 점추정값은 모두 그 신뢰구간 근처에 흩어져 있습니다. 다만 '일관됨'은 '다르다는 증거가 없다'는 약한 결론이고, 왜 약한지는 교호작용 항의 표준오차로 보면 알 수 있습니다. 교호작용 항은 두 하위군에서 구한 약물 로그 위험비의 차이입니다. 두 로그 위험비는 나이라면 65세 미만 138명과 65세 이상 162명처럼 각각 자료의 일부로 구하므로, 하나하나의 표준오차부터 전체 자료로 구할 때보다 큽니다. 여기에 두 추정값의 차이를 구하면 분산이 각 분산의 합이 되어(<a href="#ch00-s5">0장 e 절</a> '그러면 어떻게 합치나?') 표준오차가 더 커집니다. 이 코호트에서 나이 교호작용 항의 표준오차는 0.286으로, 약물 주효과의 표준오차 0.144의 약 2배입니다. 표준오차는 자료 수의 제곱근에 반비례하므로, 표준오차가 2배이면 같은 크기의 차이를 같은 검정력으로 잡는 데 자료가 약 4배 필요합니다. <strong>즉, 하위군 사이에 실제로 차이가 있어도 교호작용 검정은 놓치기 쉽습니다.</strong></span></li>
+<li><span class="mk">2</span><span><b>하위군 안의 보정 위험비.</b> 하위군마다 나머지 공변량을 보정해 따로 추정했습니다. 사건이 적은 하위군(poor 53건, favorable 43건)은 신뢰구간이 넓습니다. 괄호 안의 환자 수/사망 수로 각 추정값의 정밀도를 가늠합니다.</span></li>
+<li><span class="mk">3</span><span><b>P for interaction.</b> 전체 모형에 약물 × 하위군 항을 추가한 모형과 추가하지 않은 모형의 우도비 검정입니다. 65세 이상 여부처럼 전체 모형에 없는 하위군 변수는 그 주효과를 두 모형에 함께 넣습니다. 범주가 셋인 IMDC 위험군은 교호작용 항이 두 개라 자유도 2입니다. 나이 0.24, 성별 0.96, IMDC 0.42, 신장절제술 0.42로 모두 효과수정의 근거가 없습니다.</span></li>
+<li><span class="mk">4</span><span><b>65세 이상 HR 0.77(0.53–1.10).</b> 65세 미만의 0.97(0.60–1.56)보다 1에서 멀지만, 신뢰구간이 1을 포함하고 두 신뢰구간도 크게 겹치며 교호작용 P = 0.24입니다. 그러니 "고령 환자에서 약물 A가 더 효과적"이라고 읽으면 안 됩니다.</span></li>
+<li><span class="mk">5</span><span><b>poor 위험군 HR 1.16(0.65–2.08).</b> 점추정값이 1의 반대편에 있는 하위군입니다. 하위군이 아홉 개나 되면 효과가 모두 같더라도 몇 개는 우연히 반대 방향으로 나오는 것이 자연스럽습니다. 교호작용 P = 0.42이므로 poor 위험군에서 약물 A가 해롭다는 근거는 없습니다.</span></li>
+<li><span class="mk">6</span><span><b>다중비교를 보정하지 않았다는 문장.</b> 하위군 분석은 탐색적이라는 뜻입니다(<a href="#ch01-s3">1장 c 절</a>). 사전에 정하지 않은 하위군에서 우연히 유의한 결과가 나왔다면 가설을 만드는 결과로만 읽습니다.</span></li>
+</ol>
+</div></div>
+
+<h4>Methods와 Results에는 어떻게 쓰나?</h4>
+<p>관찰연구 보고 지침인 STROBE는 보정하지 않은 추정값과 교란을 보정한 추정값을 함께 쓰라고 권합니다. 어떤 교란변수를 왜 보정했는지도 밝히라고 합니다<cite data-ref="vonelm2007"></cite>. STROBE는 무엇을 빠짐없이 적을지 알려 주는 지침이고, 항목을 채웠다고 분석이 타당해지는 것은 아닙니다.</p>
+<p>아래는 300명 코호트 숫자로 쓴 기본 예문입니다. 비례위험 확인 결과와 동점(같은 시점의 사망) 처리 방법, 소프트웨어까지 넣은 자세한 문단은 예문 아래 접힌 상자에 있습니다.</p>
 
 <div class="paper">
 <div class="paper-h"><b>논문에 이렇게 씁니다 · Methods와 Results</b><span>이 절의 예로 쓴 예문</span></div>
@@ -830,10 +819,10 @@ z = 계수 ÷ 표준오차 = −0.316 ÷ 0.139 = −2.27, P = 0.023</p>
 <p class="excerpt"><b>Results.</b> <span class="mk">4</span> <span class="hl">Death occurred in 100 of 152 patients in the drug A group and 110 of 148 patients in the drug B group</span>. In the unadjusted model, <span class="mk">5</span> <span class="hl">the HR for death with drug A as compared with drug B was 0.73 (95% CI, 0.55 to 0.96; P = 0.023). After adjustment, the HR was 0.86 (95% CI, 0.65 to 1.13; P = 0.28)</span>.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>시간 척도, time 0, 중도절단의 정의.</b> 같은 환자라도 진단일과 치료 시작일 가운데 무엇을 time 0으로 하느냐에 따라 생존기간이 달라집니다. 예문의 첫 문장은 노출이 정해진 날과 추적을 시작한 날이 같다는 것을 보여 줍니다. 시간 척도는 보통 추적을 시작한 뒤 흐른 시간입니다. 나이를 시간 척도로 쓰는 코호트 연구도 있으므로 밝혀 둡니다. 예문의 둘째 문장에는 연구 종료일에 살아 있던 사람과 추적 소실된 사람을 언제 중도절단했는지 씁니다. 이 문장이 없으면 독자는 위험집합이 어떻게 줄었는지 알 수 없습니다. 또 추적 소실이 한 군에 몰렸다면, 독자는 이 문장을 보고 정보적 중도절단을 의심할 수 있습니다.</span></li>
-<li><span class="mk">2</span><span><b>보정 전후, 보정 변수, 부호화.</b> 'selected a priori'는 단변수 P로 고르지 않았다는 뜻입니다. 'per 10 years'와 'favorable [reference]'는 Results의 위험비를 읽는 단위와 기준범주입니다. 'measured at treatment initiation'은 노출 이후의 매개변수를 보정하지 않았다는 근거입니다.</span></li>
-<li><span class="mk">3</span><span><b>비례위험 확인 방법.</b> 이 문장이 없으면 독자는 위험비 하나가 의미 있는 요약값인지 판단할 수 없습니다. 그림과 검정을 함께 썼다고 밝힙니다. 확인 결과는 Results나 표의 각주에 씁니다(예문은 아래 접힌 상자 'Methods의 통계분석 문단 전체는 어떻게 쓰나?'의 표식 11).</span></li>
+<li><span class="mk">2</span><span><b>보정 전후, 보정 변수, 부호화.</b> 'selected a priori'는 단변수 P로 고르지 않았다는 뜻입니다. 'per 10 years'와 'favorable [reference]'는 Results의 위험비를 읽는 단위와 기준범주입니다. 'measured at treatment initiation'은 노출 이후의 매개변수를 보정하지 않았다는 근거입니다. 보정 변수 없이 "adjusted"만 쓰면 독자는 잔여 교란을 판단할 수 없습니다.</span></li>
+<li><span class="mk">3</span><span><b>비례위험 확인 방법.</b> 이 문장이 없으면 독자는 위험비 하나가 의미 있는 요약값인지 판단할 수 없습니다. 그림과 검정을 함께 썼다고 밝힙니다. 확인 결과는 Results나 표의 각주에 씁니다(예문은 아래 접힌 상자 'Methods의 통계분석 문단 전체는 어떻게 쓰나?'의 표식 11). 가정을 위반했다면 어떻게 대응했는지도 씁니다.</span></li>
 <li><span class="mk">4</span><span><b>군별 사건 수.</b> 정밀도는 환자 수보다 사건 수에 좌우되므로 사건 수를 씁니다. 100/152 = 65.8%는 추적 기간이 다른 사람들의 사망 비율이라 사망 위험으로 쓰지 않습니다.</span></li>
-<li><span class="mk">5</span><span><b>보정 전후 위험비와 비교 방향.</b> "drug A as compared with drug B"로 기준군을 밝혀야 0.73이 약물 A에 유리하다는 뜻으로 읽힙니다. 관찰연구이므로 "reduced"처럼 효과를 뜻하는 동사를 쓰지 않고, 위험비를 그대로 쓰거나 "was associated with"로 씁니다. 보정 전후를 함께 써야 독자가 교란이 어느 방향으로 작용했는지 가늠할 수 있습니다. 신뢰구간이 1을 포함해도 "no difference"로 쓰지 않고 숫자를 그대로 씁니다(<a href="#ch00-s6">0장 f 절</a>).</span></li>
+<li><span class="mk">5</span><span><b>보정 전후 위험비와 비교 방향.</b> "drug A as compared with drug B"로 기준군을 밝혀야 0.73이 약물 A에 유리하다는 뜻으로 읽힙니다. 관찰연구이므로 "reduced"처럼 효과를 뜻하는 동사를 쓰지 않고, 위험비를 그대로 쓰거나 "was associated with"로 씁니다. 보정 전후를 함께 써야 독자가 교란이 어느 방향으로 작용했는지 가늠할 수 있습니다. 신뢰구간이 1을 포함해도 "no difference"로 쓰지 않고 숫자를 그대로 씁니다(<a href="#ch00-s6">0장 f 절</a>). 나이나 신장절제술은 약물의 효과를 구하려고 넣은 보정 변수라, 그 위험비를 각 변수의 효과로 쓰지 않습니다.</span></li>
 </ol>
 </div></div>
 
@@ -862,11 +851,6 @@ z = 계수 ÷ 표준오차 = −0.316 ÷ 0.139 = −2.27, P = 0.023</p>
 </div></div>
 <!--/FOLD-->
 
-<p>자주 하는 실수는 다음 두 가지입니다.</p>
-<ul>
-<li><b>보정 변수 없이 "adjusted"만 쓰기.</b> 무엇을 보정했는지 모르면 독자는 잔여 교란을 판단할 수 없습니다.</li>
-<li><b>보정 모형의 모든 위험비를 효과로 쓰기.</b> 나이나 신장절제술은 약물의 효과를 구하려고 넣은 보정 변수라, 그 위험비를 '논문에서 읽기'의 해설 7처럼 각 변수의 효과로 쓰지 않습니다.</li>
-</ul>
 
 <p class="lab-link">직접 해 보기 · <a href="r.html#rc03-s5">R과 파이썬으로 하는 통계분석 9장 e 절</a>에서 이 장의 예를 R로 계산하고, 파이썬 코드는 그 절의 접힌 상자에 두었습니다. 공개 자료로는 <a href="r.html#lab11">실습 11</a>에서 원발성 담즙성 담관염 무작위배정 시험 자료로 이 장의 분석을 직접 해 봅니다. 보정 전후 위험비와 단위 바꾸기, 위험비와 누적위험의 비교는 <a href="r.html#lab11-s2">b 절</a>, 비례위험 점검과 기간별 위험비는 <a href="r.html#lab11-s3">c 절</a>, 보정 생존곡선과 층화 Cox 모형은 <a href="r.html#lab11-s4">d 절</a>에 있습니다. <a href="r.html#lab11-s5">과제 3</a>에서는 '변수 × 추적 시간' 열을 직접 만들어 넣으면 왜 편향이 생기는지 확인합니다.</p>
 
@@ -923,8 +907,8 @@ z = 로그 위험비 ÷ 표준오차 = ln 0.80 ÷ 0.123 = −1.81, P = 0.07</p><
 <p>T는 사건까지의 시간입니다. 세로선 뒤의 조건 T ≥ t가 '그 시점까지 살아 있는 사람 중에서'라는 뜻입니다.</p></div>
 <p>위험률을 0부터 t까지 모두 더한 값을 <strong>누적위험률</strong><span class="en">(cumulative hazard)</span> H(t)라고 하며, 생존함수와 다음 관계가 있습니다.</p>
 <div class="eq">\[ H(t) = \int_0^t h(u)\,du, \qquad S(t) = e^{-H(t)} \]
-<p>본문 '속도에 기간을 곱하면 사망할 확률이 되나?'의 e<sup>−0.36</sup> = 0.698은 위험률이 일정할 때의 H(12) = 0.03 × 12 = 0.36을 이 식에 넣은 값입니다. 같은 위험률에서 중앙생존기간은 S(t) = 0.5, 곧 H(t) = ln 2 = 0.693이 되는 시점이라 0.693 ÷ 0.03 = 23.1개월입니다.</p></div>
-<p>누적위험률은 확률이 아니라서 1을 넘을 수 있습니다. 본문의 누적 사망위험(정한 기간 안에 사망할 확률)은 1 − S(t) = 1 − e<sup>−H(t)</sup>입니다. H(t)가 작으면 1 − e<sup>−H(t)</sup>는 H(t)와 거의 같습니다. 그래서 드문 사건에서는 두 군의 누적 사망위험의 비(상대위험도)가 누적위험률의 비, 곧 위험비와 거의 같습니다.</p>
+<p>본문 '속도에 기간을 곱하면 사망할 확률이 되나?'의 e<sup>−0.36</sup> = 0.698은 위험률이 일정할 때의 H(12) = 0.03 × 12 = 0.36을 이 식에 넣은 값입니다. 같은 위험률에서 중앙생존기간은 S(t) = 0.5, 즉 H(t) = ln 2 = 0.693이 되는 시점이라 0.693 ÷ 0.03 = 23.1개월입니다.</p></div>
+<p>누적위험률은 확률이 아니라서 1을 넘을 수 있습니다. 본문의 누적 사망위험(정한 기간 안에 사망할 확률)은 1 − S(t) = 1 − e<sup>−H(t)</sup>입니다. H(t)가 작으면 1 − e<sup>−H(t)</sup>는 H(t)와 거의 같습니다. 그래서 드문 사건에서는 두 군의 누적 사망위험의 비(상대위험도)가 누적위험률의 비, 즉 위험비와 거의 같습니다.</p>
 <p>자료에서는 사망 시점마다 d/n(그 시점의 사망자 수 ÷ 위험집합 크기)을 더해 누적위험률을 추정하며, 이를 <strong>Nelson–Aalen 추정량</strong><span class="en">(Nelson–Aalen estimator)</span>이라고 합니다. 표 7-2의 12명에서 24개월까지 계산하면 다음과 같습니다.</p>
 <p class="calc">24개월 누적위험률 = 1/12 + 1/10 + 2/9 + 1/6 = 0.572<br>
 24개월 생존율 = e<sup>−0.572</sup> = 0.564</p>
