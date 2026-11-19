@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">분절회귀와 자기상관 확인 (18장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fit &lt;- lm(rate ~ time + post + time_after, data = its)    # 분절회귀
+round(cbind(coef = coef(fit), se_ols = sqrt(diag(vcov(fit)))), 4)
+dwtest(fit)                                                # Durbin–Watson(기본: 양의 자기상관을 검정)
+round(acf(resid(fit), lag.max = 6, plot = FALSE)$acf[2:7], 3)   # 시차 1–6의 자기상관</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               coef se_ols
+(Intercept) 95.6211 0.5166
+time        -0.2421 0.0243
+post        -7.3707 0.8090<span class="mk">1</span>
+time_after  -0.2263 0.0509
+
+	Durbin-Watson test
+
+data:  fit
+DW = 0.94505<span class="mk">2</span>, p-value = 5.167e-07
+alternative hypothesis: true autocorrelation is greater than 0
+
+[1]  0.513<span class="mk">3</span>  0.157  0.001 -0.172 -0.314 -0.485</pre></div></div>

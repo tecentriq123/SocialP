@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 1 정답. 적응 기간을 뺀 분절회귀</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ad &lt;- its[!(its$time %in% 37:39), ]                         # 시행 직후 3개월을 뺌
+fa &lt;- lm(rate ~ time + post + time_after, data = ad)
+round(cbind(coef = coef(fa), coefci(fa, vcov. = NeweyWest(fa, lag = 3, prewhite = FALSE), df = Inf))[c(&quot;post&quot;, &quot;time_after&quot;), ], 3)
+nw(fa)                                                      # 12개월째</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             coef   2.5 % 97.5 %
+post       -8.540 -10.604 -6.476
+time_after -0.157  -0.266 -0.048
+    est   lower   upper 
+-10.426 -12.534  -8.319</pre></div></div>

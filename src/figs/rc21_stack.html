@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">두 계열을 한 모형에 넣으면 (18장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">keep &lt;- c(&quot;rate&quot;, &quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;)
+both &lt;- rbind(cbind(its[, keep], group = 1), cbind(comp[, keep], group = 0))   # 120줄
+fb &lt;- lm(rate ~ (time + post + time_after) * group, data = both)
+round(coef(fb)[c(&quot;time:group&quot;, &quot;post:group&quot;, &quot;time_after:group&quot;)], 3)
+k &lt;- &quot;post:group&quot;
+round(c(default = sqrt(vcov(fb)[k, k]),
+        cluster_month = sqrt(vcovCL(fb, cluster = ~ time)[k, k]),
+        cluster_month_lag3 = sqrt(vcovPL(fb, cluster = ~ group, order.by = ~ time, lag = 3)[k, k]),
+        difference_nw = sqrt(NeweyWest(fd, lag = 3, prewhite = FALSE)[&quot;post&quot;, &quot;post&quot;])), 3)
+round(cor(resid(fit), resid(fc)), 2)                        # 두 지역 잔차의 상관</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>      time:group       post:group time_after:group 
+          -0.003           -4.843           -0.198 
+           default      cluster_month cluster_month_lag3      difference_nw 
+             1.089              0.429              0.416              0.402<span class="mk">1</span> 
+[1] 0.83<span class="mk">2</span></pre></div></div>

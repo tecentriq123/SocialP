@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">Newey–West 표준오차와 12개월째 효과 (18장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">V &lt;- NeweyWest(fit, lag = 3, prewhite = FALSE)             # 시차 3, 사전 백색화 없음
+round(cbind(se = sqrt(diag(V)), coefci(fit, vcov. = V, df = Inf)), 3)   # 정규분포로 구한 95% CI
+round(sqrt(diag(NeweyWest(fit)))[c(&quot;post&quot;, &quot;time_after&quot;)], 3)           # 기본값(시차 자동, 사전 백색화)
+car::deltaMethod(fit, &quot;post + 12*time_after&quot;, vcov. = V)   # 시행 12개월째의 효과</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               se  2.5 % 97.5 %
+(Intercept) 0.425 94.788 96.454
+time        0.026 -0.294 -0.190
+post        1.117 -9.559 -5.182<span class="mk">1</span>
+time_after  0.063 -0.349 -0.103
+      post time_after 
+     1.293      0.088<span class="mk">2</span> 
+                       Estimate       SE    2.5 %  97.5 %
+post + 12 * time_after -10.0860   1.0559 -12.1554 -8.0166<span class="mk">3</span></pre></div></div>

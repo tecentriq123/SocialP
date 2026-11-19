@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">시군구 60곳을 한 줄씩으로 (18장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ch &lt;- do.call(rbind, lapply(split(p, p$unit), function(u)
+  data.frame(treat = u$treat[1], w = u$w[1],
+             change = mean(u$rate[u$post == 1]) - mean(u$rate[u$post == 0]))))   # 시군구마다 전후 변화
+round(rbind(mean = tapply(ch$change, ch$treat, mean), sd = tapply(ch$change, ch$treat, sd)), 2)
+f60 &lt;- lm(change ~ treat, data = ch, weights = w)
+round(c(coef(f60)[&quot;treat&quot;], coefci(f60, vcov. = vcovHC(f60, type = &quot;HC1&quot;), df = Inf)[&quot;treat&quot;, ]), 2)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>          0      1
+mean -10.18 -17.44
+sd     0.99   0.73
+ treat  2.5 % 97.5 % 
+ -7.40  -7.87  -6.93<span class="mk">1</span></pre></div></div>

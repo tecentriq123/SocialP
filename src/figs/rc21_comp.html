@@ -1,0 +1,20 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">세 계열의 분절회귀와 차이 계열 (18장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">stopifnot(all(its$time == comp$time))                       # 같은 행이 같은 달
+fc &lt;- lm(rate ~ time + post + time_after, data = comp)      # 비교 지역
+dd &lt;- its[, c(&quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;)]
+dd$rate &lt;- its$rate - comp$rate                             # 달마다 시범 − 비교
+fd &lt;- lm(rate ~ time + post + time_after, data = dd)
+nw &lt;- function(f, L = c(0, 0, 1, 12)) {                     # 계수 조합과 Newey–West 95% CI
+  V &lt;- NeweyWest(f, lag = 3, prewhite = FALSE)
+  e &lt;- sum(L * coef(f)); se &lt;- sqrt(drop(t(L) %*% V %*% L))
+  round(c(est = e, lower = e - 1.96 * se, upper = e + 1.96 * se), 3)
+}
+rbind(pilot = nw(fit), comparison = nw(fc), difference = nw(fd))       # 12개월째 효과
+round(cbind(coef = coef(fd), coefci(fd, vcov. = NeweyWest(fd, lag = 3, prewhite = FALSE), df = Inf)), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>               est   lower  upper
+pilot      -10.086 -12.155 -8.017
+comparison  -2.863  -4.824 -0.902<span class="mk">1</span>
+difference  -7.223  -8.031 -6.415<span class="mk">2</span>
+              coef  2.5 % 97.5 %
+(Intercept) 11.526 10.974 12.078
+time        -0.003 -0.027  0.022<span class="mk">3</span>
+post        -4.843 -5.631 -4.054
+time_after  -0.198 -0.251 -0.146</pre></div></div>

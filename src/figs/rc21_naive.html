@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">전후 평균 비교와 연도별 평균 (18장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">welch &lt;- function(x, post) {                     # 시행 전후 평균의 Welch t 검정
+  t &lt;- t.test(x[post == 1], x[post == 0])
+  round(c(pre = mean(x[post == 0]), post = mean(x[post == 1]),
+          diff = unname(t$estimate[1] - t$estimate[2]), lower = t$conf.int[1], upper = t$conf.int[2]), 2)
+}
+rbind(pilot = welch(its$rate, its$post), comparison = welch(comp$rate, comp$post))
+round(rbind(pilot = tapply(its$rate, (its$time - 1) %/% 12 + 2015, mean),
+            comparison = tapply(comp$rate, (comp$time - 1) %/% 12 + 2015, mean)), 2)   # 연도별 평균</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             pre  post   diff  lower  upper
+pilot      91.14 73.68 -17.46 -19.25 -15.67<span class="mk">1</span>
+comparison 79.66 69.60 -10.06 -11.40  -8.72<span class="mk">2</span>
+            2015  2016  2017  2018  2019
+pilot      94.33 90.60 88.50 76.18 71.18
+comparison 82.69 79.31 76.98 70.96 68.25</pre></div></div>

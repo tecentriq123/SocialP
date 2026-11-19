@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 17</span><span class="cell-t">과제 2 정답. 군집을 무시하면</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">k &lt;- &quot;treat:post&quot;
+round(c(ignore_cluster = sqrt(vcov(tw)[k, k]), cluster_unit = sqrt(vcovCL(tw, cluster = ~ unit)[k, k])), 3)
+round(c(ignore_cluster = sqrt(vcov(did)[k, k]), cluster_unit = sqrt(Vc[k, k])), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>ignore_cluster   cluster_unit 
+         0.219          0.242 
+ignore_cluster   cluster_unit 
+         0.469          0.238</pre></div></div>

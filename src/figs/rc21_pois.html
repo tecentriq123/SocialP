@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">결과가 건수이면: 포아송 분절회귀 (18장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">pois &lt;- glm(n_sed ~ time + post + time_after + offset(log(n_pat)), family = poisson, data = its)
+Vp &lt;- NeweyWest(pois, lag = 3, prewhite = FALSE)
+round(c(dispersion = sum(residuals(pois, &quot;pearson&quot;)^2) / pois$df.residual,
+        se_default = sqrt(vcov(pois)[&quot;post&quot;, &quot;post&quot;]), se_nw = sqrt(Vp[&quot;post&quot;, &quot;post&quot;])), 4)
+round(exp(c(coef(pois)[&quot;post&quot;], coefci(pois, vcov. = Vp, df = Inf)[&quot;post&quot;, ])), 3)   # 수준 변화의 비
+d12 &lt;- car::deltaMethod(pois, &quot;post + 12*time_after&quot;, vcov. = Vp)
+round(exp(unlist(d12[c(&quot;Estimate&quot;, &quot;2.5 %&quot;, &quot;97.5 %&quot;)])), 3)                         # 12개월째의 비</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>dispersion se_default      se_nw 
+    6.8840     0.0037     0.0137<span class="mk">1</span> 
+  post  2.5 % 97.5 % 
+ 0.916  0.892  0.941<span class="mk">2</span> 
+Estimate    2.5 %   97.5 % 
+   0.877    0.856    0.898<span class="mk">3</span></pre></div></div>

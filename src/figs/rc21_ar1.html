@@ -1,0 +1,18 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">AR(1) 오차 모형: Prais–Winsten과 ARIMA (18장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages(library(prais))
+pw &lt;- suppressMessages(prais_winsten(rate ~ time + post + time_after, data = its, index = &quot;time&quot;))
+sp &lt;- summary(pw)
+cf &lt;- sp$coefficients[c(&quot;post&quot;, &quot;time_after&quot;), 1:2]
+round(cbind(cf, lower = cf[, 1] - qt(0.975, 56) * cf[, 2], upper = cf[, 1] + qt(0.975, 56) * cf[, 2]), 3)
+round(c(rho = pw$rho[nrow(pw$rho), 1], sp$dw), 3)          # ρ, 변환 전후 Durbin–Watson
+X  &lt;- as.matrix(its[, c(&quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;)])
+ar &lt;- arima(its$rate, order = c(1, 0, 0), xreg = X, method = &quot;ML&quot;)   # 같은 AR(1) 구조를 최대우도로
+se &lt;- sqrt(diag(ar$var.coef))
+round(cbind(est = ar$coef, lower = ar$coef - 1.96 * se, upper = ar$coef + 1.96 * se)[c(&quot;ar1&quot;, &quot;post&quot;, &quot;time_after&quot;), ], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>           Estimate Std. Error  lower  upper
+post         -7.131      1.128 -9.390 -4.871<span class="mk">1</span>
+time_after   -0.215      0.084 -0.384 -0.046
+        rho    original transformed 
+      0.530       0.945       1.781<span class="mk">2</span> 
+              est  lower  upper
+ar1         0.523  0.306  0.739
+post       -7.138 -9.272 -5.004<span class="mk">3</span>
+time_after -0.215 -0.373 -0.057</pre></div></div>

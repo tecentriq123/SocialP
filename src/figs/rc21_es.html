@@ -1,0 +1,24 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">평행 추세 점검과 사건연구 (18장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ft &lt;- lm(rate ~ treat * time, data = p[p$post == 0, ], weights = w)    # 시행 전 36개월의 기울기 차이
+Vt &lt;- vcovCL(ft, cluster = ~ unit)
+round(c(coeftest(ft, vcov. = Vt, df = Inf)[&quot;treat:time&quot;, c(1, 4)], coefci(ft, vcov. = Vt, df = Inf)[&quot;treat:time&quot;, ]), 3)
+p$half &lt;- (p$time - 1) %/% 6 + 1                            # 반기 1–10, 6 = 시행 직전(기준)
+hs &lt;- setdiff(1:10, 6)
+for (h in hs) p[[paste0(&quot;h&quot;, h)]] &lt;- as.integer(p$half == h &amp; p$treat == 1)
+fes &lt;- lm(reformulate(c(paste0(&quot;h&quot;, hs), &quot;factor(unit)&quot;, &quot;factor(time)&quot;), &quot;rate&quot;), data = p, weights = w)
+Ve  &lt;- vcovCL(fes, cluster = ~ unit)
+round(cbind(est = coef(fes)[paste0(&quot;h&quot;, hs)], coefci(fes, vcov. = Ve, df = Inf)[paste0(&quot;h&quot;, hs), ]), 2)
+lh &lt;- car::linearHypothesis(fes, paste0(&quot;h&quot;, 1:5, &quot; = 0&quot;), vcov. = Ve, test = &quot;Chisq&quot;)
+round(c(chisq = lh$Chisq[2], p = lh$`Pr(&gt;Chisq)`[2]), 3)     # 시행 전 다섯 계수가 모두 0인가</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Estimate Pr(&gt;|z|)    2.5 %   97.5 % 
+  -0.003    0.881   -0.037    0.032<span class="mk">1</span> 
+      est  2.5 % 97.5 %
+h1  -0.34  -1.54   0.86
+h2   0.30  -0.66   1.26
+h3  -0.30  -1.27   0.67
+h4  -0.44  -1.47   0.59
+h5  -0.29  -1.30   0.73
+h7  -6.03  -7.02  -5.05
+h8  -6.83  -7.73  -5.94
+h9  -7.85  -8.91  -6.78
+h10 -9.60 -10.60  -8.60
+chisq     p 
+2.598 0.762<span class="mk">2</span></pre></div></div>

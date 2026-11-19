@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">시차를 바꾸면 표준오차는 (18장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">se_lag &lt;- sapply(c(1, 3, 6, 12), function(l)
+  sqrt(diag(NeweyWest(fit, lag = l, prewhite = FALSE)))[c(&quot;post&quot;, &quot;time_after&quot;)])
+colnames(se_lag) &lt;- paste0(&quot;lag&quot;, c(1, 3, 6, 12)); round(se_lag, 3)
+round(sqrt(diag(NeweyWest(fit, lag = 3, prewhite = FALSE, adjust = TRUE)))[c(&quot;post&quot;, &quot;time_after&quot;)], 3)   # 소표본 보정</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            lag1  lag3  lag6 lag12
+post       0.987 1.117 1.075 0.748
+time_after 0.058 0.063 0.052 0.037
+      post time_after 
+     1.156      0.065<span class="mk">1</span></pre></div></div>

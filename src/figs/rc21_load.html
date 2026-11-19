@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 1</span><span class="cell-t">자료 불러오기와 지역별 월별 계열 (18장 a·b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">suppressPackageStartupMessages({library(sandwich); library(lmtest)})
+raw &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/sedative_district_month.csv&quot;)    # 한 줄 = 시군구의 한 달
+str(raw)
+raw$time &lt;- match(raw$month, sort(unique(raw$month)))       # 2015년 1월 = 1, …, 2019년 12월 = 60
+s &lt;- aggregate(cbind(n_sed, n_pat) ~ treat + time, data = raw, sum)   # 지역별 월별 분자와 분모
+s$rate &lt;- s$n_sed / s$n_pat * 1000                          # 65세 이상 외래환자 1,000명당 처방률
+s$post &lt;- as.integer(s$time &gt;= 37)                          # 시행(2018년 1월) 뒤 = 1
+s$time_after &lt;- pmax(0, s$time - 36)                        # 시행 첫 달 = 1
+its  &lt;- s[s$treat == 1, ]                                   # 시범 지역 계열
+comp &lt;- s[s$treat == 0, ]                                   # 비교 지역 계열
+its[its$time %in% c(1, 2, 36, 37, 38, 60), c(&quot;time&quot;, &quot;post&quot;, &quot;time_after&quot;, &quot;n_sed&quot;, &quot;n_pat&quot;, &quot;rate&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>&#x27;data.frame&#x27;:	3600 obs. of  5 variables<span class="mk">1</span>:
+ $ unit : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ treat: int  1 1 1 1 1 1 1 1 1 1 ...
+ $ month: chr  &quot;2015-01-01&quot; &quot;2015-02-01&quot; &quot;2015-03-01&quot; &quot;2015-04-01&quot; ...
+ $ n_pat: int  8000 8016 8032 8048 8064 8080 8096 8112 8128 8144 ...
+ $ n_sed: int  747 787 777 759 800 775 774 787 742 746 ...
+    time post time_after n_sed  n_pat     rate
+2      1    0          0 22725 236300 96.17012
+4      2    0          0 22576 236774 95.34831
+72    36    0          0 22441 252841 88.75538
+74    37    1          1 20690 253315 81.67696<span class="mk">2</span>
+76    38    1          2 20278 253787 79.90165
+120   60    1         24 18499 264182 70.02370</pre></div></div>

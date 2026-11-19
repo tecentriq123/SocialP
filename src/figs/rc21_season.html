@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">계절 항 넣기 (18장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">its$s1 &lt;- sin(2 * pi * its$time / 12); its$c1 &lt;- cos(2 * pi * its$time / 12)   # time 1 = 1월
+fs &lt;- lm(rate ~ time + post + time_after + s1 + c1, data = its)
+round(cbind(coef = coef(fs), coefci(fs, vcov. = NeweyWest(fs, lag = 3, prewhite = FALSE), df = Inf))[c(&quot;post&quot;, &quot;time_after&quot;), ], 3)
+round(c(amplitude = sqrt(sum(coef(fs)[c(&quot;s1&quot;, &quot;c1&quot;)]^2)), sigma = sigma(fs), dw = unname(dwtest(fs)$statistic)), 2)
+fm &lt;- lm(rate ~ time + post + time_after + factor((time - 1) %% 12), data = its)   # 달 가변수 11개
+round(coef(fm)[c(&quot;post&quot;, &quot;time_after&quot;)], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             coef  2.5 % 97.5 %
+post       -7.772 -9.168 -6.376<span class="mk">1</span>
+time_after -0.215 -0.294 -0.137
+amplitude     sigma        dw 
+     1.22      1.26      1.30 
+      post time_after 
+    -7.722     -0.217</pre></div></div>

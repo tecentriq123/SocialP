@@ -1,0 +1,330 @@
+<p class="lead">보건통계학 기초 18장의 모의자료(시군구 60곳의 60개월, 2018년 1월부터 20곳에서 수면진정제 처방 점검 시범사업)로 정책의 효과를 R로 추정합니다. 시군구 × 월 자료를 지역별 월별 계열로 묶어 전후 평균을 비교하고, 분절회귀에 Newey–West 표준오차를 붙여 수준 변화, 기울기 변화, 12개월째 효과를 구합니다. 이어서 비교 지역의 계열로 함께 겪은 변화를 빼고, 시군구-월 자료로 이중차분 회귀와 사건연구를 합니다. 숫자는 18장 본문과 같습니다.</p>
+
+<p class="nb-link"><a href="notebooks/rc21.ipynb" download>이 장의 노트북 내려받기 (rc21.ipynb)</a> · Colab에서는 파일 → 노트북 업로드로 연 뒤 런타임 → 런타임 유형 변경에서 R을 고릅니다. 출력은 R 4.3.3, sandwich, lmtest, car, prais 1.2로 실제로 실행해 얻었습니다. 자료는 18장의 시군구 × 월 자료(sedative_district_month.csv)이고, 셀이 사이트에서 바로 읽습니다.</p>
+
+<div class="route"><p class="rt">처음 읽을 때</p>
+<dl>
+<dt>미리 알아 둘 것</dt><dd>전후 비교가 틀리는 이유, 분절회귀의 세 계수, 비교 계열과 평행 추세의 뜻은 보건통계학 기초 <a href="stats.html#ch18">18장</a>에 있습니다. <code>lm()</code>의 출력과 강건 분산은 이 과목 <a href="#rc01">2장</a>과 <a href="#rc14-s4">5장 d 절</a>에서 먼저 보았습니다.</dd>
+<dt>먼저 읽을 부분</dt><dd>a 절의 셀 1, b 절의 셀 4와 5, c 절의 셀 10, d 절의 셀 12와 14.</dd>
+<dt>나중에 읽을 부분</dt><dd>b 절의 셀 6–9(시차, AR(1) 오차, 계절, 건수)와 c 절의 셀 11은 내 자료에서 그 선택이 필요할 때 봅니다.</dd>
+<dt>이 장을 마치면</dt><dd>① 시군구 × 월 자료와 명세서에서 월별 처방률 계열을 만들 수 있다 ② 분절회귀에 Newey–West 표준오차를 붙이고, 계수의 조합으로 특정 시점의 효과와 신뢰구간을 구할 수 있다 ③ 자기상관, 계절, 건수 자료를 처리하는 방법을 바꿔 민감도 분석을 할 수 있다 ④ 차이 계열로 대조군이 있는 중단시계열을 분석할 수 있다 ⑤ 가중치와 군집 강건 표준오차로 이중차분 회귀와 사건연구를 할 수 있다</dd>
+</dl></div>
+
+<!-- ============================================================ a -->
+<section class="sec" id="rc21-s1">
+<h2><span class="sec-no">a.</span>월별 계열과 전후 비교</h2>
+
+<h3>지역별 월별 계열은 어떻게 만드나?</h3>
+<p><strong>시군구의 한 달이 한 줄인 자료를 <code>aggregate()</code>로 지역(treat)과 달(time)마다 더해 분자와 분모를 구하고, 1,000명당 처방률과 분절회귀에 쓸 두 변수(post, time_after)를 붙입니다.</strong> 처방률은 시군구별 처방률의 평균이 아니라, 분자의 합을 분모의 합으로 나눈 지역 전체의 값입니다. 보건통계학 기초 <a href="stats.html#ch18-s1">18장 a 절</a>의 자료입니다.</p>
+<!--FIG:rc21_load-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>3,600줄 = 시군구 60곳 × 60개월.</b> n_pat이 분모(외래를 이용한 65세 이상 환자), n_sed가 분자(그중 수면진정제를 원외처방받은 환자)입니다.</span></li>
+<li><span class="mk">2</span><span><b>시행 첫 달(time 37) 81.68.</b> 시범 지역의 분자 20,690 ÷ 분모 253,315 × 1,000입니다. 이 달의 time_after는 1입니다.</span></li>
+</ol>
+
+<h3>전후 평균을 비교하면 무엇이 나오나?</h3>
+<p><strong>시행 전 36개월과 시행 후 24개월의 월별 처방률을 <code>t.test()</code>(Welch 방법이 기본)로 비교합니다.</strong> 같은 계산을 비교 지역에도 합니다.</p>
+<!--FIG:rc21_naive-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시범 지역 −17.46(−19.25 ~ −15.67).</b></span></li>
+<li><span class="mk">2</span><span><b>비교 지역도 −10.06(−11.40 ~ −8.72).</b> 사업이 없던 지역도 크게 줄었습니다. 연도별 평균을 보면 두 지역 모두 시행 전부터 해마다 내려가고 있었습니다. 전후 차이에는 원래의 흐름과 같은 때의 다른 일(전국 서한)이 섞여 있습니다.</span></li>
+</ol>
+
+<h3>명세서에서 월별 분자와 분모는 어떻게 세나?</h3>
+<p><strong>명세서 한 줄은 진료 한 건이므로, 진료 연월마다 환자 번호의 고유 개수를 셉니다. 처방이 한 건도 없는 달은 분자 표에 행이 없으므로 0으로 채웁니다.</strong> 환자 셋의 작은 예입니다. 환자 1은 보건통계학 기초 18장 d 절의 72세 환자로, 1월에 수면진정제를 두 번 받았지만 분자에는 한 명으로 들어갑니다.</p>
+<!--FIG:rc21_claims-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>1월 분자 1명, 분모 2명.</b> 환자 2는 1월에 외래만 이용해 분모에만 들어갑니다. 만든 표의 행 수가 '지역 수 × 개월 수'인지도 확인합니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: scipy와 pandas로 전후 비교와 월별 계열 만들기-->
+<p>보건통계학 기초 18장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>전후 평균 비교의 신뢰구간과 P는 <code>scipy.stats.ttest_ind(후, 전, equal_var=False)</code>(Welch t 검정)로 구했습니다. 명세서에서 월별 분자와 분모를 세는 pandas 코드는 다음과 같습니다.</p>
+<pre class="out"><span class="cm"># 파이썬 (pandas): claims는 65세 이상 외래 명세서(한 줄이 진료 한 건)</span>
+claims["ym"] = claims["date"].dt.to_period("M")                   <span class="cm"># 진료 연월</span>
+den = claims.groupby(["sgg", "ym"])["patient_id"].nunique()       <span class="cm"># 분모: 외래 이용 환자 수</span>
+sed = claims[claims["sedative"] == 1]                             <span class="cm"># 수면진정제가 있는 명세서</span>
+num = sed.groupby(["sgg", "ym"])["patient_id"].nunique()          <span class="cm"># 분자: 처방받은 환자 수</span>
+series = pd.DataFrame({"num": num, "den": den}).fillna({"num": 0})
+series["rate"] = series["num"] / series["den"] * 1000</pre>
+<p>끝에서 둘째 줄의 <code>fillna</code>가 분자의 빈칸을 0으로 채웁니다. 어떤 지역에 수면진정제 처방이 한 건도 없는 달은 num에 그 행이 없기 때문입니다. 만든 표의 행 수가 '지역 수 × 개월 수'인지도 확인합니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ b -->
+<section class="sec" id="rc21-s2">
+<h2><span class="sec-no">b.</span>분절회귀</h2>
+
+<h3>분절회귀는 어떻게 적합하고, 자기상관은 어떻게 보나?</h3>
+<p><strong>시범 지역 계열에 <code>lm(rate ~ time + post + time_after)</code>를 적합합니다. 자기상관은 lmtest 패키지의 <code>dwtest()</code>와 잔차의 <code>acf()</code>로 봅니다.</strong> 보건통계학 기초 <a href="stats.html#ch18-s2">18장 b 절</a>의 모형입니다.</p>
+<!--FIG:rc21_its-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>수준 변화 −7.37, 기존 표준오차 0.809.</b> time이 기존 추세(월 −0.242), time_after가 기울기 변화(월 −0.226)입니다. 이 표준오차는 달끼리 독립이라고 보고 구한 값입니다.</span></li>
+<li><span class="mk">2</span><span><b>Durbin–Watson 0.945.</b> 2보다 한참 작아 양의 자기상관이 있습니다. <code>dwtest()</code>는 양의 자기상관을 한쪽으로 검정하는 것이 기본입니다.</span></li>
+<li><span class="mk">3</span><span><b>시차 1의 자기상관 0.51.</b> 시차 2(0.16)부터는 작아집니다. 이웃한 몇 달까지 상관이 남는지는 시차를 고르는 근거가 됩니다.</span></li>
+</ol>
+
+<h3>Newey–West 표준오차와 12개월째 효과는 어떻게 구하나?</h3>
+<p><strong>sandwich 패키지의 <code>NeweyWest(fit, lag = 3, prewhite = FALSE)</code>로 공분산을 구해 <code>coefci(…, df = Inf)</code>에 넘기면 정규분포로 구한 신뢰구간이 나옵니다. 12개월째 효과(수준 변화 + 12 × 기울기 변화)는 car 패키지의 <code>deltaMethod()</code>에 식과 같은 공분산을 줍니다.</strong></p>
+<!--FIG:rc21_nw-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>수준 변화의 표준오차 1.117, 95% CI −9.56 ~ −5.18.</b> 기울기 변화는 −0.349 ~ −0.103입니다.</span></li>
+<li><span class="mk">2</span><span><b>기본값으로 두면 1.293.</b> <code>NeweyWest()</code>는 시차를 적지 않으면 자료로 고르고 사전 백색화(prewhite)를 하는 것이 기본이어서 값이 달라집니다. 시차와 사전 백색화를 직접 적고 Methods에 밝힙니다. <code>coeftest()</code>에 <code>df</code>를 주지 않으면 잔차 자유도(56)의 t 분포를 써서 구간이 조금 넓어집니다.</span></li>
+<li><span class="mk">3</span><span><b>12개월째 −10.09(−12.16 ~ −8.02).</b> 표준오차 1.06은 수준 변화 하나의 표준오차(1.12)보다 작습니다. 두 계수의 추정값이 서로 반대로 움직이기 때문이고, 그래서 신뢰구간은 반드시 조합을 지정해 구합니다.</span></li>
+</ol>
+
+<h3>시차와 소표본 보정을 바꾸면?</h3>
+<p><strong>같은 모형에서 시차만 1, 3, 6, 12로 바꿔 표준오차를 비교합니다. <code>adjust = TRUE</code>는 소표본 보정을 켭니다.</strong></p>
+<!--FIG:rc21_lags-->
+<p>수준 변화의 표준오차는 시차 1, 3, 6에서 0.99, 1.12, 1.07로 결론이 같습니다. 시차 12처럼 계열 길이에 비해 너무 길게 잡으면 오히려 0.75로 작아집니다. 소표본 보정을 켜면 1.156입니다.</p>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>소표본 보정 1.156.</b> 보정은 기본으로 하지 않으므로, 켰다면 Methods에 적습니다.</span></li>
+</ol>
+
+<h3>오차의 구조를 넣어 다시 적합하면?</h3>
+<p><strong>AR(1) 오차 모형은 prais 패키지의 <code>prais_winsten()</code>(Prais–Winsten 방법)으로, 같은 구조를 최대우도로 적합한 ARIMA(1,0,0) 오차 모형은 기본 함수 <code>arima()</code>에 설명변수를 <code>xreg</code>로 넣어 적합합니다.</strong> 두 방법 모두 ρ와 회귀계수를 함께 추정하므로 계수도 조금 달라집니다.</p>
+<!--FIG:rc21_ar1-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Prais–Winsten 수준 변화 −7.13(−9.39 ~ −4.87), 기울기 변화 −0.215(−0.384 ~ −0.046).</b> 요약표가 t 검정을 내므로 구간도 자유도 56의 t로 구했습니다.</span></li>
+<li><span class="mk">2</span><span><b>ρ = 0.53, Durbin–Watson 0.945 → 1.781.</b> 오차의 AR(1) 구조를 넣자 남은 잔차의 Durbin–Watson이 2에 가까워졌습니다.</span></li>
+<li><span class="mk">3</span><span><b>ARIMA(1,0,0) 오차 −7.14(−9.27 ~ −5.00).</b> Prais–Winsten과 거의 같습니다. 이 예에서는 어느 방법이든 결론이 같지만, 방법은 결과를 보기 전에 정하고 다른 방법은 민감도 분석으로 싣습니다.</span></li>
+</ol>
+
+<h3>계절 무늬는 어떻게 넣나?</h3>
+<p><strong>1년에 한 바퀴 도는 사인·코사인 두 항을 설명변수로 더하거나, 달 가변수 11개를 넣습니다.</strong> 계절 무늬가 빠진 뒤에도 자기상관이 남으므로 Newey–West 표준오차를 함께 씁니다.</p>
+<!--FIG:rc21_season-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>수준 변화 −7.77(−9.17 ~ −6.38).</b> 계절 변동의 크기(진폭)는 1.22이고, 잔차의 표준편차가 1.52에서 1.26으로 줄고 Durbin–Watson은 1.30으로 올라갑니다. 달 가변수로 넣어도 −7.72, −0.217로 거의 같습니다.</span></li>
+</ol>
+
+<h3>결과가 건수이면?</h3>
+<p><strong>분자(건수)를 결과로, 분모의 로그를 오프셋으로 둔 포아송 회귀에 같은 세 변수를 넣고, 표준오차는 <code>NeweyWest()</code>로 다시 구합니다.</strong> 계수를 지수로 바꾼 값은 비로 읽습니다.</p>
+<!--FIG:rc21_pois-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>과산포 6.88, 기본 표준오차 0.0037 대 Newey–West 0.0137.</b> 포아송 회귀의 기본 표준오차는 '분산 = 평균'과 달끼리 독립을 가정해 3.7분의 1로 작습니다.</span></li>
+<li><span class="mk">2</span><span><b>수준 변화 0.916배(0.892–0.941).</b></span></li>
+<li><span class="mk">3</span><span><b>12개월째 0.877배(0.856–0.898).</b> 반사실보다 12.3% 낮아, 선형 모형의 −12.0%와 같은 결론입니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 분절회귀와 출력-->
+<p>보건통계학 기초 18장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>statsmodels에서는 다음 한 줄입니다. 데이터프레임 its는 a 절의 시범 지역 계열과 같은 표입니다.</p>
+<pre class="out"><span class="cm"># 파이썬 (statsmodels)</span>
+fit = smf.ols("rate ~ time + post + time_after", data=its).fit(
+    cov_type="HAC", cov_kwds={"maxlags": 3})</pre>
+<p>분석하는 사람이 정할 것은 다음 세 가지입니다.</p>
+<div class="tbl-wrap"><table class="tbl tight">
+<thead><tr><th>내가 정할 것</th><th>프로그램이 하는 일<br>(statsmodels 0.15)</th></tr></thead>
+<tbody>
+<tr><td>시행 첫 달의 time_after를 1로 셀지 0으로 셀지</td><td>넣어 준 열을 그대로 씁니다. 1로 세면 post 계수가 −7.37, 0으로 세면 −7.60입니다. 같은 달(2018년 12월)의 효과는 둘 다 −10.09입니다</td></tr>
+<tr><td>이웃한 달이 닮는 성질을 감안할지와 시차</td><td><code>.fit()</code>만 쓰면 달끼리 독립이라고 보고 post의 표준오차를 0.809로 냅니다. <code>cov_type="HAC"</code>를 쓸 때 시차 <code>maxlags</code>를 적지 않으면 KeyError가 나고, 시차 3을 적으면 표준오차를 1.117로 냅니다</td></tr>
+<tr><td>효과를 요약할 시점 (결과를 보기 전에)</td><td>따로 요청하지 않으면 계수마다의 값만 나오고 특정 시점의 효과는 나오지 않습니다. <code>fit.t_test("post + 12 * time_after = 0")</code>를 적으면 12개월째 효과 −10.09(95% CI −12.16 ~ −8.02)를 냅니다</td></tr>
+</tbody></table></div>
+
+<p>이 밖에 자기상관을 확인하는 Durbin–Watson 통계량은 <code>durbin_watson(fit.resid)</code>로 따로 계산합니다. 보건통계학 기초 18장 그림 18-2의 반사실 선도 프로그램이 그려 주지 않으므로, 기저 수준 + 기존 추세 × time을 직접 계산해 그립니다.</p>
+<p>위 코드를 실행하면 다음과 같이 나옵니다.</p><div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels 분절회귀</b><span>가상의 예시 (statsmodels 0.15)</span></div>
+<div class="paper-b">
+<p>데이터프레임 its는 한 달이 한 줄이고 rate, time, post, time_after 열이 있습니다. statsmodels 0.15.0으로 실제 실행한 출력이며, 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; import statsmodels.api as sm</span>
+<span class="cm">&gt;&gt;&gt; import statsmodels.formula.api as smf</span>
+<span class="cm">&gt;&gt;&gt; from statsmodels.stats.stattools import durbin_watson</span>
+<span class="cm">&gt;&gt;&gt; fit0 = smf.ols("rate ~ time + post + time_after", data=its).fit()</span>
+<span class="cm">&gt;&gt;&gt; print(durbin_watson(fit0.resid))</span>
+0.9450457125177137 <span class="mk">1</span>
+<span class="cm">&gt;&gt;&gt; fit = smf.ols("rate ~ time + post + time_after", data=its).fit(</span>
+<span class="cm">...     cov_type="HAC", cov_kwds={"maxlags": 3})</span> <span class="mk">2</span>
+<span class="cm">&gt;&gt;&gt; print(fit.summary())</span>
+                            OLS Regression Results
+==============================================================================
+Dep. Variable:                   rate   R-squared:                       0.974
+Model:                            OLS   Adj. R-squared:                  0.973
+Method:                 Least Squares   F-statistic:                     790.4
+Date:                Fri, 02 Oct 2026   Prob (F-statistic):           8.78e-46
+Time:                        20:05:22   Log-Likelihood:                -108.10
+No. Observations:                  60   AIC:                             224.2
+Df Residuals:                      56   BIC:                             232.6
+Df Model:                           3
+Covariance Type:                  HAC
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     95.6211      0.425    224.896      0.000      94.788      96.454
+time          -0.2421      0.026     -9.185      0.000      -0.294      -0.190
+post          -7.3707      1.117     -6.601      0.000      -9.559      -5.182 <span class="mk">3</span>
+time_after    -0.2263      0.063     -3.605      0.000      -0.349      -0.103
+==============================================================================
+Omnibus:                        0.366   Durbin-Watson:                   0.945
+Prob(Omnibus):                  0.833   Jarque-Bera (JB):                0.538
+Skew:                          -0.109   Prob(JB):                        0.764
+Kurtosis:                       2.591   Cond. No.                         153.
+==============================================================================
+
+Notes:
+[1] Standard Errors are heteroscedasticity and autocorrelation robust (HAC) using 3 lags and without small sample correction
+<span class="cm">&gt;&gt;&gt; print(fit0.bse.round(4))</span> <span class="mk">4</span>
+Intercept     0.5166
+time          0.0243
+post          0.8090
+time_after    0.0509
+dtype: float64
+<span class="cm">&gt;&gt;&gt; print(fit.t_test("post + 12 * time_after = 0"))</span> <span class="mk">5</span>
+                             Test for Constraints
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+c0           -10.0860      1.056     -9.553      0.000     -12.155      -8.017
+==============================================================================
+<span class="cm">&gt;&gt;&gt; X = sm.add_constant(its[["time", "post", "time_after"]])</span>
+<span class="cm">&gt;&gt;&gt; g = sm.GLSAR(its["rate"], X, rho=1).iterative_fit(maxiter=50)</span> <span class="mk">6</span>
+<span class="cm">&gt;&gt;&gt; print(g.model.rho.round(4), g.params.round(4).values, g.bse.round(4).values)</span>
+[0.527] [95.4687 -0.239  -7.2164 -0.2279] [1.0294 0.0451 1.1439 0.0882]</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>Durbin–Watson 통계량.</b> 먼저 보통의 방법으로 적합한 모형(fit0)의 잔차로 계산합니다. 0.945로 2보다 한참 작아 양의 자기상관이 있습니다. 요약표 아래쪽의 Durbin-Watson 줄에도 같은 값이 나옵니다.</span></li>
+<li><span class="mk">2</span><span><b>cov_type="HAC".</b> 계수는 그대로 두고 표준오차만 Newey–West 방법으로 계산하라는 옵션이고, maxlags가 시차입니다. maxlags에는 기본값이 없어서 빼면 <code>KeyError: 'maxlags'</code>가 납니다. 요약표의 Covariance Type 줄과 맨 아래 Notes에서 이 옵션이 적용되었는지 확인합니다. Notes의 "without small sample correction"은 소표본 보정을 하지 않았다는 뜻이고, 계수 표의 열 이름이 t가 아니라 z인 것은 신뢰구간과 P에 정규분포를 썼다는 뜻입니다. 둘 다 기본값입니다. 보정을 켜려면 <code>cov_kwds</code>에 <code>"use_correction": True</code>를 더하고(post의 표준오차 1.156), t 분포를 쓰려면 <code>.fit(…, use_t=True)</code>로 적습니다(post의 95% CI −9.61 ~ −5.13).</span></li>
+<li><span class="mk">3</span><span><b>post 줄과 그 아래 time_after 줄.</b> 수준 변화 −7.37(95% CI −9.56 ~ −5.18)과 기울기 변화 −0.226(−0.349 ~ −0.103)입니다. time 줄이 기존 추세, Intercept가 기저 수준입니다.</span></li>
+<li><span class="mk">4</span><span><b>자기상관을 무시한 표준오차.</b> fit0의 표준오차는 post 0.809, time_after 0.051로, HAC 표준오차(1.117, 0.063)보다 작습니다. 계수(coef)는 두 적합에서 같습니다. fit0은 아무것도 지정하지 않은 기본 적합이라 달끼리 독립이라고 보고, 신뢰구간에 자유도 56인 t 분포를 씁니다.</span></li>
+<li><span class="mk">5</span><span><b>12개월째의 효과.</b> <code>t_test</code>에 계수의 조합을 식으로 적으면 추정값과 신뢰구간을 줍니다. −10.09(95% CI −12.16 ~ −8.02)입니다. 표준오차는 같은 적합의 HAC 공분산으로 계산되고, 24개월째는 12를 24로 바꿉니다.</span></li>
+<li><span class="mk">6</span><span><b>AR(1) 오차 모형.</b> <code>GLSAR</code>의 <code>rho=1</code>에서 1은 ρ의 값이 아니라 자기회귀의 차수(지난 몇 달의 오차까지 이어진다고 볼지)입니다. <code>iterative_fit</code>은 ρ와 계수를 번갈아 추정하고, 기본 반복 횟수는 3회입니다. 이 자료를 기본값(3회)으로 돌리면 수렴했다는 표시(<code>g.converged</code>)가 False로 끝납니다. 다만 이때의 post 계수는 −7.2165로, 반복을 50회까지 허용해 네 번째 반복에서 수렴한 값(−7.2164)과 사실상 같습니다. 출력에서는 <code>maxiter=50</code>을 적었습니다. ρ = 0.527이고, 수준 변화 −7.22(표준오차 1.144), 기울기 변화 −0.228(0.088)입니다. 이 함수는 첫 관측값을 빼고 59개로 적합하는 방식(Cochrane–Orcutt)이어서, 첫 관측값을 살리는 Prais–Winsten 방법을 쓴 프로그램과는 숫자가 조금 다를 수 있습니다.</span></li>
+</ol>
+</div></div>
+<p><b>자기상관과 AR(1) 오차.</b> 파이썬에서는 <code>durbin_watson(fit.resid)</code>와, <code>statsmodels.tsa.stattools</code>의 <code>acf(fit.resid)</code>로 구합니다. 파이썬에서는 AR(1) 오차 모형을 <code>sm.GLSAR(…, rho=1).iterative_fit()</code>으로, ARIMA 오차 모형을 <code>ARIMA(…, exog=…, order=(1, 0, 0))</code>로 적합합니다. GLSAR는 첫 관측값을 빼고 59개로 적합하는 방식(Cochrane–Orcutt)이어서, R의 Prais–Winsten 결과(−7.13, 표준오차 1.128)와 달리 수준 변화 −7.22(표준오차 1.144), 기울기 변화 −0.228(0.088)을 줍니다. statsmodels의 ARIMA는 표준오차를 다른 방식으로 구해, 같은 최대우도 모형에서 수준 변화의 구간이 −9.17 ~ −5.11로 R(−9.27 ~ −5.00)과 끝자리가 다릅니다.</p>
+<p><b>신뢰구간의 분포.</b> statsmodels는 보통의 최소제곱에는 자유도 56인 t 분포를, HAC 표준오차에는 정규분포를 기본으로 씁니다. R의 <code>coefci(…, df = Inf)</code>가 뒤의 경우와 같습니다.</p>
+<p><b>계절 항.</b> 모형식에 <code>np.sin(2 * np.pi * time / 12) + np.cos(2 * np.pi * time / 12)</code>를 더합니다.</p>
+<p><b>건수의 포아송 분절회귀.</b> its에 분자 n_sed와 분모 n_pat 열도 두었다면 다음처럼 HAC 표준오차를 지정합니다.</p>
+<pre class="out"><span class="cm"># 파이썬 (statsmodels)</span>
+pois = smf.glm("n_sed ~ time + post + time_after", data=its,
+               family=sm.families.Poisson(),
+               offset=np.log(its["n_pat"])).fit(
+    cov_type="HAC", cov_kwds={"maxlags": 3})</pre>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ c -->
+<section class="sec" id="rc21-s3">
+<h2><span class="sec-no">c.</span>대조군이 있는 중단시계열</h2>
+
+<h3>비교 지역의 변화는 어떻게 빼나?</h3>
+<p><strong>비교 지역 계열에도 같은 분절회귀를 적합하고, 달마다 '시범 − 비교'를 구한 차이 계열에 같은 모형과 Newey–West 표준오차를 씁니다.</strong> 두 계열의 같은 행이 같은 달인지 먼저 확인합니다. 보건통계학 기초 <a href="stats.html#ch18-s3">18장 c 절</a>의 분석입니다.</p>
+<!--FIG:rc21_comp-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>비교 지역의 12개월째 −2.86(−4.82 ~ −0.90).</b> 사업이 없었던 지역도 이만큼 낮아졌습니다.</span></li>
+<li><span class="mk">2</span><span><b>차이 계열의 12개월째 −7.22(−8.03 ~ −6.41).</b> 시범 지역만 본 −10.09 가운데 약 2.9는 두 지역이 함께 겪은 변화였습니다.</span></li>
+<li><span class="mk">3</span><span><b>time의 계수 −0.003(−0.027 ~ 0.022).</b> 차이 계열에서 time의 계수는 시행 전 두 지역의 추세 차이입니다. post는 수준 변화의 차이 −4.84(−5.63 ~ −4.05), time_after는 기울기 변화의 차이 −0.198(−0.251 ~ −0.146)입니다.</span></li>
+</ol>
+
+<h3>두 계열을 한 모형에 넣으면 표준오차는 어떻게 지정하나?</h3>
+<p><strong>두 계열의 120줄을 쌓고 group(시범 지역 = 1)과 세 변수의 교호작용을 넣으면 계수는 차이 계열과 같습니다. 표준오차는 같은 달의 두 줄을 한 묶음으로 보는 <code>vcovCL(fit, cluster = ~ time)</code>이나, 이웃한 달까지 감안하는 <code>vcovPL()</code>로 지정합니다.</strong></p>
+<!--FIG:rc21_stack-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>수준 변화 차이의 표준오차: 기본값 1.089, 같은 달 군집 0.429, 같은 달 군집과 시차 3 0.416, 차이 계열 0.402.</b> 기본값은 120줄을 서로 독립으로 보아 2.7배 큽니다.</span></li>
+<li><span class="mk">2</span><span><b>두 지역 잔차의 상관 0.83.</b> 두 계열이 같은 달에 함께 오르내리므로, 함께 움직인 부분은 차이에서 지워져 차이의 표준오차가 작아집니다.</span></li>
+</ol>
+<!--FOLD py:파이썬으로 하면: statsmodels의 차이 계열과 쌓은 모형-->
+<p>보건통계학 기초 18장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>b 절 파이썬 상자의 분절회귀 코드를 그대로 씁니다. 달라지는 것은 결과 열 하나입니다. 달마다 '시범 지역 처방률 − 비교 지역 처방률'을 구한 차이 열을 만들어 결과로 넣습니다.</p>
+<pre class="out"><span class="cm"># 파이썬 (statsmodels): its와 comp는 시범 지역과 비교 지역의 월별 계열(같은 행이 같은 달)</span>
+diff = its[["time", "post", "time_after"]].copy()
+diff["rate"] = its["rate"] - comp["rate"]   <span class="cm"># 달마다 시범 − 비교</span>
+fit_d = smf.ols("rate ~ time + post + time_after", data=diff).fit(
+    cov_type="HAC", cov_kwds={"maxlags": 3})</pre>
+<p>time, post, time_after의 계수가 각각 두 지역의 시행 전 추세 차이, 수준 변화의 차이, 기울기 변화의 차이이고, 12개월째 효과는 b 절처럼 <code>fit_d.t_test("post + 12 * time_after = 0")</code>로 요청합니다. 논문에서 더 자주 보는 것처럼 두 계열을 한 모형에 넣는다면 표준오차를 반드시 지정해야 합니다(아래).</p>
+<p>쌓은 모형을 쓴다면 같은 달의 두 줄을 한 묶음으로 보는 군집 강건 표준오차(<a href="stats.html#ch10-s4">보건통계학 기초 10장 d 절</a>)를 지정합니다.</p>
+<pre class="out">fit_s = smf.ols("rate ~ (time + post + time_after) * group", data=both).fit(
+    cov_type="cluster", cov_kwds={"groups": both["time"]})</pre>
+<p>같은 달 군집은 이웃한 달끼리 닮는 성질은 감안하지 않습니다. 둘을 함께 감안하려면 <code>cov_type="hac-groupsum"</code>에 <code>cov_kwds={"time": both["time"].to_numpy(), "maxlags": 3}</code>을 줍니다. time을 pandas의 열 그대로 주면 오류가 나므로 배열로 바꿔 넣습니다. 차이 계열을 분석하면 같은 달의 닮음이 차이에서 지워지므로, b 절과 같은 Newey–West 표준오차만 지정하면 됩니다.</p>
+<p>statsmodels의 <code>hac-groupsum</code>(시차 3)은 수준 변화 차이의 표준오차를 0.418로 내고, R의 <code>vcovPL()</code>은 소표본 보정이 달라 0.416을 냅니다.</p>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ d -->
+<section class="sec" id="rc21-s4">
+<h2><span class="sec-no">d.</span>이중차분법</h2>
+
+<h3>이중차분 회귀는 어떻게 적합하나?</h3>
+<p><strong>시군구-월 3,600줄에 <code>lm(rate ~ treat * post, weights = w)</code>를 적합하고, 시군구를 군집으로 둔 <code>vcovCL(fit, cluster = ~ unit)</code>로 표준오차를 구합니다.</strong> 가중치 w는 시군구의 평균 환자 수입니다. <code>vcovCL()</code>의 기본(HC1과 군집 수 보정)은 파이썬 statsmodels의 군집 강건 표준오차와 같은 값을 줍니다. 보건통계학 기초 <a href="stats.html#ch18-s4">18장 d 절</a>의 분석입니다.</p>
+<!--FIG:rc21_did-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>treat:post −7.40, 군집 강건 표준오차 0.238, 95% CI −7.87 ~ −6.94.</b> 절편 79.66(비교 지역의 시행 전 평균), treat 11.48(시행 전 두 지역의 차이), post −10.06(비교 지역의 전후 변화)을 2×2 표와 맞춰 보면 모형을 제대로 세웠는지 확인할 수 있습니다.</span></li>
+<li><span class="mk">2</span><span><b>자유도 59의 t로는 −7.88 ~ −6.93.</b> 군집이 60개라 차이가 작지만, 군집이 적으면 커집니다.</span></li>
+<li><span class="mk">3</span><span><b>가중치 없이 −7.26(−7.70 ~ −6.82).</b> 시군구 하나의 평균적인 변화를 묻는 값입니다. 시군구 가변수와 달 가변수를 넣은 이원 고정효과 모형도 −7.40으로 같습니다. 결측이 있으면 <code>lm()</code>이 그 행을 빼므로, <code>nobs(fit)</code>가 자료의 행 수와 같은지 봅니다(이 자료는 결측이 없습니다).</span></li>
+</ol>
+
+<h3>시군구 60곳을 한 줄씩으로 놓으면?</h3>
+<p><strong>시군구마다 '시행 후 평균 − 시행 전 평균'을 구해 60줄을 만들고, 환자 수로 가중해 두 지역을 비교합니다.</strong></p>
+<!--FIG:rc21_60-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>−7.40(−7.87 ~ −6.93).</b> 3,600줄에 군집 강건 표준오차를 쓴 결과와 거의 같습니다. 이중차분의 정밀도는 줄의 수가 아니라 시군구의 수와 시군구 사이에서 변화량이 흩어진 정도(표준편차 0.73과 0.99)로 정해집니다.</span></li>
+</ol>
+
+<h3>평행 추세는 어떻게 점검하나?</h3>
+<p><strong>시행 전 36개월로 두 지역의 기울기 차이(treat:time)를 구하고, 반기 가변수로 사건연구를 적합합니다. 사건연구는 시행 직전 반기를 기준으로 나머지 아홉 반기마다 '그 반기이면서 시범 지역'인 가변수를 만들고, 시군구와 달 가변수, 같은 가중치와 군집으로 적합합니다.</strong> 시행 전 다섯 계수가 모두 0인지는 car 패키지의 <code>linearHypothesis()</code>로 함께 검정합니다.</p>
+<!--FIG:rc21_es-->
+<ol class="marks">
+<li><span class="mk">1</span><span><b>시행 전 기울기 차이 월 −0.003(−0.037 ~ 0.032), P = 0.88.</b> 유의하지 않다는 것이 차이가 0이라는 뜻은 아니므로, 신뢰구간의 끝값이 이중차분 추정값을 얼마나 치우치게 할지 계산해 봅니다(보건통계학 기초 18장 d 절).</span></li>
+<li><span class="mk">2</span><span><b>시행 전 다섯 계수의 결합 검정 P = 0.76.</b> 시행 전 계수는 −0.44–0.30이고, 시행 후는 −6.03, −6.83, −7.85, −9.60으로 감소 폭이 커집니다. 기준 구간과 구간의 폭은 결과를 보기 전에 정합니다.</span></li>
+</ol>
+
+<h3>같은 자료에서 네 분석은 무엇이 다른가?</h3>
+<p><strong>두 중단시계열 분석은 시행 후 24개월의 평균 효과(수준 변화 + 12.5 × 기울기 변화)로 바꿔, 이중차분과 같은 척도로 나란히 놓습니다.</strong></p>
+<!--FIG:rc21_four-->
+<p>중단시계열 −10.20(−12.29 ~ −8.11), 대조군이 있는 중단시계열 −7.32(−8.14 ~ −6.50), 이중차분 −7.40(−7.87 ~ −6.94)입니다. 전후 평균 비교의 −17.46까지 넣은 네 값이 무엇을 빼고 무엇을 남기는지는 보건통계학 기초 18장 d 절 '같은 자료에서 네 분석은 무엇이 다른가?'에 있습니다. 모의자료에 넣은 사업의 효과는 −7.5입니다.</p>
+<!--FOLD py:파이썬으로 하면: statsmodels의 이중차분 회귀와 사건연구-->
+<p>보건통계학 기초 18장의 '직접 분석' 상자와 본문에 있던 내용입니다.</p>
+<p>2×2 표의 값과 군집 강건 표준오차의 신뢰구간은 회귀로 한꺼번에 구합니다. 넣는 것은 시군구의 한 달이 한 줄(3,600줄)인 표입니다. 열은 결과 변수인 처방률(rate), 시범 지역이면 1인 treat, 시행 후면 1인 post입니다. 여기에 군집을 나타내는 시군구 번호(unit)와 시군구의 월별 65세 이상 외래환자 수(n_pat) 열이 있어야 합니다. 가중치 w는 코드에서 n_pat을 시군구마다 평균해 만듭니다.</p>
+<pre class="out"><span class="cm"># 파이썬 (statsmodels): panel은 시군구-월이 한 줄인 표</span>
+panel = panel.dropna(subset=["rate"])   <span class="cm"># 결측 행을 먼저 뺌</span>
+panel["w"] = panel.groupby("unit")["n_pat"].transform("mean")   <span class="cm"># 시군구의 평균 환자 수</span>
+did = smf.wls("rate ~ treat * post", data=panel, weights=panel["w"]).fit(
+    cov_type="cluster", cov_kwds={"groups": panel["unit"]})</pre>
+<div class="paper">
+<div class="paper-h"><b>파이썬 출력에서는 이렇게 보입니다 · statsmodels 이중차분 회귀</b><span>가상의 예시 (statsmodels 0.15)</span></div>
+<div class="paper-b">
+<p>데이터프레임 panel은 시군구-월이 한 줄(3,600줄)이고 unit(시군구 번호), treat, post, rate, w(시군구의 평균 65세 이상 외래환자 수) 열이 있습니다. 요약표 가운데 계수 부분만 실었습니다. 출력의 모양은 버전에 따라 조금 다를 수 있습니다.</p>
+<pre class="out"><span class="cm">&gt;&gt;&gt; did = smf.wls("rate ~ treat * post", data=panel, weights=panel["w"]).fit(</span>
+<span class="cm">...     cov_type="cluster", cov_kwds={"groups": panel["unit"]})</span> <span class="mk">1</span>
+<span class="cm">&gt;&gt;&gt; print(did.summary().tables[1])</span>
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     79.6646      0.977     81.523      0.000      77.749      81.580 <span class="mk">2</span>
+treat         11.4771      1.513      7.588      0.000       8.513      14.442
+post         -10.0615      0.153    -65.839      0.000     -10.361      -9.762
+treat:post    -7.4015      0.238    -31.102      0.000      -7.868      -6.935 <span class="mk">3</span>
+==============================================================================</pre>
+<ol class="marks">
+<li><span class="mk">1</span><span><b>treat * post와 군집.</b> 식의 <code>treat * post</code>는 treat, post, treat:post 세 항을 한꺼번에 넣으라는 뜻입니다. <code>cov_type="cluster"</code>와 <code>groups</code>로 군집 단위를 지정합니다.</span></li>
+<li><span class="mk">2</span><span><b>앞의 세 줄.</b> Intercept는 비교 지역의 시행 전 평균(79.66), treat는 시행 전 두 지역의 차이(11.48), post는 비교 지역의 전후 변화(−10.06)입니다. 2×2 표와 맞춰 보면 모형을 제대로 세웠는지 확인할 수 있습니다.</span></li>
+<li><span class="mk">3</span><span><b>treat:post.</b> 이중차분 추정값 −7.40, 군집 강건 표준오차 0.238, 95% CI −7.87 ~ −6.94입니다.</span></li>
+</ol>
+</div></div>
+<p>출력에서 따로 확인할 것이 두 가지 있습니다. 첫째, 신뢰구간과 P는 정규분포(z)로 구했습니다(<code>z</code>, <code>P&gt;|z|</code> 열). <code>fit</code>에 <code>use_t=True</code>를 더하면 자유도 59(군집 수 − 1)의 t 분포를 써서 95% CI가 −7.88 ~ −6.93이 됩니다. 군집이 60개라 차이가 작지만, 군집이 적으면 차이가 커집니다. 둘째, rate에 결측이 있으면 모형식은 그 행을 빼고 적합합니다. 하지만 군집으로 준 <code>panel["unit"]</code>은 원래 길이 그대로 남아 "The weights and list don't have the same length."라는 ValueError가 납니다. 오류 문구에는 weights가 나오지만 실제 원인은 군집 열의 길이입니다. 그래서 위 코드처럼 결측 행을 먼저 빼고, <code>did.nobs</code>와 군집 수가 자료와 맞는지 봅니다.</p>
+<p><b>사건연구.</b> 아홉 가변수(lead6–lead2, lag1–lag4)에 시군구 가변수와 달 가변수를 더해, 이중차분과 같은 가중치와 시군구 군집으로 적합합니다. 마지막 줄의 결합 검정은 P = 0.76입니다.</p>
+<pre class="out"><span class="cm"># 파이썬 (statsmodels): lead6 … lag4는 위 3에서 만든 가변수</span>
+terms = ["lead6", "lead5", "lead4", "lead3", "lead2",
+         "lag1", "lag2", "lag3", "lag4"]
+f_es = "rate ~ " + " + ".join(terms) + " + C(unit) + C(time)"
+es = smf.wls(f_es, data=panel, weights=panel["w"]).fit(
+    cov_type="cluster", cov_kwds={"groups": panel["unit"]})
+print(es.wald_test("lead6 = lead5 = lead4 = lead3 = lead2 = 0", scalar=True))</pre>
+<!--/FOLD-->
+</section>
+
+<!-- ============================================================ e -->
+<section class="sec" id="rc21-s5">
+<h2><span class="sec-no">e.</span>과제</h2>
+
+<p>앞의 셀을 모두 실행한 상태에서 이어서 풉니다. 먼저 스스로 해 본 뒤 정답을 펼쳐 보세요.</p>
+
+<h3>과제 1. 적응 기간을 뺀 분절회귀</h3>
+<p>시행 직후 3개월(2018년 1–3월, time 37–39)을 적응 기간으로 보고 빼서 분절회귀를 다시 적합하세요. 수준 변화, 기울기 변화, 12개월째 효과는 어떻게 달라지나요?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc21_t1-->
+<p>수준 변화 −8.54(−10.60 ~ −6.48), 기울기 변화 −0.157(−0.266 ~ −0.048)로 두 계수가 서로 값을 주고받았지만, 12개월째 효과는 −10.43으로 주 분석의 −10.09와 비슷합니다. 이런 민감도 분석에서는 계수 하나하나보다 특정 시점의 효과를 비교하는 편이 안정적입니다(보건통계학 기초 18장 b 절의 접힌 상자 '시점은 몇 개면 되고, 적응 기간은 어떻게 다루나?').</p>
+</div></details>
+
+<h3>과제 2. 군집을 무시하면</h3>
+<p>이원 고정효과 모형(셀 12의 tw)과 treat * post 모형(did)에서, 군집을 지정하지 않은 보통의 표준오차와 시군구 군집 강건 표준오차를 비교하세요. 군집을 무시하면 표준오차는 늘 작아지나요?</p>
+<details class="hw-ans"><summary>정답 코드와 풀이</summary><div>
+<!--FIG:rc21_t2-->
+<p>이원 고정효과 모형에서는 보통의 표준오차가 0.219로 군집 강건 표준오차 0.242보다 작지만, treat * post 모형에서는 0.469로 오히려 큽니다. treat * post 모형에는 시군구마다 다른 평소 수준을 나타내는 항이 없어 그 차이가 잔차에 남는데, 이중차분은 같은 시군구의 전후를 비교하므로 평소 수준이 지워집니다. 그래서 군집을 무시한 신뢰구간이 넓어질지 좁아질지는 모형에 따라 다르고, 어느 쪽이든 정책이 배정된 단위로 군집을 지정합니다(보건통계학 기초 18장 d 절의 접힌 상자 '군집을 무시하면 이 예에서는 왜 신뢰구간이 오히려 넓어지나?').</p>
+</div></details>
+</section>

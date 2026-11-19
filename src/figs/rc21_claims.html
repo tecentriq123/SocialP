@@ -1,0 +1,14 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">명세서에서 월별 분자와 분모 세기 (18장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">claims &lt;- data.frame(patient = c(1, 1, 1, 1, 2, 2, 3),          # 명세서 한 줄 = 진료 한 건
+                     date = as.Date(c(&quot;2018-01-05&quot;, &quot;2018-01-20&quot;, &quot;2018-03-02&quot;, &quot;2018-03-16&quot;,
+                                      &quot;2018-01-11&quot;, &quot;2018-02-08&quot;, &quot;2018-03-30&quot;)),
+                     sedative = c(1, 1, 1, 0, 0, 1, 0))             # 수면진정제 처방이 있으면 1
+claims$ym &lt;- format(claims$date, &quot;%Y-%m&quot;)
+n_unique &lt;- function(x) length(unique(x))                          # 건수가 아니라 환자 수
+den &lt;- tapply(claims$patient, claims$ym, n_unique)                 # 분모: 외래 이용 환자
+sed &lt;- claims[claims$sedative == 1, ]
+num &lt;- tapply(sed$patient, sed$ym, n_unique)[names(den)]           # 분자: 처방받은 환자
+num[is.na(num)] &lt;- 0                                               # 처방이 한 건도 없는 달은 0
+data.frame(ym = names(den), num = as.vector(num), den = as.vector(den))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       ym num den
+1 2018-01   1   2<span class="mk">1</span>
+2 2018-02   1   1
+3 2018-03   1   2</pre></div></div>

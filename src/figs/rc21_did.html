@@ -1,0 +1,23 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">이중차분 회귀와 군집 강건 표준오차 (18장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p &lt;- raw                                                    # 시군구-월 3,600줄
+p$rate &lt;- p$n_sed / p$n_pat * 1000; p$post &lt;- as.integer(p$time &gt;= 37)
+p$w &lt;- ave(p$n_pat, p$unit)                                 # 시군구의 평균 환자 수(가중치)
+sum(is.na(p$rate))
+did &lt;- lm(rate ~ treat * post, data = p, weights = w)
+Vc  &lt;- vcovCL(did, cluster = ~ unit)                        # 시군구 군집 강건 표준오차
+round(cbind(coef = coef(did), se = sqrt(diag(Vc)), coefci(did, vcov. = Vc, df = Inf)), 3)
+round(coefci(did, vcov. = Vc, df = 59)[&quot;treat:post&quot;, ], 3)  # 자유도 59(군집 수 − 1)의 t
+did_u &lt;- lm(rate ~ treat * post, data = p)                  # 가중치 없이
+round(c(coef(did_u)[&quot;treat:post&quot;], coefci(did_u, vcov. = vcovCL(did_u, cluster = ~ unit), df = Inf)[&quot;treat:post&quot;, ]), 2)
+tw &lt;- lm(rate ~ treat:post + factor(unit) + factor(time), data = p, weights = w)   # 이원 고정효과
+round(coef(tw)[&quot;treat:post&quot;], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 0
+               coef    se   2.5 % 97.5 %
+(Intercept)  79.665 0.977  77.749 81.580
+treat        11.477 1.513   8.513 14.442
+post        -10.062 0.153 -10.361 -9.762
+treat:post   -7.402 0.238  -7.868 -6.935<span class="mk">1</span>
+ 2.5 % 97.5 % 
+-7.878 -6.925<span class="mk">2</span> 
+treat:post      2.5 %     97.5 % 
+     -7.26      -7.70      -6.82<span class="mk">3</span> 
+treat:post 
+    -7.402</pre></div></div>
