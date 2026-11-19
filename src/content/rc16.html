@@ -61,7 +61,7 @@ TtestResult(statistic=np.float64(2.6593100335186795), pvalue=np.float64(0.004018
 <li><span class="mk">1</span><span><b>PDC ITT.</b> 환자별 자료로 구한 셀 1과 숫자가 같습니다. 그 아래 PP 분석도 하한 −3.40으로 비열등입니다.</span></li>
 <li><span class="mk">2</span><span><b>13장 b 절 '결과는 어떻게 읽나?'의 예: 하한 −5.58, 단측 p 0.056.</b> 하한이 한계를 넘어 비열등성을 입증하지 못했습니다. 차이 = 0의 양측 p도 0.11이라 '판단할 수 없음'입니다.</span></li>
 <li><span class="mk">3</span><span><b>HbA1c(낮을수록 좋음, 한계 +0.4): 차이 0.09, 상한 0.303, 단측 p 0.0023.</b> 13장 c 절의 숫자입니다. 이번에는 신약에 불리한 쪽인 상한을 한계와 비교합니다.</span></li>
-<li><span class="mk">4</span><span><b>혈압 예(한계 +5 mmHg): 상한 5.81, 단측 p 0.096.</b> 13장 c 절 '논문에 쓰기'의 예로, 상한이 한계를 넘어 비열등성을 입증하지 못했습니다.</span></li>
+<li><span class="mk">4</span><span><b>혈압 예(한계 +5 mmHg): 상한 5.81, 단측 p 0.096.</b> 13장 c 절 '논문에서 읽고 쓰기'의 예로, 상한이 한계를 넘어 비열등성을 입증하지 못했습니다.</span></li>
 </ol>
 <p>환자별 자료로 낮을수록 좋은 결과를 검정할 때는 <code>t.test(new, ctrl, mu = 0.4, alternative = "less", conf.level = 0.975)</code>처럼 한계를 양수로, 방향을 "less"로 적습니다. 비열등을 뒷받침하는 결과에서도 t는 음수(이 자료에서 −2.86)로 나오고, 판단할 상한은 <code>$conf.int</code>의 둘째 값입니다. 높을수록 좋은 경우처럼 <code>mu = -0.4</code>, "greater"로 넣으면 신약에 유리한 쪽 끝을 검정하게 되어 p가 지나치게 작게 나옵니다. 기저 HbA1c를 보정한 차이는 <code>lm(chg ~ arm + base)</code>의 arm 계수로 구하는 공분산분석으로, 이 과목 <a href="#rc13-s6">4장 f 절</a>과 같습니다.</p>
 <!--FOLD py:파이썬으로 하면: 요약값으로 검산하기와 낮을수록 좋은 경우-->
@@ -171,7 +171,7 @@ TtestResult(statistic=np.float64(2.6593100335186795), pvalue=np.float64(0.004018
 <!--/FOLD-->
 
 <h3>교차설계 자료는 어떻게 분석하나?</h3>
-<p><strong>대상자 한 명의 한 기간이 한 줄인 긴 형식 자료로, 로그 AUC를 결과로 하고 대상자, 기간, 제제를 요인으로 넣은 <code>lm()</code>을 적합합니다.</strong> 제제 계수가 로그 기하평균비이고, <code>confint(…, level = 0.90)</code>을 지수로 되돌리면 90% 신뢰구간입니다. 예는 13장 e 절 '논문에서 읽기' Table 2의 24명입니다.</p>
+<p><strong>대상자 한 명의 한 기간이 한 줄인 긴 형식 자료로, 로그 AUC를 결과로 하고 대상자, 기간, 제제를 요인으로 넣은 <code>lm()</code>을 적합합니다.</strong> 제제 계수가 로그 기하평균비이고, <code>confint(…, level = 0.90)</code>을 지수로 되돌리면 90% 신뢰구간입니다. 예는 13장 e 절 '논문에서 읽고 쓰기' Table 2의 24명입니다.</p>
 <!--FIG:rc16_cross-->
 <ol class="marks">
 <li><span class="mk">1</span><span><b>AUC<sub>0–t</sub>의 기하평균비 97.31%(91.20–103.82%).</b> Table 2의 값입니다. 대상자 요인이 순서군의 차이까지 담으므로, 순서군과 '순서군 안의 대상자'를 넣은 모형과 제제의 추정값이 같습니다.</span></li>
@@ -197,7 +197,7 @@ lo, hi = fit.conf_int(alpha=0.10).loc["C(form)[T.T]"]</pre>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>정규분포 공식 158.9명, 272.4명.</b> 13장 본문의 계산입니다.</span></li>
 <li><span class="mk">2</span><span><b><code>power.t.test()</code> 159.9명.</b> t 분포를 써서 공식보다 1명 안팎 많고, 올림하면 160명입니다. PDC 시험은 273.3명 → 274명입니다.</span></li>
-<li><span class="mk">3</span><span><b>탈락 15%를 감안하면 군당 188명.</b> 13장 a 절 '논문에서 읽기'의 159명과 188명입니다.</span></li>
+<li><span class="mk">3</span><span><b>탈락 15%를 감안하면 군당 188명.</b> 13장 a 절 '논문에서 읽고 쓰기'의 159명과 188명입니다.</span></li>
 </ol>
 <!--FOLD py:파이썬으로 하면: statsmodels의 tt_ind_solve_power-->
 <p>HbA1c 시험: statsmodels의 <code>tt_ind_<wbr>solve_<wbr>power(effect_size=0.4/1.1, alpha=0.025, power=0.9, alternative="larger")</code>로 같은 계산을 합니다. z 대신 t 분포를 쓰므로 159.9가 나와, 위 공식보다 한 명 많은 160명으로 올림합니다.</p>
