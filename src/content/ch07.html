@@ -252,7 +252,7 @@
 <p>환자 나를 한 단계씩 따라가 봅니다.</p>
 <ol>
 <li><b>time 0.</b> 첫 처방일 2021-06-01이 index date, 즉 time 0입니다. 추적은 다음 날(2021-06-02)부터 세므로, 추적 일수는 '종료일 − index date'입니다.</li>
-<li><b>중단일.</b> 첫 처방이 끝난 2021-08-30과 두 번째 처방(2021-09-01) 사이는 2일이라 유예기간 안입니다. 마지막 처방의 약이 떨어진 뒤 60일 안에 재처방이 없으므로, 약이 떨어진 날에 유예기간 60일을 더한 날이 중단일입니다('논문에서 읽고 쓰기'의 그림 7-2와 같은 경우).
+<li><b>중단일.</b> 첫 처방이 끝난 2021-08-30과 두 번째 처방(2021-09-01) 사이는 2일이라 유예기간 안입니다. 마지막 처방의 약이 떨어진 뒤 60일 안에 재처방이 없으므로, 약이 떨어진 날에 유예기간 60일을 더한 날이 중단일입니다(위 그림 7-2와 같은 경우).
 <p class="calc">약이 떨어진 날 = 2021-09-01 + 공급일수 90일 = 2021-11-30<br>
 중단일 = 2021-11-30 + 60일 = 2022-01-29</p></li>
 <li><b>as-treated.</b> 심부전 입원(2022-04-18), 중단(2022-01-29), 자료 기간 종료(2022-12-31) 가운데 가장 이른 2022-01-29에 추적이 끝납니다. 사건이 아니므로 status = 0, time = 2022-01-29 − 2021-06-01 = 242일입니다.</li>
@@ -332,7 +332,7 @@ ITT 유사 인년 = 321 ÷ 365.25 = 0.879인년</p></li>
 <p class="excerpt"><b>Results.</b> Of the 12 patients, <span class="mk">3</span> <span class="hl">7 died and 5 were censored; 3 were alive at the data cutoff and 2 were lost to follow-up after transfer to another hospital</span>. During <span class="mk">4</span> <span class="hl">20.25 person-years of follow-up, the mortality rate was 34.6 per 100 person-years</span>. The median follow-up was <span class="mk">5</span> <span class="hl">32 months (interquartile range, 25 to 44)</span>.</p>
 <ol class="marks">
 <li><span class="mk">1</span><span><b>시작 시점과 사건을 한 문장에.</b> 시작 시점이 진단일인지 치료 시작일인지에 따라 같은 환자의 생존기간이 달라집니다. "from any cause"는 사건이 모든 원인의 사망이라는 뜻입니다.</span></li>
-<li><span class="mk">2</span><span><b>중도절단 규칙.</b> 사건 없이 관찰이 끝난 사람을 언제 중도절단했는지 씁니다. 이 문장이 없으면 독자는 마감일에 살아 있던 사람을 어떻게 처리했는지 알 수 없습니다. 청구자료 연구라면 '논문에서 읽고 쓰기' Methods 상자의 ⑦처럼 "whichever came first"로 추적 종료 사유를 모두 나열하고, 사망 정보를 어디서 얻었는지(사망 자료 연계 여부)도 씁니다.</span></li>
+<li><span class="mk">2</span><span><b>중도절단 규칙.</b> 사건 없이 관찰이 끝난 사람을 언제 중도절단했는지 씁니다. 이 문장이 없으면 독자는 마감일에 살아 있던 사람을 어떻게 처리했는지 알 수 없습니다. 청구자료 연구라면 위 Methods 상자의 ⑦처럼 "whichever came first"로 추적 종료 사유를 모두 나열하고, 사망 정보를 어디서 얻었는지(사망 자료 연계 여부)도 씁니다.</span></li>
 <li><span class="mk">3</span><span><b>사건 수와 중도절단 사유.</b> 결과의 정밀도는 환자 수보다 사건 수에 좌우되므로, 독자는 이 숫자로 신뢰구간이 얼마나 넓을지 가늠합니다. 중도절단은 자료 마감인지 추적 소실인지 나눠 씁니다. 추적 소실이 많거나 한 군에 몰리면 독자가 정보적 중도절단을 의심할 수 있습니다. "6개월 이상 추적된 환자만 분석했다"처럼 추적이 짧은 환자를 빼면 일찍 사망한 사람을 빼는 셈입니다(스스로 확인하기 2번).</span></li>
 <li><span class="mk">4</span><span><b>총 인년과 발생률.</b> "7 of 12 patients (58.3%) died"만 쓰면 추적 기간이 다른 사람을 같은 분모에 넣은 비율이 됩니다. 발생률은 "per 100 person-years" 같은 단위를 꼭 붙입니다.</span></li>
 <li><span class="mk">5</span><span><b>중앙 추적기간과 사분위범위.</b> Methods에 적은 역 Kaplan-Meier 방법으로 구한 32개월과 그 사분위범위입니다. 독자는 중앙 추적기간으로 몇 년 생존율까지 믿을 만한지 가늠합니다. 같은 자료에서 18, 25, 32개월이 모두 나올 수 있으므로, 방법을 함께 밝혀야 독자가 숫자를 바르게 읽습니다. 전체 환자 time의 중앙값(18개월)은 사망이 많을수록 짧아지므로 추적기간으로 쓰지 않습니다.</span></li>
@@ -366,7 +366,7 @@ ITT 유사 인년 = 321 ÷ 365.25 = 0.879인년</p></li>
 <details><summary>답과 풀이</summary><div><p>3개월에 사망한 #1과 5개월에 전원된 #2가 빠져 10명, 사망 6명, 235인월(19.58인년)이 남고, 사망 발생률은 100인년당 34.6명에서 30.6명으로 줄어듭니다(b 절의 Kaplan-Meier 2년 생존율도 53.5%에서 58.3%로 올라갑니다). 추적기간은 time 0 이후에 정해지는 결과이므로, 이것으로 대상자를 고르면 일찍 사망한 사람이 빠져 예후가 실제보다 좋아 보입니다. '시작 시점에서 꼭 지킬 것은?'에서 본 불멸시간과 같은 문제입니다. 고쳐 쓰면 "모든 환자를 time 0부터 추적했고, 추적이 짧은 환자는 마지막 관찰 시점에 중도절단했다"가 됩니다.</p></div></details></li>
 <li><p><span class="qt">논문 쓰기</span>건강보험 청구자료로 SGLT2 억제제와 DPP-4 억제제를 새로 시작한 환자의 심부전 입원을 비교하는 내 연구를 생각해 봅시다. 약을 쓰는 동안만 추적하는 as-treated 분석입니다. Methods에 시작 시점과 사건을 정의하는 문장 하나, 추적 종료를 정의하는 문장 하나를 써 보세요. 상병코드, 유예기간, 날짜는 대괄호로 비워 둡니다.</p>
 <details><summary>답과 풀이</summary><div><p>모범 문장은 다음과 같습니다. 대괄호는 자신의 연구에 맞게 바꿉니다. “The index date was defined as the date of the first prescription of an SGLT2 inhibitor or a DPP-4 inhibitor, and the outcome was hospitalization for heart failure, defined as an inpatient claim with a primary diagnosis of heart failure ([ICD-10 codes]).” “Follow-up started on the day after the index date and continued until the outcome, death, treatment discontinuation (no refill within [grace period] days after the end of the days' supply), switching to or adding the comparator drug, or the end of the study period ([date]), whichever came first.”</p>
-<p>확인할 점은 네 가지입니다. 첫째, 대상자 선정, 군 결정, 추적 시작이 모두 index date 하루에 일어나게 정의했는지 봅니다. "처방을 두 번 이상 받은 사람"처럼 index date 뒤에야 알 수 있는 조건으로 군을 정하면 불멸시간이 생깁니다('시작 시점에서 꼭 지킬 것은?'). 둘째, 사건은 입원 청구인지, 주상병인지, 어떤 상병코드인지까지 밝혀 다른 연구자가 같은 사건을 골라낼 수 있게 씁니다. 셋째, 추적 종료 사유를 빠짐없이 나열하고 "whichever came first"로 묶습니다. 청구자료만으로는 병원 밖 사망을 알 수 없으므로, 사망 정보를 어디서 얻었는지(사망자료 연계)도 Methods에 밝힙니다. 넷째, as-treated 분석에서는 약 중단에 의한 중도절단이 정보적일 수 있으므로, 유예기간을 바꾼 분석과 ITT 유사 분석을 민감도 분석으로 함께 계획했는지 봅니다('논문에서 읽고 쓰기' Methods 상자의 ⑧·⑨).</p></div></details></li>
+<p>확인할 점은 네 가지입니다. 첫째, 대상자 선정, 군 결정, 추적 시작이 모두 index date 하루에 일어나게 정의했는지 봅니다. "처방을 두 번 이상 받은 사람"처럼 index date 뒤에야 알 수 있는 조건으로 군을 정하면 불멸시간이 생깁니다('시작 시점에서 꼭 지킬 것은?'). 둘째, 사건은 입원 청구인지, 주상병인지, 어떤 상병코드인지까지 밝혀 다른 연구자가 같은 사건을 골라낼 수 있게 씁니다. 셋째, 추적 종료 사유를 빠짐없이 나열하고 "whichever came first"로 묶습니다. 청구자료만으로는 병원 밖 사망을 알 수 없으므로, 사망 정보를 어디서 얻었는지(사망자료 연계)도 Methods에 밝힙니다. 넷째, as-treated 분석에서는 약 중단에 의한 중도절단이 정보적일 수 있으므로, 유예기간을 바꾼 분석과 ITT 유사 분석을 민감도 분석으로 함께 계획했는지 봅니다(위 Methods 상자의 ⑧·⑨).</p></div></details></li>
 </ol></div>
 
 </section>
@@ -659,7 +659,7 @@ ITT 유사 인년 = 321 ÷ 365.25 = 0.879인년</p></li>
 <tbody>
 <tr><td>신뢰구간의 계산 방법</td><td>프로그램마다 기본값이 다릅니다. log-log 변환(생존율을 log(−log S) 척도로 바꿔 구간을 만든 뒤 되돌리는 방법)이 기본인 프로그램(SAS, 파이썬 lifelines)과 log 변환이 기본인 프로그램(R)이 있어 구간이 다르게 나옵니다. 그래서 Methods에 방법을 적습니다('결과는 어떻게 읽나?'의 접힌 상자 '프로그램마다 신뢰구간이 왜 다른가?')</td></tr>
 <tr><td>보고할 시점, 그리고 제한평균생존시간(RMST)을 구할 끝 시점 τ. RMST는 τ까지의 곡선 아래 넓이로 나타낸 평균 생존기간입니다</td><td>기본값이 없습니다. 곡선을 본 뒤 고르면 차이가 커 보이는 시점을 고르게 되므로 미리 정합니다('결과는 어떻게 읽나?'의 '평균 생존기간은 어떻게 나타내나?')</td></tr>
-<tr><td>그림의 x축 끝과 표시</td><td>곡선은 대개 마지막 관찰까지 그려지고, 중도절단 표시와 위험집합 표는 프로그램에 따라 따로 요청해야 합니다. x축의 끝과 두 표시를 직접 정합니다('논문에서 읽고 쓰기', 코드는 <a href="r.html#rc02-s3">R과 파이썬으로 하는 통계분석 8장 c 절</a>)</td></tr>
+<tr><td>그림의 x축 끝과 표시</td><td>곡선은 대개 마지막 관찰까지 그려지고, 중도절단 표시와 위험집합 표는 프로그램에 따라 따로 요청해야 합니다. x축의 끝과 두 표시를 직접 정합니다(위 Kaplan-Meier 그림 상자의 ⑦, 코드는 <a href="r.html#rc02-s3">R과 파이썬으로 하는 통계분석 8장 c 절</a>)</td></tr>
 <tr><td>관심 사건을 막는 다른 사건</td><td>다른 원인의 사망을 중도절단(0)으로 넣어도 경고 없이 계산합니다. 이때 1 − 곡선(1에서 생존율을 뺀 값)을 't까지 사건이 일어날 확률'인 누적발생률로 읽으면 과대추정됩니다('무엇을 가정하고, 어긋나면 어떻게 하나?'의 셋째)</td></tr>
 </tbody></table></div>
 <p>생존 그림에서는 위험집합 표를 함께 싣는 것과, 위험집합이 너무 작아지기 전에 x축을 자르는 것이 권장됩니다<cite data-ref="pocock2002"></cite>.</p>
