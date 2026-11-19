@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">가중 누적발생함수의 신뢰구간 (17장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b$w &lt;- 2                                              # 모든 환자의 가중치를 2로
+cif5 &lt;- function(f) {
+  s &lt;- summary(f, times = 5)
+  round(c(cif = s$pstate[2], lower = s$lower[2], upper = s$upper[2]), 4)
+}
+rbind(no_weight = cif5(survfit(Surv(years, ev) ~ 1, data = b)),
+      weight_2  = cif5(survfit(Surv(years, ev) ~ 1, data = b, weights = w, id = id)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             cif  lower  upper
+no_weight 0.2455 0.2272 0.2652
+weight_2  0.2455 0.2272 0.2652</pre></div></div>

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 9</span><span class="cell-t">하위분포 위험비: 예정일 방법, finegray, crr (17장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$t_sd &lt;- ifelse(d$status == 2, d$max_years, d$years)       # 사망자를 추적 종료 예정 시점까지 남김
+fg_date &lt;- coxph(Surv(t_sd, status == 1) ~ A, data = d)
+fgd  &lt;- finegray(Surv(years, ev) ~ A + id, data = d, etype = &quot;dialysis&quot;)   # 중도절단 확률로 가중해 남김
+fg_w &lt;- coxph(Surv(fgstart, fgstop, fgstatus) ~ A, weights = fgwt, cluster = id, data = fgd)
+fg_crr &lt;- crr(d$years, d$status, cov1 = cbind(A = d$A), failcode = 1, cencode = 0)
+rbind(date_method = ci3(fg_date), finegray = ci3(fg_w),
+      crr = round(summary(fg_crr)$conf.int[, c(1, 3, 4)], 3))
+nrow(fgd)                                                    # finegray가 만든 줄 수
+fg_row &lt;- coxph(Surv(fgstart, fgstop, fgstatus) ~ A, weights = fgwt, data = fgd)   # cluster = id를 빼면
+round(c(cluster_id = sqrt(fg_w$var[1, 1]), by_row = sqrt(fg_row$var[1, 1]), crr = sqrt(fg_crr$var[1, 1])), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            exp(coef) lower .95 upper .95
+date_method     1.254     1.099     1.431<span class="mk">1</span>
+finegray        1.257     1.102     1.435<span class="mk">2</span>
+crr             1.257     1.102     1.435
+[1] 223496
+cluster_id     by_row        crr 
+    0.0673     0.0651<span class="mk">3</span>     0.0673</pre></div></div>

@@ -1,0 +1,3 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 15</span><span class="cell-t">과제 1 정답. 사람 수를 분모로 한 비교</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">p &lt;- tapply(d$died, d$ever, mean)          # 1년 사망 비율(분모 = 사람 수)
+round(c(p, ratio = unname(p[&quot;1&quot;] / p[&quot;0&quot;])), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    0     1 ratio 
+0.280 0.117 0.420</pre></div></div>

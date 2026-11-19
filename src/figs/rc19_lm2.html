@@ -1,0 +1,12 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">랜드마크 시점 바꿔 보기 (16장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">landmark &lt;- function(months) {
+  L  &lt;- 365 * months / 12
+  lm &lt;- d[d$fu_days &gt; L, ]
+  lm$x &lt;- as.integer(!is.na(lm$rx_day) &amp; lm$rx_day &lt;= L)
+  fit &lt;- coxph(Surv(fu_days - L, died) ~ x, data = lm)
+  c(months = months, n = nrow(lm), exposed = sum(lm$x),
+    round(summary(fit)$conf.int[, c(1, 3, 4)], 3))
+}
+t(sapply(c(1, 3, 6), landmark))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     months    n exposed exp(coef) lower .95 upper .95
+[1,]      1 5820     349     1.057     0.824     1.356
+[2,]      3 5583     934     0.942     0.781     1.135
+[3,]      6 5288    1580     1.056     0.877     1.271</pre></div></div>

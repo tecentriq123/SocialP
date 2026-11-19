@@ -1,0 +1,9 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 11</span><span class="cell-t">현재 사용으로 정한 노출 구간 (16장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">one &lt;- data.frame(id = 7, fu_days = 365, died = 0)            # 그림 16-4의 환자
+b7  &lt;- tmerge(one, one, id = id, death = event(fu_days, died))
+cv  &lt;- data.frame(id = 7, day = c(40, 160, 190, 280), drugx = c(1, 0, 1, 0))   # 노출이 시작·끝나는 날
+tmerge(b7, cv, id = id, x = tdc(day, drugx, init = 0))[, c(&quot;tstart&quot;, &quot;tstop&quot;, &quot;x&quot;)]   # 첫 처방 전은 0</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  tstart tstop x
+1      0    40 0
+2     40   160 1
+3    160   190 0
+4    190   280 1
+5    280   365 0</pre></div></div>

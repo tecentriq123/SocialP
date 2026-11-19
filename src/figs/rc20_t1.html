@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">과제 1 정답. 요양병원 입소자 8명</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">small &lt;- data.frame(month = 1:8, ev = factor(c(1, 2, 2, 1, 2, 1, 0, 0), 0:2, c(&quot;censor&quot;, &quot;fracture&quot;, &quot;death&quot;)))
+km6 &lt;- summary(survfit(Surv(month, ev == &quot;fracture&quot;) ~ 1, data = small), times = 6)
+aj6 &lt;- summary(survfit(Surv(month, ev) ~ 1, data = small), times = 6)
+round(c(one_minus_km = 1 - km6$surv, cif_fracture = aj6$pstate[2], cif_death = aj6$pstate[3], free = aj6$pstate[1]), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>one_minus_km cif_fracture    cif_death         free 
+       0.533        0.375        0.375        0.250</pre></div></div>

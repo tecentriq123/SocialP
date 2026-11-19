@@ -1,0 +1,15 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">과제 2 정답. 고관절 골절 자료로 동료의 분석 다시 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fx &lt;- read.csv(&quot;https://socialp-ajou.tecentriq12.workers.dev/data/dementia_fracture.csv&quot;)
+fx$ev &lt;- factor(fx$status, 0:2, c(&quot;censor&quot;, &quot;fracture&quot;, &quot;death&quot;)); fx$C &lt;- as.integer(fx$drug == &quot;C&quot;)
+sf &lt;- summary(survfit(Surv(years, ev) ~ drug, data = fx), times = 5)
+km &lt;- summary(survfit(Surv(years, status == 1) ~ drug, data = fx), times = 5)
+round(cbind(fracture = sf$pstate[, 2], death = sf$pstate[, 3], one_minus_km = 1 - km$surv) * 100, 1)
+fgx &lt;- finegray(Surv(years, ev) ~ C, data = fx, etype = &quot;fracture&quot;)
+rbind(cs_fracture = ci3(coxph(Surv(years, status == 1) ~ C, data = fx)),
+      cs_death    = ci3(coxph(Surv(years, status == 2) ~ C, data = fx)),
+      subdist     = ci3(coxph(Surv(fgstart, fgstop, fgstatus) ~ C, weights = fgwt, data = fgx)))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     fracture death one_minus_km
+[1,]      8.3    66         14.1
+[2,]     10.2    48         14.1
+            exp(coef) lower .95 upper .95
+cs_fracture     0.968     0.801     1.169
+cs_death        1.648     1.526     1.779
+subdist         0.810     0.673     0.976</pre></div></div>

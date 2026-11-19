@@ -1,0 +1,7 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 5</span><span class="cell-t">5년 누적발생률의 차이 (17장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">s5 &lt;- summary(fit, times = 5)
+p  &lt;- s5$pstate[, 2]; se &lt;- s5$std.err[, 2]            # 5년 투석 누적발생률과 표준오차(A, B)
+dif &lt;- unname(p[1] - p[2]); sed &lt;- sqrt(sum(se^2))
+round(c(A = p[1], B = p[2], diff = dif, lower = dif - 1.96 * sed, upper = dif + 1.96 * sed) * 100, 1)
+round(s5$pstate[, 3] * 100, 1)                           # 5년 투석 전 사망(A, B)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>    A     B  diff lower upper 
+ 30.2  24.5   5.7   2.5   8.8<span class="mk">1</span> 
+[1] 35.2 53.0</pre></div></div>

@@ -197,7 +197,7 @@ print((d["event_date"] == d["index_date"]).sum())</pre>
 km = KaplanMeierFitter().fit(d["time"] / 365.25,
                              1 - d["event"])
 print(km.median_survival_time_)   <span class="cm"># 1.80 (as-treated)</span></pre>
-<p>파이썬에서는 구간마다 한 줄인 자료를 만들고 가중치를 직접 계산합니다. 가중치를 넣은 적합에는 lifelines <code>CoxPHFitter</code>에 <code>entry_col</code>, <code>weights_col</code>, 환자 단위로 묶는 <code>cluster_col</code>을 함께 주어 강건 표준오차를 구합니다. <code>CoxTimeVaryingFitter</code>는 가중치를 받기는 하지만 강건 표준오차를 지원하지 않습니다(lifelines 0.30에서 <code>robust=True</code>는 NotImplementedError). 이 과정을 한 번에 해 주는 함수는 lifelines에 없습니다(구간 자료를 만드는 법은 <a href="stats.html#ch16-s3">보건통계학 기초 16장 c 절</a>, 프로그램 동작은 <a href="stats.html#ch16-s4">보건통계학 기초 16장 d 절</a>의 접힌 상자 '가중치를 쓰는 분석은 프로그램에서 어떻게 하나?').</p>
+<p>파이썬에서는 구간마다 한 줄인 자료를 만들고 가중치를 직접 계산합니다. 가중치를 넣은 적합에는 lifelines <code>CoxPHFitter</code>에 <code>entry_col</code>, <code>weights_col</code>, 환자 단위로 묶는 <code>cluster_col</code>을 함께 주어 강건 표준오차를 구합니다. <code>CoxTimeVaryingFitter</code>는 가중치를 받기는 하지만 강건 표준오차를 지원하지 않습니다(lifelines 0.30에서 <code>robust=True</code>는 NotImplementedError). 이 과정을 한 번에 해 주는 함수는 lifelines에 없습니다(구간 자료를 만드는 법은 <a href="stats.html#ch16-s3">보건통계학 기초 16장 c 절</a>, 프로그램 동작은 <a href="stats.html#ch16-s4">보건통계학 기초 16장 d 절</a>의 접힌 상자 '가중치를 쓰는 분석은 표준오차를 어떻게 구하나?').</p>
 <!--/FOLD-->
 <!--FOLD py:파이썬으로 하면: pandas, statsmodels, lifelines에서 결과를 바꾸는 기본값-->
 <p>보건통계학 기초 14장의 장 마무리의 '직접 분석' 상자에 있던 내용입니다.</p>

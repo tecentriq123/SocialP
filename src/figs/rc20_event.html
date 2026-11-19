@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">청구 날짜로 사건 열 만들기 (17장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">x &lt;- data.frame(id = 1:4, index = as.Date(&quot;2018-01-01&quot;),
+                dial  = as.Date(c(&quot;2019-03-01&quot;, NA, &quot;2020-06-30&quot;, NA)),           # 투석 시작일
+                death = as.Date(c(NA, &quot;2018-11-20&quot;, &quot;2020-06-30&quot;, NA)),           # 사망일
+                cens  = as.Date(c(&quot;2022-12-31&quot;, &quot;2022-12-31&quot;, &quot;2022-12-31&quot;, &quot;2021-05-31&quot;)))  # 중도절단일
+end &lt;- pmin(x$dial, x$death, x$cens, na.rm = TRUE)            # 가장 이른 날 = 추적 종료일
+x$years  &lt;- round(as.numeric(end - x$index) / 365.25, 3)
+x$status &lt;- ifelse(!is.na(x$dial) &amp; x$dial == end, 1,         # 같은 날이면 투석을 먼저 확인
+            ifelse(!is.na(x$death) &amp; x$death == end, 2, 0))
+x[, c(&quot;id&quot;, &quot;years&quot;, &quot;status&quot;)]</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  id years status
+1  1 1.161      1
+2  2 0.884      2
+3  3 2.494      1<span class="mk">1</span>
+4  4 3.411      0</pre></div></div>

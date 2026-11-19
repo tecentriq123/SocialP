@@ -1,0 +1,22 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 3</span><span class="cell-t">표 16-2의 ①과 ②: 시간을 잘못 나눈 두 분석 (16장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$ever &lt;- as.integer(!is.na(d$rx_day))              # 추적 중 한 번이라도 처방 = 1
+tab &lt;- function(time, ev, g) {                      # 군별 사망, 인년, 100인년당 사망률
+  r &lt;- rbind(deaths = tapply(ev, g, sum), py = tapply(time, g, sum) / 365)
+  round(rbind(r, rate = r[&quot;deaths&quot;, ] / r[&quot;py&quot;, ] * 100), 1)
+}
+tab(d$fu_days, d$died, d$ever)                      # ① 추적 중 사용하면 처음부터 사용군
+f1 &lt;- coxph(Surv(fu_days, died) ~ ever, data = d)
+d$t2 &lt;- ifelse(d$ever == 1, d$fu_days - d$rx_day, d$fu_days)
+tab(d$t2, d$died, d$ever)                           # ② 사용군만 첫 처방일부터 추적
+f2 &lt;- coxph(Surv(t2, died) ~ ever, data = d)
+round(rbind(f1 = summary(f1)$conf.int[, c(1, 3, 4)],
+            f2 = summary(f2)$conf.int[, c(1, 3, 4)]), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>            0      1
+deaths  913.0  321.0
+py     2698.7 2612.8
+rate     33.8   12.3
+            0      1
+deaths  913.0  321.0
+py     2698.7 1471.0
+rate     33.8   21.8
+   exp(coef) lower .95 upper .95
+f1     0.366<span class="mk">1</span>     0.323     0.416
+f2     0.582<span class="mk">2</span>     0.511     0.662</pre></div></div>

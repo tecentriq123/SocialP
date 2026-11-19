@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 13</span><span class="cell-t">환자 단위 강건 표준오차와 부트스트랩 (16장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">fr &lt;- coxph(Surv(tstart, tstop, death) ~ x, data = long, cluster = id)   # 환자 단위 강건 표준오차
+round(summary(fr)$coefficients, 4)
+rows &lt;- split(seq_len(nrow(long)), long$id)            # 환자별 줄 번호
+set.seed(16)
+bs &lt;- replicate(1000, {                                 # 환자 단위 부트스트랩
+  s &lt;- sample(names(rows), replace = TRUE)
+  coef(coxph(Surv(tstart, tstop, death) ~ x, data = long[unlist(rows[s]), ]))
+})
+round(sd(bs), 4)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>   coef exp(coef) se(coef) robust se      z Pr(&gt;|z|)
+x 0.031    1.0314   0.0695    0.0696 0.4448   0.6565
+[1] 0.0688</pre></div></div>

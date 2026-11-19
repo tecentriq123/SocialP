@@ -1,0 +1,10 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">원인별 위험비 (17장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">d$A &lt;- as.integer(d$drug == &quot;A&quot;)
+ci3 &lt;- function(fit) round(summary(fit)$conf.int[, c(1, 3, 4)], 3)
+cs_dial  &lt;- coxph(Surv(years, status == 1) ~ A, data = d)   # 투석만 사건, 사망은 중도절단
+cs_death &lt;- coxph(Surv(years, status == 2) ~ A, data = d)   # 사망만 사건, 투석은 중도절단
+rbind(dialysis = ci3(cs_dial), death = ci3(cs_death))
+summary(cs_dial)$coefficients</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>         exp(coef) lower .95 upper .95
+dialysis     1.018     0.892     1.162<span class="mk">1</span>
+death        0.551     0.494     0.614<span class="mk">2</span>
+        coef exp(coef)   se(coef)         z  Pr(&gt;|z|)
+A 0.01821676  1.018384 0.06751991 0.2697983 0.7873154</pre></div></div>

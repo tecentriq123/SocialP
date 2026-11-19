@@ -1,0 +1,8 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 16</span><span class="cell-t">과제 2 정답. 시차의 길이 바꿔 보기</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">t(sapply(c(0, 30, 60, 90), function(lag) {
+  l &lt;- tmerge(base, rx, id = id, x = tdc(rx_day), options = list(delay = lag))
+  c(lag = lag, rows = nrow(l), round(summary(coxph(Surv(tstart, tstop, death) ~ x, data = l))$conf.int[, c(1, 3, 4)], 3))
+}))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     lag rows exp(coef) lower .95 upper .95
+[1,]   0 8734     1.031     0.900     1.182
+[2,]  30 8555     1.026     0.886     1.187
+[3,]  60 8382     1.008     0.860     1.181
+[4,]  90 8151     0.969     0.814     1.152</pre></div></div>

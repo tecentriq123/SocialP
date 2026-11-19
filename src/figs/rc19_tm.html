@@ -1,0 +1,19 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">긴 형식 자료 만들기와 노출 상태별 사망률 (16장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">base &lt;- tmerge(d[, c(&quot;id&quot;, &quot;fu_days&quot;, &quot;died&quot;)], d[, c(&quot;id&quot;, &quot;fu_days&quot;, &quot;died&quot;)],
+               id = id, death = event(fu_days, died))   # 환자당 한 줄: tstart = 0, tstop = fu_days
+rx   &lt;- d[!is.na(d$rx_day), c(&quot;id&quot;, &quot;rx_day&quot;)]          # 약을 시작한 사람의 첫 처방일
+long &lt;- tmerge(base, rx, id = id, x = tdc(rx_day))       # 첫 처방일에서 줄을 나눔
+long[long$id %in% 0:2, c(&quot;id&quot;, &quot;tstart&quot;, &quot;tstop&quot;, &quot;death&quot;, &quot;x&quot;)]
+c(rows = nrow(long), events = sum(long$death))
+dth &lt;- tapply(long$death, long$x, sum)                   # 노출 상태별 사망
+py  &lt;- tapply(long$tstop - long$tstart, long$x, sum) / 365   # 노출 상태별 인년
+round(rbind(deaths = dth, py = py, rate = dth / py * 100), 1)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  id   tstart    tstop death x
+1  0   0.0000 177.8369     1 0
+2  1   0.0000 341.3418     1 0
+3  2   0.0000 249.9051     0 0
+4  2 249.9051 365.0000     0 1
+  rows events 
+  8734<span class="mk">1</span>   1234 
+            0      1
+deaths  913.0  321.0
+py     3840.5 1471.0
+rate     23.8<span class="mk">2</span>   21.8</pre></div></div>

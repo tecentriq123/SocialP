@@ -1,0 +1,17 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">tmerge가 경고 없이 정하는 동작 (16장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">toy &lt;- data.frame(id = 1:4, fu_days = c(100, 200, 150, 365), died = c(1, 1, 0, 0))
+rx_toy &lt;- data.frame(id = 1:4, rx_day = c(0, 200, 180, NA))   # 퇴원일, 사망일, 추적 종료 뒤, 기록 없음
+b0 &lt;- tmerge(toy, toy, id = id, death = event(fu_days, died))
+tmerge(b0, rx_toy, id = id, x = tdc(rx_day))[, c(&quot;id&quot;, &quot;tstart&quot;, &quot;tstop&quot;, &quot;death&quot;, &quot;x&quot;)]
+na_long &lt;- tmerge(base, transform(rx, drugx = 1), id = id, x = tdc(rx_day, drugx))   # 값을 주고 init을 빼면
+table(x = na_long$x, useNA = &quot;ifany&quot;)                          # 처방 전 구간과 비사용자는 NA
+fit_na &lt;- coxph(Surv(tstart, tstop, death) ~ x, data = na_long)
+c(rows_used = fit_na$n, events_used = fit_na$nevent)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  id tstart tstop death x
+1  1      0   100     1 1
+2  2      0   200     1 0
+3  3      0   150     0 0
+4  4      0   365     0 0
+x
+   1 &lt;NA&gt; 
+2734 6000 
+  rows_used events_used 
+       2734         321</pre></div></div>

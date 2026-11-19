@@ -1,0 +1,21 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 8</span><span class="cell-t">사망률의 비와 위험비: 기간을 나눠 같은 시기끼리 비교 (16장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">rr &lt;- glm(death ~ x + offset(log((tstop - tstart) / 365)), family = poisson, data = long)
+round(exp(c(coef(rr)[&quot;x&quot;], confint.default(rr)[&quot;x&quot;, ])), 3)     # 1년을 한데 섞은 발생률비
+sp &lt;- survSplit(Surv(tstart, tstop, death) ~ ., data = long,
+                cut = c(91.25, 182.5), episode = &quot;period&quot;)       # 0–3, 3–6, 6–12개월
+sp$py &lt;- (sp$tstop - sp$tstart) / 365
+agg &lt;- aggregate(cbind(death, py) ~ period + x, data = sp, sum)
+agg$rate &lt;- round(agg$death / agg$py * 100, 1); agg
+mh &lt;- sapply(split(agg, agg$period), function(a) {               # Mantel–Haenszel 발생률비
+  T &lt;- sum(a$py)
+  c(num = a$death[a$x == 1] * a$py[a$x == 0] / T, den = a$death[a$x == 0] * a$py[a$x == 1] / T)
+})
+round(sum(mh[&quot;num&quot;, ]) / sum(mh[&quot;den&quot;, ]), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     x  2.5 % 97.5 % 
+ 0.918  0.808  1.042<span class="mk">1</span> 
+  period x death        py rate
+1      1 0   380 1317.5573 28.8
+2      2 0   229 1038.9752 22.0
+3      3 0   304 1483.9837 20.5
+4      1 1    37  123.2839 30.0
+5      2 1    66  319.8563 20.6
+6      3 1   218 1027.8933 21.2
+[1] 1.011<span class="mk">2</span></pre></div></div>

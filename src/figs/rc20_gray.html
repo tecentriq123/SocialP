@@ -1,0 +1,13 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 6</span><span class="cell-t">Gray 검정과 로그순위법 (17장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">ci &lt;- cuminc(d$years, d$status, group = d$drug, cencode = 0)
+ci$Tests                                   # Gray 검정: 1행 = 투석, 2행 = 투석 전 사망
+survdiff(Surv(years, status == 1) ~ drug, data = d)   # 사망을 중도절단한 로그순위법</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>       stat           pv df
+1  11.51338 0.0006909696<span class="mk">1</span>  1
+2 112.94483 0.0000000000  1
+Call:
+survdiff(formula = Surv(years, status == 1) ~ drug, data = d)
+
+          N Observed Expected (O-E)^2/E (O-E)^2/V
+drug=A 1380      396      392    0.0406    0.0728
+drug=B 2120      496      500    0.0319    0.0728
+
+ Chisq= 0.1  on 1 degrees of freedom, p= 0.8<span class="mk">2</span></pre></div></div>

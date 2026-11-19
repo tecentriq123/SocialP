@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 2</span><span class="cell-t">불멸시간의 크기 재기 (16장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">u &lt;- d[!is.na(d$rx_day), ]                          # 추적 중 처방받은 사람
+round(c(users = nrow(u),
+        immortal_py = sum(u$rx_day) / 365,           # 첫 처방 전 시간(인년)
+        share = sum(u$rx_day) / sum(u$fu_days),      # 사용군 추적 시간 가운데 그 비율
+        median_months = median(u$rx_day) / 365 * 12), 3)   # 첫 처방까지 중앙값(개월)
+early &lt;- d[d$died == 1 &amp; d$fu_days &lt;= 91.25, ]      # 퇴원 후 3개월 안의 사망
+table(started = !is.na(early$rx_day))               # 사망 전에 약을 시작했나</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>        users   immortal_py         share median_months 
+     2734.000      1141.768         0.437<span class="mk">1</span>         4.548<span class="mk">2</span> 
+started
+FALSE  TRUE 
+  380<span class="mk">3</span>    37</pre></div></div>

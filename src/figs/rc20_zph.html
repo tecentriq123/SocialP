@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 10</span><span class="cell-t">비례위험 검정 (17장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">round(rbind(dialysis = cox.zph(cs_dial)$table[&quot;A&quot;, ], death = cox.zph(cs_death)$table[&quot;A&quot;, ],
+            subdist_date = cox.zph(fg_date)$table[&quot;A&quot;, ]), 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>             chisq df     p
+dialysis     0.326  1 0.568
+death        0.968  1 0.325
+subdist_date 2.347  1 0.126</pre></div></div>

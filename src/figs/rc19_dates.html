@@ -1,0 +1,11 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 14</span><span class="cell-t">청구 날짜로 처방 표 만들기 (16장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">cohort &lt;- data.frame(id = 1:3, dis = as.Date(c(&quot;2021-03-02&quot;, &quot;2021-05-10&quot;, &quot;2021-07-21&quot;)))   # 퇴원일
+fills  &lt;- data.frame(id = c(1, 1, 2, 3, 3),                                                  # 약물 X 조제일
+                     fill = as.Date(c(&quot;2021-03-02&quot;, &quot;2021-04-15&quot;, &quot;2021-06-01&quot;, &quot;2021-07-10&quot;, &quot;2021-09-30&quot;)))
+f &lt;- merge(fills, cohort, by = &quot;id&quot;)
+f &lt;- f[f$fill &gt; f$dis, ]                         # 퇴원 다음 날 이후(퇴원약을 노출로 보면 &gt;=)
+first &lt;- aggregate(fill ~ id + dis, data = f, FUN = min)
+first$rx_day &lt;- as.numeric(first$fill - first$dis)   # 퇴원 후 일수 = 처방 표의 rx_day
+first</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  id        dis       fill rx_day
+1  1 2021-03-02 2021-04-15     44
+2  2 2021-05-10 2021-06-01     22
+3  3 2021-07-21 2021-09-30     71</pre></div></div>

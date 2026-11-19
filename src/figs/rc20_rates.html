@@ -1,0 +1,5 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">표 17-3: 군별 속도 (17장 b 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">agg &lt;- aggregate(cbind(py = years, dialysis = status == 1, death = status == 2) ~ drug, data = d, sum)
+cbind(agg, rate_dialysis = round(agg$dialysis / agg$py * 100, 2),
+      rate_death = round(agg$death / agg$py * 100, 2))   # 100인년당</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>  drug       py dialysis death rate_dialysis rate_death
+1    A 4049.164      396   463          9.78      11.43
+2    B 5195.511      496  1088          9.55<span class="mk">1</span>      20.94<span class="mk">2</span></pre></div></div>

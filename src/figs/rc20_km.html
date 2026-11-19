@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 4</span><span class="cell-t">표 17-2: 1 − Kaplan-Meier와 누적발생함수 (17장 a 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">b  &lt;- d[d$drug == &quot;B&quot;, ]
+km &lt;- summary(survfit(Surv(years, status == 1) ~ 1, data = b), times = 1:5)   # 사망을 중도절단한 1 − KM
+aj &lt;- summary(survfit(Surv(years, ev) ~ 1, data = b), times = 1:5)
+cbind(year = 1:5, round(cbind(one_minus_km = 1 - km$surv, dialysis = aj$pstate[, 2], death = aj$pstate[, 3],
+                               free = aj$pstate[, 1], total = rowSums(aj$pstate)) * 100, 1))
+bad &lt;- survfit(Surv(years, status) ~ 1, data = b)    # 0/1/2를 숫자 그대로 넣으면
+c(n = bad$n, events = sum(bad$n.event))</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>     year one_minus_km dialysis death free total
+[1,]    1          8.8      7.9  20.2 71.9   100
+[2,]    2         16.9     13.7  31.8 54.5   100
+[3,]    3         24.5     18.2  41.7 40.1   100
+[4,]    4         32.2     21.8  49.3 29.0   100
+[5,]    5         39.2     24.5  53.0 22.5<span class="mk">1</span>   100
+     n events 
+  1584   1088<span class="mk">2</span></pre><pre class="warn-out">Warning message:
+In Surv(years, status) :
+  Invalid status value, converted to NA</pre></div></div>

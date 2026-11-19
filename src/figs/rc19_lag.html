@@ -1,0 +1,6 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 12</span><span class="cell-t">시차 30일 (16장 d 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">long30 &lt;- tmerge(base, rx, id = id, x = tdc(rx_day),
+                 options = list(delay = 30))          # 첫 처방 뒤 30일은 비노출로 셈
+nrow(long30)
+round(summary(coxph(Surv(tstart, tstop, death) ~ x, data = long30))$conf.int[, c(1, 3, 4)], 3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>[1] 8555<span class="mk">1</span>
+exp(coef) lower .95 upper .95 
+    1.026     0.886     1.187<span class="mk">2</span></pre></div></div>

@@ -1,0 +1,16 @@
+<div class="cell"><div class="cell-h"><span class="cell-n">셀 7</span><span class="cell-t">시간의존 Cox 모형 (16장 c 절)</span><button class="copy" type="button" aria-label="코드 복사">복사</button></div><pre class="cell-in"><code class="language-r">f3 &lt;- coxph(Surv(tstart, tstop, death) ~ x, data = long)
+summary(f3)</code></pre><div class="cell-out"><div class="cell-out-h">출력</div><pre>Call:
+coxph(formula = Surv(tstart, tstop, death) ~ x, data = long)
+
+  n= 8734, number of events= 1234<span class="mk">1</span> 
+
+     coef exp(coef) se(coef)     z Pr(&gt;|z|)
+x 0.03095   1.03144  0.06953 0.445    0.656
+
+  exp(coef) exp(-coef) lower .95 upper .95
+x     1.031     0.9695       0.9     1.182<span class="mk">2</span>
+
+Concordance= 0.503  (se = 0.006 )
+Likelihood ratio test= 0.2  on 1 df,   p=0.7
+Wald test            = 0.2  on 1 df,   p=0.7
+Score (logrank) test = 0.2  on 1 df,   p=0.7</pre></div></div>
